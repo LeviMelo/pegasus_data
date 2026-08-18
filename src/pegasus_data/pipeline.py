@@ -51,6 +51,7 @@ from .profile.runner import (
 from .semantics.dictionary import (
     bind_by_semantic_type,
     bind_codelists_to_fields,
+    corroborate_semantic_bindings,
     entries_from_kit,
     persist_bindings,
     persist_entries,
@@ -271,7 +272,7 @@ class Pipeline:
         *,
         systems: Sequence[str] | None = None,
         limit: int | None = None,
-        pdfs: bool = False,
+        pdfs: bool = True,
     ) -> StageResult:
         kits = find_kits(self.catalog, systems=systems)
         loose = find_loose_dictionaries(self.catalog, systems=systems)
@@ -386,7 +387,12 @@ class Pipeline:
         two diverge — so anything harvested here loses every conflict against a
         TabNet source and the disagreement is recorded rather than dropped.
         """
-        from .semantics.pdf_harvest import entries_from_harvest, harvest_pdf, known_field_names
+        from .semantics.pdf_harvest import (
+            documentation_rows,
+            entries_from_harvest,
+            harvest_pdf,
+            known_field_names,
+        )
 
         rows = self.catalog.query(
             "SELECT path FROM files WHERE LOWER(extension) = '.pdf' ORDER BY path"
@@ -403,6 +409,7 @@ class Pipeline:
         known = known_field_names(self.catalog)
         harvested = 0
         rejected = 0
+        documentation: list[tuple[object, ...]] = []
         entries = []
         descriptions = 0
         for path, digest in fetched.items():
@@ -421,8 +428,22 @@ class Pipeline:
             harvested += 1
             rejected += result.rejected
             descriptions += len(result.field_descriptions)
+            documentation.extend(documentation_rows(result, system=system))
             entries.extend(entries_from_harvest(result, system=system))
 
+        # The record layout is the only source that names the column itself, so
+        # it lands in its own table rather than in the value dictionary.
+        self.catalog.executemany(
+            """
+            INSERT INTO field_documentation (system, field_name, description, declared_type,
+                declared_width, declared_decimals, source, source_ref, confidence)
+            VALUES (?,?,?,?,?,?,?,?,?)
+            ON CONFLICT(system, field_name, source_ref) DO UPDATE SET
+                description=excluded.description, declared_type=excluded.declared_type,
+                declared_width=excluded.declared_width, declared_decimals=excluded.declared_decimals
+            """,
+            documentation,
+        )
         merged = {"inserted": 0, "conflicts": 0}
         if entries:
             merged = persist_entries(self.catalog, entries)
@@ -433,6 +454,7 @@ class Pipeline:
             "pdf_field_descriptions": descriptions,
             "pdf_entries": merged["inserted"],
             "pdf_conflicts": merged["conflicts"],
+            "field_documentation_rows": len(documentation),
         }
 
     def _close_semantic_questions(
@@ -686,6 +708,9 @@ class Pipeline:
         # 14,197-row CID table rather than against whichever chapter list a .DEF
         # happened to name.
         semantic_bindings = bind_by_semantic_type(self.catalog)
+        # A detector match only becomes usable for labelling once a record layout
+        # independently names the same classification.
+        corroborated = corroborate_semantic_bindings(self.catalog)
         entries = build_ledger(self.catalog, systems=systems)
         persist_ledger(self.catalog, entries)
         covered = sum(1 for e in entries if e.dictionary_coverage >= 0.99)
@@ -697,6 +722,7 @@ class Pipeline:
                 "fully_covered_fields": covered,
                 "mean_dictionary_coverage": round(mean, 4),
                 "semantic_bindings_added": semantic_bindings,
+                "semantic_bindings_corroborated": corroborated,
             },
         )
 

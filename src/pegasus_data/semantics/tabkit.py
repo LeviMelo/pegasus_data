@@ -93,6 +93,10 @@ class ParsedKit:
     cnvs: dict[str, CnvFile] = field(default_factory=dict)
     defs: dict[str, DefFile] = field(default_factory=dict)
     code_tables: dict[str, list[tuple[str, str, dict[str, object]]]] = field(default_factory=dict)
+    #: Tables whose code/label columns were inferred rather than known, with the
+    #: columns chosen. These enter the dictionary at reduced confidence and are
+    #: reported, because "first two columns" is a guess and §13 forbids silent ones.
+    guessed_columns: dict[str, tuple[str, str]] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     valid_from: str | None = None
     valid_to: str | None = None
@@ -117,6 +121,42 @@ def _reference_name(table_id: str) -> tuple[str, str, str] | None:
         if table_id.startswith(prefix):
             return KNOWN_CODE_TABLES[prefix]
     return None
+
+
+def _infer_code_and_label(table: object) -> tuple[str, str] | None:
+    """Pick the code and label columns of an unrecognised lookup table.
+
+    The code column is the one that identifies rows: near-unique, short, and
+    mostly alphanumeric without spaces. The label column is the most descriptive
+    one that is not the code. Both are recorded as inferred so a consumer can
+    weigh them against a table whose columns were known in advance.
+    """
+    import pyarrow as pa
+
+    assert isinstance(table, pa.Table)
+    names = table.schema.names
+    if len(names) < 2 or table.num_rows == 0:
+        return None
+    stats: dict[str, tuple[float, float, float]] = {}
+    for name in names:
+        column = table.column(name)
+        values = [str(v).strip() for v in column.to_pylist()[:5000] if v is not None]
+        if not values:
+            continue
+        uniqueness = len(set(values)) / len(values)
+        mean_len = sum(len(v) for v in values) / len(values)
+        spacing = sum(1 for v in values if " " in v) / len(values)
+        stats[name] = (uniqueness, mean_len, spacing)
+    if len(stats) < 2:
+        return None
+    # A code: highly unique, short, no spaces.
+    code_col = max(stats, key=lambda n: (stats[n][0] - stats[n][2], -stats[n][1]))
+    # A label: long and wordy, and not the code.
+    label_candidates = {n: v for n, v in stats.items() if n != code_col}
+    if not label_candidates:
+        return None
+    label_col = max(label_candidates, key=lambda n: (stats[n][1], stats[n][2]))
+    return code_col, label_col
 
 
 def parse_kit(data: bytes, *, kit_path: str, system: str | None = None) -> ParsedKit:
@@ -158,11 +198,16 @@ def parse_kit(data: bytes, *, kit_path: str, system: str | None = None) -> Parse
         if spec and spec[0] in columns:
             code_col, label_col = spec[0], spec[1]
         else:
-            # Unrecognised lookup: keep it anyway, using the first two columns.
-            names = table.schema.names
-            if len(names) < 2:
+            # Unrecognised lookup. Rather than blindly taking the first two
+            # columns, infer them from the data — the code column is the one
+            # whose values are unique and short, the label column the one with
+            # the most descriptive text — and record that they were inferred.
+            inferred = _infer_code_and_label(table)
+            if inferred is None:
+                kit.warnings.append(f"{name}: could not identify code/label columns")
                 continue
-            code_col, label_col = names[0], names[1]
+            code_col, label_col = inferred
+            kit.guessed_columns[table_id] = (code_col, label_col)
         if label_col not in columns:
             label_col = next((n for n in table.schema.names if n != code_col), code_col)
         codes = table.column(code_col).to_pylist()

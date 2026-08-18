@@ -107,6 +107,28 @@ def _official_names(catalog: Catalog) -> dict[tuple[str | None, str], str]:
     return out
 
 
+def _layout_names(catalog: Catalog) -> dict[tuple[str | None, str], tuple[str, str]]:
+    """``(system, field) -> (description, source_ref)`` from the record layouts.
+
+    This is the strongest answer to "what is this column called", stronger than
+    ``.DEF``: a record layout describes the column, while a ``.DEF`` enumerates
+    the tabulation axes built on it. Measured, `IT_SIHSUS_1603.pdf` gives
+    ``DIAG_PRINC`` as "Código do diagnóstico principal (CID10)", which no ``.DEF``
+    line says anywhere.
+    """
+    out: dict[tuple[str | None, str], tuple[str, str]] = {}
+    for row in catalog.query(
+        """
+        SELECT system, field_name, description, source_ref FROM field_documentation
+         ORDER BY confidence DESC, LENGTH(description)
+        """
+    ):
+        value = (str(row["description"]).strip(), str(row["source_ref"]))
+        out.setdefault((row["system"], row["field_name"]), value)
+        out.setdefault((None, row["field_name"]), value)
+    return out
+
+
 def _names_by_codelist(catalog: Catalog) -> dict[tuple[str | None, str, str], str]:
     """``(system, field, codelist) → the display name declared for that pairing``."""
     out: dict[tuple[str | None, str, str], str] = {}
@@ -151,6 +173,7 @@ def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> l
     measures = _declared_measures(catalog)
     cache = DictionaryCache(catalog)
     names_by_codelist = _names_by_codelist(catalog)
+    layout_names = _layout_names(catalog)
     sentinel_cache: dict[tuple[str | None, str], list[str]] = {}
 
     clause = ""
@@ -207,16 +230,22 @@ def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> l
             ),
             cache=cache,
         )
-        # Prefer the declaration bound to the codelist actually doing the
-        # labelling, then one that names the field with no codelist at all.
+        # The record layout names the column itself and so comes first; a .DEF
+        # bound to the labelling codelist comes next; a .DEF that names the field
+        # with no codelist at all comes last. Only when all three miss is there
+        # genuinely no official name.
         name = None
-        if chosen:
+        layout = layout_names.get((system, field_name)) or layout_names.get((None, field_name))
+        if layout:
+            name = layout[0]
+            provenance.append("layout_doc:official_name")
+        if name is None and chosen:
             name = names_by_codelist.get((system, field_name, chosen)) or names_by_codelist.get(
                 (None, field_name, chosen)
             )
         if name is None:
             name = official.get((system, field_name)) or official.get((None, field_name))
-        if name:
+        if name is not None and "layout_doc:official_name" not in provenance:
             provenance.append("def:official_name")
         if declared_additive:
             provenance.append("def:incremento")

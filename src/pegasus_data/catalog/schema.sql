@@ -366,6 +366,26 @@ CREATE TABLE IF NOT EXISTS def_datasets (      -- the A-line: which files a DEF 
   title        TEXT
 );
 
+-- What a column is called *in its own record layout*, as opposed to what TabNet
+-- calls a tabulation axis built on it. `.DEF` cannot answer this for many fields:
+-- it names DIAG_PRINC only as "Diag CID10 (capit)", "Diag CID10 (grupo)" and so
+-- on, because those are the axes it offers. The Instrucao Tecnica documents under
+-- each system's Doc/ tree carry the real thing:
+--   41 DIAG_PRINC char(4) Codigo do diagnostico principal (CID10).
+CREATE TABLE IF NOT EXISTS field_documentation (
+  system       TEXT,
+  field_name   TEXT NOT NULL,
+  description  TEXT NOT NULL,
+  declared_type TEXT,
+  declared_width INTEGER,
+  declared_decimals INTEGER,
+  source       TEXT NOT NULL,       -- 'layout_doc' | 'demas_api' | 'manual'
+  source_ref   TEXT NOT NULL,
+  confidence   REAL NOT NULL,
+  PRIMARY KEY (system, field_name, source_ref)
+);
+CREATE INDEX IF NOT EXISTS ix_field_doc_field ON field_documentation (field_name);
+
 CREATE TABLE IF NOT EXISTS ledger (
   system                 TEXT NOT NULL,
   family_id              TEXT NOT NULL,

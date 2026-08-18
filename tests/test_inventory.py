@@ -180,3 +180,73 @@ class TestConventionOutliers:
     def test_a_genuinely_annual_directory_is_still_annual(self):
         codes = ["1996", "1997", "2001", "2013", "2020", "2023"]
         assert infer_date_convention(codes, group_keys=[("DO", "AL")] * 6) == "annual"
+
+
+class TestStrataIdempotence:
+    """Re-running inventory must replace derived state, not accumulate it."""
+
+    def _persist(self, catalog, rows):
+        from pegasus_data.inventory.strata import build_strata, persist_strata, prune_orphan_strata
+
+        strata = build_strata(rows)
+        prune_orphan_strata(catalog, {s.stratum_id for s in strata})
+        persist_strata(catalog, strata)
+        return strata
+
+    def test_membership_is_replaced_when_a_file_changes_stratum(self, catalog):
+        # A date correction moves RDAC2008 from the 2008 stratum to 2020.
+        before = [
+            {"path": "/x/RDAC2008.dbc", "system": "SIHSUS", "series_prefix": "RD", "year": 2008},
+        ]
+        after = [
+            {"path": "/x/RDAC2008.dbc", "system": "SIHSUS", "series_prefix": "RD", "year": 2020},
+            {"path": "/x/RDAC0801.dbc", "system": "SIHSUS", "series_prefix": "RD", "year": 2008},
+        ]
+        self._persist(catalog, before)
+        self._persist(catalog, after)
+        members = {
+            (r["stratum_id"], r["path"])
+            for r in catalog.query("SELECT stratum_id, path FROM stratum_members")
+        }
+        by_year = {
+            r["year"]: r["stratum_id"]
+            for r in catalog.query("SELECT year, stratum_id FROM strata")
+        }
+        assert (by_year[2008], "/x/RDAC2008.dbc") not in members, "the stale membership survived"
+        assert (by_year[2020], "/x/RDAC2008.dbc") in members
+        assert (by_year[2008], "/x/RDAC0801.dbc") in members
+
+    def test_a_stale_sample_is_invalidated_not_inherited(self, catalog):
+        """A stratum whose sample moved away must re-derive its schema."""
+        self._persist(
+            catalog,
+            [{"path": "/x/RDAC2008.dbc", "system": "SIHSUS", "series_prefix": "RD", "year": 2008}],
+        )
+        catalog.execute(
+            "UPDATE strata SET schema_signature='sig113', field_count=113, sample_status='ok'"
+        )
+        catalog.conn.commit()
+        self._persist(
+            catalog,
+            [
+                {"path": "/x/RDAC2008.dbc", "system": "SIHSUS", "series_prefix": "RD", "year": 2020},
+                {"path": "/x/RDAC0801.dbc", "system": "SIHSUS", "series_prefix": "RD", "year": 2008},
+            ],
+        )
+        row = catalog.query("SELECT * FROM strata WHERE year = 2008")[0]
+        assert row["schema_signature"] is None
+        assert row["sample_status"] == "pending"
+        assert row["sampled_path"] == "/x/RDAC0801.dbc"
+
+    def test_orphan_strata_are_pruned(self, catalog):
+        self._persist(
+            catalog,
+            [{"path": "/x/a.dbc", "system": "S", "series_prefix": "A", "year": 1901}],
+        )
+        assert catalog.count("strata") == 1
+        self._persist(
+            catalog,
+            [{"path": "/x/a.dbc", "system": "S", "series_prefix": "A", "year": 2019}],
+        )
+        rows = catalog.query("SELECT year FROM strata")
+        assert [r["year"] for r in rows] == [2019]

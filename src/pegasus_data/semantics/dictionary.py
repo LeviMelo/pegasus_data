@@ -148,6 +148,11 @@ def entries_from_kit(
             )
 
     for table_id, rows in kit.code_tables.items():
+        # A lookup whose code/label columns had to be inferred is worth less than
+        # one whose columns were known from the kit's own conventions.
+        guessed = kit.guessed_columns.get(table_id)
+        confidence = 0.6 if guessed else DEFAULT_CONFIDENCE["dbf_lookup"]
+        suffix = f" (columns inferred: {guessed[0]}→{guessed[1]})" if guessed else ""
         for code, label, _extra in rows:
             if not code:
                 continue
@@ -157,8 +162,8 @@ def entries_from_kit(
                     value_raw=code,
                     value_label=label,
                     source="dbf_lookup",
-                    source_ref=f"{kit.kit_path}!{table_id}",
-                    confidence=DEFAULT_CONFIDENCE["dbf_lookup"],
+                    source_ref=f"{kit.kit_path}!{table_id}{suffix}",
+                    confidence=confidence,
                     value_group=table_id,
                     valid_from=kit.valid_from,
                     valid_to=kit.valid_to,
@@ -417,16 +422,59 @@ class DictionaryCache:
         return self._direct[key]
 
 
-def _codelists_for(catalog: Catalog, *, system: str | None, field_name: str) -> list[str]:
+#: Binding sources trusted to decide which labels a column carries. A
+#: distributional match is not among them (see :func:`bind_by_semantic_type`).
+AUTHORITATIVE_BINDING_SOURCES = ("def", "manual", "layout_doc")
+
+
+def _codelists_for(
+    catalog: Catalog, *, system: str | None, field_name: str, include_candidates: bool = False
+) -> list[str]:
+    clause = ""
+    params: list[object] = [field_name, system, system]
+    if not include_candidates:
+        placeholders = ",".join("?" * len(AUTHORITATIVE_BINDING_SOURCES))
+        clause = f" AND source IN ({placeholders})"
+        params.extend(AUTHORITATIVE_BINDING_SOURCES)
+    rows = catalog.query(
+        f"""
+        SELECT DISTINCT codelist FROM field_codelists
+         WHERE field_name = ? AND (system IS ? OR system IS NULL OR ? IS NULL){clause}
+         ORDER BY confidence DESC, codelist
+        """,
+        params,
+    )
+    out = [str(r["codelist"]) for r in rows]
+    if out or include_candidates:
+        return out
+    # Nothing authoritative binds this field. A semantic match still tells us
+    # which reference table its values live in, which is what the join needs —
+    # so it is returned here and reported as inferred, never silently.
     rows = catalog.query(
         """
         SELECT DISTINCT codelist FROM field_codelists
          WHERE field_name = ? AND (system IS ? OR system IS NULL OR ? IS NULL)
+           AND source = 'semantic_match'
          ORDER BY confidence DESC, codelist
         """,
         (field_name, system, system),
     )
     return [str(r["codelist"]) for r in rows]
+
+
+def binding_sources(catalog: Catalog, *, system: str | None, field_name: str) -> dict[str, str]:
+    """``codelist -> the source that bound it``, so a consumer can weigh it."""
+    return {
+        str(r["codelist"]): str(r["source"])
+        for r in catalog.query(
+            """
+            SELECT codelist, source FROM field_codelists
+             WHERE field_name = ? AND (system IS ? OR system IS NULL OR ? IS NULL)
+             ORDER BY confidence DESC
+            """,
+            (field_name, system, system),
+        )
+    }
 
 
 def codelists_for(
@@ -607,14 +655,94 @@ SEMANTIC_CODELISTS: dict[str, tuple[str, ...]] = {
 }
 
 
+#: Words a record layout uses to name the classification a column belongs to,
+#: mapped to the reference table that classification lives in. This is what lets
+#: a distributional match be *corroborated* rather than merely asserted.
+CLASSIFICATION_MENTIONS: dict[str, tuple[str, ...]] = {
+    "CID10": ("cid10", "cid-10", "cid 10", "classificacao internacional de doencas"),
+    "CID9": ("cid9", "cid-9", "cid 9"),
+    "TPROC10": ("procedimento", "sigtap", "tabela unificada"),
+    "TPROC": ("procedimento", "sigtap"),
+    "CBO": ("cbo", "classificacao brasileira de ocupacoes", "ocupacao"),
+    "CBO2002": ("cbo", "classificacao brasileira de ocupacoes", "ocupacao"),
+    "MUNICBR": ("municipio", "ibge"),
+    "TCNESBR": ("cnes", "estabelecimento"),
+}
+
+
+def _fold(text: str) -> str:
+    import unicodedata
+
+    return "".join(
+        c for c in unicodedata.normalize("NFKD", text.lower()) if not unicodedata.combining(c)
+    )
+
+
+def corroborate_semantic_bindings(catalog: Catalog) -> int:
+    """Promote a semantic-match binding that a record layout independently names.
+
+    A distributional membership rate on its own is an inference, and §13 keeps
+    inferences out of the labelling path. But when the column's own record layout
+    says what classification it holds — ``DIAG_PRINC char(4) Código do diagnóstico
+    principal (CID10)`` — the inference is corroborated by a document, and the
+    binding becomes usable. The promoted row keeps ``source='layout_doc'`` so the
+    basis stays visible; nothing is promoted on the inference alone.
+    """
+    documented = catalog.query(
+        "SELECT system, field_name, description, source_ref FROM field_documentation"
+    )
+    if not documented:
+        return 0
+    candidates = catalog.query(
+        "SELECT system, field_name, codelist, confidence FROM field_codelists WHERE source = 'semantic_match'"
+    )
+    by_field: dict[tuple[str | None, str], tuple[str, str]] = {}
+    for row in documented:
+        by_field[(row["system"], row["field_name"])] = (
+            _fold(str(row["description"])),
+            str(row["source_ref"]),
+        )
+
+    promoted: list[tuple[object, ...]] = []
+    for row in candidates:
+        key = (row["system"], row["field_name"])
+        entry = by_field.get(key) or by_field.get((None, row["field_name"]))
+        if entry is None:
+            continue
+        description, source_ref = entry
+        mentions = CLASSIFICATION_MENTIONS.get(str(row["codelist"]).upper(), ())
+        if not any(m in description for m in mentions):
+            continue
+        promoted.append(
+            (
+                row["system"], "", row["field_name"], row["codelist"], "layout_doc",
+                f"{source_ref} (corroborates detector match)", 0.85,
+            )
+        )
+    return catalog.executemany(
+        """
+        INSERT INTO field_codelists (system, family_id, field_name, codelist, source, source_ref, confidence)
+        VALUES (?,?,?,?,?,?,?)
+        ON CONFLICT(system, family_id, field_name, codelist) DO UPDATE SET
+            source=excluded.source, source_ref=excluded.source_ref, confidence=excluded.confidence
+        """,
+        promoted,
+    )
+
+
 def bind_by_semantic_type(catalog: Catalog) -> int:
-    """Attach reference tables to fields the detectors identified.
+    """Record reference tables the detectors think a field belongs to.
 
     ``DIAG_PRINC`` is the motivating case: TabNet's ``.DEF`` binds it to the
-    per-chapter CID lists but never to the complete 14,197-row ``CID10`` table,
-    which is the only member that gives each code its own description. The
-    detector measured that the column's values *are* in that table, so the
-    binding is evidence-backed rather than assumed.
+    per-chapter CID lists but never to the complete CID-10 table.
+
+    **These bindings are candidates, not authority.** The evidence behind them is
+    distributional — a measured membership rate — and letting an inference decide
+    which labels appear on data would put §13's prohibition on guessing on the
+    wrong side of the line. They are stored with ``source='semantic_match'`` and
+    :func:`codelists_for` excludes them from labelling unless a ``.DEF`` or a
+    layout document corroborates the same table. What they *are* good for is
+    steering the reference join and telling a consumer where to look.
     """
     known = {
         str(r["value_group"])

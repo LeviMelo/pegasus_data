@@ -19,7 +19,7 @@ from .naming import (
     role_from_path,
     system_from_path,
 )
-from .strata import build_strata, persist_strata
+from .strata import build_strata, persist_strata, prune_orphan_strata
 
 
 def build_inventory(
@@ -124,9 +124,15 @@ def build_inventory(
         if f[10] == "data"
     ]
     strata = build_strata(strata_rows)
+    # Strata are derived from file facts, so a re-inventory that changes a year
+    # produces new stratum ids and orphans the old ones. Leaving them behind is
+    # not harmless: a stratum dated 1901 by the bug this replaced kept dragging
+    # `families.time_min` back to 1901 long after the facts were corrected.
+    pruned = prune_orphan_strata(catalog, {s.stratum_id for s in strata}, systems=systems)
     persist_strata(catalog, strata)
 
     return {
+        "strata_pruned": pruned,
         "files_parsed": len(facts),
         "directories": len(conventions),
         "ambiguous_directories": len(ambiguous_dirs),

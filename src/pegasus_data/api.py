@@ -31,11 +31,14 @@ from .config import Settings, load_settings
 from .normalize.engine import MissingColumnError
 from .persist.duck import DuckLake
 from .persist.lake import Lake
+from .persist.reference import available_tables, is_hierarchical, read_reference_table
 from .profile.drift import field_availability
 from .semantics.dictionary import (
+    binding_sources,
     codelists_for,
     lookup,
     match_codelist_by_name,
+    most_granular_codelist,
     observed_values,
     rollups_for,
 )
@@ -46,6 +49,7 @@ __all__ = [
     "describe",
     "load",
     "load_population",
+    "load_reference",
     "open_lake",
     "FieldDescription",
     "MissingColumnError",
@@ -73,6 +77,11 @@ class FieldDescription:
     top_values: list[dict[str, Any]] = field(default_factory=list)
     codelists: list[str] = field(default_factory=list)
     rollups: list[dict[str, Any]] = field(default_factory=list)
+    #: Where meaning actually comes from for this field: the reference table, the
+    #: validity windows it is published in, how the binding was established, and
+    #: — for a hierarchical classification — the roll-up levels available.
+    reference: dict[str, Any] | None = None
+    label_policy: str = "materialised"
     provenance: list[str] = field(default_factory=list)
     open_questions: list[str] = field(default_factory=list)
     generations: list[dict[str, Any]] = field(default_factory=list)
@@ -96,6 +105,8 @@ class FieldDescription:
             "top_values": self.top_values,
             "codelists": self.codelists,
             "rollups": self.rollups,
+            "reference": self.reference,
+            "label_policy": self.label_policy,
             "provenance": self.provenance,
             "open_questions": self.open_questions,
             "generations": self.generations,
@@ -394,6 +405,18 @@ def describe(
 
         official_name = led.get("official_name")
         if official_name is None:
+            # The record layout names the column itself; check it before giving up.
+            documented = store.query(
+                """
+                SELECT description, source_ref FROM field_documentation
+                 WHERE field_name = ? AND (system = ? OR system IS NULL)
+                 ORDER BY confidence DESC LIMIT 1
+                """,
+                (field, system),
+            )
+            if documented:
+                official_name = str(documented[0]["description"])
+        if official_name is None:
             # Same rule the ledger uses: only a declaration that names the field
             # itself counts. A declaration bound to a codelist names an
             # aggregation level, and reporting one of those as the column's
@@ -409,6 +432,54 @@ def describe(
             official_name = named[0]["display_name"] if named else None
 
         bound = codelists_for(store, system=system, field_name=field)
+        sources = binding_sources(store, system=system, field_name=field)
+        chosen = most_granular_codelist(store, bound, system=system, observed=observed)
+        reference: dict[str, Any] | None = None
+        label_policy = "materialised"
+        if chosen:
+            hierarchical = is_hierarchical(store, chosen)
+            windows = [
+                {"valid_from": r["valid_from"], "valid_to": r["valid_to"], "codes": int(r["n"])}
+                for r in store.query(
+                    """
+                    SELECT valid_from, valid_to, COUNT(*) AS n FROM dictionary
+                     WHERE value_group = ? GROUP BY valid_from, valid_to ORDER BY valid_from
+                    """,
+                    (chosen,),
+                )
+            ]
+            reference = {
+                "table": chosen,
+                "hierarchical": hierarchical,
+                "bound_by": sources.get(chosen, "unknown"),
+                "authoritative": sources.get(chosen) in {"def", "manual", "layout_doc"},
+                "validity_windows": windows,
+                "rollup_levels": [
+                    r["codelist"]
+                    for r in rollups_for(store, system=system, field_name=field, observed=observed)
+                    if r["codelist"] != chosen
+                ][:8],
+                "join": (
+                    f"load_reference({chosen!r}, year=<year>) and join on the raw code; the "
+                    "window is chosen by year so a 1995 record decodes against the table "
+                    "published for 1995"
+                )
+                if hierarchical
+                else None,
+            }
+            label_policy = "join_reference_table" if hierarchical else "materialised"
+            if hierarchical:
+                open_questions.append(
+                    f"{field} is decoded by {chosen}, a hierarchical classification: no single "
+                    "label is written into the lake, because chapter, block and category are all "
+                    "valid levels and the published wording is version-specific. Join "
+                    f"load_reference({chosen!r}, year=...) at the level you want."
+                )
+            if sources.get(chosen) == "semantic_match":
+                open_questions.append(
+                    f"the binding {field} -> {chosen} rests on a measured membership rate, not on "
+                    "a .DEF or a layout document; treat it as a candidate until corroborated"
+                )
         if not bound:
             # Name-matched codelists are *candidates*, never applied: "obvious" is
             # how a wrong mapping gets in without provenance (§13). Surfacing them
@@ -440,6 +511,8 @@ def describe(
             rollups=rollups_for(store, system=system, field_name=field, observed=observed),
             provenance=json.loads(led.get("provenance") or "[]"),
             open_questions=open_questions,
+            reference=reference,
+            label_policy=label_policy,
             generations=generations,
         )
     finally:
@@ -576,6 +649,45 @@ def load_population(
     finally:
         if own:
             cat.close()
+
+
+def load_reference(
+    table: str,
+    *,
+    year: int | None = None,
+    valid_from: str | None = None,
+    code_width: int | None = None,
+    catalog: Catalog | None = None,
+) -> pa.Table:
+    """Load a reference code table at the vintage that covers `year`.
+
+    This is where the meaning of a hierarchical code lives — CID-10, procedures,
+    CBO, municipalities. It is a join rather than a materialised column so the
+    consumer picks the granularity (a code or its chapter) and the vintage (the
+    1992–1997 table or today's), neither of which the lake should settle on their
+    behalf::
+
+        cid = load_reference("CID10", year=2019)
+        admissions.join(cid, keys="DIAG_PRINC", right_keys="code")
+    """
+    own = catalog is None
+    cat = catalog or Catalog()
+    try:
+        return read_reference_table(
+            cat.settings.lake_dir, table, valid_from=valid_from, year=year, code_width=code_width
+        )
+    finally:
+        if own:
+            cat.close()
+
+
+def reference_tables(root: str | Path | None = None) -> list[dict[str, Any]]:
+    """Which reference tables the lake holds, and in which validity windows."""
+    cat = Catalog(root)
+    try:
+        return available_tables(cat.settings.lake_dir)
+    finally:
+        cat.close()
 
 
 def open_lake(root: str | Path | None = None) -> DuckLake:

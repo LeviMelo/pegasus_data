@@ -35,6 +35,19 @@ from .dictionary import DEFAULT_CONFIDENCE, DictionaryEntry
 _FIELD_ROW = re.compile(
     r"^\s*(?P<field>[A-Z][A-Z0-9_]{2,17})\s+(?P<width>\d{1,3})\s+(?P<type>[CNDL])\s+(?P<desc>.{3,120})$"
 )
+
+#: The record-layout dialect DATASUS's "Instrução Técnica" documents use:
+#: ``41 DIAG_PRINC char(4) Código do diagnóstico principal (CID10).``
+#: This is the form that actually answers "what is this column called", which
+#: ``.DEF`` does not: a ``.DEF`` enumerates TabNet tabulation axes, so it names
+#: ``DIAG_PRINC`` only as "Diag CID10 (capit)", "Diag CID10 (grupo)" and the like.
+_LAYOUT_ROW = re.compile(
+    r"^\s*(?P<ordinal>\d{1,3})\s+(?P<field>[A-Z][A-Z0-9_]{2,17})\s+"
+    r"(?P<type>char|varchar|numeric|number|date|int|integer|float|decimal)\s*"
+    r"\(\s*(?P<width>\d{1,3})\s*(?:,\s*(?P<decimals>\d{1,2})\s*)?\)\s*"
+    r"(?P<desc>\S.{2,150})$",
+    re.I,
+)
 #: A code line: ``1 - Masculino``. Codes are short and alphanumeric; Roman
 #: numerals and single letters used as list markers in prose are excluded.
 _VALUE_ROW = re.compile(r"^\s*(?P<code>\d{1,6}|[A-Z]\d{1,5})\s*[-=:]\s*(?P<label>\S.{1,80})$")
@@ -49,6 +62,8 @@ _ROMAN = re.compile(r"^[IVXLCDM]{1,7}$")
 class PdfHarvest:
     source_ref: str
     field_descriptions: dict[str, str] = field(default_factory=dict)
+    #: ``field -> (declared type, width, decimals)`` where the layout states it.
+    declared_types: dict[str, tuple[str, int, int | None]] = field(default_factory=dict)
     value_labels: list[tuple[str, str, str]] = field(default_factory=list)  # (field, code, label)
     pages_read: int = 0
     rejected: int = 0
@@ -117,6 +132,22 @@ def harvest_pdf(
                     out.rejected += 1
                 continue
 
+            layout_row = _LAYOUT_ROW.match(line)
+            if layout_row:
+                name = layout_row.group("field").upper()
+                if allowed is not None and name not in allowed:
+                    current_field = None
+                    out.rejected += 1
+                    continue
+                current_field = name
+                out.field_descriptions.setdefault(name, layout_row.group("desc").strip().rstrip("."))
+                out.declared_types[name] = (
+                    layout_row.group("type").lower(),
+                    int(layout_row.group("width")),
+                    int(layout_row.group("decimals")) if layout_row.group("decimals") else None,
+                )
+                continue
+
             field_row = _FIELD_ROW.match(line)
             if field_row:
                 name = field_row.group("field")
@@ -136,6 +167,26 @@ def harvest_pdf(
                     continue
                 out.value_labels.append((current_field, code, value_row.group("label").strip()))
     return out
+
+
+def documentation_rows(
+    harvest: PdfHarvest, *, system: str | None
+) -> list[tuple[object, ...]]:
+    """Rows for ``field_documentation``: the column's own official description."""
+    return [
+        (
+            system,
+            name,
+            description,
+            (harvest.declared_types.get(name) or (None, None, None))[0],
+            (harvest.declared_types.get(name) or (None, None, None))[1],
+            (harvest.declared_types.get(name) or (None, None, None))[2],
+            "layout_doc",
+            harvest.source_ref,
+            0.85,
+        )
+        for name, description in harvest.field_descriptions.items()
+    ]
 
 
 def known_field_names(catalog: Catalog) -> list[str]:

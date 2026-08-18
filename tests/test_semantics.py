@@ -400,3 +400,51 @@ class TestPdfHarvest:
         assert result["conflicts"] == 1
         stored = catalog.query("SELECT value_label, source FROM dictionary WHERE value_raw='1'")[0]
         assert stored["value_label"] == "Masculino" and stored["source"] == "cnv"
+
+
+class TestUnrecognisedLookups:
+    """A lookup table outside the known set is inferred, and says that it was."""
+
+    def _kit_with_odd_lookup(self) -> bytes:
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            z.writestr("SEXO.CNV", SEXO_CNV)
+            # Columns deliberately ordered label-first, so "first two columns"
+            # would take the description as the code.
+            z.writestr(
+                "WEIRDTAB.DBF",
+                make_dbf(
+                    [("DESCRICAO", "C", 30, 0), ("COD", "C", 4, 0), ("UF", "C", 2, 0)],
+                    [
+                        ["Hospital municipal central", "0001", "AL"],
+                        ["Unidade basica de saude norte", "0002", "AL"],
+                        ["Pronto socorro regional", "0003", "BA"],
+                    ],
+                ),
+            )
+        return buf.getvalue()
+
+    def test_columns_are_inferred_not_positional(self):
+        kit = parse_kit(self._kit_with_odd_lookup(), kit_path="/x/TAB_X.zip", system="S")
+        assert kit.guessed_columns["WEIRDTAB"] == ("COD", "DESCRICAO")
+        codes = {code for code, _label, _extra in kit.code_tables["WEIRDTAB"]}
+        assert codes == {"0001", "0002", "0003"}
+
+    def test_inferred_columns_lower_the_confidence_and_are_named(self):
+        kit = parse_kit(self._kit_with_odd_lookup(), kit_path="/x/TAB_X.zip", system="S")
+        entries, _bindings, _rules = entries_from_kit(kit)
+        weird = [e for e in entries if e.value_group == "WEIRDTAB"]
+        assert weird and all(e.confidence < 0.9 for e in weird)
+        assert all("columns inferred" in e.source_ref for e in weird)
+
+    def test_a_known_table_keeps_full_confidence(self):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            z.writestr(
+                "CID10.DBF",
+                make_dbf([("CID10", "C", 4, 0), ("DESCR", "C", 20, 0)], [["A00", "Colera"]]),
+            )
+        kit = parse_kit(buf.getvalue(), kit_path="/x/TAB_Y.zip", system="S")
+        assert "CID10" not in kit.guessed_columns
+        entries, _b, _r = entries_from_kit(kit)
+        assert all(e.confidence >= 0.9 for e in entries if e.value_group == "CID10")

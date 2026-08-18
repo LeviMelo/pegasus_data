@@ -300,6 +300,49 @@ def build(
 
 
 @app.command()
+def reference(
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Write the code tables to lake/reference/, scoped by validity window.
+
+    Hierarchical classifications (CID-10, procedures, CBO, municipalities) are
+    joined from here rather than flattened into a label column per row, so the
+    consumer chooses the granularity and the vintage.
+    """
+    pipeline = _pipeline(root)
+    try:
+        from .persist.reference import (
+            flag_mixed_width_tables,
+            register_reference_tables,
+            write_reference_tables,
+        )
+
+        with console.status("writing reference tables…"):
+            written = write_reference_tables(pipeline.catalog, pipeline.settings.lake_dir)
+            register_reference_tables(pipeline.catalog, written)
+            mixed = flag_mixed_width_tables(pipeline.catalog, written)
+        rows = [
+            {
+                "table": t.table_id,
+                "window": t.window,
+                "codes": t.rows,
+                "widths": ",".join(map(str, t.code_widths)),
+                "path": t.relative_path,
+            }
+            for t in sorted(written, key=lambda x: -x.rows)[:40]
+        ]
+        _emit(rows, as_json, f"{len(written)} reference tables")
+        if mixed:
+            console.print(
+                f"[yellow]{mixed}[/yellow] table(s) merge more than one code width — "
+                "recorded as open questions; join with code_width= to stay on one vintage"
+            )
+    finally:
+        pipeline.close()
+
+
+@app.command()
 def population(
     root: RootOpt = None,
     series: Annotated[list[str] | None, typer.Option("--series")] = None,
@@ -448,6 +491,58 @@ def questions(
             if row["resolution"]:
                 console.print(f"  [green]A:[/green] {row['resolution']}")
             console.print()
+    finally:
+        store.close()
+
+
+@app.command()
+def gaps(
+    root: RootOpt = None,
+    system: SystemsOpt = None,
+    limit: Annotated[int, typer.Option("--limit", help="How many fields to show")] = 30,
+    max_coverage: Annotated[float, typer.Option("--max-coverage", help="Treat coverage at or below this as a gap")] = 0.5,
+    persist: Annotated[bool, typer.Option("--persist/--no-persist", help="Record the list as open questions")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Which variables still have no dictionary, ranked by observed row mass.
+
+    The complement of `report`'s coverage number: not how much is decoded, but
+    exactly what is not, and what it would take to close each one.
+    """
+    settings = _settings(root)
+    from .catalog.store import Catalog as Store
+    from .semantics.gaps import distinct_field_gaps, find_gaps, persist_gaps, summarise_gaps
+
+    writable = persist
+    store = Store(settings.catalog_path, read_only=not writable and settings.catalog_path.exists())
+    try:
+        found = find_gaps(store, systems=system, max_coverage=max_coverage)
+        summary = summarise_gaps(found)
+        by_field = distinct_field_gaps(found)
+        if as_json:
+            _emit({"summary": summary, "by_field": by_field[:limit]}, True)
+        else:
+            _emit(summary, False, "undecoded fields")
+            table = Table(title=f"top {min(limit, len(by_field))} undecoded variables by observed row mass")
+            table.add_column("system")
+            table.add_column("field")
+            table.add_column("kind")
+            table.add_column("rows", justify="right")
+            table.add_column("distinct", justify="right")
+            table.add_column("years")
+            table.add_column("sample values")
+            for entry in by_field[:limit]:
+                years = entry["years"]
+                table.add_row(
+                    str(entry["system"]), str(entry["field"]), str(entry["kind"]),
+                    f"{int(entry['observed_rows']):,}", str(entry["distinct_observed"]),
+                    f"{years[0]}-{years[1]}",
+                    ", ".join(map(str, entry["top_values"][:4])),
+                )
+            console.print(table)
+        if persist:
+            noted = persist_gaps(store, found)
+            console.print(f"[green]{noted}[/green] gaps recorded as open questions")
     finally:
         store.close()
 

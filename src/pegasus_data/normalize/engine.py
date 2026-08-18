@@ -27,7 +27,13 @@ import pyarrow.compute as pc
 
 from ..catalog.store import Catalog, utcnow
 from ..decode.base import DecodedTable
-from ..semantics.dictionary import DictionaryCache, observed_values
+from ..persist.reference import is_hierarchical
+from ..semantics.dictionary import (
+    DictionaryCache,
+    codelists_for,
+    most_granular_codelist,
+    observed_values,
+)
 from ..semantics.dictionary import lookup as dict_lookup
 from .geo import MunicipalityIndex, to_seven_digit, uf_array
 from .time import SOURCE_EPI_WEEK_FIELDS, epi_week_array, parse_date_array
@@ -50,10 +56,21 @@ class FieldPlan:
     labels: dict[str, str] = field(default_factory=dict)
     official_name: str | None = None
     date_order: str = "YYYYMMDD"
+    #: The codelist the labels came from, and whether it is a hierarchical
+    #: classification rather than a small closed set.
+    codelist: str | None = None
+    hierarchical: bool = False
 
     @property
     def emits_label(self) -> bool:
-        return bool(self.labels)
+        """Only small closed codelists get a materialised label column.
+
+        A hierarchical classification (ICD, procedures, CBO, municipality) is
+        joined against a version-scoped reference table instead — see
+        ``pegasus_data.persist.reference`` for why baking one of its labels into
+        every row is the wrong shape, not merely a larger one.
+        """
+        return bool(self.labels) and not self.hierarchical
 
 
 @dataclass(slots=True)
@@ -64,12 +81,11 @@ class NormalizePlan:
     fields: dict[str, FieldPlan] = field(default_factory=dict)
     municipalities: MunicipalityIndex | None = None
     keep_raw: bool = True
-    #: Materialise a `<field>_label` column per decoded field. On by default per
-    #: §7.1 step 3, but measurably not free: on a 113-column SIH-RD generation it
-    #: roughly doubles the column count and puts the lake at parity with the
-    #: already-compressed .dbc rather than at a fraction of it. Turning it off
-    #: keeps every raw code and every dictionary entry — labels are then applied
-    #: at read time instead of at write time.
+    #: Materialise a `<field>_label` column for small closed codelists (§7.1
+    #: step 3). Hierarchical classifications are excluded regardless: they are
+    #: joined from `lake/reference/` at the granularity and vintage the consumer
+    #: chooses. Setting this False drops label columns entirely; every raw code
+    #: and every dictionary entry is still present, so meaning stays recoverable.
     emit_labels: bool = True
 
     def for_field(self, name: str) -> FieldPlan:
@@ -136,15 +152,17 @@ def build_plan(
                 order = json.loads(profile["semantic_evidence"]).get("order", "YYYYMMDD")
             except (json.JSONDecodeError, AttributeError):
                 order = "YYYYMMDD"
-        labels = dict_lookup(
-            catalog,
-            system=system,
-            field_name=name,
-            observed=observed_values(
-                catalog, family_id=family_id, field_name=name, schema_signature=signature
-            ),
-            cache=cache,
+        observed = observed_values(
+            catalog, family_id=family_id, field_name=name, schema_signature=signature
         )
+        labels = dict_lookup(
+            catalog, system=system, field_name=name, observed=observed, cache=cache
+        )
+        bound = codelists_for(catalog, system=system, field_name=name, cache=cache)
+        codelist = most_granular_codelist(
+            catalog, bound, system=system, observed=observed, cache=cache
+        )
+        hierarchical = bool(codelist) and is_hierarchical(catalog, codelist)
         plan.fields[name] = FieldPlan(
             name=name,
             physical_type=profile["physical_type"],
@@ -156,6 +174,8 @@ def build_plan(
             labels=labels,
             official_name=(ledger["official_name"] if ledger else None),
             date_order=order,
+            codelist=codelist,
+            hierarchical=hierarchical,
         )
     return plan
 

@@ -90,12 +90,45 @@ def persist_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
             for s in strata
         ],
     )
+    # Membership is replaced, not merged. A correction that moves a file between
+    # strata leaves it listed in both if the old rows survive, and the stale entry
+    # is enough to keep a stratum's sample — and the schema signature derived from
+    # it — pointing at a file that no longer belongs to it.
+    catalog.executemany(
+        "DELETE FROM stratum_members WHERE stratum_id = ?", [(s.stratum_id,) for s in strata]
+    )
     members: list[tuple[str, str]] = []
     for s in strata:
         members.extend((s.stratum_id, p) for p in s.paths)
     catalog.executemany(
         "INSERT OR IGNORE INTO stratum_members (stratum_id, path) VALUES (?,?)", members
     )
+
+    # A stratum id is a hash of (system, series, year), so it survives a
+    # re-inventory even when the files that belong to it change. When a
+    # correction moves files between strata, the recorded sample — and therefore
+    # the schema signature derived from it — can end up describing a file the
+    # stratum no longer contains. That is how a 2008 stratum came to claim the
+    # 113-column signature of a 2014 file. Invalidate any such stratum so the
+    # next profile run re-derives it rather than inheriting a stale answer.
+    catalog.execute(
+        """
+        UPDATE strata
+           SET sampled_path = NULL, sampled_member = NULL, schema_signature = NULL,
+               field_count = NULL, sample_status = 'pending', sample_error = NULL
+         WHERE sampled_path IS NOT NULL
+           AND NOT EXISTS (
+                SELECT 1 FROM stratum_members m
+                 WHERE m.stratum_id = strata.stratum_id AND m.path = strata.sampled_path
+           )
+        """
+    )
+    # Re-seed the sample for anything just invalidated, and for anything new.
+    catalog.executemany(
+        "UPDATE strata SET sampled_path = ? WHERE stratum_id = ? AND sampled_path IS NULL",
+        [(s.sample_path(), s.stratum_id) for s in strata if s.sample_path()],
+    )
+    catalog.conn.commit()
     return len(strata)
 
 
@@ -133,3 +166,33 @@ def coverage_by_system(catalog: Catalog) -> list[dict[str, object]]:
         """
     )
     return [dict(r) for r in rows]
+
+
+def prune_orphan_strata(
+    catalog: Catalog, keep: set[str], *, systems: Sequence[str] | None = None
+) -> int:
+    """Drop strata that the current file facts no longer produce.
+
+    Strata are derived data, so re-running ``inventory`` must be able to replace
+    them, not merely add to them. Anything keyed on a value that has since been
+    corrected — a year, a series — yields a different ``stratum_id``, and the
+    stale row would otherwise keep feeding families, drift reports and coverage
+    numbers that no longer reflect the catalog.
+    """
+    clause = ""
+    params: list[object] = []
+    if systems:
+        clause = f" WHERE system IN ({','.join('?' * len(systems))})"
+        params = list(systems)
+    existing = {str(r["stratum_id"]) for r in catalog.query(f"SELECT stratum_id FROM strata{clause}", params)}
+    # Archive-member strata are derived during profiling, not here, and their
+    # parent is what inventory knows about; keep them if their parent survives.
+    orphans = [
+        s for s in existing - keep
+        if s.split("#", 1)[0] not in keep or "#" not in s
+    ]
+    if not orphans:
+        return 0
+    catalog.executemany("DELETE FROM strata WHERE stratum_id = ?", [(s,) for s in orphans])
+    catalog.executemany("DELETE FROM stratum_members WHERE stratum_id = ?", [(s,) for s in orphans])
+    return len(orphans)
