@@ -35,6 +35,7 @@ from .profile.drift import field_availability
 from .semantics.dictionary import (
     codelists_for,
     lookup,
+    match_codelist_by_name,
     observed_values,
     rollups_for,
 )
@@ -407,6 +408,18 @@ def describe(
             )
             official_name = named[0]["display_name"] if named else None
 
+        bound = codelists_for(store, system=system, field_name=field)
+        if not bound:
+            # Name-matched codelists are *candidates*, never applied: "obvious" is
+            # how a wrong mapping gets in without provenance (§13). Surfacing them
+            # turns an undecoded field into an actionable lead.
+            suggestions = match_codelist_by_name(store, field)
+            if suggestions:
+                open_questions.append(
+                    f"no .DEF binds a codelist to {field}; codelists whose name matches, "
+                    f"as unverified candidates: {', '.join(suggestions[:5])}"
+                )
+
         return FieldDescription(
             system=system,
             series=series or family["series"],
@@ -423,7 +436,7 @@ def describe(
             distinct_decoded=int(led.get("distinct_decoded") or 0),
             sentinel_values=json.loads(led.get("sentinel_values") or "[]"),
             top_values=top,
-            codelists=codelists_for(store, system=system, field_name=field),
+            codelists=bound,
             rollups=rollups_for(store, system=system, field_name=field, observed=observed),
             provenance=json.loads(led.get("provenance") or "[]"),
             open_questions=open_questions,

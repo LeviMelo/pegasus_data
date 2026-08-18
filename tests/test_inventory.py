@@ -152,3 +152,31 @@ class TestFamilies:
 
     def test_different_fields_cannot_collapse(self):
         assert schema_signature(["A", "B"]) != schema_signature(["A", "B", "C"])
+
+
+class TestConventionOutliers:
+    """One odd file must not redefine a directory of 22,807."""
+
+    def test_a_single_annual_bundle_does_not_flip_a_monthly_directory(self):
+        # Measured: SIHSUS/200801_/Dados holds monthly files plus one annual
+        # bundle, RDAC2017.zip. Treating any out-of-range tail as proof of an
+        # annual directory dated CHBR1901.dbc to the year 1901.
+        codes = [f"{yy:02d}{mm:02d}" for yy in range(8, 27) for mm in range(1, 13)]
+        keys = [("RD", "AC")] * len(codes)
+        codes.append("2017")
+        keys.append(("RD", "AC"))
+        assert infer_date_convention(codes, group_keys=keys) == "monthly"
+
+    def test_the_outlier_itself_is_left_undated(self):
+        parsed = apply_convention(parse_filename("RDAC2017.zip"), "monthly")
+        assert parsed.year is None
+        assert parsed.date_format == "ambiguous"
+
+    def test_its_neighbours_are_dated_correctly(self):
+        parsed = apply_convention(parse_filename("CHBR1901.dbc"), "monthly")
+        assert parsed.year == 2019
+        assert parsed.normalized_date == 201901
+
+    def test_a_genuinely_annual_directory_is_still_annual(self):
+        codes = ["1996", "1997", "2001", "2013", "2020", "2023"]
+        assert infer_date_convention(codes, group_keys=[("DO", "AL")] * 6) == "annual"

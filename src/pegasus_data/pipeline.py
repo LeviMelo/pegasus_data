@@ -266,7 +266,13 @@ class Pipeline:
 
     # -------------------------------------------------------------- semantics
 
-    def semantics(self, *, systems: Sequence[str] | None = None, limit: int | None = None) -> StageResult:
+    def semantics(
+        self,
+        *,
+        systems: Sequence[str] | None = None,
+        limit: int | None = None,
+        pdfs: bool = False,
+    ) -> StageResult:
         kits = find_kits(self.catalog, systems=systems)
         loose = find_loose_dictionaries(self.catalog, systems=systems)
         if limit:
@@ -364,8 +370,70 @@ class Pipeline:
         counts["loose_def_parsed"] = loose_defs
         counts["codelists_bound"] = bind_codelists_to_fields(self.catalog)
 
+        if pdfs:
+            counts.update(self._harvest_pdfs(systems=systems, notes=notes))
+
         self._close_semantic_questions(counts, kit_reports)
         return StageResult("semantics", counts=counts, notes=notes)
+
+    def _harvest_pdfs(
+        self, *, systems: Sequence[str] | None, notes: list[str]
+    ) -> dict[str, object]:
+        """Supply-chain source #4: the dictionary PDFs.
+
+        Held at lower confidence and never overriding ``.CNV``/``.DEF`` (§6.3). A
+        PDF layout table states intent, not the bytes actually written, and the
+        two diverge — so anything harvested here loses every conflict against a
+        TabNet source and the disagreement is recorded rather than dropped.
+        """
+        from .semantics.pdf_harvest import entries_from_harvest, harvest_pdf, known_field_names
+
+        rows = self.catalog.query(
+            "SELECT path FROM files WHERE LOWER(extension) = '.pdf' ORDER BY path"
+        )
+        paths = [r["path"] for r in rows]
+        if systems:
+            wanted = {s.upper() for s in systems}
+            paths = [p for p in paths if any(f"/{s}/" in p.upper() for s in wanted)]
+        if not paths:
+            return {"pdfs_found": 0, "pdfs_harvested": 0, "pdf_entries": 0}
+
+        fetched = self.fetcher.ensure(paths)
+        # Only columns this catalog has observed can be informed by a PDF.
+        known = known_field_names(self.catalog)
+        harvested = 0
+        rejected = 0
+        entries = []
+        descriptions = 0
+        for path, digest in fetched.items():
+            system = _system_of(path, self.settings.base_path)
+            try:
+                result = harvest_pdf(
+                    self.blobs.read(digest), source_ref=path, known_fields=known
+                )
+            except Exception as exc:
+                notes.append(f"pdf harvest failed: {path}: {exc}")
+                continue
+            if result.warnings:
+                notes.extend(f"{path}: {w}" for w in result.warnings[:1])
+            if result.is_empty:
+                continue
+            harvested += 1
+            rejected += result.rejected
+            descriptions += len(result.field_descriptions)
+            entries.extend(entries_from_harvest(result, system=system))
+
+        merged = {"inserted": 0, "conflicts": 0}
+        if entries:
+            merged = persist_entries(self.catalog, entries)
+        return {
+            "pdfs_found": len(paths),
+            "pdfs_harvested": harvested,
+            "pdf_candidates_rejected": rejected,
+            "pdf_field_descriptions": descriptions,
+            "pdf_entries": merged["inserted"],
+            "pdf_conflicts": merged["conflicts"],
+        }
 
     def _close_semantic_questions(
         self, counts: dict[str, object], kit_reports: list[dict[str, object]]

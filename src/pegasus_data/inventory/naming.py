@@ -173,8 +173,15 @@ def infer_date_convention(date_codes: list[str], *, group_keys: list[tuple[str, 
     tails = [int(c[2:]) for c in four]
     leads = [c[:2] for c in four]
 
-    # 1. A tail outside 01..12 cannot be a month, so the directory is annual.
-    if any(t < 1 or t > 12 for t in tails):
+    # 1. A tail outside 01..12 cannot be a month — but one outlier must not
+    #    redefine the directory. `SIHSUS/200801_/Dados` holds 22,807 monthly
+    #    files and a single annual bundle, `RDAC2017.zip`, whose tail is 17.
+    #    Reading "any outlier ⇒ annual" flipped all 22,807 to annual and dated
+    #    `CHBR1901.dbc` to the year 1901 instead of 2019-01. The convention is
+    #    the dominant pattern; the outliers are the anomaly, and they are left
+    #    undated rather than forced into the majority reading.
+    month_like = sum(1 for t in tails if 1 <= t <= 12) / len(tails)
+    if month_like < 0.98:
         return "annual"
 
     # 2. A leading pair that is not a plausible century marker cannot be a year
@@ -256,11 +263,22 @@ def apply_convention(parsed: ParsedName, convention: str, *, epoch: str = "pivot
         return parsed
     if len(code) == 4:
         if convention == "monthly":
-            year = _year_from_two_digits(int(code[:2]), epoch if epoch != "century_2000" else "pivot")
             month = int(code[2:])
-            parsed.date_format = "YYMM"
-            parsed.year = year
-            parsed.normalized_date = year * 100 + month
+            if 1 <= month <= 12:
+                year = _year_from_two_digits(
+                    int(code[:2]), epoch if epoch != "century_2000" else "pivot"
+                )
+                parsed.date_format = "YYMM"
+                parsed.year = year
+                parsed.normalized_date = year * 100 + month
+                return parsed
+            # A file in a monthly directory whose tail is not a month is the
+            # outlier the convention was inferred *around* — usually an annual
+            # bundle. Forcing it into the majority reading would invent a date,
+            # so it stays undated and visible.
+            parsed.date_format = "ambiguous"
+            parsed.year = None
+            parsed.normalized_date = None
             return parsed
         if convention == "annual":
             year = int(code)

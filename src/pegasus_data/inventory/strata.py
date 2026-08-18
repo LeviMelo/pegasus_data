@@ -19,7 +19,6 @@ same file and results are reproducible.
 from __future__ import annotations
 
 import hashlib
-from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 
@@ -134,13 +133,3 @@ def coverage_by_system(catalog: Catalog) -> list[dict[str, object]]:
         """
     )
     return [dict(r) for r in rows]
-
-
-def merge_strata_by_signature(catalog: Catalog) -> dict[str, list[str]]:
-    """Group strata that share a field signature — the raw material for families."""
-    out: dict[str, list[str]] = defaultdict(list)
-    for row in catalog.query(
-        "SELECT stratum_id, schema_signature FROM strata WHERE schema_signature IS NOT NULL"
-    ):
-        out[row["schema_signature"]].append(row["stratum_id"])
-    return dict(out)

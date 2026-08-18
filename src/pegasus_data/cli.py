@@ -182,13 +182,22 @@ def semantics(
     root: RootOpt = None,
     system: SystemsOpt = None,
     limit: Annotated[int | None, typer.Option("--limit", help="Cap how many kits to ingest")] = None,
+    pdfs: Annotated[
+        bool,
+        typer.Option(
+            "--pdfs/--no-pdfs",
+            help="Also harvest the dictionary PDFs. Off by default: most PDFs on the tree "
+            "are legislation and technical notes, not layout tables, and an unconstrained "
+            "read of them injects noise into the dictionary.",
+        ),
+    ] = False,
     as_json: JsonOpt = False,
 ) -> None:
     """Ingest TAB kits, parse .DEF/.CNV, build the dictionary. This is P1."""
     pipeline = _pipeline(root)
     try:
         with console.status("ingesting dictionaries…"):
-            result = pipeline.semantics(systems=system, limit=limit)
+            result = pipeline.semantics(systems=system, limit=limit, pdfs=pdfs)
         _emit(result.counts, as_json, "semantics")
         for note in result.notes[:10]:
             console.print(f"[yellow]note[/yellow] {note}")
@@ -334,6 +343,8 @@ def report(root: RootOpt = None, as_json: JsonOpt = False) -> None:
     """Coverage, dictionary_coverage, and the open questions."""
     settings = _settings(root)
     from .catalog.store import Catalog as Store
+    from .inventory.strata import coverage_by_system
+    from .semantics.dictionary import conflicts_report
     from .semantics.ledger import coverage_report
     from .semantics.reference import reference_summary
 
@@ -360,6 +371,8 @@ def report(root: RootOpt = None, as_json: JsonOpt = False) -> None:
         }
         if as_json:
             payload["coverage_per_system"] = coverage_report(store)
+            payload["strata_per_system"] = coverage_by_system(store)
+            payload["conflicts"] = conflicts_report(store, limit=50)
             payload["reference_sets"] = reference_summary(store)
             payload["open_questions"] = [
                 dict(r) for r in store.query("SELECT key, status, area, question, resolution FROM open_questions ORDER BY key")
@@ -367,9 +380,17 @@ def report(root: RootOpt = None, as_json: JsonOpt = False) -> None:
             _emit(payload, True)
             return
         _emit(payload, False, "catalog")
+        strata = coverage_by_system(store)
+        if strata:
+            _emit(strata, False, "strata and schema generations per system")
         coverage = coverage_report(store)
         if coverage:
             _emit(coverage, False, "dictionary coverage per system")
+        conflicts = conflicts_report(store, limit=10)
+        if conflicts:
+            # A conflict is a finding, so it belongs in the report rather than
+            # only in a table nobody queries (§6.3).
+            _emit(conflicts, False, "dictionary conflicts (most recent)")
         questions = [
             dict(r)
             for r in store.query(

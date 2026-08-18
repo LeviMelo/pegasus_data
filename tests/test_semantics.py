@@ -321,3 +321,82 @@ def test_expansion_counts(codes, expected):
         got, _ = expand_expression(expression, width=1)
         total += len(got)
     assert total == expected
+
+
+class TestPdfHarvest:
+    """The lowest-authority source, and the one most able to inject noise."""
+
+    LAYOUT = """
+    Dicionario de dados - SIHSUS
+    SEXO         1  C  Sexo do paciente
+    SEXO:
+    1 - Masculino
+    3 - Feminino
+    IDADE        3  N  Idade
+    """
+
+    DECREE = """
+    O MINISTRO DE ESTADO DA SAUDE, no uso de suas atribuicoes,
+    RESOLVE:
+    I - A vigilancia das doencas transmissiveis;
+    II - Coordenacao nacional das acoes;
+    III - Execucao das acoes de Vigilancia em Saude;
+    """
+
+    def _harvest(self, monkeypatch, text: str, known):
+        from pegasus_data.semantics import pdf_harvest
+
+        monkeypatch.setattr(pdf_harvest, "extract_text", lambda data: iter([text]))
+        return pdf_harvest.harvest_pdf(b"%PDF-", source_ref="/x/doc.pdf", known_fields=known)
+
+    def test_reads_a_real_layout_table(self, monkeypatch):
+        result = self._harvest(monkeypatch, self.LAYOUT, ["SEXO", "IDADE"])
+        assert result.field_descriptions["SEXO"].startswith("Sexo do paciente")
+        assert ("SEXO", "1", "Masculino") in result.value_labels
+        assert ("SEXO", "3", "Feminino") in result.value_labels
+
+    def test_a_decree_yields_nothing(self, monkeypatch):
+        """Roman numerals in prose are not codes, however well-provenanced."""
+        result = self._harvest(monkeypatch, self.DECREE, ["SEXO", "IDADE"])
+        assert result.is_empty
+        assert result.rejected >= 1
+
+    def test_unknown_fields_are_refused(self, monkeypatch):
+        """A PDF can only inform us about columns the catalog has actually seen."""
+        result = self._harvest(monkeypatch, self.LAYOUT, ["OTHER_FIELD"])
+        assert result.is_empty
+        assert result.rejected >= 1
+
+    def test_entries_are_lowest_authority(self, monkeypatch):
+        from pegasus_data.semantics.pdf_harvest import entries_from_harvest
+
+        result = self._harvest(monkeypatch, self.LAYOUT, ["SEXO", "IDADE"])
+        entries = entries_from_harvest(result, system="SIHSUS")
+        assert entries and all(e.source == "pdf" for e in entries)
+        assert all(e.confidence < 0.6 for e in entries)
+        assert all(e.authority > 0 for e in entries)
+
+    def test_a_cnv_claim_beats_a_pdf_claim(self, catalog: Catalog, monkeypatch):
+        from pegasus_data.semantics.dictionary import DictionaryEntry
+
+        persist_entries(
+            catalog,
+            [
+                DictionaryEntry(
+                    system="SIHSUS", value_raw="1", value_label="Masculino", source="cnv",
+                    source_ref="kit!SEXO.CNV:2", confidence=0.95, field_name="SEXO",
+                )
+            ],
+        )
+        result = persist_entries(
+            catalog,
+            [
+                DictionaryEntry(
+                    system="SIHSUS", value_raw="1", value_label="Homem", source="pdf",
+                    source_ref="/x/doc.pdf", confidence=0.5, field_name="SEXO",
+                )
+            ],
+        )
+        assert result["conflicts"] == 1
+        stored = catalog.query("SELECT value_label, source FROM dictionary WHERE value_raw='1'")[0]
+        assert stored["value_label"] == "Masculino" and stored["source"] == "cnv"
