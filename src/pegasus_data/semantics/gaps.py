@@ -21,7 +21,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from ..catalog.store import Catalog
-from .dictionary import codelists_for, match_codelist_by_name
+from .dictionary import all_codelist_names, codelists_for, match_codelist_by_name
 
 #: Semantic verdicts that do not want a codelist at all. A date has no code
 #: table; listing it as an undecoded gap would pad the list with non-problems.
@@ -110,7 +110,33 @@ def find_gaps(
         params,
     )
 
+    # Pre-aggregate the value frequencies once. Querying mass and top values per
+    # ledger row meant two round-trips per field — roughly 17,000 of them on a
+    # full catalog, which turned a report into a coffee break.
+    mass_by_key: dict[tuple[str, str, str], int] = {}
+    for r in catalog.query(
+        """
+        SELECT family_id, field_name, schema_signature, SUM(count) AS mass
+          FROM value_frequencies GROUP BY family_id, field_name, schema_signature
+        """
+    ):
+        mass_by_key[(r["family_id"], r["field_name"], r["schema_signature"])] = int(r["mass"] or 0)
+
+    top_by_key: dict[tuple[str, str, str], list[str]] = {}
+    for r in catalog.query(
+        """
+        SELECT family_id, field_name, schema_signature, value FROM value_frequencies
+         WHERE rank <= 8 ORDER BY family_id, field_name, schema_signature, rank
+        """
+    ):
+        top_by_key.setdefault(
+            (r["family_id"], r["field_name"], r["schema_signature"]), []
+        ).append(str(r["value"]))
+
     gaps: list[Gap] = []
+    bound_by_field: dict[tuple[str | None, str], list[str]] = {}
+    candidates_by_field: dict[str, list[str]] = {}
+    codelist_names = all_codelist_names(catalog)
     for row in rows:
         semantic = str(row["semantic_type"] or "unknown")
         if not include_self_describing and semantic in SELF_DESCRIBING:
@@ -122,31 +148,15 @@ def find_gaps(
         # would send someone hunting for a codelist that should not exist.
         if not include_self_describing and str(row["aggregation"] or "") == "additive":
             continue
-        mass = int(
-            catalog.scalar(
-                """
-                SELECT SUM(count) FROM value_frequencies
-                 WHERE family_id = ? AND field_name = ? AND schema_signature = ?
-                """,
-                (row["family_id"], row["field_name"], row["schema_signature_scope"]),
-            )
-            or 0
-        )
+        key = (row["family_id"], row["field_name"], row["schema_signature_scope"])
         # A field's reach is its rows per file times the files in the family: a
         # gap in a 12,000-file series costs far more than the same gap in one.
-        reach = mass * max(1, int(row["file_count"] or 1))
-        top = [
-            str(r["value"])
-            for r in catalog.query(
-                """
-                SELECT value FROM value_frequencies
-                 WHERE family_id = ? AND field_name = ? AND schema_signature = ?
-                 ORDER BY count DESC LIMIT 8
-                """,
-                (row["family_id"], row["field_name"], row["schema_signature_scope"]),
-            )
-        ]
-        bound = codelists_for(catalog, system=row["system"], field_name=row["field_name"])
+        reach = mass_by_key.get(key, 0) * max(1, int(row["file_count"] or 1))
+        top = top_by_key.get(key, [])
+        bound = bound_by_field.get((row["system"], row["field_name"]))
+        if bound is None:
+            bound = codelists_for(catalog, system=row["system"], field_name=row["field_name"])
+            bound_by_field[(row["system"], row["field_name"])] = bound
         gaps.append(
             Gap(
                 system=str(row["system"]),
@@ -160,7 +170,14 @@ def find_gaps(
                 years=(row["time_min"], row["time_max"]),
                 file_count=int(row["file_count"] or 0),
                 top_values=top,
-                candidate_codelists=[] if bound else match_codelist_by_name(catalog, str(row["field_name"])),
+                candidate_codelists=[]
+                if bound
+                else candidates_by_field.setdefault(
+                    str(row["field_name"]),
+                    match_codelist_by_name(
+                        catalog, str(row["field_name"]), names=codelist_names
+                    ),
+                ),
                 official_name=row["official_name"],
             )
         )

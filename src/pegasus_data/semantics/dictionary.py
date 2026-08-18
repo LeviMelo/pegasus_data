@@ -897,7 +897,24 @@ def coverage_for_field(
     return (covered / total if total else 0.0), len(rows), decoded_distinct
 
 
-def match_codelist_by_name(catalog: Catalog, field_name: str) -> list[str]:
+def all_codelist_names(catalog: Catalog) -> list[str]:
+    """Every codelist name, once. Hoist this out of any loop over fields.
+
+    ``SELECT DISTINCT value_group FROM dictionary`` is a full scan of a table
+    with millions of rows; running it once per field turns a report into a
+    coffee break.
+    """
+    return [
+        str(r["value_group"])
+        for r in catalog.query(
+            "SELECT DISTINCT value_group FROM dictionary WHERE value_group IS NOT NULL"
+        )
+    ]
+
+
+def match_codelist_by_name(
+    catalog: Catalog, field_name: str, *, names: Sequence[str] | None = None
+) -> list[str]:
     """Codelists whose name matches a field name — a *candidate*, not a binding.
 
     ``SEXO`` → ``SEXO.CNV`` is obvious and correct; the point of returning
@@ -905,14 +922,15 @@ def match_codelist_by_name(catalog: Catalog, field_name: str) -> list[str]:
     gets in without provenance. Promote one with :func:`persist_bindings` using
     ``source='name_match'`` so the weaker basis stays visible.
     """
-    rows = catalog.query("SELECT DISTINCT value_group FROM dictionary WHERE value_group IS NOT NULL")
+    groups = list(names) if names is not None else all_codelist_names(catalog)
     upper = field_name.upper()
-    out = []
-    for row in rows:
-        group = str(row["value_group"])
-        if group == upper or fnmatch.fnmatch(group, f"{upper}*") or fnmatch.fnmatch(upper, f"{group}*"):
-            out.append(group)
-    return sorted(out)
+    return sorted(
+        group
+        for group in groups
+        if group == upper
+        or fnmatch.fnmatch(group, f"{upper}*")
+        or fnmatch.fnmatch(upper, f"{group}*")
+    )
 
 
 def conflicts_report(catalog: Catalog, limit: int = 50) -> list[dict[str, object]]:
