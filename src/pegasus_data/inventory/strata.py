@@ -66,7 +66,7 @@ def build_strata(rows: Iterable[dict[str, object]]) -> list[Stratum]:
         system = str(row.get("system") or "UNKNOWN")
         series = row.get("series_prefix")
         year = row.get("year")
-        key = (system, str(series) if series else None, int(year) if year is not None else None)
+        key = (system, str(series) if series else None, int(year) if isinstance(year, (int, float, str)) and str(year).strip() else None)
         stratum = groups.get(key)
         if stratum is None:
             stratum = Stratum(system=key[0], series=key[1], year=key[2])

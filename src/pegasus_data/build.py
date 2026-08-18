@@ -21,6 +21,7 @@ from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
 from .persist.lake import Lake
 from .pipeline import Pipeline, StageResult
+from .semantics.dictionary import DictionaryCache
 from .sources import demas_api, ibge
 
 
@@ -72,11 +73,13 @@ class Builder:
         family_ids: Sequence[str] | None = None,
         max_files_per_family: int | None = None,
         keep_raw: bool | None = None,
+        emit_labels: bool = True,
         on_file: Callable[[str, str], None] | None = None,
     ) -> StageResult:
         stats = BuildStats()
         municipalities = MunicipalityIndex.from_catalog(self.catalog)
         registry = ReaderRegistry()
+        cache = DictionaryCache(self.catalog)
 
         clauses: list[str] = []
         params: list[object] = []
@@ -97,14 +100,14 @@ class Builder:
         for family in families:
             family_id = family["family_id"]
             try:
-                plan = build_plan(self.catalog, family_id=family_id, municipalities=municipalities)
+                plan = build_plan(
+                    self.catalog, family_id=family_id, municipalities=municipalities, cache=cache
+                )
             except KeyError as exc:
                 stats.errors.append((family_id, str(exc)))
                 continue
-            if keep_raw is not None:
-                plan.keep_raw = keep_raw
-            else:
-                plan.keep_raw = self.settings.keep_raw or True
+            plan.keep_raw = True if keep_raw is None else keep_raw
+            plan.emit_labels = emit_labels
 
             members = self.catalog.query(
                 """

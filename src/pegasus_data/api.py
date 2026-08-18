@@ -393,8 +393,16 @@ def describe(
 
         official_name = led.get("official_name")
         if official_name is None:
+            # Same rule the ledger uses: only a declaration that names the field
+            # itself counts. A declaration bound to a codelist names an
+            # aggregation level, and reporting one of those as the column's
+            # official name would be a plausible-looking guess (§13).
             named = store.query(
-                "SELECT display_name FROM def_variables WHERE field_name = ? AND (system = ? OR system IS NULL) ORDER BY LENGTH(display_name) LIMIT 1",
+                """
+                SELECT display_name FROM def_variables
+                 WHERE field_name = ? AND lookup_ref IS NULL AND (system = ? OR system IS NULL)
+                 ORDER BY LENGTH(display_name) LIMIT 1
+                """,
                 (field, system),
             )
             official_name = named[0]["display_name"] if named else None

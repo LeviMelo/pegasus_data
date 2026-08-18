@@ -99,10 +99,6 @@ class CodelistBinding:
     family_id: str | None = None
 
 
-def _norm_member(ref: str) -> str:
-    return PurePosixPath(ref.replace("\\", "/")).name.upper()
-
-
 def _codelist_name(member: str) -> str:
     return PurePosixPath(member.replace("\\", "/")).stem.upper()
 
@@ -367,8 +363,61 @@ def bind_codelists_to_fields(catalog: Catalog) -> int:
 # --------------------------------------------------------------------- lookup
 
 
-def codelists_for(catalog: Catalog, *, system: str | None, field_name: str) -> list[str]:
-    """Codelists a ``.DEF`` binds to this field. Empty means genuinely unbound."""
+class DictionaryCache:
+    """Per-run memo for the dictionary reads the ledger and the planner repeat.
+
+    Building the ledger asks for a field's codelists and their contents once per
+    (family, field), and a family's normalisation plan asks again. Across
+    thousands of fields that is the same handful of codelists read over and over,
+    and ``MUNICBR`` alone is 25,000 rows. Nothing here changes within a run, so
+    it is memoised rather than re-queried.
+    """
+
+    def __init__(self, catalog: Catalog) -> None:
+        self.catalog = catalog
+        self._codelists: dict[tuple[str | None, str], list[str]] = {}
+        self._values: dict[tuple[str | None, str], dict[str, str]] = {}
+        self._stats: dict[tuple[str | None, tuple[str, ...]], list[dict[str, object]]] = {}
+        self._direct: dict[tuple[str | None, str], dict[str, str]] = {}
+
+    def codelists_for(self, system: str | None, field_name: str) -> list[str]:
+        key = (system, field_name)
+        if key not in self._codelists:
+            self._codelists[key] = _codelists_for(self.catalog, system=system, field_name=field_name)
+        return self._codelists[key]
+
+    def codelist_values(self, codelist: str, system: str | None) -> dict[str, str]:
+        key = (system, codelist)
+        if key not in self._values:
+            self._values[key] = codelist_values(self.catalog, codelist, system=system)
+        return self._values[key]
+
+    def codelist_stats(self, codelists: Sequence[str], system: str | None) -> list[dict[str, object]]:
+        key = (system, tuple(codelists))
+        if key not in self._stats:
+            self._stats[key] = codelist_stats(self.catalog, codelists, system=system)
+        return self._stats[key]
+
+    def direct_labels(self, system: str | None, field_name: str) -> dict[str, str]:
+        key = (system, field_name)
+        if key not in self._direct:
+            best: dict[str, tuple[str, int]] = {}
+            for row in self.catalog.query(
+                """
+                SELECT value_raw, value_label, source FROM dictionary
+                 WHERE field_name = ? AND (system IS ? OR system IS NULL)
+                """,
+                (field_name, system),
+            ):
+                authority = SOURCE_AUTHORITY.get(row["source"], 99)
+                current = best.get(row["value_raw"])
+                if current is None or authority < current[1]:
+                    best[row["value_raw"]] = (row["value_label"], authority)
+            self._direct[key] = {k: v[0] for k, v in best.items()}
+        return self._direct[key]
+
+
+def _codelists_for(catalog: Catalog, *, system: str | None, field_name: str) -> list[str]:
     rows = catalog.query(
         """
         SELECT DISTINCT codelist FROM field_codelists
@@ -380,6 +429,15 @@ def codelists_for(catalog: Catalog, *, system: str | None, field_name: str) -> l
     return [str(r["codelist"]) for r in rows]
 
 
+def codelists_for(
+    catalog: Catalog, *, system: str | None, field_name: str, cache: DictionaryCache | None = None
+) -> list[str]:
+    """Codelists a ``.DEF`` binds to this field. Empty means genuinely unbound."""
+    if cache is not None:
+        return cache.codelists_for(system, field_name)
+    return _codelists_for(catalog, system=system, field_name=field_name)
+
+
 def lookup(
     catalog: Catalog,
     *,
@@ -387,6 +445,7 @@ def lookup(
     field_name: str,
     values: Sequence[str] | None = None,
     observed: dict[str, int] | None = None,
+    cache: DictionaryCache | None = None,
 ) -> dict[str, str]:
     """Resolve ``value → label`` for one field via its bound codelists.
 
@@ -405,34 +464,35 @@ def lookup(
     :func:`codelist_values` and are reported by ``describe()`` as roll-ups, which
     is what §6.3's ``value_group`` is for.
     """
-    codelists = codelists_for(catalog, system=system, field_name=field_name)
-    direct = catalog.query(
-        """
-        SELECT value_raw, value_label, source FROM dictionary
-         WHERE field_name = ? AND (system IS ? OR system IS NULL)
-        """,
-        (field_name, system),
-    )
-    best: dict[str, tuple[str, int]] = {}
-    for row in direct:
-        authority = SOURCE_AUTHORITY.get(row["source"], 99)
-        current = best.get(row["value_raw"])
-        if current is None or authority < current[1]:
-            best[row["value_raw"]] = (row["value_label"], authority)
-
-    granular = most_granular_codelist(catalog, codelists, system=system, observed=observed)
-    if granular:
+    codelists = codelists_for(catalog, system=system, field_name=field_name, cache=cache)
+    if cache is not None:
+        out = dict(cache.direct_labels(system, field_name))
+    else:
+        best: dict[str, tuple[str, int]] = {}
         for row in catalog.query(
             """
             SELECT value_raw, value_label, source FROM dictionary
-             WHERE value_group = ? AND (system IS ? OR system IS NULL)
+             WHERE field_name = ? AND (system IS ? OR system IS NULL)
             """,
-            (granular, system),
+            (field_name, system),
         ):
-            if row["value_raw"] not in best:
-                best[row["value_raw"]] = (row["value_label"], SOURCE_AUTHORITY.get(row["source"], 99))
+            authority = SOURCE_AUTHORITY.get(row["source"], 99)
+            current = best.get(row["value_raw"])
+            if current is None or authority < current[1]:
+                best[row["value_raw"]] = (row["value_label"], authority)
+        out = {k: v[0] for k, v in best.items()}
 
-    out = {k: v[0] for k, v in best.items()}
+    granular = most_granular_codelist(
+        catalog, codelists, system=system, observed=observed, cache=cache
+    )
+    if granular:
+        labels = (
+            cache.codelist_values(granular, system)
+            if cache is not None
+            else codelist_values(catalog, granular, system=system)
+        )
+        for code, label in labels.items():
+            out.setdefault(code, label)
     if values is None:
         return out
     wanted = set(values)
@@ -473,6 +533,7 @@ def most_granular_codelist(
     *,
     system: str | None = None,
     observed: dict[str, int] | None = None,
+    cache: DictionaryCache | None = None,
 ) -> str | None:
     """Pick the codelist that best labels this field's *actual* values.
 
@@ -489,13 +550,21 @@ def most_granular_codelist(
     absolute distinct-label count, which favours the comprehensive table over a
     specialised subset.
     """
-    stats = codelist_stats(catalog, codelists, system=system)
+    stats = (
+        cache.codelist_stats(codelists, system)
+        if cache is not None
+        else codelist_stats(catalog, codelists, system=system)
+    )
     if not stats:
         return None
     if observed:
         total = sum(observed.values()) or 1
         for entry in stats:
-            values = codelist_values(catalog, str(entry["codelist"]), system=system)
+            values = (
+                cache.codelist_values(str(entry["codelist"]), system)
+                if cache is not None
+                else codelist_values(catalog, str(entry["codelist"]), system=system)
+            )
             entry["observed_coverage"] = (
                 sum(count for value, count in observed.items() if value in values) / total
             )
@@ -589,6 +658,7 @@ def rollups_for(
     system: str | None,
     field_name: str,
     observed: dict[str, int] | None = None,
+    cache: DictionaryCache | None = None,
 ) -> list[dict[str, object]]:
     """Every codelist bound to a field, with how coarse each one is.
 
@@ -596,11 +666,13 @@ def rollups_for(
     chapter/block/list hierarchies TabNet publishes alongside the raw codes, and
     which of them was chosen for labelling.
     """
-    codelists = codelists_for(catalog, system=system, field_name=field_name)
+    codelists = codelists_for(catalog, system=system, field_name=field_name, cache=cache)
     stats = codelist_stats(catalog, codelists, system=system)
     if not stats:
         return []
-    granular = most_granular_codelist(catalog, codelists, system=system, observed=observed)
+    granular = most_granular_codelist(
+        catalog, codelists, system=system, observed=observed, cache=cache
+    )
     total = sum(observed.values()) if observed else 0
     out: list[dict[str, object]] = []
     for entry in stats:
@@ -661,6 +733,7 @@ def coverage_for_field(
     field_name: str,
     schema_signature: str,
     labels: dict[str, str] | None = None,
+    cache: DictionaryCache | None = None,
 ) -> tuple[float, int, int]:
     """Fraction of *observed* values in a field that have a dictionary entry.
 
@@ -681,7 +754,9 @@ def coverage_for_field(
         system_row = catalog.query("SELECT system FROM families WHERE family_id = ?", (family_id,))
         system = system_row[0]["system"] if system_row else None
         observed = {str(r["value"]): int(r["count"]) for r in rows}
-        labels = lookup(catalog, system=system, field_name=field_name, observed=observed)
+        labels = lookup(
+            catalog, system=system, field_name=field_name, observed=observed, cache=cache
+        )
         unresolved = [r["value"] for r in rows if r["value"] not in labels]
         if unresolved:
             labels = {

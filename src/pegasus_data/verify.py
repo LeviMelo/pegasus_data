@@ -122,7 +122,7 @@ def check_crawl_coverage(catalog: Catalog, settings: Settings) -> Check:
             c,
             f"scoped crawl: {total} files across "
             f"{catalog.count('directories')} directories, {with_size} with size. "
-            "Crawl from the tree root to test the ≥124,810 regression floor.",
+            "Crawl from the tree root to test the 124,810-file regression floor.",
         )
     if total < PRIOR_FILE_COUNT:
         c.status = "fail"
@@ -358,19 +358,26 @@ def check_detectors(catalog: Catalog, settings: Settings) -> Check:
         c.status = "fail"
         c.detail = f"{len(misclassified)} age field(s) still classified as ICD-10"
         return c
-    if age_rows and not diag_rows:
-        c.status = "pass"
-        c.detail = f"{len(age_rows)} age field(s) correctly not classified as ICD-10"
-        return c
     if diag_rows and not diag_ok:
         c.status = "fail"
         c.detail = "no diagnosis field was classified as ICD-10"
         return c
+    # Say which half of the assertion the data actually covered. SINAN's age
+    # fields only exist if SINAN was crawled, and claiming a pass on an untested
+    # half would be exactly the kind of invisible overstatement this module is for.
+    halves = []
+    if age_rows:
+        halves.append(f"{len(age_rows)} age field(s), none classified as ICD-10")
+    else:
+        halves.append("no age field profiled — crawl SINAN to exercise that half")
+    if diag_rows:
+        halves.append(f"{len(diag_ok)}/{len(diag_rows)} diagnosis field(s) classified as ICD-10")
+    else:
+        halves.append("no diagnosis field profiled")
+    if not age_rows and not diag_ok:
+        return _skip(c, "; ".join(halves))
     c.status = "pass"
-    c.detail = (
-        f"{len(age_rows)} age field(s) not ICD, {len(diag_ok)}/{len(diag_rows)} diagnosis "
-        f"field(s) ICD, {with_evidence} verdicts carry stored evidence"
-    )
+    c.detail = f"{'; '.join(halves)}; {with_evidence} verdicts carry stored evidence"
     return c
 
 
@@ -410,12 +417,25 @@ def check_lake(catalog: Catalog, settings: Settings) -> Check:
     stats = catalog.query(
         "SELECT SUM(row_count) AS rows, SUM(byte_size) AS bytes, COUNT(*) AS parts FROM lake_partitions"
     )[0]
-    raw_bytes = catalog.scalar(
-        """
-        SELECT SUM(size) FROM files
-         WHERE path IN (SELECT DISTINCT path FROM family_files)
-        """
-    )
+    # Compare against the sources actually written, not against every file the
+    # families could contain — the latter makes a partial build look like a 200×
+    # compression win, which would be flattering and false.
+    built_sources: set[str] = set()
+    for row in catalog.query("SELECT source_paths FROM lake_partitions WHERE source_paths IS NOT NULL"):
+        try:
+            built_sources.update(json.loads(row["source_paths"]))
+        except (json.JSONDecodeError, TypeError):
+            continue
+    raw_bytes = 0
+    if built_sources:
+        placeholders = ",".join("?" * len(built_sources))
+        raw_bytes = int(
+            catalog.scalar(
+                f"SELECT SUM(size) FROM files WHERE path IN ({placeholders})",
+                list(built_sources),
+            )
+            or 0
+        )
     try:
         from .persist.duck import DuckLake
 
@@ -434,22 +454,51 @@ def check_lake(catalog: Catalog, settings: Settings) -> Check:
         c.status = "fail"
         c.detail = f"DuckDB could not query the lake: {exc}"
         return c
-    ratio = (int(stats["bytes"]) / int(raw_bytes)) if raw_bytes else None
+    # The honest comparison is against the *decoded* form, not against the .dbc.
+    # A .dbc is itself compressed and cannot be queried without inflating the
+    # whole payload from byte zero — measured at 9.7× for a modern SIH-RD file.
+    # Comparing Parquet to it would understate the win; comparing to the row-wise
+    # DBF you would otherwise have to materialise is the like-for-like number.
+    decoded_bytes = 0
+    for row in catalog.query(
+        """
+        SELECT lp.family_id, SUM(lp.row_count) AS rows,
+               (SELECT SUM(COALESCE(vp.width, 0)) + 1 FROM variable_profiles vp
+                 WHERE vp.family_id = lp.family_id AND vp.schema_signature = lp.schema_signature)
+               AS record_width
+          FROM lake_partitions lp GROUP BY lp.family_id, lp.schema_signature
+        """
+    ):
+        if row["rows"] and row["record_width"]:
+            decoded_bytes += int(row["rows"]) * int(row["record_width"])
+
+    lake_bytes = int(stats["bytes"] or 0)
+    ratio_raw = (lake_bytes / int(raw_bytes)) if raw_bytes else None
+    ratio_decoded = (lake_bytes / decoded_bytes) if decoded_bytes else None
     c.evidence = {
         "partitions": int(stats["parts"]),
         "rows": int(stats["rows"] or 0),
-        "lake_bytes": int(stats["bytes"] or 0),
-        "raw_bytes_of_source_files": int(raw_bytes or 0),
-        "size_ratio_lake_over_raw": round(ratio, 4) if ratio else None,
+        "lake_bytes": lake_bytes,
+        "compressed_source_bytes": int(raw_bytes or 0),
+        "decoded_row_wise_bytes": decoded_bytes,
+        "source_files_built": len(built_sources),
+        "ratio_vs_compressed_source": round(ratio_raw, 4) if ratio_raw else None,
+        "ratio_vs_decoded_form": round(ratio_decoded, 4) if ratio_decoded else None,
         "views_registered": len(views),
         "label_columns_seen": label_columns,
         "probe": probe,
+        "note": (
+            "the .dbc is already compressed and is not queryable without inflating it "
+            "whole; the decoded-form ratio is the like-for-like comparison"
+        ),
     }
     c.status = "pass"
-    c.detail = (
-        f"{int(stats['parts'])} partitions, {int(stats['rows'] or 0)} rows, {len(views)} DuckDB views"
-        + (f", lake is {ratio:.1%} of the raw footprint" if ratio else "")
-    )
+    detail = f"{int(stats['parts'])} partitions, {int(stats['rows'] or 0)} rows, {len(views)} DuckDB views"
+    if ratio_decoded:
+        detail += f", lake is {ratio_decoded:.1%} of the decoded row-wise form"
+    if ratio_raw:
+        detail += f" ({ratio_raw:.2f}x the already-compressed .dbc)"
+    c.detail = detail
     return c
 
 

@@ -428,8 +428,16 @@ class Pipeline:
             plan = plan[:limit]
         refs = load_reference_sets(self.catalog)
         registry = ReaderRegistry(row_limit=row_limit or self.settings.profile_row_limit)
-        counts = {"strata": len(plan), "profiled": 0, "failed": 0, "tables": 0}
+        counts = {
+            "strata": len(plan), "profiled": 0, "failed": 0, "tables": 0,
+            "families_profiled": 0, "schema_only": 0,
+        }
         notes: list[str] = []
+        # Families already carrying full statistics — from this run or an earlier
+        # one — need only their schema confirmed.
+        profiled_families: set[str] = {
+            str(r["family_id"]) for r in self.catalog.query("SELECT DISTINCT family_id FROM variable_profiles")
+        }
 
         paths = [str(row["sampled_path"]) for row in plan]
         digests = self.fetcher.ensure(paths)
@@ -478,13 +486,6 @@ class Pipeline:
             if claimed_member:
                 tables = [t for t in tables if t.member == claimed_member] or tables[:1]
             for index, table in enumerate(tables):
-                profile = profile_table(
-                    table,
-                    refs=refs,
-                    row_limit=row_limit or self.settings.profile_row_limit,
-                    max_distinct=self.settings.max_distinct_tracked,
-                    top_values=self.settings.top_values_kept,
-                )
                 member_stratum = (
                     stratum_id if (index == 0 or claimed_member) else f"{stratum_id}#{index}"
                 )
@@ -495,14 +496,35 @@ class Pipeline:
                     if table.member
                     else row["series"]
                 )
-                persist_profile(
-                    self.catalog,
-                    profile,
-                    family_id=family_id_for(
-                        str(row["system"]), member_series, profile.schema_signature
-                    ),
-                    top_values_kept=self.settings.top_values_kept,
-                )
+                # The schema signature comes from the container's declared field
+                # list, which every reader exposes without reading a single
+                # record. So every stratum's schema is established cheaply, and
+                # the expensive part — streaming the rows to build the value
+                # distributions — runs once per *family*, not once per stratum.
+                # SIH-RD alone has 12,101 files across ~35 strata that share one
+                # schema; profiling each in full would re-derive the same
+                # statistics dozens of times and overwrite them each round.
+                signature = schema_signature(table.field_names)
+                family_id = family_id_for(str(row["system"]), member_series, signature)
+                if family_id not in profiled_families:
+                    profile = profile_table(
+                        table,
+                        refs=refs,
+                        row_limit=row_limit or self.settings.profile_row_limit,
+                        max_distinct=self.settings.max_distinct_tracked,
+                        top_values=self.settings.top_values_kept,
+                    )
+                    persist_profile(
+                        self.catalog,
+                        profile,
+                        family_id=family_id,
+                        top_values_kept=self.settings.top_values_kept,
+                    )
+                    profiled_families.add(family_id)
+                    counts["families_profiled"] += 1
+                else:
+                    counts["schema_only"] += 1
+                field_count = len(table.field_names)
                 if index > 0:
                     self.catalog.executemany(
                         """
@@ -523,8 +545,8 @@ class Pipeline:
                     )
                 record_stratum_schema(
                     self.catalog, member_stratum,
-                    schema_sig=profile.schema_signature,
-                    field_count=profile.field_count,
+                    schema_sig=signature,
+                    field_count=field_count,
                     sampled_member=table.member,
                     status="ok",
                 )

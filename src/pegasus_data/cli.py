@@ -260,6 +260,15 @@ def build(
     family: Annotated[list[str] | None, typer.Option("--family")] = None,
     limit: Annotated[int | None, typer.Option("--limit", help="Max files per family")] = None,
     keep_raw: Annotated[bool, typer.Option("--keep-raw/--no-keep-raw")] = True,
+    labels: Annotated[
+        bool,
+        typer.Option(
+            "--labels/--no-labels",
+            help="Materialise a <field>_label column per decoded field. On by default; "
+            "off roughly halves the column count and the footprint, and labels can "
+            "still be applied at read time from the dictionary.",
+        ),
+    ] = True,
     as_json: JsonOpt = False,
 ) -> None:
     """Normalise families into the partitioned Parquet lake."""
@@ -274,6 +283,7 @@ def build(
                 family_ids=family,
                 max_files_per_family=limit,
                 keep_raw=keep_raw,
+                emit_labels=labels,
             )
         _emit(result.counts, as_json, "build")
     finally:
@@ -559,7 +569,28 @@ def _parse_years(spec: str | None) -> list[int] | None:
     return out or None
 
 
+def _make_console_unicode_safe() -> None:
+    """Stop a legacy console codepage from killing the process mid-report.
+
+    Windows consoles still default to cp1252 or cp850, and essentially every
+    label this tool prints is Portuguese — ``Doenças``, ``Permanência``,
+    ``óbito``. Rich writes them straight to stdout and the encoder raises
+    ``UnicodeEncodeError``, losing the whole report over one character. Switching
+    the streams to UTF-8 with replacement keeps the output readable and the exit
+    code meaningful.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
+
 def main() -> None:
+    _make_console_unicode_safe()
     try:
         app()
     except KeyboardInterrupt:

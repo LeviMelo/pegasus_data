@@ -22,7 +22,7 @@ from __future__ import annotations
 import fnmatch
 import json
 import re
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
@@ -341,52 +341,3 @@ def find_loose_dictionaries(catalog: Catalog, *, systems: Sequence[str] | None =
         wanted = {s.upper() for s in systems}
         out = [p for p in out if any(f"/{s}/" in p.upper() for s in wanted)]
     return out
-
-
-def link_defs_to_families(catalog: Catalog) -> int:
-    """Attach each ``.DEF`` to the families whose files its ``A``-line glob matches.
-
-    This is what makes an official variable name usable: without the link, the
-    kit says "``RD*.DBC`` calls ``VAL_TOT`` *Valor Total*" and nothing knows which
-    family that is.
-    """
-    defs = catalog.query("SELECT def_path, system, data_glob FROM def_datasets WHERE data_glob IS NOT NULL")
-    families = catalog.query(
-        """
-        SELECT f.family_id, f.system, f.series, ff.path
-          FROM families f JOIN family_files ff ON ff.family_id = f.family_id
-        """
-    )
-    by_family: dict[tuple[str, str | None, str | None], list[str]] = {}
-    for row in families:
-        by_family.setdefault((row["family_id"], row["system"], row["series"]), []).append(row["path"])
-
-    links = 0
-    updates: list[tuple[str, str]] = []
-    for d in defs:
-        glob = PurePosixPath(str(d["data_glob"]).replace("\\", "/")).name
-        if not glob:
-            continue
-        for (family_id, system, _series), paths in by_family.items():
-            if d["system"] and system and d["system"].upper() != system.upper():
-                continue
-            sample = [PurePosixPath(p).name.upper() for p in paths[:200]]
-            if any(fnmatch.fnmatch(n, glob.upper()) for n in sample):
-                updates.append((d["def_path"], family_id))
-                links += 1
-    catalog.executemany(
-        """
-        INSERT INTO events (stage, level, path, message, detail, noted_at)
-        VALUES ('semantics', 'info', ?, 'def linked to family', ?, datetime('now'))
-        """,
-        updates,
-    )
-    return links
-
-
-def iter_kit_bytes(paths: Iterable[str], loader: object) -> Iterable[tuple[str, bytes]]:
-    """Yield ``(path, bytes)`` for each kit using a caller-supplied loader."""
-    for path in paths:
-        payload = loader(path)  # type: ignore[operator]
-        if payload:
-            yield path, payload

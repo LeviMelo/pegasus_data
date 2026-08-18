@@ -27,8 +27,8 @@ import pyarrow.compute as pc
 
 from ..catalog.store import Catalog, utcnow
 from ..decode.base import DecodedTable
+from ..semantics.dictionary import DictionaryCache, observed_values
 from ..semantics.dictionary import lookup as dict_lookup
-from ..semantics.dictionary import observed_values
 from .geo import MunicipalityIndex, to_seven_digit, uf_array
 from .time import SOURCE_EPI_WEEK_FIELDS, epi_week_array, parse_date_array
 from .types import arrow_type_for, cast_boolean, cast_numeric
@@ -64,6 +64,13 @@ class NormalizePlan:
     fields: dict[str, FieldPlan] = field(default_factory=dict)
     municipalities: MunicipalityIndex | None = None
     keep_raw: bool = True
+    #: Materialise a `<field>_label` column per decoded field. On by default per
+    #: §7.1 step 3, but measurably not free: on a 113-column SIH-RD generation it
+    #: roughly doubles the column count and puts the lake at parity with the
+    #: already-compressed .dbc rather than at a fraction of it. Turning it off
+    #: keeps every raw code and every dictionary entry — labels are then applied
+    #: at read time instead of at write time.
+    emit_labels: bool = True
 
     def for_field(self, name: str) -> FieldPlan:
         return self.fields.get(name) or FieldPlan(name=name)
@@ -74,8 +81,15 @@ def build_plan(
     *,
     family_id: str,
     municipalities: MunicipalityIndex | None = None,
+    cache: DictionaryCache | None = None,
 ) -> NormalizePlan:
-    """Read the ledger and dictionary once, into a reusable per-family plan."""
+    """Read the ledger and dictionary once, into a reusable per-family plan.
+
+    Pass a shared ``cache`` when building several families in one run: the
+    codelists are the same across them, and ``MUNICBR`` alone is 25,000 rows to
+    re-read per family otherwise.
+    """
+    cache = cache or DictionaryCache(catalog)
     family = catalog.query(
         "SELECT system, series, schema_signature FROM families WHERE family_id = ?", (family_id,)
     )
@@ -129,6 +143,7 @@ def build_plan(
             observed=observed_values(
                 catalog, family_id=family_id, field_name=name, schema_signature=signature
             ),
+            cache=cache,
         )
         plan.fields[name] = FieldPlan(
             name=name,
@@ -194,7 +209,7 @@ def normalize_batch(batch: pa.RecordBatch, plan: NormalizePlan) -> pa.RecordBatc
             names.append(f"{name}_raw")
             columns.append(cleaned if cleaned.type == pa.string() else cleaned.cast(pa.string()))
 
-        if fp.emits_label:
+        if fp.emits_label and plan.emit_labels:
             names.append(f"{name}_label")
             columns.append(_label_array(cleaned, fp.labels))
 

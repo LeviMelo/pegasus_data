@@ -27,9 +27,16 @@ import json
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from pathlib import PurePosixPath
 
 from ..catalog.store import Catalog
-from .dictionary import coverage_for_field
+from .dictionary import (
+    DictionaryCache,
+    codelists_for,
+    coverage_for_field,
+    most_granular_codelist,
+    observed_values,
+)
 from .dictionary import lookup as dict_lookup
 
 #: Semantic types that are never additive, whatever their name suggests.
@@ -75,18 +82,44 @@ class LedgerEntry:
 
 
 def _official_names(catalog: Catalog) -> dict[tuple[str | None, str], str]:
-    """``(system, field) → official display name`` from the ``.DEF`` files.
+    """``(system, field) → the name a ``.DEF`` gives the field *itself*.
 
-    Shortest label wins, mirroring ``DefFile.official_names``: TabNet's longer
-    variants are display decorations of the same variable.
+    Only declarations with no lookup are counted here. A declaration that names a
+    codelist is naming an *aggregation level*, not the column: ``RD.DEF`` offers
+    ``DIAG_PRINC`` more than two hundred times — "Diag CID10 (capit)",
+    "Diag CID10 (grupo)", "Diag CID10 cap 01" … — and every one of them is a
+    roll-up. None names the raw ICD code, because TabNet never offers it as an
+    axis. Picking the shortest of those would label the column "CID Capítulos",
+    which is the name of a 24-category grouping, not of the diagnosis field.
+    Where nothing names the field directly, the answer is that there is no
+    official name, and that is what gets recorded (§13).
     """
     out: dict[tuple[str | None, str], str] = {}
     for row in catalog.query(
-        "SELECT system, field_name, display_name FROM def_variables ORDER BY LENGTH(display_name)"
+        """
+        SELECT system, field_name, display_name FROM def_variables
+         WHERE lookup_ref IS NULL ORDER BY LENGTH(display_name)
+        """
     ):
         key = (row["system"], row["field_name"])
         out.setdefault(key, str(row["display_name"]).strip())
         out.setdefault((None, row["field_name"]), str(row["display_name"]).strip())
+    return out
+
+
+def _names_by_codelist(catalog: Catalog) -> dict[tuple[str | None, str, str], str]:
+    """``(system, field, codelist) → the display name declared for that pairing``."""
+    out: dict[tuple[str | None, str, str], str] = {}
+    for row in catalog.query(
+        """
+        SELECT system, field_name, display_name, lookup_ref FROM def_variables
+         WHERE lookup_ref IS NOT NULL ORDER BY LENGTH(display_name)
+        """
+    ):
+        codelist = PurePosixPath(str(row["lookup_ref"]).replace("\\", "/")).stem.upper()
+        name = str(row["display_name"]).strip()
+        out.setdefault((row["system"], row["field_name"], codelist), name)
+        out.setdefault((None, row["field_name"], codelist), name)
     return out
 
 
@@ -99,14 +132,16 @@ def _declared_measures(catalog: Catalog) -> set[tuple[str | None, str]]:
     return out
 
 
-def _sentinels_for(catalog: Catalog, system: str | None, field_name: str) -> list[str]:
+def _sentinels_for(
+    catalog: Catalog, system: str | None, field_name: str, cache: DictionaryCache | None = None
+) -> list[str]:
     """Codes the dictionary itself labels as ignored/unknown, for this field only.
 
     Derived from the field's own bound codelists, never from a global list: a
     ``9`` labelled "Ignorado" in ``SEXO`` says nothing about ``9`` in a field
     where it means a valid category (§13).
     """
-    labels = dict_lookup(catalog, system=system, field_name=field_name)
+    labels = dict_lookup(catalog, system=system, field_name=field_name, cache=cache)
     return sorted({code for code, label in labels.items() if _IGNORED_LABEL.match(str(label or ""))})
 
 
@@ -114,6 +149,9 @@ def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> l
     """Assemble the ledger from profiles, DEF declarations and the dictionary."""
     official = _official_names(catalog)
     measures = _declared_measures(catalog)
+    cache = DictionaryCache(catalog)
+    names_by_codelist = _names_by_codelist(catalog)
+    sentinel_cache: dict[tuple[str | None, str], list[str]] = {}
 
     clause = ""
     params: list[object] = []
@@ -143,6 +181,7 @@ def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> l
             family_id=row["family_id"],
             field_name=field_name,
             schema_signature=row["schema_signature"],
+            cache=cache,
         )
         semantic = row["semantic_type"] or "unknown"
         declared_additive = (system, field_name) in measures or (None, field_name) in measures
@@ -154,7 +193,29 @@ def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> l
             aggregation = "non_summable"
 
         provenance: list[str] = [f"profile:{row['schema_signature']}"]
-        name = official.get((system, field_name)) or official.get((None, field_name))
+        # Name the field after the codelist that actually labels it, so a column
+        # decoded with full ICD-10 descriptions is not called "CID Capítulos".
+        chosen = most_granular_codelist(
+            catalog,
+            codelists_for(catalog, system=system, field_name=field_name, cache=cache),
+            system=system,
+            observed=observed_values(
+                catalog,
+                family_id=row["family_id"],
+                field_name=field_name,
+                schema_signature=row["schema_signature"],
+            ),
+            cache=cache,
+        )
+        # Prefer the declaration bound to the codelist actually doing the
+        # labelling, then one that names the field with no codelist at all.
+        name = None
+        if chosen:
+            name = names_by_codelist.get((system, field_name, chosen)) or names_by_codelist.get(
+                (None, field_name, chosen)
+            )
+        if name is None:
+            name = official.get((system, field_name)) or official.get((None, field_name))
         if name:
             provenance.append("def:official_name")
         if declared_additive:
@@ -180,6 +241,12 @@ def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> l
             )
         if semantic == "unknown":
             questions.append("no detector matched: needs a dictionary source or a new detector")
+        if name is None and chosen:
+            questions.append(
+                "TabNet declares this field only at roll-up levels, never at the "
+                "granularity its values are stored in, so no official name applies "
+                f"to the raw column; the labels come from {chosen}"
+            )
 
         unit = None
         if semantic == "money":
@@ -199,11 +266,16 @@ def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> l
                 semantic_evidence=row["semantic_evidence"],
                 unit=unit,
                 aggregation=aggregation,
-                sentinel_values=_sentinels_for(catalog, system, field_name),
+                sentinel_values=sentinel_cache.setdefault(
+                    (system, field_name), _sentinels_for(catalog, system, field_name, cache)
+                ),
                 first_seen=row["time_min"],
                 last_seen=row["time_max"],
                 dictionary_coverage=coverage,
-                distinct_observed=observed,
+                # The profiler's own distinct count, not the number of rows kept
+                # in value_frequencies — those are capped at the top N and would
+                # understate a high-cardinality field like DIAG_PRINC.
+                distinct_observed=int(row["distinct_count"] or observed),
                 distinct_decoded=decoded,
                 provenance=provenance,
                 open_questions=questions,

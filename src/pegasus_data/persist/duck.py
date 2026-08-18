@@ -96,16 +96,20 @@ class DuckLake:
                     f"{system} {series or ''}".strip() + f" — {len(views)} schema generation(s)",
                 )
             )
-        self.catalog.executemany(
-            """
-            INSERT INTO lake_datasets (dataset, system, series, family_ids, description)
-            VALUES (?,?,?,?,?)
-            ON CONFLICT(dataset) DO UPDATE SET
-                system=excluded.system, series=excluded.series,
-                family_ids=excluded.family_ids, description=excluded.description
-            """,
-            dataset_rows,
-        )
+        # Registering views is a read-only act as far as the lake is concerned;
+        # recording the dataset names is a convenience. A caller holding the
+        # catalog read-only (`verify`, `describe`) still gets its views.
+        if not self.catalog.read_only:
+            self.catalog.executemany(
+                """
+                INSERT INTO lake_datasets (dataset, system, series, family_ids, description)
+                VALUES (?,?,?,?,?)
+                ON CONFLICT(dataset) DO UPDATE SET
+                    system=excluded.system, series=excluded.series,
+                    family_ids=excluded.family_ids, description=excluded.description
+                """,
+                dataset_rows,
+            )
         return registered
 
     def _register_from_disk(self) -> list[str]:
