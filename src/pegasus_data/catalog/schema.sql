@@ -1,0 +1,473 @@
+-- pegasus_data catalog schema.
+--
+-- One SQLite database holding everything discovered, decided, or left open.
+-- It is the module's memory and ships alongside the lake.
+--
+-- Design notes that matter:
+--   * Nothing here is ever silently overwritten with a guess. Where a fact is
+--     unknown it is absent or explicitly marked, never invented (see §13 of the
+--     architecture brief).
+--   * Unreachable paths are rows in `coverage_gaps`, not log lines, so coverage
+--     is a queryable property of the artifact.
+--   * `families` are keyed by schema signature, not by container format, so the
+--     same logical dataset published four ways is one family with four
+--     `representations`.
+
+PRAGMA journal_mode = WAL;
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS schema_version (
+  version     INTEGER NOT NULL,
+  applied_at  TEXT    NOT NULL
+);
+
+-- ---------------------------------------------------------------- L0 discovery
+
+CREATE TABLE IF NOT EXISTS files (
+  path            TEXT PRIMARY KEY,
+  directory       TEXT NOT NULL,
+  filename        TEXT NOT NULL,
+  extension       TEXT,
+  size            INTEGER,
+  modified        TEXT,              -- ISO-8601 UTC where the server supplies it
+  listing_method  TEXT,              -- which FTP verb served this row (D4)
+  change_signal   TEXT,              -- 'mtime' | 'size' | 'content_hash'
+  first_seen      TEXT NOT NULL,
+  last_seen       TEXT NOT NULL,
+  gone_at         TEXT               -- set when a later crawl no longer sees it
+);
+CREATE INDEX IF NOT EXISTS ix_files_directory ON files (directory);
+CREATE INDEX IF NOT EXISTS ix_files_extension ON files (extension);
+
+CREATE TABLE IF NOT EXISTS directories (
+  path             TEXT PRIMARY KEY,
+  parent           TEXT,
+  listing_method   TEXT,
+  entry_count      INTEGER,
+  file_count       INTEGER,
+  dir_count        INTEGER,
+  last_listed_at   TEXT,
+  date_convention  TEXT               -- 'monthly' | 'annual' | 'mixed' | NULL (§5.2)
+);
+
+CREATE TABLE IF NOT EXISTS coverage_gaps (   -- D6: unreachable paths are data
+  path           TEXT PRIMARY KEY,
+  kind           TEXT NOT NULL DEFAULT 'listing',  -- 'listing' | 'fetch' | 'decode'
+  attempts       INTEGER NOT NULL DEFAULT 0,
+  methods_tried  TEXT,
+  last_error     TEXT,
+  last_attempt   TEXT,
+  resolved       INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS crawl_runs (
+  run_id           TEXT PRIMARY KEY,
+  host             TEXT,
+  base_path        TEXT,
+  started_at       TEXT,
+  finished_at      TEXT,
+  directories      INTEGER,
+  files            INTEGER,
+  gaps             INTEGER,
+  connections      INTEGER,
+  notes            TEXT
+);
+
+-- ---------------------------------------------------- L1 inventory / strata
+
+CREATE TABLE IF NOT EXISTS file_facts (      -- parsed filename grammar (§5.2)
+  path             TEXT PRIMARY KEY,
+  system           TEXT,
+  series_prefix    TEXT,
+  geo_code         TEXT,
+  date_code        TEXT,
+  date_format      TEXT,               -- 'YYYYMM' | 'YYMM' | 'YYYY' | 'YY'
+  normalized_date  INTEGER,            -- YYYYMM as integer; YYYY00 for annual
+  year             INTEGER,
+  grammar          TEXT,               -- which naming grammar matched
+  container_format TEXT,               -- probe-independent hint from suffix
+  role             TEXT,               -- 'data' | 'dictionary' | 'documentation' | 'auxiliary' | 'unknown'
+  FOREIGN KEY (path) REFERENCES files (path) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS ix_file_facts_system ON file_facts (system, series_prefix, year);
+
+CREATE TABLE IF NOT EXISTS strata (          -- D2: unit of schema sampling
+  stratum_id        TEXT PRIMARY KEY,
+  system            TEXT NOT NULL,
+  series            TEXT,
+  year              INTEGER,
+  file_count        INTEGER NOT NULL DEFAULT 0,
+  sampled_path      TEXT,
+  sampled_member    TEXT,               -- archive member, when the sample is nested
+  schema_signature  TEXT,
+  field_count       INTEGER,
+  sample_status     TEXT,               -- 'pending' | 'ok' | 'failed'
+  sample_error      TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_strata_system ON strata (system, series, year);
+
+CREATE TABLE IF NOT EXISTS stratum_members (
+  stratum_id  TEXT NOT NULL,
+  path        TEXT NOT NULL,
+  PRIMARY KEY (stratum_id, path)
+);
+
+CREATE TABLE IF NOT EXISTS schemas (         -- the field list behind a signature
+  schema_signature  TEXT PRIMARY KEY,
+  field_count       INTEGER NOT NULL,
+  fields_json       TEXT NOT NULL,      -- ordered list of field names
+  first_seen        TEXT
+);
+
+CREATE TABLE IF NOT EXISTS families (        -- D3: keyed by schema, not format
+  family_id         TEXT PRIMARY KEY,
+  system            TEXT NOT NULL,
+  series            TEXT,
+  schema_signature  TEXT,
+  field_count       INTEGER,
+  time_min          INTEGER,
+  time_max          INTEGER,
+  geo_coverage      TEXT,
+  file_count        INTEGER NOT NULL DEFAULT 0,
+  stratum_count     INTEGER NOT NULL DEFAULT 0,
+  label             TEXT,
+  notes             TEXT
+);
+
+CREATE TABLE IF NOT EXISTS representations ( -- D3: same family, other containers
+  family_id         TEXT NOT NULL,
+  container_format  TEXT NOT NULL,
+  path_glob         TEXT,
+  file_count        INTEGER NOT NULL DEFAULT 0,
+  decode_cost_rank  INTEGER,
+  reader            TEXT,
+  PRIMARY KEY (family_id, container_format)
+);
+
+CREATE TABLE IF NOT EXISTS family_files (
+  family_id  TEXT NOT NULL,
+  path       TEXT NOT NULL,
+  member     TEXT,                     -- archive member name where applicable
+  PRIMARY KEY (family_id, path, member)
+);
+CREATE INDEX IF NOT EXISTS ix_family_files_path ON family_files (path);
+
+-- ------------------------------------------------------- L2 acquisition (CAS)
+
+CREATE TABLE IF NOT EXISTS blobs (
+  sha256          TEXT PRIMARY KEY,
+  byte_size       INTEGER NOT NULL,
+  first_fetched_at TEXT NOT NULL,
+  fetch_count     INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS fetches (         -- append-only fetch history
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  source_path     TEXT NOT NULL,
+  sha256          TEXT NOT NULL,
+  byte_size       INTEGER,
+  fetched_at      TEXT NOT NULL,
+  serving_method  TEXT,
+  elapsed_ms      REAL
+);
+CREATE INDEX IF NOT EXISTS ix_fetches_path ON fetches (source_path);
+CREATE INDEX IF NOT EXISTS ix_fetches_sha ON fetches (sha256);
+
+-- ------------------------------------------------------- L3 decode outcomes
+
+CREATE TABLE IF NOT EXISTS decode_attempts (
+  path         TEXT NOT NULL,
+  member       TEXT NOT NULL DEFAULT '',
+  reader       TEXT NOT NULL,
+  ok           INTEGER NOT NULL,
+  rows_read    INTEGER,
+  field_count  INTEGER,
+  error        TEXT,
+  attempted_at TEXT,
+  PRIMARY KEY (path, member, reader)
+);
+
+CREATE TABLE IF NOT EXISTS archive_members (  -- D1/D7: kits expose every member
+  archive_path  TEXT NOT NULL,
+  member        TEXT NOT NULL,
+  member_size   INTEGER,
+  member_role   TEXT,                  -- 'data' | 'cnv' | 'def' | 'lookup' | 'doc' | 'binary'
+  container     TEXT,                  -- 'zip' | 'lha_sfx' | 'rar' | 'gzip' | '7z'
+  PRIMARY KEY (archive_path, member)
+);
+
+-- ------------------------------------------------------------- L4 profiling
+
+CREATE TABLE IF NOT EXISTS variable_profiles (
+  family_id           TEXT NOT NULL,
+  field_name          TEXT NOT NULL,
+  schema_signature    TEXT NOT NULL,
+  source_path         TEXT,
+  field_order         INTEGER,
+  physical_type       TEXT,
+  width               INTEGER,
+  decimals            INTEGER,
+  non_null            INTEGER,
+  nulls               INTEGER,
+  distinct_count      INTEGER,
+  distinct_truncated  INTEGER NOT NULL DEFAULT 0,
+  semantic_type       TEXT,
+  semantic_confidence REAL,
+  semantic_evidence   TEXT,            -- JSON: the statistics that produced the verdict (D5)
+  stats_json          TEXT,
+  PRIMARY KEY (family_id, field_name, schema_signature)
+);
+
+CREATE TABLE IF NOT EXISTS value_frequencies (
+  family_id         TEXT NOT NULL,
+  field_name        TEXT NOT NULL,
+  schema_signature  TEXT NOT NULL,
+  value             TEXT NOT NULL,
+  count             INTEGER NOT NULL,
+  percent           REAL,
+  rank              INTEGER
+);
+CREATE INDEX IF NOT EXISTS ix_valfreq_field
+  ON value_frequencies (family_id, field_name, schema_signature);
+
+CREATE TABLE IF NOT EXISTS schema_presence (
+  schema_signature TEXT NOT NULL,
+  field_name       TEXT NOT NULL,
+  field_order      INTEGER,
+  PRIMARY KEY (schema_signature, field_name)
+);
+
+CREATE TABLE IF NOT EXISTS schema_drift (    -- D2: never report 'stable' at n=1
+  system                TEXT NOT NULL,
+  series                TEXT NOT NULL,
+  observed_strata       INTEGER,
+  schema_signature_count INTEGER,
+  signatures_json       TEXT,
+  union_field_count     INTEGER,
+  always_present_json   TEXT,
+  sometimes_present_json TEXT,
+  drift_status          TEXT,          -- 'stable' | 'drifting' | 'insufficient_evidence'
+  PRIMARY KEY (system, series)
+);
+
+CREATE TABLE IF NOT EXISTS field_renames (   -- silent traps: DIAG_SECUN → DIAGSEC1..9
+  system      TEXT NOT NULL,
+  series      TEXT NOT NULL,
+  field_name  TEXT NOT NULL,
+  present_in  TEXT,                    -- JSON list of schema signatures
+  absent_in   TEXT,
+  first_year  INTEGER,
+  last_year   INTEGER,
+  PRIMARY KEY (system, series, field_name)
+);
+
+-- ------------------------------------------------------------- L5 semantics
+
+CREATE TABLE IF NOT EXISTS dictionary (
+  id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+  system                 TEXT,
+  family_id              TEXT,
+  field_name             TEXT,
+  schema_signature_scope TEXT,
+  value_raw              TEXT,
+  value_label            TEXT,
+  value_group            TEXT,
+  source                 TEXT NOT NULL,  -- 'cnv'|'def'|'dbf_lookup'|'pdf'|'demas_api'|'inferred'|'manual'
+  source_ref             TEXT NOT NULL,  -- exact file path + archive member + line, or URL
+  confidence             REAL NOT NULL,
+  valid_from             TEXT,
+  valid_to               TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_dict_lookup ON dictionary (system, value_group, value_raw);
+CREATE INDEX IF NOT EXISTS ix_dict_field ON dictionary (system, field_name, value_raw);
+CREATE INDEX IF NOT EXISTS ix_dict_family ON dictionary (family_id, field_name);
+
+-- A .CNV is a *codelist*, not a column: SEXO.CNV maps 1→Masculino without
+-- saying which column uses it, and several columns legitimately share one
+-- codelist (MUNICBR decodes both MUNIC_RES and MUNIC_MOV). Keeping the codes in
+-- `dictionary` keyed by codelist and the field attachment here avoids two
+-- errors: duplicating 5,600 municipality rows per column, and reporting a
+-- "conflict" every time two unrelated codelists both define the code '1'.
+CREATE TABLE IF NOT EXISTS field_codelists (
+  system      TEXT,
+  family_id   TEXT,
+  field_name  TEXT NOT NULL,
+  codelist    TEXT NOT NULL,
+  source      TEXT NOT NULL,       -- 'def' | 'manual' | 'name_match'
+  source_ref  TEXT NOT NULL,
+  confidence  REAL NOT NULL,
+  PRIMARY KEY (system, family_id, field_name, codelist)
+);
+CREATE INDEX IF NOT EXISTS ix_field_codelists_field ON field_codelists (field_name);
+
+CREATE TABLE IF NOT EXISTS dictionary_rules (  -- ranges that could not be expanded
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  system       TEXT,
+  field_name   TEXT,
+  expression   TEXT NOT NULL,          -- e.g. 'A00-B99' or '100-312,400'
+  value_label  TEXT,
+  source       TEXT NOT NULL,
+  source_ref   TEXT NOT NULL,
+  confidence   REAL NOT NULL,
+  reason       TEXT                    -- why it stayed a rule
+);
+
+CREATE TABLE IF NOT EXISTS dictionary_conflicts (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  system     TEXT,
+  field_name TEXT,
+  value_raw  TEXT,
+  claim_a    TEXT,
+  source_a   TEXT,
+  claim_b    TEXT,
+  source_b   TEXT,
+  noted_at   TEXT
+);
+
+CREATE TABLE IF NOT EXISTS code_tables (       -- kit lookup tables, kept whole
+  table_id     TEXT NOT NULL,          -- e.g. 'CID10' | 'TPROC10' | 'TCNESBR'
+  source_ref   TEXT NOT NULL,
+  code         TEXT NOT NULL,
+  label        TEXT,
+  extra_json   TEXT,
+  PRIMARY KEY (table_id, code, source_ref)
+);
+
+CREATE TABLE IF NOT EXISTS tab_kits (
+  kit_path      TEXT PRIMARY KEY,
+  system        TEXT,
+  container     TEXT,
+  member_count  INTEGER,
+  def_count     INTEGER,
+  cnv_count     INTEGER,
+  dbf_count     INTEGER,
+  ingested_at   TEXT,
+  sha256        TEXT
+);
+
+CREATE TABLE IF NOT EXISTS def_variables (     -- what a column is officially called
+  def_path      TEXT NOT NULL,         -- kit path + member
+  system        TEXT,
+  usage         TEXT NOT NULL,         -- 'L'|'C'|'S'|'X'|'I'
+  display_name  TEXT NOT NULL,
+  field_name    TEXT NOT NULL,
+  category_arg  TEXT,
+  lookup_ref    TEXT,                  -- CNV or DBF member that decodes it
+  line_no       INTEGER,
+  PRIMARY KEY (def_path, usage, display_name, field_name)
+);
+CREATE INDEX IF NOT EXISTS ix_defvars_field ON def_variables (system, field_name);
+
+CREATE TABLE IF NOT EXISTS def_datasets (      -- the A-line: which files a DEF describes
+  def_path     TEXT PRIMARY KEY,
+  system       TEXT,
+  data_glob    TEXT,
+  help_ref     TEXT,
+  title        TEXT
+);
+
+CREATE TABLE IF NOT EXISTS ledger (
+  system                 TEXT NOT NULL,
+  family_id              TEXT NOT NULL,
+  field_name             TEXT NOT NULL,
+  schema_signature_scope TEXT NOT NULL,
+  official_name          TEXT,          -- from .DEF, the only authoritative source
+  semantic_type          TEXT,
+  semantic_confidence    REAL,
+  semantic_evidence      TEXT,
+  unit                   TEXT,
+  aggregation            TEXT,          -- 'additive' | 'mean' | 'non_summable'
+  sentinel_values        TEXT,          -- JSON list, per field, never global (§13)
+  first_seen             INTEGER,
+  last_seen              INTEGER,
+  dictionary_coverage    REAL,          -- THE headline metric (§6.2)
+  distinct_observed      INTEGER,
+  distinct_decoded       INTEGER,
+  provenance             TEXT,
+  open_questions         TEXT,
+  PRIMARY KEY (system, family_id, field_name, schema_signature_scope)
+);
+
+CREATE TABLE IF NOT EXISTS open_questions (
+  id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+  key                    TEXT UNIQUE,
+  area                   TEXT,
+  question               TEXT NOT NULL,
+  verification_procedure TEXT,
+  blocking               TEXT,
+  status                 TEXT NOT NULL DEFAULT 'open',  -- 'open'|'resolved'|'wontfix'
+  resolution             TEXT,
+  evidence               TEXT,
+  noted_at               TEXT,
+  resolved_at            TEXT
+);
+
+-- --------------------------------------------------------------- L7 the lake
+
+CREATE TABLE IF NOT EXISTS lake_partitions (
+  family_id        TEXT NOT NULL,
+  schema_signature TEXT NOT NULL,
+  uf               TEXT NOT NULL,
+  year             INTEGER NOT NULL,
+  relative_path    TEXT NOT NULL,
+  row_count        INTEGER,
+  byte_size        INTEGER,
+  source_paths     TEXT,
+  written_at       TEXT,
+  PRIMARY KEY (family_id, schema_signature, uf, year, relative_path)
+);
+
+CREATE TABLE IF NOT EXISTS lake_datasets (     -- what DuckDB views get registered
+  dataset      TEXT PRIMARY KEY,        -- e.g. 'sih_rd'
+  system       TEXT,
+  series       TEXT,
+  family_ids   TEXT,
+  description  TEXT
+);
+
+-- ------------------------------------------------------- L8/L9 other sources
+
+CREATE TABLE IF NOT EXISTS population_series (
+  series             TEXT PRIMARY KEY,   -- 'POPSVS' | 'POPTCU' | 'POP' | 'projpop' | 'censo'
+  authority          TEXT,
+  year_min           INTEGER,
+  year_max           INTEGER,
+  stratifications    TEXT,               -- JSON list, e.g. ["municipality","year","sex","age"]
+  age_standardizable INTEGER NOT NULL DEFAULT 0,
+  file_count         INTEGER,
+  notes              TEXT
+);
+
+CREATE TABLE IF NOT EXISTS api_endpoints (
+  path         TEXT PRIMARY KEY,
+  method       TEXT,
+  summary      TEXT,
+  tags         TEXT,
+  params_json  TEXT,
+  schema_json  TEXT,
+  spec_version TEXT,
+  fetched_at   TEXT
+);
+
+CREATE TABLE IF NOT EXISTS api_ingests (
+  path        TEXT NOT NULL,
+  params      TEXT NOT NULL,
+  rows        INTEGER,
+  lake_path   TEXT,
+  fetched_at  TEXT,
+  PRIMARY KEY (path, params)
+);
+
+-- ------------------------------------------------------------- diagnostics
+
+CREATE TABLE IF NOT EXISTS events (            -- append-only run history
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  run_id     TEXT,
+  stage      TEXT,
+  level      TEXT,
+  path       TEXT,
+  message    TEXT,
+  detail     TEXT,
+  noted_at   TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_events_stage ON events (stage, level);

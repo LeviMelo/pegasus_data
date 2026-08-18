@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pegasus-data"
+version = "0.1.0"
+description = "A queryable, self-describing, typed data lake over Brazil's DATASUS public health data"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "PegaSUS" }]
+keywords = ["datasus", "sus", "brazil", "health", "epidemiology", "parquet", "ftp"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+  "pyarrow>=14",
+  "duckdb>=0.10",
+  "dbfread>=2.0.7",
+  "datasus-dbc>=0.1.0",
+  "httpx>=0.27",
+  "typer>=0.12",
+  "rich>=13",
+]
+
+[project.optional-dependencies]
+pdf = ["pypdf>=4", "pdfplumber>=0.11"]
+excel = ["openpyxl>=3.1"]
+rar = ["rarfile>=4"]
+fast = ["polars>=1.0"]
+all = ["pypdf>=4", "pdfplumber>=0.11", "openpyxl>=3.1", "rarfile>=4", "polars>=1.0"]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6", "mypy>=1.10"]
+
+[project.scripts]
+pegasus-data = "pegasus_data.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/pegasus-sus/pegasus-data"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pegasus_data = ["catalog/*.sql", "resources/*.csv", "resources/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "network: test requires live network access to ftp.datasus.gov.br or the DEMAS API",
+  "slow: test takes more than a few seconds",
+]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+# SIM105: teardown paths against a flaky FTP server and a closing SQLite handle
+# read more plainly as try/except/pass than as nested contextlib.suppress blocks.
+# SIM115: the archive readers hand out handles that outlive the call by design.
+# B006: mutable defaults are used deliberately to bind loop variables in closures.
+ignore = ["E501", "B006", "B008", "SIM105", "SIM108", "SIM115", "C401"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = false

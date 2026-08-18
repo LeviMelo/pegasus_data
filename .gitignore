@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+# runtime data
+data/
+lake/
+blobs/
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+scratch/
