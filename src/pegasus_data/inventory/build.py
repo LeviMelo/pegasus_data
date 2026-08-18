@@ -15,23 +15,36 @@ from .naming import (
     apply_convention,
     infer_date_convention,
     infer_two_digit_epoch,
+    logical_identity,
     parse_filename,
     role_from_path,
     system_from_path,
 )
 from .strata import build_strata, persist_strata, prune_orphan_strata
+from .systems import (
+    learn_prefix_systems,
+    load_prefix_systems,
+    persist_prefix_systems,
+    record_disagreements,
+    resolve_system,
+)
 
 
 def build_inventory(
     catalog: Catalog, *, base_path: str = "/dissemin/publicos", systems: Sequence[str] | None = None
 ) -> dict[str, int]:
     """Parse every known file, infer per-directory date conventions, persist facts."""
-    where = ""
+    # Only files that are actually present. A file marked gone must not go on
+    # driving inference: after a reorganisation the tree holds the old paths and
+    # the new ones at once, and counting both makes every prefix look evenly
+    # split between two systems — which is precisely the evidence that would stop
+    # the prefix being trusted, exactly when its stability matters most.
+    clauses = ["gone_at IS NULL"]
     params: list[object] = []
     if systems:
-        clauses = " OR ".join("path LIKE ?" for _ in systems)
-        where = f"WHERE {clauses}"
+        clauses.append("(" + " OR ".join("path LIKE ?" for _ in systems) + ")")
         params = [f"{base_path}/{s}/%" for s in systems]
+    where = "WHERE " + " AND ".join(clauses)
     rows = catalog.query(f"SELECT path, directory, filename FROM files {where}", params)
 
     parsed_by_path: dict[str, ParsedName] = {}
@@ -59,15 +72,36 @@ def build_inventory(
         if convention == "ambiguous":
             ambiguous_dirs.append(directory)
 
+    # ---- which system a file belongs to, decided by its name where the name is
+    # a reliable witness. Learn the prefix→system map from this crawl, hold what
+    # earlier crawls learned, then resolve name-first with the path corroborating.
+    prefix_stats = persist_prefix_systems(
+        catalog,
+        learn_prefix_systems(
+            [
+                (parsed.series_prefix, system_from_path(path, base_path))
+                for path, parsed in parsed_by_path.items()
+            ]
+        ),
+    )
+    learned = load_prefix_systems(catalog)
+
     facts: list[tuple[object, ...]] = []
+    disagreements: list[tuple[str, str | None, str, str, str]] = []
     for path, parsed in parsed_by_path.items():
         directory = path.rsplit("/", 1)[0]
         convention = conventions.get(directory, "none")
         resolved = apply_convention(parsed, convention, epoch=epochs.get(directory, "pivot"))
+        by_path = system_from_path(path, base_path)
+        system, disagreed = resolve_system(
+            series_prefix=resolved.series_prefix, system_by_path=by_path, learned=learned
+        )
+        if disagreed and system:
+            disagreements.append((path, resolved.series_prefix, system, disagreed, system))
         facts.append(
             (
                 path,
-                system_from_path(path, base_path),
+                system,
                 resolved.series_prefix,
                 resolved.geo_code,
                 resolved.date_code,
@@ -77,23 +111,31 @@ def build_inventory(
                 resolved.grammar,
                 resolved.container_format,
                 role_from_path(path),
+                logical_identity(resolved, system=system, path=path),
             )
         )
 
     catalog.executemany(
         """
         INSERT INTO file_facts (path, system, series_prefix, geo_code, date_code, date_format,
-                                normalized_date, year, grammar, container_format, role)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                                normalized_date, year, grammar, container_format, role, logical_id)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(path) DO UPDATE SET
             system=excluded.system, series_prefix=excluded.series_prefix,
             geo_code=excluded.geo_code, date_code=excluded.date_code,
             date_format=excluded.date_format, normalized_date=excluded.normalized_date,
             year=excluded.year, grammar=excluded.grammar,
-            container_format=excluded.container_format, role=excluded.role
+            container_format=excluded.container_format, role=excluded.role,
+            logical_id=excluded.logical_id
         """,
         facts,
     )
+    # Keep the identity on `files` too, so a move can be matched without a join.
+    catalog.executemany(
+        "UPDATE files SET logical_id = ? WHERE path = ?", [(f[11], f[0]) for f in facts]
+    )
+    if disagreements:
+        record_disagreements(catalog, disagreements)
     catalog.executemany(
         "UPDATE directories SET date_convention=? WHERE path=?",
         [(conv, d) for d, conv in conventions.items()],
@@ -116,9 +158,12 @@ def build_inventory(
             blocking="stratification of this directory's files",
         )
 
+    # Strata are keyed on the *resolved* system, which is now name-derived, so a
+    # directory rename no longer re-derives every stratum_id in the tree.
     strata_rows = [
         {
             "path": f[0], "system": f[1], "series_prefix": f[2], "year": f[7],
+            "logical_id": f[11],
         }
         for f in facts
         if f[10] == "data"
@@ -132,6 +177,8 @@ def build_inventory(
     persist_strata(catalog, strata)
 
     return {
+        "prefix_system_contradictions": prefix_stats["contradictions"],
+        "system_disagreements": len(disagreements),
         "strata_pruned": pruned,
         "files_parsed": len(facts),
         "directories": len(conventions),

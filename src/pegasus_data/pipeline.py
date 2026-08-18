@@ -395,7 +395,8 @@ class Pipeline:
         )
 
         rows = self.catalog.query(
-            "SELECT path FROM files WHERE LOWER(extension) = '.pdf' ORDER BY path"
+            "SELECT path FROM files WHERE LOWER(extension) = '.pdf' "
+            "AND gone_at IS NULL ORDER BY path"
         )
         paths = [r["path"] for r in rows]
         if systems:

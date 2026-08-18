@@ -361,7 +361,7 @@ LOOSE_DICTIONARY_PATTERNS: tuple[str, ...] = ("*.def", "*.cnv", "*.DEF", "*.CNV"
 
 def find_kits(catalog: Catalog, *, systems: Sequence[str] | None = None) -> list[str]:
     """Candidate kit archives already known to the catalog."""
-    rows = catalog.query("SELECT path FROM files")
+    rows = catalog.query("SELECT path FROM files WHERE gone_at IS NULL")
     out: list[str] = []
     for row in rows:
         path = row["path"]
@@ -379,7 +379,8 @@ def find_kits(catalog: Catalog, *, systems: Sequence[str] | None = None) -> list
 def find_loose_dictionaries(catalog: Catalog, *, systems: Sequence[str] | None = None) -> list[str]:
     """Uncompressed ``.DEF``/``.CNV`` files, the cheapest place to start (§14.3)."""
     rows = catalog.query(
-        "SELECT path FROM files WHERE LOWER(extension) IN ('.def', '.cnv') ORDER BY path"
+        "SELECT path FROM files WHERE LOWER(extension) IN ('.def', '.cnv') "
+        "AND gone_at IS NULL ORDER BY path"
     )
     out = [r["path"] for r in rows]
     if systems:

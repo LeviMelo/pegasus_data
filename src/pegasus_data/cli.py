@@ -103,9 +103,21 @@ def crawl(
         with console.status("crawling…"):
             result = pipeline.crawl(resume=resume, prefixes=prefix)
         _emit(result.counts, as_json, "crawl")
-        files = pipeline.catalog.count("files")
-        with_size = pipeline.catalog.count("files", "size IS NOT NULL")
-        console.print(f"[green]{files}[/green] files known, [green]{with_size}[/green] carrying size and mtime")
+        if not as_json:
+            rec = result.counts.get("reconciliation", {})
+            if isinstance(rec, dict):
+                _emit(
+                    {k: v for k, v in rec.items() if not k.startswith("example_")},
+                    False,
+                    "reconciliation against the previous crawl",
+                )
+                for move in rec.get("example_moves", [])[:5]:
+                    console.print(f"  [cyan]moved[/cyan] {move['from']} -> {move['to']}")
+                for path in rec.get("example_gone", [])[:5]:
+                    console.print(f"  [yellow]gone[/yellow] {path}")
+        files = pipeline.catalog.count("files", "gone_at IS NULL")
+        with_size = pipeline.catalog.count("files", "size IS NOT NULL AND gone_at IS NULL")
+        console.print(f"[green]{files}[/green] files present, [green]{with_size}[/green] carrying size and mtime")
     finally:
         pipeline.close()
 

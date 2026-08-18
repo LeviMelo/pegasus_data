@@ -298,6 +298,33 @@ def apply_convention(parsed: ParsedName, convention: str, *, epoch: str = "pivot
 # ------------------------------------------------------------- path semantics
 
 
+def logical_identity(
+    parsed: ParsedName, *, system: str | None, path: str | None = None
+) -> str:
+    """A file's identity, derived from its **name** rather than its location.
+
+    ``SIHSUS|RD|AL|2401`` names the SIH reduced AIH file for Alagoas, competência
+    2024-01, wherever on the tree it happens to live. Strata and families are
+    keyed on identity, so a directory rename moves a file without re-deriving
+    thirty-five years of lineage under fresh identifiers.
+
+    A name that does not parse still gets a stable identity from the filename
+    itself — location-independent, which is the property that matters — rather
+    than falling back to the path and reintroducing the very coupling this
+    exists to remove.
+    """
+    if parsed.series_prefix:
+        return "|".join(
+            [
+                (system or "UNKNOWN").upper(),
+                parsed.series_prefix.upper(),
+                (parsed.geo_code or "").upper(),
+                parsed.date_code or "",
+            ]
+        )
+    return f"{(system or 'UNKNOWN').upper()}|~{parsed.filename.upper()}"
+
+
 def system_from_path(path: str, base_path: str = "/dissemin/publicos") -> str | None:
     """The information system is the first path element under the base path."""
     parts = [p for p in PurePosixPath(path).parts if p not in {"/", ""}]

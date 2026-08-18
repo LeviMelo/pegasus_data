@@ -16,6 +16,7 @@ import queue
 import threading
 import time
 import uuid
+from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
@@ -23,6 +24,15 @@ from pathlib import PurePosixPath
 from ..catalog.store import Catalog, utcnow
 from .ftp_client import FtpClient, ListingUnavailable
 from .listing import ListingEntry, normalize_path
+from .reconcile import (
+    FileState,
+    Reconciliation,
+    classify,
+    detect_moves,
+    mark_gone,
+    persist_reconciliation,
+    snapshot,
+)
 
 
 @dataclass(slots=True)
@@ -35,6 +45,7 @@ class CrawlStats:
     started_at: str = ""
     finished_at: str = ""
     method_counts: dict[str, int] = field(default_factory=dict)
+    reconciliation: Reconciliation = field(default_factory=Reconciliation)
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -46,6 +57,7 @@ class CrawlStats:
             "started_at": self.started_at,
             "finished_at": self.finished_at,
             "method_counts": dict(self.method_counts),
+            "reconciliation": self.reconciliation.as_dict(),
         }
 
 
@@ -83,6 +95,8 @@ class Crawler:
         self._counter = 0
         self._inflight = 0
         self._done = threading.Event()
+        self._before: dict[str, FileState] = {}
+        self._gone: list[str] = []
 
     # ------------------------------------------------------------------ queue
 
@@ -109,6 +123,9 @@ class Crawler:
     ) -> CrawlStats:
         base_path = normalize_path(base_path)
         stats = CrawlStats(run_id=uuid.uuid4().hex[:12], started_at=utcnow())
+        # What the catalog knew before this crawl, so the difference can be
+        # reported rather than silently absorbed.
+        self._before = snapshot(self.catalog, only_prefixes)
 
         roots: list[str] = []
         if only_prefixes:
@@ -148,6 +165,15 @@ class Crawler:
         for t in threads:
             t.join(timeout=30)
 
+        # A file that vanished from one directory and appeared in another during
+        # this crawl was moved, not deleted and re-created.
+        moves = detect_moves(self.catalog, self._gone, stats.run_id)
+        moved_from = {m[0] for m in moves}
+        stats.reconciliation.moves = moves
+        stats.reconciliation.moved = len(moves)
+        stats.reconciliation.gone = sum(1 for p in self._gone if p not in moved_from)
+        stats.reconciliation.gone_paths = [p for p in self._gone if p not in moved_from]
+
         stats.finished_at = utcnow()
         stats.gaps = self.catalog.count("coverage_gaps", "resolved=0 AND kind='listing'")
         with self.catalog.write() as conn:
@@ -163,6 +189,7 @@ class Crawler:
                     f"methods={stats.method_counts}",
                 ),
             )
+        persist_reconciliation(self.catalog, stats.run_id, stats.reconciliation)
         return stats
 
     # ---------------------------------------------------------------- worker
@@ -248,8 +275,44 @@ class Crawler:
             else:
                 subdirs.append(e.path)
 
+        # Classify against what we knew, before the upsert overwrites it.
+        verdicts = Counter(
+            classify(
+                self._before.get(str(f["path"])),
+                f.get("size"),  # type: ignore[arg-type]
+                f.get("modified"),  # type: ignore[arg-type]
+            )
+            for f in files
+        )
+        with self._lock:
+            report = stats.reconciliation
+            report.new += verdicts["new"]
+            report.unchanged += verdicts["unchanged"]
+            report.changed += verdicts["changed"]
+            report.unresolved += verdicts["unresolved"]
+            if verdicts["changed"]:
+                report.changed_paths.extend(
+                    str(f["path"])
+                    for f in files
+                    if classify(
+                        self._before.get(str(f["path"])),
+                        f.get("size"),  # type: ignore[arg-type]
+                        f.get("modified"),  # type: ignore[arg-type]
+                    )
+                    == "changed"
+                )
+
         if files:
             self.catalog.upsert_files(files)
+
+        # This directory listed successfully, so absence from it is evidence.
+        # Nothing else in the crawl may mark a file gone: a failed listing says
+        # nothing about its contents, and treating silence as deletion would turn
+        # one dropped connection into a mass withdrawal.
+        vanished = mark_gone(self.catalog, work.path, {str(f["path"]) for f in files})
+        if vanished:
+            with self._lock:
+                self._gone.extend(vanished)
         self.catalog.upsert_directories(
             [
                 {

@@ -200,7 +200,7 @@ class Builder:
                 notes.append(f"unknown series: {name}")
                 continue
             rows = self.catalog.query(
-                "SELECT path FROM files WHERE path LIKE ? ORDER BY path",
+                "SELECT path FROM files WHERE path LIKE ? AND gone_at IS NULL ORDER BY path",
                 (f"%/{spec.directory}/%",),
             )
             paths = [r["path"] for r in rows]

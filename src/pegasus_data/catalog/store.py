@@ -7,6 +7,7 @@ that any command can be interrupted and resumed from whatever the catalog knows.
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import threading
 from collections.abc import Iterable, Iterator, Sequence
@@ -16,7 +17,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def utcnow() -> str:
@@ -26,6 +27,55 @@ def utcnow() -> str:
 
 def _schema_sql() -> str:
     return resources.files("pegasus_data.catalog").joinpath("schema.sql").read_text(encoding="utf-8")
+
+
+_CREATE_TABLE = re.compile(
+    r"CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+(\w+)\s*\((.*?)\n\);", re.S | re.I
+)
+#: Line-leading words that start a table constraint rather than a column.
+_CONSTRAINT_WORDS = {"primary", "foreign", "unique", "check", "constraint"}
+
+
+def _declared_columns(schema: str) -> dict[str, dict[str, str]]:
+    """``table -> {column: type declaration}`` as the shipped schema declares it."""
+    out: dict[str, dict[str, str]] = {}
+    for table, body in _CREATE_TABLE.findall(schema):
+        columns: dict[str, str] = {}
+        for raw in body.splitlines():
+            line = raw.split("--", 1)[0].strip().rstrip(",")
+            if not line:
+                continue
+            parts = line.split()
+            if not parts or parts[0].lower() in _CONSTRAINT_WORDS:
+                continue
+            name = parts[0].strip('"')
+            if not name.isidentifier():
+                continue
+            columns[name] = " ".join(parts[1:]) or "TEXT"
+        out[table] = columns
+    return out
+
+
+def _missing_columns(
+    conn: sqlite3.Connection, schema: str
+) -> list[tuple[str, str, str]]:
+    """Columns the schema declares that this database does not have yet."""
+    existing_tables = {
+        r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    }
+    missing: list[tuple[str, str, str]] = []
+    for table, columns in _declared_columns(schema).items():
+        if table not in existing_tables:
+            continue
+        have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        for name, decl in columns.items():
+            if name in have:
+                continue
+            # A column added to a populated table must be nullable and unkeyed;
+            # SQLite refuses anything else, and so would the data.
+            clean = decl.replace("PRIMARY KEY", "").replace("NOT NULL", "").strip()
+            missing.append((table, name, clean or "TEXT"))
+    return missing
 
 
 class Catalog:
@@ -57,8 +107,26 @@ class Catalog:
     # ---------------------------------------------------------------- lifecycle
 
     def migrate(self) -> None:
+        """Create anything missing, then add columns the schema has gained.
+
+        ``CREATE TABLE IF NOT EXISTS`` creates a table and then never touches it
+        again, so a catalog written by an older build keeps its old columns and
+        every query against a new one fails. The catalog ships alongside the lake
+        and is meant to be re-crawled into over years, so upgrading it in place is
+        a requirement, not a convenience.
+
+        Only additive changes are applied automatically — new nullable columns —
+        which is what a schema that only ever gains fields needs. Anything
+        destructive would need a real migration and is deliberately not done here.
+        """
         with self._lock:
-            self.conn.executescript(_schema_sql())
+            schema = _schema_sql()
+            # Columns first: the script also creates indexes over them, and an
+            # index on a column the old table lacks fails before anything else
+            # in the script has had a chance to run.
+            for table, column, decl in _missing_columns(self.conn, schema):
+                self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+            self.conn.executescript(schema)
             row = self.conn.execute("SELECT MAX(version) AS v FROM schema_version").fetchone()
             if row is None or row["v"] is None:
                 self.conn.execute(
@@ -150,6 +218,8 @@ class Catalog:
                     listing_method=excluded.listing_method,
                     change_signal=excluded.change_signal,
                     last_seen=excluded.last_seen,
+                    -- Seeing a file again clears any earlier `gone` mark: it is
+                    -- back, or it never left and a listing had failed.
                     gone_at=NULL
                 """,
                 payload,

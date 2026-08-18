@@ -23,8 +23,15 @@ CREATE TABLE IF NOT EXISTS schema_version (
 
 -- ---------------------------------------------------------------- L0 discovery
 
+-- `path` is where a file currently sits, which is not the same as what it is.
+-- DATASUS reorganises: directories get renamed, series move between trees. A
+-- catalog keyed only on location reports such a move as one deletion and one
+-- unrelated arrival, and every stratum and family derived from it starts over.
+-- `logical_id` is derived from the *filename* — system, series, geo, competencia
+-- — so identity survives a move and the move itself becomes observable.
 CREATE TABLE IF NOT EXISTS files (
   path            TEXT PRIMARY KEY,
+  logical_id      TEXT,              -- filename-derived identity, stable across moves
   directory       TEXT NOT NULL,
   filename        TEXT NOT NULL,
   extension       TEXT,
@@ -34,10 +41,49 @@ CREATE TABLE IF NOT EXISTS files (
   change_signal   TEXT,              -- 'mtime' | 'size' | 'content_hash'
   first_seen      TEXT NOT NULL,
   last_seen       TEXT NOT NULL,
-  gone_at         TEXT               -- set when a later crawl no longer sees it
+  gone_at         TEXT               -- set ONLY when a successful listing omitted it
 );
 CREATE INDEX IF NOT EXISTS ix_files_directory ON files (directory);
 CREATE INDEX IF NOT EXISTS ix_files_extension ON files (extension);
+CREATE INDEX IF NOT EXISTS ix_files_logical ON files (logical_id);
+
+-- A file seen at a new path whose fingerprint matches one that just disappeared
+-- from a successfully-listed directory. Recorded rather than inferred silently,
+-- because a move and a coincidence look identical from one crawl.
+CREATE TABLE IF NOT EXISTS file_moves (
+  logical_id   TEXT,
+  from_path    TEXT NOT NULL,
+  to_path      TEXT NOT NULL,
+  size         INTEGER,
+  modified     TEXT,
+  evidence     TEXT,                 -- which fields matched
+  run_id       TEXT,
+  detected_at  TEXT,
+  PRIMARY KEY (from_path, to_path)
+);
+
+-- What the filename says a file belongs to, learned from a healthy crawl and
+-- then held. This is what lets system inference stop depending on where a file
+-- sits: once `RD -> SIHSUS` is known, a directory rename cannot re-label it.
+CREATE TABLE IF NOT EXISTS prefix_systems (
+  series_prefix  TEXT PRIMARY KEY,
+  system         TEXT NOT NULL,
+  file_count     INTEGER NOT NULL,
+  agreement      REAL NOT NULL,      -- share of files whose path agreed
+  learned_at     TEXT NOT NULL
+);
+
+-- A file whose filename and whose path disagree about which system it belongs
+-- to. A finding, not an error: it is either a reorganisation in progress or a
+-- prefix genuinely shared by two systems.
+CREATE TABLE IF NOT EXISTS system_disagreements (
+  path            TEXT PRIMARY KEY,
+  series_prefix   TEXT,
+  system_by_name  TEXT,
+  system_by_path  TEXT,
+  resolved_to     TEXT,
+  noted_at        TEXT
+);
 
 CREATE TABLE IF NOT EXISTS directories (
   path             TEXT PRIMARY KEY,
@@ -70,6 +116,14 @@ CREATE TABLE IF NOT EXISTS crawl_runs (
   files            INTEGER,
   gaps             INTEGER,
   connections      INTEGER,
+  -- Reconciliation against the previous crawl, so a change in the tree is a
+  -- reported number rather than something a later stage trips over.
+  files_new        INTEGER,
+  files_unchanged  INTEGER,
+  files_changed    INTEGER,
+  files_moved      INTEGER,
+  files_gone       INTEGER,
+  files_unresolved INTEGER,
   notes            TEXT
 );
 
@@ -87,6 +141,7 @@ CREATE TABLE IF NOT EXISTS file_facts (      -- parsed filename grammar (§5.2)
   grammar          TEXT,               -- which naming grammar matched
   container_format TEXT,               -- probe-independent hint from suffix
   role             TEXT,               -- 'data' | 'dictionary' | 'documentation' | 'auxiliary' | 'unknown'
+  logical_id       TEXT,               -- filename-derived identity, stable across moves
   FOREIGN KEY (path) REFERENCES files (path) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS ix_file_facts_system ON file_facts (system, series_prefix, year);
