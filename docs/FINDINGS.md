@@ -415,6 +415,85 @@ codepage is read as a Windows one count heavily against.
 
 ---
 
+## 3b. Corrections after review
+
+Three things were reviewed and changed after the first pass. All three were right.
+
+### Labels for hierarchical classifications do not belong in the lake
+
+The first implementation materialised a `<field>_label` column for every decoded field, following
+§7.1 step 3 literally. For `SEXO` that is correct. For `DIAG_PRINC` it is wrong for three reasons
+that have nothing to do with size:
+
+* **It fixes a granularity choice invisibly.** `E11` and `E119` are distinct rows in CID-10.
+  Whichever codelist won the coverage ranking became *the* label, and the analyst inherited that
+  choice without being told one was made.
+* **It discards the versioning this module built.** The 1992–1997 CID-10 has 14,197 codes and
+  today's has 14,253; `valid_from`/`valid_to` exist precisely to keep both true. A string baked into
+  a 2019 row throws that away and cannot be corrected without rewriting the lake.
+* **The published wording is lossy and dated.** `DESCR` is 50 characters: `N39.0` reads
+  "Infecc do trato urinario de localiz NE".
+
+Code tables now live in `lake/reference/<table>/window=<valid_from>/` and are joined on demand:
+
+```python
+cid = load_reference("CID10", year=1995)   # 14,197 codes, the 1992–1997 table
+cid = load_reference("CID10", year=2019)   # 14,253 codes, the current one
+cbo = load_reference("CBO", code_width=6)  # CBO-2002, not CBO-1994
+```
+
+Small closed codelists still get a materialised label. `describe()` reports which policy applies,
+names the reference table, lists its validity windows and its roll-up levels, and says how to join.
+Meaning stays fully recoverable — P1 and §12 step 10 are unaffected — it simply stops being frozen.
+
+`bind_by_semantic_type` was demoted at the same time. A distributional membership rate is an
+inference, and §13 keeps inferences out of the labelling path; it is now promoted only when a record
+layout independently names the same classification.
+
+### `official_name`: one source is not "no source"
+
+Reporting that `DIAG_PRINC` "has no official name" was scoped to `.DEF` and stated as though it were
+general. `.DEF` enumerates TabNet's tabulation axes, so of course it names only roll-ups. The record
+layouts carry the real thing, and they were sitting uncrawled in the `Doc/` trees:
+
+```
+41 DIAG_PRINC char(4) Código do diagnóstico principal (CID10).
+36 VAL_TOT numeric(14,2) Valor total da AIH.
+```
+
+`IT_SIHSUS_1603.pdf` yields **144 SIH fields** with official descriptions and declared types, now in
+`field_documentation`. `official_name` consults the record layout first, then a `.DEF` bound to the
+labelling codelist, then a `.DEF` naming the field directly — and only reports `None` when all three
+miss. That same layout text is what corroborates the CID-10 binding, which is how `DIAG_PRINC` now
+resolves to the full table rather than to a 529-label roll-up.
+
+### Codelist coverage is a measured gap list, not a whitelist
+
+`pegasus-data gaps` ranks every undecoded field by observed row mass. Unrecognised lookup tables no
+longer fall back to "first two columns": code and label columns are inferred from the data
+(uniqueness and length) and recorded as inferred, at reduced confidence.
+
+**CBO resolves at the first step of the search order** — it is already in the TabWin kits, no SIGTAP
+or MTE trip needed. And the version question was real: `CBO` in the current SIH kit mixes **3,000
+three-digit CBO-1994 codes with 2,813 six-digit CBO-2002 codes in one file**, with `CBO2002` shipped
+separately at 2,445 codes. Reference tables therefore carry `code_width`, 452 mixed-width tables are
+flagged as open questions, and `load_reference(..., code_width=6)` keeps a join on one vintage.
+
+### Three idempotence bugs this work exposed
+
+Derived state was being *accumulated* rather than *replaced*, in three places, with the same
+consequence each time: a correction upstream could not propagate.
+
+* `stratum_members` kept a file listed in the stratum it used to belong to, so a 2008 stratum went on
+  claiming a 2020 file's 113-column schema after the date fix moved it.
+* Orphaned strata survived re-inventory, dragging `families.time_min` back to 1901 long after the
+  facts were corrected.
+* `family_files` kept stale links, so the 113-column SIH-RD family pointed at 86-column files and
+  normalised **zero rows** — a silent, total failure that produced no error at all.
+
+All three now replace their derived rows, and a stratum whose sample is no longer among its members
+is invalidated so the next profile re-derives it.
+
 ## 4. What remains open
 
 Run `pegasus-data questions` for the live list. As of the last full pass:

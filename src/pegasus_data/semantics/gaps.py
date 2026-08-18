@@ -102,7 +102,7 @@ def find_gaps(
     rows = catalog.query(
         f"""
         SELECT l.system, l.family_id, l.field_name, l.semantic_type, l.dictionary_coverage,
-               l.distinct_observed, l.official_name, l.schema_signature_scope,
+               l.distinct_observed, l.official_name, l.schema_signature_scope, l.aggregation,
                f.series, f.time_min, f.time_max, f.file_count
           FROM ledger l JOIN families f ON f.family_id = l.family_id
          WHERE {where}
@@ -114,6 +114,13 @@ def find_gaps(
     for row in rows:
         semantic = str(row["semantic_type"] or "unknown")
         if not include_self_describing and semantic in SELF_DESCRIBING:
+            continue
+        # A quantity does not want a codelist. Where TabNet's own `.DEF` declares
+        # the field an *incremento* — "IQuantidade de Ato,SP_QTD_ATO" — that is
+        # the Ministry saying it is summable, and a low distinct count is just a
+        # small range, not an undecoded category. Listing it as a dictionary gap
+        # would send someone hunting for a codelist that should not exist.
+        if not include_self_describing and str(row["aggregation"] or "") == "additive":
             continue
         mass = int(
             catalog.scalar(

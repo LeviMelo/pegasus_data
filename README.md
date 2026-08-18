@@ -46,7 +46,15 @@ df = load("SIHSUS", "RD",
           labels=True)
 
 pop = load_population(series="POPSVS", uf="AL", by=["municipality", "year", "sex", "age"])
+
+# Hierarchical classifications are joined, not frozen into a label column:
+cid = load_reference("CID10", year=2019)          # the vintage covering 2019
+cbo = load_reference("CBO", code_width=6)         # CBO-2002, not CBO-1994
+df.join(cid, keys="DIAG_PRINC", right_keys="code")
 ```
+
+`pegasus-data gaps` ranks every variable that still has no dictionary by observed row mass, so the
+remaining work is a list rather than an average.
 
 Every stage is resumable and idempotent, writes to the catalog before returning, and can be
 re-run narrowly (`--system`, `--uf`, `--years`, `--prefix`).
@@ -141,6 +149,11 @@ These come from §13 of the brief and are enforced in code, not just documented:
 - **Never recompute a value the source publishes.** Where SINAN carries `SEM_PRI`/`SEM_NOT`, the
   source's epidemiological week is used, not a recomputed one.
 - **Never discard the raw value when writing a decoded label.** Both columns are emitted.
+- **Never freeze a hierarchical classification into a label column.** ICD, procedures, CBO and
+  municipality codes are joined from version-scoped reference tables, so the consumer chooses the
+  granularity and the vintage instead of inheriting one silently.
+- **Never let an inference decide what labels appear on data.** A detector's membership match is a
+  candidate; it is used only once a record layout names the same classification.
 - **Never resolve a source conflict silently.** Both claims and both provenances are recorded.
 
 ---

@@ -201,6 +201,16 @@ def build_families(catalog: Catalog) -> list[Family]:
 
 
 def persist_families(catalog: Catalog, families: Sequence[Family]) -> int:
+    keep = {f.family_id for f in families}
+    stale = [
+        (r["family_id"],)
+        for r in catalog.query("SELECT family_id FROM families")
+        if r["family_id"] not in keep
+    ]
+    if stale:
+        for table in ("family_files", "representations", "families"):
+            catalog.executemany(f"DELETE FROM {table} WHERE family_id = ?", stale)
+
     catalog.executemany(
         """
         INSERT INTO families (family_id, system, series, schema_signature, field_count,
@@ -224,6 +234,18 @@ def persist_families(catalog: Catalog, families: Sequence[Family]) -> int:
             for f in families
         ],
     )
+    # Families are derived data and must be *replaced*, not accumulated. A
+    # correction that moves a stratum between families leaves the old link behind
+    # otherwise, and a family then claims files whose schema it does not have —
+    # which is how the 113-column SIH-RD family came to point at 86-column files
+    # and normalise nothing at all.
+    catalog.executemany(
+        "DELETE FROM family_files WHERE family_id = ?", [(f.family_id,) for f in families]
+    )
+    catalog.executemany(
+        "DELETE FROM representations WHERE family_id = ?", [(f.family_id,) for f in families]
+    )
+
     reps: list[tuple[object, ...]] = []
     links: list[tuple[str, str, str]] = []
     for f in families:
