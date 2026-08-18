@@ -468,7 +468,16 @@ class Pipeline:
 
             # An archive holding several schemas (an APAC .exe holds seven) makes
             # each member its own stratum, keyed by the member name.
-            for index, table in enumerate(outcome.tables):
+            #
+            # A stratum that already names a member profiles *only* that member.
+            # Without this, re-profiling re-expands the whole archive and derives
+            # seven new member strata from each existing one, which multiplies on
+            # every run instead of converging.
+            tables = outcome.tables
+            claimed_member = str(row.get("sampled_member") or "")
+            if claimed_member:
+                tables = [t for t in tables if t.member == claimed_member] or tables[:1]
+            for index, table in enumerate(tables):
                 profile = profile_table(
                     table,
                     refs=refs,
@@ -476,7 +485,9 @@ class Pipeline:
                     max_distinct=self.settings.max_distinct_tracked,
                     top_values=self.settings.top_values_kept,
                 )
-                member_stratum = stratum_id if index == 0 else f"{stratum_id}#{index}"
+                member_stratum = (
+                    stratum_id if (index == 0 or claimed_member) else f"{stratum_id}#{index}"
+                )
                 # Archive members become their own series so that seven APAC
                 # schemas in one .exe do not collapse into one another.
                 member_series = (

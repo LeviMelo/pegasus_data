@@ -110,8 +110,20 @@ def check_crawl_coverage(catalog: Catalog, settings: Settings) -> Check:
         "prior_scan_files": PRIOR_FILE_COUNT,
         "prior_scan_files_with_size": 0,
     }
-    if total < 1000:
-        return _skip(c, f"only {total} files crawled; run a full crawl to test this assertion")
+    # The prior-scan floor only applies to a whole-tree crawl. A scoped crawl
+    # (`--prefix`) is a legitimate mode, and failing it against a number it was
+    # never trying to reach would be noise, not a finding.
+    root_listed = bool(
+        catalog.count("directories", "path = ?", ("/dissemin/publicos",))
+    )
+    c.evidence["whole_tree_crawl"] = root_listed
+    if not root_listed:
+        return _skip(
+            c,
+            f"scoped crawl: {total} files across "
+            f"{catalog.count('directories')} directories, {with_size} with size. "
+            "Crawl from the tree root to test the ≥124,810 regression floor.",
+        )
     if total < PRIOR_FILE_COUNT:
         c.status = "fail"
         c.detail = f"crawled {total} files, fewer than the prior scan's {PRIOR_FILE_COUNT}"
@@ -234,7 +246,18 @@ def check_dictionary_coverage(catalog: Catalog, settings: Settings) -> Check:
     """§12.5 — coverage is reported per system; CID and the small codelists decode."""
     c = Check("dictionary coverage is a reportable number", 5)
     entries = catalog.count("dictionary")
-    cid = catalog.count("code_tables", "table_id = 'CID10'")
+    # Each kit ships its own CID-10 table, so the count is per source. The four
+    # era kits carry exactly 14,197 rows; the current TAB_SIH.zip carries 14,253,
+    # ICD-10 having gained codes since. Both facts are worth showing.
+    cid_by_source = {
+        str(r["source_ref"]): int(r["n"])
+        for r in catalog.query(
+            "SELECT source_ref, COUNT(*) AS n FROM code_tables WHERE table_id = 'CID10' GROUP BY source_ref"
+        )
+    }
+    cid_distinct = int(
+        catalog.scalar("SELECT COUNT(DISTINCT code) FROM code_tables WHERE table_id = 'CID10'") or 0
+    )
     ledger_rows = catalog.count("ledger")
     if entries == 0:
         return _skip(c, "no dictionary ingested yet; run `pegasus-data semantics`")
@@ -249,22 +272,27 @@ def check_dictionary_coverage(catalog: Catalog, settings: Settings) -> Check:
     ]
     c.evidence = {
         "dictionary_entries": entries,
-        "cid10_rows": cid,
-        "cid10_expected": CID10_ROWS,
+        "cid10_rows_per_source": cid_by_source,
+        "cid10_distinct_codes": cid_distinct,
+        "cid10_expected_per_historical_kit": CID10_ROWS,
         "ledger_rows": ledger_rows,
         "coverage_per_system": per_system,
         "conflicts_recorded": catalog.count("dictionary_conflicts"),
         "unexpanded_rules": catalog.count("dictionary_rules"),
     }
-    if cid and cid != CID10_ROWS:
+    if cid_by_source and CID10_ROWS not in cid_by_source.values():
         c.status = "fail"
-        c.detail = f"CID-10 table has {cid} rows, expected {CID10_ROWS}"
+        c.detail = (
+            f"no CID-10 table has the expected {CID10_ROWS} rows; observed "
+            f"{sorted(set(cid_by_source.values()))}"
+        )
         return c
     if ledger_rows == 0:
         return _skip(c, "dictionary ingested but the ledger has not been built; run `pegasus-data ledger`")
     c.status = "pass"
     c.detail = (
-        f"{entries} dictionary entries; CID-10 present with exactly {cid} rows; "
+        f"{entries} dictionary entries; {len(cid_by_source)} CID-10 table(s), at least one with "
+        f"exactly {CID10_ROWS} rows, {cid_distinct} distinct codes across eras; "
         f"coverage reported for {len(per_system)} system(s)"
     )
     return c
