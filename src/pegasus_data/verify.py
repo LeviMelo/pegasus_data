@@ -207,6 +207,22 @@ def check_sih_generations(catalog: Catalog, settings: Settings) -> Check:
     }
     if len(counts) < 2:
         return _skip(c, f"only {len(counts)} generation(s) sampled; profile more strata to test drift")
+    # The named generations live in the main data directories. A crawl scoped to
+    # a subtree — SIHSUS/2009 and /2012 hold only the CSV and XML republications,
+    # at 86 and 93 columns — cannot contain them, and failing for that reason is
+    # a false alarm about the crawl's scope rather than a finding about schemas.
+    # A verify suite that cries wolf when you narrow a crawl stops being read.
+    main_data = catalog.count(
+        "files", "gone_at IS NULL AND path LIKE '%/SIHSUS/200801_/Dados/%'"
+    ) + catalog.count(
+        "files", "gone_at IS NULL AND path LIKE '%/SIHSUS/199201_200712/%'"
+    )
+    if len(named_present) < 2 and not main_data:
+        return _skip(
+            c,
+            f"found generations {counts}, but the crawl did not cover SIH-RD's main data "
+            "directories, where the named generations live; scope the crawl wider to test this",
+        )
     if len(named_present) < 2:
         c.status = "fail"
         c.detail = f"expected the brief's generations {SIH_RD_NAMED_GENERATIONS}; found {counts}"

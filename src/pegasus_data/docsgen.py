@@ -471,16 +471,25 @@ def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | 
             for row in datasets
         )
         index.append("")
-    low_trust = [
-        dict(r)
+    # Two grouped scans, not one correlated subquery per prefix: there are 1,436
+    # prefixes and 207,251 file_facts rows, and asking per prefix is the same
+    # N+1 shape that has now cost this project three separate stalls.
+    files_per_prefix = {
+        str(r["series_prefix"]): int(r["n"])
         for r in catalog.query(
             """
-            SELECT p.series_prefix, p.system, p.agreement,
-                   (SELECT COUNT(*) FROM file_facts ff JOIN files f ON f.path = ff.path
-                     WHERE f.gone_at IS NULL AND ff.series_prefix = p.series_prefix) AS files
-              FROM prefix_systems p
-             WHERE p.agreement < 0.9 OR p.file_count < 5
+            SELECT ff.series_prefix AS series_prefix, COUNT(*) AS n
+              FROM file_facts ff JOIN files f ON f.path = ff.path
+             WHERE f.gone_at IS NULL AND ff.series_prefix IS NOT NULL
+             GROUP BY ff.series_prefix
             """
+        )
+    }
+    low_trust = [
+        {**dict(r), "files": files_per_prefix.get(str(r["series_prefix"]), 0)}
+        for r in catalog.query(
+            "SELECT series_prefix, system, agreement FROM prefix_systems "
+            "WHERE agreement < 0.9 OR file_count < 5"
         )
     ]
     if low_trust:
