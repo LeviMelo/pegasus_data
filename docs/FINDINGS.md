@@ -494,6 +494,158 @@ consequence each time: a correction upstream could not propagate.
 All three now replace their derived rows, and a stratum whose sample is no longer among its members
 is invalidated so the next profile re-derives it.
 
+## 3c. The full-tree crawl, and what it found (2026-08-19)
+
+### The prior inventory was missing a third of DATASUS, silently
+
+The full crawl found **207,251 files** against the prior scan's 124,810 — **+82,441 (+66%)**, in
+49 seconds across 362 directories, with size and mtime on 100% of them.
+
+The delta decomposes almost entirely into directories the old scan never listed: 81,934 files from
+53 such directories, plus 575 genuinely new ones. Of those 53, the old scan had *reported* 32 as
+failures. The rest it never knew existed.
+
+The largest is `SIASUS/200801_/Dados` at **54,199 files** — SIA outpatient production, 2008 to the
+present, the biggest dataset on the tree. The old scan recorded `Dados` as a **file** under
+`SIASUS/200801_`, and `uploads` as a file under the root. NLST returns bare names with no type
+information, so an extensionless directory name is indistinguishable from a file; the crawl typed
+both as leaves and never recursed. **No warning was emitted for either.** The inventory reported a
+clean bill of health over a third of the archive it had never opened.
+
+A silent loss is strictly worse than a loud one, and this is why the crawler now gives every entry
+it cannot type a per-file `SIZE` probe, treating only a successful probe as evidence of a file. All
+32 previously-failed directories now list successfully as well; three are genuinely empty on the
+server and nine are container directories holding only `csv`/`json`/`parquet` subdirectories.
+
+One coverage gap remains: `/dissemin/publicos/uploads` returns `550 Access is denied` to both LIST
+and NLST. That is a server-side ACL, not a dialect failure, and is recorded rather than passed over.
+
+### Reconciliation held at scale
+
+All 34,029 previously-known files classified `unchanged`, with **0 gone, 0 moved, 0 unresolved** —
+no mass-withdrawal artifact from the tree tripling in size. `Dados_Abertos/BackUp_Ducks_SIASUS_PA`
+(66 `.duck` files) *did* disappear server-side, replaced by `PA_SIASUS` and `APAC_SIA`; it correctly
+produced no `gone` rows, because those files were never in this catalog.
+
+### The sticky prefix map held a wrong answer, correctly
+
+`CM` was established as SIHSUS from 42 files seen in the partial crawl. The full crawl found 1,717
+files at 98% agreement under SISCAN — `CM` is SISMAMA's mammography series. The map held its first
+answer, which is the designed behaviour and was right: a reorganisation and a shared prefix are
+indistinguishable from one crawl. But holding with *no way out* meant the first crawl owned the
+answer forever, and the first crawl is the most likely to be wrong because it sees least.
+`pegasus-data prefix-adjudicate` settles it deliberately. After adjudicating, system disagreements
+fell from 1,675 to 42 — and those 42 are real: `CM` genuinely appears in both trees, 98/2.
+
+### Low-trust prefixes cover almost nothing
+
+1,351 of 1,436 learned prefixes are low-trust, which sounds alarming and is not: they cover 4,219 of
+207,251 files (**2.04%**), and none carries as many as a thousand. 1,313 are simply thin (fewer than
+five observations). The 38 genuinely ambiguous ones are SINAN diseases published in both the legacy
+tree and `Dados_Abertos` — shared prefixes, not a reorganisation. The count alone would have hidden
+that; ranking by file count is the point.
+
+---
+
+## 3d. Measured results that changed the design (2026-08-19)
+
+### `lake_partitions` duplicated rows rather than zeroing them
+
+`next_part_number` returned the count of parquet files already in the directory, so a rebuild after
+a schema correction numbered itself *after its own stale output*: `part-00003` landed beside
+`part-00000` and both stayed registered. `ds.dataset()` globs the directory rather than consulting
+the catalog, so it read the union and returned **every row twice**. Pinned by a test at 10 rows
+rebuilt into 20. Emptiness gets noticed; doubling gets published.
+
+### `SP_ATOPROF` and `SP_PROCREA` are not 8-digit
+
+The instruction expected 8-digit codes wanting `TPROC` rather than `TPROC10`. Measured: both columns
+appear at **two widths** — `SP_ATOPROF` at 398 distinct 8-character and 400 distinct 10-character
+values, `SP_PROCREA` at 400 and 395. `TPROC` holds 23,151 8-character codes and `TPROC10` holds
+23,136 10-character ones, so the columns span the 1994-era table and the post-2008 Tabela Unificada.
+Binding either alone leaves half the history unlabelled. Both are bound, and because matching is
+exact-width, merging them is safe — the width selects the era.
+
+### SIM's `CAUSABAS` contains ICD-9, not malformed data
+
+386 of 5,000 sampled values failed ICD-10 shape validation. 338 of those are valid **ICD-9** codes
+(`7999`, `7680`, `8199`): SIM ran on CID-9 until 1996 and those years are still on the tree. Filing
+them as "malformed" hides a revision boundary and invites someone to clean real records away. The
+quality report separates "valid under another revision" from "structurally broken", because one
+wants a second reference table and the other wants investigation.
+
+### SIM's `ATESTADO` separates on `/`, not `*`
+
+The causal-chain fields `LINHAA`–`LINHAD` and `LINHAII` are `*`-delimited four-character codes —
+confirmed independently by measurement (10,196 of ~12,000 inter-`*` segments are exactly 4
+characters) and by curation. `ATESTADO` is not: it uses `/` (`T71/X700`, `S069/X954`). The delimiter
+is now chosen by measured coverage rather than by position in a candidate list, which took
+`ATESTADO`'s multi-code detection from 66 to 2,031 values and its malformed count from 2,526 to 486.
+
+### `IBGE.IDADE` is bound to CID10 and matches nothing
+
+A distributional detector bound it at 0.35 confidence because age-band codes like `2559` and `1524`
+have exactly the shape of an ICD-9 code. Shape is not identity. A near-zero match rate is now
+reported as a *finding* rather than as poor coverage, because the two want opposite responses: one
+needs a better table, the other needs the binding deleted.
+
+### 29 SIH columns are dead in the current generation
+
+Testing for sentinel-only content in the **newest** generation rather than across a column's whole
+history flagged 29 columns, not 13. Among them `DIAG_SECUN` (the known case), `CID_ASSO`,
+`CID_MORTE`, `SP_CIDSEC`, and the `UTI_MES_*` and `TPDISEC*` families. A column that is still
+emitted and carries only `'0000'` is worse than an absent one, because absence is visible.
+
+### SIGTAP is reachable, over HTTP only
+
+HTTPS times out on both `sigtap.datasus.gov.br` and `tabela-unificada.datasus.gov.br`; HTTP/80
+answers 200. The exports live on `ftp2.datasus.gov.br/public/sistemas/tup/downloads` — **224 monthly
+vintages, 200801 to 202608**. Not "unreachable" and not "not permitted": plain HTTP only, which is a
+different finding with a different remedy. Every table ships its own fixed-width layout file, so
+nothing hardcodes an offset.
+
+Ingesting the newest export gave 44,984 entries and closed the CBO width problem from a
+**first-party** source: `tb_ocupacao` carries 2,719 occupation codes at a single width, where the
+FTP tree's CBO file mixes 3,000 three-character CBO-1994 codes with 2,813 six-character CBO-2002
+codes in one file.
+
+### Layout documents exist for SIM and SINASC, in a different dialect
+
+The harvester only knew the `IT_*` dialect, so `Estrutura_do_SIM_2025.pdf` and
+`Estrutura_SINASC_para_CD.pdf` — both sitting on the tree — yielded nothing. Adding the `Estrutura_*`
+dialect took layout coverage from 163 field descriptions across 5 documents to **331 across 8**.
+
+The extraction needed three passes to be trustworthy, and the failure is worth recording: those
+tables number their rows with exactly the syntax a value list uses (`4- Naturalidade`), so the loose
+value-line rule was reading the document's own row counter and attributing it to whichever field
+came last. SIM's causal-chain fields were being told they had a code `40` meaning "Causas da". Fixed
+by detecting the dialect and taking values only from the valid-values cell, where the shape can be
+checked: at least two distinct codes, numeric runs starting at 0 or 1.
+
+### `COD_IDADE` is deliberately unbound
+
+The instruction expected five distinct values and that "the codelist certainly exists". Measured:
+**six** distinct values (0–5), and **no codelist of time units exists** in the 4.0M dictionary rows
+ingested. The `.DEF` files bind `COD_IDADE` to `IDADEPUB`, `IDADEBAS`, `IDADEDET` and `IDADE18` —
+all four are TabNet age-**band** axes with 3-character codes labelled `< 1 ano`. They decode a
+tabulation axis, not this column.
+
+Guessing here is the one error in the gap list with clinical consequence: `IDADE=030` with the wrong
+unit turns thirty-month-old infants into thirty-year-olds. It is recorded as the open question
+`semantics.cod_idade_units`, naming exactly what would close it, and the derived `IDADE_anos` column
+is withheld until it is. No derived age beats a wrong one.
+
+### CEP: settled, and recorded as settled
+
+Three independent reasons, any one sufficient. No CEP table exists anywhere on the tree, and there
+is no reason to expect one — CEP is Correios' property, not the Ministry's. The Correios data that
+would close it is licensed. And CEP combined with sex and date of birth, both present in these
+files, narrows a patient to a household. Recorded as a **resolved** question rather than left open,
+because a settled "no" that keeps appearing as unfinished work is indistinguishable from a task
+nobody has got to.
+
+---
+
 ## 4. What remains open
 
 Run `pegasus-data questions` for the live list. As of the last full pass:
