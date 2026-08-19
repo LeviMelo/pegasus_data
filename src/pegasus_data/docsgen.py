@@ -62,6 +62,10 @@ class VariablePage:
     sentinels: list[str] = field(default_factory=list)
     non_null: int = 0
     retired: bool = False
+    #: True when the only thing known about this column is its header: name,
+    #: type, width. No file has been decoded, so nothing is known about values.
+    schema_only: bool = False
+    census_strata: int = 0
 
 
 def _fmt_int(value: object) -> str:
@@ -203,6 +207,38 @@ def collect(
                 setattr(page, bound, min(current, int(value)) if bound == "year_min"
                         else max(current, int(value)))
 
+    # Columns known only from the header census. Profiling reads a sample and
+    # can speak about values; the census read a few hundred bytes of every
+    # stratum and can speak only about columns — but a column nobody has
+    # profiled is still a column, and leaving it out of the dictionary would
+    # make the dictionary a report on the sample rather than on the archive.
+    for r in catalog.query(
+        """
+        SELECT h.field_name, h.type_code, h.width, h.decimals,
+               COUNT(DISTINCT h.schema_signature) AS generations,
+               COUNT(DISTINCT s.stratum_id)       AS strata,
+               MIN(s.year) AS year_min, MAX(s.year) AS year_max
+          FROM schema_header_facts h
+          JOIN strata s ON s.schema_signature = h.schema_signature
+         WHERE s.system = ?
+         GROUP BY h.field_name
+        """,
+        (system.upper(),),
+    ):
+        name = str(r["field_name"])
+        page = pages.get(name)
+        if page is None:
+            page = VariablePage(system=system.upper(), field_name=name, schema_only=True)
+            pages[name] = page
+            page.generations = int(r["generations"] or 0)
+            page.declared_type = (
+                f"{r['type_code']}({r['width']})" if r["type_code"] else None
+            )
+            for bound, value in (("year_min", r["year_min"]), ("year_max", r["year_max"])):
+                if value is not None:
+                    setattr(page, bound, int(value))
+        page.census_strata = int(r["strata"] or 0)
+
     retired = _retired_fields(catalog, system)
     for name, page in pages.items():
         page.doc = docs.get(name)
@@ -263,6 +299,8 @@ def render_variable(page: VariablePage) -> str:
         banners.append("⚠ RETIRED")
     if doc and doc.source == "inferred":
         banners.append("⚠ INFERRED, NOT DOCUMENTED")
+    if page.schema_only:
+        banners.append("◦ SCHEMA ONLY")
 
     heading = f"### {page.field_name}"
     if banners:
@@ -322,6 +360,8 @@ def render_variable(page: VariablePage) -> str:
             else f"{rule.get('width')}-character chunks"
         )
         rows.append(("multi-valued", f"several codes per cell, {how}; order is preserved"))
+    if page.census_strata:
+        rows.append(("seen in", f"{_fmt_int(page.census_strata)} strata (header census)"))
     if page.generations:
         span = ""
         if page.year_min and page.year_max:
@@ -335,6 +375,14 @@ def render_variable(page: VariablePage) -> str:
     out.append("```")
     out.append("")
 
+    if page.schema_only:
+        out.append(
+            "> Known from the file header only: name, type and width. No file "
+            "carrying it has been decoded, so nothing here describes its *values* "
+            "— no distribution, no codelist, no coverage. Run `pegasus-data "
+            "profile` to fill that in."
+        )
+        out.append("")
     if page.retired:
         out.append(
             "> **WARNING** — present but dead. The column is still emitted and carries "
@@ -366,14 +414,17 @@ def render_variable(page: VariablePage) -> str:
 
 def render_system(catalog: Catalog, system: str, pages: Sequence[VariablePage]) -> str:
     documented = sum(1 for p in pages if p.description)
+    schema_only = sum(1 for p in pages if p.schema_only)
     out = [
         f"# {system}",
         "",
         "*Generated from the catalog by `pegasus-data docs`. Do not edit — a gap here "
         "is a gap in the catalog, and writing prose into this file would hide it.*",
         "",
-        f"{len(pages)} columns observed · {documented} documented "
-        f"({documented / len(pages):.0%})" if pages else "No columns observed yet.",
+        (
+            f"{len(pages)} columns observed · {documented} documented "
+            f"({documented / len(pages):.0%}) · {schema_only} known from the header census only"
+        ) if pages else "No columns observed yet.",
         "",
     ]
     warned = [p for p in pages if p.retired or (p.doc and (p.doc.modifies or p.doc.depends_on))]

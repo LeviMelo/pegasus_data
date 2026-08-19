@@ -206,3 +206,48 @@ class TestGeneration:
         result = generate(catalog, tmp_path / "dict")
         assert result["systems"] == []
         assert (tmp_path / "dict" / "README.md").exists()
+
+
+class TestCensusColumns:
+    """A column nobody profiled is still a column (header census)."""
+
+    def _census_column(self, catalog: Catalog, name="PA_CODUNI", system="SIASUS"):
+        catalog.execute(
+            "INSERT INTO strata (stratum_id, system, series, year, file_count, "
+            "schema_signature, sample_status) VALUES ('S1',?,'PA',2024,1,'sig','header')",
+            (system,),
+        )
+        catalog.execute(
+            "INSERT INTO schema_header_facts (schema_signature, path, field_name, field_order, "
+            "type_code, width, decimals, record_length, widths_consistent) "
+            "VALUES ('sig','/a/x.dbc',?,0,'C',7,0,100,1)",
+            (name,),
+        )
+
+    def test_a_census_column_appears_in_the_dictionary(self, catalog: Catalog):
+        """Otherwise the dictionary reports on the sample, not the archive."""
+        self._census_column(catalog)
+        page = next(p for p in collect(catalog, "SIASUS") if p.field_name == "PA_CODUNI")
+        assert page.schema_only
+        assert page.declared_type == "C(7)"
+
+    def test_it_says_plainly_that_no_values_are_known(self, catalog: Catalog):
+        self._census_column(catalog)
+        text = render_variable(next(p for p in collect(catalog, "SIASUS")))
+        assert "SCHEMA ONLY" in text
+        assert "nothing here describes its *values*" in text
+
+    def test_a_profiled_column_is_not_downgraded_by_the_census(self, catalog: Catalog):
+        """Profiles know more; the census must not overwrite them."""
+        _family(catalog, system="SIASUS")
+        _profile(catalog, "PA_CODUNI")
+        self._census_column(catalog)
+        page = next(p for p in collect(catalog, "SIASUS") if p.field_name == "PA_CODUNI")
+        assert not page.schema_only
+
+    def test_the_index_counts_census_only_columns_apart(self, catalog: Catalog, tmp_path):
+        self._census_column(catalog)
+        _family(catalog, system="SIASUS")  # a system page needs a family to be listed
+        generate(catalog, tmp_path / "d")
+        text = (tmp_path / "d" / "siasus.md").read_text(encoding="utf-8")
+        assert "known from the header census only" in text
