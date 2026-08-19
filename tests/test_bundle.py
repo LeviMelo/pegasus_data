@@ -329,3 +329,33 @@ class TestItLeavesNothingBehind:
         bind(catalog)
         unpack(fresh_catalog, pack(catalog, tmp_path / "b.pgsb").path)
         assert not list(tmp_path.glob("*.unpacked.sqlite"))
+
+
+class TestRestoringDoesNotHoldTheWholeBundleInMemory:
+    def test_rows_are_moved_in_batches(self, catalog: Catalog, tmp_path, fresh_catalog, monkeypatch):
+        """The full bundle's dictionary is 7.5M rows; one list of tuples for it
+        costs gigabytes before a single row is written."""
+        import pegasus_data.bundle as bundle_module
+
+        monkeypatch.setattr(bundle_module, "RESTORE_BATCH", 3)
+        for n in range(10):
+            add_code(catalog, code=str(n), label=f"Label {n}")
+        bind(catalog)
+        result = unpack(fresh_catalog, pack(catalog, tmp_path / "b.pgsb").path)
+        assert result["restored"]["dictionary"] == 10
+        assert fresh_catalog.count("dictionary") == 10
+
+
+class TestTheReportSaysWhatLanded:
+    def test_rows_the_catalog_already_had_are_not_counted_as_new(
+        self, catalog: Catalog, tmp_path, fresh_catalog
+    ):
+        """`INSERT OR IGNORE` drops what is already there. Counting the attempt
+        instead of the effect reports knowledge that was not gained."""
+        add_code(catalog, code="1", label="Masculino")
+        add_code(catalog, code="3", label="Feminino")
+        bind(catalog)
+        add_code(fresh_catalog, code="1", label="Masculino")
+        result = unpack(fresh_catalog, pack(catalog, tmp_path / "b.pgsb").path)
+        assert result["restored"]["dictionary"] == 1, "one new row, not two"
+        assert result["already_known"] >= 1

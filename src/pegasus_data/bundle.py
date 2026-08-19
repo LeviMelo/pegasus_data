@@ -72,6 +72,11 @@ PACKED_TABLES: tuple[str, ...] = ("dictionary", *SYSTEM_SCOPED, *SHAPE_SCOPED)
 MANIFEST = "manifest.json"
 PAYLOAD = "semantics.sqlite"
 
+#: Rows moved per INSERT batch when restoring. Large enough that the per-batch
+#: overhead disappears, small enough that the full 7.5-million-row dictionary
+#: never exists as Python objects all at once.
+RESTORE_BATCH = 50_000
+
 
 class BundleError(RuntimeError):
     """A bundle cannot be read, or was produced by an incompatible version."""
@@ -370,6 +375,7 @@ def unpack(
         staged.write_bytes(archive.read(PAYLOAD))
 
     restored: dict[str, int] = {}
+    offered: dict[str, int] = {}
     skipped: dict[str, list[str]] = {}
     try:
         source = sqlite3.connect(f"file:{staged.as_posix()}?mode=ro", uri=True)
@@ -390,17 +396,28 @@ def unpack(
                 if not shared:
                     continue
                 keep = [packed_columns.index(c) for c in shared]
-                rows = [tuple(row[i] for i in keep) for row in cursor]
                 if replace:
                     catalog.execute(f"DELETE FROM {table}")
-                if not rows:
-                    restored[table] = 0
-                    continue
                 names = ", ".join(f'"{c}"' for c in shared)
                 slots = ",".join("?" * len(shared))
-                restored[table] = catalog.executemany(
-                    f"INSERT OR IGNORE INTO {table} ({names}) VALUES ({slots})", rows
-                )
+                sql = f"INSERT OR IGNORE INTO {table} ({names}) VALUES ({slots})"
+                # Streamed in batches rather than materialised. The full bundle's
+                # dictionary is 7.5 million rows, and building that as one list of
+                # Python tuples costs gigabytes before a single row is written —
+                # and holding it in one transaction grew the write-ahead log past
+                # 1.9 GB. Each batch commits.
+                before = catalog.count(table)
+                offered_here = 0
+                while batch := cursor.fetchmany(RESTORE_BATCH):
+                    offered_here += catalog.executemany(
+                        sql, [tuple(row[i] for i in keep) for row in batch]
+                    )
+                # What landed, not what was offered. `INSERT OR IGNORE` drops a
+                # row the local catalog already holds, and on an additive unpack
+                # the difference is precisely what this machine already knew —
+                # which is worth reporting rather than counting as new knowledge.
+                restored[table] = catalog.count(table) - before
+                offered[table] = offered_here
         finally:
             source.close()
     finally:
@@ -420,6 +437,7 @@ def unpack(
         "systems": manifest.systems or ["<all>"],
         "restored": restored,
         "total_rows": sum(restored.values()),
+        "already_known": sum(offered.values()) - sum(restored.values()),
         "unknown_columns": skipped,
         "replaced": replace,
     }
