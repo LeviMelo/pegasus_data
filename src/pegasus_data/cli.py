@@ -205,6 +205,32 @@ def dictionary(
 
 
 @app.command(rich_help_panel="PIPELINE")
+def community(
+    root: RootOpt = None,
+    system: SystemsOpt = None,
+    commit: Annotated[str | None, typer.Option("--commit", help="Pin a microdatasus commit SHA")] = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Ingest community transcriptions of DATASUS codings (microdatasus, MIT).
+
+    The lowest rung that still counts: below pdf, above inferred, and unable to
+    override a .CNV/.DEF by construction. Every entry records the repository and
+    commit it came from, because a transcription without a version is a rumour.
+    Covers columns DATASUS documents nowhere — CNES most of all.
+    """
+    from .sources.community import ingest as ingest_community
+
+    settings = _settings(root)
+    store = Catalog(settings.catalog_path)
+    try:
+        with console.status("fetching community codings…"):
+            result = ingest_community(store, systems=system, commit=commit)
+        _emit(result, as_json, "community codings")
+    finally:
+        store.close()
+
+
+@app.command(rich_help_panel="PIPELINE")
 def sigtap(
     root: RootOpt = None,
     competencia: Annotated[list[str] | None, typer.Option("--competencia", help="YYYYMM vintages to ingest; default is the newest")] = None,
