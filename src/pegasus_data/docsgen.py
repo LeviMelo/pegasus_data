@@ -471,6 +471,37 @@ def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | 
             for row in datasets
         )
         index.append("")
+    low_trust = [
+        dict(r)
+        for r in catalog.query(
+            """
+            SELECT p.series_prefix, p.system, p.agreement,
+                   (SELECT COUNT(*) FROM file_facts ff JOIN files f ON f.path = ff.path
+                     WHERE f.gone_at IS NULL AND ff.series_prefix = p.series_prefix) AS files
+              FROM prefix_systems p
+             WHERE p.agreement < 0.9 OR p.file_count < 5
+            """
+        )
+    ]
+    if low_trust:
+        total_files = catalog.scalar("SELECT COUNT(*) FROM file_facts") or 0
+        covered = sum(int(r["files"] or 0) for r in low_trust)
+        share = covered / total_files if total_files else 0.0
+        index.extend([
+            "## How much of this is guesswork",
+            "",
+            f"A file's system is read from its **name** where the name is a reliable "
+            f"indicator, and from its **path** otherwise. {len(low_trust):,} of the learned "
+            f"series prefixes are not reliable enough to use — which sounds alarming and is "
+            f"not, because they cover only **{covered:,} of {total_files:,} files "
+            f"({share:.2%})**. Most are simply thin: a prefix seen two or three times. The "
+            "genuinely ambiguous ones are diseases published in both the legacy SINAN tree "
+            "and Dados_Abertos, which is a shared prefix rather than a reorganisation.",
+            "",
+            "The count invites alarm that the coverage does not justify, which is why both "
+            "numbers are here.",
+            "",
+        ])
     index.extend(["## Systems — what each column means", ""])
     for entry in written:
         coverage = f"{int(entry['documented'])}/{int(entry['variables'])} documented"

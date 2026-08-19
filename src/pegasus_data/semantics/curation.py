@@ -361,6 +361,20 @@ SETTLED: tuple[tuple[str, str, str, str], ...] = (
 #: is "do not guess", and a named gap is how not-guessing stays visible.
 UNRESOLVED: tuple[tuple[str, str, str, str, str], ...] = (
     (
+        "discovery.uploads_directory",
+        "discovery",
+        "What is behind /dissemin/publicos/uploads, the one path the crawl cannot read?",
+        "Nothing can be determined from outside, and this was probed rather than assumed: "
+        "LIST, NLST, CWD, SIZE and MDTM all return '550 Access is denied'. Its type is not "
+        "even knowable — the name appears in the parent listing, the SIZE probe that "
+        "distinguishes a file from a directory is itself refused, and the crawler therefore "
+        "treats it as an unreadable directory. The name suggests a staging area rather than "
+        "published data, and no file anywhere else on the tree references it. It is recorded "
+        "as the single unresolved coverage_gap rather than passed over. Closing it needs "
+        "credentials or a question to the Ministry, not another crawl.",
+        "nothing measurable: it is one path of 362, holding no content this project can see",
+    ),
+    (
         "semantics.sexo_contradictory_coding",
         "semantics",
         "Which SEXO coding applies to which SIH generation?",

@@ -675,6 +675,7 @@ def reference(
     try:
         from .persist.reference import (
             flag_mixed_width_tables,
+            flag_unlabelled_codelists,
             register_reference_tables,
             write_reference_tables,
         )
@@ -682,6 +683,13 @@ def reference(
         with console.status("writing reference tables…"):
             written = write_reference_tables(pipeline.catalog, pipeline.settings.lake_dir)
             register_reference_tables(pipeline.catalog, written)
+            unlabelled = flag_unlabelled_codelists(pipeline.catalog)
+            if unlabelled:
+                console.print(
+                    f"[yellow]{len(unlabelled)}[/yellow] codelist(s) decode nothing — their "
+                    "label column resolved to a blank field; recorded as open questions"
+                )
+                _emit(unlabelled[:8], False, "codelists with no usable labels")
             mixed = flag_mixed_width_tables(pipeline.catalog, written)
         rows = [
             {

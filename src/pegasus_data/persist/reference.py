@@ -349,3 +349,63 @@ def available_tables(lake_root: str | Path) -> list[dict[str, object]]:
                 }
             )
     return out
+
+
+#: A lookup whose labels are this blank did not decode anything. Not 100%:
+#: CADMUN carries 62 stray labels among 5,579 rows and would slip past an
+#: equality test while being useless.
+BLANK_LABEL_THRESHOLD = 0.9
+
+
+def flag_unlabelled_codelists(catalog: Catalog) -> list[dict[str, object]]:
+    """Report codelists whose labels are overwhelmingly empty.
+
+    These are not sparse tables — they are *failed column selections*. A DBF
+    lookup has to guess which column holds the code and which the label, and
+    when it guesses wrong the result still looks like a codelist: the right
+    number of rows, plausible codes, and nothing to translate them to. ``CADMUN``
+    picked ``MUNSIAFI`` as its code and ``OBSERV`` as its label, and ``OBSERV``
+    is blank, so the municipality table decoded no municipalities.
+
+    Reported rather than deleted: the row count and the source_ref are the
+    evidence for re-reading the DBF with the right columns.
+    """
+    rows = catalog.query(
+        """
+        SELECT value_group, system, COUNT(*) AS n,
+               SUM(CASE WHEN value_label IS NULL OR TRIM(value_label) = '' THEN 1 ELSE 0 END) AS blank,
+               MIN(source_ref) AS source_ref
+          FROM dictionary
+         WHERE value_group IS NOT NULL
+         GROUP BY value_group, system
+        HAVING n >= 20 AND CAST(blank AS REAL) / n >= ?
+         ORDER BY n DESC
+        """,
+        (BLANK_LABEL_THRESHOLD,),
+    )
+    out: list[dict[str, object]] = []
+    for r in rows:
+        entry = {
+            "codelist": str(r["value_group"]),
+            "system": str(r["system"]),
+            "rows": int(r["n"]),
+            "blank": int(r["blank"]),
+            "share_blank": round(int(r["blank"]) / int(r["n"]), 3),
+            "source_ref": str(r["source_ref"]),
+        }
+        out.append(entry)
+        catalog.note_question(
+            f"semantics.unlabelled_codelist:{entry['system']}.{entry['codelist']}",
+            area="semantics",
+            question=(
+                f"Codelist {entry['codelist']} ({entry['system']}) has {entry['blank']} blank "
+                f"labels out of {entry['rows']} rows ({entry['share_blank']:.0%}). It decodes "
+                "nothing, which usually means the lookup picked the wrong label column."
+            ),
+            verification_procedure=(
+                f"Re-read {entry['source_ref']} and choose the column holding the name rather "
+                "than a code or a note. Until then any field bound to it renders unlabelled."
+            ),
+            blocking=f"labelling anything bound to {entry['codelist']}",
+        )
+    return out

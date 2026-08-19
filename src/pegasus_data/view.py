@@ -166,8 +166,16 @@ def _lookup_map(
     codes = table.column("code").to_pylist()
     labels = table.column("label").to_pylist()
     # Last write wins, matching .CNV semantics, where a later line deliberately
-    # overrides an earlier one.
-    return {str(c): str(lbl) for c, lbl in zip(codes, labels, strict=True) if c is not None}
+    # overrides an earlier one. A blank label is dropped rather than stored: an
+    # empty string is not a translation, and offering one turns a labelled column
+    # into a column of nothing while still reporting that it was labelled. This
+    # is how CADMUN behaved — a DBF lookup that picked OBSERV as its label
+    # column, which is blank for 5,517 of its 5,579 rows.
+    return {
+        str(c): str(lbl)
+        for c, lbl in zip(codes, labels, strict=True)
+        if c is not None and lbl is not None and str(lbl).strip()
+    }
 
 
 def _contradictions(

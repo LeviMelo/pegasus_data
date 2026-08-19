@@ -231,15 +231,25 @@ variables:
     official_name: Município de residência
     translated_name: Municipality of residence
     code_system: internal
-    codelist: CADMUN
-    source: layout_doc
+    codelist: MUNICBR
+    source: inferred
+    reasoning: >
+      Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose
+      label column resolved to OBSERV, which is blank for 5,517 of its 5,579
+      rows, so it decodes no municipality at all. MUNICBR holds 25,733
+      six-character IBGE codes labelled '120001 Acrelandia'.
 
   CODMUNOCOR:
     official_name: Município de ocorrência
     translated_name: Municipality of occurrence
     code_system: internal
-    codelist: CADMUN
-    source: layout_doc
+    codelist: MUNICBR
+    source: inferred
+    reasoning: >
+      Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose
+      label column resolved to OBSERV, which is blank for 5,517 of its 5,579
+      rows, so it decodes no municipality at all. MUNICBR holds 25,733
+      six-character IBGE codes labelled '120001 Acrelandia'.
     notes: >
       Residence and occurrence differ systematically for deaths in referral
       hospitals, which concentrate in capitals. Mapping deaths by CODMUNOCOR
