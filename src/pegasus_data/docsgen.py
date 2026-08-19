@@ -357,6 +357,8 @@ def render_variable(page: VariablePage) -> str:
         out.append("")
     if doc and doc.source == "inferred" and doc.reasoning:
         out.extend([f"> **Inferred**, not documented. Reasoning: {doc.reasoning}", ""])
+    if doc and doc.vintage_note:
+        out.extend([f"> **Classification changed over time.** {doc.vintage_note}", ""])
     if doc and doc.notes:
         out.extend([f"> {doc.notes}", ""])
     return "\n".join(out)

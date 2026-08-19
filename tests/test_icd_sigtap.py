@@ -44,7 +44,23 @@ class TestTokenRuleInference:
     def test_the_delimiter_is_chosen_by_coverage_not_by_order(self):
         """ATESTADO uses '/', and a fixed try-order picked '*' for it."""
         values = ["T71/X700", "S069/X954", "P209/P021", "J189/A419", "*I10X"]
-        assert infer_token_rule(values)["delimiter"] == "/"
+        assert infer_token_rule(values)["delimiter"][0] == "/", "the heaviest leads"
+
+    def test_a_column_that_mixes_separators_gets_both(self):
+        """SIM's ATESTADO writes 'T07/X366*Y96' — one cell, two separators.
+
+        Picking only the heavier one leaves the other inside a token, and the
+        whole value then fails every shape check. 486 of ATESTADO's values read
+        as malformed for exactly this reason.
+        """
+        values = ["T07/X366*Y96", "P209*P000", "S069/X954", "J189*A419", "T71/X700"]
+        rule = infer_token_rule(values)
+        assert set(rule["delimiter"]) == {"/", "*"}
+
+    def test_a_multi_delimiter_rule_splits_on_any_of_them(self):
+        from pegasus_data.view import _tokenize
+
+        assert _tokenize("T07/X366*Y96", {"delimiter": "/*"}) == ["T07", "X366", "Y96"]
 
     def test_fixed_width_packing_without_a_delimiter(self):
         values = ["A419E119", "J189A419", "E119J189", "A419"]

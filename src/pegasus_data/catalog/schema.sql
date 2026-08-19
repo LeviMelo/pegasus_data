@@ -523,6 +523,8 @@ CREATE TABLE IF NOT EXISTS variable_docs (
   modifies        TEXT,              -- field whose meaning this one changes
   derived         TEXT,              -- JSON array of derived-column recipes
   notes           TEXT,
+  vintage_note    TEXT,              -- when the classification itself changed, and how
+                                     -- the right one is selected for a given row
   source          TEXT NOT NULL,     -- 'manual' | 'layout_doc' | 'def' | 'web' | 'inferred'
   source_ref      TEXT,
   asserted_by     TEXT,

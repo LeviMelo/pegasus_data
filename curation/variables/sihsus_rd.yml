@@ -22,9 +22,21 @@ variables:
     translated_name: Principal diagnosis
     description: >
       CID-10 code for the condition that motivated the admission. Stored without
-      the dot: J18.9 is written J189.
+      the dot: J18.9 is written J189. Older records carry CID-9 instead.
     code_system: external
-    codelist: CID10
+    codelists: [CID10,
+       CID9_01, CID9_02, CID9_03, CID9_04, CID9_05, CID9_06, CID9_07, CID9_08, CID9_09,
+       CID9_10, CID9_11, CID9_12, CID9_13, CID9_14, CID9_15, CID9_16, CID9_17]
+    vintage_note: >
+      SIH spans the CID-9/CID-10 changeover and the older era is still in the
+      data: 426 of the 1,590 distinct values observed for this column are
+      6-digit numeric CID-9 codes, not malformed CID-10. They decode already —
+      065099 is "650 - Parto normal" — but the kit ships CID-9 as seventeen
+      CHAPTER files rather than one table, so all seventeen are bound alongside
+      CID10. Safe: the seventeen chapters share zero contradicting labels across
+      7,681 codes, and the CID-9 and CID-10 code spaces overlap in exactly zero
+      codes, so exact matching picks the right classification per row without
+      anything needing to know the row's vintage.
     multi_valued: false
     token_rule: {width: 4}
     source: layout_doc
@@ -38,7 +50,12 @@ variables:
     translated_name: Secondary diagnosis
     description: CID-10 code for a secondary diagnosis, without the dot.
     code_system: external
-    codelist: CID10
+    codelists: [CID10,
+       CID9_01, CID9_02, CID9_03, CID9_04, CID9_05, CID9_06, CID9_07, CID9_08, CID9_09,
+       CID9_10, CID9_11, CID9_12, CID9_13, CID9_14, CID9_15, CID9_16, CID9_17]
+    vintage_note: >
+      Same CID-9/CID-10 span as DIAG_PRINC; both classifications are bound and
+      exact matching selects per row. See that entry for the measurement.
     source: layout_doc
     notes: >
       Present but dead from the 113-column generation onward: the column is still

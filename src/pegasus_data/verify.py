@@ -30,7 +30,10 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
+
+import pyarrow.parquet as pq
 
 from .catalog.store import Catalog
 from .config import Settings
@@ -662,6 +665,103 @@ def check_build_accounted(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
+def check_stored_labels_agree(catalog: Catalog, settings: Settings) -> Check:
+    """§C — no label written into the lake contradicts its own binding.
+
+    The render path once merged thirteen systems' ``SEXO.CNV`` into one lookup in
+    which ``1`` meant both Masculino and Feminino. The question that mattered was
+    not whether the code was fixed but whether wrong labels had already been
+    *written to Parquet*, where no test would ever find them and a consumer would
+    read them as fact.
+
+    They had not: the build normalises through a system-scoped dictionary and
+    never had the merge bug. This check keeps that true. It compares every stored
+    ``*_label`` value against the labels its field's own binding allows, scoped to
+    the partition's system — the loose version of this audit, matching a code
+    across every codelist in the system, produces false alarms, because ``4``
+    means one thing in FINANC and another in REGIAO.
+    """
+    c = Check("stored labels agree with their bindings", 15)
+    lake = Path(settings.lake_dir)
+    if not lake.exists():
+        return _skip(c, "no lake has been built yet")
+    files = [
+        p for p in lake.rglob("*.parquet")
+        if not {"reference", "population", "demas"} & set(p.parts)
+    ]
+    if not files:
+        return _skip(c, "no family partitions have been built yet")
+
+    checked = 0
+    unverifiable = 0
+    mismatches: list[dict[str, object]] = []
+    for path in files:
+        schema = pq.read_schema(path)
+        labels = [n for n in schema.names if n.endswith("_label") and n[: -len("_label")] in schema.names]
+        if not labels:
+            continue
+        parts = list(path.parts)
+        system = parts[parts.index(lake.name) + 1] if lake.name in parts else ""
+        table = pq.read_table(
+            path, columns=sorted({*labels, *[n[: -len("_label")] for n in labels]})
+        )
+        for label_column in labels:
+            base = label_column[: -len("_label")]
+            groups = [
+                str(r["codelist"])
+                for r in catalog.query(
+                    "SELECT DISTINCT codelist FROM field_codelists WHERE system = ? AND field_name = ?",
+                    (system, base),
+                )
+            ]
+            if not groups:
+                unverifiable += 1
+                continue
+            pairs = {
+                (r, lbl)
+                for r, lbl in zip(
+                    table.column(base).to_pylist(), table.column(label_column).to_pylist(),
+                    strict=True,
+                )
+                if r is not None and lbl is not None
+            }
+            # One query per field, not per code: the dictionary is four million
+            # rows and this check has re-learned that lesson twice already.
+            codes = sorted({str(r) for r, _ in pairs})
+            if not codes:
+                continue
+            allowed_by_code: dict[str, set[str]] = {}
+            for r in catalog.query(
+                "SELECT value_raw, value_label FROM dictionary WHERE system = ? "
+                f"AND value_group IN ({','.join('?' * len(groups))}) "
+                f"AND value_raw IN ({','.join('?' * len(codes))})",
+                (system, *groups, *codes),
+            ):
+                allowed_by_code.setdefault(str(r["value_raw"]), set()).add(str(r["value_label"]))
+            for raw, stored in pairs:
+                allowed = allowed_by_code.get(str(raw))
+                if not allowed:
+                    continue
+                checked += 1
+                if str(stored) not in allowed:
+                    mismatches.append(
+                        {"system": system, "field": base, "code": raw,
+                         "stored": stored, "allowed": sorted(allowed)[:2]}
+                    )
+    c.evidence = {
+        "partitions": len(files),
+        "label_values_checked": checked,
+        "fields_without_a_binding": unverifiable,
+        "mismatches": mismatches[:5],
+    }
+    c.status = "pass" if not mismatches else "fail"
+    c.detail = (
+        f"{checked} stored label values checked against their own binding; "
+        f"{len(mismatches)} contradict it"
+    )
+    return c
+
+
 CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_blob_dedup,
     check_crawl_coverage,
@@ -677,6 +777,7 @@ CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_demas,
     check_describe,
     check_build_accounted,
+    check_stored_labels_agree,
 )
 
 

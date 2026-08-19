@@ -70,6 +70,10 @@ class VariableDoc:
     modifies: str | None = None
     derived: list[dict[str, Any]] = field(default_factory=list)
     notes: str | None = None
+    #: Recorded when a column's *classification* changed rather than its data
+    #: going bad — SIM ran on CID-9 before the CID-10 changeover, and both are
+    #: bound because the vintages overlap on the tree.
+    vintage_note: str | None = None
     source: str = "manual"
     source_ref: str | None = None
     asserted_by: str | None = None
@@ -85,8 +89,8 @@ class VariableDoc:
             json.dumps(self.depends_on) if self.depends_on else None,
             self.modifies,
             json.dumps(self.derived) if self.derived else None,
-            self.notes, self.source, self.source_ref, self.asserted_by, utcnow(),
-            self.reasoning,
+            self.notes, self.vintage_note, self.source, self.source_ref,
+            self.asserted_by, utcnow(), self.reasoning,
         )
 
 
@@ -232,6 +236,7 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
                 modifies=(str(body["modifies"]).upper() if body.get("modifies") else None),
                 derived=list(body.get("derived") or []),
                 notes=_clean(body.get("notes")),
+                vintage_note=_clean(body.get("vintage_note")),
                 source=source,
                 source_ref=body.get("source_ref", default_ref),
                 asserted_by=author,
@@ -418,14 +423,16 @@ def _replace_variable_docs(catalog: Catalog, docs: Sequence[VariableDoc]) -> Non
         """
         INSERT INTO variable_docs (system, field_name, official_name, translated_name,
             description, code_system, codelist, multi_valued, token_rule, depends_on,
-            modifies, derived, notes, source, source_ref, asserted_by, asserted_at, reasoning)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            modifies, derived, notes, vintage_note, source, source_ref, asserted_by,
+            asserted_at, reasoning)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(system, field_name) DO UPDATE SET
             official_name=excluded.official_name, translated_name=excluded.translated_name,
             description=excluded.description, code_system=excluded.code_system,
             codelist=excluded.codelist, multi_valued=excluded.multi_valued,
             token_rule=excluded.token_rule, depends_on=excluded.depends_on,
             modifies=excluded.modifies, derived=excluded.derived, notes=excluded.notes,
+            vintage_note=excluded.vintage_note,
             source=excluded.source, source_ref=excluded.source_ref,
             asserted_by=excluded.asserted_by, asserted_at=excluded.asserted_at,
             reasoning=excluded.reasoning
@@ -591,6 +598,7 @@ def load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str,
             modifies=r["modifies"],
             derived=json.loads(r["derived"]) if r["derived"] else [],
             notes=r["notes"],
+            vintage_note=r["vintage_note"],
             source=str(r["source"]),
             source_ref=r["source_ref"],
             asserted_by=r["asserted_by"],

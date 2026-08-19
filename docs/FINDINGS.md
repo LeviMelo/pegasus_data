@@ -17,6 +17,33 @@ All measurements below are against `ftp.datasus.gov.br/dissemin/publicos` and
 
 ---
 
+## 0. The headline
+
+**The previous inventory of DATASUS was missing a third of it, and said nothing.**
+
+A full crawl finds **207,251 files**. The prior scan found 124,810 and reported
+success. The 82,441-file difference is not attrition or churn; it is one
+mechanism, and it is worth stating exactly:
+
+> FTP's `NLST` command returns **bare names with no type information**. An
+> extensionless directory name is therefore indistinguishable from a file. The
+> old scan recorded `Dados` as a *file* under `SIASUS/200801_`, and `uploads` as
+> a *file* under `/dissemin/publicos`. Because it believed they were files, it
+> never listed them, and because nothing failed, it **never warned**.
+
+Behind `Dados` sat **54,199 files** — SIA outpatient production, 2008 to the
+present, the largest single dataset on the tree. It was absent from the
+inventory under a clean bill of health.
+
+That is the failure this project exists to make impossible, and it shapes
+everything else here: an entry that cannot be typed gets a per-file `SIZE`
+probe and only a successful probe makes it a file; a directory that cannot be
+listed becomes a `coverage_gaps` row rather than a silence; an item that stops
+responding is abandoned, recorded, and reported rather than waited on forever.
+A gap you can query is a different thing from a gap you cannot see.
+
+---
+
 ## 1. The `[V]` list (§14), resolved
 
 ### V1 — HTTPS mirror · **resolved: no mirror, and none needed**
@@ -643,6 +670,107 @@ would close it is licensed. And CEP combined with sex and date of birth, both pr
 files, narrows a patient to a household. Recorded as a **resolved** question rather than left open,
 because a settled "no" that keeps appearing as unfinished work is indistinguishable from a task
 nobody has got to.
+
+---
+
+## 3e. The contradiction was ours (2026-08-19)
+
+### 311,844 contradictions, all manufactured
+
+Sweeping every bound codelist for self-contradiction — a code carrying more than
+one label — measured **311,844 (code, window) pairs across 264 codelists**.
+Grouped by system as well as by codelist: **zero**. Every single one was created
+here, not shipped by DATASUS.
+
+Reference tables were keyed on the codelist name alone. Thirteen systems ship a
+file called `SEXO.CNV` and they do not agree — SIHSUS codes sex `1`/`3`, SINASC
+`1`/`2`, SINAN `M`/`F` — so all thirteen were merged into one table in which `1`
+meant Masculino *and* Feminino. `ANO` is shipped by 15 systems, `MUNICBR` by 11.
+Reference tables are now scoped by system, and a field decodes against its own
+system's copy.
+
+A second class was cross-**vintage**: reading with no year merged every validity
+window, and SIHSUS renders `C96.7` as "…tec linf hematop e relac" today and "…e
+corr" in the 1992–1997 kit. That is one code whose label was reworded, not two
+meanings. A read with no year now returns the current vintage.
+
+SIHSUS/RD went from sixty warnings to **zero**: `SEXO` renders as *Feminino*,
+`MUNIC_RES` as *120020 Cruzeiro do Sul*, `DIAG_PRINC` with its label.
+
+### The damage was never written to disk
+
+The important question was not whether the code was fixed but whether wrong
+labels had already reached Parquet, where no test would find them and a consumer
+would read them as fact.
+
+They had not. Every stored `*_label` value in every built partition was compared
+against the labels its field's own binding allows, scoped to that partition's
+system: **149 values checked, 0 contradicting, 0 unverifiable**. The build
+normalises through a system-scoped dictionary cache and never had the merge bug —
+it was introduced later, in the read path only, and lived for hours in one
+working tree. Stored `SEXO` labels read `1 → Masculino, 3 → Feminino`, which is
+SIH's correct coding and an independent cross-check of the render fix.
+
+This is now a standing verify assertion rather than a one-off audit. The loose
+form of it — matching a code against every codelist in the system — produces
+false alarms, because `4` means one thing in `FINANC` and another in `REGIAO`;
+the check scopes to the field's own binding.
+
+---
+
+## 3f. Classification changes, not data going bad (2026-08-19)
+
+### SIM: CID-9 and CID-10 overlap on the tree
+
+The instruction proposed a 1996 boundary. Measured, a year boundary is wrong:
+`SIM/CID9` spans **1979–1998** and `SIM/CID10` spans **1996–2024**, so the two
+overlap for three years and any threshold mis-assigns them.
+
+Both classifications are bound instead, which resolves it per row rather than per
+year. That is safe because the code spaces are disjoint — SIM's 9,740 CID-9 codes
+and 14,198 CID-10 codes share **exactly zero** codes, CID-9 being numeric and
+CID-10 letter-prefixed — so exact matching selects the right classification
+without anything needing to know a row's vintage. Recorded as `vintage_note` in
+the variable dictionary, which is now a first-class field.
+
+### SIH: the same, in a different shape
+
+The same applies to SIHSUS and nobody had noticed, because its CID-9 era does not
+look like SIM's. **426 of the 1,590 distinct `DIAG_PRINC` values are 6-digit
+numeric**, and they are CID-9: `065099` decodes to "650 - Parto normal". The kit
+ships CID-9 as **seventeen chapter files** rather than one table, so all
+seventeen are bound alongside `CID10`. Safe on the same grounds: 7,681 codes
+across the seventeen chapters with **zero** contradicting labels, and zero
+overlap with CID-10.
+
+### Presence in a bound table now outranks shape
+
+Finding SIH's 6-digit form changed the rule. A shape regex is a heuristic and a
+narrow one — SIM writes CID-9 as three or four digits, SIH as six — and no
+pattern should have to know that. If a codelist bound to the column decodes the
+token, the token is valid. That is proof; the regex is inference.
+
+### ATESTADO mixes two separators
+
+`T07/X366*Y96` — one cell, both `/` and `*`. Splitting on the heavier one leaves
+the other inside a token, and the whole value then fails every check. A token
+rule may now name a *set* of separators.
+
+### The measurement, before and after
+
+| column | malformed before | after |
+|---|---|---|
+| `SIM.CAUSABAS` | 386 (7.7%) | **0** |
+| `SIHSUS.DIAG_PRINC` | 552 (11.0%) | **0** |
+| `SIM.ATESTADO` | 2,526 → 486 | **283 (8.8%)** |
+| `SIM.LINHAA–LINHAD` | 3 | 3 (0.06%) |
+
+Across all 23 ICD-bound columns: **913 of 53,156 values malformed (1.72%)**.
+
+`IBGE.IDADE` still reports 619 malformed and should: it holds age bands like
+`2559` and is bound to CID10 only because a distributional detector matched on
+shape. That is the false binding already recorded as an open question, and
+leaving it visible is the point.
 
 ---
 

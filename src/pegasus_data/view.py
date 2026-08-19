@@ -253,7 +253,15 @@ def _tokenize(value: str, rule: Mapping[str, Any]) -> list[str]:
         return []
     delimiter = rule.get("delimiter")
     if delimiter:
-        parts = [p.strip() for p in text.split(str(delimiter))]
+        # A rule may name SEVERAL separators, and one column needs it: SIM's
+        # ATESTADO writes "T07/X366*Y96", mixing '/' and '*' in a single cell.
+        # Splitting on one of them leaves the other embedded in a token and the
+        # whole value reads as malformed.
+        chars = str(delimiter)
+        if len(chars) > 1:
+            parts = [p.strip() for p in re.split(f"[{re.escape(chars)}]", text)]
+        else:
+            parts = [p.strip() for p in text.split(chars)]
         return [p for p in parts if p]
     width = int(rule.get("width") or 0)
     if width <= 0:

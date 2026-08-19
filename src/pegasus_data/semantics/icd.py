@@ -121,9 +121,15 @@ def infer_token_rule(values: Sequence[str]) -> dict[str, object]:
     # in a fixed list. ATESTADO contains a stray '*' often enough to pass a
     # threshold while '/' is its real separator, and try-order alone got it wrong.
     coverage = {d: sum(1 for v in populated if d in v) for d in DELIMITERS}
-    delimiter, carrying = max(coverage.items(), key=lambda kv: kv[1])
-    if carrying / len(populated) >= 0.05:
-        segments = [part for v in populated for part in v.split(delimiter) if part.strip()]
+    # Every separator that carries weight, not just the heaviest. ATESTADO uses
+    # '/' and '*' in the same cell, and choosing one of them leaves the other
+    # inside a token, which then fails every shape check.
+    carried = [d for d, n in coverage.items() if n / len(populated) >= 0.02]
+    delimiter = "".join(sorted(carried, key=lambda d: -coverage[d]))
+    carrying = max(coverage.values(), default=0)
+    if delimiter and carrying / len(populated) >= 0.05:
+        pattern = f"[{re.escape(delimiter)}]"
+        segments = [part for v in populated for part in re.split(pattern, v) if part.strip()]
         if segments:
             widths: dict[int, int] = {}
             for seg in segments:
@@ -150,8 +156,15 @@ def measure_column(
     field_name: str,
     known_codes: Mapping[str, str] | None = None,
     rule: Mapping[str, object] | None = None,
+    other_revision_bound: bool = False,
 ) -> ColumnQuality:
-    """Classify every observed value of one ICD column."""
+    """Classify every observed value of one ICD column.
+
+    ``other_revision_bound`` says a table for the *other* ICD revision is bound
+    to this column. When it is, a numeric CID-9 code is not a curiosity to be
+    counted apart — it is a valid, labellable value, and reporting it as
+    anything else overstates how much of the column is unusable.
+    """
     out = ColumnQuality(system=system, field_name=field_name)
     token_rule = dict(rule) if rule else infer_token_rule(values)
     out.inferred_rule = token_rule
@@ -168,32 +181,51 @@ def measure_column(
             continue
 
         if delimiter:
-            tokens = [t.strip() for t in value.split(str(delimiter)) if t.strip()]
+            tokens = [
+                t.strip()
+                for t in re.split(f"[{re.escape(str(delimiter))}]", value)
+                if t.strip()
+            ]
         elif width and len(value) > width and len(value) % width == 0:
             tokens = [value[i : i + width].strip() for i in range(0, len(value), width)]
             tokens = [t for t in tokens if t]
         else:
             tokens = [value]
 
+        # Presence in a bound table outranks shape. Shape is a heuristic and a
+        # narrow one: SIM writes CID-9 as three or four digits, SIH writes it as
+        # six (065099 is "650 - Parto normal"), and no regex should have to know
+        # that. If a codelist bound to this column decodes the token, the token
+        # is valid — that is proof, not inference.
+        decoded = (
+            known_codes is not None
+            and bool(tokens)
+            and all(t in known_codes for t in tokens)
+        )
         shapes_ok = [bool(ICD_CODE.match(t) or ICD_DOTTED.match(t)) for t in tokens]
-        if not all(shapes_ok) and all(ICD9_CODE.match(t) for t in tokens):
+        looks_icd9 = bool(tokens) and all(ICD9_CODE.match(t) for t in tokens)
+
+        if not decoded and not all(shapes_ok) and looks_icd9:
+            # ICD-9 shaped, and either no table is bound for that revision or it
+            # does not carry this code. Counted apart from malformed because the
+            # fix is a reference table, not a data repair.
             out.other_revision += 1
-            continue
-        if not all(shapes_ok):
+            if not other_revision_bound:
+                continue
+        elif not decoded and not all(shapes_ok):
             out.malformed += 1
             if len(out.examples_malformed) < 20:
                 out.examples_malformed.append(value)
             continue
+
         if len(tokens) > 1:
             out.several_codes += 1
         else:
             out.single_valid += 1
-        if known_codes is not None:
-            absent = [t for t in tokens if t not in known_codes]
-            if absent:
-                out.valid_but_absent += 1
-                if len(out.examples_absent) < 20:
-                    out.examples_absent.append(value)
+        if known_codes is not None and not decoded:
+            out.valid_but_absent += 1
+            if len(out.examples_absent) < 20:
+                out.examples_absent.append(value)
     return out
 
 
@@ -213,23 +245,32 @@ def measure_icd_columns(
     The sample bias is stated in the report rather than hidden — rare malformed
     values are exactly what a top-N sample under-counts.
     """
-    known: Mapping[str, str] | None = None
-    if lake_root is not None:
-        try:
-            from ..persist.reference import read_reference_table
+    def _known_for(system: str, groups: Sequence[str]) -> Mapping[str, str] | None:
+        """Every table bound to the field, merged.
 
-            table = read_reference_table(lake_root, codelist)
-            known = {
-                str(c): str(lbl)
-                for c, lbl in zip(
-                    table.column("code").to_pylist(),
-                    table.column("label").to_pylist(),
-                    strict=True,
-                )
-                if c is not None
-            }
-        except FileNotFoundError:
-            known = None
+        A column whose *classification* changed needs all of its vintages here or
+        the measurement reports real codes as broken. SIM's CAUSABAS is bound to
+        CID10 and CID9WHO because the tree carries both — SIM/CID9 runs
+        1979-1998 and SIM/CID10 runs 1996-2024 — and the merge is safe because
+        the two code spaces are disjoint: numeric versus letter-prefixed, sharing
+        exactly zero codes.
+        """
+        if lake_root is None:
+            return None
+        from ..persist.reference import read_reference_table
+
+        merged: dict[str, str] = {}
+        for group in groups:
+            try:
+                table = read_reference_table(lake_root, group, system=system)
+            except FileNotFoundError:
+                continue
+            for code, lbl in zip(
+                table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True
+            ):
+                if code is not None:
+                    merged.setdefault(str(code), str(lbl))
+        return merged or None
 
     clause, params = "", []
     if systems:
@@ -258,12 +299,22 @@ def measure_icd_columns(
         ]
         if not values:
             continue
+        system = str(r["system"])
+        field_name = str(r["field_name"])
+        bound = [
+            str(b["codelist"])
+            for b in catalog.query(
+                "SELECT DISTINCT codelist FROM field_codelists WHERE system = ? AND field_name = ?",
+                (system, field_name),
+            )
+        ] or [codelist]
         out.append(
             measure_column(
                 values,
-                system=str(r["system"]),
-                field_name=str(r["field_name"]),
-                known_codes=known,
+                system=system,
+                field_name=field_name,
+                known_codes=_known_for(system, bound),
+                other_revision_bound=any("CID9" in b.upper() for b in bound),
             )
         )
     return sorted(out, key=lambda q: (-q.values_examined, q.field_name))

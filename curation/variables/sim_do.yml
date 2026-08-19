@@ -35,7 +35,16 @@ variables:
       selected by the coder from the certificate's causal chain — it is the
       cause mortality statistics are built on.
     code_system: external
-    codelist: CID10
+    codelists: [CID10, CID9WHO]
+    vintage_note: >
+      SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
+      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so
+      they OVERLAP for 1996-1998 and a year threshold would mis-assign three
+      years of deaths. Both classifications are bound instead. That is safe
+      because their code spaces are disjoint — measured: 9,740 CID-9 codes and
+      14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right
+      classification per row without anything having to know the row's vintage.
     multi_valued: false
     token_rule: {width: 4}
     source: layout_doc
@@ -52,7 +61,16 @@ variables:
       The underlying cause before recoding, where the record was investigated
       and the cause revised.
     code_system: external
-    codelist: CID10
+    codelists: [CID10, CID9WHO]
+    vintage_note: >
+      SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
+      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so
+      they OVERLAP for 1996-1998 and a year threshold would mis-assign three
+      years of deaths. Both classifications are bound instead. That is safe
+      because their code spaces are disjoint — measured: 9,740 CID-9 codes and
+      14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right
+      classification per row without anything having to know the row's vintage.
     source: layout_doc
 
   LINHAA:
@@ -62,7 +80,16 @@ variables:
       The immediate cause of death, as written by the certifying physician.
       Several CID-10 codes may appear in one cell.
     code_system: external
-    codelist: CID10
+    codelists: [CID10, CID9WHO]
+    vintage_note: >
+      SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
+      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so
+      they OVERLAP for 1996-1998 and a year threshold would mis-assign three
+      years of deaths. Both classifications are bound instead. That is safe
+      because their code spaces are disjoint — measured: 9,740 CID-9 codes and
+      14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right
+      classification per row without anything having to know the row's vintage.
     multi_valued: true
     token_rule: {delimiter: "*", width: 4}
     source: inferred
@@ -85,7 +112,16 @@ variables:
     translated_name: Certificate line B
     description: Antecedent cause leading to the condition in line A.
     code_system: external
-    codelist: CID10
+    codelists: [CID10, CID9WHO]
+    vintage_note: >
+      SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
+      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so
+      they OVERLAP for 1996-1998 and a year threshold would mis-assign three
+      years of deaths. Both classifications are bound instead. That is safe
+      because their code spaces are disjoint — measured: 9,740 CID-9 codes and
+      14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right
+      classification per row without anything having to know the row's vintage.
     multi_valued: true
     token_rule: {delimiter: "*", width: 4}
     source: inferred
@@ -98,7 +134,16 @@ variables:
     translated_name: Certificate line C
     description: Antecedent cause leading to the condition in line B.
     code_system: external
-    codelist: CID10
+    codelists: [CID10, CID9WHO]
+    vintage_note: >
+      SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
+      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so
+      they OVERLAP for 1996-1998 and a year threshold would mis-assign three
+      years of deaths. Both classifications are bound instead. That is safe
+      because their code spaces are disjoint — measured: 9,740 CID-9 codes and
+      14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right
+      classification per row without anything having to know the row's vintage.
     multi_valued: true
     token_rule: {delimiter: "*", width: 4}
     source: inferred
@@ -111,7 +156,16 @@ variables:
     translated_name: Certificate line D
     description: The underlying cause as written by the physician.
     code_system: external
-    codelist: CID10
+    codelists: [CID10, CID9WHO]
+    vintage_note: >
+      SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
+      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so
+      they OVERLAP for 1996-1998 and a year threshold would mis-assign three
+      years of deaths. Both classifications are bound instead. That is safe
+      because their code spaces are disjoint — measured: 9,740 CID-9 codes and
+      14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right
+      classification per row without anything having to know the row's vintage.
     multi_valued: true
     token_rule: {delimiter: "*", width: 4}
     source: inferred
@@ -129,7 +183,16 @@ variables:
       Other significant conditions contributing to death but not in the causal
       chain of part I.
     code_system: external
-    codelist: CID10
+    codelists: [CID10, CID9WHO]
+    vintage_note: >
+      SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
+      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so
+      they OVERLAP for 1996-1998 and a year threshold would mis-assign three
+      years of deaths. Both classifications are bound instead. That is safe
+      because their code spaces are disjoint — measured: 9,740 CID-9 codes and
+      14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right
+      classification per row without anything having to know the row's vintage.
     multi_valued: true
     token_rule: {delimiter: "*", width: 4}
     source: inferred
