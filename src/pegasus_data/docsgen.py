@@ -287,8 +287,16 @@ def collect(
     return sorted(pages.values(), key=lambda p: p.field_name)
 
 
-def render_variable(page: VariablePage) -> str:
-    """One variable's entry, warnings first."""
+def render_variable(
+    page: VariablePage, *, codelist_pages_written: frozenset[str] = frozenset()
+) -> str:
+    """One variable's entry, warnings first.
+
+    ``codelist_pages_written`` names the code tables that actually got a page.
+    A binding can exist for a codelist that has no rows *in this system* — the
+    dictionary entry lives under a neighbour that shipped the same kit — and
+    linking to it produced 49 dead links on the real site.
+    """
     banners: list[str] = []
     doc = page.doc
     if doc and doc.modifies:
@@ -375,6 +383,21 @@ def render_variable(page: VariablePage) -> str:
     out.append("```")
     out.append("")
 
+    # Outside the fence, because a link inside one renders as literal text.
+    # Naming the Parquet path tells a reader where the answer is kept; the link
+    # gives them the answer, which is what someone holding a code in front of
+    # them actually wants.
+    if page.codelists and page.coverage != 0 and page.codelists[0] in codelist_pages_written:
+        slug = _SAFE.sub("_", page.system.lower())
+        target = _SAFE.sub("_", page.codelists[0])
+        out.extend(
+            [
+                f"→ **[every value of {page.codelists[0]}]"
+                f"({slug}/codelists/{target}.md)**",
+                "",
+            ]
+        )
+
     if page.schema_only:
         out.append(
             "> Known from the file header only: name, type and width. No file "
@@ -412,7 +435,32 @@ def render_variable(page: VariablePage) -> str:
     return "\n".join(out)
 
 
-def render_system(catalog: Catalog, system: str, pages: Sequence[VariablePage]) -> str:
+def render_system(
+    catalog: Catalog,
+    system: str,
+    pages: Sequence[VariablePage],
+    *,
+    codelist_pages_written: frozenset[str] = frozenset(),
+) -> str:
+    """The whole system page, as one string. See :func:`system_parts` to split it."""
+    header, entries = system_parts(
+        catalog, system, pages, codelist_pages_written=codelist_pages_written
+    )
+    return "\n".join([*header, *entries])
+
+
+def system_parts(
+    catalog: Catalog,
+    system: str,
+    pages: Sequence[VariablePage],
+    *,
+    codelist_pages_written: frozenset[str] = frozenset(),
+) -> tuple[list[str], list[str]]:
+    """The system page as ``(header lines, one rendered entry per variable)``.
+
+    Kept separable so a system with 2,250 columns can be paginated rather than
+    written as a file too large to render.
+    """
     documented = sum(1 for p in pages if p.description)
     schema_only = sum(1 for p in pages if p.schema_only)
     # A column with a working codelist is not "documented" — nobody has written
@@ -452,8 +500,51 @@ def render_system(catalog: Catalog, system: str, pages: Sequence[VariablePage]) 
             out.append(f"- **`{p.field_name}`** — {why}")
         out.append("")
     out.extend(["## Variables", ""])
-    out.extend(render_variable(p) for p in pages)
-    return "\n".join(out)
+    return out, [
+        render_variable(p, codelist_pages_written=codelist_pages_written) for p in pages
+    ]
+
+
+#: A Markdown file larger than this is not rendered by GitHub — it shows
+#: "we can't show files that are this big" instead of the page. SINAN's 2,250
+#: columns came to 1,043 KB, so the most exhaustive page in the set was the one
+#: nobody could read. Pages above the limit are split into parts that are.
+MAX_PAGE_BYTES = 600_000
+
+
+def paginate(header: Sequence[str], entries: Sequence[str]) -> list[str]:
+    """Split rendered entries into as few readable pages as possible.
+
+    Returns the page bodies; the caller names the files. The header is repeated
+    on every part, because a reader who lands on part 3 from a search result
+    needs to know what they are looking at.
+    """
+    head = "\n".join(header)
+    budget = max(MAX_PAGE_BYTES - len(head.encode("utf-8")), 50_000)
+    parts: list[list[str]] = [[]]
+    used = 0
+    for entry in entries:
+        size = len(entry.encode("utf-8"))
+        if used and used + size > budget:
+            parts.append([])
+            used = 0
+        parts[-1].append(entry)
+        used += size
+    return ["\n".join([head, *part]) for part in parts]
+
+
+def _part_name(slug: str, index: int) -> str:
+    return f"{slug}.md" if index == 0 else f"{slug}-{index + 1}.md"
+
+
+def _part_links(slug: str, count: int, current: int) -> list[str]:
+    if count < 2:
+        return []
+    links = []
+    for i in range(count):
+        name = f"part {i + 1}"
+        links.append(name if i == current else f"[{name}]({_part_name(slug, i)})")
+    return ["", "**" + " · ".join(links) + "**", ""]
 
 
 def render_dataset(row: dict[str, object]) -> str:
@@ -479,6 +570,312 @@ def render_dataset(row: dict[str, object]) -> str:
     return "\n".join(out)
 
 
+# --------------------------------------------------------------- the values
+
+#: Beyond this a codelist page stops being a document and becomes a data dump.
+#:
+#: Set from what the pages actually turned into: at 3,000 the establishment
+#: registries (``CADGERMG`` and its 26 siblings, one per state, bound by four
+#: different systems) came to 240 KB each and 8.8 MB per system, and nobody
+#: reads three thousand hospital names in Markdown — they call
+#: ``load_reference()``. A small codelist still prints in full, which is the
+#: case that matters: someone holding ``SEXO=3`` needs all two rows.
+MAX_CODES_ON_A_PAGE = 500
+
+
+def codelist_pages(
+    catalog: Catalog, system: str | None = None
+) -> dict[tuple[str, str], list[tuple[str, str, str, str]]]:
+    """Every bound codelist and all of its codes, keyed ``(system, codelist)``.
+
+    **One scan for the whole tree**, not one per system. Asking per system meant
+    sixteen passes over a 19.9-million-row table and the documentation build
+    crept at about a page a second — the same N+1 shape, one level up, that has
+    now cost this project five separate stalls. Passing ``system`` narrows it,
+    which is what a ``--system`` docs run wants; passing nothing does every
+    system in a single ordered pass.
+
+    Only *bound* codelists are returned. Four in five codelists in the
+    dictionary are TabNet tabulation axes that no column decodes against, and a
+    page for each would bury the ones a reader needs behind ones nothing uses.
+    """
+    where, params = ("", [])
+    if system:
+        where = " AND d.system = ?"
+        params = [system, system]
+    cursor = catalog.execute(
+        f"""
+        SELECT d.system, d.value_group, d.value_raw, d.value_label, d.valid_from, d.source
+          FROM dictionary d
+          JOIN (SELECT DISTINCT system, codelist FROM field_codelists
+                 WHERE 1=1{' AND system = ?' if system else ''}) fc
+            ON fc.system = d.system AND fc.codelist = d.value_group
+         WHERE d.value_label IS NOT NULL AND TRIM(d.value_label) <> ''{where}
+         ORDER BY d.system, d.value_group, d.value_raw, d.valid_from
+        """,
+        params,
+    )
+    out: dict[tuple[str, str], list[tuple[str, str, str, str]]] = {}
+    seen: set[tuple[str, str, str, str]] = set()
+    for sys_name, group, code, label, valid_from, source in cursor:
+        key = (str(sys_name), str(group), str(code), str(label))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.setdefault((str(sys_name), str(group)), []).append(
+            (str(code), str(label), str(valid_from or ""), str(source or ""))
+        )
+    return out
+
+
+def render_codelist(
+    system: str,
+    codelist: str,
+    entries: Sequence[tuple[str, str, str, str]],
+    *,
+    used_by: Sequence[str] = (),
+) -> str:
+    """One codelist, every code and what it means."""
+    out = [f"# {codelist}", "", f"*{system} — code table.*", ""]
+    if used_by:
+        listed = ", ".join(f"`{f}`" for f in sorted(used_by)[:20])
+        more = f" and {len(used_by) - 20} more" if len(used_by) > 20 else ""
+        out.extend([f"Decodes: {listed}{more}.", ""])
+
+    relabelled = _relabelled(entries)
+    sources = ", ".join(sorted({e[3] for e in entries if e[3]})) or "unrecorded"
+    out.extend(
+        [
+            "```",
+            f"  codes        {len({e[0] for e in entries}):,}",
+            f"  entries      {len(entries):,}"
+            + ("   (a relabelled code appears once per wording)" if relabelled else ""),
+            f"  sources      {sources}",
+            f"  join         lake/reference/{codelist}/system={system}/",
+            "```",
+            "",
+        ]
+    )
+    if relabelled:
+        names = ", ".join(f"`{c}`" for c in sorted(relabelled)[:12])
+        out.extend(
+            [
+                f"> **{len(relabelled)} code(s) were relabelled at some point.** Both "
+                "readings are kept, each with the vintage it belongs to, because a row "
+                "filed in 2005 means what the 2005 table said it meant. Relabelled: "
+                + names
+                + ("…" if len(relabelled) > 12 else ""),
+                "",
+            ]
+        )
+
+    shown = entries[:MAX_CODES_ON_A_PAGE]
+    if len(entries) > len(shown):
+        out.extend(
+            [
+                f"This table has {len(entries):,} entries — too many to read as a "
+                f"document. The first {len(shown):,} are below so the coding scheme "
+                "is visible; the complete table is one call away:",
+                "",
+                "```python",
+                f"load_reference({codelist!r}, system={system!r})",
+                "```",
+                "",
+            ]
+        )
+    out.extend(["| code | meaning | from |", "| --- | --- | --- |"])
+    out.extend(
+        f"| `{code}` | {_cell(label)} | {valid_from or '—'} |"
+        for code, label, valid_from, _source in shown
+    )
+    if len(entries) > len(shown):
+        out.extend(
+            [
+                "",
+                f"*{len(entries) - len(shown):,} further entries are not listed here.*",
+            ]
+        )
+    out.append("")
+    return "\n".join(out)
+
+
+def _relabelled(entries: Sequence[tuple[str, str, str, str]]) -> set[str]:
+    """Codes carrying more than one distinct label across vintages."""
+    labels: dict[str, set[str]] = {}
+    for code, label, _valid_from, _source in entries:
+        labels.setdefault(code, set()).add(label)
+    return {code for code, values in labels.items() if len(values) > 1}
+
+
+def _cell(text: str) -> str:
+    """A Markdown table cell cannot hold a raw pipe or a newline."""
+    return str(text).replace("|", "\\|").replace("\n", " ").strip()
+
+
+# --------------------------------------------------------------- the schemas
+
+
+def render_families(catalog: Catalog, system: str) -> str:
+    """Every family in a system, with the ordered schema each one actually has.
+
+    A family *is* a schema generation: the same dataset before and after DATASUS
+    changed the record. Listing them in sequence is the only way to see that
+    `DIAG_SECUN` exists in one generation and not the next — a difference people
+    get wrong constantly, and expensively, because the column is still emitted.
+    """
+    families = catalog.query(
+        """
+        SELECT family_id, series, schema_signature, field_count, time_min, time_max,
+               file_count, stratum_count
+          FROM families WHERE system = ?
+         ORDER BY series, COALESCE(time_min, 0)
+        """,
+        (system,),
+    )
+    if not families:
+        return ""
+    # One scan for every schema's columns, not one query per family.
+    columns: dict[str, list[str]] = {}
+    for row in catalog.execute(
+        """
+        SELECT sp.schema_signature, sp.field_name
+          FROM schema_presence sp
+          JOIN families f ON f.schema_signature = sp.schema_signature
+         WHERE f.system = ?
+         ORDER BY sp.schema_signature, sp.field_order
+        """,
+        (system,),
+    ):
+        columns.setdefault(str(row[0]), []).append(str(row[1]))
+
+    out = [
+        f"# {system} — schema generations",
+        "",
+        "*One entry per family. A family is a set of files sharing a column "
+        "layout, so each entry here is a generation in which DATASUS changed the "
+        "record.*",
+        "",
+    ]
+    by_series: dict[str, list] = {}
+    for row in families:
+        by_series.setdefault(str(row["series"] or "—"), []).append(row)
+
+    for series, rows in sorted(by_series.items()):
+        out.extend([f"## {series}", ""])
+        if len(rows) > 1:
+            out.extend(
+                [
+                    f"{len(rows)} generations. What changed between them is stated "
+                    "under each.",
+                    "",
+                ]
+            )
+        previous: set[str] | None = None
+        for row in rows:
+            fields = columns.get(str(row["schema_signature"]), [])
+            span = (
+                f"{row['time_min']}–{row['time_max']}"
+                if row["time_min"] and row["time_max"]
+                else "span unknown"
+            )
+            out.extend(
+                [
+                    f"### `{row['family_id']}`",
+                    "",
+                    "```",
+                    f"  span         {span}",
+                    f"  columns      {row['field_count'] or len(fields)}",
+                    f"  files        {_fmt_int(row['file_count'])}",
+                    f"  strata       {_fmt_int(row['stratum_count'])}",
+                    "```",
+                    "",
+                ]
+            )
+            current = set(fields)
+            if previous is not None and fields:
+                added = sorted(current - previous)
+                dropped = sorted(previous - current)
+                if added:
+                    out.extend(
+                        ["**Added** since the previous generation: "
+                         + ", ".join(f"`{c}`" for c in added), ""]
+                    )
+                if dropped:
+                    out.extend(
+                        ["**Dropped**: " + ", ".join(f"`{c}`" for c in dropped), ""]
+                    )
+                if not added and not dropped:
+                    out.extend(["Same columns as the previous generation.", ""])
+            if fields:
+                out.extend(
+                    [
+                        f"<details><summary>All {len(fields)} columns, in record "
+                        "order</summary>",
+                        "",
+                        "```",
+                        _wrap(fields),
+                        "```",
+                        "",
+                        "</details>",
+                        "",
+                    ]
+                )
+            previous = current if fields else previous
+    return "\n".join(out)
+
+
+def _wrap(names: Sequence[str], per_line: int = 6) -> str:
+    lines = []
+    for start in range(0, len(names), per_line):
+        row = "  ".join(n.ljust(16) for n in names[start : start + per_line])
+        lines.append("  " + row.rstrip())
+    return "\n".join(lines)
+
+
+# --------------------------------------------------------------- the index
+
+
+def render_column_index(catalog: Catalog) -> str:
+    """Every column name in the tree, and which systems carry it.
+
+    This answers the question a person asks first and the catalog could not
+    previously be asked at all: *I have seen `CID_MORTE` somewhere — where?*
+    """
+    rows = catalog.query(
+        """
+        SELECT field_name, GROUP_CONCAT(DISTINCT system) AS systems
+          FROM (
+            SELECT DISTINCT s.system AS system, sp.field_name AS field_name
+              FROM schema_presence sp
+              JOIN strata s ON s.schema_signature = sp.schema_signature
+             WHERE s.system IS NOT NULL
+             UNION
+            SELECT DISTINCT system, field_name FROM ledger WHERE system IS NOT NULL
+          )
+         GROUP BY field_name ORDER BY field_name
+        """
+    )
+    out = [
+        "# Every column, and where it lives",
+        "",
+        f"*{len(rows):,} distinct column names across the tree, generated from the "
+        "catalog.*",
+        "",
+        "A name shared by two systems is **not** a shared meaning: `SEXO` is coded "
+        "1/3 in SIHSUS, 1/2 in SINASC and M/F in SINAN. Follow the link to the "
+        "system that published the file you actually have.",
+        "",
+        "| column | systems |",
+        "| --- | --- |",
+    ]
+    for row in rows:
+        systems = [s for s in sorted(str(row["systems"] or "").split(",")) if s]
+        links = ", ".join(f"[{s}]({_SAFE.sub('_', s.lower())}.md)" for s in systems)
+        out.append(f"| `{row['field_name']}` | {links} |")
+    out.append("")
+    return "\n".join(out)
+
+
 def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | None = None) -> dict[str, object]:
     """Write ``docs/dictionary/``: one page per system, one per dataset, an index."""
     root = Path(out_dir)
@@ -500,6 +897,10 @@ def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | 
               FROM strata s
               JOIN schema_header_facts h ON h.schema_signature = s.schema_signature
              WHERE s.system IS NOT NULL
+            UNION
+            -- A system whose dictionary was parsed but whose files have not been
+            -- decoded yet still has meaning worth publishing.
+            SELECT DISTINCT system FROM field_codelists WHERE system IS NOT NULL
              ORDER BY 1
             """
         )
@@ -508,12 +909,80 @@ def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | 
     written: list[dict[str, object]] = []
     sizes = _codelist_sizes(catalog)
 
+    codelist_count = 0
+    # Hoisted out of the loop: one pass over the dictionary for every system,
+    # rather than one pass per system over the whole 19.9M rows.
+    all_codelists = codelist_pages(catalog, wanted[0] if len(wanted) == 1 else None)
+    all_bindings: dict[str, dict[str, list[str]]] = {}
+    for row in catalog.query(
+        "SELECT system, field_name, codelist FROM field_codelists WHERE system IS NOT NULL"
+    ):
+        all_bindings.setdefault(str(row["system"]), {}).setdefault(
+            str(row["codelist"]), []
+        ).append(str(row["field_name"]))
+
     for system in wanted:
         pages = collect(catalog, system, codelist_sizes=sizes)
-        if not pages:
+        slug = _SAFE.sub("_", system.lower())
+        path = root / f"{slug}.md"
+        parts = 1
+
+        # The values themselves, written *first*, because the variable page
+        # links to them and a link to a page that was never written is a dead
+        # link. A codelist can be bound and still have no rows in this system —
+        # the dictionary entry lives under a neighbour that shipped the same
+        # kit — which is how 49 dead links reached the real site.
+        used_by = all_bindings.get(system, {})
+        tables = {
+            codelist: entries
+            for (sys_name, codelist), entries in all_codelists.items()
+            if sys_name == system
+        }
+        if tables:
+            codelist_dir = root / slug / "codelists"
+            codelist_dir.mkdir(parents=True, exist_ok=True)
+            for codelist, entries in sorted(tables.items()):
+                (codelist_dir / f"{_SAFE.sub('_', codelist)}.md").write_text(
+                    render_codelist(
+                        system, codelist, entries, used_by=used_by.get(codelist, [])
+                    ),
+                    encoding="utf-8",
+                )
+            codelist_count += len(tables)
+
+        if pages:
+            header, entries = system_parts(
+                catalog, system, pages, codelist_pages_written=frozenset(tables)
+            )
+            bodies = paginate(header, entries)
+            parts = len(bodies)
+            for index, body in enumerate(bodies):
+                (root / _part_name(slug, index)).write_text(
+                    body + "\n".join(_part_links(slug, parts, index)) + "\n",
+                    encoding="utf-8",
+                )
+
+        schemas_page = render_families(catalog, system)
+        if schemas_page:
+            (root / slug).mkdir(parents=True, exist_ok=True)
+            # IBGE's families carry enough columns to push this past the render
+            # limit too, so it gets the same treatment.
+            bodies = paginate([], [schemas_page])
+            if len(bodies) == 1 and len(schemas_page.encode("utf-8")) > MAX_PAGE_BYTES:
+                bodies = paginate([], schemas_page.split("\n## "))
+                bodies = [b if i == 0 else "## " + b for i, b in enumerate(bodies)]
+            for index, body in enumerate(bodies):
+                (root / slug / _part_name("schemas", index)).write_text(
+                    body + "\n".join(_part_links("schemas", len(bodies), index)) + "\n",
+                    encoding="utf-8",
+                )
+
+        # A system with codelists but no profiled columns still has documentable
+        # knowledge — the dictionary was parsed even though no file has been
+        # decoded — and skipping it would report a system as undocumented when
+        # what is actually missing is one stage, not the meaning.
+        if not pages and not tables and not schemas_page:
             continue
-        path = root / f"{_SAFE.sub('_', system.lower())}.md"
-        path.write_text(render_system(catalog, system, pages), encoding="utf-8")
         written.append(
             {
                 "system": system,
@@ -521,6 +990,9 @@ def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | 
                 "variables": len(pages),
                 "documented": sum(1 for p in pages if p.description),
                 "decodable": sum(1 for p in pages if p.codelists),
+                "codelists": len(tables),
+                "has_schemas_page": bool(schemas_page),
+                "parts": parts,
             }
         )
 
@@ -583,20 +1055,67 @@ def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | 
             "numbers are here.",
             "",
         ])
+    column_index = render_column_index(catalog)
+    (root / "columns.md").write_text(column_index, encoding="utf-8")
+
     index.extend(["## Systems — what each column means", ""])
     for entry in written:
+        slug = _SAFE.sub("_", str(entry["system"]).lower())
+        variables = int(entry["variables"])
         coverage = (
-            f"{int(entry['documented'])}/{int(entry['variables'])} described, "
+            f"{int(entry['documented'])}/{variables} described, "
             f"{int(entry['decodable'])} decodable"
+            if variables
+            # A system whose dictionary was parsed but whose files have not been
+            # decoded has no variable page, so linking to one would be a broken
+            # link in the deliverable. Say what it does have.
+            else "no columns catalogued yet — its code tables are here, its files are not"
         )
-        index.append(
-            f"- [{entry['system']}]({Path(str(entry['path'])).name}) — {coverage}"
+        extras = []
+        if int(entry.get("parts") or 1) > 1:
+            extras.append(f"in {int(entry['parts'])} parts")
+        if entry.get("has_schemas_page"):
+            extras.append(f"[schemas]({slug}/schemas.md)")
+        if int(entry.get("codelists") or 0):
+            extras.append(
+                f"[{int(entry['codelists'])} code tables]({slug}/codelists/)"
+            )
+        tail = f" · {' · '.join(extras)}" if extras else ""
+        name = (
+            f"[{entry['system']}]({Path(str(entry['path'])).name})"
+            if variables
+            else f"**{entry['system']}**"
         )
+        index.append(f"- {name} — {coverage}{tail}")
+    index.extend(
+        [
+            "",
+            "## Looking for one column",
+            "",
+            "[**Every column in the tree**](columns.md) — all the distinct column "
+            "names DATASUS publishes, and which systems carry each. A name shared "
+            "by two systems is not a shared meaning, so the page links to the "
+            "system rather than to a single definition.",
+            "",
+            "## How to read a page",
+            "",
+            "Each system has three:",
+            "",
+            "- the **variable page** (`<system>.md`) — what every column is, how "
+            "confident that is, and where the claim came from;",
+            "- the **schema page** (`<system>/schemas.md`) — every generation of "
+            "the record, and exactly which columns each added or dropped;",
+            "- the **code tables** (`<system>/codelists/`) — the values, one page "
+            "per codelist, with the vintage each label belongs to.",
+            "",
+        ]
+    )
     (root / "README.md").write_text("\n".join(index) + "\n", encoding="utf-8")
 
     return {
         "out_dir": str(root),
         "systems": written,
         "datasets": len(datasets),
-        "pages": len(written) + len(datasets) + 1,
+        "codelists": codelist_count,
+        "pages": len(written) + len(datasets) + codelist_count + 2,
     }

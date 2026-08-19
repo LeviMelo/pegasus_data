@@ -13,7 +13,39 @@ cannot trace is worth less than no number.
 
 ## Start here
 
-From an empty directory to a lake, in one command:
+If you came for data, ask for it:
+
+```bash
+pegasus-data get SIH-RD --uf AL --years 2023 --out sih_al_2023.csv
+```
+
+```python
+from pegasus_data import fetch
+
+df = fetch("SIH-RD", uf="AL", years=2023)
+```
+
+That downloads what it needs, decodes it, normalises it and labels it. There is
+no lake to build first and nothing is written to Parquet. A system the catalog
+has not seen triggers a crawl of **that system's directory only**, which is
+recorded, so the second call is free.
+
+Unlike the R package this borrows its shape from, it does not construct FTP
+paths from a template — every path comes from a directory listing DATASUS
+actually served — and it names every file it could not read instead of handing
+back a short table:
+
+```python
+df, report = fetch("SIH-RD", uf="AL", years=[2022, 2023], report=True)
+report.years_missing      # years DATASUS publishes nothing for
+report.undecoded          # files that would not open
+report.schema_mismatch    # files whose columns did not fit their family
+```
+
+## The whole tree
+
+If you came to build the lake — all 207,251 files, thirty-five years — that is
+one command too, and a long one:
 
 ```bash
 pegasus-data all
@@ -86,9 +118,10 @@ be produced is named** — in a warning, or as `LabelUnavailable` under
 ```
 EXPLORE      systems · tree · coverage
 UNDERSTAND   describe · dictionary · gaps
-EXTRACT      build · export
+EXTRACT      get · build · export
 AUDIT        report · questions · verify · findings · icd-quality
 MONITOR      crawl --resume
+MAINTENANCE  pack · unpack · prefix-adjudicate · catalog-rebuild
 PIPELINE     crawl · inventory · semantics · sigtap · community · curate ·
              reference · schemas · profile · families · ledger · build
 ```
@@ -98,10 +131,44 @@ cosmetic: every value source lands before `curate`, so a curated assertion can
 override any of them, and `reference` comes after `curate`, because it
 materialises the winners.
 
-`pegasus-data dictionary` writes `docs/dictionary/` — one page per system, one
-per dataset, generated from the catalog and never hand-written, so it cannot
-drift. It leads with the columns that will produce a wrong answer if used
-naively.
+`pegasus-data dictionary` writes `docs/dictionary/`, generated from the catalog
+and never hand-written, so it cannot drift from what the catalog holds. Each
+system gets three things:
+
+- **`<system>.md`** — every column: what it is, how confident that is, and where
+  the claim came from. It leads with the columns that will produce a wrong
+  answer if used naively.
+- **`<system>/schemas.md`** — every generation of the record, and exactly which
+  columns each one added or dropped. The answer to "does this year have
+  `DIAG_SECUN`" at a glance instead of by hand.
+- **`<system>/codelists/`** — the **values**: one page per code table, every
+  code and what it means, with the vintage each label belongs to. A code that
+  was relabelled shows both readings, because a row filed in 2005 means what the
+  2005 table said it meant.
+
+`docs/dictionary/columns.md` indexes every distinct column name on the tree and
+which systems carry it — with the warning that a shared name is not a shared
+meaning, since `SEXO` is 1/3 in SIHSUS, 1/2 in SINASC and M/F in SINAN.
+
+---
+
+## Working offline
+
+The codelists come from an FTP server that is slow, occasionally unreachable and
+not under your control. They do not have to keep coming from there:
+
+```bash
+pegasus-data pack --out semantics.pgsb          # everything, ~153 MB
+pegasus-data pack --system SIHSUS --out sih.pgsb # one system, ~10 MB
+pegasus-data unpack semantics.pgsb               # elsewhere, no network
+```
+
+A bundle carries the dictionary, the bindings, the curated meanings and the
+schema catalogue — enough to label and describe data you already have, with
+DATASUS unreachable. It carries no files and no rows: it is the means to
+interpret data, not the data.
+
+Fetching new files still needs the network. Understanding them does not.
 
 ---
 

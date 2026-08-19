@@ -251,3 +251,271 @@ class TestCensusColumns:
         generate(catalog, tmp_path / "d")
         text = (tmp_path / "d" / "siasus.md").read_text(encoding="utf-8")
         assert "known from the header census only" in text
+
+
+def _code(catalog, group, code, label, system="SIHSUS", valid_from="", source="cnv"):
+    catalog.execute(
+        "INSERT INTO dictionary (system, value_group, field_name, value_raw, value_label, "
+        "source, source_ref, confidence, valid_from) VALUES (?,?,?,?,?,?,?,0.9,?)",
+        (system, group, "", code, label, source, f"{group}.CNV", valid_from),
+    )
+
+
+def _bind(catalog, field, codelist, system="SIHSUS"):
+    catalog.execute(
+        "INSERT OR IGNORE INTO field_codelists (system, family_id, field_name, codelist, "
+        "source, source_ref, confidence) VALUES (?,'',?,?,'def','x',0.9)",
+        (system, field, codelist),
+    )
+
+
+class TestTheValuesAreDocumented:
+    """Naming a codelist documents that an answer exists; it is not the answer.
+
+    A person reading these pages usually has a code in their hand — `SEXO=3`,
+    `RACACOR=4` — and the page has to say what it means, not where the table
+    that says so is kept.
+    """
+
+    def test_a_bound_codelist_gets_a_page_with_its_codes(self, catalog: Catalog, tmp_path):
+        _code(catalog, "SEXO", "1", "Masculino")
+        _code(catalog, "SEXO", "3", "Feminino")
+        _bind(catalog, "SEXO", "SEXO")
+        generate(catalog, tmp_path / "d")
+        page = (tmp_path / "d" / "sihsus" / "codelists" / "SEXO.md").read_text(encoding="utf-8")
+        assert "Feminino" in page and "`3`" in page
+
+    def test_the_page_says_which_columns_it_decodes(self, catalog: Catalog, tmp_path):
+        _code(catalog, "SEXO", "1", "Masculino")
+        _code(catalog, "SEXO", "3", "Feminino")
+        _bind(catalog, "SEXO", "SEXO")
+        _bind(catalog, "SEXO_PAC", "SEXO")
+        generate(catalog, tmp_path / "d")
+        page = (tmp_path / "d" / "sihsus" / "codelists" / "SEXO.md").read_text(encoding="utf-8")
+        assert "`SEXO`" in page and "`SEXO_PAC`" in page
+
+    def test_an_unbound_codelist_gets_no_page(self, catalog: Catalog, tmp_path):
+        """Four in five codelists are tabulation axes nothing decodes against."""
+        _code(catalog, "FXETARIA", "1", "0 a 4 anos")
+        _code(catalog, "FXETARIA", "2", "5 a 9 anos")
+        generate(catalog, tmp_path / "d")
+        assert not (tmp_path / "d" / "sihsus" / "codelists" / "FXETARIA.md").exists()
+
+    def test_a_relabelled_code_shows_both_readings_and_their_vintages(
+        self, catalog: Catalog, tmp_path
+    ):
+        _code(catalog, "CID10", "C967", "…tec linf hematop e relac", valid_from="200801")
+        _code(catalog, "CID10", "C967", "…tec linf hematop e corr", valid_from="199201")
+        _code(catalog, "CID10", "A419", "Septicemia", valid_from="199201")
+        _bind(catalog, "DIAG_PRINC", "CID10")
+        generate(catalog, tmp_path / "d")
+        page = (tmp_path / "d" / "sihsus" / "codelists" / "CID10.md").read_text(encoding="utf-8")
+        assert "relabelled" in page
+        assert "e relac" in page and "e corr" in page, "both readings, not the newest only"
+        assert "199201" in page and "200801" in page
+
+    def test_an_enormous_codelist_is_truncated_and_says_so(self, catalog: Catalog, tmp_path):
+        from pegasus_data.docsgen import MAX_CODES_ON_A_PAGE, render_codelist
+
+        entries = [(str(n), f"Município {n}", "", "cnv") for n in range(MAX_CODES_ON_A_PAGE + 40)]
+        page = render_codelist("SIHSUS", "MUNICBR", entries)
+        assert "40 further entries are not listed" in page
+        assert "load_reference" in page, "and says how to get the rest"
+
+    def test_a_label_containing_a_pipe_does_not_break_the_table(self):
+        from pegasus_data.docsgen import render_codelist
+
+        page = render_codelist("SIHSUS", "X", [("1", "a | b", "", "cnv")])
+        assert r"a \| b" in page
+
+    def test_the_variable_entry_links_to_the_values(self, catalog: Catalog, tmp_path):
+        _family(catalog)
+        _profile(catalog, "SEXO")
+        _code(catalog, "SEXO", "1", "Masculino")
+        _bind(catalog, "SEXO", "SEXO")
+        catalog.execute(
+            "INSERT INTO value_frequencies (family_id, field_name, schema_signature, value, "
+            "count) VALUES ('f','SEXO','sig','1',10)"
+        )
+        generate(catalog, tmp_path / "d")
+        page = (tmp_path / "d" / "sihsus.md").read_text(encoding="utf-8")
+        assert "sihsus/codelists/SEXO.md" in page
+
+
+class TestTheSchemaGenerationsArePublished:
+    def test_each_family_appears_with_its_span_and_column_count(
+        self, catalog: Catalog, tmp_path
+    ):
+        _family(catalog, family_id="f1", sig="s1", time_min=199201, time_max=200712)
+        _profile(catalog, "UF_ZI", family_id="f1", sig="s1")
+        generate(catalog, tmp_path / "d")
+        page = (tmp_path / "d" / "sihsus" / "schemas.md").read_text(encoding="utf-8")
+        assert "f1" in page and "199201" in page
+
+    def test_what_a_generation_added_is_stated_not_left_to_be_diffed(
+        self, catalog: Catalog, tmp_path
+    ):
+        """The DIAG_SECUN question, answerable at a glance instead of by hand."""
+        _family(catalog, family_id="f1", sig="s1", time_min=199201, time_max=200712)
+        _family(catalog, family_id="f2", sig="s2", time_min=200801, time_max=202612)
+        for order, name in enumerate(["UF_ZI", "N_AIH"]):
+            catalog.execute(
+                "INSERT INTO schema_presence (schema_signature, field_name, field_order) "
+                "VALUES ('s1',?,?)",
+                (name, order),
+            )
+        for order, name in enumerate(["UF_ZI", "N_AIH", "DIAG_SECUN"]):
+            catalog.execute(
+                "INSERT INTO schema_presence (schema_signature, field_name, field_order) "
+                "VALUES ('s2',?,?)",
+                (name, order),
+            )
+        generate(catalog, tmp_path / "d")
+        page = (tmp_path / "d" / "sihsus" / "schemas.md").read_text(encoding="utf-8")
+        assert "**Added**" in page and "`DIAG_SECUN`" in page
+
+
+class TestTheColumnIndex:
+    def test_every_column_is_listed_with_the_systems_that_carry_it(
+        self, catalog: Catalog, tmp_path
+    ):
+        for system, sig in (("SIHSUS", "s1"), ("SINASC", "s2")):
+            catalog.execute(
+                "INSERT INTO strata (stratum_id, system, series, file_count, schema_signature) "
+                "VALUES (?,?,'X',1,?)",
+                (f"st_{system}", system, sig),
+            )
+            catalog.execute(
+                "INSERT INTO schema_presence (schema_signature, field_name, field_order) "
+                "VALUES (?,'SEXO',0)",
+                (sig,),
+            )
+        generate(catalog, tmp_path / "d")
+        page = (tmp_path / "d" / "columns.md").read_text(encoding="utf-8")
+        assert "`SEXO`" in page
+        assert "sihsus.md" in page and "sinasc.md" in page
+
+    def test_it_warns_that_a_shared_name_is_not_a_shared_meaning(
+        self, catalog: Catalog, tmp_path
+    ):
+        generate(catalog, tmp_path / "d")
+        page = (tmp_path / "d" / "columns.md").read_text(encoding="utf-8")
+        assert "not** a shared meaning" in page
+
+    def test_the_readme_points_at_it(self, catalog: Catalog, tmp_path):
+        generate(catalog, tmp_path / "d")
+        readme = (tmp_path / "d" / "README.md").read_text(encoding="utf-8")
+        assert "columns.md" in readme
+
+
+class TestPagesStayReadable:
+    """A page GitHub refuses to render is a page nobody reads.
+
+    SINAN has 2,250 columns and came to 1,043 KB — over the limit at which
+    GitHub shows "we can't show files that are this big" instead of the content.
+    The most exhaustive page in the set was the one that did not work.
+    """
+
+    def test_a_page_within_the_limit_stays_one_file(self):
+        from pegasus_data.docsgen import paginate
+
+        assert len(paginate(["# X"], ["a", "b", "c"])) == 1
+
+    def test_an_oversized_page_is_split(self):
+        from pegasus_data.docsgen import MAX_PAGE_BYTES, paginate
+
+        entry = "x" * 100_000
+        bodies = paginate(["# X"], [entry] * 10)
+        assert len(bodies) > 1
+        assert all(len(b.encode("utf-8")) <= MAX_PAGE_BYTES for b in bodies)
+
+    def test_every_part_repeats_the_header(self):
+        """Someone arriving at part 3 from a search needs to know what it is."""
+        from pegasus_data.docsgen import paginate
+
+        bodies = paginate(["# SINAN", "", "2,250 columns"], ["y" * 200_000] * 6)
+        assert len(bodies) > 1
+        assert all(b.startswith("# SINAN") for b in bodies)
+
+    def test_an_entry_larger_than_the_budget_still_gets_written(self):
+        """Truncating a variable to fit a page would lose the documentation."""
+        from pegasus_data.docsgen import MAX_PAGE_BYTES, paginate
+
+        giant = "z" * (MAX_PAGE_BYTES * 2)
+        bodies = paginate(["# X"], [giant])
+        assert len(bodies) == 1 and giant in bodies[0]
+
+    def test_generated_pages_link_to_their_other_parts(self, catalog: Catalog, tmp_path):
+        _family(catalog)
+        for n in range(400):
+            _profile(catalog, f"FIELD_{n:04d}")
+            catalog.execute(
+                "INSERT INTO variable_docs (system, field_name, description, source) "
+                "VALUES ('SIHSUS', ?, ?, 'manual')",
+                (f"FIELD_{n:04d}", "long description " * 200),
+            )
+        generate(catalog, tmp_path / "d")
+        first = (tmp_path / "d" / "sihsus.md").read_text(encoding="utf-8")
+        assert (tmp_path / "d" / "sihsus-2.md").exists()
+        assert "sihsus-2.md" in first
+
+
+class TestTheGeneratedSiteHangsTogether:
+    """A wiki with dead links is a wiki people stop trusting.
+
+    Both of these were real: systems whose dictionary was parsed but whose files
+    were never decoded got an index entry pointing at a page that was never
+    written, and a variable's link to its codelist page pointed into a directory
+    that only exists when that codelist is bound.
+    """
+
+    def _links(self, text: str) -> list[str]:
+        import re
+
+        return [
+            target
+            for target in re.findall(r"\]\(([^)]+)\)", text)
+            if not target.startswith(("http://", "https://", "#"))
+        ]
+
+    def test_no_link_on_the_index_points_at_a_missing_page(
+        self, catalog: Catalog, tmp_path
+    ):
+        _family(catalog)
+        _profile(catalog, "SEXO")
+        _code(catalog, "SEXO", "1", "Masculino")
+        _bind(catalog, "SEXO", "SEXO")
+        # A system with codelists and nothing else — the case that broke it.
+        _code(catalog, "PROC", "01", "Consulta", system="CMD")
+        _bind(catalog, "PROC_REA", "PROC", system="CMD")
+        root = tmp_path / "d"
+        generate(catalog, root)
+
+        readme = (root / "README.md").read_text(encoding="utf-8")
+        missing = [t for t in self._links(readme) if not (root / t).exists()]
+        assert missing == []
+
+    def test_a_system_with_no_variable_page_is_not_linked_as_though_it_had_one(
+        self, catalog: Catalog, tmp_path
+    ):
+        _code(catalog, "PROC", "01", "Consulta", system="CMD")
+        _bind(catalog, "PROC_REA", "PROC", system="CMD")
+        generate(catalog, tmp_path / "d")
+        readme = (tmp_path / "d" / "README.md").read_text(encoding="utf-8")
+        assert "(cmd.md)" not in readme
+        assert "no columns catalogued yet" in readme
+
+    def test_every_link_out_of_a_system_page_resolves(self, catalog: Catalog, tmp_path):
+        _family(catalog)
+        _profile(catalog, "SEXO")
+        _code(catalog, "SEXO", "1", "Masculino")
+        _bind(catalog, "SEXO", "SEXO")
+        catalog.execute(
+            "INSERT INTO value_frequencies (family_id, field_name, schema_signature, value, "
+            "count) VALUES ('f','SEXO','sig','1',10)"
+        )
+        root = tmp_path / "d"
+        generate(catalog, root)
+        page = (root / "sihsus.md").read_text(encoding="utf-8")
+        missing = [t for t in self._links(page) if not (root / t).exists()]
+        assert missing == []

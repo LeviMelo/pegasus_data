@@ -587,6 +587,49 @@ schema generations the field appears in, and the open questions against it.
 
 ---
 
+## 14b. The generated dictionary
+
+`pegasus-data dictionary` writes `docs/dictionary/` — **3,036 pages** — from the
+catalog. Never hand-written, so it cannot drift; the corollary is that a gap in
+the docs is a gap in the catalog and must be fixed there. Writing prose into the
+Markdown would hide the gap, which is the opposite of the point.
+
+Per system, three artifacts, because they answer three different questions:
+
+- **`<system>.md`** — every column: what it is, how confident, from what source.
+  It opens with the columns that produce a wrong answer if used naively.
+- **`<system>/schemas.md`** — every generation of the record and exactly which
+  columns each added or dropped. *Does this year have `DIAG_SECUN`* becomes a
+  glance instead of a diff.
+- **`<system>/codelists/`** — **the values**, one page per code table, with the
+  vintage each label belongs to. 3,008 of these. A relabelled code shows both
+  readings, because a row filed in 2005 means what the 2005 table said.
+
+Plus `columns.md`, indexing all distinct column names against the systems that
+carry them — with the warning that a shared name is not a shared meaning.
+
+Three constraints the generator enforces, each from a way the output failed:
+
+- **No page exceeds 600 KB.** GitHub refuses to render a Markdown file much
+  above 1 MB, and SINAN's 2,250 columns came to 1,043 KB — the most exhaustive
+  page in the set was the one nobody could open. Oversized pages are split into
+  linked parts that repeat their header.
+- **No dead links.** A codelist can be *bound* and still have no rows in that
+  system, because the dictionary entry lives under a neighbour that shipped the
+  same kit. Linking anyway put 49 dead links on the site; the renderer now only
+  links pages that were written, and a test walks every link on a generated
+  site.
+- **Only bound codelists get pages**, and large ones are truncated with a
+  pointer to `load_reference()`. Nobody reads three thousand hospital names in
+  Markdown; at the original cap the establishment registries alone were 8.8 MB
+  per system.
+
+The whole build is **one pass over the dictionary**, not one per system. Asking
+per system was sixteen scans of 19.9M rows and ran at roughly a page a second;
+hoisted, it is 54 seconds for all 3,036.
+
+---
+
 ## 15. Environment
 
 Python 3.11+. `pyarrow`, `duckdb`, `typer`, `rich`, `httpx`, `pyyaml`;
@@ -709,12 +752,14 @@ Counted on the shipped catalog, not estimated.
 | dictionary rows | 19,905,196 |
 | codelists | 10,748 |
 | field→codelist bindings | 9,304 |
-| systems documented | 16 |
+| systems documented | 18 |
 | decodable columns | 2,159 |
 | open questions | 1,339 |
 | full semantic bundle | 153 MB |
 | per-system bundle | ~10 MB |
-| tests | 459 passing |
+| generated dictionary pages | 3,036 |
+| of which code tables | 3,008 |
+| tests | 483 passing |
 
 The headline is the first two rows. The mechanism behind the 82,441-file
 difference is stated plainly in `docs/FINDINGS.md` §0.
