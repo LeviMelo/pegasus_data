@@ -1,0 +1,602 @@
+"""Rendering: turning stored codes into something a person can read (§5).
+
+The governing goal is that a user should never see an untranslated internal code
+and should never need an external table to understand what they are looking at.
+Everything here serves that.
+
+Storage and view are separate concerns, and keeping them separate is what makes
+every option below a parameter instead of a build variant. The lake stores raw
+codes, companion columns and provenance — written once, machine-facing, stable.
+This module applies every presentation decision at **read** time, from the
+version-scoped reference tables. Nobody rebuilds a lake to change how a column
+is displayed, and nobody has to choose a rendering before they know the question.
+
+The axis that decides rendering is ``code_system`` from the curated variable
+dictionary (§4), not a heuristic:
+
+* ``internal`` — DATASUS-invented, meaningless outside the system, joins to
+  nothing. The label **replaces** the code. Nobody wants ``1`` in a finished
+  output, and ``SEXO = 1`` is not a fact about the world.
+* ``external`` — a canonical identifier in its own right: ICD-10, CBO, IBGE
+  município, CNES, SIGTAP. The code **and** the label. The code is a join key
+  and must survive; the label is still needed to read the row.
+* ``none`` — dates, money, counts, free text. The value as typed.
+
+The previous rule keyed on whether a codelist was hierarchical or large. That
+correlated with the right answer for the wrong reason — ICD is hierarchical
+*and* external, so the heuristic worked until it met an internal hierarchy — and
+it stated the policy as a threshold in the source rather than as a field a user
+can read.
+"""
+
+from __future__ import annotations
+
+import re
+import warnings
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field, replace
+from pathlib import Path
+from typing import Any, Literal
+
+import pyarrow as pa
+import pyarrow.compute as pc
+
+from .catalog.store import Catalog
+from .persist.reference import read_reference_table
+from .semantics.curation import VariableDoc, load_variable_docs
+
+RenderMode = Literal["code", "label", "both", "combined"]
+
+#: How a combined value reads: ``1 – Masculino``. An en dash, because a hyphen
+#: is already inside plenty of codes.
+COMBINED_SEP = " – "
+
+#: Multi-valued columns join with this. Wide enough to survive a label that has
+#: commas in it, which ICD labels routinely do.
+TOKEN_JOIN = " | "
+
+
+class LabelUnavailable(RuntimeError):
+    """A label was requested for a field that cannot produce one.
+
+    Raised rather than returning the codes unlabelled. Silently handing back
+    unlabelled data when labels were asked for is the failure §5.5 exists to
+    close: the caller believes it read one thing and actually read another, and
+    nothing in the result says so.
+    """
+
+
+@dataclass(frozen=True, slots=True)
+class RenderProfile:
+    """What a profile decides, before any per-column override is applied."""
+
+    name: str
+    internal: RenderMode = "label"
+    external: RenderMode = "both"
+    companions: bool = True
+    derived: bool = True
+    headers: Literal["original", "translated", "both"] = "original"
+    values: Literal["separate", "combined"] = "separate"
+
+
+PROFILES: dict[str, RenderProfile] = {
+    # The default. Labels everywhere, codes kept where they are join keys.
+    "analysis": RenderProfile("analysis"),
+    # Nothing rendered: the lake as stored, for a pipeline stage that will do its
+    # own joining and wants no surprises.
+    "codes": RenderProfile(
+        "codes", internal="code", external="code", companions=False, derived=False
+    ),
+    # Everything visible at once, including the internal codes the analysis
+    # profile hides, so a disagreement can be traced back to what was stored.
+    "audit": RenderProfile("audit", internal="both", external="both"),
+    # For a document someone reads. Translated headers and combined values are
+    # both hostile to machines and are why this is not the default.
+    "report": RenderProfile("report", headers="translated", values="combined"),
+}
+
+
+@dataclass(slots=True)
+class RenderReport:
+    """What rendering actually did, so the caller need not infer it."""
+
+    labelled: list[str] = field(default_factory=list)
+    unlabelled: list[str] = field(default_factory=list)
+    derived_added: list[str] = field(default_factory=list)
+    companions_dropped: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    tokens_unmatched: dict[str, int] = field(default_factory=dict)
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "labelled": self.labelled,
+            "unlabelled": self.unlabelled,
+            "derived_added": self.derived_added,
+            "companions_dropped": self.companions_dropped,
+            "warnings": self.warnings,
+            "tokens_unmatched": self.tokens_unmatched,
+        }
+
+
+# --------------------------------------------------------------- column kinds
+
+#: Suffixes normalisation writes for *companion* columns — genuinely new
+#: information derived from a value, as opposed to a label, which adds none.
+#: ``MUNIC_RES_uf`` is not readable off ``MUNIC_RES`` unless you know the IBGE
+#: prefix scheme; ``SEXO_label`` tells you nothing ``SEXO`` did not already say.
+COMPANION_SUFFIXES: tuple[str, ...] = (
+    "_ibge7", "_ibge6", "_uf", "_region", "_epi_week", "_epi_year",
+    "_iso", "_raw", "_valid", "_checkdigit_ok",
+)
+
+LABEL_SUFFIX = "_label"
+
+
+def column_kind(name: str, base_columns: frozenset[str]) -> str:
+    """``raw`` · ``label`` · ``companion``, decided by suffix against the raws."""
+    if name.endswith(LABEL_SUFFIX) and name[: -len(LABEL_SUFFIX)] in base_columns:
+        return "label"
+    for suffix in COMPANION_SUFFIXES:
+        if name.endswith(suffix) and name[: -len(suffix)] in base_columns:
+            return "companion"
+    return "raw"
+
+
+# ------------------------------------------------------------------ labelling
+
+
+def _lookup_map(
+    lake_root: Path, codelist: str, *, year: int | None, code_width: int | None
+) -> dict[str, str]:
+    """``code -> label`` for one codelist at one vintage.
+
+    Reads the *version-scoped* table: a 1995 admission decodes against the
+    1992–1997 vintage, not against today's. Materialising the labels into the
+    lake would have frozen one vintage's wording forever, which is why they are
+    joined here instead.
+    """
+    table = read_reference_table(lake_root, codelist, year=year, code_width=code_width)
+    codes = table.column("code").to_pylist()
+    labels = table.column("label").to_pylist()
+    # Last write wins, matching .CNV semantics, where a later line deliberately
+    # overrides an earlier one.
+    return {str(c): str(lbl) for c, lbl in zip(codes, labels, strict=True) if c is not None}
+
+
+def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, str]:
+    """``field -> codelist``, best-authority binding per field.
+
+    ``family_id=''`` rows are system-wide bindings; a family-specific one beats
+    them, and within a tie the lowest ``confidence`` rank does.
+    """
+    rows = store.query(
+        """
+        SELECT field_name, codelist, family_id, source, confidence
+          FROM field_codelists
+         WHERE system = ? AND (family_id = '' OR family_id = ?)
+         ORDER BY (family_id = '') ASC, confidence DESC
+        """,
+        (system.upper(), family_id or ""),
+    )
+    out: dict[str, str] = {}
+    for r in rows:
+        out.setdefault(str(r["field_name"]).upper(), str(r["codelist"]))
+    return out
+
+
+def _tokenize(value: str, rule: Mapping[str, Any]) -> list[str]:
+    """Split a packed multi-valued cell into its codes, in order.
+
+    Order carries meaning — on a death certificate the sequence *is* the causal
+    chain — so nothing here sorts or deduplicates.
+    """
+    text = (value or "").strip()
+    if not text:
+        return []
+    delimiter = rule.get("delimiter")
+    if delimiter:
+        parts = [p.strip() for p in text.split(str(delimiter))]
+        return [p for p in parts if p]
+    width = int(rule.get("width") or 0)
+    if width <= 0:
+        return [text]
+    return [
+        chunk for chunk in (text[i : i + width].strip() for i in range(0, len(text), width)) if chunk
+    ]
+
+
+def _render_multi_valued(
+    column: pa.Array, rule: Mapping[str, Any], lookup: Mapping[str, str]
+) -> tuple[list[str | None], list[list[str]], list[int]]:
+    """Label every token, keep the order, and never drop one.
+
+    A token with no match passes through as its raw code. Dropping it would make
+    a shorter causal chain than the physician wrote, and nulling the whole cell
+    would discard the tokens that *did* resolve.
+    """
+    rendered: list[str | None] = []
+    code_lists: list[list[str]] = []
+    unmatched: list[int] = []
+    for value in column.to_pylist():
+        if value is None:
+            rendered.append(None)
+            code_lists.append([])
+            unmatched.append(0)
+            continue
+        tokens = _tokenize(str(value), rule)
+        misses = 0
+        pieces: list[str] = []
+        for token in tokens:
+            label = lookup.get(token)
+            if label is None:
+                misses += 1
+                pieces.append(token)
+            else:
+                pieces.append(f"{token} {label}")
+        rendered.append(TOKEN_JOIN.join(pieces) if pieces else None)
+        code_lists.append(tokens)
+        unmatched.append(misses)
+    return rendered, code_lists, unmatched
+
+
+def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
+    values = column.to_pylist()
+    return pa.array(
+        [None if v is None else lookup.get(str(v).strip()) for v in values], type=pa.string()
+    )
+
+
+def _combine(codes: pa.Array, labels: pa.Array) -> pa.Array:
+    out: list[str | None] = []
+    for code, label in zip(codes.to_pylist(), labels.to_pylist(), strict=True):
+        if code is None and label is None:
+            out.append(None)
+        elif label is None:
+            out.append(str(code))
+        elif code is None:
+            out.append(str(label))
+        else:
+            out.append(f"{code}{COMBINED_SEP}{label}")
+    return pa.array(out, type=pa.string())
+
+
+# -------------------------------------------------------------------- derived
+
+
+_UNIT_YEARS = re.compile(r"\ban(?:o|os)\b", re.I)
+_UNIT_MONTHS = re.compile(r"\b(?:m[eê]s|meses)\b", re.I)
+_UNIT_DAYS = re.compile(r"\bdias?\b", re.I)
+_UNIT_HOURS = re.compile(r"\bhoras?\b", re.I)
+_UNIT_MINUTES = re.compile(r"\bminutos?\b", re.I)
+
+#: How many of a unit make a year. Read off the unit column's own labels rather
+#: than hardcoded per system, because SIH and SIM number their units differently
+#: and both change over time.
+_PER_YEAR: tuple[tuple[re.Pattern[str], float], ...] = (
+    (_UNIT_YEARS, 1.0),
+    (_UNIT_MONTHS, 12.0),
+    (_UNIT_DAYS, 365.25),
+    (_UNIT_HOURS, 365.25 * 24),
+    (_UNIT_MINUTES, 365.25 * 24 * 60),
+)
+
+
+def _unit_divisors(lookup: Mapping[str, str]) -> dict[str, float]:
+    """``unit code -> how many of it make a year``, from the codelist's labels."""
+    out: dict[str, float] = {}
+    for code, label in lookup.items():
+        for pattern, per_year in _PER_YEAR:
+            if pattern.search(label):
+                out[code] = per_year
+                break
+    return out
+
+
+def _derive_age_years(
+    table: pa.Table, value_column: str, unit_column: str, divisors: Mapping[str, float]
+) -> pa.Array | None:
+    """Resolve a value+unit pair into years — the canonical multi-column case.
+
+    ``IDADE`` alone is not interpretable: 030 with a unit of months is thirty
+    months, and averaging the column across a population mixes units and returns
+    a number that is not an age. This is the whole reason ``depends_on`` is
+    recorded in §4.
+    """
+    if value_column not in table.schema.names or unit_column not in table.schema.names:
+        return None
+    values = table.column(value_column).to_pylist()
+    units = table.column(unit_column).to_pylist()
+    out: list[float | None] = []
+    for raw, unit in zip(values, units, strict=True):
+        divisor = divisors.get(str(unit).strip()) if unit is not None else None
+        if raw is None or divisor is None:
+            out.append(None)
+            continue
+        try:
+            number = float(str(raw).strip())
+        except (TypeError, ValueError):
+            out.append(None)
+            continue
+        out.append(round(number / divisor, 4))
+    return pa.array(out, type=pa.float64())
+
+
+# --------------------------------------------------------------------- render
+
+
+def resolve_profile(
+    profile: str | RenderProfile = "analysis",
+    *,
+    headers: str | None = None,
+    values: str | None = None,
+    companions: bool | Sequence[str] | None = None,
+    derived: bool | Sequence[str] | None = None,
+) -> RenderProfile:
+    """A named profile with any explicit override applied on top."""
+    base = profile if isinstance(profile, RenderProfile) else PROFILES.get(str(profile))
+    if base is None:
+        raise KeyError(f"unknown render profile {profile!r}; known: {sorted(PROFILES)}")
+    changes: dict[str, Any] = {}
+    if headers is not None:
+        changes["headers"] = headers
+    if values is not None:
+        changes["values"] = values
+    if isinstance(companions, bool):
+        changes["companions"] = companions
+    if isinstance(derived, bool):
+        changes["derived"] = derived
+    return replace(base, **changes) if changes else base
+
+
+def render_table(
+    table: pa.Table,
+    *,
+    store: Catalog,
+    lake_root: str | Path,
+    system: str,
+    family_id: str | None = None,
+    profile: str | RenderProfile = "analysis",
+    render: Mapping[str, RenderMode] | None = None,
+    headers: str | None = None,
+    values: str | None = None,
+    companions: bool | Sequence[str] | None = None,
+    derived: bool | Sequence[str] | None = None,
+    year: int | None = None,
+    strict: bool = False,
+) -> tuple[pa.Table, RenderReport]:
+    """Apply every presentation decision, at read time, from the reference tables.
+
+    ``strict`` turns a label that cannot be produced into a
+    :class:`LabelUnavailable` instead of a warning. Either way the field is named
+    — what never happens is unlabelled data coming back silently from a request
+    for labels.
+    """
+    settings_profile = resolve_profile(
+        profile, headers=headers, values=values, companions=companions, derived=derived
+    )
+    report = RenderReport()
+    docs = load_variable_docs(store, system)
+    bindings = _bindings(store, system, family_id)
+    overrides = {k.upper(): v for k, v in (render or {}).items()}
+    lake = Path(lake_root)
+
+    base_columns = frozenset(
+        n for n in table.schema.names if column_kind(n, frozenset(table.schema.names)) == "raw"
+    )
+    kinds = {n: column_kind(n, base_columns) for n in table.schema.names}
+
+    columns: list[pa.Array] = []
+    names: list[str] = []
+    lookups: dict[str, dict[str, str]] = {}
+
+    def _lookup(field_name: str, codelist: str) -> dict[str, str] | None:
+        if codelist in lookups:
+            return lookups[codelist]
+        doc = docs.get(field_name)
+        width = None
+        if doc and doc.token_rule and not doc.multi_valued:
+            width = doc.token_rule.get("width")
+        try:
+            lookups[codelist] = _lookup_map(lake, codelist, year=year, code_width=width)
+        except FileNotFoundError as exc:
+            message = f"{field_name}: no reference table {codelist!r} in the lake ({exc})"
+            if strict:
+                raise LabelUnavailable(message) from exc
+            report.warnings.append(message)
+            report.unlabelled.append(field_name)
+            lookups[codelist] = {}
+        return lookups[codelist] or None
+
+    for name in table.schema.names:
+        kind = kinds[name]
+        column = table.column(name).combine_chunks()
+
+        if kind == "label":
+            # Labels are produced here, not read from storage. A stored one is a
+            # build-time artefact of an older path and would shadow the join.
+            continue
+
+        if kind == "companion":
+            keep = settings_profile.companions
+            if isinstance(companions, (list, tuple, set)):
+                keep = name in set(companions)
+            if not keep:
+                report.companions_dropped.append(name)
+                continue
+            columns.append(column)
+            names.append(name)
+            continue
+
+        doc = docs.get(name.upper())
+        codelist = bindings.get(name.upper()) or (doc.codelist if doc else None)
+        code_system = (doc.code_system if doc else None) or ("internal" if codelist else "none")
+        mode: RenderMode = overrides.get(name.upper()) or (
+            settings_profile.internal if code_system == "internal" else
+            settings_profile.external if code_system == "external" else "code"
+        )
+
+        if code_system == "none" or codelist is None or mode == "code":
+            if mode != "code" and codelist is None and name.upper() in overrides:
+                # An explicit request that cannot be honoured must say so.
+                message = f"{name}: no codelist is bound, so no label can be produced"
+                if strict:
+                    raise LabelUnavailable(message)
+                report.warnings.append(message)
+                report.unlabelled.append(name)
+            columns.append(column)
+            names.append(name)
+            continue
+
+        lookup = _lookup(name.upper(), codelist)
+        if lookup is None:
+            columns.append(column)
+            names.append(name)
+            continue
+
+        if doc and doc.multi_valued and doc.token_rule:
+            rendered, code_lists, unmatched = _render_multi_valued(column, doc.token_rule, lookup)
+            columns.append(column)
+            names.append(name)
+            columns.append(pa.array(rendered, type=pa.string()))
+            names.append(f"{name}{LABEL_SUFFIX}")
+            keep_companions = settings_profile.companions
+            if isinstance(companions, (list, tuple, set)):
+                keep_companions = f"{name}_codes" in set(companions)
+            if keep_companions:
+                columns.append(pa.array(code_lists, type=pa.list_(pa.string())))
+                names.append(f"{name}_codes")
+                columns.append(pa.array(unmatched, type=pa.int32()))
+                names.append(f"{name}_unmatched")
+            total_missing = sum(unmatched)
+            if total_missing:
+                report.tokens_unmatched[name] = total_missing
+            report.labelled.append(name)
+            continue
+
+        labels = _labels_for(column, lookup)
+        matched = int(pc.sum(pc.is_valid(labels)).as_py() or 0)
+        if not matched:
+            message = f"{name}: reference table {codelist!r} matched none of the observed codes"
+            if strict:
+                raise LabelUnavailable(message)
+            report.warnings.append(message)
+            report.unlabelled.append(name)
+            columns.append(column)
+            names.append(name)
+            continue
+
+        report.labelled.append(name)
+        if mode == "label":
+            columns.append(labels)
+            names.append(name)
+        elif mode == "combined" or settings_profile.values == "combined":
+            columns.append(_combine(column, labels))
+            names.append(name)
+        else:  # "both"
+            columns.append(column)
+            names.append(name)
+            columns.append(labels)
+            names.append(f"{name}{LABEL_SUFFIX}")
+
+    rendered_table = pa.Table.from_arrays(columns, names=names)
+
+    if settings_profile.derived:
+        rendered_table = _apply_derived(
+            rendered_table, table, docs, bindings, lake, year, derived, report, store, system
+        )
+
+    if settings_profile.headers != "original":
+        rendered_table = _apply_headers(rendered_table, docs, settings_profile.headers)
+
+    if settings_profile.values == "combined" and settings_profile.name == "report":
+        report.warnings.append(
+            "values='combined' produces a reading format: the result cannot be "
+            "filtered, joined or aggregated on"
+        )
+    for message in report.warnings:
+        warnings.warn(message, stacklevel=2)
+    return rendered_table, report
+
+
+def _apply_derived(
+    rendered: pa.Table,
+    source: pa.Table,
+    docs: Mapping[str, VariableDoc],
+    bindings: Mapping[str, str],
+    lake: Path,
+    year: int | None,
+    wanted: bool | Sequence[str] | None,
+    report: RenderReport,
+    store: Catalog,
+    system: str,
+) -> pa.Table:
+    """Add the columns that resolve multi-column semantics into one usable value.
+
+    Driven by ``depends_on``/``derived`` in the variable dictionary, so what can
+    be derived is a statement in a curated file rather than a rule in the source.
+    """
+    requested = set(wanted) if isinstance(wanted, (list, tuple, set)) else None
+    for doc in docs.values():
+        for recipe in doc.derived or []:
+            column_name = str(recipe.get("name") or "")
+            if not column_name or column_name in rendered.schema.names:
+                continue
+            if requested is not None and column_name not in requested:
+                continue
+            inputs = [str(c).upper() for c in (recipe.get("from") or [])]
+            if len(inputs) != 2 or any(c not in source.schema.names for c in inputs):
+                continue
+            unit_column = inputs[1]
+            codelist = bindings.get(unit_column) or (
+                docs[unit_column].codelist if unit_column in docs else None
+            )
+            if not codelist:
+                report.warnings.append(
+                    f"{column_name}: {unit_column} has no codelist, so its units cannot be read"
+                )
+                continue
+            try:
+                divisors = _unit_divisors(_lookup_map(lake, codelist, year=year, code_width=None))
+            except FileNotFoundError:
+                report.warnings.append(
+                    f"{column_name}: no reference table {codelist!r} for the unit column"
+                )
+                continue
+            if not divisors:
+                report.warnings.append(
+                    f"{column_name}: no label in {codelist!r} names a time unit, so "
+                    f"{inputs[0]} cannot be converted"
+                )
+                continue
+            derived_column = _derive_age_years(source, inputs[0], unit_column, divisors)
+            if derived_column is None:
+                continue
+            rendered = rendered.append_column(column_name, derived_column)
+            report.derived_added.append(column_name)
+    return rendered
+
+
+def _apply_headers(
+    table: pa.Table, docs: Mapping[str, VariableDoc], style: str
+) -> pa.Table:
+    """Rename columns for a human reader.
+
+    Off by default and documented as a one-way door: renamed headers break
+    scripts, joins and every downstream reference, and accented names cause
+    friction in SQL and in some Parquet readers. Fine for a deliverable someone
+    reads; a poor choice for a pipeline stage.
+    """
+    names: list[str] = []
+    for name in table.schema.names:
+        base = name[: -len(LABEL_SUFFIX)] if name.endswith(LABEL_SUFFIX) else name
+        doc = docs.get(base.upper())
+        translated = (doc.translated_name if doc else None) or (
+            doc.official_name if doc else None
+        )
+        if not translated:
+            names.append(name)
+            continue
+        if name.endswith(LABEL_SUFFIX):
+            translated = f"{translated} (label)"
+        names.append(translated if style == "translated" else f"{name} ({translated})")
+    return table.rename_columns(names)

@@ -6,7 +6,7 @@ import pyarrow as pa
 import pytest
 
 from pegasus_data.api import Catalog as PublicCatalog
-from pegasus_data.api import describe, load
+from pegasus_data.api import LabelUnavailable, describe, load
 from pegasus_data.catalog.store import Catalog
 from pegasus_data.config import Settings
 from pegasus_data.inventory.families import family_id_for, schema_signature
@@ -72,6 +72,14 @@ def built_lake(settings: Settings, catalog: Catalog) -> tuple[Settings, Catalog,
                 system="SIHSUS", value_raw="2", value_label="Feminino", source="cnv",
                 source_ref="TAB_SIH.zip!SEXO.CNV:4", confidence=0.95, value_group="SEXO",
             ),
+            DictionaryEntry(
+                system="SIHSUS", value_raw="270430", value_label="Maceió", source="cnv",
+                source_ref="TAB_SIH.zip!MUNIC.CNV:9", confidence=0.95, value_group="MUNIC",
+            ),
+            DictionaryEntry(
+                system="SIHSUS", value_raw="271070", value_label="Rio Largo", source="cnv",
+                source_ref="TAB_SIH.zip!MUNIC.CNV:10", confidence=0.95, value_group="MUNIC",
+            ),
         ],
     )
     persist_bindings(
@@ -86,6 +94,24 @@ def built_lake(settings: Settings, catalog: Catalog) -> tuple[Settings, Catalog,
     from pegasus_data.semantics.ledger import build_ledger, persist_ledger
 
     persist_ledger(catalog, build_ledger(catalog))
+
+    # The view layer joins labels from lake/reference/ at read time, so the
+    # reference tables have to exist for a label to be producible at all.
+    from pegasus_data.persist.reference import register_reference_tables, write_reference_tables
+
+    register_reference_tables(catalog, write_reference_tables(catalog, settings.lake_dir))
+
+    # code_system is what decides replace-vs-accompany (§5.2), and it lives in
+    # the curated dictionary rather than in a heuristic.
+    catalog.executemany(
+        """INSERT INTO variable_docs (system, field_name, code_system, codelist, source,
+           asserted_by) VALUES (?,?,?,?,?,?)""",
+        [
+            ("SIHSUS", "SEXO", "internal", "SEXO", "manual", "test"),
+            ("SIHSUS", "MUNIC_RES", "external", "MUNIC", "manual", "test"),
+            ("SIHSUS", "VAL_TOT", "none", None, "manual", "test"),
+        ],
+    )
 
     lake = Lake(settings.lake_dir, catalog)
     table = pa.table(
@@ -162,17 +188,57 @@ class TestDescribe:
 
 
 class TestLoad:
-    def test_reads_the_lake_with_labels(self, built_lake):
+    def test_an_internal_code_is_replaced_by_its_label(self, built_lake):
+        """§5.2: nobody wants SEXO=1 in a finished output."""
         settings, catalog, _ = built_lake
         public = PublicCatalog(settings.root, settings=settings)
         try:
             table = load("SIHSUS", "RD", uf="AL", years=[2020],
-                         columns=["MUNIC_RES", "SEXO"], labels=True, catalog=public)
+                         columns=["SEXO"], catalog=public)
         finally:
             public.close()
         assert table.num_rows == 3
-        assert "SEXO_label" in table.schema.names
-        assert table.column("SEXO_label").to_pylist()[0] == "Masculino"
+        assert table.column("SEXO").to_pylist() == ["Masculino", "Feminino", "Masculino"]
+        assert "SEXO_label" not in table.schema.names, "internal codes are replaced, not accompanied"
+
+    def test_an_external_code_keeps_its_code_beside_the_label(self, built_lake):
+        """§5.2: an external code is a join key and must survive."""
+        settings, catalog, _ = built_lake
+        public = PublicCatalog(settings.root, settings=settings)
+        try:
+            table = load("SIHSUS", "RD", uf="AL", years=[2020],
+                         columns=["MUNIC_RES"], catalog=public)
+        finally:
+            public.close()
+        assert "MUNIC_RES" in table.schema.names
+        assert "MUNIC_RES_label" in table.schema.names
+
+    def test_labels_are_joined_not_projected(self, built_lake):
+        """§5.5, the real bug: the label must not depend on being in the Parquet.
+
+        The fixture writes a stored SEXO_label column. This asserts the value
+        comes from the reference-table join by removing the binding's reach: the
+        codes profile renders nothing, so a projected column would still show up.
+        """
+        settings, catalog, _ = built_lake
+        public = PublicCatalog(settings.root, settings=settings)
+        try:
+            table = load("SIHSUS", "RD", uf="AL", years=[2020],
+                         columns=["SEXO"], profile="codes", catalog=public)
+        finally:
+            public.close()
+        assert table.column("SEXO").to_pylist() == ["1", "2", "1"]
+        assert "SEXO_label" not in table.schema.names
+
+    def test_an_unproducible_label_is_named_not_silently_dropped(self, built_lake):
+        settings, catalog, _ = built_lake
+        public = PublicCatalog(settings.root, settings=settings)
+        try:
+            with pytest.raises(LabelUnavailable, match="VAL_TOT"):
+                load("SIHSUS", "RD", uf="AL", years=[2020], columns=["VAL_TOT"],
+                     render={"VAL_TOT": "label"}, strict_labels=True, catalog=public)
+        finally:
+            public.close()
 
     def test_partition_pruning_by_year(self, built_lake):
         settings, catalog, _ = built_lake

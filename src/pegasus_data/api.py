@@ -19,7 +19,7 @@ variable and what do its values mean", which DATASUS does not provide anywhere.
 from __future__ import annotations
 
 import json
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -43,6 +43,13 @@ from .semantics.dictionary import (
     rollups_for,
 )
 from .sources.ibge import KNOWN_SERIES, UnsupportedStratification, series_catalogue
+from .view import (
+    COMPANION_SUFFIXES,
+    PROFILES,
+    LabelUnavailable,
+    RenderReport,
+    render_table,
+)
 
 __all__ = [
     "Catalog",
@@ -53,6 +60,10 @@ __all__ = [
     "open_lake",
     "FieldDescription",
     "MissingColumnError",
+    "export",
+    "LabelUnavailable",
+    "RenderReport",
+    "PROFILES",
 ]
 
 
@@ -527,19 +538,42 @@ def load(
     uf: str | Sequence[str] | None = None,
     years: Sequence[int] | range | None = None,
     columns: Sequence[str] | None = None,
-    labels: bool = False,
+    labels: bool | None = None,
     family_id: str | None = None,
     catalog: Catalog | None = None,
-) -> pa.Table:
-    """Read a family out of the lake.
+    profile: str = "analysis",
+    render: Mapping[str, str] | None = None,
+    headers: str | None = None,
+    values: str | None = None,
+    companions: bool | Sequence[str] | None = None,
+    derived: bool | Sequence[str] | None = None,
+    strict_labels: bool = False,
+    report: bool = False,
+) -> pa.Table | tuple[pa.Table, RenderReport]:
+    """Read a family out of the lake, rendered for reading.
 
-    ``labels=True`` adds the decoded ``*_label`` companion columns that
-    normalisation wrote; the raw columns are always present alongside them.
+    Labels are produced **here**, at read time, by joining the version-scoped
+    reference table for the years being read — not projected out of the Parquet.
+    That was the bug: ``labels=True`` used to select ``*_label`` columns that had
+    to already exist, so asking for a label after a ``--no-labels`` build, or for
+    any field whose codelist was never materialised, returned unlabelled data
+    with no error at all. A label that cannot be produced is now named, in a
+    warning or — with ``strict_labels=True`` — in a :class:`LabelUnavailable`.
+
+    ``profile`` selects how much is rendered: ``analysis`` (default) labels
+    internal codes in place and keeps external codes beside their labels;
+    ``codes`` renders nothing; ``audit`` shows everything at once; ``report``
+    translates headers and combines values for a document someone reads. Any
+    single column can be overridden with ``render={"SEXO": "both"}``.
 
     A requested column that does not exist in the target generation **raises**
     (:class:`MissingColumnError`) rather than returning empty — an empty result
     looks legitimate and is the easiest way to publish a wrong number (§13).
     """
+    if labels is False and profile == "analysis":
+        profile = "codes"
+    if labels is True:
+        strict_labels = strict_labels or False
     own = catalog is None
     cat = catalog or Catalog()
     try:
@@ -579,7 +613,9 @@ def load(
                     errors.append(MissingColumnError(missing[0], family["family_id"], elsewhere))
                     continue
                 projection = list(wanted)
-            optional = [f"{c}_label" for c in (wanted or [])] if labels else None
+            # Companion columns the build materialised are still worth reading;
+            # labels are no longer projected here, they are joined below.
+            optional = [f"{c}{suffix}" for c in (wanted or []) for suffix in COMPANION_SUFFIXES]
             try:
                 table = cat.lake.read(
                     system=system,
@@ -599,9 +635,26 @@ def load(
             raise FileNotFoundError(
                 f"no lake data for system={system!r} series={series!r}; run `pegasus-data build` first"
             )
-        if len(tables) == 1:
-            return tables[0]
-        return pa.concat_tables(tables, promote_options="permissive")
+        combined = tables[0] if len(tables) == 1 else pa.concat_tables(
+            tables, promote_options="permissive"
+        )
+        year_hint = min(years) if years else None
+        rendered, render_report = render_table(
+            combined,
+            store=store,
+            lake_root=cat.settings.lake_dir,
+            system=system,
+            family_id=families[0]["family_id"] if len(families) == 1 else None,
+            profile=profile,
+            render=render,
+            headers=headers,
+            values=values,
+            companions=companions,
+            derived=derived,
+            year=year_hint,
+            strict=strict_labels,
+        )
+        return (rendered, render_report) if report else rendered
     finally:
         if own:
             cat.close()
@@ -696,3 +749,123 @@ def open_lake(root: str | Path | None = None) -> DuckLake:
     duck = DuckLake(cat.settings.lake_dir, cat.store)
     duck.register_all()
     return duck
+
+
+def export(
+    system: str,
+    series: str | None = None,
+    *,
+    path: str | Path | None = None,
+    format: str = "csv",
+    uf: str | Sequence[str] | None = None,
+    years: Sequence[int] | range | None = None,
+    columns: Sequence[str] | None = None,
+    family_id: str | None = None,
+    catalog: Catalog | None = None,
+    profile: str = "report",
+    render: Mapping[str, str] | None = None,
+    headers: str | None = None,
+    values: str | None = None,
+    companions: bool | Sequence[str] | None = None,
+    derived: bool | Sequence[str] | None = None,
+    strict_labels: bool = False,
+) -> Path:
+    """Write a rendered extract to a file. ``load()`` plus a writer.
+
+    Deliberately not a second implementation: this calls :func:`load` and shares
+    its rendering path entirely, so an option can never mean one thing in a
+    notebook and another in an exported file. The only differences are the
+    default profile — ``report``, because a file someone opens in Excel wants
+    translated headers and combined values — and the writer at the end.
+
+    ``format`` is ``csv``, ``parquet`` or ``xlsx``. Excel needs the optional
+    ``openpyxl`` dependency and is refused with a clear message when absent
+    rather than half-written.
+    """
+    fmt = format.lower().lstrip(".")
+    if fmt not in {"csv", "parquet", "xlsx"}:
+        raise ValueError(f"unknown export format {format!r}; use csv, parquet or xlsx")
+
+    table = load(
+        system,
+        series,
+        uf=uf,
+        years=years,
+        columns=columns,
+        family_id=family_id,
+        catalog=catalog,
+        profile=profile,
+        render=render,
+        headers=headers,
+        values=values,
+        companions=companions,
+        derived=derived,
+        strict_labels=strict_labels,
+    )
+    assert isinstance(table, pa.Table)
+
+    if path is None:
+        parts = [system, series or "all"]
+        if uf:
+            parts.append(uf if isinstance(uf, str) else "-".join(uf))
+        if years:
+            ys = list(years)
+            parts.append(str(ys[0]) if len(ys) == 1 else f"{min(ys)}-{max(ys)}")
+        path = Path(f"{'_'.join(str(p) for p in parts)}.{fmt}")
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    if fmt == "parquet":
+        import pyarrow.parquet as pq
+
+        pq.write_table(table, target, compression="zstd")
+    elif fmt == "csv":
+        import pyarrow.csv as pacsv
+
+        # A list column (a multi-valued field's *_codes companion) has no CSV
+        # representation, so it is joined rather than silently stringified as a
+        # Python repr.
+        flattened = _flatten_lists(table)
+        pacsv.write_csv(flattened, target)
+    else:
+        _write_xlsx(table, target)
+    return target
+
+
+def _flatten_lists(table: pa.Table) -> pa.Table:
+    """Render list columns as text so CSV and Excel can carry them."""
+    columns = []
+    for name in table.schema.names:
+        column = table.column(name)
+        if pa.types.is_list(column.type) or pa.types.is_large_list(column.type):
+            columns.append(
+                pa.array(
+                    [
+                        None if v is None else " | ".join("" if t is None else str(t) for t in v)
+                        for v in column.to_pylist()
+                    ],
+                    type=pa.string(),
+                )
+            )
+        else:
+            columns.append(column.combine_chunks())
+    return pa.Table.from_arrays(columns, names=list(table.schema.names))
+
+
+def _write_xlsx(table: pa.Table, target: Path) -> None:
+    try:
+        from openpyxl import Workbook
+    except ImportError as exc:
+        raise ImportError(
+            "xlsx export needs openpyxl: pip install 'pegasus-data[excel]'"
+        ) from exc
+
+    flattened = _flatten_lists(table)
+    book = Workbook(write_only=True)
+    sheet = book.create_sheet("data")
+    sheet.append(list(flattened.schema.names))
+    for batch in flattened.to_batches(max_chunksize=2048):
+        rows = [batch.column(i).to_pylist() for i in range(batch.num_columns)]
+        for values in zip(*rows, strict=True):
+            sheet.append(list(values))
+    book.save(target)
