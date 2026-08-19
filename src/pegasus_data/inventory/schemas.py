@@ -30,6 +30,7 @@ from ..decode.header import (
     DEFAULT_PREFIX_BYTES,
     HeaderUnreadable,
     TableHeader,
+    read_csv_header,
     read_table_header,
 )
 from ..inventory.families import schema_signature
@@ -38,6 +39,11 @@ from ..inventory.families import schema_signature
 #: CSV, XML, JSON — needs a different route and is reported as such rather than
 #: silently skipped.
 HEADER_READABLE = (".dbc", ".dbf")
+
+#: Delimited exports, whose first line names the columns. Same prefix trick,
+#: different parser — and worth having, because DATASUS republishes whole
+#: systems as CSV under Dados_Abertos where no DBF exists at all.
+CSV_READABLE = (".csv",)
 
 #: First ask. Covers every header measured on this tree (the widest, a
 #: 113-column SIH-RD file, needs about 3.7 KB) with room to spare.
@@ -181,14 +187,15 @@ def run_census(
         if on_item:
             on_item(path)
         extension = str(target.get("extension") or "").lower()
-        if extension not in HEADER_READABLE:
+        if extension not in HEADER_READABLE and extension not in CSV_READABLE:
             census.not_header_readable += 1
             continue
+        reader = read_csv_header if extension in CSV_READABLE else read_table_header
         try:
             data = fetch_prefix(path, FIRST_PREFIX)
             census.bytes_fetched += len(data)
             try:
-                header = read_table_header(data)
+                header = reader(data)
             except HeaderUnreadable:
                 # The file said its header is longer than we asked for. Ask again
                 # for exactly what it said, once — not a doubling loop, because
@@ -198,7 +205,7 @@ def run_census(
                 data = fetch_prefix(path, needed)
                 census.bytes_fetched += len(data)
                 census.widened += 1
-                header = read_table_header(data)
+                header = reader(data)
         except HeaderUnreadable as exc:
             census.unreadable += 1
             census.errors.append((path, str(exc)))

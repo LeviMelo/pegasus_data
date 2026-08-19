@@ -159,6 +159,65 @@ def read_table_header(data: bytes) -> TableHeader:
     )
 
 
+#: Delimiters DATASUS actually uses in its CSV exports.
+_CSV_DELIMITERS = (";", ",", "\t", "|")
+
+
+def read_csv_header(data: bytes, *, encoding: str = "latin-1") -> TableHeader:
+    """Read column names from a delimited file's first line.
+
+    Same principle as the DBF header and the same payoff: a CSV declares its
+    columns in its first line, so a prefix settles the schema without moving the
+    rest of the file. This matters more than it sounds — DATASUS republishes
+    whole systems as CSV under ``Dados_Abertos``, where no DBF exists at all.
+
+    The delimiter is chosen by which one yields the most fields, not by which
+    appears most often. Frequency picks the comma out of a Portuguese
+    description long before it picks the semicolon that actually separates the
+    columns.
+
+    Widths are recorded as zero rather than guessed. A CSV declares no width,
+    and inventing one would put a number in the catalogue that no file stated.
+    """
+    if not data:
+        raise HeaderUnreadable("empty file; no CSV header")
+    # Strip the byte-order mark before decoding, not after. These files are read
+    # as latin-1 (DATASUS's usual encoding), and a UTF-8 BOM decoded that way
+    # becomes three separate characters glued to the first column's name — so
+    # the column comes out as "ï»¿CO_UF" and never matches anything.
+    if data.startswith(b"\xef\xbb\xbf"):
+        data = data[3:]
+    line = data.split(b"\n", 1)[0].strip()
+    if not line:
+        raise HeaderUnreadable("first line is empty; no CSV header")
+    text = line.decode(encoding, "replace").lstrip("﻿").rstrip("\r")
+    best: list[str] = []
+    for delimiter in _CSV_DELIMITERS:
+        parts = [p.strip().strip('"').strip() for p in text.split(delimiter)]
+        parts = [p for p in parts if p]
+        if len(parts) > len(best):
+            best = parts
+    if len(best) < 2:
+        raise HeaderUnreadable(
+            f"first line splits into {len(best)} field(s) on every known delimiter"
+        )
+    if any(len(name) > 64 for name in best):
+        # A 64-character "column name" is a sentence: this is a data row in a
+        # file with no header, and naming columns after one row's values would
+        # be worse than admitting the schema is unknown.
+        raise HeaderUnreadable("first line looks like data, not a header row")
+    return TableHeader(
+        fields=[
+            HeaderField(name=name.upper(), type_code="C", width=0, decimals=0)
+            for name in best
+        ],
+        declared_records=0,
+        header_length=len(line),
+        record_length=0,
+        version=0,
+    )
+
+
 def prefix_bytes_needed(data: bytes) -> int:
     """How many bytes the header actually needs, read from the header itself.
 

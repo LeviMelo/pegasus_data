@@ -150,12 +150,35 @@ class TestCensus:
         assert census.widened == 1
         assert len(asked) == 2 and asked[1] > asked[0], "asked again, larger"
 
-    def test_a_non_header_format_is_counted_apart_from_a_failure(self, catalog: Catalog):
-        """A CSV is not a broken DBF; it just needs a different route."""
-        target = {**self._stratum(catalog), "extension": ".csv"}
-        census = run_census(catalog, lambda _p, _n: b"a,b,c\n", [target])
+    def test_a_format_needing_another_route_is_counted_apart_from_a_failure(
+        self, catalog: Catalog
+    ):
+        """A zip is not a broken DBF, and the two want different responses."""
+        target = {**self._stratum(catalog), "extension": ".zip"}
+        census = run_census(catalog, lambda _p, _n: b"PK\x03\x04", [target])
         assert census.not_header_readable == 1
         assert census.unreadable == 0 and census.read == 0
+
+    def test_a_csv_header_is_read_from_its_first_line(self, catalog: Catalog):
+        """DATASUS republishes whole systems as CSV, where no DBF exists."""
+        target = {**self._stratum(catalog), "extension": ".csv"}
+        census = run_census(
+            catalog,
+            lambda _p, _n: b"CO_UF;NO_MUNICIP;QT_POP\r\n11;Porto Velho;539354\r\n",
+            [target],
+        )
+        assert census.read == 1
+        names = {
+            r["field_name"]
+            for r in catalog.query("SELECT field_name FROM schema_header_facts")
+        }
+        assert names == {"CO_UF", "NO_MUNICIP", "QT_POP"}
+
+    def test_a_csv_with_no_header_row_is_refused(self, catalog: Catalog):
+        """Naming columns after one row's values is worse than no schema."""
+        target = {**self._stratum(catalog), "extension": ".csv"}
+        census = run_census(catalog, lambda _p, _n: b"x" * 80 + b";y\n", [target])
+        assert census.read == 0 and census.unreadable == 1
 
     def test_one_unreadable_file_does_not_end_the_census(self, catalog: Catalog):
         catalog.execute(
