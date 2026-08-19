@@ -413,3 +413,48 @@ class TestSystemScoping:
             store=catalog, lake_root=settings.lake_dir, system="CIHA",
         )
         assert out.num_rows == 1
+
+
+class TestBindingChoiceIsDeterministic:
+    """Six .DEF bindings at identical confidence, and one has to win reproducibly.
+
+    CNES's NAT_JUR is bound to NATJUR, NATJURC, ESFERAJUR, ESFERAJURC, ATJURC
+    and RETENCAO, all at 0.9. With nothing to break the tie, SQLite returned
+    them in whatever order it liked and the renderer picked a different table
+    between runs. A column whose label depends on row order is not reproducible,
+    and on a real catalog it picked ATJURC — a truncated neighbour with no
+    reference table at all.
+    """
+
+    def _bind(self, catalog: Catalog, *codelists: str) -> None:
+        for codelist in codelists:
+            catalog.execute(
+                "INSERT INTO field_codelists (system, family_id, field_name, codelist, "
+                "source, source_ref, confidence) VALUES ('CNES','','NAT_JUR',?,'def','d',0.9)",
+                (codelist,),
+            )
+
+    def test_the_same_catalog_always_yields_the_same_binding(self, catalog: Catalog):
+        from pegasus_data.view import _bindings
+
+        self._bind(catalog, "RETENCAO", "ATJURC", "NATJURC", "ESFERAJUR", "NATJUR")
+        picks = {tuple(_bindings(catalog, "CNES", None)["NAT_JUR"]) for _ in range(8)}
+        assert len(picks) == 1
+
+    def test_the_field_s_own_table_wins_the_tie(self, catalog: Catalog):
+        """NAT_JUR's table is NATJUR; the rest are roll-ups and neighbours."""
+        from pegasus_data.view import _bindings
+
+        self._bind(catalog, "RETENCAO", "ATJURC", "NATJURC", "ESFERAJUR", "NATJUR")
+        assert _bindings(catalog, "CNES", None)["NAT_JUR"] == ["NATJUR"]
+
+    def test_confidence_still_outranks_a_name_match(self, catalog: Catalog):
+        """Affinity breaks ties; it does not overturn a better source."""
+        from pegasus_data.view import _bindings
+
+        self._bind(catalog, "NAT_JUR")
+        catalog.execute(
+            "INSERT INTO field_codelists (system, family_id, field_name, codelist, source, "
+            "source_ref, confidence) VALUES ('CNES','','NAT_JUR','CURATED','manual','c',1.0)"
+        )
+        assert _bindings(catalog, "CNES", None)["NAT_JUR"] == ["CURATED"]

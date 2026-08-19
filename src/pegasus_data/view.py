@@ -238,12 +238,39 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, l
         SELECT field_name, codelist, family_id, source, confidence
           FROM field_codelists
          WHERE system = ? AND (family_id = '' OR family_id = ?)
-         ORDER BY (family_id = '') ASC, confidence DESC
         """,
         (system.upper(), family_id or ""),
     )
+
+    def _rank(row: object) -> tuple[int, float, int, str]:
+        """Order candidates deterministically, best first.
+
+        Confidence alone is not enough and the gap it leaves is not academic:
+        CNES's NAT_JUR is bound by .DEF to six tables — NATJUR, NATJURC,
+        ESFERAJUR, ESFERAJURC, ATJURC, RETENCAO — all at 0.9. With nothing to
+        break the tie, SQLite returned them in whatever order it liked and the
+        renderer picked ATJURC on one run and something else on the next. A
+        column whose label depends on row order is not reproducible.
+
+        So a name that matches the field breaks the tie, which is a real signal
+        rather than an arbitrary one: NAT_JUR's own table is NATJUR, and the
+        others are roll-ups and neighbours. Alphabetical order is the last
+        resort, purely so the answer is stable.
+        """
+        codelist = str(row["codelist"]).upper()  # type: ignore[index]
+        field = str(row["field_name"]).upper()  # type: ignore[index]
+        squashed = field.replace("_", "")
+        if codelist in (field, squashed):
+            affinity = 0
+        elif squashed.startswith(codelist) or codelist.startswith(squashed):
+            affinity = 1
+        else:
+            affinity = 2
+        family_specific = 0 if str(row["family_id"]) else 1  # type: ignore[index]
+        return (family_specific, -float(row["confidence"] or 0), affinity, codelist)  # type: ignore[index]
+
     out: dict[str, list[str]] = {}
-    for r in rows:
+    for r in sorted(rows, key=_rank):
         # setdefault, not append: the first row per field is the best-authority
         # binding, and the rest are alternatives this function must not merge.
         out.setdefault(str(r["field_name"]).upper(), [str(r["codelist"])])
