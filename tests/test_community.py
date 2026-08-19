@@ -79,7 +79,7 @@ class TestParsing:
 
     def test_unicode_escapes_become_the_characters_they_name(self):
         """R writes accented Portuguese as \\uXXXX; a raw read gives mojibake."""
-        found = dict((code, label) for f, code, label in parse_r_recodes(SIA_R) if f == "PA_FLIDADE")
+        found = {code: label for f, code, label in parse_r_recodes(SIA_R) if f == "PA_FLIDADE"}
         assert found["0"] == "IDADE NÃO EXIGIDA"
 
     def test_pairs_are_attributed_to_the_field_whose_block_they_sit_in(self):
