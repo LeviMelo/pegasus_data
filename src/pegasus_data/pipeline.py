@@ -715,7 +715,7 @@ class Pipeline:
         # independently names the same classification.
         corroborated = corroborate_semantic_bindings(self.catalog)
         entries = build_ledger(self.catalog, systems=systems)
-        persist_ledger(self.catalog, entries)
+        persist_ledger(self.catalog, entries, systems=systems)
         covered = sum(1 for e in entries if e.dictionary_coverage >= 0.99)
         mean = sum(e.dictionary_coverage for e in entries) / len(entries) if entries else 0.0
         return StageResult(

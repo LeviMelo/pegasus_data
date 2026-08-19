@@ -490,6 +490,25 @@ CREATE TABLE IF NOT EXISTS open_questions (
 
 -- --------------------------------------------------------------- L7 the lake
 
+-- Every family a build SELECTED, and what came of it. The zero-row bug — a
+-- family pointing at files whose schema it did not have, normalising nothing and
+-- reporting success — passed the whole suite because nothing recorded the
+-- difference between "built 0 rows" and "was never asked to build". A family that
+-- produces no rows must now say why, and `verify` fails on any that cannot.
+CREATE TABLE IF NOT EXISTS build_outcomes (
+  run_id           TEXT NOT NULL,
+  family_id        TEXT NOT NULL,
+  system           TEXT,
+  files_selected   INTEGER NOT NULL DEFAULT 0,
+  files_decoded    INTEGER NOT NULL DEFAULT 0,
+  rows_written     INTEGER NOT NULL DEFAULT 0,
+  partitions       INTEGER NOT NULL DEFAULT 0,
+  reason           TEXT,              -- NULL when rows_written > 0
+  recorded_at      TEXT,
+  PRIMARY KEY (run_id, family_id)
+);
+CREATE INDEX IF NOT EXISTS ix_build_outcomes_family ON build_outcomes (family_id);
+
 CREATE TABLE IF NOT EXISTS lake_partitions (
   family_id        TEXT NOT NULL,
   schema_signature TEXT NOT NULL,

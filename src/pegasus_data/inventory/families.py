@@ -208,7 +208,17 @@ def persist_families(catalog: Catalog, families: Sequence[Family]) -> int:
         if r["family_id"] not in keep
     ]
     if stale:
-        for table in ("family_files", "representations", "families"):
+        # Everything keyed on a family goes with it. Nothing in this schema
+        # cascades — there is exactly one ON DELETE CASCADE in the whole file —
+        # so a family that stops being derived would otherwise keep its profiles,
+        # its frequencies, its ledger rows, its codelist bindings and, worst of
+        # all, its registered Parquet. Stale partitions are the dangerous one:
+        # `ds.dataset()` globs the directory rather than consulting the catalog,
+        # so orphaned files keep being read and their rows keep being returned.
+        for table in (
+            "family_files", "representations", "variable_profiles", "value_frequencies",
+            "ledger", "field_codelists", "lake_partitions", "families",
+        ):
             catalog.executemany(f"DELETE FROM {table} WHERE family_id = ?", stale)
 
     catalog.executemany(

@@ -313,7 +313,39 @@ def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> l
     return entries
 
 
-def persist_ledger(catalog: Catalog, entries: Sequence[LedgerEntry]) -> int:
+def persist_ledger(
+    catalog: Catalog, entries: Sequence[LedgerEntry], *, systems: Sequence[str] | None = None
+) -> int:
+    """Replace the ledger for the systems in scope.
+
+    ``build_ledger`` derives every row from the current profiles, so a field that
+    is no longer profiled — dropped by a schema correction, or moved when a family
+    was re-derived — must stop having a ledger row. ON CONFLICT UPDATE can only
+    ever refresh a row, never retire one, which is how derived state accumulates.
+
+    The delete is scoped to the same systems the build was scoped to. Deleting
+    outside that scope would discard the ledger for systems this run never looked
+    at, which is the opposite failure and just as wrong.
+    """
+    keep = {(e.system, e.family_id, e.field_name, e.schema_signature_scope) for e in entries}
+    clause, params = "", []
+    if systems:
+        clause = f" WHERE system IN ({','.join('?' * len(systems))})"
+        params = list(systems)
+    stale = [
+        (r["system"], r["family_id"], r["field_name"], r["schema_signature_scope"])
+        for r in catalog.query(
+            "SELECT system, family_id, field_name, schema_signature_scope FROM ledger" + clause,
+            params,
+        )
+        if (r["system"], r["family_id"], r["field_name"], r["schema_signature_scope"]) not in keep
+    ]
+    if stale:
+        catalog.executemany(
+            "DELETE FROM ledger WHERE system=? AND family_id=? AND field_name=? "
+            "AND schema_signature_scope=?",
+            stale,
+        )
     catalog.executemany(
         """
         INSERT INTO ledger (system, family_id, field_name, schema_signature_scope, official_name,

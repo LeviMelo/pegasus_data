@@ -91,13 +91,28 @@ class Lake:
         year: int,
         part: int = 0,
         source_paths: Sequence[str] = (),
+        replace: bool = True,
     ) -> WrittenPartition | None:
-        """Write one partition. Returns None when the input held no rows."""
+        """Write one partition, replacing whatever occupied it. None if no rows.
+
+        ``replace`` is the default because appending is the more dangerous
+        mistake here. A partition is identified by (family, schema_signature, uf,
+        year), and the build writes each one exactly once per run — so a second
+        write of the same partition is a *rebuild*, not a continuation. Left to
+        append, a rebuild after a schema correction wrote ``part-00003`` beside a
+        stale ``part-00000`` and registered both; ``ds.dataset()`` then read the
+        union and returned every row twice. Duplication is much harder to notice
+        than emptiness: the build reports success, the row counts merely look
+        high, and nothing fails until someone counts deaths and gets double.
+        """
         collected = [b for b in batches if b.num_rows]
         if not collected:
             return None
         table = pa.Table.from_batches(collected)
         directory = self.partition_dir(system, family_id, schema_signature, uf, year)
+        if replace:
+            self._clear_partition(system, family_id, schema_signature, uf, year)
+            part = 0
         directory.mkdir(parents=True, exist_ok=True)
         target = directory / f"part-{part:05d}.parquet"
         pq.write_table(
@@ -136,6 +151,30 @@ class Lake:
                 ],
             )
         return written
+
+    def _clear_partition(
+        self, system: str, family_id: str, schema_signature: str, uf: str, year: int
+    ) -> int:
+        """Drop the Parquet and the catalog rows for one partition, together.
+
+        Both or neither: a file left on disk without its catalog row still gets
+        read by ``ds.dataset()``, which globs the directory and does not consult
+        the catalog at all. Clearing only the catalog would hide the duplication
+        rather than remove it.
+        """
+        directory = self.partition_dir(system, family_id, schema_signature, uf, year)
+        removed = 0
+        if directory.is_dir():
+            for stale in directory.glob("*.parquet"):
+                stale.unlink()
+                removed += 1
+        if self.catalog is not None:
+            self.catalog.execute(
+                "DELETE FROM lake_partitions WHERE family_id=? AND schema_signature=? "
+                "AND uf=? AND year=?",
+                (family_id, schema_signature, uf, year),
+            )
+        return removed
 
     def next_part_number(
         self, system: str, family_id: str, schema_signature: str, uf: str, year: int

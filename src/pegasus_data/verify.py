@@ -607,6 +607,61 @@ def check_describe(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
+def check_build_accounted(catalog: Catalog, settings: Settings) -> Check:
+    """§3 — every family a build selected produced rows, or recorded why not.
+
+    The zero-row bug passed the entire suite. A stale ``family_files`` link pointed
+    the 113-column SIH-RD family at 86-column files, every file failed the schema
+    match, the loop skipped each one, and the build reported success over an empty
+    lake. Nothing distinguished "built nothing" from "was never asked to build",
+    so nothing could fail.
+
+    ``build_outcomes`` now records one row per selected family. A family with rows
+    is fine. A family without rows is fine only if it says why — and a reason that
+    names a schema mismatch is reported as a failure, because that is the bug
+    itself rather than an explanation of it.
+    """
+    c = Check("every built family produced rows or a recorded reason", 14)
+    runs = catalog.query("SELECT DISTINCT run_id FROM build_outcomes ORDER BY recorded_at DESC LIMIT 1")
+    if not runs:
+        return _skip(c, "no build has been run against this catalog")
+    run_id = str(runs[0]["run_id"])
+    rows = [dict(r) for r in catalog.query(
+        "SELECT family_id, system, files_selected, rows_written, reason "
+        "FROM build_outcomes WHERE run_id = ?", (run_id,)
+    )]
+    produced = [r for r in rows if int(r["rows_written"]) > 0]
+    silent = [r for r in rows if int(r["rows_written"]) == 0 and not r["reason"]]
+    mismatched = [
+        r for r in rows
+        if int(r["rows_written"]) == 0 and r["reason"] and "does not have" in str(r["reason"])
+    ]
+    explained = [
+        r for r in rows
+        if int(r["rows_written"]) == 0 and r["reason"] and r not in mismatched
+    ]
+    c.evidence = {
+        "run_id": run_id,
+        "families_selected": len(rows),
+        "produced_rows": len(produced),
+        "zero_rows_explained": len(explained),
+        "zero_rows_schema_mismatch": len(mismatched),
+        "zero_rows_unexplained": len(silent),
+        "examples": [
+            {"family_id": r["family_id"], "reason": r["reason"]}
+            for r in (mismatched + silent)[:5]
+        ],
+    }
+    c.status = "pass" if not silent and not mismatched else "fail"
+    c.detail = (
+        f"{len(produced)}/{len(rows)} families produced rows; "
+        f"{len(explained)} explained their emptiness; "
+        f"{len(mismatched)} pointed at files whose schema they do not have; "
+        f"{len(silent)} were silently empty"
+    )
+    return c
+
+
 CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_blob_dedup,
     check_crawl_coverage,
@@ -621,6 +676,7 @@ CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_population,
     check_demas,
     check_describe,
+    check_build_accounted,
 )
 
 

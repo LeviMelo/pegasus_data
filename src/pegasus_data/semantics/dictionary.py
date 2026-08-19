@@ -340,7 +340,16 @@ def persist_rules(
 
 
 def bind_codelists_to_fields(catalog: Catalog) -> int:
-    """Populate ``field_codelists`` from every ``.DEF`` declaration seen so far."""
+    """Populate ``field_codelists`` from every ``.DEF`` declaration seen so far.
+
+    Replaces the ``def``-sourced bindings rather than adding to them, and touches
+    only those: bindings from detectors and from corroborated layouts are other
+    functions' output and are not this one's to withdraw. Without the delete, a
+    ``.DEF`` that stops naming a lookup — or one re-parsed correctly after a
+    codepage fix — leaves its old binding behind, and the field keeps being
+    labelled from a codelist nothing declares any more.
+    """
+    catalog.execute("DELETE FROM field_codelists WHERE source = 'def'")
     rows = catalog.query(
         """
         SELECT DISTINCT system, field_name, lookup_ref, def_path

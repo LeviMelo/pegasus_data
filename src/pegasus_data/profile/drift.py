@@ -84,6 +84,19 @@ def analyse_drift(catalog: Catalog) -> list[DriftReport]:
 
 
 def persist_drift(catalog: Catalog, reports: list[DriftReport]) -> int:
+    """Replace the drift picture. ``analyse_drift`` always reads the whole catalog,
+    so anything not in ``reports`` is a (system, series) that no longer exists —
+    after a prefix adjudication, say, which moved CM from SIHSUS to SISCAN. Left in
+    place, the retired pair keeps reporting drift for a series that is not there.
+    """
+    keep = {(r.system, r.series) for r in reports}
+    stale = [
+        (r["system"], r["series"])
+        for r in catalog.query("SELECT system, series FROM schema_drift")
+        if (r["system"], r["series"]) not in keep
+    ]
+    if stale:
+        catalog.executemany("DELETE FROM schema_drift WHERE system = ? AND series = ?", stale)
     catalog.executemany(
         """
         INSERT INTO schema_drift (system, series, observed_strata, schema_signature_count,
@@ -181,6 +194,15 @@ def detect_renames(catalog: Catalog) -> list[RenameCandidate]:
 
 
 def persist_renames(catalog: Catalog, candidates: list[RenameCandidate]) -> int:
+    """Replace the rename candidates wholesale.
+
+    ``detect_renames`` recomputes from scratch over every series, so this table's
+    whole content is a function of the current catalog. A field that stops looking
+    renamed — because a corrected schema signature put it back where it belonged —
+    has to *stop being listed*, and an ON CONFLICT UPDATE alone can never withdraw
+    a row. This is the exact shape of the three idempotence bugs already found.
+    """
+    catalog.execute("DELETE FROM field_renames")
     rows: list[tuple[object, ...]] = []
     for c in candidates:
         rows.append((c.system, c.series, c.old_field, json.dumps(c.old_signatures), json.dumps(c.new_signatures), None, None))

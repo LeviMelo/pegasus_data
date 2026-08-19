@@ -8,13 +8,14 @@ repeatedly with narrow scopes (one system, one UF, a range of years).
 from __future__ import annotations
 
 import json
+import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
 import pyarrow as pa
 
-from .catalog.store import Catalog
+from .catalog.store import Catalog, utcnow
 from .config import Settings
 from .decode.registry import ReaderRegistry
 from .normalize.engine import NormalizePlan, build_plan, normalize_table
@@ -77,6 +78,8 @@ class Builder:
         on_file: Callable[[str, str], None] | None = None,
     ) -> StageResult:
         stats = BuildStats()
+        run_id = uuid.uuid4().hex[:12]
+        outcomes: list[tuple[object, ...]] = []
         municipalities = MunicipalityIndex.from_catalog(self.catalog)
         registry = ReaderRegistry()
         cache = DictionaryCache(self.catalog)
@@ -105,6 +108,8 @@ class Builder:
                 )
             except KeyError as exc:
                 stats.errors.append((family_id, str(exc)))
+                outcomes.append((run_id, family_id, family["system"], 0, 0, 0, 0,
+                                 f"no normalisation plan: {exc}", utcnow()))
                 continue
             plan.keep_raw = True if keep_raw is None else keep_raw
             plan.emit_labels = emit_labels
@@ -128,6 +133,12 @@ class Builder:
             if max_files_per_family:
                 selected = selected[:max_files_per_family]
             if not selected:
+                outcomes.append((
+                    run_id, family_id, family["system"], 0, 0, 0, 0,
+                    f"no files matched the requested filters (uf={list(ufs or [])}, "
+                    f"years={list(years or [])}) out of {len(members)} in the family",
+                    utcnow(),
+                ))
                 continue
 
             stats.families += 1
@@ -138,6 +149,11 @@ class Builder:
                 grouped.setdefault((uf, year), []).append(m)
 
             digests = self.pipeline.fetcher.ensure([str(m["path"]) for m in selected])
+            family_rows = 0
+            family_parts = 0
+            family_files = 0
+            undecoded = 0
+            schema_mismatch = 0
 
             for (uf, year), group in sorted(grouped.items()):
                 batches: list[pa.RecordBatch] = []
@@ -148,26 +164,35 @@ class Builder:
                     digest = digests.get(path)
                     if not digest:
                         stats.skipped.append(path)
+                        undecoded += 1
                         continue
                     if on_file:
                         on_file(family_id, path)
                     outcome = registry.open_bytes(self.pipeline.blobs.read(digest), path=path)
                     wanted_member = str(m["member"] or "")
+                    matched_here = False
                     for table in outcome.tables:
                         if wanted_member and table.member != wanted_member:
                             continue
                         if not _matches_schema(table.field_names, plan):
                             continue
+                        matched_here = True
                         for batch in normalize_table(table, plan, blob_sha256=digest):
                             batches.append(batch)
                             rows_here += batch.num_rows
+                    if not matched_here:
+                        # The family claims this file but its schema does not fit
+                        # the plan. This is the zero-row bug's signature, and it
+                        # has to be counted rather than skipped past.
+                        schema_mismatch += 1
                     sources.append(path)
                     stats.files += 1
+                    family_files += 1
                 if not batches:
                     continue
-                part = self.lake.next_part_number(
-                    family["system"], family_id, family["schema_signature"], uf, year
-                )
+                # No part number: this build owns the whole partition, and
+                # write_batches replaces it. Numbering from the files already
+                # there is what let a rebuild land beside its own stale output.
                 written = self.lake.write_batches(
                     batches,
                     system=family["system"],
@@ -175,15 +200,48 @@ class Builder:
                     schema_signature=family["schema_signature"],
                     uf=uf,
                     year=year,
-                    part=part,
                     source_paths=sources,
                 )
                 if written:
                     stats.partitions += 1
                     stats.rows += written.row_count
                     stats.bytes_written += written.byte_size
+                    family_rows += written.row_count
+                    family_parts += 1
 
-        return StageResult("build", counts=stats.as_dict())
+            reason = None
+            if family_rows == 0:
+                if schema_mismatch:
+                    reason = (
+                        f"{schema_mismatch} of {len(selected)} selected files did not match the "
+                        f"family's {len(plan.fields)}-field plan; the family points at files whose "
+                        "schema it does not have"
+                    )
+                elif undecoded:
+                    reason = f"{undecoded} of {len(selected)} selected files could not be fetched or decoded"
+                else:
+                    reason = f"{len(selected)} files decoded and matched the plan but yielded no rows"
+            outcomes.append((
+                run_id, family_id, family["system"], len(selected), family_files,
+                family_rows, family_parts, reason, utcnow(),
+            ))
+
+        self.catalog.executemany(
+            """
+            INSERT INTO build_outcomes (run_id, family_id, system, files_selected, files_decoded,
+                                        rows_written, partitions, reason, recorded_at)
+            VALUES (?,?,?,?,?,?,?,?,?)
+            ON CONFLICT(run_id, family_id) DO UPDATE SET
+                files_selected=excluded.files_selected, files_decoded=excluded.files_decoded,
+                rows_written=excluded.rows_written, partitions=excluded.partitions,
+                reason=excluded.reason, recorded_at=excluded.recorded_at
+            """,
+            outcomes,
+        )
+        counts = stats.as_dict()
+        counts["run_id"] = run_id
+        counts["families_with_no_rows"] = sum(1 for o in outcomes if o[7] is not None)
+        return StageResult("build", counts=counts)
 
     # ------------------------------------------------------------- population
 
