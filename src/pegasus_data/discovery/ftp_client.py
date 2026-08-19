@@ -329,17 +329,40 @@ class FtpClient:
         return self.size(path), self.modified_time(path)
 
     def retrieve(self, path: str, *, progress: Callable[[int], None] | None = None) -> bytes:
-        """Download one file into memory, retrying and resuming where supported."""
+        """Download one file into memory, retrying and resuming where supported.
+
+        Deliberately *not* ``ftplib.retrbinary``. That method owns the data
+        socket internally and never applies a read timeout to it, so a server
+        that accepts the connection and then stops sending blocks the call
+        forever — no exception, no progress, no way to notice. One such stall
+        wedged the whole profile stage: seven workers idle, one inside
+        ``retrbinary``, and the pipeline waiting on a queue that would never
+        drain. A crawl over 200,000 files will meet a stalled transfer sooner or
+        later, so the read timeout is not optional.
+
+        Driving ``transfercmd`` directly gives us the socket, and therefore the
+        timeout. A stalled read now raises ``socket.timeout``, which
+        :meth:`_retrying` treats as transient — it reconnects and retries, and
+        after ``max_retries`` records a real error instead of hanging.
+        """
 
         def _once() -> bytes:
             buf = io.BytesIO()
-
-            def _write(chunk: bytes) -> None:
-                buf.write(chunk)
-                if progress is not None:
-                    progress(len(chunk))
-
-            self.ftp.retrbinary(f"RETR {path}", _write, blocksize=1 << 16)
+            conn = self.ftp.transfercmd(f"RETR {path}")
+            try:
+                conn.settimeout(self.timeout)
+                while True:
+                    chunk = conn.recv(1 << 16)
+                    if not chunk:
+                        break
+                    buf.write(chunk)
+                    if progress is not None:
+                        progress(len(chunk))
+            finally:
+                conn.close()
+            # The server still owes a completion reply; leaving it unread
+            # desynchronises the control channel for every later command.
+            self.ftp.voidresp()
             return buf.getvalue()
 
         data = self._retrying(_once, what=f"RETR {path}")

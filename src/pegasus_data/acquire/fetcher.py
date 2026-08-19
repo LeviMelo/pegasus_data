@@ -126,7 +126,23 @@ class Fetcher:
                 with lock:
                     stats.failed += 1
                     stats.errors.append(("<connect>", str(exc)))
-                return
+                # Drain rather than return. `fetch_many` waits on `work.join()`,
+                # which counts task_done() calls — so a worker that leaves
+                # without consuming its share means the queue never reports
+                # finished and the whole stage hangs. If every worker failed to
+                # connect, returning here deadlocked the pipeline instead of
+                # reporting an unreachable server.
+                while True:
+                    try:
+                        item = work.get_nowait()
+                    except queue.Empty:
+                        return
+                    try:
+                        if item is not None:
+                            stats.failed += 1
+                            stats.errors.append((item, f"no connection: {exc}"))
+                    finally:
+                        work.task_done()
             try:
                 while True:
                     path = work.get()
