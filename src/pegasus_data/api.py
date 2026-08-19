@@ -61,6 +61,7 @@ __all__ = [
     "FieldDescription",
     "MissingColumnError",
     "export",
+    "write_table",
     "LabelUnavailable",
     "RenderReport",
     "PROFILES",
@@ -823,8 +824,24 @@ def export(
             ys = list(years)
             parts.append(str(ys[0]) if len(ys) == 1 else f"{min(ys)}-{max(ys)}")
         path = Path(f"{'_'.join(str(p) for p in parts)}.{fmt}")
+    return write_table(table, path, fmt)
+
+
+def write_table(table: pa.Table, path: str | Path, format: str = "csv") -> Path:
+    """Write a rendered table to CSV, Parquet or Excel.
+
+    Split out of :func:`export` so the ``get`` command can reach it: a table
+    fetched straight from DATASUS and a table read out of the lake are the same
+    thing by the time they arrive here, and writing them two different ways
+    would be two different sets of quoting and list-flattening rules to keep in
+    agreement.
+    """
+    fmt = format.lower().lstrip(".")
+    if fmt not in {"csv", "parquet", "xlsx"}:
+        raise ValueError(f"unknown export format {format!r}; use csv, parquet or xlsx")
     target = Path(path)
-    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.parent != Path():
+        target.parent.mkdir(parents=True, exist_ok=True)
 
     if fmt == "parquet":
         import pyarrow.parquet as pq

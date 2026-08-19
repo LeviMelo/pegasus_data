@@ -458,3 +458,73 @@ class TestBindingChoiceIsDeterministic:
             "source_ref, confidence) VALUES ('CNES','','NAT_JUR','CURATED','manual','c',1.0)"
         )
         assert _bindings(catalog, "CNES", None)["NAT_JUR"] == ["CURATED"]
+
+
+class TestReadingAReferenceTableThatFiltersToNothing:
+    """An empty filter result must be an empty table, not a crash.
+
+    ``pa.array([])`` infers the null type, and ``Table.filter`` rejects a
+    non-boolean mask — so every one of these narrowings blew up with
+    ``ArrowNotImplementedError`` the moment it was handed a table whose rows all
+    fell outside the requested window. Found by fetching a real SIH-RD file
+    against a codelist whose only vintage predated the year asked for; the
+    labelling gap it should have reported came back as a traceback instead.
+    """
+
+    def _one_window(self, settings, catalog: Catalog):
+        """One codelist published in one window, long before the year asked for."""
+        persist_entries(
+            catalog,
+            [
+                DictionaryEntry(
+                    system="SIHSUS", value_raw=code, value_label=label,
+                    source="cnv", source_ref=f"a:{code}", confidence=0.9,
+                    value_group="SEXO", valid_from="200001", valid_to="200012",
+                )
+                for code, label in (("1", "Masculino"), ("2", "Feminino"))
+            ],
+        )
+        register_reference_tables(catalog, write_reference_tables(catalog, settings.lake_dir))
+
+    def test_a_year_outside_every_window_falls_back_instead_of_raising(
+        self, settings, catalog: Catalog
+    ):
+        from pegasus_data.persist.reference import read_reference_table
+
+        self._one_window(settings, catalog)
+        table = read_reference_table(settings.lake_dir, "SEXO", system="SIHSUS", year=2023)
+        assert table.num_rows >= 0
+
+    def test_a_code_width_nothing_matches_yields_an_empty_table(
+        self, settings, catalog: Catalog
+    ):
+        from pegasus_data.persist.reference import read_reference_table
+
+        self._one_window(settings, catalog)
+        table = read_reference_table(
+            settings.lake_dir, "SEXO", system="SIHSUS", code_width=17
+        )
+        assert table.num_rows == 0
+
+    def test_two_narrowings_where_the_first_empties_the_table(
+        self, settings, catalog: Catalog
+    ):
+        """The exact crash: an empty table makes an empty mask, and an empty
+        Python list infers the *null* type, which ``filter`` refuses. Every
+        narrowing after a narrowing that matched nothing hit this."""
+        from pegasus_data.persist.reference import read_reference_table
+
+        self._one_window(settings, catalog)
+        table = read_reference_table(
+            settings.lake_dir, "SEXO", system="SIHSUS", code_width=17, year=2023
+        )
+        assert table.num_rows == 0
+
+    def test_an_unpublished_window_yields_an_empty_table(self, settings, catalog: Catalog):
+        from pegasus_data.persist.reference import read_reference_table
+
+        self._one_window(settings, catalog)
+        table = read_reference_table(
+            settings.lake_dir, "SEXO", system="SIHSUS", valid_from="199001"
+        )
+        assert table.num_rows == 0

@@ -404,6 +404,22 @@ class DictionaryCache:
         self._values: dict[tuple[str | None, str], dict[str, str]] = {}
         self._stats: dict[tuple[str | None, tuple[str, ...]], list[dict[str, object]]] = {}
         self._direct: dict[tuple[str | None, str], dict[str, str]] = {}
+        self._hierarchical: dict[str, bool] = {}
+
+    def is_hierarchical(self, codelist: str) -> bool:
+        """Memoised :func:`~pegasus_data.persist.reference.is_hierarchical`.
+
+        A 113-field family draws on about 70 distinct codelists, and the planner
+        asked this once per *field*. Each ask counts distinct labels in a
+        19.9-million-row table, so planning one family cost 320 seconds of which
+        320 were this. Memoising and indexing it (see ``ix_dict_group_label``)
+        takes the same plan to under a second.
+        """
+        if codelist not in self._hierarchical:
+            from ..persist.reference import is_hierarchical as _is_hierarchical
+
+            self._hierarchical[codelist] = _is_hierarchical(self.catalog, codelist)
+        return self._hierarchical[codelist]
 
     def codelists_for(self, system: str | None, field_name: str) -> list[str]:
         key = (system, field_name)

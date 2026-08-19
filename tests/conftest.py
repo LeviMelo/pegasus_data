@@ -39,6 +39,20 @@ def catalog(settings: Settings) -> Catalog:
     cat.close()
 
 
+@pytest.fixture
+def fresh_catalog(tmp_path: Path) -> Catalog:
+    """A second, empty catalog — the machine that never crawled anything.
+
+    What a bundle is *for*: this one has no files, no profiles and no network,
+    and after unpacking it must still be able to say what a code means.
+    """
+    other = Settings(root=tmp_path / "elsewhere")
+    other.ensure_dirs()
+    cat = Catalog(other.catalog_path)
+    yield cat
+    cat.close()
+
+
 def make_dbf(
     fields: list[tuple[str, str, int, int]], rows: list[list[str]], *, encoding: str = "cp850"
 ) -> bytes:

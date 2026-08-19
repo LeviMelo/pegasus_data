@@ -347,6 +347,10 @@ CREATE TABLE IF NOT EXISTS dictionary (
 CREATE INDEX IF NOT EXISTS ix_dict_lookup ON dictionary (system, value_group, value_raw);
 CREATE INDEX IF NOT EXISTS ix_dict_field ON dictionary (system, field_name, value_raw);
 CREATE INDEX IF NOT EXISTS ix_dict_family ON dictionary (family_id, field_name);
+-- `is_hierarchical` counts distinct labels for one codelist, and the lookup
+-- index above starts with `system`, so that count could not seek and scanned
+-- all 19.9M rows -- 5.4 seconds per call, ~60 calls to plan a single family.
+CREATE INDEX IF NOT EXISTS ix_dict_group_label ON dictionary (value_group, value_label);
 
 -- A .CNV is a *codelist*, not a column: SEXO.CNV maps 1→Masculino without
 -- saying which column uses it, and several columns legitimately share one

@@ -257,7 +257,10 @@ def read_reference_table(
     if system and "system" in table.schema.names:
         wanted = _SAFE.sub("_", system.upper())
         scoped = table.filter(
-            pa.array([str(s) == wanted for s in table.column("system").to_pylist()])
+            pa.array(
+                [str(s) == wanted for s in table.column("system").to_pylist()],
+                type=pa.bool_(),
+            )
         )
         # Only narrow when the system actually has this table. Returning an
         # empty result for a field whose codelist came from a neighbour's kit
@@ -266,11 +269,14 @@ def read_reference_table(
             table = scoped
     if code_width is not None and "code_width" in table.schema.names:
         table = table.filter(
-            pa.array([w == code_width for w in table.column("code_width").to_pylist()])
+            pa.array(
+                [w == code_width for w in table.column("code_width").to_pylist()],
+                type=pa.bool_(),
+            )
         )
     if valid_from is not None:
         mask = [v == valid_from for v in table.column("valid_from").to_pylist()]
-        return table.filter(pa.array(mask))
+        return table.filter(pa.array(mask, type=pa.bool_()))
     if year is not None:
         competencia = year * 100
         dated: list[bool] = []
@@ -288,10 +294,10 @@ def read_reference_table(
             current.append(False)
         # A window that explicitly covers the year wins; otherwise the current
         # table stands in, and the caller can see which it got from `valid_from`.
-        matched = table.filter(pa.array(dated))
+        matched = table.filter(pa.array(dated, type=pa.bool_()))
         if matched.num_rows:
             return matched
-        fallback = table.filter(pa.array(current))
+        fallback = table.filter(pa.array(current, type=pa.bool_()))
         return fallback if fallback.num_rows else table
 
     # No year asked for: give the CURRENT vintage, not every vintage at once.
@@ -304,11 +310,13 @@ def read_reference_table(
         windows = table.column("valid_from").to_pylist()
         open_ended = [v is None or not str(v).strip() for v in windows]
         if any(open_ended):
-            return table.filter(pa.array(open_ended))
+            return table.filter(pa.array(open_ended, type=pa.bool_()))
         dated_windows = [str(v) for v in windows if v is not None]
         if dated_windows:
             newest = max(dated_windows)
-            return table.filter(pa.array([str(v) == newest for v in windows]))
+            return table.filter(
+                pa.array([str(v) == newest for v in windows], type=pa.bool_())
+            )
     return table
 
 

@@ -27,7 +27,6 @@ import pyarrow.compute as pc
 
 from ..catalog.store import Catalog, utcnow
 from ..decode.base import DecodedTable
-from ..persist.reference import is_hierarchical
 from ..semantics.dictionary import (
     DictionaryCache,
     codelists_for,
@@ -162,7 +161,7 @@ def build_plan(
         codelist = most_granular_codelist(
             catalog, bound, system=system, observed=observed, cache=cache
         )
-        hierarchical = bool(codelist) and is_hierarchical(catalog, codelist)
+        hierarchical = bool(codelist) and cache.is_hierarchical(codelist)
         plan.fields[name] = FieldPlan(
             name=name,
             physical_type=profile["physical_type"],

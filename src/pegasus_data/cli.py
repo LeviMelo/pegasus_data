@@ -326,6 +326,89 @@ def prefix_adjudicate(
         store.close()
 
 
+@app.command(rich_help_panel="MAINTENANCE")
+def pack(
+    out: Annotated[Path, typer.Option("--out", "-o", help="Bundle file to write")],
+    root: RootOpt = None,
+    system: SystemsOpt = None,
+    everything: Annotated[
+        bool,
+        typer.Option(
+            "--all-codelists",
+            help="Pack unbound TabNet axes too (roughly doubles the size)",
+        ),
+    ] = False,
+    max_codelist_rows: Annotated[
+        int | None,
+        typer.Option(
+            "--max-codelist-rows",
+            help="Omit codelists larger than this (the geographic roll-ups carry most of the bytes)",
+        ),
+    ] = None,
+    note: Annotated[str, typer.Option("--note", help="Free text recorded in the manifest")] = "",
+    as_json: JsonOpt = False,
+) -> None:
+    """Write a portable semantic bundle: labelling and docs with no DATASUS.
+
+    Codelists, field bindings, curated meanings and the schema catalogue, in one
+    file. Restoring it into an empty catalog is enough to translate and describe
+    data; only fetching new files still needs the network.
+    """
+    from .bundle import pack as pack_bundle
+
+    settings = _settings(root)
+    catalog = Catalog(settings.catalog_path)
+    try:
+        with console.status(f"packing {out}…"):
+            report = pack_bundle(
+                catalog,
+                out,
+                systems=system,
+                bound_only=not everything,
+                max_codelist_rows=max_codelist_rows,
+                note=note,
+            )
+        _emit(report.as_dict(), as_json, "pack")
+    finally:
+        catalog.close()
+
+
+@app.command(rich_help_panel="MAINTENANCE")
+def unpack(
+    bundle: Annotated[Path, typer.Argument(help="Bundle file to load")],
+    root: RootOpt = None,
+    replace: Annotated[
+        bool,
+        typer.Option(
+            "--replace",
+            help="Clear the packed tables first; use when the bundle is the source of truth",
+        ),
+    ] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Load a semantic bundle into the catalog.
+
+    Additive by default, because a local crawl read the files first-hand and a
+    bundle is a copy of someone else's reading. Follow with 'reference' to
+    rebuild the Parquet lookups the view layer joins against.
+    """
+    from .bundle import BundleError
+    from .bundle import unpack as unpack_bundle
+
+    settings = _settings(root)
+    catalog = Catalog(settings.catalog_path)
+    try:
+        _emit(unpack_bundle(catalog, bundle, replace=replace), as_json, "unpack")
+        console.print(
+            "[yellow]Run 'pegasus-data reference' to rebuild the Parquet lookups.[/yellow]"
+        )
+    except BundleError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    finally:
+        catalog.close()
+
+
 @app.command(name="catalog-rebuild", rich_help_panel="MAINTENANCE")
 def catalog_rebuild(
     table: Annotated[str, typer.Option("--table", help="Table to recreate from the shipped schema")],
@@ -641,6 +724,70 @@ def findings(
         console.print(f"{len(rows)} finding(s)")
     finally:
         store.close()
+
+
+@app.command(rich_help_panel="EXTRACT")
+def get(
+    dataset: Annotated[str, typer.Argument(help="Dataset, e.g. SIH-RD, SIM-DO, SINASC-DN")],
+    root: RootOpt = None,
+    uf: Annotated[list[str] | None, typer.Option("--uf", help="Limit to these states")] = None,
+    years: Annotated[str | None, typer.Option("--years", help="e.g. 2020-2024 or 2021,2023")] = None,
+    months: Annotated[str | None, typer.Option("--months", help="e.g. 1,2,3")] = None,
+    out: Annotated[Path | None, typer.Option("--out", help="Write here instead of summarising")] = None,
+    fmt: Annotated[str, typer.Option("--format", help="csv | parquet | xlsx")] = "csv",
+    columns: Annotated[list[str] | None, typer.Option("--column", "-c")] = None,
+    profile: Annotated[str, typer.Option("--profile", help="analysis | codes | audit | report")] = "report",
+    no_labels: Annotated[bool, typer.Option("--no-labels", help="Return codes as filed")] = False,
+    max_files: Annotated[int | None, typer.Option("--max-files", help="Stop after this many files")] = None,
+    no_discover: Annotated[
+        bool, typer.Option("--no-discover", help="Refuse rather than crawl an unknown system")
+    ] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Download a dataset from DATASUS and hand it back processed. No lake needed.
+
+    The one-call door: 'pegasus-data get SIH-RD --uf AL --years 2023'. Files are
+    downloaded on demand, decoded, normalised and labelled. A system the catalog
+    has never seen triggers a crawl of that system's directory only, which is
+    recorded, so the second call is free.
+    """
+    from .retrieve import DatasetUnknown, NothingPublished
+    from .retrieve import fetch as fetch_dataset
+
+    month_list = [int(m) for m in (months or "").replace(" ", "").split(",") if m]
+    settings = _settings(root)
+    try:
+        with console.status(f"fetching {dataset}…"):
+            table, result = fetch_dataset(
+                dataset,
+                uf=uf,
+                years=_parse_years(years),
+                months=month_list,
+                columns=columns,
+                labels=not no_labels,
+                profile=profile,
+                max_files=max_files,
+                discover=not no_discover,
+                settings=settings,
+                report=True,
+            )
+    except (DatasetUnknown, NothingPublished) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    if out:
+        from .api import write_table
+
+        write_table(table, out, fmt)
+        console.print(f"[green]wrote[/green] {out}  ({table.num_rows:,} rows)")
+    _emit(result.as_dict(), as_json, f"get {dataset}")
+    for warning in result.warnings:
+        console.print(f"[yellow]{warning}[/yellow]")
+    if result.years_missing:
+        console.print(
+            f"[yellow]no data for {result.years_missing} — "
+            "DATASUS publishes nothing for those years in this series[/yellow]"
+        )
 
 
 @app.command(rich_help_panel="EXTRACT")
