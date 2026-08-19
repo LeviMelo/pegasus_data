@@ -88,7 +88,7 @@ def _fmt(value: object) -> str:
 # ------------------------------------------------------------------- commands
 
 
-@app.command()
+@app.command(rich_help_panel="MONITOR")
 def crawl(
     root: RootOpt = None,
     host: Annotated[str | None, typer.Option("--host")] = None,
@@ -124,7 +124,7 @@ def crawl(
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def curate(
     root: RootOpt = None,
     curation: Annotated[Path | None, typer.Option("--curation", help="Directory of curated YAML (defaults to the packaged one)")] = None,
@@ -175,7 +175,36 @@ def curate(
         store.close()
 
 
-@app.command()
+@app.command(name="dictionary", rich_help_panel="UNDERSTAND")
+def dictionary(
+    root: RootOpt = None,
+    system: SystemsOpt = None,
+    out: Annotated[Path | None, typer.Option("--out", help="Where to write (default docs/dictionary/)")] = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Generate docs/dictionary/ from the catalog — one page per system and dataset.
+
+    Never hand-written, so it cannot drift. A variable with no description here
+    means no source supplied one; the fix is to add it to curation/, not to the
+    Markdown.
+    """
+    from .docsgen import generate
+
+    settings = _settings(root)
+    target = out or Path("docs") / "dictionary"
+    store = Catalog(settings.catalog_path, read_only=settings.catalog_path.exists())
+    try:
+        result = generate(store, target, systems=system)
+        _emit(result if as_json else
+              {"out_dir": result["out_dir"], "pages": result["pages"],
+               "datasets": result["datasets"],
+               "systems": ", ".join(str(e["system"]) for e in result["systems"])},
+              as_json, "docs generated")
+    finally:
+        store.close()
+
+
+@app.command(rich_help_panel="PIPELINE")
 def sigtap(
     root: RootOpt = None,
     competencia: Annotated[list[str] | None, typer.Option("--competencia", help="YYYYMM vintages to ingest; default is the newest")] = None,
@@ -204,7 +233,7 @@ def sigtap(
         store.close()
 
 
-@app.command(name="icd-quality")
+@app.command(name="icd-quality", rich_help_panel="AUDIT")
 def icd_quality(
     root: RootOpt = None,
     system: SystemsOpt = None,
@@ -244,7 +273,7 @@ def icd_quality(
         store.close()
 
 
-@app.command(name="prefix-adjudicate")
+@app.command(name="prefix-adjudicate", rich_help_panel="MAINTENANCE")
 def prefix_adjudicate(
     prefix: Annotated[str, typer.Option("--prefix", help="Series prefix to settle, e.g. CM")],
     system: Annotated[str, typer.Option("--system", help="The system it actually belongs to")],
@@ -271,7 +300,7 @@ def prefix_adjudicate(
         store.close()
 
 
-@app.command(name="catalog-rebuild")
+@app.command(name="catalog-rebuild", rich_help_panel="MAINTENANCE")
 def catalog_rebuild(
     table: Annotated[str, typer.Option("--table", help="Table to recreate from the shipped schema")],
     root: RootOpt = None,
@@ -306,7 +335,7 @@ def catalog_rebuild(
         catalog.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def inventory(root: RootOpt = None, system: SystemsOpt = None, as_json: JsonOpt = False) -> None:
     """Parse filenames, infer per-directory date conventions, build strata. No network."""
     pipeline = _pipeline(root)
@@ -317,7 +346,7 @@ def inventory(root: RootOpt = None, system: SystemsOpt = None, as_json: JsonOpt 
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def sample(root: RootOpt = None, system: SystemsOpt = None, limit: Annotated[int | None, typer.Option("--limit")] = None, as_json: JsonOpt = False) -> None:
     """Choose one file per schema stratum."""
     pipeline = _pipeline(root)
@@ -328,7 +357,7 @@ def sample(root: RootOpt = None, system: SystemsOpt = None, limit: Annotated[int
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def fetch(
     root: RootOpt = None,
     system: SystemsOpt = None,
@@ -373,7 +402,7 @@ def fetch(
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def semantics(
     root: RootOpt = None,
     system: SystemsOpt = None,
@@ -401,7 +430,7 @@ def semantics(
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def profile(
     root: RootOpt = None,
     system: SystemsOpt = None,
@@ -420,7 +449,7 @@ def profile(
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def families(root: RootOpt = None, as_json: JsonOpt = False) -> None:
     """Build schema-signature families, representations, drift and rename candidates."""
     pipeline = _pipeline(root)
@@ -431,7 +460,7 @@ def families(root: RootOpt = None, as_json: JsonOpt = False) -> None:
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def ledger(root: RootOpt = None, system: SystemsOpt = None, as_json: JsonOpt = False) -> None:
     """Build the metadata ledger, including dictionary_coverage per field."""
     pipeline = _pipeline(root)
@@ -442,7 +471,7 @@ def ledger(root: RootOpt = None, system: SystemsOpt = None, as_json: JsonOpt = F
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="EXTRACT")
 def normalize(
     root: RootOpt = None,
     system: SystemsOpt = None,
@@ -456,7 +485,143 @@ def normalize(
     build(root=root, system=system, uf=uf, years=years, family=family, limit=limit, as_json=as_json)
 
 
-@app.command()
+@app.command(rich_help_panel="EXPLORE")
+def systems(root: RootOpt = None, as_json: JsonOpt = False) -> None:
+    """What information systems are in the lake, and how much of each."""
+    from .api import Catalog as PublicCatalog
+
+    settings = _settings(root)
+    public = PublicCatalog(settings.root, settings=settings)
+    try:
+        _emit(public.systems(), as_json, "systems")
+    finally:
+        public.close()
+
+
+@app.command(rich_help_panel="EXPLORE")
+def tree(
+    root: RootOpt = None,
+    system: SystemsOpt = None,
+    depth: Annotated[int, typer.Option("--depth", help="How many path levels to show")] = 3,
+    as_json: JsonOpt = False,
+) -> None:
+    """Show the crawled FTP tree: directories, file counts and the bytes behind them."""
+    settings = _settings(root)
+    store = Catalog(settings.catalog_path, read_only=settings.catalog_path.exists())
+    try:
+        base = settings.base_path.rstrip("/")
+        rows = store.query(
+            """
+            SELECT directory, COUNT(*) AS files, SUM(size) AS bytes
+              FROM files WHERE gone_at IS NULL GROUP BY directory
+            """
+        )
+        folded: dict[str, dict[str, int]] = {}
+        for r in rows:
+            rest = str(r["directory"])[len(base):].strip("/")
+            key = "/".join(rest.split("/")[:depth]) or "(root)"
+            bucket = folded.setdefault(key, {"files": 0, "bytes": 0})
+            bucket["files"] += int(r["files"] or 0)
+            bucket["bytes"] += int(r["bytes"] or 0)
+        if system:
+            wanted = {s.upper() for s in system}
+            folded = {k: v for k, v in folded.items() if k.split("/")[0].upper() in wanted}
+        payload = [
+            {"path": k, "files": v["files"], "gib": round(v["bytes"] / 2**30, 2)}
+            for k, v in sorted(folded.items(), key=lambda kv: -kv[1]["files"])
+        ]
+        _emit(payload if as_json else payload[:40], as_json, "tree")
+    finally:
+        store.close()
+
+
+@app.command(rich_help_panel="EXPLORE")
+def coverage(
+    system: Annotated[str, typer.Argument(help="Information system, e.g. SIHSUS")],
+    series: Annotated[str | None, typer.Argument(help="Series, e.g. RD")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """What years, states and schema generations exist for one system."""
+    from .api import Catalog as PublicCatalog
+
+    settings = _settings(root)
+    public = PublicCatalog(settings.root, settings=settings)
+    try:
+        _emit(public.coverage(system, series), as_json, f"coverage {system}")
+    finally:
+        public.close()
+
+
+@app.command(rich_help_panel="AUDIT")
+def findings(
+    root: RootOpt = None,
+    open_only: Annotated[bool, typer.Option("--open", help="Only unresolved questions")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Everything measured that contradicted an assumption, resolved and open."""
+    settings = _settings(root)
+    store = Catalog(settings.catalog_path, read_only=settings.catalog_path.exists())
+    try:
+        clause = " WHERE status = 'open'" if open_only else ""
+        rows = [
+            dict(r)
+            for r in store.query(
+                f"SELECT key, area, status, question, resolution, blocking "
+                f"FROM open_questions{clause} ORDER BY status, area, key"
+            )
+        ]
+        if as_json:
+            _emit(rows, True)
+            return
+        for r in rows:
+            marker = "[green]resolved[/green]" if r["status"] == "resolved" else "[yellow]open[/yellow]"
+            console.print(f"{marker} [bold]{r['key']}[/bold]  ({r['area']})")
+            console.print(f"    {r['question']}")
+            if r["resolution"]:
+                console.print(f"    [green]->[/green] {r['resolution']}")
+            elif r["blocking"]:
+                console.print(f"    [yellow]blocks:[/yellow] {r['blocking']}")
+            console.print()
+        console.print(f"{len(rows)} finding(s)")
+    finally:
+        store.close()
+
+
+@app.command(rich_help_panel="EXTRACT")
+def export(
+    system: Annotated[str, typer.Argument(help="Information system, e.g. SIHSUS")],
+    series: Annotated[str | None, typer.Argument(help="Series, e.g. RD")] = None,
+    root: RootOpt = None,
+    uf: Annotated[list[str] | None, typer.Option("--uf", help="Limit to these states")] = None,
+    years: Annotated[str | None, typer.Option("--years", help="e.g. 2020-2024 or 2021,2023")] = None,
+    out: Annotated[Path | None, typer.Option("--out", help="Output file")] = None,
+    fmt: Annotated[str, typer.Option("--format", help="csv | parquet | xlsx")] = "csv",
+    profile: Annotated[str, typer.Option("--profile", help="analysis | codes | audit | report")] = "report",
+    headers: Annotated[str | None, typer.Option("--headers", help="original | translated | both")] = None,
+    values: Annotated[str | None, typer.Option("--values", help="separate | combined")] = None,
+) -> None:
+    """Write a rendered extract: labels applied, ready to open.
+
+    Same rendering path as load(), so an option means the same thing in a
+    notebook and in a file. Defaults to the 'report' profile.
+    """
+    from .api import Catalog as PublicCatalog
+    from .api import export as export_table
+
+    settings = _settings(root)
+    public = PublicCatalog(settings.root, settings=settings)
+    try:
+        target = export_table(
+            system, series, path=out, format=fmt, uf=uf, years=_parse_years(years),
+            catalog=public, profile=profile, headers=headers, values=values,
+        )
+        console.print(f"[green]wrote[/green] {target}")
+    finally:
+        public.close()
+
+
+@app.command(rich_help_panel="EXTRACT")
 def build(
     root: RootOpt = None,
     system: SystemsOpt = None,
@@ -495,7 +660,7 @@ def build(
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def reference(
     root: RootOpt = None,
     as_json: JsonOpt = False,
@@ -538,7 +703,7 @@ def reference(
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def population(
     root: RootOpt = None,
     series: Annotated[list[str] | None, typer.Option("--series")] = None,
@@ -557,7 +722,7 @@ def population(
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="PIPELINE")
 def demas(
     root: RootOpt = None,
     endpoint: Annotated[list[str] | None, typer.Option("--endpoint")] = None,
@@ -577,7 +742,7 @@ def demas(
         pipeline.close()
 
 
-@app.command()
+@app.command(rich_help_panel="AUDIT")
 def report(root: RootOpt = None, as_json: JsonOpt = False) -> None:
     """Coverage, dictionary_coverage, and the open questions."""
     settings = _settings(root)
@@ -666,7 +831,7 @@ def report(root: RootOpt = None, as_json: JsonOpt = False) -> None:
         store.close()
 
 
-@app.command()
+@app.command(rich_help_panel="AUDIT")
 def questions(
     root: RootOpt = None,
     key: Annotated[str | None, typer.Option("--key", help="Show one question's full resolution")] = None,
@@ -705,7 +870,7 @@ def questions(
         store.close()
 
 
-@app.command()
+@app.command(rich_help_panel="UNDERSTAND")
 def gaps(
     root: RootOpt = None,
     system: SystemsOpt = None,
@@ -757,7 +922,7 @@ def gaps(
         store.close()
 
 
-@app.command()
+@app.command(rich_help_panel="UNDERSTAND")
 def describe(
     system: Annotated[str, typer.Argument(help="e.g. SIHSUS")],
     series: Annotated[str | None, typer.Argument(help="e.g. RD")] = None,
@@ -815,7 +980,7 @@ def describe(
         catalog.close()
 
 
-@app.command()
+@app.command(rich_help_panel="AUDIT")
 def verify(
     root: RootOpt = None,
     step: Annotated[list[int] | None, typer.Option("--step", help="Only these §12 steps")] = None,
@@ -850,7 +1015,7 @@ def verify(
         store.close()
 
 
-@app.command(name="all")
+@app.command(name="all", rich_help_panel="PIPELINE")
 def run_everything(
     root: RootOpt = None,
     system: SystemsOpt = None,
