@@ -163,6 +163,30 @@ def _lookup_map(
     return {str(c): str(lbl) for c, lbl in zip(codes, labels, strict=True) if c is not None}
 
 
+def _contradictions(
+    lake_root: Path, codelist: str, *, year: int | None, code_width: int | None
+) -> dict[str, set[str]]:
+    """Codes the table maps to more than one label.
+
+    Last-write-wins is correct *within* a ``.CNV``, where a later line
+    deliberately supersedes an earlier one. It is not correct across files that
+    disagree: the merged ``SEXO`` table contains both ``1 -> Masculino`` and
+    ``1 -> Feminino``, because different systems encoded sex differently and the
+    kit ships both. Silently taking whichever sorted last would label half the
+    hospital admissions in Brazil with the wrong sex, and nothing in the output
+    would show it.
+    """
+    table = read_reference_table(lake_root, codelist, year=year, code_width=code_width)
+    seen: dict[str, set[str]] = {}
+    for code, label in zip(
+        table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True
+    ):
+        if code is None or label is None:
+            continue
+        seen.setdefault(str(code), set()).add(str(label))
+    return {code: labels for code, labels in seen.items() if len(labels) > 1}
+
+
 def _widths(lookup: Mapping[str, str]) -> set[int]:
     return {len(code) for code in lookup}
 
@@ -170,14 +194,20 @@ def _widths(lookup: Mapping[str, str]) -> set[int]:
 def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, list[str]]:
     """``field -> codelists``, best authority first.
 
-    A field gets a *list*, not one table, because a column's classification can
-    change under it while the column name stays put. ``SP_ATOPROF`` is 8
-    characters in one era and 10 in another: 8-digit values are SIGTAP's
-    ``TPROC`` and 10-digit values are ``TPROC10``, and binding either one alone
-    silently leaves half the history unlabelled. Under exact-width matching
-    (§6.2) merging them is safe — an 8-character value cannot collide with a
-    10-character key — so the width does the choosing and nothing has to guess
-    which era a row came from.
+    **One table per field unless a curated entry names more.** A ``.DEF`` binds a
+    column to every tabulation axis that mentions it — 34 tables for
+    ``MUNIC_RES``, 114 for ``DIAG_PRINC`` — and most of those are roll-ups, not
+    alternative encodings. Merging them and taking first-wins labels a
+    municipality with the name of its health macro-region, which is wrong in a
+    way that looks perfectly plausible on the page.
+
+    Several tables are correct only when they are the *same* classification split
+    by width: ``SP_ATOPROF`` is 8 characters in one era and 10 in another, so its
+    values live in ``TPROC`` and ``TPROC10`` and binding either alone leaves half
+    the history unlabelled. That case is a judgement about what the column is,
+    which is exactly what ``curation/`` is for — so it is declared there as
+    ``codelists: [TPROC, TPROC10]`` and never inferred from how many tables
+    happen to mention the field.
 
     ``family_id=''`` rows are system-wide; a family-specific binding sorts first.
     """
@@ -192,10 +222,9 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, l
     )
     out: dict[str, list[str]] = {}
     for r in rows:
-        codelists = out.setdefault(str(r["field_name"]).upper(), [])
-        codelist = str(r["codelist"])
-        if codelist not in codelists:
-            codelists.append(codelist)
+        # setdefault, not append: the first row per field is the best-authority
+        # binding, and the rest are alternatives this function must not merge.
+        out.setdefault(str(r["field_name"]).upper(), [str(r["codelist"])])
     return out
 
 
@@ -495,9 +524,12 @@ def render_table(
             continue
 
         doc = docs.get(name.upper())
-        codelists = list(bindings.get(name.upper()) or [])
-        if doc and doc.codelist and doc.codelist not in codelists:
-            codelists.insert(0, doc.codelist)
+        if doc and doc.codelist:
+            # A curated entry decides both the table and whether there are
+            # several. Nothing else may widen it.
+            codelists = [doc.codelist, *doc.codelists]
+        else:
+            codelists = list(bindings.get(name.upper()) or [])
         codelist = codelists[0] if codelists else None
         code_system = (doc.code_system if doc else None) or ("internal" if codelist else "none")
         mode: RenderMode = overrides.get(name.upper()) or (
@@ -546,6 +578,32 @@ def render_table(
         width_warning = _check_width(name, "+".join(codelists), column, lookup)
         if width_warning:
             report.warnings.append(width_warning)
+
+        # A table that disagrees with itself cannot render this column. Refusing
+        # is the whole point: an unlabelled code is visibly unfinished, and a
+        # confidently wrong label is not.
+        observed = {str(v).strip() for v in column.to_pylist() if v is not None}
+        ambiguous = {
+            code: labels
+            for code, labels in _contradictions(
+                lake, codelists[0], year=year, code_width=None
+            ).items()
+            if code in observed
+        }
+        if ambiguous:
+            example = next(iter(sorted(ambiguous)))
+            message = (
+                f"{name}: codelist {codelists[0]!r} maps {len(ambiguous)} observed code(s) "
+                f"to more than one label — {example!r} means "
+                f"{sorted(ambiguous[example])}. Not labelled; the sources disagree."
+            )
+            if strict:
+                raise LabelUnavailable(message)
+            report.warnings.append(message)
+            report.unlabelled.append(name)
+            columns.append(column)
+            names.append(name)
+            continue
         labels = _labels_for(column, lookup)
         matched = int(pc.sum(pc.is_valid(labels)).as_py() or 0)
         if not matched:

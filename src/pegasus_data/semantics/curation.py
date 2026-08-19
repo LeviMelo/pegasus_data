@@ -356,6 +356,18 @@ SETTLED: tuple[tuple[str, str, str, str], ...] = (
 #: is "do not guess", and a named gap is how not-guessing stays visible.
 UNRESOLVED: tuple[tuple[str, str, str, str, str], ...] = (
     (
+        "semantics.sexo_contradictory_coding",
+        "semantics",
+        "Which SEXO coding applies to which SIH generation?",
+        "The merged SEXO table maps '1' to both Masculino and Feminino, and '3' to both "
+        "Feminino and Ignorado, because the kits ship .CNV files from systems that "
+        "encoded sex differently. Find a per-system or per-generation .CNV, or a record "
+        "layout that states the coding for a named competencia, and bind that scoped "
+        "table rather than the merged one.",
+        "labelling SEXO at all: choosing between the mappings without a scoped source "
+        "would give a large share of admissions the wrong sex, invisibly",
+    ),
+    (
         "semantics.cod_idade_units",
         "semantics",
         "What time unit does each COD_IDADE value stand for in SIH?",

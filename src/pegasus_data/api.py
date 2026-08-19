@@ -579,10 +579,21 @@ def load(
     try:
         store = cat.store
         families = _resolve_family(store, system, series, None)
-        if family_id:
-            families = [f for f in families if f["family_id"] == family_id]
         if not families:
             raise KeyError(f"no family found for system={system!r} series={series!r}")
+        if family_id:
+            narrowed = [f for f in families if f["family_id"] == family_id]
+            if not narrowed:
+                # Naming the filter that emptied the set, not the one that did
+                # not: reporting "no family for SIHSUS/RD" when twenty exist and
+                # the family_id was simply mistyped sends the reader to the
+                # wrong question entirely.
+                known = ", ".join(f["family_id"] for f in families[:5])
+                raise KeyError(
+                    f"no family {family_id!r} in system={system!r} series={series!r}; "
+                    f"{len(families)} exist, e.g. {known}"
+                )
+            families = narrowed
 
         wanted: list[str] | None = list(columns) if columns else None
         tables: list[pa.Table] = []

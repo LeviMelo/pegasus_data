@@ -259,3 +259,77 @@ class TestColumnKinds:
     def test_a_suffix_without_its_base_is_just_a_column(self):
         """ESTADO_label with no ESTADO column is a column named that, not a label."""
         assert column_kind("ESTADO_label", frozenset({"SEXO"})) == "raw"
+
+
+class TestContradictoryCodelists:
+    """A table that disagrees with itself cannot render a column (§5.2).
+
+    The kits ship .CNV files from systems that encoded the same field
+    differently, so the merged SEXO table contains both '1 -> Masculino' and
+    '1 -> Feminino'. Last-write-wins is right *within* one .CNV and catastrophic
+    across files that disagree: it would label a large share of Brazilian
+    hospital admissions with the wrong sex and show nothing in the output.
+    """
+
+    def _catalog_with_conflict(self, settings, catalog: Catalog):
+        from pegasus_data.persist.reference import (
+            register_reference_tables,
+            write_reference_tables,
+        )
+        from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
+
+        persist_entries(
+            catalog,
+            [
+                # Different kit eras, which is how the real contradiction
+                # arises: the dictionary key includes valid_from, so both
+                # readings survive and the merged table holds two labels for '1'.
+                DictionaryEntry(system="SIHSUS", value_raw="1", value_label="Masculino",
+                                source="cnv", source_ref="a:1", confidence=0.95,
+                                value_group="SEXO", valid_from="199201"),
+                DictionaryEntry(system="SIHSUS", value_raw="1", value_label="Feminino",
+                                source="cnv", source_ref="b:1", confidence=0.95,
+                                value_group="SEXO", valid_from="200801"),
+                DictionaryEntry(system="SIHSUS", value_raw="2", value_label="Feminino",
+                                source="cnv", source_ref="a:2", confidence=0.95,
+                                value_group="SEXO", valid_from="199201"),
+                DictionaryEntry(system="SIHSUS", value_raw="2", value_label="Feminino",
+                                source="cnv", source_ref="b:2", confidence=0.95,
+                                value_group="SEXO", valid_from="200801"),
+            ],
+        )
+        register_reference_tables(catalog, write_reference_tables(catalog, settings.lake_dir))
+        catalog.execute(
+            "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
+            "VALUES ('SIHSUS','SEXO','internal','SEXO','manual')"
+        )
+        return pa.table({"SEXO": pa.array(["1", "2"])})
+
+    def test_it_refuses_to_label_and_names_the_disagreement(self, settings, catalog: Catalog):
+        table = self._catalog_with_conflict(settings, catalog)
+        with pytest.warns(UserWarning, match="sources disagree"):
+            out, report = render_table(
+                table, store=catalog, lake_root=settings.lake_dir, system="SIHSUS"
+            )
+        assert out.column("SEXO").to_pylist() == ["1", "2"], "raw codes survive"
+        assert "SEXO" in report.unlabelled
+        assert any("Feminino" in w and "Masculino" in w for w in report.warnings)
+
+    def test_strict_raises(self, settings, catalog: Catalog):
+        table = self._catalog_with_conflict(settings, catalog)
+        with pytest.raises(LabelUnavailable, match="disagree"):
+            render_table(
+                table, store=catalog, lake_root=settings.lake_dir, system="SIHSUS", strict=True
+            )
+
+    def test_a_code_that_is_not_observed_does_not_block_the_column(
+        self, settings, catalog: Catalog
+    ):
+        """Only contradictions on codes the data actually contains matter."""
+        self._catalog_with_conflict(settings, catalog)
+        out, report = render_table(
+            pa.table({"SEXO": pa.array(["2"])}),
+            store=catalog, lake_root=settings.lake_dir, system="SIHSUS",
+        )
+        assert out.column("SEXO").to_pylist() == ["Feminino"]
+        assert "SEXO" not in report.unlabelled

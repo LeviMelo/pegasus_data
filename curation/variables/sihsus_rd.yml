@@ -87,14 +87,28 @@ variables:
     translated_name: Sex
     code_system: internal
     source: layout_doc
+    notes: >
+      DELIBERATELY UNBOUND. The kits ship contradictory mappings for the same
+      code: the merged SEXO table contains both '1 -> Masculino' and
+      '1 -> Feminino', and both '3 -> Feminino' and '3 -> Ignorado', because
+      different systems encoded sex differently over time. Choosing between them
+      without a per-generation source would label a large share of admissions
+      with the wrong sex and show nothing in the output. The renderer refuses to
+      label a column whose codelist disagrees with itself; see the open question
+      semantics.sexo_contradictory_coding.
 
   MUNIC_RES:
     official_name: Município de Residência do Paciente
     translated_name: Municipality of residence
     description: IBGE municipality code of where the patient lives.
     code_system: internal
-    codelist: CADMUN
-    source: layout_doc
+    codelist: MUNICBR
+    source: inferred
+    reasoning: >
+      The column holds 6-character IBGE codes. CADMUN as shipped in the kits
+      parses to 5,579 four-character codes, so it is not the municipality table
+      despite the name; MUNICBR holds 280,002 six-character codes labelled
+      '120001 Acrelandia'. Bound by measured width and label shape.
     notes: >
       MUNIC_RES and MUNIC_MOV answer different questions and are routinely
       confused. Rates per population must use MUNIC_RES, because the denominator
@@ -105,8 +119,9 @@ variables:
     translated_name: Municipality of the establishment
     description: IBGE municipality code of the hospital that billed the admission.
     code_system: internal
-    codelist: CADMUN
-    source: layout_doc
+    codelist: MUNICBR
+    source: inferred
+    reasoning: Same 6-character IBGE coding as MUNIC_RES; see that entry.
 
   CNES:
     official_name: Código CNES do estabelecimento
