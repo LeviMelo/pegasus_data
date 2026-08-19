@@ -28,7 +28,7 @@ both provenances, because a conflict is a finding.
 from __future__ import annotations
 
 import fnmatch
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
@@ -572,18 +572,40 @@ def codelist_stats(
 ) -> list[dict[str, object]]:
     if not codelists:
         return []
-    rows = catalog.query(
-        f"""
-        SELECT value_group,
-               COUNT(*) AS codes,
-               COUNT(DISTINCT value_label) AS labels
-          FROM dictionary
-         WHERE value_group IN ({','.join('?' * len(codelists))})
-           AND (system IS ? OR system IS NULL)
-         GROUP BY value_group
-        """,
-        [*codelists, system],
-    )
+    # Two sargable queries rather than one with an OR over the indexed leading
+    # column. `(system IS ? OR system IS NULL)` reads well and forces a scan of
+    # all 19.9 million rows; splitting it lets both halves seek. The
+    # system-agnostic half matches nothing today — every dictionary row carries a
+    # system — but it is kept because an ingestion that adds one should not
+    # silently stop being counted.
+    slots = ",".join("?" * len(codelists))
+    queries: list[tuple[str, list[object]]] = [
+        (f"value_group IN ({slots}) AND system IS NULL", list(codelists)),
+    ]
+    if system:
+        queries.insert(0, (f"value_group IN ({slots}) AND system = ?", [*codelists, system]))
+    rows: list[dict[str, object]] = []
+    for where, params in queries:
+        rows.extend(
+            dict(r)
+            for r in catalog.query(
+                f"""
+                SELECT value_group,
+                       COUNT(*) AS codes,
+                       COUNT(DISTINCT value_label) AS labels
+                  FROM dictionary
+                 WHERE {where}
+                 GROUP BY value_group
+                """,
+                params,
+            )
+        )
+    merged: dict[str, dict[str, int]] = {}
+    for r in rows:
+        entry = merged.setdefault(str(r["value_group"]), {"codes": 0, "labels": 0})
+        entry["codes"] += int(r["codes"])
+        entry["labels"] += int(r["labels"])
+    rows = [{"value_group": k, "codes": v["codes"], "labels": v["labels"]} for k, v in merged.items()]
     return [
         {
             "codelist": str(r["value_group"]),
@@ -626,16 +648,11 @@ def most_granular_codelist(
     if not stats:
         return None
     if observed:
-        total = sum(observed.values()) or 1
+        coverage = codelist_coverage(
+            catalog, [str(e["codelist"]) for e in stats], observed, system=system
+        )
         for entry in stats:
-            values = (
-                cache.codelist_values(str(entry["codelist"]), system)
-                if cache is not None
-                else codelist_values(catalog, str(entry["codelist"]), system=system)
-            )
-            entry["observed_coverage"] = (
-                sum(count for value, count in observed.items() if value in values) / total
-            )
+            entry["observed_coverage"] = coverage.get(str(entry["codelist"]), 0.0)
         ranked = sorted(
             stats,
             key=lambda e: (
@@ -822,6 +839,13 @@ def rollups_for(
         catalog, codelists, system=system, observed=observed, cache=cache
     )
     total = sum(observed.values()) if observed else 0
+    # One query for every candidate, not one per candidate: DIAG_PRINC is bound
+    # to 114 codelists and the dictionary holds 19.9 million rows.
+    _coverage = (
+        codelist_coverage(catalog, [str(e["codelist"]) for e in stats], observed, system=system)
+        if total and observed
+        else {}
+    )
     out: list[dict[str, object]] = []
     for entry in stats:
         row = {
@@ -832,19 +856,74 @@ def rollups_for(
             "used_for_labels": entry["codelist"] == granular,
         }
         if total:
-            values = codelist_values(catalog, str(entry["codelist"]), system=system)
-            row["observed_coverage"] = round(
-                sum(c for v, c in (observed or {}).items() if v in values) / total, 4
-            )
+            row["observed_coverage"] = round(_coverage.get(str(entry["codelist"]), 0.0), 4)
         out.append(row)
     return sorted(out, key=lambda r: (-float(r.get("observed_coverage", 0.0)), -int(r["distinct_labels"])))
 
 
-def codelist_values(catalog: Catalog, codelist: str, *, system: str | None = None) -> dict[str, str]:
+def codelist_coverage(
+    catalog: Catalog,
+    codelists: Sequence[str],
+    observed: Mapping[str, int],
+    *,
+    system: str | None = None,
+) -> dict[str, float]:
+    """How much of ``observed`` each candidate codelist decodes — in ONE query.
+
+    Asking per codelist meant one scan of the dictionary for each, and
+    ``DIAG_PRINC`` is bound to 114 of them: with the dictionary at 19.9 million
+    rows that turned ``describe()`` from fast into unbounded. The question only
+    ever needs the *observed* values, which is a handful, so it is asked for all
+    codelists and those values at once.
+    """
+    if not codelists or not observed:
+        return {}
+    values = sorted(observed)
+    placeholders = ",".join("?" * len(codelists))
+    value_slots = ",".join("?" * len(values))
+    # `system = ?` when a system is given, and the clause omitted when it is not.
+    # The tidier `(system IS ? OR ? IS NULL)` is not sargable: it makes the
+    # leading column of ix_dict_lookup unusable for seeking, so SQLite falls back
+    # to scanning the whole covering index — 19.9 million rows, every call.
+    system_clause = "AND system = ?" if system else ""
+    params: list[object] = [*codelists, *values]
+    if system:
+        params.append(system)
     rows = catalog.query(
-        "SELECT value_raw, value_label FROM dictionary WHERE value_group = ? AND (system IS ? OR ? IS NULL)",
-        (codelist, system, system),
+        f"""
+        SELECT value_group, value_raw FROM dictionary
+         WHERE value_group IN ({placeholders})
+           AND value_raw IN ({value_slots})
+           {system_clause}
+        """,
+        params,
     )
+    total = sum(observed.values()) or 1
+    hits: dict[str, int] = {}
+    seen: set[tuple[str, str]] = set()
+    for r in rows:
+        key = (str(r["value_group"]), str(r["value_raw"]))
+        if key in seen:
+            continue
+        seen.add(key)
+        hits[key[0]] = hits.get(key[0], 0) + observed.get(key[1], 0)
+    return {codelist: hits.get(codelist, 0) / total for codelist in codelists}
+
+
+def codelist_values(catalog: Catalog, codelist: str, *, system: str | None = None) -> dict[str, str]:
+    # Same sargability point as `codelist_coverage`: an OR over the indexed
+    # leading column turns a seek into a full scan.
+    if system:
+        rows = catalog.query(
+            "SELECT value_raw, value_label FROM dictionary "
+            "WHERE value_group = ? AND system = ?",
+            (codelist, system),
+        )
+    else:
+        rows = catalog.query(
+            "SELECT value_raw, value_label FROM dictionary WHERE value_group = ?",
+            (codelist,),
+        )
     return {str(r["value_raw"]): str(r["value_label"]) for r in rows}
 
 
