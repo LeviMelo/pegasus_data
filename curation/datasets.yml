@@ -1,0 +1,67 @@
+# What one row IS, per dataset. None of this is derivable from the bytes, and
+# every one of these is a mistake someone has already made with the data.
+datasets:
+  SIHSUS_RD:
+    system: SIHSUS
+    series: RD
+    asserted_by: pegasus_data
+    what_one_row_is: one billing episode (AIH), NOT one patient
+    unit_of_analysis: admission
+    known_biases: >
+      Fields that affect payment are filled carefully; fields that do not are
+      frequently empty. Only SUS-funded admissions appear, so private and
+      supplementary-health care is absent — which is roughly a quarter of
+      Brazilian hospital activity and is not distributed evenly by region or income.
+    gotchas:
+      - One patient readmitted three times is three rows. There is no stable patient key.
+      - DIAG_SECUN is present and dead from the 113-column generation onward, filled with '0000'.
+      - MUNIC_RES and MUNIC_MOV answer different questions (residence vs occurrence).
+      - VAL_TOT is nominal reais at billing time, never deflated.
+      - An AIH may be re-presented after rejection; the same episode can appear across competências.
+
+  SIM_DO:
+    system: SIM
+    series: DO
+    asserted_by: pegasus_data
+    what_one_row_is: one death certificate
+    unit_of_analysis: death
+    known_biases: >
+      Coverage is high nationally but not uniform: under-registration persists in
+      the North and Northeast, and ill-defined causes (CID-10 chapter XVIII, R00-R99)
+      concentrate where medical certification is weakest. Comparing cause-specific
+      rates across regions compares certification quality as much as mortality.
+    gotchas:
+      - Dates are DDMMAAAA here and AAAAMMDD in SIH.
+      - CAUSABAS (coder-selected) is not LINHAD (physician-written); they differ routinely.
+      - LINHAA-D hold several CID-10 codes per cell, '*'-delimited, and the order is the causal chain.
+      - IDADE packs its unit into the value; SIH uses a separate COD_IDADE column.
+      - Preliminary files (PRELIM) are revised for years afterwards; a year is not final when first published.
+
+  SINASC_DN:
+    system: SINASC
+    series: DN
+    asserted_by: pegasus_data
+    what_one_row_is: one live birth declaration
+    unit_of_analysis: live birth
+    known_biases: >
+      Live births only — stillbirths are in SIM as foetal deaths, so perinatal
+      analysis needs both systems joined and neither alone is a denominator for
+      the other.
+    gotchas:
+      - ESCMAE and ESCMAE2010 are different schooling classifications; they are not interchangeable across the break.
+      - APGAR is recorded at 1 and 5 minutes in separate columns.
+
+  SIASUS_PA:
+    system: SIASUS
+    series: PA
+    asserted_by: pegasus_data
+    what_one_row_is: one line of outpatient production, usually already aggregated
+    unit_of_analysis: procedure-month
+    known_biases: >
+      PA is production reporting, not a patient record. Most rows are counts of a
+      procedure performed by an establishment in a month, so the file cannot
+      answer questions about individuals even where a patient column exists.
+    gotchas:
+      - This is the largest dataset on the tree (54,199 files) and the one the previous inventory missed entirely.
+      - APAC files (high-complexity authorisations) are a different unit from ordinary PA rows.
+      - 2001-2007 APAC files carry patient CPF and names in a public download.

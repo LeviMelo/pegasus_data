@@ -1,0 +1,16 @@
+# Manual overrides for the learned prefix -> system map.
+#
+# The learned map deliberately holds its first answer: a reorganisation and a
+# genuinely shared prefix look identical from a single crawl, and silently
+# relearning would move identity and restart thirty-five years of lineage under
+# new ids. Naming an answer here settles it durably and in version control.
+#
+# `pegasus-data prefix-adjudicate` does the same thing in place for a one-off;
+# this file is where the decision is recorded so a fresh catalog inherits it.
+prefix_systems:
+  # CM is SISMAMA's mammography series (1,717 files under SISCAN at 98%
+  # agreement). The partial first crawl saw only 42 CM files, all under SIHSUS,
+  # and established the wrong answer; the full crawl contradicted it. CM does
+  # genuinely appear in both trees, so this is a majority ruling, not a
+  # correction of a mistake in the data.
+  CM: SISCAN

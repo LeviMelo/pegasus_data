@@ -29,7 +29,7 @@ from rich.table import Table
 from .build import Builder
 from .catalog.store import Catalog, _declared_columns, _schema_sql
 from .config import Settings, load_settings
-from .pipeline import Pipeline
+from .pipeline import Pipeline, StageResult
 from .verify import run_all, summarise
 
 app = typer.Typer(
@@ -122,6 +122,57 @@ def crawl(
         console.print(f"[green]{files}[/green] files present, [green]{with_size}[/green] carrying size and mtime")
     finally:
         pipeline.close()
+
+
+@app.command()
+def curate(
+    root: RootOpt = None,
+    curation: Annotated[Path | None, typer.Option("--curation", help="Directory of curated YAML (defaults to the packaged one)")] = None,
+    accept: Annotated[str | None, typer.Option("--accept", help="Resolve an open question by recording a human decision")] = None,
+    note: Annotated[str | None, typer.Option("--note", help="Why, for the --accept record")] = None,
+    by: Annotated[str | None, typer.Option("--by", help="Who is asserting, for the --accept record")] = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Load curation/*.yml into the catalog. With --accept, settle an open question.
+
+    This is the door §4 exists to add. Three times the design made a slot for
+    human judgement and left no way to write into it; a decision recorded here
+    outranks every extracted source, because SOURCE_AUTHORITY['manual'] is 0.
+    """
+    from .semantics.curation import CurationError, coverage_by_rung, load_curation
+
+    settings = _settings(root)
+    store = Catalog(settings.catalog_path)
+    try:
+        if accept:
+            existing = store.query("SELECT key, status FROM open_questions WHERE key = ?", (accept,))
+            if not existing:
+                console.print(f"[red]no open question with key {accept!r}[/red]")
+                console.print("Run 'pegasus-data report' to list them.")
+                raise typer.Exit(code=1)
+            if not note:
+                console.print("[red]--accept needs --note saying why[/red]")
+                raise typer.Exit(code=1)
+            store.resolve_question(
+                accept,
+                resolution=note,
+                evidence=f"accepted by {by or 'unattributed'} via 'pegasus-data curate --accept'",
+            )
+            _emit({"key": accept, "status": "resolved", "note": note, "by": by}, as_json, "accepted")
+            return
+
+        directory = curation or settings.curation_dir
+        result = load_curation(store, Path(directory))
+        _emit(result, as_json, "curation loaded")
+        if not as_json:
+            rungs = coverage_by_rung(store)
+            if rungs:
+                _emit(rungs, False, "documentation coverage per system, by rung")
+    except CurationError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    finally:
+        store.close()
 
 
 @app.command(name="prefix-adjudicate")
@@ -738,13 +789,24 @@ def run_everything(
     limit: Annotated[int | None, typer.Option("--limit", help="Cap strata profiled and files per family")] = None,
     resume: Annotated[bool, typer.Option("--resume")] = False,
 ) -> None:
-    """crawl → inventory → semantics → profile → families → ledger → build."""
+    """crawl → inventory → semantics → curate → profile → families → ledger → build."""
+    from .semantics.curation import load_curation
+
     pipeline = _pipeline(root)
     try:
         stages = [
             ("crawl", lambda: pipeline.crawl(resume=resume, prefixes=prefix)),
             ("inventory", lambda: pipeline.inventory(systems=system)),
             ("semantics", lambda: pipeline.semantics(systems=system)),
+            # Curation lands after extraction and before profiling: the manual
+            # codelist bindings it writes outrank everything the harvesters just
+            # produced, and the ledger downstream reads the winner.
+            (
+                "curate",
+                lambda: StageResult(
+                    "curate", counts=load_curation(pipeline.catalog, pipeline.settings.curation_dir)
+                ),
+            ),
             ("profile", lambda: pipeline.profile(systems=system, limit=limit)),
             ("families", pipeline.families),
             ("ledger", lambda: pipeline.ledger(systems=system)),

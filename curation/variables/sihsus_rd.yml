@@ -1,0 +1,153 @@
+# SIH/SUS — Reduced AIH (RD). One row is one billing episode.
+#
+# Descriptions marked layout_doc come from IT_SIHSUS_1603.pdf, harvested into
+# field_documentation. What is added here is the part the layout cannot state:
+# which codes a field draws on, what it depends on, and what will mislead you.
+system: SIHSUS
+source_ref: /dissemin/publicos/SIHSUS/200801_/Doc/IT_SIHSUS_1603.pdf
+asserted_by: pegasus_data
+
+variables:
+  N_AIH:
+    official_name: Número da AIH
+    translated_name: Hospital admission authorisation number
+    description: >
+      Identifier of the AIH (Autorização de Internação Hospitalar) — the billing
+      authorisation, which is what a row of this dataset is.
+    code_system: none
+    source: layout_doc
+
+  DIAG_PRINC:
+    official_name: Código do diagnóstico principal
+    translated_name: Principal diagnosis
+    description: >
+      CID-10 code for the condition that motivated the admission. Stored without
+      the dot: J18.9 is written J189.
+    code_system: external
+    codelist: CID10
+    multi_valued: false
+    token_rule: {width: 4}
+    source: layout_doc
+    notes: >
+      The admission is billed for the reason it was authorised, which for chronic
+      disease is usually the acute consequence rather than the underlying disease.
+      Counting DIAG_PRINC counts episodes of care, not people and not prevalence.
+
+  DIAG_SECUN:
+    official_name: Código do diagnóstico secundário
+    translated_name: Secondary diagnosis
+    description: CID-10 code for a secondary diagnosis, without the dot.
+    code_system: external
+    codelist: CID10
+    source: layout_doc
+    notes: >
+      Present but dead from the 113-column generation onward: the column is still
+      emitted and is filled with the literal '0000' rather than being dropped. A
+      query that treats it as missing-when-absent will silently read zeros as a
+      diagnosis. The DIAGSEC1..DIAGSEC9 columns carry the real secondary
+      diagnoses in that generation.
+
+  IDADE:
+    official_name: Idade
+    translated_name: Age
+    description: Age of the patient, in the unit given by COD_IDADE.
+    code_system: none
+    depends_on: [COD_IDADE]
+    derived:
+      - name: IDADE_anos
+        from: [IDADE, COD_IDADE]
+        rule: convert to years using COD_IDADE as the unit
+    source: layout_doc
+    notes: >
+      NOT interpretable alone. IDADE=030 with COD_IDADE meaning months is thirty
+      months, not thirty years. Averaging this column across a population mixes
+      units and produces a number that is not an age.
+
+  COD_IDADE:
+    official_name: Unidade de medida da idade
+    translated_name: Age unit
+    description: The unit in which IDADE is expressed.
+    code_system: internal
+    modifies: IDADE
+    source: layout_doc
+
+  SEXO:
+    official_name: Sexo do paciente
+    translated_name: Sex
+    code_system: internal
+    source: layout_doc
+
+  MUNIC_RES:
+    official_name: Município de Residência do Paciente
+    translated_name: Municipality of residence
+    description: IBGE municipality code of where the patient lives.
+    code_system: internal
+    codelist: CADMUN
+    source: layout_doc
+    notes: >
+      MUNIC_RES and MUNIC_MOV answer different questions and are routinely
+      confused. Rates per population must use MUNIC_RES, because the denominator
+      is residents; describing hospital activity must use MUNIC_MOV.
+
+  MUNIC_MOV:
+    official_name: Município do Estabelecimento
+    translated_name: Municipality of the establishment
+    description: IBGE municipality code of the hospital that billed the admission.
+    code_system: internal
+    codelist: CADMUN
+    source: layout_doc
+
+  CNES:
+    official_name: Código CNES do estabelecimento
+    translated_name: Establishment CNES code
+    code_system: internal
+    source: layout_doc
+
+  CEP:
+    official_name: CEP do paciente
+    translated_name: Postal code
+    description: Brazilian postal code (CEP) of the patient's address, 8 digits.
+    code_system: none
+    source: layout_doc
+    notes: >
+      There is no CEP table anywhere on the FTP tree, and there is no reason to
+      expect one: CEP is Correios' property, not the Ministry's. It is a postal
+      code, not a health classification, and it stays unlabelled.
+
+  SP_PF_CBO:
+    official_name: Código de Ocupação Brasileira do profissional
+    translated_name: Professional's occupation code
+    description: >
+      Occupation of the professional who performed the procedure, as a CBO code.
+    code_system: external
+    codelist: CBO
+    source: layout_doc
+    notes: >
+      Six digits, which is CBO-2002. The CBO table on the tree mixes 3,000
+      three-digit CBO-1994 codes with 2,813 six-digit CBO-2002 codes in one file,
+      so a join must match on width as well as value or it will silently match
+      the wrong classification.
+
+  DT_INTER:
+    official_name: Data de internação
+    translated_name: Admission date
+    description: Date of admission, stored as AAAAMMDD.
+    code_system: none
+    source: layout_doc
+
+  DT_SAIDA:
+    official_name: Data de saída
+    translated_name: Discharge date
+    description: Date of discharge, stored as AAAAMMDD.
+    code_system: none
+    source: layout_doc
+
+  VAL_TOT:
+    official_name: Valor total da AIH
+    translated_name: Total value
+    description: Total amount billed for the admission, in Brazilian reais.
+    code_system: none
+    source: layout_doc
+    notes: >
+      Nominal reais at the time of billing, never deflated. Summing across years
+      adds together currency of different value.

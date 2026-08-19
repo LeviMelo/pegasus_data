@@ -70,6 +70,8 @@ class Settings:
     top_values_kept: int = 200
 
     # Storage behaviour.
+    #: Override for where curated YAML lives; None means the packaged directory.
+    curation_root: Path | None = None
     keep_raw: bool = False
     compression: str = "zstd"
     row_group_size: int = 256 * 1024
@@ -82,6 +84,20 @@ class Settings:
     @property
     def catalog_path(self) -> Path:
         return self.root / "_catalog" / "catalog.sqlite"
+
+    @property
+    def curation_dir(self) -> Path:
+        """Where the curated variable dictionary lives.
+
+        Ships *with the package*, not with the data root. These files are source
+        code — hand-written assertions under version control — while the root is
+        a data directory that can be deleted and re-crawled. Putting curation in
+        the root would mean losing every human judgement with the lake.
+        """
+        override = self.curation_root
+        if override is not None:
+            return Path(override)
+        return Path(__file__).resolve().parent.parent.parent / "curation"
 
     @property
     def blobs_dir(self) -> Path:

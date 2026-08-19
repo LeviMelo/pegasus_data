@@ -442,6 +442,8 @@ CREATE TABLE IF NOT EXISTS field_documentation (
   system       TEXT,
   field_name   TEXT NOT NULL,
   description  TEXT NOT NULL,
+  official_name TEXT,               -- the form's own wording, where stated apart
+                                    -- from the description (Estrutura_* dialect)
   declared_type TEXT,
   declared_width INTEGER,
   declared_decimals INTEGER,
@@ -495,6 +497,57 @@ CREATE TABLE IF NOT EXISTS open_questions (
 -- reporting success — passed the whole suite because nothing recorded the
 -- difference between "built 0 rows" and "was never asked to build". A family that
 -- produces no rows must now say why, and `verify` fails on any that cannot.
+-- ------------------------------------------------- curated variable dictionary
+--
+-- What a variable MEANS, as opposed to what values it takes. The extracted
+-- dictionary (millions of code->label rows) stays in SQLite because it is
+-- machine output; this table is the human half, loaded from version-controlled
+-- YAML under curation/ so that an assertion has an author, a date and a diff.
+--
+-- Three times the design created a slot for human judgement with no way to write
+-- into it: SOURCE_AUTHORITY['manual'] with nothing emitting a manual entry,
+-- 'layout_doc' declared authoritative before anything produced one, and a prefix
+-- contradiction only a person could settle with no way to record the settlement.
+-- This table plus curation/ is that door.
+CREATE TABLE IF NOT EXISTS variable_docs (
+  system          TEXT NOT NULL,
+  field_name      TEXT NOT NULL,
+  official_name   TEXT,              -- Portuguese, as the record layout names it
+  translated_name TEXT,              -- English, for docs and export ONLY
+  description     TEXT,
+  code_system     TEXT,              -- 'external' | 'internal' | 'none'
+  codelist        TEXT,              -- reference table this field draws on
+  multi_valued    INTEGER DEFAULT 0,
+  token_rule      TEXT,              -- JSON: {"width": 4} or {"delimiter": ";"}
+  depends_on      TEXT,              -- JSON array of field names
+  modifies        TEXT,              -- field whose meaning this one changes
+  derived         TEXT,              -- JSON array of derived-column recipes
+  notes           TEXT,
+  source          TEXT NOT NULL,     -- 'manual' | 'layout_doc' | 'def' | 'web' | 'inferred'
+  source_ref      TEXT,
+  asserted_by     TEXT,
+  asserted_at     TEXT,
+  reasoning       TEXT,              -- required when source='inferred'
+  PRIMARY KEY (system, field_name)
+);
+CREATE INDEX IF NOT EXISTS ix_variable_docs_source ON variable_docs (source);
+
+-- Dataset-level prose: what one row IS, and what will mislead you about it.
+-- None of this is derivable from the bytes.
+CREATE TABLE IF NOT EXISTS dataset_docs (
+  dataset_id      TEXT PRIMARY KEY,  -- e.g. SIHSUS_RD
+  system          TEXT,
+  series          TEXT,
+  what_one_row_is TEXT,
+  unit_of_analysis TEXT,
+  known_biases    TEXT,
+  gotchas         TEXT,              -- JSON array
+  source          TEXT NOT NULL,
+  source_ref      TEXT,
+  asserted_by     TEXT,
+  asserted_at     TEXT
+);
+
 CREATE TABLE IF NOT EXISTS build_outcomes (
   run_id           TEXT NOT NULL,
   family_id        TEXT NOT NULL,

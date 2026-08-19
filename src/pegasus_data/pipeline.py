@@ -438,11 +438,12 @@ class Pipeline:
         # it lands in its own table rather than in the value dictionary.
         self.catalog.executemany(
             """
-            INSERT INTO field_documentation (system, field_name, description, declared_type,
-                declared_width, declared_decimals, source, source_ref, confidence)
-            VALUES (?,?,?,?,?,?,?,?,?)
+            INSERT INTO field_documentation (system, field_name, description, official_name,
+                declared_type, declared_width, declared_decimals, source, source_ref, confidence)
+            VALUES (?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(system, field_name, source_ref) DO UPDATE SET
-                description=excluded.description, declared_type=excluded.declared_type,
+                description=excluded.description, official_name=excluded.official_name,
+                declared_type=excluded.declared_type,
                 declared_width=excluded.declared_width, declared_decimals=excluded.declared_decimals
             """,
             documentation,
