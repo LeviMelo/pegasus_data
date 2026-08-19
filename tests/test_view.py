@@ -264,41 +264,46 @@ class TestColumnKinds:
 class TestContradictoryCodelists:
     """A table that disagrees with itself cannot render a column (§5.2).
 
-    The kits ship .CNV files from systems that encoded the same field
-    differently, so the merged SEXO table contains both '1 -> Masculino' and
-    '1 -> Feminino'. Last-write-wins is right *within* one .CNV and catastrophic
-    across files that disagree: it would label a large share of Brazilian
-    hospital admissions with the wrong sex and show nothing in the output.
+    This is now a safety net rather than a working rule, and the distinction is
+    worth stating. Measured over the full catalog, the number of codes carrying
+    two labels within one system and one validity window is **zero** — every
+    apparent contradiction came from merging thirteen systems' SEXO.CNV into one
+    table, or from merging vintages whose wording drifted. Both are fixed at the
+    source: reference tables are scoped by system, and a read with no year asked
+    for returns the current vintage instead of all of them.
+
+    What remains is the case neither of those can rule out — a single .CNV that
+    genuinely contradicts itself. Refusing there is still right: labelling a
+    column from a lookup that cannot decide is how a large share of admissions
+    would silently get the wrong sex.
     """
 
-    def _catalog_with_conflict(self, settings, catalog: Catalog):
-        from pegasus_data.persist.reference import (
-            register_reference_tables,
-            write_reference_tables,
-        )
-        from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
+    def _reference_with_conflict(self, settings, catalog: Catalog):
+        """Write the reference table directly: the dictionary cannot hold this.
 
-        persist_entries(
-            catalog,
-            [
-                # Different kit eras, which is how the real contradiction
-                # arises: the dictionary key includes valid_from, so both
-                # readings survive and the merged table holds two labels for '1'.
-                DictionaryEntry(system="SIHSUS", value_raw="1", value_label="Masculino",
-                                source="cnv", source_ref="a:1", confidence=0.95,
-                                value_group="SEXO", valid_from="199201"),
-                DictionaryEntry(system="SIHSUS", value_raw="1", value_label="Feminino",
-                                source="cnv", source_ref="b:1", confidence=0.95,
-                                value_group="SEXO", valid_from="200801"),
-                DictionaryEntry(system="SIHSUS", value_raw="2", value_label="Feminino",
-                                source="cnv", source_ref="a:2", confidence=0.95,
-                                value_group="SEXO", valid_from="199201"),
-                DictionaryEntry(system="SIHSUS", value_raw="2", value_label="Feminino",
-                                source="cnv", source_ref="b:2", confidence=0.95,
-                                value_group="SEXO", valid_from="200801"),
-            ],
+        `persist_entries` keys on (system, group, field, code, window), so it
+        physically cannot store one code twice in one window — which is why the
+        real data has none. Constructing it here tests the guard, not the data.
+        """
+        import pyarrow.parquet as pq
+
+        directory = settings.lake_dir / "reference" / "SEXO" / "system=SIHSUS" / "window=current"
+        directory.mkdir(parents=True, exist_ok=True)
+        pq.write_table(
+            pa.table(
+                {
+                    "code": pa.array(["1", "1", "2"]),
+                    "label": pa.array(["Masculino", "Feminino", "Feminino"]),
+                    "source": pa.array(["cnv"] * 3),
+                    "source_ref": pa.array(["a.cnv"] * 3),
+                    "confidence": pa.array([0.95] * 3, type=pa.float32()),
+                    "code_width": pa.array([1, 1, 1], type=pa.int8()),
+                    "valid_from": pa.array([None, None, None], type=pa.string()),
+                    "valid_to": pa.array([None, None, None], type=pa.string()),
+                }
+            ),
+            directory / "part-00000.parquet",
         )
-        register_reference_tables(catalog, write_reference_tables(catalog, settings.lake_dir))
         catalog.execute(
             "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
             "VALUES ('SIHSUS','SEXO','internal','SEXO','manual')"
@@ -306,7 +311,7 @@ class TestContradictoryCodelists:
         return pa.table({"SEXO": pa.array(["1", "2"])})
 
     def test_it_refuses_to_label_and_names_the_disagreement(self, settings, catalog: Catalog):
-        table = self._catalog_with_conflict(settings, catalog)
+        table = self._reference_with_conflict(settings, catalog)
         with pytest.warns(UserWarning, match="sources disagree"):
             out, report = render_table(
                 table, store=catalog, lake_root=settings.lake_dir, system="SIHSUS"
@@ -316,7 +321,7 @@ class TestContradictoryCodelists:
         assert any("Feminino" in w and "Masculino" in w for w in report.warnings)
 
     def test_strict_raises(self, settings, catalog: Catalog):
-        table = self._catalog_with_conflict(settings, catalog)
+        table = self._reference_with_conflict(settings, catalog)
         with pytest.raises(LabelUnavailable, match="disagree"):
             render_table(
                 table, store=catalog, lake_root=settings.lake_dir, system="SIHSUS", strict=True
@@ -326,10 +331,85 @@ class TestContradictoryCodelists:
         self, settings, catalog: Catalog
     ):
         """Only contradictions on codes the data actually contains matter."""
-        self._catalog_with_conflict(settings, catalog)
+        self._reference_with_conflict(settings, catalog)
         out, report = render_table(
             pa.table({"SEXO": pa.array(["2"])}),
             store=catalog, lake_root=settings.lake_dir, system="SIHSUS",
         )
         assert out.column("SEXO").to_pylist() == ["Feminino"]
         assert "SEXO" not in report.unlabelled
+
+
+class TestSystemScoping:
+    """The contradiction was manufactured by merging systems (§C root cause)."""
+
+    def _two_systems(self, settings, catalog: Catalog):
+        from pegasus_data.persist.reference import (
+            register_reference_tables,
+            write_reference_tables,
+        )
+        from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
+
+        persist_entries(
+            catalog,
+            [
+                # SIHSUS codes sex 1/3; SINASC codes it 1/2. Both internally
+                # consistent, and irreconcilable if merged.
+                DictionaryEntry(system="SIHSUS", value_raw="1", value_label="Masculino",
+                                source="cnv", source_ref="sih", confidence=0.95, value_group="SEXO"),
+                DictionaryEntry(system="SIHSUS", value_raw="3", value_label="Feminino",
+                                source="cnv", source_ref="sih", confidence=0.95, value_group="SEXO"),
+                DictionaryEntry(system="SINASC", value_raw="1", value_label="Masculino",
+                                source="cnv", source_ref="dn", confidence=0.95, value_group="SEXO"),
+                DictionaryEntry(system="SINASC", value_raw="2", value_label="Feminino",
+                                source="cnv", source_ref="dn", confidence=0.95, value_group="SEXO"),
+            ],
+        )
+        register_reference_tables(catalog, write_reference_tables(catalog, settings.lake_dir))
+        for system in ("SIHSUS", "SINASC"):
+            catalog.execute(
+                "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
+                "VALUES (?,'SEXO','internal','SEXO','manual')",
+                (system,),
+            )
+
+    def test_each_system_decodes_against_its_own_copy(self, settings, catalog: Catalog):
+        self._two_systems(settings, catalog)
+        sih, _ = render_table(
+            pa.table({"SEXO": pa.array(["3"])}),
+            store=catalog, lake_root=settings.lake_dir, system="SIHSUS",
+        )
+        dn, _ = render_table(
+            pa.table({"SEXO": pa.array(["2"])}),
+            store=catalog, lake_root=settings.lake_dir, system="SINASC",
+        )
+        assert sih.column("SEXO").to_pylist() == ["Feminino"], "SIH codes sex 1/3"
+        assert dn.column("SEXO").to_pylist() == ["Feminino"], "SINASC codes sex 1/2"
+
+    def test_the_other_systems_codes_do_not_leak_in(self, settings, catalog: Catalog):
+        """SIHSUS has no '2', and must not borrow SINASC's meaning for it."""
+        self._two_systems(settings, catalog)
+        with pytest.warns(UserWarning, match="matched none"):
+            out, report = render_table(
+                pa.table({"SEXO": pa.array(["2"])}),
+                store=catalog, lake_root=settings.lake_dir, system="SIHSUS",
+            )
+        # The raw code survives — better unlabelled than mislabelled — and the
+        # point is what it is NOT: SINASC's "Feminino" never reaches a SIH row.
+        assert out.column("SEXO").to_pylist() == ["2"]
+        assert "SEXO" in report.unlabelled
+
+    def test_a_borrowed_table_is_used_when_the_system_ships_none(
+        self, settings, catalog: Catalog
+    ):
+        """A gap is worse than a neighbour's table; the guard still applies."""
+        self._two_systems(settings, catalog)
+        catalog.execute(
+            "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
+            "VALUES ('CIHA','SEXO','internal','SEXO','manual')"
+        )
+        out, report = render_table(
+            pa.table({"SEXO": pa.array(["3"])}),
+            store=catalog, lake_root=settings.lake_dir, system="CIHA",
+        )
+        assert out.num_rows == 1

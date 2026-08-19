@@ -146,7 +146,12 @@ def column_kind(name: str, base_columns: frozenset[str]) -> str:
 
 
 def _lookup_map(
-    lake_root: Path, codelist: str, *, year: int | None, code_width: int | None
+    lake_root: Path,
+    codelist: str,
+    *,
+    system: str | None,
+    year: int | None,
+    code_width: int | None,
 ) -> dict[str, str]:
     """``code -> label`` for one codelist at one vintage.
 
@@ -155,7 +160,9 @@ def _lookup_map(
     lake would have frozen one vintage's wording forever, which is why they are
     joined here instead.
     """
-    table = read_reference_table(lake_root, codelist, year=year, code_width=code_width)
+    table = read_reference_table(
+        lake_root, codelist, system=system, year=year, code_width=code_width
+    )
     codes = table.column("code").to_pylist()
     labels = table.column("label").to_pylist()
     # Last write wins, matching .CNV semantics, where a later line deliberately
@@ -164,7 +171,12 @@ def _lookup_map(
 
 
 def _contradictions(
-    lake_root: Path, codelist: str, *, year: int | None, code_width: int | None
+    lake_root: Path,
+    codelist: str,
+    *,
+    system: str | None,
+    year: int | None,
+    code_width: int | None,
 ) -> dict[str, set[str]]:
     """Codes the table maps to more than one label.
 
@@ -176,7 +188,9 @@ def _contradictions(
     hospital admissions in Brazil with the wrong sex, and nothing in the output
     would show it.
     """
-    table = read_reference_table(lake_root, codelist, year=year, code_width=code_width)
+    table = read_reference_table(
+        lake_root, codelist, system=system, year=year, code_width=code_width
+    )
     seen: dict[str, set[str]] = {}
     for code, label in zip(
         table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True
@@ -483,7 +497,7 @@ def render_table(
                 # Later tables must not clobber a higher-authority one, so an
                 # existing key wins.
                 for code, label in _lookup_map(
-                    lake, codelist, year=year, code_width=width
+                    lake, codelist, system=system, year=year, code_width=width
                 ).items():
                     merged.setdefault(code, label)
             except FileNotFoundError:
@@ -586,7 +600,7 @@ def render_table(
         ambiguous = {
             code: labels
             for code, labels in _contradictions(
-                lake, codelists[0], year=year, code_width=None
+                lake, codelists[0], system=system, year=year, code_width=None
             ).items()
             if code in observed
         }
@@ -688,7 +702,9 @@ def _apply_derived(
                 )
                 continue
             try:
-                divisors = _unit_divisors(_lookup_map(lake, codelist, year=year, code_width=None))
+                divisors = _unit_divisors(
+                    _lookup_map(lake, codelist, system=system, year=year, code_width=None)
+                )
             except FileNotFoundError:
                 report.warnings.append(
                     f"{column_name}: no reference table {codelist!r} for the unit column"

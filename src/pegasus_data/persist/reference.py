@@ -37,6 +37,7 @@ than pretending one string is the answer.
 from __future__ import annotations
 
 import re
+import shutil
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -63,6 +64,7 @@ LARGE_CODELIST_LABELS = 200
 @dataclass(slots=True)
 class ReferenceTable:
     table_id: str
+    system: str
     valid_from: str | None
     valid_to: str | None
     rows: int
@@ -96,8 +98,26 @@ def is_hierarchical(catalog: Catalog, codelist: str) -> bool:
 def write_reference_tables(
     catalog: Catalog, lake_root: str | Path, *, compression: str = "zstd"
 ) -> list[ReferenceTable]:
-    """Materialise every code table, scoped by the validity window it came from."""
+    """Materialise every code table, scoped by **system** and by validity window.
+
+    Scoping by system is not a refinement — it is the difference between a usable
+    lookup and a contradictory one. Thirteen systems ship a file called
+    ``SEXO.CNV`` and they do not agree: SIHSUS codes sex as 1/3, SINASC as 1/2,
+    SINAN as M/F. Keying the reference table on the codelist name alone merged
+    all thirteen into one table in which ``1`` meant Masculino *and* Feminino,
+    and any label drawn from it was a coin toss.
+
+    Measured on the full catalog: 311,844 (code, window) pairs carried more than
+    one label when systems were merged, across 264 codelists. Grouped by system
+    as well, that number is **zero** — every one of those tables is internally
+    consistent, and the contradiction was manufactured entirely here.
+    """
     root = Path(lake_root) / "reference"
+    # Derived output is replaced, not accumulated (§3). It also has to be, since
+    # the directory layout gained a level: a stale `window=` directory sitting
+    # beside a new `system=` one makes a hive dataset that will not open.
+    if root.exists():
+        shutil.rmtree(root)
     root.mkdir(parents=True, exist_ok=True)
 
     written: list[ReferenceTable] = []
@@ -107,20 +127,21 @@ def write_reference_tables(
     # number of codelists and dominated the stage.
     cursor = catalog.execute(
         """
-        SELECT value_group, valid_from, valid_to, value_raw, value_label, source, source_ref, confidence
+        SELECT value_group, valid_from, valid_to, value_raw, value_label, source, source_ref,
+               confidence, system
           FROM dictionary
          WHERE value_group IS NOT NULL
-         ORDER BY value_group, valid_from, value_raw
+         ORDER BY value_group, system, valid_from, value_raw
         """
     )
 
-    current_key: tuple[str, str | None, str | None] | None = None
+    current_key: tuple[str, str, str | None, str | None] | None = None
     batch: list[tuple[object, ...]] = []
 
     def _flush() -> None:
         if current_key is None or len(batch) < 2:
             return
-        table_id, valid_from, valid_to = current_key
+        table_id, system, valid_from, valid_to = current_key
         table = pa.table(
             {
                 "code": pa.array([str(e[0]) for e in batch], type=pa.string()),
@@ -141,13 +162,19 @@ def write_reference_tables(
         # The partition key is `window`, not `valid_from`: a hive key of the same
         # name as a data column shadows it, and the string "current" would come
         # back where the real NULL belongs.
-        directory = root / _SAFE.sub("_", table_id) / f"window={_SAFE.sub('_', window)}"
+        directory = (
+            root
+            / _SAFE.sub("_", table_id)
+            / f"system={_SAFE.sub('_', system)}"
+            / f"window={_SAFE.sub('_', window)}"
+        )
         directory.mkdir(parents=True, exist_ok=True)
         target = directory / "part-00000.parquet"
         pq.write_table(table, target, compression=compression, use_dictionary=True)
         written.append(
             ReferenceTable(
                 table_id=table_id,
+                system=system,
                 valid_from=valid_from,
                 valid_to=valid_to,
                 rows=table.num_rows,
@@ -158,7 +185,7 @@ def write_reference_tables(
         )
 
     for row in cursor:
-        key = (str(row[0]), row[1], row[2])
+        key = (str(row[0]), str(row[8] or "UNKNOWN"), row[1], row[2])
         if key != current_key:
             _flush()
             current_key = key
@@ -202,6 +229,7 @@ def read_reference_table(
     lake_root: str | Path,
     table_id: str,
     *,
+    system: str | None = None,
     valid_from: str | None = None,
     year: int | None = None,
     code_width: int | None = None,
@@ -211,6 +239,13 @@ def read_reference_table(
     Asking for a ``year`` picks the window that contains it, which is the whole
     point of keeping the windows apart: a 1995 admission decodes against the
     1992–1997 table, not against today's.
+
+    Asking for a ``system`` picks that system's own copy of the codelist, which
+    matters just as much. A field belonging to SIHSUS must decode against
+    SIHSUS's ``SEXO.CNV`` (1 = Masculino, 3 = Feminino) and not against the union
+    of thirteen systems that disagree. Where the requested system ships no copy
+    the union is returned instead — a borrowed table is better than none — and
+    the caller's contradiction check remains the guard for that case.
     """
     base = Path(lake_root) / "reference" / _SAFE.sub("_", table_id)
     if not base.exists():
@@ -219,6 +254,16 @@ def read_reference_table(
         )
     dataset = pads.dataset(base, format="parquet", partitioning="hive")
     table = dataset.to_table()
+    if system and "system" in table.schema.names:
+        wanted = _SAFE.sub("_", system.upper())
+        scoped = table.filter(
+            pa.array([str(s) == wanted for s in table.column("system").to_pylist()])
+        )
+        # Only narrow when the system actually has this table. Returning an
+        # empty result for a field whose codelist came from a neighbour's kit
+        # would turn a labelling gap into a silent blank column.
+        if scoped.num_rows:
+            table = scoped
     if code_width is not None and "code_width" in table.schema.names:
         table = table.filter(
             pa.array([w == code_width for w in table.column("code_width").to_pylist()])
@@ -248,6 +293,22 @@ def read_reference_table(
             return matched
         fallback = table.filter(pa.array(current))
         return fallback if fallback.num_rows else table
+
+    # No year asked for: give the CURRENT vintage, not every vintage at once.
+    # Merging windows is never what a caller wants and manufactures a
+    # contradiction out of ordinary editorial drift — SIHSUS's CID10 renders
+    # C96.7 as "…tec linf hematop e relac" today and "…e corr" in the 1992–1997
+    # kit, which is one code with a reworded label, not two meanings. A caller
+    # who wants a specific vintage names a year; everyone else means "now".
+    if "valid_from" in table.schema.names:
+        windows = table.column("valid_from").to_pylist()
+        open_ended = [v is None or not str(v).strip() for v in windows]
+        if any(open_ended):
+            return table.filter(pa.array(open_ended))
+        dated_windows = [str(v) for v in windows if v is not None]
+        if dated_windows:
+            newest = max(dated_windows)
+            return table.filter(pa.array([str(v) == newest for v in windows]))
     return table
 
 
@@ -260,8 +321,9 @@ def register_reference_tables(catalog: Catalog, tables: Sequence[ReferenceTable]
         """,
         [
             (
-                f"ref_{t.table_id.lower()}",
-                f"reference table {t.table_id}, {t.rows} codes, window {t.window}, from {t.source_ref}",
+                f"ref_{t.table_id.lower()}__{t.system.lower()}",
+                f"reference table {t.table_id} ({t.system}), {t.rows} codes, "
+                f"window {t.window}, from {t.source_ref}",
             )
             for t in tables
         ],
@@ -275,8 +337,15 @@ def available_tables(lake_root: str | Path) -> list[dict[str, object]]:
         return []
     out: list[dict[str, object]] = []
     for directory in sorted(p for p in root.iterdir() if p.is_dir()):
-        windows = sorted(
-            w.name.split("=", 1)[-1] for w in directory.iterdir() if w.is_dir()
-        )
-        out.append({"table": directory.name, "windows": windows})
+        for system_dir in sorted(d for d in directory.iterdir() if d.is_dir()):
+            windows = sorted(
+                w.name.split("=", 1)[-1] for w in system_dir.iterdir() if w.is_dir()
+            )
+            out.append(
+                {
+                    "table": directory.name,
+                    "system": system_dir.name.split("=", 1)[-1],
+                    "windows": windows,
+                }
+            )
     return out

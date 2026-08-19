@@ -18,6 +18,12 @@ from dataclasses import dataclass, field
 
 from ..catalog.store import Catalog
 from ..discovery.ftp_client import FtpClient
+from ..progress import (
+    DEFAULT_HEARTBEAT,
+    DEFAULT_STALL_TIMEOUT,
+    Heartbeat,
+    StageProgress,
+)
 from .cache import BlobStore
 
 
@@ -37,6 +43,10 @@ class FetchStats:
     fetched: int = 0
     skipped: int = 0
     failed: int = 0
+    #: Paths still outstanding when the batch was abandoned on a stall. Not
+    #: failures — nothing was decided about them — and counted apart so a
+    #: caller can retry exactly those.
+    stalled: int = 0
     bytes_fetched: int = 0
     errors: list[tuple[str, str]] = field(default_factory=list)
 
@@ -54,6 +64,8 @@ class Fetcher:
         timeout: int = 60,
         max_retries: int = 4,
         backoff_base: float = 1.5,
+        stall_timeout: float = DEFAULT_STALL_TIMEOUT,
+        heartbeat_interval: float = DEFAULT_HEARTBEAT,
     ) -> None:
         self.catalog = catalog
         self.blobs = blobs
@@ -62,6 +74,12 @@ class Fetcher:
         self.timeout = timeout
         self.max_retries = max_retries
         self.backoff_base = backoff_base
+        #: How long the batch may go with no path completing before it gives up.
+        #: Per-*path* time is already bounded by the socket timeout and retries;
+        #: this bounds the case those cannot see — every worker alive, nothing
+        #: finishing.
+        self.stall_timeout = stall_timeout
+        self.heartbeat_interval = heartbeat_interval
 
     # ------------------------------------------------------------------ policy
 
@@ -112,6 +130,8 @@ class Fetcher:
         for p in paths:
             work.put(p)
         lock = threading.Lock()
+        _last_seen = [0]
+        _last_moved = [time.monotonic()]
 
         def worker() -> None:
             client = FtpClient(
@@ -124,7 +144,10 @@ class Fetcher:
                 client.connect()
             except Exception as exc:
                 with lock:
-                    stats.failed += 1
+                    # The connect failure is recorded but NOT counted as a
+                    # failure: `failed` counts paths, and this worker has not
+                    # been handed one yet. Counting it here made three
+                    # unreachable paths report as five failures.
                     stats.errors.append(("<connect>", str(exc)))
                 # Drain rather than return. `fetch_many` waits on `work.join()`,
                 # which counts task_done() calls — so a worker that leaves
@@ -169,11 +192,45 @@ class Fetcher:
         threads = [threading.Thread(target=worker, daemon=True, name=f"fetch-{i}") for i in range(self.concurrency)]
         for t in threads:
             t.start()
-        work.join()
+
+        # NOT `work.join()`. An unbounded join is what turned one stalled FTP
+        # transfer into a fifty-minute silence with no output and no error: the
+        # queue never reported finished, so the call never returned and nothing
+        # said why. Poll instead, so the wait is bounded, a heartbeat can report
+        # what is outstanding, and a stall ends the batch with the remaining
+        # paths recorded rather than ending the run.
+        progress = StageProgress(stage="fetch", total=len(paths))
+        deadline_hit = False
+        with Heartbeat(progress, interval=self.heartbeat_interval):
+            while True:
+                with lock:
+                    progress.completed = stats.fetched + stats.skipped
+                    progress.failed = stats.failed
+                done = progress.completed + progress.failed
+                if done >= len(paths) or all(not t.is_alive() for t in threads):
+                    break
+                if done > _last_seen[0]:
+                    _last_seen[0] = done
+                    _last_moved[0] = time.monotonic()
+                elif time.monotonic() - _last_moved[0] > self.stall_timeout:
+                    deadline_hit = True
+                    break
+                time.sleep(0.25)
+
+        if deadline_hit:
+            outstanding = len(paths) - (stats.fetched + stats.skipped + stats.failed)
+            stats.stalled = outstanding
+            message = (
+                f"fetch stalled: no path completed in {self.stall_timeout:.0f}s; "
+                f"{outstanding} of {len(paths)} still outstanding"
+            )
+            stats.errors.append(("<stall>", message))
+            self.catalog.log_event("fetch", "batch abandoned on stall", level="error", detail=message)
+
         for _ in threads:
             work.put(None)
         for t in threads:
-            t.join(timeout=30)
+            t.join(timeout=5)
         return stats
 
     def _fetch_one(self, client: FtpClient, path: str, *, force: bool) -> FetchResult:

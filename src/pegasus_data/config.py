@@ -72,6 +72,14 @@ class Settings:
     # Storage behaviour.
     #: Override for where curated YAML lives; None means the packaged directory.
     curation_root: Path | None = None
+
+    #: No stage may hang silently (§A). A single work item that outlives
+    #: `item_timeout` is abandoned and recorded; a stage that goes
+    #: `stall_timeout` with nothing completing gives up on the batch. Both are
+    #: generous — they exist to catch a stall, not to punish a slow file.
+    item_timeout: float = 1200.0
+    stall_timeout: float = 1800.0
+    heartbeat_interval: float = 30.0
     keep_raw: bool = False
     compression: str = "zstd"
     row_group_size: int = 256 * 1024

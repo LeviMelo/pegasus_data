@@ -17,6 +17,7 @@ from what the catalog knows rather than from a checkpoint file.
 from __future__ import annotations
 
 import json
+import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
@@ -47,6 +48,13 @@ from .profile.runner import (
     profile_table,
     record_decode_attempts,
     record_stratum_schema,
+)
+from .progress import (
+    Heartbeat,
+    ItemTimeout,
+    StageProgress,
+    record_timeout,
+    run_with_timeout,
 )
 from .semantics.dictionary import (
     bind_by_semantic_type,
@@ -171,6 +179,8 @@ class Pipeline:
             timeout=settings.timeout,
             max_retries=settings.max_retries,
             backoff_base=settings.backoff_base,
+            stall_timeout=settings.stall_timeout,
+            heartbeat_interval=settings.heartbeat_interval,
         )
         self.seed_questions()
 
@@ -536,119 +546,194 @@ class Pipeline:
         paths = [str(row["sampled_path"]) for row in plan]
         digests = self.fetcher.ensure(paths)
 
-        for row in plan:
-            stratum_id = str(row["stratum_id"])
-            path = str(row["sampled_path"])
-            if on_item:
-                on_item(stratum_id, path)
-            digest = digests.get(path)
-            if not digest:
-                record_stratum_schema(
-                    self.catalog, stratum_id, schema_sig="", field_count=0,
-                    status="failed", error="fetch failed",
-                )
-                counts["failed"] += 1
-                continue
-            outcome = registry.open_bytes(self.blobs.read(digest), path=path)
-            record_decode_attempts(
-                self.catalog, path, [(a.reader, a.ok, a.error) for a in outcome.attempts]
-            )
-            for key, question in outcome.open_questions:
-                self.catalog.note_question(
-                    f"{key}:{path}", area="decode", question=question,
-                    verification_procedure="re-run `pegasus-data profile` after resolving the dependency",
-                    blocking=path,
-                )
-            if not outcome.tables:
-                record_stratum_schema(
-                    self.catalog, stratum_id, schema_sig="", field_count=0, status="failed",
-                    error="; ".join(f"{a.reader}: {a.error}" for a in outcome.attempts if not a.ok)[:1000],
-                )
-                self.catalog.record_gap(path, kind="decode", methods=tuple(a.reader for a in outcome.attempts), error="undecodable")
-                counts["failed"] += 1
-                continue
-
-            # An archive holding several schemas (an APAC .exe holds seven) makes
-            # each member its own stratum, keyed by the member name.
-            #
-            # A stratum that already names a member profiles *only* that member.
-            # Without this, re-profiling re-expands the whole archive and derives
-            # seven new member strata from each existing one, which multiplies on
-            # every run instead of converging.
-            tables = outcome.tables
-            claimed_member = str(row.get("sampled_member") or "")
-            if claimed_member:
-                tables = [t for t in tables if t.member == claimed_member] or tables[:1]
-            for index, table in enumerate(tables):
-                member_stratum = (
-                    stratum_id if (index == 0 or claimed_member) else f"{stratum_id}#{index}"
-                )
-                # Archive members become their own series so that seven APAC
-                # schemas in one .exe do not collapse into one another.
-                member_series = (
-                    f"{row['series']}:{PurePosixPath(table.member).stem}"
-                    if table.member
-                    else row["series"]
-                )
-                # The schema signature comes from the container's declared field
-                # list, which every reader exposes without reading a single
-                # record. So every stratum's schema is established cheaply, and
-                # the expensive part — streaming the rows to build the value
-                # distributions — runs once per *family*, not once per stratum.
-                # SIH-RD alone has 12,101 files across ~35 strata that share one
-                # schema; profiling each in full would re-derive the same
-                # statistics dozens of times and overwrite them each round.
-                signature = schema_signature(table.field_names)
-                family_id = family_id_for(str(row["system"]), member_series, signature)
-                if family_id not in profiled_families:
-                    profile = profile_table(
-                        table,
-                        refs=refs,
-                        row_limit=row_limit or self.settings.profile_row_limit,
-                        max_distinct=self.settings.max_distinct_tracked,
-                        top_values=self.settings.top_values_kept,
+        # Every stratum is bounded and observable from here on. The stage that
+        # motivated this fetched eight files and then went silent for fifty
+        # minutes; what made it undiagnosable was not the stall but that nothing
+        # said which item was in flight.
+        progress = StageProgress(stage="profile", total=len(plan))
+        heartbeat = Heartbeat(progress, interval=self.settings.heartbeat_interval)
+        heartbeat.__enter__()
+        try:
+            for row in plan:
+                stratum_id = str(row["stratum_id"])
+                path = str(row["sampled_path"])
+                progress.current = path
+                progress.current_started = time.monotonic()
+                try:
+                    self._profile_one(
+                        row, digests, registry, refs, profiled_families, counts, notes,
+                        on_item=on_item, row_limit=row_limit,
                     )
-                    persist_profile(
-                        self.catalog,
-                        profile,
-                        family_id=family_id,
-                        top_values_kept=self.settings.top_values_kept,
+                except ItemTimeout as exc:
+                    # Abandoned, recorded, and the stage carries on. A run that
+                    # skips three strata with three stated reasons is shippable;
+                    # a run that stops with no output is not.
+                    counts["timed_out"] = int(counts.get("timed_out", 0)) + 1
+                    progress.timed_out += 1
+                    progress.timeouts.append((path, self.settings.item_timeout))
+                    record_timeout(
+                        self.catalog, stage="profile", item=path,
+                        seconds=self.settings.item_timeout,
+                        state=f"stratum {stratum_id}",
                     )
-                    profiled_families.add(family_id)
-                    counts["families_profiled"] += 1
+                    record_stratum_schema(
+                        self.catalog, stratum_id, schema_sig="", field_count=0,
+                        status="failed", error=str(exc)[:500],
+                    )
+                    notes.append(str(exc))
+                except Exception as exc:  # noqa: BLE001 - one bad file is not the run
+                    counts["failed"] += 1
+                    progress.failed += 1
+                    record_stratum_schema(
+                        self.catalog, stratum_id, schema_sig="", field_count=0,
+                        status="failed", error=f"{type(exc).__name__}: {exc}"[:500],
+                    )
+                    notes.append(f"{path}: {type(exc).__name__}: {exc}")
                 else:
-                    counts["schema_only"] += 1
-                field_count = len(table.field_names)
-                if index > 0:
-                    self.catalog.executemany(
-                        """
-                        INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path, sample_status)
-                        VALUES (?,?,?,?,?,?, 'pending')
-                        ON CONFLICT(stratum_id) DO NOTHING
-                        """,
-                        [(member_stratum, row["system"], member_series, row["year"], 1, path)],
-                    )
-                    self.catalog.executemany(
-                        "INSERT OR IGNORE INTO stratum_members (stratum_id, path) VALUES (?,?)",
-                        [(member_stratum, path)],
-                    )
-                if index == 0 and table.member:
-                    self.catalog.execute(
-                        "UPDATE strata SET series = ? WHERE stratum_id = ?",
-                        (member_series, member_stratum),
-                    )
-                record_stratum_schema(
-                    self.catalog, member_stratum,
-                    schema_sig=signature,
-                    field_count=field_count,
-                    sampled_member=table.member,
-                    status="ok",
-                )
-                counts["tables"] += 1
-            counts["profiled"] += 1
-
+                    progress.completed += 1
+                finally:
+                    progress.last_completion = time.monotonic()
+                    progress.current = None
+                    progress.current_started = None
+        finally:
+            heartbeat.__exit__()
+        counts["progress"] = progress.as_dict()
         self._close_decode_questions()
         return StageResult("profile", counts=counts, notes=notes)
+
+    def _profile_one(
+        self, row, digests, registry, refs, profiled_families, counts, notes, *,
+        on_item, row_limit,
+    ) -> None:
+        """One stratum, under a wall-clock deadline.
+
+        Split out so the body can be handed to :func:`run_with_timeout` whole.
+        The deadline covers decode *and* profiling, because either can be the
+        thing that does not come back and the caller cannot tell which.
+        """
+        return run_with_timeout(
+            lambda: self._profile_one_inner(
+                row, digests, registry, refs, profiled_families, counts, notes,
+                on_item=on_item, row_limit=row_limit,
+            ),
+            seconds=self.settings.item_timeout,
+            label=str(row["sampled_path"]),
+        )
+
+    def _profile_one_inner(
+        self, row, digests, registry, refs, profiled_families, counts, notes, *,
+        on_item, row_limit,
+    ) -> None:
+        stratum_id = str(row["stratum_id"])
+        path = str(row["sampled_path"])
+        if on_item:
+            on_item(stratum_id, path)
+        digest = digests.get(path)
+        if not digest:
+            record_stratum_schema(
+                self.catalog, stratum_id, schema_sig="", field_count=0,
+                status="failed", error="fetch failed",
+            )
+            counts["failed"] += 1
+            return
+        outcome = registry.open_bytes(self.blobs.read(digest), path=path)
+        record_decode_attempts(
+            self.catalog, path, [(a.reader, a.ok, a.error) for a in outcome.attempts]
+        )
+        for key, question in outcome.open_questions:
+            self.catalog.note_question(
+                f"{key}:{path}", area="decode", question=question,
+                verification_procedure="re-run `pegasus-data profile` after resolving the dependency",
+                blocking=path,
+            )
+        if not outcome.tables:
+            record_stratum_schema(
+                self.catalog, stratum_id, schema_sig="", field_count=0, status="failed",
+                error="; ".join(f"{a.reader}: {a.error}" for a in outcome.attempts if not a.ok)[:1000],
+            )
+            self.catalog.record_gap(path, kind="decode", methods=tuple(a.reader for a in outcome.attempts), error="undecodable")
+            counts["failed"] += 1
+            return
+
+        # An archive holding several schemas (an APAC .exe holds seven) makes
+        # each member its own stratum, keyed by the member name.
+        #
+        # A stratum that already names a member profiles *only* that member.
+        # Without this, re-profiling re-expands the whole archive and derives
+        # seven new member strata from each existing one, which multiplies on
+        # every run instead of converging.
+        tables = outcome.tables
+        claimed_member = str(row.get("sampled_member") or "")
+        if claimed_member:
+            tables = [t for t in tables if t.member == claimed_member] or tables[:1]
+        for index, table in enumerate(tables):
+            member_stratum = (
+                stratum_id if (index == 0 or claimed_member) else f"{stratum_id}#{index}"
+            )
+            # Archive members become their own series so that seven APAC
+            # schemas in one .exe do not collapse into one another.
+            member_series = (
+                f"{row['series']}:{PurePosixPath(table.member).stem}"
+                if table.member
+                else row["series"]
+            )
+            # The schema signature comes from the container's declared field
+            # list, which every reader exposes without reading a single
+            # record. So every stratum's schema is established cheaply, and
+            # the expensive part — streaming the rows to build the value
+            # distributions — runs once per *family*, not once per stratum.
+            # SIH-RD alone has 12,101 files across ~35 strata that share one
+            # schema; profiling each in full would re-derive the same
+            # statistics dozens of times and overwrite them each round.
+            signature = schema_signature(table.field_names)
+            family_id = family_id_for(str(row["system"]), member_series, signature)
+            if family_id not in profiled_families:
+                profile = profile_table(
+                    table,
+                    refs=refs,
+                    row_limit=row_limit or self.settings.profile_row_limit,
+                    max_distinct=self.settings.max_distinct_tracked,
+                    top_values=self.settings.top_values_kept,
+                )
+                persist_profile(
+                    self.catalog,
+                    profile,
+                    family_id=family_id,
+                    top_values_kept=self.settings.top_values_kept,
+                )
+                profiled_families.add(family_id)
+                counts["families_profiled"] += 1
+            else:
+                counts["schema_only"] += 1
+            field_count = len(table.field_names)
+            if index > 0:
+                self.catalog.executemany(
+                    """
+                    INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path, sample_status)
+                    VALUES (?,?,?,?,?,?, 'pending')
+                    ON CONFLICT(stratum_id) DO NOTHING
+                    """,
+                    [(member_stratum, row["system"], member_series, row["year"], 1, path)],
+                )
+                self.catalog.executemany(
+                    "INSERT OR IGNORE INTO stratum_members (stratum_id, path) VALUES (?,?)",
+                    [(member_stratum, path)],
+                )
+            if index == 0 and table.member:
+                self.catalog.execute(
+                    "UPDATE strata SET series = ? WHERE stratum_id = ?",
+                    (member_series, member_stratum),
+                )
+            record_stratum_schema(
+                self.catalog, member_stratum,
+                schema_sig=signature,
+                field_count=field_count,
+                sampled_member=table.member,
+                status="ok",
+            )
+            counts["tables"] += 1
+        counts["profiled"] += 1
+
 
     def _close_decode_questions(self) -> None:
         apac = self.catalog.count(
