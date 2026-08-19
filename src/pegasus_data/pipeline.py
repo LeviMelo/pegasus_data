@@ -195,6 +195,7 @@ class Pipeline:
         resume: bool = False,
         prefixes: Sequence[str] | None = None,
         on_progress: Callable[[object], None] | None = None,
+        accept_mass_gone: bool = False,
     ) -> StageResult:
         crawler = Crawler(
             self.catalog,
@@ -204,6 +205,7 @@ class Pipeline:
             max_retries=self.settings.max_retries,
             backoff_base=self.settings.backoff_base,
             on_progress=on_progress,  # type: ignore[arg-type]
+            accept_mass_gone=accept_mass_gone,
         )
         stats = crawler.crawl(self.settings.base_path, resume=resume, only_prefixes=prefixes)
         with_meta = self.catalog.count("files", "size IS NOT NULL")

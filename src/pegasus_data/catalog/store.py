@@ -56,6 +56,60 @@ def _declared_columns(schema: str) -> dict[str, dict[str, str]]:
     return out
 
 
+class CatalogSchemaError(RuntimeError):
+    """The catalog on disk cannot be brought to the shipped schema.
+
+    Raised rather than opened. The alternative — carrying on against a database
+    whose shape does not match what the code expects — is the failure mode this
+    module has already hit twice: ``CREATE TABLE IF NOT EXISTS`` silently kept an
+    old table, and every query written against the new one failed far away from
+    the cause. A mismatch that additive migration cannot close is not something
+    to work around at runtime.
+    """
+
+
+def _structural_mismatches(conn: sqlite3.Connection, schema: str) -> list[str]:
+    """Differences additive migration cannot fix, described for a human.
+
+    Additive column migration handles the only change this schema has ever made:
+    gaining a nullable column. Anything else — a changed primary key, a column
+    whose declared type no longer matches, a table the shipped schema no longer
+    declares the same way — needs a deliberate rebuild, and pretending otherwise
+    is how a catalog quietly diverges from the code that reads it.
+    """
+    problems: list[str] = []
+    declared = _declared_columns(schema)
+    existing_tables = {
+        r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    }
+    for table, columns in declared.items():
+        if table not in existing_tables:
+            continue
+        actual = {r[1]: (r[2] or "").upper() for r in conn.execute(f"PRAGMA table_info({table})")}
+        actual_pk = [
+            r[1] for r in conn.execute(f"PRAGMA table_info({table})") if r[5]
+        ]
+        for name, decl in columns.items():
+            if name not in actual:
+                continue
+            want = decl.split()[0].upper() if decl.split() else "TEXT"
+            have = actual[name]
+            if have and want and have != want:
+                problems.append(
+                    f"{table}.{name}: catalog has {have}, shipped schema declares {want}"
+                )
+        want_pk = [
+            name
+            for name, decl in columns.items()
+            if "PRIMARY KEY" in decl.upper()
+        ]
+        if want_pk and actual_pk and sorted(want_pk) != sorted(actual_pk):
+            problems.append(
+                f"{table}: primary key is {actual_pk}, shipped schema declares {want_pk}"
+            )
+    return problems
+
+
 def _missing_columns(
     conn: sqlite3.Connection, schema: str
 ) -> list[tuple[str, str, str]]:
@@ -86,9 +140,18 @@ class Catalog:
     through the same connection, which SQLite handles fine at this concurrency.
     """
 
-    def __init__(self, path: str | Path, *, read_only: bool = False) -> None:
+    def __init__(
+        self, path: str | Path, *, read_only: bool = False, strict_schema: bool = True
+    ) -> None:
+        """``strict_schema=False`` opens a catalog ``migrate`` would refuse.
+
+        Only the repair path wants this: ``rebuild_table`` has to open a database
+        whose shape is exactly the reason opening it fails. Nothing on the normal
+        path should pass it.
+        """
         self.path = Path(path)
         self.read_only = read_only
+        self.strict_schema = strict_schema
         if not read_only:
             self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
@@ -118,6 +181,17 @@ class Catalog:
         Only additive changes are applied automatically — new nullable columns —
         which is what a schema that only ever gains fields needs. Anything
         destructive would need a real migration and is deliberately not done here.
+
+        What is *not* left silent is the case additive migration cannot reach: a
+        changed type, a changed primary key, a dropped column. Those are refused,
+        loudly, with :class:`CatalogSchemaError`. Rebuilding the table instead —
+        automatically, at open time, without being asked — is the more dangerous
+        of the two options the reviewer offered: a rebuild copies only the columns
+        both schemas share, so a schema that dropped a column would delete that
+        column's data on the next ordinary open, with no prompt and no backup. A
+        catalog that took a full crawl to populate should not be reshaped as a
+        side effect of opening it. The rebuild exists, but it is explicit:
+        :meth:`rebuild_table`, reached from ``pegasus-data catalog-rebuild``.
         """
         with self._lock:
             schema = _schema_sql()
@@ -126,6 +200,19 @@ class Catalog:
             # in the script has had a chance to run.
             for table, column, decl in _missing_columns(self.conn, schema):
                 self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+            # Then refuse, before the script runs, if what remains cannot be
+            # closed by adding columns. Failing here points at the catalog;
+            # failing later points at whichever query happened to touch it first.
+            problems = _structural_mismatches(self.conn, schema) if self.strict_schema else []
+            if problems:
+                raise CatalogSchemaError(
+                    f"catalog at {self.path} does not match the shipped schema and "
+                    "cannot be migrated by adding columns:\n  "
+                    + "\n  ".join(problems)
+                    + "\n\nRebuild the affected tables with 'pegasus-data catalog-rebuild "
+                    "--table <name>' (copies the columns both schemas share and drops "
+                    "the rest), or re-crawl into a fresh catalog."
+                )
             self.conn.executescript(schema)
             row = self.conn.execute("SELECT MAX(version) AS v FROM schema_version").fetchone()
             if row is None or row["v"] is None:
@@ -134,6 +221,81 @@ class Catalog:
                     (SCHEMA_VERSION, utcnow()),
                 )
             self.conn.commit()
+
+    def rebuild_table(self, table: str) -> dict[str, object]:
+        """Recreate ``table`` from the shipped schema, carrying over shared columns.
+
+        The remedy for what :meth:`migrate` refuses. It is deliberately a separate,
+        explicit call rather than something ``migrate`` does on its own, because it
+        is lossy in a way additive migration never is: a column the shipped schema
+        no longer declares is not copied, and its data goes with the old table.
+        Naming the dropped columns in the return value is the least this can do.
+        """
+        schema = _schema_sql()
+        declared = _declared_columns(schema).get(table)
+        if declared is None:
+            raise CatalogSchemaError(f"the shipped schema does not declare a table named {table!r}")
+        match = next(
+            (m for m in _CREATE_TABLE.finditer(schema) if m.group(1) == table),
+            None,
+        )
+        if match is None:  # pragma: no cover - _declared_columns reads the same source
+            raise CatalogSchemaError(f"no CREATE TABLE statement found for {table!r}")
+
+        with self._lock:
+            existing = [r[1] for r in self.conn.execute(f"PRAGMA table_info({table})")]
+            if not existing:
+                raise CatalogSchemaError(f"catalog has no table named {table!r} to rebuild")
+            shared = [c for c in existing if c in declared]
+            dropped = [c for c in existing if c not in declared]
+            added = [c for c in declared if c not in existing]
+            before = self.conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+
+            # legacy_alter_table keeps RENAME from rewriting references to this
+            # table in other objects — we want the old rows parked, not the
+            # schema rewritten around them.
+            # Any pending implicit transaction has to close first: PRAGMAs do
+            # not take effect inside one, and BEGIN inside one is an error.
+            self.conn.commit()
+            self.conn.execute("PRAGMA legacy_alter_table = ON")
+            self.conn.execute("PRAGMA foreign_keys = OFF")
+            try:
+                self.conn.execute("BEGIN IMMEDIATE")
+                self.conn.execute(f"ALTER TABLE {table} RENAME TO {table}__rebuild_old")
+                self.conn.execute(match.group(0).rstrip(";"))
+                if shared:
+                    cols = ", ".join(shared)
+                    self.conn.execute(
+                        f"INSERT INTO {table} ({cols}) SELECT {cols} FROM {table}__rebuild_old"
+                    )
+                self.conn.execute(f"DROP TABLE {table}__rebuild_old")
+                self.conn.commit()
+            except Exception:
+                self.conn.rollback()
+                raise
+            finally:
+                self.conn.execute("PRAGMA legacy_alter_table = OFF")
+                self.conn.execute("PRAGMA foreign_keys = ON")
+
+            # Dropping the parked table took its indexes with it; the script
+            # recreates them, and anything else the rebuild disturbed.
+            self.conn.executescript(schema)
+            after = self.conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+            self.conn.commit()
+
+        self.log_event(
+            "catalog",
+            f"rebuilt table {table}",
+            detail=f"rows {before}->{after}; dropped={dropped}; added={added}",
+        )
+        return {
+            "table": table,
+            "rows_before": before,
+            "rows_after": after,
+            "columns_kept": shared,
+            "columns_dropped": dropped,
+            "columns_added": added,
+        }
 
     def close(self) -> None:
         with self._lock:

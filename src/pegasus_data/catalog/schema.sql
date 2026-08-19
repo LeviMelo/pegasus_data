@@ -29,9 +29,17 @@ CREATE TABLE IF NOT EXISTS schema_version (
 -- unrelated arrival, and every stratum and family derived from it starts over.
 -- `logical_id` is derived from the *filename* — system, series, geo, competencia
 -- — so identity survives a move and the move itself becomes observable.
+--
+-- It is a GROUPING key, not a unique one: many paths share one logical_id. The
+-- same competencia is republished in several containers (.dbc, .dbf, .csv, .xml),
+-- and every one of them is `SIHSUS|RD|AC|2401` because every one of them IS that
+-- month of that series for that state. That is the correct answer for grouping
+-- representations of one publication, and the wrong answer for a primary key.
+-- `path` remains the unique key here. Anything joining on logical_id must expect
+-- multiple rows back.
 CREATE TABLE IF NOT EXISTS files (
   path            TEXT PRIMARY KEY,
-  logical_id      TEXT,              -- filename-derived identity, stable across moves
+  logical_id      TEXT,              -- filename-derived identity; MANY paths per id
   directory       TEXT NOT NULL,
   filename        TEXT NOT NULL,
   extension       TEXT,
@@ -57,6 +65,9 @@ CREATE TABLE IF NOT EXISTS file_moves (
   size         INTEGER,
   modified     TEXT,
   evidence     TEXT,                 -- which fields matched
+  confidence   TEXT,                 -- 'high' (filename stable) | 'low' (renamed)
+  renamed_from TEXT,                 -- old filename, when the name itself changed
+  renamed_to   TEXT,
   run_id       TEXT,
   detected_at  TEXT,
   PRIMARY KEY (from_path, to_path)

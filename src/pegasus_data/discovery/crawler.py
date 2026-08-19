@@ -34,6 +34,18 @@ from .reconcile import (
     snapshot,
 )
 
+#: A crawl withdrawing at least this share of a known catalog is treated as a
+#: fault rather than an update. Set well above ordinary churn: DATASUS retires
+#: whole directories, but never half the tree at once.
+MASS_GONE_FRACTION = 0.20
+
+#: Below this many previously-known files, a fraction is noise, not a signal.
+MASS_GONE_MIN_KNOWN = 500
+
+
+class MassDisappearance(RuntimeError):
+    """A crawl reported so much of the catalog gone that it is probably wrong."""
+
 
 @dataclass(slots=True)
 class CrawlStats:
@@ -81,6 +93,7 @@ class Crawler:
         max_retries: int = 4,
         backoff_base: float = 1.5,
         on_progress: Callable[[CrawlStats], None] | None = None,
+        accept_mass_gone: bool = False,
     ) -> None:
         self.catalog = catalog
         self.host = host
@@ -89,6 +102,7 @@ class Crawler:
         self.max_retries = max_retries
         self.backoff_base = backoff_base
         self.on_progress = on_progress
+        self.accept_mass_gone = accept_mass_gone
         self._lock = threading.Lock()
         self._seen: set[str] = set()
         self._queue: queue.PriorityQueue[tuple[float, int, _Work | None]] = queue.PriorityQueue()
@@ -166,8 +180,9 @@ class Crawler:
             t.join(timeout=30)
 
         # A file that vanished from one directory and appeared in another during
-        # this crawl was moved, not deleted and re-created.
-        moves = detect_moves(self.catalog, self._gone, stats.run_id)
+        # this crawl was moved, not deleted and re-created. ``since`` bounds the
+        # rename pass to files that actually arrived in this crawl.
+        moves = detect_moves(self.catalog, self._gone, stats.run_id, since=stats.started_at)
         moved_from = {m[0] for m in moves}
         stats.reconciliation.moves = moves
         stats.reconciliation.moved = len(moves)
@@ -190,7 +205,58 @@ class Crawler:
                 ),
             )
         persist_reconciliation(self.catalog, stats.run_id, stats.reconciliation)
+        # Last, so that the run and its reconciliation are on disk in full before
+        # the alarm fires. The exception is the alarm, not the record.
+        self._guard_mass_disappearance(stats)
         return stats
+
+    def _guard_mass_disappearance(self, stats: CrawlStats) -> None:
+        """Refuse to record a crawl that withdraws most of the catalog.
+
+        A failed listing can no longer read as deletion — ``mark_gone`` is only
+        ever called for a directory that listed successfully. That closed the
+        accidental route to mass withdrawal, which means a crawl that now reports
+        a large fraction of known files gone is reporting something real: a tree
+        reorganised under us, a base path pointed at the wrong place, or a server
+        serving a truncated view. All three are worth stopping for, and none of
+        them should be absorbed as a quiet catalog update.
+
+        The gone rows have already been written by the time this runs, and that is
+        deliberate — the evidence stays on disk for whoever investigates. What
+        this refuses is the *silence*, not the record.
+        """
+        known = len(self._before)
+        if known < MASS_GONE_MIN_KNOWN:
+            # Too small a baseline for a fraction to mean anything; an empty or
+            # nearly-empty catalog legitimately churns.
+            return
+        gone = stats.reconciliation.gone
+        fraction = gone / known
+        if fraction < MASS_GONE_FRACTION:
+            return
+        detail = (
+            f"{gone} of {known} known files ({fraction:.0%}) disappeared in run "
+            f"{stats.run_id}; threshold is {MASS_GONE_FRACTION:.0%}. "
+            f"Examples: {stats.reconciliation.gone_paths[:5]}"
+        )
+        self.catalog.log_event("crawl", "mass disappearance", level="error", detail=detail)
+        self.catalog.note_question(
+            f"crawl.mass_disappearance:{stats.run_id}",
+            area="discovery",
+            question=(
+                f"Crawl {stats.run_id} found {gone} of {known} known files ({fraction:.0%}) "
+                "absent from directories that listed successfully."
+            ),
+            verification_procedure=(
+                "Check the base path and host are the intended ones, then list two or three "
+                "of the example directories by hand. If DATASUS genuinely reorganised, re-run "
+                "with --accept-mass-gone to record it; if not, the catalog is intact and only "
+                "this run's gone_at stamps need clearing."
+            ),
+            blocking="trusting this crawl's reconciliation",
+        )
+        if not self.accept_mass_gone:
+            raise MassDisappearance(detail)
 
     # ---------------------------------------------------------------- worker
 

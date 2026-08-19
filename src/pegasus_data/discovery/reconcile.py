@@ -133,18 +133,43 @@ def mark_gone(catalog: Catalog, directory: str, seen_paths: set[str]) -> list[st
 
 
 def detect_moves(
-    catalog: Catalog, gone_paths: Sequence[str], run_id: str
+    catalog: Catalog,
+    gone_paths: Sequence[str],
+    run_id: str,
+    *,
+    since: str | None = None,
 ) -> list[tuple[str, str, str]]:
-    """Match files that vanished against files that appeared, by fingerprint.
+    """Match files that vanished against files that appeared.
 
-    Filename, byte size and mtime together are a strong fingerprint on this tree:
-    DATASUS filenames already encode system, series, state and competência, so a
-    collision would require two genuinely identical publications.
+    Two passes, strongest evidence first.
+
+    **High confidence** matches on filename, byte size and mtime together. That is
+    a strong fingerprint on this tree: DATASUS filenames already encode system,
+    series, state and competência, so a collision would need two genuinely
+    identical publications.
+
+    **Low confidence** handles the case the first pass structurally cannot see —
+    a rename. ``RDAC2401.dbc`` becoming ``RD_AC_2401.dbc``, or a restructure to
+    ``SIHSUS/2024/01/RD_AC.dbc``, changes the filename, and filename is the anchor
+    of the strong fingerprint. So the second pass drops the name and requires
+    identical size *and* identical mtime — both present, never one — against a
+    file that is **new in this crawl**, not merely present somewhere in the tree.
+    Restricting to arrivals is what keeps this from matching a vanished file to
+    some unrelated file that has sat in the catalog for years.
+
+    Size and mtime alone are much weaker than the strong fingerprint: DATASUS
+    publishes in batches, so identical mtimes are common, and small files collide
+    on size. Uniqueness carries the weight — a fingerprint matching two or more
+    candidates identifies nothing and is left unrecorded, exactly as an ambiguous
+    move is. The match is recorded as ``confidence='low'`` with both filenames
+    named, so a person can see what was inferred and on what basis.
     """
     if not gone_paths:
         return []
     moves: list[tuple[str, str, str]] = []
     rows: list[tuple[object, ...]] = []
+    unmatched: list[dict[str, object]] = []
+
     for path in gone_paths:
         prior = catalog.query(
             "SELECT filename, size, modified, logical_id FROM files WHERE path = ?", (path,)
@@ -162,22 +187,61 @@ def detect_moves(
             (p["filename"], path, p["size"], p["size"], p["modified"], p["modified"]),
         )
         if len(candidates) != 1:
-            # Zero means it really went; more than one means the fingerprint does
-            # not identify it, and guessing between them would be worse than
-            # leaving the move unrecorded.
+            # Zero means it really went, or it was renamed — the second pass gets
+            # a look at it. More than one means the fingerprint does not identify
+            # it, and guessing between them would be worse than leaving it out.
+            if not candidates:
+                unmatched.append({"path": path, **{k: p[k] for k in ("filename", "size", "modified", "logical_id")}})
             continue
         target = str(candidates[0]["path"])
         evidence = "filename+size+mtime" if p["modified"] else "filename+size"
         moves.append((path, target, evidence))
         rows.append(
-            (p["logical_id"], path, target, p["size"], p["modified"], evidence, run_id, utcnow())
+            (
+                p["logical_id"], path, target, p["size"], p["modified"], evidence,
+                "high", None, None, run_id, utcnow(),
+            )
         )
+
+    # Second pass: renames. Only files that arrived in this crawl are eligible,
+    # and only fingerprints that are complete and unique.
+    claimed = {m[1] for m in moves}
+    for p in unmatched:
+        if p["size"] is None or p["modified"] is None:
+            continue
+        candidates = catalog.query(
+            """
+            SELECT path, filename FROM files
+             WHERE size = ? AND modified = ? AND path != ? AND gone_at IS NULL
+               AND filename != ?
+               AND (? IS NULL OR first_seen >= ?)
+            """,
+            (p["size"], p["modified"], p["path"], p["filename"], since, since),
+        )
+        candidates = [c for c in candidates if str(c["path"]) not in claimed]
+        if len(candidates) != 1:
+            continue
+        target = str(candidates[0]["path"])
+        new_name = str(candidates[0]["filename"])
+        claimed.add(target)
+        evidence = "size+mtime"
+        moves.append((p["path"], target, evidence))  # type: ignore[arg-type]
+        rows.append(
+            (
+                p["logical_id"], p["path"], target, p["size"], p["modified"], evidence,
+                "low", p["filename"], new_name, run_id, utcnow(),
+            )
+        )
+
     catalog.executemany(
         """
-        INSERT INTO file_moves (logical_id, from_path, to_path, size, modified, evidence, run_id, detected_at)
-        VALUES (?,?,?,?,?,?,?,?)
+        INSERT INTO file_moves (logical_id, from_path, to_path, size, modified, evidence,
+                                confidence, renamed_from, renamed_to, run_id, detected_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(from_path, to_path) DO UPDATE SET
-            evidence=excluded.evidence, run_id=excluded.run_id, detected_at=excluded.detected_at
+            evidence=excluded.evidence, confidence=excluded.confidence,
+            renamed_from=excluded.renamed_from, renamed_to=excluded.renamed_to,
+            run_id=excluded.run_id, detected_at=excluded.detected_at
         """,
         rows,
     )

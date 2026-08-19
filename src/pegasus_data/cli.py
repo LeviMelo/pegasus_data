@@ -27,6 +27,7 @@ from rich.console import Console
 from rich.table import Table
 
 from .build import Builder
+from .catalog.store import Catalog, _declared_columns, _schema_sql
 from .config import Settings, load_settings
 from .pipeline import Pipeline
 from .verify import run_all, summarise
@@ -95,13 +96,14 @@ def crawl(
     connections: Annotated[int | None, typer.Option("--connections", "-c")] = None,
     resume: Annotated[bool, typer.Option("--resume", help="Skip directories already listed; retry open gaps")] = False,
     prefix: Annotated[list[str] | None, typer.Option("--prefix", help="Crawl only these subtrees")] = None,
+    accept_mass_gone: Annotated[bool, typer.Option("--accept-mass-gone", help="Record a crawl that withdraws a large share of the catalog instead of failing on it")] = False,
     as_json: JsonOpt = False,
 ) -> None:
     """Walk the FTP tree, recording files, metadata and unreachable paths."""
     pipeline = _pipeline(root, host=host, base_path=base_path, connections=connections)
     try:
         with console.status("crawling…"):
-            result = pipeline.crawl(resume=resume, prefixes=prefix)
+            result = pipeline.crawl(resume=resume, prefixes=prefix, accept_mass_gone=accept_mass_gone)
         _emit(result.counts, as_json, "crawl")
         if not as_json:
             rec = result.counts.get("reconciliation", {})
@@ -120,6 +122,68 @@ def crawl(
         console.print(f"[green]{files}[/green] files present, [green]{with_size}[/green] carrying size and mtime")
     finally:
         pipeline.close()
+
+
+@app.command(name="prefix-adjudicate")
+def prefix_adjudicate(
+    prefix: Annotated[str, typer.Option("--prefix", help="Series prefix to settle, e.g. CM")],
+    system: Annotated[str, typer.Option("--system", help="The system it actually belongs to")],
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Settle a held prefix->system contradiction. Re-derives that prefix's strata and families.
+
+    The learned map holds its first answer on purpose, so a reorganisation cannot
+    silently move identity. This is how a person overrides it once they have
+    decided which of the two readings is true.
+    """
+    from .inventory.systems import adjudicate_prefix
+
+    settings = _settings(root)
+    store = Catalog(settings.catalog_path)
+    try:
+        _emit(adjudicate_prefix(store, prefix, system), as_json, "prefix adjudicated")
+        console.print("[yellow]Re-run 'pegasus-data inventory' to re-derive the affected strata.[/yellow]")
+    except KeyError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    finally:
+        store.close()
+
+
+@app.command(name="catalog-rebuild")
+def catalog_rebuild(
+    table: Annotated[str, typer.Option("--table", help="Table to recreate from the shipped schema")],
+    root: RootOpt = None,
+    yes: Annotated[bool, typer.Option("--yes", help="Skip the confirmation prompt")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Recreate a table the catalog cannot migrate into. Drops columns the schema no longer declares.
+
+    The remedy named by CatalogSchemaError. Columns present in both the old table
+    and the shipped schema are carried over; anything else is lost with the old
+    table, which is why this is a command you run rather than something migration
+    does for you.
+    """
+    settings = _settings(root)
+    catalog = Catalog(settings.catalog_path, strict_schema=False)
+    try:
+        declared = set(_declared_columns(_schema_sql()).get(table, {}))
+        existing = [r[1] for r in catalog.query(f"PRAGMA table_info({table})")]
+        if not existing:
+            console.print(f"[red]catalog has no table named {table!r}[/red]")
+            raise typer.Exit(code=1)
+        dropping = [c for c in existing if c not in declared]
+        rows = catalog.count(table)
+        if dropping and not yes:
+            console.print(
+                f"[yellow]Rebuilding {table} ({rows:,} rows) will DROP these columns "
+                f"and their data: {', '.join(dropping)}[/yellow]"
+            )
+            typer.confirm("Proceed?", abort=True)
+        _emit(catalog.rebuild_table(table), as_json, f"catalog-rebuild {table}")
+    finally:
+        catalog.close()
 
 
 @app.command()
@@ -399,6 +463,7 @@ def report(root: RootOpt = None, as_json: JsonOpt = False) -> None:
     settings = _settings(root)
     from .catalog.store import Catalog as Store
     from .inventory.strata import coverage_by_system
+    from .inventory.systems import low_trust_prefixes
     from .semantics.dictionary import conflicts_report
     from .semantics.ledger import coverage_report
     from .semantics.reference import reference_summary
@@ -429,6 +494,7 @@ def report(root: RootOpt = None, as_json: JsonOpt = False) -> None:
             payload["strata_per_system"] = coverage_by_system(store)
             payload["conflicts"] = conflicts_report(store, limit=50)
             payload["reference_sets"] = reference_summary(store)
+            payload["low_trust_prefixes"] = low_trust_prefixes(store)
             payload["open_questions"] = [
                 dict(r) for r in store.query("SELECT key, status, area, question, resolution FROM open_questions ORDER BY key")
             ]
@@ -441,6 +507,18 @@ def report(root: RootOpt = None, as_json: JsonOpt = False) -> None:
         coverage = coverage_report(store)
         if coverage:
             _emit(coverage, False, "dictionary coverage per system")
+        low_trust = low_trust_prefixes(store)
+        if low_trust:
+            # 2d: the count of low-trust prefixes says nothing on its own. What
+            # matters is how many files still fall back to path authority.
+            facts = store.count("file_facts")
+            covered = sum(int(r["files"]) for r in low_trust)
+            console.print(
+                f"[yellow]{len(low_trust)}[/yellow] low-trust series prefixes cover "
+                f"[yellow]{covered:,}[/yellow] of {facts:,} files "
+                f"([yellow]{covered / facts:.2%}[/yellow]) via the path-authoritative fallback"
+            )
+            _emit(low_trust[:10], False, "low-trust prefixes (largest first)")
         conflicts = conflicts_report(store, limit=10)
         if conflicts:
             # A conflict is a finding, so it belongs in the report rather than

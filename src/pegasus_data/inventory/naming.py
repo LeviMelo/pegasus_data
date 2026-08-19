@@ -312,6 +312,15 @@ def logical_identity(
     itself — location-independent, which is the property that matters — rather
     than falling back to the path and reintroducing the very coupling this
     exists to remove.
+
+    **This is a many-to-one grouping key, not a unique one.** The container suffix
+    is deliberately excluded, so ``RDAC2401.dbc``, ``RDAC2401.dbf`` and a
+    ``.csv`` republication of the same competência all return
+    ``SIHSUS|RD|AC|2401``. That is the point — they are three representations of
+    one publication, and grouping them is what lets the reader pick a container
+    without changing what data they asked for. It also means anything treating a
+    logical_id as a primary key is wrong: ``path`` is the unique key, and a join
+    on logical_id returns a set. See ``test_logical_id_is_many_to_one``.
     """
     if parsed.series_prefix:
         return "|".join(

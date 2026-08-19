@@ -209,3 +209,95 @@ def disagreement_summary(catalog: Catalog) -> list[dict[str, object]]:
             """
         )
     ]
+
+
+def low_trust_prefixes(catalog: Catalog) -> list[dict[str, object]]:
+    """Prefixes the name-first rule will not use, ranked by how much they carry.
+
+    A prefix is low-trust when it is genuinely ambiguous (agreement below
+    ``MIN_AGREEMENT``) or too thinly observed to learn from (fewer than
+    ``MIN_OBSERVATIONS`` files). For those, the path stays authoritative — which
+    is the old, fragile behaviour, kept deliberately because a weak signal must
+    not override a working one.
+
+    The point of ranking by file count is to show whether that fallback still
+    covers anything material. A hundred prefixes holding four files each is a
+    rounding error; one prefix holding forty thousand is a hole in the identity
+    guarantee, and the two look identical in a count of prefixes.
+    """
+    rows = []
+    for r in catalog.query(
+        """
+        SELECT p.series_prefix, p.system, p.file_count, p.agreement,
+               (SELECT COUNT(*) FROM file_facts ff
+                  JOIN files f ON f.path = ff.path
+                 WHERE f.gone_at IS NULL AND ff.series_prefix = p.series_prefix) AS files_now
+          FROM prefix_systems p
+         ORDER BY p.file_count DESC
+        """
+    ):
+        entry = PrefixSystem(
+            series_prefix=str(r["series_prefix"]),
+            system=str(r["system"]),
+            file_count=int(r["file_count"]),
+            agreement=float(r["agreement"]),
+        )
+        if entry.trustworthy:
+            continue
+        rows.append(
+            {
+                "series_prefix": entry.series_prefix,
+                "majority_system": entry.system,
+                "files": int(r["files_now"] or 0),
+                "agreement": round(entry.agreement, 3),
+                "reason": (
+                    "ambiguous" if entry.agreement < MIN_AGREEMENT else "too few observations"
+                ),
+            }
+        )
+    return sorted(rows, key=lambda r: (-int(r["files"]), str(r["series_prefix"])))
+
+
+def adjudicate_prefix(catalog: Catalog, prefix: str, system: str) -> dict[str, object]:
+    """Settle a held contradiction by deciding what a prefix means.
+
+    :func:`persist_prefix_systems` deliberately refuses to relearn an established
+    mapping, because "the tree was reorganised" and "this prefix is shared" look
+    identical from one crawl. That refusal needs a way out, or the first crawl to
+    guess wrong owns the answer forever — and the first crawl is the *most* likely
+    to guess wrong, since a partial tree is exactly what produces a mapping learned
+    from a handful of files.
+
+    Accepting a new mapping re-derives every stratum and family under the affected
+    prefix on the next inventory, which is the cost of correcting identity and the
+    reason this is a deliberate command rather than an automatic reconciliation.
+    """
+    prefix = prefix.upper()
+    system = system.upper()
+    prior = catalog.query(
+        "SELECT system, file_count, agreement FROM prefix_systems WHERE series_prefix = ?",
+        (prefix,),
+    )
+    if not prior:
+        raise KeyError(f"no learned mapping for series prefix {prefix!r}")
+    was = str(prior[0]["system"])
+    catalog.execute(
+        "UPDATE prefix_systems SET system = ?, learned_at = ? WHERE series_prefix = ?",
+        (system, utcnow(), prefix),
+    )
+    catalog.resolve_question(
+        f"inventory.prefix_system_changed:{prefix}",
+        resolution=f"adjudicated: {prefix} means {system} (was {was})",
+        evidence=f"prior_file_count={prior[0]['file_count']}, prior_agreement={prior[0]['agreement']}",
+    )
+    affected = catalog.scalar(
+        "SELECT COUNT(*) FROM file_facts ff JOIN files f ON f.path = ff.path "
+        "WHERE ff.series_prefix = ? AND f.gone_at IS NULL",
+        (prefix,),
+    )
+    catalog.log_event(
+        "inventory",
+        f"adjudicated prefix {prefix}: {was} -> {system}",
+        detail=f"{affected} files will re-derive their stratum and family on the next inventory",
+    )
+    return {"series_prefix": prefix, "was": was, "now": system, "files_affected": affected}
