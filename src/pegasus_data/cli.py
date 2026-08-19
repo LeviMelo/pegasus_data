@@ -179,29 +179,81 @@ def curate(
 def dictionary(
     root: RootOpt = None,
     system: SystemsOpt = None,
-    out: Annotated[Path | None, typer.Option("--out", help="Where to write (default docs/dictionary/)")] = None,
+    out: Annotated[Path | None, typer.Option("--out", help="Where to write (default docs/dictionary.sqlite)")] = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Generate docs/dictionary/ from the catalog — one page per system and dataset.
+    """Write the whole data dictionary as one queryable SQLite file.
 
-    Never hand-written, so it cannot drift. A variable with no description here
-    means no source supplied one; the fix is to add it to curation/, not to the
-    Markdown.
+    Systems, variables, code tables, every code and label, schema generations and
+    dataset prose — with full-text search over all of it. Generated from the
+    catalog and never hand-written, so a variable with no description here means
+    no source supplied one; the fix is curation/, not the documentation.
+
+    Read it with `pegasus-data search` and `pegasus-data page`, or open it with
+    anything that speaks SQL.
     """
-    from .docsgen import generate
+    from .docsgen import write_database
 
     settings = _settings(root)
-    target = out or Path("docs") / "dictionary"
+    target = out or Path("docs") / "dictionary.sqlite"
     store = Catalog(settings.catalog_path, read_only=settings.catalog_path.exists())
     try:
-        result = generate(store, target, systems=system)
-        _emit(result if as_json else
-              {"out_dir": result["out_dir"], "pages": result["pages"],
-               "datasets": result["datasets"],
-               "systems": ", ".join(str(e["system"]) for e in result["systems"])},
-              as_json, "docs generated")
+        with console.status(f"writing {target}…"):
+            result = write_database(store, target, systems=system)
+        _emit(result, as_json, "dictionary")
     finally:
         store.close()
+
+
+@app.command(rich_help_panel="UNDERSTAND")
+def search(
+    query: Annotated[str, typer.Argument(help="Words to look for, e.g. 'raça' or 'Parda'")],
+    docs: Annotated[Path | None, typer.Option("--docs", help="Dictionary database")] = None,
+    kind: Annotated[
+        str | None, typer.Option("--kind", help="variable | codelist | dataset")
+    ] = None,
+    limit: Annotated[int, typer.Option("--limit", "-n")] = 25,
+    as_json: JsonOpt = False,
+) -> None:
+    """Search the dictionary: variable names, descriptions and every code label.
+
+    "Which column is about race" and "which code means Parda" are the same
+    question to ask here. Accents are folded, so both spellings find it.
+    """
+    from .docsgen import search_docs
+
+    path = docs or Path("docs") / "dictionary.sqlite"
+    if not path.exists():
+        console.print(f"[red]no dictionary at {path}[/red]")
+        console.print("Run 'pegasus-data dictionary' to build it.")
+        raise typer.Exit(code=1)
+    hits = search_docs(path, query, limit=limit, kind=kind)
+    if not hits:
+        console.print(f"[yellow]nothing matches {query!r}[/yellow]")
+        return
+    _emit(hits, as_json, f"search: {query}")
+
+
+@app.command(name="page", rich_help_panel="UNDERSTAND")
+def page(
+    system: Annotated[str, typer.Argument(help="Information system, e.g. SIHSUS")],
+    field: Annotated[str, typer.Argument(help="Column, e.g. DIAG_PRINC")],
+    docs: Annotated[Path | None, typer.Option("--docs", help="Dictionary database")] = None,
+) -> None:
+    """Print one variable's documentation page, out of the dictionary database."""
+    from rich.markdown import Markdown
+
+    from .docsgen import read_page
+
+    path = docs or Path("docs") / "dictionary.sqlite"
+    if not path.exists():
+        console.print(f"[red]no dictionary at {path}[/red]")
+        raise typer.Exit(code=1)
+    body = read_page(path, system, field)
+    if body is None:
+        console.print(f"[yellow]{system}.{field} is not in the dictionary[/yellow]")
+        raise typer.Exit(code=1)
+    console.print(Markdown(body))
 
 
 @app.command(rich_help_panel="PIPELINE")

@@ -34,6 +34,7 @@ is named. Returning a short table quietly is how a wrong number gets published.
 
 from __future__ import annotations
 
+import functools
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -48,6 +49,7 @@ from .decode.registry import ReaderRegistry
 from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
 from .pipeline import Pipeline
+from .progress import ItemTimeout, guarded, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
 from .view import RenderReport, render_table
 
@@ -450,7 +452,23 @@ def _read_families(
     batches: list[pa.RecordBatch] = []
     seen_years: set[int] = set()
     seen_ufs: set[str] = set()
-    for index, (_family_id, plan, item) in enumerate(selected, start=1):
+    # The same watchdog and heartbeat every pipeline stage runs under. This is a
+    # user-facing entry point that decodes arbitrary files off a slow server, so
+    # the project's own rule applies to it too: nothing may hang silently. A file
+    # that exceeds the deadline becomes a recorded timeout and a named entry in
+    # the report, and the fetch continues.
+    settings = pipeline.settings
+    index = 0
+    for (_family_id, plan, item), progress in guarded(
+        catalog,
+        "get",
+        selected,
+        label=lambda triple: str(triple[2]["path"]),
+        item_timeout=settings.item_timeout,
+        stall_timeout=settings.stall_timeout,
+        heartbeat=settings.heartbeat_interval,
+    ):
+        index += 1
         path = str(item["path"])
         digest = digests.get(path)
         if not digest:
@@ -458,19 +476,31 @@ def _read_families(
             continue
         if on_progress:
             on_progress(path, index, len(selected))
-        payload = pipeline.blobs.read(digest)
-        report.bytes_downloaded += len(payload)
-        outcome = registry.open_bytes(payload, path=path)
-        wanted_member = str(item["member"] or "")
-        matched_here = False
-        for decoded in outcome.tables:
-            if wanted_member and decoded.member != wanted_member:
-                continue
-            if not _fits(decoded.field_names, plan):
-                continue
-            matched_here = True
-            for batch in normalize_table(decoded, plan, blob_sha256=digest):
-                batches.append(batch)
+        member = str(item["member"] or "")
+        try:
+            decoded_batches, matched_here, read_bytes = run_with_timeout(
+                functools.partial(
+                    _decode_one,
+                    pipeline,
+                    registry,
+                    plan,
+                    path=path,
+                    digest=digest,
+                    member=member,
+                ),
+                seconds=settings.item_timeout,
+                label=path,
+            )
+        except ItemTimeout:
+            record_timeout(
+                catalog, stage="get", item=path, seconds=settings.item_timeout
+            )
+            progress.timed_out += 1
+            report.undecoded.append(path)
+            report.warnings.append(f"{path}: gave up after {settings.item_timeout:.0f}s")
+            continue
+        report.bytes_downloaded += read_bytes
+        batches.extend(decoded_batches)
         if matched_here:
             report.files_read += 1
             if item["year"] is not None:
@@ -490,6 +520,30 @@ def _read_families(
         [pa.Table.from_batches([b]) for b in batches], promote_options="permissive"
     )
     return combined, report
+
+
+def _decode_one(
+    pipeline: Pipeline,
+    registry: ReaderRegistry,
+    plan: NormalizePlan,
+    *,
+    path: str,
+    digest: str,
+    member: str,
+) -> tuple[list[pa.RecordBatch], bool, int]:
+    """Read one file and normalise it. Split out so it can be given a deadline."""
+    payload = pipeline.blobs.read(digest)
+    outcome = registry.open_bytes(payload, path=path)
+    batches: list[pa.RecordBatch] = []
+    matched = False
+    for decoded in outcome.tables:
+        if member and decoded.member != member:
+            continue
+        if not _fits(decoded.field_names, plan):
+            continue
+        matched = True
+        batches.extend(normalize_table(decoded, plan, blob_sha256=digest))
+    return batches, matched, len(payload)
 
 
 def _month_of(normalized_date: object) -> int | None:

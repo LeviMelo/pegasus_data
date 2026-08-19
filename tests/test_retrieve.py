@@ -327,3 +327,73 @@ class TestTheReportIsSerialisable:
 class TestArrowOutput:
     def test_the_result_is_an_arrow_table(self, settings, seeded):
         assert isinstance(fetch("SIH-RD", settings=settings), pa.Table)
+
+
+class TestItCannotHangSilently:
+    """The project's own rule, applied to its newest entry point.
+
+    Every pipeline stage runs under a watchdog and a heartbeat, and the exit
+    criterion when that was built was not "fix the profile hang" but "the
+    pipeline can never hang silently". `fetch()` decodes arbitrary files off a
+    slow server and shipped without either — the same gap, in the one place a
+    user is actually watching.
+    """
+
+    def test_a_file_that_never_finishes_is_abandoned_not_waited_on(
+        self, settings, seeded, monkeypatch
+    ):
+        import pegasus_data.retrieve as retrieve
+
+        settings.item_timeout = 0.25
+        settings.heartbeat_interval = 0.05
+
+        def hang(*_args, **_kwargs):
+            import time
+
+            time.sleep(30)
+
+        monkeypatch.setattr(retrieve, "_decode_one", hang)
+        with pytest.raises(NothingPublished):
+            fetch("SIH-RD", uf="SP", settings=settings)
+
+    def test_the_abandoned_file_is_named_in_the_report(self, settings, seeded, monkeypatch):
+        import pegasus_data.retrieve as retrieve
+
+        settings.item_timeout = 0.25
+        real = retrieve._decode_one
+
+        def slow_for_one(pipeline, registry, plan, *, path, digest, member):
+            if path.endswith("RDAL2301.dbc"):
+                import time
+
+                time.sleep(30)
+            return real(pipeline, registry, plan, path=path, digest=digest, member=member)
+
+        monkeypatch.setattr(retrieve, "_decode_one", slow_for_one)
+        table, report = fetch("SIH-RD", uf="AL", settings=settings, report=True)
+        assert "/p/RDAL2301.dbc" in report.undecoded
+        assert any("gave up after" in w for w in report.warnings)
+        assert table.num_rows == 2, "the other file still came back"
+
+    def test_an_abandoned_file_is_recorded_as_a_coverage_gap(
+        self, settings, seeded, monkeypatch
+    ):
+        """A timeout is 'we know we do not have this, and why' — which is what
+        coverage_gaps already means."""
+        import pegasus_data.retrieve as retrieve
+
+        settings.item_timeout = 0.25
+
+        def hang(*_args, **_kwargs):
+            import time
+
+            time.sleep(30)
+
+        monkeypatch.setattr(retrieve, "_decode_one", hang)
+        with pytest.raises(NothingPublished):
+            fetch("SIH-RD", uf="SP", settings=settings)
+        catalog = Catalog(settings.catalog_path)
+        try:
+            assert catalog.count("coverage_gaps", "kind = 'timeout'") == 1
+        finally:
+            catalog.close()

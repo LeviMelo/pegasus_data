@@ -587,46 +587,52 @@ schema generations the field appears in, and the open questions against it.
 
 ---
 
-## 14b. The generated dictionary
+## 14b. The dictionary, as a database
 
-`pegasus-data dictionary` writes `docs/dictionary/` — **3,036 pages** — from the
-catalog. Never hand-written, so it cannot drift; the corollary is that a gap in
-the docs is a gap in the catalog and must be fixed there. Writing prose into the
-Markdown would hide the gap, which is the opposite of the point.
+`pegasus-data dictionary` writes **one SQLite file**: systems, variables,
+code tables, every code and label, schema generations and dataset prose, with a
+full-text index over the names and descriptions. Generated from the catalog,
+never hand-written — so a variable with no description here means no source
+supplied one, and the fix is `curation/`, not the documentation.
 
-Per system, three artifacts, because they answer three different questions:
+It replaced a tree of **3,036 Markdown files**, and the replacement is worth
+recording because the mistake was mine and it was a container mistake, not a
+content one. Everything in those files was relational — systems have variables,
+variables have code tables, code tables have codes — and flattening it cost
+three things at once:
 
-- **`<system>.md`** — every column: what it is, how confident, from what source.
-  It opens with the columns that produce a wrong answer if used naively.
-- **`<system>/schemas.md`** — every generation of the record and exactly which
-  columns each added or dropped. *Does this year have `DIAG_SECUN`* becomes a
-  glance instead of a diff.
-- **`<system>/codelists/`** — **the values**, one page per code table, with the
-  vintage each label belongs to. 3,008 of these. A relabelled code shows both
-  readings, because a row filed in 2005 means what the 2005 table said.
+- **No question could be asked.** *Which columns anywhere draw on CID-10? Which
+  code means Parda? Which generation added `DIAG_SECUN`?* Every one of those is
+  a `SELECT` now and was a `grep` across 42 MB before.
+- **The values had to be truncated.** A page listing 5,570 municipalities is not
+  a document, so the renderer capped tables at 500 rows. The cap was a property
+  of the page; the database keeps all 7.47 million codes.
+- **The largest page did not render.** SINAN's 2,250 columns came to 1,043 KB,
+  past the size GitHub will display — the most exhaustive page in the set was
+  the one nobody could open. That produced pagination machinery, which produced
+  link-integrity problems, which produced a link checker. All of it existed to
+  serve the container.
 
-Plus `columns.md`, indexing all distinct column names against the systems that
-carry them — with the warning that a shared name is not a shared meaning.
+The Markdown renderers survive, because the prose is worth having: each
+variable's rendered page is stored **as a column**, and `pegasus-data page` prints
+it. What is gone is writing them to disk.
 
-Three constraints the generator enforces, each from a way the output failed:
+Two encoding decisions, because the first schema was 1.1 GB — larger than the
+files it replaced, which would have made the change a regression:
 
-- **No page exceeds 600 KB.** GitHub refuses to render a Markdown file much
-  above 1 MB, and SINAN's 2,250 columns came to 1,043 KB — the most exhaustive
-  page in the set was the one nobody could open. Oversized pages are split into
-  linked parts that repeat their header.
-- **No dead links.** A codelist can be *bound* and still have no rows in that
-  system, because the dictionary entry lives under a neighbour that shipped the
-  same kit. Linking anyway put 49 dead links on the site; the renderer now only
-  links pages that were written, and a test walks every link on a generated
-  site.
-- **Only bound codelists get pages**, and large ones are truncated with a
-  pointer to `load_reference()`. Nobody reads three thousand hospital names in
-  Markdown; at the original cap the establishment registries alone were 8.8 MB
-  per system.
+- `codes` references its codelist by integer. `system` and `codelist` inline as
+  text on 7.5 million rows was most of the file.
+- Labels are **not** indexed into FTS. That duplicated the entire codes table
+  inside the search store. Full text covers names and descriptions; an exact
+  label lookup — which is what people actually do, holding a label and wanting a
+  code — is served by an index on `label`.
 
-The whole build is **one pass over the dictionary**, not one per system. Asking
-per system was sixteen scans of 19.9M rows and ran at roughly a page a second;
-hoisted, it is 54 seconds for all 3,036.
+**A known duplication.** The bundle (§10) and this file overlap: both carry the
+codelists. They are kept separate because they are for different things — the
+bundle is a *transport* format, restorable into a catalog to make the pipeline
+work offline, and this is a *read model*, denormalised and indexed for querying.
+Merging them would mean one artifact serving two access patterns badly. Both are
+derived from the catalog, so neither can drift from it independently.
 
 ---
 

@@ -8,7 +8,7 @@ hit the trap on that page — not in a findings file they will never open.
 from __future__ import annotations
 
 from pegasus_data.catalog.store import Catalog
-from pegasus_data.docsgen import collect, generate, render_variable
+from pegasus_data.docsgen import collect, render_variable, write_database
 
 
 def _family(catalog, family_id="f", system="SIHSUS", time_min=1992, time_max=2026, sig="sig"):
@@ -183,74 +183,7 @@ class TestItDoesNotMislead:
         assert _page(catalog, "DIAG_PRINC").rollups == [("CID10CAP", 2)]
 
 
-class TestGeneration:
-    def test_it_writes_an_index_and_a_page_per_system(self, catalog: Catalog, tmp_path):
-        _family(catalog)
-        _profile(catalog, "DIAG_PRINC")
-        result = generate(catalog, tmp_path / "dict")
-        assert (tmp_path / "dict" / "README.md").exists()
-        assert (tmp_path / "dict" / "sihsus.md").exists()
-        assert result["systems"][0]["system"] == "SIHSUS"
-
-    def test_dataset_prose_becomes_its_own_page(self, catalog: Catalog, tmp_path):
-        catalog.execute(
-            "INSERT INTO dataset_docs (dataset_id, what_one_row_is, gotchas, source) "
-            "VALUES ('SIHSUS_RD','one billing episode (AIH)','[\"not one patient\"]','manual')"
-        )
-        generate(catalog, tmp_path / "dict")
-        text = (tmp_path / "dict" / "datasets" / "sihsus_rd.md").read_text(encoding="utf-8")
-        assert "one billing episode (AIH)" in text
-        assert "not one patient" in text
-
-    def test_an_empty_catalog_produces_an_index_and_no_lies(self, catalog: Catalog, tmp_path):
-        result = generate(catalog, tmp_path / "dict")
-        assert result["systems"] == []
-        assert (tmp_path / "dict" / "README.md").exists()
-
-
-class TestCensusColumns:
-    """A column nobody profiled is still a column (header census)."""
-
-    def _census_column(self, catalog: Catalog, name="PA_CODUNI", system="SIASUS"):
-        catalog.execute(
-            "INSERT INTO strata (stratum_id, system, series, year, file_count, "
-            "schema_signature, sample_status) VALUES ('S1',?,'PA',2024,1,'sig','header')",
-            (system,),
-        )
-        catalog.execute(
-            "INSERT INTO schema_header_facts (schema_signature, path, field_name, field_order, "
-            "type_code, width, decimals, record_length, widths_consistent) "
-            "VALUES ('sig','/a/x.dbc',?,0,'C',7,0,100,1)",
-            (name,),
-        )
-
-    def test_a_census_column_appears_in_the_dictionary(self, catalog: Catalog):
-        """Otherwise the dictionary reports on the sample, not the archive."""
-        self._census_column(catalog)
-        page = next(p for p in collect(catalog, "SIASUS") if p.field_name == "PA_CODUNI")
-        assert page.schema_only
-        assert page.declared_type == "C(7)"
-
-    def test_it_says_plainly_that_no_values_are_known(self, catalog: Catalog):
-        self._census_column(catalog)
-        text = render_variable(next(p for p in collect(catalog, "SIASUS")))
-        assert "SCHEMA ONLY" in text
-        assert "nothing here describes its *values*" in text
-
-    def test_a_profiled_column_is_not_downgraded_by_the_census(self, catalog: Catalog):
-        """Profiles know more; the census must not overwrite them."""
-        _family(catalog, system="SIASUS")
-        _profile(catalog, "PA_CODUNI")
-        self._census_column(catalog)
-        page = next(p for p in collect(catalog, "SIASUS") if p.field_name == "PA_CODUNI")
-        assert not page.schema_only
-
-    def test_the_index_counts_census_only_columns_apart(self, catalog: Catalog, tmp_path):
-        self._census_column(catalog)
-        _family(catalog, system="SIASUS")  # a system page needs a family to be listed
-        generate(catalog, tmp_path / "d")
-        text = (tmp_path / "d" / "siasus.md").read_text(encoding="utf-8")
-        assert "known from the header census only" in text
+# ---------------------------------------------------------------- helpers
 
 
 def _code(catalog, group, code, label, system="SIHSUS", valid_from="", source="cnv"):
@@ -269,93 +202,90 @@ def _bind(catalog, field, codelist, system="SIHSUS"):
     )
 
 
-class TestTheValuesAreDocumented:
-    """Naming a codelist documents that an answer exists; it is not the answer.
+def _db(catalog, tmp_path):
+    import sqlite3
 
-    A person reading these pages usually has a code in their hand — `SEXO=3`,
-    `RACACOR=4` — and the page has to say what it means, not where the table
-    that says so is kept.
+    path = tmp_path / "dictionary.sqlite"
+    write_database(catalog, path)
+    conn = sqlite3.connect(path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+class TestTheDictionaryIsADatabase:
+    """The documentation is relational, so it is stored relationally.
+
+    It was 3,036 Markdown files, which meant no question anyone would actually
+    ask ("which columns anywhere draw on CID-10?") could be answered, the large
+    code tables had to be truncated to keep pages readable, and 42 MB of files
+    had to be moved to carry it. All three problems belonged to the container,
+    not to the content.
     """
 
-    def test_a_bound_codelist_gets_a_page_with_its_codes(self, catalog: Catalog, tmp_path):
-        _code(catalog, "SEXO", "1", "Masculino")
-        _code(catalog, "SEXO", "3", "Feminino")
-        _bind(catalog, "SEXO", "SEXO")
-        generate(catalog, tmp_path / "d")
-        page = (tmp_path / "d" / "sihsus" / "codelists" / "SEXO.md").read_text(encoding="utf-8")
-        assert "Feminino" in page and "`3`" in page
+    def test_a_system_is_summarised_once(self, catalog: Catalog, tmp_path):
+        _family(catalog)
+        _profile(catalog, "DIAG_PRINC")
+        row = _db(catalog, tmp_path).execute("SELECT * FROM systems").fetchone()
+        assert row["system"] == "SIHSUS" and row["variables"] == 1
 
-    def test_the_page_says_which_columns_it_decodes(self, catalog: Catalog, tmp_path):
+    def test_every_variable_is_a_row(self, catalog: Catalog, tmp_path):
+        _family(catalog)
+        _profile(catalog, "DIAG_PRINC")
+        row = (
+            _db(catalog, tmp_path)
+            .execute("SELECT * FROM variables WHERE field_name = 'DIAG_PRINC'")
+            .fetchone()
+        )
+        assert row["system"] == "SIHSUS"
+
+    def test_the_rendered_prose_travels_with_it(self, catalog: Catalog, tmp_path):
+        """The page is worth keeping; it just was not worth being a file."""
+        _family(catalog)
+        _profile(catalog, "DIAG_PRINC")
+        row = _db(catalog, tmp_path).execute("SELECT page FROM variables").fetchone()
+        assert row["page"].startswith("### DIAG_PRINC")
+
+    def test_every_code_is_stored_with_no_truncation(self, catalog: Catalog, tmp_path):
+        """The 500-row cap was a property of the page, not of the knowledge."""
+        for n in range(1200):
+            _code(catalog, "MUNICBR", str(n), f"Municipio {n}")
+        _bind(catalog, "MUNIC_RES", "MUNICBR")
+        conn = _db(catalog, tmp_path)
+        assert conn.execute("SELECT COUNT(*) FROM codes").fetchone()[0] == 1200
+
+    def test_an_unbound_codelist_is_still_left_out(self, catalog: Catalog, tmp_path):
+        _code(catalog, "FXETARIA", "1", "0 a 4 anos")
+        _code(catalog, "FXETARIA", "2", "5 a 9 anos")
+        conn = _db(catalog, tmp_path)
+        assert conn.execute("SELECT COUNT(*) FROM codelists").fetchone()[0] == 0
+
+    def test_a_relabelled_code_keeps_both_readings_and_their_vintages(
+        self, catalog: Catalog, tmp_path
+    ):
+        _code(catalog, "CID10", "C967", "tec linf hematop e relac", valid_from="200801")
+        _code(catalog, "CID10", "C967", "tec linf hematop e corr", valid_from="199201")
+        _bind(catalog, "DIAG_PRINC", "CID10")
+        conn = _db(catalog, tmp_path)
+        rows = conn.execute(
+            "SELECT label, valid_from FROM code_values WHERE code = 'C967' "
+            "ORDER BY valid_from"
+        ).fetchall()
+        assert [r["valid_from"] for r in rows] == ["199201", "200801"]
+        assert conn.execute("SELECT relabelled FROM codelists").fetchone()[0] == 1
+
+    def test_which_columns_a_codelist_decodes_is_recorded(self, catalog: Catalog, tmp_path):
+        import json
+
         _code(catalog, "SEXO", "1", "Masculino")
         _code(catalog, "SEXO", "3", "Feminino")
         _bind(catalog, "SEXO", "SEXO")
         _bind(catalog, "SEXO_PAC", "SEXO")
-        generate(catalog, tmp_path / "d")
-        page = (tmp_path / "d" / "sihsus" / "codelists" / "SEXO.md").read_text(encoding="utf-8")
-        assert "`SEXO`" in page and "`SEXO_PAC`" in page
+        row = _db(catalog, tmp_path).execute("SELECT used_by_json FROM codelists").fetchone()
+        assert json.loads(row["used_by_json"]) == ["SEXO", "SEXO_PAC"]
 
-    def test_an_unbound_codelist_gets_no_page(self, catalog: Catalog, tmp_path):
-        """Four in five codelists are tabulation axes nothing decodes against."""
-        _code(catalog, "FXETARIA", "1", "0 a 4 anos")
-        _code(catalog, "FXETARIA", "2", "5 a 9 anos")
-        generate(catalog, tmp_path / "d")
-        assert not (tmp_path / "d" / "sihsus" / "codelists" / "FXETARIA.md").exists()
+    def test_schema_generations_record_what_changed(self, catalog: Catalog, tmp_path):
+        import json
 
-    def test_a_relabelled_code_shows_both_readings_and_their_vintages(
-        self, catalog: Catalog, tmp_path
-    ):
-        _code(catalog, "CID10", "C967", "…tec linf hematop e relac", valid_from="200801")
-        _code(catalog, "CID10", "C967", "…tec linf hematop e corr", valid_from="199201")
-        _code(catalog, "CID10", "A419", "Septicemia", valid_from="199201")
-        _bind(catalog, "DIAG_PRINC", "CID10")
-        generate(catalog, tmp_path / "d")
-        page = (tmp_path / "d" / "sihsus" / "codelists" / "CID10.md").read_text(encoding="utf-8")
-        assert "relabelled" in page
-        assert "e relac" in page and "e corr" in page, "both readings, not the newest only"
-        assert "199201" in page and "200801" in page
-
-    def test_an_enormous_codelist_is_truncated_and_says_so(self, catalog: Catalog, tmp_path):
-        from pegasus_data.docsgen import MAX_CODES_ON_A_PAGE, render_codelist
-
-        entries = [(str(n), f"Município {n}", "", "cnv") for n in range(MAX_CODES_ON_A_PAGE + 40)]
-        page = render_codelist("SIHSUS", "MUNICBR", entries)
-        assert "40 further entries are not listed" in page
-        assert "load_reference" in page, "and says how to get the rest"
-
-    def test_a_label_containing_a_pipe_does_not_break_the_table(self):
-        from pegasus_data.docsgen import render_codelist
-
-        page = render_codelist("SIHSUS", "X", [("1", "a | b", "", "cnv")])
-        assert r"a \| b" in page
-
-    def test_the_variable_entry_links_to_the_values(self, catalog: Catalog, tmp_path):
-        _family(catalog)
-        _profile(catalog, "SEXO")
-        _code(catalog, "SEXO", "1", "Masculino")
-        _bind(catalog, "SEXO", "SEXO")
-        catalog.execute(
-            "INSERT INTO value_frequencies (family_id, field_name, schema_signature, value, "
-            "count) VALUES ('f','SEXO','sig','1',10)"
-        )
-        generate(catalog, tmp_path / "d")
-        page = (tmp_path / "d" / "sihsus.md").read_text(encoding="utf-8")
-        assert "sihsus/codelists/SEXO.md" in page
-
-
-class TestTheSchemaGenerationsArePublished:
-    def test_each_family_appears_with_its_span_and_column_count(
-        self, catalog: Catalog, tmp_path
-    ):
-        _family(catalog, family_id="f1", sig="s1", time_min=199201, time_max=200712)
-        _profile(catalog, "UF_ZI", family_id="f1", sig="s1")
-        generate(catalog, tmp_path / "d")
-        page = (tmp_path / "d" / "sihsus" / "schemas.md").read_text(encoding="utf-8")
-        assert "f1" in page and "199201" in page
-
-    def test_what_a_generation_added_is_stated_not_left_to_be_diffed(
-        self, catalog: Catalog, tmp_path
-    ):
-        """The DIAG_SECUN question, answerable at a glance instead of by hand."""
         _family(catalog, family_id="f1", sig="s1", time_min=199201, time_max=200712)
         _family(catalog, family_id="f2", sig="s2", time_min=200801, time_max=202612)
         for order, name in enumerate(["UF_ZI", "N_AIH"]):
@@ -370,152 +300,200 @@ class TestTheSchemaGenerationsArePublished:
                 "VALUES ('s2',?,?)",
                 (name, order),
             )
-        generate(catalog, tmp_path / "d")
-        page = (tmp_path / "d" / "sihsus" / "schemas.md").read_text(encoding="utf-8")
-        assert "**Added**" in page and "`DIAG_SECUN`" in page
-
-
-class TestTheColumnIndex:
-    def test_every_column_is_listed_with_the_systems_that_carry_it(
-        self, catalog: Catalog, tmp_path
-    ):
-        for system, sig in (("SIHSUS", "s1"), ("SINASC", "s2")):
-            catalog.execute(
-                "INSERT INTO strata (stratum_id, system, series, file_count, schema_signature) "
-                "VALUES (?,?,'X',1,?)",
-                (f"st_{system}", system, sig),
-            )
-            catalog.execute(
-                "INSERT INTO schema_presence (schema_signature, field_name, field_order) "
-                "VALUES (?,'SEXO',0)",
-                (sig,),
-            )
-        generate(catalog, tmp_path / "d")
-        page = (tmp_path / "d" / "columns.md").read_text(encoding="utf-8")
-        assert "`SEXO`" in page
-        assert "sihsus.md" in page and "sinasc.md" in page
-
-    def test_it_warns_that_a_shared_name_is_not_a_shared_meaning(
-        self, catalog: Catalog, tmp_path
-    ):
-        generate(catalog, tmp_path / "d")
-        page = (tmp_path / "d" / "columns.md").read_text(encoding="utf-8")
-        assert "not** a shared meaning" in page
-
-    def test_the_readme_points_at_it(self, catalog: Catalog, tmp_path):
-        generate(catalog, tmp_path / "d")
-        readme = (tmp_path / "d" / "README.md").read_text(encoding="utf-8")
-        assert "columns.md" in readme
-
-
-class TestPagesStayReadable:
-    """A page GitHub refuses to render is a page nobody reads.
-
-    SINAN has 2,250 columns and came to 1,043 KB — over the limit at which
-    GitHub shows "we can't show files that are this big" instead of the content.
-    The most exhaustive page in the set was the one that did not work.
-    """
-
-    def test_a_page_within_the_limit_stays_one_file(self):
-        from pegasus_data.docsgen import paginate
-
-        assert len(paginate(["# X"], ["a", "b", "c"])) == 1
-
-    def test_an_oversized_page_is_split(self):
-        from pegasus_data.docsgen import MAX_PAGE_BYTES, paginate
-
-        entry = "x" * 100_000
-        bodies = paginate(["# X"], [entry] * 10)
-        assert len(bodies) > 1
-        assert all(len(b.encode("utf-8")) <= MAX_PAGE_BYTES for b in bodies)
-
-    def test_every_part_repeats_the_header(self):
-        """Someone arriving at part 3 from a search needs to know what it is."""
-        from pegasus_data.docsgen import paginate
-
-        bodies = paginate(["# SINAN", "", "2,250 columns"], ["y" * 200_000] * 6)
-        assert len(bodies) > 1
-        assert all(b.startswith("# SINAN") for b in bodies)
-
-    def test_an_entry_larger_than_the_budget_still_gets_written(self):
-        """Truncating a variable to fit a page would lose the documentation."""
-        from pegasus_data.docsgen import MAX_PAGE_BYTES, paginate
-
-        giant = "z" * (MAX_PAGE_BYTES * 2)
-        bodies = paginate(["# X"], [giant])
-        assert len(bodies) == 1 and giant in bodies[0]
-
-    def test_generated_pages_link_to_their_other_parts(self, catalog: Catalog, tmp_path):
-        _family(catalog)
-        for n in range(400):
-            _profile(catalog, f"FIELD_{n:04d}")
-            catalog.execute(
-                "INSERT INTO variable_docs (system, field_name, description, source) "
-                "VALUES ('SIHSUS', ?, ?, 'manual')",
-                (f"FIELD_{n:04d}", "long description " * 200),
-            )
-        generate(catalog, tmp_path / "d")
-        first = (tmp_path / "d" / "sihsus.md").read_text(encoding="utf-8")
-        assert (tmp_path / "d" / "sihsus-2.md").exists()
-        assert "sihsus-2.md" in first
-
-
-class TestTheGeneratedSiteHangsTogether:
-    """A wiki with dead links is a wiki people stop trusting.
-
-    Both of these were real: systems whose dictionary was parsed but whose files
-    were never decoded got an index entry pointing at a page that was never
-    written, and a variable's link to its codelist page pointed into a directory
-    that only exists when that codelist is bound.
-    """
-
-    def _links(self, text: str) -> list[str]:
-        import re
-
-        return [
-            target
-            for target in re.findall(r"\]\(([^)]+)\)", text)
-            if not target.startswith(("http://", "https://", "#"))
-        ]
-
-    def test_no_link_on_the_index_points_at_a_missing_page(
-        self, catalog: Catalog, tmp_path
-    ):
-        _family(catalog)
-        _profile(catalog, "SEXO")
-        _code(catalog, "SEXO", "1", "Masculino")
-        _bind(catalog, "SEXO", "SEXO")
-        # A system with codelists and nothing else — the case that broke it.
-        _code(catalog, "PROC", "01", "Consulta", system="CMD")
-        _bind(catalog, "PROC_REA", "PROC", system="CMD")
-        root = tmp_path / "d"
-        generate(catalog, root)
-
-        readme = (root / "README.md").read_text(encoding="utf-8")
-        missing = [t for t in self._links(readme) if not (root / t).exists()]
-        assert missing == []
-
-    def test_a_system_with_no_variable_page_is_not_linked_as_though_it_had_one(
-        self, catalog: Catalog, tmp_path
-    ):
-        _code(catalog, "PROC", "01", "Consulta", system="CMD")
-        _bind(catalog, "PROC_REA", "PROC", system="CMD")
-        generate(catalog, tmp_path / "d")
-        readme = (tmp_path / "d" / "README.md").read_text(encoding="utf-8")
-        assert "(cmd.md)" not in readme
-        assert "no columns catalogued yet" in readme
-
-    def test_every_link_out_of_a_system_page_resolves(self, catalog: Catalog, tmp_path):
-        _family(catalog)
-        _profile(catalog, "SEXO")
-        _code(catalog, "SEXO", "1", "Masculino")
-        _bind(catalog, "SEXO", "SEXO")
-        catalog.execute(
-            "INSERT INTO value_frequencies (family_id, field_name, schema_signature, value, "
-            "count) VALUES ('f','SEXO','sig','1',10)"
+        row = (
+            _db(catalog, tmp_path)
+            .execute("SELECT added_json FROM families WHERE family_id = 'f2'")
+            .fetchone()
         )
-        root = tmp_path / "d"
-        generate(catalog, root)
-        page = (root / "sihsus.md").read_text(encoding="utf-8")
-        missing = [t for t in self._links(page) if not (root / t).exists()]
-        assert missing == []
+        assert json.loads(row["added_json"]) == ["DIAG_SECUN"]
+
+    def test_an_empty_catalog_produces_an_empty_dictionary_and_no_lies(
+        self, catalog: Catalog, tmp_path
+    ):
+        conn = _db(catalog, tmp_path)
+        assert conn.execute("SELECT COUNT(*) FROM systems").fetchone()[0] == 0
+        assert conn.execute("SELECT value FROM meta WHERE key='generated_at'").fetchone()
+
+    def test_dataset_prose_is_carried(self, catalog: Catalog, tmp_path):
+        catalog.execute(
+            "INSERT INTO dataset_docs (dataset_id, what_one_row_is, source) "
+            "VALUES ('SIHSUS_RD','one billing episode (AIH)','manual')"
+        )
+        row = _db(catalog, tmp_path).execute("SELECT * FROM datasets").fetchone()
+        assert row["what_one_row_is"] == "one billing episode (AIH)"
+
+
+class TestItCanBeAsked:
+    """The questions a tree of files could not answer at all."""
+
+    def _seeded(self, catalog: Catalog, tmp_path):
+        _family(catalog)
+        _profile(catalog, "RACACOR")
+        catalog.execute(
+            "INSERT INTO variable_docs (system, field_name, description, source) "
+            "VALUES ('SIHSUS','RACACOR','Raça ou cor da pessoa','manual')"
+        )
+        _code(catalog, "RACACOR", "3", "Parda")
+        _code(catalog, "RACACOR", "1", "Branca")
+        _bind(catalog, "RACACOR", "RACACOR")
+        return _db(catalog, tmp_path)
+
+    def test_which_columns_draw_on_a_classification(self, catalog: Catalog, tmp_path):
+        conn = self._seeded(catalog, tmp_path)
+        rows = conn.execute(
+            "SELECT field_name FROM variables WHERE codelist = 'RACACOR'"
+        ).fetchall()
+        assert [r["field_name"] for r in rows] == ["RACACOR"]
+
+    def test_which_code_means_a_given_word(self, catalog: Catalog, tmp_path):
+        conn = self._seeded(catalog, tmp_path)
+        row = conn.execute(
+            "SELECT code, codelist FROM code_values WHERE label = 'Parda'"
+        ).fetchone()
+        assert row["code"] == "3"
+
+    def test_full_text_search_finds_a_description(self, catalog: Catalog, tmp_path):
+        from pegasus_data.docsgen import search_docs
+
+        self._seeded(catalog, tmp_path).close()
+        hits = search_docs(tmp_path / "dictionary.sqlite", "cor", kind="variable")
+        assert any(h["name"] == "RACACOR" for h in hits)
+
+    def test_search_folds_accents_because_nobody_types_them(
+        self, catalog: Catalog, tmp_path
+    ):
+        from pegasus_data.docsgen import search_docs
+
+        self._seeded(catalog, tmp_path).close()
+        assert search_docs(tmp_path / "dictionary.sqlite", "raca")
+
+    def test_a_page_can_still_be_printed_for_a_person(self, catalog: Catalog, tmp_path):
+        from pegasus_data.docsgen import read_page
+
+        self._seeded(catalog, tmp_path).close()
+        body = read_page(tmp_path / "dictionary.sqlite", "SIHSUS", "RACACOR")
+        assert body and "RACACOR" in body
+
+    def test_asking_for_a_variable_that_is_not_there_says_so(
+        self, catalog: Catalog, tmp_path
+    ):
+        from pegasus_data.docsgen import read_page
+
+        self._seeded(catalog, tmp_path).close()
+        assert read_page(tmp_path / "dictionary.sqlite", "SIHSUS", "NOPE") is None
+
+
+    def test_a_label_is_findable_even_though_labels_are_not_in_the_index(
+        self, catalog: Catalog, tmp_path
+    ):
+        """Leaving 7.5M labels out of FTS is an encoding decision. A search that
+        answers "nothing matches" because of one is lying about the contents."""
+        from pegasus_data.docsgen import search_docs
+
+        self._seeded(catalog, tmp_path).close()
+        hits = search_docs(tmp_path / "dictionary.sqlite", "Parda")
+        assert any(h["kind"] == "code" and h["context"] == "Parda" for h in hits)
+
+    def test_the_hit_names_the_code_and_the_system_that_uses_it(
+        self, catalog: Catalog, tmp_path
+    ):
+        from pegasus_data.docsgen import search_docs
+
+        self._seeded(catalog, tmp_path).close()
+        hit = next(
+            h
+            for h in search_docs(tmp_path / "dictionary.sqlite", "Parda")
+            if h["kind"] == "code"
+        )
+        assert hit["name"] == "RACACOR = 3" and hit["system"] == "SIHSUS"
+
+
+class TestTheShapeIsNotWasteful:
+    """A container change that made the artifact bigger would be a regression.
+
+    The first schema repeated `system` and `codelist` as text on every one of
+    7.5 million code rows and indexed every label into FTS as well: 1.1 GB, for
+    content the 3,036 Markdown files held in 42 MB. The knowledge did not grow —
+    the encoding did.
+    """
+
+    def test_codes_reference_their_codelist_by_id(self, catalog: Catalog, tmp_path):
+        _code(catalog, "SEXO", "1", "Masculino")
+        _code(catalog, "SEXO", "3", "Feminino")
+        _bind(catalog, "SEXO", "SEXO")
+        conn = _db(catalog, tmp_path)
+        columns = {r[1] for r in conn.execute("PRAGMA table_info(codes)")}
+        assert {"codelist_id", "label_id"} <= columns
+        assert "system" not in columns and "codelist" not in columns
+
+    def test_a_view_hides_the_join_from_whoever_is_querying(
+        self, catalog: Catalog, tmp_path
+    ):
+        _code(catalog, "SEXO", "3", "Feminino")
+        _code(catalog, "SEXO", "1", "Masculino")
+        _bind(catalog, "SEXO", "SEXO")
+        row = (
+            _db(catalog, tmp_path)
+            .execute("SELECT system, codelist, code FROM code_values WHERE label='Feminino'")
+            .fetchone()
+        )
+        assert (row["system"], row["codelist"], row["code"]) == ("SIHSUS", "SEXO", "3")
+
+    def test_labels_are_not_duplicated_into_the_search_index(
+        self, catalog: Catalog, tmp_path
+    ):
+        """400 MB of the original 1.1 GB was every label stored a second time."""
+        _code(catalog, "SEXO", "3", "Feminino")
+        _code(catalog, "SEXO", "1", "Masculino")
+        _bind(catalog, "SEXO", "SEXO")
+        conn = _db(catalog, tmp_path)
+        body = conn.execute(
+            "SELECT body FROM search WHERE kind = 'codelist'"
+        ).fetchone()[0]
+        assert "Feminino" not in body
+
+    def test_an_exact_label_is_still_findable_without_that_index(
+        self, catalog: Catalog, tmp_path
+    ):
+        """Which is what people actually do: they have a label, they want a code."""
+        _code(catalog, "RACACOR", "3", "Parda")
+        _bind(catalog, "RACACOR", "RACACOR")
+        row = (
+            _db(catalog, tmp_path)
+            .execute("SELECT code FROM code_values WHERE label = 'Parda'")
+            .fetchone()
+        )
+        assert row["code"] == "3"
+
+    def test_a_label_used_by_many_codelists_is_stored_once(
+        self, catalog: Catalog, tmp_path
+    ):
+        """1.47 million distinct labels across 7.47 million codes: "Rio Branco"
+        is written once per system, per vintage, per table naming a place."""
+        for group in ("MUNICBR", "MUNICMOV", "MUNICRES"):
+            _code(catalog, group, "120040", "Rio Branco")
+            _code(catalog, group, "120001", "Acrelandia")
+            _bind(catalog, f"F_{group}", group)
+        conn = _db(catalog, tmp_path)
+        assert conn.execute("SELECT COUNT(*) FROM codes").fetchone()[0] == 6
+        assert conn.execute("SELECT COUNT(*) FROM labels").fetchone()[0] == 2
+
+    def test_two_systems_that_disagree_keep_both_readings(
+        self, catalog: Catalog, tmp_path
+    ):
+        """235,659 (codelist, code, vintage) triples carry different labels
+        depending on the system. Deduplicating across systems would save real
+        space and reintroduce the exact bug the system scoping exists to stop."""
+        _code(catalog, "SEXO", "1", "Masculino", system="SIHSUS")
+        _code(catalog, "SEXO", "1", "Homem", system="SINASC")
+        _bind(catalog, "SEXO", "SEXO", system="SIHSUS")
+        _bind(catalog, "SEXO", "SEXO", system="SINASC")
+        rows = (
+            _db(catalog, tmp_path)
+            .execute("SELECT system, label FROM code_values WHERE code = '1' ORDER BY system")
+            .fetchall()
+        )
+        assert [(r["system"], r["label"]) for r in rows] == [
+            ("SIHSUS", "Masculino"),
+            ("SINASC", "Homem"),
+        ]

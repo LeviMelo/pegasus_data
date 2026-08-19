@@ -1,15 +1,23 @@
-"""Generate ``docs/dictionary/`` from the catalog (§7).
+"""Build ``docs/dictionary.sqlite`` from the catalog (§7).
 
-Everything this module knows has been machine-readable only: ``describe()``, one
-field at a time, from Python. That is the wrong shape for the audience. The
-working group — and eventually the Ministry — needs pages a person reads, and a
-person reading about ``COD_IDADE`` should hit the trap **there**, not in a
+Everything this module knows was machine-readable only: ``describe()``, one field
+at a time, from Python. That is the wrong shape for the audience. The working
+group — and eventually the Ministry — needs to be able to look things up, and
+someone reading about ``COD_IDADE`` should hit the trap **there**, not in a
 findings file they will never open.
 
+This was a tree of 3,036 Markdown files first, and that was the wrong container.
+The content is relational — systems have variables, variables have code tables,
+code tables have codes — so flattening it meant no question anyone would actually
+ask could be answered (*which columns anywhere draw on CID-10? which code means
+Parda?*), the large code tables had to be truncated to keep pages readable, and
+the largest page was too big for GitHub to render. The rendered prose survives,
+stored **as a column**, because the prose was never the problem.
+
 Generated, never hand-written, so it cannot drift from what the catalog actually
-holds. The corollary is that a gap in the docs is a gap in the catalog and should
-be fixed there: if a variable has no description here, no source supplied one,
-and writing one into the Markdown would hide that.
+holds. The corollary is that a gap here is a gap in the catalog and should be
+fixed there: if a variable has no description, no source supplied one, and
+writing one into the documentation would hide that.
 
 Three things get a warning banner, because each has already produced a wrong
 number for somebody:
@@ -27,11 +35,12 @@ from __future__ import annotations
 
 import json
 import re
+import sqlite3
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .catalog.store import Catalog
+from .catalog.store import Catalog, utcnow
 from .semantics.curation import VariableDoc, load_variable_docs
 
 _SAFE = re.compile(r"[^A-Za-z0-9._-]+")
@@ -505,83 +514,7 @@ def system_parts(
     ]
 
 
-#: A Markdown file larger than this is not rendered by GitHub — it shows
-#: "we can't show files that are this big" instead of the page. SINAN's 2,250
-#: columns came to 1,043 KB, so the most exhaustive page in the set was the one
-#: nobody could read. Pages above the limit are split into parts that are.
-MAX_PAGE_BYTES = 600_000
-
-
-def paginate(header: Sequence[str], entries: Sequence[str]) -> list[str]:
-    """Split rendered entries into as few readable pages as possible.
-
-    Returns the page bodies; the caller names the files. The header is repeated
-    on every part, because a reader who lands on part 3 from a search result
-    needs to know what they are looking at.
-    """
-    head = "\n".join(header)
-    budget = max(MAX_PAGE_BYTES - len(head.encode("utf-8")), 50_000)
-    parts: list[list[str]] = [[]]
-    used = 0
-    for entry in entries:
-        size = len(entry.encode("utf-8"))
-        if used and used + size > budget:
-            parts.append([])
-            used = 0
-        parts[-1].append(entry)
-        used += size
-    return ["\n".join([head, *part]) for part in parts]
-
-
-def _part_name(slug: str, index: int) -> str:
-    return f"{slug}.md" if index == 0 else f"{slug}-{index + 1}.md"
-
-
-def _part_links(slug: str, count: int, current: int) -> list[str]:
-    if count < 2:
-        return []
-    links = []
-    for i in range(count):
-        name = f"part {i + 1}"
-        links.append(name if i == current else f"[{name}]({_part_name(slug, i)})")
-    return ["", "**" + " · ".join(links) + "**", ""]
-
-
-def render_dataset(row: dict[str, object]) -> str:
-    out = [f"# {row['dataset_id']}", ""]
-    if row.get("what_one_row_is"):
-        out.extend([f"**One row is:** {row['what_one_row_is']}", ""])
-    if row.get("unit_of_analysis"):
-        out.extend([f"**Unit of analysis:** {row['unit_of_analysis']}", ""])
-    if row.get("known_biases"):
-        out.extend(["## Known biases", "", str(row["known_biases"]), ""])
-    gotchas = row.get("gotchas")
-    if gotchas:
-        try:
-            items = json.loads(str(gotchas))
-        except (TypeError, ValueError):
-            items = []
-        if items:
-            out.extend(["## Gotchas", ""])
-            out.extend(f"- {item}" for item in items)
-            out.append("")
-    if row.get("asserted_by"):
-        out.append(f"<sub>asserted by {row['asserted_by']} · {row.get('asserted_at') or ''}</sub>")
-    return "\n".join(out)
-
-
-# --------------------------------------------------------------- the values
-
-#: Beyond this a codelist page stops being a document and becomes a data dump.
-#:
-#: Set from what the pages actually turned into: at 3,000 the establishment
-#: registries (``CADGERMG`` and its 26 siblings, one per state, bound by four
-#: different systems) came to 240 KB each and 8.8 MB per system, and nobody
-#: reads three thousand hospital names in Markdown — they call
-#: ``load_reference()``. A small codelist still prints in full, which is the
-#: case that matters: someone holding ``SEXO=3`` needs all two rows.
-MAX_CODES_ON_A_PAGE = 500
-
+# ------------------------------------------------------------ the values
 
 def codelist_pages(
     catalog: Catalog, system: str | None = None
@@ -590,7 +523,7 @@ def codelist_pages(
 
     **One scan for the whole tree**, not one per system. Asking per system meant
     sixteen passes over a 19.9-million-row table and the documentation build
-    crept at about a page a second — the same N+1 shape, one level up, that has
+    crept at about a page a second â€” the same N+1 shape, one level up, that has
     now cost this project five separate stalls. Passing ``system`` narrows it,
     which is what a ``--system`` docs run wants; passing nothing does every
     system in a single ordered pass.
@@ -628,77 +561,6 @@ def codelist_pages(
     return out
 
 
-def render_codelist(
-    system: str,
-    codelist: str,
-    entries: Sequence[tuple[str, str, str, str]],
-    *,
-    used_by: Sequence[str] = (),
-) -> str:
-    """One codelist, every code and what it means."""
-    out = [f"# {codelist}", "", f"*{system} — code table.*", ""]
-    if used_by:
-        listed = ", ".join(f"`{f}`" for f in sorted(used_by)[:20])
-        more = f" and {len(used_by) - 20} more" if len(used_by) > 20 else ""
-        out.extend([f"Decodes: {listed}{more}.", ""])
-
-    relabelled = _relabelled(entries)
-    sources = ", ".join(sorted({e[3] for e in entries if e[3]})) or "unrecorded"
-    out.extend(
-        [
-            "```",
-            f"  codes        {len({e[0] for e in entries}):,}",
-            f"  entries      {len(entries):,}"
-            + ("   (a relabelled code appears once per wording)" if relabelled else ""),
-            f"  sources      {sources}",
-            f"  join         lake/reference/{codelist}/system={system}/",
-            "```",
-            "",
-        ]
-    )
-    if relabelled:
-        names = ", ".join(f"`{c}`" for c in sorted(relabelled)[:12])
-        out.extend(
-            [
-                f"> **{len(relabelled)} code(s) were relabelled at some point.** Both "
-                "readings are kept, each with the vintage it belongs to, because a row "
-                "filed in 2005 means what the 2005 table said it meant. Relabelled: "
-                + names
-                + ("…" if len(relabelled) > 12 else ""),
-                "",
-            ]
-        )
-
-    shown = entries[:MAX_CODES_ON_A_PAGE]
-    if len(entries) > len(shown):
-        out.extend(
-            [
-                f"This table has {len(entries):,} entries — too many to read as a "
-                f"document. The first {len(shown):,} are below so the coding scheme "
-                "is visible; the complete table is one call away:",
-                "",
-                "```python",
-                f"load_reference({codelist!r}, system={system!r})",
-                "```",
-                "",
-            ]
-        )
-    out.extend(["| code | meaning | from |", "| --- | --- | --- |"])
-    out.extend(
-        f"| `{code}` | {_cell(label)} | {valid_from or '—'} |"
-        for code, label, valid_from, _source in shown
-    )
-    if len(entries) > len(shown):
-        out.extend(
-            [
-                "",
-                f"*{len(entries) - len(shown):,} further entries are not listed here.*",
-            ]
-        )
-    out.append("")
-    return "\n".join(out)
-
-
 def _relabelled(entries: Sequence[tuple[str, str, str, str]]) -> set[str]:
     """Codes carrying more than one distinct label across vintages."""
     labels: dict[str, set[str]] = {}
@@ -707,34 +569,366 @@ def _relabelled(entries: Sequence[tuple[str, str, str, str]]) -> set[str]:
     return {code for code, values in labels.items() if len(values) > 1}
 
 
-def _cell(text: str) -> str:
-    """A Markdown table cell cannot hold a raw pipe or a newline."""
-    return str(text).replace("|", "\\|").replace("\n", " ").strip()
+# ------------------------------------------------------- the documentation DB
+
+#: Everything above renders Markdown, which was the wrong container for it. The
+#: content is relational — systems have variables, variables have codelists,
+#: codelists have codes — and flattening it to 3,036 files gave up every query
+#: anyone would want to ask ("which columns anywhere draw on CID-10?"), forced
+#: the large code tables to be truncated to keep pages readable, and produced 42
+#: MB of files to move around. One database is smaller, complete, and can be
+#: asked questions. The Markdown renderers are kept because the prose is worth
+#: having and is stored *as a column*, so a page can still be printed on demand.
+DOCS_SCHEMA = """
+CREATE TABLE systems (
+  system        TEXT PRIMARY KEY,
+  variables     INTEGER NOT NULL,
+  described     INTEGER NOT NULL,
+  decodable     INTEGER NOT NULL,
+  schema_only   INTEGER NOT NULL,
+  codelists     INTEGER NOT NULL,
+  families      INTEGER NOT NULL
+);
+CREATE TABLE variables (
+  system        TEXT NOT NULL,
+  field_name    TEXT NOT NULL,
+  official_name TEXT,
+  description   TEXT,
+  description_source TEXT,
+  declared_type TEXT,
+  semantic_type TEXT,
+  semantic_confidence REAL,
+  aggregation   TEXT,
+  coverage      REAL,
+  distinct_observed INTEGER,
+  codelist      TEXT,
+  codelists_json TEXT,
+  generations   INTEGER,
+  year_min      INTEGER,
+  year_max      INTEGER,
+  sentinels_json TEXT,
+  retired       INTEGER NOT NULL DEFAULT 0,
+  schema_only   INTEGER NOT NULL DEFAULT 0,
+  modifies      TEXT,
+  depends_on_json TEXT,
+  vintage_note  TEXT,
+  notes         TEXT,
+  page          TEXT,           -- the rendered Markdown entry
+  PRIMARY KEY (system, field_name)
+);
+CREATE INDEX ix_variables_field ON variables (field_name);
+CREATE INDEX ix_variables_codelist ON variables (codelist);
+CREATE TABLE codelists (
+  id            INTEGER PRIMARY KEY,
+  system        TEXT NOT NULL,
+  codelist      TEXT NOT NULL,
+  codes         INTEGER NOT NULL,
+  entries       INTEGER NOT NULL,
+  relabelled    INTEGER NOT NULL,
+  sources       TEXT,
+  used_by_json  TEXT,
+  UNIQUE (system, codelist)
+);
+-- Keyed by integer, not by (system, codelist) text. The same two strings
+-- repeated across 7.5 million rows is most of the file: with them inline the
+-- database came to 1.1 GB, which is larger than the 3,036 Markdown files it
+-- replaced and would have made the container change a regression.
+-- Labels are interned. There are 7.47 million codes and 1.47 million distinct
+-- labels among them — "Rio Branco" is written once per system, per vintage, per
+-- table that names a municipality — so the text is stored once and pointed at.
+--
+-- What is deliberately *not* deduplicated is across systems. 61% of the rows are
+-- distinct on (codelist, code, label) alone, so merging would save real space —
+-- and 235,659 (codelist, code, vintage) triples carry more than one label
+-- depending on the system publishing them. That is the SEXO class, and it is
+-- exactly what the system scoping exists to preserve. Compressing the encoding
+-- is free; compressing the meaning is how the original bug happened.
+CREATE TABLE labels (
+  id            INTEGER PRIMARY KEY,
+  text          TEXT NOT NULL UNIQUE
+);
+CREATE TABLE codes (
+  codelist_id   INTEGER NOT NULL REFERENCES codelists (id),
+  code          TEXT NOT NULL,
+  label_id      INTEGER NOT NULL REFERENCES labels (id),
+  valid_from    TEXT
+);
+CREATE INDEX ix_codes_lookup ON codes (codelist_id, code);
+CREATE INDEX ix_codes_label ON codes (label_id);
+-- The join people will actually write, so they do not have to know the shape.
+CREATE VIEW code_values AS
+  SELECT cl.system, cl.codelist, c.code, l.text AS label, c.valid_from
+    FROM codes c
+    JOIN codelists cl ON cl.id = c.codelist_id
+    JOIN labels l ON l.id = c.label_id;
+CREATE TABLE families (
+  system        TEXT NOT NULL,
+  family_id     TEXT PRIMARY KEY,
+  series        TEXT,
+  schema_signature TEXT,
+  field_count   INTEGER,
+  time_min      INTEGER,
+  time_max      INTEGER,
+  file_count    INTEGER,
+  columns_json  TEXT,
+  added_json    TEXT,           -- versus the previous generation of this series
+  dropped_json  TEXT
+);
+CREATE INDEX ix_families_system ON families (system, series);
+CREATE TABLE datasets (
+  dataset_id    TEXT PRIMARY KEY,
+  system        TEXT,
+  series        TEXT,
+  what_one_row_is TEXT,
+  unit_of_analysis TEXT,
+  known_biases  TEXT,
+  gotchas       TEXT
+);
+CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);
+"""
+
+#: Full-text search over the prose and the labels at once, so "which column is
+#: about race" and "which code means Parda" are the same question to ask.
+DOCS_FTS = """
+CREATE VIRTUAL TABLE search USING fts5(
+  system, kind, name, body, tokenize = 'unicode61 remove_diacritics 2'
+);
+"""
 
 
-# --------------------------------------------------------------- the schemas
+def write_database(
+    catalog: Catalog, path: str | Path, *, systems: Sequence[str] | None = None
+) -> dict[str, object]:
+    """Write the whole dictionary as one queryable SQLite file.
 
-
-def render_families(catalog: Catalog, system: str) -> str:
-    """Every family in a system, with the ordered schema each one actually has.
-
-    A family *is* a schema generation: the same dataset before and after DATASUS
-    changed the record. Listing them in sequence is the only way to see that
-    `DIAG_SECUN` exists in one generation and not the next — a difference people
-    get wrong constantly, and expensively, because the column is still emitted.
+    Complete where the Markdown could not be: every code of every bound
+    codelist is here, with no per-page truncation, because a table row costs
+    nothing to a reader who is running a query rather than scrolling.
     """
-    families = catalog.query(
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.unlink(missing_ok=True)
+
+    available = _documentable_systems(catalog)
+    wanted = [s.upper() for s in systems] if systems else available
+    sizes = _codelist_sizes(catalog)
+    all_codelists = codelist_pages(catalog, wanted[0] if len(wanted) == 1 else None)
+    all_bindings: dict[str, dict[str, list[str]]] = {}
+    for row in catalog.query(
+        "SELECT system, field_name, codelist FROM field_codelists WHERE system IS NOT NULL"
+    ):
+        all_bindings.setdefault(str(row["system"]), {}).setdefault(
+            str(row["codelist"]), []
+        ).append(str(row["field_name"]))
+
+    conn = sqlite3.connect(target)
+    counts = {"systems": 0, "variables": 0, "codelists": 0, "codes": 0, "families": 0}
+    try:
+        conn.executescript(DOCS_SCHEMA)
+        conn.executescript(DOCS_FTS)
+        for system in wanted:
+            pages = collect(catalog, system, codelist_sizes=sizes)
+            tables = {
+                codelist: entries
+                for (sys_name, codelist), entries in all_codelists.items()
+                if sys_name == system
+            }
+            used_by = all_bindings.get(system, {})
+            _store_variables(conn, system, pages, written=frozenset(tables))
+            _store_codelists(conn, system, tables, used_by)
+            families = _store_families(conn, catalog, system)
+            if not pages and not tables and not families:
+                continue
+            conn.execute(
+                "INSERT INTO systems VALUES (?,?,?,?,?,?,?)",
+                (
+                    system,
+                    len(pages),
+                    sum(1 for p in pages if p.description),
+                    sum(1 for p in pages if p.codelists),
+                    sum(1 for p in pages if p.schema_only),
+                    len(tables),
+                    families,
+                ),
+            )
+            counts["systems"] += 1
+            counts["variables"] += len(pages)
+            counts["codelists"] += len(tables)
+            counts["codes"] += sum(len(e) for e in tables.values())
+            counts["families"] += families
+
+        for row in catalog.query("SELECT * FROM dataset_docs ORDER BY dataset_id"):
+            conn.execute(
+                "INSERT OR REPLACE INTO datasets VALUES (?,?,?,?,?,?,?)",
+                (
+                    row["dataset_id"], row["system"], row["series"],
+                    row["what_one_row_is"], row["unit_of_analysis"],
+                    row["known_biases"], row["gotchas"],
+                ),
+            )
+            conn.execute(
+                "INSERT INTO search (system, kind, name, body) VALUES (?,?,?,?)",
+                (
+                    row["system"], "dataset", row["dataset_id"],
+                    " ".join(
+                        str(row[k] or "")
+                        for k in ("what_one_row_is", "unit_of_analysis", "known_biases", "gotchas")
+                    ),
+                ),
+            )
+        conn.executemany(
+            "INSERT OR REPLACE INTO meta VALUES (?,?)",
+            [("generated_at", utcnow()), ("systems", ",".join(wanted)), *(
+                (k, str(v)) for k, v in counts.items()
+            )],
+        )
+        conn.commit()
+        conn.execute("VACUUM")
+    finally:
+        conn.close()
+
+    return {
+        "path": str(target),
+        "megabytes": round(target.stat().st_size / 2**20, 2),
+        **counts,
+    }
+
+
+def _documentable_systems(catalog: Catalog) -> list[str]:
+    return [
+        str(r["system"])
+        for r in catalog.query(
+            """
+            SELECT DISTINCT system FROM families WHERE system IS NOT NULL
+            UNION
+            SELECT DISTINCT s.system
+              FROM strata s
+              JOIN schema_header_facts h ON h.schema_signature = s.schema_signature
+             WHERE s.system IS NOT NULL
+            UNION
+            SELECT DISTINCT system FROM field_codelists WHERE system IS NOT NULL
+             ORDER BY 1
+            """
+        )
+    ]
+
+
+def _store_variables(
+    conn: sqlite3.Connection,
+    system: str,
+    pages: Sequence[VariablePage],
+    *,
+    written: frozenset[str],
+) -> None:
+    for page in pages:
+        doc = page.doc
+        conn.execute(
+            "INSERT OR REPLACE INTO variables VALUES "
+            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                system,
+                page.field_name,
+                (doc.official_name if doc else None),
+                page.description,
+                page.description_source,
+                page.declared_type,
+                page.semantic_type,
+                page.semantic_confidence,
+                page.aggregation,
+                page.coverage,
+                page.distinct,
+                page.codelists[0] if page.codelists else None,
+                json.dumps(page.codelists),
+                page.generations,
+                page.year_min,
+                page.year_max,
+                json.dumps(page.sentinels),
+                int(page.retired),
+                int(page.schema_only),
+                (doc.modifies if doc else None),
+                json.dumps(doc.depends_on if doc else []),
+                (doc.vintage_note if doc else None),
+                (doc.notes if doc else None),
+                render_variable(page, codelist_pages_written=written),
+            ),
+        )
+        conn.execute(
+            "INSERT INTO search (system, kind, name, body) VALUES (?,?,?,?)",
+            (
+                system,
+                "variable",
+                page.field_name,
+                " ".join(
+                    filter(
+                        None,
+                        [
+                            page.field_name,
+                            page.description or "",
+                            (doc.official_name if doc else "") or "",
+                            (doc.notes if doc else "") or "",
+                            " ".join(page.codelists),
+                        ],
+                    )
+                ),
+            ),
+        )
+
+
+def _store_codelists(
+    conn: sqlite3.Connection,
+    system: str,
+    tables: dict[str, list[tuple[str, str, str, str]]],
+    used_by: dict[str, list[str]],
+) -> None:
+    for codelist, entries in sorted(tables.items()):
+        relabelled = _relabelled(entries)
+        cursor = conn.execute(
+            "INSERT INTO codelists (system, codelist, codes, entries, relabelled, sources, "
+            "used_by_json) VALUES (?,?,?,?,?,?,?)",
+            (
+                system,
+                codelist,
+                len({e[0] for e in entries}),
+                len(entries),
+                len(relabelled),
+                ", ".join(sorted({e[3] for e in entries if e[3]})),
+                json.dumps(sorted(used_by.get(codelist, []))),
+            ),
+        )
+        codelist_id = cursor.lastrowid
+        # Every code, not the first 500. The truncation the Markdown needed was
+        # a property of the page, not of the knowledge.
+        conn.executemany(
+            "INSERT OR IGNORE INTO labels (text) VALUES (?)",
+            [(label,) for _c, label, _vf, _src in entries],
+        )
+        conn.executemany(
+            "INSERT INTO codes SELECT ?, ?, id, ? FROM labels WHERE text = ?",
+            [(codelist_id, c, vf or None, label) for c, label, vf, _src in entries],
+        )
+        # The codelist's *name* goes in the full-text index; its labels do not.
+        # Indexing 7.5 million labels duplicates the codes table inside the FTS
+        # store and was 400 MB of the original 1.1 GB. Exact and prefix label
+        # lookup is what people actually do — "which code means Parda" — and
+        # `ix_codes_label` answers that without storing the text twice.
+        conn.execute(
+            "INSERT INTO search (system, kind, name, body) VALUES (?,?,?,?)",
+            (system, "codelist", codelist, f"{codelist} {' '.join(sorted(used_by.get(codelist, [])))}"),
+        )
+
+
+def _store_families(conn: sqlite3.Connection, catalog: Catalog, system: str) -> int:
+    rows = catalog.query(
         """
         SELECT family_id, series, schema_signature, field_count, time_min, time_max,
-               file_count, stratum_count
+               file_count
           FROM families WHERE system = ?
          ORDER BY series, COALESCE(time_min, 0)
         """,
         (system,),
     )
-    if not families:
-        return ""
-    # One scan for every schema's columns, not one query per family.
+    if not rows:
+        return 0
     columns: dict[str, list[str]] = {}
     for row in catalog.execute(
         """
@@ -748,374 +942,88 @@ def render_families(catalog: Catalog, system: str) -> str:
     ):
         columns.setdefault(str(row[0]), []).append(str(row[1]))
 
-    out = [
-        f"# {system} — schema generations",
-        "",
-        "*One entry per family. A family is a set of files sharing a column "
-        "layout, so each entry here is a generation in which DATASUS changed the "
-        "record.*",
-        "",
-    ]
-    by_series: dict[str, list] = {}
-    for row in families:
-        by_series.setdefault(str(row["series"] or "—"), []).append(row)
-
-    for series, rows in sorted(by_series.items()):
-        out.extend([f"## {series}", ""])
-        if len(rows) > 1:
-            out.extend(
-                [
-                    f"{len(rows)} generations. What changed between them is stated "
-                    "under each.",
-                    "",
-                ]
-            )
-        previous: set[str] | None = None
-        for row in rows:
-            fields = columns.get(str(row["schema_signature"]), [])
-            span = (
-                f"{row['time_min']}–{row['time_max']}"
-                if row["time_min"] and row["time_max"]
-                else "span unknown"
-            )
-            out.extend(
-                [
-                    f"### `{row['family_id']}`",
-                    "",
-                    "```",
-                    f"  span         {span}",
-                    f"  columns      {row['field_count'] or len(fields)}",
-                    f"  files        {_fmt_int(row['file_count'])}",
-                    f"  strata       {_fmt_int(row['stratum_count'])}",
-                    "```",
-                    "",
-                ]
-            )
-            current = set(fields)
-            if previous is not None and fields:
-                added = sorted(current - previous)
-                dropped = sorted(previous - current)
-                if added:
-                    out.extend(
-                        ["**Added** since the previous generation: "
-                         + ", ".join(f"`{c}`" for c in added), ""]
-                    )
-                if dropped:
-                    out.extend(
-                        ["**Dropped**: " + ", ".join(f"`{c}`" for c in dropped), ""]
-                    )
-                if not added and not dropped:
-                    out.extend(["Same columns as the previous generation.", ""])
-            if fields:
-                out.extend(
-                    [
-                        f"<details><summary>All {len(fields)} columns, in record "
-                        "order</summary>",
-                        "",
-                        "```",
-                        _wrap(fields),
-                        "```",
-                        "",
-                        "</details>",
-                        "",
-                    ]
-                )
-            previous = current if fields else previous
-    return "\n".join(out)
-
-
-def _wrap(names: Sequence[str], per_line: int = 6) -> str:
-    lines = []
-    for start in range(0, len(names), per_line):
-        row = "  ".join(n.ljust(16) for n in names[start : start + per_line])
-        lines.append("  " + row.rstrip())
-    return "\n".join(lines)
-
-
-# --------------------------------------------------------------- the index
-
-
-def render_column_index(catalog: Catalog) -> str:
-    """Every column name in the tree, and which systems carry it.
-
-    This answers the question a person asks first and the catalog could not
-    previously be asked at all: *I have seen `CID_MORTE` somewhere — where?*
-    """
-    rows = catalog.query(
-        """
-        SELECT field_name, GROUP_CONCAT(DISTINCT system) AS systems
-          FROM (
-            SELECT DISTINCT s.system AS system, sp.field_name AS field_name
-              FROM schema_presence sp
-              JOIN strata s ON s.schema_signature = sp.schema_signature
-             WHERE s.system IS NOT NULL
-             UNION
-            SELECT DISTINCT system, field_name FROM ledger WHERE system IS NOT NULL
-          )
-         GROUP BY field_name ORDER BY field_name
-        """
-    )
-    out = [
-        "# Every column, and where it lives",
-        "",
-        f"*{len(rows):,} distinct column names across the tree, generated from the "
-        "catalog.*",
-        "",
-        "A name shared by two systems is **not** a shared meaning: `SEXO` is coded "
-        "1/3 in SIHSUS, 1/2 in SINASC and M/F in SINAN. Follow the link to the "
-        "system that published the file you actually have.",
-        "",
-        "| column | systems |",
-        "| --- | --- |",
-    ]
+    previous: dict[str, set[str]] = {}
     for row in rows:
-        systems = [s for s in sorted(str(row["systems"] or "").split(",")) if s]
-        links = ", ".join(f"[{s}]({_SAFE.sub('_', s.lower())}.md)" for s in systems)
-        out.append(f"| `{row['field_name']}` | {links} |")
-    out.append("")
-    return "\n".join(out)
-
-
-def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | None = None) -> dict[str, object]:
-    """Write ``docs/dictionary/``: one page per system, one per dataset, an index."""
-    root = Path(out_dir)
-    root.mkdir(parents=True, exist_ok=True)
-
-    # Every system the catalog knows a column for, not only those with families.
-    # Families come from profiling, so listing from them alone documented the
-    # four systems that had been sampled and silently omitted the ten the header
-    # census had catalogued — SINAN's 2,250 columns among them. A dictionary
-    # that covers the sample and calls itself the dictionary is the same mistake
-    # as a schema catalogue that covers the sample.
-    available = [
-        str(r["system"])
-        for r in catalog.query(
-            """
-            SELECT DISTINCT system FROM families WHERE system IS NOT NULL
-            UNION
-            SELECT DISTINCT s.system
-              FROM strata s
-              JOIN schema_header_facts h ON h.schema_signature = s.schema_signature
-             WHERE s.system IS NOT NULL
-            UNION
-            -- A system whose dictionary was parsed but whose files have not been
-            -- decoded yet still has meaning worth publishing.
-            SELECT DISTINCT system FROM field_codelists WHERE system IS NOT NULL
-             ORDER BY 1
-            """
+        series = str(row["series"] or "")
+        fields = columns.get(str(row["schema_signature"]), [])
+        current = set(fields)
+        before = previous.get(series)
+        added = sorted(current - before) if before is not None and fields else []
+        dropped = sorted(before - current) if before is not None and fields else []
+        conn.execute(
+            "INSERT OR REPLACE INTO families VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                system, row["family_id"], row["series"], row["schema_signature"],
+                row["field_count"], row["time_min"], row["time_max"], row["file_count"],
+                json.dumps(fields), json.dumps(added), json.dumps(dropped),
+            ),
         )
-    ]
-    wanted = [s.upper() for s in systems] if systems else available
-    written: list[dict[str, object]] = []
-    sizes = _codelist_sizes(catalog)
+        if fields:
+            previous[series] = current
+    return len(rows)
 
-    codelist_count = 0
-    # Hoisted out of the loop: one pass over the dictionary for every system,
-    # rather than one pass per system over the whole 19.9M rows.
-    all_codelists = codelist_pages(catalog, wanted[0] if len(wanted) == 1 else None)
-    all_bindings: dict[str, dict[str, list[str]]] = {}
-    for row in catalog.query(
-        "SELECT system, field_name, codelist FROM field_codelists WHERE system IS NOT NULL"
-    ):
-        all_bindings.setdefault(str(row["system"]), {}).setdefault(
-            str(row["codelist"]), []
-        ).append(str(row["field_name"]))
 
-    for system in wanted:
-        pages = collect(catalog, system, codelist_sizes=sizes)
-        slug = _SAFE.sub("_", system.lower())
-        path = root / f"{slug}.md"
-        parts = 1
+def search_docs(
+    path: str | Path, query: str, *, limit: int = 25, kind: str | None = None
+) -> list[dict[str, object]]:
+    """Full-text search across variables, code tables and dataset prose.
 
-        # The values themselves, written *first*, because the variable page
-        # links to them and a link to a page that was never written is a dead
-        # link. A codelist can be bound and still have no rows in this system —
-        # the dictionary entry lives under a neighbour that shipped the same
-        # kit — which is how 49 dead links reached the real site.
-        used_by = all_bindings.get(system, {})
-        tables = {
-            codelist: entries
-            for (sys_name, codelist), entries in all_codelists.items()
-            if sys_name == system
-        }
-        if tables:
-            codelist_dir = root / slug / "codelists"
-            codelist_dir.mkdir(parents=True, exist_ok=True)
-            for codelist, entries in sorted(tables.items()):
-                (codelist_dir / f"{_SAFE.sub('_', codelist)}.md").write_text(
-                    render_codelist(
-                        system, codelist, entries, used_by=used_by.get(codelist, [])
-                    ),
-                    encoding="utf-8",
-                )
-            codelist_count += len(tables)
-
-        if pages:
-            header, entries = system_parts(
-                catalog, system, pages, codelist_pages_written=frozenset(tables)
+    The question "which column is about race" and the question "which code
+    means Parda" are the same shape, so they hit the same index. Diacritics are
+    folded, because nobody types *óbito* into a terminal reliably.
+    """
+    conn = sqlite3.connect(f"file:{Path(path).as_posix()}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
+    try:
+        clause = " AND kind = ?" if kind else ""
+        params: list[object] = [query]
+        if kind:
+            params.append(kind)
+        params.append(limit)
+        hits = [
+            dict(r)
+            for r in conn.execute(
+                "SELECT system, kind, name, snippet(search, 3, '[', ']', '…', 12) AS context "
+                f"FROM search WHERE search MATCH ?{clause} ORDER BY rank LIMIT ?",
+                params,
             )
-            bodies = paginate(header, entries)
-            parts = len(bodies)
-            for index, body in enumerate(bodies):
-                (root / _part_name(slug, index)).write_text(
-                    body + "\n".join(_part_links(slug, parts, index)) + "\n",
-                    encoding="utf-8",
-                )
-
-        schemas_page = render_families(catalog, system)
-        if schemas_page:
-            (root / slug).mkdir(parents=True, exist_ok=True)
-            # IBGE's families carry enough columns to push this past the render
-            # limit too, so it gets the same treatment.
-            bodies = paginate([], [schemas_page])
-            if len(bodies) == 1 and len(schemas_page.encode("utf-8")) > MAX_PAGE_BYTES:
-                bodies = paginate([], schemas_page.split("\n## "))
-                bodies = [b if i == 0 else "## " + b for i, b in enumerate(bodies)]
-            for index, body in enumerate(bodies):
-                (root / slug / _part_name("schemas", index)).write_text(
-                    body + "\n".join(_part_links("schemas", len(bodies), index)) + "\n",
-                    encoding="utf-8",
-                )
-
-        # A system with codelists but no profiled columns still has documentable
-        # knowledge — the dictionary was parsed even though no file has been
-        # decoded — and skipping it would report a system as undocumented when
-        # what is actually missing is one stage, not the meaning.
-        if not pages and not tables and not schemas_page:
-            continue
-        written.append(
-            {
-                "system": system,
-                "path": str(path),
-                "variables": len(pages),
-                "documented": sum(1 for p in pages if p.description),
-                "decodable": sum(1 for p in pages if p.codelists),
-                "codelists": len(tables),
-                "has_schemas_page": bool(schemas_page),
-                "parts": parts,
-            }
-        )
-
-    datasets = [dict(r) for r in catalog.query("SELECT * FROM dataset_docs ORDER BY dataset_id")]
-    dataset_dir = root / "datasets"
-    if datasets:
-        dataset_dir.mkdir(parents=True, exist_ok=True)
-        for row in datasets:
-            (dataset_dir / f"{_SAFE.sub('_', str(row['dataset_id']).lower())}.md").write_text(
-                render_dataset(row), encoding="utf-8"
-            )
-
-    index = ["# Data dictionary", "",
-             "*Generated by `pegasus-data docs` from the catalog. Never hand-written.*", ""]
-    if datasets:
-        index.extend(["## Datasets — what one row is", ""])
-        index.extend(
-            f"- [{row['dataset_id']}](datasets/{_SAFE.sub('_', str(row['dataset_id']).lower())}.md)"
-            + (f" — {row['what_one_row_is']}" if row.get("what_one_row_is") else "")
-            for row in datasets
-        )
-        index.append("")
-    # Two grouped scans, not one correlated subquery per prefix: there are 1,436
-    # prefixes and 207,251 file_facts rows, and asking per prefix is the same
-    # N+1 shape that has now cost this project three separate stalls.
-    files_per_prefix = {
-        str(r["series_prefix"]): int(r["n"])
-        for r in catalog.query(
-            """
-            SELECT ff.series_prefix AS series_prefix, COUNT(*) AS n
-              FROM file_facts ff JOIN files f ON f.path = ff.path
-             WHERE f.gone_at IS NULL AND ff.series_prefix IS NOT NULL
-             GROUP BY ff.series_prefix
-            """
-        )
-    }
-    low_trust = [
-        {**dict(r), "files": files_per_prefix.get(str(r["series_prefix"]), 0)}
-        for r in catalog.query(
-            "SELECT series_prefix, system, agreement FROM prefix_systems "
-            "WHERE agreement < 0.9 OR file_count < 5"
-        )
-    ]
-    if low_trust:
-        total_files = catalog.scalar("SELECT COUNT(*) FROM file_facts") or 0
-        covered = sum(int(r["files"] or 0) for r in low_trust)
-        share = covered / total_files if total_files else 0.0
-        index.extend([
-            "## How much of this is guesswork",
-            "",
-            f"A file's system is read from its **name** where the name is a reliable "
-            f"indicator, and from its **path** otherwise. {len(low_trust):,} of the learned "
-            f"series prefixes are not reliable enough to use — which sounds alarming and is "
-            f"not, because they cover only **{covered:,} of {total_files:,} files "
-            f"({share:.2%})**. Most are simply thin: a prefix seen two or three times. The "
-            "genuinely ambiguous ones are diseases published in both the legacy SINAN tree "
-            "and Dados_Abertos, which is a shared prefix rather than a reorganisation.",
-            "",
-            "The count invites alarm that the coverage does not justify, which is why both "
-            "numbers are here.",
-            "",
-        ])
-    column_index = render_column_index(catalog)
-    (root / "columns.md").write_text(column_index, encoding="utf-8")
-
-    index.extend(["## Systems — what each column means", ""])
-    for entry in written:
-        slug = _SAFE.sub("_", str(entry["system"]).lower())
-        variables = int(entry["variables"])
-        coverage = (
-            f"{int(entry['documented'])}/{variables} described, "
-            f"{int(entry['decodable'])} decodable"
-            if variables
-            # A system whose dictionary was parsed but whose files have not been
-            # decoded has no variable page, so linking to one would be a broken
-            # link in the deliverable. Say what it does have.
-            else "no columns catalogued yet — its code tables are here, its files are not"
-        )
-        extras = []
-        if int(entry.get("parts") or 1) > 1:
-            extras.append(f"in {int(entry['parts'])} parts")
-        if entry.get("has_schemas_page"):
-            extras.append(f"[schemas]({slug}/schemas.md)")
-        if int(entry.get("codelists") or 0):
-            extras.append(
-                f"[{int(entry['codelists'])} code tables]({slug}/codelists/)"
-            )
-        tail = f" · {' · '.join(extras)}" if extras else ""
-        name = (
-            f"[{entry['system']}]({Path(str(entry['path'])).name})"
-            if variables
-            else f"**{entry['system']}**"
-        )
-        index.append(f"- {name} — {coverage}{tail}")
-    index.extend(
-        [
-            "",
-            "## Looking for one column",
-            "",
-            "[**Every column in the tree**](columns.md) — all the distinct column "
-            "names DATASUS publishes, and which systems carry each. A name shared "
-            "by two systems is not a shared meaning, so the page links to the "
-            "system rather than to a single definition.",
-            "",
-            "## How to read a page",
-            "",
-            "Each system has three:",
-            "",
-            "- the **variable page** (`<system>.md`) — what every column is, how "
-            "confident that is, and where the claim came from;",
-            "- the **schema page** (`<system>/schemas.md`) — every generation of "
-            "the record, and exactly which columns each added or dropped;",
-            "- the **code tables** (`<system>/codelists/`) — the values, one page "
-            "per codelist, with the vintage each label belongs to.",
-            "",
         ]
-    )
-    (root / "README.md").write_text("\n".join(index) + "\n", encoding="utf-8")
+        # Labels are not in the full-text index — 7.5 million of them would
+        # duplicate the codes table inside it. But *Parda* is in this dictionary,
+        # and a search that answers "nothing matches" because of an indexing
+        # decision is lying about the contents. So a label lookup runs beside the
+        # full-text one and the results merge.
+        if kind in (None, "code"):
+            remaining = max(limit - len(hits), 0) or limit
+            hits.extend(
+                {
+                    "system": r["system"],
+                    "kind": "code",
+                    "name": f"{r['codelist']} = {r['code']}",
+                    "context": r["label"],
+                }
+                for r in conn.execute(
+                    # Exact first: someone searching "Parda" wants the race code,
+                    # not the health post called "PARDAL - ZONA RURAL III".
+                    "SELECT system, codelist, code, label FROM code_values "
+                    "WHERE label = ? COLLATE NOCASE OR label LIKE ? COLLATE NOCASE "
+                    "ORDER BY (label = ? COLLATE NOCASE) DESC, LENGTH(label) LIMIT ?",
+                    (query, f"{query}%", query, remaining),
+                )
+            )
+        return hits
+    finally:
+        conn.close()
 
-    return {
-        "out_dir": str(root),
-        "systems": written,
-        "datasets": len(datasets),
-        "codelists": codelist_count,
-        "pages": len(written) + len(datasets) + codelist_count + 2,
-    }
+
+def read_page(path: str | Path, system: str, field: str) -> str | None:
+    """The rendered Markdown for one variable, out of the database."""
+    conn = sqlite3.connect(f"file:{Path(path).as_posix()}?mode=ro", uri=True)
+    try:
+        row = conn.execute(
+            "SELECT page FROM variables WHERE system = ? AND field_name = ?",
+            (system.upper(), field.upper()),
+        ).fetchone()
+        return row[0] if row else None
+    finally:
+        conn.close()

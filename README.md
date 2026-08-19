@@ -131,24 +131,40 @@ cosmetic: every value source lands before `curate`, so a curated assertion can
 override any of them, and `reference` comes after `curate`, because it
 materialises the winners.
 
-`pegasus-data dictionary` writes `docs/dictionary/`, generated from the catalog
-and never hand-written, so it cannot drift from what the catalog holds. Each
-system gets three things:
+`pegasus-data dictionary` writes `docs/dictionary.sqlite` — the whole data
+dictionary as one queryable file, generated from the catalog and never
+hand-written, so it cannot drift.
 
-- **`<system>.md`** — every column: what it is, how confident that is, and where
-  the claim came from. It leads with the columns that will produce a wrong
-  answer if used naively.
-- **`<system>/schemas.md`** — every generation of the record, and exactly which
-  columns each one added or dropped. The answer to "does this year have
-  `DIAG_SECUN`" at a glance instead of by hand.
-- **`<system>/codelists/`** — the **values**: one page per code table, every
-  code and what it means, with the vintage each label belongs to. A code that
-  was relabelled shows both readings, because a row filed in 2005 means what the
-  2005 table said it meant.
+```bash
+pegasus-data search "raça"            # variables, code tables, dataset prose
+pegasus-data search Parda --kind codelist
+pegasus-data page SIHSUS DIAG_PRINC   # one variable's documentation, rendered
+```
 
-`docs/dictionary/columns.md` indexes every distinct column name on the tree and
-which systems carry it — with the warning that a shared name is not a shared
-meaning, since `SEXO` is 1/3 in SIHSUS, 1/2 in SINASC and M/F in SINAN.
+Or open it with anything that speaks SQL:
+
+```sql
+-- which columns anywhere draw on CID-10?
+SELECT system, field_name FROM variables WHERE codelist LIKE 'CID10%';
+
+-- what does this code mean, in the system that published my file?
+SELECT code, label, valid_from FROM code_values
+ WHERE system = 'SIHSUS' AND codelist = 'SEXO';
+
+-- which generation of SIH-RD added DIAG_SECUN?
+SELECT family_id, time_min, added_json FROM families
+ WHERE system = 'SIHSUS' AND added_json LIKE '%DIAG_SECUN%';
+```
+
+Tables: `systems`, `variables` (with the rendered page as a column),
+`codelists`, `codes` / the `code_values` view, `families` with what each schema
+generation added and dropped, `datasets`, and a `search` full-text index with
+accents folded.
+
+This replaced a tree of 3,036 Markdown files. Everything in it was relational,
+and flattening it meant no question anyone would actually ask could be answered,
+the large code tables had to be truncated to keep pages readable, and the
+biggest system's page was too large for GitHub to render at all.
 
 ---
 
