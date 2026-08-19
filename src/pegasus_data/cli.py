@@ -431,6 +431,35 @@ def semantics(
 
 
 @app.command(rich_help_panel="PIPELINE")
+def schemas(
+    root: RootOpt = None,
+    system: SystemsOpt = None,
+    limit: Annotated[int | None, typer.Option("--limit", help="Cap strata examined")] = None,
+    all_strata: Annotated[bool, typer.Option("--all", help="Re-read strata that already have a signature")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Census every stratum's columns by reading file headers, not payloads.
+
+    A DBF declares its whole schema in a few hundred bytes, and a .dbc keeps that
+    header uncompressed ahead of its compressed payload — so a ranged fetch
+    settles what columns a file has for about 17 MB across the entire tree, where
+    decoding one file per stratum would be 183 GiB.
+    """
+    pipeline = _pipeline(root)
+    try:
+        result = pipeline.schemas(systems=system, limit=limit, only_missing=not all_strata)
+        _emit(result.counts, as_json, "schema census")
+        if not as_json:
+            from .inventory.schemas import census_summary
+
+            rows = census_summary(pipeline.catalog)
+            if rows:
+                _emit(rows[:20], False, "schema generations per series")
+    finally:
+        pipeline.close()
+
+
+@app.command(rich_help_panel="PIPELINE")
 def profile(
     root: RootOpt = None,
     system: SystemsOpt = None,
@@ -1049,6 +1078,9 @@ def run_everything(
                     "curate", counts=load_curation(pipeline.catalog, pipeline.settings.curation_dir)
                 ),
             ),
+            # Census first: it is cheap, it covers everything, and it gives the
+            # profile stage a schema for strata its sample will never reach.
+            ("schemas", lambda: pipeline.schemas(systems=system)),
             ("profile", lambda: pipeline.profile(systems=system, limit=limit)),
             ("families", pipeline.families),
             ("ledger", lambda: pipeline.ledger(systems=system)),

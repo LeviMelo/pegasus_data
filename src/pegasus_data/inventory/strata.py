@@ -31,6 +31,10 @@ class Stratum:
     series: str | None
     year: int | None
     paths: list[str] = field(default_factory=list)
+    #: ``path -> byte size``, where the crawl recorded one. Used only to pick the
+    #: cheapest representative; an absent size sorts last so it is never
+    #: preferred over a file whose cost is known.
+    sizes: dict[str, int] = field(default_factory=dict)
 
     @property
     def stratum_id(self) -> str:
@@ -44,13 +48,23 @@ class Stratum:
         return len(self.paths)
 
     def sample_path(self) -> str | None:
-        """Deterministic pick: the smallest path in sort order.
+        """The cheapest representative, then path order to break ties.
 
         Deliberately *not* "the earliest" — that is what produced the 1992 Acre
-        sample. Within a stratum every file shares a year, so any member is
-        equally representative and reproducibility is what matters.
+        sample. Within a stratum every file shares a system, series and year, so
+        every member has the same schema and any of them answers the question the
+        sample is asked. Given that, the only thing left to optimise is cost.
+
+        And the cost varies enormously. A stratum can hold RDAC (Acre, tens of
+        KB) beside RDSP (São Paulo, tens of MB), or a single BR-wide national
+        file; profiling 4,228 strata means 4,228 downloads, and picking by name
+        was picking blind. Sorting by size makes the sweep affordable without
+        changing a single answer it produces. Ties break on path so the choice
+        stays reproducible.
         """
-        return min(self.paths) if self.paths else None
+        if not self.paths:
+            return None
+        return min(self.paths, key=lambda p: (self.sizes.get(p, 1 << 62), p))
 
 
 def build_strata(rows: Iterable[dict[str, object]]) -> list[Stratum]:
@@ -70,7 +84,14 @@ def build_strata(rows: Iterable[dict[str, object]]) -> list[Stratum]:
         if stratum is None:
             stratum = Stratum(system=key[0], series=key[1], year=key[2])
             groups[key] = stratum
-        stratum.paths.append(str(row["path"]))
+        path = str(row["path"])
+        stratum.paths.append(path)
+        size = row.get("size")
+        if size is not None:
+            try:
+                stratum.sizes[path] = int(size)
+            except (TypeError, ValueError):
+                pass
     for stratum in groups.values():
         stratum.paths.sort()
     return sorted(groups.values(), key=lambda s: (s.system, s.series or "", s.year or 0))

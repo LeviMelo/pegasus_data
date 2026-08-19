@@ -328,6 +328,59 @@ class FtpClient:
         """``SIZE``/``MDTM`` for one path — the per-file rescue when a listing is unavailable."""
         return self.size(path), self.modified_time(path)
 
+    def retrieve_prefix(self, path: str, max_bytes: int) -> bytes:
+        """Download only the first ``max_bytes`` of a file.
+
+        A DBF — and a ``.dbc``, whose DBF header is stored uncompressed ahead of
+        the compressed payload — declares its entire schema in a header of a few
+        hundred bytes. Reading 1,153 bytes of a 92 KB file yields all 35 field
+        names, types and widths; reading the file yields nothing more about its
+        *shape*. Across the tree that is the difference between 183 GiB and about
+        17 MB, which is the difference between cataloguing every schema and not.
+
+        The transfer is stopped by closing the data socket, then ``ABOR`` and a
+        drained response. Skipping that drain is how the control channel ends up
+        one reply out of step, so the *next* command reads this transfer's
+        completion message and every command after it is answered by the one
+        before — a failure that shows up far from its cause.
+        """
+        def _once() -> bytes:
+            conn = self.ftp.transfercmd(f"RETR {path}")
+            buf = io.BytesIO()
+            try:
+                conn.settimeout(self.timeout)
+                while buf.tell() < max_bytes:
+                    chunk = conn.recv(min(1 << 16, max_bytes - buf.tell()))
+                    if not chunk:
+                        break
+                    buf.write(chunk)
+            finally:
+                conn.close()
+            self._drain_after_partial()
+            return buf.getvalue()[:max_bytes]
+
+        data = self._retrying(_once, what=f"RETR(prefix) {path}")
+        assert isinstance(data, bytes)
+        return data
+
+    def _drain_after_partial(self) -> None:
+        """Resynchronise the control channel after an abandoned transfer.
+
+        The server may reply 226 (it finished sending a small file before we
+        stopped reading), or 426/226 for a genuine abort. Either way the replies
+        are consumed here; anything unexpected reconnects rather than leaving a
+        desynchronised session to corrupt later commands.
+        """
+        try:
+            self.ftp.putcmd("ABOR")
+            self.ftp.getmultiline()
+            self.ftp.getmultiline()
+        except Exception:
+            try:
+                self.reconnect()
+            except Exception:  # noqa: BLE001 - the next call will reconnect
+                pass
+
     def retrieve(self, path: str, *, progress: Callable[[int], None] | None = None) -> bytes:
         """Download one file into memory, retrying and resuming where supported.
 

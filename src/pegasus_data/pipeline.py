@@ -28,6 +28,7 @@ from .catalog.store import Catalog
 from .config import Settings
 from .decode.registry import ReaderRegistry
 from .discovery.crawler import Crawler
+from .discovery.ftp_client import FtpClient
 from .discovery.https_client import probe_https_mirror
 from .inventory.build import build_inventory
 from .inventory.families import (
@@ -766,6 +767,67 @@ class Pipeline:
                 ),
                 evidence=json.dumps({"opened": duck_ok, "refused": duck_fail}),
             )
+
+    # ---------------------------------------------------------------- schemas
+
+    def schemas(
+        self,
+        *,
+        systems: Sequence[str] | None = None,
+        limit: int | None = None,
+        only_missing: bool = True,
+    ) -> StageResult:
+        """Census every stratum's columns by reading headers, not payloads.
+
+        Complements ``profile`` rather than replacing it. Profiling reads the
+        data and can speak about values; this reads a few hundred bytes and can
+        speak only about columns — which is exactly what a schema catalogue is,
+        and is affordable for all 4,228 strata where decoding them is not.
+        """
+        from .inventory.schemas import census_targets, run_census
+
+        targets = census_targets(self.catalog, systems=systems, only_missing=only_missing)
+        if limit:
+            targets = targets[:limit]
+        if not targets:
+            return StageResult("schemas", counts={"examined": 0, "note": "nothing outstanding"})
+
+        client = FtpClient(
+            self.settings.host,
+            timeout=self.settings.timeout,
+            max_retries=self.settings.max_retries,
+            backoff_base=self.settings.backoff_base,
+        )
+        client.connect()
+        progress = StageProgress(stage="schemas", total=len(targets))
+
+        def _fetch(path: str, size: int) -> bytes:
+            return run_with_timeout(
+                lambda: client.retrieve_prefix(path, size),
+                seconds=min(120.0, self.settings.item_timeout),
+                label=path,
+            )
+
+        def _seen(path: str) -> None:
+            progress.current = path
+            progress.current_started = time.monotonic()
+            progress.completed += 1
+            progress.last_completion = time.monotonic()
+
+        try:
+            with Heartbeat(progress, interval=self.settings.heartbeat_interval):
+                census = run_census(self.catalog, _fetch, targets, on_item=_seen)
+        finally:
+            client.close()
+
+        counts = census.as_dict()
+        self.catalog.log_event(
+            "schemas",
+            "schema census",
+            detail=f"{census.read} headers read from {census.bytes_fetched / 2**20:.1f} MiB "
+            f"over {census.examined} strata; {len(census.signatures)} distinct signatures",
+        )
+        return StageResult("schemas", counts=counts)
 
     # --------------------------------------------------------------- families
 

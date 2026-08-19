@@ -550,6 +550,27 @@ CREATE TABLE IF NOT EXISTS dataset_docs (
   asserted_at     TEXT
 );
 
+-- What a file's own header states about its shape, read WITHOUT decoding it.
+-- Kept apart from variable_profiles on purpose: a profile has read the data and
+-- can speak about values, and this has read a few hundred bytes and can speak
+-- only about columns. Merging them would let "we know this column exists" be
+-- mistaken for "we know what is in it".
+CREATE TABLE IF NOT EXISTS schema_header_facts (
+  schema_signature  TEXT NOT NULL,
+  path              TEXT NOT NULL,     -- the file the header was read from
+  field_name        TEXT NOT NULL,
+  field_order       INTEGER NOT NULL,
+  type_code         TEXT,              -- DBF type: C, N, D, L, F, M...
+  width             INTEGER,
+  decimals          INTEGER,
+  declared_records  INTEGER,           -- what the header CLAIMS; unverified
+  record_length     INTEGER,
+  widths_consistent INTEGER,           -- do field widths sum to record_length?
+  read_at           TEXT,
+  PRIMARY KEY (schema_signature, field_name)
+);
+CREATE INDEX IF NOT EXISTS ix_header_facts_field ON schema_header_facts (field_name);
+
 CREATE TABLE IF NOT EXISTS build_outcomes (
   run_id           TEXT NOT NULL,
   family_id        TEXT NOT NULL,

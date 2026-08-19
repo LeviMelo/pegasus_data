@@ -160,10 +160,16 @@ def build_inventory(
 
     # Strata are keyed on the *resolved* system, which is now name-derived, so a
     # directory rename no longer re-derives every stratum_id in the tree.
+    # Sizes come from the crawl, so the cheapest member of each stratum can be
+    # the one that gets sampled. One query, not one per stratum.
+    sizes = {
+        str(r["path"]): r["size"]
+        for r in catalog.query("SELECT path, size FROM files WHERE size IS NOT NULL")
+    }
     strata_rows = [
         {
             "path": f[0], "system": f[1], "series_prefix": f[2], "year": f[7],
-            "logical_id": f[11],
+            "logical_id": f[11], "size": sizes.get(f[0]),
         }
         for f in facts
         if f[10] == "data"
