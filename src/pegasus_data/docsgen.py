@@ -415,6 +415,11 @@ def render_variable(page: VariablePage) -> str:
 def render_system(catalog: Catalog, system: str, pages: Sequence[VariablePage]) -> str:
     documented = sum(1 for p in pages if p.description)
     schema_only = sum(1 for p in pages if p.schema_only)
+    # A column with a working codelist is not "documented" — nobody has written
+    # down what it means — but it is decodable, and reporting only the
+    # description count buries that. CNES has four described columns and a
+    # hundred and twenty-four whose values now translate.
+    decodable = sum(1 for p in pages if p.codelists)
     out = [
         f"# {system}",
         "",
@@ -422,8 +427,9 @@ def render_system(catalog: Catalog, system: str, pages: Sequence[VariablePage]) 
         "is a gap in the catalog, and writing prose into this file would hide it.*",
         "",
         (
-            f"{len(pages)} columns observed · {documented} documented "
-            f"({documented / len(pages):.0%}) · {schema_only} known from the header census only"
+            f"{len(pages)} columns observed · {documented} described "
+            f"({documented / len(pages):.0%}) · {decodable} with a working codelist "
+            f"· {schema_only} known from the header census only"
         ) if pages else "No columns observed yet.",
         "",
     ]
@@ -478,10 +484,24 @@ def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | 
     root = Path(out_dir)
     root.mkdir(parents=True, exist_ok=True)
 
+    # Every system the catalog knows a column for, not only those with families.
+    # Families come from profiling, so listing from them alone documented the
+    # four systems that had been sampled and silently omitted the ten the header
+    # census had catalogued — SINAN's 2,250 columns among them. A dictionary
+    # that covers the sample and calls itself the dictionary is the same mistake
+    # as a schema catalogue that covers the sample.
     available = [
         str(r["system"])
         for r in catalog.query(
-            "SELECT DISTINCT system FROM families WHERE system IS NOT NULL ORDER BY system"
+            """
+            SELECT DISTINCT system FROM families WHERE system IS NOT NULL
+            UNION
+            SELECT DISTINCT s.system
+              FROM strata s
+              JOIN schema_header_facts h ON h.schema_signature = s.schema_signature
+             WHERE s.system IS NOT NULL
+             ORDER BY 1
+            """
         )
     ]
     wanted = [s.upper() for s in systems] if systems else available
@@ -500,6 +520,7 @@ def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | 
                 "path": str(path),
                 "variables": len(pages),
                 "documented": sum(1 for p in pages if p.description),
+                "decodable": sum(1 for p in pages if p.codelists),
             }
         )
 
@@ -564,7 +585,10 @@ def generate(catalog: Catalog, out_dir: str | Path, *, systems: Sequence[str] | 
         ])
     index.extend(["## Systems — what each column means", ""])
     for entry in written:
-        coverage = f"{int(entry['documented'])}/{int(entry['variables'])} documented"
+        coverage = (
+            f"{int(entry['documented'])}/{int(entry['variables'])} described, "
+            f"{int(entry['decodable'])} decodable"
+        )
         index.append(
             f"- [{entry['system']}]({Path(str(entry['path'])).name}) — {coverage}"
         )
