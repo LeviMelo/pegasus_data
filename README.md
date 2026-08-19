@@ -113,8 +113,9 @@ without re-deriving thirty-five years of lineage under new identifiers. Moves an
 renames are detected and recorded; a crawl that would withdraw a large share of
 the catalog fails loudly instead of passing quietly.
 
-**Schema generations are first class.** SIH-RD has 36 observed generations, not
-one schema with exceptions. A column is grouped by the schema it belongs to, so a
+**Schema generations are first class.** SIH-RD has **20** measured schema
+generations spanning 35 to 114 columns and 1992–2026, not one schema with
+exceptions. A column is grouped by the schema it belongs to, so a
 query never silently reads a different generation than it thinks.
 
 **Labels are joined, never frozen.** Code tables live in `lake/reference/`
