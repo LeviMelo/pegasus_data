@@ -46,6 +46,18 @@ KNOWN_CODE_TABLES: dict[str, tuple[str, str, str]] = {
     "EMUSO10": ("IP_COD", "IP_DSCR", "procedures"),
     "TCNES": ("CNES", "RAZAO", "cnes"),
     "TCH": ("CGC_HOSP", "RAZAO", "cnpj"),
+    # The IBGE municipality register, and the case that showed inference is not
+    # enough on its own. CADMUN has 28 columns; MUNCOD/MUNNOME are the pair, but
+    # MUNSIAFI is shorter and looked more key-like among its non-null values,
+    # and OBSERV is a 50-character field that is blank for 5,517 of 5,652 rows.
+    # Inference chose MUNSIAFI -> OBSERV and produced a municipality table that
+    # decoded no municipalities.
+    "CADMUN": ("MUNCOD", "MUNNOME", "municipality"),
+    "TABMUN": ("MUNCOD", "MUNNOME", "municipality"),
+    "CIDCAP": ("CAUSAS", "DESCRICAO", "icd_chapter"),
+    "TABUF": ("CODIGO", "DESCRICAO", "uf"),
+    "TABOCUP": ("CODIGO", "DESCRICAO", "occupation"),
+    "TABPAIS": ("CODIGO", "DESCRICAO", "country"),
 }
 
 #: CNV files whose codes are ICD-10 and therefore need the CID universe to expand
@@ -137,25 +149,57 @@ def _infer_code_and_label(table: object) -> tuple[str, str] | None:
     names = table.schema.names
     if len(names) < 2 or table.num_rows == 0:
         return None
-    stats: dict[str, tuple[float, float, float]] = {}
+    stats: dict[str, tuple[float, float, float, float]] = {}
     for name in names:
         column = table.column(name)
-        values = [str(v).strip() for v in column.to_pylist()[:5000] if v is not None]
+        sample = column.to_pylist()[:5000]
+        if not sample:
+            continue
+        values = [str(v).strip() for v in sample if v is not None and str(v).strip()]
+        # How much of the column is actually populated, measured against EVERY
+        # row rather than only the ones that had a value. Dropping blanks before
+        # scoring is what let CADMUN's MUNSIAFI — null for most rows — look
+        # perfectly unique, and its OBSERV — blank for 5,517 of 5,652 — look
+        # like the most descriptive column in the table.
+        filled = len(values) / len(sample)
         if not values:
             continue
         uniqueness = len(set(values)) / len(values)
         mean_len = sum(len(v) for v in values) / len(values)
         spacing = sum(1 for v in values if " " in v) / len(values)
-        stats[name] = (uniqueness, mean_len, spacing)
+        stats[name] = (uniqueness, mean_len, spacing, filled)
     if len(stats) < 2:
         return None
-    # A code: highly unique, short, no spaces.
-    code_col = max(stats, key=lambda n: (stats[n][0] - stats[n][2], -stats[n][1]))
-    # A label: long and wordy, and not the code.
-    label_candidates = {n: v for n, v in stats.items() if n != code_col}
+
+    # Spacing is a GATE, not a term to subtract. A column whose values mostly
+    # contain spaces is prose, and no amount of uniqueness makes prose a key —
+    # which is exactly the trap TABOCUP sets: its 3,564 occupation DESCRICAO
+    # values are 99.9% unique while its CODIGO repeats (many occupations share a
+    # CBO group), so any score led by uniqueness picks the description as the
+    # code and files the code as its label.
+    unspaced = {n: v for n, v in stats.items() if v[2] <= 0.5}
+    candidates = unspaced or stats
+
+    # Among columns that can be keys, the key is the one that identifies rows and
+    # is actually present. Uniqueness matters here and cannot lead: CADMUN's
+    # UFCOD is shorter and space-free but identifies 27 states across 5,652
+    # rows, and MUNSIAFI is unique among the rows it has and absent from most.
+    def _code_score(name: str) -> tuple[float, float]:
+        uniqueness, mean_len, _spacing, filled = stats[name]
+        return (filled * uniqueness, -mean_len)
+
+    # A key that is missing for half the rows is not a key, and a label blank for
+    # most of them labels nothing; both scores scale by how much of the column
+    # actually exists.
+    def _label_score(name: str) -> tuple[float, float]:
+        _uniqueness, mean_len, spacing, filled = stats[name]
+        return (filled * mean_len, spacing)
+
+    code_col = max(candidates, key=_code_score)
+    label_candidates = [n for n in stats if n != code_col]
     if not label_candidates:
         return None
-    label_col = max(label_candidates, key=lambda n: (stats[n][1], stats[n][2]))
+    label_col = max(label_candidates, key=_label_score)
     return code_col, label_col
 
 

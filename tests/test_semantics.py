@@ -448,3 +448,69 @@ class TestUnrecognisedLookups:
         assert "CID10" not in kit.guessed_columns
         entries, _b, _r = entries_from_kit(kit)
         assert all(e.confidence >= 0.9 for e in entries if e.value_group == "CID10")
+
+
+class TestLookupColumnInference:
+    """Picking the code and label columns of an unrecognised DBF lookup.
+
+    Both failures pinned here were found on real DATASUS tables, and they pull in
+    opposite directions — which is why the rule is a gate plus a score rather
+    than one weighted formula.
+    """
+
+    def _table(self, columns: dict[str, list[object]]):
+        import pyarrow as pa
+
+        return pa.table(columns)
+
+    def test_a_mostly_blank_column_is_not_the_label(self):
+        """CADMUN's OBSERV is a 50-char field, blank for 5,517 of 5,652 rows.
+
+        Scoring on mean length after dropping blanks made it look like the most
+        descriptive column in the table, and the municipality register decoded no
+        municipalities.
+        """
+        from pegasus_data.semantics.tabkit import _infer_code_and_label
+
+        table = self._table({
+            "MUNCOD": [f"1100{i:02d}" for i in range(20)],
+            "MUNNOME": [f"Cidade Numero {i}" for i in range(20)],
+            "OBSERV": [None] * 19 + ["uma observacao bastante longa aqui"],
+        })
+        assert _infer_code_and_label(table) == ("MUNCOD", "MUNNOME")
+
+    def test_a_sparse_unique_column_is_not_the_key(self):
+        """CADMUN's MUNSIAFI is unique among the rows it has and absent from most."""
+        from pegasus_data.semantics.tabkit import _infer_code_and_label
+
+        table = self._table({
+            "MUNCOD": [f"1100{i:02d}" for i in range(20)],
+            "MUNSIAFI": [f"{i:04d}" for i in range(5)] + [None] * 15,
+            "MUNNOME": [f"Cidade Numero {i}" for i in range(20)],
+        })
+        code, _label = _infer_code_and_label(table)
+        assert code == "MUNCOD"
+
+    def test_prose_is_never_the_key_however_unique_it_is(self):
+        """TABOCUP: 3,564 occupation names, 99.9% unique; CODIGO repeats.
+
+        Any score led by uniqueness picks the description as the code and files
+        the code as its label — exactly backwards.
+        """
+        from pegasus_data.semantics.tabkit import _infer_code_and_label
+
+        table = self._table({
+            "CODIGO": [f"{i // 4:03d}" for i in range(40)],
+            "DESCRICAO": [f"OCUPACAO DISTINTA NUMERO {i}" for i in range(40)],
+        })
+        assert _infer_code_and_label(table) == ("CODIGO", "DESCRICAO")
+
+    def test_a_table_of_only_prose_still_answers(self):
+        """The gate must not empty the candidate set."""
+        from pegasus_data.semantics.tabkit import _infer_code_and_label
+
+        table = self._table({
+            "A": [f"valor com espacos {i}" for i in range(10)],
+            "B": [f"outro valor bem mais longo aqui {i}" for i in range(10)],
+        })
+        assert _infer_code_and_label(table) is not None
