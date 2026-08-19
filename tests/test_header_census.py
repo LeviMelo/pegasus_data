@@ -202,3 +202,31 @@ class TestPersistHeaderIsIdempotent:
             persist_header(catalog, stratum_id="S1", path="/a/x.dbc", header=header)
         assert catalog.count("schema_header_facts") == 5
         assert catalog.count("schema_presence") == 5
+
+
+class TestTheCensusDoesNotDisableProfiling:
+    """The cheap stage must not cancel the expensive one that knows more."""
+
+    def test_a_census_read_stratum_is_still_waiting_to_be_profiled(self, catalog: Catalog):
+        from pegasus_data.inventory.strata import sample_plan
+
+        catalog.execute(
+            "INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path, "
+            "sample_status) VALUES ('S1','SIHSUS','RD',2014,1,'/a/x.dbc','pending')"
+        )
+        target = {"stratum_id": "S1", "path": "/a/x.dbc", "extension": ".dbc", "size": 10}
+        run_census(catalog, lambda _p, _n: make_header(SIH_LIKE), [target])
+
+        outstanding = [row["stratum_id"] for row in sample_plan(catalog)]
+        assert outstanding == ["S1"], (
+            "reading a header is not profiling; the stratum still needs its data read"
+        )
+
+    def test_a_profiled_stratum_is_not_reoffered(self, catalog: Catalog):
+        from pegasus_data.inventory.strata import sample_plan
+
+        catalog.execute(
+            "INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path, "
+            "sample_status) VALUES ('S1','SIHSUS','RD',2014,1,'/a/x.dbc','ok')"
+        )
+        assert sample_plan(catalog) == []

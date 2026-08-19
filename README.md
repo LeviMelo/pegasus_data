@@ -19,9 +19,10 @@ From an empty directory to a lake, in one command:
 pegasus-data all
 ```
 
-That runs the whole path — crawl, inventory, semantics, curate, profile,
-families, ledger, build — and each stage writes to the catalog before returning,
-so it is resumable and idempotent. Interrupt it and run it again; it picks up
+That runs the whole path — crawl, inventory, semantics, SIGTAP, community
+codings, curate, reference, schema census, profile, families, ledger, build —
+and each stage writes to the catalog before returning, so it is resumable and
+idempotent. Interrupt it and run it again; it picks up
 where it stopped rather than starting over or duplicating what it already has.
 
 Then read what you got:
@@ -88,7 +89,14 @@ UNDERSTAND   describe · dictionary · gaps
 EXTRACT      build · export
 AUDIT        report · questions · verify · findings · icd-quality
 MONITOR      crawl --resume
+PIPELINE     crawl · inventory · semantics · sigtap · community · curate ·
+             reference · schemas · profile · families · ledger · build
 ```
+
+`pegasus-data all` runs the PIPELINE row in that order, and the order is not
+cosmetic: every value source lands before `curate`, so a curated assertion can
+override any of them, and `reference` comes after `curate`, because it
+materialises the winners.
 
 `pegasus-data dictionary` writes `docs/dictionary/` — one page per system, one
 per dataset, generated from the catalog and never hand-written, so it cannot
@@ -122,6 +130,19 @@ things, and 452 tables on the tree mix classifications in one file.
 evidence about the source; deleting it destroys the only record that it happened.
 It is preserved and flagged.
 
+**Schemas are a census, not a sample.** A DBF declares its whole schema in a
+header of a few hundred bytes, and a `.dbc` keeps that header uncompressed ahead
+of its compressed payload — so `pegasus-data schemas` reads the columns of every
+stratum with a ranged fetch, about 17 MB across the tree where decoding one file
+per stratum would be 183 GiB. Validated against 571 full decodes: identical field
+lists, zero differences. Columns known only this way are marked **SCHEMA ONLY**
+in the dictionary, because knowing a column exists is not knowing what is in it.
+
+**Value labels come from ranked sources.** `.CNV` and `.DEF` first, then SIGTAP,
+then lookup DBFs, the DEMAS API, layout PDFs, and — last before a guess —
+community transcriptions, which carry the repository and commit they came from
+and can never override a first-party table.
+
 **What is not known says so.** `COD_IDADE` decides whether `IDADE=030` means
 thirty years or thirty months, and no codelist for it exists anywhere on the
 tree. Rather than guess, it is an open question naming exactly what would close
@@ -143,7 +164,7 @@ without written-out reasoning does not load.
 ## Requirements
 
 Python 3.11+. `pip install -e .` for the core; `.[all]` adds PDF, Excel and RAR
-support. Development: `pip install -e .[dev]`, then `pytest` (318 tests) and
+support. Development: `pip install -e .[dev]`, then `pytest` (387 tests) and
 `ruff check src tests`.
 
 ## Documentation

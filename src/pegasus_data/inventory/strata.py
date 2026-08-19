@@ -158,7 +158,13 @@ def sample_plan(catalog: Catalog, *, systems: Sequence[str] | None = None, only_
     clauses = ["sampled_path IS NOT NULL"]
     params: list[object] = []
     if only_pending:
-        clauses.append("sample_status = 'pending'")
+        # 'header' means the schema census read this stratum's columns from a
+        # file header. That is strictly less than profiling — it says nothing
+        # about values — so such a stratum is still OUTSTANDING here. Matching
+        # only 'pending' let the cheap census silently disable the expensive
+        # stage that follows it: `all` runs schemas before profile, so profile
+        # would have found nothing to do and reported success.
+        clauses.append("sample_status IN ('pending', 'header')")
     if systems:
         clauses.append(f"system IN ({','.join('?' * len(systems))})")
         params.extend(systems)
