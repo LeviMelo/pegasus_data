@@ -42,19 +42,30 @@ SOURCE_AUTHORITY: dict[str, int] = {
     "manual": 0,
     "cnv": 1,
     "def": 2,
-    "dbf_lookup": 3,
-    "demas_api": 4,
-    "pdf": 5,
-    "inferred": 6,
+    # DATASUS first-party and monthly-versioned, so it outranks a lookup DBF and
+    # the API, but never a .CNV/.DEF: those are what the tabulator itself used.
+    "sigtap": 3,
+    "dbf_lookup": 4,
+    "demas_api": 5,
+    "pdf": 6,
+    # Derived transcriptions (pysus, microdatasus and the like). These may fill a
+    # gap and may corroborate, and must NEVER override a first-party table — a
+    # community transcription is someone else's reading of the same .CNV, and
+    # where they disagree the .CNV is the one that was actually used. Record the
+    # repo URL and commit hash as source_ref so the reading can be traced.
+    "community": 7,
+    "inferred": 8,
 }
 
 DEFAULT_CONFIDENCE: dict[str, float] = {
     "manual": 1.0,
     "cnv": 0.95,
     "def": 0.9,
+    "sigtap": 0.9,
     "dbf_lookup": 0.9,
     "demas_api": 0.7,
     "pdf": 0.5,
+    "community": 0.4,
     "inferred": 0.3,
 }
 

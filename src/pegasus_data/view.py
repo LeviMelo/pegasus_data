@@ -163,11 +163,23 @@ def _lookup_map(
     return {str(c): str(lbl) for c, lbl in zip(codes, labels, strict=True) if c is not None}
 
 
-def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, str]:
-    """``field -> codelist``, best-authority binding per field.
+def _widths(lookup: Mapping[str, str]) -> set[int]:
+    return {len(code) for code in lookup}
 
-    ``family_id=''`` rows are system-wide bindings; a family-specific one beats
-    them, and within a tie the lowest ``confidence`` rank does.
+
+def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, list[str]]:
+    """``field -> codelists``, best authority first.
+
+    A field gets a *list*, not one table, because a column's classification can
+    change under it while the column name stays put. ``SP_ATOPROF`` is 8
+    characters in one era and 10 in another: 8-digit values are SIGTAP's
+    ``TPROC`` and 10-digit values are ``TPROC10``, and binding either one alone
+    silently leaves half the history unlabelled. Under exact-width matching
+    (§6.2) merging them is safe — an 8-character value cannot collide with a
+    10-character key — so the width does the choosing and nothing has to guess
+    which era a row came from.
+
+    ``family_id=''`` rows are system-wide; a family-specific binding sorts first.
     """
     rows = store.query(
         """
@@ -178,9 +190,12 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, s
         """,
         (system.upper(), family_id or ""),
     )
-    out: dict[str, str] = {}
+    out: dict[str, list[str]] = {}
     for r in rows:
-        out.setdefault(str(r["field_name"]).upper(), str(r["codelist"]))
+        codelists = out.setdefault(str(r["field_name"]).upper(), [])
+        codelist = str(r["codelist"])
+        if codelist not in codelists:
+            codelists.append(codelist)
     return out
 
 
@@ -240,9 +255,43 @@ def _render_multi_valued(
 
 
 def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
+    """Exact width or no match (§6.2).
+
+    Whitespace is stripped and nothing else. No padding, no truncation, no
+    matching across widths — a 3-digit CBO-1994 code and the first three digits
+    of a 6-digit CBO-2002 code are different things that happen to share a
+    prefix, and 452 tables on this tree mix both classifications in one file. An
+    exact string comparison enforces this by construction, and
+    :func:`_check_width` is what stops a future "helpful" pad from undoing it.
+    """
     values = column.to_pylist()
     return pa.array(
         [None if v is None else lookup.get(str(v).strip()) for v in values], type=pa.string()
+    )
+
+
+def _check_width(
+    field_name: str, codelist: str, column: pa.Array, lookup: Mapping[str, str]
+) -> str | None:
+    """Warn when a field's values and its codelist disagree about width.
+
+    The dangerous case is silent: a 6-digit CBO column against a table holding
+    both 3- and 6-digit codes matches only the 6-digit ones and looks like a
+    partial-coverage problem rather than two classifications sharing a file. Say
+    so, because the fix is to bind the right width, not to loosen the match.
+    """
+    table_widths = _widths(lookup)
+    if len(table_widths) < 2:
+        return None
+    observed = {len(str(v).strip()) for v in column.to_pylist() if v is not None}
+    if not observed:
+        return None
+    unmatched = observed - table_widths
+    return (
+        f"{field_name}: codelist {codelist!r} mixes code widths {sorted(table_widths)}; "
+        f"the column holds widths {sorted(observed)}"
+        + (f", of which {sorted(unmatched)} match nothing" if unmatched else "")
+        + ". Widths are matched exactly and never padded or truncated (§6.2)"
     )
 
 
@@ -389,23 +438,41 @@ def render_table(
     names: list[str] = []
     lookups: dict[str, dict[str, str]] = {}
 
-    def _lookup(field_name: str, codelist: str) -> dict[str, str] | None:
-        if codelist in lookups:
-            return lookups[codelist]
+    def _lookup(field_name: str, codelists: Sequence[str]) -> dict[str, str] | None:
+        """Merge every table bound to this field. Exact width keeps them apart."""
+        key = "|".join(codelists)
+        if key in lookups:
+            return lookups[key] or None
         doc = docs.get(field_name)
         width = None
         if doc and doc.token_rule and not doc.multi_valued:
             width = doc.token_rule.get("width")
-        try:
-            lookups[codelist] = _lookup_map(lake, codelist, year=year, code_width=width)
-        except FileNotFoundError as exc:
-            message = f"{field_name}: no reference table {codelist!r} in the lake ({exc})"
+        merged: dict[str, str] = {}
+        missing: list[str] = []
+        for codelist in codelists:
+            try:
+                # Later tables must not clobber a higher-authority one, so an
+                # existing key wins.
+                for code, label in _lookup_map(
+                    lake, codelist, year=year, code_width=width
+                ).items():
+                    merged.setdefault(code, label)
+            except FileNotFoundError:
+                missing.append(codelist)
+        if not merged:
+            names = ", ".join(repr(c) for c in codelists)
+            message = f"{field_name}: no reference table for {names} in the lake"
             if strict:
-                raise LabelUnavailable(message) from exc
+                raise LabelUnavailable(message)
             report.warnings.append(message)
             report.unlabelled.append(field_name)
-            lookups[codelist] = {}
-        return lookups[codelist] or None
+        elif missing:
+            report.warnings.append(
+                f"{field_name}: labelled from {len(codelists) - len(missing)} of "
+                f"{len(codelists)} bound tables; missing {', '.join(missing)}"
+            )
+        lookups[key] = merged
+        return merged or None
 
     for name in table.schema.names:
         kind = kinds[name]
@@ -428,7 +495,10 @@ def render_table(
             continue
 
         doc = docs.get(name.upper())
-        codelist = bindings.get(name.upper()) or (doc.codelist if doc else None)
+        codelists = list(bindings.get(name.upper()) or [])
+        if doc and doc.codelist and doc.codelist not in codelists:
+            codelists.insert(0, doc.codelist)
+        codelist = codelists[0] if codelists else None
         code_system = (doc.code_system if doc else None) or ("internal" if codelist else "none")
         mode: RenderMode = overrides.get(name.upper()) or (
             settings_profile.internal if code_system == "internal" else
@@ -447,7 +517,7 @@ def render_table(
             names.append(name)
             continue
 
-        lookup = _lookup(name.upper(), codelist)
+        lookup = _lookup(name.upper(), codelists)
         if lookup is None:
             columns.append(column)
             names.append(name)
@@ -473,6 +543,9 @@ def render_table(
             report.labelled.append(name)
             continue
 
+        width_warning = _check_width(name, "+".join(codelists), column, lookup)
+        if width_warning:
+            report.warnings.append(width_warning)
         labels = _labels_for(column, lookup)
         matched = int(pc.sum(pc.is_valid(labels)).as_py() or 0)
         if not matched:
@@ -522,7 +595,7 @@ def _apply_derived(
     rendered: pa.Table,
     source: pa.Table,
     docs: Mapping[str, VariableDoc],
-    bindings: Mapping[str, str],
+    bindings: Mapping[str, list[str]],
     lake: Path,
     year: int | None,
     wanted: bool | Sequence[str] | None,
@@ -547,7 +620,8 @@ def _apply_derived(
             if len(inputs) != 2 or any(c not in source.schema.names for c in inputs):
                 continue
             unit_column = inputs[1]
-            codelist = bindings.get(unit_column) or (
+            bound = bindings.get(unit_column) or []
+            codelist = bound[0] if bound else (
                 docs[unit_column].codelist if unit_column in docs else None
             )
             if not codelist:

@@ -26,7 +26,7 @@ requires the reasoning to be written out and refuses to load without it.
 from __future__ import annotations
 
 import json
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -60,6 +60,10 @@ class VariableDoc:
     description: str | None = None
     code_system: str | None = None
     codelist: str | None = None
+    #: Extra tables bound to the same field. A column whose classification
+    #: changed under it needs both, and exact-width matching (§6.2) selects
+    #: per row rather than per era.
+    codelists: list[str] = field(default_factory=list)
     multi_valued: bool = False
     token_rule: dict[str, Any] | None = None
     depends_on: list[str] = field(default_factory=list)
@@ -74,7 +78,9 @@ class VariableDoc:
     def as_row(self) -> tuple[object, ...]:
         return (
             self.system, self.field_name, self.official_name, self.translated_name,
-            self.description, self.code_system, self.codelist, int(self.multi_valued),
+            self.description, self.code_system,
+            ",".join([self.codelist, *self.codelists]) if self.codelist else None,
+            int(self.multi_valued),
             json.dumps(self.token_rule) if self.token_rule else None,
             json.dumps(self.depends_on) if self.depends_on else None,
             self.modifies,
@@ -125,6 +131,31 @@ def _clean(value: object) -> str | None:
         return None
     text = " ".join(str(value).split())
     return text or None
+
+
+def _all_codelists(body: Mapping[str, Any]) -> list[str]:
+    """``codelist:`` and/or ``codelists:``, normalised to one ordered list."""
+    named: list[str] = []
+    single = body.get("codelist")
+    if single:
+        named.append(str(single).upper())
+    extra = body.get("codelists") or []
+    if isinstance(extra, str):
+        extra = [extra]
+    for name in extra:
+        upper = str(name).upper()
+        if upper not in named:
+            named.append(upper)
+    return named
+
+
+def _first_codelist(body: Mapping[str, Any]) -> str | None:
+    names = _all_codelists(body)
+    return names[0] if names else None
+
+
+def _extra_codelists(body: Mapping[str, Any]) -> list[str]:
+    return _all_codelists(body)[1:]
 
 
 def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
@@ -193,7 +224,8 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
                 translated_name=_clean(body.get("translated_name")),
                 description=_clean(body.get("description")),
                 code_system=code_system,
-                codelist=(str(body["codelist"]).upper() if body.get("codelist") else None),
+                codelist=_first_codelist(body),
+                codelists=_extra_codelists(body),
                 multi_valued=bool(body.get("multi_valued", False)),
                 token_rule=token_rule,
                 depends_on=[str(d).upper() for d in depends_on],
@@ -252,6 +284,12 @@ def load_curation(catalog: Catalog, root: Path) -> dict[str, object]:
     harvesters wrote is left alone.
     """
     yaml = _require_yaml()
+    # The settled rulings and the named gaps are properties of this module, not
+    # of whatever files happen to be on disk, so they are recorded even when the
+    # curation directory is absent. A settled "no" that only appears when someone
+    # remembers to ship a YAML file is not settled.
+    _record_settled_rulings(catalog)
+    _record_open_gaps(catalog)
     if not root.is_dir():
         return {"curation_root": str(root), "files": 0, "variables": 0, "datasets": 0}
 
@@ -292,6 +330,65 @@ def load_curation(catalog: Catalog, root: Path) -> dict[str, object]:
         "prefix_overrides": overridden,
         "by_source": by_source,
     }
+
+
+#: Decisions that are FINISHED. They are recorded as resolved questions rather
+#: than left in the open list, because a settled "no" that keeps appearing as
+#: unfinished work is indistinguishable from a task nobody has got to.
+SETTLED: tuple[tuple[str, str, str, str], ...] = (
+    (
+        "semantics.cep_decoding",
+        "semantics",
+        "Should CEP (Brazilian postal code) be decoded to a place name?",
+        "Will not decode; use município instead. Three independent reasons, any one "
+        "sufficient. No CEP table exists anywhere on the FTP tree, and there is no "
+        "reason to expect one — CEP is Correios' property, not the Ministry's. The "
+        "Correios data that would close it is licensed, so shipping it is not ours to "
+        "do. And CEP is a re-identification vector: combined with sex and date of "
+        "birth, both present in these files, it narrows a patient to a household. "
+        "MUNIC_RES answers the geographic question at a granularity the data is "
+        "actually licensed and safe to publish at.",
+    ),
+)
+
+
+#: Gaps that are OPEN, recorded with exactly what would close them. §6.1's rule
+#: is "do not guess", and a named gap is how not-guessing stays visible.
+UNRESOLVED: tuple[tuple[str, str, str, str, str], ...] = (
+    (
+        "semantics.cod_idade_units",
+        "semantics",
+        "What time unit does each COD_IDADE value stand for in SIH?",
+        "Fetch a SIH .CNV or .DEF that decodes the age-unit column, or read the value "
+        "list out of a record-layout document. The .DEF files bind COD_IDADE to "
+        "IDADEPUB, IDADEBAS, IDADEDET and IDADE18, and all four are TabNet age-BAND "
+        "axes (3-character codes labelled '< 1 ano', '1 a 4 anos'), not the unit code. "
+        "No codelist of time units exists in the 4.0M rows ingested so far.",
+        "decoding IDADE at all: an age distribution computed without the unit invents "
+        "thousands of thirty-year-olds out of thirty-month-old infants",
+    ),
+)
+
+
+def _record_open_gaps(catalog: Catalog) -> None:
+    for key, area, question, procedure, blocking in UNRESOLVED:
+        catalog.note_question(
+            key, area=area, question=question,
+            verification_procedure=procedure, blocking=blocking,
+        )
+
+
+def _record_settled_rulings(catalog: Catalog) -> None:
+    """Write the settled decisions in, already resolved."""
+    for key, area, question, resolution in SETTLED:
+        catalog.note_question(
+            key,
+            area=area,
+            question=question,
+            verification_procedure="Settled by ruling; reopen only with new licensing facts.",
+            blocking="nothing — this is a decision, not a gap",
+        )
+        catalog.resolve_question(key, resolution=resolution, evidence="curation: settled ruling")
 
 
 def _replace_variable_docs(catalog: Catalog, docs: Sequence[VariableDoc]) -> None:
@@ -359,10 +456,10 @@ def _seed_field_codelists(catalog: Catalog, docs: Sequence[VariableDoc]) -> int:
     """
     catalog.execute("DELETE FROM field_codelists WHERE source = 'manual'")
     rows = [
-        (d.system, "", d.field_name, d.codelist, "manual",
+        (d.system, "", d.field_name, codelist, "manual",
          d.source_ref or f"curation:{d.asserted_by or 'unattributed'}", 1.0)
         for d in docs
-        if d.codelist
+        for codelist in ([d.codelist, *d.codelists] if d.codelist else [])
     ]
     return catalog.executemany(
         """
@@ -474,7 +571,8 @@ def load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str,
             translated_name=r["translated_name"],
             description=r["description"],
             code_system=r["code_system"],
-            codelist=r["codelist"],
+            codelist=(str(r["codelist"]).split(",")[0] if r["codelist"] else None),
+            codelists=(str(r["codelist"]).split(",")[1:] if r["codelist"] else []),
             multi_valued=bool(r["multi_valued"]),
             token_rule=json.loads(r["token_rule"]) if r["token_rule"] else None,
             depends_on=json.loads(r["depends_on"]) if r["depends_on"] else [],

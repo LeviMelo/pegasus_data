@@ -175,6 +175,75 @@ def curate(
         store.close()
 
 
+@app.command()
+def sigtap(
+    root: RootOpt = None,
+    competencia: Annotated[list[str] | None, typer.Option("--competencia", help="YYYYMM vintages to ingest; default is the newest")] = None,
+    latest: Annotated[int, typer.Option("--latest", help="How many of the newest exports to ingest")] = 1,
+    as_json: JsonOpt = False,
+) -> None:
+    """Ingest the SIGTAP Tabela Unificada — procedures, occupations and CID, first-party.
+
+    Supplies what the TabNet kits structurally cannot: procedure attributes, and
+    an occupation table at a single code width where the FTP tree's CBO file
+    mixes two classifications. Lands at source='sigtap', which outranks a lookup
+    DBF and never a .CNV/.DEF.
+    """
+    from .sources.sigtap import SigtapUnavailable, ingest
+
+    settings = _settings(root)
+    store = Catalog(settings.catalog_path)
+    try:
+        with console.status("fetching SIGTAP…"):
+            result = ingest(store, competencias=competencia, latest=latest)
+        _emit(result, as_json, "sigtap")
+    except SigtapUnavailable as exc:
+        console.print(f"[red]SIGTAP unavailable: {exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    finally:
+        store.close()
+
+
+@app.command(name="icd-quality")
+def icd_quality(
+    root: RootOpt = None,
+    system: SystemsOpt = None,
+    write: Annotated[bool, typer.Option("--write", help="Record the inferred token rules into the variable dictionary")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Measure what ICD-classified columns actually contain, and how they pack codes.
+
+    Produces a token rule per column and a quality report: how many values are a
+    single valid code, several codes in one cell, malformed, a sentinel, or
+    syntactically valid but absent from the CID table for that vintage. Nothing
+    is dropped or nulled — malformed values are flagged so a consumer can filter
+    on quality instead of discovering it later.
+    """
+    from .semantics.icd import flag_suspect_bindings, measure_icd_columns, persist_token_rules
+
+    settings = _settings(root)
+    store = Catalog(settings.catalog_path, read_only=not write)
+    try:
+        measured = measure_icd_columns(store, settings.lake_dir, systems=system)
+        if not measured:
+            console.print("[yellow]no column is bound to CID10 yet[/yellow]")
+            return
+        _emit([q.as_dict() for q in measured] if as_json else
+              [{k: v for k, v in q.as_dict().items() if not k.startswith("examples")}
+               for q in measured],
+              as_json, "ICD column quality")
+        if write:
+            console.print(f"[green]{persist_token_rules(store, measured)}[/green] token rules recorded")
+            suspect = flag_suspect_bindings(store, measured)
+            if suspect:
+                console.print(
+                    f"[yellow]{suspect}[/yellow] binding(s) flagged as probably wrong "
+                    "(near-zero match rate); see open questions"
+                )
+    finally:
+        store.close()
+
+
 @app.command(name="prefix-adjudicate")
 def prefix_adjudicate(
     prefix: Annotated[str, typer.Option("--prefix", help="Series prefix to settle, e.g. CM")],

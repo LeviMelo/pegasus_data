@@ -70,6 +70,17 @@ variables:
     code_system: internal
     modifies: IDADE
     source: layout_doc
+    notes: >
+      DELIBERATELY UNBOUND. Six distinct values are observed (0,1,2,3,4,5 —
+      the instruction expected five), and no codelist of time units exists in
+      the 4.0M dictionary rows ingested so far. The .DEF files bind this column
+      to IDADEPUB, IDADEBAS, IDADEDET and IDADE18, all of which are TabNet
+      age-BAND axes with 3-character codes labelled '< 1 ano' — they decode a
+      tabulation axis, not this column. Guessing the unit mapping is the one
+      error with clinical consequence here, so it is recorded as the open
+      question semantics.cod_idade_units instead. IDADE_anos will not be
+      produced until it is closed, which is the correct failure: no derived age
+      is better than a wrong one.
 
   SEXO:
     official_name: Sexo do paciente
