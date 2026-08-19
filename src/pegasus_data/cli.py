@@ -1078,6 +1078,45 @@ def verify(
         store.close()
 
 
+def _optional(pipeline: Pipeline, stage: str) -> StageResult:
+    """Run a network-dependent source, reporting failure instead of raising.
+
+    SIGTAP lives on a different host and the community source on GitHub; either
+    can be unreachable behind a firewall or on a bad day. Neither is worth
+    ending a multi-hour run for, and a stage that says why it produced nothing
+    is honest in a way a crashed pipeline is not.
+    """
+    try:
+        if stage == "sigtap":
+            from .sources.sigtap import ingest as run
+
+            return StageResult(stage, counts=run(pipeline.catalog))
+        from .sources.community import ingest as run_community
+
+        return StageResult(stage, counts=run_community(pipeline.catalog))
+    except Exception as exc:  # noqa: BLE001 - reported, never fatal
+        pipeline.catalog.log_event(
+            stage, "optional source unavailable", level="warn", detail=f"{type(exc).__name__}: {exc}"
+        )
+        return StageResult(stage, counts={"skipped": True, "reason": f"{type(exc).__name__}: {exc}"})
+
+
+def _write_reference(pipeline: Pipeline) -> StageResult:
+    from .persist.reference import (
+        flag_unlabelled_codelists,
+        register_reference_tables,
+        write_reference_tables,
+    )
+
+    written = write_reference_tables(pipeline.catalog, pipeline.settings.lake_dir)
+    register_reference_tables(pipeline.catalog, written)
+    unlabelled = flag_unlabelled_codelists(pipeline.catalog)
+    return StageResult(
+        "reference",
+        counts={"tables": len(written), "codelists_without_labels": len(unlabelled)},
+    )
+
+
 @app.command(name="all", rich_help_panel="PIPELINE")
 def run_everything(
     root: RootOpt = None,
@@ -1086,7 +1125,16 @@ def run_everything(
     limit: Annotated[int | None, typer.Option("--limit", help="Cap strata profiled and files per family")] = None,
     resume: Annotated[bool, typer.Option("--resume")] = False,
 ) -> None:
-    """crawl → inventory → semantics → curate → profile → families → ledger → build."""
+    """Empty directory to queryable lake, in dependency order.
+
+    crawl → inventory → semantics → sigtap → community → curate → reference →
+    schemas → profile → families → ledger → build.
+
+    The order is not cosmetic. Every value source lands before ``curate``, so a
+    curated assertion can override any of them; ``reference`` comes after
+    ``curate``, because it materialises the winners and materialising them
+    earlier would freeze the losers into the lake.
+    """
     from .semantics.curation import load_curation
 
     pipeline = _pipeline(root)
@@ -1095,15 +1143,25 @@ def run_everything(
             ("crawl", lambda: pipeline.crawl(resume=resume, prefixes=prefix)),
             ("inventory", lambda: pipeline.inventory(systems=system)),
             ("semantics", lambda: pipeline.semantics(systems=system)),
-            # Curation lands after extraction and before profiling: the manual
-            # codelist bindings it writes outrank everything the harvesters just
-            # produced, and the ledger downstream reads the winner.
+            # External value sources, each unable to outrank the .CNV/.DEF above
+            # it. Both reach the network and both are allowed to fail without
+            # taking the run with them — a lake without SIGTAP is smaller, not
+            # broken.
+            ("sigtap", lambda: _optional(pipeline, "sigtap")),
+            ("community", lambda: _optional(pipeline, "community")),
+            # Curation lands after every extracted source and before anything
+            # materialises: the manual bindings it writes outrank all of them,
+            # and the ledger downstream reads the winner.
             (
                 "curate",
                 lambda: StageResult(
                     "curate", counts=load_curation(pipeline.catalog, pipeline.settings.curation_dir)
                 ),
             ),
+            # Materialise the code tables. Without this a lake has no
+            # lake/reference/, and load() cannot label a single column — which
+            # made `all` produce something that read back as raw codes.
+            ("reference", lambda: _write_reference(pipeline)),
             # Census first: it is cheap, it covers everything, and it gives the
             # profile stage a schema for strata its sample will never reach.
             ("schemas", lambda: pipeline.schemas(systems=system)),
