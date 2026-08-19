@@ -180,3 +180,39 @@ class TestTheBugItself:
         lake.write_batches([_batch(10, "old")], source_paths=["/a"], **self.ARGS)
         lake.write_batches([_batch(10, "new")], source_paths=["/a"], **self.ARGS)
         assert lake.dataset("SIHSUS", "fam1").to_table().num_rows == 10
+
+
+class TestStoredLabelAgreement:
+    """Comparing a stored label against what its binding allows.
+
+    The check exists to catch a wrong label written into Parquet. It has to be
+    strict enough to do that and not so literal that it fails on DATASUS's own
+    formatting, or a reader learns to ignore it — which is worse than no check.
+    """
+
+    def test_an_exact_match_agrees(self):
+        from pegasus_data.verify import _label_agrees
+
+        assert _label_agrees("1", "Masculino", {"Masculino"})
+
+    def test_a_label_carrying_its_own_code_agrees(self):
+        """One kit writes "06 Média...", another writes "Média..." for code 6."""
+        from pegasus_data.verify import _label_agrees
+
+        assert _label_agrees("6", "06 Média e Alta Complexidade", {"Média e Alta Complexidade"})
+
+    def test_a_label_carrying_a_DIFFERENT_code_does_not(self):
+        """The equivalence is checked against this row's own code, not any code."""
+        from pegasus_data.verify import _label_agrees
+
+        assert not _label_agrees("6", "07 Média e Alta Complexidade", {"Média e Alta Complexidade"})
+
+    def test_a_genuinely_different_label_still_fails(self):
+        from pegasus_data.verify import _label_agrees
+
+        assert not _label_agrees("1", "Feminino", {"Masculino"})
+
+    def test_a_non_numeric_code_gets_no_leniency(self):
+        from pegasus_data.verify import _label_agrees
+
+        assert not _label_agrees("M", "M Masculino", {"Masculino"})

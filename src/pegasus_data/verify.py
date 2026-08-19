@@ -681,6 +681,30 @@ def check_build_accounted(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
+def _label_agrees(code: str, stored: str, allowed: set[str]) -> bool:
+    """Does a stored label say the same thing as one the binding allows?
+
+    Exact match, plus one narrow equivalence that is provable rather than
+    assumed: DATASUS's ``.CNV`` files disagree about whether a label carries its
+    own code. One kit writes ``06 Média e Alta Complexidade (MAC)`` and another
+    writes ``Média e Alta Complexidade (MAC)`` for code ``6``. Those are the same
+    label formatted two ways, and failing on it would train a reader to ignore
+    this check — which is worse than the check not existing.
+
+    The equivalence is checked, not guessed: the prefix must be *this row's own
+    code*, allowing zero-padding, and what follows must match exactly. A stored
+    label prefixed with any other number still fails.
+    """
+    if stored in allowed:
+        return True
+    head, _, tail = stored.partition(" ")
+    if not tail or not head.isdigit() or not code.strip().isdigit():
+        return False
+    if int(head) != int(code.strip()):
+        return False
+    return tail.strip() in allowed
+
+
 def check_stored_labels_agree(catalog: Catalog, settings: Settings) -> Check:
     """§C — no label written into the lake contradicts its own binding.
 
@@ -759,7 +783,7 @@ def check_stored_labels_agree(catalog: Catalog, settings: Settings) -> Check:
                 if not allowed:
                     continue
                 checked += 1
-                if str(stored) not in allowed:
+                if not _label_agrees(str(raw), str(stored), allowed):
                     mismatches.append(
                         {"system": system, "field": base, "code": raw,
                          "stored": stored, "allowed": sorted(allowed)[:2]}
