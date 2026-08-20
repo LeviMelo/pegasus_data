@@ -1,0 +1,68 @@
+# Painel de Oncologia — the four columns left.
+#
+# One row follows a cancer patient from diagnosis to first treatment, which is
+# what the panel exists to measure: the law gives sixty days between the two,
+# and these dates are how compliance is counted.
+system: PAINEL_ONCOLOGIA
+asserted_by: pegasus_data
+
+variables:
+
+  DT_DIAG:
+    official_name: Data do diagnóstico
+    translated_name: Date of diagnosis
+    description: >
+      Date the cancer was diagnosed. The start of the interval the sixty-day
+      treatment law is measured over, so it decides whether a case counts as
+      treated in time.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ is the date prefix and DIAG diagnóstico; C(10) is a formatted date
+      with separators rather than the bare AAAAMMDD used elsewhere.
+    notes: >
+      Ten characters, so it carries separators — unlike the C(8) dates in SIH
+      and SIM. Parse it as formatted text, not as AAAAMMDD.
+
+  DT_TRAT:
+    official_name: Data do início do tratamento
+    translated_name: Date treatment began
+    description: >
+      Date the first cancer treatment began. With DT_DIAG it forms the interval
+      the panel reports, and the gap between them is the number the policy is
+      judged on.
+    code_system: none
+    source: inferred
+    reasoning: TRAT is tratamento; same C(10) formatted-date shape as DT_DIAG.
+
+  DT_NASC:
+    official_name: Data de nascimento
+    translated_name: Date of birth
+    description: >
+      Patient's date of birth, from which age at diagnosis is computed rather
+      than being stored.
+    code_system: none
+    source: inferred
+    reasoning: NASC is nascimento; same C(10) formatted-date shape.
+    notes: >
+      A date of birth beside a national health-card number is identifying.
+      Handle it as such.
+
+  CNS_PAC:
+    official_name: Cartão Nacional de Saúde do paciente
+    translated_name: Patient national health card number
+    description: >
+      The patient's CNS — the national health card number that identifies a
+      person across every SUS system. It is what makes this panel able to follow
+      one patient from diagnosis to treatment.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CNS is the national health card and PAC paciente; declared C(15), which is
+      the CNS length.
+    notes: >
+      A DIRECT PERSONAL IDENTIFIER in public data. It passes through this module
+      unmodified, and unmodified is what it must stay — no masking, hashing or
+      dropping is done here, because that decision belongs to the Ministry and
+      not to a library. Beside DT_NASC and a diagnosis it is re-identifying, and
+      the fact that it is published at all is a finding worth escalating.

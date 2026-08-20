@@ -1,0 +1,136 @@
+# CNES — the last of the establishment record.
+#
+# What is left after the .DEF names were harvested: the SUS/non-SUS service
+# flags, the outsourcing link, and the three sixty-character name fields that
+# carry text rather than codes.
+#
+# Left out: CLASS_SR, AP01CV07 and AP02CV07. The AP..CV.. pair belongs to a
+# numbered grid whose axes are not established by anything found, and guessing
+# at a grid position is how the QTINST family went wrong once already.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+
+  HOSP_SUS:
+    official_name: Atendimento hospitalar SUS
+    translated_name: Provides SUS inpatient care
+    description: >
+      Whether the establishment admits inpatients under the SUS. Paired with
+      HOSP_NSUS, since a hospital can do both and the two flags are set
+      independently.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      HOSP is hospitalar and SUS needs no expansion; C(1) admits a flag, and it
+      sits directly beside HOSP_NSUS and AMB_SUS.
+
+  HOSP_NSUS:
+    official_name: Atendimento hospitalar não-SUS
+    translated_name: Provides non-SUS inpatient care
+    description: >
+      Whether the establishment admits inpatients outside the SUS — privately or
+      through supplementary health insurance. Set independently of HOSP_SUS.
+    code_system: internal
+    source: inferred
+    reasoning: NSUS is não-SUS, the negative counterpart of HOSP_SUS; C(1) flag.
+    notes: >
+      Non-SUS activity is recorded here but its *records* are not in DATASUS.
+      This flag says the capacity exists; it does not let you count it.
+
+  AMB_SUS:
+    official_name: Atendimento ambulatorial SUS
+    translated_name: Provides SUS outpatient care
+    description: >
+      Whether the establishment provides outpatient care under the SUS — the
+      companion to HOSP_SUS for the ambulatory side.
+    code_system: internal
+    source: inferred
+    reasoning: AMB is ambulatorial, in the same C(1) flag block as HOSP_SUS.
+
+  CNESTERC:
+    official_name: CNES do estabelecimento terceirizado
+    translated_name: Outsourced-to establishment CNES
+    description: >
+      CNES code of the establishment a service is contracted out to. Where a
+      hospital does not run a service itself, this is who does — which is what
+      makes the difference between where care is billed and where it happens.
+    code_system: external
+    source: inferred
+    reasoning: >
+      TERC is terceirizado and the column is C(7), the CNES establishment width,
+      so it holds another establishment's code rather than a flag.
+
+  QT_CONTR:
+    official_name: Quantidade contratada
+    translated_name: Contracted quantity
+    description: >
+      How much of a service the establishment is contracted to provide. The
+      ceiling an SUS contract sets, as against what was actually delivered,
+      which is in the production files.
+    code_system: none
+    source: inferred
+    reasoning: >
+      QT_ is the quantity prefix and CONTR contratada; declared N(4), numeric
+      rather than coded.
+
+  UFMUNRES:
+    official_name: Município de residência (UF + município)
+    translated_name: Municipality of residence
+    description: >
+      Six-digit IBGE municipality code, state and municipality together, in the
+      form DATASUS uses everywhere — the check digit IBGE publishes as a seventh
+      character is not carried.
+    code_system: external
+    source: inferred
+    reasoning: >
+      UF MUN RES reads as UF, município, residência, and C(6) is the DATASUS
+      municipality width throughout.
+
+  CODEQUIP:
+    official_name: Código do tipo de equipamento
+    translated_name: Equipment type code
+    description: >
+      Which kind of equipment a record concerns, in the CNES equipment
+      classification — the type, not an individual machine.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      COD EQUIP is código de equipamento; C(2) admits a type code and is far too
+      narrow to identify a particular device.
+
+  NOME_EQP:
+    official_name: Nome da equipe
+    translated_name: Team name
+    description: >
+      Name the health team is registered under, as free text. The team's
+      identifier is the INE code elsewhere in the record; this is what it is
+      called.
+    code_system: none
+    source: inferred
+    reasoning: >
+      NOME is a name and the column is C(60), which cannot be a code; EQP is
+      equipe, matching the INE team fields around it.
+
+  NOMEAREA:
+    official_name: Nome da área
+    translated_name: Coverage area name
+    description: >
+      Name of the area a team covers, as free text. Areas are local names given
+      by the municipality, so these are not comparable between municipalities.
+    code_system: none
+    source: inferred
+    reasoning: NOME plus área, at C(60) — free text, not a code.
+    notes: >
+      Locally assigned. Two municipalities can use the same area name for
+      unrelated territories.
+
+  DESCSEGM:
+    official_name: Descrição do segmento
+    translated_name: Segment description
+    description: >
+      Free-text description of the segment a team's area is divided into — the
+      subdivision below the area, again named locally.
+    code_system: none
+    source: inferred
+    reasoning: DESC is descrição and SEGM segmento; C(60) free text.
