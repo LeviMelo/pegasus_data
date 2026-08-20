@@ -1069,7 +1069,8 @@ variables:
       Pediatric emergency treatment rooms count, installations grid position 1
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      pediatric emergency treatment rooms ('sala de atendimento pediatria'), NUMERIC(3).
+      pediatric emergency treatment rooms ('sala de atendimento pediatria') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1087,7 +1088,8 @@ variables:
       Female emergency treatment rooms count, installations grid position 2
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      female emergency treatment rooms ('sala de atendimento feminino'), NUMERIC(3).
+      female emergency treatment rooms ('sala de atendimento feminino') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1105,7 +1107,8 @@ variables:
       Male emergency treatment rooms count, installations grid position 3
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      male emergency treatment rooms ('sala de atendimento masculino'), NUMERIC(3).
+      male emergency treatment rooms ('sala de atendimento masculino') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1123,7 +1126,8 @@ variables:
       Unsegregated emergency treatment rooms count, installations grid position 4
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      unsegregated emergency treatment rooms ('sala de atendimento indiferenciado'), NUMERIC(3).
+      unsegregated emergency treatment rooms ('sala de atendimento indiferenciado') at this
+      fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1141,7 +1145,8 @@ variables:
       Pediatric rest/observation rooms count, installations grid position 5
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      pediatric rest/observation rooms ('sala de repouso/observacao pediatria'), NUMERIC(3).
+      pediatric rest/observation rooms ('sala de repouso/observacao pediatria') at this fixed
+      grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1159,7 +1164,8 @@ variables:
       Female rest/observation rooms count, installations grid position 6
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      female rest/observation rooms ('sala de repouso/observacao feminino'), NUMERIC(3).
+      female rest/observation rooms ('sala de repouso/observacao feminino') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1177,7 +1183,8 @@ variables:
       Male rest/observation rooms count, installations grid position 7
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      male rest/observation rooms ('sala de repouso/observacao masculino'), NUMERIC(3).
+      male rest/observation rooms ('sala de repouso/observacao masculino') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1195,8 +1202,8 @@ variables:
       Unsegregated rest/observation rooms count, installations grid position 8
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      unsegregated rest/observation rooms ('sala de repouso/observacao indiferenciado'),
-      NUMERIC(3).
+      unsegregated rest/observation rooms ('sala de repouso/observacao indiferenciado') at this
+      fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1214,7 +1221,8 @@ variables:
       Dental consulting rooms count, installations grid position 9
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      dental consulting rooms ('consultorio de odontologia'), NUMERIC(3).
+      dental consulting rooms ('consultorio de odontologia') at this fixed grid position
+      (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1232,7 +1240,7 @@ variables:
       Hygiene/cleaning rooms count, installations grid position 10
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      hygiene/cleaning rooms ('sala de higienizacao'), NUMERIC(3).
+      hygiene/cleaning rooms ('sala de higienizacao') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1250,7 +1258,7 @@ variables:
       Orthopedic-cast rooms count, installations grid position 11
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      orthopedic-cast rooms ('sala de gesso'), NUMERIC(3).
+      orthopedic-cast rooms ('sala de gesso') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1268,7 +1276,7 @@ variables:
       Dressing/wound-care rooms count, installations grid position 12
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      dressing/wound-care rooms ('sala de curativo'), NUMERIC(3).
+      dressing/wound-care rooms ('sala de curativo') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1286,7 +1294,7 @@ variables:
       Minor-surgery rooms count, installations grid position 13
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      minor-surgery rooms ('sala de pequena cirurgia'), NUMERIC(3).
+      minor-surgery rooms ('sala de pequena cirurgia') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1304,7 +1312,8 @@ variables:
       General physician consulting rooms count, installations grid position 14
     description: >-
       Among the establishment's urgencia/emergencia (emergency-care) installations: count of
-      general physician consulting rooms ('consultorio medico'), NUMERIC(3).
+      general physician consulting rooms ('consultorio medico') at this fixed grid position
+      (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1322,7 +1331,8 @@ variables:
       Primary-care consulting rooms count, installations grid position 15
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of primary-care
-      consulting rooms ('consultorio de clinica basica'), NUMERIC(3).
+      consulting rooms ('consultorio de clinica basica') at this fixed grid position
+      (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1340,7 +1350,8 @@ variables:
       Specialty-clinic consulting rooms count, installations grid position 16
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of specialty-
-      clinic consulting rooms ('consultorio de clinica especializada'), NUMERIC(3).
+      clinic consulting rooms ('consultorio de clinica especializada') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1358,7 +1369,8 @@ variables:
       Unsegregated-clinic consulting rooms count, installations grid position 17
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of unsegregated-
-      clinic consulting rooms ('consultorio de clinica indiferenciada'), NUMERIC(3).
+      clinic consulting rooms ('consultorio de clinica indiferenciada') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1376,7 +1388,7 @@ variables:
       Non-physician consulting rooms count, installations grid position 18
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of non-physician
-      consulting rooms ('consultorio nao medico'), NUMERIC(3).
+      consulting rooms ('consultorio nao medico') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1394,7 +1406,8 @@ variables:
       Female rest/observation rooms count, installations grid position 19
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of female
-      rest/observation rooms ('sala de repouso/observacao feminino'), NUMERIC(3).
+      rest/observation rooms ('sala de repouso/observacao feminino') at this fixed grid position
+      (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1412,7 +1425,8 @@ variables:
       Male rest/observation rooms count, installations grid position 20
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of male
-      rest/observation rooms ('sala de repouso/observacao masculino'), NUMERIC(3).
+      rest/observation rooms ('sala de repouso/observacao masculino') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1430,7 +1444,8 @@ variables:
       Pediatric rest/observation rooms count, installations grid position 21
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of pediatric
-      rest/observation rooms ('sala de repouso/observacao pediatria'), NUMERIC(3).
+      rest/observation rooms ('sala de repouso/observacao pediatria') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1448,7 +1463,8 @@ variables:
       Unsegregated rest/observation rooms count, installations grid position 22
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of unsegregated
-      rest/observation rooms ('sala de repouso/observacao indiferenciado'), NUMERIC(3).
+      rest/observation rooms ('sala de repouso/observacao indiferenciado') at this fixed grid
+      position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1466,7 +1482,7 @@ variables:
       Dental consulting rooms count, installations grid position 23
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of dental
-      consulting rooms ('consultorio de odontologia'), NUMERIC(3).
+      consulting rooms ('consultorio de odontologia') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1484,7 +1500,7 @@ variables:
       Minor-surgery rooms count, installations grid position 24
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of minor-surgery
-      rooms ('sala de pequenas cirurgias'), NUMERIC(3).
+      rooms ('sala de pequenas cirurgias') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1502,7 +1518,7 @@ variables:
       Nursing rooms count, installations grid position 25
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of nursing rooms
-      ('sala de enfermagem'), NUMERIC(3).
+      ('sala de enfermagem') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1520,7 +1536,7 @@ variables:
       Immunization rooms count, installations grid position 26
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of immunization
-      rooms ('sala de imunizacao'), NUMERIC(3).
+      rooms ('sala de imunizacao') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1538,7 +1554,8 @@ variables:
       Nebulization (inhalation-therapy) rooms count, installations grid position 27
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of nebulization
-      (inhalation-therapy) rooms ('sala de nebulizacao'), NUMERIC(3).
+      (inhalation-therapy) rooms ('sala de nebulizacao') at this fixed grid position
+      (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1556,7 +1573,7 @@ variables:
       Orthopedic-cast rooms count, installations grid position 28
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of orthopedic-cast
-      rooms ('sala de gesso'), NUMERIC(3).
+      rooms ('sala de gesso') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1574,7 +1591,7 @@ variables:
       Dressing/wound-care rooms count, installations grid position 29
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of dressing/wound-
-      care rooms ('sala de curativo'), NUMERIC(3).
+      care rooms ('sala de curativo') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1592,7 +1609,8 @@ variables:
       Outpatient (ambulatory) surgery rooms count, installations grid position 30
     description: >-
       Among the establishment's ambulatorio (outpatient) installations: count of outpatient
-      (ambulatory) surgery rooms ('sala de cirurgia ambulatorial'), NUMERIC(3).
+      (ambulatory) surgery rooms ('sala de cirurgia ambulatorial') at this fixed grid position
+      (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
@@ -1611,7 +1629,7 @@ variables:
     description: >-
       Among the establishment's hospital centro cirurgico (surgical-center) installations,
       sibling of the CENTRCIR existence flag: count of surgical operating rooms ('sala de
-      cirurgia'), NUMERIC(3).
+      cirurgia') at this fixed grid position (NUMERIC(3)).
     code_system: none
     source: def
     source_ref: >-
