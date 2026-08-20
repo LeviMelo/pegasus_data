@@ -65,6 +65,7 @@ from .semantics.dictionary import (
     persist_bindings,
     persist_entries,
     persist_rules,
+    supersede_source,
 )
 from .semantics.ledger import build_ledger, persist_ledger
 from .semantics.reference import load_reference_sets
@@ -300,8 +301,10 @@ class Pipeline:
             "rules": 0,
             "code_table_rows": 0,
             "def_variables": 0,
+            "superseded_rows": 0,
         }
         notes: list[str] = []
+        superseded = 0
 
         fetched = self.fetcher.ensure(kits)
         kit_reports: list[dict[str, object]] = []
@@ -319,6 +322,15 @@ class Pipeline:
                 continue
             stats = persist_kit(self.catalog, kit, sha256=digest)
             entries, bindings, rules = entries_from_kit(kit)
+            # This kit's previous reading goes before its new one. A source
+            # disagreeing with itself is a re-reading, not a conflict, and
+            # without this a parser fix cannot displace its own stale output —
+            # the corrected TABOCUP inserted 406 right rows beside 2,868 wrong
+            # ones because the corrected codes differ from the mistaken ones.
+            superseded += supersede_source(
+                self.catalog,
+                [f"{kit.kit_path}!{table_id}" for table_id in kit.code_tables],
+            )
             merged = persist_entries(self.catalog, entries)
             persist_bindings(self.catalog, bindings)
             rule_count = persist_rules(self.catalog, rules, system=system)
@@ -328,6 +340,7 @@ class Pipeline:
             counts["rules"] = int(counts["rules"]) + rule_count
             counts["code_table_rows"] = int(counts["code_table_rows"]) + int(stats["code_table_rows"])
             counts["def_variables"] = int(counts["def_variables"]) + int(stats["def_variables"])
+            counts["superseded_rows"] = superseded
             kit_reports.append({"kit": path, **stats})
 
         # Loose .DEF/.CNV — the cheapest place to start, and the only place some

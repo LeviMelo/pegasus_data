@@ -202,6 +202,45 @@ def entries_from_loose_cnv(cnv: CnvFile, *, system: str | None) -> list[Dictiona
 # --------------------------------------------------------------------- merging
 
 
+def supersede_source(catalog: Catalog, prefixes: Sequence[str]) -> int:
+    """Forget what a source said last time, before it says it again.
+
+    The dictionary merges claims from many sources by authority, which is right:
+    two different sources disagreeing is a conflict to record, not a row to
+    overwrite. But a source disagreeing with *itself* is not a conflict — it is
+    a re-reading, and the new one supersedes the old.
+
+    Nothing enforced that, so a parser fix could not displace its own output.
+    ``TABOCUP``'s code and label columns were inferred backwards, giving 2,780
+    rows whose "code" was ``'AUX. DE TEC. DE PECUARIA (SEM CURSO SUPERIOR)'``.
+    The inference was fixed and the stage re-run; because the corrected reading
+    produces *different* ``value_raw`` values, it inserted 406 correct rows
+    beside the 2,868 wrong ones rather than replacing them. The catalog then
+    held both readings of the same file, with nothing to say which was current.
+
+    Matching is on the artifact prefix — ``kit.zip!TABLE`` — deliberately, not
+    on the whole ``source_ref``. The tail records *how* the columns were
+    resolved, and that is exactly what changes when a parser improves; keying on
+    it would make every fix invisible to this.
+    """
+    if not prefixes:
+        return 0
+    removed = 0
+    for prefix in prefixes:
+        cursor = catalog.execute(
+            "DELETE FROM dictionary WHERE source_ref = ? OR source_ref LIKE ? || ' %'",
+            (prefix, prefix),
+        )
+        removed += cursor.rowcount or 0
+    if removed:
+        catalog.log_event(
+            "semantics",
+            "superseded a source's previous reading",
+            detail=f"{removed} rows from {len(prefixes)} artifact(s) re-read",
+        )
+    return removed
+
+
 def persist_entries(catalog: Catalog, entries: Sequence[DictionaryEntry]) -> dict[str, int]:
     """Insert entries, recording genuine conflicts instead of resolving silently.
 

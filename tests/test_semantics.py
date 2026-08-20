@@ -17,6 +17,7 @@ from pegasus_data.semantics.dictionary import (
     most_granular_codelist,
     persist_bindings,
     persist_entries,
+    supersede_source,
 )
 from pegasus_data.semantics.tabkit import kit_validity, parse_kit, persist_kit
 from tests.conftest import make_dbf
@@ -584,3 +585,65 @@ class TestALabelCannotBecomeACode:
         )
         parsed = parse_cnv_bytes(raw, name="faixas", source_ref="t")
         assert [c.expression for c in parsed.categories] == ["1-5", "6,7,8", "A00-B99"]
+
+
+class TestASourceSupersedesItsOwnReading:
+    """A source disagreeing with *itself* is a re-reading, not a conflict.
+
+    The dictionary merges claims from many sources by authority, which is right
+    — two sources disagreeing is something to record, not overwrite. But nothing
+    made a source's newer reading replace its older one, so a parser fix could
+    not displace its own stale output.
+
+    TABOCUP is the case: its code and label columns were inferred backwards,
+    giving 2,780 rows whose "code" was an occupation description. The inference
+    was fixed and the stage re-run — and because the corrected reading produces
+    *different* codes, it inserted 406 correct rows beside the 2,868 wrong ones.
+    The catalog held both readings of one file with nothing to say which was
+    current.
+    """
+
+    def _row(self, catalog: Catalog, code: str, label: str, ref: str) -> None:
+        catalog.execute(
+            "INSERT INTO dictionary (system, value_group, field_name, value_raw, "
+            "value_label, source, source_ref, confidence) "
+            "VALUES ('SIM','TABOCUP','',?,?,'dbf_lookup',?,0.6)",
+            (code, label, ref),
+        )
+
+    def test_a_re_read_removes_what_the_same_artifact_said_before(self, catalog: Catalog):
+        self._row(catalog, "AUX. DE TEC. DE PECUARIA", "031", "kit.zip!TABOCUP (columns inferred: DESCRICAO->CODIGO)")
+        assert supersede_source(catalog, ["kit.zip!TABOCUP"]) == 1
+        assert catalog.count("dictionary") == 0
+
+    def test_it_matches_the_artifact_not_the_whole_source_ref(self, catalog: Catalog):
+        """The tail says HOW the columns were resolved, and that is exactly what
+        changes when a parser improves. Keying on it makes every fix invisible."""
+        self._row(catalog, "X", "1", "kit.zip!TABOCUP (columns inferred: DESCRICAO->CODIGO)")
+        self._row(catalog, "Y", "2", "kit.zip!TABOCUP (columns inferred: CODIGO->DESCRICAO)")
+        supersede_source(catalog, ["kit.zip!TABOCUP"])
+        assert catalog.count("dictionary") == 0
+
+    def test_a_different_artifact_is_left_alone(self, catalog: Catalog):
+        self._row(catalog, "A", "1", "kit.zip!TABOCUP")
+        self._row(catalog, "B", "2", "kit.zip!CID10")
+        supersede_source(catalog, ["kit.zip!TABOCUP"])
+        rows = catalog.query("SELECT source_ref FROM dictionary")
+        assert [r["source_ref"] for r in rows] == ["kit.zip!CID10"]
+
+    def test_a_table_whose_name_merely_starts_the_same_survives(self, catalog: Catalog):
+        """TABOCUP must not take TABOCUPACAO with it."""
+        self._row(catalog, "A", "1", "kit.zip!TABOCUP")
+        self._row(catalog, "B", "2", "kit.zip!TABOCUPACAO")
+        supersede_source(catalog, ["kit.zip!TABOCUP"])
+        rows = catalog.query("SELECT source_ref FROM dictionary")
+        assert [r["source_ref"] for r in rows] == ["kit.zip!TABOCUPACAO"]
+
+    def test_nothing_to_supersede_is_not_an_error(self, catalog: Catalog):
+        assert supersede_source(catalog, []) == 0
+        assert supersede_source(catalog, ["never-read.zip!X"]) == 0
+
+    def test_it_is_recorded_in_the_event_log(self, catalog: Catalog):
+        self._row(catalog, "A", "1", "kit.zip!TABOCUP")
+        supersede_source(catalog, ["kit.zip!TABOCUP"])
+        assert catalog.count("events", "stage = 'semantics'") >= 1
