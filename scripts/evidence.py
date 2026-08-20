@@ -183,27 +183,44 @@ def evidence(conn: sqlite3.Connection, system: str, limit: int, include_describe
         (system, *names),
         "field_name",
     )
-    # Labels for those values, in one scan rather than one lookup per value.
+    # Labels for the values that will actually be shown — and ONLY those.
+    #
+    # Asking for every code of every bound codelist looks like one grouped scan
+    # and is not: SIASUS binds MUNICBR (865,801 rows) and INE_EQUIPE_BR
+    # (107,438), so describing ninety columns pulled a million rows and the
+    # agent waiting on it timed out having read nothing. The top values are
+    # already known here, and they are what a reader needs a label for.
+    shown = {
+        str(v["value"]).strip()
+        for rows_for_field in values.values()
+        for v in rows_for_field[:TOP_VALUES]
+        if v["value"] is not None
+    }
     labels: dict[tuple[str, str], str] = {}
-    for row in conn.execute(
-        f"""
-        SELECT d.field_name AS field_name, d.value_raw AS code, d.value_label AS label
-          FROM dictionary d
-         WHERE d.system = ? AND d.field_name IN ({slots})
-        """,
-        (system, *names),
-    ):
-        labels.setdefault((str(row["field_name"]), str(row["code"])), str(row["label"]))
-    for row in conn.execute(
-        f"""
-        SELECT fc.field_name AS field_name, d.value_raw AS code, d.value_label AS label
-          FROM field_codelists fc
-          JOIN dictionary d ON d.system = fc.system AND d.value_group = fc.codelist
-         WHERE fc.system = ? AND fc.field_name IN ({slots})
-        """,
-        (system, *names),
-    ):
-        labels.setdefault((str(row["field_name"]), str(row["code"])), str(row["label"]))
+    if shown:
+        value_slots = ",".join("?" * len(shown))
+        shown_list = sorted(shown)
+        for row in conn.execute(
+            f"""
+            SELECT d.field_name AS field_name, d.value_raw AS code, d.value_label AS label
+              FROM dictionary d
+             WHERE d.system = ? AND d.field_name IN ({slots})
+               AND d.value_raw IN ({value_slots})
+            """,
+            (system, *names, *shown_list),
+        ):
+            labels.setdefault((str(row["field_name"]), str(row["code"])), str(row["label"]))
+        for row in conn.execute(
+            f"""
+            SELECT fc.field_name AS field_name, d.value_raw AS code, d.value_label AS label
+              FROM field_codelists fc
+              JOIN dictionary d ON d.system = fc.system AND d.value_group = fc.codelist
+             WHERE fc.system = ? AND fc.field_name IN ({slots})
+               AND d.value_raw IN ({value_slots})
+            """,
+            (system, *names, *shown_list),
+        ):
+            labels.setdefault((str(row["field_name"]), str(row["code"])), str(row["label"]))
 
     series = _grouped(
         conn,
