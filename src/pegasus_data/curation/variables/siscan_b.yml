@@ -1,0 +1,1107 @@
+system: SISCAN
+asserted_by: pegasus_data
+variables:
+
+  CO_MIC_TRI:
+    official_name: "Codigo de microrganismo - Trichomonas vaginalis"
+    translated_name: "Trichomonas vaginalis flag (cervical cytology)"
+    description: >
+      Whether the Papanicolaou smear's MICROBIOLOGIA block reported Trichomonas vaginalis. The result form lists it as one of eight organism/finding checkboxes a cytotechnician can mark; declared C(1,0), so this is a single-character presence flag, not a count or an organism-load measure.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+    notes: >
+      Presence here means the organism was reported on this smear, not that the patient was symptomatic or treated for it.
+
+
+  CO_NEO_MAL:
+    official_name: "Codigo de outras neoplasias malignas (citologia)"
+    translated_name: "Other malignant neoplasm flag (cervical cytology)"
+    description: >
+      Flags the 'OUTRAS NEOPLASIAS MALIGNAS' checkbox under ATIPIAS EM CELULAS GLANDULARES on the cytology result - a catch-all for a malignant tumour seen on the smear that does not fit the printed squamous or glandular atypia categories.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+    notes: >
+      OUTNEO, a wider C(8,0) field in the same file family, reads as the same checkbox under a different naming pass; treat the two as probable duplicates rather than independent findings.
+
+
+  CO_RES_NOR:
+    official_name: "Resultado dentro dos limites da normalidade"
+    translated_name: "Cytology result within normal limits"
+    description: >
+      Answer to 'Dentro dos limites da normalidade no material examinado? Sim/Nao' on the cytology result - whether the pathologist found the smear entirely within normal limits, independent of the specific abnormal-cell categories recorded elsewhere in the row. Bound to codelist LIMITENORM, an internal Yes/No list rather than a clinical grading scale.
+
+    codelists: ["LIMITENORM"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  CVCIONAL:
+    official_name: "Coleta - meio convencional"
+    translated_name: "Conventional (slide) collection method flag"
+    description: >
+      Reads as the companion flag to MEIOLIQU, marking that the sample was collected as a conventional (dry-slide) Papanicolaou smear rather than liquid-based cytology.
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      Decomposes to an abbreviation of 'convencional', paired with the neighbouring field MEIOLIQU ('meio liquido'). Liquid-based cervical cytology became a billable SUS procedure alongside the conventional smear, so a binary collection-method pair is the natural DATASUS-style encoding, but neither field name is confirmed against a written source - the paper form on file predates the liquid-based option and does not show either checkbox.
+
+    notes: >
+      Moderate confidence only; treat as a working hypothesis, not a citation.
+
+
+  MEIOLIQU:
+    official_name: "Coleta - meio liquido"
+    translated_name: "Liquid-based collection method flag"
+    description: >
+      Reads as the liquid-based-cytology counterpart to CVCIONAL - see that entry for the reasoning and the same confidence caveat.
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      MEIO+LIQU decomposes directly to 'meio liquido' (liquid medium), the standard term for liquid-based Pap-smear preparation, paired with CVCIONAL as the two collection-method options.
+
+    notes: >
+      Moderate confidence only; not confirmed against a written source.
+
+
+  C_EPI_ESCA:
+    official_name: "Epitelio escamoso representado na amostra"
+    translated_name: "Squamous epithelium present in sample"
+    description: >
+      Whether squamous epithelium is present in the smear - one of the ADEQUABILIDADE DO MATERIAL checkboxes ('Epitelios representados na amostra: Escamoso / Glandular / Metaplasico') used to judge whether the sample is technically adequate. This is a presence flag, distinct from O_CIT_ESCA, which carries the actual squamous-abnormality diagnosis.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  C_EPI_GLAN:
+    official_name: "Epitelio glandular representado na amostra"
+    translated_name: "Glandular epithelium present in sample"
+    description: >
+      Glandular counterpart of C_EPI_ESCA: whether glandular epithelium is present in the smear, from the same 'Epitelios representados na amostra' adequacy checkboxes.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  O_CIT_ESCA:
+    official_name: "Resultado - atipias em celulas escamosas"
+    translated_name: "Squamous-cell abnormality result code"
+    description: >
+      Coded diagnostic category for squamous-cell abnormality on the smear - the ATIPIAS EM CELULAS ESCAMOSAS block of the result, spanning ASC-US/ASC-H through low- and high-grade intraepithelial lesion to invasive squamous carcinoma. Bound to codelist ATICELESC; the raw codes are DATASUS-internal and only readable through that codelist's labels.
+
+    codelists: ["ATICELESC"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  O_CIT_GLAN:
+    official_name: "Resultado - atipias em celulas glandulares"
+    translated_name: "Glandular-cell abnormality result code"
+    description: >
+      Glandular twin of O_CIT_ESCA - coded diagnostic category from ATIPIAS EM CELULAS GLANDULARES (adenocarcinoma in situ, invasive adenocarcinoma, etc). Bound to codelist ATICELGLAN.
+
+    codelists: ["ATICELGLAN"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  DENCARCINV:
+    official_name: "Carcinoma epidermoide invasor (citologia)"
+    translated_name: "Invasive squamous carcinoma flag (cytology)"
+    description: >
+      Flag for the 'Carcinoma epidermoide invasor' checkbox at the foot of the ATIPIAS EM CELULAS ESCAMOSAS block on the cytology result - cytologic evidence of frankly invasive squamous carcinoma, not a histologically confirmed diagnosis.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  INSATSFAC:
+    official_name: "Amostra insatisfatoria para avaliacao oncotica"
+    translated_name: "Unsatisfactory sample flag (cytology)"
+    description: >
+      Flags that the smear was judged unsatisfactory for oncotic evaluation. The form lists six specific reasons (acellular/hypocellular material, >75% blood, >75% pus cells, drying artefact, external contaminants, cell overlap) under this heading; this column carries the overall insatisfatoria verdict, not which specific reason applied.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  SATISFACT:
+    official_name: "Amostra satisfatoria para avaliacao oncotica"
+    translated_name: "Satisfactory sample flag (cytology)"
+    description: >
+      The satisfatoria counterpart of INSATSFAC under ADEQUABILIDADE DO MATERIAL.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  REJEITADA:
+    official_name: "Amostra rejeitada"
+    translated_name: "Rejected sample flag (cytology)"
+    description: >
+      Flags that the slide was rejected before analysis - the AMOSTRA REJEITADA POR section (missing/wrong slide identification, damaged or absent slide, cause outside the lab's control, or another stated cause). A rejected sample carries no cytologic result at all.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+    notes: >
+      Do not confuse with INSATSFAC, which covers samples that WERE read but judged technically inadequate.
+
+
+  RESNORM:
+    official_name: "Resultado normal/benigno"
+    translated_name: "Normal/benign result flag"
+    description: >
+      Summary 'resultado normal/benigno' flag, matching the heading printed at the top of the histopathology form's citology-encaminhamento block.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    notes: >
+      Likely a duplicate of CO_RES_NOR under a different naming pass - SISCOLO's export appears to carry more than one naming generation for some result flags across the 2006-2015 span.
+
+
+  LBGRAU:
+    official_name: "Lesao intraepitelial de baixo grau"
+    translated_name: "Low-grade squamous intraepithelial lesion (LSIL) flag"
+    description: >
+      Flag for 'Lesao intra-epitelial de baixo grau (compreendendo efeito citopatico pelo HPV e neoplasia intra-epitelial cervical grau I)' - LSIL - under ATIPIAS EM CELULAS ESCAMOSAS.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  LAGRAU:
+    official_name: "Lesao intraepitelial de alto grau (familia)"
+    translated_name: "High-grade squamous lesion family flag"
+    description: >
+      Ties to the 'alto grau' squamous-lesion family on the cytology result, which appears more than once on the form: as 'nao se pode afastar lesao de alto grau' (ASC-H-type wording, under celulas atipicas de significado indeterminado) and as the definitive 'Lesao intra-epitelial de alto grau' (HSIL) checkbox. Which exact checkbox this column encodes could not be pinned down from the form alone.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+    notes: >
+      Confidently in the high-grade squamous family; the exact checkbox (ASC-H vs HSIL) is not independently confirmed. Do not treat as interchangeable with LAGRAUMI, which is unambiguous.
+
+
+  LAGRAUMI:
+    official_name: "Lesao intraepitelial de alto grau, nao podendo excluir microinvasao"
+    translated_name: "High-grade lesion, cannot exclude microinvasion"
+    description: >
+      Direct match to the form checkbox of the same wording - high-grade squamous intraepithelial lesion where microinvasion cannot be excluded, one step short of a frank invasive-carcinoma call.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  OUTNEO:
+    official_name: "Outras neoplasias malignas (citologia)"
+    translated_name: "Other malignant neoplasm flag (cytology, alternate encoding)"
+    description: >
+      Flag for the same 'OUTRAS NEOPLASIAS MALIGNAS' checkbox as CO_NEO_MAL.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+    notes: >
+      Probable duplicate of CO_NEO_MAL - see that entry.
+
+
+  TEMPCITANT:
+    official_name: "Tempo desde a citologia anterior"
+    translated_name: "Time since previous Pap smear"
+    description: >
+      Codes how long ago the woman's previous Pap smear was, drawn from anamnese question 2 ('Fez o exame preventivo alguma vez? Sim, quando fez o ultimo exame? ano ___'). Bound to codelist TEMPO, an internal set of time-since-last-exam bins rather than a raw date.
+
+    codelists: ["TEMPO"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero (formulario no.415), p.1-2"
+
+  DT_ANM_PRE:
+    official_name: "Ano do exame preventivo anterior informado na anamnese"
+    translated_name: "Year of previously reported Pap smear"
+    description: >
+      The 4-digit year the patient reported for her last Pap smear on anamnese question 2 ('ano ___'). Declared C(4,0), matching a bare year rather than a full DD/MM/AAAA date.
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ is DATASUS's date-field prefix; a declared width of 4 characters only fits a bare year, which matches the 'ano ___' blank on anamnese question 2 rather than any full-date field on the form.
+
+    notes: >
+      Do not expect day/month precision from this column - it is a year only.
+
+
+  REPREZT:
+    official_name: "Representacao da zona de transformacao"
+    translated_name: "Transformation-zone representation flag"
+    description: >
+      Whether the transformation zone / endocervical component is represented in the cervical smear - a standard adequacy sub-item in the Bethesda-based Brazilian cervical-cytology nomenclature (Nomenclatura Brasileira para Laudos Cervicais, INCA 2006), tracked alongside but separately from the basic satisfatoria/insatisfatoria call. Only present from 2008 onward (2,210 of the 2,858 CC files), consistent with a criterion added partway through the 2006-2015 window rather than present at launch.
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      REPREZT decomposes to 'representacao da zona de transformacao'; presence/absence of the transformation-zone component is a documented part of the Brazilian cervical-cytology reporting nomenclature, and the field's later start year is consistent with a criterion added after the system's 2006 launch.
+
+    notes: >
+      Exact code values not verified against a written source - a well-reasoned reading, not a citation.
+
+
+  NEOINSUTU:
+    official_name: "Adenocarcinoma in situ (citologia/histopatologia)"
+    translated_name: "Adenocarcinoma in situ flag"
+    description: >
+      Reads as the 'Adenocarcinoma "in situ"' checkbox under ATIPIAS EM CELULAS GLANDULARES (cytology form) or the equivalent MICROSCOPIA entry on the histopathology form.
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      NEO+INSUTU is a near-exact respelling of 'neoplasia in situ' (adenocarcinoma "in situ" is the only 'in situ' checkbox on either form), with the vowel order in 'situ' transposed - a common effect of stripping accents/vowels when building fixed-width field names.
+
+    notes: >
+      Moderate confidence; the near match in spelling is the main evidence.
+
+
+  CO_NEO_ADE:
+    official_name: "Codigo de adenocarcinoma (histopatologia)"
+    translated_name: "Adenocarcinoma category code (histopathology)"
+    description: >
+      Coded field selecting which adenocarcinoma category applies in the MICROSCOPIA block of the histopathology result - 'Adenocarcinoma in situ' vs 'Adenocarcinoma invasor' - when the diagnosis is glandular rather than squamous.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  CO_NEO_NIC:
+    official_name: "Codigo de grau da neoplasia intraepitelial cervical (NIC)"
+    translated_name: "NIC grade code"
+    description: >
+      Coded field selecting the cervical intraepithelial neoplasia (NIC) grade - I, II or III - from the histopathology microscopy list.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    notes: >
+      Likely redundant with the individual per-grade flags carried elsewhere in the same file (NICDLEVE/NICDMODE/NICDACENT) - both a single coded field and separate booleans appear to exist for the same finding.
+
+
+  CO_RES_FRA:
+    official_name: "Numero de fragmentos da biopsia"
+    translated_name: "Number of biopsy fragments"
+    description: >
+      Count of tissue fragments received, from 'Biopsia, numero de fragmentos ___' in the MACROSCOPIA section. Declared C(2,0): a 2-digit count, not a code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  CO_RES_LOC:
+    official_name: "Localizacao do tumor no colo"
+    translated_name: "Tumour location on the cervix"
+    description: >
+      Where on the cervix the tumour is located - ectocervice, endocervice, or juncao escamo-colunar - from the MACROSCOPIA 'localizacao do tumor' checkboxes. Bound to codelist LOCALIZACAO.
+
+    codelists: ["LOCALIZACAO"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  CO_RES_MAR:
+    official_name: "Distancia da margem cirurgica mais proxima (mm)"
+    translated_name: "Distance to nearest surgical margin (mm)"
+    description: >
+      Measured distance, in millimetres, from the tumour to the nearest surgical margin, from 'Distancia da margem mais proxima ___ mm' in MACROSCOPIA. Declared C(4,0): a measurement, not a code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  CO_RES_TAM:
+    official_name: "Tamanho do tumor - dimensao 1"
+    translated_name: "Tumour size, dimension 1"
+    description: >
+      First of the two blanks in 'Peca cirurgica, tamanho do tumor ___ x ___ cm' in MACROSCOPIA, stored as a separate column rather than as one two-part field. Declared C(4,0).
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  O_RES_TAM2:
+    official_name: "Tamanho do tumor - dimensao 2"
+    translated_name: "Tumour size, dimension 2"
+    description: >
+      Second blank of the same 'tamanho do tumor ___ x ___ cm' field - pairs with CO_RES_TAM.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    depends_on: ["CO_RES_TAM"]
+
+  CO_RES_TIP:
+    official_name: "Tipo de procedimento cirurgico"
+    translated_name: "Surgical procedure type code"
+    description: >
+      Coded field for 'Tipo de procedimento cirurgico*': biopsia, exerese da zona de transformacao, conizacao, histerectomia simples, histerectomia com anexectomia uni/bilateral, or outros.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    notes: >
+      Genuinely a small fixed-list coded field even though the catalog carries no codelist for it - SISCAN is catalogued from file headers only here, so the binder had nothing to attach; that is a gap in the catalog, not evidence the column is free text.
+
+
+  CRESBIOPSI:
+    official_name: "Tipo de procedimento cirurgico - biopsia"
+    translated_name: "Surgical procedure flag: biopsia"
+    description: >
+      Individual checkbox flag for 'biopsia' under 'Tipo de procedimento cirurgico*' on the histopathology result - the same checkbox group CO_RES_TIP encodes as a single code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    depends_on: ["CO_RES_TIP"]
+    notes: >
+      Likely redundant with CO_RES_TIP - both a single coded field and per-option flags appear to exist for this checkbox group.
+
+
+  CRESCONIZA:
+    official_name: "Tipo de procedimento cirurgico - conizacao"
+    translated_name: "Surgical procedure flag: conizacao"
+    description: >
+      Individual checkbox flag for 'conizacao' under 'Tipo de procedimento cirurgico*' on the histopathology result - the same checkbox group CO_RES_TIP encodes as a single code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    depends_on: ["CO_RES_TIP"]
+    notes: >
+      Likely redundant with CO_RES_TIP - both a single coded field and per-option flags appear to exist for this checkbox group.
+
+
+  CRESHISSIM:
+    official_name: "Tipo de procedimento cirurgico - histerectomia simples"
+    translated_name: "Surgical procedure flag: histerectomia simples"
+    description: >
+      Individual checkbox flag for 'histerectomia simples' under 'Tipo de procedimento cirurgico*' on the histopathology result - the same checkbox group CO_RES_TIP encodes as a single code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    depends_on: ["CO_RES_TIP"]
+    notes: >
+      Likely redundant with CO_RES_TIP - both a single coded field and per-option flags appear to exist for this checkbox group.
+
+
+  CRESPANHIS:
+    official_name: "Tipo de procedimento cirurgico - histerectomia com anexectomia"
+    translated_name: "Surgical procedure flag: histerectomia com anexectomia uni ou bilateral"
+    description: >
+      Individual checkbox flag for 'histerectomia com anexectomia uni ou bilateral' under 'Tipo de procedimento cirurgico*' on the histopathology result - the same checkbox group CO_RES_TIP encodes as a single code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    depends_on: ["CO_RES_TIP"]
+    notes: >
+      Likely redundant with CO_RES_TIP - both a single coded field and per-option flags appear to exist for this checkbox group.
+
+
+  CRESOUTROS:
+    official_name: "Tipo de procedimento cirurgico - outros"
+    translated_name: "Surgical procedure flag: outros"
+    description: >
+      Individual checkbox flag for 'outros' under 'Tipo de procedimento cirurgico*' on the histopathology result - the same checkbox group CO_RES_TIP encodes as a single code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    depends_on: ["CO_RES_TIP"]
+    notes: >
+      Likely redundant with CO_RES_TIP - both a single coded field and per-option flags appear to exist for this checkbox group.
+
+
+  CRESECTO:
+    official_name: "Localizacao do tumor - ectocervice"
+    translated_name: "Tumour location flag: ectocervice"
+    description: >
+      Individual checkbox flag for 'ectocervice' under 'localizacao do tumor' in MACROSCOPIA - the same checkbox group CO_RES_LOC encodes as a single code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    depends_on: ["CO_RES_LOC"]
+    notes: >
+      Likely redundant with CO_RES_LOC - both a single coded field and per-option flags appear to exist for this checkbox group.
+
+
+  CRESENDO:
+    official_name: "Localizacao do tumor - endocervice"
+    translated_name: "Tumour location flag: endocervice"
+    description: >
+      Individual checkbox flag for 'endocervice' under 'localizacao do tumor' in MACROSCOPIA - the same checkbox group CO_RES_LOC encodes as a single code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    depends_on: ["CO_RES_LOC"]
+    notes: >
+      Likely redundant with CO_RES_LOC - both a single coded field and per-option flags appear to exist for this checkbox group.
+
+
+  CRESJUNC:
+    official_name: "Localizacao do tumor - juncao escamo-colunar"
+    translated_name: "Tumour location flag: juncao escamo-colunar"
+    description: >
+      Individual checkbox flag for 'juncao escamo-colunar' under 'localizacao do tumor' in MACROSCOPIA - the same checkbox group CO_RES_LOC encodes as a single code.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    depends_on: ["CO_RES_LOC"]
+    notes: >
+      Likely redundant with CO_RES_LOC - both a single coded field and per-option flags appear to exist for this checkbox group.
+
+
+  C_EXT_CORP:
+    official_name: "Extensao do tumor - corpo uterino"
+    translated_name: "Tumour extension flag: corpo uterino"
+    description: >
+      Sim/Nao flag for extension to 'corpo uterino' from 'Dados em relacao a extensao do tumor' in the MICROSCOPIA section of the histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  C_EXT_PARA:
+    official_name: "Extensao do tumor - parametrial"
+    translated_name: "Tumour extension flag: parametrial"
+    description: >
+      Sim/Nao flag for extension to 'parametrial' from 'Dados em relacao a extensao do tumor' in the MICROSCOPIA section of the histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  C_EXT_PERI:
+    official_name: "Extensao do tumor - peri-neural"
+    translated_name: "Tumour extension flag: peri-neural"
+    description: >
+      Sim/Nao flag for extension to 'peri-neural' from 'Dados em relacao a extensao do tumor' in the MICROSCOPIA section of the histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  C_EXT_VAGI:
+    official_name: "Extensao do tumor - vagina"
+    translated_name: "Tumour extension flag: vagina"
+    description: >
+      Sim/Nao flag for extension to 'vagina' from 'Dados em relacao a extensao do tumor' in the MICROSCOPIA section of the histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  C_EXT_VASC:
+    official_name: "Extensao do tumor - invasao vascular"
+    translated_name: "Tumour extension flag: vascular"
+    description: >
+      Sim/Nao flag for extension to 'vascular' from 'Dados em relacao a extensao do tumor' in the MICROSCOPIA section of the histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  O_EXTEN_LI:
+    official_name: "Extensao para linfonodos"
+    translated_name: "Lymph-node involvement flag/code"
+    description: >
+      Ties to 'Linfonodos regionais examinados ___ e comprometidos ___' in the extensao-do-tumor block - lymph-node involvement.
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      O_EXTEN_ parallels the C_EXT_* extension-site columns; 'LI' is the one anatomical site in that section not already covered by a C_EXT_* column, and it matches 'linfonodos'.
+
+    notes: >
+      Whether it stores a count or a Sim/Nao flag is not confirmed.
+
+
+  NICCARCMIN:
+    official_name: "Carcinoma epidermoide microinvasivo"
+    translated_name: "Histopathology microscopy flag: carcinoma epidermoide microinvasivo"
+    description: >
+      Flag for 'carcinoma epidermoide microinvasivo' in the 'Lesoes de carater neoplasico ou pre-neoplasico' list of the histopathology MICROSCOPIA section - the squamous-lesion grading ladder from NIC I through invasive carcinoma.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  NICDACENT:
+    official_name: "NIC III / displasia acentuada / carcinoma in situ"
+    translated_name: "Histopathology microscopy flag: NIC III (displasia acentuada/carcinoma in situ)"
+    description: >
+      Flag for 'NIC III (displasia acentuada/carcinoma in situ)' in the 'Lesoes de carater neoplasico ou pre-neoplasico' list of the histopathology MICROSCOPIA section - the squamous-lesion grading ladder from NIC I through invasive carcinoma.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  NICDLEVE:
+    official_name: "NIC I / displasia leve"
+    translated_name: "Histopathology microscopy flag: NIC I (displasia leve)"
+    description: >
+      Flag for 'NIC I (displasia leve)' in the 'Lesoes de carater neoplasico ou pre-neoplasico' list of the histopathology MICROSCOPIA section - the squamous-lesion grading ladder from NIC I through invasive carcinoma.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  NICDMODE:
+    official_name: "NIC II / displasia moderada"
+    translated_name: "Histopathology microscopy flag: NIC II (displasia moderada)"
+    description: >
+      Flag for 'NIC II (displasia moderada)' in the 'Lesoes de carater neoplasico ou pre-neoplasico' list of the histopathology MICROSCOPIA section - the squamous-lesion grading ladder from NIC I through invasive carcinoma.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  NICEPIINVA:
+    official_name: "Carcinoma epidermoide invasivo"
+    translated_name: "Histopathology microscopy flag: carcinoma epidermoide invasivo"
+    description: >
+      Flag for 'carcinoma epidermoide invasivo' in the 'Lesoes de carater neoplasico ou pre-neoplasico' list of the histopathology MICROSCOPIA section - the squamous-lesion grading ladder from NIC I through invasive carcinoma.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  NICIMPAVAL:
+    official_name: "Carcinoma epidermoide, impossivel avaliar invasao"
+    translated_name: "Histopathology microscopy flag: carcinoma epidermoide, impossivel avaliar invasao"
+    description: >
+      Flag for 'carcinoma epidermoide, impossivel avaliar invasao' in the 'Lesoes de carater neoplasico ou pre-neoplasico' list of the histopathology MICROSCOPIA section - the squamous-lesion grading ladder from NIC I through invasive carcinoma.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  ESCCARINVA:
+    official_name: "Carcinoma epidermoide invasivo (nomenclatura alternativa)"
+    translated_name: "Invasive squamous carcinoma flag (legacy naming)"
+    description: >
+      Reads as an earlier-generation duplicate of NICEPIINVA - the same 'carcinoma epidermoide invasivo' finding under an ESC-prefixed name instead of the NIC-prefixed one used elsewhere in the same field group.
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      ESC (escamoso/epidermoide) + CAR (carcinoma) + INVA (invasivo) decomposes to the same finding NICEPIINVA already names. Two differently-prefixed columns for what reads as one checkbox is consistent with SISCOLO's field names changing across the 2006-2015 span, with old and new columns both surviving in the combined file.
+
+    notes: >
+      Possible duplicate of NICEPIINVA - verify before summing the two as independent counts.
+
+
+  DS_NEO_OUT:
+    official_name: "Descricao de outras neoplasias malignas (histopatologia)"
+    translated_name: "Other malignant neoplasm, free-text description"
+    description: >
+      Matches the free-text blank 'Outras neoplasias malignas. Quais? ___' on the histopathology result, for a malignancy that does not fit the printed squamous/glandular categories.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+    notes: >
+      Declared width is only 8 characters - unusually short for a free-text 'quais?' answer. It most likely stores a short code or truncated abbreviation rather than the diagnosis name itself.
+
+
+  DT_HIS_EXA:
+    official_name: "Data da coleta (exame histopatologico)"
+    translated_name: "Histopathology specimen collection date"
+    description: >
+      'Data da coleta' on the histopathology requisition. Declared C(10,0), fitting DD/MM/AAAA.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  DT_HIS_REC:
+    official_name: "Data de recebimento no laboratorio"
+    translated_name: "Laboratory receipt date (histopathology)"
+    description: >
+      'Recebido em: ___/___/___' in the laboratory-identification block of the histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  DT_PAC_NAS:
+    official_name: "Data de nascimento da paciente"
+    translated_name: "Patient date of birth"
+    description: >
+      'Data de Nascimento' in the informacoes pessoais block of the histopathology requisition.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero (formulario no.414), p.1-2"
+
+  CO_CLI_DES:
+    official_name: "Caracteristica clinica - tipo de descarga papilar"
+    translated_name: "Nipple-discharge type code"
+    description: >
+      From 'Descarga papilar: Cristalina / Hemorragica' in the DESCRICAO DO EXAME block of the breast cytology request. Bound to codelist CCLIDESC.
+
+    codelists: ["CCLIDESC"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+
+  CO_CLI_NOD:
+    official_name: "Caracteristica clinica - tipo de nodulo"
+    translated_name: "Breast nodule type code"
+    description: >
+      From 'Nodulo (tumor): Solido / Cistico / Solido-cistico' in the same block. Bound to codelist CCLINODU.
+
+    codelists: ["CCLINODU"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+
+  CCLIMATDPC:
+    official_name: "Material enviado - tipo de coleta"
+    translated_name: "Specimen collection-method code"
+    description: >
+      Ties to the '5. Material enviado:' checkboxes (descarga papilar / puncao aspirativa / conteudo cistico) - which of the three specimen types accompanies the request.
+
+    codelists: ["CCLIMATDPC"]
+    code_system: internal
+    source: inferred
+    reasoning: >
+      CCLI (caracteristica clinica) + MAT (material) + DPC reads as an abbreviation of descarga papilar / conteudo (cistico), the specimen-source checkboxes under 'Material enviado' once CCLIMATMAM (laterality) is set aside.
+
+    notes: >
+      Moderate confidence; the exact option wording per code value is not confirmed.
+
+
+  CCLIMATMAM:
+    official_name: "Lateralidade da mama (material enviado)"
+    translated_name: "Breast laterality of specimen"
+    description: >
+      From 'Mama direita / Mama esquerda' under 'Material enviado' - which breast the specimen came from.
+
+    codelists: ["CCLIMATMAM"]
+    code_system: internal
+    source: inferred
+    reasoning: >
+      CCLI+MAT+MAM reads as caracteristica-material-mama; laterality is the remaining checkbox in that section once CCLIMATDPC accounts for the collection-method options.
+
+    notes: >
+      Moderate confidence.
+
+
+  CRESBENIG:
+    official_name: "Resultado da puncao aspirativa - Processos Benignos. Negativo para malignidade"
+    translated_name: "PAAF result category: Processos Benignos. Negativo para malignidade"
+    description: >
+      One of the four fine-needle-aspiration (PAAF) result categories the SISMAMA 2010 informe itself charts by name in Figura 9 ('Processos Benignos. Negativo para malignidade' among them) - the top-level classification of a breast FNA cytology result. Bound to a self-named internal codelist enumerating the specific findings within the category (see the PBEN*/PMALIN*/PSUS*/PPOSMAC* entries).
+
+    codelists: ["CRESBENIG"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf, INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle do cancer de mama no Brasil (2010)"
+
+  CRESMALIIN:
+    official_name: "Resultado da puncao aspirativa - Malignidade Indeterminada Compativel"
+    translated_name: "PAAF result category: Malignidade Indeterminada Compativel"
+    description: >
+      One of the four fine-needle-aspiration (PAAF) result categories the SISMAMA 2010 informe itself charts by name in Figura 9 ('Malignidade Indeterminada Compativel' among them) - the top-level classification of a breast FNA cytology result. Bound to a self-named internal codelist enumerating the specific findings within the category (see the PBEN*/PMALIN*/PSUS*/PPOSMAC* entries).
+
+    codelists: ["CRESMALIIN"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf, INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle do cancer de mama no Brasil (2010)"
+
+  CRESSUSMAL:
+    official_name: "Resultado da puncao aspirativa - Suspeito para Malignidade"
+    translated_name: "PAAF result category: Suspeito para Malignidade"
+    description: >
+      One of the four fine-needle-aspiration (PAAF) result categories the SISMAMA 2010 informe itself charts by name in Figura 9 ('Suspeito para Malignidade' among them) - the top-level classification of a breast FNA cytology result. Bound to a self-named internal codelist enumerating the specific findings within the category (see the PBEN*/PMALIN*/PSUS*/PPOSMAC* entries).
+
+    codelists: ["CRESSUSMAL"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf, INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle do cancer de mama no Brasil (2010)"
+
+  CRESPOSMAL:
+    official_name: "Resultado da puncao aspirativa - Positivo para Malignidade"
+    translated_name: "PAAF result category: Positivo para Malignidade"
+    description: >
+      One of the four fine-needle-aspiration (PAAF) result categories the SISMAMA 2010 informe itself charts by name in Figura 9 ('Positivo para Malignidade' among them) - the top-level classification of a breast FNA cytology result. Bound to a self-named internal codelist enumerating the specific findings within the category (see the PBEN*/PMALIN*/PSUS*/PPOSMAC* entries).
+
+    codelists: ["CRESPOSMAL"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf, INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle do cancer de mama no Brasil (2010)"
+
+  CRESDERPAP:
+    official_name: "Resultado da descarga papilar / conteudo cistico"
+    translated_name: "Nipple-discharge/cyst-fluid result category"
+    description: >
+      Parallel result-category code for specimens submitted as nipple discharge or cyst fluid rather than FNA, from 'RESULTADO DA DESCARGA PAPILAR / CONTEUDO CISTICO' on the cytology form. See DEMATACELU/DENEGMALIG/DEMALIINDT/DEPOSMALIG/DEPROCINFL for the individual findings within it.
+
+    codelists: ["CRESDERPAP"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+
+  DEMATACELU:
+    official_name: "Descarga papilar - Material acelular"
+    translated_name: "Nipple-discharge finding: Material acelular"
+    description: >
+      One of the checkboxes for 'Material acelular' under 'Padrao citopatologico da amostra' in RESULTADO DA DESCARGA PAPILAR / CONTEUDO CISTICO.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESDERPAP"]
+
+  DENEGMALIG:
+    official_name: "Descarga papilar - Negativo para malignidade"
+    translated_name: "Nipple-discharge finding: Negativo para malignidade"
+    description: >
+      One of the checkboxes for 'Negativo para malignidade' under 'Padrao citopatologico da amostra' in RESULTADO DA DESCARGA PAPILAR / CONTEUDO CISTICO.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESDERPAP"]
+
+  DEMALIINDT:
+    official_name: "Descarga papilar - Padrao citopatologico de malignidade indeterminada"
+    translated_name: "Nipple-discharge finding: Padrao citopatologico de malignidade indeterminada"
+    description: >
+      One of the checkboxes for 'Padrao citopatologico de malignidade indeterminada' under 'Padrao citopatologico da amostra' in RESULTADO DA DESCARGA PAPILAR / CONTEUDO CISTICO.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESDERPAP"]
+
+  DEPOSMALIG:
+    official_name: "Descarga papilar - Positivo para malignidade"
+    translated_name: "Nipple-discharge finding: Positivo para malignidade"
+    description: >
+      One of the checkboxes for 'Positivo para malignidade' under 'Padrao citopatologico da amostra' in RESULTADO DA DESCARGA PAPILAR / CONTEUDO CISTICO.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESDERPAP"]
+
+  DEPROCINFL:
+    official_name: "Descarga papilar - Consistente com processo inflamatorio"
+    translated_name: "Nipple-discharge finding: Consistente com processo inflamatorio"
+    description: >
+      One of the checkboxes for 'Consistente com processo inflamatorio' under 'Padrao citopatologico da amostra' in RESULTADO DA DESCARGA PAPILAR / CONTEUDO CISTICO.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESDERPAP"]
+
+  PBENABSUBA:
+    official_name: "PAAF benigno - Abscesso subareolar recorrente"
+    translated_name: "Benign PAAF finding: Abscesso subareolar recorrente"
+    description: >
+      One of the seven specific findings listed under 'Processos Benignos. Negativo para malignidade compativel com:' in the PAAF result section - 'Abscesso subareolar recorrente'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESBENIG"]
+
+  PBENCONDFI:
+    official_name: "PAAF benigno - Condicao fibrocistica mamaria"
+    translated_name: "Benign PAAF finding: Condicao fibrocistica mamaria"
+    description: >
+      One of the seven specific findings listed under 'Processos Benignos. Negativo para malignidade compativel com:' in the PAAF result section - 'Condicao fibrocistica mamaria'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESBENIG"]
+
+  PBENFIBROA:
+    official_name: "PAAF benigno - Fibroadenoma"
+    translated_name: "Benign PAAF finding: Fibroadenoma"
+    description: >
+      One of the seven specific findings listed under 'Processos Benignos. Negativo para malignidade compativel com:' in the PAAF result section - 'Fibroadenoma'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESBENIG"]
+
+  PBENLESEPI:
+    official_name: "PAAF benigno - Lesao epitelial benigna proliferativa sem atipias"
+    translated_name: "Benign PAAF finding: Lesao epitelial benigna proliferativa sem atipias"
+    description: >
+      One of the seven specific findings listed under 'Processos Benignos. Negativo para malignidade compativel com:' in the PAAF result section - 'Lesao epitelial benigna proliferativa sem atipias'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESBENIG"]
+
+  PBENMASTIT:
+    official_name: "PAAF benigno - Mastite"
+    translated_name: "Benign PAAF finding: Mastite"
+    description: >
+      One of the seven specific findings listed under 'Processos Benignos. Negativo para malignidade compativel com:' in the PAAF result section - 'Mastite'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESBENIG"]
+
+  PBENNECGOR:
+    official_name: "PAAF benigno - Necrose gordurosa"
+    translated_name: "Benign PAAF finding: Necrose gordurosa"
+    description: >
+      One of the seven specific findings listed under 'Processos Benignos. Negativo para malignidade compativel com:' in the PAAF result section - 'Necrose gordurosa'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESBENIG"]
+
+  PBENOUTRAS:
+    official_name: "PAAF benigno - Outros (exclusivamente benignos)"
+    translated_name: "Benign PAAF finding: Outros (exclusivamente benignos)"
+    description: >
+      One of the seven specific findings listed under 'Processos Benignos. Negativo para malignidade compativel com:' in the PAAF result section - 'Outros (exclusivamente benignos)'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESBENIG"]
+
+  PMALINTUMF:
+    official_name: "PAAF malignidade indeterminada - Tumor filoide"
+    translated_name: "Indeterminate-malignancy PAAF finding: Tumor filoide"
+    description: >
+      From 'Padrao citopatologico de malignidade indeterminada compativel com: Tumor papilar / Tumor filoide / Outros' - 'Tumor filoide'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESMALIIN"]
+
+  PMALINTUMP:
+    official_name: "PAAF malignidade indeterminada - Tumor papilar"
+    translated_name: "Indeterminate-malignancy PAAF finding: Tumor papilar"
+    description: >
+      From 'Padrao citopatologico de malignidade indeterminada compativel com: Tumor papilar / Tumor filoide / Outros' - 'Tumor papilar'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESMALIIN"]
+
+  PMALINOUTR:
+    official_name: "PAAF malignidade indeterminada - Outros"
+    translated_name: "Indeterminate-malignancy PAAF finding: Outros"
+    description: >
+      From 'Padrao citopatologico de malignidade indeterminada compativel com: Tumor papilar / Tumor filoide / Outros' - 'Outros'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESMALIIN"]
+
+  PPOSMACDUC:
+    official_name: "PAAF positivo malignidade - Carcinoma ductal"
+    translated_name: "Malignant PAAF finding: Carcinoma ductal"
+    description: >
+      From 'Padrao citopatologico positivo para malignidade compativel com: Carcinoma ductal / Carcinoma lobular / Outros' - 'Carcinoma ductal'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESPOSMAL"]
+
+  PPOSMACLOB:
+    official_name: "PAAF positivo malignidade - Carcinoma lobular"
+    translated_name: "Malignant PAAF finding: Carcinoma lobular"
+    description: >
+      From 'Padrao citopatologico positivo para malignidade compativel com: Carcinoma ductal / Carcinoma lobular / Outros' - 'Carcinoma lobular'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESPOSMAL"]
+
+  PPOSMACOUT:
+    official_name: "PAAF positivo malignidade - Outros (exclusivamente malignos)"
+    translated_name: "Malignant PAAF finding: Outros (exclusivamente malignos)"
+    description: >
+      From 'Padrao citopatologico positivo para malignidade compativel com: Carcinoma ductal / Carcinoma lobular / Outros' - 'Outros (exclusivamente malignos)'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESPOSMAL"]
+
+  PSUSLEJPCA:
+    official_name: "PAAF suspeito malignidade - lesao epitelial proliferativa com atipias"
+    translated_name: "Suspicious PAAF finding: proliferative epithelial lesion with atypia"
+    description: >
+      From 'Padrao citopatologico suspeito para malignidade: Lesao epitelial proliferativa com atipias / Outros'.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESSUSMAL"]
+    notes: >
+      The field name does not spell the finding cleanly; assigned by elimination since the 'suspeito' section on the form has only two checkboxes (this one and 'Outros').
+
+
+  PSUSOUTROS:
+    official_name: "PAAF suspeito malignidade - outros"
+    translated_name: "Suspicious PAAF finding: other"
+    description: >
+      The 'Outros' checkbox in the same 'suspeito para malignidade' section as PSUSLEJPCA.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario no.416), p.1-2"
+    depends_on: ["CRESSUSMAL"]
+
+  PRESULPAAF:
+    official_name: "Resultado geral da puncao aspirativa"
+    translated_name: "Overall FNA (PAAF) result code"
+    description: >
+      Summary code for the overall PAAF result across the four categories (benigno / indeterminado / suspeito / positivo), rather than any one sub-finding. Declared with two widths across files in the catalog (C(1,0) and C(8,0)) - its encoding appears to have changed at some point across the 2009-2015 span rather than being one stable format throughout.
+
+    codelists: ["PRESULPAAF"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf, INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle do cancer de mama no Brasil (2010)"
+    reasoning: >
+      P(uncao) RESUL(tado) PAAF spells out directly, and Figura 9 of the SISMAMA informe reports the result of PAAF exams as exactly these four categories in aggregate.
+
+
+  CATBIRADS:
+    official_name: "Categoria BI-RADS"
+    translated_name: "BI-RADS category"
+    description: >
+      The mammography report's BI-RADS category (0 through 6), the American College of Radiology's standardised reporting scale that SISMAMA/INCA adopted for every mammogram. Category 0 = inconclusive (needs further imaging); 1 = no findings; 2 = benign findings; 3 = probably benign; 4(A/B/C) = suspicious; 5 = highly suggestive of malignancy; 6 = biopsy-proven malignancy, with escalating recommended follow-up from routine screening through biopsy at each step. Bound to codelist CATBIRADS.
+
+    codelists: ["CATBIRADS"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf, INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle do cancer de mama no Brasil (2010)"
+    reasoning: >
+      Tabela 1 of the SISMAMA informe ('Categoria BI-RADS no laudo mamografico e recomendacoes de conduta') gives the category scale and interpretation verbatim.
+
+
+  CANMMAMOGR:
+    official_name: "Risco elevado para cancer de mama"
+    translated_name: "Elevated breast-cancer risk flag"
+    description: >
+      Flag for 'Apresenta risco elevado* para cancer de mama?' on the request forms - elevated risk being defined (verbatim on both the citology-mama form and the SISMAMA informe) as a first-degree relative diagnosed before 50, bilateral breast or any-age ovarian cancer in a first-degree relative, a male relative with breast cancer, or a personal history of proliferative lesion with atypia / lobular neoplasia in situ. This flag drives the recommended screening interval - annual rather than biennial mammography, per Quadro 1 of the informe.
+
+    codelists: ["RISCOELEVADO"]
+    code_system: internal
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf, INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle do cancer de mama no Brasil (2010)"
+
+  CBENADENOS:
+    official_name: "Lesao benigna (histopatologia mama) - Adenose, SOE"
+    translated_name: "Benign breast lesion: Adenose, SOE"
+    description: >
+      Checkbox flag for 'Adenose, SOE' under 'LESOES DE CARATER BENIGNO' in the MICROSCOPIA section of the breast histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Mama (formulario no.335), p.1-2"
+
+  CBENFIBROA:
+    official_name: "Lesao benigna (histopatologia mama) - Fibroadenoma"
+    translated_name: "Benign breast lesion: Fibroadenoma"
+    description: >
+      Checkbox flag for 'Fibroadenoma' under 'LESOES DE CARATER BENIGNO' in the MICROSCOPIA section of the breast histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Mama (formulario no.335), p.1-2"
+
+  CBENFIBROC:
+    official_name: "Lesao benigna (histopatologia mama) - Condicao fibrocistica"
+    translated_name: "Benign breast lesion: Condicao fibrocistica"
+    description: >
+      Checkbox flag for 'Condicao fibrocistica' under 'LESOES DE CARATER BENIGNO' in the MICROSCOPIA section of the breast histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Mama (formulario no.335), p.1-2"
+
+  CBENFLORID:
+    official_name: "Lesao benigna (histopatologia mama) - Papilomatose florida do mamilo"
+    translated_name: "Benign breast lesion: Papilomatose florida do mamilo"
+    description: >
+      Checkbox flag for 'Papilomatose florida do mamilo' under 'LESOES DE CARATER BENIGNO' in the MICROSCOPIA section of the breast histopathology result.
+
+    code_system: none
+    source: web
+    source_ref: "https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf, Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Mama (formulario no.335), p.1-2"
+
+  CBENESDERO:
+    official_name: "Lesao esclerosante radial"
+    translated_name: "Radial sclerosing lesion flag"
+    description: >
+      Reads as the 'Lesao esclerosante radial' checkbox in the same benign-lesion list.
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      ES+DERO is a compressed reading of esclerosante/radial; assigned mainly by elimination against the printed benign-lesion checklist, alongside the six sibling CBEN* fields that decompose cleanly.
+
+    notes: >
+      Moderate confidence - the abbreviation does not spell the term as cleanly as its sibling fields.
+
+
+  CBENHIPCAT:
+    official_name: "Hiperplasia (ductal/lobular) com atipias"
+    translated_name: "Hyperplasia with atypia flag"
+    description: >
+      Reads as the 'com atipias' hyperplasia checkbox(es) on the benign-lesion list ('Hiperplasia ductal com atipias' / 'Hiperplasia lobular com atipias').
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      HIP (hiperplasia) + CAT (com atipias) decomposes cleanly; the form lists both a ductal and a lobular 'com atipias' hyperplasia option and only one field is present in this batch.
+
+    notes: >
+      Ductal-vs-lobular distinction is not resolved - this column may pool both, or cover only one.
+
+
+  CBENHIPSAT:
+    official_name: "Hiperplasia ductal sem atipias"
+    translated_name: "Hyperplasia without atypia flag"
+    description: >
+      Reads as the 'Hiperplasia ductal sem atipias' checkbox on the benign-lesion list.
+
+    code_system: none
+    source: inferred
+    reasoning: >
+      HIP (hiperplasia) + SAT (sem atipias) decomposes cleanly, paired with CBENHIPCAT.
+
+

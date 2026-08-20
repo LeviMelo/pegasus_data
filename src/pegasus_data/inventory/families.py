@@ -102,6 +102,10 @@ class Family:
     geos: set[str] = field(default_factory=set)
     formats: dict[str, int] = field(default_factory=dict)
     label: str | None = None
+    #: 'profile' when any stratum behind it was decoded, 'header' when the
+    #: schema is known only from the census. A family with both is 'profile':
+    #: something in it has actually been read.
+    schema_source: str = "header"
 
     @property
     def family_id(self) -> str:
@@ -156,14 +160,35 @@ def _path_glob(paths: Iterable[str]) -> str:
 
 
 def build_families(catalog: Catalog) -> list[Family]:
-    """Assemble families from profiled strata plus the file facts behind them."""
+    """Assemble families from every stratum whose schema is known.
+
+    A family is ``(system, series, schema_signature)``, and the signature is the
+    same fact however it was learned — the census tests assert that a header read
+    lands on exactly the signature a full decode produces. So a stratum read by
+    the census is legitimate grounds for a family.
+
+    This used to require ``sample_status = 'ok'``, meaning a file had been
+    decoded. The effect was that families existed for **4 of 20 systems**: the
+    census had catalogued 2,971 strata across 14 more, and nothing downstream
+    would look at them. SINAN, SINASC, CNES, SISCAN and twelve others therefore
+    had no families at all, and since the build and ``fetch()`` both iterate
+    families, none of them could be extracted — ``fetch("SINASC-DN")`` raised
+    "nothing catalogued" for one of the most-used datasets in Brazilian health
+    research.
+
+    How the schema was learned is recorded rather than discarded: knowing a
+    family's columns is not knowing its values, and ``schema_source`` is what
+    keeps those apart downstream.
+    """
     families: dict[tuple[str, str | None, str], Family] = {}
 
     stratum_rows = catalog.query(
         """
-        SELECT stratum_id, system, series, year, schema_signature, field_count, sampled_member
+        SELECT stratum_id, system, series, year, schema_signature, field_count,
+               sampled_member, sample_status
           FROM strata
-         WHERE schema_signature IS NOT NULL AND sample_status = 'ok'
+         WHERE schema_signature IS NOT NULL AND schema_signature <> ''
+           AND sample_status IN ('ok', 'header')
         """
     )
     members_by_stratum: dict[str, list[str]] = defaultdict(list)
@@ -186,6 +211,9 @@ def build_families(catalog: Catalog) -> list[Family]:
             )
             families[key] = fam
         fam.strata.append(row["stratum_id"])
+        if row["sample_status"] == "ok":
+            # One decoded stratum is enough to say the family has been read.
+            fam.schema_source = "profile"
         if row["year"] is not None:
             fam.years.add(int(row["year"]))
         member = row["sampled_member"] or ""
@@ -224,8 +252,9 @@ def persist_families(catalog: Catalog, families: Sequence[Family]) -> int:
     catalog.executemany(
         """
         INSERT INTO families (family_id, system, series, schema_signature, field_count,
-                              time_min, time_max, geo_coverage, file_count, stratum_count, label)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                              time_min, time_max, geo_coverage, file_count, stratum_count,
+                              schema_source, label)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(family_id) DO UPDATE SET
             field_count=excluded.field_count,
             time_min=excluded.time_min,
@@ -233,13 +262,14 @@ def persist_families(catalog: Catalog, families: Sequence[Family]) -> int:
             geo_coverage=excluded.geo_coverage,
             file_count=excluded.file_count,
             stratum_count=excluded.stratum_count,
+            schema_source=excluded.schema_source,
             label=COALESCE(excluded.label, families.label)
         """,
         [
             (
                 f.family_id, f.system, f.series, f.schema_signature, f.field_count,
                 f.time_min, f.time_max, json.dumps(sorted(f.geos)), len(f.paths),
-                len(f.strata), f.label,
+                len(f.strata), f.schema_source, f.label,
             )
             for f in families
         ],

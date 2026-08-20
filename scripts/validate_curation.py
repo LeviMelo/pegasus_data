@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import re
 import sqlite3
 import sys
 from pathlib import Path
@@ -35,6 +36,28 @@ from pegasus_data.semantics.curation import CurationError, parse_variable_file  
 #: for the claim to hold.
 _DATEISH = ("date", "data ", "dt_", "when the", "day ", "timestamp")
 _NUMERIC = ("count", "quantity", "amount", "value in", "número de", "quantidade")
+
+#: A description is for the reader of the data, not a review of DATASUS's
+#: paperwork. These phrases mean the writer has started describing the
+#: *document* instead of the *column* — "the source layout gives this exact
+#: generic label for every one of QTINST01 through QTINST37 with no
+#: field-specific wording; it does not identify, in this document, which
+#: installation type each position counts". That is ninety words about what a
+#: PDF fails to say, in place of finding out what the column counts. The layout
+#: is one source among several, and its silence is a reason to keep looking, not
+#: a finding to publish.
+_AUDITING = re.compile(
+    r"this (pdf|document|layout)\b|the source layout|not reproduced|is not asserted|"
+    r"no .{0,40} is asserted (here|in this)|does not identify|the layout (does not|gives)|"
+    r"not stated in (this|the) (pdf|document)|the document does not|no field-specific|"
+    r"not carried in (this|the)",
+    re.I,
+)
+
+#: Past this a description has stopped being one. Measured across the curation
+#: that reads well: median 27 words, 90th percentile 45. The batch that went
+#: wrong had a median of 97.
+_TOO_LONG = 70
 
 
 def _evidence(conn: sqlite3.Connection, system: str) -> dict[str, dict[str, object]]:
@@ -97,6 +120,34 @@ def check(catalog_path: str, file_path: Path) -> dict[str, object]:
 
     warnings: list[str] = []
     unknown: list[str] = []
+    prose: list[str] = []
+    lengths: list[int] = []
+    openings: dict[str, list[str]] = {}
+    for doc in docs:
+        text_desc = " ".join(str(doc.description or "").split())
+        if text_desc:
+            lengths.append(len(text_desc.split()))
+            openings.setdefault(" ".join(text_desc.split()[:12]).lower(), []).append(
+                doc.field_name
+            )
+            if len(text_desc.split()) > _TOO_LONG:
+                prose.append(
+                    f"{doc.field_name}: {len(text_desc.split())} words — a description, "
+                    "not an essay"
+                )
+            if _AUDITING.search(text_desc):
+                prose.append(
+                    f"{doc.field_name}: describes the DATASUS documentation rather than "
+                    "the column. Its silence is a reason to keep looking, not a finding "
+                    "to publish — say what the column holds, or leave it out"
+                )
+    for fields in openings.values():
+        if len(fields) >= 3:
+            prose.append(
+                f"{len(fields)} descriptions open identically ({', '.join(fields[:4])}…): "
+                "if they really are the same thing, say what distinguishes them; if they "
+                "are not, they have not been described"
+            )
     for doc in docs:
         seen = evidence.get(doc.field_name)
         if seen is None:
@@ -154,6 +205,8 @@ def check(catalog_path: str, file_path: Path) -> dict[str, object]:
         "described": sum(1 for d in docs if d.description),
         "columns_not_in_catalog": unknown[:20],
         "columns_not_in_catalog_count": len(unknown),
+        "median_words": sorted(lengths)[len(lengths) // 2] if lengths else 0,
+        "prose_problems": prose,
         "contradictions": warnings,
     }
 
@@ -166,7 +219,10 @@ def main() -> None:
     args = parser.parse_args()
     results = [check(args.catalog, Path(f)) for f in args.files]
     print(json.dumps(results, indent=2, ensure_ascii=False))
-    if any(not r["loads"] or r.get("contradictions") for r in results):
+    if any(
+        not r["loads"] or r.get("contradictions") or r.get("prose_problems")
+        for r in results
+    ):
         sys.exit(1)
 
 

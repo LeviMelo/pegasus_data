@@ -196,6 +196,18 @@ CREATE TABLE IF NOT EXISTS families (        -- D3: keyed by schema, not format
   geo_coverage      TEXT,
   file_count        INTEGER NOT NULL DEFAULT 0,
   stratum_count     INTEGER NOT NULL DEFAULT 0,
+  -- How this family's schema was learned: 'profile' (a file was decoded and its
+  -- values read) or 'header' (the census read the column list from a few hundred
+  -- bytes). Both give the SAME schema_signature -- that is asserted in the census
+  -- tests -- so both are legitimate grounds for a family. They are NOT the same
+  -- grounds for talking about values, and recording which is what keeps
+  -- "we know the columns" from being mistaken for "we know what is in them".
+  --
+  -- Families were built from profiled strata only, which is why 16 of 20 systems
+  -- had none: the census catalogued 2,971 strata across 14 systems and nothing
+  -- downstream would look at them, so SINAN, SINASC, CNES and thirteen others
+  -- could not be built or fetched at all.
+  schema_source     TEXT,
   label             TEXT,
   notes             TEXT
 );

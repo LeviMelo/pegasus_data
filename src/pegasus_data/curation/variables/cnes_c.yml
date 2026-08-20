@@ -1,0 +1,1237 @@
+system: CNES
+asserted_by: pegasus_data
+variables:
+  QTLEITP1:
+    official_name: Quantidade de leitos tipo 1 (cirurgico) existentes
+    translated_name: Existing surgical beds (legacy rollup)
+    description: >-
+      Count of hospital beds of the broad legacy category 'tipo 1 (cirurgico)' reported by
+      the establishment on the Estabelecimentos (ST) record. This is a coarse, establishment-level
+      rollup that predates the specialty-level bed breakdown carried in the Leitos (LT) file,
+      where the same beds are instead split by TP_LEITO/CODLEITO/QT_EXIST/QT_SUS.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 54
+    notes: >-
+      Legacy field. For current, specialty-level bed counts (and the SUS-available subset),
+      use the LT*.dbf file instead - QTLEITP1-3 can disagree with LT because they are not
+      always refreshed on the same cadence.
+  QTLEITP2:
+    official_name: Quantidade de leitos tipo 2 (clinico) existentes
+    translated_name: Existing clinical beds (legacy rollup)
+    description: >-
+      Count of hospital beds of the broad legacy category 'tipo 2 (clinico)' reported on the
+      Estabelecimentos (ST) record; sibling field to QTLEITP1 and QTLEITP3.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 55
+    notes: >-
+      See QTLEITP1 note on preferring LT*.dbf for current specialty-level bed counts.
+  QTLEITP3:
+    official_name: Quantidade de leitos tipo 3 (complementar) existentes
+    translated_name: Existing complementary beds (legacy rollup)
+    description: >-
+      Count of hospital beds of the broad legacy category 'tipo 3 (complementar)' (e.g. ICU/intermediate-care
+      type beds bundled together) reported on the Estabelecimentos (ST) record; sibling field
+      to QTLEITP1 and QTLEITP2.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 56
+    notes: >-
+      See QTLEITP1 note on preferring LT*.dbf for current specialty-level bed counts.
+  RES_BIOL:
+    official_name: Existe coleta de residuo biologico
+    translated_name: Biological waste collection exists
+    description: >-
+      Flag for whether the establishment declared having a collection circuit for biological
+      waste (1-sim, 0-nao). It records the declared existence of a segregated biological-waste
+      collection arrangement, not a volume, a provider, or verified regulatory compliance
+      (Brazil's ANVISA RDC waste-management rules require segregated biological/chemical/radioactive/common
+      streams for health establishments).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 139
+    codelists:
+    - RES_BIOL
+  RES_QUIM:
+    official_name: Existe coleta de residuo quimico
+    translated_name: Chemical waste collection exists
+    description: >-
+      Flag for whether the establishment declared having a collection circuit for chemical
+      waste (1-sim, 0-nao). It records the declared existence of a segregated chemical-waste
+      collection arrangement, not a volume, a provider, or verified regulatory compliance
+      (Brazil's ANVISA RDC waste-management rules require segregated biological/chemical/radioactive/common
+      streams for health establishments).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 140
+    codelists:
+    - RES_QUIM
+  RES_RADI:
+    official_name: Existe coleta de residuo radioativo
+    translated_name: Radioactive waste collection exists
+    description: >-
+      Flag for whether the establishment declared having a collection circuit for radioactive
+      waste (1-sim, 0-nao). It records the declared existence of a segregated radioactive-waste
+      collection arrangement, not a volume, a provider, or verified regulatory compliance
+      (Brazil's ANVISA RDC waste-management rules require segregated biological/chemical/radioactive/common
+      streams for health establishments).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 141
+    codelists:
+    - RES_RADI
+  RES_COMU:
+    official_name: Existe coleta de residuo comum
+    translated_name: Common/general waste collection exists
+    description: >-
+      Flag for whether the establishment declared having a collection circuit for common/general
+      waste (1-sim, 0-nao). It records the declared existence of a segregated common/general-waste
+      collection arrangement, not a volume, a provider, or verified regulatory compliance
+      (Brazil's ANVISA RDC waste-management rules require segregated biological/chemical/radioactive/common
+      streams for health establishments).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 142
+    codelists:
+    - RES_COMU
+  SERAP01P:
+    official_name: Servico de apoio S.A.M.E. ou S.P.P. proprio
+    translated_name: Medical-records service (SAME/SPP) provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'S.A.M.E. ou S.P.P.'
+      support service with its own in-house staff/structure, as opposed to outsourcing it
+      (see SERAP01T). A 0 does not mean the service is absent - it may still be delivered
+      on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 116
+    codelists:
+    - SRV_AP01
+  SERAP01T:
+    official_name: Servico de apoio S.A.M.E. ou S.P.P. terceirizado
+    translated_name: Medical-records service (SAME/SPP) outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'S.A.M.E. ou S.P.P.' support service
+      is delivered by an outsourced/third-party provider rather than in-house staff (see SERAP01P).
+      The two flags are not mutually exclusive in principle (a service could be partly own,
+      partly contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 117
+  SERAP02P:
+    official_name: Servico de apoio Servico Social proprio
+    translated_name: Social work service provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Servico Social' support
+      service with its own in-house staff/structure, as opposed to outsourcing it (see SERAP02T).
+      A 0 does not mean the service is absent - it may still be delivered on an outsourced
+      basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 118
+    codelists:
+    - SRV_AP02
+  SERAP02T:
+    official_name: Servico de apoio Servico Social terceirizado
+    translated_name: Social work service outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Servico Social' support service
+      is delivered by an outsourced/third-party provider rather than in-house staff (see SERAP02P).
+      The two flags are not mutually exclusive in principle (a service could be partly own,
+      partly contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 119
+  SERAP03P:
+    official_name: Servico de apoio Farmacia proprio
+    translated_name: Pharmacy provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Farmacia' support service
+      with its own in-house staff/structure, as opposed to outsourcing it (see SERAP03T).
+      A 0 does not mean the service is absent - it may still be delivered on an outsourced
+      basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 120
+    codelists:
+    - SRV_AP03
+  SERAP03T:
+    official_name: Servico de apoio Farmacia terceirizado
+    translated_name: Pharmacy outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Farmacia' support service is delivered
+      by an outsourced/third-party provider rather than in-house staff (see SERAP03P). The
+      two flags are not mutually exclusive in principle (a service could be partly own, partly
+      contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 121
+  SERAP04P:
+    official_name: Servico de apoio Esterilizacao de Materiais proprio
+    translated_name: Sterile-supply/CSSD service provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Esterilizacao de Materiais'
+      support service with its own in-house staff/structure, as opposed to outsourcing it
+      (see SERAP04T). A 0 does not mean the service is absent - it may still be delivered
+      on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 122
+    codelists:
+    - SRV_AP04
+  SERAP04T:
+    official_name: Servico de apoio Esterilizacao de Materiais terceirizado
+    translated_name: Sterile-supply/CSSD service outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Esterilizacao de Materiais' support
+      service is delivered by an outsourced/third-party provider rather than in-house staff
+      (see SERAP04P). The two flags are not mutually exclusive in principle (a service could
+      be partly own, partly contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 123
+  SERAP05P:
+    official_name: Servico de apoio Nutricao/Dietetica (S.N.D.) proprio
+    translated_name: Nutrition/dietetics service provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Nutricao/Dietetica (S.N.D.)'
+      support service with its own in-house staff/structure, as opposed to outsourcing it
+      (see SERAP05T). A 0 does not mean the service is absent - it may still be delivered
+      on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 124
+    codelists:
+    - SRV_AP05
+  SERAP05T:
+    official_name: Servico de apoio Nutricao/Dietetica (S.N.D.) terceirizado
+    translated_name: Nutrition/dietetics service outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Nutricao/Dietetica (S.N.D.)' support
+      service is delivered by an outsourced/third-party provider rather than in-house staff
+      (see SERAP05P). The two flags are not mutually exclusive in principle (a service could
+      be partly own, partly contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 125
+  SERAP06P:
+    official_name: Servico de apoio Lactario proprio
+    translated_name: Milk-preparation room (lactario) provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Lactario' support service
+      with its own in-house staff/structure, as opposed to outsourcing it (see SERAP06T).
+      A 0 does not mean the service is absent - it may still be delivered on an outsourced
+      basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 126
+    codelists:
+    - SRV_AP06
+  SERAP06T:
+    official_name: Servico de apoio Lactario terceirizado
+    translated_name: Milk-preparation room (lactario) outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Lactario' support service is delivered
+      by an outsourced/third-party provider rather than in-house staff (see SERAP06P). The
+      two flags are not mutually exclusive in principle (a service could be partly own, partly
+      contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 127
+  SERAP07P:
+    official_name: Servico de apoio Banco De Leite proprio
+    translated_name: Human milk bank provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Banco De Leite' support
+      service with its own in-house staff/structure, as opposed to outsourcing it (see SERAP07T).
+      A 0 does not mean the service is absent - it may still be delivered on an outsourced
+      basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 128
+    codelists:
+    - SRV_AP07
+  SERAP07T:
+    official_name: Servico de apoio Banco De Leite terceirizado
+    translated_name: Human milk bank outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Banco De Leite' support service
+      is delivered by an outsourced/third-party provider rather than in-house staff (see SERAP07P).
+      The two flags are not mutually exclusive in principle (a service could be partly own,
+      partly contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 129
+  SERAP08P:
+    official_name: Servico de apoio Lavanderia proprio
+    translated_name: Laundry service provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Lavanderia' support
+      service with its own in-house staff/structure, as opposed to outsourcing it (see SERAP08T).
+      A 0 does not mean the service is absent - it may still be delivered on an outsourced
+      basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 130
+    codelists:
+    - SRV_AP08
+  SERAP08T:
+    official_name: Servico de apoio Lavanderia terceirizado
+    translated_name: Laundry service outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Lavanderia' support service is
+      delivered by an outsourced/third-party provider rather than in-house staff (see SERAP08P).
+      The two flags are not mutually exclusive in principle (a service could be partly own,
+      partly contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 131
+  SERAP09P:
+    official_name: Servico de apoio Manutencao de Equipamento proprio
+    translated_name: Equipment-maintenance service provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Manutencao de Equipamento'
+      support service with its own in-house staff/structure, as opposed to outsourcing it
+      (see SERAP09T). A 0 does not mean the service is absent - it may still be delivered
+      on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 132
+    codelists:
+    - SRV_AP09
+  SERAP09T:
+    official_name: Servico de apoio Manutencao de Equipamento terceirizado
+    translated_name: Equipment-maintenance service outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Manutencao de Equipamento' support
+      service is delivered by an outsourced/third-party provider rather than in-house staff
+      (see SERAP09P). The two flags are not mutually exclusive in principle (a service could
+      be partly own, partly contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 133
+  SERAP10P:
+    official_name: Servico de apoio Ambulancia proprio
+    translated_name: Ambulance service provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Ambulancia' support
+      service with its own in-house staff/structure, as opposed to outsourcing it (see SERAP10T).
+      A 0 does not mean the service is absent - it may still be delivered on an outsourced
+      basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 134
+    codelists:
+    - SRV_AP10
+  SERAP10T:
+    official_name: Servico de apoio Ambulancia terceirizado
+    translated_name: Ambulance service outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Ambulancia' support service is
+      delivered by an outsourced/third-party provider rather than in-house staff (see SERAP10P).
+      The two flags are not mutually exclusive in principle (a service could be partly own,
+      partly contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 135
+  SERAP11P:
+    official_name: Servico de apoio Necroterio proprio
+    translated_name: Morgue (necroterio) provided in-house
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment provides its 'Necroterio' support
+      service with its own in-house staff/structure, as opposed to outsourcing it (see SERAP11T).
+      A 0 does not mean the service is absent - it may still be delivered on an outsourced
+      basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 136
+    codelists:
+    - SRV_AP11
+  SERAP11T:
+    official_name: Servico de apoio Necroterio terceirizado
+    translated_name: Morgue (necroterio) outsourced
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment's 'Necroterio' support service is
+      delivered by an outsourced/third-party provider rather than in-house staff (see SERAP11P).
+      The two flags are not mutually exclusive in principle (a service could be partly own,
+      partly contracted) and neither records volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 137
+  SERAPOIO:
+    official_name: Indica a existencia de algum servico de apoio para este CNES
+    translated_name: Any support service exists
+    description: >-
+      Aggregate flag (1-sim, 0-nao): true if the establishment reported at least one of the
+      eleven support services (SERAP01P/T through SERAP11P/T) as either in-house or outsourced.
+      It is a derived any-of indicator, not an independently collected fact.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 138
+    depends_on:
+    - SERAP01P
+    - SERAP01T
+    - SERAP02P
+    - SERAP02T
+    - SERAP03P
+    - SERAP03T
+    - SERAP04P
+    - SERAP04T
+    - SERAP05P
+    - SERAP05T
+    - SERAP06P
+    - SERAP06T
+    - SERAP07P
+    - SERAP07T
+    - SERAP08P
+    - SERAP08T
+    - SERAP09P
+    - SERAP09T
+    - SERAP10P
+    - SERAP10T
+    - SERAP11P
+    - SERAP11T
+    notes: >-
+      Derived from the 22 SERAPnnP/SERAPnnT flags; recomputing it from those 22 fields should
+      reproduce this value, so mismatches usually indicate a stale extract.
+  URGEMERG:
+    official_name: Indica a existencia de INSTALACAO FISICA de URGENCIA/EMERGENCIA para este
+      CNES
+    translated_name: Emergency-care physical installation exists
+    description: >-
+      Flag (1-sim, 0-nao) for whether the establishment has a physical emergency/urgent-care
+      installation (rooms/area), as declared on the ST record's facilities block. This records
+      physical infrastructure, not whether the establishment is authorized or actually operates
+      urgency/emergency care as a listed activity (that is tracked separately, e.g. via the
+      AP04CVxx service-by-payer flags and TP_UNID).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 72
+  MAQ_PROP:
+    official_name: Quantidade de maquinas de proporcao
+    translated_name: Proportioning dialysis machines
+    description: >-
+      Count of proportioning ('de proporcao') hemodialysis machines reported for the establishment's
+      dialysis service, on the Dados Complementares (DC) record.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 30
+  MAQ_OUTR:
+    official_name: Quantidade de outras maquinas
+    translated_name: Other dialysis machines
+    description: >-
+      Count of dialysis machines of types other than the proportioning machines counted in
+      MAQ_PROP, reported on the same DC dialysis-service block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 31
+  F_AREIA:
+    official_name: Indica se faz tratamento de agua com filtro de areia
+    translated_name: Water treatment with sand filter
+    description: >-
+      Flag (1-Sim, 0-Nao) for whether the establishment's dialysis water-treatment chain includes
+      a sand filter. This sits in the DC record's dialysis-infrastructure block (alongside
+      CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis specifically, not
+      general building water treatment.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 32
+  F_CARVAO:
+    official_name: Indica se faz tratamento de agua com filtro de carvao
+    translated_name: Water treatment with carbon filter
+    description: >-
+      Flag (1-Sim, 0-Nao) for whether the establishment's dialysis water-treatment chain includes
+      a carbon filter. This sits in the DC record's dialysis-infrastructure block (alongside
+      CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis specifically, not
+      general building water treatment.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 33
+  ABRANDAD:
+    official_name: Indica se faz tratamento de agua com abrandador
+    translated_name: Water treatment with water softener
+    description: >-
+      Flag (1-Sim, 0-Nao) for whether the establishment's dialysis water-treatment chain includes
+      a water softener. This sits in the DC record's dialysis-infrastructure block (alongside
+      CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis specifically, not
+      general building water treatment.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 34
+  DEIONIZA:
+    official_name: Indica se faz tratamento de agua com deionizador
+    translated_name: Water treatment with deionizer
+    description: >-
+      Flag (1-Sim, 0-Nao) for whether the establishment's dialysis water-treatment chain includes
+      a deionizer. This sits in the DC record's dialysis-infrastructure block (alongside CNS_NEFR/DIALISE):
+      it describes water pretreatment for hemodialysis specifically, not general building
+      water treatment.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 35
+  OSMOSE_R:
+    official_name: Indica se faz tratamento de agua com maquina de osmose reversa
+    translated_name: Water treatment with reverse-osmosis unit
+    description: >-
+      Flag (1-Sim, 0-Nao) for whether the establishment's dialysis water-treatment chain includes
+      a reverse-osmosis unit. This sits in the DC record's dialysis-infrastructure block (alongside
+      CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis specifically, not
+      general building water treatment.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 36
+  OUT_TRAT:
+    official_name: Indica se faz tratamento de agua com outros tipos de equipamento
+    translated_name: Water treatment with other water-treatment equipment
+    description: >-
+      Flag (1-Sim, 0-Nao) for whether the establishment's dialysis water-treatment chain includes
+      a other water-treatment equipment. This sits in the DC record's dialysis-infrastructure
+      block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
+      specifically, not general building water treatment.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 37
+  CNS_NEFR:
+    official_name: CNS do MEDICO NEFROLOGISTA RESPONSAVEL
+    translated_name: CNS of the responsible nephrologist
+    description: >-
+      National Health Card (CNS) number of the nephrologist formally designated as responsible
+      for the establishment's dialysis service, as declared on the DC record. This is a personal
+      identifier of a named professional, not a code with a label.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 38
+    notes: >-
+      Personal identifier (CNS). Cross-references a person in the PF file via CNS_PROF; may
+      be blank when no dialysis service is registered.
+  DIALISE:
+    official_name: Indica a existencia de algum REQUISITO DE DIALISE para este CNES
+    translated_name: Dialysis service requirements met
+    description: >-
+      Flag (1-Sim, 0-Nao) summarizing whether the establishment meets the set of declared
+      dialysis-service requirements (water treatment, machines, responsible nephrologist,
+      etc.) captured elsewhere on this same DC record. It is a derived compliance-style indicator
+      rather than an independently observed fact.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 39
+    notes: >-
+      Depends on the dialysis water-treatment flags, MAQ_PROP/MAQ_OUTR and CNS_NEFR reported
+      on the same record; treat as a summary, not a primary observation.
+  SIMUL_RD:
+    official_name: Numero de salas simulacao - (Radioterapia)
+    translated_name: Radiotherapy simulation rooms
+    description: >-
+      Count of simulation rooms reported for the establishment's radiotherapy service, on
+      the DC record's radiotherapy-infrastructure block. Establishments without a registered
+      radiotherapy service report 0 here, so a 0 does not by itself mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 40
+  PLANJ_RD:
+    official_name: Numero de salas de Planejamento - (Radioterapia)
+    translated_name: Radiotherapy treatment-planning rooms
+    description: >-
+      Count of treatment-planning rooms reported for the establishment's radiotherapy service,
+      on the DC record's radiotherapy-infrastructure block. Establishments without a registered
+      radiotherapy service report 0 here, so a 0 does not by itself mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 41
+  ARMAZ_FT:
+    official_name: Numero de salas de armazenamento de fontes - (Radioterapia)
+    translated_name: Radiotherapy sealed-source storage rooms
+    description: >-
+      Count of sealed-source storage rooms reported for the establishment's radiotherapy service,
+      on the DC record's radiotherapy-infrastructure block. Establishments without a registered
+      radiotherapy service report 0 here, so a 0 does not by itself mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 42
+  CONF_MAS:
+    official_name: Numero de salas confeccao masc. - (Radioterapia)
+    translated_name: Radiotherapy mask-fabrication rooms
+    description: >-
+      Count of mask-fabrication rooms reported for the establishment's radiotherapy service,
+      on the DC record's radiotherapy-infrastructure block. Establishments without a registered
+      radiotherapy service report 0 here, so a 0 does not by itself mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 43
+  SALA_MOL:
+    official_name: Numero de salas de salas de molde - (Radioterapia)
+    translated_name: Radiotherapy mould-room facilities
+    description: >-
+      Count of mould-room facilities reported for the establishment's radiotherapy service,
+      on the DC record's radiotherapy-infrastructure block. Establishments without a registered
+      radiotherapy service report 0 here, so a 0 does not by itself mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 44
+  BLOCOPER:
+    official_name: Numero de salas de bloco personalizado - (Radioterapia)
+    translated_name: Radiotherapy custom-block fabrication rooms
+    description: >-
+      Count of custom-block fabrication rooms reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-infrastructure block. Establishments without
+      a registered radiotherapy service report 0 here, so a 0 does not by itself mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 45
+  ORTV1050:
+    official_name: Quantidade de Equipamentos de Ortovoltagem 10-50 KV
+    translated_name: Radiotherapy - orthovoltage units, 10-50 kV
+    description: >-
+      Count of orthovoltage units, 10-50 kV reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy room
+      counts, 0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 55
+  ORV50150:
+    official_name: Quantidade de Equipamentos de Ortovoltagem 50-150 KV
+    translated_name: Radiotherapy - orthovoltage units, 50-150 kV
+    description: >-
+      Count of orthovoltage units, 50-150 kV reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy room
+      counts, 0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 56
+  OV150500:
+    official_name: Quantidade de Equipamentos de Ortovoltagem 150-500 KV
+    translated_name: Radiotherapy - orthovoltage units, 150-500 kV
+    description: >-
+      Count of orthovoltage units, 150-500 kV reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy room
+      counts, 0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 57
+  EQBRBAIX:
+    official_name: Quantidade de Equipamentos de Braquiterapia Baixa
+    translated_name: Radiotherapy - low-dose-rate brachytherapy units
+    description: >-
+      Count of low-dose-rate brachytherapy units reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy room
+      counts, 0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 59
+  EQBRMEDI:
+    official_name: Quantidade de Equipamentos de Braquiterapia Media
+    translated_name: Radiotherapy - medium-dose-rate brachytherapy units
+    description: >-
+      Count of medium-dose-rate brachytherapy units reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy room
+      counts, 0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 60
+  EQBRALTA:
+    official_name: Quantidade de Equipamentos de Braquiterapia Alta
+    translated_name: Radiotherapy - high-dose-rate brachytherapy units
+    description: >-
+      Count of high-dose-rate brachytherapy units reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy room
+      counts, 0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 61
+  EQ_MAREA:
+    official_name: Quantidade de Monitor de Area
+    translated_name: Radiotherapy - area radiation monitors
+    description: >-
+      Count of area radiation monitors reported for the establishment's radiotherapy service,
+      on the DC record's radiotherapy-equipment block. As with the radiotherapy room counts,
+      0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 62
+  EQ_MINDI:
+    official_name: Quantidade de Monitor Individual
+    translated_name: Radiotherapy - personal (individual) dosimetry monitors
+    description: >-
+      Count of personal (individual) dosimetry monitors reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy room
+      counts, 0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 63
+  EQSISPLN:
+    official_name: Quantidade de sistema de Computacao para Planejamento
+    translated_name: Radiotherapy - treatment-planning computer systems
+    description: >-
+      Count of treatment-planning computer systems reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy room
+      counts, 0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 64
+  EQDOSCLI:
+    official_name: Quantidade de dosimetro clinico
+    translated_name: Radiotherapy - clinical dosimeters
+    description: >-
+      Count of clinical dosimeters reported for the establishment's radiotherapy service,
+      on the DC record's radiotherapy-equipment block. As with the radiotherapy room counts,
+      0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 65
+  EQFONSEL:
+    official_name: Quantidade de fontes seladas
+    translated_name: Radiotherapy - sealed radioactive sources
+    description: >-
+      Count of sealed radioactive sources reported for the establishment's radiotherapy service,
+      on the DC record's radiotherapy-equipment block. As with the radiotherapy room counts,
+      0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 66
+  S_ACELL6:
+    official_name: Quantidade de Acelerador Linear ate 6 MeV
+    translated_name: Radiotherapy - linear accelerators up to 6 MeV
+    description: >-
+      Count of linear accelerators up to 6 MeV reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy room
+      counts, 0 is the expected value for establishments with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 52
+  CNS_ADM:
+    official_name: CNS do medico responsavel - ADMINISTRADOR OU RESPONSAVEL TECNICO
+    translated_name: CNS of the responsible administrator/technical director
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      administrator/technical director for the radiotherapy/oncology service, on the DC record.
+      Personal identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 67
+  CNS_OPED:
+    official_name: CNS do medico responsavel - ONCOLOGISTA PEDIATRICO
+    translated_name: CNS of the responsible pediatric oncologist
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      pediatric oncologist for the radiotherapy/oncology service, on the DC record. Personal
+      identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 68
+    notes: >-
+      The layout PDF's OCR text renders this label as 'CNS_OPlD'; the catalogued field name
+      is CNS_OPED and the description follows the surrounding row order (oncologista pediatrico).
+  CNS_CONC:
+    official_name: CNS do medico responsavel - CIRURGIA ONCOLOGICA
+    translated_name: CNS of the responsible oncologic surgeon
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      oncologic surgeon for the radiotherapy/oncology service, on the DC record. Personal
+      identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 69
+  CNS_OCLIN:
+    official_name: CNS do medico responsavel - ONCOLOGISTA CLINICO
+    translated_name: CNS of the responsible clinical oncologist
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      clinical oncologist for the radiotherapy/oncology service, on the DC record. Personal
+      identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 70
+  CNS_MRAD:
+    official_name: CNS do medico responsavel - RADIOTERAPEUTA
+    translated_name: CNS of the responsible radiotherapist
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      radiotherapist for the radiotherapy/oncology service, on the DC record. Personal identifier
+      of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 71
+  CNS_FNUC:
+    official_name: CNS do medico responsavel - FISICO NUCLEAR
+    translated_name: CNS of the responsible nuclear/medical physicist
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      nuclear/medical physicist for the radiotherapy/oncology service, on the DC record. Personal
+      identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 72
+  QUIMRADI:
+    official_name: Indica a existencia de algum REQUISITO DE QUIMIO/RADIO para este CNES
+    translated_name: Chemo/radiotherapy requirements met
+    description: >-
+      Flag (1-Sim, 0-Nao) summarizing whether the establishment meets the declared set of
+      requirements for chemotherapy/radiotherapy service (rooms, equipment, responsible physicians)
+      captured elsewhere on this DC record. Like DIALISE, it is a derived summary rather than
+      an independently observed fact.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 73
+    notes: >-
+      Depends on the radiotherapy room/equipment counts and responsible-physician CNS fields
+      on the same record (and on chemotherapy-room fields outside this column range); treat
+      as a summary indicator.
+  S_AFERES:
+    official_name: Numero de salas de aferese
+    translated_name: Apheresis rooms
+    description: >-
+      Count of apheresis rooms reported for the establishment's hemotherapy (blood bank) service,
+      on the DC record's hemotherapy-infrastructure block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 78
+  QT_CADRE:
+    official_name: Quantidade de cadeiras reclinaveis
+    translated_name: Hemotherapy - reclining donor chairs
+    description: >-
+      Count of reclining donor chairs reported for the establishment's hemotherapy (blood
+      bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 92
+  QT_CENRE:
+    official_name: Quantidade de centrifugas refrigeradas
+    translated_name: Hemotherapy - refrigerated centrifuges
+    description: >-
+      Count of refrigerated centrifuges reported for the establishment's hemotherapy (blood
+      bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 93
+  QT_REFSA:
+    official_name: Quantidade de refrigeradores para guarda de sangue
+    translated_name: Hemotherapy - blood-storage refrigerators
+    description: >-
+      Count of blood-storage refrigerators reported for the establishment's hemotherapy (blood
+      bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 94
+  QT_CONRA:
+    official_name: Quantidade de congeladores rapidos
+    translated_name: Hemotherapy - rapid/blast freezers
+    description: >-
+      Count of rapid/blast freezers reported for the establishment's hemotherapy (blood bank)
+      service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 95
+  QT_EXTPL:
+    official_name: Quantidade de extratores automaticos de plasma
+    translated_name: Hemotherapy - automatic plasma extractors
+    description: >-
+      Count of automatic plasma extractors reported for the establishment's hemotherapy (blood
+      bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 96
+  QT_FRE18:
+    official_name: Quantidade de freezers -18C
+    translated_name: Hemotherapy - -18C freezers
+    description: >-
+      Count of -18C freezers reported for the establishment's hemotherapy (blood bank) service,
+      on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 97
+  QT_FRE30:
+    official_name: Quantidade de freezers -30C
+    translated_name: Hemotherapy - -30C freezers
+    description: >-
+      Count of -30C freezers reported for the establishment's hemotherapy (blood bank) service,
+      on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 98
+  QT_AGIPL:
+    official_name: Quantidade de agitadores de plaquetas
+    translated_name: Hemotherapy - platelet agitators
+    description: >-
+      Count of platelet agitators reported for the establishment's hemotherapy (blood bank)
+      service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 99
+  QT_SELAD:
+    official_name: Quantidade de seladoras
+    translated_name: Hemotherapy - tube/bag sealers
+    description: >-
+      Count of tube/bag sealers reported for the establishment's hemotherapy (blood bank)
+      service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 100
+  QT_IRRHE:
+    official_name: Quantidade de irradiadores de hemocomponentes
+    translated_name: Hemotherapy - blood-component irradiators
+    description: >-
+      Count of blood-component irradiators reported for the establishment's hemotherapy (blood
+      bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 101
+  QT_AGLTN:
+    official_name: Quantidade de aglutinoscopio
+    translated_name: Hemotherapy - agglutinoscopes
+    description: >-
+      Count of agglutinoscopes reported for the establishment's hemotherapy (blood bank) service,
+      on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 102
+  QT_MAQAF:
+    official_name: Quantidade de maquinas de aferese
+    translated_name: Hemotherapy - apheresis machines
+    description: >-
+      Count of apheresis machines reported for the establishment's hemotherapy (blood bank)
+      service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 103
+  QT_REFRE:
+    official_name: Quantidade de refrigeradores para guarda de reagentes
+    translated_name: Hemotherapy - reagent-storage refrigerators
+    description: >-
+      Count of reagent-storage refrigerators reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 104
+  QT_REFAS:
+    official_name: Quantidade de refrigeradores para guarda de amostras de sangue
+    translated_name: Hemotherapy - blood-sample-storage refrigerators
+    description: >-
+      Count of blood-sample-storage refrigerators reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 105
+  QT_CAPFL:
+    official_name: Quantidade de capelas fluxo laminar
+    translated_name: Hemotherapy - laminar-flow cabinets
+    description: >-
+      Count of laminar-flow cabinets reported for the establishment's hemotherapy (blood bank)
+      service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 106
+  CNS_HMTR:
+    official_name: CNS do medico responsavel - HEMOTERAPEUTA
+    translated_name: CNS of the responsible hemotherapist
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      hemotherapist for the hemotherapy service, on the DC record. Personal identifier of
+      a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 107
+  CNS_HMTL:
+    official_name: CNS do medico responsavel - HEMATOLOGISTA
+    translated_name: CNS of the responsible hematologist
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      hematologist for the hemotherapy service, on the DC record. Personal identifier of a
+      named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 108
+  CNS_CRES:
+    official_name: CNS do medico medico capacitado RESPONSAVEL
+    translated_name: CNS of the responsible qualified responsible physician
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      qualified responsible physician for the hemotherapy service, on the DC record. Personal
+      identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 109
+  CNS_RTEC:
+    official_name: CNS do medico responsavel - responsavel TECNICO / SOROLOGIA
+    translated_name: CNS of the responsible serology technical director
+    description: >-
+      National Health Card (CNS) number of the physician the establishment names as its responsible
+      serology technical director for the hemotherapy service, on the DC record. Personal
+      identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 110
+  HEMOTERA:
+    official_name: Indica a existencia de algum REQUISITO DE HEMOTERAPIA para este CNES
+    translated_name: Hemotherapy requirements met
+    description: >-
+      Flag (1-Sim, 0-Nao) summarizing whether the establishment meets the declared set of
+      hemotherapy/blood-bank requirements (rooms, equipment, responsible physicians) captured
+      elsewhere on this DC record. Derived summary, like DIALISE and QUIMRADI.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 111
+    notes: >-
+      Depends on S_AFERES, the QT_* hemotherapy equipment counts and the hemotherapy responsible-physician
+      CNS fields on the same record (plus some hemotherapy room fields outside this column
+      range).
+  CPF_PROF:
+    official_name: CPF do Profissional ou caso "99999999999" caso nao seja preenchido.
+    translated_name: Professional's CPF (or sentinel)
+    description: >-
+      The professional's individual taxpayer ID (CPF), or the literal sentinel string '99999999999'
+      (eleven 9s) when no CPF was captured. Personal identifier - the sentinel must be filtered
+      out before treating the field as a real identifier (e.g. for deduplication or linkage).
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 21
+    notes: >-
+      Contains the literal placeholder '99999999999' for missing values; do not treat it as
+      a real, shared CPF when counting distinct professionals.
+  CPFUNICO:
+    official_name: Contador de CPF UNICO do Profissional
+    translated_name: Unique-CPF marker
+    description: >-
+      Deduplication marker that is populated only once per distinct CPF across the professional's
+      rows in the PF file (a professional can appear on multiple rows: one per establishment,
+      or one per CBO held at the same establishment). When CPF_PROF is the missing-value sentinel
+      '99999999999', the layout mandates CPFUNICO='1' for every such row (so it cannot be
+      used to deduplicate rows with a missing CPF).
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 22
+    modifies: CPF_PROF
+    notes: >-
+      Use this (filtered to CPF_PROF != the sentinel) to count distinct professionals without
+      double-counting a person who holds bonds at several establishments or several CBOs at
+      one; the field name in the actual DBF drops the underscore present in the PDF's 'CPF_UNICO'
+      label.
+  CBO:
+    official_name: Codigo da especialidade do profissional
+    translated_name: Occupation code (CBO)
+    description: >-
+      The professional's occupation/specialty code from Brazil's CBO (Classificacao Brasileira
+      de Ocupacoes), the national occupational classification - e.g. distinguishing a general-practice
+      physician from a nurse or a specific medical specialty. It is a real, externally defined
+      classification (not a DATASUS-only invention), so codes keep meaning outside this dataset.
+    code_system: external
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 23
+    codelists:
+    - CBO_02
+    - CBO_94
+    - CBO_FAM2
+    notes: >-
+      The catalog also surfaces low-confidence bindings to narrower medical-only codelists
+      (e.g. MEDICOS/MEDIC_02/NIVSUPER); CBO covers all occupations at a CNES-registered establishment,
+      not physicians only.
+  CBOUNICO:
+    official_name: Registro unico do Codigo da especialidade do profissional
+    translated_name: Unique CPF+CBO marker
+    description: >-
+      Deduplication marker populated only once per unique (CPF, CBO) combination across the
+      professional's PF rows - i.e. once per distinct occupation actually held by that person,
+      even if that combination recurs across several establishment rows.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 24
+    modifies: CBO
+    codelists:
+    - CBO_02
+    - CBO_94
+    - CBO_FAM2
+    notes: >-
+      Use together with CPFUNICO to avoid overcounting when a professional holds the same
+      occupation at multiple establishments; the actual DBF field name drops the underscore
+      present in the PDF's 'CBO_UNICO' label.
+  NOMEPROF:
+    official_name: Nome do profissional
+    translated_name: Professional's name
+    description: >-
+      Free-text full name of the health professional as registered in CNES. Personal identifier;
+      subject to inconsistent capitalization/accents and occasional data-entry variation across
+      competencies for the same person.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 25
+  CNS_PROF:
+    official_name: CNS do profissional ou "999999999999999" caso nao seja preenchido.
+    translated_name: Professional's CNS (or sentinel)
+    description: >-
+      The professional's National Health Card (CNS) number, or the literal sentinel string
+      of fifteen 9s ('999999999999999') when not captured. Personal identifier; filter out
+      the sentinel before using it for linkage or deduplication.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 26
+    notes: >-
+      Contains the literal placeholder '999999999999999' for missing values.
+  CONSELHO:
+    official_name: Codigo do conselho de classe
+    translated_name: Professional council code
+    description: >-
+      Code identifying the professional regulatory council the professional is registered
+      with (e.g. CRM for physicians, COREN for nursing professionals) - a real external registry
+      identity, not a DATASUS-only invention. REGISTRO (not in this column range) carries
+      the professional's actual registration number within that council.
+    code_system: external
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 27
+    codelists:
+    - CR_CONSEL
+  PROF_SUS:
+    official_name: Caracterizacao do PROFISSIONAL que realiza ATENDIMENTO SUS
+    translated_name: Professional serves SUS patients
+    description: >-
+      Flag characterizing whether this professional, in this role/bond, provides care to SUS
+      (public health system) patients at the establishment. Sibling field to PROFNSUS; the
+      two are not necessarily mutually exclusive.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 33
+  PROFNSUS:
+    official_name: Caracterizacao do PROFISSIONAL que realiza ATENDIMENTO NAO SUS
+    translated_name: Professional serves non-SUS patients
+    description: >-
+      Flag characterizing whether this professional, in this role/bond, provides care to non-SUS
+      (private/insurance) patients at the establishment. Sibling field to PROF_SUS.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 34
+  HORAOUTR:
+    official_name: Carga horaria nao ambulatorial, nem hospitalar
+    translated_name: Weekly hours - other setting
+    description: >-
+      Self-reported weekly contracted hours the professional dedicates at this establishment
+      to activities that are neither outpatient (ambulatorial) nor inpatient/hospital (hospitalar)
+      - e.g. administrative, teaching, or support duties. Sibling of HORA_AMB and HORAHOSP.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 35
+    notes: >-
+      Contracted/declared hours, not hours actually worked; a professional with bonds at several
+      establishments can have hours summing above a full workweek without any error in the
+      data.
+  HORAHOSP:
+    official_name: Carga horaria HOSPITALAR
+    translated_name: Weekly hours - hospital
+    description: >-
+      Self-reported weekly contracted hours the professional dedicates at this establishment
+      to hospital (inpatient) activity. Sibling of HORA_AMB and HORAOUTR.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 36
+    notes: >-
+      Same caveat as HORAOUTR: declared hours per establishment bond, can double-count a person's
+      time across establishments.
+  HORA_AMB:
+    official_name: Carga horaria AMBULATORIAL
+    translated_name: Weekly hours - outpatient
+    description: >-
+      Self-reported weekly contracted hours the professional dedicates at this establishment
+      to outpatient (ambulatorial) activity. Sibling of HORAHOSP and HORAOUTR.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 37
+    notes: >-
+      Same caveat as HORAOUTR: declared hours per establishment bond, can double-count a person's
+      time across establishments.

@@ -1,0 +1,772 @@
+system: RESP
+asserted_by: pegasus_data
+variables:
+
+  CO_SEQ:
+    official_name: Codigo sequencial do registro
+    translated_name: Record sequence code
+    description: >
+      Internal composite identifier assigned by DATASUS to each RESP record.
+      Standard format is 000001UFAAAA: positions 1-6 are an auto-generated
+      sequential number, positions 7-8 are the 2-digit IBGE code of the state
+      (UF) of notification, and positions 9-12 are the 4-digit year of
+      notification. It uniquely identifies the row in the disseminated
+      database; it is not a case ID that carries meaning outside RESP.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    notes: >
+      Declared width varies across file vintages (6 and 12 characters both
+      observed) - earlier extracts likely used the bare 6-digit sequential
+      number before the UF+year suffix became standard. Do not treat this as
+      a stable identifier format across the full 2015-2024 span without
+      checking which vintage a given file uses.
+
+  DT_NOTIFIC:
+    official_name: Data da notificacao
+    translated_name: Notification date
+    description: >
+      Date the case was entered into RESP-Microcefalia (form completion
+      date). DATASUS constrains it to be on or after 01/01/2015, the
+      surveillance system's start date. Administrative: it marks when the
+      case was registered, not when symptoms began (DT_SINTOMA) or when the
+      child/fetus was born (DT_NASC).
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  ANO_NOT:
+    official_name: Ano da notificacao
+    translated_name: Notification year
+    description: >
+      Calendar year of DT_NOTIFIC, extracted automatically by the system
+      (campo interno) for period-based tabulation; not independently filled
+      in by the notifier.
+    code_system: none
+    codelists: [ANO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  TP_NOTIFIC:
+    official_name: Tipo da notificacao
+    translated_name: Notification type (case category)
+    description: >
+      Which of six standardized categories the notified individual falls
+      into: newborn with microcephaly (<=28 days), child with microcephaly
+      and/or CNS alterations (>28 days), fetus with CNS alterations, fetus
+      at risk, stillbirth with microcephaly and/or CNS alterations, or
+      spontaneous abortion (up to 22 weeks of gestation). It gates which
+      other fields the form enables - e.g. DT_NASC is disabled for
+      stillbirth and abortion notifications.
+    code_system: internal
+    codelists: [TP_NOTIFIC]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    vintage_note: >
+      The category set changed between the 2016 online-form dictionary (5
+      categories: Feto / Aborto espontaneo / Natimorto / Recem-nascido
+      <=28d / Crianca >28d) and the June-2021 dissemination dictionary (6
+      categories, splitting fetus cases by CNS-alteration status and adding
+      "Feto em risco"). Codes are not necessarily comparable across the
+      full 2015-2024 span without checking which scheme was in force for a
+      given year.
+
+  DT_NASCMAE:
+    official_name: Data de nascimento da gestante/mae
+    translated_name: Mother's date of birth
+    description: Date of birth of the pregnant woman/mother associated with the case.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  IDADEGES:
+    official_name: Idade da gestante/mae
+    translated_name: Mother's age
+    description: >
+      Age in years of the pregnant woman/mother. Auto-calculated by the
+      system from DT_NASCMAE and DT_NOTIFIC when a birth date was entered;
+      filled with 99 when unknown.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    notes: >
+      99 is a sentinel for "unknown", not a real age - exclude it before
+      computing summary statistics. The catalog binds a codelist named
+      FX_GES to this column, which would suggest a gestational-age bracket;
+      the dissemination dictionary is explicit that this field is the
+      mother's raw calculated age in years, so that binding looks
+      mismatched (flagged separately as a possible spurious binding).
+
+  RACACOR:
+    official_name: Cor ou raca declarada
+    translated_name: Declared race/color
+    description: >
+      Self-declared race/color of the mother, using the IBGE five-category
+      scheme (Branca, Preta/Negra, Amarela, Parda, Indigena) plus Ignorado.
+    code_system: external
+    codelists: [RACA_COR]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    notes: >
+      Category 2 is labelled "Negra" in the 2021 dissemination dictionary
+      and "Preta" in the 2016 online-form dictionary - same category,
+      different wording.
+
+  REGIAORES:
+    official_name: Macrorregiao de residencia da gestante/mae
+    translated_name: Mother's region of residence
+    description: >
+      Brazilian macro-region (Norte/Nordeste/Sudeste/Sul/Centro-Oeste) of
+      the mother's residence. Internal field, derived automatically from
+      CODMUNRES rather than entered directly by the notifier.
+    code_system: internal
+    codelists: [REGIAO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  UFRES:
+    official_name: Unidade da federacao de residencia da gestante/mae
+    translated_name: Mother's state of residence (UF)
+    description: IBGE-standard state (UF) code of the mother's residence.
+    code_system: external
+    codelists: [UF, UFREG]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  CODMUNRES:
+    official_name: Municipio de residencia da gestante/mae
+    translated_name: Mother's municipality of residence
+    description: >
+      IBGE 6-digit code of the municipality where the mother resided, as
+      recorded at notification - not necessarily where the case was
+      notified or where exams/birth took place (see CODMUNNOT).
+    code_system: external
+    codelists: [MUNICBR]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  SEXO:
+    official_name: Sexo da crianca, recem-nascido, feto ou natimorto
+    translated_name: Sex of the case
+    description: Sex of the notified child, newborn, fetus, or stillbirth.
+    code_system: internal
+    codelists: [SEXO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    notes: >
+      The 2016 online notification-form dictionary offers a fourth option,
+      "Indeterminado", for cases where sex could not be determined; the
+      2021 dissemination dictionary lists only Masculino/Feminino/Ignorado.
+      Treat any code outside {1,2,9} seen in older extracts as the
+      collapsed "Indeterminado" case.
+
+  DT_NASC:
+    official_name: Data de nascimento da crianca, recem-nascido ou do feto
+    translated_name: Date of birth (child/newborn/fetus)
+    description: >
+      Date of birth of the child, newborn, or fetus. Disabled (not
+      collected) when TP_NOTIFIC is stillbirth or spontaneous abortion,
+      since there is no live-birth date to record.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [TP_NOTIFIC]
+
+  ANO_NASC:
+    official_name: Ano de nascimento da crianca, recem-nascido ou do feto
+    translated_name: Birth year
+    description: Calendar year of DT_NASC, extracted automatically (campo interno) for tabulation.
+    code_system: none
+    codelists: [ANO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  PESO:
+    official_name: Peso ao nascer (ou do natimorto)
+    translated_name: Birth weight
+    description: Weight at birth (or of the stillbirth), in grams.
+    code_system: none
+    codelists: [PESO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  COMPRIMENT:
+    official_name: Comprimento ao nascer (ou do natimorto)
+    translated_name: Birth length
+    description: Body length at birth (or of the stillbirth), in centimeters.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  MICROCEFAL:
+    official_name: Tipos de alteracoes congenitas detectadas
+    translated_name: Congenital-alteration type (microcephaly classification)
+    description: >
+      Which of four mutually-exclusive categories applies to the case:
+      microcephaly alone, microcephaly with CNS alteration, microcephaly
+      with other congenital alterations, or congenital alterations without
+      microcephaly. This is the primary case-classification field; the
+      co-occurring deficiency types a notifier can additionally flag are
+      recorded separately in DEF_NEURO, DEF_AUDIT and DEF_VISUAL.
+    code_system: internal
+    codelists: [MICROCEFAL]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DEF_NEURO:
+    official_name: Deficiencia neurologica entre as alteracoes congenitas detectadas
+    translated_name: Neurological deficiency flag
+    description: >
+      Whether neurological deficiency was among the congenital alterations
+      checked for this case. Auto-filled by the system (Sim if marked among
+      the alterations, Nao otherwise) rather than answered as its own
+      question.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DEF_AUDIT:
+    official_name: Deficiencia auditiva entre as alteracoes congenitas detectadas
+    translated_name: Hearing deficiency flag
+    description: >
+      Whether hearing (auditory) deficiency was among the congenital
+      alterations checked for this case; auto-filled the same way as
+      DEF_NEURO.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DEF_VISUAL:
+    official_name: Deficiencia visual entre as alteracoes congenitas detectadas
+    translated_name: Visual deficiency flag
+    description: >
+      Whether visual deficiency was among the congenital alterations
+      checked for this case; auto-filled the same way as DEF_NEURO.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  TPDETECCAO:
+    official_name: Momento em que foi identificada a alteracao congenita
+    translated_name: Timing of congenital-alteration detection
+    description: >
+      When the congenital alteration was identified: during pregnancy
+      (intrauterine), after birth (pos-parto), not detected, or
+      ignored/unknown.
+    code_system: internal
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    notes: >
+      Catalog field name TPDETECCAO corresponds to TP_DETECCA in the 2021
+      dissemination dictionary and to TP_DETECCAO_MICROCEFALIA in the 2016
+      online-form dictionary - the same field under different DBF-export
+      names across vintages.
+
+  GEST_DIAG:
+    official_name: Idade gestacional na deteccao da alteracao congenita
+    translated_name: Gestational age at detection (weeks)
+    description: >
+      Gestational age, in weeks, at which the congenital alteration was
+      detected - whether still during pregnancy or at the moment of
+      delivery.
+    code_system: none
+    codelists: [SEMAGESTAC]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    notes: >
+      The 2016 online-form dictionary states this field is filled with 99
+      when the case has no microcephaly; treat 99 as a sentinel, not a real
+      gestational-week value.
+
+  CLASS_FETO:
+    official_name: Classificacao do nascido vivo ou natimorto quanto ao periodo gestacional
+    translated_name: Gestational-term classification at delivery
+    description: >
+      Classifies the live birth or stillbirth by gestational term at
+      delivery: pre-termo (<37 weeks), a termo (37-41 weeks and 6 days), or
+      pos-termo (>=42 weeks).
+    code_system: internal
+    codelists: [CLASS_FETO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    notes: >
+      The 2021 dictionary's own category list shows only these 3 values,
+      but its notes for PERIMCEFAL and DIAMCEFAL refer to a 4th value,
+      "Nao se aplica (ainda gestante)" (documented explicitly in the 2016
+      form dictionary) - the category list in the 2021 PDF looks
+      incomplete rather than that 4th value having been retired.
+
+  PERIMCEFAL:
+    official_name: Perimetro cefalico ao nascer
+    translated_name: Head circumference at birth
+    description: >
+      Head circumference at birth (or of the stillbirth), in centimeters
+      with one decimal place (e.g. 31.5). Enabled only once CLASS_FETO is
+      answered with something other than "nao se aplica (ainda gestante)" -
+      i.e. only after a birth or stillbirth has actually occurred.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [CLASS_FETO]
+    notes: "The 2016 dictionary documents 99.9 as the sentinel for unknown."
+
+  DIAMCEFAL:
+    official_name: Medida da circunferencia craniana (deteccao intrauterina)
+    translated_name: Cranial circumference, intrauterine measurement
+    description: >
+      Cranial circumference measured intrauterine (before birth, by
+      imaging), in centimeters with one decimal place. Enabled only when
+      CLASS_FETO = "nao se aplica (ainda gestante)", i.e. only for cases
+      still in pregnancy.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [CLASS_FETO]
+    notes: >
+      Despite the DBF field name (DIAMCEFAL = diameter), both the 2016 and
+      2021 dictionaries' own field label calls this a circumference
+      ("Circunferencia Craniana"), not a diameter - a naming inconsistency
+      in the source documentation itself, not introduced here.
+
+  GRAVIDEZ:
+    official_name: Tipo de gravidez
+    translated_name: Pregnancy type
+    description: Whether the pregnancy was single, twin, triplet-or-more, or unknown.
+    code_system: internal
+    codelists: [GRAVIDEZ]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DT_SINTOMA:
+    official_name: Data provavel de inicio de sintomas
+    translated_name: Probable symptom-onset date
+    description: >
+      Probable date of onset of any symptom in the mother during pregnancy
+      (e.g. fever, rash) - not a date about the child/fetus, and not the
+      notification date (DT_NOTIFIC).
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  FEBRE_GES:
+    official_name: Febre na gestacao
+    translated_name: Fever during pregnancy
+    description: Whether the mother reported fever during pregnancy (yes/no/unknown).
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  EXANT_GES:
+    official_name: Exantema na gestacao
+    translated_name: Rash (exanthema) during pregnancy
+    description: >
+      Whether and when the mother had a rash during pregnancy, coded by
+      trimester (1st/2nd/3rd), "yes but doesn't recall when", "did not have
+      a rash", or "doesn't know".
+    code_system: internal
+    codelists: [EXANT_GES]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  PRURIDO:
+    official_name: Prurido entre outros sinais e sintomas na gestacao
+    translated_name: Itching flag
+    description: >
+      Whether the mother reported itching (prurido) among "other signs and
+      symptoms" during pregnancy. Auto-filled from that multi-select list
+      rather than asked as a standalone question; see also CONJUNTIV,
+      DOR_ARTIC, DOR_MUSC, EDEMA, CEFALEIA, HIPERT_GAN and NEUROLOG, which
+      are the other items on the same list.
+    code_system: internal
+    codelists: [OUTSINT]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  CONJUNTIV:
+    official_name: Hiperemia conjuntival entre outros sinais e sintomas na gestacao
+    translated_name: Conjunctival hyperemia flag
+    description: >
+      Whether the mother reported conjunctival hyperemia (non-purulent
+      conjunctivitis) among "other signs and symptoms" during pregnancy;
+      auto-filled like PRURIDO.
+    code_system: internal
+    codelists: [OUTSINT]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DOR_ARTIC:
+    official_name: Dor em articulacao entre outros sinais e sintomas na gestacao
+    translated_name: Joint pain flag
+    description: >
+      Whether the mother reported joint pain among "other signs and
+      symptoms" during pregnancy; auto-filled like PRURIDO.
+    code_system: internal
+    codelists: [OUTSINT]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DOR_MUSC:
+    official_name: Dor muscular entre outros sinais e sintomas na gestacao
+    translated_name: Muscle pain flag
+    description: >
+      Whether the mother reported muscle pain among "other signs and
+      symptoms" during pregnancy; auto-filled like PRURIDO.
+    code_system: internal
+    codelists: [OUTSINT]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  EDEMA:
+    official_name: Edema em articulacoes entre outros sinais e sintomas na gestacao
+    translated_name: Joint edema flag
+    description: >
+      Whether the mother reported joint edema/swelling among "other signs
+      and symptoms" during pregnancy; auto-filled like PRURIDO.
+    code_system: internal
+    codelists: [OUTSINT]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  CEFALEIA:
+    official_name: Cefaleia entre outros sinais e sintomas na gestacao
+    translated_name: Headache flag
+    description: >
+      Whether the mother reported headache among "other signs and symptoms"
+      during pregnancy; auto-filled like PRURIDO.
+    code_system: internal
+    codelists: [OUTSINT]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  HIPERT_GAN:
+    official_name: Hipertrofia ganglionar entre outros sinais e sintomas na gestacao
+    translated_name: Lymph node enlargement flag
+    description: >
+      Whether the mother reported lymph node enlargement (hipertrofia
+      ganglionar) among "other signs and symptoms" during pregnancy;
+      auto-filled like PRURIDO.
+    code_system: internal
+    codelists: [OUTSINT]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  NEUROLOG:
+    official_name: Acometimento neurologico entre outros sinais e sintomas na gestacao
+    translated_name: Neurological involvement flag
+    description: >
+      Whether the mother reported neurological involvement among "other
+      signs and symptoms" during pregnancy; auto-filled like PRURIDO.
+    code_system: internal
+    codelists: [OUTSINT]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  HIST_MALFO:
+    official_name: Historico de malformacao congenita em familiares/parentes
+    translated_name: Family history of congenital malformation
+    description: Whether there is a known history of congenital malformation among family members/relatives.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  RESUL_Z:
+    official_name: Diagnostico laboratorial para virus Zika
+    translated_name: Zika virus laboratory result
+    description: >
+      Laboratory diagnostic result for Zika virus during pregnancy or the
+      immediate post-partum period: reagent/positive, non-reagent/negative,
+      undetectable/indeterminate, not performed, or ignored.
+    code_system: internal
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    notes: >
+      The 2021 dictionary names this field RESUL_ZIKA; the crawled files
+      use the shorter RESUL_Z - the same field under different DBF-export
+      names across vintages. Also note the 2016 online-form dictionary's
+      own description text for the equivalent row is a copy-paste error
+      ("Diagnostico laboratorial para Toxoplasmose") even though the field
+      name, option list and BI variable name are unambiguously about Zika.
+
+  EXA_TORSCH:
+    official_name: Diagnostico laboratorial para pelo menos um dos STORCH
+    translated_name: STORCH panel testing flag
+    description: >
+      Whether at least one laboratory test was performed, during pregnancy
+      or the immediate post-partum period, for any of the STORCH infections
+      - Sifilis (syphilis), Toxoplasmose, Rubeola, Citomegalovirus, and
+      Herpes virus.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  RESUL_S:
+    official_name: Diagnostico laboratorial para Sifilis
+    translated_name: Syphilis laboratory result
+    description: >
+      Laboratory diagnostic result for syphilis during pregnancy or the
+      immediate post-partum period. Auto-set to "nao realizado" if
+      EXA_TORSCH = Nao, and to "ignorado" if EXA_TORSCH = Ignorado;
+      otherwise entered directly, using the same reagent/non-reagent scale
+      as RESUL_Z.
+    code_system: internal
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [EXA_TORSCH]
+    notes: "Catalog field name is RESUL_S; the 2021 dictionary names it RESUL_SIF."
+
+  RESUL_TO:
+    official_name: Diagnostico laboratorial para Toxoplasmose
+    translated_name: Toxoplasmosis laboratory result
+    description: >
+      Laboratory diagnostic result for toxoplasmosis during pregnancy or
+      the immediate post-partum period; same coding and EXA_TORSCH
+      auto-fill logic as RESUL_S.
+    code_system: internal
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [EXA_TORSCH]
+    notes: "Catalog field name is RESUL_TO; the 2021 dictionary names it RESUL_TOXO."
+
+  HIST_ARBOV:
+    official_name: Historico de infeccao recente por outros arbovirus
+    translated_name: Recent other-arbovirus infection history
+    description: >
+      Recent history of infection by other arboviruses besides Zika:
+      dengue, chikungunya, both, none, or unknown.
+    code_system: internal
+    codelists: [HIST_ARBOV]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  EXAME_USS:
+    official_name: Resultado da ultrassonografia realizada durante a gestacao
+    translated_name: Prenatal ultrasound result
+    description: >
+      Result of the ultrasound performed during pregnancy: normal, altered
+      and suggestive of congenital infection, altered with other findings,
+      indeterminate, not performed, or ignored.
+    code_system: internal
+    codelists: [REXAME]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DT_USS:
+    official_name: Data da ultrassonografia realizada durante a gestacao
+    translated_name: Prenatal ultrasound date
+    description: Date the prenatal ultrasound (EXAME_USS) was performed.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [EXAME_USS]
+
+  EXA_TRANSF:
+    official_name: Resultado de ultrassonografia transfontanela
+    translated_name: Transfontanellar ultrasound result
+    description: >
+      Result of the transfontanellar ultrasound performed during pregnancy,
+      using the same category scheme as EXAME_USS.
+    code_system: internal
+    codelists: [REXAME]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DT_TRANSF:
+    official_name: Data da ultrassonografia transfontanela
+    translated_name: Transfontanellar ultrasound date
+    description: Date the transfontanellar ultrasound (EXA_TRANSF) was performed.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [EXA_TRANSF]
+
+  EXAME_TC:
+    official_name: Resultado de tomografia computadorizada
+    translated_name: CT scan result
+    description: >
+      Result of the computed-tomography scan performed during pregnancy,
+      using the same category scheme as EXAME_USS.
+    code_system: internal
+    codelists: [REXAME]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DT_TC:
+    official_name: Data da tomografia computadorizada
+    translated_name: CT scan date
+    description: Date the CT scan (EXAME_TC) was performed.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [EXAME_TC]
+
+  EXAME_RS:
+    official_name: Resultado de ressonancia magnetica
+    translated_name: MRI result
+    description: >
+      Result of the MRI performed during pregnancy, using the same category
+      scheme as EXAME_USS.
+    code_system: internal
+    codelists: [REXAME]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DT_RS:
+    official_name: Data da ressonancia magnetica
+    translated_name: MRI date
+    description: Date the MRI (EXAME_RS) was performed.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [EXAME_RS]
+
+  REGIAONOT:
+    official_name: Macrorregiao do local de notificacao
+    translated_name: Notifying region
+    description: >
+      Brazilian macro-region of the municipality where the case was
+      notified. Internal field, derived automatically from CODMUNNOT -
+      distinct from REGIAORES, the mother's region of residence.
+    code_system: internal
+    codelists: [REGIAO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  UFNOT:
+    official_name: Unidade da Federacao do local de notificacao
+    translated_name: Notifying state (UF)
+    description: >
+      IBGE-standard state (UF) code of the municipality where the case was
+      notified - the reporting location, not necessarily the mother's state
+      of residence (UFRES).
+    code_system: external
+    codelists: [UF, UFREG]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  CODMUNNOT:
+    official_name: Municipio do local de notificacao
+    translated_name: Notifying municipality
+    description: >
+      IBGE 6-digit code of the municipality where the case was notified -
+      the reporting municipality, distinct from CODMUNRES (the mother's
+      municipality of residence).
+    code_system: external
+    codelists: [MUNICBR]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  ST_OBITO:
+    official_name: Evolucao para obito
+    translated_name: Death outcome flag
+    description: Whether the case's outcome was death (sim/nao/ignorado).
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DT_OBITO:
+    official_name: Data do obito
+    translated_name: Date of death
+    description: Date of death; enabled only when ST_OBITO = Sim.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [ST_OBITO]
+    notes: >
+      The catalog binds a codelist named ANO to this column; that does not
+      fit a full DDMMAAAA date field and looks like a spurious binding, so
+      it is not asserted here.
+
+  CLASSIFIN:
+    official_name: Classificacao final do caso
+    translated_name: Final case classification
+    description: >
+      Final epidemiological classification of the case (confirmed /
+      probable / under investigation / inconclusive / discarded /
+      excluded), assigned per the Ministry of Health's integrated
+      surveillance guidance for the public health emergency. Automatically
+      set to "Excluido" whenever STATUS_NOT = Inativo, regardless of any
+      value entered.
+    code_system: internal
+    codelists: [CLASSIFIN]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    depends_on: [STATUS_NOT]
+    vintage_note: >
+      The 2016 form dictionary lists 5 categories (Em investigacao /
+      Confirmado / Descartado / Sem classificacao / Provavel); the 2021
+      dissemination dictionary lists 6 (Confirmado / Provavel / Em
+      investigacao / Inconclusivo / Descartado / Excluido). Codes are not
+      necessarily comparable across the two schemes.
+
+  CRITERIO:
+    official_name: Criterios para classificacao final do caso
+    translated_name: Final-classification criteria (multi-select)
+    description: >
+      Which evidence types supported the final classification, packed as a
+      fixed 7-character string of "S"/"N" flags with no separators, in a
+      documented order: (1) laboratorial Zika, (2) laboratorial Dengue, (3)
+      laboratorial Chikungunya, (4) laboratorial STORCH, (5) laboratorial
+      outros, (6) imagem (ultrassom/tomografia/ressonancia), (7)
+      clinico-epidemiologico. E.g. "SNNSNNN" means criteria 1 and 4 applied.
+    code_system: internal
+    codelists: [CRITERIO]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+    multi_valued: true
+    token_rule: {width: 1}
+
+  STATUS_NOT:
+    official_name: Situacao do registro
+    translated_name: Record status
+    description: >
+      Internal record-lifecycle status set by the surveillance team
+      reviewing the case at the notifying/residence location: Ativo,
+      Reativado, or Inativo.
+    code_system: internal
+    codelists: [STATUS_NOT]
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  DT_ULT_ALT:
+    official_name: Data da ultima atualizacao do registro
+    translated_name: Last-update date
+    description: >
+      Date the record was last updated in the source system; an internal
+      audit/ETL field, not a clinical date.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
+
+  ETIOLOGIA:
+    official_name: (not documented in any source consulted)
+    translated_name: Etiology
+    description: >
+      Appears, from the field name alone ("etiologia" is unambiguous
+      Portuguese medical terminology for the cause/origin of a condition),
+      to record the etiological/causal classification attributed to the
+      case. It is not present in either the 2016 online-form dictionary or
+      the June-2021 dissemination-database dictionary, despite appearing in
+      essentially every crawled RESP file, so it may be a later,
+      undocumented addition to the export. No codelist is bound and no
+      value labels are known.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      "Etiologia" is a specific, unambiguous Portuguese medical term, and
+      RESP's whole purpose is attributing congenital alterations to a cause
+      (Zika, other STORCH pathogens, etc.), so a field with this exact name
+      plausibly records that attribution. This is a translation-level
+      inference only - the actual set of codes/labels used is not
+      confirmed by any source consulted.
+    notes: >
+      Declared width changes across file vintages (1 and 9 characters both
+      observed), consistent with a schema change at some point in the
+      2015-2024 span. Verify against a same-year DEF/CNV file before using
+      the values, and do not infer what any specific code means.
