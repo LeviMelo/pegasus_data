@@ -1464,6 +1464,9 @@ def run_everything(
             ("profile", lambda: pipeline.profile(systems=system, limit=limit)),
             ("families", pipeline.families),
             ("ledger", lambda: pipeline.ledger(systems=system)),
+            # The .DEF files name columns nothing else does; harvest before
+            # curate, so a hand-written description still outranks them.
+            ("def-names", lambda: pipeline.def_names(systems=system)),
             # Needs bindings and profiles both, so it follows the ledger.
             ("measure-bindings", pipeline.measure_bindings),
         ]

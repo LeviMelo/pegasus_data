@@ -866,6 +866,18 @@ class Pipeline:
 
     # ----------------------------------------------------------------- ledger
 
+    def def_names(self, *, systems: Sequence[str] | None = None) -> StageResult:
+        """Document columns from the names `.DEF` files already carried.
+
+        Not new evidence — 42,045 parsed `.DEF` variable lines were already in
+        the catalog and only 169 of their names had reached the documentation.
+        This moves them to the rung consumers read.
+        """
+        from .semantics.defnames import document_from_def
+
+        report = document_from_def(self.catalog, systems=list(systems) if systems else None)
+        return StageResult("def-names", counts=report.as_dict())
+
     def measure_bindings(self) -> StageResult:
         """Record how much of each column each bound codelist actually decodes.
 
