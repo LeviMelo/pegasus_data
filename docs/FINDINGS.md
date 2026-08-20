@@ -905,6 +905,101 @@ responses and only one of them is fixed by trying again.
 
 ---
 
+---
+
+## 3j. Direct personal identifiers in public SIASUS files (2026-08-20)
+
+**This section is the reason the personal-identifier detector exists, and it is
+the one finding here that is not about data engineering.**
+
+### What is published
+
+Counted on the catalogue, not estimated. Columns whose name marks them as a
+direct identifier, with the number of files carrying each:
+
+| column | what it holds | files |
+|---|---|---:|
+| `AP_CNSPCN` | patient's Cartão Nacional de Saúde | **36,166** |
+| `AP_CNPJCPF` | CPF or CNPJ | **36,166** |
+| `AP_CEPPCN` | patient's postcode | **36,166** |
+| `CNS_PAC` | patient's CNS | 11,614 |
+| `CNPJCPF` | CPF or CNPJ | 11,614 |
+| `PA_CNSMED` | professional's CNS | 6,429 |
+| `APA_CPFPCN`, `APA_CPFRES`, `APA_CPFDIR` | CPF of patient, of the responsible party, of the director | 268 |
+
+The CNS identifies a person across every SUS system for life. The CPF
+identifies them across every part of Brazilian civil life. Both are published
+in full, in an FTP directory requiring no authentication.
+
+### What makes it worse than a list of numbers
+
+The 2002 APAC archives under `SIASUS/APAC/` carry a renal-replacement registry
+in which the identifier and the diagnosis sit in rows joined by an
+authorisation number. In one file — `acac0201.exe`, Acre, January 2002 — the
+columns are:
+
+- `PAC_CPFPCN`, `PAF_CPFPCN`, `EXA_CPFPCN`, `OPC_CPFPCN` — CPF, eleven digits, in the clear
+- `PAC_NASCPC` — date of birth, `19350610`
+- `PAC_CEPPCN` — postcode, which in Brazil resolves to a street rather than a district
+- `PAC_UFNASC` — state of birth
+- `EXA_HIV` — HIV result, observed values `N` and `P`
+- `EXA_HBSAG`, `EXA_HEPAT` — hepatitis B surface antigen and hepatitis results
+- `PAC_DIAGSE` — CID-10 diagnosis, overwhelmingly `N189`, chronic kidney disease
+
+`EXA_NUM` and `PAC_NUM` hold the same eleven-digit authorisation number row for
+row, which is what attaches a serology result to a named individual.
+
+**A CPF, a date of birth, a postcode and an HIV result, in one joinable record,
+on a public server.** That is the most sensitive category of health data there
+is, attached to the strongest identifier Brazil issues.
+
+### And it is data the earlier scan never saw
+
+These files are self-extracting `.exe` archives. The prior scanner excluded them
+by extension — defect D1 — so the 1,723 APAC files were absent from its
+inventory entirely. Recovering them was a correctness win for coverage (§1) and
+is *also* what surfaced this: the disclosure has been public for over twenty
+years and was invisible to the one tool that had catalogued the tree.
+
+### What this module does, and deliberately does not do
+
+Every one of these columns **passes through unmodified**. Nothing is masked,
+hashed, truncated or dropped, and that is a decision rather than an omission:
+
+- Masking in a library would destroy the evidence that the data was published.
+  A researcher who receives a masked extract cannot tell whether the Ministry
+  publishes CPFs or whether a tool removed them.
+- The remedy is not a client-side transformation. It is that DATASUS stops
+  publishing the columns, and that requires the Ministry to see the finding.
+- Deciding what may be disclosed about a named person is not a call a data
+  library is entitled to make.
+
+What the module does instead is **make it impossible to miss**: the detector
+flags the columns, the ledger raises an open question against each, the
+generated documentation carries the warning, and this section records the
+measurement so it can be handed to someone with the authority to act.
+
+### For whoever takes this forward
+
+The claim to verify is narrow and reproducible:
+
+```sql
+SELECT sp.field_name, SUM(s.file_count) AS files
+  FROM schema_presence sp
+  JOIN strata s ON s.schema_signature = sp.schema_signature
+ WHERE s.system = 'SIASUS'
+   AND (sp.field_name LIKE '%CPF%' OR sp.field_name LIKE '%CNS%')
+ GROUP BY 1 ORDER BY files DESC;
+```
+
+and the joinability claim is checked by reading any `SIASUS/APAC/2002/*.exe`
+and confirming that `EXA_NUM` matches `PAC_NUM`.
+
+Open question: `V.pii_disclosure`. It is not resolvable by this project — it
+closes when the Ministry answers, and until then it stays open on purpose.
+
+---
+
 ## 4. What remains open
 
 Run `pegasus-data questions` for the live list. As of the last full pass:
