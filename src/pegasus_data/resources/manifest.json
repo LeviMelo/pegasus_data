@@ -1,15 +1,15 @@
 {
-  "built_at": "2026-08-19T23:20:17Z",
+  "built_at": "2026-08-20T01:59:40Z",
   "crawled_at": "2026-08-19T04:05:43+00:00",
   "counts": {
     "files": 207251,
     "systems": 22,
-    "families": 316,
+    "families": 1633,
     "columns": 4354
   },
   "bytes": {
     "tree": 1294140,
-    "families": 7519,
+    "families": 20217,
     "schema_presence": 44232
   },
   "note": "A snapshot of the DATASUS tree as of the crawl named in crawled_at. A local crawl always supersedes it."

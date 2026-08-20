@@ -235,7 +235,7 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, l
     """
     rows = store.query(
         """
-        SELECT field_name, codelist, family_id, source, confidence
+        SELECT field_name, codelist, family_id, source, confidence, decodes_observed
           FROM field_codelists
          WHERE system = ? AND (family_id = '' OR family_id = ?)
         """,
@@ -267,7 +267,23 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, l
         else:
             affinity = 2
         family_specific = 0 if str(row["family_id"]) else 1  # type: ignore[index]
-        return (family_specific, -float(row["confidence"] or 0), affinity, codelist)  # type: ignore[index]
+        # A binding measured to decode none of the column's observed values goes
+        # last. `.DEF` declares tabulation axes beside code systems and cannot
+        # distinguish them, so a date column arrives bound to ANOMES and an age
+        # to a table of age bands — 35.2% of measurable bindings decode nothing.
+        # Deprioritised rather than excluded: the measurement is taken against
+        # the values the profiler saw, and a partition of other years could hold
+        # values it did not. Sorting it last costs nothing when a working table
+        # exists and changes nothing when none does.
+        measured = row["decodes_observed"]  # type: ignore[index]
+        decodes_nothing = 1 if measured is not None and float(measured) == 0 else 0
+        return (
+            family_specific,
+            decodes_nothing,
+            -float(row["confidence"] or 0),  # type: ignore[index]
+            affinity,
+            codelist,
+        )
 
     out: dict[str, list[str]] = {}
     for r in sorted(rows, key=_rank):

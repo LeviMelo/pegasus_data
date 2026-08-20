@@ -528,3 +528,44 @@ class TestReadingAReferenceTableThatFiltersToNothing:
             settings.lake_dir, "SEXO", system="SIHSUS", valid_from="199001"
         )
         assert table.num_rows == 0
+
+
+class TestADeadBindingLosesToAWorkingOne:
+    """`.DEF` cannot tell a code system from a tabulation axis derived from the
+    column, so a date arrives bound to ANOMES and an age to a table of age
+    bands. 35.2% of measurable bindings decode none of their column's observed
+    values. Where a working table also exists, the dead one must not win.
+
+    Deprioritised rather than excluded: the measurement is taken against what
+    the profiler saw, and another partition could hold values it did not.
+    """
+
+    def _bind(self, catalog, field, codelist, *, confidence, decodes):
+        catalog.execute(
+            "INSERT INTO field_codelists (system, family_id, field_name, codelist, "
+            "source, source_ref, confidence, decodes_observed) "
+            "VALUES ('SIHSUS','',?,?,'def','RD.DEF',?,?)",
+            (field, codelist, confidence, decodes),
+        )
+
+    def test_the_working_table_wins_even_at_lower_confidence(self, catalog: Catalog):
+        # ANOMES is the tabulation axis .DEF declared, at full confidence.
+        self._bind(catalog, "DT_INTER", "ANOMES", confidence=0.9, decodes=0.0)
+        self._bind(catalog, "DT_INTER", "DTINTER", confidence=0.5, decodes=0.8)
+        from pegasus_data.view import _bindings
+
+        assert _bindings(catalog, "SIHSUS", None)["DT_INTER"] == ["DTINTER"]
+
+    def test_a_dead_binding_is_still_offered_when_nothing_else_is(self, catalog: Catalog):
+        """Excluding it would be a stronger claim than the measurement supports."""
+        self._bind(catalog, "DT_INTER", "ANOMES", confidence=0.9, decodes=0.0)
+        from pegasus_data.view import _bindings
+
+        assert _bindings(catalog, "SIHSUS", None)["DT_INTER"] == ["ANOMES"]
+
+    def test_an_unmeasured_binding_is_not_treated_as_dead(self, catalog: Catalog):
+        self._bind(catalog, "SEXO", "SEXO", confidence=0.9, decodes=None)
+        self._bind(catalog, "SEXO", "OTHER", confidence=0.4, decodes=0.9)
+        from pegasus_data.view import _bindings
+
+        assert _bindings(catalog, "SIHSUS", None)["SEXO"] == ["SEXO"]
