@@ -18,3 +18,12 @@ blobs/
 *.sqlite-wal
 *.sqlite-shm
 scratch/
+
+# Scratch that lands in the repo root when an agent or a shell one-liner
+# downloads something without choosing a directory. Project content lives in
+# src/, tests/, scripts/, docs/ and curation/ — never loose at the top level.
+/*.html
+/*.htm
+/*.tmp
+/ev*.yml
+/bd.yml
