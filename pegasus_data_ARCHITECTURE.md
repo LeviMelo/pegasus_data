@@ -241,6 +241,26 @@ Three keys, and the distinction between them is load-bearing:
   `.dbc` and as `.csv.zip` is one family with two representations, not two
   datasets. This is D3.
 
+**A family needs a schema, not a decode.** `build_families` required
+`sample_status = 'ok'` — a file actually decoded — while the header census sets
+`'header'` by design, so the census's 2,971 strata across 14 systems were
+invisible to it. The effect was that families existed for **4 of 20 systems**,
+and since both the build and `fetch()` iterate families, sixteen systems could
+not be extracted at all: `fetch("SINASC-DN")` answered "nothing catalogued" for
+one of the most-used datasets in Brazilian health research.
+
+The census exists precisely so that a schema costs a few hundred bytes rather
+than a decode, and its own tests assert it lands on the *same* `schema_signature`
+a full decode produces. A census stratum is therefore legitimate grounds for a
+family. What it is *not* is grounds for talking about values, so
+`families.schema_source` records which — `profile` when something in the family
+has been read, `header` when only its columns are known. 316 → **1,633
+families**.
+
+This was the horizontal-scaling ceiling, and it was one clause in one query. The
+lesson generalises: **a cheap new way of learning something is worth nothing
+until what consumes it stops asking for the expensive one.**
+
 **System identity comes from the filename, not the path.** `stratum_id` and
 `family_id` are hashes of `(system, series, …)`, so a directory rename would
 silently re-derive every identifier and restart 35 years of continuity under new
@@ -891,18 +911,20 @@ Counted on the shipped catalog, not estimated.
 | strata | 4,418 |
 | strata with a known schema | 3,688 |
 | distinct schemas | 273 |
+| families (system x series x schema) | 1,633 |
 | distinct columns catalogued | 4,354 |
+| columns described | 1,572 (34.7%) |
 | dictionary rows | 19,905,196 |
 | codelists | 10,748 |
 | field→codelist bindings | 9,304 |
 | systems documented | 18 |
-| decodable columns | 2,159 |
+| columns with a binding that decodes | 2,588 |
 | open questions | 1,339 |
 | full semantic bundle | 153 MB |
 | per-system bundle | ~10 MB |
-| generated dictionary pages | 3,036 |
-| of which code tables | 3,008 |
-| tests | 483 passing |
+| dictionary database | 531 MB, 7.47M codes |
+| bindings measured to decode nothing | 658 of 1,871 (35.2%) |
+| tests | 538 passing |
 
 The headline is the first two rows. The mechanism behind the 82,441-file
 difference is stated plainly in `docs/FINDINGS.md` §0.
