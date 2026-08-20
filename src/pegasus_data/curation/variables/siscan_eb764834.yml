@@ -1,0 +1,325 @@
+# SISCAN — the columns carried by the most files (220,643 of them).
+#
+# These are the legacy SISCOLO/SISMAMA record layouts, published under SISCAN:
+# CC citopatológico do colo, HC histopatológico do colo, CM citopatológico da
+# mama, HM histopatológico da mama, MM mamografia. One row is one exam.
+#
+# Almost every column here is settled by the codelist DATASUS itself binds to it
+# in the .DEF — CO_PAC_SEX to SEXO, CO_PAC_RAC to RACACOR, the three REG* to
+# REGIAO — together with the declared width. Where the binding and the width
+# agree, that is evidence rather than a guess, and the reasoning says so.
+#
+# Three of the unit's columns are deliberately absent. ADENCARCIN and CO_BEN_MET
+# carry no binding, no official name and a width that fits neither a flag nor a
+# code (C(8), and C(1) in one generation and C(8) in another), and nothing found
+# settles what they hold. CO_PAC_ESC's codelist is bound but its own value set
+# was not confirmed, so only the column is described and not its values.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+
+  # --------------------------------------------------------------- when
+
+  ANO_COMP:
+    official_name: Ano de competência
+    translated_name: Competence year
+    description: >
+      Four-digit year of the competência the exam was reported under — the
+      administrative reporting month, not the date the exam was performed or
+      read.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Declared C(4) and bound by .DEF to the ANO tabulation axis; competência is
+      SISCAN's reporting period throughout.
+
+  DT_ID_COMP:
+    official_name: Competência (AAAAMM)
+    translated_name: Competence year-month
+    description: >
+      Competência as AAAAMM: the month a record was reported in. Two records of
+      the same exam re-sent in different months carry different values here.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Declared C(6) and bound to ANOMES; six characters and that binding admit
+      only AAAAMM.
+    notes: >
+      Counting by competência counts reporting, not screening activity.
+
+  # ------------------------------------------------------------ the woman
+
+  CO_PAC_SEX:
+    official_name: Sexo do paciente
+    translated_name: Patient sex
+    description: >
+      Sex recorded for the person examined. Overwhelmingly female across every
+      series here, since these are cervical and breast screening programmes.
+    code_system: internal
+    codelists: [SEXO]
+    source: inferred
+    reasoning: Declared C(1) and bound by .DEF to the SEXO codelist.
+
+  CO_PAC_RAC:
+    official_name: Raça/cor do paciente
+    translated_name: Patient race or colour
+    description: >
+      Race or colour of the person examined, on the IBGE categories used
+      throughout Brazilian health data (branca, preta, parda, amarela, indígena).
+      Self-declared in principle; in practice often recorded by staff.
+    code_system: internal
+    codelists: [RACACOR]
+    source: inferred
+    reasoning: Declared C(2) and bound by .DEF to RACACOR.
+    notes: >
+      Missing and "ignorado" are common and not distributed evenly by region, so
+      race-stratified rates from this column understate some groups.
+
+  CO_PAC_IDA:
+    official_name: Idade do paciente
+    translated_name: Patient age
+    description: >
+      Age of the person examined, in completed years, as a three-digit number.
+      Unlike SIH and SIM this carries no unit code beside it — the value is
+      always years.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Declared C(3), no codelist bound, and the sibling CO_FX_ETAR holds the
+      banded form of the same quantity.
+
+  CO_FX_ETAR:
+    official_name: Faixa etária
+    translated_name: Age band
+    description: >
+      The age band the person falls in, as SISCAN's screening bands rather than
+      a general age grouping — the bands follow the ages at which cervical and
+      breast screening is recommended.
+    code_system: internal
+    codelists: [FETARIA]
+    source: inferred
+    reasoning: Declared C(2) and bound to FETARIA, whose labels are age ranges.
+    notes: >
+      A banding of CO_PAC_IDA, not an independent fact. Use one or the other.
+
+  CO_PAC_ESC:
+    official_name: Escolaridade do paciente
+    translated_name: Patient schooling
+    description: >
+      Level of schooling recorded for the person examined. A single character,
+      drawn on the schooling categories used across Brazilian health records.
+    code_system: internal
+    codelists: [ESCOLARIDADE]
+    source: inferred
+    reasoning: Declared C(1) and bound by .DEF to ESCOLARIDADE.
+
+  # ------------------------------------------------- where she lives
+
+  CO_PAC_IBG:
+    official_name: Município de residência do paciente (IBGE)
+    translated_name: Patient municipality of residence
+    description: >
+      IBGE code of the municipality where the person examined lives — not where
+      the exam was collected, which is the unit's municipality (CO_US_IBGE), and
+      not where it was read, which is the laboratory's (CLABIBGE).
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Declared C(7) and bound to MUNICBR; seven digits is the IBGE code.
+    notes: >
+      Screening is often collected away from home. Counting exams by the unit's
+      municipality and calling it coverage of that municipality's women is the
+      standard mistake these three columns exist to let you avoid.
+
+  CO_PAC_UF:
+    official_name: UF de residência do paciente
+    translated_name: Patient state of residence
+    description: >
+      Two-digit IBGE code of the state where the person examined lives.
+    code_system: external
+    codelists: [ESTADO]
+    source: inferred
+    reasoning: Declared C(2) and bound to ESTADO.
+
+  REGRESID:
+    official_name: Região de residência
+    translated_name: Region of residence
+    description: >
+      Macro-region of the person's residence — North, Northeast, Southeast,
+      South, Centre-West — as a single digit.
+    code_system: internal
+    codelists: [REGIAO]
+    source: inferred
+    reasoning: Declared C(1) and bound to REGIAO; derived from CO_PAC_UF.
+
+  # ------------------------------------------- where the exam was taken
+
+  CO_US:
+    official_name: Código da unidade de saúde
+    translated_name: Health unit code
+    description: >
+      CNES code of the health unit that collected the sample or performed the
+      mammogram. The point of contact with the woman, distinct from the
+      laboratory that read it.
+    code_system: external
+    codelists: [UNIDSAUDE]
+    source: inferred
+    reasoning: >
+      Declared C(7) — the CNES establishment width — and bound to UNIDSAUDE plus
+      a per-state family of unit tables.
+
+  CO_US_IBGE:
+    official_name: Município da unidade de saúde (IBGE)
+    translated_name: Health unit municipality
+    description: >
+      IBGE code of the municipality where the collecting unit is, which is where
+      the exam happened rather than where the woman lives.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Declared C(7) and bound to MUNICBR.
+
+  CO_US_UF:
+    official_name: UF da unidade de saúde
+    translated_name: Health unit state
+    description: >
+      Two-digit IBGE code of the state the collecting unit is in.
+    code_system: external
+    codelists: [ESTADO]
+    source: inferred
+    reasoning: Declared C(2) and bound to ESTADO.
+
+  REGUS:
+    official_name: Região da unidade de saúde
+    translated_name: Health unit region
+    description: >
+      Macro-region of the collecting unit, as a single digit.
+    code_system: internal
+    codelists: [REGIAO]
+    source: inferred
+    reasoning: Declared C(1) and bound to REGIAO; derived from CO_US_UF.
+
+  # ------------------------------------------- where it was read
+
+  CO_CNES:
+    official_name: CNES do laboratório
+    translated_name: Laboratory CNES code
+    description: >
+      CNES code of the laboratory that read the slide or the mammogram. In these
+      files it identifies the reader, not the collector — CO_US is the collector.
+    code_system: external
+    codelists: [TB_LAB]
+    source: inferred
+    reasoning: >
+      Declared C(7), the CNES width, and bound to TB_LAB — the laboratory table
+      rather than the general establishment table, which is what distinguishes
+      it from CO_US.
+
+  CLABIBGE:
+    official_name: Município do laboratório (IBGE)
+    translated_name: Laboratory municipality
+    description: >
+      IBGE code of the municipality where the reading laboratory is. Cervical
+      cytology is often read far from where it was collected, so this and
+      CO_US_IBGE routinely differ.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Declared C(7) and bound to MUNICBR.
+
+  CLABUF:
+    official_name: UF do laboratório
+    translated_name: Laboratory state
+    description: >
+      Two-digit IBGE code of the state the reading laboratory is in.
+    code_system: external
+    codelists: [ESTADO]
+    source: inferred
+    reasoning: Declared C(2) and bound to ESTADO.
+
+  REGLAB:
+    official_name: Região do laboratório
+    translated_name: Laboratory region
+    description: >
+      Macro-region of the reading laboratory, as a single digit.
+    code_system: internal
+    codelists: [REGIAO]
+    source: inferred
+    reasoning: Declared C(1) and bound to REGIAO; derived from CLABUF.
+
+  # ------------------------------------------------ how long it took
+
+  DINTCOLETA:
+    official_name: Intervalo até a coleta
+    translated_name: Interval to collection, banded
+    description: >
+      How long the woman waited for the sample to be collected, as a band rather
+      than a number of days: 1 is 0–10 days, 2 is 11–20, 3 is 21–30, and so on.
+    code_system: internal
+    codelists: [INTCOLETA]
+    source: inferred
+    reasoning: >
+      Declared C(1) and bound to INTCOLETA, whose labels are day ranges
+      ("0 - 10 dias", "11 - 20 dias").
+    notes: >
+      Banded, so it cannot be averaged. Treat it as ordered categories.
+
+  DINTRESULT:
+    official_name: Intervalo até o resultado
+    translated_name: Interval to result, banded
+    description: >
+      How long the result took to come back, in the same day-range bands: 1 is
+      0–10 days, 2 is 11–20, 3 is 21–30. This is the delay that decides whether
+      a screening programme reaches a woman in time to act.
+    code_system: internal
+    codelists: [INTRESULTADO]
+    source: inferred
+    reasoning: >
+      Declared C(1) and bound to INTRESULTADO, whose labels are day ranges.
+    notes: >
+      Banded, not a day count. Averaging the code numbers produces a number with
+      no meaning.
+
+  DINTTEMPEX:
+    official_name: Intervalo de tempo do exame
+    translated_name: Exam turnaround, banded
+    description: >
+      Total time the exam took end to end, banded the same way as DINTCOLETA and
+      DINTRESULT rather than given in days.
+    code_system: internal
+    codelists: [INTTEMPOEXAME]
+    source: inferred
+    reasoning: >
+      Declared C(1) and bound to INTTEMPOEXAME, a sibling of the other two
+      interval tables.
+
+  # ------------------------------------------------------ how many
+
+  QUANTEXAME:
+    official_name: Quantidade de exames
+    translated_name: Number of exams
+    description: >
+      Number of exams the record accounts for. Ordinarily 1, since one row is
+      one exam; values above 1 mean the row stands for several.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Declared C(8) with no codelist bound; QUANT/QTD is DATASUS's prefix for a
+      count and EXAME names what is counted.
+    notes: >
+      Rows are not necessarily one exam each. Sum this column rather than
+      counting rows.
+
+  QTDEXA:
+    official_name: Quantidade de exames
+    translated_name: Number of exams
+    description: >
+      The same count as QUANTEXAME under the shorter name a different generation
+      of the layout uses. Only one of the two is present in any given file.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Declared C(8), unbound, and never appears in the same schema signature as
+      QUANTEXAME — the abbreviation pattern DATASUS uses when a layout is
+      revised.
