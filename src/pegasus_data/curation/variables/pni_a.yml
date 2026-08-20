@@ -6,52 +6,40 @@ variables:
     official_name: Ano
     translated_name: Year (reference/competency year)
     description: >
-      The "ano de competência" the record is attributed to in the PNI
-      Avaliação do Programa de Imunizações (API) tabulations — the calendar
-      year the row's doses-applied total or coverage percentage is
-      attributed to, not necessarily the exact date of vaccination. Cuts
-      across every PNI series (CPNI/CPNIUF/CPNIIG coverage,
-      DPNI/DPNIUF/DPNIIG doses applied).
+      Calendar year the row's doses-applied total or coverage percentage is
+      attributed to (ano de competência) — not necessarily the exact
+      vaccination date. Spans every PNI coverage and doses-applied series.
     code_system: none
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
     notes: >
-      Early years are structurally incomplete, not zero-coverage: the 1994
-      extract has no records at all for Alagoas, Amapá, Distrito Federal,
-      Mato Grosso do Sul, Minas Gerais, Paraíba, Paraná, Rio de Janeiro, Rio
-      Grande do Sul, São Paulo, Sergipe and Tocantins (system rollout still
-      in progress); 1995 is still missing Mato Grosso do Sul, Minas Gerais
-      and Tocantins; 1996 is missing only Minas Gerais. The catalog binds
-      this field to codelists ANO and MESC even though it is a plain year
-      value, not a category — a spurious binding, not a curation error.
+      1994-1996 rows are structurally missing several UFs (e.g. all of 1994
+      lacks Alagoas, Amapá, DF, MS, MG, Paraíba, Paraná, RJ, RS, SP, Sergipe
+      and Tocantins) because the system was still rolling out there — an
+      absent row is not a zero. Also spuriously bound to codelists ANO/MESC
+      even though it is a plain year, not a category.
 
   UF:
     official_name: Unidade da Federação
     translated_name: State (UF) of vaccine application
     description: >
-      IBGE code, letter code, or name (depending on which BR_UF* table it is
-      resolved through) of the state where the immunobiologic was applied —
-      one instance of the "Local ... de aplicação do imunobiológico"
-      geographic dimension the layout doc describes. This is the
-      administration site, not the patient's state of residence, and is the
-      geography column of the UF-level series (CPNIUF, DPNIUF).
+      IBGE code, letter code, or name (depending on the resolving table) of
+      the state where the vaccine was administered — the administration
+      site, not the patient's state of residence.
     code_system: external
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
     notes: >
-      Shares the same 1994-1996 state-coverage gaps documented under ANO —
-      an absent UF in an early year reflects the system not yet having been
-      rolled out there, not a real zero.
+      Shares the 1994-1996 rollout gaps documented under ANO: an absent UF
+      in an early year means not-yet-rolled-out, not a real zero.
 
   MUNIC:
     official_name: Município
     translated_name: Municipality of vaccine application
     description: >
-      IBGE municipality code (6 or 7 digits depending on the file) of where
-      the immunobiologic was applied — the municipal instance of the same
-      "Local ... de aplicação do imunobiológico" dimension documented for
-      UF, used by the municipal-level series (CPNI, DPNI, CPNIIG, DPNIIG).
-      Site of administration, not the patient's municipality of residence.
+      IBGE municipality code (6 or 7 digits, depending on the file) of
+      where the vaccine was administered — administration site, not the
+      patient's home municipality.
     code_system: external
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
@@ -60,14 +48,10 @@ variables:
     official_name: Imunobiológico
     translated_name: Immunobiologic (vaccine, serum or immunoglobulin) type
     description: >
-      Which immunobiologic the row's doses/coverage figure refers to —
-      "Tipo de imunobiológico aplicado, conforme a tabela de
-      imunobiológicos" per the layout doc, whose accompanying "Tabela de
-      Imunobiológicos" lists close to 60 items (BCG, Hepatite A/B, Tríplice
-      Viral, Pentavalente, VOP/VIP, Toxóide Tetânico, antivenom sera,
-      immunoglobulins, etc.), each with its own implantation year and its
-      own valid dose/age-bracket scheme. The stored code is a DATASUS
-      2-3 digit id, resolved to a label through IMUNO.CNV/IMUNOC.CNV.
+      Which immunobiologic the row's dose total or coverage figure refers
+      to — BCG, Hepatite A/B, Tríplice Viral, Pentavalente, VOP/VIP,
+      Toxóide Tetânico, an antivenom serum, an immunoglobulin, etc. — coded
+      per DATASUS's Tabela de Imunobiológicos.
     code_system: internal
     codelists: [IMUNO, IMUNOC, COBIMUNO, COBIMUC, IMUNOCOB]
     source: layout_doc
@@ -75,207 +59,166 @@ variables:
     notes: >
       Vaccines enter and leave the PNI calendar over time (e.g. monovalent
       Sarampo only through 2002, replaced by Tríplice Viral in 2003; Penta
-      only from the 2nd half of 2012). Which DOSE and FX_ETARIA values are
-      meaningful for a given IMUNO code depends on its active period — see
-      the doc's "Tabela de Imunobiológicos" for the per-vaccine scheme.
+      only from mid-2012), and which DOSE/FX_ETARIA values apply to a given
+      IMUNO code depends on its active period.
 
   DOSE:
     official_name: Dose
     translated_name: Dose type / sequence within the scheme
     description: >
-      Which dose in the multidose scheme the figure represents — "Tipo de
-      dose aplicada, de acordo com a tabela de imunobiológicos" per the
-      layout doc. DOSE.CNV enumerates the values actually used: Dose única,
-      1ª/2ª/3ª/4ª dose, 1º/2º reforço (booster), Revacinação, Dose Inicial,
-      Dose Adicional, a generic "Dose", and "Tratamento". The same code
-      means a different point in the schedule depending on IMUNO — "3ª
-      dose" of Hepatite B is not the same clinical event as "3ª dose" of
-      Poliomielite oral.
+      Which dose in the multidose schedule a row reports: dose única,
+      1ª-4ª dose, 1º/2º reforço (booster), revacinação, dose inicial, dose
+      adicional, or a generic "dose"/"tratamento" code, per DOSE.CNV.
     code_system: internal
     codelists: [DOSE]
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
+    notes: >
+      The same DOSE code marks a different point in the schedule depending
+      on IMUNO — "3ª dose" of Hepatite B and "3ª dose" of Poliomielite oral
+      are different clinical events.
 
   FX_ETARIA:
     official_name: Faixa Etária
     translated_name: Age bracket of the vaccinated individual
     description: >
-      "Faixa etária do indivíduo" — the layout doc is explicit that the set
-      of brackets collected varies by immunobiologic: for BCG it is menor
-      de 1 ano, 1 ano, 2 anos, 3 anos, 4 anos, 5 a 6 anos, 7 a 14 anos, 15 a
-      59 anos, 60 anos e mais, while other vaccines (e.g. Febre Amarela)
-      use a "5 a 9 anos" bracket BCG never does. The doc's own example: a
-      query for BCG doses in the "5 a 9 anos" bracket returns zero rows,
-      because that bracket is not part of BCG's scheme.
+      Age bracket of the vaccinated individual (e.g. menor de 1 ano, 1 ano,
+      5 a 9 anos, 60 anos e mais) — the specific set of brackets collected
+      differs by immunobiologic.
     code_system: internal
     codelists: [FXET]
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
     notes: >
-      FXET.CNV groups many raw underlying codes under each bracket label
-      (e.g. bracket "6 meses a 1 ano" groups raw codes "--,G1,H2"), a sign
-      the bracket set itself was reshaped more than once across the
-      dataset's history. Do not assume a given FX_ETARIA value is valid,
-      or means the same age span, for every IMUNO and every year.
+      BCG's brackets stop at "7 a 14 anos"/"15 a 59 anos"/"60 anos e mais"
+      and never use "5 a 9 anos", unlike vaccines such as Febre Amarela —
+      querying BCG against a bracket outside its own scheme returns zero
+      rows. FXET.CNV also groups several raw codes under one bracket label
+      (e.g. "6 meses a 1 ano" groups "--, G1, H2"), so a bracket's meaning
+      is not guaranteed stable across the dataset's history.
 
   QT_DOSE:
     official_name: Quantidade de Doses Aplicadas
     translated_name: Number of doses applied
     description: >
-      "Número de doses aplicadas" per the layout doc's "Doses aplicadas"
-      section — the count of vaccine doses administered for the row's
-      Ano × Local × Imuno × Dose × Faixa Etária combination. This is the
-      measure tabulated by the doses-applied report (DPNI/DPNIUF/DPNIIG
-      series); it is a raw administrative count, not a rate.
+      Number of vaccine doses administered for the row's year × location ×
+      immunobiologic × dose × age-bracket combination — a raw
+      administrative total, not a rate or percentage.
     code_system: none
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
     notes: >
       Declared as Character with widths 8, 10 or 40 across different .DEF
-      files despite holding a numeric count — a DEF-authoring inconsistency,
-      not evidence the column is textual. The catalog also binds it to a
-      codelist named "100", which for a count field is a spurious binding.
+      files despite holding a numeric total — a DEF-authoring quirk, not
+      evidence the column is textual. Also spuriously bound to a codelist
+      named "100".
 
   COBERT:
     official_name: Cobertura Vacinal
     translated_name: Vaccination coverage (percent)
     description: >
-      COBERT = (doses applied of the vaccine's reference dose ÷ target
-      population) × 100. Quoting the layout doc directly: "A fórmula de
-      cálculo para cobertura vacinal é o número de doses aplicadas da dose
-      indicada (D1, D2, D3, DU, D, conforme a vacina) dividida pela
-      população alvo, multiplicado por 100." Produced by the coverage
-      report (CPNI/CPNIUF/CPNIIG series); the population denominator is
-      documented under POP.
+      Vaccination coverage percentage: doses applied of the vaccine's
+      reference dose (D1, D2, D3, DU, or D, depending on the vaccine)
+      divided by target population (POP), times 100.
     code_system: none
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Cobertura_desde_1994.pdf
     notes: >
-      Which dose counts as "the indicated dose" (D1, D2, D3, DU or D) is
-      vaccine-specific and spelled out in the doc's 18-item footnote list —
-      e.g. BCG sums dose-única (DU) doses, while Hepatite B sums D3 doses
-      pooled across HB+PENTA+HEXA formulations. Values over 100% are
-      possible because the denominator (POP) is an estimate, not a census
-      count of who actually presented for vaccination. Declared numeric
-      precision is inconsistent across files (N(7,2) vs N(19,4)).
+      Which dose counts as "the indicated dose" is vaccine-specific (e.g.
+      BCG sums dose-única, Hepatite B sums D3 pooled across
+      HB+PENTA+HEXA). Values above 100% occur because POP is an estimate,
+      not a census of who actually presented for vaccination.
 
   POP:
     official_name: População Alvo
     translated_name: Target population (coverage denominator)
     description: >
-      The population used as the denominator of COBERT for a given
-      municipality/UF, year, and vaccine age-target. Per the layout doc's
-      "População" section, its source changes by period: IBGE preliminary
-      population estimates for 1994-1999; a state-by-state mix of the 2000
-      Census and SINASC live-birth counts for 2000-2005; and from 2006
-      onward, SINASC live births for the <1 year and 1-year brackets with
-      IBGE census/count/estimate data for every other bracket.
+      Target population used as COBERT's denominator, by
+      municipality/UF, year and age bracket — IBGE census/estimate data
+      through 2005, then SINASC live births for the infant brackets from
+      2006 onward.
     code_system: none
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Cobertura_desde_1994.pdf
     notes: >
       Not the same series as "população residente" published elsewhere on
-      DATASUS: the doc states CGPNI deliberately kept using each year's
-      first preliminary IBGE estimate even after later revisions (e.g. the
-      1996 Contagem Populacional was never adopted), so POP will not match
-      the official resident-population figure for the same municipality
-      and year. SINASC-sourced counts (for <1 year and 1-year brackets)
-      also lag and get backfilled with the prior year's figure when the
-      current year's SINASC data is not yet available.
+      DATASUS: CGPNI deliberately kept each year's first preliminary IBGE
+      estimate even after later revisions. SINASC-sourced infant counts lag
+      and get backfilled with the prior year's figure when not yet
+      available.
 
   DOSE1:
     official_name: Doses D1 (dose inicial do esquema)
     translated_name: First-dose (D1) count for a dropout-rate scheme
     description: >
-      Count of first-dose (D1) applications, used as the base of the
-      "Taxas de abandono" (vaccination dropout rate) report. The dropout
-      methodology doc defines the rate as "a diferença entre a quantidade
-      de D1 e quantidade de doses que finalizou o esquema vacinal, dividido
-      pelo total de D1 ... = TX" — DOSE1 is that D1 total. Only produced
-      for the handful of multidose schemes the report covers: Hepatite B,
-      Rotavírus (VORH), Pneumocócica 10/13V, Meningocócica C, the
-      VIP/VOP sequential scheme, Pentavalente, Tríplice Viral, combined
-      Poliomielite, and Tetravalente.
+      Count of first-dose (D1) applications for a vaccine's schedule — the
+      base figure of PNI's dropout-rate (taxa de abandono) calculation,
+      produced only for the handful of multidose vaccines the report covers.
     code_system: none
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/notatecnicaTx.pdf
+    notes: >
+      Covers Hepatite B, Rotavírus (VORH), Pneumocócica 10/13V,
+      Meningocócica C, VIP/VOP sequential, Pentavalente, Tríplice Viral,
+      combined Poliomielite and Tetravalente only.
 
   DOSEN:
     official_name: Doses Dn (dose final do esquema)
     translated_name: Final-dose count for a dropout-rate scheme
     description: >
-      Count of applications of whichever dose closes the primary series for
-      the vaccine in question — the numerator counterpart to DOSE1 in the
-      dropout-rate calculation. Per the dropout methodology doc, the
-      closing dose is D3 for Hepatite B, Pneumocócica 10/13V, the
-      VIP/VOP sequential scheme, Pentavalente, combined Poliomielite and
-      Tetravalente, but D2 for Rotavírus, Meningocócica C and (from 2013)
-      Tríplice Viral.
+      Count of applications of whichever dose closes a vaccine's primary
+      series — D3 for most of the covered vaccines, but D2 for Rotavírus,
+      Meningocócica C, and (from 2013) Tríplice Viral.
     code_system: none
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/notatecnicaTx.pdf
     notes: >
-      Which literal dose (D2 vs D3) a given DOSEN value represents depends
-      on IMUNO and is not itself recorded in this column — see the doc's
-      per-vaccine list (items a-i) for the mapping before comparing DOSEN
-      across different vaccines.
+      Which literal dose (D2 vs D3) a DOSEN value represents depends on
+      IMUNO and is not itself recorded in this column.
 
   DIFER:
     official_name: Diferença D1-Dn
     translated_name: Dose difference (D1 minus the closing dose)
     description: >
-      DIFER = DOSE1 − DOSEN: the count of people who received the scheme's
-      first dose but not its closing dose. This is the numerator of the
-      dropout-rate formula the methodology doc gives — "Dif D1-Dn/D1*100 =
-      TX" for most of the covered vaccines, or "Dif D1-Dn*100 = TX" (a
-      denominator already folded in) for Meningocócica C, the VIP/VOP
-      sequential scheme, Pentavalente, combined Poliomielite and
-      Tetravalente specifically.
+      DOSE1 minus DOSEN: the count of people who received a vaccine's
+      first dose but never received its closing dose — the numerator of
+      the PNI dropout-rate formula.
     code_system: none
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/notatecnicaTx.pdf
+    notes: >
+      Divided by DOSE1 and multiplied by 100 to get the published dropout
+      rate for most vaccines; for Meningocócica C, VIP/VOP sequential,
+      Pentavalente, combined Poliomielite and Tetravalente the denominator
+      is already folded into DIFER itself.
 
   MES:
     official_name: Mês
     translated_name: Month
     description: >
-      Calendar month of the reference period: 1=Janeiro through 12=Dezembro,
-      plus a 13th value "Não discriminado" for records not broken out by
-      month, per MES.CNV. Used alongside ANO (and ANOMES) as the time axis
-      for the monthly evaluation the coverage methodology doc describes
-      (meta mensal simples vs. meta acumulada).
+      Calendar month of the reference period: 1=Janeiro through
+      12=Dezembro, plus code 13 "não discriminado" for rows not broken
+      out by month, per MES.CNV.
     code_system: none
     source: def
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/AUXILIARES/MES.CNV
     notes: >
-      Code 13, "não discriminado", is not a real calendar month — it marks
-      rows that were not disaggregated by month. Filter it out before
-      treating MES as an ordinary 1-12 index, e.g. when computing a
-      month-over-month series.
+      Code 13 is not a real calendar month; filter it out before treating
+      MES as an ordinary 1-12 index.
 
   ANOMES:
     official_name: Ano/Mês
     translated_name: Year-month reference period (YYYYMM)
     description: >
-      Combined 6-digit year+month competency period (e.g. "201401"), used
-      as the time axis in the monthly dropout-rate tabulations. No PNI
-      layout PDF names an "ANOMES" field explicitly, but ANOMES.CNV (a PNI
-      auxiliary dictionary file) maps short codes to exactly this kind of
-      year-month range (e.g. code "001" spans "199400-199412" for 1994),
-      and the coverage doc describes evaluation being done on a monthly
-      basis ("meta mensal simples (do mês) ou a acumulada").
+      Combined 6-digit year+month reference period (YYYYMM, e.g.
+      "201401") — the time axis in PNI's monthly dropout-rate tabulations,
+      matching the ranges in ANOMES.CNV (e.g. code "001" = "199400-199412").
     code_system: none
     source: inferred
     reasoning: >
-      ANO_+MES compound field name; declared width is C(6,0), matching a
-      4-digit year concatenated with a 2-digit month; and the value ranges
-      documented in the ANOMES.CNV/ANOMESC.CNV auxiliary files (fetched
-      from PNI/AUXILIARES) are year-month ranges, not a free-standing
-      category list. No layout PDF names this specific field, so the
-      conclusion is built from the name, the declared width, and the
-      auxiliary tables rather than read directly out of prose.
+      ANO+MES compound field name; declared width C(6,0) matches a 4-digit
+      year plus 2-digit month; ANOMES.CNV/ANOMESC.CNV map short codes to
+      year-month ranges rather than a free-standing category list.
     notes: >
-      The catalog binds this field to codelists ANOMES, ANOMESC and MES
-      even though it is a period value, not a category — a spurious
-      binding, not a curation error.
-
+      Spuriously bound to codelists ANOMES, ANOMESC and MES even though it
+      is a period value, not a category.

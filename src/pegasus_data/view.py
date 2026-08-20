@@ -640,12 +640,20 @@ def render_table(
         # is the whole point: an unlabelled code is visibly unfinished, and a
         # confidently wrong label is not.
         observed = {str(v).strip() for v in column.to_pylist() if v is not None}
-        ambiguous = {
-            code: labels
-            for code, labels in _contradictions(
+        try:
+            disagreements = _contradictions(
                 lake, codelists[0], system=system, year=year, code_width=None
-            ).items()
-            if code in observed
+            )
+        except FileNotFoundError:
+            # A codelist bound but never materialised. That is a labelling gap
+            # for this one column, already reported where the lookup was built —
+            # not grounds to fail the whole request. Letting it escape meant a
+            # single unmaterialised table made every SINAN dataset unfetchable:
+            # `fetch("SINAN-DENG")` died on AGRAVNET while 200 other columns
+            # were sitting there ready to be returned.
+            disagreements = {}
+        ambiguous = {
+            code: labels for code, labels in disagreements.items() if code in observed
         }
         if ambiguous:
             example = next(iter(sorted(ambiguous)))

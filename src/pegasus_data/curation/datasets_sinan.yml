@@ -1,0 +1,410 @@
+# SINAN's agravos, named from DATASUS's own open-data tree.
+#
+# The legacy tree names each notifiable disease with a four-letter code and
+# says nowhere what it stands for. Dados_Abertos/SINAN/ files the same data
+# under Portuguese disease names, which makes the open-data tree a crosswalk
+# DATASUS itself published. This file is that join.
+#
+# What one row is comes from what SINAN is: a compulsory-notification system,
+# so a row is a NOTIFICATION, not a case and not a person. Someone notified
+# twice is two rows, and a notification later discarded on investigation stays
+# in the file with its classification changed.
+datasets:
+  SINAN_ACBI:
+    system: SINAN
+    series: ACBI
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Acidente_tbr_mat_biologico/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of occupational exposure to biological material
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_ACGR:
+    system: SINAN
+    series: ACGR
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Acidente_trabalho/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of serious work-related accident
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_ANIM:
+    system: SINAN
+    series: ANIM
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Acidente_anim_peconhentos/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of venomous animal accident
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_ANTR:
+    system: SINAN
+    series: ANTR
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Atendim_antirrabico_humano/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of human anti-rabies care
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_CANC:
+    system: SINAN
+    series: CANC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Cancer_Trabalho/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of work-related cancer
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_CHAG:
+    system: SINAN
+    series: CHAG
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Chagas_aguda/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of acute Chagas disease
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_CHIK:
+    system: SINAN
+    series: CHIK
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Chikungunya/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of chikungunya
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_COQU:
+    system: SINAN
+    series: COQU
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Coqueluche/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of whooping cough
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_DENG:
+    system: SINAN
+    series: DENG
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Dengue/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of dengue
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_DERM:
+    system: SINAN
+    series: DERM
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Dermatose_trabalho/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of work-related dermatosis
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_DIFT:
+    system: SINAN
+    series: DIFT
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Difteria/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of diphtheria
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_ESQU:
+    system: SINAN
+    series: ESQU
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Esquistossomose/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of schistosomiasis
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_FMAC:
+    system: SINAN
+    series: FMAC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Febre_maculosa/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of spotted fever
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_FTIF:
+    system: SINAN
+    series: FTIF
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Febre_tifoide/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of typhoid fever
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_HANT:
+    system: SINAN
+    series: HANT
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Hantavirose/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of hantavirus infection
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_HEPA:
+    system: SINAN
+    series: HEPA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Hepatite/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of viral hepatitis
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_IEXO:
+    system: SINAN
+    series: IEXO
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Intoxicacao_exogena/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of exogenous intoxication (poisoning)
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_LEIV:
+    system: SINAN
+    series: LEIV
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Leishmaniose_viceral/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of visceral leishmaniasis
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_LEPT:
+    system: SINAN
+    series: LEPT
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Leptospirose/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of leptospirosis
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_LERD:
+    system: SINAN
+    series: LERD
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/LER_DORT/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of repetitive strain / work-related musculoskeletal disorder
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_LTAN:
+    system: SINAN
+    series: LTAN
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Leishmaniose_tegumentar/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of cutaneous leishmaniasis
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_MALA:
+    system: SINAN
+    series: MALA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Malaria/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of malaria
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_MENI:
+    system: SINAN
+    series: MENI
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Meningite/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of meningitis
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_PAIR:
+    system: SINAN
+    series: PAIR
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/PAIR_relacionado_trabalho/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of noise-induced hearing loss, work-related
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_PEST:
+    system: SINAN
+    series: PEST
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Peste/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of plague
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_PFAN:
+    system: SINAN
+    series: PFAN
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Paralisia_flacida_aguda/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of paralisia flacida aguda
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_PNEU:
+    system: SINAN
+    series: PNEU
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Pneumoconiose_trabalho/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of pneumoconiose trabalho
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_RAIV:
+    system: SINAN
+    series: RAIV
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Raiva_humana/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of raiva humana
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_ROTA:
+    system: SINAN
+    series: ROTA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Rotavirus/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of rotavirus
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_SIFA:
+    system: SINAN
+    series: SIFA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Sifilis_adquirida/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of sifilis adquirida
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_TETA:
+    system: SINAN
+    series: TETA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Tetano_acidental/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of tetano acidental
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_TETN:
+    system: SINAN
+    series: TETN
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Tetano_neonatal/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of tetano neonatal
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_TOXC:
+    system: SINAN
+    series: TOXC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Toxoplasmose_congenita/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of toxoplasmose congenita
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_TOXG:
+    system: SINAN
+    series: TOXG
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Toxoplasmose_gestacional/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of toxoplasmose gestacional
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_TUBE:
+    system: SINAN
+    series: TUBE
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Tuberculose/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of tuberculose
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_ZIKA:
+    system: SINAN
+    series: ZIKA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Zikavirus/ (DATASUS files this series under that name in its open-data tree)
+    what_one_row_is: one notification of zikavirus
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+
+# 36 agravos named from the open-data tree.

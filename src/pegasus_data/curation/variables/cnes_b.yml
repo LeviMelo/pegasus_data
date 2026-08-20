@@ -1,25 +1,27 @@
 # CNES - columns 0-120, ordered by file count (batch "cnes_b").
 #
-# All 120 columns in this batch were grounded against the DATASUS CNES layout document
-# (IT_CNES_1706.pdf, self-titled "CNES - Informe Tecnico 2017-06", Sec 2.1 Layout dos arquivos
-# de Estabelecimentos, ST*.dbf). DATASUS's own ftp.datasus.gov.br / ftp2.datasus.gov.br hosts
-# were unreachable from this environment on both HTTPS and the WebFetch tool (connection
-# timeouts / ECONNREFUSED); the document was instead retrieved, byte-identical in content, via
-# a municipal open-data mirror (Fortaleza CE, dados.fortaleza.ce.gov.br/dataset/cnes_fortaleza,
-# resource "layout_cnes.pdf"), and read as text with pdfplumber. Every column in this batch
-# (the AP0#CV0# service/payer grid, the GESPRG#E/#M management-sphere grid, NIVATE_A/H,
-# accreditation/PNASS fields, physical-installation flags incl. the QTINST0# count grid,
-# waste-collection and commission flags, and the contract/banking/date block) maps to a
-# specific SEQ row in that document's ST*.dbf layout table; source_ref below cites the SEQ
-# number for each.
+# Most columns in this batch are grounded against the DATASUS CNES layout document
+# (IT_CNES_1706.pdf, "CNES - Informe Tecnico 2017-06", Sec 2.1 Layout dos arquivos de
+# Estabelecimentos, ST*.dbf), fetched from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/
+# 200508_/doc/IT_CNES_1706.pdf; source_ref cites the SEQ row for each such field.
 #
-# Two honest gaps are flagged inline rather than guessed shut:
-#   - GESPRG3E/GESPRG3M: the source table names programs 1, 2, 4, 5 and 6 (atencao basica /
-#     media complexidade / alta complexidade, ambulatorial and hospitalar) but never names what
-#     "programa cod. 03" is - see notes on those two fields.
-#   - QTINST01-QTINST31: the source table repeats the identical generic label "Quantidade de
-#     salas/consultorios" for all 31 of them (and beyond, to QTINST37); which physical-
-#     installation type each numbered position counts is not given in this document.
+# Three families needed more than the layout PDF, which only prints one generic label for
+# every position in a numbered grid (QTINST01-37 "Quantidade de salas/consultorios";
+# GESPRG3E/M "programa cod. 03"; CLASAVAL with no value list at all). DATASUS's own FTP
+# auxiliary bundle - ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/
+# TAB_CNES.zip - carries the TabWin tabulation definitions and value-label tables that spell
+# these out, and each of the three families is sourced from there instead (source: def):
+#   - QTINST01-31: Estabelecimento.def lists a distinct room/office label at each fixed grid
+#     position (e.g. QTINST01 = "Sala Atendimento Pediatria"), grouped into three physical
+#     blocks - urgencia/emergencia (01-14), ambulatorio (15-30), and the hospital centro
+#     cirurgico (31). QTINST32-37 continue the same grid (centro obstetrico / neonatal) but
+#     fall outside this batch's column range.
+#   - GESPRG3E/GESPRG3M: Estabelecimento.def labels these "Internacao Estadual (ANTIGO)" /
+#     "Internacao Municipal (ANTIGO)" - a legacy general-inpatient management indicator,
+#     marked ANTIGO (old) because GESPRG5/GESPRG6 later split hospital management by
+#     complexity level. CNV/GESPROG3.CNV confirms the same reading.
+#   - CLASAVAL: CNV/CLASAVAL.CNV gives the value list (1/2/3 = accredited level 1/2/3, 0 = did
+#     not meet minimum standards) that the layout PDF omits entirely.
 #
 # code_system for LEITHOSP, CENTRCIR and CO_BANCO is set from what the column IS (a DATASUS
 # 1-sim/0-nao flag; a Febraban/COMPE bank code) even though the catalog currently has zero
@@ -42,47 +44,38 @@ variables:
     translated_name: >-
       Inpatient admission (internacao) offered under the SUS public system
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering inpatient admission
-      (internacao) to patients covered by the SUS public system. It is one cell of a 7x6 grid on the
-      Estabelecimentos (ST) record that crosses 7 broad service categories (AP01 internacao .. AP07
-      regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a
-      facility can and often does tick more than one CVxx for the same APxx. The seven per-service
-      any-payer flags roll up into a single establishment-level summary flag, ATEND_PR, which sits
-      outside this batch (ST SEQ 199).
+      SUS-covered patients: flag (1=yes/0=no) for whether the establishment offers inpatient
+      admission (internacao), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 157
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 157
     codelists:
     - ATPRES01
     notes: >-
-      This same 7x6 grid is also carried, field-for-field, on the Dados Complementares (DC) record
-      (DC*.dbf Sec 2.2, e.g. AP01CV01 at DC SEQ 112) and on the Equipes (EP) record from Apr/2007
-      onward - the catalog's series evidence shows AP01CV01 present in DC (2005-2026), EP (2007-2026)
-      and ST (2005-2026) alike. Confirm which file a given extract's AP0#CV0# column actually came
-      from before comparing establishment- vs team-level counts across files.
+      This same 7x6 grid (7 services x 6 payers) is also carried, field-for-field, on the Dados
+      Complementares (DC) record and, from Apr/2007 onward, on the Equipes (EP) record - confirm
+      which file an extract's AP0#CV0# column actually came from. The seven per-service any-
+      payer flags roll up into a single establishment-level summary flag, ATEND_PR, which sits
+      outside this batch (ST SEQ 199).
   AP01CV02:
     official_name: >-
       Atendimento prestado INTERNACAO/Convenio PARTICULAR
     translated_name: >-
-      Inpatient admission (internacao) offered under out-of-pocket/private pay (particular), i.e. no
-      insurer
+      Inpatient admission (internacao) offered under out-of-pocket/private pay (particular),
+      i.e. no insurer
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering inpatient admission
-      (internacao) to patients covered by out-of-pocket/private pay (particular), i.e. no insurer. It
-      is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service
-      categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS ..
-      CV06 plano de saude privado); a facility can and often does tick more than one CVxx for the same
-      APxx. The seven per-service any-payer flags roll up into a single establishment-level summary
-      flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no) for whether the
+      establishment offers inpatient admission (internacao), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 158
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 158
   AP01CV03:
     official_name: >-
       Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO PROPRIO
@@ -90,140 +83,110 @@ variables:
       Inpatient admission (internacao) offered under the establishment's own company health
       plan/insurance (plano-seguro proprio)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering inpatient admission
-      (internacao) to patients covered by the establishment's own company health plan/insurance
-      (plano-seguro proprio). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that
-      crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage
-      arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often does tick more
-      than one CVxx for the same APxx. The seven per-service any-payer flags roll up into a single
-      establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether the establishment
+      offers inpatient admission (internacao), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 161
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 161
     codelists:
     - ATPRES1X
   AP01CV04:
     official_name: >-
       Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO TERCEIRO
     translated_name: >-
-      Inpatient admission (internacao) offered under a third party's company health plan/insurance
-      (plano-seguro terceiro)
+      Inpatient admission (internacao) offered under a third party's company health
+      plan/insurance (plano-seguro terceiro)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering inpatient admission
-      (internacao) to patients covered by a third party's company health plan/insurance (plano-seguro
-      terceiro). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad
-      service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01
-      SUS .. CV06 plano de saude privado); a facility can and often does tick more than one CVxx for
-      the same APxx. The seven per-service any-payer flags roll up into a single establishment-level
-      summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no) for whether the
+      establishment offers inpatient admission (internacao), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 162
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 162
   AP01CV05:
     official_name: >-
       Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PUBLICO
     translated_name: >-
-      Inpatient admission (internacao) offered under a public health plan (plano de saude publico)
+      Inpatient admission (internacao) offered under a public health plan (plano de saude
+      publico)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering inpatient admission
-      (internacao) to patients covered by a public health plan (plano de saude publico). It is one
-      cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service categories
-      (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano
-      de saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Public-plan patients (plano publico): flag (1=yes/0=no) for whether the establishment
+      offers inpatient admission (internacao), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 159
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 159
   AP01CV06:
     official_name: >-
       Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PRIVADO
     translated_name: >-
-      Inpatient admission (internacao) offered under a private health plan (plano de saude privado)
+      Inpatient admission (internacao) offered under a private health plan (plano de saude
+      privado)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering inpatient admission
-      (internacao) to patients covered by a private health plan (plano de saude privado). It is one
-      cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service categories
-      (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano
-      de saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Private-plan patients (plano privado): flag (1=yes/0=no) for whether the establishment
+      offers inpatient admission (internacao), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 160
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 160
   AP02CV01:
     official_name: >-
       Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio SUS
     translated_name: >-
       Outpatient care (atendimento ambulatorial) offered under the SUS public system
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering outpatient care (atendimento
-      ambulatorial) to patients covered by the SUS public system. It is one cell of a 7x6 grid on the
-      Estabelecimentos (ST) record that crosses 7 broad service categories (AP01 internacao .. AP07
-      regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a
-      facility can and often does tick more than one CVxx for the same APxx. The seven per-service
-      any-payer flags roll up into a single establishment-level summary flag, ATEND_PR, which sits
-      outside this batch (ST SEQ 199).
+      SUS-covered patients: flag (1=yes/0=no) for whether the establishment offers outpatient
+      care (atendimento ambulatorial), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 163
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 163
     codelists:
     - ATPRES02
   AP02CV02:
     official_name: >-
       Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PARTICULAR
     translated_name: >-
-      Outpatient care (atendimento ambulatorial) offered under out-of-pocket/private pay (particular),
-      i.e. no insurer
+      Outpatient care (atendimento ambulatorial) offered under out-of-pocket/private pay
+      (particular), i.e. no insurer
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering outpatient care (atendimento
-      ambulatorial) to patients covered by out-of-pocket/private pay (particular), i.e. no insurer. It
-      is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service
-      categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS ..
-      CV06 plano de saude privado); a facility can and often does tick more than one CVxx for the same
-      APxx. The seven per-service any-payer flags roll up into a single establishment-level summary
-      flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no) for whether the
+      establishment offers outpatient care (atendimento ambulatorial), self-declared on its
+      service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 164
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 164
   AP02CV03:
     official_name: >-
       Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO PROPRIO
     translated_name: >-
-      Outpatient care (atendimento ambulatorial) offered under the establishment's own company health
-      plan/insurance (plano-seguro proprio)
+      Outpatient care (atendimento ambulatorial) offered under the establishment's own company
+      health plan/insurance (plano-seguro proprio)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering outpatient care (atendimento
-      ambulatorial) to patients covered by the establishment's own company health plan/insurance
-      (plano-seguro proprio). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that
-      crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage
-      arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often does tick more
-      than one CVxx for the same APxx. The seven per-service any-payer flags roll up into a single
-      establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether the establishment
+      offers outpatient care (atendimento ambulatorial), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 167
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 167
     codelists:
     - ATPRES2X
   AP02CV04:
@@ -233,120 +196,95 @@ variables:
       Outpatient care (atendimento ambulatorial) offered under a third party's company health
       plan/insurance (plano-seguro terceiro)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering outpatient care (atendimento
-      ambulatorial) to patients covered by a third party's company health plan/insurance (plano-seguro
-      terceiro). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad
-      service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01
-      SUS .. CV06 plano de saude privado); a facility can and often does tick more than one CVxx for
-      the same APxx. The seven per-service any-payer flags roll up into a single establishment-level
-      summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no) for whether the
+      establishment offers outpatient care (atendimento ambulatorial), self-declared on its
+      service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 168
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 168
   AP02CV05:
     official_name: >-
       Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PUBLICO
     translated_name: >-
-      Outpatient care (atendimento ambulatorial) offered under a public health plan (plano de saude
-      publico)
+      Outpatient care (atendimento ambulatorial) offered under a public health plan (plano de
+      saude publico)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering outpatient care (atendimento
-      ambulatorial) to patients covered by a public health plan (plano de saude publico). It is one
-      cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service categories
-      (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano
-      de saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Public-plan patients (plano publico): flag (1=yes/0=no) for whether the establishment
+      offers outpatient care (atendimento ambulatorial), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 165
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 165
   AP02CV06:
     official_name: >-
       Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de SAUDE PRIVADO
     translated_name: >-
-      Outpatient care (atendimento ambulatorial) offered under a private health plan (plano de saude
-      privado)
+      Outpatient care (atendimento ambulatorial) offered under a private health plan (plano de
+      saude privado)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering outpatient care (atendimento
-      ambulatorial) to patients covered by a private health plan (plano de saude privado). It is one
-      cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service categories
-      (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano
-      de saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Private-plan patients (plano privado): flag (1=yes/0=no) for whether the establishment
+      offers outpatient care (atendimento ambulatorial), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 166
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 166
   AP03CV01:
     official_name: >-
       Atendimento prestado SADT/Convenio SUS
     translated_name: >-
       Diagnostic/therapy support services (SADT) offered under the SUS public system
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering diagnostic/therapy support
-      services (SADT) to patients covered by the SUS public system. It is one cell of a 7x6 grid on
-      the Estabelecimentos (ST) record that crosses 7 broad service categories (AP01 internacao ..
-      AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a
-      facility can and often does tick more than one CVxx for the same APxx. The seven per-service
-      any-payer flags roll up into a single establishment-level summary flag, ATEND_PR, which sits
-      outside this batch (ST SEQ 199).
+      SUS-covered patients: flag (1=yes/0=no) for whether the establishment offers diagnostic
+      and therapy support services (SADT), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 169
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 169
     codelists:
     - ATPRES03
   AP03CV02:
     official_name: >-
       Atendimento prestado SADT/Convenio PARTICULAR
     translated_name: >-
-      Diagnostic/therapy support services (SADT) offered under out-of-pocket/private pay (particular),
-      i.e. no insurer
+      Diagnostic/therapy support services (SADT) offered under out-of-pocket/private pay
+      (particular), i.e. no insurer
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering diagnostic/therapy support
-      services (SADT) to patients covered by out-of-pocket/private pay (particular), i.e. no insurer.
-      It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service
-      categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS ..
-      CV06 plano de saude privado); a facility can and often does tick more than one CVxx for the same
-      APxx. The seven per-service any-payer flags roll up into a single establishment-level summary
-      flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no) for whether the
+      establishment offers diagnostic and therapy support services (SADT), self-declared on its
+      service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 170
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 170
   AP03CV03:
     official_name: >-
       Atendimento prestado SADT/Convenio PLANO-SEGURO PROPRIO
     translated_name: >-
-      Diagnostic/therapy support services (SADT) offered under the establishment's own company health
-      plan/insurance (plano-seguro proprio)
+      Diagnostic/therapy support services (SADT) offered under the establishment's own company
+      health plan/insurance (plano-seguro proprio)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering diagnostic/therapy support
-      services (SADT) to patients covered by the establishment's own company health plan/insurance
-      (plano-seguro proprio). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that
-      crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage
-      arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often does tick more
-      than one CVxx for the same APxx. The seven per-service any-payer flags roll up into a single
-      establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether the establishment
+      offers diagnostic and therapy support services (SADT), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 173
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 173
     codelists:
     - ATPRES3X
   AP03CV04:
@@ -356,100 +294,79 @@ variables:
       Diagnostic/therapy support services (SADT) offered under a third party's company health
       plan/insurance (plano-seguro terceiro)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering diagnostic/therapy support
-      services (SADT) to patients covered by a third party's company health plan/insurance
-      (plano-seguro terceiro). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that
-      crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage
-      arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often does tick more
-      than one CVxx for the same APxx. The seven per-service any-payer flags roll up into a single
-      establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no) for whether the
+      establishment offers diagnostic and therapy support services (SADT), self-declared on its
+      service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 174
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 174
   AP03CV05:
     official_name: >-
       Atendimento prestado SADT/Convenio PLANO de SAUDE PUBLICO
     translated_name: >-
-      Diagnostic/therapy support services (SADT) offered under a public health plan (plano de saude
-      publico)
+      Diagnostic/therapy support services (SADT) offered under a public health plan (plano de
+      saude publico)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering diagnostic/therapy support
-      services (SADT) to patients covered by a public health plan (plano de saude publico). It is one
-      cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service categories
-      (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano
-      de saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Public-plan patients (plano publico): flag (1=yes/0=no) for whether the establishment
+      offers diagnostic and therapy support services (SADT), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 171
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 171
   AP03CV06:
     official_name: >-
       Atendimento prestado SADT/Convenio PLANO de SAUDE PRIVADO
     translated_name: >-
-      Diagnostic/therapy support services (SADT) offered under a private health plan (plano de saude
-      privado)
+      Diagnostic/therapy support services (SADT) offered under a private health plan (plano de
+      saude privado)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering diagnostic/therapy support
-      services (SADT) to patients covered by a private health plan (plano de saude privado). It is one
-      cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service categories
-      (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano
-      de saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Private-plan patients (plano privado): flag (1=yes/0=no) for whether the establishment
+      offers diagnostic and therapy support services (SADT), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 172
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 172
   AP04CV01:
     official_name: >-
       Atendimento prestado URGENCIA/Convenio SUS
     translated_name: >-
       Emergency/urgent care (urgencia) offered under the SUS public system
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering emergency/urgent care
-      (urgencia) to patients covered by the SUS public system. It is one cell of a 7x6 grid on the
-      Estabelecimentos (ST) record that crosses 7 broad service categories (AP01 internacao .. AP07
-      regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a
-      facility can and often does tick more than one CVxx for the same APxx. The seven per-service
-      any-payer flags roll up into a single establishment-level summary flag, ATEND_PR, which sits
-      outside this batch (ST SEQ 199).
+      SUS-covered patients: flag (1=yes/0=no) for whether the establishment offers
+      emergency/urgent care (urgencia), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 175
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 175
     codelists:
     - ATPRES04
   AP04CV02:
     official_name: >-
       Atendimento prestado URGENCIA/Convenio PARTICULAR
     translated_name: >-
-      Emergency/urgent care (urgencia) offered under out-of-pocket/private pay (particular), i.e. no
-      insurer
+      Emergency/urgent care (urgencia) offered under out-of-pocket/private pay (particular),
+      i.e. no insurer
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering emergency/urgent care
-      (urgencia) to patients covered by out-of-pocket/private pay (particular), i.e. no insurer. It is
-      one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service
-      categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS ..
-      CV06 plano de saude privado); a facility can and often does tick more than one CVxx for the same
-      APxx. The seven per-service any-payer flags roll up into a single establishment-level summary
-      flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no) for whether the
+      establishment offers emergency/urgent care (urgencia), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 176
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 176
   AP04CV03:
     official_name: >-
       Atendimento prestado URGENCIA/Convenio PLANO-SEGURO PROPRIO
@@ -457,98 +374,76 @@ variables:
       Emergency/urgent care (urgencia) offered under the establishment's own company health
       plan/insurance (plano-seguro proprio)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering emergency/urgent care
-      (urgencia) to patients covered by the establishment's own company health plan/insurance
-      (plano-seguro proprio). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that
-      crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage
-      arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often does tick more
-      than one CVxx for the same APxx. The seven per-service any-payer flags roll up into a single
-      establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether the establishment
+      offers emergency/urgent care (urgencia), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 179
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 179
     codelists:
     - ATPRES4X
   AP04CV04:
     official_name: >-
       Atendimento prestado URGENCIA/Convenio PLANO-SEGURO TERCEIRO
     translated_name: >-
-      Emergency/urgent care (urgencia) offered under a third party's company health plan/insurance
-      (plano-seguro terceiro)
+      Emergency/urgent care (urgencia) offered under a third party's company health
+      plan/insurance (plano-seguro terceiro)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering emergency/urgent care
-      (urgencia) to patients covered by a third party's company health plan/insurance (plano-seguro
-      terceiro). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad
-      service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01
-      SUS .. CV06 plano de saude privado); a facility can and often does tick more than one CVxx for
-      the same APxx. The seven per-service any-payer flags roll up into a single establishment-level
-      summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no) for whether the
+      establishment offers emergency/urgent care (urgencia), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 180
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 180
   AP04CV05:
     official_name: >-
       Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PUBLICO
     translated_name: >-
-      Emergency/urgent care (urgencia) offered under a public health plan (plano de saude publico)
+      Emergency/urgent care (urgencia) offered under a public health plan (plano de saude
+      publico)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering emergency/urgent care
-      (urgencia) to patients covered by a public health plan (plano de saude publico). It is one cell
-      of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service categories (AP01
-      internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de
-      saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Public-plan patients (plano publico): flag (1=yes/0=no) for whether the establishment
+      offers emergency/urgent care (urgencia), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 177
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 177
   AP04CV06:
     official_name: >-
       Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PRIVADO
     translated_name: >-
-      Emergency/urgent care (urgencia) offered under a private health plan (plano de saude privado)
+      Emergency/urgent care (urgencia) offered under a private health plan (plano de saude
+      privado)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering emergency/urgent care
-      (urgencia) to patients covered by a private health plan (plano de saude privado). It is one cell
-      of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service categories (AP01
-      internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de
-      saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Private-plan patients (plano privado): flag (1=yes/0=no) for whether the establishment
+      offers emergency/urgent care (urgencia), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 178
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 178
   AP05CV01:
     official_name: >-
       Atendimento prestado OUTROS/Convenio SUS
     translated_name: >-
       Other care (outros) offered under the SUS public system
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering other care (outros) to
-      patients covered by the SUS public system. It is one cell of a 7x6 grid on the Estabelecimentos
-      (ST) record that crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6
-      payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often
-      does tick more than one CVxx for the same APxx. The seven per-service any-payer flags roll up
-      into a single establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ
-      199).
+      SUS-covered patients: flag (1=yes/0=no) for whether the establishment offers other care
+      (outros), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 181
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 181
     codelists:
     - ATPRES05
   AP05CV02:
@@ -557,19 +452,14 @@ variables:
     translated_name: >-
       Other care (outros) offered under out-of-pocket/private pay (particular), i.e. no insurer
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering other care (outros) to
-      patients covered by out-of-pocket/private pay (particular), i.e. no insurer. It is one cell of a
-      7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service categories (AP01
-      internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de
-      saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no) for whether the
+      establishment offers other care (outros), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 182
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 182
   AP05CV03:
     official_name: >-
       Atendimento prestado OUTROS/Convenio PLANO-SEGURO PROPRIO
@@ -577,141 +467,106 @@ variables:
       Other care (outros) offered under the establishment's own company health plan/insurance
       (plano-seguro proprio)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering other care (outros) to
-      patients covered by the establishment's own company health plan/insurance (plano-seguro
-      proprio). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad
-      service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01
-      SUS .. CV06 plano de saude privado); a facility can and often does tick more than one CVxx for
-      the same APxx. The seven per-service any-payer flags roll up into a single establishment-level
-      summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether the establishment
+      offers other care (outros), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 185
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 185
     codelists:
     - ATPRES5X
   AP05CV04:
     official_name: >-
       Atendimento prestado OUTROS/Convenio PLANO-SEGURO TERCEIRO
     translated_name: >-
-      Other care (outros) offered under a third party's company health plan/insurance (plano-seguro
-      terceiro)
+      Other care (outros) offered under a third party's company health plan/insurance (plano-
+      seguro terceiro)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering other care (outros) to
-      patients covered by a third party's company health plan/insurance (plano-seguro terceiro). It is
-      one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service
-      categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS ..
-      CV06 plano de saude privado); a facility can and often does tick more than one CVxx for the same
-      APxx. The seven per-service any-payer flags roll up into a single establishment-level summary
-      flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no) for whether the
+      establishment offers other care (outros), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 186
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 186
   AP05CV05:
     official_name: >-
       Atendimento prestado OUTROS/Convenio PLANO de SAUDE PUBLICO
     translated_name: >-
       Other care (outros) offered under a public health plan (plano de saude publico)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering other care (outros) to
-      patients covered by a public health plan (plano de saude publico). It is one cell of a 7x6 grid
-      on the Estabelecimentos (ST) record that crosses 7 broad service categories (AP01 internacao ..
-      AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a
-      facility can and often does tick more than one CVxx for the same APxx. The seven per-service
-      any-payer flags roll up into a single establishment-level summary flag, ATEND_PR, which sits
-      outside this batch (ST SEQ 199).
+      Public-plan patients (plano publico): flag (1=yes/0=no) for whether the establishment
+      offers other care (outros), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 183
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 183
   AP05CV06:
     official_name: >-
       Atendimento prestado OUTROS/Convenio PLANO de SAUDE PRIVADO
     translated_name: >-
       Other care (outros) offered under a private health plan (plano de saude privado)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering other care (outros) to
-      patients covered by a private health plan (plano de saude privado). It is one cell of a 7x6 grid
-      on the Estabelecimentos (ST) record that crosses 7 broad service categories (AP01 internacao ..
-      AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a
-      facility can and often does tick more than one CVxx for the same APxx. The seven per-service
-      any-payer flags roll up into a single establishment-level summary flag, ATEND_PR, which sits
-      outside this batch (ST SEQ 199).
+      Private-plan patients (plano privado): flag (1=yes/0=no) for whether the establishment
+      offers other care (outros), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 184
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 184
   AP06CV01:
     official_name: >-
       Atendimento prestado VIGILANCIA EM SAUDE/Convenio SUS
     translated_name: >-
       Health surveillance (vigilancia em saude) offered under the SUS public system
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering health surveillance
-      (vigilancia em saude) to patients covered by the SUS public system. It is one cell of a 7x6 grid
-      on the Estabelecimentos (ST) record that crosses 7 broad service categories (AP01 internacao ..
-      AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a
-      facility can and often does tick more than one CVxx for the same APxx. The seven per-service
-      any-payer flags roll up into a single establishment-level summary flag, ATEND_PR, which sits
-      outside this batch (ST SEQ 199).
+      SUS-covered patients: flag (1=yes/0=no) for whether the establishment offers health
+      surveillance (vigilancia em saude), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 187
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 187
     codelists:
     - ATPRES06
   AP06CV02:
     official_name: >-
       Atendimento prestado VIGILANCIA EM SAUDE/Convenio PARTICULAR
     translated_name: >-
-      Health surveillance (vigilancia em saude) offered under out-of-pocket/private pay (particular),
-      i.e. no insurer
+      Health surveillance (vigilancia em saude) offered under out-of-pocket/private pay
+      (particular), i.e. no insurer
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering health surveillance
-      (vigilancia em saude) to patients covered by out-of-pocket/private pay (particular), i.e. no
-      insurer. It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad
-      service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01
-      SUS .. CV06 plano de saude privado); a facility can and often does tick more than one CVxx for
-      the same APxx. The seven per-service any-payer flags roll up into a single establishment-level
-      summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no) for whether the
+      establishment offers health surveillance (vigilancia em saude), self-declared on its
+      service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 188
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 188
   AP06CV03:
     official_name: >-
       Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO PROPRIO
     translated_name: >-
-      Health surveillance (vigilancia em saude) offered under the establishment's own company health
-      plan/insurance (plano-seguro proprio)
+      Health surveillance (vigilancia em saude) offered under the establishment's own company
+      health plan/insurance (plano-seguro proprio)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering health surveillance
-      (vigilancia em saude) to patients covered by the establishment's own company health
-      plan/insurance (plano-seguro proprio). It is one cell of a 7x6 grid on the Estabelecimentos (ST)
-      record that crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6
-      payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often
-      does tick more than one CVxx for the same APxx. The seven per-service any-payer flags roll up
-      into a single establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ
-      199).
+      Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether the establishment
+      offers health surveillance (vigilancia em saude), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 191
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 191
     codelists:
     - ATPRES6X
   AP06CV04:
@@ -721,121 +576,93 @@ variables:
       Health surveillance (vigilancia em saude) offered under a third party's company health
       plan/insurance (plano-seguro terceiro)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering health surveillance
-      (vigilancia em saude) to patients covered by a third party's company health plan/insurance
-      (plano-seguro terceiro). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that
-      crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage
-      arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often does tick more
-      than one CVxx for the same APxx. The seven per-service any-payer flags roll up into a single
-      establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no) for whether the
+      establishment offers health surveillance (vigilancia em saude), self-declared on its
+      service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 192
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 192
   AP06CV05:
     official_name: >-
       Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PUBLICO
     translated_name: >-
-      Health surveillance (vigilancia em saude) offered under a public health plan (plano de saude
-      publico)
+      Health surveillance (vigilancia em saude) offered under a public health plan (plano de
+      saude publico)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering health surveillance
-      (vigilancia em saude) to patients covered by a public health plan (plano de saude publico). It
-      is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service
-      categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS ..
-      CV06 plano de saude privado); a facility can and often does tick more than one CVxx for the same
-      APxx. The seven per-service any-payer flags roll up into a single establishment-level summary
-      flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Public-plan patients (plano publico): flag (1=yes/0=no) for whether the establishment
+      offers health surveillance (vigilancia em saude), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 189
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 189
   AP06CV06:
     official_name: >-
       Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE PRIVADO
     translated_name: >-
-      Health surveillance (vigilancia em saude) offered under a private health plan (plano de saude
-      privado)
+      Health surveillance (vigilancia em saude) offered under a private health plan (plano de
+      saude privado)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering health surveillance
-      (vigilancia em saude) to patients covered by a private health plan (plano de saude privado). It
-      is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service
-      categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS ..
-      CV06 plano de saude privado); a facility can and often does tick more than one CVxx for the same
-      APxx. The seven per-service any-payer flags roll up into a single establishment-level summary
-      flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Private-plan patients (plano privado): flag (1=yes/0=no) for whether the establishment
+      offers health surveillance (vigilancia em saude), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 190
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 190
   AP07CV01:
     official_name: >-
       Atendimento prestado REGULACAO/Convenio SUS
     translated_name: >-
       Regulation/referral management (regulacao) offered under the SUS public system
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering regulation/referral
-      management (regulacao) to patients covered by the SUS public system. It is one cell of a 7x6
-      grid on the Estabelecimentos (ST) record that crosses 7 broad service categories (AP01
-      internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS .. CV06 plano de
-      saude privado); a facility can and often does tick more than one CVxx for the same APxx. The
-      seven per-service any-payer flags roll up into a single establishment-level summary flag,
-      ATEND_PR, which sits outside this batch (ST SEQ 199).
+      SUS-covered patients: flag (1=yes/0=no) for whether the establishment offers
+      regulation/referral management (regulacao), self-declared on its service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 193
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 193
     codelists:
     - ATPRES07
   AP07CV02:
     official_name: >-
       Atendimento prestado REGULACAO/Convenio PARTICULAR
     translated_name: >-
-      Regulation/referral management (regulacao) offered under out-of-pocket/private pay (particular),
-      i.e. no insurer
+      Regulation/referral management (regulacao) offered under out-of-pocket/private pay
+      (particular), i.e. no insurer
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering regulation/referral
-      management (regulacao) to patients covered by out-of-pocket/private pay (particular), i.e. no
-      insurer. It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad
-      service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01
-      SUS .. CV06 plano de saude privado); a facility can and often does tick more than one CVxx for
-      the same APxx. The seven per-service any-payer flags roll up into a single establishment-level
-      summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no) for whether the
+      establishment offers regulation/referral management (regulacao), self-declared on its
+      service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 194
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 194
   AP07CV03:
     official_name: >-
       Atendimento prestado REGULACAO/Convenio PLANO-SEGURO PROPRIO
     translated_name: >-
-      Regulation/referral management (regulacao) offered under the establishment's own company health
-      plan/insurance (plano-seguro proprio)
+      Regulation/referral management (regulacao) offered under the establishment's own company
+      health plan/insurance (plano-seguro proprio)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering regulation/referral
-      management (regulacao) to patients covered by the establishment's own company health
-      plan/insurance (plano-seguro proprio). It is one cell of a 7x6 grid on the Estabelecimentos (ST)
-      record that crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6
-      payer/coverage arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often
-      does tick more than one CVxx for the same APxx. The seven per-service any-payer flags roll up
-      into a single establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ
-      199).
+      Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether the establishment
+      offers regulation/referral management (regulacao), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 197
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 197
     codelists:
     - ATPRES7X
   AP07CV04:
@@ -845,284 +672,264 @@ variables:
       Regulation/referral management (regulacao) offered under a third party's company health
       plan/insurance (plano-seguro terceiro)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering regulation/referral
-      management (regulacao) to patients covered by a third party's company health plan/insurance
-      (plano-seguro terceiro). It is one cell of a 7x6 grid on the Estabelecimentos (ST) record that
-      crosses 7 broad service categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage
-      arrangements (CV01 SUS .. CV06 plano de saude privado); a facility can and often does tick more
-      than one CVxx for the same APxx. The seven per-service any-payer flags roll up into a single
-      establishment-level summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no) for whether the
+      establishment offers regulation/referral management (regulacao), self-declared on its
+      service/payer grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 198
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 198
   AP07CV05:
     official_name: >-
       Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PUBLICO
     translated_name: >-
-      Regulation/referral management (regulacao) offered under a public health plan (plano de saude
-      publico)
+      Regulation/referral management (regulacao) offered under a public health plan (plano de
+      saude publico)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering regulation/referral
-      management (regulacao) to patients covered by a public health plan (plano de saude publico). It
-      is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service
-      categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS ..
-      CV06 plano de saude privado); a facility can and often does tick more than one CVxx for the same
-      APxx. The seven per-service any-payer flags roll up into a single establishment-level summary
-      flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Public-plan patients (plano publico): flag (1=yes/0=no) for whether the establishment
+      offers regulation/referral management (regulacao), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 195
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 195
   AP07CV06:
     official_name: >-
       Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PRIVADO
     translated_name: >-
-      Regulation/referral management (regulacao) offered under a private health plan (plano de saude
-      privado)
+      Regulation/referral management (regulacao) offered under a private health plan (plano de
+      saude privado)
     description: >-
-      Flag (1-sim, 0-nao) for whether the establishment declares offering regulation/referral
-      management (regulacao) to patients covered by a private health plan (plano de saude privado). It
-      is one cell of a 7x6 grid on the Estabelecimentos (ST) record that crosses 7 broad service
-      categories (AP01 internacao .. AP07 regulacao) with 6 payer/coverage arrangements (CV01 SUS ..
-      CV06 plano de saude privado); a facility can and often does tick more than one CVxx for the same
-      APxx. The seven per-service any-payer flags roll up into a single establishment-level summary
-      flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+      Private-plan patients (plano privado): flag (1=yes/0=no) for whether the establishment
+      offers regulation/referral management (regulacao), self-declared on its service/payer
+      grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 196
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 196
   GESPRG1E:
     official_name: >-
-      Indicador se a gestao da atividade ATENCAO BASICA do Nivel de Atencao AMBULATORIAL e ESTADUAL
+      Indicador se a gestao da atividade ATENCAO BASICA do Nivel de Atencao AMBULATORIAL e
+      ESTADUAL
     translated_name: >-
-      State-level management of GESPRG program 1
+      State-level management of outpatient primary care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of atencao basica (primary care) within
-      the outpatient (ambulatorial) tier is at the state (estadual) level for this establishment, as
-      declared on the Estabelecimentos (ST) record. Read alongside its sibling GESPRG1M (the other
-      sphere for the same program) and the coarser NIVATE_A/NIVATE_H existence flags, which only say
-      whether the ambulatorial/hospitalar tier exists at all, not how it is managed.
+      Outpatient primary care (atencao basica), state-level management: flag (1=yes/0=no) self-
+      declared by the establishment on its gestao/nivel-de-atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 40
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 40
     codelists:
     - GESPROG1
+    notes: >-
+      Read alongside GESPRG1M (the other sphere for the same program) and the coarser
+      NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar tier
+      exists at all, not how it is managed.
   GESPRG1M:
     official_name: >-
-      Indicador se a gestao da atividade ATENCAO BASICA do Nivel de Atencao AMBULATORIAL e MUNICIPAL
+      Indicador se a gestao da atividade ATENCAO BASICA do Nivel de Atencao AMBULATORIAL e
+      MUNICIPAL
     translated_name: >-
-      Municipal-level management of GESPRG program 1
+      Municipal-level management of outpatient primary care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of atencao basica (primary care) within
-      the outpatient (ambulatorial) tier is at the municipal level for this establishment, as declared
-      on the Estabelecimentos (ST) record. Read alongside its sibling GESPRG1E (the other sphere for
-      the same program) and the coarser NIVATE_A/NIVATE_H existence flags, which only say whether the
-      ambulatorial/hospitalar tier exists at all, not how it is managed.
+      Outpatient primary care (atencao basica), municipal-level management: flag (1=yes/0=no)
+      self-declared by the establishment on its gestao/nivel-de-atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 41
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 41
   GESPRG2E:
     official_name: >-
       Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e
       ESTADUAL
     translated_name: >-
-      State-level management of GESPRG program 2
+      State-level management of outpatient medium-complexity care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of media complexidade (medium complexity)
-      within the outpatient (ambulatorial) tier is at the state (estadual) level for this
-      establishment, as declared on the Estabelecimentos (ST) record. Read alongside its sibling
-      GESPRG2M (the other sphere for the same program) and the coarser NIVATE_A/NIVATE_H existence
-      flags, which only say whether the ambulatorial/hospitalar tier exists at all, not how it is
-      managed.
+      Outpatient medium-complexity care (media complexidade ambulatorial), state-level
+      management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-
+      atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 42
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 42
     codelists:
     - GESPROG2
+    notes: >-
+      Read alongside GESPRG2M (the other sphere for the same program) and the coarser
+      NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar tier
+      exists at all, not how it is managed.
   GESPRG2M:
     official_name: >-
       Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e
       MUNICIPAL
     translated_name: >-
-      Municipal-level management of GESPRG program 2
+      Municipal-level management of outpatient medium-complexity care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of media complexidade (medium complexity)
-      within the outpatient (ambulatorial) tier is at the municipal level for this establishment, as
-      declared on the Estabelecimentos (ST) record. Read alongside its sibling GESPRG2E (the other
-      sphere for the same program) and the coarser NIVATE_A/NIVATE_H existence flags, which only say
-      whether the ambulatorial/hospitalar tier exists at all, not how it is managed.
+      Outpatient medium-complexity care (media complexidade ambulatorial), municipal-level
+      management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-
+      atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 43
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 43
   GESPRG3E:
     official_name: >-
       Indicador se a gestao do programa cod. 03 e ESTADUAL
     translated_name: >-
-      State-level management of GESPRG program 3
+      Legacy state-level 'internacao' (general inpatient) management indicator, marked ANTIGO
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of 'programa cod. 03' is at the state
-      (estadual) level for this establishment. Unlike GESPRG1/2/4 (explicitly labelled atencao basica
-      / media complexidade / alta complexidade ambulatorial) and GESPRG5/6 (media/alta complexidade
-      hospitalar), the source layout table itself never names what program code 03 is - it is printed
-      verbatim as 'programa cod. 03' with no further gloss. Do not assume it is the missing
-      ambulatorial complexity tier between 2 and 4; that would be a guess the source document does not
-      make.
+      State-level legacy indicator for general inpatient ('internacao') management, labelled
+      ANTIGO (old) in DATASUS's own field list - superseded by the media/alta-complexidade split
+      in GESPRG5E/GESPRG6E.
     code_system: internal
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 47
+      Estabelecimento.def line 'Internacao Estadual (ANTIGO), GESPRG3E' / 'Internacao
+      Municipal(ANTIGO), GESPRG3M', and CNV/GESPROG3.CNV, both from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip
     codelists:
     - GESPROG3
   GESPRG3M:
     official_name: >-
       Indicador se a gestao do programa cod. 03 e MUNICIPAL
     translated_name: >-
-      Municipal-level management of GESPRG program 3
+      Legacy municipal-level 'internacao' (general inpatient) management indicator, marked
+      ANTIGO
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of 'programa cod. 03' is at the municipal
-      level for this establishment. Unlike GESPRG1/2/4 (explicitly labelled atencao basica / media
-      complexidade / alta complexidade ambulatorial) and GESPRG5/6 (media/alta complexidade
-      hospitalar), the source layout table itself never names what program code 03 is - it is printed
-      verbatim as 'programa cod. 03' with no further gloss. Do not assume it is the missing
-      ambulatorial complexity tier between 2 and 4; that would be a guess the source document does not
-      make.
+      Municipal-level legacy indicator for general inpatient ('internacao') management, labelled
+      ANTIGO (old) in DATASUS's own field list - superseded by the media/alta-complexidade split
+      in GESPRG5M/GESPRG6M.
     code_system: internal
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 48
+      Estabelecimento.def line 'Internacao Estadual (ANTIGO), GESPRG3E' / 'Internacao
+      Municipal(ANTIGO), GESPRG3M', and CNV/GESPROG3.CNV, both from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip
   GESPRG4E:
     official_name: >-
-      Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e ESTADUAL
+      Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e
+      ESTADUAL
     translated_name: >-
-      State-level management of GESPRG program 4
+      State-level management of outpatient high-complexity care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of alta complexidade (high complexity)
-      within the outpatient (ambulatorial) tier is at the state (estadual) level for this
-      establishment, as declared on the Estabelecimentos (ST) record. Read alongside its sibling
-      GESPRG4M (the other sphere for the same program) and the coarser NIVATE_A/NIVATE_H existence
-      flags, which only say whether the ambulatorial/hospitalar tier exists at all, not how it is
-      managed.
+      Outpatient high-complexity care (alta complexidade ambulatorial), state-level management:
+      flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 44
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 44
     codelists:
     - GESPROG4
+    notes: >-
+      Read alongside GESPRG4M (the other sphere for the same program) and the coarser
+      NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar tier
+      exists at all, not how it is managed.
   GESPRG4M:
     official_name: >-
       Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao AMBULATORIAL e
       MUNICIPAL
     translated_name: >-
-      Municipal-level management of GESPRG program 4
+      Municipal-level management of outpatient high-complexity care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of alta complexidade (high complexity)
-      within the outpatient (ambulatorial) tier is at the municipal level for this establishment, as
-      declared on the Estabelecimentos (ST) record. Read alongside its sibling GESPRG4E (the other
-      sphere for the same program) and the coarser NIVATE_A/NIVATE_H existence flags, which only say
-      whether the ambulatorial/hospitalar tier exists at all, not how it is managed.
+      Outpatient high-complexity care (alta complexidade ambulatorial), municipal-level
+      management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-
+      atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 45
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 45
   GESPRG5E:
     official_name: >-
-      Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e ESTADUAL
+      Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e
+      ESTADUAL
     translated_name: >-
-      State-level management of GESPRG program 5
+      State-level management of inpatient medium-complexity care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of media complexidade (medium complexity)
-      within the inpatient (hospitalar) tier is at the state (estadual) level for this establishment,
-      as declared on the Estabelecimentos (ST) record. Read alongside its sibling GESPRG5M (the other
-      sphere for the same program) and the coarser NIVATE_A/NIVATE_H existence flags, which only say
-      whether the ambulatorial/hospitalar tier exists at all, not how it is managed.
+      Inpatient medium-complexity care (media complexidade hospitalar), state-level management:
+      flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 49
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 49
     codelists:
     - GESPROG5
+    notes: >-
+      Read alongside GESPRG5M (the other sphere for the same program) and the coarser
+      NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar tier
+      exists at all, not how it is managed.
   GESPRG5M:
     official_name: >-
-      Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e MUNICIPAL
+      Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e
+      MUNICIPAL
     translated_name: >-
-      Municipal-level management of GESPRG program 5
+      Municipal-level management of inpatient medium-complexity care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of media complexidade (medium complexity)
-      within the inpatient (hospitalar) tier is at the municipal level for this establishment, as
-      declared on the Estabelecimentos (ST) record. Read alongside its sibling GESPRG5E (the other
-      sphere for the same program) and the coarser NIVATE_A/NIVATE_H existence flags, which only say
-      whether the ambulatorial/hospitalar tier exists at all, not how it is managed.
+      Inpatient medium-complexity care (media complexidade hospitalar), municipal-level
+      management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-
+      atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 50
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 50
   GESPRG6E:
     official_name: >-
-      Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e ESTADUAL
+      Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e
+      ESTADUAL
     translated_name: >-
-      State-level management of GESPRG program 6
+      State-level management of inpatient high-complexity care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of alta complexidade (high complexity)
-      within the inpatient (hospitalar) tier is at the state (estadual) level for this establishment,
-      as declared on the Estabelecimentos (ST) record. Read alongside its sibling GESPRG6M (the other
-      sphere for the same program) and the coarser NIVATE_A/NIVATE_H existence flags, which only say
-      whether the ambulatorial/hospitalar tier exists at all, not how it is managed.
+      Inpatient high-complexity care (alta complexidade hospitalar), state-level management:
+      flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 51
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 51
     codelists:
     - GESPROG6
+    notes: >-
+      Read alongside GESPRG6M (the other sphere for the same program) and the coarser
+      NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar tier
+      exists at all, not how it is managed.
   GESPRG6M:
     official_name: >-
-      Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e MUNICIPAL
+      Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de Atencao HOSPITALAR e
+      MUNICIPAL
     translated_name: >-
-      Municipal-level management of GESPRG program 6
+      Municipal-level management of inpatient high-complexity care
     description: >-
-      Flag (1-sim, 0-nao) for whether management ('gestao') of alta complexidade (high complexity)
-      within the inpatient (hospitalar) tier is at the municipal level for this establishment, as
-      declared on the Estabelecimentos (ST) record. Read alongside its sibling GESPRG6E (the other
-      sphere for the same program) and the coarser NIVATE_A/NIVATE_H existence flags, which only say
-      whether the ambulatorial/hospitalar tier exists at all, not how it is managed.
+      Inpatient high-complexity care (alta complexidade hospitalar), municipal-level management:
+      flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao grid.
     code_system: internal
     source: layout_doc
     source_ref: >-
       IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 52
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1
+      Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 52
   NIVATE_A:
     official_name: >-
       Indica a existencia de Nivel de Atencao AMBULATORIAL, de gestao Municipal/Estadual, para este
@@ -1183,17 +990,15 @@ variables:
     translated_name: >-
       Hospital accreditation classification/grade
     description: >-
-      Single-character accreditation grade assigned under the Ministry of Health's Manual de
-      Acreditacao Hospitalar, on the Estabelecimentos (ST) record, applicable when AV_ACRED marks the
-      establishment as evaluated. The layout table gives no value list for the grade codes themselves;
-      the catalog binds a codelist named CLASAVAL to this column but this curation entry does not
-      assert what each code means, since the source layout document does not spell it out.
+      Grade from the Ministry of Health's Manual de Acreditacao Hospitalar, applying when AV_ACRED
+      marks the establishment evaluated: 1/2/3 = accredited at level 1/2/3, 0 = did not meet the
+      minimum standards, -9 = grade not informed.
     code_system: internal
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 36
+      CNV/CLASAVAL.CNV, from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip (TabWin
+      value-label table bound to the CLASAVAL codelist)
     codelists:
     - CLASAVAL
   DT_ACRED:
@@ -1259,627 +1064,564 @@ variables:
       arquivos de Estabelecimentos (ST*.dbf), SEQ 57
   QTINST01:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Atendimento Pediatria
     translated_name: >-
-      Room/office count, installations grid position 1
+      Pediatric emergency treatment rooms count, installations grid position 1
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 1 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      pediatric emergency treatment rooms ('sala de atendimento pediatria'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 58
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 1
     notes: >-
-      Position-encoded field with no field-specific documentation available; do not assume which
-      installation type it counts without the internal DATASUS lookup.
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 58, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST02:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Atendimento Feminino
     translated_name: >-
-      Room/office count, installations grid position 2
+      Female emergency treatment rooms count, installations grid position 2
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 2 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      female emergency treatment rooms ('sala de atendimento feminino'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 59
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 2
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 59, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST03:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Atendimento Masculino
     translated_name: >-
-      Room/office count, installations grid position 3
+      Male emergency treatment rooms count, installations grid position 3
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 3 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      male emergency treatment rooms ('sala de atendimento masculino'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 60
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 3
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 60, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST04:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Atendimento Indifer.
     translated_name: >-
-      Room/office count, installations grid position 4
+      Unsegregated emergency treatment rooms count, installations grid position 4
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 4 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      unsegregated emergency treatment rooms ('sala de atendimento indiferenciado'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 61
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 4
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 61, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST05:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Repouso/Obs. Pediatria
     translated_name: >-
-      Room/office count, installations grid position 5
+      Pediatric rest/observation rooms count, installations grid position 5
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 5 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      pediatric rest/observation rooms ('sala de repouso/observacao pediatria'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 62
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 5
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 62, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST06:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Repouso/Obs. Feminino
     translated_name: >-
-      Room/office count, installations grid position 6
+      Female rest/observation rooms count, installations grid position 6
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 6 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      female rest/observation rooms ('sala de repouso/observacao feminino'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 63
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 6
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 63, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST07:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Repouso/Obs.Masculino
     translated_name: >-
-      Room/office count, installations grid position 7
+      Male rest/observation rooms count, installations grid position 7
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 7 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      male rest/observation rooms ('sala de repouso/observacao masculino'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 64
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 7
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 64, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST08:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Repouso/Obs.Indiferen.
     translated_name: >-
-      Room/office count, installations grid position 8
+      Unsegregated rest/observation rooms count, installations grid position 8
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 8 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      unsegregated rest/observation rooms ('sala de repouso/observacao indiferenciado'),
+      NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 65
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 8
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 65, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST09:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Consultorio Odontologia
     translated_name: >-
-      Room/office count, installations grid position 9
+      Dental consulting rooms count, installations grid position 9
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 9 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      dental consulting rooms ('consultorio de odontologia'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 66
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 9
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 66, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST10:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala Higienizacao
     translated_name: >-
-      Room/office count, installations grid position 10
+      Hygiene/cleaning rooms count, installations grid position 10
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 10 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      hygiene/cleaning rooms ('sala de higienizacao'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 67
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 10
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 67, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST11:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala de Gesso
     translated_name: >-
-      Room/office count, installations grid position 11
+      Orthopedic-cast rooms count, installations grid position 11
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 11 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      orthopedic-cast rooms ('sala de gesso'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 68
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 11
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 68, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST12:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala de Curativo
     translated_name: >-
-      Room/office count, installations grid position 12
+      Dressing/wound-care rooms count, installations grid position 12
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 12 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      dressing/wound-care rooms ('sala de curativo'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 69
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 12
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 69, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST13:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala Pequena Cirurgia
     translated_name: >-
-      Room/office count, installations grid position 13
+      Minor-surgery rooms count, installations grid position 13
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 13 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      minor-surgery rooms ('sala de pequena cirurgia'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 70
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 13
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 70, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST14:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Consultorios Medico
     translated_name: >-
-      Room/office count, installations grid position 14
+      General physician consulting rooms count, installations grid position 14
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 14 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's urgencia/emergencia (emergency-care) installations: count of
+      general physician consulting rooms ('consultorio medico'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 71
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 14
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 71, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST15:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Consultorio Clinica Basica
     translated_name: >-
-      Room/office count, installations grid position 15
+      Primary-care consulting rooms count, installations grid position 15
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 15 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of primary-care
+      consulting rooms ('consultorio de clinica basica'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 73
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 15
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 73, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST16:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Consultorio Clinica Especial.
     translated_name: >-
-      Room/office count, installations grid position 16
+      Specialty-clinic consulting rooms count, installations grid position 16
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 16 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of specialty-
+      clinic consulting rooms ('consultorio de clinica especializada'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 74
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 16
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 74, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST17:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Consultorio Clinica Indiferen.
     translated_name: >-
-      Room/office count, installations grid position 17
+      Unsegregated-clinic consulting rooms count, installations grid position 17
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 17 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of unsegregated-
+      clinic consulting rooms ('consultorio de clinica indiferenciada'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 75
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 17
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 75, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST18:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Consultorio Nao Medico
     translated_name: >-
-      Room/office count, installations grid position 18
+      Non-physician consulting rooms count, installations grid position 18
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 18 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of non-physician
+      consulting rooms ('consultorio nao medico'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 76
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 18
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 76, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST19:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Repouso/Obs.Feminino
     translated_name: >-
-      Room/office count, installations grid position 19
+      Female rest/observation rooms count, installations grid position 19
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 19 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of female
+      rest/observation rooms ('sala de repouso/observacao feminino'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 77
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 19
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 77, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST20:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Repouso/Obs.Masculino
     translated_name: >-
-      Room/office count, installations grid position 20
+      Male rest/observation rooms count, installations grid position 20
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 20 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of male
+      rest/observation rooms ('sala de repouso/observacao masculino'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 78
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 20
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 78, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST21:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Repouso/Obs.Pediatria
     translated_name: >-
-      Room/office count, installations grid position 21
+      Pediatric rest/observation rooms count, installations grid position 21
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 21 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of pediatric
+      rest/observation rooms ('sala de repouso/observacao pediatria'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 79
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 21
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 79, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST22:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Sala Repouso/Obs.Indiferen.
     translated_name: >-
-      Room/office count, installations grid position 22
+      Unsegregated rest/observation rooms count, installations grid position 22
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 22 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of unsegregated
+      rest/observation rooms ('sala de repouso/observacao indiferenciado'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 80
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 22
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 80, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST23:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.Consultorio Odontologia
     translated_name: >-
-      Room/office count, installations grid position 23
+      Dental consulting rooms count, installations grid position 23
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 23 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of dental
+      consulting rooms ('consultorio de odontologia'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 81
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 23
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 81, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST24:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala Pequenas Cirurgias
     translated_name: >-
-      Room/office count, installations grid position 24
+      Minor-surgery rooms count, installations grid position 24
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 24 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of minor-surgery
+      rooms ('sala de pequenas cirurgias'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 82
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 24
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 82, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST25:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala Enfermagem
     translated_name: >-
-      Room/office count, installations grid position 25
+      Nursing rooms count, installations grid position 25
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 25 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of nursing rooms
+      ('sala de enfermagem'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 83
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 25
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 83, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST26:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala Imunizacao
     translated_name: >-
-      Room/office count, installations grid position 26
+      Immunization rooms count, installations grid position 26
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 26 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of immunization
+      rooms ('sala de imunizacao'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 84
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 26
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 84, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST27:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala Nebulizacao
     translated_name: >-
-      Room/office count, installations grid position 27
+      Nebulization (inhalation-therapy) rooms count, installations grid position 27
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 27 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of nebulization
+      (inhalation-therapy) rooms ('sala de nebulizacao'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 85
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 27
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 85, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST28:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala de Gesso
     translated_name: >-
-      Room/office count, installations grid position 28
+      Orthopedic-cast rooms count, installations grid position 28
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 28 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of orthopedic-cast
+      rooms ('sala de gesso'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 86
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 28
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 86, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST29:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala de Curativo
     translated_name: >-
-      Room/office count, installations grid position 29
+      Dressing/wound-care rooms count, installations grid position 29
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 29 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of dressing/wound-
+      care rooms ('sala de curativo'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 87
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 29
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 87, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST30:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala Cirurgia Ambulatorial
     translated_name: >-
-      Room/office count, installations grid position 30
+      Outpatient (ambulatory) surgery rooms count, installations grid position 30
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 30 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's ambulatorio (outpatient) installations: count of outpatient
+      (ambulatory) surgery rooms ('sala de cirurgia ambulatorial'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 88
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 30
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 88, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   QTINST31:
     official_name: >-
-      Quantidade de salas/consultorios
+      Qt.sala Cirurgia
     translated_name: >-
-      Room/office count, installations grid position 31
+      Surgical operating rooms count, installations grid position 31
     description: >-
-      Count of rooms/offices ('salas/consultorios') at fixed grid position 31 of the Estabelecimentos
-      (ST) record's physical-installations block (NUMERIC(3)). The source layout table gives this
-      exact generic label - 'Quantidade de salas/consultorios' - for every one of QTINST01 through
-      QTINST37 with no field-specific wording; it does not identify, in this document, which
-      physical-installation type each numbered position counts. That mapping lives in an internal CNES
-      'tipo de instalacao fisica' code table not reproduced in this PDF, so no per-position
-      installation type is asserted here - only that the column is a room/office count at a fixed
-      position in the Estabelecimentos (ST) installations block.
+      Among the establishment's hospital centro cirurgico (surgical-center) installations,
+      sibling of the CENTRCIR existence flag: count of surgical operating rooms ('sala de
+      cirurgia'), NUMERIC(3).
     code_system: none
-    source: layout_doc
+    source: def
     source_ref: >-
-      IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06),
-      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf, Sec 2.1 Layout dos
-      arquivos de Estabelecimentos (ST*.dbf), SEQ 90
+      Estabelecimento.def (TabWin tabulation definitions), from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip, section
+      'Instalacoes Fisicas para Assistencia - LFCES015', position 31
+    notes: >-
+      Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic 'Quantidade de
+      salas/consultorios' row at ST SEQ 90, which does not itself name the installation type -
+      that identification comes from Estabelecimento.def, not the layout PDF.
   CENTRCIR:
     official_name: >-
       Indica a existencia de INSTALACAO FISICA de ATENDIMENTO HOSPITALAR-CENTRO CIRURGICO para este
