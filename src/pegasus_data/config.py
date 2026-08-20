@@ -101,11 +101,17 @@ class Settings:
         code — hand-written assertions under version control — while the root is
         a data directory that can be deleted and re-crawled. Putting curation in
         the root would mean losing every human judgement with the lake.
+
+        That was the stated intent from the start and the path did not honour it:
+        it resolved to the *repository* root, one level outside the package, so
+        an installed wheel carried no curation at all and the manual-authority
+        rung — the whole point of §4 — was empty for every user who had not
+        cloned the source.
         """
         override = self.curation_root
         if override is not None:
             return Path(override)
-        return Path(__file__).resolve().parent.parent.parent / "curation"
+        return Path(__file__).resolve().parent / "curation"
 
     @property
     def blobs_dir(self) -> Path:

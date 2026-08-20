@@ -39,6 +39,11 @@ _EXPORTS: dict[str, str] = {
     "LabelUnavailable": ".api",
     "RenderReport": ".api",
     "PROFILES": ".api",
+    "explore": ".explore",
+    "Exploration": ".explore",
+    "translate": ".translate",
+    "TranslationImpossible": ".translate",
+    "search": ".docsgen",
     "fetch": ".retrieve",
     "FetchReport": ".retrieve",
     "DatasetUnknown": ".retrieve",
@@ -70,7 +75,9 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         open_lake,
     )
     from .bundle import BundleError, pack, read_manifest, unpack
+    from .explore import Exploration, explore
     from .retrieve import DatasetUnknown, FetchReport, NothingPublished, fetch
+    from .translate import TranslationImpossible, translate
 
 
 def __getattr__(name: str) -> Any:

@@ -1027,3 +1027,8 @@ def read_page(path: str | Path, system: str, field: str) -> str | None:
         return row[0] if row else None
     finally:
         conn.close()
+
+
+#: Exported as `pegasus_data.search`. The module-internal name says what it
+#: searches; the public one says what the caller is doing.
+search = search_docs

@@ -564,26 +564,127 @@ stages degrade to a recorded note rather than failing the run.
 
 ---
 
-## 14. Public API
+## 14. The public API — capabilities as services
+
+The API was organised by **implementation stage**: `load` read the lake, `fetch`
+downloaded, `describe` read the ledger. That is the pipeline's model of itself,
+and it is the wrong model for the person calling it. Nobody arrives wanting to
+"read the lake"; they arrive with a question, and the questions come in a fixed
+order:
+
+| The question | The verb | What backs it |
+|---|---|---|
+| What is even there? | `explore()` | the shipped map of 207,251 files |
+| Give me some. | `fetch()` | crawl → decode → normalise → label |
+| What does this column mean? | `describe()` · `search()` | ledger, dictionary, curation |
+| I already have data — decode it. | `translate()` | the 19.9M-row dictionary |
+| What can't you tell me? | `gaps()` · `questions()` | `open_questions`, `coverage_gaps` |
+| Per capita? | `load_population()` | IBGE series |
+
+Five verbs, one question each. `load()` and `export()` remain for the lake path,
+but they are no longer the front door.
+
+**The organising rule: every capability the module has internally should be
+reachable as a service, or it does not really exist.** Three were not, and each
+was a capability the module genuinely had and nobody could use.
+
+### 14.1 `explore()` — the map is the product
+
+DATASUS publishes no index. There is no manifest and no API that enumerates the
+tree; there is an FTP server with thirty-five years of files in directories that
+have been reorganised more than once. Finding out what exists has meant clicking
+through it — which is why most people who use this data use one system, for the
+years someone told them about.
+
+This module crawled all of it. That knowledge — every file resolved to a system,
+series, year, state, size and schema — **compresses to 1.04 MB**, so it ships in
+the wheel. The consequence is not a minor convenience:
 
 ```python
-from pegasus_data import fetch, load, describe, export, pack, unpack
-
-fetch("SIH-RD", uf="AL", years=2023, report=True)
-load("SIHSUS", "RD", uf="AL", years=range(2015, 2025),
-     columns=[...], profile="analysis", render={"SEXO": "both"})
-describe("SIHSUS", "RD", field="DIAG_PRINC")
-export("SIHSUS", "RD", uf="AL", format="xlsx")
+explore()                      # 20 systems, 990 GiB, 1979–2026
+explore("SIHSUS")              # 7 series
+explore("SIH-RD")              # coverage by year, chronologically
+explore("SIH-RD", year=2023)   # the files, with sizes
 ```
 
-Names resolve lazily: `import pegasus_data` should not pay for pyarrow and
-duckdb when the caller wanted `Settings`.
+On a fresh install, with no crawl and no network, all four answer immediately.
 
-`describe()` is the module's user-facing face — the answer to *what is this
-variable and what do its values mean*, which DATASUS does not publish anywhere.
-It returns the ledger entry, dictionary coverage, top values **with labels**,
-the reference table and its vintages, how the binding was established, the
-schema generations the field appears in, and the open questions against it.
+**Where the answer came from is part of the answer.** A local crawl is current
+and always wins; the shipped map is a photograph of a server that keeps moving.
+Every result names its source and the date of the crawl behind it, because a
+two-year-old snapshot presented as the state of the server is worse than no
+answer — nobody thinks to doubt it.
+
+### 14.2 `translate()` — the dictionary is a service
+
+A great deal of DATASUS microdata is already on people's disks: exported from
+TabNet, pulled with R's **microdatasus**, mailed by a colleague. It is all coded,
+and the codelists are in `.CNV` files nobody parses. This module holds 19.9
+million rows of them. Requiring someone to re-download data they already have in
+order to reach that was an artificial toll.
+
+```python
+translate(df, system="SIHSUS", year=2019)
+translate("extract.csv", system="SIM")
+```
+
+Same `render_table` as `load()` and `fetch()` — one implementation, so a column
+labelled one way in a notebook is labelled the same way everywhere.
+
+**`system` is required and is not inferred.** `SEXO=3` is Feminino in SIHSUS and
+undefined in SINASC; a function that guessed helpfully here would put wrong
+labels on real records with no error anywhere.
+
+### 14.3 `search()` — the dictionary is askable
+
+Backed by `docs/dictionary.sqlite` (§14b). *Which columns anywhere draw on
+CID-10? Which code means Parda?* Both are one call, and the second immediately
+shows why it matters: **Parda is `03` in SIHSUS.RACACOR, `3` in SIHSUS.RACA_COR,
+and `4` in SINASC**. Nothing in the old file tree could surface that.
+
+### 14.4 Return shapes
+
+Data verbs (`fetch`, `load`, `translate`) return `pyarrow.Table`; passing
+`report=True` returns `(table, report)` where the report names everything that
+could not be done. Knowledge verbs (`explore`, `describe`, `search`) return small
+objects with `.rows`, `.table`, `.as_dict()` and a readable `__repr__` — usable
+in a notebook and serialisable in a pipeline.
+
+Names resolve lazily: `import pegasus_data` must not pay for pyarrow and duckdb
+when the caller wanted `Settings`.
+
+---
+
+## 14a. What ships, and what does not
+
+A package is not a data lake. The rule is: **ship what makes the module
+functional out of the box, and nothing that is derived, large and reproducible.**
+
+**Ships (~1.4 MB):**
+
+| | size | why it must |
+|---|---:|---|
+| `resources/tree.parquet` | 1.29 MB | `explore()` on a fresh install, offline. The module's most distinctive asset, and the reason it is worth 1 MB. |
+| `resources/families` + `schema_presence` | 0.05 MB | answers "does 2008 have `DIAG_SECUN`" without downloading a byte |
+| `curation/**/*.yml` | 44 KB | the manual-authority rung. Without it, `SOURCE_AUTHORITY['manual']` is empty and no human judgement can outrank an extraction — the whole point of §9. |
+| `catalog/schema.sql` | 40 KB | the catalog cannot be created without it |
+
+`curation/` shipping is a **bug fix**, not an addition: the docstring said it
+shipped with the package while the path resolved to the *repository* root, one
+level outside it. Every pip install had an empty manual rung.
+
+**Never ships — derived, large, reproducible:**
+
+| | size | how to get it |
+|---|---:|---|
+| `docs/dictionary.sqlite` | 531 MB | `pegasus-data dictionary` |
+| semantic bundle | 153 MB (10 MB per system) | `pegasus-data pack`, or download |
+| `lake/`, `blobs/`, `_catalog/` | up to 183 GiB | the pipeline |
+
+The test is whether the artifact is *derived from something else the user can
+obtain*. The map is not — it costs a multi-hour crawl and DATASUS will not give
+it to you — so it ships. The dictionary database is: it is a projection of the
+catalog, and `pegasus-data dictionary` rebuilds it in three minutes.
 
 ---
 
@@ -633,6 +734,42 @@ bundle is a *transport* format, restorable into a catalog to make the pipeline
 work offline, and this is a *read model*, denormalised and indexed for querying.
 Merging them would mean one artifact serving two access patterns badly. Both are
 derived from the catalog, so neither can drift from it independently.
+
+---
+
+## 14c. Classifications DATASUS does not own
+
+Researched against the maintainers rather than accepted from whatever `.CNV`
+DATASUS ships. The conclusions differ per classification, and two of them are
+"keep what we have", which is a finding rather than a shrug.
+
+- **SIGTAP — keep the current source.** `ftp2.datasus.gov.br/public/sistemas/tup`
+  *is* the maintainer's channel: for SIGTAP the Ministério da Saúde is the
+  maintainer and there is no upstream standards body to escalate to. The
+  layout-driven fixed-width reader is not merely acceptable, it is what the data
+  demands — the published layout drifts between vintages, so a hardcoded parser
+  would be silently wrong today. Do not migrate to the SOAP API; do not adopt a
+  third-party mirror.
+- **CBO — source externally, highest value.** CBO is the Ministry of Labour's,
+  not DATASUS's, and the FTP table mixes ~3,000 three-character CBO-1994 codes
+  with ~2,813 six-character CBO-2002 codes **in one file**. Under the exact-width
+  rule (§6.4) that is decodable but fragile, and a canonical CBO-2002 table from
+  gov.br (`CODIGO;TITULO`, semicolon-delimited) removes the ambiguity. DATASUS's
+  copy is retained for the CBO-1994 vintage, because a 1998 record was coded
+  against CBO-1994 and that is what it means.
+- **CNAE — IBGE's API is authoritative** and verified live, where full-width CNAE
+  appears in establishment records.
+- **TUSS and ANVISA registries — do not appear** in DATASUS public microdata.
+  Nothing to do.
+- **CEP, raça/cor, escolaridade — genuine dead ends.** DATASUS's own copy is the
+  correct provenance: these are its own codelists, not a standard it borrowed.
+
+**The crux, and it goes against the intuitive answer: canonical does not
+automatically outrank DATASUS's copy.** If DATASUS coded a row against its own
+stale table, the stale table is what that row *means*. An external source is
+authoritative about the classification and not about the encoding, so it ranks
+**beside** `cnv`/`def` for vintage selection rather than above them, and is used
+where DATASUS's copy is absent, ambiguous, or demonstrably a truncated mirror.
 
 ---
 

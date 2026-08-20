@@ -48,7 +48,21 @@ Homepage = "https://github.com/pegasus-sus/pegasus-data"
 where = ["src"]
 
 [tool.setuptools.package-data]
-pegasus_data = ["catalog/*.sql", "resources/*.csv", "resources/*.json"]
+# The map of DATASUS (1.3 MB) ships: it is what makes `explore()` answer on a
+# fresh install with no crawl and no network, and it is the module's most
+# distinctive asset. Curation ships because it is the manual-authority rung of
+# the semantic layer -- without it a pip-installed package has no way for a
+# person's judgement to outrank an extraction, which was the whole point of §4.
+# What does NOT ship, and must not: the dictionary database (531 MB), the lake,
+# the blob cache, the catalog, and full semantic bundles (153 MB). All are
+# derived, all are reproducible, and all are downloads rather than wheel weight.
+pegasus_data = [
+  "catalog/*.sql",
+  "resources/*.parquet",
+  "resources/*.json",
+  "curation/*.yml",
+  "curation/**/*.yml",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

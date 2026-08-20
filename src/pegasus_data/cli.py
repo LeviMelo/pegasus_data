@@ -778,6 +778,103 @@ def findings(
         store.close()
 
 
+@app.command(rich_help_panel="EXPLORE")
+def explore(
+    target: Annotated[str | None, typer.Argument(help="System or dataset, e.g. SIHSUS or SIH-RD")] = None,
+    root: RootOpt = None,
+    year: Annotated[int | None, typer.Option("--year", help="List the files for this year")] = None,
+    uf: Annotated[str | None, typer.Option("--uf", help="Limit to one state")] = None,
+    everything: Annotated[
+        bool, typer.Option("--all-roles", help="Include dictionary and documentation files")
+    ] = False,
+    packaged: Annotated[
+        bool, typer.Option("--packaged", help="Use the shipped snapshot even if a crawl exists")
+    ] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """What DATASUS has — answered from the map, without downloading anything.
+
+    No argument lists the information systems. A system lists its series. A
+    dataset gives coverage by year. Adding --year lists the files themselves,
+    with sizes, which is what you want before committing to a download.
+
+    Works on a fresh install with no crawl and no network: the map of all
+    207,251 files ships with the package. A local crawl supersedes it, and the
+    result always says which one answered.
+    """
+    from .explore import explore as explore_tree
+
+    try:
+        result = explore_tree(
+            target, year=year, uf=uf, role=None if everything else "data",
+            source="packaged" if packaged else "auto", root=root,
+        )
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    if as_json:
+        _emit(result.as_dict(), True)
+        return
+    if not result.rows:
+        console.print(f"[yellow]nothing matched {target!r}[/yellow]")
+        if result.unknown:
+            console.print("Known: " + ", ".join(result.unknown[:20]))
+        raise typer.Exit(code=1)
+    _emit(result.rows, False, f"{target or 'DATASUS'} — {result.level}")
+    console.print(
+        f"[dim]{result.total_files:,} files, {result.total_bytes / 2**30:.1f} GiB · "
+        f"{result.source}"
+        + (f", crawled {result.as_of[:10]}" if result.as_of else "")
+        + "[/dim]"
+    )
+
+
+@app.command(name="translate", rich_help_panel="EXTRACT")
+def translate_file(
+    path: Annotated[Path, typer.Argument(help="CSV or Parquet file of DATASUS data")],
+    system: Annotated[str, typer.Option("--system", "-s", help="Which system produced it")],
+    root: RootOpt = None,
+    out: Annotated[Path | None, typer.Option("--out", help="Where to write the labelled table")] = None,
+    fmt: Annotated[str, typer.Option("--format", help="csv | parquet | xlsx")] = "csv",
+    year: Annotated[int | None, typer.Option("--year", help="Vintage of the codelists to apply")] = None,
+    profile: Annotated[str, typer.Option("--profile", help="analysis | codes | audit | report")] = "report",
+    as_json: JsonOpt = False,
+) -> None:
+    """Label DATASUS data you already have. No download, no lake.
+
+    For the extract someone mailed you, or pulled from TabNet, or fetched with
+    R's microdatasus. --system is required: SEXO=3 is Feminino in SIHSUS and
+    undefined in SINASC, so labelling without it would be guessing.
+    """
+    from .translate import TranslationImpossible
+    from .translate import translate as translate_table
+
+    try:
+        with console.status(f"labelling {path.name}…"):
+            table, result = translate_table(
+                path, system=system, year=year, profile=profile, root=root, report=True
+            )
+    except TranslationImpossible as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    target = out or path.with_name(f"{path.stem}_labelled.{fmt}")
+    from .api import write_table
+
+    write_table(table, target, fmt)
+    console.print(f"[green]wrote[/green] {target}  ({table.num_rows:,} rows)")
+    _emit(
+        {
+            "labelled": len(getattr(result, "labelled", []) or []),
+            "unlabelled": len(getattr(result, "unlabelled", []) or []),
+            "warnings": list(getattr(result, "warnings", []) or [])[:8],
+        },
+        as_json,
+        "translate",
+    )
+
+
 @app.command(rich_help_panel="EXTRACT")
 def get(
     dataset: Annotated[str, typer.Argument(help="Dataset, e.g. SIH-RD, SIM-DO, SINASC-DN")],
