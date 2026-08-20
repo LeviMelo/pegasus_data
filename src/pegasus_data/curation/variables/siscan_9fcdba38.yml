@@ -1,0 +1,309 @@
+system: SISCAN
+asserted_by: pegasus_data
+variables:
+  PRESNOD:
+    official_name: Presença de Nódulo (inferido)
+    translated_name: Nodule reported
+    description: >
+      Whether the mammography requisition reported a palpable or noticed breast
+      nodule, for the right breast, left breast, or both, as stated by the
+      patient or referring clinician before the exam.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      Name abbreviates "presença de nódulo"; matches the requisition-stage
+      Nódulo_requis concept Nota Tecnica 8 defines, and the 1-character
+      declared width fits a short presence flag rather than free text.
+    source_ref: naming grammar + Nota Tecnica 8 SISCAN - Mamografia, campo Nódulo_requis
+
+  SEMACHADOS:
+    official_name: Sem Achados
+    translated_name: Without findings
+    description: >
+      Flags a mammogram whose radiology report recorded no abnormal findings
+      at all, separating a fully clear result from exams with any benign or
+      suspicious finding.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      TAB_SISMAMA.zip!MMAMA4.def (DATASUS TabWin definition), campo Sem
+      Achados
+
+  TEMPOMAMOG:
+    official_name: Tempo Mamog Ant (truncated from TEMPOMAMOGANT)
+    translated_name: Time since previous mammogram
+    description: >
+      How long since the patient's last mammogram, as a coded time band
+      (never, under 1 year, 1-2 years, etc.), self-reported on the
+      requisition before the current exam.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      DBF field names truncate at 10 characters; TEMPOMAMOGANT truncates to
+      TEMPOMAMOG, and MMAMA4.def names that field "Tempo Mamog Ant" bound to
+      a tempomamogant.cnv lookup.
+    source_ref: TAB_SISMAMA.zip!MMAMA4.def, campo Tempo Mamog Ant (field TEMPOMAMOGANT)
+
+  TIPMAMDIAG:
+    official_name: Tipo Mamog Diagn
+    translated_name: Type of diagnostic mammogram
+    description: >
+      Why a diagnostic (non-screening) mammogram was ordered: prior symptoms,
+      a BI-RADS 3 follow-up, known cancer before treatment, a post-chemo
+      response check, outside-report review, or post-biopsy follow-up.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      TAB_SISMAMA.zip!MMAMA4.def, campo Tipo Mamog Diagn (TIPMAMDIAG.cnv);
+      categories per Nota Tecnica 8 SISCAN - Mamografia
+
+  CCLIDIAGIM:
+    official_name: Diagnóstico de Imagem
+    translated_name: Imaging diagnosis
+    description: >
+      The mammography or ultrasound impression that led to this breast
+      biopsy, recorded on the histopathology request as the imaging finding
+      being investigated.
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Diagnóstico de Imagem (CCLIDIAGIM.CNV)
+
+  CCLILOCA:
+    official_name: Localização da Lesão
+    translated_name: Lesion location
+    description: >
+      Where in the breast the biopsied lesion sits, e.g. which quadrant or
+      the retroareolar region, as marked on the histopathology request
+      accompanying the tissue sample.
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Localização da Lesão (CCLILOCA.CNV)
+
+  CCLITANT:
+    official_name: Tratam anterior Câncer Mama
+    translated_name: Prior breast cancer treatment
+    description: >
+      Whether the patient had already been treated for breast cancer before
+      this histopathology exam, separating a first diagnostic biopsy from
+      follow-up sampling after treatment.
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Tratam anterior Câncer Mama (CCLITANT.CNV)
+
+  CCLITPEXA:
+    official_name: Tipo Exame Histopatológico
+    translated_name: Type of histopathological exam
+    description: >
+      The tissue-sampling method used for the breast biopsy, such as core
+      needle biopsy, surgical excision, or frozen section, recorded on the
+      histopathology request.
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Tipo Exame Histopatológico (CCLITPEXA.CNV)
+
+  CHISLINFCO:
+    official_name: Linfonodo Comprometido (inferido)
+    translated_name: Compromised axillary lymph nodes
+    description: >
+      Whether axillary lymph nodes taken with the breast tumor showed
+      histopathological evidence of metastatic involvement, distinct from
+      the clinically palpable node exam recorded separately.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      CHIS is the histopathology-result field prefix in HMAMA4.def, shared
+      with CHISRECES/CHISRECPR; LINFCO abbreviates "linfonodo comprometido",
+      the standard positive-node finding reported alongside receptor status.
+    source_ref: naming grammar + TAB_SISMAMA.zip!HMAMA4.def sibling fields CHISRECES/CHISRECPR
+
+  CHISRECES:
+    official_name: Receptor de Estrógeno
+    translated_name: Estrogen receptor
+    description: >
+      Whether the tumor tissue tested positive or negative for estrogen
+      receptor expression, a biomarker from the histopathology report used
+      to gauge eligibility for hormone therapy.
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Receptor de Estrógeno (CHISRECES.CNV)
+
+  CHISRECPR:
+    official_name: Receptor de Progesterona
+    translated_name: Progesterone receptor
+    description: >
+      Whether the tumor tissue tested positive or negative for progesterone
+      receptor expression, the companion hormone-receptor biomarker to
+      estrogen receptor status on the same report.
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Receptor de Progesterona (CHISRECPR.CNV)
+
+  C_ANM_TCAN:
+    official_name: Risco Elevado (anamnese)
+    translated_name: Known elevated breast cancer risk
+    description: >
+      Whether the patient reported a known elevated risk for breast cancer,
+      such as a personal history of breast cancer or a first-degree relative
+      diagnosed before age 50.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      Shares the ANM (anamnese) + TCAN (câncer) pattern with CANMPACANC
+      (MMAMA4.def) and C_CLI_TCAN (HMAMA4.def), both labeled "Risco Elevado"
+      and defined in Nota Tecnica 8.
+    source_ref: >
+      naming grammar + Nota Tecnica 8 SISCAN - Mamografia, campo Risco
+      elevado
+
+  CO_ESCOLARIDADE:
+    official_name: Escolaridade
+    translated_name: Education level
+    description: >
+      The patient's schooling level, self-reported and imported from the
+      Cartão Nacional de Saúde, coded to IBGE's standard education
+      categories.
+    code_system: external
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Escolaridade
+
+  CO_MUN_RESIDENCIA:
+    official_name: Munic. de residência
+    translated_name: Municipality of residence
+    description: >
+      IBGE code for the patient's municipality of residence, as registered
+      on the Cartão Nacional de Saúde, ordered by state code and then
+      municipality.
+    code_system: external
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Munic. de residência
+
+  CO_RACA_COR:
+    official_name: Raça/Cor
+    translated_name: Race/color
+    description: >
+      The patient's self-identified race or color, imported from the Cartão
+      Nacional de Saúde and coded to IBGE's classification (Branca, Preta,
+      Parda, Amarela, Indígena).
+    code_system: external
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Raça/Cor
+
+  CO_TEMPO_EXAME:
+    official_name: Tempo Exame
+    translated_name: Total exam turnaround
+    description: >
+      Total days from sample collection to release of the exam report, equal
+      to the sum of the collection interval and the result interval.
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatológico Colo, campo Tempo Exame
+
+  CO_UF_RESIDENCIA:
+    official_name: UF residência
+    translated_name: State of residence
+    description: >
+      IBGE code for the patient's state of residence, imported from the
+      Cartão Nacional de Saúde alongside the municipality of residence.
+    code_system: external
+    source: inferred
+    reasoning: >
+      Nota Tecnica 1 describes Munic. de residência as ordered by "código do
+      estado e seus municípios", implying this parallel state-level code
+      field from the same Cartão SUS/IBGE import.
+    source_ref: naming grammar + Nota Tecnica 1 SISCAN - Pacientes, campo Munic. de residência
+
+  SG_SEXO:
+    official_name: Sexo
+    translated_name: Sex
+    description: >
+      The patient's sex, masculine or feminine, imported from the Cartão
+      Nacional de Saúde; a small share of breast-exam records are male since
+      men can also be diagnosed.
+    code_system: internal
+    source: layout_doc
+    source_ref: Nota Tecnica 8 SISCAN - Mamografia, campo Sexo
+
+  CO_ANO_RESULTADO:
+    official_name: Ano de resultado
+    translated_name: Year of result
+    description: >
+      Calendar year in which the exam's report was released by the service
+      provider, which can fall later than the year the sample was collected.
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Ano de resultado
+
+  SG_UF_RESIDENCIA:
+    official_name: UF residência (sigla)
+    translated_name: State of residence (abbreviation)
+    description: >
+      Two-letter abbreviation of the patient's state of residence (e.g. SP,
+      RJ, BA), the sigla counterpart to the numeric CO_UF_RESIDENCIA code,
+      imported from the Cartão SUS.
+    code_system: external
+    source: inferred
+    reasoning: >
+      SG_=sigla by naming grammar; same state-of-residence concept
+      documented for CO_UF_RESIDENCIA, here expressed as the letter
+      abbreviation rather than the numeric code.
+    source_ref: naming grammar + Nota Tecnica 1 SISCAN - Pacientes, campo Munic. de residência
+
+  CO_ANO_MES_RESULTADO:
+    official_name: Mês/Ano Resultado
+    translated_name: Year-month of result
+    description: >
+      Year and month in which the exam's report was released by the service
+      provider, the month-level counterpart to CO_ANO_RESULTADO.
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 8 SISCAN - Mamografia, campo Mês/Ano Resultado
+
+  CO_INTERVALO_COLETA:
+    official_name: Intervalo de coleta
+    translated_name: Collection interval
+    description: >
+      Days elapsed between the date the exam sample was collected and the
+      date it arrived at the analysis laboratory.
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatológico Colo, campo Intervalo de coleta
+
+  CO_INTERVALO_EXAME:
+    official_name: Intervalo de resultado
+    translated_name: Result interval
+    description: >
+      Days elapsed between the sample's arrival at the analysis laboratory
+      and the release of its report, the second half of total turnaround
+      alongside the collection interval.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Nota Tecnica 2 names three time metrics for this dataset (Intervalo de
+      coleta, Intervalo de resultado, Tempo Exame); CO_INTERVALO_COLETA and
+      CO_TEMPO_EXAME already match two by name, leaving Intervalo de
+      resultado as the remaining match for this field.
+    source_ref: >
+      naming grammar + Nota Tecnica 2 SISCAN - Citopatológico Colo, campo
+      Intervalo de resultado
+
+  NU_ANO_COMPETENCIA:
+    official_name: Ano de competência
+    translated_name: Year of competência (billing period)
+    description: >
+      Calendar year in which the exam was released and billed by the service
+      provider, the period SISCAN uses to group exams for reporting, not the
+      year of collection.
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Ano de competência
+
+  NU_ANO_MES_COMPETENCIA:
+    official_name: Mês/Ano competência
+    translated_name: Year-month of competência (billing period)
+    description: >
+      Year and month in which the exam was released and billed by the
+      service provider, the month-level counterpart to NU_ANO_COMPETENCIA
+      used to group exams for reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatológico Colo, campo Mês/Ano competência

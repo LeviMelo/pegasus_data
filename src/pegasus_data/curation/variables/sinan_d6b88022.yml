@@ -1,0 +1,241 @@
+system: SINAN
+asserted_by: pegasus_data
+variables:
+  TIPO_INVES:
+    official_name: Tipo de investigação
+    translated_name: Investigation type
+    description: >
+      Fixed code marking which agravo-specific investigation form the record
+      belongs to within the pediatric HIV/AIDS notification family; printed as
+      the constant value 2 on the "Aids em menores de 13 anos" sheet.
+    code_system: none
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/Aids_crianca_v5.pdf, campo 35
+  TRA_ESQUEM:
+    official_name: Esquema de tratamento
+    translated_name: Treatment regimen
+    description: >
+      Malaria drug regimen given, coded by infecting Plasmodium species and
+      drug combination, e.g. chloroquine 3 days plus primaquine 7 days for
+      P. vivax; code 99 is another regimen chosen by the physician.
+    code_system: internal
+    source: web
+    source_ref: github.com/rfsaldanha/microdatasus, process_sinan_malaria.R#TRA_ESQUEM
+  CLI_MIALGI:
+    official_name: Mialgia
+    translated_name: Myalgia
+    description: >
+      Whether the patient reported muscle pain (myalgia), one of the yes/no/
+      unknown clinical-sign checkboxes on the leptospirosis and hantavirus
+      investigation forms.
+    code_system: internal
+    source: layout_doc
+    source_ref: prefeitura.pbh.gov.br leptospirose ficha de investigação (03010012), campo 36 "Mialgia"
+  CS_INQUERI:
+    official_name: Tipo de inquérito
+    translated_name: Survey type
+    description: >
+      Which kind of trachoma prevalence survey produced the record: a school
+      examination of students (inquérito escolar) or a house-to-house survey
+      of a locality (inquérito domiciliar).
+    code_system: internal
+    source: web
+    source_ref: dive.sc.gov.br, Ficha 1 - Inquérito/Busca Ativa (Boletim de Inquérito Tracoma)
+  ID_MUNI_RE:
+    official_name: Município de residência
+    translated_name: Municipality of residence
+    description: >
+      IBGE code of the municipality where the patient lives, recorded on the
+      residence-data block common to SINAN notification forms.
+    code_system: external
+    source: layout_doc
+    source_ref: Dengue/Chikungunya ficha de investigação (portalsinan.saude.gov.br), campo 18
+  LAB_UREIA:
+    official_name: Ureia
+    translated_name: Blood urea
+    description: >
+      Result of a blood-urea test, a biochemistry marker monitored to detect
+      the acute kidney injury that hantavirus pulmonary syndrome and severe
+      leptospirosis (Weil disease) can cause.
+    code_system: none
+    source: web
+    source_ref: scielo.iec.gov.br/scieloOrg S1679-49742011000400013, hantavirus laboratory monitoring
+  MEDICAMENT:
+    official_name: Medicamentos Injetáveis
+    translated_name: Injectable medications
+    description: >
+      Whether the patient was exposed to injectable medications, and if so
+      within six months of symptom onset or longer ago; a bloodborne-hepatitis
+      exposure-risk item on the epidemiological antecedents block.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br Hepatites Virais ficha, Hepatite_v5.pdf, campo 38 "Medicamentos Injetáveis"
+  LAB_HISTOP:
+    official_name: Histopatologia
+    translated_name: Histopathology
+    description: >
+      Result of a skin-biopsy histopathology exam: parasite found, compatible,
+      not compatible, or not performed; used to help confirm cutaneous
+      leishmaniasis when parasitological tests are negative.
+    code_system: internal
+    source: web
+    source_ref: github.com/rfsaldanha/microdatasus, process_sinan_leishmaniose_tegumentar.R#LAB_HISTOP
+  ARTRALGIA:
+    official_name: Artralgia
+    translated_name: Joint pain
+    description: >
+      Whether the patient reported joint pain (arthralgia), one of the
+      yes/no sinais-clínicos checkboxes on the dengue/chikungunya
+      investigation form.
+    code_system: internal
+    source: web
+    source_ref: github.com/rfsaldanha/microdatasus, process_sinan_chikungunya.R#ARTRALGIA
+  COMPLICA:
+    official_name: Complicações
+    translated_name: Complications
+    description: >
+      Which complication type the case developed under the older dengue
+      hemorrhagic fever criteria: neurological change, cardiorespiratory
+      dysfunction, liver failure, severe thrombocytopenia, digestive
+      bleeding, cavity effusions, or severe leukopenia.
+    code_system: internal
+    source: web
+    source_ref: github.com/rfsaldanha/microdatasus, process_sinan_chikungunya.R#COMPLICA
+  CS_CRISE:
+    official_name: Crises de Contraturas
+    translated_name: Contracture crises
+    description: >
+      Whether the patient had episodes of muscle-contracture crises, one of
+      the six clinical-sign checkboxes on the tetanus investigation form:
+      yes, no, or unknown.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br Tetano_Acidental_v5.pdf, campo 38 "Crises de Contraturas"
+  CS_MEMBROS:
+    official_name: Rigidez de Membros
+    translated_name: Limb rigidity
+    description: >
+      Whether the patient's limbs showed muscular rigidity, one of the
+      tetanus investigation form's clinical-sign checkboxes: yes, no, or
+      unknown.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br Tetano_Acidental_v5.pdf, campo 38 "Rigidez de Membros"
+  CS_NUCA:
+    official_name: Rigidez de Nuca
+    translated_name: Neck stiffness
+    description: >
+      Whether the patient had nuchal (neck) rigidity, an early muscular sign
+      of tetanus, recorded yes, no, or unknown on the investigation form.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br Tetano_Acidental_v5.pdf, campo 38 "Rigidez de Nuca"
+  CS_OPISTOT:
+    official_name: Opistótono
+    translated_name: Opisthotonus
+    description: >
+      Whether the patient showed opisthotonus, the severe backward-arching
+      spasm of the back and neck characteristic of advanced tetanus,
+      recorded yes, no, or unknown.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br Tetano_Acidental_v5.pdf, campo 38 "Opistótono"
+  CS_RISO:
+    official_name: Riso Sardônico
+    translated_name: Sardonic smile
+    description: >
+      Whether the patient displayed risus sardonicus, the facial-muscle
+      spasm producing a fixed grimace-like smile typical of tetanus,
+      recorded yes, no, or unknown.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br Tetano_Acidental_v5.pdf, campo 38 "Riso Sardônico"
+  CS_TRISMO:
+    official_name: Trismo
+    translated_name: Trismus
+    description: >
+      Whether the patient had trismus (lockjaw), the jaw-muscle spasm
+      preventing mouth opening that is usually the first sign of tetanus,
+      recorded yes, no, or unknown.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br Tetano_Acidental_v5.pdf, campo 38 "Trismo"
+  DT_NS1:
+    official_name: Data da coleta do exame NS1
+    translated_name: NS1 sample-collection date
+    description: >
+      Date the blood sample was drawn for the dengue NS1 antigen rapid test,
+      the assay used to confirm infection in the first days of fever.
+    code_system: none
+    source: layout_doc
+    source_ref: Dengue/Chikungunya ficha de investigação (prefeitura.pbh.gov.br), campo "EXAME NS1 - DATA DA COLETA"
+  DT_SORO:
+    official_name: Data da coleta da sorologia IgM
+    translated_name: IgM serology sample-collection date
+    description: >
+      Date the blood sample was drawn for the dengue or chikungunya IgM
+      antibody serology test, usually collected later in the illness than
+      the NS1 sample.
+    code_system: none
+    source: layout_doc
+    source_ref: Dengue/Chikungunya ficha de investigação (prefeitura.pbh.gov.br), campo "SOROLOGIA (IgM) - DATA DA COLETA"
+  DT_VIRAL:
+    official_name: Data da coleta para isolamento viral
+    translated_name: Viral isolation sample-collection date
+    description: >
+      Date the sample was drawn for viral isolation culture, one of the
+      confirmatory laboratory tests on the dengue/chikungunya form alongside
+      NS1, serology, and RT-PCR.
+    code_system: none
+    source: layout_doc
+    source_ref: Dengue/Chikungunya ficha de investigação (prefeitura.pbh.gov.br), campo "ISOLAMENTO - DATA DA COLETA"
+  EVIDENCIA:
+    official_name: Evidência de extravasamento de plasma
+    translated_name: Plasma-leakage evidence
+    description: >
+      Which laboratory finding evidenced plasma leakage under the older
+      dengue hemorrhagic fever criteria: hemoconcentration, cavity
+      effusions, or hypoproteinemia.
+    code_system: internal
+    source: web
+    source_ref: github.com/rfsaldanha/microdatasus, process_sinan_chikungunya.R#EVIDENCIA
+  HISTOPA_N:
+    official_name: Histopatologia (resultado)
+    translated_name: Histopathology result
+    description: >
+      Result of a post-mortem histopathology exam performed to confirm
+      dengue as the cause of death: positive/compatible, negative,
+      inconclusive, or not performed.
+    code_system: internal
+    source: layout_doc
+    source_ref: Dengue/Chikungunya ficha de investigação (prefeitura.pbh.gov.br), campo "HISTOPATOLOGIA"
+  IMUNOH_N:
+    official_name: Imunohistoquímica (resultado)
+    translated_name: Immunohistochemistry result
+    description: >
+      Result of an immunohistochemistry test on autopsy tissue used to
+      confirm dengue as the cause of death: positive, negative,
+      inconclusive, or not performed.
+    code_system: internal
+    source: layout_doc
+    source_ref: Dengue/Chikungunya ficha de investigação (prefeitura.pbh.gov.br), campo "IMUNOHISTOQUÍMICA"
+  LACO:
+    official_name: Prova do laço positiva
+    translated_name: Tourniquet test positive
+    description: >
+      Whether the tourniquet test (Prova do Laço) — inflating an arm cuff to
+      check for petechiae — came back positive, one of the dengue/
+      chikungunya sinais-clínicos checkboxes: yes or no.
+    code_system: internal
+    source: layout_doc
+    source_ref: Dengue/Chikungunya ficha de investigação (prefeitura.pbh.gov.br), sinais clínicos "PROVA DO LAÇO POSITIVA"
+  LACO_N:
+    official_name: Prova do laço (revisão anterior)
+    translated_name: Tourniquet test, earlier revision
+    description: >
+      Same tourniquet-test result as LACO but from an earlier form revision
+      that also allowed "ignorado": positive/yes, negative/no, or unknown,
+      versus LACO's yes/no-only coding.
+    code_system: internal
+    source: web
+    source_ref: github.com/rfsaldanha/microdatasus, process_sinan_chikungunya.R#LACO_N

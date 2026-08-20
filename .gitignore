@@ -27,3 +27,8 @@ scratch/
 /*.tmp
 /ev*.yml
 /bd.yml
+
+# Downloaded archives an agent or a script fetched while working. Large,
+# reproducible, and one of them (TAB_CNES.zip, 120 MB) exceeded GitHub's
+# 100 MB limit and blocked every push until it was removed from history.
+.cache_dl/

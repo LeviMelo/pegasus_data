@@ -1,0 +1,324 @@
+system: SISCAN
+asserted_by: pegasus_data
+variables:
+  CO_MIC_OUTROS_BACILOS:
+    official_name: Outros bacilos
+    translated_name: Microbiology - other bacilli
+    description: >
+      Marks that the sample's microbiology assessment found bacillus-shaped
+      organisms not matching Lactobacillus or the Gardnerella/Mobiluncus-
+      suggestive supracytoplasmic pattern, a residual bacterial-flora
+      category on the same report.
+    code_system: none
+    source: web
+    source_ref: >
+      Nomenclatura Brasileira para Laudos Cervicais,
+      bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+  CO_MIC_SUGEST_CHLAMYDIA:
+    official_name: Sugestivo de Chlamydia sp.
+    translated_name: Microbiology - suggestive of Chlamydia sp.
+    description: >
+      Marks that the smear's cell changes were read as suggestive of
+      Chlamydia sp. infection, a cytologic impression rather than a
+      confirmed laboratory diagnosis of chlamydia.
+    code_system: none
+    source: web
+    source_ref: >
+      Nomenclatura Brasileira para Laudos Cervicais,
+      bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+  CO_MIC_TRICHOMONAS:
+    official_name: Trichomonas vaginalis
+    translated_name: Microbiology - Trichomonas vaginalis
+    description: >
+      Marks that the sample's microbiology assessment found Trichomonas
+      vaginalis, a motile protozoan parasite transmitted sexually, distinct
+      from the bacterial and fungal organisms in sibling microbiology
+      fields.
+    code_system: none
+    source: web
+    source_ref: >
+      Nomenclatura Brasileira para Laudos Cervicais,
+      bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+  CO_REJ_AUSENCIA:
+    official_name: Rejeitada id. lâmin
+    translated_name: Rejected - slide/vial identification missing
+    description: >
+      Rejection-reason code marking that the slide or specimen vial arrived
+      with no patient identification, or an identification error, so the
+      lab could not link it to a request and never read it.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Rejeitada id.
+      lâmin
+
+  CO_REJ_LAMINA:
+    official_name: Rej. lâmina danif
+    translated_name: Rejected - slide damaged or missing
+    description: >
+      Rejection-reason code marking that the physical slide itself was
+      damaged or absent when it reached the laboratory, so no material was
+      available to read at all.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Rej. lâmina danif
+
+  CO_REJ_CAUSA_ALHEIA:
+    official_name: Rej. causas alheias
+    translated_name: Rejected - cause external to the laboratory
+    description: >
+      Rejection-reason code marking a slide turned away for a cause outside
+      the laboratory's own responsibility, arising before or at receipt
+      rather than from its collection, staining, or reading process.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Rej. causas
+      alheias
+
+  CO_REJ_OUT_CAUSAS:
+    official_name: "Rejeitada: Outros"
+    translated_name: Rejected - other cause
+    description: >
+      Rejection-reason code marking a slide rejected for a cause not
+      covered by the identification, physical-damage, or external-cause
+      categories recorded on the same report.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida "Rejeitada:
+      Outros"
+
+  NU_AMOSTRA_REJEITADA:
+    official_name: Adequabilidade - Rejeitada
+    translated_name: Sample rejected count
+    description: >
+      Count of exams whose slide was turned away outright at the
+      laboratory, before any cytologic reading, for identification,
+      damage, or other rejection reasons captured elsewhere on the same
+      report.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, campo Adequabilidade
+      (categoria Rejeitada)
+
+  NU_AMOSTRA_SATISFATORIA:
+    official_name: Adequabilidade - Satisfatória
+    translated_name: Sample satisfactory count
+    description: >
+      Count of exams whose sample was judged satisfactory: enough
+      well-preserved, visible cervical cells to support a reliable
+      cytologic reading, per the Nomenclatura Brasileira adequacy
+      criteria.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, campo Adequabilidade
+      (categoria Satisfatória)
+
+  NU_CARC_EPIDERM_INV:
+    official_name: Carc. Epiderm. Inv
+    translated_name: Invasive squamous carcinoma count
+    description: >
+      Count of exams diagnosed with invasive squamous cell (epidermoid)
+      carcinoma: malignant squamous cells that have invaded the cervical
+      stroma beyond high-grade intraepithelial disease.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Carc. Epiderm.
+      Inv
+
+  NU_CA_ESCAMOSA_N_AF_LESAO_AG:
+    official_name: ASC-H
+    translated_name: Atypical squamous cells, cannot exclude high-grade lesion
+    description: >
+      Count of exams reporting ASC-H: atypical squamous cells of
+      undetermined significance where the reader could not rule out an
+      underlying high-grade intraepithelial lesion, the more concerning of
+      the two squamous-atypia categories.
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida ASC-H
+
+  NU_CA_ESCAMOSA_P_NAO_NEOPLAST:
+    official_name: ASC-US
+    translated_name: Atypical squamous cells, probably non-neoplastic
+    description: >
+      Count of exams reporting ASC-US: atypical squamous cells of
+      undetermined significance judged probably non-neoplastic, the milder
+      counterpart to NU_CA_ESCAMOSA_N_AF_LESAO_AG's ASC-H finding.
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida ASC-US
+
+  NU_CA_GLANDULAR_NAO_NEOPL:
+    official_name: At. Glan.Ind.Não Neo
+    translated_name: Atypical glandular cells, probably non-neoplastic
+    description: >
+      Count of exams reporting atypical glandular cells of undetermined
+      significance judged probably non-neoplastic, the glandular-cell
+      analogue of ASC-US rather than a squamous finding.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida At. Glan.Ind.Não
+      Neo
+
+  NU_CA_GLANDULA_N_AF_LESAO_AG:
+    official_name: At.Glan.Ind. Alto Grau
+    translated_name: Atypical glandular cells, cannot exclude high-grade lesion
+    description: >
+      Count of exams reporting atypical glandular cells of undetermined
+      significance where a high-grade lesion could not be excluded, more
+      concerning than NU_CA_GLANDULAR_NAO_NEOPL's probably-benign
+      counterpart.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida At.Glan.Ind.
+      Alto Grau
+
+  NU_CA_ORIGEM_IND_NAO_NEOPLAST:
+    official_name: Ori. Indef. Não Neo
+    translated_name: Atypical cells of indefinite origin, probably non-neoplastic
+    description: >
+      Count of exams reporting atypical cells that could not be classified
+      as squamous or glandular, judged probably non-neoplastic; the milder
+      of the two origin-indefinite atypia categories.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Ori. Indef. Não
+      Neo
+
+  NU_CA_IND_NAO_LESAO:
+    official_name: Ori. Indef. Alto Grau (inferido)
+    translated_name: Atypical cells of indefinite origin, cannot exclude high-grade lesion
+    description: >
+      Count of exams reporting atypical cells of indefinite origin where a
+      high-grade lesion could not be excluded, the more concerning
+      counterpart to NU_CA_ORIGEM_IND_NAO_NEOPLAST.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    depends_on: [NU_CA_ORIGEM_IND_NAO_NEOPLAST]
+    reasoning: >
+      This column's name breaks the ORIGEM/NAO_NEOPLAST pattern its sibling
+      carries. Across the escamosa and glandular pairs in this same file
+      the milder, probably-non-neoplastic member always keeps a
+      NAO_NEOPL(AST) suffix, so the sibling lacking that suffix is assigned
+      to the higher-severity "não se pode afastar lesão de alto grau"
+      category by elimination.
+    source_ref: >
+      naming grammar (sibling-pair pattern) + Nota Tecnica 2 SISCAN -
+      Citopatologico Colo, medida Ori. Indef. Alto Grau
+
+  NU_LESAO_IE_BAIXO_GRAU:
+    official_name: Les IE Baixo Grau
+    translated_name: Low-grade squamous intraepithelial lesion count
+    description: >
+      Count of exams reporting a low-grade squamous intraepithelial lesion
+      (LSIL): HPV cytopathic effect together with cervical intraepithelial
+      neoplasia grade I.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Les IE Baixo
+      Grau
+
+  NU_LESAO_IE_ALTO_GRAU:
+    official_name: Les IEp Alto Grau
+    translated_name: High-grade squamous intraepithelial lesion count
+    description: >
+      Count of exams reporting a high-grade squamous intraepithelial lesion
+      (HSIL): cervical intraepithelial neoplasia grades II and III, more
+      severe than NU_LESAO_IE_BAIXO_GRAU's low-grade finding.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Les IEp Alto
+      Grau
+
+  NU_LES_IE_ALTO_GRAU_N_MIC_INV:
+    official_name: Les IE AG Mic. Inv
+    translated_name: High-grade lesion, cannot exclude microinvasion
+    description: >
+      Count of exams reporting a high-grade squamous intraepithelial lesion
+      where microinvasion could not be excluded, a step beyond plain HSIL
+      and short of the confirmed NU_CARC_EPIDERM_INV diagnosis.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Les IE AG Mic.
+      Inv
+
+  NU_LIMITE_NORMALIDADE:
+    official_name: Dentro da Normalidade
+    translated_name: Within normal limits count
+    description: >
+      Count of exams read as within normal limits: no cellular atypia of
+      oncogenic interest and no benign reactive or reparative change
+      recorded on the report.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, campo Dentro da
+      Normalidade
+
+  NU_ADENOCAR_INS_SITU:
+    official_name: Adenocarc in situ
+    translated_name: Adenocarcinoma in situ count
+    description: >
+      Count of exams diagnosed with adenocarcinoma in situ: malignant
+      glandular (endocervical) cells confined within the gland, not yet
+      invading the underlying stroma.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Adenocarc in
+      situ
+
+  NU_ADENOCAR_INVASOR:
+    official_name: Adenocarc invasor
+    translated_name: Invasive adenocarcinoma count
+    description: >
+      Count of exams diagnosed with invasive adenocarcinoma, malignant
+      glandular cells that breached the basement membrane; covers cervical,
+      endometrial, or unspecified-site reports alike.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Adenocarc
+      invasor
+
+  NU_OUTRAS_NEOPLASIAS:
+    official_name: Outras Neoplasias
+    translated_name: Other malignant neoplasms count
+    description: >
+      Count of exams reporting a malignant cervical neoplasm that does not
+      fit any of the named squamous or glandular carcinoma categories
+      tallied in the sibling NU_ fields.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Outras
+      Neoplasias
+
+  ST_CELULA_ENDOMETRIAL_PRESENTE:
+    official_name: Presença de células endometriais
+    translated_name: Endometrial cells present
+    description: >
+      Flags whether endometrial cells were seen in the collected material;
+      their presence outside menses or in a woman over 40 can prompt
+      further gynecologic work-up.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 2 SISCAN - Citopatologico Colo, campo Presença de
+      células endometriais

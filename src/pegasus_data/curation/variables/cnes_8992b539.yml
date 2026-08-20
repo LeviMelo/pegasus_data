@@ -1,0 +1,69 @@
+system: CNES
+asserted_by: pegasus_data
+variables:
+  AP03CV07:
+    official_name: Atendimento prestado SADT / Convênio Gratuidade
+    translated_name: SADT care given free of charge (Gratuidade)
+    description: >
+      Marks that the establishment provides SADT (diagnostic and therapy support)
+      care under the Gratuidade convênio category: services given free of charge,
+      billed neither to SUS nor any insurance plan. 1=Sim, 0=Não.
+    code_system: none
+    source: web
+    source_ref: >
+      wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10
+      (Atendimento Prestado categories 1-Internação to 7-Regulação)
+  AP04CV07:
+    official_name: Atendimento prestado URGÊNCIA / Convênio Gratuidade
+    translated_name: Emergency (URGÊNCIA) care given free of charge (Gratuidade)
+    description: >
+      Marks that the establishment provides URGÊNCIA (structured emergency,
+      pronto-socorro-type) care under the Gratuidade convênio category: given free
+      of charge, not billed to SUS or any insurance plan. 1=Sim, 0=Não.
+    code_system: none
+    source: web
+    source_ref: >
+      wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10
+      (Atendimento Prestado categories 1-Internação to 7-Regulação)
+  AP05CV07:
+    official_name: Atendimento prestado OUTROS / Convênio Gratuidade
+    translated_name: "\"Outros\" care given free of charge (Gratuidade)"
+    description: >
+      Marks that a Farmácia or Cooperativa establishment — the only types allowed
+      to use the OUTROS attendance category — provides that care under Gratuidade,
+      free of any SUS or insurance billing. 1=Sim, 0=Não.
+    code_system: none
+    source: web
+    source_ref: >
+      wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10
+      (05-Outros restricted to Farmácia/Cooperativa establishments)
+  AP06CV07:
+    official_name: Atendimento prestado VIGILÂNCIA EM SAÚDE / Convênio Gratuidade
+    translated_name: Health-surveillance care given free of charge (Gratuidade)
+    description: >
+      Marks that the establishment carries out VIGILÂNCIA EM SAÚDE (health
+      surveillance) actions under the Gratuidade convênio category: performed free
+      of charge, not billed to SUS or any insurance plan. 1=Sim, 0=Não.
+    code_system: none
+    source: web
+    source_ref: >
+      wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10
+      (Atendimento Prestado categories 1-Internação to 7-Regulação)
+  AP07CV07:
+    official_name: Atendimento prestado REGULAÇÃO / Convênio Gratuidade
+    translated_name: Bed/vacancy-regulation function given free of charge (Gratuidade)
+    description: >
+      Marks that the establishment performs REGULAÇÃO (bed/vacancy-allocation
+      regulation, restricted to establishments with that function) under
+      Gratuidade: at no charge, not billed to SUS or any insurance plan. 1=Sim,
+      0=Não.
+    code_system: none
+    source: web
+    source_ref: >
+      wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10
+      (07-Regulação restricted to establishments with regulação de vagas)

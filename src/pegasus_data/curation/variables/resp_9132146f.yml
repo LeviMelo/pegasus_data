@@ -1,0 +1,254 @@
+system: RESP
+asserted_by: pegasus_data
+variables:
+
+  PCR_Z:
+    official_name: Resultado de PCR para Zika vírus
+    translated_name: Zika PCR result (mother)
+    description: >
+      PCR test result for Zika virus in the mother during pregnancy or
+      immediate postpartum: reagent/positive, non-reagent/negative,
+      indeterminate, not performed, or ignored.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo PCR_Z (p.8)
+
+  RESUL_C:
+    official_name: Diagnóstico laboratorial para Citomegalovírus
+    translated_name: Cytomegalovirus (CMV) laboratory result (mother)
+    description: >
+      Laboratory diagnostic result for cytomegalovirus in the mother during
+      pregnancy or immediate postpartum, one of the five STORCH panel
+      results; auto-set to "not performed"/"ignored" when EXA_TORSCH says so.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RESUL_C (p.7)
+    depends_on: [EXA_TORSCH]
+
+  RESUL_H:
+    official_name: Diagnóstico laboratorial para Herpes vírus
+    translated_name: Herpes virus laboratory result (mother)
+    description: >
+      Laboratory diagnostic result for herpes virus in the mother during
+      pregnancy or immediate postpartum, same reagent/non-reagent scale and
+      EXA_TORSCH auto-fill logic as RESUL_C.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RESUL_H (p.7)
+    depends_on: [EXA_TORSCH]
+
+  RNEXA_TORS:
+    official_name: Diagnóstico laboratorial do recém-nascido para pelo menos um dos STORCH
+    translated_name: STORCH panel testing flag (newborn)
+    description: >
+      Whether at least one STORCH panel test (syphilis, toxoplasmosis,
+      rubella, cytomegalovirus, herpes) was performed on the newborn during
+      pregnancy or immediate postpartum; the newborn counterpart to
+      EXA_TORSCH.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNEXA_TORS (p.8)
+
+  RNPCR_Z:
+    official_name: Resultado de PCR do recém-nascido para Zika vírus
+    translated_name: Zika PCR result (newborn)
+    description: >
+      PCR test result for Zika virus in the newborn during pregnancy or
+      immediate postpartum, using the same reagent/non-reagent/indeterminate
+      scale as the mother's PCR_Z.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNPCR_Z (p.10)
+
+  RNRESUL_C:
+    official_name: Diagnóstico laboratorial do recém-nascido para Citomegalovírus
+    translated_name: Cytomegalovirus (CMV) laboratory result (newborn)
+    description: >
+      Laboratory diagnostic result for cytomegalovirus in the newborn during
+      pregnancy or immediate postpartum; auto-set to "not
+      performed"/"ignored" when RNEXA_TORS says so, otherwise the newborn
+      counterpart to RESUL_C.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNRESUL_C (p.9)
+    depends_on: [RNEXA_TORS]
+
+  RNRESUL_H:
+    official_name: Diagnóstico laboratorial do recém-nascido para Herpes vírus
+    translated_name: Herpes virus laboratory result (newborn)
+    description: >
+      Laboratory diagnostic result for herpes virus in the newborn during
+      pregnancy or immediate postpartum, same coding and RNEXA_TORS
+      auto-fill logic as RNRESUL_C.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNRESUL_H (p.9)
+    depends_on: [RNEXA_TORS]
+
+  RNRESUL_S:
+    official_name: Diagnóstico laboratorial do recém-nascido para Sífilis
+    translated_name: Syphilis laboratory result (newborn)
+    description: >
+      Laboratory diagnostic result for syphilis in the newborn during
+      pregnancy or immediate postpartum; auto-set to "not
+      performed"/"ignored" from RNEXA_TORS, the newborn counterpart to
+      RESUL_S.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNRESUL_S (p.9)
+    depends_on: [RNEXA_TORS]
+
+  RNRESUL_TO:
+    official_name: Diagnóstico laboratorial do recém-nascido para Toxoplasmose
+    translated_name: Toxoplasmosis laboratory result (newborn)
+    description: >
+      Laboratory diagnostic result for toxoplasmosis in the newborn during
+      pregnancy or immediate postpartum, same coding and RNEXA_TORS
+      auto-fill logic as RNRESUL_S.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNRESUL_TO (p.9)
+    depends_on: [RNEXA_TORS]
+
+  RNRESUL_Z:
+    official_name: Diagnóstico laboratorial do recém-nascido para Vírus Zika
+    translated_name: Zika-positive flag (newborn)
+    description: >
+      Whether the newborn tested positive for Zika virus: an internal flag
+      auto-set to "yes" if any of the newborn's five Zika tests (serology,
+      rapid test, PCR) came back reagent/positive.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNRESUL_Z (p.10)
+    depends_on: [RNSO_IGG_Z, RNSO_IGM_Z, RNTR_IGG_Z, RNTR_IGM_Z, RNPCR_Z]
+
+  RNSO_IGG_Z:
+    official_name: Resultado do recém-nascido para Sorologia IgG para Zika Vírus
+    translated_name: Zika IgG serology result (newborn)
+    description: >
+      IgG serology result for Zika virus in the newborn during pregnancy or
+      immediate postpartum: reagent/positive, non-reagent/negative,
+      indeterminate, not performed, or ignored.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNSO_IGG_Z (p.10)
+
+  RNSO_IGM_Z:
+    official_name: Resultado do recém-nascido para Sorologia IgM para Zika Vírus
+    translated_name: Zika IgM serology result (newborn)
+    description: >
+      IgM serology result for Zika virus in the newborn during pregnancy or
+      immediate postpartum, same scale as RNSO_IGG_Z; IgM indicates a more
+      recent infection than IgG.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNSO_IGM_Z (p.10)
+
+  RNTR_IGG_Z:
+    official_name: Resultado do teste rápido Sorologia IgG do recém-nascido para Zika vírus
+    translated_name: Zika IgG rapid-test result (newborn)
+    description: >
+      Rapid point-of-care test IgG result for Zika virus in the newborn, an
+      alternative to the RNSO_IGG_Z laboratory serology, using the same
+      reagent/non-reagent scale.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNTR_IGG_Z (p.10)
+
+  RNTR_IGM_Z:
+    official_name: Resultado do teste rápido Sorologia IgM do recém-nascido para Zika vírus
+    translated_name: Zika IgM rapid-test result (newborn)
+    description: >
+      Rapid point-of-care test IgM result for Zika virus in the newborn, an
+      alternative to the RNSO_IGM_Z laboratory serology, using the same
+      reagent/non-reagent scale.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo RNTR_IGM_Z (p.10)
+
+  SO_IGG_Z:
+    official_name: Resultado para Sorologia IgG para Zika Vírus
+    translated_name: Zika IgG serology result (mother)
+    description: >
+      IgG serology result for Zika virus in the mother during pregnancy or
+      immediate postpartum: reagent/positive, non-reagent/negative,
+      indeterminate, not performed, or ignored.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo SO_IGG_Z (p.7)
+
+  SO_IGM_Z:
+    official_name: Resultado para Sorologia IgM para Zika Vírus
+    translated_name: Zika IgM serology result (mother)
+    description: >
+      IgM serology result for Zika virus in the mother during pregnancy or
+      immediate postpartum, same scale as SO_IGG_Z; IgM indicates a more
+      recent infection than IgG.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo SO_IGM_Z (p.8)
+
+  TR_IGG_Z:
+    official_name: Resultado do teste rápido Sorologia IgG para Zika vírus
+    translated_name: Zika IgG rapid-test result (mother)
+    description: >
+      Rapid point-of-care test IgG result for Zika virus in the mother, an
+      alternative to the SO_IGG_Z laboratory serology, using the same
+      reagent/non-reagent scale.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo TR_IGG_Z (p.8)
+
+  TR_IGM_Z:
+    official_name: Resultado do teste rápido Sorologia IgM para Zika vírus
+    translated_name: Zika IgM rapid-test result (mother)
+    description: >
+      Rapid point-of-care test IgM result for Zika virus in the mother, an
+      alternative to the SO_IGM_Z laboratory serology, using the same
+      reagent/non-reagent scale.
+    code_system: internal
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/RESP/DOCS/DIC_DADOS_RESP.pdf, campo TR_IGM_Z (p.8)
+
+  FREQUENCIA:
+    official_name: (not in the RESP-Microcefalia dictionary)
+    translated_name: Record-count helper field
+    description: >
+      A constant per-record helper value (1 character wide) appended only to
+      the national RESPBR.dbc extract, letting TabWin sum it into record
+      counts for a tabulation; not part of the notification form.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      DATASUS TabWin tabulations commonly attach a constant count column,
+      often named FREQUENCIA, to derived extracts so a generic .def file can
+      sum it into a frequency table. This field is absent from the RESP
+      dictionary and from every per-UF/per-year RESP file, and appears only
+      in the single consolidated RESPBR.dbc file, consistent with that role;
+      its actual stored value is not confirmed by any source consulted.
+
+  ID_MN_RESI:
+    official_name: (not in the RESP-Microcefalia dictionary)
+    translated_name: Municipality of residence (standardized alias)
+    description: >
+      A 7-digit IBGE municipality-of-residence code appended only to
+      RESPBR.dbc, duplicating CODMUNRES under the field name generic
+      DATASUS tabulation tools commonly expect for cross-system residence
+      joins.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Its 7-character width matches the standard 6-digit IBGE municipality
+      code plus check digit used as a cross-system field name by several
+      DATASUS tabulation tools, distinct from CODMUNRES's system-specific
+      6-digit code recorded elsewhere in RESP. It is present only in the
+      single national RESPBR.dbc extract, not in the per-UF/year files or
+      the RESP dictionary; the exact code standard is not confirmed by any
+      source consulted.
+    notes: >
+      Not documented in DIC_DADOS_RESP.pdf; inferred from field name,
+      width, and its presence only in the consolidated RESPBR.dbc file.

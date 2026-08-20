@@ -1,0 +1,234 @@
+system: SINAN
+asserted_by: pegasus_data
+variables:
+  CRI_500:
+    official_name: Achados laboratoriais - CD4+ < 500 células/mm3
+    translated_name: CD4 count under 500 cells/mm3
+    description: >
+      Marks that the child's CD4+ T-lymphocyte count was below 500 cells/mm3 (<25%),
+      the pediatric AIDS immunodeficiency threshold used only when the child's age
+      is 6 to 12 years. 1=Sim, 2=Não, 9=Ignorado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 45 (Tabela Achados Laboratoriais)
+  CRI_1000:
+    official_name: Achados laboratoriais - CD4+ < 1000 células/mm3
+    translated_name: CD4 count under 1000 cells/mm3
+    description: >
+      Marks that the child's CD4+ T-lymphocyte count was below 1000 cells/mm3
+      (<25%), the immunodeficiency threshold used only when the child's age is
+      1 to 5 years. 1=Sim, 2=Não, 9=Ignorado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 45 (Tabela Achados Laboratoriais)
+  CRI_1500:
+    official_name: Achados laboratoriais - CD4+ < 1500 células/mm3
+    translated_name: CD4 count under 1500 cells/mm3
+    description: >
+      Marks that the child's CD4+ T-lymphocyte count was below 1500 cells/mm3
+      (<25%), the immunodeficiency threshold used only when the child is under
+      12 months old. 1=Sim, 2=Não, 9=Ignorado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 45 (Tabela Achados Laboratoriais)
+  DEF_DIAGNO:
+    official_name: Critério óbito
+    translated_name: Death-certificate case criterion
+    description: >
+      For adult AIDS cases, 1=Sim means the death certificate mentions aids or
+      HIV with death cause tied to immunodeficiency, and the case reached no
+      other classification criterion after investigation. 2=Não, 9=Ignorado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 43
+  DTCONFIRMA:
+    official_name: Data da coleta do Teste Confirmatório
+    translated_name: Confirmatory test collection date
+    description: >
+      Date the sample was collected for the confirmatory anti-HIV test given to
+      a child diagnosed after 18 months of age, in a pediatric AIDS
+      investigation.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
+  DTRAPIDO1:
+    official_name: Data de realização dos exames (Teste rápido)
+    translated_name: Rapid test collection date
+    description: >
+      Date the rapid HIV tests (up to three) were performed, in a pediatric
+      AIDS case investigated after 18 months of age.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
+  DTTRIAGEM:
+    official_name: Data da coleta (Teste de triagem)
+    translated_name: Screening test collection date
+    description: >
+      Date the sample was collected for the anti-HIV screening (triagem) test,
+      the first laboratory evidence step in an adult AIDS case investigation.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
+  DT_CONFIRM:
+    official_name: Data de coleta (Teste confirmatório)
+    translated_name: Confirmatory test collection date
+    description: >
+      Date the sample was collected for the confirmatory anti-HIV test in an
+      adult AIDS case investigation, following a reactive screening test.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
+  DT_PCR_1:
+    official_name: Data da coleta do 1o Teste de detecção de ácido nucléico
+    translated_name: First nucleic-acid test collection date
+    description: >
+      Date the first PCR/nucleic-acid detection test was collected, used to
+      diagnose HIV in a child under 18 months old whose maternal antibodies
+      make antibody tests unreliable.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
+  DT_PCR_2:
+    official_name: Data da coleta do 2o Teste de detecção de ácido nucléico
+    translated_name: Second nucleic-acid test collection date
+    description: >
+      Date the second PCR/nucleic-acid detection test was collected, part of the
+      same pediatric HIV diagnostic sequence as DT_PCR_1.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
+  DT_PCR_3:
+    official_name: Data da coleta do 3o Teste de detecção de ácido nucléico
+    translated_name: Third nucleic-acid test collection date
+    description: >
+      Date the third PCR/nucleic-acid detection test was collected, completing
+      the same pediatric HIV diagnostic sequence as DT_PCR_1 and DT_PCR_2.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
+  DT_RAPIDO:
+    official_name: Data da coleta dos exames (Teste rápido)
+    translated_name: Rapid test collection date
+    description: >
+      Date the rapid HIV tests (up to three) were performed in an adult AIDS
+      case investigation, an alternative laboratory-evidence path to the
+      screening/confirmatory pair.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
+  DT_TRIA_11:
+    official_name: Data da coleta do Teste de triagem
+    translated_name: Screening test collection date
+    description: >
+      Date the sample was collected for the anti-HIV screening test given to a
+      child tested after 18 months of age, in a pediatric AIDS investigation.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
+  ESC_MAE_N:
+    official_name: Escolaridade da mãe
+    translated_name: Mother's education level
+    description: >
+      Mother's highest school level completed at the time her child's AIDS case
+      was notified. Codes run 0=analfabeto through 8=educação superior
+      completa, 9=ignorada.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 32 (documented DBF ESC_MAE; ESC_MAE_N is the equivalent field observed in the data)
+  EVO_DIAG:
+    official_name: Critério óbito
+    translated_name: Death-certificate case criterion
+    description: >
+      Pediatric counterpart of DEF_DIAGNO: 1=Sim means the death certificate
+      mentions aids or HIV with death cause tied to immunodeficiency and no
+      other criterion classified the case after investigation. 2=Não, 9=Ignorado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 46
+  EVO_DT_OBI:
+    official_name: Data do óbito
+    translated_name: Date of death
+    description: >
+      Date the patient died. If the death criterion (EVO_DIAG) equals Sim, this
+      date must equal the case's diagnosis date under the AIDS investigation
+      rules.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 51
+  ID_OCUP_MA:
+    official_name: Ocupação da mãe
+    translated_name: Mother's occupation
+    description: >
+      Mother's occupation at the time of her child's AIDS case notification,
+      coded against the SINAN-standardized Classificação Brasileira de
+      Ocupações (CBO) table.
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 34
+  LAB_CONFIR:
+    official_name: Evidência laboratorial de infecção pelo HIV (Teste confirmatório)
+    translated_name: Confirmatory HIV test result
+    description: >
+      Result of the confirmatory anti-HIV laboratory test in an adult AIDS
+      investigation. 1=Positivo/Reagente, 2=Negativo, 3=Inconclusivo, 4=Não
+      realizado, 5=Indeterminado, 9=Ignorado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
+  LAB_PCR_1:
+    official_name: Evidência laboratorial de infecção pelo HIV (1o teste de detecção de ácido nucléico)
+    translated_name: First nucleic-acid test result
+    description: >
+      Result of the first PCR/nucleic-acid detection test used to diagnose HIV
+      in a child under 18 months. 6=Detectável, 7=Indetectável, 4=Não
+      realizado, 9=Ignorado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
+  LAB_PCR_2:
+    official_name: Evidência laboratorial de infecção pelo HIV (2o teste de detecção de ácido nucléico)
+    translated_name: Second nucleic-acid test result
+    description: >
+      Result of the second PCR/nucleic-acid detection test in the same
+      pediatric diagnostic sequence as LAB_PCR_1, using the same value codes.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
+  LAB_PCR_3:
+    official_name: Evidência laboratorial de infecção pelo HIV (3o teste de detecção de ácido nucléico)
+    translated_name: Third nucleic-acid test result
+    description: >
+      Result of the third PCR/nucleic-acid detection test completing the same
+      pediatric diagnostic sequence as LAB_PCR_1 and LAB_PCR_2.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
+  PRE_MUNIRE:
+    official_name: Município de realização do pré-natal
+    translated_name: Prenatal-care municipality
+    description: >
+      IBGE code of the municipality where the health facility that provided
+      the pregnant woman's prenatal care is located, recorded on the
+      syphilis/HIV-in-pregnancy investigation form.
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Gestante_Sifilis_v5.pdf, campo 33
+  PRE_UFREL:
+    official_name: UF de realização do pré-natal
+    translated_name: Prenatal-care state
+    description: >
+      Abbreviation of the state (UF) where the pregnant woman received prenatal
+      care, recorded on the syphilis/HIV-in-pregnancy investigation form.
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Gestante_Sifilis_v5.pdf, campo 32
+  RACA_MAE:
+    official_name: Raça/cor da mãe
+    translated_name: Mother's race/color
+    description: >
+      Race or color the mother self-declared at the time of her child's AIDS
+      case notification. 1=branca, 2=preta, 3=amarela, 4=parda, 5=indígena,
+      9=ignorado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 33

@@ -1,0 +1,284 @@
+system: SINAN
+asserted_by: pegasus_data
+variables:
+  RAIOX_TORA:
+    official_name: Radiografia do tórax
+    translated_name: Chest X-ray result
+    description: >
+      Chest X-ray finding recorded when the TB case was notified: 1=Suspeito
+      (findings compatible with TB), 2=Normal, 3=Outra patologia (abnormal but
+      unrelated to TB), 4=Não realizado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 39
+  RIFAMPICIN:
+    official_name: Droga - Rifampicina
+    translated_name: Rifampicin in regimen
+    description: >
+      Whether rifampicin was part of the patient's initial TB drug regimen —
+      one of several yes/no drug-presence flags, alongside isoniazid,
+      ethambutol, streptomycin, pyrazinamide and ethionamide, filled in at
+      treatment start.
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      TuberculNET.def names the field "Drog RIFAMPICINA" bound to codelist
+      SIM_NAO; in the schema it sits right after DT_INIC_TR (treatment start
+      date) beside ISONIAZIDA, ETAMBUTOL, ESTREPTOMI, PIRAZINAMI and
+      ETIONAMIDA — a regimen checklist, not a resistance test.
+  SG_UF_2:
+    official_name: UF de residência atual
+    translated_name: Current state of residence
+    description: >
+      Patient's state (UF) of residence as currently known, auto-filled from
+      the notification's residence UF but editable when the patient's address
+      changes during follow-up.
+    code_system: none
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 53
+  SG_UF_AT:
+    official_name: UF de notificação atual
+    translated_name: Current notifying state
+    description: >
+      State (UF) of the health unit currently handling the case, auto-filled
+      from the UF at first notification and updated when the record is linked
+      to a later notification after a transfer.
+    code_system: external
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 48
+  SITUA_12_M:
+    official_name: Situação no 12º mês
+    translated_name: Status at treatment month 12
+    description: >
+      Treatment follow-up status recorded at the 12th month for
+      drug-resistant TB cases, whose regimens run well past the standard six
+      months — still on treatment, cured, abandoned, transferred, or died.
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Bound to codelist family CUABOB12NET/SIT12MES, the same CUABOB* naming
+      pattern as SITUA_ENCE (CUABOB15NET, confirmed case-closure outcome);
+      appears only in the TUBE series paired with SITUA_9_M, matching the
+      12-month checkpoint used in Brazilian DR-TB treatment monitoring.
+  SITUA_9_M:
+    official_name: Situação no 9º mês
+    translated_name: Status at treatment month 9
+    description: >
+      Treatment follow-up status recorded at the 9th month for
+      drug-resistant TB cases — still on treatment, cured, abandoned,
+      transferred, or died — an earlier checkpoint than SITUA_12_M.
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Bound to codelist CUABOBT9NET, sharing the CUABOB* family with
+      SITUA_12_M (CUABOB12NET) and SITUA_ENCE (CUABOB15NET, confirmed
+      case-closure outcome); appears only in the TUBE series, consistent with
+      periodic follow-up of the longer DR-TB regimen.
+  SITUA_ENCE:
+    official_name: Situação de encerramento
+    translated_name: Case closure status
+    description: >
+      Outcome that closed the TB case: cure, treatment abandonment, death
+      from TB, death from another cause, transfer, diagnosis change,
+      drug-resistant TB (TB-DR), regimen change, treatment failure, or early
+      abandonment.
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 62
+  TESTE_TUBE:
+    official_name: Teste tuberculínico
+    translated_name: Tuberculin skin test (PPD)
+    description: >
+      Tuberculin skin test (PPD) reaction result recorded on the TB
+      notification form, graded from non-reactive through a weak or strong
+      reaction, or not performed.
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      TuberculNET.def names the field "Teste Tuberculin." bound to codelist
+      NAOREATO ("não reator"/non-reactor), standard PPD grading vocabulary in
+      Brazilian TB programs; the field is absent from the current v5.0
+      dictionary's numbered field list (campos 31-66).
+  TEST_MOLEC:
+    official_name: Teste Molecular Rápido para TB (TRM-TB)
+    translated_name: Rapid molecular TB test result
+    description: >
+      Result of the rapid molecular test for M. tuberculosis and rifampicin
+      resistance: detectable and rifampicin-sensitive, detectable and
+      rifampicin-resistant, not detectable, inconclusive, or not performed.
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 44
+  TEST_SENSI:
+    official_name: Teste de sensibilidade
+    translated_name: Drug susceptibility test result
+    description: >
+      Result of the culture-based drug susceptibility test: resistant only to
+      isoniazid, only to rifampicin, to both, to another first-line drug,
+      fully sensitive, in progress, or not performed.
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 45
+  TRANSF:
+    official_name: Se transferência
+    translated_name: Transfer distance
+    description: >
+      When the case closed by transfer, how far the patient moved: same
+      municipality, a different municipality in the same state, a different
+      state, or abroad.
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 63
+  TRATSUP_AT:
+    official_name: Tratamento Diretamente Observado (TDO) realizado
+    translated_name: Directly observed treatment performed
+    description: >
+      Whether directly observed treatment was actually delivered; credited as
+      done only once 24 doses were observed in the intensive phase and 48 in
+      the maintenance phase.
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 60
+  TRAT_SUPER:
+    official_name: Tratamento supervisionado indicado
+    translated_name: Supervised treatment indicated
+    description: >
+      Whether directly observed treatment was clinically indicated for the
+      patient, a separate yes/no flag from TRATSUP_AT, which records whether
+      it was actually carried out.
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      TuberculNET.def names it "Trat.Superv. indicado" bound to SIM_NAO,
+      distinct from TRATSUP_AT's "Trat.Superv. realizado" (the current
+      dictionary's TDO-realizado field, campo 60) — indicated vs. actually
+      performed follows directly from the two DEF labels.
+  UF_TRANSF:
+    official_name: UF de transferência
+    translated_name: Transfer destination state
+    description: >
+      State (UF) the patient was transferred to when the case closed by a
+      move to a different state, filled in whenever TRANSF records a
+      different-state transfer.
+    code_system: external
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 64
+  OCUPACAO:
+    official_name: Ocupação
+    translated_name: Patient occupation
+    description: >
+      Patient's occupation as recorded at notification, under this
+      discontinued 2000-2006 field name shared by several diseases before
+      SINAN NET's 2006-2007 reform gave each disease its own occupation
+      field.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Appears only in CHAG, DENG, LEIV and MALA in 2000-2006, the same
+      discontinued pre-SINAN-NET footprint seen for ANT_DT_INV and the CON_
+      conclusion-block fields; declared width varies (5 vs 11 characters)
+      across files, consistent with an unstandardized legacy field rather
+      than a fixed code.
+  FLOGISTICO:
+    official_name: Sinais e sintomas - Sinais flogísticos
+    translated_name: Inflammatory signs present
+    description: >
+      Local inflammatory signs — redness, heat, swelling, or tenderness —
+      observed at the affected site when screening a work-related
+      musculoskeletal disorder case: 1=Sim, 2=Não, 9=Ignorado.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Sinais Flogísticos)
+  HA_PAUSA:
+    official_name: Exposto no trabalho a tempo de pausas
+    translated_name: Rest breaks during workday
+    description: >
+      Whether the patient's job provides scheduled rest breaks during the
+      workday, an ergonomic exposure factor recorded when investigating a
+      repetitive strain injury (LER/DORT) case.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 51 (tempo de pausas)
+  LIMITA_MOV:
+    official_name: Sinais e sintomas - Limitação de movimentos
+    translated_name: Movement limitation
+    description: >
+      Range of movement in the affected limb or joint was limited at
+      diagnosis, one of the clinical signs recorded for a work-related
+      musculoskeletal disorder case.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Limitação de movimentos)
+  MAIS_6HS:
+    official_name: Exposto a jornada de trabalho de mais de 6 horas
+    translated_name: Workday over 6 hours
+    description: >
+      Daily workday exceeds six hours, an ergonomic exposure factor recorded
+      when investigating a work-related repetitive strain injury (LER/DORT)
+      case.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 51 (jornada superior a 6 horas)
+  MENOS_MOV:
+    official_name: Sinais e sintomas - Diminuição do movimento
+    translated_name: Reduced movement
+    description: >
+      Movement of the affected limb or joint was reduced, a clinical sign
+      recorded alongside pain and muscle weakness for a LER/DORT case.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Diminuição do movimento)
+  MUSCULAR:
+    official_name: Sinais e sintomas - Diminuição de força muscular
+    translated_name: Reduced muscle strength
+    description: >
+      Muscle strength in the affected area was reduced, one of the signs and
+      symptoms used to characterize a work-related musculoskeletal disorder.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Diminuição de força muscular)
+  PREMIOS:
+    official_name: Exposto no trabalho a prêmios de produção
+    translated_name: Production bonus exposure
+    description: >
+      Job ties bonuses or incentives to meeting or exceeding production
+      targets, an ergonomic risk factor recorded when investigating a
+      LER/DORT case.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 51 (Prêmios de produção)
+  REPETITIVO:
+    official_name: Exposto no trabalho a movimentos repetitivos
+    translated_name: Repetitive movement exposure
+    description: >
+      Job requires repetitive hand or arm movements to perform tasks, the
+      defining ergonomic exposure investigated in a repetitive strain injury
+      case.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 51 (Movimentos repetitivos)
+  SENSIBILI:
+    official_name: Sinais e sintomas - Alteração de sensibilidade
+    translated_name: Altered sensitivity
+    description: >
+      Patient reported altered sensation — numbness or tingling — in the
+      affected limb, one of the signs and symptoms screened for a work-related
+      musculoskeletal disorder.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Alteração de sensibilidade)
+  SINTO_DES:
+    official_name: Sinais e sintomas - Se outro, especificar
+    translated_name: Other symptom, specified
+    description: >
+      Free-text name of an additional sign or symptom, filled in only when
+      the "other symptom" checkbox on the same block is marked yes.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Se Outro especificar)

@@ -1,0 +1,248 @@
+system: IBGE
+asserted_by: pegasus_data
+variables:
+  ANO:
+    official_name: Ano
+    translated_name: Year
+    description: >
+      Calendar year the record refers to: a census year (1991, 2000 or 2010) or an
+      annual year for the population estimates and projections DATASUS publishes
+      between censuses.
+    code_system: none
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  POPULACAO:
+    translated_name: Population count
+    description: >
+      Number of residents counted for one combination of município, ano, sexo,
+      situação de domicílio and faixa etária — the headcount held by that cell of
+      the IBGE census/estimate population table.
+    code_system: none
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  MUNIC_RES:
+    official_name: código do município
+    translated_name: Municipality of residence
+    description: >
+      6-digit IBGE municipality code, without the verification digit, identifying
+      where the tallied population resides — the geography key of the population
+      table's rows.
+    code_system: external
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  SEXO:
+    official_name: Sexo
+    translated_name: Sex
+    description: >
+      Sex of the tallied population. Numeric-coded tables use 1=Masculino,
+      2=Feminino; some series carry the same two categories as the letters M and F
+      instead.
+    code_system: internal
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  SITUACAO:
+    official_name: Situação de domicílio
+    translated_name: Urban/rural situation
+    description: >
+      Urban/rural classification of the household. Numeric tables use 1=Urbano,
+      2=Rural, 3=Não levantado; other series carry the same three categories as
+      U, R and I.
+    code_system: internal
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  IDADE:
+    translated_name: Age
+    description: >
+      Age of the tallied group. In tables using single-year bands it is a 3-digit
+      code grouped into 5-year classes (000-004 = "0 a 4 anos"); in literacy and
+      elderly indicator tables it is a wider range code instead, e.g. 6099.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      Naming grammar (no DT_/CS_ prefix, a bare demographic noun) plus the two
+      distinct value formats actually observed — 3-digit single years bound to
+      IDADEDETSVS, and 4-digit wide ranges in the ALF/IDOSO series — match
+      DATASUS's dual age-coding convention used alongside FXETARIA.
+    asserted_by: pegasus_data
+  FXETARIA:
+    official_name: Faixa Etária detalhada
+    translated_name: Detailed age band
+    description: >
+      4-digit age-band code: 0000 = under 1 year, individual single years through
+      19, 5-year bands from 20 onward (2024 = 20 a 24 anos), 8099 = 80 anos ou
+      mais, I000 = idade ignorada.
+    code_system: internal
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  UFCOD:
+    official_name: Unidade da Federação
+    translated_name: State code
+    description: >
+      2-digit IBGE code for the state (unidade da federação) the record's
+      geography belongs to, e.g. 11=Rondônia, 35=São Paulo, 53=Distrito Federal.
+    code_system: external
+    source: def
+    source_ref: BR_UF codelist (catalog binding, IBGE state code table)
+  COD_MUN:
+    translated_name: Municipality code (7-digit)
+    description: >
+      7-digit IBGE municipality code, including the verification digit, used by
+      newer wide population-estimate tables in place of the 6-digit MUNIC_RES/
+      MUNCOD form.
+    code_system: external
+    source: inferred
+    reasoning: >
+      CO_ prefix follows the código naming grammar; bound to the MUNICBR codelist
+      as a 7-digit municipality code and appears only in the POPS:POP22+ series,
+      the newer annual population tables that use the checksum-digit form.
+    asserted_by: pegasus_data
+  POP:
+    translated_name: Population (annual series column)
+    description: >
+      Estimated resident population of the municipality for one year of an annual
+      series, where each year is its own like-named column (e.g. POP22 for 2022),
+      generalized here under POP.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Field appears only in POPS:POP<yy>/POPS:pop<yy> series — a wide table with
+      one population column per year — matching the TCU/IBGE municipal
+      population-estimate methodology documented in the Pop_Residente_TCU PDFs
+      on the IBGE FTP tree.
+    asserted_by: pegasus_data
+  CORRACA:
+    translated_name: Race/color
+    description: >
+      IBGE cor/raça (race/color) self-declared classification of the tallied
+      population: Branca, Preta, Amarela, Parda, Indígena and Sem declaração, one
+      digit per category.
+    source: web
+    source_ref: sidra.ibge.gov.br/tabela/9605 (População residente por cor ou raça)
+  MUNCOD:
+    translated_name: Municipality code (6-digit)
+    description: >
+      6-digit IBGE municipality code, without the verification digit, used as the
+      geography key in the literacy, schooling, income and child-labor census
+      indicator tables (ALF, ESCA, RENDA series).
+    code_system: external
+    source: inferred
+    reasoning: >
+      CO_ prefix = código naming grammar; bound to the MUNICBR codelist as a
+      6-digit municipality code and appears across the same ALF/ESCA/RENDA
+      series as MUNIC_RES, under a differently spelled field name.
+    asserted_by: pegasus_data
+  POPTOT:
+    translated_name: Total population (indicator base)
+    description: >
+      Total population of the demographic cell (age band, sex, race and
+      município) that a literacy or schooling rate is computed against in the
+      ALF/ESCA series.
+    code_system: none
+    source: inferred
+    reasoning: >
+      POP=população, TOT=total per naming grammar; appears alongside literacy and
+      schooling breakdowns as an additive numeric measure with no codelist,
+      consistent with a denominator population count for those rates.
+    asserted_by: pegasus_data
+  ESCOLARID:
+    translated_name: Years of schooling completed
+    description: >
+      Years of schooling completed, banded: 0000=less than 1 year, 0103=1 to 3
+      years, 0407=4 to 7 years, 0899=8 or more years, ALFA=adult literacy
+      program, IGNO=undetermined.
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/escadescr.htm
+  DENCRIREND:
+    translated_name: Child-poverty rate denominator
+    description: >
+      Denominator for child-poverty indicators: total resident population under
+      14 years old in the município/ano, against which the poor-children counts
+      are divided.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/crianpobrdescr.htm
+  DENDESOCUP:
+    translated_name: Unemployment rate denominator
+    description: >
+      Denominator for the unemployment rate: economically active resident
+      population aged 16 or older in the município/ano, working or looking for
+      work.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/desemprdescr.htm
+  DENRENDA:
+    translated_name: Income/poverty rate denominator
+    description: >
+      Denominator "população considerada": the resident population base over
+      which average per-capita household income and the poverty-share indicators
+      are computed.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/rendadescr.htm
+  DENTRABINF:
+    translated_name: Child-labor rate denominator
+    description: >
+      Denominator for the child-labor rate: total resident population aged 10 to
+      15 in the município/ano.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/trabinfdescr.htm
+  NUMCRIPOB:
+    translated_name: Children below half minimum wage
+    description: >
+      Number of children under 14 living in households where per-capita monthly
+      income is below half the reference minimum wage — the poverty line for
+      children.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/crianpobrdescr.htm
+  NUMCRIPOBX:
+    translated_name: Children below quarter minimum wage
+    description: >
+      Number of children under 14 living in households where per-capita monthly
+      income is below one-quarter the reference minimum wage — extreme poverty
+      for children.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/crianpobrdescr.htm
+  NUMDESOCUP:
+    translated_name: Unemployed population
+    description: >
+      Number of economically active residents aged 16 or older who were without
+      work and seeking employment during the census reference week.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/desemprdescr.htm
+  NUMPOBRES:
+    translated_name: Population below half minimum wage
+    description: >
+      Number of residents living in households where per-capita monthly income is
+      below half the reference minimum wage (R$510 in the 2010-anchored series):
+      the poverty line.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/pobrezadescr.htm
+  NUMPOBRESX:
+    translated_name: Population below quarter minimum wage
+    description: >
+      Number of residents living in households where per-capita monthly income is
+      below one-quarter the reference minimum wage: the extreme-poverty line.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/pobrezadescr.htm
+  NUMRENDA:
+    translated_name: Sum of per-capita household income
+    description: >
+      Sum of average per-capita household income, in reais, across the population
+      considered — the numerator used to compute mean income for a município/ano.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/rendadescr.htm
+  NUMTRABINF:
+    translated_name: Child laborers
+    description: >
+      Number of residents aged 10 to 15 who were working or looking for work
+      during the census reference week — the child-labor count.
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/trabinfdescr.htm

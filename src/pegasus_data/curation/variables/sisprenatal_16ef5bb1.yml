@@ -1,0 +1,106 @@
+system: SISPRENATAL
+asserted_by: pegasus_data
+variables:
+  CO_STF_GP:
+    official_name: Situação Familiar (agrupada)
+    translated_name: Household/family living situation (grouped)
+    description: >
+      Whom the pregnant woman lives with: with a partner and child(ren), with a
+      partner and no children, with a partner plus other relatives, with
+      relatives and no partner, with unrelated people, or alone — a cohabitation
+      classification, not a civil/marital-status code.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      CO_..._GP matches the grouped-field pattern of CO_ESC_GP/CO_RAC_GP/
+      CO_ETN_GP in this same GestacaoWeb.dbf schema. The registration form for
+      this exact system (SISTEMA DE MONITORAMENTO E AVALIAÇÃO DO PRÉ-NATAL,
+      PARTO, PUERPÉRIO E CRIANÇA, "SISPRENATAL N:") sits its "Estado
+      civil/união" question between Escolaridade and Raça/cor, with six
+      cohabitation options (codes 0,2-6, no 1) rather than single/married/
+      divorced categories — content and position match CO_STF_GP.
+    notes: >
+      "STF" is read as Situação Familiar; the exact official expansion is not
+      confirmed, only the field's subject and coded shape.
+
+  NU_NIS_REP:
+    official_name: Nº NIS do Representante Familiar
+    translated_name: Family representative's NIS number
+    description: >
+      NIS (Número de Identificação Social) of the "representante familiar" —
+      the adult who signs for the pregnant woman on her registration form when
+      she is a minor or otherwise legally incapable — recorded next to that
+      person's name, separately from the gestante's own NU_NIS.
+    code_system: none
+    source: web
+    source_ref: >
+      uberaba.mg.gov.br/portal/acervo/saude/arquivos/sisprenatal/RelGestante_FichaEmBranco.pdf
+      — Ficha de Cadastramento da Gestante, campo 16 "Representante familiar:
+      (se menor incapaz)" paired with campo 17 "Nº NIS"
+    notes: >
+      Real personal identifier (a social-benefit ID number belonging to the
+      guardian, not the gestante) and passes through unmodified; no masking
+      proposed.
+
+  QT_MOR_APS:
+    official_name: Óbitos de Nascidos Vivos até 1 Semana
+    translated_name: Early death count, before completing 1 week
+    description: >
+      Count, in the woman's obstetric history, of her previously live-born
+      children who died before completing one week of life — one of two
+      timing-split death counts branching off "Nascidos Vivos" on the
+      obstetric-history diagram, alongside QT_MOR_PS.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Sits between the abortion counts and QT_NSC_MOR/QT_NSC_VIV in the
+      GestacaoWeb.dbf field order. The registration form's Antecedentes
+      Obstétricos diagram (same "SISPRENATAL N:" system) branches "Nascidos
+      Vivos" into "Vivem" (alive) and two fillable count boxes labelled "mortos
+      1 Semana" and "depois 1 Semana" — read as APS = até (before/by) the first
+      week, PS = pós (after) the week.
+
+  QT_MOR_PS:
+    official_name: Óbitos de Nascidos Vivos após 1 Semana
+    translated_name: Later death count, after 1 week
+    description: >
+      Count, in the woman's obstetric history, of her previously live-born
+      children who died after completing one week of life — the "depois 1
+      Semana" branch of the same live-birth outcome diagram that QT_MOR_APS's
+      "mortos 1 Semana" branch comes from.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same diagram evidence as QT_MOR_APS: the two boxes are adjacent,
+      sequential outcomes of "Nascidos Vivos" (died within the first week vs.
+      died later), matching the field order QT_MOR_APS immediately followed by
+      QT_MOR_PS.
+
+  ST_AUX_DSL:
+    official_name: Precisa de Auxílio Deslocamento
+    translated_name: Needs transportation-assistance flag
+    description: >
+      Single-character yes/no flag for whether the pregnant woman needs help
+      getting to her prenatal appointments — asked at intake alongside DUM,
+      DPP, height and weight, not part of the obstetric-history block.
+    code_system: internal
+    source: web
+    source_ref: >
+      uberaba.mg.gov.br/portal/acervo/saude/arquivos/sisprenatal/RelGestante_FichaEmBranco.pdf
+      — Ficha de Acompanhamento da Gestante, campo 50 "Precisa de auxílio
+      deslocamento", NÃO/SIM
+
+  ST_GRA_ANT:
+    official_name: Final da Gestação Anterior, menos de 1 Ano
+    translated_name: Previous pregnancy ended under a year ago flag
+    description: >
+      Single-character yes/no flag marking that the woman's previous pregnancy
+      ended less than one year before this one began — a short
+      inter-pregnancy-interval marker recorded in the Antecedentes Obstétricos
+      block.
+    code_system: internal
+    source: web
+    source_ref: >
+      uberaba.mg.gov.br/portal/acervo/saude/arquivos/sisprenatal/RelGestante_FichaEmBranco.pdf
+      — Ficha de Acompanhamento da Gestante, campo 56 Antecedentes Obstétricos,
+      "Final da gestação anterior, < de 1 anos", NÃO/SIM

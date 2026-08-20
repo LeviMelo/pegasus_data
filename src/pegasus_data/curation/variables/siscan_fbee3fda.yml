@@ -1,0 +1,344 @@
+system: SISCAN
+asserted_by: pegasus_data
+variables:
+  CO_IDADE_PACIENTE:
+    official_name: Idade da paciente
+    translated_name: Patient age
+    description: >
+      Patient's age in years at the time of the cervical cytopathology exam,
+      recorded on the SISCAN request form and used to build the Faixa Etária
+      five-year age brackets shown in tabulation.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CO_ prefix plus IDADE/PACIENTE by naming grammar; SISCAN's own age-bracket
+      variable is documented as derived from an underlying per-exam age value.
+    source_ref: naming grammar
+
+  CO_PACIENTE:
+    official_name: Código do paciente
+    translated_name: Patient code
+    description: >
+      SISCAN's internal identifier for a woman, distinct from her CNS number,
+      used to link her cytopathology exams across years so DATASUS can count
+      distinct patients rather than exams.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CO_=codigo, PACIENTE=patient by naming grammar; SISCAN's technical notes
+      state tabulations count women, not exams, which requires a per-patient
+      linking key such as this one.
+    source_ref: naming grammar + SISCAN Nota Tecnica 1 measures section
+
+  TP_ADEQUABILIDAD_MATERIAL:
+    official_name: Adequabilidade do material
+    translated_name: Material adequacy
+    description: >
+      Whether the breast fine-needle or nipple-discharge sample was adequate
+      for cytological reading: satisfactory or unsatisfactory, per the SISCAN
+      breast-cytology result form.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 12 SISCAN - Citopatologico de Mama,
+      tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf
+
+  TP_MARGEM_CIRURGICA:
+    official_name: Margem cirúrgica
+    translated_name: Surgical margin
+    description: >
+      Whether the tumor reaches the cut edge of tissue removed by conization
+      or EZT in a cervical histopathology exam: margin free of lesion,
+      compromised, or not assessable.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      TP_=tipo by naming grammar; SISCAN's cervical histopathology form records
+      the excision procedure (EZT/conização) that produces a surgical margin,
+      and margin status is the standard pathology-report category for such
+      specimens.
+    source_ref: naming grammar + SISCAN Nota Tecnica 4 procedure field
+
+  ST_OUTRA_NEOPLASIA_MALIGNA:
+    official_name: Outra neoplasia maligna
+    translated_name: Other malignant neoplasm
+    description: >
+      Flags whether the cervical cytopathology report classified a finding as
+      a malignant tumor other than squamous or glandular cervical carcinoma,
+      e.g. a metastatic or non-cervical malignancy.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      ST_=status/flag by naming grammar; "Outras neoplasias malignas" is a
+      top-level diagnostic category in the Nomenclatura Brasileira para Laudos
+      Citopatológicos Cervicais, alongside the squamous/glandular atypia
+      categories that appear in the same file.
+    source_ref: naming grammar + Nomenclatura Brasileira para Laudos Cervicais
+
+  TP_ATIPIA_CELULAR_ESCAMOS:
+    official_name: Atipias em células escamosas
+    translated_name: Squamous cell atypia
+    description: >
+      Type of abnormal squamous cell finding in the cervical cytology report:
+      ASC-US, ASC-H, low-grade lesion (LSIL/HPV effect), high-grade lesion
+      (HSIL), or squamous carcinoma.
+    code_system: internal
+    source: web
+    source_ref: >
+      Nomenclatura Brasileira para Laudos Cervicais,
+      bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+  TP_ATIPIA_CELULAR_GLANDUL:
+    official_name: Atipias em células glandulares
+    translated_name: Glandular cell atypia
+    description: >
+      Type of abnormal glandular cell finding in the cervical cytology report:
+      atypical glandular cells (AGC), adenocarcinoma in situ, or invasive
+      adenocarcinoma.
+    code_system: internal
+    source: web
+    source_ref: >
+      Nomenclatura Brasileira para Laudos Cervicais,
+      bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+  TP_AVALIACAO_AMOSTRA:
+    official_name: Adequabilidade da amostra
+    translated_name: Sample evaluation
+    description: >
+      Quality classification of the cervical cytology sample: rejected,
+      satisfactory, or unsatisfactory for evaluation, per the Nomenclatura
+      Brasileira para Laudos Citopatológicos Cervicais.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 1 SISCAN - Pacientes,
+      tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_1_cito_colo_paciente.pdf
+
+  TP_CEL_ESCAM_SIGN_INDETER:
+    official_name: Células escamosas atípicas de significado indeterminado
+    translated_name: Squamous cells of undetermined significance
+    description: >
+      Subtype of squamous atypia of undetermined significance: possibly
+      non-neoplastic (ASC-US) versus cannot rule out a high-grade lesion
+      (ASC-H).
+    code_system: internal
+    source: web
+    source_ref: >
+      Nomenclatura Brasileira para Laudos Cervicais,
+      bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+  TP_CEL_GLAND_SIGNIF_INDET:
+    official_name: Células glandulares atípicas de significado indeterminado
+    translated_name: Glandular cells of undetermined significance
+    description: >
+      Subtype of atypical glandular cell finding: possibly non-neoplastic
+      versus cannot rule out a neoplastic or high-grade glandular lesion.
+    code_system: internal
+    source: web
+    source_ref: >
+      Nomenclatura Brasileira para Laudos Cervicais,
+      bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+  TP_CEL_ORIG_INF_SIGN_INDE:
+    official_name: Células de origem indefinida, de significado indeterminado
+    translated_name: Cells of undetermined origin
+    description: >
+      Subtype for atypical cells the cytologist could not classify as
+      squamous or glandular: possibly non-neoplastic versus cannot rule out
+      a high-grade lesion.
+    code_system: internal
+    source: web
+    source_ref: >
+      Nomenclatura Brasileira para Laudos Cervicais,
+      bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+  CNPJ_MANT:
+    official_name: CNPJ da mantenedora
+    translated_name: Maintaining entity's CNPJ
+    description: >
+      Brazilian company-registry number (CNPJ) of the legal entity that
+      administers the health facility in this SISMAMA provider-registration
+      record; passes through unmodified, an identifier not a label.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Follows CNES-style cadastro naming (CNPJ_MAN identifies the mantenedora
+      entity); the sampled file path CMAC*.dbc under SISMAMA/Dados matches the
+      Cadastro Mantenedora registration-file pattern used elsewhere in DATASUS.
+    source_ref: naming grammar + strata sampled_path SISMAMA/Dados/CMAC0907.dbc
+
+  COMPET:
+    official_name: Competência
+    translated_name: Reference period
+    description: >
+      Reference month and year (YYYYMM) this SISMAMA provider-registration
+      snapshot describes, the same competência convention SISCAN uses to date
+      its exam records.
+    code_system: none
+    source: inferred
+    reasoning: >
+      6-digit declared width matches YYYYMM; SISCAN's technical notes define
+      competência as the month/year a record is released, and this cadastro
+      file reuses that same DATASUS convention.
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 competência field
+
+  RAZAO:
+    official_name: Razão social
+    translated_name: Corporate name
+    description: >
+      Legal corporate name (razão social) of the mantenedora entity in this
+      SISMAMA provider-registration record; a real name, not a coded label,
+      passed through unmodified.
+    code_system: none
+    source: inferred
+    reasoning: >
+      RAZAO follows CNES-style cadastro field naming for razão social,
+      matching the CNPJ_MANT/COMPET fields in the same file, which together
+      read as a legal-entity registration record.
+    source_ref: naming grammar
+
+  CO_FAIXA_ETARIA_PACIENTE:
+    official_name: Faixa etária
+    translated_name: Age bracket
+    description: >
+      Patient's age grouped into five-year brackets (e.g. 40-44, 45-49) on
+      the breast cytopathology form, used for age-stratified screening
+      tabulation.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 12 SISCAN - Citopatologico de Mama,
+      tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf
+
+  CO_ETNIA:
+    official_name: Etnia indígena
+    translated_name: Indigenous ethnicity
+    description: >
+      Code for the patient's specific indigenous ethnic group, drawn from the
+      IBGE/FUNAI ethnicity table and populated only when her raça/cor is
+      registered as Indígena on the Cartão SUS.
+    code_system: external
+    source: inferred
+    reasoning: >
+      Distinct from a race/color field, DATASUS's "etnia" column consistently
+      names the indigenous-ethnicity code table imported from Cartão Nacional
+      de Saúde demographics across systems that share this import path.
+    source_ref: naming grammar + domain knowledge of DATASUS etnia table
+
+  CO_MUN_PREST_SERVICO:
+    official_name: Município do prestador de serviço
+    translated_name: Provider's municipality
+    description: >
+      IBGE code of the municipality where the laboratory or clinic that
+      performed the exam is located, distinct from the requesting unit's
+      municipality.
+    code_system: external
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 8 SISCAN - Mamografia,
+      tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
+
+  CO_MUN_UNIDADE_SAUDE:
+    official_name: Município da unidade de saúde
+    translated_name: Requesting unit's municipality
+    description: >
+      IBGE code of the municipality where the health unit that requested the
+      exam is located, as registered on the patient's Cartão SUS.
+    code_system: external
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 8 SISCAN - Mamografia,
+      tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
+
+  CO_PREST_SERVICO:
+    official_name: Prestador de serviço
+    translated_name: Service provider
+    description: >
+      CNES code identifying the laboratory or clinic that performed and
+      analyzed the exam, as opposed to the unit that requested it.
+    code_system: external
+    source: inferred
+    reasoning: >
+      Builds on the provider/requesting-unit distinction SISCAN's technical
+      notes draw explicitly for the parallel municipality fields; this is the
+      code identifying that same provider.
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+
+  CO_UF_PREST_SERVICO:
+    official_name: UF do prestador de serviço
+    translated_name: Provider's state
+    description: >
+      State (UF) code where the exam-performing service provider is located,
+      the state-level counterpart to the provider's municipality code.
+    code_system: external
+    source: inferred
+    reasoning: >
+      Same provider/requesting-unit distinction as CO_MUN_PREST_SERVICO, at
+      state rather than municipality granularity, using the standard DATASUS
+      UF code table.
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+
+  CO_UF_UNIDADE_SAUDE:
+    official_name: UF da unidade de saúde
+    translated_name: Requesting unit's state
+    description: >
+      State (UF) code where the requesting health unit is located, the
+      state-level counterpart to the requesting unit's municipality code.
+    code_system: external
+    source: inferred
+    reasoning: >
+      Same requesting-unit field Nota Tecnica 8 describes at municipality
+      level, applied here at state granularity.
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+
+  CO_UNIDADE_SAUDE:
+    official_name: Unidade de saúde
+    translated_name: Requesting health unit
+    description: >
+      CNES code of the health unit that requested the exam, e.g. a
+      primary-care clinic, as opposed to the laboratory that performed it.
+    code_system: external
+    source: inferred
+    reasoning: >
+      Counterpart code field to CO_PREST_SERVICO, following the
+      requesting-unit/provider distinction SISCAN's technical notes describe
+      for the parallel municipality fields.
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+
+  CO_IND_CLINICA:
+    official_name: Indicação clínica
+    translated_name: Clinical indication
+    description: >
+      Whether the mammogram was ordered as screening, on a patient with no
+      breast-cancer signs or symptoms, or as diagnostic, on a patient who has
+      them.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 8 SISCAN - Mamografia,
+      tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
+
+  CO_INTERVALO_RESULTADO:
+    official_name: Intervalo do resultado
+    translated_name: Result-turnaround interval
+    description: >
+      Days elapsed between the mammogram being performed and the imaging
+      service releasing its report, DATASUS's timeliness indicator for
+      result delivery.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 8 SISCAN - Mamografia,
+      tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
+
+  CO_INTERVALO_SOLICITACAO:
+    official_name: Intervalo da solicitação
+    translated_name: Scheduling-wait interval
+    description: >
+      Days elapsed between the mammogram being requested and actually
+      performed, DATASUS's timeliness indicator for exam scheduling.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      Nota Tecnica 8 SISCAN - Mamografia,
+      tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf

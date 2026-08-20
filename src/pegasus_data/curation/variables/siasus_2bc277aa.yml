@@ -1,0 +1,328 @@
+system: SIASUS
+asserted_by: pegasus_data
+variables:
+  APA_NUM:
+    official_name: Número da APAC
+    translated_name: APAC number
+    description: >
+      The APAC's own control number: an 11-digit sequence plus a check digit
+      assigned when the authorization is issued, used to link every later
+      billing record back to this authorization.
+    code_system: none
+    source: layout_doc
+    source_ref: APAC_JUL07.doc, campo 003 (apa_num)
+  APA_TIPAPA:
+    official_name: Tipo de APAC
+    translated_name: APAC type
+    description: >
+      Marks whether this authorization is the first month of a treatment
+      (1=Inicial), a later month continuing the same course (2=Continuidade),
+      or a one-off procedure needing no renewal (3=Única).
+    code_system: none
+    source: layout_doc
+    source_ref: APAC_JUL07.doc, campo 008 (apa_tipapac)
+  APA_TIPATE:
+    official_name: Tipo de atendimento
+    translated_name: Type of care
+    description: >
+      Code for the broad care category this APAC authorizes: observed values
+      include 27 (renal replacement therapy/dialysis), 35 (diagnostic imaging
+      or tests) and 36 (dispensed medications), which sets which of the
+      record's variable fields apply.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      APAC_JUL07.doc, campo 007 (apa_tipate); values cross-checked against the
+      procedure codes carried in APA_PRIPAL for the same records
+  APA_DTINIV:
+    official_name: Data inicial de validade
+    translated_name: Validity start date
+    description: >
+      Calendar date (AAAAMMDD) from which this APAC authorization is valid —
+      the first day of the treatment period it covers, typically the 1st of
+      the competência month.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      APAC_JUL07.doc, campo 005 (apa_dtiinval, "Data inicial da validade da
+      APAC")
+  APA_DTFIMV:
+    official_name: Data final de validade
+    translated_name: Validity end date
+    description: >
+      Calendar date (AAAAMMDD) on which this APAC authorization stops being
+      valid — the last day of the covered treatment period, generally the
+      last day of the competência month.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      APAC_JUL07.doc, campo 006 (apa_dtfimval, "Data final da validade da
+      APAC")
+  APA_MOTCOB:
+    official_name: Motivo da cobrança
+    translated_name: Billing/closing reason
+    description: >
+      Code for why this APAC segment closed this month: e.g. 69=discharge on
+      completing treatment, 71=stayed at the same facility on the same
+      procedure, 81=transferred elsewhere, 91=death.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      APAC_JUL07.doc, campo 053 (apa_motcobra, "conforme tabela do Anexo VII
+      da PT/MS/SAS 205/96")
+  APA_DTOCOR:
+    official_name: Data de ocorrência
+    translated_name: Occurrence date
+    description: >
+      Date the outcome named in APA_MOTCOB happened — the discharge,
+      transfer, or death that ended this segment of care — not necessarily
+      the same day the batch itself was processed.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Immediately follows APA_MOTCOB in the record layout, exactly where
+      APAC_JUL07.doc places apa_dtobitoalta/APA_DTOBAL ("date of the
+      discharge-or-death event") in its older and newer APAC layouts;
+      observed dates fall within the same competência month as
+      APA_DTINIV/APA_DTFIMV, consistent with an event date rather than a
+      processing date.
+  APA_GESTAO:
+    official_name: Código de gestão
+    translated_name: Managing authority code
+    description: >
+      IBGE code of the municipality (or UF) holding SUS administrative and
+      financial responsibility for the facility that issued this APAC;
+      129999-style codes mark the managing municipality as unrecorded.
+    code_system: external
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      "Gestão" is the standard SIA/SUS field naming a record's managing
+      municipality/state under decentralised financing, confirmed here by the
+      bound MUNICBR/UF/UFGESTAO codelists and by the observed value 129999
+      labelled "Município ignorado - AC".
+  APA_NOMEDI:
+    official_name: Nome do diretor
+    translated_name: Facility director's name
+    description: >
+      Full name of the director of the health facility that provided the
+      service, entered as free text and passed through unmodified — a
+      personal identifier, not a coded field.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      APAC_JUL07.doc, campo 056 (apa_nomediretor, "Nome do Diretor da Unidade
+      Prestadora do Serviço"), truncated to 10 characters as the DBF field
+      name
+  APA_NOMERE:
+    official_name: Nome do médico responsável
+    translated_name: Responsible physician's name
+    description: >
+      Full name of the physician responsible for the patient's treatment
+      under this APAC, entered as free text and passed through unmodified —
+      a personal identifier, not a coded field.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      APAC_JUL07.doc, campo 022 (apa_nomeresp, "Nome do médico responsável"),
+      truncated to 10 characters as the DBF field name
+  APA_PRIPAL:
+    official_name: Procedimento principal
+    translated_name: Main procedure code
+    description: >
+      SIA/SUS procedure code for the main treatment this APAC authorizes,
+      e.g. hemodiálise, tomografia computadorizada or a named medication —
+      the code that drives what care and quantities get billed.
+    code_system: external
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Bound to procedure codelists (PROC1199, PROCSIAV, DIALISE7) and every
+      observed value is a SIGTAP-style procedure code matching a real
+      DATASUS procedure name (hemodiálise, tomografia, calcitriol);
+      "PRIPAL" reads as the truncated DBF form of "procedimento principal",
+      which APAC_JUL07.doc's layout describes as the authorization's main
+      billed procedure.
+  APA_DATREF:
+    official_name: Data de referência
+    translated_name: Reference month (competência)
+    description: >
+      Year-month (AAAAMM) of the processing batch this record belongs to —
+      the competência this extract covers, e.g. 200201 for a January 2002
+      file.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      DAT=data, REF=referência follows the regular DATASUS abbreviation
+      grammar; the field is bound to year-month codelists (ANOMES03,
+      AM_0803) and its one observed value (200201) matches the file's own
+      extraction month exactly, as a competência field would.
+  APA_DATEM:
+    official_name: Data de emissão
+    translated_name: Emission month
+    description: >
+      Year-month (AAAAMM) the APAC authorization was first issued; a
+      continuation APAC (APA_TIPAPA=2) keeps this original month even as
+      later batches process it under a newer APA_DATREF.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      DAT=data, EM=emissão follows the regular DATASUS abbreviation grammar;
+      distinguishing it from the co-located competência field APA_DATREF
+      matches how APA_TIPAPA's inicial/continuidade distinction is normally
+      carried in APAC records.
+  COB_NUM:
+    official_name: Número da APAC
+    translated_name: APAC number
+    description: >
+      The 11-digit control number of the parent APAC this billed procedure
+      belongs to, letting each line in the billing file be joined back to
+      its APA_NUM header record.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Same 11-digit value format as APA_NUM in the paired "AC" header file
+      for the same UF and competência; COB records are the itemised billing
+      lines generated from each APAC and link back to it by this number.
+  COB_DATREF:
+    official_name: Data de referência
+    translated_name: Reference month (competência)
+    description: >
+      Year-month (AAAAMM) of the billing batch this line belongs to,
+      matching APA_DATREF in the paired APAC header file for the same UF and
+      competência.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Shares the value 200201 and the DAT=data, REF=referência grammar with
+      APA_DATREF in the sibling "AC" file for the same competência.
+  COB_GESTAO:
+    official_name: Código de gestão
+    translated_name: Managing authority code
+    description: >
+      IBGE code of the municipality (or UF) holding administrative and
+      financial responsibility for the billed procedure, the same role
+      APA_GESTAO plays in the paired APAC record.
+    code_system: external
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Bound to MUNICBR and shares the same "129999 Município ignorado" value
+      as APA_GESTAO in the sibling APAC file; "gestão" is the standard
+      SIA/SUS field naming the managing municipality/state.
+  COB_TIPATE:
+    official_name: Tipo de atendimento
+    translated_name: Type of care
+    description: >
+      Code for the care category of the billed procedure — the same value
+      set (27 renal therapy, 35 imaging/tests, 36 medications) seen in
+      APA_TIPATE for the linked APAC header.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Identical value distribution (27, 35, 36, 08, 38) to APA_TIPATE in the
+      paired "AC" file for the same competência, and TIPATE=tipo de
+      atendimento follows the regular DATASUS abbreviation grammar.
+  COB_CODPR:
+    official_name: Código do procedimento
+    translated_name: Procedure code
+    description: >
+      SIA/SUS code of the specific procedure being billed on this line, e.g.
+      tomografia or hemodiálise — the same code space as APA_PRIPAL's
+      authorization-level main procedure, but at the level of one billed
+      item.
+    code_system: external
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      CO_=código, PR=procedimento follows the regular grammar, and every
+      observed value matches a real SIGTAP-style procedure code also seen in
+      APA_PRIPAL for the same records.
+  COB_CODUNI:
+    official_name: Código da unidade
+    translated_name: Facility identifier
+    description: >
+      Identifier of the health establishment that carried out the billed
+      procedure; only a handful of distinct facility codes recur across this
+      UF's records.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      CO_=código, UNI=unidade follows the regular grammar; values are short
+      numeric facility codes consistent with the pre-7-digit CNES unit
+      identifiers used in this era of SIA/SUS files.
+  COB_CODESP:
+    official_name: Código da especialidade
+    translated_name: Specialty code
+    description: >
+      Code identifying the medical specialty under which the billed
+      procedure was performed or billed, e.g. codes 26, 40, 65 and 66
+      recurring for this facility's APAC production.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      CO_=código, ESP=especialidade follows the regular grammar; two-digit
+      values are consistent with SIA/SUS's specialty-code range, though the
+      catalog carries no codelist for this table to confirm labels.
+  COB_SEQ:
+    official_name: Sequência
+    translated_name: Line sequence number
+    description: >
+      Sequential position of this procedure line within its parent APAC's
+      set of billed items, starting at 1; higher numbers mean more
+      procedures were billed under the same authorization.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      SEQ=sequência follows the regular grammar; values run upward from 1
+      and repeat alongside the same COB_NUM, consistent with numbering
+      multiple billing lines under one APAC.
+  COB_QTAP:
+    official_name: Quantidade apresentada
+    translated_name: Quantity presented
+    description: >
+      Number of units of this procedure the provider submitted for payment
+      on this billing line, before any reduction by the payer's approval.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      QT_=quantidade, AP=apresentada follows the regular grammar and the
+      standard SIA/SUS BPA distinction between quantity presented (QTAP) and
+      quantity approved/produced (QTPR).
+  COB_QTPR:
+    official_name: Quantidade produzida
+    translated_name: Quantity approved/produced
+    description: >
+      Number of units of this procedure actually approved and counted for
+      payment on this billing line, the paid counterpart to the requested
+      COB_QTAP.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      QT_=quantidade, PR=produzida follows the regular grammar and the
+      standard SIA/SUS BPA distinction between apresentada (requested) and
+      produzida/aprovada (paid) quantities.
+  COB_CPFPCN:
+    official_name: CPF do paciente
+    translated_name: Patient's CPF
+    description: >
+      The patient's Brazilian taxpayer ID (CPF), an 11-digit personal
+      identifier that passes through unmodified from the source file with no
+      masking applied.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      APAC_JUL07.doc, campo 009 (apa_cpfpcnte, "Número de registro do
+      paciente no Cadastro de Pessoas Físicas... CPF"), same identifier
+      carried in the paired COB_ billing record

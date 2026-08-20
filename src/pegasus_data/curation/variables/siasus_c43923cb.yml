@@ -1,0 +1,299 @@
+system: SIASUS
+asserted_by: pegasus_data
+variables:
+  AMP_CARACT:
+    official_name: Característica
+    translated_name: Case characteristic
+    description: >
+      Marks whether this is a new dialysis patient or an existing one continuing
+      care; the operational form records value 1 as Novo (new) for a patient
+      just starting renal replacement therapy.
+    code_system: none
+    source: web
+    source_ref: >
+      HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Característica -> 1 Novo"
+  AMP_DTCLI:
+    official_name: Data Clínica
+    translated_name: Clinical admission date
+    description: >
+      Date the patient was clinically admitted into the chronic-kidney-disease
+      follow-up program at this facility, which can precede AMP_DTINI when a
+      patient was followed before dialysis began.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ marks a date under the standard DATASUS naming grammar, and "CLI"
+      abbreviates "clínica"; the sibling field AMP_DTINI is confirmed as the
+      first-dialysis date, so DTCLI is the earlier clinical-admission date in
+      the same record.
+  AMP_DTINI:
+    official_name: Data da 1ª Diálise
+    translated_name: First dialysis date
+    description: >
+      Date of the patient's first hemodialysis or peritoneal dialysis session,
+      recorded when a new APAC is opened for renal replacement therapy; earlier
+      than AMP_DTCLI, the clinical follow-up admission date.
+    code_system: none
+    source: web
+    source_ref: >
+      HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Data da 1ª Diálise"
+  AMP_FOSFOR:
+    official_name: Fósforo
+    translated_name: Serum phosphorus
+    description: >
+      Serum phosphorus level from the periodic lab panel required for dialysis
+      and chronic-kidney-disease patients, monitored alongside PTH to track the
+      mineral-bone disorder that comes with renal replacement therapy.
+    code_system: none
+    source: inferred
+    reasoning: >
+      "FOSFOR" is the Portuguese word "fósforo" shortened; CKD/dialysis
+      monitoring protocols require phosphorus alongside the other lab fields
+      present in this same AMP record (Hb, PTH, HBsAg).
+  AMP_HB:
+    official_name: Hb
+    translated_name: Hemoglobin
+    description: >
+      Hemoglobin level from the patient's routine renal-disease lab panel, used
+      to detect and monitor the anemia that is common in chronic kidney disease
+      and dialysis.
+    code_system: none
+    source: web
+    source_ref: >
+      HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Hb" no formulário de Nefrologia
+  AMP_HBSAG:
+    official_name: HBs Ag
+    translated_name: Hepatitis B surface antigen result
+    description: >
+      Result of the hepatitis B surface antigen (HBsAg) screening test, run on
+      dialysis patients because of the blood-exposure risk in hemodialysis units
+      and required in the CKD lab panel.
+    code_system: none
+    source: web
+    source_ref: >
+      HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "HBs Ag" no formulário de
+      Nefrologia
+  AMP_HCV:
+    official_name: aa HCV
+    translated_name: Hepatitis C antibody result
+    description: >
+      Result of the anti-HCV (hepatitis C antibody) screening test, run
+      routinely on dialysis patients for the same blood-exposure risk as
+      AMP_HBSAG and recorded in the same panel.
+    code_system: none
+    source: web
+    source_ref: >
+      HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "aa HCV" no formulário de
+      Nefrologia
+  AMP_HIV:
+    official_name: aa HIV
+    translated_name: HIV antibody result
+    description: >
+      Result of the anti-HIV screening test performed as part of the same
+      routine serology panel drawn for dialysis patients, alongside AMP_HBSAG
+      and AMP_HCV.
+    code_system: none
+    source: web
+    source_ref: >
+      HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "aa HIV" no formulário de
+      Nefrologia
+  AMP_INTERC:
+    official_name: Intercorrência
+    translated_name: Clinical complication flag
+    description: >
+      Flags whether a clinical intercurrence (a complication or adverse event,
+      such as infection or hospitalization) occurred during the period covered
+      by this dialysis follow-up record.
+    code_system: none
+    source: inferred
+    reasoning: >
+      "INTERC" is the plain Portuguese clinical term "intercorrência" shortened,
+      a routine yes/no item on periodic treatment-monitoring records like the
+      rest of this AMP panel.
+  AMP_KTVSEM:
+    official_name: Kt/V Semanal
+    translated_name: Weekly Kt/V
+    description: >
+      Weekly Kt/V value, the standard dialysis-adequacy index measuring how
+      much urea is cleared relative to the patient's total body water over a
+      week of hemodialysis sessions.
+    code_system: none
+    source: inferred
+    reasoning: >
+      "KTV" is the clinical shorthand Kt/V and "SEM" abbreviates "semanal"
+      (weekly), the usual reporting period for this dialysis-adequacy index in
+      Brazilian nephrology monitoring.
+  AMP_MAISNE:
+    official_name: Acompanhamento há mais de 1 ano
+    translated_name: Followed over one year flag
+    description: >
+      Flags whether the patient has been in this chronic-kidney-disease and
+      dialysis follow-up program for more than one year, separating long-term
+      cases from recently admitted ones.
+    code_system: none
+    source: web
+    source_ref: >
+      HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Acomp. há mais de 1 ano?"
+  AMP_PTH:
+    official_name: PTH
+    translated_name: Parathyroid hormone
+    description: >
+      Serum parathyroid hormone level, checked periodically in chronic kidney
+      disease and dialysis patients alongside phosphorus to track the secondary
+      hyperparathyroidism that develops as kidney function declines.
+    code_system: none
+    source: inferred
+    reasoning: >
+      "PTH" is the standard clinical abbreviation for parathyroid hormone; CKD
+      monitoring protocols pair it with phosphorus (AMP_FOSFOR) in the same
+      panel, matching this field's placement among the other AMP lab fields.
+  AMP_SEPERI:
+    official_name: Houve Peritonite
+    translated_name: Peritonitis occurrence flag
+    description: >
+      Flags whether the patient had an episode of peritonitis during the
+      period, the main complication tracked for patients on peritoneal dialysis
+      rather than hemodialysis.
+    code_system: none
+    source: web
+    source_ref: >
+      HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Houve peritonite dig.?"
+  AMP_SITINI:
+    official_name: Situação Inicial
+    translated_name: Status at admission
+    description: >
+      Records the patient's situation when starting this treatment episode,
+      such as ambulatory outpatient care versus having been hospitalized, filled
+      on the APAC's Nefrologia screen.
+    code_system: none
+    source: web
+    source_ref: >
+      HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Situação do usuário na
+      ocasião em que Iniciou o Tra."
+  AMP_SITTRA:
+    official_name: Situação do Tratamento
+    translated_name: Current treatment status
+    description: >
+      Current status of the patient's renal-replacement therapy at reporting
+      time - still in dialysis, transferred to another service, transplanted,
+      or deceased - the outcomes billing staff check monthly before renewing
+      the APAC.
+    code_system: none
+    source: inferred
+    reasoning: >
+      "SIT"+"TRA" pairs with the documented sibling AMP_SITINI ("situação
+      inicial") to give "situação do tratamento"; the outcome categories come
+      from the same operational manual's monthly review step, which lists
+      exactly these possibilities (óbito, mudança de procedimento, transplante,
+      transferência, continuidade).
+  AMP_TRU:
+    official_name: TRU
+    translated_name: Urea reduction rate
+    description: >
+      Taxa de Redução de Ureia (urea reduction ratio), a percentage measure of
+      how much blood urea drops during a hemodialysis session, reported
+      alongside Kt/V as the other standard dialysis-adequacy index.
+    code_system: none
+    source: inferred
+    reasoning: >
+      "TRU" is the standard Brazilian-nephrology abbreviation for Taxa de
+      Redução de Ureia, the companion adequacy metric to Kt/V (AMP_KTVSEM)
+      computed from the same pre/post-dialysis blood draw.
+  PA_FNTORC:
+    official_name: Fonte de Recursos
+    translated_name: Funding source code
+    description: >
+      Code for the public budget line (fonte de remuneração) that financed
+      this outpatient procedure, e.g. federal MAC block funding versus a
+      municipality's own resources; drives how DATASUS aggregates spending,
+      not clinical meaning.
+    code_system: internal
+    source: def
+    source_ref: FONTEREM domain table bound to this field in the catalog
+  CO_INE:
+    official_name: Identificador Nacional de Equipe
+    translated_name: National care-team identifier
+    description: >
+      National ID number of the primary-care or home-care team (e.g. Estratégia
+      Saúde da Família) attending the case, assigned once per team so its
+      history can be tracked across CNES facility changes.
+    code_system: external
+    source: web
+    source_ref: >
+      wiki.saude.gov.br/cnes "Cadastro de Equipes" - INE defined as the team's
+      national identification code
+  APA_CODUNI:
+    official_name: Código da Unidade
+    translated_name: Provider unit CNES code
+    description: >
+      CNES code (with check digit) of the health facility billing this APAC;
+      the observed value 000240 resolves to FUNDHACRE, an Acre state hospital
+      foundation, via the bound CNES codelist.
+    code_system: external
+    source: inferred
+    reasoning: >
+      CODUNI mirrors the documented general-layout field apa_codcnes, "Código
+      da Unidade Prestadora de Serviços (c/ dígito verificador)"; the catalog's
+      CNES codelist binding and the FUNDHACRE label on the top observed value
+      confirm it.
+    source_ref: >
+      fehosp.com.br "Layout da interface texto do APAC e do SIA", página 2
+      (campo apa_codcnes)
+  APA_CONDIC:
+    official_name: Condição de Gestão
+    translated_name: Management arrangement code
+    description: >
+      Code for the administrative management arrangement of the health system
+      under which the reporting unit operates; value EC (Estado Convencional)
+      means the state government manages it directly, not the municipality.
+    code_system: internal
+    source: def
+    source_ref: TPGESTAO/TPGEST_C domain tables bound to this field in the catalog
+  APA_CPFDIR:
+    official_name: CPF do Autorizador/Diretor
+    translated_name: Authorizing physician CPF
+    description: >
+      CPF of the physician or clinical director who authorized the APAC,
+      passed through unmodified with no masking; nearly constant per facility
+      since one director signs most of a unit's authorizations.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Parallels the documented sibling field APA_CNSDIR ("CNS do Autorizador
+      Responsável") in the same layout, where DIR abbreviates the authorizing
+      director/responsible signer.
+  APA_CPFPCN:
+    official_name: CPF do Paciente
+    translated_name: Patient CPF
+    description: >
+      The patient's Brazilian taxpayer ID (CPF), passed through unmodified
+      with no masking; the repeating-digit value 33333333374 seen for many
+      records is a placeholder used when the real CPF was unavailable.
+    code_system: none
+    source: inferred
+    reasoning: >
+      "CPF" is the Brazilian tax-ID abbreviation and "PCN" parallels "PCT" in
+      the documented sibling field APA_CNSPCT ("Cartão Nacional de Saúde
+      Paciente"); the placeholder pattern is directly observed in the catalog.
+  APA_CPFRES:
+    official_name: CPF do Médico Responsável
+    translated_name: Responsible physician CPF
+    description: >
+      CPF of the physician responsible for the patient's ongoing treatment
+      named on the APAC, passed through unmodified with no masking; distinct
+      from APA_CPFDIR, the authorizing physician's CPF.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Parallels the documented sibling field APA_CNSRES ("CNS Médico
+      Responsável") in the same layout, where RES abbreviates "responsável"
+      for the treating physician.

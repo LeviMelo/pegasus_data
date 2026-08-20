@@ -1,0 +1,112 @@
+# SINASC — 1994-1995 legacy Declaração de Nascimento layout (series DN, DNR, DNRIG).
+# These six columns are absent from the 1996+ structure ("SINASC: Estrutura de 1996 a
+# 2019") and have no surviving DATASUS documentation of their own. SIM's parallel
+# 1979-1995 legacy layout (ESTRUTURA-SIM) uses the same naming grammar and the same
+# "locally assigned, not part of the national base" convention for its CRSOCOR, CRSRES,
+# AREARES and CODIGO fields, which is the basis for reading SINASC's equivalents here.
+system: SINASC
+asserted_by: pegasus_data
+
+variables:
+
+  AREA:
+    official_name: Área de residência
+    translated_name: Residence sub-area code
+    description: >
+      A locally assigned code for a residence area or district smaller than the
+      municipality, from the 1994-1995 birth-record layout. Each state or municipality
+      numbers these independently; no national lookup table exists for the codes.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      SIM's parallel 1979-1995 legacy layout documents its equivalent field, AREARES, as
+      "Área de residência...atribuído por cada estado e/ou município, não fazendo parte
+      da base nacional" (ESTRUTURA-SIM pos. 16). SINASC's AREA is the same era and
+      naming grammar, so is read the same way.
+
+  CRITICA:
+    official_name: Crítica
+    translated_name: Internal edit/QA flag
+    description: >
+      An internal data-quality control code from the 1994-1995 legacy birth-record
+      layout. DATASUS's documentation for the identical field in its sibling systems
+      gives it no meaning beyond "data for internal control," so individual codes are
+      not decodable.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      SIM's ESTRUTURA-SIM documents CRITICA at the same C(7) width in its own
+      1979-1995 legacy layout as "Dado para controle interno." SINASC's CRITICA shares
+      the field name, the width, and the vintage, indicating the same bookkeeping role.
+
+  CRS_MAE:
+    official_name: CRS de residência da mãe
+    translated_name: Health-region code of mother's residence (locally coded)
+    description: >
+      Code of the health region (Coordenadoria/Regional de Saúde) of the mother's
+      residence, in the 1994-1995 legacy layout. Assigned independently by each state
+      or municipality, so the same code means different regions in different places.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      SIM's parallel legacy layout has CRSRES, "Regional de Saúde de residência...não
+      fazendo parte da base nacional" (ESTRUTURA-SIM pos. 47). SINASC's residence
+      concept in this era attaches to the mother rather than the record subject, which
+      is why the SINASC field is named for the mother instead of "RES" generically.
+
+  CRS_OCOR:
+    official_name: CRS de ocorrência
+    translated_name: Health-region code of occurrence (locally coded)
+    description: >
+      Code of the health region (Coordenadoria/Regional de Saúde) where the birth
+      occurred, in the 1994-1995 legacy layout. Locally assigned by each state or
+      municipality, not standardized at national level.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      SIM's parallel legacy layout has CRSOCOR, "Regional de Saúde de ocorrência...não
+      fazendo parte da base nacional" (ESTRUTURA-SIM pos. 46). SINASC's CRS_OCOR shares
+      the name stem, the era, and the paired occurrence/residence field pattern.
+
+  ETNIA:
+    official_name: Etnia
+    translated_name: Ethnicity (likely Indigenous ethnic group)
+    description: >
+      A short numeric code recording ethnicity, present in this 1994-1995 vintage of
+      the birth record. By the naming convention DATASUS used elsewhere at the same
+      time, this most likely records Indigenous ethnic group of the mother or newborn.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      SIM introduced an identically-named ETNIA field in 1995, read there as Indigenous
+      ethnicity because it was added alongside RACACOR (race/colour, code 5 = Indígena).
+      SINASC's own 1996+ layout adds RACACOR the very next year, so an ETNIA field
+      appearing in SINASC's 1994-1995 records fits the same system-wide timing.
+    notes: >
+      No codelist survives in the catalog for this column; treat individual codes as
+      uninterpretable without a table.
+
+  CODIGO:
+    official_name: Código do estabelecimento de ocorrência
+    translated_name: Facility code where the birth occurred (locally coded)
+    description: >
+      Code of the health establishment where the birth occurred, filled when the birth
+      took place at a hospital or other health facility. Locally assigned by each state
+      or municipality in this 1994-1995 layout, not a national registry code.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      SIM's parallel legacy layout has an identically-named CODIGO field, "Codigo do
+      estabelecimento onde ocorreu o obito...não fazendo parte da base nacional"
+      (ESTRUTURA-SIM pos. 12), filled only when the place of occurrence was a health
+      facility. SINASC's CODIGO is read as the birth-record counterpart of the same
+      convention.
+    notes: >
+      Not a CNES registry code — CNES numbering for the facility of birth arrives later
+      as CODESTAB (SINASC's 1996+ layout, from year 2000).

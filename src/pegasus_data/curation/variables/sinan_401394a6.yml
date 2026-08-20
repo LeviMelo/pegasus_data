@@ -1,0 +1,278 @@
+system: SINAN
+asserted_by: pegasus_data
+variables:
+
+  RESUL_PRNT:
+    official_name: Resultado do Exame Sorológico (IgM) PRNT
+    translated_name: PRNT test result (Chikungunya)
+    description: >
+      Result of the plaque-reduction neutralization test drawn for a
+      Chikungunya notification: reagent, non-reagent, inconclusive, or not
+      performed. Used to confirm/rule out chikungunya when IgM is ambiguous.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf, campo 38-Exame PRNT
+
+  RES_CHIKS1:
+    official_name: Resultado do Exame Sorológico (IgM) soro 1 para Chikungunya
+    translated_name: Chikungunya IgM serology result, sample 1
+    description: >
+      Result of the first-sample IgM serology for Chikungunya: reagent,
+      non-reagent, inconclusive, or not performed. First (acute-phase) blood
+      draw, paired with RES_CHIKS2 from a later sample.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf, campo 38-Exame sorológico IgM soro 1
+
+  RES_CHIKS2:
+    official_name: Resultado do Exame Sorológico (IgM) soro 2 para Chikungunya
+    translated_name: Chikungunya IgM serology result, sample 2
+    description: >
+      Result of the second-sample IgM serology for Chikungunya, same
+      reagent/non-reagent/inconclusive/not-performed scale as RES_CHIKS1;
+      convalescent-phase sample taken later to confirm a negative or weak first result.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf, campo 38-Exame sorológico IgM soro 2
+
+  TPALTA_N:
+    official_name: Tipo de Saída
+    translated_name: Discharge/outcome type (Hanseníase)
+    description: >
+      How a leprosy case's follow-up ended: cured, transferred to another
+      unit, municipality, state, or abroad, death, treatment abandonment, or
+      diagnostic error. Recorded only when a discharge date is filled in.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Hanseniase/DIC_DADOS_Hanseniase_v5.pdf, campo 19-Tipo de Saída
+
+  TRA_AMPOLA:
+    official_name: Número de ampolas
+    translated_name: Ampoules prescribed (leishmaniasis treatment)
+    description: >
+      Count of antimonial (Sb+5) ampoules prescribed and dispensed for a
+      cutaneous leishmaniasis patient's treatment course; a fractioned
+      ampoule's remainder is discarded, not carried over.
+    code_system: none
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose Tegumentar Americana/LTA_v5_instr.pdf, campo 45
+
+  TRA_DOSE:
+    official_name: Dose prescrita
+    translated_name: Prescribed antimonial dose (leishmaniasis treatment)
+    description: >
+      Prescribed dose of pentavalent antimonial (Sb+5), standardized at
+      10-20 mg/Kg/day: 15 mg/Kg/day for cutaneous lesions, 20 mg/Kg/day for
+      mucosal lesions, per Ministry of Health treatment protocol.
+    code_system: none
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose Tegumentar Americana/LTA_v5_instr.pdf, campo 44
+
+  TRA_DROGA_:
+    official_name: Droga utilizada na falência do tratamento inicial
+    translated_name: Second-line drug (leishmaniasis treatment)
+    description: >
+      Which antimonial/antileishmanial drug was switched to after the
+      patient's initial cutaneous-leishmaniasis treatment failed to cure the
+      lesion.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose Tegumentar Americana/LTA_v5_instr.pdf, campo 46
+
+  UFATUAL:
+    official_name: UF de atendimento atual
+    translated_name: State of current treatment unit (Hanseníase)
+    description: >
+      State abbreviation of the health facility currently treating a leprosy
+      patient. Auto-filled from the notifying municipality's state, then
+      updated automatically if the patient transfers to care elsewhere.
+    code_system: external
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Hanseniase/DIC_DADOS_Hanseniase_v5.pdf, campo 1-UF de atendimento atual
+
+  UFRESAT:
+    official_name: UF de residência atual
+    translated_name: State of current residence (Hanseníase)
+    description: >
+      State abbreviation of the leprosy patient's current residence.
+      Auto-filled from the residence state at notification, then editable if
+      the patient moves during follow-up.
+    code_system: external
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Hanseniase/DIC_DADOS_Hanseniase_v5.pdf, campo 6-UF de residência atual
+
+  XENODIAG:
+    official_name: Xenodiagnóstico
+    translated_name: Xenodiagnosis result (Chagas disease)
+    description: >
+      Result of xenodiagnosis for acute Chagas disease: positive, negative,
+      or not performed. An indirect parasitological test where uninfected
+      triatomine bugs feed on the patient and are later checked for T. cruzi.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf, campo 44-Exames realizados
+
+  AGRAVAIDS:
+    official_name: Doenças e agravos associados - Aids
+    translated_name: Associated condition - AIDS (Tuberculosis)
+    description: >
+      Whether the TB patient also has AIDS at notification (yes/no/ignored).
+      Marking yes auto-fills the HIV field as positive and locks it against
+      further edits.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 37
+
+  AGRAVALCOO:
+    official_name: Doenças e agravos associados - Alcoolismo
+    translated_name: Associated condition - alcoholism (Tuberculosis)
+    description: >
+      Whether the TB patient has a diagnosis of alcoholism at notification
+      (yes/no/ignored), one of seven parallel comorbidity flags recorded
+      alongside the TB case.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 37
+
+  AGRAVDIABE:
+    official_name: Doenças e agravos associados - Diabetes
+    translated_name: Associated condition - diabetes (Tuberculosis)
+    description: >
+      Whether the TB patient has diabetes at notification (yes/no/ignored);
+      diabetes raises TB risk and complicates treatment, so it is tracked as
+      a comorbidity flag.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 37
+
+  AGRAVDOENC:
+    official_name: Doenças e agravos associados - Doença Mental
+    translated_name: Associated condition - mental illness (Tuberculosis)
+    description: >
+      Whether the TB patient has a diagnosed mental illness at notification
+      (yes/no/ignored), tracked because it affects treatment adherence
+      support needs.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 37
+
+  AGRAVDROGA:
+    official_name: Doenças e agravos associados - Uso de drogas ilícitas
+    translated_name: Associated condition - illicit drug use (Tuberculosis)
+    description: >
+      Whether the TB patient uses illicit drugs at notification
+      (yes/no/ignored), tracked as a risk factor for poor treatment
+      adherence.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 37
+
+  AGRAVOUTRA:
+    official_name: Doenças e agravos associados - Outras
+    translated_name: Associated condition - other (Tuberculosis)
+    description: >
+      Whether the TB patient has some other associated condition not covered
+      by the named flags (yes/no/ignored); answering yes enables a free-text
+      field naming it.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 37
+
+  AGRAVTABAC:
+    official_name: Doenças e agravos associados - Tabagismo
+    translated_name: Associated condition - tobacco use (Tuberculosis)
+    description: >
+      Whether the TB patient is a tobacco user at notification
+      (yes/no/ignored), the last of the seven comorbidity/risk-factor flags
+      recorded on the TB case.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 37
+
+  ANT_RETRO:
+    official_name: Terapia Antirretroviral durante o tratamento para a TB
+    translated_name: Antiretroviral therapy during TB treatment
+    description: >
+      Whether the TB patient received antiretroviral therapy for HIV/AIDS
+      while being treated for TB (yes/no/ignored); disabled unless the HIV
+      field is positive.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 41 (ANTIRRETROVIRAL)
+
+  BACILOSC_E:
+    official_name: Baciloscopia de escarro (diagnóstico)
+    translated_name: Sputum smear microscopy at diagnosis (Tuberculosis)
+    description: >
+      Result of sputum smear microscopy for AFB done at TB diagnosis, before
+      treatment starts: positive, negative, not performed, or not applicable
+      (set for extrapulmonary cases).
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 38
+
+  BACILOSC_1:
+    official_name: Baciloscopia no 1º mês
+    translated_name: Sputum smear microscopy, treatment month 1
+    description: >
+      Result of sputum smear microscopy for AFB on a sample collected at the
+      end of the 1st month of TB treatment; same positive/negative/not
+      performed/not applicable scale as BACILOSC_E.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 58
+
+  BACILOSC_2:
+    official_name: Baciloscopia no 2º mês
+    translated_name: Sputum smear microscopy, treatment month 2
+    description: >
+      Second monthly follow-up smear, sampled at the close of treatment
+      month 2, tracking whether the patient is converting to negative under
+      therapy.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 58
+
+  BACILOSC_3:
+    official_name: Baciloscopia no 3º mês
+    translated_name: Sputum smear microscopy, treatment month 3
+    description: >
+      Third monthly follow-up smear, sampled at the close of treatment
+      month 3; same positive/negative/not performed/not applicable scale as
+      BACILOSC_1.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 58
+
+  BACILOSC_4:
+    official_name: Baciloscopia no 4º mês
+    translated_name: Sputum smear microscopy, treatment month 4
+    description: >
+      Fourth monthly follow-up smear, sampled at the close of treatment
+      month 4; same positive/negative/not performed/not applicable scale as
+      BACILOSC_1.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 58
+
+  BACILOSC_5:
+    official_name: Baciloscopia no 5º mês
+    translated_name: Sputum smear microscopy, treatment month 5
+    description: >
+      Fifth monthly follow-up smear, sampled at the close of treatment
+      month 5; same positive/negative/not performed/not applicable scale as
+      BACILOSC_1.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 58
+
+  BACILOSC_6:
+    official_name: Baciloscopia no 6º mês
+    translated_name: Sputum smear microscopy, treatment month 6
+    description: >
+      Result of sputum smear microscopy for AFB on samples collected in the
+      6th month of TB treatment, the last of the monthly follow-up smears
+      after BACILOSC_1 through BACILOSC_5.
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 58

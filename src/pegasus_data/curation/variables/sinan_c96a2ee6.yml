@@ -1,0 +1,275 @@
+system: SINAN
+asserted_by: pegasus_data
+variables:
+  GRAV_SANG:
+    official_name: Dengue grave - Sangramento do SNC
+    translated_name: Severe dengue sign - CNS bleeding
+    description: >
+      Whether the patient bled into the central nervous system, one of the
+      severity signs recorded only once a Dengue/Chikungunya case is classified
+      as severe dengue (CLASSI_FIN=12) with a lab or clinical-epi criterion.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_ONLINE.pdf (Dengue/Chikungunya Sinan Online), campo 70.
+
+  GRAV_TAQUI:
+    official_name: Dengue grave - Taquicardia
+    translated_name: Severe dengue sign - tachycardia
+    description: >
+      Whether the patient showed persistent tachycardia, one of the severity
+      signs recorded only once a case is classified as severe dengue
+      (CLASSI_FIN=12) with a lab or clinical-epi confirmation criterion.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_ONLINE.pdf (Dengue/Chikungunya Sinan Online), campo 70.
+
+  HEMATOLOG:
+    official_name: Doenças pré-existentes - Doenças hematológicas
+    translated_name: Pre-existing hematologic disease
+    description: >
+      Whether the patient had a pre-existing blood disorder (e.g. hemophilia,
+      sickle-cell disease) noted at Dengue/Chikungunya notification, a
+      comorbidity distinct from any symptom observed during the acute illness.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_ONLINE.pdf (Dengue/Chikungunya Sinan Online), campo 34.
+
+  HEPATOPAT:
+    official_name: Doenças pré-existentes - Hepatopatias
+    translated_name: Pre-existing liver disease
+    description: >
+      Whether the patient had pre-existing chronic liver disease noted at
+      Dengue/Chikungunya notification, one of seven listed comorbidities
+      checked independently of each other.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_ONLINE.pdf (Dengue/Chikungunya Sinan Online), campo 34.
+
+  HIPERTENSA:
+    official_name: Doenças pré-existentes - Hipertensão arterial
+    translated_name: Pre-existing hypertension
+    description: >
+      Whether the patient had pre-existing arterial hypertension noted at
+      Dengue/Chikungunya notification, distinct from any blood-pressure drop
+      recorded later as a warning or severity sign of the acute illness.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_ONLINE.pdf (Dengue/Chikungunya Sinan Online), campo 34.
+
+  HISTORIA:
+    official_name: História de uso de sangue ou hemoderivados nos últimos 120 dias
+    translated_name: Recent blood/blood-product transfusion history
+    description: >
+      Whether the acute Chagas disease patient received blood or blood
+      products in the days before falling ill, flagging transfusion as a
+      possible route of T. cruzi infection distinct from vector-borne spread.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 36.
+
+  ID_MUNI_AT:
+    official_name: Município de atendimento atual
+    translated_name: Current treatment municipality
+    description: >
+      IBGE code and name of the municipality where the health facility
+      currently treating the leprosy patient is located, auto-filled from the
+      notifying municipality and updated whenever care is transferred.
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento, campo 2.
+
+  ID_UNID_AT:
+    official_name: Unidade de atendimento atual
+    translated_name: Current treatment facility (CNES)
+    description: >
+      CNES code and name of the health facility currently responsible for the
+      leprosy patient's treatment, auto-filled from the notifying facility and
+      updated whenever the patient is transferred to another unit.
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento, campo 5.
+
+  IFI:
+    official_name: Diagnóstico Imunológico - IFI
+    translated_name: Indirect immunofluorescence test result
+    description: >
+      Result of the indirect immunofluorescence reaction against Leishmania
+      run on a visceral leishmaniasis suspect; a positive result auto-fills
+      the case as lab-confirmed, separately from the direct parasitological test.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LV_v5.pdf (Leishmaniose Visceral), campo 36.
+
+  LAB_IRM:
+    official_name: IRM (Intradermorreação de Montenegro)
+    translated_name: Montenegro skin test result
+    description: >
+      Result of the Montenegro intradermal reaction, a delayed-hypersensitivity
+      skin test to Leishmania antigen used to support diagnosis of cutaneous
+      leishmaniasis; positive results also auto-confirm the case.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LTA_v5.pdf (Leishmaniose Tegumentar Americana), campo 37.
+
+  LAB_PARASI:
+    official_name: Parasitológico Direto
+    translated_name: Direct parasitological exam result
+    description: >
+      Result of the direct microscopic search for Leishmania parasites in a
+      skin-lesion sample from a cutaneous leishmaniasis suspect, the
+      laboratory test that, if positive, confirms the case outright.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LTA_v5.pdf (Leishmaniose Tegumentar Americana), campo 36.
+
+  LEUCOPENIA:
+    official_name: Sinais clínicos - Leucopenia
+    translated_name: Leucopenia (low white-cell count)
+    description: >
+      Whether a Dengue/Chikungunya patient's blood tested with an abnormally
+      low white-cell level (leucopenia), one lab finding listed alongside
+      clinical signs like fever or rash on the notification form.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_ONLINE.pdf (Dengue/Chikungunya Sinan Online), campo 33.
+
+  MANIPULA:
+    official_name: Manipulação de Material com T. Cruzi
+    translated_name: Handled material containing T. cruzi
+    description: >
+      Whether the acute Chagas patient handled laboratory or other material
+      containing Trypanosoma cruzi, flagging accidental/occupational exposure
+      as a possible infection route distinct from vector or oral transmission.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 38.
+
+  MED_OUTRO:
+    official_name: Medidas Tomadas - Outros
+    translated_name: Other control measure taken
+    description: >
+      Whether some control measure other than triatomine-bug control,
+      hemotherapy-unit inspection, or lab biosafety implementation was carried
+      out in response to an acute Chagas case.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 56.
+
+  MENINGOE:
+    official_name: Sinais e sintomas - Sinais de Meningoencefalite
+    translated_name: Meningoencephalitis signs
+    description: >
+      Whether the acute Chagas patient showed signs of meningoencephalitis, a
+      rare but severe central-nervous-system manifestation listed among the
+      form's clinical sign checkboxes.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 41.
+
+  MODODETECT:
+    official_name: Modo de detecção de caso novo
+    translated_name: New-case detection method
+    description: >
+      How a new leprosy case was found - referral, spontaneous demand,
+      population screening, or contact examination - filled only when
+      MODOENTR marks the record as a new case rather than a transfer or relapse.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 39.
+
+  MODOENTR:
+    official_name: Modo de entrada
+    translated_name: Case entry mode
+    description: >
+      How the patient entered the leprosy record: new case, transfer from
+      another facility, municipality, state, or abroad, relapse, or other
+      re-admission; distinct from how a new case was first detected.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 38.
+
+  MUNIRESAT:
+    official_name: Município de residência atual
+    translated_name: Current municipality of residence
+    description: >
+      IBGE code of the leprosy patient's municipality of residence as of the
+      most recent follow-up visit, auto-filled from the notification but
+      editable if the patient later moves.
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento, campo 7.
+
+  NERVOSAFET:
+    official_name: Nº de nervos afetados
+    translated_name: Number of nerves affected
+    description: >
+      Number of peripheral nerves found clinically affected in a leprosy
+      patient at diagnosis, distinct from NU_LESOES which tallies skin lesions.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 36.
+
+  NU_LESOES:
+    official_name: Nº de lesões cutâneas
+    translated_name: Number of skin lesions
+    description: >
+      Number of dermatological lesions a leprosy patient presented at
+      diagnosis; system versions before 1.3 capped this tally at 20.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 33.
+
+  NU_LOTE_IA:
+    official_name: Transferência vertical da investigação e do acompanhamento
+    translated_name: Vertical-transfer batch number
+    description: >
+      Internal batch identifier stamped on a leprosy investigation/follow-up
+      record when it is moved between levels of the SINAN hierarchy (e.g.
+      municipal to state); not a diagnostic or clinical value.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento.
+
+  PETEQUIA_N:
+    official_name: Sinais clínicos - Petéquias
+    translated_name: Petechiae
+    description: >
+      Whether a Dengue/Chikungunya patient showed petechiae, small spontaneous
+      skin hemorrhages, one of the clinical signs recorded at notification
+      alongside fever, rash, and joint pain.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_ONLINE.pdf (Dengue/Chikungunya Sinan Online), campo 33.
+
+  PRESENCA:
+    official_name: Presença de Vestígios de Triatomídeos Intra-Domicílio
+    translated_name: Triatomine-bug traces found in the home
+    description: >
+      Whether feces, exoskeletons, or live/dead triatomine ("barbeiro") bugs
+      were found inside the home of an acute Chagas suspect, the main
+      epidemiological antecedent for vector-borne transmission.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 34.
+
+  PROSTACAO:
+    official_name: Sinais e Sintomas - Prostração
+    translated_name: Prostration
+    description: >
+      Whether the patient showed prostration (marked physical weakness), one
+      of the clinical signs recorded for Febre Maculosa (spotted fever) cases
+      from 2007 onward, after the field was dropped from the Dengue form.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Maculosa_v5.pdf, campo 33.
+
+  RENAL:
+    official_name: Doenças pré-existentes - Doença renal crônica
+    translated_name: Pre-existing chronic kidney disease
+    description: >
+      Whether the patient had pre-existing chronic kidney disease noted at
+      Dengue/Chikungunya notification, distinct from any acute kidney injury
+      recorded later among that illness's severity signs.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_ONLINE.pdf (Dengue/Chikungunya Sinan Online), campo 34.

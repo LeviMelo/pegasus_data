@@ -1,0 +1,405 @@
+system: SISCAN
+asserted_by: pegasus_data
+variables:
+  CO_RECOMENDACAO:
+    official_name: Recomendação de conduta
+    translated_name: Recommended follow-up action
+    description: >
+      Follow-up action tied to the mammogram's BI-RADS category: repeat
+      mammography in 2 years for categories 1-2, radiological control in
+      6-12 months for category 3, biopsy for categories 4-5, or specific
+      treatment for category 6.
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Quadro 10 - Recomendacao de conduta
+
+  CO_RISCO_ELEVADO:
+    official_name: Risco elevado
+    translated_name: Elevated breast-cancer risk
+    description: >
+      Whether the patient meets INCA's high-risk criteria for breast
+      cancer: a first-degree relative diagnosed before 50, bilateral or
+      ovarian cancer, male breast cancer, an atypical proliferative
+      lesion, or the patient's own prior breast cancer.
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 2
+
+  CO_TEMPO_MAMO_ANTERIOR:
+    official_name: Fez mamografia alguma vez
+    translated_name: Prior mammogram history
+    description: >
+      Whether the patient ever had a mammogram before this request and,
+      if so, the year of the last one; the other options are "never" and
+      "does not know".
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 4
+
+  CO_TEM_NODULO:
+    official_name: Tem nódulo ou caroço na mama
+    translated_name: Reported breast lump
+    description: >
+      Whether the patient reports a palpable lump in the breast at the
+      time of the request, recorded separately for the right breast, the
+      left breast, or marked absent.
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 1
+
+  NU_TAMANHO_NODULO:
+    official_name: Tamanho do nódulo
+    translated_name: Nodule size band
+    description: >
+      Banded size of the largest mammographic nodule, measured as its
+      longest axis: under 10mm, 11-20mm, 21-50mm, or over 50mm.
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Nodulo, campo Tamanho, p.22
+
+  ST_MICROCALCIFICACAO:
+    official_name: Microcalcificações
+    translated_name: Microcalcifications present
+    description: >
+      Whether microcalcifications, small calcium-density particles that
+      can mark ductal carcinoma in situ, are present in the breast tissue
+      specimen examined by the pathologist.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Field label "Microcalcificações" and lookup MICROCALC.CNV in
+      TAB_SISCAN.rar!histo_mama.def name a presence flag; DATASUS ST_
+      prefix marks status/boolean fields per the naming grammar.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_mama.def, field MICROCALC
+
+  TP_ACHADO_COLPOSCOPICO:
+    official_name: Achado colposcópico
+    translated_name: Colposcopic finding
+    description: >
+      Colposcopy classification under the Brazilian/IFCPC 2011
+      nomenclature: normal findings, minor (grade 1) or major (grade 2)
+      abnormal findings, suspicion of invasive cancer, or an unsatisfactory
+      exam.
+    code_system: none
+    source: web
+    source_ref: >
+      Achados colposcopicos anormais: grau 1 (menor), Revista Brasileira de
+      Patologia do Trato Genital Inferior,
+      rbptgi.emnuvens.com.br/revista/article/view/113 (IFCPC Rio de
+      Janeiro 2011 nomenclature)
+
+  TP_DESCARGA_PAPILAR:
+    official_name: Descarga papilar
+    translated_name: Nipple discharge type
+    description: >
+      Type of spontaneous nipple discharge reported by the patient: clear
+      or serous ("cristalina") versus bloody ("hemorrágica"), one of the
+      breast-cancer warning signs on the request form.
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Subitem 5a
+
+  TP_DETECCAO_LESAO:
+    official_name: Detecção da lesão
+    translated_name: How the lesion was detected
+    description: >
+      How the breast lesion sent for histopathology was first found:
+      through clinical or self breast exam, screening mammography,
+      diagnostic mammography, or another imaging method.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Field label "Detecção da lesão" (lookup CCLIDETEC.CNV) in
+      TAB_SISCAN.rar!histo_mama.def names the detection route; SISCAN's
+      mammography request already distinguishes clinical-finding-driven
+      exams from screening exams, the same split reused here.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_mama.def, field DET_LESAO
+
+  TP_DIAGNOSTICO_IMAGEM:
+    official_name: Diagnóstico por imagem
+    translated_name: Imaging modality
+    description: >
+      Imaging method, such as mammography, ultrasound, or magnetic
+      resonance, that identified the finding for which the breast biopsy
+      or surgical specimen was obtained.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Field label "Diagn_imagem" (lookup diagn_imagem.cnv) in
+      TAB_SISCAN.rar!histo_mama.def, a TP_ (tipo) field naming which
+      imaging technique drove the diagnosis.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_mama.def, field DIAG_IMAG
+
+  TP_ENCAMINHAMENTO:
+    official_name: Tipo de encaminhamento
+    translated_name: Referral reason
+    description: >
+      Reason the patient was referred for cervical histopathology: an
+      abnormal Pap smear result, an abnormal colposcopy finding, or
+      another clinical indication that prompted the biopsy.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Field label "Tipo Encaminhamento" (lookup tpencaminh.CNV) in
+      TAB_SISCAN.rar!histo_colo.def, on the cervical histopathology
+      request; SISCAN routes patients to biopsy from either altered
+      cytology or altered colposcopy.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_colo.def, field TP_ENCAMINH
+
+  TP_EXAME_HISTOPATOLOGICO:
+    official_name: Procedimento cirúrgico
+    translated_name: Specimen-collection procedure
+    description: >
+      How the breast tissue was obtained for histopathology: needle/core
+      biopsy, incisional or excisional surgical biopsy, segmentectomy, or
+      mastectomy, among other listed procedure types.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Field label "Proc. Cirúrgico" (lookup
+      TP_PROCEDIMENTO_CIRURGICO_HISTO.CNV) in
+      TAB_SISCAN.rar!histo_mama.def; procedure names match the breast
+      surgery list defined on INCA's mammography request form (biópsia
+      incisional/excisional, segmentectomia, mastectomia, etc.).
+    source_ref: >
+      TAB_SISCAN.rar!histo_mama.def, field PROC_CIR + Orientacoes para
+      elaboracao de laudo no SISMAMA (INCA, 2011), Campo 11 definicoes
+
+  TP_GRAU_DIFERENCIACAO:
+    official_name: Grau de diferenciação
+    translated_name: Tumor differentiation grade
+    description: >
+      How closely an invasive cervical carcinoma resembles normal tissue
+      under the microscope: well, moderately, or poorly differentiated, a
+      marker of how aggressive the tumor is.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Field label "Grau de diferenciação" (lookup DifGrau.CNV) in
+      TAB_SISCAN.rar!histo_colo.def; well/moderate/poor differentiation is
+      the standard pathology grading scale for invasive carcinoma.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_colo.def, field GRAU_DIFER
+
+  TP_GRAU_HISTOLOGICO:
+    official_name: Grau histológico
+    translated_name: Histological grade
+    description: >
+      Breast tumor grade on the Nottingham/Scarff-Bloom-Richardson scale:
+      Grade I, II, or III, combining tubule formation, nuclear
+      pleomorphism, and mitotic count into one aggressiveness score.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Field label "Grau Histológico" (lookup CHISGRAU.CNV) in
+      TAB_SISCAN.rar!histo_mama.def; this is the standard breast-cancer
+      grading scheme used throughout INCA pathology guidance.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_mama.def, field GRAU_HIST
+
+  TP_LATERALIDADE_LESAO:
+    official_name: Mama (histopatológico)
+    translated_name: Lesion laterality
+    description: >
+      Which breast the biopsied or excised lesion sent for histopathology
+      came from: right, left, or bilateral.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Def field LATER_MAMA, labeled "Mama" (lookup CCLIMATMAM.CNV) in
+      TAB_SISCAN.rar!histo_mama.def, the laterality field DATASUS renamed
+      TP_LATERALIDADE_LESAO in this series' modern export.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_mama.def, field LATER_MAMA
+
+  TP_LATERALIDADE_MAMA:
+    official_name: Mama (citopatológico)
+    translated_name: Breast side sampled
+    description: >
+      Which breast the cytology material, nipple discharge or a
+      needle-aspirated nodule, was collected from: right or left, distinct
+      from TP_LATERALIDADE_LESAO's histopathology-request counterpart.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    depends_on: [TP_LATERALIDADE_LESAO]
+    reasoning: >
+      Def field LATER_MAMA, labeled "Mama" (lookup CCLIMATMAM.CNV) in
+      TAB_SISCAN.rar!cito_mama.def, the same laterality concept as
+      TP_LATERALIDADE_LESAO but on the cytology request series.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!cito_mama.def, field LATER_MAMA
+
+  TP_LESAO:
+    official_name: Tipo de lesão
+    translated_name: Lesion type
+    description: >
+      Overall histopathological classification of the breast specimen:
+      benign lesion, proliferative lesion, in-situ neoplasia, or invasive
+      malignant neoplasia, ahead of any malignant subtype detail.
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Def label "Tipo Lesão" (lookup TP_LESAO.CNV) in
+      TAB_SISCAN.rar!histo_mama.def, already bound as a codelist in the
+      catalog; it precedes and is more general than LESAO_CNM
+      (TP_LESAO_CARAT_NEOPL_MALI), which characterizes malignant cases
+      specifically.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_mama.def, field TP_LESAO
+
+  TP_LESAO_CARAT_NEOPL_MALI:
+    official_name: Lesão característica de neoplasia maligna
+    translated_name: Malignant neoplasia subtype
+    description: >
+      Specific malignant breast tumor subtype recorded when TP_LESAO is
+      malignant: for example invasive or in-situ ductal carcinoma, or
+      invasive or in-situ lobular carcinoma.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    depends_on: [TP_LESAO]
+    reasoning: >
+      Def label "Les carat neo mal" (lookup CNEOMALIG.CNV, "categoria
+      neoplasia maligna") in TAB_SISCAN.rar!histo_mama.def.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_mama.def, field LESAO_CNM
+
+  TP_LESAO_CARAT_NEOP_PRENEO:
+    official_name: Resultado neoplasia pré-neoplásica escamosa
+    translated_name: Squamous pre-neoplastic lesion grade
+    description: >
+      Grade of squamous pre-cancerous cervical lesion found on
+      histopathology: cervical intraepithelial neoplasia I, II, or III, or
+      squamous carcinoma in situ.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Def label "Res_Neopl_Preneo_Escam" (lookup
+      RES_NEOPL_PRENEO_ESCAM.cnv) in TAB_SISCAN.rar!histo_colo.def; NIC
+      I-III is the standard grading for squamous cervical pre-cancer.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_colo.def, field R_NEOPREESC
+
+  TP_LESAO_CARAT_NEOP_PREN_AD:
+    official_name: Resultado neoplasia glandular
+    translated_name: Glandular pre-neoplastic lesion grade
+    description: >
+      Glandular, as opposed to squamous, pre-cancerous or cancerous
+      finding on cervical histopathology: adenocarcinoma in situ or
+      invasive adenocarcinoma.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    depends_on: [TP_LESAO_CARAT_NEOP_PRENEO]
+    reasoning: >
+      Def label "Res_Neopl_Glandular" (lookup RES_NEOPLl_GLANDULAR.cnv) in
+      TAB_SISCAN.rar!histo_colo.def, the glandular counterpart to
+      TP_LESAO_CARAT_NEOP_PRENEO's squamous result.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_colo.def, field R_NEOGLAND
+
+  TP_LINFONODO_AXILAR_PALPAVEL:
+    official_name: Linfonodo axilar palpável
+    translated_name: Palpable axillary lymph node
+    description: >
+      Whether an axillary lymph node was felt as enlarged on clinical
+      breast exam at the time the histopathology specimen was requested:
+      yes or no.
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: >
+      Def label "Linf axil palp" (lookup CCLILINFO.CNV) in
+      TAB_SISCAN.rar!histo_mama.def, a clinical-exam finding distinct from
+      the mammographic axillary-lymph-node fields TP_LINFONODO_DIR/ESQ.
+    source_ref: >
+      naming grammar + TAB_SISCAN.rar!histo_mama.def, field LINF_A_PAL
+
+  TP_LINFONODO_DIR:
+    official_name: Linfonodo axilar mama direita
+    translated_name: Right axillary lymph node finding
+    description: >
+      Mammography reading of the right axillary lymph nodes: normal, not
+      visualized, enlarged (over 20mm without a fatty hilum), dense, or
+      confluent/grouped.
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Linfonodos axilares, p.30
+
+  TP_LINFONODO_ESQ:
+    official_name: Linfonodo axilar mama esquerda
+    translated_name: Left axillary lymph node finding
+    description: >
+      Same mammographic lymph-node classification as TP_LINFONODO_DIR
+      (normal, not visualized, enlarged, dense, or confluent) but read on
+      the left breast's axilla.
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Linfonodos axilares, p.30
+
+  TP_MAMA_DIR:
+    official_name: Composição da mama direita
+    translated_name: Right breast composition
+    description: >
+      Density category of the right breast on mammography: dense, fatty
+      ("adiposa"), predominantly dense, or predominantly fatty, describing
+      how much glandular tissue was replaced by fat.
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Composicao da mama, p.20
+
+  TP_MAMA_ESQ:
+    official_name: Composição da mama esquerda
+    translated_name: Left breast composition
+    description: >
+      Same breast-density classification as TP_MAMA_DIR (dense, fatty,
+      predominantly dense, or predominantly fatty) but describing the left
+      breast's mammogram.
+    code_system: none
+    source: web
+    source_ref: >
+      Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011),
+      bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Composicao da mama, p.20
