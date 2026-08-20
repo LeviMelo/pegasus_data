@@ -200,7 +200,7 @@ src/pegasus_data/
   explore.py     what is on the server, answered from the shipped map
   translate.py   label data someone already has
 scripts/         operator tools: the doc queue, evidence, validation
-tests/           545 tests, offline
+tests/           541 tests, offline
 ```
 
 ## Things that will trip you up
