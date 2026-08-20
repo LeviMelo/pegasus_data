@@ -1464,6 +1464,8 @@ def run_everything(
             ("profile", lambda: pipeline.profile(systems=system, limit=limit)),
             ("families", pipeline.families),
             ("ledger", lambda: pipeline.ledger(systems=system)),
+            # Needs bindings and profiles both, so it follows the ledger.
+            ("measure-bindings", pipeline.measure_bindings),
         ]
         for name, fn in stages:
             with console.status(f"{name}…"):

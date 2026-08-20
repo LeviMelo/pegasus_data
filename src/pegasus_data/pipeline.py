@@ -853,6 +853,18 @@ class Pipeline:
 
     # ----------------------------------------------------------------- ledger
 
+    def measure_bindings(self) -> StageResult:
+        """Record how much of each column each bound codelist actually decodes.
+
+        Runs after the ledger, because it needs both the bindings and the
+        profiles. Cheap — three grouped scans — and it is what keeps the
+        "decodable" statistic honest.
+        """
+        from .semantics.bindings import measure_bindings
+
+        report = measure_bindings(self.catalog)
+        return StageResult("measure-bindings", counts=report.as_dict())
+
     def ledger(self, *, systems: Sequence[str] | None = None) -> StageResult:
         # Fields the detectors identified get their reference table attached
         # before coverage is computed, so an ICD column is scored against the

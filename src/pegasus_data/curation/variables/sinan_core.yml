@@ -1,0 +1,1199 @@
+# SINAN — core notification-form columns (batch: files-descending, offset 0, limit 90).
+#
+# One row in a SINAN file is one notification (or one notification+investigation)
+# of a compulsorily-notifiable agravo. The fields below are almost entirely the
+# generic "Bloco de Dados Gerais / Notificação Individual / Dados de Residência"
+# header that DATASUS reuses, unchanged in name and mostly unchanged in meaning,
+# across every agravo-specific form (dengue, hanseníase, tuberculose, AIDS, ...).
+# A second, smaller group belongs to the "Doença/Acidente Relacionado ao
+# Trabalho" family of forms (occupational disease/accident), which layers an
+# employment block on top of the same generic header.
+#
+# Provenance shorthand used in source_ref below:
+#   [DIC-NOTIF-IND]  Ministério da Saúde/SVS, "Dicionário de Dados – SINAN NET –
+#                     Versão 5.0" (bloco Notificação Individual + campos internos
+#                     de fluxo), revisado Novembro/2018, fetched from
+#                     http://portalsinan.saude.gov.br/images/documentos/Agravos/
+#                     Notificacao_Individual/DIC_DADOS_NET---Notificao-Individual_rev.pdf
+#   [DIC-DRT-ATG]     Ministério da Saúde/SVS, "Dicionário de Dados – SINAN NET –
+#                     Versão 5.0 — Agravo: DRT Acidente Trabalho Grave", revisado
+#                     Julho/2010, fetched from http://portalsinan.saude.gov.br/
+#                     images/documentos/Agravos/DRT%20Acidente%20Trabalho%20Grave/
+#                     DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf
+#
+# NOT WRITTEN, on purpose (evidence too thin to trust — see the run's final
+# report for the full list and reasoning): TRA_MUNICI, TRA_UF, MUNICIPIO, UF,
+# TP_SISTEMA, AFAST_TRAB, AFAST_RISC, COLETIVA, INDIVIDUAL, MUDA_TRAB, NENHUM,
+# CONDUTA, CONDUT_DES, TRAB_DOE, CO_UF_DES1, CO_UF_DES2, CO_UF_DES3, DT_DESC1.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  # ------------------------------------------------------- notification identity
+
+  TP_NOT:
+    official_name: Tipo de Notificação
+    translated_name: Notification type
+    description: >
+      What kind of record this notification is: 1 Negativa (a unit's periodic
+      "nothing to report" filing), 2 Individual (one case), 3 Surto (an outbreak,
+      one record standing for a cluster), 4 Agregado (aggregated totals, no
+      individual case data). Most epidemiological analyses want TP_NOT = 2 only —
+      surto and agregado records do not carry the per-patient fields the rest of
+      this file describes, and negativa records are not cases at all.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "1. Tipo de Notificação | tp_notificacao | varchar2(1) |
+      1 – Negativa; 2 – Individual; 3 – Surto; 4 – Agregado | Identifica o tipo
+      da notificação | Campo Obrigatório | TP_NOT"
+
+  ID_AGRAVO:
+    official_name: Agravo/doença
+    translated_name: Notifiable disease/condition
+    description: >
+      The notifiable condition this record reports, coded from SINAN's own
+      catalogue of compulsorily-notifiable agravos, which is anchored to CID-10
+      for classifiable diseases but also carries codes for aggregated syndromes
+      (febre hemorrágica aguda, diarreia aguda sanguinolenta, etc.) that are not
+      single CID-10 codes. This is the field that tells you which agravo-specific
+      form (and which agravo-specific CRITERIO/CLASSI_FIN/EVOLUCAO codelist)
+      applies to the rest of the record.
+    code_system: external
+    codelists: [AGRAVNET, AGRAVOSSURTO, AGRAVSURT, AGUDOSNET, COMPNAC, CRONICASNET]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "2. Agravo | co_cid | varchar2(4) | Nome e código do agravo
+      notificado segundo CID-10 (Centro Colaborador da OMS para a Classificação
+      de Doenças em Português) ... classificados como notificação compulsória
+      (nacional, estadual ou municipal) e as síndromes | Campo Chave"
+    notes: >
+      A single physical file (a "série") is usually already filtered to one
+      ID_AGRAVO family — the catalog's per-series codelist proliferation
+      (AGRAVNET, AGRAVOSSURTO, ...) reflects that different agravo groups use
+      different sub-tables of the same underlying agravo catalogue.
+
+  DT_NOTIFIC:
+    official_name: Data da Notificação
+    translated_name: Notification date
+    description: >
+      Date the notification form was filled in / entered — i.e. when the case
+      became known to the notifying unit, not when the patient fell ill
+      (DT_SIN_PRI) nor when the record reached the national base (DT_DIGITA).
+      Tallying cases by DT_NOTIFIC measures the pace of reporting more than the
+      pace of disease.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "3. Data da Notificação | dt_notificacao | date dd/mm/aaaa |
+      Data de preenchimento da ficha de notificação | Campo Chave | DT_NOTIFIC"
+    notes: >
+      Bound codelists (ANOS, MESES, MESESC, TRIME) are TabNet tabulation axes
+      derived from this date for cross-tabulation, not a code system on the
+      column itself — expect this reported as a SPURIOUS-BINDING? finding.
+
+  NU_ANO:
+    official_name: Ano da notificação
+    translated_name: Notification year
+    description: >
+      The 4-digit calendar year, filled in automatically by the system from
+      DT_NOTIFIC — it is a derived convenience column, not independently
+      reported, so it is exactly as administrative as DT_NOTIFIC and should not
+      be read as year-of-illness.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "(campo interno) | varchar(4) | Ano da notificação |
+      Variável interna preenchida pelo sistema a partir da data de notificação |
+      NU_ANO"
+    depends_on: [DT_NOTIFIC]
+
+  SEM_NOT:
+    official_name: Semana Epidemiológica da Notificação
+    translated_name: Epidemiological week of notification
+    description: >
+      The epidemiological week DT_NOTIFIC falls in, filled in automatically as a
+      6-digit AAAASS string (4-digit year + 2-digit epi-week). Epidemiological
+      weeks follow the CDC/EPI-WEEK convention DATASUS uses system-wide, not the
+      ISO calendar week, so week boundaries will not line up with ISO-week
+      aggregations done elsewhere.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Semana epidemiológica da notificação (campo interno) |
+      ds_semana_notificacao | varchar2(6) | Semana epidemiológica que o caso foi
+      notificado | Preenchida automaticamente, a partir da data de notificação
+      (AAAASS) | SEM_NOT"
+    depends_on: [DT_NOTIFIC]
+    notes: >
+      SEMANAEP is a TabNet tabulation-week table bound to this and several other
+      fields; likely a SPURIOUS-BINDING? for a column that is already a
+      formatted week number, not a coded value needing a label.
+
+  SG_UF_NOT:
+    official_name: UF de Notificação
+    translated_name: State of the notifying unit
+    description: >
+      Two-letter sigla of the state where the notifying health establishment
+      sits — the administrative location of the report, not the patient's home
+      state (SG_UF) or place of probable infection (COUFINF). A patient treated
+      in a referral hospital in another state will show that hospital's state
+      here.
+    code_system: external
+    codelists: [UFCCODIG, UFCODIGO]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "4. UF de Notificação | co_uf_notificacao | varchar2(2) |
+      Sigla da Unidade Federativa onde está localizada a unidade de saúde (ou
+      outra fonte notificadora) que realizou a notificação | Campo Obrigatório |
+      SG_UF_NOT"
+
+  ID_MUNICIP:
+    official_name: Município de Notificação
+    translated_name: Municipality of notification
+    description: >
+      IBGE 6-digit code of the municipality where the notifying health
+      establishment is located — where the case was reported, not where the
+      patient lives (ID_MN_RESI) or was probably infected (COMUNINF).
+    code_system: external
+    codelists: [CAPITAL, CLUSTERBR, MUFROPY, MUNFRONT, MUNFRONT_1, MUNICAC]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "5. Município de Notificação | co_municipio_notificacao |
+      varchar2(6) | Código do município onde está localizada a unidade de saúde
+      (ou outra fonte notificadora) que realizou a notificação | Campo Chave |
+      ID_MUNICIP"
+
+  ID_REGIONA:
+    official_name: Regional de Saúde da Notificação
+    translated_name: Health region of the notifying unit
+    description: >
+      Code of the health-region grouping (regional de saúde) that ID_MUNICIP
+      belongs to, derived by the system from the notifying municipality rather
+      than typed in. Health regions are a state-defined administrative layer
+      (not IBGE-standardised), so the same code number can denote different
+      regions in different states.
+    code_system: internal
+    codelists: [REGIONET]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Regional de saúde (campo interno) | varchar2(4) |
+      Regional de saúde onde está localizado o município da unidade de saúde ou
+      outra fonte notificadora | Sistema relaciona o campo município de
+      notificação com o campo regional da tabela de municípios | ID_REGIONA"
+    depends_on: [ID_MUNICIP]
+
+  ID_UNIDADE:
+    official_name: Unidade de Saúde Notificadora
+    translated_name: Notifying health facility
+    description: >
+      CNES code of the health establishment (or other notifying source) that
+      attended and reported the case — the facility, not the municipality or
+      state it sits in.
+    code_system: external
+    codelists: [AB, NHE, NHENIVEL, NHEUNIDADE, NHE_NIVEL_MUN, UNIDANET]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "6. Unidade de saúde ou outra fonte notificadora |
+      co_unidade_notificacao | number(8,0) | Nome completo e código da unidade
+      de saúde (ou outra fonte notificadora) que realizou o atendimento e
+      notificação do caso | Códigos e nomes da tabela do Cadastro Nacional de
+      Estabelecimento de Saúde (CNES) | Campo Obrigatório | ID_UNIDADE"
+
+  # -------------------------------------------------------------- who: patient
+
+  NU_IDADE_N:
+    official_name: Idade
+    translated_name: Age, coded
+    description: >
+      Patient's age at DT_SIN_PRI (or at DT_NASC if no symptom date), packed as
+      a 4-digit code whose first digit is the time unit — 1 hour, 2 day, 3
+      month, 4 year — and whose last 3 digits are the magnitude in that unit.
+      3009 is 9 months old; 4018 is 18 years old. A naive numeric read of the
+      column (treating it as a plain age-in-years integer) will badly
+      mis-scale every infant and child record.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "10. Idade | nu_idade | number(4) | A composição da
+      variável obedece o seguinte critério: 1o dígito: 1.Hora 2.Dia 3.Mês
+      4.Ano ... Ex: 3009 – nove meses, 4018 – dezoito anos | Campo Obrigatório |
+      NU_IDADE_N"
+    notes: >
+      Bound age-band codelists (FX14A69, FXIDAD10NET, FXIDAD13NET, ...) are
+      TabNet age-group tabulation axes derived from this coded number, not a
+      code system for the column itself — expect a SPURIOUS-BINDING? report for
+      code_system 'none' against these bindings, same pattern as a date field
+      bound to ANOS/MESES.
+
+  CS_SEXO:
+    official_name: Sexo
+    translated_name: Sex
+    description: >
+      Patient's sex: M Masculino, F Feminino, I Ignorado. Gates CS_GESTANT — the
+      system auto-disables the pregnancy field whenever this is Masculino.
+    code_system: internal
+    codelists: [SEXO]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "11. Sexo | tp_sexo | varchar2(1) | M- Masculino;
+      F- Feminino; I- Ignorado | Sexo do paciente | Campo Obrigatório | CS_SEXO"
+
+  CS_GESTANT:
+    official_name: Gestante
+    translated_name: Pregnancy status/trimester
+    description: >
+      Gestational status at notification: 1/2/3 first/second/third trimester,
+      4 idade gestacional ignorada, 5 Não (not pregnant), 6 Não se aplica
+      (male, or an agravo whose form doesn't ask), 9 Ignorado. Auto-filled by
+      the system — 6 for every male record, 5 for females 10 or younger — so a
+      "5 Não" for an adult woman is a real assertion but a "6" mixes true
+      not-applicable cases with every male record.
+    code_system: internal
+    codelists: [GESTANTE]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "12. Gestante | tp_gestante | varchar2(1) | 1. 1º
+      Trimestre; 2. 2º Trimestre; 3. 3º Trimestre; 4. Idade gestacional
+      ignorada; 5. Não; 6. Não se aplica; 9. Ignorado | Idade gestacional da
+      paciente | CS_GESTANT"
+    depends_on: [CS_SEXO, NU_IDADE_N]
+
+  CS_RACA:
+    official_name: Raça/Cor
+    translated_name: Race/skin colour
+    description: >
+      Self-declared race/colour: 1 branca, 2 preta, 3 amarela, 4 parda,
+      5 indígena, 9 Ignorado — the same five-category self-declaration scheme
+      IBGE uses (parda covers mulata/cabocla/mestiça-style self-description).
+    code_system: internal
+    codelists: [RAÇA]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "13. Raça/Cor | tp_raca_cor | varchar2(1) | 1- branca;
+      2- preta; 3- amarela; 4- parda; 5- indígena; 9 Ignorado | Considera-se cor
+      ou raça declarada pela pessoa | Campo Essencial | CS_RACA"
+
+  CS_ESCOL_N:
+    official_name: Escolaridade
+    translated_name: Education level
+    description: >
+      Highest school grade completed or being attended at notification, on a
+      10-point scale from 1 (1ª-4ª série incompleta) to 8 (educação superior
+      completa), plus 9 Ignorado and 10 Não se aplica. The system auto-fills 10
+      for patients under 7 — so "não se aplica" mixes real too-young-for-school
+      cases with the system default, and it cannot legitimately appear for an
+      older patient.
+    code_system: internal
+    codelists: [ESCOLARNET]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "14. Escolaridade | tp_escolaridade | varchar2(2) |
+      43 Analfabeto; 1. 1ª a 4ª série incompleta do EF ... 9. Ignorado;
+      10. Não se aplica | grau de instrução do paciente por ocasião da
+      notificação | Campo Essencial | CS_ESCOL_N"
+    depends_on: [NU_IDADE_N]
+
+  ID_OCUPA_N:
+    official_name: Ocupação
+    translated_name: Occupation (CBO)
+    description: >
+      Patient's occupation coded to the Classificação Brasileira de Ocupações
+      (CBO). On the occupational-disease/accident family of forms this is the
+      occupation of the person injured/made ill, and it is mandatory there.
+    code_system: external
+    codelists: [GRUPO1A, OCUPANET, SEMOCUPA]
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "31. Ocupação | co_cbo_ocupacao | varchar2(6) | Ocupação do
+      indivíduo que sofreu o agravo | Campo Obrigatório | ID_OCUPA_N"
+    notes: >
+      Confirmed against the occupational-accident form; the same field name and
+      CBO binding is used across other SINAN forms that carry an ID_OCUPA_N
+      column, so the underlying concept (CBO-coded occupation) is expected to
+      hold generically even where the specific ficha differs.
+
+  ANO_NASC:
+    official_name: Ano de Nascimento
+    translated_name: Birth year
+    description: >
+      4-digit birth year. A coarser sibling of NU_IDADE_N/DT_NASC used on some
+      agravo forms — likely a fallback for when the exact birth date isn't
+      known but the year is.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ANO_ is SINAN/DATASUS's prefix for a plain calendar year, NASC is
+      nascimento (birth); the declared width (4 characters, occasionally 8) and
+      no codelist binding are consistent with a bare year rather than a coded
+      category.
+    notes: >
+      Not documented in the two SINAN dictionaries checked for this batch (the
+      generic Notificação Individual header uses DT_NASC, a full date, not this
+      field) — treat the "year only" reading as a naming-convention inference,
+      not a confirmed layout definition.
+
+  # ------------------------------------------------------------- where: residence
+
+  SG_UF:
+    official_name: UF de Residência
+    translated_name: State of residence
+    description: >
+      Two-letter sigla of the state where the patient lived at notification.
+      Mandatory only for patients resident in Brazil — the system defaults it
+      to blank and instead asks for a foreign nation when no Brazilian UF is
+      chosen.
+    code_system: external
+    codelists: [UF, UFCCODIG, UFCODIGO]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "17. UF | co_uf_residencia | varchar2(2) | Sigla da
+      Unidade Federada de residência do paciente por ocasião da notificação |
+      Campo Obrigatório se residente no Brasil | SG_UF"
+
+  ID_MN_RESI:
+    official_name: Município de Residência
+    translated_name: Municipality of residence
+    description: >
+      IBGE 6-digit code of the municipality where the patient lived at
+      notification — not where they were treated (ID_MUNICIP) or probably
+      infected (COMUNINF).
+    code_system: external
+    codelists: [CAPITAL, CLUSTERBR, MUFROPY, MUNFRONT, MUNFRONT_1, MUNICAC]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "18. Município de residência | co_municipio_residencia |
+      varchar2(6) | Código do município de residência do caso notificado |
+      ID_MN_RESI"
+
+  ID_RG_RESI:
+    official_name: Regional de Saúde da Residência
+    translated_name: Health region of residence
+    description: >
+      Code of the health-region grouping that the patient's residence
+      municipality (ID_MN_RESI) belongs to, derived by the system rather than
+      typed in — the residence-side twin of ID_REGIONA.
+    code_system: internal
+    codelists: [REGIONET]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Regional de saúde (campo interno) | varchar2(4) |
+      Regional de saúde onde está localizado o município de residência do
+      paciente por ocasião da notificação | ID_RG_RESI"
+    depends_on: [ID_MN_RESI]
+
+  ID_PAIS:
+    official_name: País de Residência
+    translated_name: Country of residence
+    description: >
+      Nation the patient was living in at notification, from DATASUS's own
+      nation-code table (not necessarily ISO-3166 codes). Defaults to "Brasil"
+      automatically whenever a Brazilian UF is entered in SG_UF.
+    code_system: internal
+    codelists: [PAISNET]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "30. País (se residente fora do Brasil) |
+      co_pais_residencia | varchar(4) | País onde residia o paciente por
+      ocasião da notificação | Campo Obrigatório; Se UF for digitada este campo
+      é preenchido automaticamente com 'Brasil' | ID_PAIS"
+
+  # --------------------------------------------------------- clinical timeline
+
+  DT_SIN_PRI:
+    official_name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    translated_name: Onset date / diagnosis date
+    description: >
+      For an acute agravo this is the date of first symptoms; for a chronic
+      agravo, or a work-related condition (DRT), the same physical field instead
+      holds the diagnosis date. Which meaning applies depends entirely on
+      ID_AGRAVO / which form produced the file — a single global "date of
+      onset" reading of this column across agravos of both kinds will silently
+      mix incubation-period dates with diagnosis dates.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "7. Data dos primeiros sintomas / Diagnóstico |
+      dt_diagnostico_sintoma | date dd/mm/aaaa | Data dos primeiros sintomas do
+      caso de agravo agudo. Data do diagnostico do caso de agravo crônico e
+      DRTs ... Data do acidente nos acidentes da saúde do trabalhador | Campo
+      Obrigatório; Data <= Data de Notificação | DT_SIN_PRI"
+
+  SEM_PRI:
+    official_name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    translated_name: Epidemiological week of onset/diagnosis
+    description: >
+      Epi-week (AAAASS) of DT_SIN_PRI, filled in automatically — inherits the
+      same acute-vs-chronic ambiguity as DT_SIN_PRI.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Semana epidemiológica dos primeiros sintomas/
+      diagnósticos (campo interno) | ds_semana_sintoma | varchar2(6) | Semana
+      epidemiológica dos primeiros sintomas ... data do diagnostico |
+      SEM_PRI"
+    depends_on: [DT_SIN_PRI]
+
+  DT_DIAG:
+    official_name: Data do Diagnóstico
+    translated_name: Diagnosis date
+    description: >
+      Date of diagnosis, distinct from DT_SIN_PRI, used on agravo forms that
+      track a separate diagnosis milestone (the COORTE_TB binding on this field
+      points at tuberculosis cohort-analysis use).
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ is SINAN's date prefix and DIAG is the standard abbreviation for
+      diagnóstico used elsewhere in this same dictionary (e.g. the field 7
+      description above); the column is declared D(8), a plain date width, with
+      no codelist beyond TabNet's generic year/month/quarter axes and a
+      TB-cohort table.
+    notes: Not itself named in the two dictionaries fetched for this batch.
+
+  SEM_DIAG:
+    official_name: Semana Epidemiológica do Diagnóstico
+    translated_name: Epidemiological week of diagnosis
+    description: Epi-week (6-digit AAAASS) corresponding to DT_DIAG.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SEM_ is SINAN's epi-week prefix (see SEM_NOT, SEM_PRI, both C(6-7)
+      AAAASS strings derived from a sibling date field); DIAG mirrors DT_DIAG,
+      which this field co-occurs with in the same agravo forms.
+    depends_on: [DT_DIAG]
+
+  DT_INTERNA:
+    official_name: Data de Internação
+    translated_name: Hospitalization date
+    description: Date the patient was admitted to hospital for this case, where the form collects it.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ is the date prefix and INTERNA(ÇÃO) is DATASUS's standard
+      abbreviation for hospital admission, used with the same spelling across
+      SIH and other DATASUS systems; declared D(8), a plain date width.
+
+  DT_INVEST:
+    official_name: Data da Investigação
+    translated_name: Investigation start date
+    description: >
+      Date the epidemiological investigation of the case began — always on or
+      after DT_NOTIFIC, and it is what DT_ENCERRA's own validity rule is
+      measured against.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "31-Data da investigação | dt_investigacao | date
+      dd/mm/aaaa | data de início da investigação do caso | Campo Obrigatório;
+      Data => data da notificação | DT_INVEST"
+    depends_on: [DT_NOTIFIC]
+
+  # ------------------------------------------------------- case conclusion
+
+  CRITERIO:
+    official_name: Critério de Confirmação
+    translated_name: Confirmation/discard criterion
+    description: >
+      How the case was confirmed or discarded — typically laboratorial /
+      clínico-epidemiológico / clínico, but the exact code set (and which
+      numbers mean what) is defined per agravo in SINAN's Anexo I, not
+      globally; a code of "1" means something different for dengue than for
+      tuberculose. Read it together with ID_AGRAVO.
+    code_system: internal
+    codelists: [CONFDESC, CONFDESCA, CONFDESCB, CONFDESCC, CONFDESCDENG2011, CONFDESCDIF]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "33-Critério confirmação | tp_criterio_confirmacao |
+      varchar2(2) | Anexo I | Critério utilizado para confirmação ou descarte
+      do caso notificado | Campo Essencial | CRITERIO"
+    depends_on: [ID_AGRAVO]
+
+  CLASSI_FIN:
+    official_name: Classificação Final
+    translated_name: Final case classification
+    description: >
+      The investigation's final call on the case (confirmed / discarded /
+      inconclusive, or a disease-specific severity split such as dengue's
+      clássico/com sinais de alarme/grave). Like CRITERIO, the code set is
+      defined per agravo in Anexo I — the same digit means different things for
+      different diseases, so this column cannot be compared across ID_AGRAVO
+      values without the matching per-agravo codelist.
+    code_system: internal
+    codelists: [CLASINTO, CLASRC, CLASSCHIK, CLASSDENG, CLASSFA, CLASSHEPAT]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "32-Classificação final | tp_classificacao_final |
+      varchar2(2) | Anexo I | Classificação final do caso após investigação |
+      Campo Obrigatório quando o campo data de encerramento estiver preenchido |
+      CLASSI_FIN"
+    depends_on: [ID_AGRAVO]
+
+  EVOLUCAO:
+    official_name: Evolução do Caso
+    translated_name: Case outcome
+    description: >
+      Clinical outcome of the case — cure, death from the notified agravo,
+      death from another cause, or (for some agravos) a disability grade. The
+      option set again varies by agravo (Anexo I); death is not allowed to be
+      selected unless CLASSI_FIN indicates a confirmed case.
+    code_system: internal
+    codelists: [ALTAOBIT, CURAOBIT, EVOACBIO, EVOACGRA, EVOCANCE, EVODENG]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "41-Evolução do caso | tp_evolucao_caso | varchar2(1) |
+      Anexo I | Evolução do caso | Campo habilitado se Classificação final=1, 2
+      ou null; Não permite a opção óbito pelo agravo notificado se
+      classificação final= 2 ou null | EVOLUCAO"
+    depends_on: [CLASSI_FIN, ID_AGRAVO]
+
+  DT_OBITO:
+    official_name: Data de Óbito
+    translated_name: Date of death
+    description: >
+      Date of death, filled in only when EVOLUCAO records a death (by the
+      notified agravo or by another cause). Must be on or after the onset date
+      (DT_SIN_PRI), or after the accident date on occupational-accident forms.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "42-Data de óbito | dt_obito | Date | Dd/mm/aaaa | Data de
+      óbito | Campo habilitado se campo evolução= 2 ou 3; Campo> = data dos
+      primeiros sintomas | DT_OBITO"
+    depends_on: [EVOLUCAO]
+    notes: >
+      Present but null for the large majority of records — only fill rate
+      among EVOLUCAO deaths is meaningful; a raw null-count is not a
+      data-quality signal by itself.
+
+  DT_ENCERRA:
+    official_name: Data de Encerramento
+    translated_name: Case closure date
+    description: >
+      Date the case was formally closed in SINAN — required whenever
+      CLASSI_FIN is filled in, and required to be on or after DT_INVEST. This
+      is an administrative closing date, not a clinical one; a long gap between
+      DT_NOTIFIC and DT_ENCERRA reflects investigation duration, not disease
+      duration.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "43-Data de encerramento | dt_encerramento | date |
+      Dd/mm/aaaa | Data do encerramento | Campo Obrigatório se a classificação
+      final estiver preenchida; Campo> = data da investigação | DT_ENCERRA"
+    depends_on: [DT_INVEST, CLASSI_FIN]
+
+  TPAUTOCTO:
+    official_name: Caso é Autóctone da Residência?
+    translated_name: Autochthonous to place of residence?
+    description: >
+      Whether the case is judged to have been acquired in the patient's own
+      municipality of residence: 1 Sim, 2 Não, 3 Indeterminado. When 1, the
+      system auto-copies the residence UF/município into COUFINF/COMUNINF; when
+      2, the user must fill in a different probable-infection location; when 3,
+      those fields are skipped. Required only once CLASSI_FIN marks the case
+      confirmed.
+    code_system: internal
+    codelists: [AUTOCTONE]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "34-O caso é Autóctone de residência? |
+      Tp_autoctone_residencia | Varchar2(1) | 1 – Sim; 2 – Não;
+      3 – Indeterminado | Indica se o caso é autóctone do município de
+      residência | Campo Obrigatório se campo classificação final=1
+      (confirmado) | TPAUTOCTO"
+    depends_on: [CLASSI_FIN]
+
+  COUFINF:
+    official_name: UF Provável da Fonte de Infecção
+    translated_name: State of probable infection
+    description: >
+      State where the patient is judged to have probably been infected.
+      Auto-copied from SG_UF when TPAUTOCTO = 1 (autochthonous); entered
+      independently when TPAUTOCTO = 2. Cleared automatically if CLASSI_FIN is
+      later set to discarded.
+    code_system: external
+    codelists: [UFCCODIG, UFCODIGO, UFCSIGLA, UFSIGLA]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "35-UF (provável da fonte de infecção) | co_uf_infeccao |
+      varchar2(2) | Sigla da unidade federada onde o paciente foi
+      provavelmente infectado | Campo Obrigatório se país de infecção= Brasil e
+      se campo classificação final=1(confirmado) | COUFINF"
+    depends_on: [TPAUTOCTO, CLASSI_FIN, SG_UF]
+
+  COPAISINF:
+    official_name: País Provável da Fonte de Infecção
+    translated_name: Country of probable infection
+    description: >
+      Nation where the patient is judged to have probably been infected, from
+      the same DATASUS nation-code table as ID_PAIS. Auto-copied from ID_PAIS
+      when TPAUTOCTO = 1.
+    code_system: internal
+    codelists: [PAISNET]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "36-País (provável da fonte de infecção) |
+      co_pais_infeccao | varchar(4) | País onde o paciente foi provavelmente
+      infectado | Campo Obrigatório se campo classificação final=1(confirmado) |
+      COPAISINF"
+    depends_on: [TPAUTOCTO, CLASSI_FIN, ID_PAIS]
+
+  COMUNINF:
+    official_name: Município Provável da Fonte de Infecção
+    translated_name: Municipality of probable infection
+    description: >
+      IBGE 6-digit code of the municipality judged to be the probable source of
+      infection. Auto-copied from ID_MN_RESI when TPAUTOCTO = 1; independently
+      entered otherwise, and only when COUFINF = Brasil.
+    code_system: external
+    codelists: [MUNICAC, MUNICAL, MUNICAM, MUNICAP, MUNICBA, MUNICBR]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "37-Município (provável da fonte de infecção) |
+      co_municipio_infeccao | varchar2(6) | Código do município onde o
+      paciente foi provavelmente infectado | Campo Obrigatório se país de
+      infecção = Brasil e se campo classificação final=1(confirmado) |
+      COMUNINF"
+    depends_on: [TPAUTOCTO, CLASSI_FIN, ID_MN_RESI]
+
+  ATE_MUNICI:
+    official_name: Município de Atendimento
+    translated_name: Municipality of medical care
+    description: >
+      IBGE municipality code of where the patient received medical care for
+      this case — a fourth place-of-X field alongside notification (ID_MUNICIP),
+      residence (ID_MN_RESI) and probable infection (COMUNINF).
+    code_system: external
+    codelists: [MUNICAC, MUNICAL, MUNICAM, MUNICAP, MUNICBA, MUNICBR]
+    source: inferred
+    reasoning: >
+      ATE_ is short for atendimento (medical care), matching the confirmed
+      MUN_ATENDE field on the occupational-accident dictionary ("Município do
+      Atendimento ... Habilitar se campo 58 Ocorreu Atendimento Médico? =1"),
+      and this column binds to the same municipality codelists as the other
+      município fields in this file.
+    notes: >
+      Appears on the diphtheria/leptospirose/meningite/PFA family of forms in
+      the evidence, not on the DRT form that names MUN_ATENDE directly — the
+      "attendance municipality" reading is a cross-form analogy, not a
+      confirmed layout for this specific form.
+
+  DOENCA_TRA:
+    official_name: Doença Relacionada ao Trabalho
+    translated_name: Work-related disease flag
+    description: >
+      Whether the notified condition is judged work-related: 1 Sim, 2 Não,
+      9 Ignorado. Present on the generic notification header (so it can appear
+      on almost any agravo, not only the dedicated DRT forms), and cleared
+      automatically if CLASSI_FIN is set to discarded.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "40-Doença relacionada ao trabalho | st_doenca_trabalho |
+      varchar2(1) | 1 – Sim; 2 – Não; 9 – Ignorado | Indica se a doença esta ou
+      não relacionada ao trabalho | Campo Essencial | DOENCA_TRA"
+    depends_on: [CLASSI_FIN]
+
+  # --------------------------------------------- occupational block (DRT forms)
+
+  SIT_TRAB:
+    official_name: Situação no Mercado de Trabalho
+    translated_name: Labour-market status
+    description: >
+      Employment status of the person at the time of the work-related case: 01
+      empregado c/carteira, 02 empregado s/carteira, 03 autônomo, 04/05 servidor
+      público (estatutário/celetista), 06 aposentado, 07 desempregado,
+      08 trabalho temporário, 09 cooperativado, 10 trabalhador avulso,
+      11 empregador, 12 outros, 99 ignorado.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "32. Situação no mercado de trabalho |
+      tp_mercado_trabalho | varchar2(2) | 01. Empregado registrado com carteira
+      assinada; 02. Empregado não registrado; 03. Autônomo/conta própria; 04.
+      Servidor público estatuário; 05. Servidor público celetista; 06.
+      Aposentado; 07. Desempregado; 08. Trabalho temporário; 09. Cooperativado;
+      10. Trabalhador avulso; 11. Empregador; 12. Outros; 99. Ignorado |
+      Situação de trabalho do indivíduo que sofreu o agravo | Campo Essencial |
+      SIT_TRAB"
+
+  NUTEMPO:
+    official_name: Tempo de Trabalho na Ocupação (valor)
+    translated_name: Time in occupation (magnitude)
+    description: >
+      Numeric magnitude of how long the person had worked in the occupation;
+      the unit (hour/day/month/year) is the paired field TPTEMPO, so this
+      number is meaningless read alone.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "33. Tempo de trabalho na ocupação | nu_tempo_trabalho |
+      number(2) | Informar o tempo trabalho na ocupação | NUTEMPO"
+    depends_on: [TPTEMPO]
+
+  TPTEMPO:
+    official_name: Unidade do Tempo de Trabalho na Ocupação
+    translated_name: Unit for NUTEMPO
+    description: "Unit that NUTEMPO is measured in: 1 hora, 2 dias, 3 meses, 4 anos."
+    code_system: internal
+    codelists: [TPTEMPOTRAB]
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "tp_tempo_trabalho | varchar(1) | 1 = (hora); 2 = (dias);
+      3 = (meses); 4 = (anos) | TPTEMPO"
+    depends_on: [NUTEMPO]
+
+  NUTEMPORIS:
+    official_name: Tempo de Exposição ao Risco (valor)
+    translated_name: Time exposed to risk (magnitude)
+    description: >
+      Numeric magnitude of how long the person was exposed to the occupational
+      risk factor, paired with the unit field TPTEMPORIS — the risk-exposure
+      analogue of NUTEMPO/TPTEMPO (which measure time in the occupation, not
+      time exposed to the specific hazard).
+    code_system: none
+    source: inferred
+    reasoning: >
+      NUTEMPORIS mirrors the confirmed NUTEMPO field's shape (a bare
+      number(2-3) paired with a same-form unit code) and co-occurs with it on
+      the occupational-disease forms; "RIS" reads as risco (risk), and the
+      companion TPTEMPORIS binds to a codelist (HORADIAMESANO — "hora dia mês
+      ano") with exactly NUTEMPO/TPTEMPO's hour/day/month/year shape.
+    depends_on: [TPTEMPORIS]
+
+  TPTEMPORIS:
+    official_name: Unidade do Tempo de Exposição ao Risco
+    translated_name: Unit for NUTEMPORIS
+    description: "Unit that NUTEMPORIS is measured in, on the same hour/day/month/year scale as TPTEMPO."
+    code_system: internal
+    codelists: [HORADIAMESANO]
+    source: inferred
+    reasoning: >
+      Same reasoning as NUTEMPORIS: parallel structure to the confirmed
+      TPTEMPO field, and the bound codelist name (HORADIAMESANO) spells out
+      the same hour/day/month/year domain TPTEMPO uses.
+    depends_on: [NUTEMPORIS]
+
+  CNAE:
+    official_name: Código da Atividade Econômica (CNAE)
+    translated_name: Employer's economic activity (CNAE)
+    description: Classificação Nacional de Atividades Econômicas code of the contracting employer.
+    code_system: external
+    codelists: [CNAENET]
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "37. Código da atividade Econômica(CNAE) | co_cnae |
+      varchar2(10) | Classificação Nacional da Atividade Econômica do
+      Contratante | Campo Essencial | CNAE"
+
+  UF_EMP:
+    official_name: UF da Empresa Contratante
+    translated_name: State of the employer
+    description: State (UF) where the contracting employer is located.
+    code_system: external
+    codelists: [UFCCODIG, UFCODIGO]
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "38. UF | co_uf_empresa | varchar2(2) | Unidade da
+      Federação da empresa contratante | Campo Essencial | UF_EMP"
+
+  MUN_EMP:
+    official_name: Município da Empresa Contratante
+    translated_name: Municipality of the employer
+    description: IBGE municipality code of the contracting employer.
+    code_system: external
+    codelists: [MUNICAC, MUNICAL, MUNICAM, MUNICAP, MUNICBA, MUNICBR]
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "39. Município | co_municipio_empresa | varchar2(6) |
+      Município da empresa Contratante | Código (IBGE) | Campo Essencial |
+      MUN_EMP"
+
+  TERCEIRIZA:
+    official_name: Empregador é Empresa Terceirizada?
+    translated_name: Is the employer a subcontractor?
+    description: >
+      Whether the immediate employer is itself a subcontracted (terceirizada)
+      firm working for a principal company: 01 Sim, 02 Não, 03 Não se aplica,
+      09 Ignorado. When Sim, the form separately captures the principal
+      company's own CNAE/CNPJ/name (not carried in this file).
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "46. O empregador é empresa Terceirizada | 01- Sim;
+      02- Não; 03- Não se aplica; 09- Ignorado | O empregador é de alguma
+      empresa terceirizada | tp_empresa_terceirizada | varchar2(1) |
+      TERCEIRIZA"
+
+  REGIME:
+    official_name: Regime de Tratamento
+    translated_name: Treatment setting
+    description: "How the case was treated: 1 Hospitalar, 2 Ambulatório, 3 Ambos, 9 Ignorado."
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "65. Regime de Tratamento | tp_regime_tratamento |
+      varchar2(1) | 1 – Hospitalar; 2 – Ambulatório; 3 – Ambos; 9 – Ignorado |
+      Campo Essencial | REGIME"
+
+  CAT:
+    official_name: Comunicação de Acidente de Trabalho (CAT) Emitida?
+    translated_name: Work-accident report (CAT) filed?
+    description: >
+      Whether the formal Comunicação de Acidente de Trabalho was issued for
+      this case: 1 Sim, 2 Não, 3 Não se aplica, 9 Ignorado. The CAT is a
+      distinct legal/labour document (feeds INSS benefits), separate from the
+      SINAN notification itself.
+    code_system: internal
+    codelists: [SIM_NAOAP]
+    source: layout_doc
+    source_ref: >
+      [DIC-DRT-ATG] "68. Foi emitida a Comunicação de Acidente no Trabalho -
+      CAT | tp_comunicacao | varchar2(1) | 1 – Sim; 2 – Não; 3 – Não se
+      aplica; 9 – Ignorado | Campo Obrigatório | CAT"
+
+  DIAG_ESP:
+    official_name: Diagnóstico Específico
+    translated_name: Specific diagnosis code
+    description: >
+      A specific-diagnosis code for the occupational condition (e.g. which
+      dermatosis, which mental disorder), narrower than the agravo-group
+      ID_AGRAVO — bound to the same agravo/CID-anchored table family as
+      ID_AGRAVO.
+    code_system: external
+    codelists: [AGRAVNET]
+    source: inferred
+    reasoning: >
+      DIAG_ESP reads as diagnóstico específico; it is declared C(4), the same
+      width as ID_AGRAVO's CID-10-based code, and shares the AGRAVNET codelist
+      binding with ID_AGRAVO.
+    notes: >
+      Not found named in either dictionary fetched for this batch — the exact
+      value domain (whether it is a raw CID-10 code or a SINAN-specific
+      sub-agravo code) is not confirmed.
+
+  # ------------------------------------------------ symptom/comorbidity checklist
+
+  FEBRE:
+    official_name: Febre
+    translated_name: Fever (symptom present)
+    description: "Whether the patient reported fever, on the febrile-illness investigation forms (dengue, chikungunya, febre maculosa, febre tifóide, leishmaniose visceral, ...)."
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: inferred
+    reasoning: >
+      FEBRE is the plain Portuguese word for fever; the column is C(1) bound
+      to the SIM_NAO codelist, matching the shape of every other named
+      yes/no symptom field in this dictionary.
+
+  CLI_FEBRE:
+    official_name: Febre (achado clínico)
+    translated_name: Fever (clinical finding)
+    description: >
+      Clinical-examination record of fever, on forms that separate
+      self-reported symptoms from clinical findings (AIDS criança, difteria,
+      hantavirose, HIV criança, leptospirose, meningite).
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: inferred
+    reasoning: >
+      CLI_ is a recognisable "clínico" prefix distinguishing this from the
+      bare FEBRE symptom field; C(1) bound to SIM_NAO, same shape as CLI_CEFALE
+      and CLI_VOMITO below.
+
+  CEFALEIA:
+    official_name: Cefaleia
+    translated_name: Headache (symptom present)
+    description: Whether the patient reported headache, on the same febrile-illness forms as FEBRE.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: inferred
+    reasoning: >
+      CEFALEIA is the plain Portuguese medical term for headache; C(1) bound to
+      SIM_NAO, co-occurring with FEBRE on the same agravo series.
+
+  CLI_CEFALE:
+    official_name: Cefaleia (achado clínico)
+    translated_name: Headache (clinical finding)
+    description: Clinical-examination record of headache, the CLI_ clinical-finding sibling of CEFALEIA.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: inferred
+    reasoning: Same CLI_ clinical-finding pattern as CLI_FEBRE and CLI_VOMITO, C(1)/N(1) bound to SIM_NAO.
+
+  CLI_VOMITO:
+    official_name: Vômito (achado clínico)
+    translated_name: Vomiting (clinical finding)
+    description: Clinical-examination record of vomiting.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: inferred
+    reasoning: Same CLI_ clinical-finding pattern as CLI_FEBRE and CLI_CEFALE, C(1)/N(1) bound to SIM_NAO.
+
+  DIABETES:
+    official_name: Diabetes
+    translated_name: Diabetes (comorbidity)
+    description: Whether the patient has diabetes as a pre-existing comorbidity, recorded on forms that collect a comorbidity checklist.
+    code_system: internal
+    codelists: [SIM_NAO]
+    source: inferred
+    reasoning: >
+      DIABETES is the plain medical term; C(1) bound to SIM_NAO, matching the
+      shape of an explicit comorbidity checklist rather than a symptom of the
+      notified disease itself.
+
+  TUBE:
+    official_name: Tuberculose
+    translated_name: Tuberculosis (comorbidity)
+    description: >
+      Whether the patient has tuberculosis as a pre-existing comorbidity —
+      inferred by analogy to the confirmed DIABETES comorbidity field, which it
+      co-occurs with on the same occupational-disease series.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      TUBE reads as short for tuberculose; C(1)/C(6), no codelist bound, but
+      appears alongside DIABETES in the same series group with the same
+      bare-boolean shape, on forms (dermatoses/LER/PAIR/pneumoconioses
+      occupational-disease series) that plausibly screen for TB as a
+      confounding comorbidity.
+    notes: Lower confidence than DIABETES — no codelist binding confirms the SIM_NAO domain for this specific column.
+
+  # --------------------------------------------------- record bookkeeping / flow
+
+  NDUPLIC_N:
+    official_name: Não Listar/Não Contar (Duplicidade)
+    translated_name: Duplicate-record flag
+    description: >
+      Flag set by a user running SINAN's duplicate-detection routine: 0/blank
+      not evaluated, 1 not a duplicate (keep it), 2 duplicate (exclude from
+      incidence). Any incidence tally that ignores this column risks including
+      the same case twice under records later identified as duplicates.
+    code_system: internal
+    codelists: [NDUPLIC_N]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Não Listar/Não Contar | tp_duplicidade | varchar2(1) |
+      0 ou branco – Não identificado; 1 – Não é duplicidade (não listar);
+      2 – Duplicidade (não contar) | Identifica duplicidade | NDUPLIC_N"
+
+  IN_VINCULA:
+    official_name: Vinculação
+    translated_name: Linked-record flag
+    description: >
+      Whether this notification was linked (vinculada) to a hanseníase or
+      tuberculose follow-up (acompanhamento) record: 0/blank not linked,
+      1 linked. Set by the system after the linking routine runs, not typed by
+      a user.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Vinculação | st_vincula | varchar2(1) | 0 ou branco –
+      Não Vinculado; 1 – Vinculado | Indica se a notificação foi vinculada |
+      Categoria 1 atribuída pelo sistema após vinculação de notificações de
+      hanseníase ou tuberculose | IN_VINCULA"
+
+  DT_DIGITA:
+    official_name: Data de Digitação
+    translated_name: Data-entry date
+    description: >
+      Date the record was first keyed into SINAN — filled automatically on
+      first entry and, critically, not updated by later edits to the
+      notification. It measures data-entry lag, not the case's clinical
+      timeline, and cannot be used to detect when a record was last changed.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Data de digitação | dt_digitacao | date Dd/mm/aaaa |
+      Preenchida automaticamente na inclusão da notificação no sistema. Não é
+      atualizada se houver alterações de dados na notificação | DT_DIGITA"
+
+  DT_TRANSUS:
+    official_name: Data de Transferência da Unidade de Saúde
+    translated_name: Transfer date — health-facility level
+    description: >
+      Timestamp of SINAN's own internal replication: when this record moved
+      from the notifying health facility's database up to the next level of
+      the system (município). Part of a chain of six DT_TRANS* control fields
+      (US, DM, SM, RM, RS, SE) tracking successive hand-offs up the municipal →
+      regional → state hierarchy; none of these are clinically or
+      epidemiologically meaningful dates.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Data de transferência da unidade de saúde | dt_transf_us
+      | date Dd/mm/aaaa | Data de Transferência do registro da Unidade de
+      Saúde para do nível superior do sistema | Preenchida quando a unidade de
+      saúde realizar a transferência | DT_TRANSUS"
+
+  DT_TRANSDM:
+    official_name: Data de Transferência do Distrito Municipal
+    translated_name: Transfer date — municipal-district level
+    description: >
+      Same internal-replication control as DT_TRANSUS, one level up: when the
+      record moved from the distrito municipal database to the next level.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Data de transferência do distrito municipal |
+      dt_transf_dm | date Dd/mm/aaaa | Data de Transferência do registro do
+      Distrito Municipal para do nível superior do sistema | DT_TRANSDM"
+
+  DT_TRANSSM:
+    official_name: Data de Transferência da Secretaria Municipal de Saúde
+    translated_name: Transfer date — municipal health department level
+    description: Same internal-replication control, at the secretaria municipal de saúde level.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Data de transferência da secretaria municipal de saúde
+      | dt_transf_sm | date Dd/mm/aaaa | Data de Transferência do registro da
+      secretaria municipal para do nível superior do sistema | DT_TRANSSM"
+
+  DT_TRANSRM:
+    official_name: Data de Transferência da Regional Municipal
+    translated_name: Transfer date — municipal-regional level
+    description: Same internal-replication control, at the regional municipal level.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Data de transferência da regional municipal |
+      dt_transf_rm | date Dd/mm/aaaa | Data de Transferência do registro da
+      Regional Municipal para do nível superior do sistema | DT_TRANSRM"
+
+  DT_TRANSRS:
+    official_name: Data de Transferência da Regional de Saúde
+    translated_name: Transfer date — state-regional level
+    description: Same internal-replication control, at the regional de saúde (state-level regional) tier.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Data de transferência da regional de saúde |
+      dt_transf_rs | date Dd/mm/aaaa | Data de Transferência do registro da
+      Regional de Saúde para do nível superior do sistema | DT_TRANSRS"
+
+  DT_TRANSSE:
+    official_name: Data de Transferência da Secretaria Estadual de Saúde
+    translated_name: Transfer date — state health department level
+    description: >
+      Last link in the DT_TRANS* chain: when the record moved from the
+      secretaria estadual de saúde up to the national base.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Data de transferência da secretaria estadual de saúde
+      | dt_transf_se | date Dd/mm/aaaa | Data de Transferência do registro da
+      Secretaria Estadual para do nível superior do sistema | DT_TRANSSE"
+
+  NU_LOTE_V:
+    official_name: Número do Lote de Transferência Vertical
+    translated_name: Vertical-transfer batch number
+    description: >
+      Batch identifier assigned when a group of records is transferred
+      vertically — between different levels of SINAN's município → regional →
+      estado → nacional hierarchy. An implementation detail of the data
+      pipeline, not a case attribute.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Número do lote vertical | nu_lote_vertical | varchar2(7)
+      | Identifica o Lote da transferência realizada (transferência vertical) |
+      Preenchida quando transferência um nível do sistema para outro |
+      NU_LOTE_V"
+
+  NU_LOTE_H:
+    official_name: Número do Lote de Transferência Horizontal
+    translated_name: Horizontal-transfer batch number
+    description: >
+      Batch identifier assigned when a group of records is transferred
+      horizontally — between databases at the same level of the SINAN
+      hierarchy (e.g. between municípios), as opposed to NU_LOTE_V's
+      between-levels transfers.
+    code_system: none
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Número do lote horizontal | nu_lote_horizontal |
+      varchar2(7) | Identifica do Lote da transferência de registros dentro de
+      um mesmo nível do sistema (transferência Horizontal) | NU_LOTE_H"
+
+  NU_LOTE_I:
+    official_name: Número do Lote (tipo I)
+    translated_name: Batch number, third variant
+    description: >
+      A third batch/lot identifier in the same NU_LOTE_ family as NU_LOTE_H
+      (horizontal transfer) and NU_LOTE_V (vertical transfer) — SINAN's own
+      internal record-transfer bookkeeping, not a case attribute.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Shares the NU_LOTE_ prefix, C(7-9) width and no-codelist shape of the
+      confirmed NU_LOTE_H/NU_LOTE_V fields.
+    notes: >
+      Neither dictionary fetched for this batch defines an "I" transfer axis
+      (only horizontal and vertical are documented) — what specifically the
+      "I" denotes is not confirmed; treat this column as "some lot number", not
+      as a specific known transfer direction.
+
+  CS_FLXRET:
+    official_name: Fluxo de Retorno
+    translated_name: Return-flow flag
+    description: >
+      Marks whether a record notified outside the patient's home municipality
+      is queued to be sent back to that home municipality's database: 0 not
+      enabled, 1 enabled for sending, 2 sent. An artefact of SINAN's
+      distributed architecture, not a case attribute.
+    code_system: internal
+    codelists: [CS_FLXRET]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Fluxo de retorno | tp_fluxo_retorno | varchar2(1) |
+      0 - Não habilitado; 1 - habilitado para envio; 2 - enviado | Identifica se
+      o registro está ou foi enviado pelo fluxo de retorno para o município de
+      residência | CS_FLXRET"
+
+  FLXRECEBI:
+    official_name: Recebida por Fluxo de Retorno
+    translated_name: Received via return-flow
+    description: >
+      Internal flag marking a record that arrived at this database through the
+      fluxo de retorno mechanism (CS_FLXRET) — used to recover cases notified
+      outside the patient's home municipality.
+    code_system: internal
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Recebida por fluxo de retorno (campo interno) |
+      tp_fluxo_retorno | varchar2(1) | Identifica se o registro foi recebido
+      pelo fluxo de retorno | Atribuído pelo sistema na rotina de recebimento
+      do fluxo de retorno, utilizada para resgatar casos notificados fora do
+      município de residência | FLXRECEBI"
+    depends_on: [CS_FLXRET]
+
+  MIGRADO_W:
+    official_name: Migrado do SINAN Windows
+    translated_name: Migrated-from-legacy flag
+    description: >
+      Marks a record that originated in the old DOS/Windows-based SINAN and was
+      carried over by the migration routine into SINAN NET, rather than entered
+      directly in SINAN NET.
+    code_system: internal
+    codelists: [MIGRADO]
+    source: layout_doc
+    source_ref: >
+      [DIC-NOTIF-IND] "Identifica migração (campo interno) | st_importado |
+      varchar2(1) | 1- migrado do Sinan Windows | Identifica se o registro é
+      oriundo da rotina de migração da base Windows | MIGRADO_W"
+
+  TPUNINOT:
+    official_name: Tipo de Unidade Notificante
+    translated_name: Type of notifying facility
+    description: "The kind of establishment that notified the case (e.g. hospital, UBS, laboratory) rather than which specific facility (ID_UNIDADE)."
+    code_system: internal
+    codelists: [TIPOUNIDADE]
+    source: inferred
+    reasoning: >
+      TP_ is the categorical-type prefix and UNINOT abbreviates unidade
+      notificante; the bound codelist name TIPOUNIDADE ("tipo de unidade")
+      spells out exactly this reading.

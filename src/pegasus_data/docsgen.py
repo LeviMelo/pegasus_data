@@ -163,12 +163,14 @@ def collect(
             (system.upper(),),
         )
     }
-    bindings: dict[str, list[str]] = {}
-    for r in catalog.query(
-        "SELECT field_name, codelist FROM field_codelists WHERE system = ? ORDER BY confidence DESC",
-        (system.upper(),),
-    ):
-        bindings.setdefault(str(r["field_name"]), []).append(str(r["codelist"]))
+    # Bindings measured to decode nothing are excluded. `.DEF` declares
+    # tabulation axes beside code systems and does not distinguish them, so a
+    # date ends up bound to a year table; 35.2% of checkable bindings decode
+    # none of their column's observed values. Counting those as decodable
+    # overstated what this module can actually translate.
+    from .semantics.bindings import working_bindings
+
+    bindings = working_bindings(catalog, system)
 
     ledger = {
         str(r["field_name"]): r

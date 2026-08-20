@@ -366,6 +366,20 @@ CREATE TABLE IF NOT EXISTS field_codelists (
   source      TEXT NOT NULL,       -- 'def' | 'manual' | 'name_match'
   source_ref  TEXT NOT NULL,
   confidence  REAL NOT NULL,
+  -- What share of the column's OBSERVED values this codelist actually decodes.
+  -- NULL means not measured (the column has never been profiled), which is not
+  -- the same as zero and must not be read as one.
+  --
+  -- A binding is a claim that a codelist explains a column, and .DEF makes that
+  -- claim for tabulation axes too: "Ano/mes de internacao, DT_INTER, ANOMES.CNV"
+  -- declares an axis DERIVED FROM the column, and the binder attaches it to the
+  -- raw column. Measured across the catalog, 35.2% of checkable bindings decode
+  -- none of their column's observed values, and 35 columns had every binding
+  -- dead while being reported as decodable. The claim is kept -- .DEF really did
+  -- say it -- and the measurement is recorded beside it, because resolving a
+  -- source conflict silently is exactly what this project does not do.
+  decodes_observed REAL,
+  measured_at TEXT,
   PRIMARY KEY (system, family_id, field_name, codelist)
 );
 CREATE INDEX IF NOT EXISTS ix_field_codelists_field ON field_codelists (field_name);

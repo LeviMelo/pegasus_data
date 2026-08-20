@@ -37,21 +37,35 @@ def connect(path: str) -> sqlite3.Connection:
 
 
 def plan(conn: sqlite3.Connection) -> list[dict[str, object]]:
-    """How many columns each system still needs, worst first."""
+    """How many columns each system still needs, worst first.
+
+    Counts **both** rungs that carry a description: ``field_documentation``,
+    extracted from DATASUS's own layout documents, and ``variable_docs``, written
+    by hand under ``curation/``. Counting only the first is what this script did
+    at the start, and it reported 5.9% coverage while 404 curated descriptions sat
+    in the catalog — a measurement that understated the work already done.
+    """
     rows = conn.execute(
         """
+        WITH described AS (
+          SELECT system, field_name FROM field_documentation
+           WHERE description IS NOT NULL AND TRIM(description) <> ''
+          UNION
+          SELECT system, field_name FROM variable_docs
+           WHERE description IS NOT NULL AND TRIM(description) <> ''
+        )
         SELECT s.system AS system,
                COUNT(DISTINCT sp.field_name) AS columns,
-               COUNT(DISTINCT CASE WHEN fd.field_name IS NOT NULL
+               COUNT(DISTINCT CASE WHEN d.field_name IS NOT NULL
                                    THEN sp.field_name END) AS described
           FROM schema_presence sp
           JOIN strata s ON s.schema_signature = sp.schema_signature
-          LEFT JOIN field_documentation fd
-                 ON fd.system = s.system AND fd.field_name = sp.field_name
+          LEFT JOIN described d
+                 ON d.system = s.system AND d.field_name = sp.field_name
          WHERE s.system IS NOT NULL
          GROUP BY s.system
          ORDER BY (COUNT(DISTINCT sp.field_name)
-                   - COUNT(DISTINCT CASE WHEN fd.field_name IS NOT NULL
+                   - COUNT(DISTINCT CASE WHEN d.field_name IS NOT NULL
                                          THEN sp.field_name END)) DESC
         """
     ).fetchall()
@@ -100,6 +114,11 @@ def evidence(conn: sqlite3.Connection, system: str, limit: int, include_describe
     """
     weights = _weights(conn, system)
 
+    # Narrow to the batch BEFORE gathering evidence, not after. Collecting every
+    # label in the system first and then slicing meant SIASUS pulled millions of
+    # rows — MUNICBR alone is 865,801 — to describe ninety columns, and the agent
+    # asking for them timed out having read nothing. The ordering is by files
+    # carrying the column, which only needs `weights`.
     documented = {
         str(r["field_name"])
         for r in conn.execute(
@@ -116,86 +135,92 @@ def evidence(conn: sqlite3.Connection, system: str, limit: int, include_describe
     }
     known = documented | curated
 
+    names = sorted(weights, key=lambda f: (-weights[f], f))
+    if not include_described:
+        names = [f for f in names if f not in known]
+    names = names[:limit]
+    if not names:
+        return []
+
+    slots = ",".join("?" * len(names))
+
     headers = _grouped(
         conn,
-        """
+        f"""
         SELECT h.field_name AS field_name, h.type_code, h.width, h.decimals
           FROM schema_header_facts h
           JOIN strata s ON s.schema_signature = h.schema_signature
-         WHERE s.system = ?
+         WHERE s.system = ? AND h.field_name IN ({slots})
          GROUP BY h.field_name, h.type_code, h.width, h.decimals
         """,
-        (system,),
+        (system, *names),
         "field_name",
     )
     ledger = _grouped(
         conn,
         "SELECT field_name, official_name, semantic_type, semantic_confidence, unit, "
-        "aggregation, sentinel_values FROM ledger WHERE system = ?",
-        (system,),
+        f"aggregation, sentinel_values FROM ledger WHERE system = ? AND field_name IN ({slots})",
+        (system, *names),
         "field_name",
     )
     bindings = _grouped(
         conn,
         "SELECT field_name, codelist, confidence, source FROM field_codelists "
-        "WHERE system = ? ORDER BY confidence DESC",
-        (system,),
+        f"WHERE system = ? AND field_name IN ({slots}) ORDER BY confidence DESC",
+        (system, *names),
         "field_name",
     )
     values = _grouped(
         conn,
-        """
+        f"""
         SELECT vf.field_name AS field_name, vf.value AS value, SUM(vf.count) AS n
           FROM value_frequencies vf
           JOIN families f ON f.family_id = vf.family_id
-         WHERE f.system = ?
+         WHERE f.system = ? AND vf.field_name IN ({slots})
          GROUP BY vf.field_name, vf.value
          ORDER BY n DESC
         """,
-        (system,),
+        (system, *names),
         "field_name",
     )
     # Labels for those values, in one scan rather than one lookup per value.
     labels: dict[tuple[str, str], str] = {}
     for row in conn.execute(
-        """
+        f"""
         SELECT d.field_name AS field_name, d.value_raw AS code, d.value_label AS label
           FROM dictionary d
-         WHERE d.system = ? AND d.field_name IS NOT NULL AND d.field_name <> ''
+         WHERE d.system = ? AND d.field_name IN ({slots})
         """,
-        (system,),
+        (system, *names),
     ):
         labels.setdefault((str(row["field_name"]), str(row["code"])), str(row["label"]))
     for row in conn.execute(
-        """
+        f"""
         SELECT fc.field_name AS field_name, d.value_raw AS code, d.value_label AS label
           FROM field_codelists fc
           JOIN dictionary d ON d.system = fc.system AND d.value_group = fc.codelist
-         WHERE fc.system = ?
+         WHERE fc.system = ? AND fc.field_name IN ({slots})
         """,
-        (system,),
+        (system, *names),
     ):
         labels.setdefault((str(row["field_name"]), str(row["code"])), str(row["label"]))
 
     series = _grouped(
         conn,
-        """
+        f"""
         SELECT sp.field_name AS field_name, s.series AS series,
                MIN(s.year) AS y0, MAX(s.year) AS y1
           FROM schema_presence sp
           JOIN strata s ON s.schema_signature = sp.schema_signature
-         WHERE s.system = ?
+         WHERE s.system = ? AND sp.field_name IN ({slots})
          GROUP BY sp.field_name, s.series
         """,
-        (system,),
+        (system, *names),
         "field_name",
     )
 
-    names = sorted(weights, key=lambda f: (-weights[f], f))
-    if not include_described:
-        names = [f for f in names if f not in known]
     out = []
-    for name in names[:limit]:
+    for name in names:
         head = headers.get(name, [])
         led = ledger.get(name, [{}])[0]
         seen = values.get(name, [])[:TOP_VALUES]
