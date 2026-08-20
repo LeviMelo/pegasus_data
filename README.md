@@ -248,7 +248,7 @@ without written-out reasoning does not load.
 ## Requirements
 
 Python 3.11+. `pip install -e .` for the core; `.[all]` adds PDF, Excel and RAR
-support. Development: `pip install -e .[dev]`, then `pytest` (545 tests, all
+support. Development: `pip install -e .[dev]`, then `pytest` (541 tests, all
 offline) and `ruff check src tests scripts`.
 
 ---

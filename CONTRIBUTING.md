@@ -21,7 +21,7 @@ That is a contribution. Describing 40 of 100 columns honestly is worth more than
 
 ```bash
 pip install -e ".[dev]"
-pytest -q                      # 545 tests, all offline
+pytest -q                      # 541 tests, all offline
 ruff check src/ tests/ scripts/
 ```
 
