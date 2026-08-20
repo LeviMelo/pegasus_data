@@ -248,11 +248,54 @@ without written-out reasoning does not load.
 ## Requirements
 
 Python 3.11+. `pip install -e .` for the core; `.[all]` adds PDF, Excel and RAR
-support. Development: `pip install -e .[dev]`, then `pytest` (387 tests) and
-`ruff check src tests`.
+support. Development: `pip install -e .[dev]`, then `pytest` (545 tests, all
+offline) and `ruff check src tests scripts`.
+
+---
+
+## Where this stands
+
+Measured, not estimated. `pegasus-data report` prints the current figures.
+
+| | |
+|---|---:|
+| files catalogued | 207,251 |
+| — what the previous scan found | 124,810 |
+| distinct columns | 4,528 |
+| columns described | **49%** and rising |
+| dictionary rows | 19.9M across 10,748 codelists |
+| families (system × series × schema) | 1,633 |
+
+The module is functionally complete: crawl, decode, profile, translate, build,
+query, and the public API in §14 of the architecture. **What remains is
+volume** — roughly half the columns still need a description, and that work is
+queued, parallelisable and documented in `CONTRIBUTING.md`.
+
+### The strategy, in one paragraph
+
+DATASUS publishes the administrative record of a national health system and
+publishes nothing that explains it: no index of what exists, no machine-readable
+schema, no data dictionary a program can consume. The meaning is real but
+scattered — in `.CNV` files written for a DOS tabulation program, in PDFs, in
+the naming of directories, on a ministry portal that is not the FTP server. This
+project's bet is that **the meaning is worth assembling once, carefully, with its
+provenance attached**, so that nobody has to rediscover it and nobody has to
+trust it blindly. Everything the module knows carries a source and a confidence,
+and everything it does not know is recorded as a gap rather than filled with a
+plausible guess. That constraint is what makes the result usable by a ministry
+rather than merely convenient.
 
 ## Documentation
 
-- `docs/dictionary/` — the generated data dictionary
-- `docs/FINDINGS.md` — every measured result that contradicted an assumption
-- `pegasus_data_ARCHITECTURE.md` — the design this was built from
+- **`CONTRIBUTING.md`** — how to work on this, and the rules that are not
+  stylistic. Start here if you are going to change anything.
+- **`pegasus_data_ARCHITECTURE.md`** — how it is built and why. §14 is the public
+  API, §19 records every departure from the original brief with its reasoning,
+  §21 is the measured state.
+- **`docs/FINDINGS.md`** — what we learned about DATASUS itself. §0 is the
+  headline: why a correct crawl finds 82,441 more files than the previous one.
+- **`docs/RESUME.md`** — operational state: what is left and how to resume an
+  interrupted run.
+- The data dictionary itself is a **database**, not files: `pegasus-data
+  dictionary` builds `docs/dictionary.sqlite`, and `pegasus-data search` and
+  `pegasus-data page` read it.
