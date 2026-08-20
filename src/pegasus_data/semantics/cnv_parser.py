@@ -159,6 +159,25 @@ def parse_cnv_bytes(
             if not expression:
                 label = " ".join(t.group() for t in tokens[1:-1]).strip()
                 expression = tokens[-1].group()
+            elif not _is_expression(expression):
+                # The expression column is inferred from the file as a whole, so
+                # a line whose label runs long pushes real text past it and the
+                # split captures prose as the code. `medico02.CNV` line 11 became
+                # code `'XXXXXX                       vascular'` labelled
+                # `'MÉDICO DE FAMÍLIA'`, and that codelist decodes CNES.CBOUNICO
+                # — so the wrong thing was being matched against real records.
+                #
+                # A TabNet match expression is a code, a range or a comma list.
+                # It never contains free internal whitespace, which makes this
+                # detectable rather than a matter of taste: fall back to the
+                # token split, and say so.
+                out.warnings.append(
+                    f"line {offset + body_start + 1}: text past the expression column "
+                    f"is not a match expression ({expression[:40]!r}); "
+                    "re-split on tokens"
+                )
+                label = " ".join(t.group() for t in tokens[1:-1]).strip()
+                expression = tokens[-1].group()
         else:
             label = " ".join(t.group() for t in tokens[1:-1]).strip()
             expression = tokens[-1].group()
@@ -192,6 +211,21 @@ def parse_cnv(path: str | Path, **kwargs: object) -> CnvFile:
 
 
 # ------------------------------------------------------------------ expansion
+
+#: Whitespace that legitimately sits inside an expression: around a range dash
+#: and around the commas of a list. Anything else means the split was wrong.
+_EXPRESSION_GLUE = re.compile(r"\s*([-,])\s*")
+
+
+def _is_expression(text: str) -> bool:
+    """Could this be a TabNet match expression at all?
+
+    Codes, ranges (``1-5``, ``A00-B99``) and comma lists. Never free prose, so a
+    residual space after collapsing the range and list separators means the text
+    is a label that overran the expression column.
+    """
+    return " " not in _EXPRESSION_GLUE.sub(r"\1", text.strip())
+
 
 _NUMERIC_RANGE = re.compile(r"^(\d+)\s*-\s*(\d+)$")
 _ALNUM_RANGE = re.compile(r"^([A-Za-z0-9.]+)\s*-\s*([A-Za-z0-9.]+)$")

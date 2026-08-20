@@ -514,3 +514,73 @@ class TestLookupColumnInference:
             "B": [f"outro valor bem mais longo aqui {i}" for i in range(10)],
         })
         assert _infer_code_and_label(table) is not None
+
+
+class TestALabelCannotBecomeACode:
+    """A long label overruns the expression column and is parsed as the code.
+
+    `medico02.CNV` line 11 produced code `'XXXXXX                 vascular'`
+    labelled `'MEDICO DE FAMILIA'`. That codelist decodes `CNES.CBOUNICO`, so
+    the wrong thing was being matched against real establishment records — and
+    it survived because a garbled code simply matches nothing, which looks
+    exactly like a code that has no label.
+
+    The expression column is inferred from the file as a whole, so any line
+    whose label runs longer than the rest sets this trap. What makes it
+    detectable rather than a judgement call is that a TabNet match expression is
+    a code, a range or a comma list, and never contains free internal whitespace.
+    """
+
+    #: Where the match expressions sit in these fixtures.
+    EXPR_COL = 50
+
+    def _line(self, seq: int, label: str, expression: str) -> str:
+        prefix = f"{seq:>5} "
+        return prefix + label.ljust(self.EXPR_COL - len(prefix)) + expression
+
+    def _cnv(self, *lines: str) -> bytes:
+        return ("\n".join(lines) + "\n").encode("latin-1")
+
+    def _medico02(self) -> bytes:
+        # Enough well-formed lines for the expression column to be detected at
+        # all — it is inferred from the file as a whole, so a two-line fixture
+        # never reaches the branch this defends.
+        lines = [self._line(i, f"OCUPACAO {i}", f"2251{i:02d}") for i in range(1, 6)]
+        # The shape of the real defect: prose sitting past the expression
+        # column, with internal whitespace.
+        lines.append(self._line(6, "MEDICO DE FAMILIA", "XXXXXX          vascular"))
+        return self._cnv("    6      80", *lines)
+
+    def test_a_code_never_contains_whitespace(self):
+        """The dangerous form. A code with spaces can match padded data by
+        accident, and it reached the dictionary as
+        `'XXXXXX                    vascular'` on a codelist decoding
+        CNES.CBOUNICO."""
+        parsed = parse_cnv_bytes(self._medico02(), name="medico02", source_ref="t")
+        spaced = [c.expression for c in parsed.categories if " " in c.expression.strip()]
+        assert spaced == [], f"prose survived as a code: {spaced}"
+
+    def test_it_says_which_line_it_had_to_re_split(self):
+        parsed = parse_cnv_bytes(self._medico02(), name="medico02", source_ref="t")
+        assert any("not a match expression" in w for w in parsed.warnings), parsed.warnings
+
+    def test_an_ordinary_file_is_untouched(self):
+        raw = self._cnv(
+            "    2      80",
+            self._line(1, "Masculino", "1"),
+            self._line(2, "Feminino", "3"),
+        )
+        parsed = parse_cnv_bytes(raw, name="sexo", source_ref="t")
+        assert [c.expression for c in parsed.categories] == ["1", "3"]
+        assert [c.label for c in parsed.categories] == ["Masculino", "Feminino"]
+
+    def test_ranges_and_lists_still_parse(self):
+        """The guard must not reject the expression forms TabNet really uses."""
+        raw = self._cnv(
+            "    3      80",
+            self._line(1, "Faixa um", "1-5"),
+            self._line(2, "Faixa dois", "6,7,8"),
+            self._line(3, "Capitulo", "A00-B99"),
+        )
+        parsed = parse_cnv_bytes(raw, name="faixas", source_ref="t")
+        assert [c.expression for c in parsed.categories] == ["1-5", "6,7,8", "A00-B99"]

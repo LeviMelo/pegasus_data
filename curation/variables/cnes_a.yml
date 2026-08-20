@@ -1,0 +1,534 @@
+# CNES — columns 0-90, ordered by file count (batch "cnes_a").
+#
+# Evidence run returned no observed values (top_values empty, official_name/semantic_type
+# null) for every column in this batch, and no DATASUS Instrução Técnica/layout PDF could be
+# read as text (poppler not available for PDF rendering; the two CNES layout PDFs found by
+# search returned only binary/FlateDecode streams to WebFetch). Descriptions below therefore
+# rest on: (a) two independent secondary sources that quote or paraphrase the DATASUS CNES
+# data dictionary, cross-checked against each other, and (b) DATASUS naming-convention
+# inference anchored to declared type/width, bound codelists, and which file series (DC, EE,
+# EF, EP, EQ, GM, HB, LT, ST, ...) a column appears in. 56 of the 90 columns — the AP0#CV0#
+# grid (42), the GESPRG#E/GESPRG#M pairs (12), and NIVATE_A/NIVATE_H (2) — could not be
+# grounded to an acceptable confidence and were left undescribed; see "skipped" note at the
+# bottom of this file.
+#
+# Provenance shorthand used in source_ref below:
+#   [PCDAS]         PCDaS (Plataforma de Ciência de Dados aplicada à Saúde, Fiocruz),
+#                   "Cadastro Nacional de Estabelecimentos de Saúde – CNES: Dicionário de
+#                   variáveis", https://pcdas.icict.fiocruz.br/conjunto-de-dados/cadastro-
+#                   nacional-de-estabelecimentos-de-saude/dicionario-de-variaveis/
+#   [MICRODATASUS]  rfsaldanha/microdatasus, R/process_cnes.R (recoding source for CNES-ST
+#                   and CNES-PF), https://raw.githubusercontent.com/rfsaldanha/microdatasus/
+#                   master/R/process_cnes.R — an open-source R package written specifically
+#                   to process DATASUS CNES microdata; its factor-recoding tables are treated
+#                   here as a corroborating secondary source, not an official DATASUS document.
+#   [PDFCOFFEE]     "Dicionario de Dados Cnes", https://pdfcoffee.com/dicionario-de-dados-cnes-
+#                   pdf-free.html (community-hosted copy of a DATASUS-derived data dictionary)
+
+system: CNES
+asserted_by: pegasus_data
+variables:
+
+  # ------------------------------------------------------------- establishment identity
+
+  CODUFMUN:
+    official_name: Código do Município (UF + Município)
+    translated_name: IBGE municipality code of the establishment
+    description: >
+      The 6-digit IBGE code (state digits + municipality digits) of the municipality where
+      the establishment is registered. It is also the join key the catalog uses to reach
+      several derived territorial-classification lookups (Legal Amazon membership, state-
+      capital flag, extreme-poverty area, land-border-strip zone) — those are auxiliary joins
+      keyed on this code, not separate facts stored in the column itself.
+    code_system: external
+    source: web
+    source_ref: "[PCDAS] \"Código do município do estabelecimento: UF + MUNIC\""
+    codelists: [BR_AMAZLEGAL, BR_CAPITAL, BR_EXTRPOBREZ, BR_FRONTFAIXA, BR_FRONTZONA]
+
+  COD_CEP:
+    official_name: Código de Endereçamento Postal (CEP)
+    translated_name: Postal code (CEP) of the establishment's address
+    description: >
+      The Brazilian postal code (CEP) of the establishment's registered street address —
+      finer-grained than CODUFMUN. Useful for street/neighbourhood-level geocoding, but CEP
+      boundaries are redrawn by the postal service over time and are not a stable long-run key.
+    code_system: none
+    source: web
+    source_ref: "[PCDAS] \"Código do CEP do estabelecimento\""
+
+  CPF_CNPJ:
+    official_name: CPF/CNPJ do estabelecimento
+    translated_name: CPF or CNPJ of the establishment itself
+    description: >
+      The establishment's own tax/personal identifier: a CPF (individual taxpayer number)
+      when PF_PJ marks it as pessoa física — e.g. a self-employed professional's own office —
+      or a CNPJ (company registry number) when it is pessoa jurídica. Distinct from CNPJ_MAN,
+      which identifies the parent/maintaining entity rather than the establishment itself.
+    code_system: none
+    source: web
+    source_ref: "[PCDAS] \"CPF do estabelecimento, caso pessoa física ou CNPJ\""
+    notes: >
+      Can hold a CPF — a personal identifier of an individual professional/proprietor, not
+      just an organizational code. Surface it plainly; propose no masking.
+
+  CNPJ_MAN:
+    official_name: CNPJ da mantenedora
+    translated_name: CNPJ of the establishment's holding/maintaining entity
+    description: >
+      National registry number (CNPJ) of the legal entity that maintains/owns the
+      establishment — e.g. a hospital chain's holding company, the diocese running a
+      philanthropic hospital, or a municipal health secretariat. One mantenedora CNPJ
+      commonly recurs across many CNES establishment records belonging to the same network.
+    code_system: none
+    source: web
+    source_ref: "[PCDAS] \"CNPJ da mantenedora do estabelecimento\""
+    notes: An organizational tax identifier, not a personal one — pass through unmodified.
+
+  PF_PJ:
+    official_name: Indicador de pessoa física/jurídica
+    translated_name: Individual-person vs legal-entity indicator
+    description: >
+      Marks whether the establishment is registered as a natural person (pessoa física,
+      code 1 — e.g. an independent professional's own practice) or a legal entity (pessoa
+      jurídica, code 3 — a company, hospital, clinic, etc). Governs whether CPF_CNPJ holds a
+      CPF or a CNPJ.
+    code_system: internal
+    source: web
+    source_ref: >
+      [PCDAS] "Indicador de pessoa: 1-Física 3-Jurídica"; [MICRODATASUS] `"1" ~ "Pessoa
+      física", "3" ~ "Pessoa jurídica"`
+    codelists: [TP_PFPJ]
+
+  NIV_DEP:
+    official_name: Grau/Nível de dependência
+    translated_name: Institutional dependency level
+    description: >
+      Whether the establishment is administratively independent (Individual) or subordinate
+      to / maintained by another establishment or entity (Mantida) — e.g. a satellite
+      outpatient unit reported under its parent hospital's registration.
+    code_system: internal
+    source: web
+    source_ref: >
+      [PCDAS] "Grau de dependência, onde: 1-Individual 3-Mantida"; [MICRODATASUS] `"1" ~
+      "Individual", "3" ~ "Mantida"`
+    codelists: [NIVELDEP]
+
+  # ---------------------------------------------------------- administrative classification
+
+  ESFERA_A:
+    official_name: Esfera administrativa
+    translated_name: Administrative sphere / level of government
+    description: >
+      One of federal, state, municipal, or private — which of those holds administrative
+      authority over the establishment. This is about who administers the facility,
+      separate from who is responsible for it within SUS (that is TPGESTAO): a
+      privately-owned facility can still be municipally managed within SUS.
+    code_system: internal
+    source: web
+    source_ref: >
+      [PCDAS] "Código da esfera administrativa: 01-Federal; 02-Estadual"; [MICRODATASUS]
+      `"1"~"Federal", "2"~"Estadual", "3"~"Municipal", "4"~"Privada"`
+    codelists: [ESFERADM]
+
+  TPGESTAO:
+    official_name: Tipo de gestão
+    translated_name: SUS management level
+    description: >
+      Which level of the SUS system manages and is responsible for the establishment's
+      inclusion in the health network: Municipal, Estadual (state), Dupla (dual
+      state+municipal), or Z/S for "sem gestão" (not informed/none). See ESFERA_A for the
+      separate question of who administratively owns the facility.
+    code_system: internal
+    source: web
+    source_ref: >
+      [MICRODATASUS] `"D"~"Dupla", "E"~"Estadual", "M"~"Municipal", "Z"/"S"~"Sem gestão"`
+    codelists: [NIVELDEP, TPGESTAO]
+
+  TP_UNID:
+    official_name: Tipo de unidade (estabelecimento)
+    translated_name: Health-establishment type
+    description: >
+      CNES's own facility-type taxonomy — over 30 category codes distinguishing, e.g.,
+      general hospital, basic health unit (UBS), specialty clinic, diagnostic-support unit,
+      pharmacy, mobile unit, etc. This is the primary "what kind of place is this" field that
+      most downstream tabulations filter or group by.
+    code_system: internal
+    source: web
+    source_ref: "[PCDAS] \"Tipo de unidade (estabelecimento)\"; [MICRODATASUS] (30+ codes mapped to facility types)"
+    codelists: [TP_ESTAB]
+
+  ATIVIDAD:
+    official_name: Atividade de ensino
+    translated_name: Teaching/research activity of the establishment
+    description: >
+      Whether and how the establishment is linked to teaching or research activity — the
+      domain runs roughly from university unit through teaching hospital, with a
+      not-applicable/not-informed code for facilities with no such link. This is an
+      institutional attribute independent of care volume: a large hospital with no teaching
+      link still treats patients normally.
+    code_system: internal
+    source: web
+    source_ref: >
+      [MICRODATASUS] `"1"~"Unidade Universitária" ... "5"~"Hospital de ensino"`
+    codelists: [ATIV_ENS]
+    notes: >
+      Independent of TP_UNID (facility type) — a hospital can be TP_UNID=hospital and
+      ATIVIDAD=teaching-linked at the same time; the two axes are orthogonal.
+
+  CLIENTEL:
+    official_name: Fluxo de clientela
+    translated_name: Patient-flow / referral-intake type
+    description: >
+      How patients reach the establishment — spontaneous demand (walk-in), referred-only, a
+      mix of both, or "flow not required" when the concept does not apply to that facility
+      type. This is about intake channel, not clinical urgency or triage.
+    code_system: internal
+    source: web
+    source_ref: >
+      [MICRODATASUS] `"1"~"Atendimento de demanda espontânea" ... "0"~"Fluxo não exigido"`
+    codelists: [FLUX_CLI]
+
+  TURNO_AT:
+    official_name: Turno de atendimento
+    translated_name: Operating shift/hours code
+    description: >
+      Which shift(s) the establishment operates in — the domain runs from intermittent/
+      irregular hours through fixed day/evening/night shifts, with a not-informed code.
+      Describes the opening-hours pattern, not staffing levels or attendance volume.
+    code_system: internal
+    source: web
+    source_ref: >
+      [MICRODATASUS] `"1"~"Turnos intermitentes" ... "7"~"Noite"`
+    codelists: [TURNOSAT]
+
+  NIV_HIER:
+    official_name: Nível de hierarquia
+    translated_name: Care-network hierarchy level
+    description: >
+      Places the establishment within the SUS care-complexity hierarchy (roughly primary/
+      basic care through higher-complexity referral levels). The exact mapping from code to
+      hierarchy level was not individually confirmed for every code in the sources found;
+      rely on the bound codelist for that, not on this description.
+    code_system: internal
+    source: web
+    source_ref: "[PCDAS] \"Código do nível de hierarquia\"; [MICRODATASUS] (8 hierarchy levels)"
+    codelists: [NIV_HIER]
+
+  TP_PREST:
+    official_name: Tipo de prestador
+    translated_name: Provider ownership/legal-nature classification
+    description: >
+      Classifies the establishment as a services provider by ownership/legal nature for SUS
+      billing purposes — the domain runs from public-federal through private-nonprofit
+      (public federal/state/municipal, private for-profit, private nonprofit, etc).
+    code_system: internal
+    source: web
+    source_ref: >
+      [MICRODATASUS] `"30"~"Público federal" ... "60"~"Privado sem fins lucrativos"`; [PCDAS]
+      "Healthcare provider type (30-99 range)"
+    codelists: [TIPOPRES]
+
+  VINC_SUS:
+    official_name: Vínculo com o SUS
+    translated_name: SUS-linkage flag
+    description: >
+      Whether the establishment has a formal bond with SUS, the public health system
+      (1-Sim) or not (0/2-Não, i.e. it serves only private/supplementary-health patients).
+      A yes/no relationship flag, not a measure of how much SUS activity the facility performs.
+    code_system: internal
+    source: web
+    source_ref: >
+      [PCDAS] "Vínculo com SUS: 1-Sim 0-Não"; [MICRODATASUS] `"0"/"2" ~ "Não", "1" ~ "Sim"`
+    codelists: [VINC_SUS]
+
+  TERCEIRO:
+    official_name: Terceiro
+    translated_name: Outsourced-link flag
+    description: >
+      Binary flag marking whether the linked professional or service relationship recorded
+      in this row is an outsourced/third-party ("terceirizado") arrangement rather than a
+      direct bond to the establishment. Appears in the team/professional-linkage series
+      (e.g. EE, EF, EP, GM), not in the core ST establishment file.
+    code_system: internal
+    source: web
+    source_ref: "[MICRODATASUS] `\"1\"~\"Sim\", \"0\"/\"2\"~\"Não\"`"
+    codelists: [TERCEIRO]
+
+  COD_IR:
+    official_name: Código de retenção do imposto de renda
+    translated_name: Income-tax withholding classification code
+    description: >
+      Classifies the establishment's institutional nature for income-tax withholding
+      purposes on the SUS payments it receives — roughly twenty categories spanning public,
+      philanthropic, and private-for-profit institutions. An administrative/fiscal attribute
+      of the payee, not a clinical field.
+    code_system: internal
+    source: web
+    source_ref: >
+      [PCDAS] "Indicates tax retention type (10=Public through 19=Code 19)"; [MICRODATASUS]
+      "Maps codes 0-19 to institutional types (public, philanthropic, private, etc)"
+    codelists: [RETENMAN]
+    notes: >
+      Conceptually close to RETENCAO (also a tax-withholding classification); the two were
+      not confirmed to be identical, so keep them as separate columns rather than assuming
+      redundancy.
+
+  RETENCAO:
+    official_name: Código de retenção
+    translated_name: Tax-withholding classification code
+    description: >
+      Classifies the establishment for tax-withholding ("retenção na fonte") purposes on
+      payments it receives — a small enumerated domain (roughly 0-16) tied to the
+      establishment's institutional/ownership category. An administrative/fiscal attribute,
+      not a clinical one.
+    code_system: internal
+    source: web
+    source_ref: >
+      [PCDAS] "Tax retention code (00-16 range)"; [MICRODATASUS] "Maps codes 0-16 to
+      establishment types"
+    codelists: [RETENCAO]
+    notes: See COD_IR — a related but not confirmed-identical tax-classification column.
+
+  # --------------------------------------------------------------------- geography (health)
+
+  REGSAUDE:
+    official_name: Região de saúde
+    translated_name: Health-region code (NOAS regionalization)
+    description: >
+      Code of the health region — a Ministry of Health NOAS-regionalization grouping of
+      several neighbouring municípios used for health-service planning above the municipal
+      level — that the establishment's municipality belongs to.
+    code_system: none
+    source: web
+    source_ref: "[PCDAS] \"Código da região de saúde NOAS\""
+    notes: >
+      A real regional-planning identifier used across several SUS systems, not a
+      DATASUS-invented code — but no codelist is bound to it in this catalog, so there is no
+      label to resolve it to here.
+
+  MICR_REG:
+    official_name: Microrregião de saúde
+    translated_name: Health micro-region code (NOAS regionalization)
+    description: >
+      Code of the health micro-region — a finer subdivision of REGSAUDE — the establishment
+      is assigned to under the same NOAS regionalization framework.
+    code_system: none
+    source: web
+    source_ref: "[PCDAS] \"Código da microrregião de saúde NOAS\""
+    notes: Same caveat as REGSAUDE — no codelist is bound to it in this catalog.
+
+  DISTRSAN:
+    official_name: Distrito sanitário
+    translated_name: Sanitary/health district code
+    description: >
+      Code of the sanitary district — a health-service administrative subdivision, chiefly
+      used by larger municipalities to split the city into local health-planning areas —
+      that the establishment belongs to.
+    code_system: none
+    source: web
+    source_ref: "[PCDAS] \"Código do distrito sanitário\""
+    notes: No codelist is bound to this column in this catalog; the district numbering is set locally.
+
+  DISTRADM:
+    official_name: Distrito administrativo / Módulo assistencial
+    translated_name: Local administrative/care-module district code
+    description: >
+      Code of a local administrative subdivision ("módulo assistencial") a municipal or
+      state health authority uses to organize its services. The source dictionary states
+      this explicitly follows a locally defined table, so the same numeric code means
+      different things in different municipalities.
+    code_system: none
+    source: web
+    source_ref: "[PCDAS] \"Código do Módulo Assistencial conforme tabela local\""
+    notes: >
+      Codes are defined per municipality, not nationally — cross-municipality comparison or
+      aggregation needs each municipality's own lookup, which this catalog does not carry.
+
+  # ---------------------------------------------------------------------------- time/period
+
+  COMPETEN:
+    official_name: Competência (Ano/Mês)
+    translated_name: Reference year-month of the CNES snapshot
+    description: >
+      The AAAAMM (year+month) "competência" the record belongs to — which monthly CNES
+      extract this row was published in, not a date tied to any real-world event at the
+      establishment. CNES is republished monthly, so the same establishment reappears under
+      the same identity fields across many COMPETEN values as its record is refreshed.
+    code_system: none
+    source: web
+    source_ref: "[PCDAS] \"Ano e Mês de competência da informação (AAAAMM)\""
+
+  # ---------------------------------------------------- habilitação (SUS accreditation) block
+
+  SGRUPHAB:
+    official_name: Sigla do grupo de habilitação
+    translated_name: Habilitação (SUS accreditation) group code
+    description: >
+      Identifies which specific SUS service accreditation/habilitação this row grants the
+      establishment — e.g. a qualification tied to a particular incentive programme, bed
+      type, or specialized-service designation. The catalog binds it to six different
+      DATASUS domain tables rather than one single codelist, so resolving a given code's
+      meaning needs the matching domain table, not an assumption from the column alone.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      SGRUPHAB sits in the same EE/EF/GM/HB series as CMPT_INI, CMPT_FIM, DTPORTAR,
+      MAPORTAR and PORTARIA — a period-plus-ordinance cluster of fields consistent with a
+      habilitação record — and is bound to six habilitação/incentive-related DATASUS domain
+      tables (ESTABENS, ESTABFIL, GESTAO, HABILITA, INCENTIVOS, REGRAS), matching DATASUS's
+      SG_ ("sigla") short-code naming convention.
+    codelists: [ESTABENS, ESTABFIL, GESTAO, HABILITA, INCENTIVOS, REGRAS]
+
+  CMPT_INI:
+    official_name: Competência inicial
+    translated_name: Start year-month of the habilitação record's validity period
+    description: >
+      The AAAAMM year-month at which the habilitação/accreditation record this row
+      describes (see SGRUPHAB) began being in effect. Read together with CMPT_FIM, which
+      marks the end of the same validity window.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CMPT_ is DATASUS's "competência" period-field prefix (paired here with CMPT_FIM), the
+      column is bound to the "COMPT" period codelist, and it appears only in the habilitação-
+      family series (EE, EF, EFUFAAMM, GM, GMUFAAMM, HB) alongside SGRUPHAB/DTPORTAR/
+      MAPORTAR/PORTARIA.
+
+  CMPT_FIM:
+    official_name: Competência final
+    translated_name: End year-month of the habilitação record's validity period
+    description: >
+      The AAAAMM year-month at which the habilitação/accreditation record this row
+      describes (see SGRUPHAB) stopped being in effect; an accreditation still current at
+      extraction time typically carries the latest available competência rather than a real
+      end date. Paired with CMPT_INI.
+    code_system: none
+    source: inferred
+    reasoning: Same reasoning as CMPT_INI, its paired start-of-period column.
+
+  DTPORTAR:
+    official_name: Data da portaria
+    translated_name: Date of the ordinance (portaria) granting the habilitação
+    description: >
+      Calendar date of the ministerial/state ordinance ("portaria") that granted or altered
+      the habilitação/accreditation this row records — the legal act's date, not the date
+      CNES was updated to reflect it.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ is DATASUS's date-field prefix; the same record group carries PORTARIA (declared
+      as a long text field consistent with an ordinance citation) and MAPORTAR (a companion
+      AAAAMM period), so DTPORTAR reads naturally as the calendar date of that same ordinance.
+
+  MAPORTAR:
+    official_name: Mês/Ano da portaria
+    translated_name: Year-month of the ordinance (portaria)
+    description: >
+      The AAAAMM year-month of the same ordinance recorded in DTPORTAR/PORTARIA — a
+      coarser, period-grain companion to the exact date.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Declared width C(6,0) matches AAAAMM, and it is bound to the same "COMPT" period
+      codelist as CMPT_INI/CMPT_FIM; sits beside DTPORTAR/PORTARIA in the habilitação series.
+
+  PORTARIA:
+    official_name: Portaria
+    translated_name: Ordinance number/citation
+    description: >
+      Identifier of the ministerial/state ordinance ("portaria") that authorized the
+      habilitação/accreditation this row records — e.g. its number and issuing body.
+      Declared as a 50-character field, consistent with holding a citation string rather
+      than a bare numeric code.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Field name plus declared C(50,0) width (too wide for a bare code, right for a
+      citation string) and its presence alongside DTPORTAR/MAPORTAR/SGRUPHAB in the same
+      habilitação series.
+
+  # ---------------------------------------------------------------------- facility flags
+
+  ATEND_PR:
+    official_name: Atendimento prestado
+    translated_name: "\"Any service provided\" flag"
+    description: >
+      Summary flag for whether the establishment has any "atendimento prestado" recorded at
+      all. Appears to be a roll-up of a more detailed per-service-type grid (columns named
+      AP01CV01…AP07CV06) that this batch could not independently verify — see notes.
+    code_system: internal
+    source: web
+    source_ref: "[PCDAS] \"Indica a existência de algum atendimento prestado\""
+    notes: >
+      Do not infer the meaning of the AP0#CV0# columns from this flag; they were left
+      undescribed in this batch because no source could confirm what the AP0# groups or
+      CV0# sub-columns individually represent.
+
+  ATENDAMB:
+    official_name: Atendimento ambulatorial (instalação física)
+    translated_name: Outpatient-care physical-facility flag
+    description: >
+      Flags whether the establishment has a physical installation for outpatient/ambulatory
+      care. About physical infrastructure existing, not whether outpatient visits actually
+      occurred in a given period.
+    code_system: internal
+    source: web
+    source_ref: "[PCDAS] \"Indica a existência de instalação física de ATENDIMENTO AMBULATORIAL\""
+
+  ATENDHOS:
+    official_name: Atendimento hospitalar (instalação física)
+    translated_name: Inpatient-care physical-facility flag
+    description: >
+      Flags whether the establishment has a physical installation for hospital/inpatient
+      care. Mirrors ATENDAMB for the inpatient side.
+    code_system: internal
+    source: web
+    source_ref: "[PCDAS] \"Indica a existência de instalação física de ATENDIMENTO HOSPITALAR\""
+
+  ALVARA:
+    official_name: Número do alvará
+    translated_name: Operating-permit (alvará) number
+    description: >
+      The establishment's operating-license/permit number, as issued by the local sanitary
+      or municipal authority. A free-form identifier, not a code with a lookup meaning.
+    code_system: none
+    source: web
+    source_ref: "[PCDAS] \"Número do alvará\""
+
+  QT_EXIST:
+    official_name: Quantidade existente
+    translated_name: Existing-quantity count
+    description: >
+      A generic numeric count of how many of the thing this record is about currently
+      exist at the establishment. The same column name is reused across file series with
+      different referents: in the LT (leitos/beds) series it counts existing beds of the
+      row's type, and in the EQ (equipamentos) series it counts existing units of the row's
+      equipment type. Always read it together with whatever row-identifying code sits
+      alongside it in that series — the column itself does not say what is being counted.
+    code_system: none
+    source: inferred
+    reasoning: >
+      QT_ is DATASUS's quantity-field prefix, declared N(4,0) numeric; [PDFCOFFEE]
+      independently glosses it as "Quantidade de Leitos Existentes" in the beds context, and
+      the evidence shows the same column also carries the EQ equipment series, so the
+      generic "existing quantity of X" reading (rather than a beds-only meaning) is inferred
+      from combining the two.
+
+# ---------------------------------------------------------------------------------------
+# Skipped (56 of 90): could not be grounded to an acceptable confidence from any source
+# found — no observed values, no layout document text, and web search returned nothing
+# specific enough to state as fact rather than guesswork.
+#
+#   AP01CV01 .. AP07CV06 (42 columns) — a 7x6 grid tied to "atendimento prestado"
+#     (candidate codelists ATPRES01..ATPRES07 / ATPRES1X..ATPRES7X are bound to some of the
+#     CV01/CV03 columns), but no source found states what the AP0# groups or CV0#
+#     sub-columns individually mean — day-of-week vs. service-category vs. shift are all
+#     plausible readings and none could be confirmed.
+#   GESPRG1E, GESPRG1M, GESPRG2E, GESPRG2M, GESPRG3E, GESPRG3M, GESPRG4E, GESPRG4M,
+#   GESPRG5E, GESPRG5M, GESPRG6E, GESPRG6M (12 columns) — binary Sim/Não flags per
+#     [MICRODATASUS], bound to codelists GESPROG1..GESPROG6, but what programmes 1-6 are and
+#     what the E/M suffix pair distinguishes could not be confirmed.
+#   NIVATE_A, NIVATE_H (2 columns) — the A/H suffix pattern parallels ATENDAMB/ATENDHOS, but
+#     [MICRODATASUS] recodes both as binary Sim/Não flags rather than a graded "nível", which
+#     conflicts with the literal "nível de atenção" reading well enough that stating either
+#     interpretation as fact would be a guess.

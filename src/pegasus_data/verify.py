@@ -802,6 +802,98 @@ def check_stored_labels_agree(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
+#: A "code" longer than this that contains a space is prose, not an identifier.
+#: Generous on purpose — some legitimate codes are long (SIGTAP procedures are
+#: 10 characters, CNES establishment keys longer) but none of them contain a
+#: space.
+_CODE_LOOKS_LIKE_PROSE = 12
+
+
+def check_codes_are_codes(catalog: Catalog, settings: Settings) -> Check:
+    """No codelist has its code and label columns the wrong way round.
+
+    A lookup table shipped as a DBF does not say which of its columns is the key,
+    so the columns are inferred — and ``TABOCUP`` is the table that shows how
+    that inference can invert. Its 3,564 occupation descriptions are 99.9%
+    unique while its ``CODIGO`` repeats, because many occupations share a CBO
+    group. Any score led by uniqueness therefore picks the *description* as the
+    code and files the code as its label, giving 2,780 dictionary rows whose
+    "code" is ``'AUX. DE TEC. DE PECUARIA (SEM CURSO SUPERIOR)'``.
+
+    The inference was fixed — spacing became a gate rather than a term, because
+    prose is never a key — but the catalog kept the old rows, and that is the
+    real lesson this check encodes. **A parser improving does not invalidate
+    what it already wrote.** Derived output is replaced rather than accumulated
+    (§4), but nothing noticed that the *deriving code* had changed, so a stale
+    conclusion flowed on into the dictionary database and every bundle packed
+    from it. This is the assertion that catches that class of staleness, whatever
+    causes it next time.
+    """
+    c = Check("codes are codes, not prose", 16)
+    if not catalog.count("dictionary"):
+        return _skip(c, "no dictionary has been built yet")
+
+    rows = catalog.query(
+        """
+        SELECT value_group, system, COUNT(*) AS n, MIN(value_raw) AS example,
+               MIN(source) AS source, MIN(source_ref) AS source_ref
+          FROM dictionary
+         WHERE LENGTH(value_raw) > ?
+           AND value_raw GLOB '*[A-Za-z]*[ ]*'
+         GROUP BY value_group, system
+         ORDER BY n DESC
+        """,
+        (_CODE_LOOKS_LIKE_PROSE,),
+    )
+    total_rows = catalog.count("dictionary")
+    if not rows:
+        c.status = "pass"
+        c.evidence = {"dictionary_rows": total_rows, "prose_codes": 0}
+        c.detail = (
+            f"no code among {total_rows:,} dictionary rows is longer than "
+            f"{_CODE_LOOKS_LIKE_PROSE} characters and contains a space"
+        )
+        return c
+
+    total = sum(int(r["n"]) for r in rows)
+    # Whether it reaches real data decides how loud this is. A malformed codelist
+    # nothing decodes against is a defect; one bound to a column is a defect that
+    # is actively mislabelling records.
+    bound = [
+        f"{r['system']}.{r['value_group']}"
+        for r in rows
+        if catalog.count(
+            "field_codelists", "system = ? AND codelist = ?", (r["system"], r["value_group"])
+        )
+    ]
+    worst = rows[0]
+    c.status = "fail"
+    c.evidence = {
+        "prose_codes": total,
+        "codelists": len(rows),
+        "bound_to_a_column": bound[:10],
+        "worst": {
+            "codelist": f"{worst['system']}.{worst['value_group']}",
+            "rows": int(worst["n"]),
+            "example_code": str(worst["example"])[:60],
+            "source": worst["source"],
+            "source_ref": str(worst["source_ref"])[:120],
+        },
+        "remedy": "re-run `pegasus-data semantics` if the parser was fixed after these rows were written",
+    }
+    c.detail = (
+        f"{total:,} rows across {len(rows)} codelist(s) have a 'code' that is prose; "
+        f"worst is {worst['system']}.{worst['value_group']} ({int(worst['n']):,} rows, "
+        f"e.g. {str(worst['example'])[:44]!r}). "
+        + (
+            f"{len(bound)} bound to a column and mislabelling data: {', '.join(bound[:4])}"
+            if bound
+            else "none is bound to a column, so no data is being mislabelled"
+        )
+    )
+    return c
+
+
 CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_blob_dedup,
     check_crawl_coverage,
@@ -818,6 +910,7 @@ CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_describe,
     check_build_accounted,
     check_stored_labels_agree,
+    check_codes_are_codes,
 )
 
 
