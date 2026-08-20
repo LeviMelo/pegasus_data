@@ -186,9 +186,16 @@ def check(catalog_path: str, file_path: Path) -> dict[str, object]:
                 "curation alone and report it."
             )
         if doc.code_system in {"internal", "external"} and not seen.get("codelists"):
+            # Also a finding about the catalog rather than an error in the file.
+            # Saying a column is coded when nothing decodes it is not a mistake —
+            # it is the most useful thing a describer can record about it, because
+            # it names a gap that only a binding can close. ATD_HIV holds a
+            # serology result and no codelist in the catalog covers it; the
+            # description is right and the dictionary is short.
             warnings.append(
-                f"{doc.field_name}: code_system '{doc.code_system}' but no codelist is "
-                "bound to it in the catalog"
+                f"UNBOUND-CODELIST? {doc.field_name}: described as '{doc.code_system}' "
+                "coded, but no codelist is bound to it. If the description is right "
+                "this is a gap in the dictionary, not in the curation — report it."
             )
         rule = doc.token_rule or {}
         if rule.get("width") and width and int(rule["width"]) > int(width):
@@ -207,7 +214,18 @@ def check(catalog_path: str, file_path: Path) -> dict[str, object]:
         "columns_not_in_catalog_count": len(unknown),
         "median_words": sorted(lengths)[len(lengths) // 2] if lengths else 0,
         "prose_problems": prose,
-        "contradictions": warnings,
+        # Split apart: a contradiction is an error in the FILE, a finding is a
+        # gap in the CATALOG that the file happens to reveal. Conflating them
+        # meant an honest description of a coded column with no codelist read as
+        # a failure, and there is no edit to the file that would fix it.
+        "contradictions": [
+            w for w in warnings
+            if not w.startswith(("SPURIOUS-BINDING?", "UNBOUND-CODELIST?"))
+        ],
+        "catalog_findings": [
+            w for w in warnings
+            if w.startswith(("SPURIOUS-BINDING?", "UNBOUND-CODELIST?"))
+        ],
     }
 
 
