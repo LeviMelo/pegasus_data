@@ -90,6 +90,17 @@ class Info:
             if bits:
                 out.append("  coverage: " + " · ".join(bits))
 
+            axes = self.coverage.get("axes")
+            if axes is not None and self.kind == "dataset":
+                shown = ", ".join(axes) if axes else "nothing — the files are not split"
+                out.append(f"  filterable by: {shown}")
+                absent = [a for a in ("uf", "year", "month") if a not in axes]
+                if absent:
+                    out.append(
+                        f"    NOT split by {', '.join(absent)}; filtering on "
+                        f"{'/'.join(absent)} matches no file and returns empty"
+                    )
+
         if self.documentation:
             described = self.documentation.get("columns_described")
             total = self.documentation.get("columns_total")
@@ -451,6 +462,14 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
 
     questions = _open_questions_for(store, crawled_systems, signatures)
 
+    # How the FILES are split, which is not the same as what the data contains.
+    # SIM.DOFET has no per-state files, so uf= matches nothing and returns an
+    # empty table that reads like "this state has no fetal deaths".
+    try:
+        axes = onto.axes(store.conn).get(node.code)
+    except Exception:  # pragma: no cover - a locked or partial catalog
+        axes = None
+
     notes = []
     if node.confidence != "high":
         notes.append(f"Identity asserted with {node.confidence} confidence — verify before relying on it.")
@@ -481,6 +500,8 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
             "files": files,
             "span": _span(y0, y1),
             "schema_generations": len(schemas),
+            "axes": axes.names if axes else [],
+            "axes_detail": axes.as_dict() if axes else None,
         },
         schemas=schemas,
         documentation={

@@ -53,6 +53,7 @@ _EXPORTS: dict[str, str] = {
     "FetchReport": ".retrieve",
     "DatasetUnknown": ".retrieve",
     "NothingPublished": ".retrieve",
+    "FilterHasNoAxis": ".retrieve",
     "pack": ".bundle",
     "unpack": ".bundle",
     "read_manifest": ".bundle",
@@ -84,7 +85,9 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .bundle import BundleError, pack, read_manifest, unpack
     from .compendium import CompendiumReport, compendium
     from ._explore import Exploration, explore
-    from .retrieve import DatasetUnknown, FetchReport, NothingPublished, fetch
+    from .retrieve import (
+        DatasetUnknown, FetchReport, FilterHasNoAxis, NothingPublished, fetch,
+    )
     from ._translate import TranslationImpossible, translate
 
 

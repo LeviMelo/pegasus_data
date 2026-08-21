@@ -157,6 +157,128 @@ class Binding:
 
 
 @dataclass
+class DatasetAxes:
+    """Which axes a dataset's FILES are split on, measured rather than assumed.
+
+    An axis is present when the files carry it. ``uf`` present means there is a
+    file per state; ``uf`` absent means the data is national and the state, if
+    it exists at all, is a column *inside* the file. Filtering on an absent axis
+    matches nothing, which is why this is worth knowing before the filter runs
+    rather than after it returns empty.
+
+    The fractions are kept because reality is not binary: SIA.PA carries a state
+    on 93% of files and the remainder are national consolidations, so a caller
+    filtering by state silently drops 7%.
+    """
+
+    dataset: str
+    files: int = 0
+    date_formats: dict[str, int] = field(default_factory=dict)
+    _uf: int = 0
+    _year: int = 0
+    _month: int = 0
+
+    #: Below this share of files, an axis is treated as absent rather than
+    #: partial. A handful of stray files carrying a state does not make a
+    #: national series filterable by state.
+    THRESHOLD = 0.5
+
+    def _share(self, n: int) -> float:
+        return (n / self.files) if self.files else 0.0
+
+    @property
+    def uf(self) -> float:
+        return self._share(self._uf)
+
+    @property
+    def year(self) -> float:
+        return self._share(self._year)
+
+    @property
+    def month(self) -> float:
+        return self._share(self._month)
+
+    @property
+    def names(self) -> list[str]:
+        """The axes a caller may filter on."""
+        return [
+            name
+            for name, share in (("uf", self.uf), ("year", self.year), ("month", self.month))
+            if share >= self.THRESHOLD
+        ]
+
+    def missing(self, *, uf: bool = False, year: bool = False, month: bool = False) -> list[str]:
+        """Which of the requested filters this dataset has no axis for."""
+        asked = {"uf": uf, "year": year, "month": month}
+        return [name for name, wanted in asked.items() if wanted and name not in self.names]
+
+    #: An axis this close to complete is complete. Without it, a dataset whose
+    #: share rounds to 100% still trips the partial-axis warning and the caller
+    #: is told "only 100% of files carry a year", which is nonsense and teaches
+    #: them to ignore the warnings that matter.
+    COMPLETE = 0.999
+
+    def partial(self) -> list[tuple[str, float]]:
+        """Axes present on most files but not all — a silent-drop risk."""
+        return [
+            (name, share)
+            for name, share in (("uf", self.uf), ("year", self.year), ("month", self.month))
+            if self.THRESHOLD <= share < self.COMPLETE
+        ]
+
+    def observe(self, *, uf: object = None, year: object = None,
+                month: object = None, n: int = 1) -> None:
+        """Fold ``n`` files into the tally.
+
+        Shared by the catalog path (a SQL aggregate over ``file_facts``) and the
+        snapshot path (plain row dicts), so the two cannot drift into disagreeing
+        about whether a dataset is filterable.
+        """
+        self.files += n
+        if uf:
+            self._uf += n
+        if year:
+            self._year += n
+        if month:
+            self._month += n
+
+    @classmethod
+    def measure(cls, dataset: str, rows: "Iterable[Mapping[str, Any]]") -> "DatasetAxes":
+        """Tally axes from explore-shaped rows (``uf``, ``year``, ``yyyymm``)."""
+        axes = cls(dataset=dataset)
+        for row in rows:
+            axes.observe(
+                uf=row.get("uf"),
+                year=row.get("year"),
+                month=len(str(row.get("yyyymm") or "")) >= 6,
+            )
+        return axes
+
+    def explain(self, name: str) -> str:
+        """Why filtering on ``name`` cannot work here, in one sentence."""
+        present = ", ".join(self.names) or "nothing"
+        return (
+            f"{self.dataset} is not split by {name}. Its {self.files:,} files are "
+            f"split by: {present}."
+        )
+
+    def fractions(self) -> dict[str, float]:
+        """Share of files carrying each axis, whether or not it counts as present."""
+        return {"uf": self.uf, "year": self.year, "month": self.month}
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "dataset": self.dataset,
+            "files": self.files,
+            "axes": self.names,
+            "uf": round(self.uf, 4),
+            "year": round(self.year, 4),
+            "month": round(self.month, 4),
+            "date_formats": self.date_formats,
+        }
+
+
+@dataclass
 class Reconciliation:
     """What the declaration and the crawl each know that the other does not.
 
@@ -432,6 +554,44 @@ class Ontology:
         if hit:
             return ("dataset", self.datasets[hit])
         return None
+
+    def axes(self, conn: sqlite3.Connection) -> dict[str, "DatasetAxes"]:
+        """How each dataset is actually PARTITIONED on the server.
+
+        The API had been assuming every dataset is split by state, year and
+        month, and that assumption is false in a way that produces wrong
+        answers rather than errors. ``SIM.DOFET`` — fetal deaths — is published
+        as 48 NATIONAL files, ``DOFET79.DBC`` and so on. Ask for
+        ``uf="AC"`` and the filter matches nothing, so the caller is handed an
+        empty result and concludes that Acre records no fetal deaths.
+
+        The state is not missing from that data. It is a COLUMN inside the
+        national file rather than an axis the files are split on, and those are
+        completely different things. This measures which is which, so callers
+        can be told rather than left to infer it from an empty table.
+
+        Four date formats exist on the tree — ``YYMM`` for 196,939 files,
+        ``YY``, ``YYYY``, and none at all — so month is not universally
+        available either.
+        """
+        out: dict[str, DatasetAxes] = {}
+        for system, series, geo, year, normalized, fmt, count in conn.execute(
+            "SELECT system, series_prefix, geo_code, year, normalized_date,"
+            " date_format, COUNT(*) FROM file_facts"
+            " WHERE role = 'data' AND system IS NOT NULL"
+            " GROUP BY 1, 2, 3, 4, 5, 6"
+        ):
+            code = self.bind(str(system), str(series or "")).dataset
+            if not code:
+                continue
+            axes = out.setdefault(code, DatasetAxes(dataset=code))
+            n = int(count or 0)
+            axes.observe(
+                uf=geo, year=year, month=len(str(normalized or "")) >= 6, n=n
+            )
+            if fmt:
+                axes.date_formats[str(fmt)] = axes.date_formats.get(str(fmt), 0) + n
+        return out
 
     def suggest(self, target: str, *, limit: int = 5) -> list[str]:
         """Near matches for something that did not resolve.

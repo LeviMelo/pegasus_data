@@ -27,6 +27,7 @@ presenting a two-year-old snapshot as the state of the server.
 from __future__ import annotations
 
 import json
+import textwrap as _textwrap
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
@@ -60,6 +61,11 @@ class Exploration:
     total_bytes: int = 0
     #: Set when the requested thing is not in the map at all, with near misses.
     unknown: list[str] = field(default_factory=list)
+    #: Set when a filter was applied to an axis the dataset's files are not split
+    #: on. The rows are then empty for a structural reason, not a factual one,
+    #: and saying so is the difference between "Acre has no fetal deaths" and
+    #: "fetal deaths are not published per state".
+    warnings: list[str] = field(default_factory=list)
 
     @property
     def table(self) -> pa.Table:
@@ -77,6 +83,7 @@ class Exploration:
             "rows": self.rows,
             "total_files": self.total_files,
             "total_gigabytes": round(self.total_bytes / 2**30, 2),
+            "warnings": self.warnings,
         }
 
     def __len__(self) -> int:
@@ -91,9 +98,17 @@ class Exploration:
             f"{self.total_files:,} files, {self.total_bytes / 2**30:.1f} GiB "
             f"[{self.source}]>"
         )
+        notes = ""
+        if self.warnings:
+            wrapped: list[str] = []
+            for w in self.warnings:
+                lines = _textwrap.wrap(w, 74) or [w]
+                wrapped.append("  ! " + lines[0])
+                wrapped.extend("    " + line for line in lines[1:])
+            notes = "\n" + "\n".join(wrapped)
         if not self.rows:
             hint = f"  nothing matched; did you mean: {', '.join(self.unknown[:6])}" if self.unknown else ""
-            return head + ("\n" + hint if hint else "")
+            return head + notes + ("\n" + hint if hint else "")
         keys = list(self.rows[0])[:5]
         widths = {
             k: max(len(k), *(len(str(r.get(k, ""))) for r in self.rows[:12])) for k in keys
@@ -105,7 +120,7 @@ class Exploration:
             )
         if len(self.rows) > 12:
             lines.append(f"  … {len(self.rows) - 12} more")
-        return head + "\n" + "\n".join(lines)
+        return head + notes + "\n" + "\n".join(lines)
 
 
 def _resource(name: str) -> Path | None:
@@ -224,6 +239,37 @@ def _of_dataset(
     return [r for r in rows if (r.get("series") or "").upper() == want_series]
 
 
+def _axis_warnings(
+    rows: list[dict[str, Any]],
+    system: str | None,
+    series: str | None,
+    *,
+    uf: str | None,
+    year: int | None,
+) -> list[str]:
+    """Flag a filter on an axis these files are not split on.
+
+    ``explore()`` reports rather than raises: its job is to say what is there,
+    and "0 files, because this series is published nationally" is a more useful
+    answer than an exception. ``fetch()`` raises instead, because by then the
+    caller is about to act on the result.
+    """
+    if not (system and series) or not rows or not (uf or year is not None):
+        return []
+    from .ontology import DatasetAxes
+
+    axes = DatasetAxes.measure(f"{system}.{series}", rows)
+    out = []
+    for name, asked in (("uf", bool(uf)), ("year", year is not None)):
+        if asked and name not in axes.names:
+            out.append(
+                axes.explain(name)
+                + f" Filtering on {name} here matches no file; {name} is a column"
+                " inside the data, so load it and filter the table instead."
+            )
+    return out
+
+
 def explore(
     target: str | None = None,
     *,
@@ -284,6 +330,13 @@ def explore(
             )
     if want_series:
         rows = _of_dataset(rows, system, want_series)
+
+    # Measured before the filters run, on the dataset's full set of files: once
+    # uf= has narrowed the rows to none there is nothing left to measure, and
+    # "no files" would look identical whether the axis is absent or the state
+    # genuinely has no data.
+    warnings = _axis_warnings(rows, system, want_series, uf=uf, year=year)
+
     if uf:
         rows = [r for r in rows if (r.get("uf") or "").upper() == uf.upper()]
     if year is not None:
@@ -337,6 +390,7 @@ def explore(
 
     return Exploration(
         level=level, rows=out, source=origin, as_of=as_of, target=target,
+        warnings=warnings,
         total_files=total_files, total_bytes=total_bytes,
     )
 

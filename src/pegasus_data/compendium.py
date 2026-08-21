@@ -96,7 +96,14 @@ CREATE TABLE datasets (
   ufs              INTEGER,
   generations      INTEGER,
   columns_total    INTEGER,
-  columns_described INTEGER
+  columns_described INTEGER,
+  -- How the FILES are split, which is not the same as what the rows contain.
+  -- SIM.DOFET is national: it has a state column but no per-state file, so
+  -- "give me AC" is answerable only after loading, never by picking files.
+  split_by         TEXT,              -- JSON array, e.g. ["uf","year","month"]
+  split_by_uf      REAL,              -- fraction of files carrying each axis
+  split_by_year    REAL,
+  split_by_month   REAL
 );
 CREATE INDEX ix_datasets_system ON datasets(system);
 
@@ -487,6 +494,7 @@ def _write_core(
 
     # --- datasets ---------------------------------------------------------
     docs = _dataset_docs(store, onto)
+    axes_by_code = onto.axes(store.conn)
     ds_rows = []
     for code in sorted(wanted):
         node = onto.datasets[code]
@@ -504,13 +512,15 @@ def _write_core(
                 t.get("files", 0), t.get("ymin"), t.get("ymax"),
                 len(t.get("ufs", ())), gens_per.get(code, 0),
                 len(cols), n_desc,
+                *_axis_columns(axes_by_code.get(code)),
             )
         )
     db.executemany(
         "INSERT INTO datasets (code, system, short_code, official_name, translated_name,"
         " what_it_is, what_one_row_is, unit_of_analysis, known_biases, gotchas, status,"
         " confidence, files, year_min, year_max, ufs, generations, columns_total,"
-        " columns_described) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        " columns_described, split_by, split_by_uf, split_by_year, split_by_month)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         ds_rows,
     )
     report.rows["datasets"] = len(ds_rows)
@@ -584,6 +594,24 @@ def _field_meta(store: _Store) -> dict[tuple[str, str], dict[str, Any]]:
     ):
         out[(str(row["system"]), str(row["f"]))] = {"type": row["t"], "width": row["w"]}
     return out
+
+
+def _axis_columns(axes) -> tuple:
+    """Flatten :class:`DatasetAxes` into the four ``datasets`` columns.
+
+    The fractions are kept alongside the list because "93% of files carry a uf"
+    is a different warning from "no file does" — the first silently drops the
+    remaining 7%, the second returns nothing at all.
+    """
+    if axes is None:
+        return (None, None, None, None)
+    frac = axes.fractions()
+    return (
+        json.dumps(axes.names),
+        frac.get("uf"),
+        frac.get("year"),
+        frac.get("month"),
+    )
 
 
 def _dataset_docs(store: _Store, onto: Ontology) -> dict[str, dict[str, Any]]:

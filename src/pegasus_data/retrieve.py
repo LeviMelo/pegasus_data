@@ -54,11 +54,25 @@ from .progress import ItemTimeout, guarded, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
 from .view import RenderReport, render_table
 
-__all__ = ["fetch", "FetchReport", "DatasetUnknown", "NothingPublished"]
+__all__ = [
+    "fetch", "FetchReport", "DatasetUnknown", "NothingPublished", "FilterHasNoAxis",
+]
 
 
 class DatasetUnknown(KeyError):
     """The dataset name does not resolve to anything the catalog knows."""
+
+
+class FilterHasNoAxis(ValueError):
+    """A filter was given for something the dataset's files are not split on.
+
+    Raised rather than returned empty, because empty is a *plausible answer* to
+    the question the caller thought they asked. ``fetch("SIM-DOFET", uf="AC")``
+    matched no file and handed back nothing, which reads as "Acre records no
+    fetal deaths" — and Acre records plenty. SIM publishes fetal deaths as 48
+    NATIONAL files, so the state is a column inside them rather than an axis
+    they are split on.
+    """
 
 
 class NothingPublished(FileNotFoundError):
@@ -163,6 +177,67 @@ def parse_dataset(spec: str, series: str | None = None) -> tuple[str, str | None
     return system, "".join(parts[1:])
 
 
+#: Where each axis lives as a COLUMN when it is not a file axis, so the error
+#: can say what to do instead of only what went wrong.
+_AXIS_AS_COLUMN = {
+    "uf": "a residence/occurrence column (CODMUNRES, MUNIC_RES, SG_UF…)",
+    "year": "a date column (DTOBITO, DT_NOTIFIC, DT_INTER…)",
+    "month": "a date column",
+}
+
+
+def _check_axes(
+    catalog: Catalog,
+    spec: str,
+    system: str,
+    series: str | None,
+    *,
+    uf: bool,
+    years: bool,
+    months: bool,
+    report: FetchReport,
+) -> None:
+    """Refuse a filter the dataset's files are not split on; warn on a partial one.
+
+    This is the check that stops a wrong answer rather than a slow one. Filtering
+    an axis a dataset does not have matches zero files and returns an empty
+    table, and empty is indistinguishable from a real "no records" answer.
+    """
+    onto = _ontology()
+    if onto is None or not series:  # pragma: no cover - unreadable declaration
+        return
+    found = onto.resolve(f"{system}.{series}")
+    if not found or found[0] != "dataset":
+        return
+    code = found[1].code
+    try:
+        axes = onto.axes(catalog.conn).get(code)
+    except Exception:  # pragma: no cover - a locked or partial catalog
+        return
+    if axes is None or not axes.files:
+        return
+
+    absent = axes.missing(uf=uf, year=years, month=months)
+    if absent:
+        have = ", ".join(axes.names) or "none"
+        wants = ", ".join(absent)
+        hint = "; ".join(f"{name} lives in {_AXIS_AS_COLUMN[name]}" for name in absent)
+        raise FilterHasNoAxis(
+            f"{code} is not split by {wants}. Its {axes.files} files are split by: "
+            f"{have}. Drop {wants}= and filter the loaded table instead — {hint}. "
+            f"Asking anyway would match no file and return an empty table, which "
+            f"reads like a real answer."
+        )
+    for name, share in axes.partial():
+        asked = {"uf": uf, "year": years, "month": months}.get(name)
+        if asked:
+            report.warnings.append(
+                f"{code}: only {share:.0%} of files carry a {name}; filtering on it "
+                f"silently drops the remaining {1 - share:.0%} (national or "
+                f"consolidated files)."
+            )
+
+
 def _reject_unknown_system(spec: str, system: str) -> None:
     """Fail fast, with suggestions, when the SYSTEM does not exist.
 
@@ -259,6 +334,12 @@ def fetch(
         system=system, series=series_name, years_requested=want_years
     )
     try:
+        # Before any work: is this dataset even split the way the caller asked?
+        _check_axes(
+            pipeline.catalog, dataset, system, series_name,
+            uf=bool(want_ufs), years=bool(want_years), months=bool(want_months),
+            report=fetch_report,
+        )
         families = _families(pipeline.catalog, system, series_name)
         if not families and discover:
             _discover(pipeline, system, fetch_report, on_progress)
