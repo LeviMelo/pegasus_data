@@ -168,6 +168,7 @@ pegasus_data/
     demas_api.py ibge.py sigtap.py community.py
   ontology.py             declared systems/datasets; binds observations to them (§5.4)
   _info.py                info(): what a system, dataset or variable IS (§14.5)
+  compendium.py           compendium(): a portable map of DATASUS (§14.6)
   _explore.py             explore(): the shipped map of the tree (§14.1)
   _translate.py           translate(): the dictionary as a service (§14.2)
   view.py                 read-time labelling and render profiles
@@ -829,6 +830,41 @@ decodes.
 Aliases resolve throughout: `SIH` and `SIHSUS` are the same node, `SIH.RD`,
 `SIHSUS.RD`, `SIH/RD` and a bare `RD` all reach the same dataset, and an
 ambiguous bare code resolves to nothing rather than to a guess.
+
+---
+
+### 14.6 `compendium()` — the map, as a file `[D]`
+
+`explore()` and `info()` answer from a catalog the caller has. `compendium()`
+writes the answer out, so someone with no catalog and no network can open it.
+The audience is a researcher deciding whether DATASUS can answer a question at
+all, typically while writing a protocol.
+
+The prior art is a 57 MB artefact whose weight was in the wrong place: 124,810
+rows of raw file listing and per-column-per-file percentiles (`p01`…`p99`,
+`mean`, `std`), with **no descriptions at all** and a `semantic_guess` column
+presenting guesses as data — it labelled a CNES establishment code
+`municipality_code_candidate`, with nothing to say how much to trust that.
+
+So the core here carries what planning actually needs — `systems`, `datasets`
+with what one row IS, `coverage` by year and state, `schema_generations` with
+what each changed, `variables` with their meanings, and `open_questions` — and
+everything heavy is opt-in.
+
+The `codes` toggle is the design decision, and it is sized rather than named:
+
+| mode | SIH | why |
+|---|---:|---|
+| core | 0.8 MB | the map |
+| `internal` | 4.8 MB | DATASUS's own enumerations |
+| `bound` | **425 MB** | + CID-10, CBO and geography |
+
+Twelve geography and CID-10 tables are 62% of the codes bound to SIH — `MUNICBR`
+alone is 1.2M rows. Those are maintained elsewhere and the reader already has
+them. `internal` excludes codelists above `max_codes` and **names them in the
+report**, because a size rule that silently drops things is the same failure as
+a guess presented as data. Sizing rather than reading a curated `code_system`
+was deliberate: that field is thin exactly where curation is thin.
 
 ---
 

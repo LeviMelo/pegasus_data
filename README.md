@@ -32,7 +32,7 @@ df = fetch("SIH-RD", uf="AL", years=2023)       # give me it
 - [Install](#install) · [Five minutes](#five-minutes)
 - [The data model](#the-data-model) — systems, datasets, schema generations
 - [The API](#the-api) — `info` · `explore` · `fetch` · `load` · `describe` ·
-  `translate` · `search` · `export` · `pack`
+  `translate` · `search` · `export` · `compendium` · `pack`
 - [The command line](#the-command-line)
 - [How it works](#how-it-works) — the pipeline, and where things live
 - [Why you can trust it](#why-you-can-trust-it) — the rules that are not stylistic
@@ -308,6 +308,40 @@ Translated headers, combined values, one call. Shares `load()`'s rendering
 implementation, so an option cannot mean one thing in a notebook and another in a
 file.
 
+### `compendium(out, *, systems, codes, values, files)` — a portable map
+
+One SQLite file answering *"what does DATASUS have, and can I answer my question
+with it?"* — the question asked while writing a protocol, before anything is
+downloaded.
+
+```python
+from pegasus_data import compendium
+
+compendium("datasus.sqlite")                   # the map            ~5 MB
+compendium("datasus.sqlite", codes=True)       # + DATASUS's own codes
+compendium("datasus.sqlite", systems=["SIH"])  # scoped
+```
+
+```bash
+pegasus-data compendium --out datasus.sqlite --codes internal
+```
+
+| table | answers |
+|---|---|
+| `systems`, `datasets` | what exists, and what one row IS |
+| `coverage` | which years and states — the feasibility question |
+| `schema_generations` | did the columns change under my study period |
+| `variables`, `dataset_variables` | what the columns are and mean |
+| `open_questions` | what is *not* known |
+| `codes`, `value_frequencies`, `files` | opt-in, and what makes a file large |
+
+The `codes` toggle is the whole design. Measured on SIH: the core is 0.8 MB,
+`codes=True` takes it to 4.8 MB, and `codes="bound"` to **425 MB** — because
+twelve geography and CID-10 tables are 62% of the codes bound to it. `internal`
+keeps DATASUS's own enumerations, which you cannot get anywhere else, and leaves
+out the standard classifications you already have — naming which ones in the
+report rather than dropping them silently.
+
 ### `pack()` / `unpack()` — see [Working offline](#working-offline)
 
 ---
@@ -316,7 +350,7 @@ file.
 
 ```
 EXPLORE      systems · tree · coverage
-UNDERSTAND   info · describe · dictionary · search · page · gaps
+UNDERSTAND   info · describe · compendium · dictionary · search · page · gaps
 EXTRACT      get · build · export
 AUDIT        report · questions · verify · findings · icd-quality
 MONITOR      crawl --resume

@@ -234,6 +234,36 @@ def search(
     _emit(hits, as_json, f"search: {query}")
 
 
+@app.command(name="compendium", rich_help_panel="UNDERSTAND")
+def compendium_cmd(
+    out: Annotated[Path, typer.Option("--out", help="Where to write the .sqlite")] = Path("datasus.sqlite"),
+    system: SystemsOpt = None,
+    codes: Annotated[str, typer.Option("--codes", help="none | internal | bound | all")] = "none",
+    max_codes: Annotated[int, typer.Option("--max-codes", help="Codelists larger than this count as external under --codes internal")] = 1000,
+    values: Annotated[bool, typer.Option("--values/--no-values", help="Include observed value frequencies")] = False,
+    files: Annotated[bool, typer.Option("--files/--no-files", help="Include the raw file listing")] = False,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Write a portable map of DATASUS: what exists, down to the variable.
+
+    The core answers what a researcher asks before downloading anything — which
+    systems, which datasets, which years and states, which columns and what they
+    mean. Code meanings and value frequencies are opt-in because they are what
+    makes such a file large.
+    """
+    from .compendium import compendium as _compendium
+
+    report = _compendium(
+        out, systems=system, codes=codes, max_codes=max_codes,
+        values=values, files=files, root=root,
+    )
+    if as_json:
+        _emit(report.as_dict(), True)
+        return
+    console.print(str(report))
+
+
 @app.command(name="info", rich_help_panel="UNDERSTAND")
 def info_cmd(
     target: Annotated[str | None, typer.Argument(help="System, dataset or variable: SIH, SIH-RD, SIH.RD")] = None,

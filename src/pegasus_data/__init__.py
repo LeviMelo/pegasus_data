@@ -46,6 +46,8 @@ _EXPORTS: dict[str, str] = {
     "Exploration": "._explore",
     "translate": "._translate",
     "TranslationImpossible": "._translate",
+    "compendium": ".compendium",
+    "CompendiumReport": ".compendium",
     "search": ".docsgen",
     "fetch": ".retrieve",
     "FetchReport": ".retrieve",
@@ -80,6 +82,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         open_lake,
     )
     from .bundle import BundleError, pack, read_manifest, unpack
+    from .compendium import CompendiumReport, compendium
     from ._explore import Exploration, explore
     from .retrieve import DatasetUnknown, FetchReport, NothingPublished, fetch
     from ._translate import TranslationImpossible, translate
