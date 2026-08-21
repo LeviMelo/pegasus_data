@@ -561,9 +561,20 @@ class TestALabelCannotBecomeACode:
         spaced = [c.expression for c in parsed.categories if " " in c.expression.strip()]
         assert spaced == [], f"prose survived as a code: {spaced}"
 
-    def test_it_says_which_line_it_had_to_re_split(self):
+    def test_it_keeps_the_aligned_code_and_says_what_it_threw_away(self):
+        """The first fix re-split on tokens and took the LAST one — 'vascular'.
+
+        That replaced one wrong code with another. The column split was right
+        all along: 'XXXXXX' sits exactly where every neighbouring code sits, and
+        'vascular' is debris from another line. Keep the aligned code, and
+        record the discarded text rather than dropping it silently.
+        """
         parsed = parse_cnv_bytes(self._medico02(), name="medico02", source_ref="t")
-        assert any("not a match expression" in w for w in parsed.warnings), parsed.warnings
+        assert parsed.categories[-1].expression == "XXXXXX"
+        assert parsed.categories[-1].label == "MEDICO DE FAMILIA"
+        assert any(
+            "vascular" in w and "discarded" in w for w in parsed.warnings
+        ), parsed.warnings
 
     def test_an_ordinary_file_is_untouched(self):
         raw = self._cnv(

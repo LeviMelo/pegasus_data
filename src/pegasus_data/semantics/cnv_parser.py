@@ -61,6 +61,16 @@ _HEADER = re.compile(r"^\s*(\d+)\s+(\d+)\s*$")
 #: a code width above 30 is not a width, and the title must not be empty (that
 #: is the bare form, already handled above).
 _HEADER_TITLED = re.compile(r"^\s*(\d+)\s+(\S.*?)\s+(\d+)\s*$")
+#: The header with a trailing TabNet flag: ``326 7 L``. Three of the four files
+#: that were emitting prose codes opened with this form, and because neither the
+#: bare nor the titled pattern matched, the header line itself was parsed as a
+#: category and the file lost its declared count AND its code width — so nothing
+#: downstream could zero-pad or validate.
+_HEADER_FLAGGED = re.compile(r"^\s*(\d+)\s+(\d+)\s+([A-Za-z])\s*$")
+#: TabNet's comment marker. ``Mun_A_F_P.cnv`` opens with two of these before its
+#: real header, so header detection has to look past them rather than at line 1,
+#: and they must not survive into the body as categories.
+_COMMENT = re.compile(r"^\s*;")
 #: Widths beyond this are not code widths; the longest real one on the tree is
 #: the 10-character SIGTAP procedure code.
 _MAX_CODE_WIDTH = 30
@@ -132,6 +142,40 @@ def _expression_column(lines: list[str]) -> int | None:
     return column if hits >= max(2, 0.6 * sum(starts.values())) else None
 
 
+def _plausible_header(count: str, width: str) -> bool:
+    """Do these two numbers look like a category count and a code width?
+
+    A width is written ``6``; a code is zero-padded to that width, ``000001``,
+    so a leading zero is the strongest signal that this is data rather than a
+    header. A one-category file barely exists, and a data row's first token is
+    a sequence number starting at 1.
+    """
+    if len(width) > 1 and width.startswith("0"):
+        return False
+    if not (0 < int(width) <= _MAX_CODE_WIDTH):
+        return False
+    return int(count) >= 2
+
+
+def _first_expression(text: str) -> tuple[str, str] | None:
+    """The leading token of ``text`` if it is a match expression, plus the rest.
+
+    Used when the text past the expression column is not a clean expression.
+    ``medico02.CNV`` line 11 reads ``... MÉDICO DE FAMÍLIA   XXXXXX      vascular``
+    — the code is ``XXXXXX``, exactly as on its neighbours, and ``vascular`` is
+    a fragment that does not belong to the line at all. Taking the LAST token,
+    as this used to, chose ``vascular``: a word, stored as a code, bound to a
+    column, and matched against real records.
+    """
+    tokens = list(_TOKEN.finditer(text))
+    if not tokens:
+        return None
+    head = tokens[0].group()
+    if not _is_expression(head):
+        return None
+    return head, text[tokens[0].end():].strip()
+
+
 def _is_titled_header(match: re.Match[str]) -> bool:
     """Is this first line a ``<count> <title> <width>`` header, or a data row?
 
@@ -150,11 +194,7 @@ def _is_titled_header(match: re.Match[str]) -> bool:
     justifies erring this way.
     """
     count, title, width = match.group(1), match.group(2), match.group(3)
-    if len(width) > 1 and width.startswith("0"):
-        return False
-    if not (0 < int(width) <= _MAX_CODE_WIDTH):
-        return False
-    if int(count) < 2:
+    if not _plausible_header(count, width):
         return False
     return " " in title.strip()
 
@@ -174,33 +214,60 @@ def parse_cnv_bytes(
 
     declared: int | None = None
     width: int | None = None
-    body_start = 0
-    header = _HEADER.match(raw_lines[0])
-    if header:
-        declared = int(header.group(1))
-        width = int(header.group(2))
-        body_start = 1
-    else:
-        titled = _HEADER_TITLED.match(raw_lines[0])
-        if titled and _is_titled_header(titled):
+
+    # The header is the first line that is neither blank nor a comment. Looking
+    # only at line 1 meant a file that opens with a comment lost its header
+    # entirely, and with it the code width every downstream expansion needs.
+    first = 0
+    while first < len(raw_lines) and (
+        not raw_lines[first].strip() or _COMMENT.match(raw_lines[first])
+    ):
+        first += 1
+    body_start = first
+
+    if first < len(raw_lines):
+        line0 = raw_lines[first]
+        header = _HEADER.match(line0)
+        flagged = _HEADER_FLAGGED.match(line0)
+        titled = _HEADER_TITLED.match(line0)
+        if header:
+            declared = int(header.group(1))
+            width = int(header.group(2))
+            body_start = first + 1
+        elif flagged and _plausible_header(flagged.group(1), flagged.group(2)):
+            declared = int(flagged.group(1))
+            width = int(flagged.group(2))
+            body_start = first + 1
+        elif titled and _is_titled_header(titled):
             declared = int(titled.group(1))
             width = int(titled.group(3))
-            body_start = 1
-    body = [ln for ln in raw_lines[body_start:] if ln.strip()]
+            body_start = first + 1
 
-    expr_col = _expression_column(body)
+    # Keep the true line number with each line: comments are dropped from the
+    # body, so position in the list no longer tracks position in the file, and
+    # every warning here cites a line a human is expected to go and read.
+    body = [
+        (n, ln)
+        for n, ln in enumerate(raw_lines[body_start:], start=body_start + 1)
+        if ln.strip() and not _COMMENT.match(ln)
+    ]
+
+    expr_col = _expression_column([ln for _, ln in body])
     out = CnvFile(name, source_ref, declared, width, encoding=encoding)
 
-    for offset, line in enumerate(body):
+    for offset, (line_no, line) in enumerate(body):
         tokens = list(_TOKEN.finditer(line))
         if not tokens:
             continue
         sequence = tokens[0].group()
         if len(tokens) == 1:
-            out.warnings.append(f"line {offset + body_start + 1}: no match expression")
+            out.warnings.append(f"line {line_no}: no match expression")
             continue
         if expr_col is not None and len(line) > expr_col and line[expr_col - 1 : expr_col] in (" ", ""):
-            label = line[tokens[0].end() : expr_col].strip()
+            # Collapse the column padding: a .CNV is a fixed-width layout, so the
+            # run of spaces inside 'JI-PARANÁ               A' is alignment, not
+            # part of the name.
+            label = " ".join(line[tokens[0].end() : expr_col].split())
             expression = line[expr_col:].strip()
             if not expression:
                 label = " ".join(t.group() for t in tokens[1:-1]).strip()
@@ -217,18 +284,31 @@ def parse_cnv_bytes(
                 # It never contains free internal whitespace, which makes this
                 # detectable rather than a matter of taste: fall back to the
                 # token split, and say so.
-                out.warnings.append(
-                    f"line {offset + body_start + 1}: text past the expression column "
-                    f"is not a match expression ({expression[:40]!r}); "
-                    "re-split on tokens"
-                )
-                label = " ".join(t.group() for t in tokens[1:-1]).strip()
-                expression = tokens[-1].group()
+                lead = _first_expression(expression)
+                if lead is not None:
+                    # The column split was right and the line carries trailing
+                    # junk. Keep the aligned code and the label the column gave,
+                    # and record what was discarded rather than dropping it
+                    # silently — it is evidence the source file is damaged.
+                    expression, discarded = lead
+                    out.warnings.append(
+                        f"line {line_no}: text after the match expression "
+                        f"{expression!r} is not part of it ({discarded[:40]!r}); "
+                        "discarded"
+                    )
+                else:
+                    out.warnings.append(
+                        f"line {line_no}: text past the expression column "
+                        f"is not a match expression ({expression[:40]!r}); "
+                        "re-split on tokens"
+                    )
+                    label = " ".join(t.group() for t in tokens[1:-1]).strip()
+                    expression = tokens[-1].group()
         else:
             label = " ".join(t.group() for t in tokens[1:-1]).strip()
             expression = tokens[-1].group()
             if expr_col is not None:
-                out.warnings.append(f"line {offset + body_start + 1}: label overflows expression column")
+                out.warnings.append(f"line {line_no}: label overflows expression column")
         codes, unexpanded = expand_expression(
             expression, width=width, universe=universe, max_expansion=max_expansion
         )
@@ -238,7 +318,7 @@ def parse_cnv_bytes(
                 sequence=sequence,
                 label=label,
                 expression=expression,
-                line_no=offset + body_start + 1,
+                line_no=line_no,
                 codes=codes,
                 unexpanded=unexpanded,
             )
