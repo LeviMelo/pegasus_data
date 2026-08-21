@@ -50,7 +50,20 @@ from ..textenc import best_effort_decode
 __all__ = ["CnvCategory", "CnvFile", "parse_cnv", "parse_cnv_bytes", "expand_expression"]
 
 _TOKEN = re.compile(r"\S+")
+#: The bare header: a category count and a code width, nothing else.
 _HEADER = re.compile(r"^\s*(\d+)\s+(\d+)\s*$")
+#: The header WITH a title, which is the commoner form and was being missed.
+#: ``NHE.cnv`` opens with the count, a sentence describing the table, and then
+#: the width; because the bare pattern did not match, line 1 was parsed as a
+#: category and its title became a dictionary "code" —
+#: ``'26/08/210 pelo GT-SINAN/MS nova definição 190 NHE. ; Patch 4.2'``.
+#: Guarded on both numbers being plausible so a data row cannot impersonate it:
+#: a code width above 30 is not a width, and the title must not be empty (that
+#: is the bare form, already handled above).
+_HEADER_TITLED = re.compile(r"^\s*(\d+)\s+(\S.*?)\s+(\d+)\s*$")
+#: Widths beyond this are not code widths; the longest real one on the tree is
+#: the 10-character SIGTAP procedure code.
+_MAX_CODE_WIDTH = 30
 
 
 @dataclass(slots=True)
@@ -119,6 +132,33 @@ def _expression_column(lines: list[str]) -> int | None:
     return column if hits >= max(2, 0.6 * sum(starts.values())) else None
 
 
+def _is_titled_header(match: re.Match[str]) -> bool:
+    """Is this first line a ``<count> <title> <width>`` header, or a data row?
+
+    They are genuinely ambiguous — ``  1 Hospital A   000001`` fits the same
+    shape — so three properties separate them, and all three must hold:
+
+    * **The width has no leading zero.** A width is written ``6``; a code is
+      zero-padded to that width, ``000001``. This is the strongest of the three.
+    * **The count is at least two.** A one-category ``.CNV`` barely exists, and a
+      data row's first token is the sequence number, which starts at 1.
+    * **The title contains a space.** Headers describe the table in a phrase;
+      a data row's label may be a single word.
+
+    Refusing a genuine one-category titled header costs one spurious category.
+    Accepting a data row costs a whole row of real decoding, so the asymmetry
+    justifies erring this way.
+    """
+    count, title, width = match.group(1), match.group(2), match.group(3)
+    if len(width) > 1 and width.startswith("0"):
+        return False
+    if not (0 < int(width) <= _MAX_CODE_WIDTH):
+        return False
+    if int(count) < 2:
+        return False
+    return " " in title.strip()
+
+
 def parse_cnv_bytes(
     data: bytes,
     *,
@@ -140,6 +180,12 @@ def parse_cnv_bytes(
         declared = int(header.group(1))
         width = int(header.group(2))
         body_start = 1
+    else:
+        titled = _HEADER_TITLED.match(raw_lines[0])
+        if titled and _is_titled_header(titled):
+            declared = int(titled.group(1))
+            width = int(titled.group(3))
+            body_start = 1
     body = [ln for ln in raw_lines[body_start:] if ln.strip()]
 
     expr_col = _expression_column(body)

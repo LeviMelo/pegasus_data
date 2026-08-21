@@ -171,10 +171,24 @@ class Reconciliation:
     unbound: list[Binding] = field(default_factory=list)
     unobserved: list[str] = field(default_factory=list)
     files_by_dataset: dict[str, int] = field(default_factory=dict)
+    #: Files whose role is not ``data`` — the ``.CNV`` and ``.DEF`` codelists,
+    #: the record layouts, the legislation PDFs. These are NOT datasets and are
+    #: not expected to bind; they are where the *meaning* of the datasets comes
+    #: from. Counted separately so that "unbound" keeps its one alarming
+    #: meaning: microdata the API cannot name.
+    support_files: dict[str, int] = field(default_factory=dict)
+    #: Data files that bound, and data files that did not. The second number is
+    #: the exhaustiveness measure the project is judged on.
+    data_files_bound: int = 0
+    data_files_unbound: int = 0
+
+    @property
+    def is_exhaustive(self) -> bool:
+        """True when every data file on the tree reaches a declared dataset."""
+        return self.data_files_unbound == 0
 
     def summary(self) -> dict[str, Any]:
-        bound_files = sum(self.files_by_dataset.values())
-        unbound_files = sum(b_files for _, b_files in self._unbound_counts())
+        total = self.data_files_bound + self.data_files_unbound
         return {
             "observed_pairs": len(self.bound) + len(self.unbound),
             "bound_pairs": len(self.bound),
@@ -182,12 +196,13 @@ class Reconciliation:
             "datasets_declared": len(self.files_by_dataset) + len(self.unobserved),
             "datasets_observed": len([k for k, v in self.files_by_dataset.items() if v]),
             "datasets_unobserved": len(self.unobserved),
-            "files_bound": bound_files,
-            "files_unbound": unbound_files,
+            "data_files": total,
+            "data_files_bound": self.data_files_bound,
+            "data_files_unbound": self.data_files_unbound,
+            "data_coverage": (self.data_files_bound / total) if total else 0.0,
+            "support_files": sum(self.support_files.values()),
+            "exhaustive": self.is_exhaustive,
         }
-
-    def _unbound_counts(self) -> Iterable[tuple[str, int]]:
-        return ()
 
 
 # ------------------------------------------------------------------ ontology
@@ -341,7 +356,15 @@ class Ontology:
         return None
 
     def reconcile(self, conn: sqlite3.Connection) -> Reconciliation:
-        """Compare the declaration against what the crawl actually holds."""
+        """Compare the declaration against what the crawl actually holds.
+
+        Counts files by ``role``, because the tree is not all microdata. Of
+        207,251 files, 219 are ``.CNV`` and ``.DEF`` codelists, record layouts
+        and legislation PDFs — the support layer the dictionary is built from.
+        Those are not datasets and must not be counted as gaps, or the one
+        number that matters (data the API cannot name) gets buried in noise
+        that is working exactly as intended.
+        """
         report = Reconciliation()
         seen: set[str] = set()
         for system, series, files in conn.execute(
@@ -358,6 +381,23 @@ class Ontology:
             else:
                 report.unbound.append(binding)
         report.unobserved = sorted(set(self.datasets) - seen)
+
+        # Now the file-level truth, which is what exhaustiveness actually means.
+        try:
+            rows = conn.execute(
+                "SELECT system, series_prefix, role, COUNT(*) FROM file_facts GROUP BY 1, 2, 3"
+            ).fetchall()
+        except sqlite3.OperationalError:  # pragma: no cover - older catalogs
+            return report
+        for system, series, role, count in rows:
+            n = int(count or 0)
+            if str(role or "data") != "data":
+                report.support_files[str(role)] = report.support_files.get(str(role), 0) + n
+                continue
+            if self.bind(str(system), str(series or "")).dataset:
+                report.data_files_bound += n
+            else:
+                report.data_files_unbound += n
         return report
 
     # ----------------------------------------------------------- resolution

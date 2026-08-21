@@ -894,6 +894,61 @@ def check_codes_are_codes(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
+def check_ontology_exhaustive(catalog: Catalog, settings: Settings) -> Check:
+    """Every DATA file on the tree reaches a declared dataset.
+
+    This is the assertion the whole project is judged on. The point of the crawl
+    is exhaustiveness, and a data file that binds to no declared dataset is data
+    the API cannot name, cannot fetch and cannot describe — invisible to every
+    caller even though it was downloaded and catalogued.
+
+    Counted over ``role = 'data'`` only. The tree also carries 221 ``.CNV`` and
+    ``.DEF`` codelists, record layouts and legislation PDFs; those are the
+    support layer the dictionary is built FROM, not datasets, and counting them
+    as gaps would bury the one number that matters under noise that is working
+    as designed.
+    """
+    c = Check("every data file binds to a declared dataset", 17)
+    try:
+        from .ontology import Ontology
+
+        onto = Ontology.load()
+    except Exception as exc:  # pragma: no cover - only if curation is unreadable
+        return _skip(c, f"the declared ontology could not be read: {exc}")
+
+    if not catalog.count("file_facts"):
+        return _skip(c, "no file_facts rows: crawl and inventory first")
+
+    report = onto.reconcile(catalog.conn)
+    summary = report.summary()
+    c.evidence = {
+        "systems_declared": len(onto.systems),
+        "datasets_declared": len(onto.datasets),
+        **summary,
+    }
+    if report.unbound:
+        worst = sorted(report.unbound, key=lambda b: b.observed_series)[:5]
+        c.evidence["unbound_series"] = [
+            f"{b.observed_system}/{b.observed_series}" for b in worst
+        ]
+    if report.data_files_unbound:
+        c.status = "fail"
+        c.detail = (
+            f"{report.data_files_unbound} data files bind to no declared dataset "
+            f"({100 * summary['data_coverage']:.2f}% coverage). Declare them in "
+            "curation/ontology.yml, or add an observed_as alias to an existing node."
+        )
+        return c
+    c.status = "pass"
+    c.detail = (
+        f"{report.data_files_bound} data files, all bound, across "
+        f"{len(onto.datasets)} datasets in {len(onto.systems)} systems; "
+        f"{summary['support_files']} support files (codelists, layouts, PDFs) "
+        "accounted for separately; nothing declared-but-unobserved"
+    )
+    return c
+
+
 CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_blob_dedup,
     check_crawl_coverage,
@@ -911,6 +966,7 @@ CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_build_accounted,
     check_stored_labels_agree,
     check_codes_are_codes,
+    check_ontology_exhaustive,
 )
 
 
