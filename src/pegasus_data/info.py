@@ -102,15 +102,24 @@ class Info:
 
         if self.schemas:
             out.append("")
-            out.append(f"  schema generations ({len(self.schemas)}):")
-            for s in self.schemas[:8]:
-                out.append(
-                    f"    {s.get('schema_signature', '')[:12]}  "
-                    f"{s.get('field_count', '?')} cols  "
-                    f"{s.get('span', '')}  {s.get('files', 0):,} files"
+            out.append(f"  schema generations ({len(self.schemas)}), oldest first:")
+            for s in self.schemas[:12]:
+                line = (
+                    f"    {str(s.get('span', '')):<11} "
+                    f"{str(s.get('field_count', '?')):>4} cols  "
+                    f"{s.get('files', 0):>6,} files  "
+                    f"{s.get('schema_signature', '')[:10]}"
                 )
-            if len(self.schemas) > 8:
-                out.append(f"    ... and {len(self.schemas) - 8} more")
+                out.append(line)
+                delta = []
+                if s.get("added"):
+                    delta.append(f"+{len(s['added'])} {' '.join(s['added'][:5])}")
+                if s.get("dropped"):
+                    delta.append(f"-{len(s['dropped'])} {' '.join(s['dropped'][:5])}")
+                if delta:
+                    out.append(f"        {'; '.join(delta)}")
+            if len(self.schemas) > 12:
+                out.append(f"    ... and {len(self.schemas) - 12} more")
 
         if self.children:
             out.append("")
@@ -346,12 +355,13 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
                     "family_id": r["family_id"],
                     "schema_signature": str(r["schema_signature"]),
                     "field_count": r["field_count"],
-                    "span": _span(r["time_min"], r["time_max"]),
+                    "time_min": r["time_min"],
+                    "time_max": r["time_max"],
                     "files": int(r["file_count"] or 0),
                     "schema_source": r["schema_source"],
                 }
             )
-    schemas.sort(key=lambda s: (-int(s["files"] or 0), s["schema_signature"]))
+    schemas = _generations(store, schemas)
 
     # Documentation coverage, counted over the columns this dataset actually has.
     described = total_cols = 0
@@ -432,6 +442,78 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
         },
         notes=notes,
     )
+
+
+def _generations(store: _Store, families: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Collapse families into schema generations, and say what changed between them.
+
+    Two separate jobs, both of which the raw family list gets wrong.
+
+    *Grouping.* One schema signature can appear under several families, because
+    the same schema is reached through several spellings of the series. Listing
+    them separately showed SIH.RD's 113-column generation twice, as though the
+    schema had changed and changed back. A generation is a signature, not a
+    family.
+
+    *Diffing.* A generation is only meaningful next to its neighbour: "113
+    columns, 2014-2025" says nothing, while "added 6, dropped 1 against the
+    previous generation" is the fact an analyst needs before pooling years across
+    the boundary. The columns come from the header census, so this costs a
+    lookup rather than a decode.
+    """
+    grouped: dict[str, dict[str, Any]] = {}
+    for fam in families:
+        sig = str(fam["schema_signature"])
+        slot = grouped.setdefault(
+            sig,
+            {
+                "schema_signature": sig,
+                "field_count": fam["field_count"],
+                "files": 0,
+                "families": 0,
+                "time_min": None,
+                "time_max": None,
+                "schema_source": fam["schema_source"],
+            },
+        )
+        slot["files"] += int(fam["files"] or 0)
+        slot["families"] += 1
+        for key, op in (("time_min", min), ("time_max", max)):
+            val = fam[key]
+            if val is None:
+                continue
+            slot[key] = val if slot[key] is None else op(slot[key], val)
+
+    order = sorted(
+        grouped.values(),
+        key=lambda g: (g["time_min"] is None, g["time_min"], g["schema_signature"]),
+    )
+    if not order:
+        return []
+
+    fields: dict[str, set[str]] = {}
+    sigs = [g["schema_signature"] for g in order]
+    marks = ",".join("?" for _ in sigs)
+    for row in store.query(
+        f"SELECT schema_signature, field_name FROM schema_presence "
+        f"WHERE schema_signature IN ({marks})",
+        tuple(sigs),
+    ):
+        fields.setdefault(str(row["schema_signature"]), set()).add(str(row["field_name"]))
+
+    previous: set[str] | None = None
+    for gen in order:
+        here = fields.get(gen["schema_signature"], set())
+        gen["span"] = _span(gen.pop("time_min"), gen.pop("time_max"))
+        if previous is None:
+            gen["added"], gen["dropped"] = [], []
+            gen["is_first"] = True
+        else:
+            gen["added"] = sorted(here - previous)
+            gen["dropped"] = sorted(previous - here)
+            gen["is_first"] = False
+        previous = here
+    return order
 
 
 def _variable(store: _Store, onto: Ontology, target: str, field_name: str) -> Info:

@@ -797,6 +797,25 @@ So `info("SIA.AB")` reports `seen as: AB, APAC_AB`-style evidence that one
 dataset is published in two trees, and a dataset declared but never observed
 says so in `notes` rather than appearing as an empty success.
 
+**Schema generations are documented, not just listed.** A generation is a
+*signature*, not a family: one signature is reached through several spellings of
+the series, so listing families showed SIH.RD's 113-column generation twice, as
+though the schema had changed and changed back. And a generation only means
+something beside its neighbour, so each one carries the columns added and
+dropped against the previous:
+
+```
+1998   41 cols    324 files
+    +7 CAR_INT DIAG_SECUN GESTAO MARCA_UTI NACIONAL; -8 DIAG_SEC SEMIPLEN …
+1999   52 cols    323 files
+    +11 CID_NOTIF CONTRACEP1 CONTRACEP2 GESTRISCO INSTRU
+```
+
+"113 columns, 2014–2025" tells an analyst nothing; "+6, −1 at this boundary" is
+what decides whether years either side can be pooled. The columns come from the
+header census (§6.5), so a full generation history costs lookups rather than
+decodes.
+
 Aliases resolve throughout: `SIH` and `SIHSUS` are the same node, `SIH.RD`,
 `SIHSUS.RD`, `SIH/RD` and a bare `RD` all reach the same dataset, and an
 ambiguous bare code resolves to nothing rather than to a guess.

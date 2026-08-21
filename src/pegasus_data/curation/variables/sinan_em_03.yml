@@ -1,0 +1,270 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  LAB_ELIS_1:
+    official_name: Sorologia IgM-Elisa - Resultado 1ª amostra
+    translated_name: IgM-ELISA serology - 1st sample result
+    description: >
+      Result of the first IgM-ELISA serology sample for leptospirosis:
+      reagente, não reagente, inconclusivo, or não realizado. Only run when
+      the patient was hospitalized; paired with LAB_ELIS_2 for the second
+      sample.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 44 "Resultado 1ª Amostra"
+
+  LAB_ELIS_2:
+    official_name: Sorologia IgM-Elisa - Resultado 2ª amostra
+    translated_name: IgM-ELISA serology - 2nd sample result
+    description: >
+      Same IgM-ELISA test as LAB_ELIS_1, run on a second sample collected
+      later.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 46 "Resultado 2ª Amostra"
+
+  LAB_EOSI:
+    official_name: Exame Quimiocitológico - Eosinófilos
+    translated_name: CSF chemocytology - eosinophils
+    description: >
+      Eosinophil count in the meningitis patient's CSF, part of the
+      quimiocitológico panel alongside LAB_LEUCO, LAB_NEUTRO, LAB_LINFO and
+      LAB_MONO. A plain numeric lab value.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Eosinófilos"
+
+  LAB_GLICO:
+    official_name: Exame Quimiocitológico - Glicose
+    translated_name: CSF chemocytology - glucose
+    description: >
+      Glucose concentration in the meningitis patient's CSF, part of the same
+      quimiocitológico panel as LAB_CLOR and LAB_PROT.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Glicose"
+
+  LAB_HEMA:
+    official_name: Exame Quimiocitológico - Hemácias
+    translated_name: CSF chemocytology - red blood cells
+    description: >
+      Red-cell count in the meningitis patient's CSF. Distinct from
+      LAB_HEMA_N, which is a Hantavirose blood-hematocrit flag, not a CSF
+      cell count.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Hemácias"
+
+  LAB_HEMA_N:
+    official_name: Resultado A - Hematócrito > 45%
+    translated_name: Blood test result - hematocrit above 45%
+    description: >
+      Whether the Hantavirose patient's hematocrit exceeded 45%
+      (hemoconcentration, a hantavirus cardiopulmonary syndrome marker), one
+      of a blood-panel checklist (with LAB_TROMBO, LAB_ATIPIC, LAB_UREIA,
+      LAB_TGO, LAB_TGP) run only if a blood sample was drawn.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 38 "Resultado A"
+
+  LAB_IMUNO:
+    official_name: Resultado Imunohistoquímica
+    translated_name: Immunohistochemistry result
+    description: >
+      Result of immunohistochemistry testing for hantavirus antigen:
+      positivo, negativo, inconclusivo, or não realizado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 44 "Resultado Imunohistoquimica"
+
+  LAB_ISFEZE:
+    official_name: Isolamento viral fezes
+    translated_name: Viral isolation - stool
+    description: >
+      Etiologic-agent code from viral isolation attempted on a stool sample
+      in a meningitis investigation, sibling test to LAB_ISLIQU (CSF).
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Isolamento viral fezes"
+
+  LAB_ISLIQU:
+    official_name: Isolamento viral líquor
+    translated_name: Viral isolation - CSF
+    description: >
+      Same viral-isolation test as LAB_ISFEZE, attempted on CSF instead of
+      stool.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Isolamento viral líquor"
+
+  LAB_LEUCO:
+    official_name: Exame Quimiocitológico - Leucócitos
+    translated_name: CSF chemocytology - white blood cells
+    description: >
+      Total white-cell count in the meningitis patient's CSF, the headline
+      value of the quimiocitológico panel that also breaks the differential
+      out into LAB_NEUTRO, LAB_LINFO, LAB_MONO and LAB_EOSI.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Leucócitos"
+
+  LAB_LINFO:
+    official_name: Exame Quimiocitológico - Linfócitos
+    translated_name: CSF chemocytology - lymphocytes
+    description: >
+      Lymphocyte count in the meningitis patient's CSF, one component of the
+      LAB_LEUCO white-cell differential.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Linfócitos"
+
+  LAB_LOCAL:
+    official_name: Alterações radiológicas - Infiltrado Pulmonar localizado
+    translated_name: Chest X-ray finding - localized pulmonary infiltrate
+    description: >
+      Whether the Hantavirose patient's chest X-ray showed a localized
+      (rather than diffuse) pulmonary infiltrate; sibling finding to
+      LAB_DIFUSO and LAB_DERRAM.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 41 "Se sim, apresentou alguma destas alterações?"
+
+  LAB_MICR_1:
+    official_name: Resultado MICRO aglutinação 1ª amostra
+    translated_name: Microscopic agglutination test - 1st sample result
+    description: >
+      Result of the microscopic agglutination test (MAT), leptospirosis's
+      reference serology, on the first sample: reagente, não reagente, não
+      realizada, or ignorado. Recorded with the sorovar/titer pair
+      MICRO1_S1/MICRO1_T_1.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 50 "Resultado MICRO aglutinação 1ª amostra"
+
+  LAB_MICR_2:
+    official_name: Resultado MICRO aglutinação 2ª amostra
+    translated_name: Microscopic agglutination test - 2nd sample result
+    description: >
+      Same MAT test as LAB_MICR_1, run on the second paired sample (collected
+      after the first) to detect titer rise.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 54 "Resultado MICRO aglutinação 2ª amostra"
+
+  LAB_MONO:
+    official_name: Exame Quimiocitológico - Monócitos
+    translated_name: CSF chemocytology - monocytes
+    description: >
+      Monocyte count in the meningitis patient's CSF, one component of the
+      LAB_LEUCO white-cell differential alongside LAB_NEUTRO and LAB_LINFO.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Monócitos"
+
+  LAB_NEUTRO:
+    official_name: Exame Quimiocitológico - Neutrófilos
+    translated_name: CSF chemocytology - neutrophils
+    description: >
+      Neutrophil count in the meningitis patient's CSF, the differential
+      component most diagnostic of bacterial (vs. viral) meningitis.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Neutrófilos"
+
+  LAB_PCESCA:
+    official_name: PCR escarro
+    translated_name: PCR - sputum
+    description: >
+      Etiologic-agent code from PCR testing of sputum, completing the
+      meningitis form's specimen grid (with LAB_PCLESA, LAB_PCLIQU,
+      LAB_PCSANG) alongside the cultura, bacterioscopia, CIE and látex rows.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR escarro"
+
+  LAB_PCLESA:
+    official_name: PCR lesão petequial
+    translated_name: PCR - petechial lesion
+    description: >
+      Same PCR test as LAB_PCESCA, run on material from a petechial skin
+      lesion.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR lesão petequial"
+
+  LAB_PCLIQU:
+    official_name: PCR líquor
+    translated_name: PCR - CSF
+    description: >
+      Same PCR test as LAB_PCESCA, run on cerebrospinal fluid.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR líquor"
+
+  LAB_PCSANG:
+    official_name: PCR Sangue/soro
+    translated_name: PCR - blood/serum
+    description: >
+      Same PCR test as LAB_PCESCA, run on blood/serum.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR Sangue/soro"
+
+  LAB_PROT:
+    official_name: Exame Quimiocitológico - Proteínas
+    translated_name: CSF chemocytology - protein
+    description: >
+      Protein concentration in the meningitis patient's CSF, part of the same
+      quimiocitológico panel as LAB_GLICO and LAB_CLOR.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Proteínas"
+
+  LAB_RESULT:
+    official_name: Resultado do exame laboratorial
+    translated_name: Lab test result
+    description: >
+      Single-character coded result of a laboratory exam on the acute
+      flaccid paralysis (Paralisia Flácida Aguda / poliomyelitis
+      surveillance) form.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      No catalog evidence beyond declared type (C1) and PFAN series
+      membership. The generic name and single-character width match the many
+      "RESULTADO" coded fields (positivo/negativo/inconclusivo/não realizado,
+      or similar) confirmed on sibling SINAN lab panels (Hantavirose,
+      Leptospirose), but no document was located naming which specific exam
+      this one reports on.
+
+  LAB_RTPCR:
+    official_name: Resultado RT-PCR
+    translated_name: RT-PCR result
+    description: >
+      Result of RT-PCR testing for hantavirus RNA: positivo, negativo,
+      inconclusivo, or não realizado.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 46 "Resultado RT-PCR"
+
+  LAB_TGO_D:
+    official_name: Especifique TGO
+    translated_name: TGO (AST) result, specified
+    description: >
+      Free-text detail entered when the coded TGO/AST liver-enzyme result on
+      the Hantavirose blood panel is Sim (abnormal); sibling free-text field
+      to LAB_TGP_D for TGP/ALT.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 38 "Especifique TGO"
+
+  LAB_TGP_D:
+    official_name: Especifique TGP
+    translated_name: TGP (ALT) result, specified
+    description: >
+      Same role as LAB_TGO_D but for the TGP/ALT liver-enzyme result.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 38 "Especifique TGP"

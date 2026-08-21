@@ -197,3 +197,67 @@ class TestFamilyResolution:
                 (fid, "SIHSUS", series, sig, 10),
             )
         assert len(_families(catalog, "SIHSUS", None)) == 2
+
+
+class TestSchemaGenerations:
+    """Families collapsed into generations, with the delta between them.
+
+    Two failures the raw family list produces, both fixed here.
+
+    *Duplicate generations.* One schema signature is reached through several
+    spellings of the series, so listing families showed SIH.RD's 113-column
+    generation twice — reading as though the schema changed and changed back.
+
+    *Silence about what changed.* "113 columns, 2014-2025" tells an analyst
+    nothing. "+6, -1 against the previous generation" is what decides whether
+    years either side of the boundary can be pooled.
+    """
+
+    def _seed(self, catalog: Catalog) -> None:
+        for sig, fields in (
+            ("a" * 64, ["ID", "SEXO"]),
+            ("b" * 64, ["ID", "SEXO", "IDADE"]),
+        ):
+            for order, name in enumerate(fields):
+                catalog.execute(
+                    "INSERT INTO schema_presence (schema_signature, field_name, field_order) "
+                    "VALUES (?,?,?)",
+                    (sig, name, order),
+                )
+
+    def test_groups_by_signature_not_family(self, catalog: Catalog) -> None:
+        from pegasus_data.info import _generations
+
+        self._seed(catalog)
+        families = [
+            {"schema_signature": "a" * 64, "field_count": 2, "files": 3,
+             "time_min": 2001, "time_max": 2002, "schema_source": "profile"},
+            {"schema_signature": "a" * 64, "field_count": 2, "files": 4,
+             "time_min": 2003, "time_max": 2004, "schema_source": "profile"},
+        ]
+        gens = _generations(catalog, families)
+        assert len(gens) == 1, "one signature is one generation"
+        assert gens[0]["files"] == 7, "file counts merge"
+        assert gens[0]["span"] == "2001–2004", "the span covers both families"
+        assert gens[0]["families"] == 2
+
+    def test_reports_added_and_dropped(self, catalog: Catalog) -> None:
+        from pegasus_data.info import _generations
+
+        self._seed(catalog)
+        families = [
+            {"schema_signature": "a" * 64, "field_count": 2, "files": 1,
+             "time_min": 2001, "time_max": 2001, "schema_source": "profile"},
+            {"schema_signature": "b" * 64, "field_count": 3, "files": 1,
+             "time_min": 2002, "time_max": 2002, "schema_source": "profile"},
+        ]
+        gens = _generations(catalog, families)
+        assert [g["span"] for g in gens] == ["2001", "2002"], "oldest first"
+        assert gens[0]["is_first"] and gens[0]["added"] == []
+        assert gens[1]["added"] == ["IDADE"]
+        assert gens[1]["dropped"] == []
+
+    def test_empty_is_empty(self, catalog: Catalog) -> None:
+        from pegasus_data.info import _generations
+
+        assert _generations(catalog, []) == []
