@@ -38,7 +38,7 @@ from .config import Settings, load_settings
 
 __all__ = ["explore", "Exploration", "tree_snapshot"]
 
-Level = Literal["systems", "series", "coverage", "files"]
+Level = Literal["systems", "datasets", "coverage", "files"]
 Source = Literal["auto", "local", "packaged"]
 
 #: Columns of the shipped map, in the order the resource stores them.
@@ -370,29 +370,125 @@ def explore(
             order=lambda e: (e["year"] is None, e["year"]),
         )
     elif system:
-        level = "series"
-        out = _group(
-            rows, ("series",),
-            extra=lambda group: {
-                "years": _span([g.get("year") for g in group]),
-                "ufs": len({g.get("uf") for g in group if g.get("uf")}),
-            },
-        )
+        level = "datasets"
+        out = _by_dataset(rows, system)
     else:
         level = "systems"
-        out = _group(
-            rows, ("system",),
-            extra=lambda group: {
-                "series": len({g.get("series") for g in group if g.get("series")}),
-                "years": _span([g.get("year") for g in group]),
-            },
-        )
+        out = _by_system(rows)
 
     return Exploration(
         level=level, rows=out, source=origin, as_of=as_of, target=target,
         warnings=warnings,
         total_files=total_files, total_bytes=total_bytes,
     )
+
+
+def _ontology():
+    """The declaration, or ``None`` if it cannot be read.
+
+    ``explore()`` must keep answering from a bare crawl even when the
+    declaration is missing or malformed — a broken YAML file is a curation
+    problem, not a reason the map of the server stops working.
+    """
+    from .ontology import Ontology
+
+    try:
+        return Ontology.load()
+    except Exception:  # noqa: BLE001 - a broken declaration must not blank the map
+        return None
+
+
+def _by_dataset(rows: list[dict[str, Any]], system: str) -> list[dict[str, Any]]:
+    """Group a system's files by DECLARED dataset, not by filename prefix.
+
+    This is the difference between an answer and a puzzle. Grouping on ``series``
+    listed ``HANT``, ``DENG``, ``LEPT`` — filename fragments the caller has to
+    already understand — and it listed 992 of them for SIA, because ``series``
+    is filename-derived and only 181 of 1,505 observed pairs are clean. The
+    institution publishes far fewer things than the tree appears to contain.
+
+    The observed spellings are kept in ``seen_as``: they are evidence of how the
+    dataset was recognised, and someone reconciling a path against the map still
+    needs them. They are simply no longer the headline.
+    """
+    onto = _ontology()
+    groups: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        series = str(row.get("series") or "")
+        code = ""
+        if onto is not None:
+            code = onto.bind(str(row.get("system") or ""), series).dataset or ""
+        if not code:
+            code = f"{system}.{series}" if series else system
+        entry = groups.setdefault(code, {
+            "dataset": code, "name": None, "files": 0, "_bytes": 0,
+            "_years": [], "_ufs": set(), "_seen": set(),
+        })
+        entry["files"] += 1
+        entry["_bytes"] += int(row.get("size") or 0)
+        entry["_years"].append(row.get("year"))
+        if row.get("uf"):
+            entry["_ufs"].add(row["uf"])
+        if series:
+            entry["_seen"].add(series)
+
+    out = []
+    for code, entry in sorted(groups.items()):
+        node = onto.datasets.get(code) if onto is not None else None
+        seen = sorted(entry["_seen"])
+        out.append({
+            "dataset": code,
+            "name": (node.translated_name or node.official_name) if node else None,
+            "files": entry["files"],
+            "gigabytes": round(entry["_bytes"] / 2**30, 2),
+            "years": _span(entry["_years"]),
+            "ufs": len(entry["_ufs"]),
+            # Capped: SIA.PA has been seen under 736 filename spellings, and
+            # printing all of them would bury the answer it belongs to.
+            "seen_as": ", ".join(seen[:4]) + (f" +{len(seen) - 4}" if len(seen) > 4 else ""),
+        })
+    return sorted(out, key=lambda e: -e["files"])
+
+
+def _by_system(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The top level, named as the institution names it.
+
+    The crawl says ``SIASUS`` because that is the directory; the institution
+    says ``SIA``. The directory name has changed before. ``crawled_as`` keeps
+    the tree's spelling visible so a path is still traceable back to a row.
+    """
+    onto = _ontology()
+    groups: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        crawled = str(row.get("system") or "")
+        if not crawled:
+            continue
+        node = onto.system_of(crawled) if onto is not None else None
+        code = node.code if node else crawled
+        entry = groups.setdefault(code, {
+            "_node": node, "_crawled": set(), "files": 0, "_bytes": 0,
+            "_years": [], "_datasets": set(),
+        })
+        entry["_crawled"].add(crawled)
+        entry["files"] += 1
+        entry["_bytes"] += int(row.get("size") or 0)
+        entry["_years"].append(row.get("year"))
+        bound = onto.bind(crawled, str(row.get("series") or "")).dataset if onto else ""
+        entry["_datasets"].add(bound or str(row.get("series") or ""))
+
+    out = []
+    for code, entry in groups.items():
+        node = entry["_node"]
+        out.append({
+            "system": code,
+            "name": (node.translated_name or node.official_name) if node else None,
+            "files": entry["files"],
+            "gigabytes": round(entry["_bytes"] / 2**30, 2),
+            "datasets": len({d for d in entry["_datasets"] if d}),
+            "years": _span(entry["_years"]),
+            "crawled_as": ", ".join(sorted(entry["_crawled"])),
+        })
+    return sorted(out, key=lambda e: -e["files"])
 
 
 def _span(years: list[Any]) -> str:

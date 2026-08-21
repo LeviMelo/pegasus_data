@@ -66,15 +66,30 @@ def crawled(settings):
 
 
 class TestTheFourQuestions:
-    def test_with_no_target_it_lists_the_systems(self, crawled):
+    def test_with_no_target_it_lists_the_systems_as_declared(self, crawled):
+        """The tree's directory is SIHSUS; the institution's system is SIH.
+
+        Answering in the crawl's vocabulary made the map a description of a
+        folder layout rather than of what Brazil publishes, and that layout has
+        been reorganised before.
+        """
         result = explore(settings=crawled)
         assert result.level == "systems"
-        assert {r["system"] for r in result.rows} == {"SIHSUS", "SIM"}
+        assert {r["system"] for r in result.rows} == {"SIH", "SIM"}
+        assert {r["crawled_as"] for r in result.rows} == {"SIHSUS", "SIM"}
 
-    def test_a_system_lists_its_series(self, crawled):
+    def test_a_system_lists_its_datasets_by_name(self, crawled):
+        """Grouping on the filename prefix listed codes nobody can read.
+
+        ``series`` is filename-derived and only 181 of 1,505 observed pairs are
+        clean, so SIA appeared to publish 992 things. It publishes 16. The
+        spellings survive as evidence in ``seen_as``.
+        """
         result = explore("SIHSUS", settings=crawled)
-        assert result.level == "series"
-        assert {r["series"] for r in result.rows} == {"RD", "SP"}
+        assert result.level == "datasets"
+        assert {r["dataset"] for r in result.rows} == {"SIH.RD", "SIH.SP"}
+        assert all(r["name"] for r in result.rows)
+        assert {r["seen_as"] for r in result.rows} == {"RD", "SP"}
 
     def test_a_dataset_gives_its_coverage_by_year(self, crawled):
         result = explore("SIH-RD", settings=crawled)
@@ -162,7 +177,7 @@ class TestItDoesNotPretendToKnow:
 class TestTheResultIsUsable:
     def test_it_converts_to_arrow_for_analysis(self, crawled):
         table = explore("SIHSUS", settings=crawled).table
-        assert table.num_rows == 2 and "series" in table.column_names
+        assert table.num_rows == 2 and "dataset" in table.column_names
 
     def test_it_is_iterable_and_sized(self, crawled):
         result = explore("SIHSUS", settings=crawled)
@@ -176,7 +191,7 @@ class TestTheResultIsUsable:
         import json
 
         payload = json.loads(json.dumps(explore("SIHSUS", settings=crawled).as_dict()))
-        assert payload["level"] == "series" and payload["source"] == "local crawl"
+        assert payload["level"] == "datasets" and payload["source"] == "local crawl"
 
 
 class TestTheShippedMap:

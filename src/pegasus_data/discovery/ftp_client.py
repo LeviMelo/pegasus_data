@@ -126,26 +126,32 @@ class FtpClient:
         welcome = ftp.getwelcome() or ""
         features: list[str] = []
         system = ""
+        # FEAT and SYST are optional in RFC 959. A server that rejects them is
+        # not broken, it is old, and DATASUS is old: absence of an answer IS the
+        # answer, recorded as an empty capability set.
         try:
             raw = ftp.sendcmd("FEAT")
             features = [ln.strip() for ln in raw.splitlines()[1:-1] if ln.strip()]
-        except Exception:
+        except Exception:  # noqa: BLE001 - unsupported command, not a failure
             pass
         try:
             system = ftp.sendcmd("SYST")
-        except Exception:
+        except Exception:  # noqa: BLE001 - unsupported command, not a failure
             pass
         self.capabilities = ServerCapabilities(welcome, system, tuple(features))
 
     def close(self) -> None:
         if self._ftp is None:
             return
+        # Closing a connection that is already gone is the normal case after a
+        # timeout. QUIT is the polite exit; close() drops the socket regardless.
+        # Neither failing tells the caller anything they can act on.
         try:
             self._ftp.quit()
-        except Exception:
+        except Exception:  # noqa: BLE001 - already disconnected
             try:
                 self._ftp.close()
-            except Exception:
+            except Exception:  # noqa: BLE001 - socket is gone either way
                 pass
         self._ftp = None
 
@@ -185,7 +191,7 @@ class FtpClient:
                 time.sleep(min(30.0, self.backoff_base ** (attempt + 1)))
                 try:
                     self.reconnect()
-                except Exception:
+                except Exception:  # noqa: BLE001 - the retry below re-reports it
                     pass
         raise RuntimeError(f"{what} failed after {self.max_retries} attempts: {last}") from last
 
@@ -198,9 +204,12 @@ class FtpClient:
         try:
             yield
         finally:
+            # Restoring the working directory is a courtesy to the next caller.
+            # If the connection died mid-listing there is nothing to restore to,
+            # and the real error is already propagating out of the yield.
             try:
                 self.ftp.cwd(original)
-            except Exception:
+            except Exception:  # noqa: BLE001 - connection gone; real error is in flight
                 pass
 
     def _mlsd(self, directory: str) -> list[ListingEntry]:
@@ -295,7 +304,7 @@ class FtpClient:
             entry.flags.append("entry_type_probed")
         try:
             self.ftp.cwd(original)
-        except Exception:
+        except Exception:  # noqa: BLE001 - courtesy restore; entries are already read
             pass
         return entries
 
@@ -304,9 +313,12 @@ class FtpClient:
     def size(self, path: str) -> int | None:
         if not self.capabilities.has_size:
             return None
+        # None means "the server would not tell us", which is a legitimate
+        # answer this crawler records rather than an error it hides: SIZE is
+        # refused in ASCII mode and on some directories.
         try:
             return self.ftp.size(path)
-        except Exception:
+        except Exception:  # noqa: BLE001 - unknown size is a real state
             return None
 
     def modified_time(self, path: str) -> str | None:
@@ -314,7 +326,7 @@ class FtpClient:
             return None
         try:
             reply = self.ftp.sendcmd(f"MDTM {path}")
-        except Exception:
+        except Exception:  # noqa: BLE001 - unknown mtime is a real state
             return None
         stamp = reply.split()[-1]
         if len(stamp) < 14:

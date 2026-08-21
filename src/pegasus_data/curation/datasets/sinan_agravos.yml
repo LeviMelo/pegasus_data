@@ -13,6 +13,8 @@ datasets:
   SINAN_ACBI:
     system: SINAN
     series: ACBI
+    official_name: Acidente de trabalho com exposição a material biológico
+    translated_name: Occupational exposure to biological material
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Acidente_tbr_mat_biologico/ (DATASUS files this series under that name in its open-data tree)
@@ -24,6 +26,8 @@ datasets:
   SINAN_ACGR:
     system: SINAN
     series: ACGR
+    official_name: Acidente de trabalho grave
+    translated_name: Serious occupational accident
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Acidente_trabalho/ (DATASUS files this series under that name in its open-data tree)
@@ -35,6 +39,8 @@ datasets:
   SINAN_ANIM:
     system: SINAN
     series: ANIM
+    official_name: Acidente por animais peçonhentos
+    translated_name: Venomous animal accident
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Acidente_anim_peconhentos/ (DATASUS files this series under that name in its open-data tree)
@@ -46,6 +52,8 @@ datasets:
   SINAN_ANTR:
     system: SINAN
     series: ANTR
+    official_name: Atendimento antirrábico humano
+    translated_name: Human anti-rabies care
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Atendim_antirrabico_humano/ (DATASUS files this series under that name in its open-data tree)
@@ -57,6 +65,8 @@ datasets:
   SINAN_CANC:
     system: SINAN
     series: CANC
+    official_name: Câncer relacionado ao trabalho
+    translated_name: Work-related cancer
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Cancer_Trabalho/ (DATASUS files this series under that name in its open-data tree)
@@ -68,6 +78,8 @@ datasets:
   SINAN_CHAG:
     system: SINAN
     series: CHAG
+    official_name: Doença de Chagas aguda
+    translated_name: Acute Chagas disease
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Chagas_aguda/ (DATASUS files this series under that name in its open-data tree)
@@ -79,6 +91,8 @@ datasets:
   SINAN_CHIK:
     system: SINAN
     series: CHIK
+    official_name: Febre de chikungunya
+    translated_name: Chikungunya
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Chikungunya/ (DATASUS files this series under that name in its open-data tree)
@@ -90,6 +104,8 @@ datasets:
   SINAN_COQU:
     system: SINAN
     series: COQU
+    official_name: Coqueluche
+    translated_name: Whooping cough
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Coqueluche/ (DATASUS files this series under that name in its open-data tree)
@@ -101,6 +117,8 @@ datasets:
   SINAN_DENG:
     system: SINAN
     series: DENG
+    official_name: Dengue
+    translated_name: Dengue
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Dengue/ (DATASUS files this series under that name in its open-data tree)
@@ -112,6 +130,8 @@ datasets:
   SINAN_DERM:
     system: SINAN
     series: DERM
+    official_name: Dermatoses relacionadas ao trabalho
+    translated_name: Work-related dermatoses
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Dermatose_trabalho/ (DATASUS files this series under that name in its open-data tree)
@@ -123,6 +143,8 @@ datasets:
   SINAN_DIFT:
     system: SINAN
     series: DIFT
+    official_name: Difteria
+    translated_name: Diphtheria
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Difteria/ (DATASUS files this series under that name in its open-data tree)
@@ -134,6 +156,8 @@ datasets:
   SINAN_ESQU:
     system: SINAN
     series: ESQU
+    official_name: Esquistossomose
+    translated_name: Schistosomiasis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Esquistossomose/ (DATASUS files this series under that name in its open-data tree)
@@ -145,6 +169,8 @@ datasets:
   SINAN_FMAC:
     system: SINAN
     series: FMAC
+    official_name: Febre maculosa
+    translated_name: Spotted fever
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Febre_maculosa/ (DATASUS files this series under that name in its open-data tree)
@@ -156,6 +182,8 @@ datasets:
   SINAN_FTIF:
     system: SINAN
     series: FTIF
+    official_name: Febre tifoide
+    translated_name: Typhoid fever
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Febre_tifoide/ (DATASUS files this series under that name in its open-data tree)
@@ -167,6 +195,8 @@ datasets:
   SINAN_HANT:
     system: SINAN
     series: HANT
+    official_name: Hantavirose
+    translated_name: Hantavirus infection
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Hantavirose/ (DATASUS files this series under that name in its open-data tree)
@@ -178,6 +208,8 @@ datasets:
   SINAN_HEPA:
     system: SINAN
     series: HEPA
+    official_name: Hepatites virais
+    translated_name: Viral hepatitis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Hepatite/ (DATASUS files this series under that name in its open-data tree)
@@ -189,6 +221,8 @@ datasets:
   SINAN_IEXO:
     system: SINAN
     series: IEXO
+    official_name: Intoxicação exógena
+    translated_name: Exogenous intoxication (poisoning)
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Intoxicacao_exogena/ (DATASUS files this series under that name in its open-data tree)
@@ -200,6 +234,8 @@ datasets:
   SINAN_LEIV:
     system: SINAN
     series: LEIV
+    official_name: Leishmaniose visceral
+    translated_name: Visceral leishmaniasis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Leishmaniose_viceral/ (DATASUS files this series under that name in its open-data tree)
@@ -211,6 +247,8 @@ datasets:
   SINAN_LEPT:
     system: SINAN
     series: LEPT
+    official_name: Leptospirose
+    translated_name: Leptospirosis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Leptospirose/ (DATASUS files this series under that name in its open-data tree)
@@ -222,6 +260,8 @@ datasets:
   SINAN_LERD:
     system: SINAN
     series: LERD
+    official_name: LER/DORT
+    translated_name: Repetitive strain and work-related musculoskeletal disorders
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/LER_DORT/ (DATASUS files this series under that name in its open-data tree)
@@ -233,6 +273,8 @@ datasets:
   SINAN_LTAN:
     system: SINAN
     series: LTAN
+    official_name: Leishmaniose tegumentar americana
+    translated_name: Cutaneous leishmaniasis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Leishmaniose_tegumentar/ (DATASUS files this series under that name in its open-data tree)
@@ -244,6 +286,8 @@ datasets:
   SINAN_MALA:
     system: SINAN
     series: MALA
+    official_name: Malária
+    translated_name: Malaria
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Malaria/ (DATASUS files this series under that name in its open-data tree)
@@ -255,6 +299,8 @@ datasets:
   SINAN_MENI:
     system: SINAN
     series: MENI
+    official_name: Meningite
+    translated_name: Meningitis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Meningite/ (DATASUS files this series under that name in its open-data tree)
@@ -266,6 +312,8 @@ datasets:
   SINAN_PAIR:
     system: SINAN
     series: PAIR
+    official_name: Perda auditiva induzida por ruído relacionada ao trabalho
+    translated_name: Noise-induced hearing loss, work-related
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/PAIR_relacionado_trabalho/ (DATASUS files this series under that name in its open-data tree)
@@ -277,6 +325,8 @@ datasets:
   SINAN_PEST:
     system: SINAN
     series: PEST
+    official_name: Peste
+    translated_name: Plague
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Peste/ (DATASUS files this series under that name in its open-data tree)
@@ -288,10 +338,12 @@ datasets:
   SINAN_PFAN:
     system: SINAN
     series: PFAN
+    official_name: Paralisia flácida aguda
+    translated_name: Acute flaccid paralysis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Paralisia_flacida_aguda/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of paralisia flacida aguda
+    what_one_row_is: one notification of acute flaccid paralysis
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
@@ -299,10 +351,12 @@ datasets:
   SINAN_PNEU:
     system: SINAN
     series: PNEU
+    official_name: Pneumoconioses relacionadas ao trabalho
+    translated_name: Work-related pneumoconioses
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Pneumoconiose_trabalho/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of pneumoconiose trabalho
+    what_one_row_is: one notification of work-related pneumoconiosis
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
@@ -310,10 +364,12 @@ datasets:
   SINAN_RAIV:
     system: SINAN
     series: RAIV
+    official_name: Raiva humana
+    translated_name: Human rabies
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Raiva_humana/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of raiva humana
+    what_one_row_is: one notification of human rabies
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
@@ -321,6 +377,8 @@ datasets:
   SINAN_ROTA:
     system: SINAN
     series: ROTA
+    official_name: Rotavírus
+    translated_name: Rotavirus
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Rotavirus/ (DATASUS files this series under that name in its open-data tree)
@@ -332,10 +390,12 @@ datasets:
   SINAN_SIFA:
     system: SINAN
     series: SIFA
+    official_name: Sífilis adquirida
+    translated_name: Acquired syphilis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Sifilis_adquirida/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of sifilis adquirida
+    what_one_row_is: one notification of acquired syphilis
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
@@ -343,10 +403,12 @@ datasets:
   SINAN_TETA:
     system: SINAN
     series: TETA
+    official_name: Tétano acidental
+    translated_name: Accidental tetanus
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Tetano_acidental/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of tetano acidental
+    what_one_row_is: one notification of accidental tetanus
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
@@ -354,10 +416,12 @@ datasets:
   SINAN_TETN:
     system: SINAN
     series: TETN
+    official_name: Tétano neonatal
+    translated_name: Neonatal tetanus
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Tetano_neonatal/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of tetano neonatal
+    what_one_row_is: one notification of neonatal tetanus
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
@@ -365,10 +429,12 @@ datasets:
   SINAN_TOXC:
     system: SINAN
     series: TOXC
+    official_name: Toxoplasmose congênita
+    translated_name: Congenital toxoplasmosis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Toxoplasmose_congenita/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of toxoplasmose congenita
+    what_one_row_is: one notification of congenital toxoplasmosis
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
@@ -376,10 +442,12 @@ datasets:
   SINAN_TOXG:
     system: SINAN
     series: TOXG
+    official_name: Toxoplasmose gestacional
+    translated_name: Gestational toxoplasmosis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Toxoplasmose_gestacional/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of toxoplasmose gestacional
+    what_one_row_is: one notification of gestational toxoplasmosis
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
@@ -387,10 +455,12 @@ datasets:
   SINAN_TUBE:
     system: SINAN
     series: TUBE
+    official_name: Tuberculose
+    translated_name: Tuberculosis
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Tuberculose/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of tuberculose
+    what_one_row_is: one notification of tuberculosis
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
@@ -398,10 +468,12 @@ datasets:
   SINAN_ZIKA:
     system: SINAN
     series: ZIKA
+    official_name: Zika vírus
+    translated_name: Zika virus
     asserted_by: pegasus_data
     source: manual
     source_ref: /dissemin/publicos/Dados_Abertos/SINAN/Zikavirus/ (DATASUS files this series under that name in its open-data tree)
-    what_one_row_is: one notification of zikavirus
+    what_one_row_is: one notification of Zika virus infection
     unit_of_analysis: notification
     gotchas:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.

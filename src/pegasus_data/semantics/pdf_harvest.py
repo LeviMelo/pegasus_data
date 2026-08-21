@@ -232,7 +232,7 @@ def extract_text(data: bytes) -> Iterator[str]:
         return
     except ImportError:
         pass
-    except Exception:
+    except Exception:  # noqa: BLE001 - a PDF pdfplumber cannot open, pypdf may
         pass
     try:
         from pypdf import PdfReader

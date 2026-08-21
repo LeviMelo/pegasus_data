@@ -432,6 +432,16 @@ class Ontology:
 
     # ------------------------------------------------------------- binding
 
+    def system_of(self, name: str) -> SystemNode | None:
+        """The declared system behind a crawled directory name.
+
+        The tree says ``SIASUS``; the institution says ``SIA``. Callers that
+        report what exists should say the second, because the first is a folder
+        name that has changed before and will change again.
+        """
+        code = self._system_alias.get(str(name or "").upper())
+        return self.systems.get(code) if code else None
+
     def bind(self, system: str, series: str) -> Binding:
         """Resolve one observed pair onto a declared dataset.
 
