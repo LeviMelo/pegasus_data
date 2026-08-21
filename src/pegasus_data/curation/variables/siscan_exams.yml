@@ -1,0 +1,1166 @@
+# SISCAN — the cancer screening exam forms.
+#
+# Five datasets, two cancers, and one pipeline each:
+#
+#   cervix   SISCAN.CC  cytology (the Pap smear)  ->  SISCAN.HC  biopsy
+#   breast   SISCAN.MM  mammography               ->  SISCAN.HM  biopsy
+#              with SISCAN.CM breast cytology as a minor side channel
+#
+# The screening test never diagnoses cancer; it selects who gets a biopsy, and
+# the biopsy diagnoses. So an abnormal rate in CC or MM is a referral rate, and
+# only HC and HM carry diagnoses. Reporting follows the Bethesda system for
+# cervical cytology and BI-RADS for mammography, which is why the codelists
+# below are the international categories rather than DATASUS inventions.
+#
+# A caution on the C(8) fields. Many findings on these forms are recorded in
+# eight-character columns whose values were never observed — SISCAN files are in
+# the catalogue but were not profiled, so nothing here can say how they are
+# encoded. Each is described by WHAT THE FORM ITEM IS, and the encoding is left
+# open rather than guessed at. Treat them as unparsed until a file is read.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+
+  # =================================================== cervical cytology (CC)
+  CO_ADEQ_MA:
+    official_name: Adequabilidade do material
+    translated_name: Specimen adequacy
+    description: >
+      Whether the smear was satisfactory, unsatisfactory, or rejected outright.
+      The first question asked of any cytology: an unsatisfactory slide has no
+      result at all and the woman must be recalled, so this field is the
+      denominator problem for every screening indicator.
+    code_system: internal
+    source: def
+    source_ref: ADEQMAT.CNV
+    reasoning: >
+      Bound to ADEQMAT, whose values are rejeitada, satisfatória and
+      insatisfatória.
+
+  AMOSREJAUS:
+    official_name: Amostra rejeitada por ausência de identificação
+    translated_name: Rejected, unidentified
+    description: >
+      Sample rejected because it or its form was not identified. The AMOSREJ_
+      items give the reason behind a rejection in CO_ADEQ_MA, and they are
+      failures of process rather than of the specimen.
+    code_system: none
+    source: inferred
+    reasoning: >
+      AMOSREJ reads amostra rejeitada and AUS ausência de identificação; C(8)
+      with no observed values, so the encoding is unknown.
+
+  AMOSREJDAN:
+    official_name: Amostra rejeitada por lâmina danificada
+    translated_name: Rejected, slide damaged
+    description: >
+      Sample rejected because the slide arrived broken or damaged. A transport
+      failure, and the reason most reducible by better packaging.
+    code_system: none
+    source: inferred
+    reasoning: DAN reads danificada, in the rejection-reason block; C(8), values unobserved.
+
+  AMOSREJALH:
+    official_name: Amostra rejeitada por identificação alheia
+    translated_name: Rejected, identification mismatched
+    description: >
+      Sample rejected because the identification on the slide did not match the
+      form. Distinct from AMOSREJAUS, where identification was missing rather
+      than wrong.
+    code_system: none
+    source: inferred
+    reasoning: ALH reads alheia, in the rejection-reason block; C(8), values unobserved.
+
+  AMOSREJOUT:
+    official_name: Amostra rejeitada por outro motivo
+    translated_name: Rejected, other reason
+    description: Any rejection reason the named items do not cover.
+    code_system: none
+    source: inferred
+    reasoning: The OUT residual item closing the rejection-reason block.
+
+  CO_EPI_MET:
+    official_name: Epitélio metaplásico na amostra
+    translated_name: Metaplastic epithelium present
+    description: >
+      Whether metaplastic or glandular epithelium was present. Its presence shows
+      the smear sampled the transformation zone, where cervical cancer arises —
+      a smear without it may be satisfactory and still have missed the target.
+    code_system: none
+    source: inferred
+    reasoning: >
+      EPI_MET reads epitélio metaplásico, an adequacy item; C(8), values
+      unobserved.
+
+  CO_ANM_PRE:
+    official_name: Exame citopatológico anterior alterado
+    translated_name: Previous cytology abnormal
+    description: >
+      Whether a previous smear was abnormal. Sets the context for the current
+      result: a second abnormal smear means something different from a first.
+    code_system: internal
+    source: def
+    source_ref: CITOANT.CNV
+    reasoning: >
+      Bound to CITOANT, whose values are sim, não, não sabe and sem informação
+      na ficha.
+
+  # --- benign reactive changes -------------------------------------------
+  CBEMINFLA:
+    official_name: Alterações celulares benignas, inflamação
+    translated_name: Benign change, inflammation
+    description: >
+      Inflammatory change. The CBEM_ block records benign reactive findings —
+      not neoplastic, not a reason to refer, and by far the commonest thing a
+      Pap smear reports.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CBEM reads células benignas and INFLA inflamação; one of the Bethesda
+      reactive categories. C(8), values unobserved.
+
+  CBEMMETAS:
+    official_name: Alterações celulares benignas, metaplasia escamosa imatura
+    translated_name: Benign change, immature squamous metaplasia
+    description: >
+      Immature squamous metaplasia — normal repair of the transformation zone.
+      Benign, but it can mimic atypia, which is why it is reported explicitly.
+    code_system: none
+    source: inferred
+    reasoning: METAS reads metaplasia, a Bethesda reactive category; C(8), values unobserved.
+
+  CBEMREPAR:
+    official_name: Alterações celulares benignas, reparação
+    translated_name: Benign change, repair
+    description: Reparative change following injury or inflammation.
+    code_system: none
+    source: inferred
+    reasoning: REPAR reads reparação, a Bethesda reactive category; C(8), values unobserved.
+
+  CBEMATROF:
+    official_name: Alterações celulares benignas, atrofia com inflamação
+    translated_name: Benign change, atrophy with inflammation
+    description: >
+      Atrophic change with inflammation, typical after the menopause. Atrophy
+      makes cells look abnormal and is a recognised source of false positives,
+      so reporting it explains an otherwise worrying smear.
+    code_system: none
+    source: inferred
+    reasoning: ATROF reads atrofia, a Bethesda reactive category; C(8), values unobserved.
+
+  CBEMRADI:
+    official_name: Alterações celulares benignas, radiação
+    translated_name: Benign change, radiation effect
+    description: >
+      Cellular change caused by radiotherapy. Appears in women already treated
+      for cervical cancer, and is benign despite looking dramatic.
+    code_system: none
+    source: inferred
+    reasoning: RADI reads radiação, a Bethesda reactive category; C(8), values unobserved.
+
+  CBEMOUT:
+    official_name: Outras alterações celulares benignas
+    translated_name: Benign change, other
+    description: Any benign reactive change the named items do not cover.
+    code_system: none
+    source: inferred
+    reasoning: The OUT residual item closing the benign-changes block.
+
+  # --- microbiology -------------------------------------------------------
+  CMICLACT:
+    official_name: Microbiologia, lactobacilos
+    translated_name: Lactobacilli seen
+    description: >
+      Lactobacilli, the normal vaginal flora. The CMIC_ block reports what
+      organisms the smear showed; this one is the finding that means normal.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CMIC reads citologia microbiologia and LACT lactobacilos; one of the
+      Bethesda organism categories. C(8), values unobserved.
+
+  CMICCOCO:
+    official_name: Microbiologia, cocos
+    translated_name: Cocci seen
+    description: Cocci, indicating a shift away from the normal lactobacillary flora.
+    code_system: none
+    source: inferred
+    reasoning: COCO reads cocos, an organism item; C(8), values unobserved.
+
+  CMICBACI:
+    official_name: Microbiologia, bacilos supracitoplasmáticos
+    translated_name: Supracytoplasmic bacilli seen
+    description: >
+      Bacilli lying over the cell cytoplasm — the clue cells of bacterial
+      vaginosis, distinct from the ordinary bacilli of normal flora.
+    code_system: none
+    source: inferred
+    reasoning: BACI reads bacilos, an organism item; C(8), values unobserved.
+
+  CMICCAND:
+    official_name: Microbiologia, Candida
+    translated_name: Candida seen
+    description: Candida species, a treatable cause of symptoms rather than a cancer risk.
+    code_system: none
+    source: inferred
+    reasoning: CAND is Candida, an organism item; C(8), values unobserved.
+
+  CMICTRICO:
+    official_name: Microbiologia, Trichomonas vaginalis
+    translated_name: Trichomonas seen
+    description: >
+      Trichomonas vaginalis. A sexually transmitted infection, so its presence
+      is a reason to offer wider testing rather than only to treat.
+    code_system: none
+    source: inferred
+    reasoning: TRICO is Trichomonas, an organism item; C(8), values unobserved.
+
+  CMICGARD:
+    official_name: Microbiologia, Gardnerella
+    translated_name: Gardnerella seen
+    description: Gardnerella vaginalis, reported alongside the supracytoplasmic bacilli of vaginosis.
+    code_system: none
+    source: inferred
+    reasoning: GARD is Gardnerella, an organism item; C(8), values unobserved.
+
+  CMICACTI:
+    official_name: Microbiologia, Actinomyces
+    translated_name: Actinomyces seen
+    description: >
+      Actinomyces, associated with intrauterine devices. Reported because it
+      changes contraceptive management, not because it bears on cancer.
+    code_system: none
+    source: inferred
+    reasoning: ACTI is Actinomyces, an organism item; C(8), values unobserved.
+
+  CMICHERP:
+    official_name: Microbiologia, efeito citopático do herpes
+    translated_name: Herpes cytopathic effect seen
+    description: >
+      The cytopathic effect of herpes simplex. A morphological inference from
+      the cells, not a virological test.
+    code_system: none
+    source: inferred
+    reasoning: HERP is herpes, an organism item; C(8), values unobserved.
+
+  CMICCHLA:
+    official_name: Microbiologia, Chlamydia
+    translated_name: Chlamydia seen
+    description: Chlamydia, again inferred from cell appearance rather than confirmed by testing.
+    code_system: none
+    source: inferred
+    reasoning: CHLA is Chlamydia, an organism item; C(8), values unobserved.
+
+  CMICOUT:
+    official_name: Outros achados microbiológicos
+    translated_name: Other organism seen
+    description: Any organism the named items do not cover.
+    code_system: none
+    source: inferred
+    reasoning: The OUT residual item closing the microbiology block.
+
+  # --- atypia and lesions -------------------------------------------------
+  CO_ATI_ESC:
+    official_name: Atipias em células escamosas
+    translated_name: Atypical squamous cells
+    description: >
+      Squamous atypia of undetermined significance, split into ASC-US
+      (possibly non-neoplastic) and ASC-H (cannot exclude a high-grade lesion).
+      The distinction decides between repeat screening and immediate colposcopy.
+    code_system: internal
+    source: def
+    source_ref: ATIPINDESC.CNV
+    reasoning: >
+      Bound to ATIPINDESC, whose values are the Bethesda ASC-US and ASC-H
+      categories.
+
+  CO_ATI_GLA:
+    official_name: Atipias em células glandulares
+    translated_name: Atypical glandular cells
+    description: >
+      Glandular atypia, again split by whether a high-grade lesion can be
+      excluded. Rarer than squamous atypia and carries a higher risk of
+      underlying disease, so it is referred more readily.
+    code_system: internal
+    source: def
+    source_ref: ATIPINDGLA.CNV
+    reasoning: Bound to ATIPINDGLA, the glandular counterpart of ATIPINDESC.
+
+  CO_ATI_IND:
+    official_name: Atipias de origem indefinida
+    translated_name: Atypical cells of undefined origin
+    description: >
+      Atypia where the cell of origin could not be determined — neither clearly
+      squamous nor clearly glandular.
+    code_system: internal
+    source: def
+    source_ref: ATIPINDIND.CNV
+    reasoning: Bound to ATIPINDIND, the indefinite-origin counterpart.
+
+  CO_CEL_GLA:
+    official_name: Atipias em células glandulares, neoplasia
+    translated_name: Glandular neoplasia
+    description: >
+      Glandular neoplasia proper: adenocarcinoma in situ, or invasive
+      adenocarcinoma reported as cervical, endometrial or unspecified. A
+      diagnosis on the cytology rather than a referral category.
+    code_system: internal
+    source: def
+    source_ref: ATICELGLAN.CNV
+    reasoning: >
+      Bound to ATICELGLAN, whose values are adenocarcinoma in situ and the
+      invasive adenocarcinoma sites.
+
+  PSNAONPLA:
+    official_name: Células escamosas atípicas possivelmente não neoplásicas
+    translated_name: Squamous atypia, possibly non-neoplastic
+    description: >
+      The ASC-US finding carried as its own item. Duplicates part of
+      CO_ATI_ESC and comes from a different generation of the form, so the two
+      must not be added together.
+    code_system: none
+    source: inferred
+    reasoning: >
+      PS reads possivelmente and NAONPLA não neoplásica, mirroring the ASC-US
+      value of ATIPINDESC; C(8), values unobserved.
+
+  PSNNPLA:
+    official_name: Células escamosas atípicas possivelmente não neoplásicas
+    translated_name: Squamous atypia, possibly non-neoplastic, variant field
+    description: >
+      A second field carrying the same ASC-US finding under a shorter name.
+      Schema generations of this form repeat items under variant names; read
+      whichever is populated for the year in hand.
+    code_system: none
+    source: inferred
+    reasoning: A truncated spelling of PSNAONPLA in a different generation; C(8), values unobserved.
+
+  POSNAONEO:
+    official_name: Possivelmente não neoplásico
+    translated_name: Possibly non-neoplastic
+    description: >
+      The possibly-non-neoplastic category as recorded in another generation of
+      the form. See PSNAONPLA for why several near-identical fields exist.
+    code_system: none
+    source: inferred
+    reasoning: POS NAO NEO reads possivelmente não neoplásico; C(8), values unobserved.
+
+  NALTGRA:
+    official_name: Lesão intraepitelial de alto grau não podendo excluir microinvasão
+    translated_name: High-grade lesion, microinvasion not excluded
+    description: >
+      A high-grade lesion where microinvasion cannot be excluded. More serious
+      than LESALTGRA, because invasion changes the treatment from local
+      excision to staging.
+    code_system: none
+    source: inferred
+    reasoning: >
+      N ALT GRA reads não podendo excluir, alto grau, a distinct Bethesda
+      category; C(8), values unobserved.
+
+  LESALTGRA:
+    official_name: Lesão intraepitelial escamosa de alto grau
+    translated_name: High-grade squamous intraepithelial lesion
+    description: >
+      A high-grade squamous lesion (HSIL). The finding cervical screening exists
+      to catch: precancerous, treatable, and the direct indication for
+      colposcopy.
+    code_system: none
+    source: inferred
+    reasoning: LES ALT GRA reads lesão de alto grau; C(8), values unobserved.
+
+  NLSALTGRA:
+    official_name: Lesão intraepitelial de alto grau, variante
+    translated_name: High-grade lesion, variant field
+    description: >
+      The high-grade lesion item as carried in another generation of the form.
+      See PSNAONPLA on duplicated items across generations.
+    code_system: none
+    source: inferred
+    reasoning: A variant spelling of LESALTGRA in a different generation; C(8), values unobserved.
+
+  CARCINO:
+    official_name: Carcinoma epidermoide invasor
+    translated_name: Invasive squamous carcinoma
+    description: >
+      Invasive squamous carcinoma on cytology. Not a screening result but a
+      cancer found by screening, and the point at which the pathway stops being
+      preventive.
+    code_system: none
+    source: inferred
+    reasoning: CARCINO reads carcinoma, the invasive category; C(8), values unobserved.
+
+  ADENCARCIN:
+    official_name: Adenocarcinoma
+    translated_name: Adenocarcinoma
+    description: >
+      Adenocarcinoma — glandular rather than squamous cancer. Screening detects
+      it less reliably than squamous disease, which is why its share of cervical
+      cancers has risen as squamous disease has been controlled.
+    code_system: none
+    source: inferred
+    reasoning: ADENCARCIN reads adenocarcinoma; present on both the CC and HC forms. C(8), values unobserved.
+
+  ALTERADO:
+    official_name: Resultado alterado
+    translated_name: Result abnormal
+    description: >
+      Whether the exam was abnormal overall. A summary of the specific findings
+      rather than an extra one, so counting it alongside them double-counts.
+    code_system: none
+    source: inferred
+    reasoning: ALTERADO is the summary abnormality flag; C(8), values unobserved.
+
+  CO_BEN_MET:
+    official_name: Achado benigno, metaplasia
+    translated_name: Benign finding, metaplasia
+    description: >
+      Metaplasia reported as a benign finding on the histopathology side, where
+      CBEMMETAS carries it on the cytology side.
+    code_system: none
+    source: inferred
+    reasoning: BEN_MET reads benigno metaplasia; appears on both CC and HC. C(8), values unobserved.
+
+  ST_MON_EXT:
+    official_name: Selecionado para monitoramento externo
+    translated_name: Selected for external quality monitoring
+    description: >
+      Whether the slide was selected for external quality review. A property of
+      the laboratory's quality programme, not of the woman, and it must be
+      excluded from clinical analyses.
+    code_system: internal
+    source: def
+    source_ref: MONEXT.CNV
+    reasoning: Bound to MONEXT, whose value is selecionado para monitoramento externo.
+
+  # =============================================== cervical histopathology (HC)
+  CO_COLP:
+    official_name: Achado colposcópico
+    translated_name: Colposcopy finding
+    description: >
+      What the colposcopy showed — normal, minor (low-grade) changes, major
+      (high-grade) changes, or suspicion of invasion. The step between an
+      abnormal smear and a biopsy, and what directs where the biopsy is taken.
+    code_system: internal
+    source: def
+    source_ref: COLPOSCO.CNV
+    reasoning: >
+      Bound to COLPOSCO, whose values are normal, alterações menores, alterações
+      maiores and sugestivo de invasão.
+
+  CO_COLP_BI:
+    official_name: Colposcopia, biópsia
+    translated_name: Colposcopy, biopsy taken
+    description: >
+      Whether a biopsy was taken at colposcopy. The CO_COLP_ items record what
+      was done at the examination, as against CO_COLP which records what was
+      seen.
+    code_system: none
+    source: inferred
+    reasoning: BI reads biópsia in the colposcopy block; C(8), values unobserved.
+
+  CO_COLP_EX:
+    official_name: Colposcopia, exérese da zona de transformação
+    translated_name: Colposcopy, transformation zone excision
+    description: >
+      Whether the transformation zone was excised. Both diagnostic and
+      treatment, which is why a high-grade lesion can be resolved in one visit.
+    code_system: none
+    source: inferred
+    reasoning: EX reads exérese in the colposcopy block; C(8), values unobserved.
+
+  CO_COLP_CU:
+    official_name: Colposcopia, curetagem endocervical
+    translated_name: Colposcopy, endocervical curettage
+    description: >
+      Whether endocervical curettage was done — sampling the canal, which
+      colposcopy cannot see, and the step that catches glandular disease.
+    code_system: none
+    source: inferred
+    reasoning: CU reads curetagem in the colposcopy block; C(8), values unobserved.
+
+  CO_COLP_RE:
+    official_name: Colposcopia, resultado
+    translated_name: Colposcopy, result
+    description: The result recorded for the colposcopy procedure block.
+    code_system: none
+    source: inferred
+    reasoning: RE reads resultado in the colposcopy block; C(8), values unobserved.
+
+  CO_CIT_ESC:
+    official_name: Citologia anterior, atipias escamosas
+    translated_name: Prior cytology, squamous atypia
+    description: >
+      The squamous atypia found on the cytology that led to this biopsy. Carried
+      onto the histopathology form so the two can be compared — the comparison
+      is what measures the screening test.
+    code_system: internal
+    source: def
+    source_ref: ATIPINDESC.CNV
+    reasoning: Bound to ATIPINDESC, the same Bethesda categories used on the cytology form.
+
+  CO_CIT_GLA:
+    official_name: Citologia anterior, atipias glandulares
+    translated_name: Prior cytology, glandular atypia
+    description: The glandular atypia found on the referring cytology. See CO_CIT_ESC.
+    code_system: internal
+    source: def
+    source_ref: ATIPINDGLA.CNV
+    reasoning: Bound to ATIPINDGLA, carried from the cytology form.
+
+  CO_CIT_IND:
+    official_name: Citologia anterior, atipias de origem indefinida
+    translated_name: Prior cytology, atypia of undefined origin
+    description: The undefined-origin atypia found on the referring cytology. See CO_CIT_ESC.
+    code_system: internal
+    source: def
+    source_ref: ATIPINDIND.CNV
+    reasoning: Bound to ATIPINDIND, carried from the cytology form.
+
+  CO_DIF_GRA:
+    official_name: Grau de diferenciação
+    translated_name: Differentiation grade
+    description: >
+      How well differentiated the tumour is, from well differentiated (grade I)
+      to undifferentiated (grade IV). A prognostic grading applied only where
+      malignancy was found.
+    code_system: internal
+    source: def
+    source_ref: DIFGRAU.CNV
+    reasoning: >
+      Bound to DIFGRAU, whose values run bem diferenciado through
+      indiferenciado.
+
+  CBENALTER:
+    official_name: Alterações benignas
+    translated_name: Benign alterations
+    description: >
+      Benign alteration on the cervical biopsy. The commonest histopathology
+      result, and the one that closes the episode.
+    code_system: none
+    source: inferred
+    reasoning: CBEN reads células benignas; C(8), values unobserved.
+
+  CBENCERVI:
+    official_name: Cervicite
+    translated_name: Cervicitis
+    description: Cervicitis — inflammation of the cervix, benign and treatable.
+    code_system: none
+    source: inferred
+    reasoning: CERVI reads cervicite in the benign block; C(8), values unobserved.
+
+  CO_BEN_POL:
+    official_name: Pólipo
+    translated_name: Polyp
+    description: A cervical polyp, benign and usually removed at the same visit.
+    code_system: none
+    source: inferred
+    reasoning: BEN_POL reads benigno pólipo; C(8), values unobserved.
+
+  NICNAOCERA:
+    official_name: Carcinoma escamoso não ceratinizante
+    translated_name: Non-keratinising squamous carcinoma
+    description: >
+      Non-keratinising squamous carcinoma, one of the histological subtypes of
+      invasive cervical cancer.
+    code_system: none
+    source: inferred
+    reasoning: NAO CERA reads não ceratinizante, a squamous carcinoma subtype; C(8), values unobserved.
+
+  NICVERRUCO:
+    official_name: Carcinoma verrucoso
+    translated_name: Verrucous carcinoma
+    description: >
+      Verrucous carcinoma, a rare and locally invasive squamous subtype that
+      rarely metastasises.
+    code_system: none
+    source: inferred
+    reasoning: VERRUCO reads verrucoso, a squamous carcinoma subtype; C(8), values unobserved.
+
+  NEOMUCINO:
+    official_name: Adenocarcinoma mucinoso
+    translated_name: Mucinous adenocarcinoma
+    description: Mucinous adenocarcinoma, a glandular subtype.
+    code_system: none
+    source: inferred
+    reasoning: MUCINO reads mucinoso, an adenocarcinoma subtype; C(8), values unobserved.
+
+  NEOVILOGL:
+    official_name: Adenocarcinoma viloglandular
+    translated_name: Villoglandular adenocarcinoma
+    description: >
+      Villoglandular adenocarcinoma, a glandular subtype with a notably better
+      prognosis than the others, which is why it is reported separately.
+    code_system: none
+    source: inferred
+    reasoning: VILOGL reads viloglandular, an adenocarcinoma subtype; C(8), values unobserved.
+
+  ADENOINSUT:
+    official_name: Adenocarcinoma in situ
+    translated_name: Adenocarcinoma in situ
+    description: >
+      Glandular carcinoma confined to the epithelium. Precancerous rather than
+      invasive, and the glandular counterpart of a high-grade squamous lesion.
+    code_system: none
+    source: inferred
+    reasoning: ADENO IN SITU; C(8), values unobserved.
+
+  PNEOPLA:
+    official_name: Processo neoplásico
+    translated_name: Neoplastic process
+    description: A neoplastic process reported on the biopsy.
+    code_system: none
+    source: inferred
+    reasoning: P NEOPLA reads processo neoplásico; C(8), values unobserved.
+
+  INDPNAONEO:
+    official_name: Processo não neoplásico
+    translated_name: Non-neoplastic process
+    description: A non-neoplastic process — the negative counterpart of PNEOPLA.
+    code_system: none
+    source: inferred
+    reasoning: IND P NAO NEO reads processo não neoplásico; C(8), values unobserved.
+
+  GPNNEOP:
+    official_name: Grupo de processo não neoplásico
+    translated_name: Non-neoplastic process group
+    description: The grouped non-neoplastic finding, recorded beside INDPNAONEO in a different generation.
+    code_system: none
+    source: inferred
+    reasoning: G P N NEOP reads grupo processo não neoplásico; C(8), values unobserved.
+
+  CITINDALGR:
+    official_name: Citologia indicando lesão de alto grau
+    translated_name: Cytology indicated a high-grade lesion
+    description: >
+      Whether the referring cytology had indicated a high-grade lesion. Carried
+      here so the biopsy result can be scored against what the smear predicted.
+    code_system: none
+    source: inferred
+    reasoning: CIT IND AL GR reads citologia indicando alto grau; C(8), values unobserved.
+
+  CIT_OUTNEO:
+    official_name: Citologia, outra neoplasia
+    translated_name: Cytology, other neoplasia
+    description: Any other neoplasm reported on the referring cytology.
+    code_system: none
+    source: inferred
+    reasoning: The residual neoplasia item of the referring-cytology block; C(8), values unobserved.
+
+  # ================================================ breast histopathology (HM)
+  CO_CLI_MAM:
+    official_name: Mama examinada
+    translated_name: Breast examined
+    description: >
+      Which breast the findings refer to. Everything on the breast forms is
+      recorded per side, so a record without this cannot be placed.
+    code_system: internal
+    source: def
+    source_ref: CO_CLI_MAM.CNV
+    reasoning: Bound to CO_CLI_MAM, whose values are mama direita and mama esquerda.
+
+  C_CLI_DETE:
+    official_name: Forma de detecção da lesão
+    translated_name: How the lesion was detected
+    description: >
+      Whether the lesion was found by clinical examination (palpable) or by
+      imaging (impalpable). The distinction that separates screen-detected
+      cancer from symptomatic cancer, and it drives the prognosis difference
+      between them.
+    code_system: internal
+    source: def
+    source_ref: CCLIDETEC.CNV
+    reasoning: >
+      Bound to CCLIDETEC, whose values are exame clínico da mama (palpável) and
+      imagem (não palpável).
+
+  CO_CLI_TAM:
+    official_name: Tamanho clínico do tumor
+    translated_name: Clinical tumour size
+    description: >
+      Tumour size as felt on examination, banded from under 2 cm to over 10 cm,
+      with a not-palpable option. An estimate; CO_TAM_TUM carries the measured
+      size from the specimen.
+    code_system: internal
+    source: def
+    source_ref: CCLITAM.CNV
+    reasoning: >
+      Bound to CCLITAM, whose bands run from under 2 cm to over 10 cm plus não
+      palpável.
+
+  C_CLI_LINF:
+    official_name: Linfonodo axilar palpável
+    translated_name: Palpable axillary node
+    description: >
+      Whether an axillary lymph node was palpable. The clinical proxy for nodal
+      spread, and the single strongest prognostic factor in breast cancer.
+    code_system: internal
+    source: def
+    source_ref: CCLILINFO.CNV
+    reasoning: Bound to CCLILINFO, a sim/não item for the palpable axillary node.
+
+  CMICMICRCA:
+    official_name: Microcalcificações
+    translated_name: Microcalcifications
+    description: >
+      Whether microcalcifications were present. Often the only sign of
+      ductal carcinoma in situ, so they are what makes mammography able to find
+      pre-invasive disease.
+    code_system: internal
+    source: def
+    source_ref: CCLILINFO.CNV
+    reasoning: MICRCA reads microcalcificações; bound to the same sim/não list as the node item.
+
+  C_CLI_TCAN:
+    official_name: Risco elevado para câncer de mama
+    translated_name: High risk for breast cancer
+    description: >
+      Whether the woman is at high risk — family history or previous disease.
+      High-risk women enter a different screening schedule, so this field
+      changes what a normal result means.
+    code_system: internal
+    source: def
+    source_ref: RISCOELEVADO.CNV
+    reasoning: >
+      Bound to RISCOELEVADO, whose values are sim, não and não sabe for elevated
+      breast cancer risk.
+
+  CO_TAM_TUM:
+    official_name: Tamanho patológico do tumor
+    translated_name: Pathological tumour size
+    description: >
+      Tumour size measured on the specimen, banded under 2 cm, 2 to 5 cm and
+      over 5 cm — the T of TNM staging. More reliable than the clinical estimate
+      in CO_CLI_TAM.
+    code_system: internal
+    source: def
+    source_ref: CTAMTUM.CNV
+    reasoning: Bound to CTAMTUM, whose bands match the TNM size categories.
+
+  CO_HIS_GRA:
+    official_name: Grau histológico
+    translated_name: Histological grade
+    description: >
+      Histological grade I, II or III. How unlike normal tissue the tumour
+      looks, and with size and nodes one of the three classical prognostic
+      factors.
+    code_system: internal
+    source: def
+    source_ref: CHISGRAU.CNV
+    reasoning: Bound to CHISGRAU, whose values are I, II, III and não avaliável.
+
+  CO_HIS_MAR:
+    official_name: Margens cirúrgicas
+    translated_name: Surgical margins
+    description: >
+      Whether the surgical margins were free of tumour or involved. Involved
+      margins mean the excision was incomplete and further surgery is needed, so
+      this field decides an operation.
+    code_system: internal
+    source: def
+    source_ref: CHISMARG.CNV
+    reasoning: >
+      Bound to CHISMARG, whose values are livres, comprometidas and impossível
+      de serem avaliadas.
+
+  C_NEO_MALI:
+    official_name: Neoplasia maligna
+    translated_name: Malignant neoplasm
+    description: >
+      The malignant diagnosis, from in situ carcinoma graded low to high through
+      invasive disease. The field that actually says whether this is cancer.
+    code_system: internal
+    source: def
+    source_ref: CNEOMALIG.CNV
+    reasoning: >
+      Bound to CNEOMALIG, whose values run from carcinoma intraductal in situ by
+      grade through invasive carcinoma.
+
+  CNEOMALIG:
+    official_name: Neoplasia maligna, variante
+    translated_name: Malignant neoplasm, variant field
+    description: >
+      The malignant diagnosis as carried in another generation of the form; see
+      C_NEO_MALI, which holds the same categories.
+    code_system: none
+    source: inferred
+    reasoning: The same CNEOMALIG categories under a variant column name; C(8), values unobserved.
+
+  CCLIMATPRO:
+    official_name: Procedimento de obtenção do material
+    translated_name: How the specimen was obtained
+    description: >
+      Which procedure produced the specimen — incisional or excisional biopsy,
+      core needle, stereotactic biopsy, segmental resection, duct excision. It
+      bounds what the pathology can conclude: a needle core cannot report
+      margins.
+    code_system: internal
+    source: def
+    source_ref: CCLIMATPROC.CNV
+    reasoning: >
+      Bound to CCLIMATPROC, whose values enumerate the biopsy and resection
+      procedures.
+
+  CRESPROCIR:
+    official_name: Procedimento cirúrgico realizado
+    translated_name: Surgical procedure performed
+    description: >
+      The surgical procedure carried out, on the same list as CCLIMATPRO. The
+      two differ in intent — one records how the diagnosis was obtained, the
+      other what surgery was done.
+    code_system: internal
+    source: def
+    source_ref: CCLIMATPROC.CNV
+    reasoning: Bound to the same CCLIMATPROC list as CCLIMATPRO.
+
+  CBENSOLITA:
+    official_name: Lesão benigna, cisto solitário
+    translated_name: Benign, solitary cyst
+    description: >
+      A solitary cyst. The CBEN_ block covers benign breast disease, which is
+      most of what a breast biopsy finds.
+    code_system: none
+    source: inferred
+    reasoning: SOLITA reads solitário in the benign block; C(8), values unobserved.
+
+  CBENMULTI:
+    official_name: Lesão benigna, cistos múltiplos
+    translated_name: Benign, multiple cysts
+    description: Multiple cysts, as against the single cyst of CBENSOLITA.
+    code_system: none
+    source: inferred
+    reasoning: MULTI reads múltiplos in the benign block; C(8), values unobserved.
+
+  CBENMASTIT:
+    official_name: Lesão benigna, mastite
+    translated_name: Benign, mastitis
+    description: >
+      Mastitis. Benign, but inflammatory breast cancer mimics it, which is why
+      it is reported rather than dismissed.
+    code_system: none
+    source: inferred
+    reasoning: MASTIT reads mastite in the benign block; C(8), values unobserved.
+
+  CBENLOBCAT:
+    official_name: Lesão benigna, neoplasia lobular in situ
+    translated_name: Benign, lobular neoplasia in situ
+    description: >
+      Lobular neoplasia in situ. Classified benign here, but it marks raised
+      risk in both breasts rather than being a local lesion, so it changes
+      follow-up.
+    code_system: none
+    source: inferred
+    reasoning: LOB reads lobular in the benign block; C(8), values unobserved.
+
+  CBENOUTROS:
+    official_name: Outra lesão benigna
+    translated_name: Benign, other
+    description: Any benign breast lesion the named items do not cover.
+    code_system: none
+    source: inferred
+    reasoning: The OUTROS residual item closing the benign block.
+
+  LESBENIGIN:
+    official_name: Lesão benigna
+    translated_name: Benign lesion
+    description: >
+      A benign lesion recorded as a summary rather than by type; see the CBEN_
+      items for the specific findings.
+    code_system: none
+    source: inferred
+    reasoning: LES BENIG reads lesão benigna; C(8), values unobserved.
+
+  # =================================================== mammography (MM)
+  CO_BIRADS:
+    official_name: Categoria BI-RADS
+    translated_name: BI-RADS category
+    description: >
+      The BI-RADS assessment, 0 to 6. The single most important field on the
+      mammography form: 0 means incomplete, 1 and 2 are normal, 3 is probably
+      benign, 4 and 5 indicate biopsy, and 6 is known cancer.
+    code_system: internal
+    source: def
+    source_ref: CBIRARDS.CNV
+    reasoning: >
+      Bound to CBIRARDS, whose values are the seven BI-RADS categories. The
+      codelist name is misspelled in DATASUS's own file.
+
+  INDICLINIC:
+    official_name: Indicação clínica da mamografia
+    translated_name: Clinical indication
+    description: >
+      Whether the mammogram was for screening or for diagnosis. Diagnostic
+      mammograms are done because something was already found, so their
+      abnormality rate is far higher; mixing the two ruins any screening
+      indicator.
+    code_system: internal
+    source: def
+    source_ref: INDICLINIC.CNV
+    reasoning: >
+      Bound to INDICLINIC, whose values are mamografia diagnóstica and
+      mamografia de rastreamento.
+
+  CO_CLI_DIA:
+    official_name: Mama examinada na mamografia diagnóstica
+    translated_name: Breast examined, diagnostic mammogram
+    description: Which breast the diagnostic mammogram examined — right, left or both.
+    code_system: internal
+    source: def
+    source_ref: CCLIDIAG.CNV
+    reasoning: Bound to CCLIDIAG, whose values are direita, esquerda and ambas.
+
+  CCONRECOM:
+    official_name: Conduta recomendada
+    translated_name: Recommended follow-up
+    description: >
+      What the radiologist recommends next — ultrasound, routine mammography in
+      one or two years, radiological control at six months, or cytology. The
+      action the exam produces, and what the screening programme is judged on.
+    code_system: internal
+    source: def
+    source_ref: CCONRECOM.CNV
+    reasoning: >
+      Bound to CCONRECOM, whose values enumerate the follow-up options from
+      ultrasound through repeat imaging intervals.
+
+  DINTSOLICT:
+    official_name: Intervalo entre solicitação e coleta
+    translated_name: Interval, request to examination
+    description: >
+      How long the woman waited, banded 0 to 10 days, 11 to 20, 21 to 30 and
+      over 30. A measure of access, banded rather than exact, so it will not
+      give a mean wait.
+    code_system: internal
+    source: def
+    source_ref: INTCOLETA.CNV
+    reasoning: Bound to INTCOLETA, whose values are the day-interval bands.
+
+  CRADCOMPCD:
+    official_name: Composição do parênquima, mama direita
+    translated_name: Parenchyma composition, right breast
+    description: >
+      Breast density on the right — dense, fatty, or predominantly one of them.
+      Dense tissue hides tumours, so density is a direct measure of how much the
+      mammogram can be trusted.
+    code_system: internal
+    source: def
+    source_ref: CRADCOMPC.CNV
+    reasoning: >
+      Bound to CRADCOMPC, whose values are densa, adiposa and the predominantly
+      variants, plus implant and reconstruction states.
+
+  CRADCOMPCE:
+    official_name: Composição do parênquima, mama esquerda
+    translated_name: Parenchyma composition, left breast
+    description: Breast density on the left; the counterpart of CRADCOMPCD.
+    code_system: internal
+    source: def
+    source_ref: CRADCOMPC.CNV
+    reasoning: Bound to CRADCOMPC, the left-side field of the pair.
+
+  CRADPELED:
+    official_name: Pele, mama direita
+    translated_name: Skin, right breast
+    description: >
+      Whether the skin of the right breast is normal, thickened or retracted.
+      Skin change is a late sign, so an abnormality here rarely accompanies an
+      early lesion.
+    code_system: internal
+    source: def
+    source_ref: CRADPELE.CNV
+    reasoning: >
+      Bound to CRADPELE, whose values are normal, espessada and retraída.
+
+  CRADPELEE:
+    official_name: Pele, mama esquerda
+    translated_name: Skin, left breast
+    description: Skin findings on the left; the counterpart of CRADPELED.
+    code_system: internal
+    source: def
+    source_ref: CRADPELE.CNV
+    reasoning: Bound to CRADPELE, the left-side field of the pair.
+
+  CLINFAUXD:
+    official_name: Linfonodos axilares, direita
+    translated_name: Axillary nodes, right
+    description: >
+      How the right axillary nodes appear — normal, altered, or not visualised.
+      A radiological reading, distinct from the palpation recorded in
+      C_CLI_LINF.
+    code_system: internal
+    source: def
+    source_ref: CLINFAUX.CNV
+    reasoning: >
+      Bound to CLINFAUX, whose values are normais, alterados and não
+      visualizados.
+
+  CLINFAUXE:
+    official_name: Linfonodos axilares, esquerda
+    translated_name: Axillary nodes, left
+    description: The left axillary nodes; the counterpart of CLINFAUXD.
+    code_system: internal
+    source: def
+    source_ref: CLINFAUX.CNV
+    reasoning: Bound to CLINFAUX, the left-side field of the pair.
+
+  CLINFAUXDI:
+    official_name: Linfonodos axilares direita, detalhe
+    translated_name: Axillary nodes, right, detail
+    description: >
+      A further right-side nodal item carried in another generation of the form,
+      beside the coded CLINFAUXD.
+    code_system: none
+    source: inferred
+    reasoning: An I-suffixed variant of CLINFAUXD; C(8), values unobserved.
+
+  CLINFAUXEI:
+    official_name: Linfonodos axilares esquerda, detalhe
+    translated_name: Axillary nodes, left, detail
+    description: The left-side counterpart of CLINFAUXDI.
+    code_system: none
+    source: inferred
+    reasoning: An I-suffixed variant of CLINFAUXE; C(8), values unobserved.
+
+  CNODTAMD:
+    official_name: Tamanho do nódulo, mama direita
+    translated_name: Nodule size, right breast
+    description: >
+      Size of the right-side nodule, banded up to 10 mm, 11 to 20, 21 to 50 and
+      over 50. Banded, so it will not give a measured distribution.
+    code_system: internal
+    source: def
+    source_ref: CNODTAM.CNV
+    reasoning: Bound to CNODTAM, whose values are the millimetre bands.
+
+  CNODTAME:
+    official_name: Tamanho do nódulo, mama esquerda
+    translated_name: Nodule size, left breast
+    description: Size of the left-side nodule; the counterpart of CNODTAMD.
+    code_system: internal
+    source: def
+    source_ref: CNODTAM.CNV
+    reasoning: Bound to CNODTAM, the left-side field of the pair.
+
+  NODULODIR:
+    official_name: Nódulo, mama direita
+    translated_name: Nodule, right breast
+    description: >
+      Whether a nodule was seen on the right. The presence item that CNODTAMD
+      then sizes.
+    code_system: none
+    source: inferred
+    reasoning: NODULO DIR reads nódulo direita; C(8), values unobserved.
+
+  NODULOESQ:
+    official_name: Nódulo, mama esquerda
+    translated_name: Nodule, left breast
+    description: Whether a nodule was seen on the left; the counterpart of NODULODIR.
+    code_system: none
+    source: inferred
+    reasoning: NODULO ESQ reads nódulo esquerda; C(8), values unobserved.
+
+  MICRODIR:
+    official_name: Microcalcificações, mama direita
+    translated_name: Microcalcifications, right breast
+    description: >
+      Whether microcalcifications were seen on the right. Frequently the only
+      mammographic sign of ductal carcinoma in situ.
+    code_system: none
+    source: inferred
+    reasoning: MICRO DIR reads microcalcificações direita; C(8), values unobserved.
+
+  MICROESQ:
+    official_name: Microcalcificações, mama esquerda
+    translated_name: Microcalcifications, left breast
+    description: Microcalcifications on the left; the counterpart of MICRODIR.
+    code_system: none
+    source: inferred
+    reasoning: MICRO ESQ reads microcalcificações esquerda; C(8), values unobserved.
+
+  CIRURGANTD:
+    official_name: Cirurgia anterior, mama direita
+    translated_name: Previous surgery, right breast
+    description: >
+      Whether the right breast had previous surgery. Scar tissue mimics
+      malignancy on a mammogram, so knowing about it prevents a false alarm.
+    code_system: none
+    source: inferred
+    reasoning: CIRURG ANT D reads cirurgia anterior direita; C(8), values unobserved.
+
+  CIRURGANTE:
+    official_name: Cirurgia anterior, mama esquerda
+    translated_name: Previous surgery, left breast
+    description: Previous surgery on the left; the counterpart of CIRURGANTD.
+    code_system: none
+    source: inferred
+    reasoning: CIRURG ANT E reads cirurgia anterior esquerda; C(8), values unobserved.
+
+  NAOFZCIANT:
+    official_name: Não fez mamografia anterior
+    translated_name: No previous mammogram
+    description: >
+      Whether this is the woman's first mammogram. First rounds find more
+      disease than subsequent ones, so pooling them understates what routine
+      screening detects.
+    code_system: none
+    source: inferred
+    reasoning: NAO FZ ... ANT reads não fez anterior; C(8), values unobserved.
+
+  CO_IBGE:
+    official_name: Município do prestador
+    translated_name: Provider municipality
+    description: >
+      IBGE code of the municipality of the service that performed the exam.
+      Where the exam happened, not where the woman lives.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(7) bound to MUNICBR, the national municipality codelist.
+
+  # ============================================== shared across breast forms
+  CO_RES_ADE:
+    official_name: Adequabilidade do resultado
+    translated_name: Result adequacy
+    description: >
+      Whether the breast specimen was satisfactory. The breast counterpart of
+      CO_ADEQ_MA on the cervical form.
+    code_system: internal
+    source: def
+    source_ref: CRESADEQ.CNV
+    reasoning: >
+      Bound to CRESADEQ, whose values are satisfatório and insatisfatório.
+      Declared C(70), far wider than the code needs.
+
+  CANMPACANC:
+    official_name: Risco elevado para câncer de mama
+    translated_name: High breast cancer risk
+    description: >
+      Whether the woman is at elevated risk, as recorded on the cytology and
+      mammography forms; C_CLI_TCAN carries the same question on the
+      histopathology form.
+    code_system: internal
+    source: def
+    source_ref: RISCOELEVADO.CNV
+    reasoning: Bound to RISCOELEVADO, the same elevated-risk list as C_CLI_TCAN.
+
+  PRESTMUN:
+    official_name: Município do prestador
+    translated_name: Provider municipality
+    description: >
+      IBGE code of the municipality of the laboratory or service. Screening is
+      centralised, so this is frequently not the woman's municipality and must
+      not be used as residence.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(7) bound to MUNICBR, the national municipality codelist.
+
+  PRESTUF:
+    official_name: UF do prestador
+    translated_name: Provider state
+    description: State of the service that performed the exam, the coarser companion to PRESTMUN.
+    code_system: internal
+    source: def
+    source_ref: ESTADO.CNV
+    reasoning: C(2) bound to ESTADO, the state codelist.
