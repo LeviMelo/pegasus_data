@@ -1,0 +1,335 @@
+# SIASUS — SIA.AC, the 2002 renal replacement therapy registry. Third batch
+# of 25 columns, continuing the UDI_ dialysis-unit registration block
+# (UDAC0201.DBF, 2 rows). See siasus_ac_02.yml's header for the CGC/MN/RZ
+# triple pattern and the institutions already identified from the Acre data
+# (FUNDHACRE as the unit's own operator; the Brasília Hospital de Base as
+# the transplant/histocompatibility referral).
+#
+# New in this batch: UDI_LAACGC/RZ resolve to two different local
+# contractors per unit — one, "SAERB", also appears as this same unit's
+# maintenance contractor (UDI_MTARZ), suggesting a combined water/analysis
+# and upkeep service rather than a hospital laboratory; the other unit uses
+# "QUILAB/ C. SIMAO SILVA" and "FLUIDTECH" instead, two distinct commercial
+# vendors. UDI_NFRCPF/NFRNM are the responsible nurse's real CPF and name,
+# per the task brief's check-digit survey.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+
+  UDI_INDTR1:
+    official_name: Indicador de tratamento oferecido (1)
+    translated_name: Treatment-type offered flag, item 1
+    description: >
+      First of six yes/no flags (INDTR1-INDTR6) on the dialysis unit's
+      registration, most likely a checklist of which renal-replacement
+      modalities the unit offers (e.g. haemodialysis, CAPD, intermittent
+      peritoneal dialysis). Varies 0/1 between the two Acre units.
+    code_system: none
+    source: inferred
+    reasoning: >
+      INDTR reads indicador de tratamento; six sibling flags (INDTR1-6),
+      one character each, values 0/1 across 2 rows. No codelist confirms
+      which modality each position marks.
+
+  UDI_INDTR2:
+    official_name: Indicador de tratamento oferecido (2)
+    translated_name: Treatment-type offered flag, item 2
+    description: >
+      Second flag in the same INDTR1-INDTR6 checklist as UDI_INDTR1. Varies
+      0/1 between the two Acre units.
+    code_system: none
+    source: inferred
+    reasoning: Same INDTR stem as UDI_INDTR1, one position later.
+
+  UDI_INDTR3:
+    official_name: Indicador de tratamento oferecido (3)
+    translated_name: Treatment-type offered flag, item 3
+    description: >
+      Third flag in the same INDTR checklist. Varies 0/1 between the two
+      Acre units.
+    code_system: none
+    source: inferred
+    reasoning: Same INDTR stem as UDI_INDTR1, two positions later.
+
+  UDI_INDTR4:
+    official_name: Indicador de tratamento oferecido (4)
+    translated_name: Treatment-type offered flag, item 4
+    description: >
+      Fourth flag in the same INDTR checklist, constant at 0 for both Acre
+      units — neither offers whichever modality this position marks.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same INDTR stem as UDI_INDTR1, three positions later; measured
+      constant "0" across both rows.
+
+  UDI_INDTR5:
+    official_name: Indicador de tratamento oferecido (5)
+    translated_name: Treatment-type offered flag, item 5
+    description: >
+      Fifth flag in the same INDTR checklist. Varies 0/1 between the two
+      Acre units.
+    code_system: none
+    source: inferred
+    reasoning: Same INDTR stem as UDI_INDTR1, four positions later.
+
+  UDI_INDTR6:
+    official_name: Indicador de tratamento oferecido (6)
+    translated_name: Treatment-type offered flag, item 6
+    description: >
+      Sixth and last flag in the INDTR checklist, constant at 0 for both
+      Acre units.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same INDTR stem as UDI_INDTR1, five positions later; measured
+      constant "0" across both rows.
+
+  UDI_LAACGC:
+    official_name: CNPJ do laboratório de análises
+    translated_name: Analysis laboratory tax id
+    description: >
+      Tax id of the analysis laboratory linked to this dialysis unit — two
+      distinct contractors, one per Acre unit (CNPJs 03466327000141 and
+      01634845000100), neither the FUNDHACRE/hospital entities seen
+      elsewhere in this record.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LAA reads Laboratório de Análises; paired UDI_LAARZ names ("SAERB",
+      "QUILAB/ C. SIMAO SILVA") read as commercial lab/service providers,
+      distinct from the hospital and foundation entities in the AP/HG/HTP
+      slots.
+
+  UDI_LAAMN:
+    official_name: Município do laboratório de análises
+    translated_name: Analysis laboratory municipality
+    description: >
+      Municipality of the linked analysis laboratory — 120040, Rio Branco,
+      on both rows, i.e. a locally contracted lab rather than an
+      out-of-state one.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+
+  UDI_LAARZ:
+    official_name: Razão social do laboratório de análises
+    translated_name: Analysis laboratory legal name
+    description: >
+      Legal name of the linked lab: "SAERB" on one Acre unit's row — the
+      same name that unit gives for its maintenance contractor (UDI_MTARZ),
+      suggesting a combined water-analysis-and-upkeep vendor — and
+      "QUILAB/ C. SIMAO SILVA", an ordinary clinical lab, on the other.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Two distinct free-text values measured, one of which ("SAERB")
+      duplicates UDI_MTARZ's value on the same row.
+
+  UDI_LHCCGC:
+    official_name: CNPJ do laboratório de histocompatibilidade
+    translated_name: Histocompatibility laboratory tax id
+    description: >
+      Tax id of the tissue-typing (HLA) laboratory this unit's transplant
+      candidates are referred to. Constant 00054015000213 on both rows —
+      the same CNPJ as UDI_HTPCGC, the Brasília transplant-referral
+      hospital, so the histocompatibility testing happens at that same
+      out-of-state hospital.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LHC reads Laboratório de HistoCompatibilidade; the CNPJ, municipality
+      (530010, Brasília) and legal name ("HOSP. DE BASE DO DISTRITO
+      FEDERAL") are identical to UDI_HTPCGC/HTPMN/HTPRZ — the same hospital
+      does both the transplant workup and the tissue typing for Acre's
+      dialysis patients.
+
+  UDI_LHCMN:
+    official_name: Município do laboratório de histocompatibilidade
+    translated_name: Histocompatibility laboratory municipality
+    description: >
+      Municipality of the histocompatibility lab — 530010, Brasília, on
+      both rows, matching UDI_HTPMN.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 530010, matching UDI_HTPMN.
+
+  UDI_LHCRZ:
+    official_name: Razão social do laboratório de histocompatibilidade
+    translated_name: Histocompatibility laboratory legal name
+    description: >
+      Legal name of the histocompatibility lab: "HOSP. DE BASE DO DISTRITO
+      FEDERAL", constant across both rows and identical to UDI_HTPRZ.
+    code_system: none
+    source: inferred
+    reasoning: Measured constant, identical to UDI_HTPRZ's value.
+
+  UDI_MEDCGC:
+    official_name: CNPJ do fornecedor de material médico
+    translated_name: Medical-supplies vendor tax id
+    description: >
+      Tax id of this unit's dialysis equipment/consumables supplier. Two
+      distinct vendors, one per Acre unit (49351786000180 and
+      01092701000160).
+    code_system: none
+    source: inferred
+    reasoning: >
+      Paired UDI_MEDRZ names ("BAXTER HOSPITALAR LTDA", a major dialysis
+      solutions and equipment manufacturer, and "CONCISE COM.APAR.E
+      EQUIP.ELET.LTDA", an electrical-equipment trading company) confirm an
+      equipment/supplies vendor rather than a clinical entity.
+
+  UDI_MEDMN:
+    official_name: Município do fornecedor de material médico
+    translated_name: Medical-supplies vendor municipality
+    description: >
+      Municipality of the equipment vendor — 355030 (São Paulo) on both
+      rows, an out-of-state commercial supplier rather than a local one.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 355030, the São Paulo city code.
+
+  UDI_MEDRZ:
+    official_name: Razão social do fornecedor de material médico
+    translated_name: Medical-supplies vendor legal name
+    description: >
+      Legal name of the equipment vendor: "BAXTER HOSPITALAR LTDA" for one
+      Acre unit, "CONCISE COM.APAR.E EQUIP.ELET.LTDA" for the other.
+    code_system: none
+    source: inferred
+    reasoning: Two distinct values measured, one per row.
+
+  UDI_MTACGC:
+    official_name: CNPJ da empresa de manutenção
+    translated_name: Maintenance contractor tax id
+    description: >
+      Tax id of the company that maintains this unit's dialysis machines
+      and water-treatment system — heavily regulated equipment that
+      requires a documented maintenance contract. Two distinct contractors,
+      one per Acre unit.
+    code_system: none
+    source: inferred
+    reasoning: >
+      MTA reads manutenção; paired UDI_MTARZ names ("SAERB", "FLUIDTECH" —
+      the latter literally "fluid technology") read as water-system/
+      equipment maintenance vendors.
+
+  UDI_MTAMN:
+    official_name: Município da empresa de manutenção
+    translated_name: Maintenance contractor municipality
+    description: >
+      Municipality of the maintenance contractor — 120040 (Rio Branco) for
+      one Acre unit, 411915 (a Paraná municipality) for the other, showing
+      one unit uses an out-of-state specialist maintenance vendor.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: >
+      Bound to MUNICBR; the two non-null values are 120040 and 411915, one
+      local and one in Paraná.
+
+  UDI_MTARZ:
+    official_name: Razão social da empresa de manutenção
+    translated_name: Maintenance contractor legal name
+    description: >
+      Legal name of the maintenance contractor: "SAERB" for one Acre unit
+      (the same name that unit also gives for its analysis lab, UDI_LAARZ)
+      and "FLUIDTECH" for the other.
+    code_system: none
+    source: inferred
+    reasoning: Two distinct values measured; "SAERB" duplicates the value in UDI_LAARZ.
+
+  UDI_NFRCPF:
+    official_name: CPF do enfermeiro responsável
+    translated_name: Responsible nurse's CPF
+    description: >
+      The real CPF of the nurse responsible for the dialysis unit — unlike
+      the patient CPFPCN columns elsewhere in this archive, this one passes
+      the CPF check digit. One distinct value per Acre unit, paired with
+      UDI_NFRNM.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Per the task brief's check-digit survey, UDI_NFRCPF is one of the
+      columns confirmed as a genuine CPF (100% pass), identifying the
+      responsible nurse.
+    notes: >
+      A direct identifier of a named health professional acting in a
+      professional capacity, not a patient — see the note on UDI_DIRCPF in
+      siasus_ac_02.yml for the same distinction.
+
+  UDI_NFRNM:
+    official_name: Nome do enfermeiro responsável
+    translated_name: Responsible nurse's name
+    description: >
+      Full name of the responsible nurse, paired with UDI_NFRCPF. Two
+      distinct names observed, one per Acre unit.
+    code_system: none
+    source: inferred
+    reasoning: NFR NM reads nome do enfermeiro; paired one-to-one with UDI_NFRCPF.
+
+  UDI_PCCGC1:
+    official_name: CNPJ da entidade de referência (1)
+    translated_name: Reference-entity tax id, slot 1
+    description: >
+      Tax id of the first entity in a further reference-institution pair.
+      Constant 63602940000170 across both rows — FUNDHACRE again, the same
+      entity that fills the AP, HG-slot-2, RD and US "entity 1" positions
+      throughout this record.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Measured constant, identical to UDI_APCGC1's value and paired with
+      UDI_PCRZ1's "FUNDHACRE".
+
+  UDI_PCCGC2:
+    official_name: CNPJ da entidade de referência (2)
+    translated_name: Reference-entity tax id, slot 2
+    description: >
+      Tax id of the second entity in the same reference pair — constant
+      04034526000143, the same CNPJ root as the backup general hospital in
+      UDI_HGCGC1, paired here with "Laboratório Central de Saúde Pública"
+      (LACEN) in UDI_PCRZ2.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Measured constant across both rows; paired UDI_PCRZ2 names the state
+      public-health reference laboratory, plausibly consulted for the water
+      and dialysate quality testing dialysis units are required to
+      document.
+
+  UDI_PCMN1:
+    official_name: Município da entidade de referência (1)
+    translated_name: Reference-entity municipality, slot 1
+    description: >
+      Municipality of the first reference entity — 120040, Rio Branco, on
+      both rows.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+
+  UDI_PCMN2:
+    official_name: Município da entidade de referência (2)
+    translated_name: Reference-entity municipality, slot 2
+    description: >
+      Municipality of the second reference entity — also 120040, Rio
+      Branco, consistent with LACEN's home city.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+
+  UDI_PCRZ1:
+    official_name: Razão social da entidade de referência (1)
+    translated_name: Reference-entity legal name, slot 1
+    description: >
+      Legal name of the first reference entity — "FUNDHACRE", constant
+      across both rows.
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "FUNDHACRE" across both rows, matching UDI_APRZ1.

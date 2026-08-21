@@ -1,0 +1,245 @@
+# SIASUS — SIA.AC, the 2002 renal replacement therapy registry. Fourth and
+# last batch, 20 columns, closing out the UDI_ dialysis-unit registration
+# block (UDAC0201.DBF, 2 rows): the closing reference-institution pair
+# (PCRZ2/RD/US), and the unit's own equipment counts (water-treatment
+# devices, peritoneal-dialysis capacity, machine counts) — the "heavily
+# regulated" detail the task brief flagged. See siasus_ac_02.yml and
+# siasus_ac_03.yml for the CGC/MN/RZ triple pattern and the institutions
+# already identified (FUNDHACRE as the unit's own operator).
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+
+  UDI_PCRZ2:
+    official_name: Razão social da entidade de referência (2)
+    translated_name: Reference-entity legal name, slot 2
+    description: >
+      Legal name of the second entity in the UDI_PC reference pair (see
+      UDI_PCCGC2 in siasus_ac_03.yml): "LABORATORIO CENTRAL DE S. PUBLICA"
+      on one Acre unit's row, "LAB. CENTRAL DE SAUDE PUBLICA" on the other —
+      the same state public-health reference laboratory (LACEN), spelled
+      slightly differently between the two submissions.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Two distinct free-text values measured, both plainly abbreviating
+      Laboratório Central de Saúde Pública.
+
+  UDI_QTDAG1:
+    official_name: Quantidade de equipamento de tratamento de água (1)
+    translated_name: Water-treatment equipment count, type 1
+    description: >
+      Count of one category of water-treatment equipment the dialysis unit
+      operates — 0 on one Acre row, 1 on the other. Dialysate water
+      treatment is the most heavily regulated part of a dialysis unit's
+      equipment, which is why this registration form itemises it.
+    code_system: none
+    source: inferred
+    reasoning: >
+      QTD reads quantidade; AG plausibly abbreviates água, consistent with
+      the task brief's note that this form covers water treatment in
+      detail. Observed values are small counts (0, 1), not a flag domain.
+
+  UDI_QTDAG2:
+    official_name: Quantidade de equipamento de tratamento de água (2)
+    translated_name: Water-treatment equipment count, type 2
+    description: >
+      Count of a second category of water-treatment equipment, alongside
+      UDI_QTDAG1 — 0 on one Acre row, 1 on the other.
+    code_system: none
+    source: inferred
+    reasoning: Same QTDAG stem as UDI_QTDAG1, second position; same value pattern.
+
+  UDI_QTDDPA:
+    official_name: Quantidade de diálise peritoneal ambulatorial
+    translated_name: Ambulatory peritoneal dialysis capacity
+    description: >
+      Count related to continuous ambulatory peritoneal dialysis (CAPD)
+      capacity at this unit, constant at 1 across both Acre rows.
+    code_system: none
+    source: inferred
+    reasoning: >
+      QTD DPA reads quantidade de diálise peritoneal ambulatorial;
+      constant "01" across both rows.
+
+  UDI_QTDDPI:
+    official_name: Quantidade de diálise peritoneal intermitente
+    translated_name: Intermittent peritoneal dialysis capacity
+    description: >
+      Count related to intermittent peritoneal dialysis (IPD) capacity,
+      alongside UDI_QTDDPA, constant at 1 across both Acre rows.
+    code_system: none
+    source: inferred
+    reasoning: QTD DPI reads quantidade de diálise peritoneal intermitente; constant "01".
+
+  UDI_QTDMQD:
+    official_name: Quantidade de máquinas de diálise (D)
+    translated_name: Dialysis machine count, category D
+    description: >
+      Count of dialysis machines in one operational category at this unit —
+      0 on one Acre row, 3 on the other, the first non-trivial machine
+      count in this UDI_QTD family.
+    code_system: none
+    source: inferred
+    reasoning: >
+      QTD MQ reads quantidade de máquinas; the trailing D, O and P letters
+      on this and its two siblings plausibly distinguish machine states
+      (e.g. in service, idle, unit-owned), though no codelist confirms
+      which is which. Observed values 0 and 3.
+
+  UDI_QTDMQO:
+    official_name: Quantidade de máquinas de diálise (O)
+    translated_name: Dialysis machine count, category O
+    description: >
+      Count of dialysis machines in a second category, alongside
+      UDI_QTDMQD and UDI_QTDMQP, constant at 0 across both Acre rows.
+    code_system: none
+    source: inferred
+    reasoning: Same QTDMQ stem as UDI_QTDMQD; measured constant "00" across both rows.
+
+  UDI_QTDMQP:
+    official_name: Quantidade de máquinas de diálise (P)
+    translated_name: Dialysis machine count, category P
+    description: >
+      Count of dialysis machines in a third category — 0 on one Acre row,
+      10 on the other, the largest machine count in this UDI_QTD family and
+      plausibly the total or unit-owned machine count.
+    code_system: none
+    source: inferred
+    reasoning: Same QTDMQ stem as UDI_QTDMQD; observed values 0 and 10.
+
+  UDI_RDCGC1:
+    official_name: CNPJ da entidade de referência (1)
+    translated_name: Reference-entity tax id, slot 1
+    description: >
+      Tax id of the first entity in a further reference-institution pair.
+      Constant 63602940000170 across both rows — FUNDHACRE again, matching
+      UDI_APCGC1, UDI_PCCGC1 and UDI_USCGC1's entity-1 slots throughout this
+      record.
+    code_system: none
+    source: inferred
+    reasoning: Measured constant, identical to UDI_APCGC1/UDI_PCCGC1; paired UDI_RDRZ1 "FUNDHACRE".
+
+  UDI_RDCGC2:
+    official_name: CNPJ da entidade de referência (2)
+    translated_name: Reference-entity tax id, slot 2
+    description: >
+      Tax id of the second entity in the same pair — filled for one Acre
+      unit only (04034526000143, the same CNPJ root as the backup general
+      hospital), left at the all-zero placeholder for the other.
+    code_system: none
+    source: inferred
+    reasoning: >
+      One non-null value shared with UDI_HGCGC1's CNPJ root and
+      UDI_PCCGC2's exact value; the other row is the standard empty-slot
+      placeholder.
+
+  UDI_RDMN1:
+    official_name: Município da entidade de referência (1)
+    translated_name: Reference-entity municipality, slot 1
+    description: >
+      Municipality of the first entity in this reference pair — 120040,
+      Rio Branco, on both rows.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+
+  UDI_RDMN2:
+    official_name: Município da entidade de referência (2)
+    translated_name: Reference-entity municipality, slot 2
+    description: >
+      Municipality of the second entity in this reference pair — 120040,
+      Rio Branco, filled for only one of the two Acre rows.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Bound to MUNICBR; the single non-null row reads 120040.
+
+  UDI_RDRZ1:
+    official_name: Razão social da entidade de referência (1)
+    translated_name: Reference-entity legal name, slot 1
+    description: >
+      Legal name of the first entity — "FUNDHACRE", constant across both
+      rows.
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "FUNDHACRE" across both rows, matching UDI_APRZ1/UDI_PCRZ1.
+
+  UDI_RDRZ2:
+    official_name: Razão social da entidade de referência (2)
+    translated_name: Reference-entity legal name, slot 2
+    description: >
+      Legal name of the second entity, filled on one Acre unit's row only:
+      "HOSPITAL G. DE CL. DE RIO BRANCO" — the same Rio Branco general
+      hospital already named in the UDI_HG triple, referenced again here
+      under a different category.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Single non-null value measured, naming the same hospital as
+      UDI_HGRZ1's Rio Branco general hospital.
+
+  UDI_USCGC1:
+    official_name: CNPJ da entidade de referência (1)
+    translated_name: Reference-entity tax id, slot 1
+    description: >
+      Tax id of the first entity in a fourth reference-institution pair.
+      Constant 63602940000170 across both rows — FUNDHACRE once more, the
+      same pattern as its AP, PC and RD entity-1 slots.
+    code_system: none
+    source: inferred
+    reasoning: Measured constant, identical to UDI_APCGC1/UDI_PCCGC1/UDI_RDCGC1.
+
+  UDI_USCGC2:
+    official_name: CNPJ da entidade de referência (2)
+    translated_name: Reference-entity tax id, slot 2
+    description: >
+      Tax id for the second entity in this pair. Never filled for either
+      Acre unit — both rows carry the all-zero placeholder.
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "00000000000000" across both rows, the standard empty-slot fill.
+
+  UDI_USMN1:
+    official_name: Município da entidade de referência (1)
+    translated_name: Reference-entity municipality, slot 1
+    description: >
+      Municipality of the first entity in this pair — 120040, Rio Branco,
+      on both rows.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+
+  UDI_USMN2:
+    official_name: Município da entidade de referência (2)
+    translated_name: Reference-entity municipality, slot 2
+    description: >
+      Municipality of the second entity in this pair. Never filled for
+      either Acre unit, matching UDI_USCGC2's empty slot.
+    code_system: external
+    codelists: [MUNICBR]
+    source: inferred
+    reasoning: 0 of 2 rows non-null, consistent with the unfilled slot 2 seen on UDI_USCGC2/USRZ2.
+
+  UDI_USRZ1:
+    official_name: Razão social da entidade de referência (1)
+    translated_name: Reference-entity legal name, slot 1
+    description: >
+      Legal name of the first entity — "FUNDHACRE", constant across both
+      rows.
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "FUNDHACRE" across both rows, matching UDI_APRZ1/UDI_PCRZ1/UDI_RDRZ1.
+
+  UDI_USRZ2:
+    official_name: Razão social da entidade de referência (2)
+    translated_name: Reference-entity legal name, slot 2
+    description: >
+      Legal name for the second entity in this pair. Never filled for
+      either Acre unit, matching UDI_USCGC2/USMN2's empty slot.
+    code_system: none
+    source: inferred
+    reasoning: 0 of 2 rows non-null.

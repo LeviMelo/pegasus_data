@@ -35,7 +35,12 @@ from pegasus_data.semantics.curation import CurationError, parse_variable_file  
 #: Words that make a claim about shape, and what the data would have to look like
 #: for the claim to hold.
 _DATEISH = ("date", "data ", "dt_", "when the", "day ", "timestamp")
-_NUMERIC = ("count", "quantity", "amount", "value in", "número de", "quantidade")
+#: Words meaning the description claims a magnitude. Matched on WORD BOUNDARIES:
+#: a substring test fires "count" inside "counterpart", "country" and
+#: "encounter", which flagged eight correct descriptions on the polio form as
+#: contradicting their own codelist.
+_NUMERIC = ("count", "counts", "quantity", "amount", "amounts", "número de", "quantidade")
+_NUMERIC_RE = re.compile(r"\b(?:%s)\b|value in" % "|".join(_NUMERIC))
 
 #: A description is for the reader of the data, not a review of DATASUS's
 #: paperwork. These phrases mean the writer has started describing the
@@ -167,7 +172,7 @@ def check(catalog_path: str, file_path: Path) -> dict[str, object]:
                 f"{doc.field_name}: described as a date, but every observed value is "
                 f"1-2 characters ({values[:4]})"
             )
-        if any(w in text for w in _NUMERIC) and seen.get("codelists"):
+        if _NUMERIC_RE.search(text) and seen.get("codelists"):
             warnings.append(
                 f"{doc.field_name}: described as a count or amount, but it is bound to "
                 f"codelist(s) {seen['codelists'][:2]} — one of the two is wrong"
