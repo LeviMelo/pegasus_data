@@ -1,0 +1,126 @@
+# SIA.ACF — APAC, arteriovenous fistula creation
+# APAC de Confecção de Fístula Arteriovenosa
+#
+# One authorisation for creating the vascular access a haemodialysis patient
+# needs. Upstream of the dialysis datasets.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  ACF_ARTDIA:
+    official_name: Diâmetro da artéria
+    translated_name: Artery diameter
+    description: 'Diameter of the artery assessed before creating an arteriovenous
+      fistula, in millimetres. Below roughly 2 mm a fistula is unlikely to mature,
+      so this is the number the authorisation turns on.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ART is artéria and DIA is diâmetro; C(4) fits a millimetre measurement
+      with an implied decimal.
+
+      '
+  ACF_DUPLEX:
+    official_name: Ultrassom duplex scan
+    translated_name: Duplex ultrasound done
+    description: 'Whether duplex ultrasound was used to map the vessels. Imaging rather
+      than palpation, and it finds usable veins that examination misses.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; DUPLEX names the duplex scan.
+  ACF_FLEBIT:
+    official_name: Flebite
+    translated_name: Phlebitis
+    description: 'Whether phlebitis is present. Inflamed veins scar and become unusable,
+      so this records why a limb may be unsuitable.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; FLEBIT reads flebite.
+  ACF_FREMIT:
+    official_name: Frêmito
+    translated_name: Thrill
+    description: 'Whether a thrill — the palpable vibration of blood crossing the anastomosis
+      — is present. Its presence is the bedside sign that a fistula is patent and working.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Frêmito is the clinical term, and C(1) admits a presence flag rather
+      than a measurement.
+
+      '
+  ACF_HEMATO:
+    official_name: Hematoma
+    translated_name: Haematoma
+    description: 'Whether a haematoma is present, typically from repeated venepuncture
+      — the other common reason a limb''s veins are no longer usable.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; HEMATO reads hematoma.
+  ACF_PREFAV:
+    official_name: Fístula arteriovenosa prévia
+    translated_name: Previous fistula
+    description: 'Whether the patient has had a fistula before. The ACF_ block assesses
+      the limb before surgery, and a previous fistula limits where a new one can go.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; PREFAV reads prévia fístula arteriovenosa.
+  ACF_PULSO:
+    official_name: Pulso arterial palpável
+    translated_name: Palpable arterial pulse
+    description: 'Whether the arterial pulse is palpable. A fistula needs adequate
+      arterial inflow as well as a usable vein, so this is the arterial half of the
+      assessment that ACF_VEIAVI covers venously.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; PULSO reads pulso.
+  ACF_USOCAT:
+    official_name: Uso de cateter
+    translated_name: Catheter in use
+    description: 'Whether the patient is currently dialysing through a catheter. Catheters
+      are the temporary bridge a fistula is meant to replace, and time on one is time
+      at raised infection risk.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; USOCAT reads uso de cateter.
+  ACF_VEIAVI:
+    official_name: Veia visível
+    translated_name: Visible vein
+    description: 'Whether a suitable vein is visible on examination. The simplest predictor
+      of whether a fistula can be created at all.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; VEIAVI reads veia visível.
+  ACF_VEIDIA:
+    official_name: Diâmetro da veia
+    translated_name: Vein diameter
+    description: 'Diameter of the vein assessed for the same fistula, in millimetres.
+      The companion measurement to ACF_ARTDIA; both are taken before deciding whether
+      and where to construct the access.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: VEI is veia and DIA is diâmetro, matching ACF_ARTDIA's C(4) shape.

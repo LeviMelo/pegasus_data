@@ -1,0 +1,92 @@
+# SIH.CH — Hospital register
+# Cadastro Hospitalar
+#
+# The hospital register that accompanied the older SIH generations, before
+# CNES took over as the establishment reference.
+system: SIHSUS
+asserted_by: pegasus_data
+
+variables:
+  CMPT:
+    translated_name: Reference period of the hospital-registry snapshot
+    description: 'Year-month (YYYYMM, e.g. 202208) identifying which competência this
+      row of the CH (hospital-registry) file is a snapshot for — the establishment-
+      cadastre analogue of MES_CMPT/ANO_CMPT on billing records.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Six-digit YYYYMM values match the CMPT (competência) naming convention
+      used throughout SIH, and this column has no def_path in the billing-record .DEF
+      files queried, consistent with it belonging to a separate establishment- registry
+      file rather than an AIH.
+
+      '
+    notes: 'Only one value (202208) is observed in this batch''s sample — this looks
+      like a single monthly snapshot rather than a maintained time series.
+
+      '
+  MUNIC_LOC:
+    translated_name: Municipality where the establishment is located
+    description: 'IBGE 6-digit municipality code of the hospital/establishment this
+      hospital-registry row describes — e.g. 355030 São Paulo, 330455 Rio de Janeiro
+      dominate the values observed, i.e. this sample skews toward state-capital hospitals.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: 'Detector-matched to MUNICBR with high confidence; MUNIC_LOC ("localização")
+      is standard DATASUS naming for an establishment''s own municipality, distinct
+      from the patient-geography columns elsewhere in this system.
+
+      '
+    notes: 'Not the same thing as MUNIC_MOV (sihsus_rd.yml) — MUNIC_MOV is a per- admission
+      billing column naming the establishment''s municipality on an AIH row; MUNIC_LOC
+      is the establishment registry''s own address, one row per hospital rather than
+      one per admission.
+
+      '
+  NOMEFANT:
+    translated_name: Establishment trade name
+    description: 'The hospital''s "nome fantasia" — its commonly used trade name, as
+      opposed to the legal registered name in RAZAO. Observed values are literal hospital
+      names (HOSPITAL SAO JOSE, HOSPITAL SAO VICENTE DE PAULO, ...).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"Nome fantasia" is standard Brazilian business terminology for the
+      trade name a CNPJ-registered entity operates under, as distinct from its razão
+      social; the observed values are exactly that kind of free-text hospital name,
+      in a file this catalog''s series naming and column cluster identify as an establishment
+      registry.
+
+      '
+    notes: 'Free text with no controlled vocabulary — the same hospital can appear
+      under slightly different spellings across snapshots, so exact-string joins across
+      periods will undercount.
+
+      '
+  RAZAO:
+    translated_name: Establishment legal name (razão social)
+    description: 'The establishment''s legal registered name — often the state/municipal
+      health secretariat or the legal entity that holds the CNPJ, rather than the hospital''s
+      public-facing name (NOMEFANT). Observed values include entries like "SECRETARIA
+      DE ESTADO DA SAUDE" and "EMPRESA BRASILEIRA DE SERVICOS HOSPITALARES EBSERH".
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"Razão social" is the standard Brazilian legal-name counterpart to
+      "nome fantasia," and the observed values are legal-entity names rather than hospital
+      brand names — several are clearly a state Secretaria de Saúde acting as the CNPJ
+      holder for many public hospitals at once.
+
+      '
+    notes: 'Because one Secretaria de Saúde can be the RAZAO for many physically distinct
+      hospitals, RAZAO does not uniquely identify a hospital — CNES or the establishment''s
+      own code does that; RAZAO only identifies who legally holds it.
+
+      '

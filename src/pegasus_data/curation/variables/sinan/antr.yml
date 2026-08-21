@@ -1,0 +1,624 @@
+# SINAN.ANTR —
+#
+# one notification of human anti-rabies care
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANIMAL:
+    official_name: Espécie do animal agressor
+    translated_name: Species of the attacking animal
+    description: 'Species of the animal that bit, scratched, or licked the patient
+      in a suspected rabies exposure: 1 dog, 2 cat, 3 bat, 4 monkey, 5 fox, 6 domestic
+      herbivore, 7 other.
+
+      '
+    code_system: internal
+    codelists:
+    - CANFELQUNET
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 40
+  ANT_ARRANH:
+    official_name: 'Tipo de exposição ao vírus rábico: Arranhadura'
+    translated_name: Rabies exposure via scratch
+    description: 'Whether the patient''s suspected rabies exposure occurred through
+      a scratch from the animal, one of several exposure-route checkboxes on the same
+      investigation form. 1 yes, 2 no, 9 ignored.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 32
+  ANT_CABECA:
+    official_name: 'Localização do ferimento: Cabeça/pescoço'
+    translated_name: 'Wound location: head/neck'
+    description: 'Whether the bite or scratch wound from the suspected rabies exposure
+      is located on the patient''s head or neck. 1 yes, 2 no, 3 unknown.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 33
+  ANT_DILACE:
+    official_name: 'Tipo de ferimento: Dilacerante'
+    translated_name: 'Wound type: lacerating'
+    description: 'Whether the wound from the animal attack is a lacerating, tearing
+      injury, one of several wound-type checkboxes recorded alongside its depth and
+      extent. 1 yes, 2 no, 9 ignored.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 35
+  ANT_DT_EXP:
+    official_name: Data da exposição
+    translated_name: Date of exposure
+    description: 'Calendar date the animal attack (bite, scratch, or lick) that triggered
+      this rabies post-exposure workup actually occurred; must fall on or before the
+      visit date.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 36
+  ANT_LAMBED:
+    official_name: 'Tipo de exposição ao vírus rábico: Lambedura'
+    translated_name: Rabies exposure via licking
+    description: 'Whether the suspected rabies exposure occurred through the animal
+      licking the patient''s skin or a wound, rather than a bite or scratch. 1 yes,
+      2 no, 9 ignored.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 32
+  ANT_MAOS:
+    official_name: 'Localização do ferimento: Mãos/pés'
+    translated_name: 'Wound location: hands/feet'
+    description: 'Whether the animal-attack wound is located on the patient''s hands
+      or feet, one of several body-region checkboxes on the rabies exposure form. 1
+      yes, 2 no, 3 unknown.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 33
+  ANT_MEMBRO:
+    official_name: 'Localização do ferimento: Membros superiores'
+    translated_name: 'Wound location: upper limbs'
+    description: 'Whether the animal-attack wound is located on the patient''s arms
+      (upper limbs), distinct from ANT_MEMB_1 which records wounds on the legs. 1 yes,
+      2 no, 3 unknown.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 33
+  ANT_MEMB_1:
+    official_name: 'Localização do ferimento: Membros inferiores'
+    translated_name: 'Wound location: lower limbs'
+    description: 'Whether the animal-attack wound is located on the patient''s legs
+      (lower limbs), distinct from ANT_MEMBRO which records wounds on the arms. 1 yes,
+      2 no, 3 unknown.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 33
+  ANT_MORDED:
+    official_name: 'Tipo de exposição ao vírus rábico: Mordedura'
+    translated_name: Rabies exposure via bite
+    description: 'Whether the suspected rabies exposure occurred through the animal
+      biting the patient, the most frequently recorded route of exposure on this form.
+      1 yes, 2 no, 9 ignored.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 32
+  ANT_MUCOSA:
+    official_name: 'Localização do ferimento: Mucosa'
+    translated_name: 'Wound location: mucosa'
+    description: 'Whether the animal contact reached a mucous membrane (eyes, mouth,
+      or nose) rather than intact skin, which raises the rabies exposure-risk classification.
+      1 yes, 2 no, 3 unknown.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 33
+  ANT_OUTRO_:
+    official_name: 'Tipo de exposição ao vírus rábico: Outro'
+    translated_name: Rabies exposure via other route
+    description: 'Whether the suspected rabies exposure happened through a route other
+      than direct contact, scratch, lick, or bite, such as handling material from the
+      animal. 1 yes, 2 no, 9 ignored.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 32
+  ANT_PROFUN:
+    official_name: 'Tipo de ferimento: Profundo'
+    translated_name: 'Wound type: deep'
+    description: 'Whether the animal-attack wound is classified as deep, a depth category
+      that raises rabies exposure risk compared with a superficial wound. 1 yes, 2
+      no, 9 ignored.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 35
+  ANT_SUPERF:
+    official_name: Ferimento superficial
+    translated_name: Superficial wound
+    description: A superficial wound, the lower-risk depth category.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SUPERF reads superficial; a yes/no wound flag.
+  ANT_TRONCO:
+    official_name: Ferimento no tronco
+    translated_name: Trunk wound
+    description: 'A wound to the trunk. Lower risk than head or hands, because the
+      virus has further to travel along the nerves.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TRONCO reads tronco; a yes/no wound-site flag.
+  BUSCA_ATIV:
+    official_name: Busca ativa
+    translated_name: Active follow-up
+    description: 'Whether the service actively sought the patient out. The response
+      to an interrupted course, and the measure that recovers abandoned treatments.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: BUSCA_ATIV reads busca ativa; a yes/no flag.
+  CONDIC_ANI:
+    official_name: Condição do animal
+    translated_name: Animal's condition
+    description: 'Whether the animal was healthy, suspect, rabid, or dead and disappeared.
+      A healthy observable animal makes treatment unnecessary; one that vanished forces
+      the full course.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SADSUSDENET.CNV
+    reasoning: 'Bound to SADSUSDENET, whose values are sadio, suspeito, raivoso and
+      morto/desaparecido.
+
+      '
+  DT_DOSE_1:
+    official_name: Data da 1ª dose
+    translated_name: Date of 1st dose
+    description: 'Date the patient received the first dose of a vaccine series recorded
+      on this form (paired with DT_VENCIM, the batch expiry date, in the same vaccination-history
+      block). AAAAMMDD; siblings DT_DOSE_2-5 record later doses in the same series.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_DOSE_N is a numbered date series alongside DT_VENCIM; declared width
+      (C5) is narrower than a full AAAAMMDD date, suggesting inconsistent formatting
+      across the source files that carry it.
+
+      '
+  DT_DOSE_2:
+    official_name: Data da 2ª dose
+    translated_name: Date of 2nd dose
+    description: 'Date of the second dose in the same vaccination series as DT_DOSE_1;
+      see that entry for what the field represents.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DT_DOSE_1; distinguished only by dose number.
+  DT_DOSE_3:
+    official_name: Data da 3ª dose
+    translated_name: Date of 3rd dose
+    description: 'Date of the third dose in the same vaccination series as DT_DOSE_1;
+      see that entry for what the field represents.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DT_DOSE_1; distinguished only by dose number.
+  DT_DOSE_4:
+    official_name: Data da 4ª dose
+    translated_name: Date of 4th dose
+    description: 'Date of the fourth dose in the same vaccination series as DT_DOSE_1;
+      see that entry for what the field represents.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DT_DOSE_1; distinguished only by dose number.
+  DT_DOSE_5:
+    official_name: Data da 5ª dose
+    translated_name: Date of 5th dose
+    description: 'Date of the fifth dose in the same vaccination series as DT_DOSE_1;
+      see that entry for what the field represents.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DT_DOSE_1; distinguished only by dose number.
+  DT_VAC_1:
+    official_name: Data da 1ª dose
+    translated_name: Date of first dose
+    description: 'Date the first dose of the relevant vaccine was given. On the rabies
+      and tetanus forms this begins the schedule that the remaining dose dates complete.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ is the date prefix and the column is declared D(8); the numbered
+      siblings run to five, the length of a rabies schedule.
+
+      '
+  DT_VAC_2:
+    official_name: Data da 2ª dose
+    translated_name: Date of second dose
+    description: 'Date of the second dose. The interval from DT_VAC_1 is what says
+      whether the schedule was kept to.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Numbered sibling of DT_VAC_1, same D(8).
+  DT_VAC_3:
+    official_name: Data da 3ª dose
+    translated_name: Date of third dose
+    description: 'Date of the third dose, which completes the primary series for most
+      of the schedules these forms cover.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Numbered sibling of DT_VAC_1.
+  DT_VAC_4:
+    official_name: Data da 4ª dose
+    translated_name: Date of fourth dose
+    description: 'Date of the fourth dose, given where the schedule extends beyond
+      three.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Numbered sibling of DT_VAC_1.
+  DT_VAC_5:
+    official_name: Data da 5ª dose
+    translated_name: Date of fifth dose
+    description: 'Date of the fifth and last dose the form has room for — the full
+      post-exposure rabies schedule.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Last numbered sibling of the DT_VAC_* group.
+  DT_VENCIM:
+    official_name: Data de vencimento
+    translated_name: Expiry date
+    description: 'Expiry date of the vaccine batch/dose recorded in the DT_DOSE_1-5
+      vaccination-history block. AAAAMMDD.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'VENCIM reads vencimento (expiry); it sits alongside the DT_DOSE_N series
+      and D8 width matches a full date.
+
+      '
+  FERIMENTO:
+    official_name: Tipo de ferimento
+    translated_name: Wound multiplicity
+    description: 'Whether the wound was single, multiple, or absent. Multiple wounds
+      raise the viral inoculum and move the case towards serum as well as vaccine.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: UNICMULTNET.CNV
+    reasoning: 'Bound to UNICMULTNET, whose values are único, múltiplo and sem ferimento.
+
+      '
+  FIM_ANIMAL:
+    official_name: Resultado da observação do animal
+    translated_name: Outcome for the animal
+    description: 'How the animal ended up: negative for rabies clinically or by laboratory,
+      or positive by either. A positive result makes the exposed person''s full course
+      mandatory.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: FIM_ANIMAL.CNV
+    reasoning: 'Bound to FIM_ANIMAL, whose values are negativo raiva clínica, negativo
+      laboratorial, and the positive counterparts.
+
+      '
+  HERBIV_DES:
+    official_name: Espécie do animal agressor - Herbívoro doméstico (Especificar)
+    translated_name: Domestic herbivore species
+    description: 'Free text naming which domestic herbivore -- horse, mule, ox, or
+      similar -- attacked or exposed the patient to rabies virus; filled in only when
+      the animal-species field is coded "herbívoro doméstico".
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 40
+  ID_CNS_SUS:
+    official_name: Número do Cartão Nacional de Saúde
+    translated_name: National Health Card (CNS) number
+    description: 'Patient''s Cartão Nacional de Saúde (CNS) number, the personal SUS
+      identifier used to link this anthrax notification to the patient''s other health
+      records.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is ANTR (antraz); C15 width matches the standard 15-digit CNS
+      number used across DATASUS systems as the personal health identifier.
+
+      '
+  LAB_SORO:
+    official_name: Laboratório produtor do soro anti-rábico
+    translated_name: Rabies antiserum manufacturer
+    description: 'Manufacturer of the rabies antiserum (soro anti-rábico) given to
+      the patient: Instituto Butantan, Instituto Vital Brasil, Aventis Pasteur, or
+      another producer named in the companion field LAB_SOR_DE.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 57
+  LAB_SOR_DE:
+    official_name: Laboratório produtor do soro anti-rábico - Outros (especificar)
+    translated_name: Other rabies antiserum manufacturer
+    description: 'Free-text name of the rabies-antiserum manufacturer, filled in only
+      when LAB_SORO is coded "outro" because the producer is not Instituto Butantan,
+      Instituto Vital Brasil, or Aventis Pasteur.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 57
+  LAB_VACINA:
+    official_name: Laboratório produtor (Vacina)
+    translated_name: Rabies vaccine manufacturer
+    description: 'Manufacturer of the rabies vaccine given to the patient: Instituto
+      Butantan, Instituto Vital Brasil, Aventis Pasteur, or another producer named
+      in the companion field LAB_VAC_DE.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 44
+  LAB_VAC_DE:
+    official_name: Laboratório produtor da vacina - Outro (especificar)
+    translated_name: Other rabies vaccine manufacturer
+    description: 'Free-text name of the rabies-vaccine manufacturer, filled in only
+      when LAB_VACINA is coded "outro" because the producer is not Instituto Butantan,
+      Instituto Vital Brasil, or Aventis Pasteur.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 44
+  LOTE_VAC:
+    official_name: Número do lote
+    translated_name: Rabies vaccine lot number
+    description: 'Lot (batch) number printed on the first dose of rabies vaccine given
+      to the patient, letting a specific manufacturing batch be traced if a problem
+      later turns up.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 45
+  OBSERVACAO:
+    official_name: Animal em observação
+    translated_name: Animal under observation
+    description: 'Whether the animal was kept under observation. Ten days is decisive:
+      a dog still well at ten days was not infectious at the time of the bite.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: OBSERVACAO reads observação; a yes/no flag.
+  POS_EXPOS:
+    official_name: Tratamento pós-exposição
+    translated_name: Post-exposure prophylaxis
+    description: 'Whether post-exposure prophylaxis was given after this contact —
+      the ordinary reason for an anti-rabies attendance.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: POS_EXPOS reads pós-exposição; a yes/no flag.
+  PRE_EXPOS:
+    official_name: Tratamento pré-exposição
+    translated_name: Pre-exposure prophylaxis
+    description: 'Whether the patient had pre-exposure prophylaxis — vaccination before
+      any contact, given to vets, lab workers and people in remote areas. Changes what
+      post-exposure care is needed.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PRE_EXPOS reads pré-exposição; a yes/no flag.
+  REACAO_SOR:
+    official_name: Reação ao soro
+    translated_name: Reaction to immunoglobulin
+    description: 'Whether the patient reacted to the serum. Serum sickness follows
+      heterologous serum in a meaningful minority, which is why TIP_SORO is recorded.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: REACAO_SOR reads reação ao soro; a yes/no flag.
+  REACAO_VAC:
+    official_name: Reação à vacina
+    translated_name: Reaction to vaccine
+    description: 'Whether the patient reacted to the vaccine. Modern cell-culture vaccines
+      cause few reactions, so a rise here would be a signal about a batch.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: REACAO_VAC reads reação à vacina; a yes/no flag.
+  TIP_SORO:
+    official_name: Tipo de soro
+    translated_name: Immunoglobulin type
+    description: 'Whether the immunoglobulin was heterologous, from horses, or homologous,
+      from humans. Heterologous serum is cheaper and carries a real risk of serum sickness,
+      which REACAO_SOR records.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HETEHOMO.CNV
+    reasoning: Bound to HETEHOMO, whose values are heterólogo and homólogo.
+  TRAT_ATUAL:
+    official_name: Conduta adotada
+    translated_name: Course of action taken
+    description: 'What was decided: pre-exposure course, no treatment needed, observe
+      the animal if it is a dog or cat, observation plus vaccine, vaccine alone, or
+      serum plus vaccine. Observing a healthy dog for ten days is what avoids treating
+      most exposures.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: PREXPOSINET.CNV
+    reasoning: 'Bound to PREXPOSINET, whose values run from pré exposição and dispensa
+      de tratamento through soro mais vacina.
+
+      '
+  TRA_ANTIGO:
+    official_name: Tratamento anterior
+    translated_name: Previous treatment
+    description: 'Whether a previous anti-rabies course was within ninety days or longer
+      ago. A recent course means the patient is already protected and needs only boosters.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: AT90AP90.CNV
+    reasoning: Bound to AT90AP90, whose values are até 90 dias and após 90 dias.
+  TRA_INDI_N:
+    official_name: Tratamento indicado
+    translated_name: Treatment indicated
+    description: Whether treatment was indicated at all after the risk assessment.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TRA_INDI reads tratamento indicado; a yes/no flag.
+  TRA_INFILT:
+    official_name: Infiltração do soro
+    translated_name: Immunoglobulin infiltrated
+    description: 'Whether the immunoglobulin was infiltrated into the wound. Infiltrating
+      it at the site is what neutralises virus before it reaches the nerves, so giving
+      it only intramuscularly wastes much of its effect.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: INFILT reads infiltração; a yes/no flag.
+  TRA_INFI_1:
+    official_name: Infiltração parcial do soro
+    translated_name: Immunoglobulin partly infiltrated
+    description: 'Whether only part of the dose was infiltrated, recorded apart from
+      full infiltration because partial infiltration is a real quality failure.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A second infiltration flag beside TRA_INFILT.
+  TRA_INTERR:
+    official_name: Tratamento interrompido
+    translated_name: Treatment interrupted
+    description: 'Whether the course was interrupted. The main failure mode in rabies
+      prophylaxis: patients stop attending once the animal turns out to be well.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: INTERR reads interrompido; a yes/no flag.
+  TRA_MOTIVO:
+    official_name: Motivo da interrupção
+    translated_name: Reason for interruption
+    description: 'Why the course stopped: the unit judged it unnecessary, the patient
+      abandoned it, or they transferred elsewhere. Only the middle one is a genuine
+      failure.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MOTIVO.CNV
+    reasoning: 'Bound to MOTIVO, whose values are unidade indicou, abandono and transferência.
+
+      '
+  TRA_NUM_PA:
+    official_name: Tratamento anterior
+    translated_name: Prior treatment (flag)
+    description: 'Whether the person bitten/exposed to a suspect animal had already
+      started anti-rabies treatment before this visit, one of the intake fields on
+      the ANTR (human anti-rabies care) form alongside the five scheduled vaccine-dose
+      dates.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANTR series is the human anti-rabies exposure/treatment form (bite
+      fields like ANT_MORDED, DT_VAC_1-5 confirm this, not a work-accident form despite
+      the TRA_ prefix); width 1 fits a Sim/Não flag.
+
+      '
+  TRA_QTD_SO:
+    official_name: Quantidade de soro
+    translated_name: Immunoglobulin quantity
+    description: 'How much immunoglobulin was given. Dosed by body weight, unlike the
+      vaccine, so it varies with the patient.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(3) quantity in the treatment block.

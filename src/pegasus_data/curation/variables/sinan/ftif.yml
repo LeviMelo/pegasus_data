@@ -1,0 +1,656 @@
+# SINAN.FTIF —
+#
+# one notification of typhoid fever
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AMPICILINA:
+    official_name: Ampicilina
+    translated_name: Ampicillin
+    description: 'Sim/Não flag for whether ampicillin was the antibiotic used to treat
+      the case, one item in a per-drug treatment checklist alongside CLORAFEN, SULFA
+      and QUINOLONA — most plausibly on the bacterial meningitis (Meningite) investigation
+      form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Ampicillin, chloranfenicol, sulfa and quinolone are classic bacterial-
+      meningitis antibiotics; the field is a single-character flag matching a per-drug-used
+      checklist rather than a dosage or free-text field.
+
+      '
+  ANTIBIOTIC:
+    official_name: Uso prévio de antibiótico
+    translated_name: Prior antibiotic use
+    description: 'Whether antibiotics were taken before the samples. Prior antibiotics
+      sterilise the cultures, so this field is what a negative result has to be read
+      against.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag preceding the culture block.
+  ANT_OUTR:
+    official_name: Antecedente outro
+    translated_name: Other antecedent
+    description: 'Sim/Não flag marking that some antecedent not covered by the form''s
+      standard options applies, opening the free-text "outro, especifique" fields (ANT_OUTROS,
+      ANT_OUTR_D, ANT_OUT_D, ANT_OU_DES) in the same block.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '1-character width matches a binary flag; OUTR(o) is SINAN''s standard
+      "other" marker paired with free-text overflow fields.
+
+      '
+  ANT_OUT_D:
+    official_name: Antecedente outro - dados
+    translated_name: Other antecedent - detail
+    description: 'Another of the "other, specify" text fields sharing ANT_OUTROS''s
+      antecedents block; the sub-category it answers is not resolved beyond that shared
+      pattern. See ANT_OUTROS.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as ANT_OUTROS.
+  ASSINTOMAT:
+    official_name: Assintomático
+    translated_name: Asymptomatic
+    description: 'Sim/Não flag for whether the case presented no symptoms at the time
+      recorded on the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ASSINTOMAT reads assintomático; 1-character width matches a binary flag.
+  ATENDIMENT:
+    official_name: Local de atendimento
+    translated_name: Care setting
+    description: 'Whether the patient was treated in hospital, as an outpatient, at
+      home, or not at all. Typhoid needing admission is a different severity from typhoid
+      treated at a clinic.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HOSPAMB.CNV
+    reasoning: 'Bound to HOSPAMB, whose values are hospitalar, ambulatorial, domiciliar
+      and nenhum.
+
+      '
+  CLORAFEN:
+    official_name: Cloranfenicol
+    translated_name: Chloramphenicol
+    description: 'Sim/Não flag for whether chloramphenicol was the antibiotic used
+      to treat the case, sibling of AMPICILINA in the same per-drug bacterial meningitis
+      treatment checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Chloramphenicol is a classic bacterial-meningitis antibiotic; 1-character
+      width matches a per-drug-used flag.
+
+      '
+  COMP_OUT:
+    official_name: Outra complicação
+    translated_name: Other complication
+    description: Any complication the named items do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the complications block.
+  COMP_OUT_D:
+    official_name: Complicação outra (descrição)
+    translated_name: Other complication (description)
+    description: 'Free-text field describing a clinical complication not covered by
+      the form''s standard complication checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'COMP most plausibly abbreviates complicação; the OUT_D suffix matches
+      SINAN''s recurring outro/descrição free-text pattern (compare ANT_OUT_D, DS_OUTR_LO).
+
+      '
+  CONSTIPA:
+    official_name: Constipação
+    translated_name: Constipation
+    description: 'Sim/Não flag for constipation, a symptom on a gastrointestinal clinical-symptom
+      checklist (plausibly Botulismo or an acute diarrheal disease investigation).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CONSTIPA abbreviates constipação; 1-character width matches a binary
+      flag.
+  CONT_OUT:
+    official_name: Contato outro
+    translated_name: Other contact type
+    description: 'Free-text field for a type of contact/exposure not covered by the
+      form''s standard contact-tracing options.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CONT abbreviates contato; OUT plus 30-character width fits the "other,
+      specify" pattern.
+  COPRO_D_1:
+    official_name: Coprocultura - resultado (1)
+    translated_name: Stool culture - result (1)
+    description: 'Free-text result/detail from a coprocultura (stool culture) exam,
+      first of a numbered series (COPRO_D_1-3) mirroring SINAN''s HEMO_D_1-3 hemoculture
+      fields, in a foodborne/diarrheal-disease investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'COPRO abbreviates coprocultura; 30-character width is free text despite
+      the D suffix, unlike a true date field.
+
+      '
+  COPRO_D_2:
+    official_name: Coprocultura - resultado (2)
+    translated_name: Stool culture - result (2)
+    description: 'Second of the COPRO_D_1-3 stool-culture result series; see COPRO_D_1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as COPRO_D_1; distinguished only by ordinal position.
+  COPRO_D_3:
+    official_name: Coprocultura - resultado (3)
+    translated_name: Stool culture - result (3)
+    description: 'Third of the COPRO_D_1-3 stool-culture result series; see COPRO_D_1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as COPRO_D_1; distinguished only by ordinal position.
+  COPRO_R1:
+    official_name: Resultado da primeira coprocultura
+    translated_name: First stool culture result
+    description: 'What the first stool culture grew. Three are taken; persistent growth
+      after recovery identifies a chronic carrier, who is the source that keeps typhoid
+      circulating.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the first of three stool cultures.
+  COPRO_R2:
+    official_name: Resultado da segunda coprocultura
+    translated_name: Second stool culture result
+    description: What the second stool culture grew. See COPRO_R1.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the second of three stool cultures.
+  COPRO_R3:
+    official_name: Resultado da terceira coprocultura
+    translated_name: Third stool culture result
+    description: What the third stool culture grew. See COPRO_R1.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the third of three stool cultures.
+  DIAS:
+    official_name: Dias
+    translated_name: Days
+    description: 'Numeric day-count field (e.g. days of symptoms, incubation, or hospitalization);
+      the exact reference period is not resolved from available evidence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DIAS reads days; 2-character width fits a small day count.
+  DT_COPRO1:
+    official_name: Data da primeira coprocultura
+    translated_name: Date of first stool culture
+    description: When the first stool sample was taken for culture.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; COPRO reads coprocultura.
+  DT_COPRO2:
+    official_name: Data da segunda coprocultura
+    translated_name: Date of second stool culture
+    description: When the second stool sample was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second stool culture.
+  DT_COPRO3:
+    official_name: Data da terceira coprocultura
+    translated_name: Date of third stool culture
+    description: When the third stool sample was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third stool culture.
+  DT_HEMO1:
+    official_name: Data da hemocultura
+    translated_name: Date of blood culture
+    description: When blood was taken for culture, which bounds how sensitive the result
+      can be.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; HEMO reads hemocultura.
+  DT_HEMO2:
+    official_name: Data - hemocultura (2)
+    translated_name: Date - blood culture (2)
+    description: 'Date the second hemoculture (blood culture) sample was collected;
+      DT_HEMO3 is the parallel third-sample date.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: HEMO abbreviates hemocultura; numbered like the COPRO_D_1-3 stool-culture
+      series.
+  DT_HEMO3:
+    official_name: Data - hemocultura (3)
+    translated_name: Date - blood culture (3)
+    description: 'Date the third hemoculture sample was collected; see DT_HEMO2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DT_HEMO2; distinguished only by sample number.
+  DT_OUTR1:
+    official_name: Data da primeira outra cultura
+    translated_name: Date of first other culture
+    description: 'When another specimen was taken — bone marrow or bile, which outperform
+      blood when antibiotics have already started.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of three other-specimen cultures.
+  DT_OUTR2:
+    official_name: Data da segunda outra cultura
+    translated_name: Date of second other culture
+    description: When a second other specimen was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second other-specimen culture.
+  DT_OUTR3:
+    official_name: Data da terceira outra cultura
+    translated_name: Date of third other culture
+    description: When a third other specimen was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third other-specimen culture.
+  DT_URO:
+    official_name: Data da primeira urocultura
+    translated_name: Date of first urine culture
+    description: When the first urine sample was taken for culture.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; URO reads urocultura.
+  DT_URO2:
+    official_name: Data da segunda urocultura
+    translated_name: Date of second urine culture
+    description: When the second urine sample was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second urine culture.
+  DT_URO3:
+    official_name: Data da terceira urocultura
+    translated_name: Date of third urine culture
+    description: When the third urine sample was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third urine culture.
+  ENTERO:
+    official_name: Enterorragia
+    translated_name: Intestinal bleeding
+    description: 'Intestinal bleeding. One of the two classic complications of typhoid,
+      both arising in the third week as the ulcerated Peyer''s patches erode.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ENTERO reads enterorragia; a yes/no complication flag.
+  ESPLENO:
+    official_name: Sinais e sintomas - Esplenomegalia
+    translated_name: Symptom - splenomegaly
+    description: 'Whether the typhoid fever patient had splenomegaly (enlarged spleen),
+      one item of a fixed symptom checklist (with febre, cefaléia, diarréia, roséola
+      tífica and others) auto-filled "Não" for every item when ASSINTOMAT is Sim.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 37 "Sinais e sintomas"
+  FEZES:
+    official_name: Coleta de fezes
+    translated_name: Stool collected
+    description: 'Whether stool was taken. More useful later in the illness than blood,
+      and the specimen that identifies chronic carriers.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: FEZES reads fezes; a specimen flag.
+  HEMO_D_1:
+    official_name: Hemocultura - Resultado da 1° coleta - Especificar
+    translated_name: 1st blood culture - result, specified
+    description: 'Free-text field naming the organism when the coded 1st blood-culture
+      result (HEMO_R1) is not a plain Salmonella positive/negative call — e.g. an "outro
+      agente" identified. Part of the typhoid fever form''s up-to-three-draw hemocultura
+      block; sibling to HEMO_D_2 and HEMO_D_3.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura"
+  HEMO_D_2:
+    official_name: Hemocultura - Resultado da 2° coleta - Especificar
+    translated_name: 2nd blood culture - result, specified
+    description: 'Same free-text role as HEMO_D_1 but for the patient''s second blood-culture
+      draw, paired with the coded result HEMO_R2.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura"
+  HEMO_D_3:
+    official_name: Hemocultura - Resultado da 3° coleta - Especificar
+    translated_name: 3rd blood culture - result, specified
+    description: 'Same free-text role as HEMO_D_1/HEMO_D_2 for the patient''s third
+      blood-culture draw, paired with the coded result HEMO_R3.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura"
+  HEMO_R1:
+    official_name: Resultado da hemocultura
+    translated_name: Blood culture result
+    description: 'What the blood culture grew: Salmonella Typhi, another Salmonella,
+      nothing, or a different agent. Only S. Typhi confirms typhoid — other Salmonella
+      means a different illness entirely.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: 'Bound to SALMONELA, whose values are Salmonella Typhi, Salmonella SPP,
+      negativo and outro agente.
+
+      '
+  HEMO_R2:
+    official_name: Hemocultura - Resultado da 2° coleta
+    translated_name: 2nd blood culture result
+    description: 'Coded result of the patient''s second blood culture: 1 Salmonella
+      typhi, 2 Salmonella SPP, 3 Negativo, 4 Outro agente (specified in HEMO_D_2).
+      Only collected if SANGUE (material coletado) is Sim.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura Resultado da
+      2° coleta"
+  HEMO_R3:
+    official_name: Hemocultura - Resultado da 3° coleta
+    translated_name: 3rd blood culture result
+    description: 'Same coding as HEMO_R2 (1 Salmonella typhi, 2 Salmonella SPP, 3 Negativo,
+      4 Outro agente) for the patient''s third blood-culture draw.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura Resultado da
+      3° coleta"
+  OUTR_D1:
+    official_name: Outro antibiótico (1º) - descreva
+    translated_name: Other antibiotic (1st) - describe
+    description: 'Name of an antibiotic used to treat the typhoid fever (FTIF) patient
+      that falls outside the form''s named drug checkboxes such as QUINOLONA - first
+      of up to three such entries.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'FTIF form; OUTR_D1/2/3 = outro (medicamento) + descreva, numbered;
+      width 30 free text.
+
+      '
+  OUTR_D2:
+    official_name: Outro antibiótico (2º) - descreva
+    translated_name: Other antibiotic (2nd) - describe
+    description: 'Second other-antibiotic entry recorded when the typhoid fever patient''s
+      treatment used more than one non-listed drug, alongside OUTR_D1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Second of three same-pattern fields; see OUTR_D1.
+  OUTR_D3:
+    official_name: Outro antibiótico (3º) - descreva
+    translated_name: Other antibiotic (3rd) - describe
+    description: 'Third other-antibiotic entry, completing the up-to-three-drug record
+      alongside OUTR_D1 and OUTR_D2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Third of three same-pattern fields; see OUTR_D1.
+  OUTR_R1:
+    official_name: Resultado da primeira outra cultura
+    translated_name: First other culture result
+    description: What the other specimen grew, on the same Salmonella scale.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the first other-specimen culture.
+  OUTR_R2:
+    official_name: Resultado da segunda outra cultura
+    translated_name: Second other culture result
+    description: What the second other specimen grew.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the second other-specimen culture.
+  OUTR_R3:
+    official_name: Resultado da terceira outra cultura
+    translated_name: Third other culture result
+    description: What the third other specimen grew.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the third other-specimen culture.
+  PERFURA:
+    official_name: Perfuração intestinal
+    translated_name: Intestinal perforation
+    description: 'Intestinal perforation. The other classic complication, and a surgical
+      emergency with high mortality.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PERFURA reads perfuração; a yes/no complication flag.
+  PULSO:
+    official_name: Sinais e sintomas - Pulso (dissociação pulso-temperatura)
+    translated_name: Relative bradycardia (pulse-temperature dissociation)
+    description: 'Whether the typhoid fever (FTIF) patient shows the classic relative
+      bradycardia - pulse rate lower than expected for the fever - one of the clinical-sign
+      checkboxes on the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'FTIF form; PULSO = pulso, a well-known typhoid clinical sign; width
+      1 checkbox.
+
+      '
+  QUINOLONA:
+    official_name: Uso de quinolona
+    translated_name: Quinolone antibiotic used
+    description: 'Whether a quinolone-class antibiotic (e.g. ciprofloxacin) was part
+      of the typhoid fever patient''s treatment, a named-drug checkbox distinct from
+      the free-text OUTR_D1-D3 fields for other antibiotics.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: FTIF form; QUINOLONA = quinolona; width 1 checkbox.
+  SANGUE:
+    official_name: Coleta de sangue
+    translated_name: Blood collected
+    description: 'Whether blood was taken for culture. Blood culture is most sensitive
+      in the first week of illness, before stool culture becomes useful.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SANGUE reads sangue; a specimen flag.
+  SUGE_VINCU:
+    official_name: Sugestivo de vínculo epidemiológico
+    translated_name: Suggestive of epidemiological link (flag)
+    description: 'Whether the typhoid case appears epidemiologically linked to another
+      case (shared water/food source, household contact, etc.) — a clustering flag
+      used to trace chains of transmission.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; SUGE_=sugestivo, VINCU=vínculo.
+  SULFA:
+    official_name: Uso de sulfa
+    translated_name: Sulfa-class antibiotic used (flag)
+    description: 'Whether the typhoid fever (FTIF) patient received a sulfa-class antibiotic
+      (e.g. sulfametoxazol-trimetoprima) as part of treatment, one of the drug-class
+      checkboxes on the treatment section.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SULFA = sulfa; sulfonamide antibiotics are a recognized typhoid treatment
+      option, C1 width fits a checkbox.
+
+      '
+  TIFICA:
+    official_name: Forma tífica
+    translated_name: Typhoidal clinical form (flag)
+    description: 'Classifies whether the case presented the typical typhoidal (tífica)
+      clinical picture of enteric fever, as opposed to an atypical presentation - a
+      clinical-form field distinct from the confirmation criterion (CRITERIO) and final
+      classification (CLASSI_FIN).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TIFICA directly echoes "tífica"; typhoid fever's clinical presentation
+      can be typical or atypical.
+  URINA:
+    official_name: Coleta de urina
+    translated_name: Urine sample collected
+    description: 'Whether a urine sample was collected from the suspected typhoid fever
+      patient, used for urine culture to help isolate Salmonella Typhi.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is FTIF (febre tifoide); name reads "urina"; C1 width matches
+      a yes/no/pending sample-collection flag.
+
+      '
+  URO_D:
+    official_name: Urocultura - descrição
+    translated_name: Urine culture, result/description
+    description: 'Free-text detail on a urine culture performed for typhoid confirmation
+      (S. Typhi can be shed in urine in some patients) — distinct from the blood/stool
+      culture results captured elsewhere.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text; URO_=uro/urocultura, trailing D read as descrição.
+  URO_D_2:
+    official_name: Urocultura - segunda amostra
+    translated_name: Second urine culture result (free text)
+    description: 'Free-text result/detail of a second urine culture performed to help
+      confirm typhoid fever (FTIF), since Salmonella Typhi can be shed intermittently
+      in urine, making repeat sampling useful.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'URO_ = urocultura, D_2 = segunda coleta/dose; C30 width fits a free-text
+      lab result rather than a short code.
+
+      '
+  URO_D_3:
+    official_name: Urocultura - dia (3ª coleta)
+    translated_name: Urine culture - day marker (3rd collection)
+    description: 'Day-of-illness/treatment marker for the third of three serial urine
+      culture (urocultura) samples taken to confirm or monitor S. Typhi urinary shedding,
+      distinct from its calendar date (DT_URO3) and its lab result (URO_R3).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'FTIF series carries URO_D/URO_D_2/URO_D_3 alongside matching DT_URO/DT_URO2/DT_URO3
+      and URO_R1/R2/R3 - a serial three-sample protocol mirrored by the form''s COPRO
+      (stool) and HEMO (blood) culture triads.
+
+      '
+  URO_R1:
+    official_name: Resultado da primeira urocultura
+    translated_name: First urine culture result
+    description: 'What the first urine culture grew, on the same Salmonella scale as
+      the blood culture. Three urine samples are taken because shedding is intermittent.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the first of three urine cultures.
+  URO_R2:
+    official_name: Resultado da segunda urocultura
+    translated_name: Second urine culture result
+    description: What the second urine culture grew. See URO_R1.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the second of three urine cultures.
+  URO_R3:
+    official_name: Resultado da terceira urocultura
+    translated_name: Third urine culture result
+    description: What the third urine culture grew. See URO_R1.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the third of three urine cultures.
+  VINC_OUT:
+    official_name: Outro vínculo epidemiológico
+    translated_name: Other epidemiological link (specify)
+    description: 'Free-text field for describing an epidemiological link to another
+      typhoid fever case or shared exposure (e.g. water source, event) that isn''t
+      covered by the form''s standard link categories.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'FTIF form; VINC_ reads "vínculo" and OUT reads "outro"; C30 width fits
+      a free-text "other, specify" companion field.
+
+      '
+  VOMITOS:
+    official_name: Vômitos
+    translated_name: Vomiting (symptom)
+    description: 'Whether the patient reported vomiting — a gastrointestinal symptom
+      on the typhoid fever symptom checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named directly for the symptom.

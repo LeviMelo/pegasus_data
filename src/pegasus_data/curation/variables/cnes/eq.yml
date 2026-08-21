@@ -1,0 +1,65 @@
+# CNES.EQ — Equipment
+# Equipamentos
+#
+# Equipment held by an establishment, and how much of it is in use.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+  CODEQUIP:
+    official_name: Código do equipamento
+    translated_name: Equipment code
+    description: 'A shorter equipment code carried beside TIPEQUIP. Where the two disagree
+      TIPEQUIP is the one bound to the equipment codelist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(2) code in the equipment record, narrower than TIPEQUIP.
+  IND_NSUS:
+    official_name: Equipamento não disponível ao SUS
+    translated_name: Equipment not available to SUS
+    description: The complement of IND_SUS, recorded as its own flag rather than derived.
+    code_system: none
+    source: inferred
+    reasoning: NSUS reads não SUS; the paired flag to IND_SUS.
+  IND_SUS:
+    official_name: Equipamento disponível ao SUS
+    translated_name: Equipment available to SUS
+    description: 'Whether the equipment serves SUS patients. A scanner registered at
+      a hospital is not necessarily reachable through the public system.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: IND_SUS.CNV
+    reasoning: 'Bound to IND_SUS, whose values are equipamento para o SUS and equipamento
+      não SUS.
+
+      '
+  QT_USO:
+    official_name: Quantidade de equipamentos em uso
+    translated_name: Equipment in use
+    description: 'How many of the registered units are actually in use. The gap between
+      this and the number existing is the interesting quantity: registered equipment
+      that has broken down is rarely deregistered.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(4) count; QT_USO reads quantidade em uso.
+  TIPEQUIP:
+    official_name: Tipo de equipamento
+    translated_name: Equipment type
+    description: 'Which equipment the row refers to — gamma camera, mammography unit,
+      X-ray by current rating, and so on. The type is what makes an equipment tally
+      interpretable.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: EQUIP_TP.CNV
+    reasoning: 'Bound to EQUIP_TP, whose values are gama câmara, mamógrafo, raio X
+      by current and the rest of the equipment list.
+
+      '

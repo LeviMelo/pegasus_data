@@ -1,0 +1,355 @@
+# SINAN.ACBI —
+#
+# one notification of occupational exposure to biological material
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANTI_HBS:
+    official_name: 'Resultados de exame do acidentado (Data Zero): Anti-HBs'
+    translated_name: Anti-HBs test result at time of accident
+    description: 'Hepatitis B surface-antibody test result drawn from the exposed worker
+      at the moment of a workplace biological-material accident. 1 positive, 2 negative,
+      3 inconclusive, 4 not done, 9 ignored.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 52
+  ANTI_HCV:
+    official_name: 'Resultados de exame do acidentado (Data Zero): Anti-HCV'
+    translated_name: Anti-HCV test result at time of accident
+    description: 'Hepatitis C antibody test result drawn from the exposed worker at
+      the moment of a workplace biological-material accident. 1 positive, 2 negative,
+      3 inconclusive, 4 not done, 9 ignored.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 52
+  ANTI_HIV:
+    official_name: 'Resultados de exame do acidentado (Data Zero): Anti-HIV'
+    translated_name: Anti-HIV test result at time of accident
+    description: 'HIV antibody test result drawn from the exposed worker at the moment
+      of a workplace biological-material accident. 1 positive, 2 negative, 3 inconclusive,
+      4 not done, 9 ignored.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 52
+  AVENTAL:
+    official_name: Uso de avental
+    translated_name: Gown or apron worn
+    description: 'Whether the worker was wearing a gown or apron when the exposure
+      happened. One item of the protective-equipment checklist the occupational biological-accident
+      notification records.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Avental is a gown or apron; the column is C(1), a checklist flag, and
+      sits beside BOTA and the other equipment items on the same form.
+
+      '
+  AZT3TC:
+    official_name: Quimioprofilaxia AZT + 3TC
+    translated_name: Post-exposure prophylaxis, AZT + 3TC
+    description: 'Whether the exposed worker was started on zidovudine plus lamivudine
+      — the two-drug backbone of HIV post-exposure prophylaxis — after the accident.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'AZT is zidovudine and 3TC lamivudine, both standard abbreviations;
+      C(1) admits a prescribed/not-prescribed flag rather than a dose.
+
+      '
+  AZT3TC_IND:
+    official_name: Quimioprofilaxia AZT + 3TC + indinavir
+    translated_name: Prophylaxis, AZT + 3TC + indinavir
+    description: 'Whether the two-drug backbone was given with indinavir added — the
+      three-drug regimen used for higher-risk exposures.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'IND is indinavir, a protease inhibitor of the era these forms date
+      from, appended to the AZT3TC backbone in the field name.
+
+      '
+  AZT3TC_NFV:
+    official_name: Quimioprofilaxia AZT + 3TC + nelfinavir
+    translated_name: Prophylaxis, AZT + 3TC + nelfinavir
+    description: 'Whether the backbone was given with nelfinavir instead — the alternative
+      third drug to indinavir in the same protocol.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: NFV is the standard abbreviation for nelfinavir; sibling of AZT3TC_IND.
+  BOTA:
+    official_name: Uso de bota
+    translated_name: Boots worn
+    description: 'Whether the worker was wearing protective boots at the moment of
+      exposure. The companion checklist item to AVENTAL on the same accident form.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Bota is a boot; C(1) flag in the same protective-equipment block.
+  EVO_OUTR:
+    official_name: Evolução do caso - especificar vírus
+    translated_name: Case outcome - virus specified (biological-material accident)
+    description: 'Free-text name of the virus when the case-evolution field on the
+      biological-material-accident form is coded "alta com conversão sorológica" (seroconversion),
+      naming which bloodborne virus (HIV/HBV/ HCV) the exposed worker converted to.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'The ACBI record layout''s evolution-of-case row (campo 56) reads "1-Alta
+      com conversão sorológica Especificar vírus", but the source PDF''s table merges
+      the coded field and this free-text companion into one cell, so the free-text
+      field''s own DBF name is not printed there. EVO_OUTR is C30 (a free-text width)
+      and belongs to the ACBI series per the catalog, matching that companion field.
+
+      '
+  FACIAL:
+    official_name: Uso de EPI - Proteção facial
+    translated_name: PPE used - face shield
+    description: 'Whether the worker was wearing a face shield at the moment of a biological-material
+      accident, one of six EPI checkboxes (luva, avental, óculos, máscara, proteção
+      facial, bota) that can be marked together.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 50 "Uso de
+      EPI"
+  FO_ANT_HBC:
+    official_name: Se sim, qual o resultado dos testes sorológicos - Anti-HBc
+    translated_name: Source patient's Anti-HBc result
+    description: 'Anti-HBc serology result of the identified SOURCE PATIENT, not the
+      injured worker, after a biological-material accident: positive, negative, inconclusive,
+      in progress, not performed, or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 54
+  FO_ANT_HCV:
+    official_name: Se sim, qual o resultado dos testes sorológicos - Anti-HCV
+    translated_name: Source patient's Anti-HCV result
+    description: 'Anti-HCV serology result of the identified source patient after a
+      biological-material accident, used to judge whether the injured worker faces
+      hepatitis C risk: positive, negative, inconclusive, in progress, not performed,
+      or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 54
+  FO_ANT_HIV:
+    official_name: Se sim, qual o resultado dos testes sorológicos - Anti-Hiv
+    translated_name: Source patient's Anti-HIV result
+    description: 'Anti-HIV serology result of the identified source patient after a
+      biological-material accident, the key test for judging the injured worker''s
+      HIV exposure risk: positive, negative, inconclusive, in progress, not performed,
+      or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 54
+  FO_HBSAG:
+    official_name: Se sim, qual o resultado dos testes sorológicos - HbsAg
+    translated_name: Source patient's HBsAg result
+    description: 'HBsAg (hepatitis B surface antigen) serology result of the identified
+      source patient after a biological-material accident: positive, negative, inconclusive,
+      in progress, not performed, or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 54
+  HBSAG:
+    official_name: Resultados de exame do acidentado (Data Zero) - HbsAg
+    translated_name: Worker's own HBsAg result at time zero
+    description: 'HBsAg test result of the INJURED WORKER, not the source patient,
+      drawn at the moment of the biological-material accident (data zero): positive,
+      negative, inconclusive, not performed, or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 52
+  IMU_HEP_B:
+    official_name: Conduta no momento do acidente - Imunoglobulina humana contra hepatite
+      B (HBIG)
+    translated_name: HBIG given as prophylaxis
+    description: 'Whether human hepatitis B immunoglobulin (HBIG) was given to the
+      exposed worker as post-exposure prophylaxis right after the biological-material
+      accident: yes, no, or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 55
+  LUVA:
+    official_name: Uso de EPI - LUVA
+    translated_name: Gloves worn during accident
+    description: 'Whether the worker was wearing gloves at the moment of the biological-material
+      accident, one of several personal-protective- equipment items asked about individually:
+      yes, no, or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 50
+  MASCARA:
+    official_name: Uso de EPI - Máscara
+    translated_name: Mask worn during accident
+    description: 'Whether the worker was wearing a face mask at the moment of the biological-material
+      accident, one of several personal-protective- equipment items asked about individually:
+      yes, no, or unknown.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 50
+  MAT_ORG:
+    official_name: Material orgânico
+    translated_name: Organic material involved
+    description: 'Type of organic or biological material the worker was exposed to
+      in the accident: blood, cerebrospinal fluid, pleural fluid, ascitic fluid, amniotic
+      fluid, blood-tinged fluid, serum/plasma, other, or unknown.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 47
+  MAT_ORG_DE:
+    official_name: Material orgânico - descrição
+    translated_name: Biological material - other, specified
+    description: 'Free-text name of the biological material a worker was exposed to,
+      filled in only when the coded MAT_ORG field is "8-Outros" (not blood, líquor,
+      pleural/ascitic/amniotic fluid, blood-tinged fluid, or serum/plasma).
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 47 "Outro material
+      orgânico especificar"
+  OCULOS:
+    official_name: Uso de óculos de proteção no momento do acidente
+    translated_name: Protective eyewear worn during the accident
+    description: 'Whether the worker was wearing protective goggles when a biological
+      material accident (needlestick, splash, etc.) occurred - one of the personal-protective-equipment
+      checkboxes on the ACBI occupational biological-exposure form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ACBI = Acidente de Trabalho com Exposição a Material Biológico; OCULOS
+      = óculos (goggles), a standard PPE item on such forms; width 1 matches a single
+      checkbox.
+
+      '
+  OUTRO_ARV:
+    official_name: Uso de outro esquema antirretroviral
+    translated_name: Other antiretroviral regimen used (flag)
+    description: 'Whether the exposed worker received an antiretroviral post-exposure
+      prophylaxis regimen other than the standard first-choice combination, after a
+      biological-material accident with HIV risk. Paired with OUT_ARV_ES, which names
+      the drug.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ACBI form documents post-exposure ARV prophylaxis; OUTRO = "outro",
+      ARV = antirretroviral; width 1 matches a Sim/Não checkbox, and the companion
+      free-text field confirms the checkbox+specify pattern.
+
+      '
+  OUT_ARV_ES:
+    official_name: Outro esquema antirretroviral - especifique
+    translated_name: Other antiretroviral regimen - specify
+    description: 'Free-text name of the non-standard antiretroviral drug or regimen
+      given as post-exposure prophylaxis, filled in only when OUTRO_ARV marks that
+      an "other" scheme was used rather than the default combination.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Width 30 fits a drug/regimen name; ES = "especifique", the standard
+      SINAN pairing for an "outro" checkbox; pairs with OUTRO_ARV.
+
+      '
+  PELE_INTEG:
+    official_name: Exposição em pele íntegra
+    translated_name: Intact skin exposure
+    description: 'Contact with intact skin. Essentially no transmission risk, which
+      is why it is recorded separately from the others.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PELE_INTEG reads pele íntegra; a yes/no exposure flag.
+  PELE_NAO_I:
+    official_name: Exposição em pele não íntegra
+    translated_name: Broken skin exposure
+    description: 'Contact with broken skin. Carries real risk, unlike intact skin,
+      so the distinction between this and PELE_INTEG decides whether prophylaxis is
+      offered.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PELE_NAO_I reads pele não íntegra; a yes/no exposure flag.
+  PERCUTANEA:
+    official_name: Exposição percutânea
+    translated_name: Percutaneous exposure
+    description: 'A needlestick or sharps injury. The highest-risk exposure for a health
+      worker, and the one that drives post-exposure prophylaxis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PERCUTANEA reads percutânea; a yes/no exposure flag.
+  RECUSA_QUI:
+    official_name: Recusa da quimioprofilaxia
+    translated_name: Refused prophylaxis
+    description: 'Whether the worker refused prophylaxis. Distinct from not being offered
+      it, which SEM_QUIMIO covers.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RECUSA_QUI reads recusa da quimioprofilaxia; a yes/no flag.
+  SEM_QUIMIO:
+    official_name: Sem indicação de quimioprofilaxia
+    translated_name: Prophylaxis not indicated
+    description: 'Whether prophylaxis was judged unnecessary — because the source was
+      negative or the exposure carried no risk.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SEM_QUIMIO reads sem quimioprofilaxia; a yes/no flag.
+  VAC_HEP_B:
+    official_name: Vacinação contra Hepatite B
+    translated_name: Hepatitis B vaccination status
+    description: 'Whether the worker exposed to biological material (ACBI) had already
+      been vaccinated against Hepatitis B, used to assess infection risk and the need
+      for post-exposure prophylaxis after the accident.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: VAC_HEP_B = vacina + hepatite B; ACBI form; width 1 checkbox.

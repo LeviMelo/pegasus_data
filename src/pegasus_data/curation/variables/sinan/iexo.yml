@@ -1,0 +1,386 @@
+# SINAN.IEXO —
+#
+# one notification of exogenous intoxication (poisoning)
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AGENTE_1:
+    official_name: Agente tóxico (nome comercial/popular) 1
+    translated_name: Toxic agent name, 1st substance
+    description: 'Free-text commercial or popular name of the first toxic substance
+      recorded in a poisoning case, entered next to AGENTE_TOX''s coded classification
+      of the substance group.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Intoxicacao_Exogena_v5.pdf, campo 50
+  AGENTE_2:
+    official_name: Agente tóxico (nome comercial/popular) 2
+    translated_name: Toxic agent name, 2nd substance
+    description: 'Free-text commercial or popular name of the second toxic substance
+      recorded when a poisoning case involves exposure to more than one agent.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Intoxicacao_Exogena_v5.pdf, campo 50
+  AGENTE_3:
+    official_name: Agente tóxico (nome comercial/popular) 3
+    translated_name: Toxic agent name, 3rd substance
+    description: 'Free-text commercial or popular name of the third toxic substance
+      recorded when a poisoning case involves exposure to three or more agents.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Intoxicacao_Exogena_v5.pdf, campo 50
+  AGENTE_TOX:
+    official_name: Grupo do agente tóxico / classificação geral
+    translated_name: Toxic agent group classification
+    description: 'Broad category of the substance that poisoned the patient, e.g. 01
+      medication, 02 agricultural pesticide, 05 rodenticide, 10 metal, 13 food or beverage,
+      14 other, 99 ignored.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Intoxicacao_Exogena_v5.pdf, campo 49
+  ATIVIDA_1:
+    official_name: Atividade exercida (1)
+    translated_name: Activity being performed, first
+    description: 'What the person was doing when the event happened, as the first of
+      up to three coded activities. More than one is recorded because an exposure can
+      occur during a task made of several.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'ATIVIDA is atividade truncated to the ten characters DBF allows; C(2)
+      admits a code, and the numbered siblings admit up to three.
+
+      '
+  ATIVIDA_2:
+    official_name: Atividade exercida (2)
+    translated_name: Activity being performed, second
+    description: 'The second activity recorded for the same event, where one was not
+      enough to describe what was being done.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Numbered sibling of ATIVIDA_1, same C(2) width.
+  ATIVIDA_3:
+    official_name: Atividade exercida (3)
+    translated_name: Activity being performed, third
+    description: 'The third and last activity slot. Beyond three the form has nowhere
+      to put an activity, so a complex task is truncated rather than continued.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Last numbered sibling of the ATIVIDA_* group.
+  CIRCUNSTAN:
+    official_name: Circunstância
+    translated_name: Circumstance
+    description: 'Coded circumstance in which the event occurred — accidental, occupational,
+      intentional and so on. The distinction that separates an exposure at work from
+      one at home, and an accident from an attempt.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Circunstância truncated to ten characters, C(2) for a code; the free-text
+      elaboration is in CIRCUN_DES.
+
+      '
+  CIRCUN_DES:
+    official_name: Descrição da circunstância
+    translated_name: Circumstance, free text
+    description: 'Free text elaborating the coded circumstance, where the code did
+      not capture it. Thirty characters, so it is a phrase and not an account.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DES is descrição and C(30) is too wide for a code and too narrow for
+      prose; it is the text companion of CIRCUNSTAN.
+
+      '
+    notes: 'Free text, uncoded and unvalidated. Do not tabulate it without reading
+      it.
+
+      '
+  COAGTOXMA1:
+    official_name: Tempo de coagulação (1)
+    translated_name: Coagulation time, first measurement
+    description: 'First coagulation-time measurement taken after a venomous bite. Clotting
+      time is what determines whether antivenom is working, so it is measured repeatedly.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'COAG is coagulação and the column is N(4) — numeric, unlike the C(1)
+      flags around it — with three numbered repeats, which is how a serial measurement
+      is recorded.
+
+      '
+  COAGTOXMA2:
+    official_name: Tempo de coagulação (2)
+    translated_name: Coagulation time, second measurement
+    description: 'Second coagulation-time measurement, taken after the first to see
+      whether clotting is recovering.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Numbered sibling of COAGTOXMA1, same N(4).
+  COAGTOXMA3:
+    official_name: Tempo de coagulação (3)
+    translated_name: Coagulation time, third measurement
+    description: 'Third and last coagulation-time slot on the form. A case still not
+      clotting by this point has nowhere further to be recorded.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Last numbered sibling of the COAGTOXMA group.
+  DIAG_CONF:
+    official_name: Diagnóstico confirmado
+    translated_name: Confirmed diagnosis
+    description: 'CID-10 code of the diagnosis once investigation confirmed it, as
+      opposed to what was suspected at notification. Stored without the dot.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'Declared C(4), the CID-10 subcategory width, and CONF is confirmado
+      — the confirmed counterpart of the notified suspicion.
+
+      '
+  INTOX_CHUM:
+    official_name: Agente Tóxico - Chumbo
+    translated_name: Toxic agent - lead
+    description: 'Whether lead (chumbo) was the metal identified as the poisoning agent
+      in an exogenous-poisoning (Intoxicação Exógena) case, one item of the form''s
+      metals checklist alongside INTOX_MERC.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and IEXO series membership.
+      "INTOX_CHUM" decomposes to "intoxicação por chumbo"; the Intoxicação Exógena
+      form is known to break its toxic-agent question into a checklist by substance
+      class, with metals as one class.
+
+      '
+  INTOX_MERC:
+    official_name: Agente Tóxico - Mercúrio
+    translated_name: Toxic agent - mercury
+    description: 'Whether mercury was the metal identified as the poisoning agent,
+      sibling checklist item to INTOX_CHUM on the same metals sub-list.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Same basis as INTOX_CHUM: C1 width, IEXO series, and unambiguous name
+      decomposition ("intoxicação por mercúrio").
+
+      '
+  INTOX_META:
+    official_name: Agente Tóxico - Outro metal
+    translated_name: Toxic agent - other metal
+    description: 'Whether a metal other than lead or mercury was the identified poisoning
+      agent. DBF names are capped at 10 characters, so "INTOX_META" most likely truncates
+      "INTOX_METAL" rather than naming one specific metal.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Same C1/IEXO basis as INTOX_CHUM and INTOX_MERC. Read as the checklist''s
+      catch-all "outro metal" item rather than a third named metal, since no other
+      common heavy-metal name fits the 10-character DBF limit as cleanly.
+
+      '
+  LAVOURA:
+    official_name: Se agrotóxico de uso agrícola, qual a cultura / lavoura
+    translated_name: Crop treated with the pesticide
+    description: 'Name of the crop or plantation -- soybean, coffee, sugarcane, and
+      so on, drawn from a fixed list -- being treated with the agricultural pesticide
+      that caused the poisoning.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026.pdf, campo 53
+  LOC_EXPO:
+    official_name: Local de ocorrência da exposição
+    translated_name: Setting of poisoning exposure
+    description: 'Setting where the poisoning exposure occurred: the patient''s residence,
+      workplace, commute route, a health facility, a school or daycare, an outdoor
+      public area, another setting, or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026.pdf, campo 34
+  LOC_EXP_DE:
+    official_name: Local de ocorrência da exposição (outro) especificar
+    translated_name: Other exposure setting
+    description: 'Free text naming the exposure setting, filled in only when LOC_EXPO
+      is coded "outro" because the poisoning happened somewhere off the fixed residence/workplace/school
+      list.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026.pdf, campo 34
+  OUT_AGENTE:
+    official_name: Outro agente tóxico
+    translated_name: Other toxic agent (specify)
+    description: 'Free-text field naming the toxic agent responsible for a poisoning
+      case when it isn''t one of the form''s standard agent categories (pesticide,
+      medication, industrial chemical, etc.).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is IEXO (intoxicação exógena); OUT_AGENTE reads "outro agente";
+      C30 free-text width fits an "other, specify" companion to a coded agent-type
+      field.
+
+      '
+  PAIS_EXP:
+    official_name: País de exposição
+    translated_name: Country of exposure
+    description: 'Country where the poisoning exposure took place, used for the minority
+      of Intoxicação Exógena (IEXO) cases where contact with the toxic agent happened
+      outside Brazil.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'IEXO = Intoxicação Exógena; PAIS = país, EXP = exposição; width 4 short
+      code, but no codelist is bound to it in the catalog.
+
+      '
+  P_ATIVO_1:
+    official_name: Princípio ativo (1º)
+    translated_name: Active ingredient (1st)
+    description: 'Free-text name of the toxic substance''s active ingredient (e.g.
+      a pesticide''s chemical name) involved in the poisoning - first of up to three
+      the IEXO form records when more than one agent was involved.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'IEXO form; P_ATIVO = princípio ativo; width 60 fits a chemical/product
+      name; numbered 1-3 like PART_CORP and VIA below.
+
+      '
+  P_ATIVO_2:
+    official_name: Princípio ativo (2º)
+    translated_name: Active ingredient (2nd)
+    description: 'Second active-ingredient name recorded when the poisoning involved
+      more than one toxic substance, alongside P_ATIVO_1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Second of three same-pattern fields; see P_ATIVO_1.
+  P_ATIVO_3:
+    official_name: Princípio ativo (3º)
+    translated_name: Active ingredient (3rd)
+    description: 'Third active-ingredient name, completing the up-to-three-substance
+      record alongside P_ATIVO_1 and P_ATIVO_2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Third of three same-pattern fields; see P_ATIVO_1.
+  TPATENDE:
+    official_name: Tipo de atendimento
+    translated_name: Type of care provided
+    description: 'Coded type of medical care the poisoning (IEXO) patient received
+      (e.g. outpatient, hospital admission, emergency-only), a single-digit classification
+      distinct from TPEXP, which codes how exposure occurred.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TP_ = tipo, ATENDE = atendimento; IEXO form; width 1.
+  TPEXP:
+    official_name: Tipo de exposição
+    translated_name: Type of exposure
+    description: 'How the patient came into contact with the toxic agent - e.g. occupational,
+      accidental, suicide attempt, or other circumstance - the core exposure-circumstance
+      classification on the poisoning form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TP_ = tipo, EXP = exposição; IEXO form; width 1.
+  TRAB_DESC:
+    official_name: Trabalho - descrição
+    translated_name: Occupation description
+    description: 'Free-text description of the poisoning (IEXO) patient''s job or work
+      activity, used to characterize occupational exposure when the case''s circumstance
+      is work-related.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TRAB_DESC = trabalho + descreva; width 30 free text.
+  UTILIZACAO:
+    official_name: Utilização do produto
+    translated_name: Product in use at exposure (flag)
+    description: 'Whether the toxic product was in active use (being applied, mixed,
+      or handled) at the moment of exposure, as opposed to accidental contact with
+      a stored or discarded product. Paired with UTIL_DESC for detail.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: IEXO form; UTILIZACAO = utilização; width 1 checkbox.
+  UTIL_DESC:
+    official_name: Utilização do produto - descrição
+    translated_name: Product use - description
+    description: 'Free-text detail of how the toxic product was being used when the
+      poisoning occurred, filled in alongside the UTILIZACAO checkbox.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: UTIL_DESC = utilização + descreva; width 30 free text.
+  VIA_1:
+    official_name: Via de exposição (1ª)
+    translated_name: Exposure route (1st)
+    description: 'First recorded route by which the toxic agent entered the body (e.g.
+      oral, dermal, respiratory, ocular) - the IEXO form allows up to three routes
+      since a single exposure can involve more than one.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: VIA_ = via, numbered 1-3; width 1 code.
+  VIA_2:
+    official_name: Via de exposição (2ª)
+    translated_name: Exposure route (2nd)
+    description: 'Second exposure route recorded when the poisoning involved more than
+      one route of entry, alongside VIA_1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Second of three same-pattern fields; see VIA_1.
+  VIA_3:
+    official_name: Via de exposição (3ª)
+    translated_name: Exposure route (3rd)
+    description: 'Third exposure route, completing the up-to-three-route record alongside
+      VIA_1 and VIA_2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Third of three same-pattern fields; see VIA_1.

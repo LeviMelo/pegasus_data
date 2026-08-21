@@ -1,0 +1,67 @@
+# SINAN.MENT — Work-related mental disorders
+# Transtornos mentais relacionados ao trabalho
+#
+# One notified mental health disorder attributed to work.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AFAST_DESG:
+    official_name: 'Conduta geral: afastamento da situação de desgaste mental'
+    translated_name: Removed from the mentally-straining work situation
+    description: 'Whether, as a treatment measure for a work-related mental disorder,
+      the patient was withdrawn from the specific work situation causing the psychological
+      strain. 1 yes, 2 no.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_TranstornosMentais_v5.pdf, campo 52
+  ALCOOL:
+    official_name: 'Hábitos: Álcool'
+    translated_name: Alcohol use habit
+    description: 'Whether the patient has a habitual pattern of alcohol consumption,
+      recorded among personal habits when investigating a work-related mental disorder.
+      1 yes, 2 no, 9 ignored.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_TranstornosMentais_v5.pdf, campo 49
+  CAPES:
+    official_name: Acompanhamento em CAPS
+    translated_name: Followed at a CAPS
+    description: 'Whether the patient is followed at a psychosocial care centre. The
+      CAPS network is where continuing mental health care happens, so this marks whether
+      the case entered it.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: 'CAPES names the Centro de Atenção Psicossocial; a yes/no flag. The
+      spelling in the column drops the second S.
+
+      '
+  DROGAS:
+    official_name: Uso de drogas
+    translated_name: Drug use
+    description: 'Whether the patient uses drugs. Recorded because substance use and
+      work-related mental disorder frequently co-occur, and each complicates the other''s
+      attribution to work.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DROGAS reads drogas; a yes/no flag.
+  PSICO_FARM:
+    official_name: Uso de psicofármacos
+    translated_name: Psychotropic medication
+    description: Whether the patient is on psychotropic medication.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PSICO_FARM reads psicofármacos; a yes/no flag.

@@ -1,0 +1,193 @@
+# SIH.MT — Procedure change
+# Mudança de Procedimento
+#
+# Records where the billed procedure changed during the admission. Small and
+# rarely used; kept because it explains discrepancies in RD.
+system: SIHSUS
+asserted_by: pegasus_data
+
+variables:
+  ANO_MES:
+    translated_name: Processing year-month (professional-acts file)
+    description: 'Competência period this professional-act record belongs to — most
+      likely YYMM given the declared 4-character width — this file''s counterpart to
+      ANO_CMPT/MES_CMPT.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANO_MES is a transparent contraction of ANO ("year") and MES ("month"),
+      the convention used explicitly elsewhere in this system (ANO_CMPT/MES_CMPT, and
+      ANO/MES in the ER file above); a 4-character width fits a 2+2 digit YYMM encoding.
+
+      '
+    notes: 'No observed values were captured for this column, so the exact digit split
+      (YYMM vs MMAA) is unverified.
+
+      '
+  ATO_PROF:
+    translated_name: Professional-act (procedure) code
+    description: 'Code of the professional medical act/procedure performed, in this
+      1995–1997 professional-acts record.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: '"Ato profissional" is standard SUS billing terminology for a procedure
+      a health professional performs and is remunerated for by point value (see SP_PONTO
+      below); ATO_PROF sits directly beside QTD_ATO, TIPO_ATO and VAL_ATO — the cluster
+      expected around one billed procedure.
+
+      '
+    notes: 'No observed values or bound codelist exist in the catalog for this column
+      — which procedure table (a pre-SIGTAP, era-specific table) it draws codes from
+      is not established here.
+
+      '
+  CGC_CPF:
+    translated_name: Professional's or entity's CGC/CPF
+    description: 'Either the CGC (Cadastro Geral de Contribuintes — the pre-1998 name
+      for what became CNPJ) of a legal entity, or the CPF of an individual professional,
+      associated with this record. ID_CGC_CPF is the flag that says which.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CGC and CPF are Brazil''s two taxpayer-registry identifiers (entity
+      and individual respectively); the declared width, C(14), exactly fits a 14-digit
+      CGC/CNPJ with an 11-digit CPF left-padded into the same field — the same CNPJ-width
+      pattern already seen in SP_CGCHOSP.
+
+      '
+    notes: An identifier of a real-world person or organisation, not a classification
+      code.
+  ID_CGC_CPF:
+    translated_name: CGC-vs-CPF indicator
+    description: One-character flag on CGC_CPF saying whether that field holds a CGC
+      (legal entity) or a CPF (individual professional).
+    code_system: internal
+    modifies: CGC_CPF
+    source: inferred
+    reasoning: 'The ID_ prefix is DATASUS''s standard indicator naming, and it sits
+      immediately after CGC_CPF — the position a type-discriminator flag for the preceding
+      field would occupy.
+
+      '
+    notes: No observed values were captured, so which character means CGC and which
+      means CPF is not established here.
+  QTD_ATO:
+    translated_name: Quantity of the act
+    description: How many times this professional act (ATO_PROF) was performed/billed
+      within the record.
+    code_system: none
+    source: inferred
+    reasoning: 'QTD_ is DATASUS''s standing abbreviation for "quantidade" (see QTDGESTANT
+      etc. in SINASC), paired here with ATO_PROF, TIPO_ATO and VAL_ATO in a one-billed-procedure-per-row
+      cluster.
+
+      '
+  RATEIO:
+    translated_name: Apportionment flag/code
+    description: 'Appears to mark how this professional act''s points/value were apportioned
+      when more than one professional participated in the same procedure (SUS''s "rateio
+      de pontos" mechanism for shared procedures). The specific coding is not established.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: '"Rateio" (apportionment/pro-rating) is the documented SUS billing term
+      for splitting a procedure''s professional-service value among multiple participating
+      professionals; the column''s single-character width and position in the ATO_PROF/QTD_ATO/VAL_ATO
+      cluster fit a per-professional share code or flag.
+
+      '
+    notes: 'DELIBERATELY UNDER-SPECIFIED. No observed values, .DEF label or bound codelist
+      exist for this column anywhere consulted — only the general concept (apportionment
+      among professionals) is asserted here, not any specific code''s meaning.
+
+      '
+  SP_PONTO:
+    translated_name: Professional-service points
+    description: 'Number of remuneration "points" (pontos) assigned to this professional
+      service — SUS''s older point-based method of valuing professional acts, later
+      converted to a monetary amount (VAL_ATO) by multiplying by a point value.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"SP" is this system''s established abbreviation for Serviços Profissionais
+      (confirmed by SP_CGCHOSP / [DEF-SP] above), and DATASUS documentation describes
+      AIH professional-service remuneration as a "rateio de pontos de serviços profissionais"
+      (apportionment of points among the professionals on a case) — SP_PONTO is that
+      point count.
+
+      '
+    notes: A remuneration unit, not currency — do not sum it as if it were reais.
+  TIPO:
+    translated_name: Record-type code (1995-1997 professional-acts file)
+    description: 'A short category code on the MT (1995-1997 professional-acts) table
+      — the same file documented in sihsus_rest.yml''s ATO_PROF/TIPO_ATO cluster —
+      distinct from the already-documented TIPO_ATO. Its own categories are not established.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Bare "TIPO" sits in the same MT table as ATO_PROF, TIPO_ATO and QTD_ATO
+      (sihsus_rest.yml); a standalone "TIPO" column beside a more specific TIPO_ATO
+      reads as a record/category-level flag rather than a second name for the same
+      concept.
+
+      '
+    notes: 'No observed values were captured in this batch, so it is distinguished
+      from TIPO_ATO by position and bareness of name only.
+
+      '
+  TIPO_ATO:
+    translated_name: Type of professional act
+    description: DATASUS code for the type/category of the professional act recorded
+      in ATO_PROF.
+    code_system: internal
+    modifies: ATO_PROF
+    source: inferred
+    reasoning: TIPO_ATO pairs directly with ATO_PROF in the same billing cluster; TIPO_
+      prefixing a preceding noun is standard DATASUS naming grammar.
+    notes: No codelist or observed values were captured — the categories this code
+      distinguishes are unknown.
+  UF_DOM:
+    translated_name: State of the professional's domicile
+    description: IBGE 2-digit state code of the professional's declared residence (domicílio).
+    code_system: external
+    source: inferred
+    reasoning: 'DOM is DATASUS''s standard abbreviation for domicílio (residence),
+      C(2) matches an IBGE UF code''s width, and it sits beside UF_VINC, distinguishing
+      residence from institutional linkage.
+
+      '
+    notes: No observed values were captured to confirm the code space is the standard
+      IBGE UF table.
+  UF_VINC:
+    translated_name: State of the professional's institutional link
+    description: 'IBGE 2-digit state code of where the professional is registered/linked
+      (vínculo) for billing purposes — conceptually distinct from UF_DOM, which is
+      where they live.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'VINC is DATASUS''s standard abbreviation for vínculo (a professional''s
+      registered link to an establishment/CNES), paired directly with UF_DOM in the
+      same record.
+
+      '
+    notes: Same caveat as UF_DOM — no observed values were captured.
+  VAL_ATO:
+    translated_name: Value of the act
+    description: Monetary amount (reais) paid for this professional act — the endpoint
+      of the ATO_PROF/QTD_ATO/SP_PONTO billing chain.
+    code_system: none
+    source: inferred
+    reasoning: 'VAL_ is DATASUS''s standing prefix for a monetary amount throughout
+      SIH (VAL_TOT, VAL_SH, VAL_SP, ...); N(14,2) is a money-shaped declared type,
+      and it closes out the ATO_PROF/QTD_ATO/SP_PONTO cluster.
+
+      '

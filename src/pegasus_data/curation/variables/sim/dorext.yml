@@ -1,0 +1,133 @@
+# SIM.DOREXT — External-cause deaths, corrected base
+# Óbitos por Causas Externas, base retificada
+#
+# The corrected counterpart to DOEXT.
+system: SIM
+asserted_by: pegasus_data
+
+variables:
+  CB_ALT:
+    translated_name: System-generated altered cause code
+    description: 'Holds the CID-10 code the automatic cause-selector (SCB) substitutes
+      for CAUSABAS after finding a problem flagged by TP_ALTERA, replacing the certifying
+      physician''s originally reported underlying cause with the system-corrected one.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'CB_ALT appears only alongside TP_ALTERA in the same SIM DOREXT 2021
+      file; the CB_ prefix matches CB_PRE (causa básica antes da resseleção), and DATASUS''s
+      own note calls it a "variável de sistema" with no value list, consistent with
+      a system-written CID-10 output rather than a form field.
+
+      '
+  CODINST:
+    official_name: Código da instituição
+    translated_name: Reporting institution code
+    description: 'An identifier for the transmitting health institution, built from
+      a type letter (observed: M, E, R — plausibly Municipal/Estadual/Regional health
+      department), a 2-letter UF abbreviation, a 7-digit IBGE municipality code, and
+      a 4-digit sequence (e.g. "MPR4108300001"). Seen only in a single 2021 DOREXT
+      file.
+
+      '
+    code_system: internal
+    codelists:
+    - CODINST
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Not documented in [ESTRUTURA-SIM]. The reading comes from decoding
+      the observed value shape directly: every value is a fixed pattern of one letter,
+      a recognizable Brazilian UF abbreviation, then a string matching a real 7-digit
+      IBGE municipality code, then a 4-digit tail (e.g. "MPR4108300001" — PR is Paraná,
+      4108300 is Curitiba''s IBGE code). This composite-key construction (type + UF
+      + municipality + sequence) is a pattern DATASUS reuses across several systems
+      for identifying the transmitting unit. The catalog binds a codelist actually
+      named CODINST to this field at high (.def-sourced) confidence — the same name
+      as the column itself — which is the basis for treating this as a genuine DATASUS-invented
+      institution code with a name lookup (code_system internal) rather than a bare
+      unlabelled identifier.
+
+      '
+    notes: 'The extra MICRO/MUNI208TMI/MUNICBR/UFC bindings the catalog also attaches
+      here likely just key off the embedded UF/municipality fragment inside the composite
+      value rather than describing the field as a whole — treat only the CODINST-named
+      lookup as this field''s real codelist; the others are noted in spurious_bindings.
+
+      '
+  CODPAISRES:
+    official_name: Código do país de residência
+    translated_name: Country-of-residence code
+    description: 'Code for the nation the deceased resided in, seen only in the DOREXT
+      extension (2013+ per this batch) — the module that carries additional detail
+      for deaths with an international dimension.
+
+      '
+    code_system: external
+    codelists:
+    - PAIS
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Not itself listed in [ESTRUTURA-SIM]. The CO_/CD_...RES naming pattern
+      (código + domain + "residência") mirrors MUNIRES/CODMUNRES ("residência" fields
+      already documented there), the catalog binds it to a PAIS (country) codelist
+      with high confidence from the .def files, and it appears exclusively in the DOREXT
+      series, which is where a country-of-residence-abroad concept would belong.
+
+      '
+  NUMERODO:
+    official_name: Número da Declaração de Óbito
+    translated_name: Death certificate (DO) serial number
+    description: 'The printed serial number of the physical Declaração de Óbito form,
+      seen only in a single 2021 DOREXT file. An identifier printed on the pre-numbered
+      certificate stock, not a category.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Not documented in [ESTRUTURA-SIM] under this name, but the analogous
+      birth-certificate field NUMERODN is documented at position 88 ("Número da Declaração
+      de Nascido Vivo. (Números)"), and the catalog binds NUMERODO to DOANODIST and
+      MODELDONUM — high- confidence (.def-sourced) tables named for "DO year of distribution"
+      and "DO numbering model," which are exactly the kind of lookup a preprinted-form
+      serial number would carry. Observed values are 8-digit numbers, unique per record.
+
+      '
+    notes: 'DOANODIST and MODELDONUM read as TabNet tabulation groupings derived from
+      ranges/ prefixes of this serial number (the same banding pattern as SINASC''s
+      APGAR.CNV), not a one-to-one label for each number — keep the raw serial rather
+      than substituting a group label. The catalog''s separate TPROC10 (procedure-type
+      table) binding here is an unrelated semantic-match false positive; see spurious_bindings.
+
+      '
+  NUMERODV:
+    official_name: Dígito verificador do número da DO
+    translated_name: Check digit for the DO serial number
+    description: 'A single check digit ("DV" = dígito verificador) for NUMERODO, following
+      the same check-digit convention used elsewhere in Brazilian document numbering
+      (e.g. CPF). Seen only in a single 2021 DOREXT file.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Not documented in [ESTRUTURA-SIM]. "DV" is a standard Brazilian abbreviation
+      for dígito verificador, the field sits immediately alongside NUMERODO in the
+      same DOREXT extension, and the observed values (single digits 0–9, fairly evenly
+      distributed) are exactly the shape a checksum digit produces rather than a meaningful
+      category.
+
+      '
+  TP_ALTERA:
+    official_name: Tipo de alteração da causa básica
+    translated_name: Type of underlying-cause alteration
+    description: 'System flag from the automatic cause-of-death reviewer (SCB) recording
+      why CAUSABAS was rejected or changed: for instance code 06 marks a cause invalid
+      for a female decedent, 12 marks a non-fetal death carrying a fetal-only cause.
+
+      '
+    code_system: none
+    source: web
+    source_ref: dicionario-de-dados-SIM-tabela-DO.pdf (svs.aids.gov.br), campo TP_ALTERA

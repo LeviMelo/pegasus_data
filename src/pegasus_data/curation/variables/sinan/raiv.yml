@@ -1,0 +1,463 @@
+# SINAN.RAIV —
+#
+# one notification of raiva humana
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AEROFOBIA:
+    official_name: Aerofobia
+    translated_name: Aerophobia
+    description: 'Sim/Não flag for aerofobia (fear of air currents on the face), a
+      hallmark symptom of furious-form human rabies. Part of the Raiva Humana clinical
+      symptom checklist alongside AGITACAO and AGRESSIVI.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '1-character width matches a binary flag; aerofobia is a named clinical
+      sign specific to rabies, and it co-occurs at the same rarity tier as other rabies-checklist
+      and animal-exposure fields (AGITACAO, AGRESSIVI, ANI_TIPO_1).
+
+      '
+  AGITACAO:
+    official_name: Agitação
+    translated_name: Agitation
+    description: 'Sim/Não flag for psychomotor agitation, a neuropsychiatric symptom
+      on the same clinical checklist as AEROFOBIA and AGRESSIVI (consistent with Raiva
+      Humana''s furious-form presentation).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same clustering and width evidence as AEROFOBIA.
+  AGRESSIVI:
+    official_name: Agressividade
+    translated_name: Aggressiveness
+    description: 'Sim/Não flag for aggressive behavior, a neuropsychiatric symptom
+      on the same clinical checklist as AEROFOBIA and AGITACAO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same clustering and width evidence as AEROFOBIA.
+  ANTEC_POS:
+    official_name: Antecedente pós-exposição
+    translated_name: Prior post-exposure prophylaxis
+    description: 'Sim/Não flag for whether the patient had a prior post-exposure rabies
+      prophylaxis scheme, paired with ANTEC_PRE (pre-exposure). Part of the Raiva Humana
+      vaccination-antecedents block together with the ANT_DOSE_* and ANT_DTUL_8 fields.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANTEC_PRE/ANTEC_POS is a pré/pós (before/after) pair; it clusters with
+      a variable-length dose series (ANT_DOSE_4/5/7/C/T) that matches the day-based
+      Essen and Zagreb antirábica regimens.
+
+      '
+  ANTEC_PRE:
+    official_name: Antecedente pré-exposição
+    translated_name: Prior pre-exposure prophylaxis
+    description: 'Sim/Não flag for whether the patient had a prior pre-exposure rabies
+      prophylaxis scheme; see ANTEC_POS for the paired post-exposure flag.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as ANTEC_POS.
+  ANTI_RAB:
+    official_name: Vacina antirrábica indicada
+    translated_name: Rabies vaccine given
+    description: Whether rabies vaccine was given to the patient.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; ANTI_RAB reads antirrábica.
+  ARRANHAO:
+    official_name: Exposição por arranhão
+    translated_name: Scratch
+    description: 'Whether the exposure was a scratch. Lower risk than a bite but still
+      an indication, since saliva on claws transmits the virus.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; ARRANHAO reads arranhão.
+  CABECA:
+    official_name: Exposição na cabeça ou pescoço
+    translated_name: Head or neck exposure
+    description: 'Exposure to the head or neck. The highest-risk site: the virus travels
+      up nerves, so a short distance to the brain means a short incubation and less
+      time for prophylaxis to work.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag opening the exposure-site block.
+  DILACERANT:
+    official_name: Ferimento dilacerante
+    translated_name: Lacerating wound
+    description: 'A lacerating wound. The most severe category, usually meaning both
+      serum and vaccine.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; DILACERANT reads dilacerante.
+  DISFAGIA:
+    official_name: Disfagia
+    translated_name: Dysphagia
+    description: 'Sim/Não flag for dysphagia (difficulty swallowing), a symptom common
+      to neurological/toxin-mediated agravo forms such as Botulismo, Tétano or Raiva
+      Humana.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DISFAGIA is a direct clinical term; 1-character width matches a binary
+      flag.
+  DOSES_A:
+    official_name: Doses aplicadas
+    translated_name: Doses applied
+    description: Doses actually applied, recorded beside the indicated count in NUM_DOSES.
+    code_system: none
+    source: inferred
+    reasoning: N(2) dose count; DOSES_A reads doses aplicadas.
+  DT_APLI_SO:
+    official_name: Data da aplicação do soro
+    translated_name: Date immunoglobulin given
+    description: When the immunoglobulin was given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with TRA_SORO.
+  DT_EXPO:
+    official_name: Data da exposição
+    translated_name: Date of exposure
+    description: 'When the exposure happened. Prophylaxis started promptly is essentially
+      completely effective, and rabies once symptomatic is essentially always fatal,
+      so this date is the whole clock.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; DT_EXPO reads data da exposição.
+  DT_R_TRA:
+    official_name: Data de reinício do tratamento
+    translated_name: Date treatment restarted
+    description: 'Date treatment restarted after an interruption — the field that exists
+      because interrupted courses are common.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; R_TRA reads reinício do tratamento.
+  DT_TR_RAB:
+    official_name: Data do tratamento antirrábico
+    translated_name: Date of rabies treatment
+    description: Date the anti-rabies treatment was recorded as given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the prophylaxis block.
+  DT_VAC1:
+    official_name: Data da primeira dose
+    translated_name: Date of first dose
+    description: 'When the vaccine course began. With DT_EXPO it gives the delay, the
+      single most important quality measure of the service.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first vaccine dose.
+  DT_VAC_ULT:
+    official_name: Data da última dose
+    translated_name: Date of last dose
+    description: When the course finished, which with DT_VAC1 shows whether it was
+      completed.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the last vaccine dose.
+  ESPECIE_N:
+    official_name: Espécie do animal agressor
+    translated_name: Animal species
+    description: 'Which animal — dog, cat, bat, monkey, fox, herbivore or other. Bats
+      are the main rabies reservoir in Brazil now that canine rabies is largely controlled,
+      so this field carries most of the risk assessment.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ANIMALAG.CNV
+    reasoning: 'Bound to ANIMALAG, whose values are canina, felina, quiróptera, primata,
+      raposa, herbívora and outra.
+
+      '
+  ESP_OUT:
+    official_name: Espécie do animal agressor - Outra, especificar
+    translated_name: Attacking animal species - other, specified
+    description: 'Free-text name of the animal species that exposed the patient to
+      rabies, filled in only when the coded species field (canina/felina/quiróptera/primata/raposa/herbívora/outra/ignorada)
+      is "outra".
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Raiva_v5.pdf, campo 41 "Espécie do animal agressor"
+  FERIMENT_N:
+    official_name: Ferimento
+    translated_name: Wound count category
+    description: 'Coded category for how many bite/scratch wounds a rabies-exposure
+      patient had: único (one), múltiplo (more than one), sem ferimento (indirect contact
+      only, e.g. licking), or ignorado. Despite the "_N" suffix this is a coded category,
+      not a raw count.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Raiva_v5.pdf, campo 35 "Ferimento"
+  HIDROFOBI:
+    official_name: Principais sinais/sintomas - Hidrofobia
+    translated_name: Symptom - hydrophobia
+    description: 'Whether the rabies patient showed hydrophobia (fear/spasm triggered
+      by swallowing water), one of the classic-symptom checklist items (with aerofobia,
+      disfagia, agressividade, paralisia) on the investigation form.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Raiva_v5.pdf, campo 48 "Principais sinais/sintomas"
+  HISTOLOG_N:
+    official_name: Histopatologia
+    translated_name: Histopathology
+    description: 'Histopathology looking for Negri bodies. The oldest rabies test,
+      less sensitive than immunofluorescence and retained as a third line.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: POSNEGINNRE.CNV
+    reasoning: Bound to POSNEGINNRE; the histological rabies test.
+  IMUNO_DIRE:
+    official_name: Imunofluorescência direta
+    translated_name: Direct immunofluorescence
+    description: 'Direct immunofluorescence on animal brain tissue. The standard rabies
+      test, and a positive result makes the exposed person''s full course mandatory.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: POSNEGINNRE.CNV
+    reasoning: Bound to POSNEGINNRE, positive/negative/inconclusive/not done.
+  IMUNO_INDI:
+    official_name: Prova biológica
+    translated_name: Biological test
+    description: 'The confirmatory test performed when immunofluorescence is negative
+      or inconclusive, since it detects virus that direct testing can miss.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: POSNEGINNRE.CNV
+    reasoning: Bound to POSNEGINNRE; the indirect counterpart of IMUNO_DIRE.
+  INFERIORES:
+    official_name: Exposição em membros inferiores
+    translated_name: Lower limb exposure
+    description: Exposure to the legs, apart from the feet recorded in PES.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; INFERIORES reads membros inferiores.
+  INFILTRA:
+    official_name: Infiltração do soro na lesão
+    translated_name: Immunoglobulin infiltrated into the wound
+    description: 'Whether the immunoglobulin was infiltrated into the wound, fully
+      or partly. Infiltrating it at the site is what neutralises virus before it enters
+      the nerves, so partial infiltration is a real quality failure.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: INFILTSOR.CNV
+    reasoning: 'Bound to INFILTSOR, whose values are sim total, sim parcial and não.
+
+      '
+  LAMBEDURA:
+    official_name: Exposição por lambedura
+    translated_name: Lick
+    description: 'Whether the exposure was a lick. Relevant only on broken skin or
+      mucosa, which is why it is recorded apart from the other two.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; LAMBEDURA reads lambedura.
+  MAOS_N:
+    official_name: Exposição nas mãos
+    translated_name: Hand exposure
+    description: 'Exposure to the hands. High risk because the hands are densely innervated,
+      and the commonest site in practice.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; MAOS reads mãos.
+  MORDEDURA:
+    official_name: Exposição por mordedura
+    translated_name: Bite
+    description: 'Whether the exposure was a bite. Bites carry the highest risk of
+      the three exposure types and, with the site and depth, decide the prophylaxis
+      regimen.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag opening the exposure-type block.
+  NUM_DOSES:
+    official_name: Número de doses da vacina
+    translated_name: Vaccine doses given
+    description: 'How many vaccine doses were given. An incomplete course is a real
+      failure mode here, since patients stop attending once the animal turns out to
+      be healthy.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(2) dose count in the prophylaxis block.
+  PARALISIA:
+    official_name: Sinais e sintomas - Paralisia
+    translated_name: Paralysis
+    description: 'Whether the human rabies (RAIV) patient shows paralysis, a neurological
+      sign recorded alongside paresthesia (PARESTESI) as the disease progresses from
+      prodrome to advanced illness.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: RAIV form; PARALISIA = paralisia; width 1 checkbox.
+  PARESTESI:
+    official_name: Sinais e sintomas - Parestesia
+    translated_name: Paresthesia
+    description: 'Whether the rabies patient reports paresthesia (abnormal tingling
+      or burning) at or near the bite site, an early sensory sign often preceding the
+      paralysis recorded in PARALISIA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: RAIV form; PARESTESI = parestesia; width 1 checkbox.
+  PES:
+    official_name: Exposição nos pés
+    translated_name: Foot exposure
+    description: Exposure to the feet, also densely innervated.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PES reads pés.
+  PROFUNDO:
+    official_name: Ferimento profundo
+    translated_name: Deep wound
+    description: 'A deep wound, which carries virus further into innervated tissue
+      and moves the case towards the fuller prophylaxis regimen.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PROFUNDO reads profundo.
+  PROVA_BIOL:
+    official_name: Prova biológica
+    translated_name: Biological (mouse inoculation) test result
+    description: 'Result of the biological test for rabies virus - inoculation into
+      laboratory mice - one of the confirmatory lab methods recorded on the human rabies
+      form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'RAIV form; PROVA_BIOL = prova biológica, the classic rabies confirmatory
+      bioassay; width 1.
+
+      '
+  QUANTID:
+    official_name: Quantidade (soro/imunoglobulina antirrábica)
+    translated_name: Amount administered
+    description: 'Numeric amount of rabies immunoglobulin or serum administered to
+      the patient, a treatment-dosage value distinct from the vaccine dose-date fields
+      recorded elsewhere on the rabies forms.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'RAIV form; QUANTID = quantidade; declared numeric width 3, fitting
+      a dosage amount rather than a code.
+
+      '
+  SUPERFICIA:
+    official_name: Ferimento superficial
+    translated_name: Superficial wound
+    description: 'A superficial wound. Depth is the third axis of the risk assessment,
+      after exposure type and site.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag opening the wound-depth block.
+  SUPERIORES:
+    official_name: Exposição em membros superiores
+    translated_name: Upper limb exposure
+    description: Exposure to the arms, apart from the hands recorded in MAOS_N.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; SUPERIORES reads membros superiores.
+  TRA_SORO:
+    official_name: Soro antirrábico
+    translated_name: Rabies immunoglobulin
+    description: 'Whether rabies immunoglobulin was given. Indicated for severe exposures
+      and provides immediate protection while the vaccine takes two weeks to work.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; TRA_SORO reads soro.
+  TRONCO:
+    official_name: Exposição no tronco
+    translated_name: Trunk exposure
+    description: Exposure to the trunk, a lower-risk site than the extremities or head.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; TRONCO reads tronco.
+  VACINAD:
+    official_name: Animal vacinado
+    translated_name: Animal vaccinated
+    description: 'Whether the animal had been vaccinated against rabies. A vaccinated,
+      observable dog can make prophylaxis unnecessary; a bat never can.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag about the aggressor animal.
+  VARIA_VIR:
+    official_name: Variante viral identificada
+    translated_name: Viral variant identified
+    description: 'Antigenic/genetic variant of rabies virus identified through laboratory
+      characterization (e.g. a variant associated with a hematophagous bat vs. a canine
+      reservoir) - important for tracing which animal population transmitted the case.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'VARIA_VIR = variante viral; RAIV''s lab block includes IMUNO_DIRE/IMUNO_INDI
+      and PROVA_BIOL, consistent with viral characterization following diagnostic confirmation.
+
+      '

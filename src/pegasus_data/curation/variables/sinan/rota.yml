@@ -1,0 +1,370 @@
+# SINAN.ROTA —
+#
+# one notification of rotavirus
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ACONDIC:
+    official_name: Acondicionamento da vacina
+    translated_name: Vaccine storage/packaging condition
+    description: 'Coded assessment of how the vaccine dose was stored and packaged
+      (cold-chain condition) at the time of administration, recorded when investigating
+      a suspected vaccine problem or adverse event.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is ROTA; this and its siblings (VOP_VORH, LOTE2, LAB_PROD2)
+      read as an oral-vaccine (polio/rotavirus) batch-investigation form rather than
+      a disease-case form; name reads "acondicionamento".
+
+      '
+  BACTERIA:
+    official_name: Contaminação bacteriana
+    translated_name: Bacterial contamination
+    description: 'Flag for whether bacterial contamination was found or suspected in
+      the vaccine dose under investigation, part of the vaccine-quality assessment
+      alongside ACONDIC.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ROTA (oral-vaccine investigation) form; name reads "bactéria"; C1 width
+      fits a coded yes/no contamination flag.
+
+      '
+  CASO_ISOLA:
+    official_name: Caso isolado
+    translated_name: Isolated case
+    description: Whether the case stands alone, the complement of SURTO.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CASO_ISOLA reads caso isolado; the counterpart flag to SURTO.
+  DT_1VAC:
+    official_name: Data da primeira dose da vacina de rotavírus
+    translated_name: Date of first rotavirus dose
+    description: 'When the first rotavirus dose was given. The schedule is strictly
+      age limited, because the vaccine raises intussusception risk if given late.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of the two-dose rotavirus schedule.
+  DT_2VAC:
+    official_name: Data da segunda dose da vacina de rotavírus
+    translated_name: Date of second rotavirus dose
+    description: When the second rotavirus dose was given, completing the schedule.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of the two-dose schedule.
+  DT_ENVIO:
+    official_name: Data do envio ao laboratório
+    translated_name: Date sent to laboratory
+    description: When the sample was despatched, giving the transit delay against DT_FEZES.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ENVIO reads envio.
+  DT_FEZES:
+    official_name: Data da coleta de fezes
+    translated_name: Date stool collected
+    description: 'When the stool was collected. Rotavirus is shed heavily in the first
+      days, so a sample taken then is almost always positive.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; FEZES reads fezes.
+  DT_VOP:
+    official_name: Data da vacina oral de poliomielite
+    translated_name: Date of oral polio vaccine
+    description: 'When oral polio vaccine was given. Recorded because it is given alongside
+      the rotavirus vaccine and the two can interfere.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; VOP is vacina oral de poliomielite.
+  D_DIAR:
+    official_name: Duração da diarreia
+    translated_name: Diarrhea duration (days)
+    description: 'Length of the diarrhea episode, in days, recorded on the rotavirus
+      sentinel-surveillance form — paired with T_FEBRE (fever duration) to characterize
+      episode severity.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C2 fits a 1-2 digit day count, too narrow for a date despite the D_
+      prefix; read as duração (duration) rather than data here.
+
+      '
+  D_VOMITO:
+    official_name: Dias de vômito
+    translated_name: Days of vomiting
+    description: 'Number of days the rotavirus gastroenteritis patient experienced
+      vomiting, a duration field used alongside N_DIAR (days of diarrhea) to characterize
+      illness severity.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'D_ = dias, VOMITO = vômito; C2 width fits a zero-padded day count,
+      and vomiting duration is a standard severity indicator for acute gastroenteritis
+      (ROTA).
+
+      '
+  GENOT_G:
+    official_name: Genótipo G
+    translated_name: Rotavirus G genotype
+    description: 'Rotavirus G-genotype (VP7 glycoprotein) identified by molecular typing,
+      the first half of the standard G/P rotavirus strain nomenclature (e.g. G1P[8]);
+      paired with GENOT_P.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C4) and ROTA (Rotavírus)
+      series membership. G/P genotyping is the universal molecular classification scheme
+      for rotavirus strains, making this pairing essentially unambiguous from the field
+      names and agravo alone.
+
+      '
+  GENOT_P:
+    official_name: Genótipo P
+    translated_name: Rotavirus P genotype
+    description: 'Rotavirus P-genotype (VP4 protease-sensitive protein) identified
+      by molecular typing, the second half of the G/P strain nomenclature; sibling
+      field to GENOT_G.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same basis as GENOT_G: C4 width and ROTA series membership, with the
+      universal G/P rotavirus genotyping scheme making the pairing unambiguous.
+
+      '
+  LAB_PROD1:
+    official_name: Produto/laboratório fabricante da 1ª dose de vacina
+    translated_name: Vaccine product/manufacturer - dose 1
+    description: 'Product name or manufacturer of the first rotavirus vaccine dose
+      the child received, recorded alongside its lot number (LOTE1) and administration
+      date (DT_1VAC) to support vaccine-effectiveness and safety surveillance by product/batch.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratório (manufacturer); PROD1 = produto, dose 1; ROTA series
+      carries the matching LOTE1/LOTE2 and DT_1VAC/DT_2VAC fields.
+
+      '
+  LAB_PROD2:
+    official_name: Laboratório produtor 2
+    translated_name: Second manufacturer/lab
+    description: 'Name or code of a second vaccine manufacturer/laboratory referenced
+      in the investigation, when more than one product or lot is implicated.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ROTA form; LAB_PROD reads "laboratório produtor"; C15 width fits a
+      manufacturer name/code, paired with LOTE2 for the corresponding batch.
+
+      '
+  LEITE:
+    official_name: Aleitamento
+    translated_name: Breastfeeding
+    description: 'Whether the child was breastfed. Breastfeeding is protective against
+      rotavirus, so it is a confounder in any vaccine effectiveness estimate.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: LEITE reads leite; a yes/no flag.
+  LOTE1:
+    official_name: Lote da 1ª dose de vacina
+    translated_name: Vaccine lot number - dose 1
+    description: 'Batch/lot number of the first rotavirus vaccine dose the child received
+      - paired with LAB_PROD1 (product) and DT_1VAC (date) for tracing vaccine effectiveness
+      or safety issues to a specific batch.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LOTE1 = lote (batch), dose 1; ROTA series pairs it with LAB_PROD1 and
+      DT_1VAC.
+  LOTE2:
+    official_name: Lote 2
+    translated_name: Second batch/lot number
+    description: 'Batch or lot number of a second vaccine dose or product referenced
+      in the investigation, paired with LAB_PROD2''s manufacturer for that lot.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ROTA form; name reads "lote 2"; C10 width fits an alphanumeric batch
+      number.
+
+      '
+  NOME_BACT:
+    official_name: Nome da bactéria
+    translated_name: Bacteria name (free text)
+    description: 'Free-text name of a bacterial pathogen identified in a stool culture
+      during a rotavirus/acute-diarrhea investigation, capturing a co-infection or
+      an alternative bacterial cause found alongside viral testing.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NOME_ = nome, BACT = bactéria; C15 width fits a short organism name,
+      and bacterial stool culture is a differential test in the ROTA surveillance workup.
+
+      '
+  NOME_PARAS:
+    official_name: Nome do parasito identificado
+    translated_name: Name of identified parasite
+    description: 'Free-text name of the specific parasite found on stool exam (e.g.
+      Giardia lamblia), recorded when the PARASITA flag is positive - this diarrheal-disease
+      sentinel form screens for viral, bacterial, and parasitic causes together.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NOME_ = nome; PARAS = parasito; ROTA series carries the matching Sim/Não
+      flag PARASITA and analogous NOME_BACT/NOME_VIRUS fields.
+  NOME_VIRUS:
+    official_name: Nome do vírus/cepa vacinal
+    translated_name: Virus/vaccine strain name
+    description: 'Name of the virus or vaccine strain involved in the investigation
+      (e.g. the specific oral rotavirus or polio vaccine strain).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ROTA form; name reads "nome do vírus"; C10 width fits a short strain
+      name/code, consistent with the vaccine-batch context of sibling fields.
+
+      '
+  N_DIAR:
+    official_name: Número de dias de diarreia
+    translated_name: Days of diarrhea
+    description: 'Number of days the patient experienced diarrhea during a rotavirus
+      gastroenteritis case, the counterpart duration field to D_VOMITO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'N_ = número, DIAR = diarreia; C2 width mirrors D_VOMITO''s day-count
+      encoding.
+
+      '
+  N_VOMITO:
+    official_name: Número de episódios de vômito
+    translated_name: Number of vomiting episodes
+    description: 'Count of vomiting episodes reported for the acute diarrheal disease
+      case, paired with D_VOMITO (days with vomiting) and the analogous N_DIAR/D_DIAR
+      pair for diarrhea - clinical severity markers for rotavirus gastroenteritis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N_ = número; VOMITO = vômito; ROTA series carries the matching VOMITO
+      flag and D_VOMITO duration field.
+  OUT_MEDIC:
+    official_name: Outro atendimento médico
+    translated_name: Sought care at another medical facility (detail)
+    description: 'Whether/where the patient sought care at a facility other than the
+      rotavirus sentinel unit — relevant to sentinel surveillance, which tracks care-seeking
+      behavior around acute gastroenteritis episodes.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C20 text; OUT_=outro, MEDIC=médico/atendimento médico.
+  OUT_VIRUS:
+    official_name: Outro vírus detectado
+    translated_name: Other virus detected
+    description: 'Whether another virus was found — norovirus and adenovirus cause
+      the same illness and rise in importance as rotavirus vaccination reduces its
+      share.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: OUT_VIRUS reads outro vírus; a yes/no flag.
+  PARASITA:
+    official_name: Parasita detectado
+    translated_name: Parasite detected
+    description: Whether a parasite was found as an alternative cause of the diarrhoea.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PARASITA reads parasita; a yes/no flag.
+  ROTA_R:
+    official_name: Resultado para rotavírus
+    translated_name: Rotavirus result
+    description: Whether rotavirus was detected in the stool.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ROTA_R names the rotavirus result; a yes/no flag.
+  SANG:
+    official_name: Sangue nas fezes
+    translated_name: Blood in stool
+    description: 'Blood in the stool. Argues against rotavirus, which causes watery
+      diarrhoea, and towards a bacterial dysentery.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SANG reads sangue; a clinical flag.
+  SURTO:
+    official_name: Caso associado a surto
+    translated_name: Part of an outbreak
+    description: 'Whether the case belongs to an outbreak. Rotavirus is highly transmissible
+      in nurseries and wards, so clustering is common and changes the response.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SURTO reads surto; a yes/no flag.
+  TIPO_LEITE:
+    official_name: Tipo de aleitamento
+    translated_name: Feeding type
+    description: 'Whether feeding was exclusively breast milk or mixed. Exclusivity
+      is what the protective effect depends on, so the split matters more than the
+      flag.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: TIPO_LEITE.CNV
+    reasoning: Bound to TIPO_LEITE, whose values are exclusivo and misto.
+  T_FEBRE:
+    official_name: Duração da febre
+    translated_name: Fever duration (days)
+    description: 'Length of the fever episode, in days, recorded alongside D_DIAR (diarrhea
+      duration) on the rotavirus sentinel-surveillance form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C2, same shape as D_DIAR; T_ read as tempo (duration), FEBRE=fever.
+  VOP_VORH:
+    official_name: Tipo de vacina oral (VOP/VORH)
+    translated_name: Oral vaccine type (OPV/rotavirus)
+    description: 'Coded flag distinguishing which oral vaccine is implicated in the
+      investigation — VOP (oral polio vaccine) or VORH (oral rotavirus vaccine).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ROTA form; name directly concatenates the two oral-vaccine abbreviations
+      VOP and VORH; C1 width fits a two-way coded flag.
+
+      '

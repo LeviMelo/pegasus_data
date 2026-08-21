@@ -1,0 +1,314 @@
+# SINAN.COQU —
+#
+# one notification of whooping cough
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANT_SENTIN:
+    official_name: Unidade sentinela
+    translated_name: Sentinel unit
+    description: 'Whether the case came from a sentinel unit. Sentinel surveillance
+      samples deliberately rather than exhaustively, so sentinel cases must not be
+      pooled with routine notifications as though they were one population.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SENTIN reads sentinela; a yes/no flag.
+  COD_MUN_HO:
+    official_name: Município de hospitalização
+    translated_name: Municipality of hospitalisation
+    description: 'Municipality where the patient was admitted. Severe cases are referred
+      to larger centres, so this concentrates in capitals and is not a measure of where
+      disease occurs.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; MUN_HO reads município de hospitalização.
+  COD_UF_HOS:
+    official_name: UF de hospitalização
+    translated_name: State of hospitalisation
+    description: State where the patient was admitted.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; HOS reads hospitalização.
+  COLET_COMU:
+    official_name: Coleta em comunicantes
+    translated_name: Contacts sampled
+    description: Whether specimens were taken from contacts as part of the investigation.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: COMU reads comunicantes; a yes/no flag.
+  CS_ANTIBIO:
+    official_name: Uso de antibiótico
+    translated_name: Antibiotic given
+    description: 'Whether antibiotics were given. They shorten infectiousness even
+      when they no longer alter the illness, which is the main reason to give them
+      late.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ANTIBIO reads antibiótico; a yes/no treatment flag.
+  CS_APNEIA:
+    official_name: Apneia
+    translated_name: Apnoea
+    description: 'Pauses in breathing. In young infants apnoea can be the ONLY sign
+      of pertussis, with no cough at all, and it is what kills them.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: APNEIA reads apneia; a yes/no clinical flag.
+  CS_CIANOSE:
+    official_name: Cianose
+    translated_name: Cyanosis
+    description: 'Going blue during a paroxysm. In infants this marks the episodes
+      that become life-threatening.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CIANOSE reads cianose; a yes/no clinical flag.
+  CS_COLETA:
+    official_name: Coleta de material
+    translated_name: Specimen collected
+    description: 'Whether a nasopharyngeal specimen was taken. Culture yield falls
+      sharply after the catarrhal phase and after antibiotics.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: COLETA reads coleta; a specimen flag.
+  CS_CULTURA:
+    official_name: Resultado da cultura
+    translated_name: Culture result
+    description: 'Whether Bordetella grew. A negative culture is common in a genuine
+      case, so most confirmation is clinical or epidemiological rather than laboratory.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: POSNEGNR.CNV
+    reasoning: Bound to POSNEGNR, positive/negative/not done.
+  CS_DESITRA:
+    official_name: Desidratação
+    translated_name: Dehydration
+    description: 'Dehydration, usually because the paroxysms make feeding and keeping
+      food down impossible.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DESITRA reads desidratação; a complication flag.
+  CS_DESNUTR:
+    official_name: Desnutrição
+    translated_name: Malnutrition
+    description: 'Malnutrition, from weeks of impaired feeding. It also worsens the
+      prognosis, so cause and consequence run both ways.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DESNUTR reads desnutrição; a complication flag.
+  CS_ENCEFAL:
+    official_name: Encefalopatia
+    translated_name: Encephalopathy
+    description: 'Encephalopathy, from the hypoxia of repeated paroxysms. Rare and
+      frequently leaves permanent damage.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ENCEFAL reads encefalopatia; a complication flag.
+  CS_OTITE:
+    official_name: Otite
+    translated_name: Otitis
+    description: Middle ear infection as a secondary complication.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: OTITE reads otite; a complication flag.
+  CS_OUT_COM:
+    official_name: Outra complicação
+    translated_name: Other complication
+    description: Any complication the named items do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the complications block.
+  CS_OUT_SIN:
+    official_name: Outro sinal ou sintoma
+    translated_name: Other sign, pertussis
+    description: 'A sign outside the pertussis list of paroxysms, whoop, cyanosis and
+      apnoea.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the clinical block.
+  CS_PNEUMON:
+    official_name: Pneumonia
+    translated_name: Pneumonia
+    description: 'Pneumonia as a complication. The commonest cause of death in pertussis,
+      and the reason infants are admitted.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PNEUMON reads pneumonia; a complication flag.
+  CS_TEMP37:
+    official_name: Febre até 37 graus
+    translated_name: Temperature up to 37
+    description: 'Little or no fever. Pertussis characteristically runs without fever,
+      which distinguishes it from other causes of persistent cough.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TEMP37 names the sub-38 band; paired with CS_TEMP_38.
+  CS_TEMP_38:
+    official_name: Febre acima de 38 graus
+    translated_name: Temperature above 38
+    description: 'Fever above 38. Unusual in pertussis itself and usually means a secondary
+      infection, most often the pneumonia in CS_PNEUMON.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TEMP_38 names the above-38 band; paired with CS_TEMP37.
+  CS_TOSSE_E:
+    official_name: Tosse em acessos
+    translated_name: Paroxysmal cough
+    description: 'Cough in paroxysms — the fits of coughing that define the second
+      stage and give the disease its Portuguese name, coqueluche.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TOSSE_E reads tosse em acessos; a yes/no clinical flag.
+  CS_TOSSE_P:
+    official_name: Guincho inspiratório
+    translated_name: Inspiratory whoop
+    description: 'The whoop drawn on breathing in after a paroxysm. Absent in infants,
+      who are the ones at real risk, so its absence does not exclude the diagnosis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag paired with CS_TOSSE_E.
+  CS_VAC_N:
+    official_name: Doses de vacina recebidas
+    translated_name: Vaccine doses received
+    description: 'Doses of pertussis vaccine received, from one through three plus
+      two boosters, or never. Protection wanes, so adolescents and adults are susceptible
+      again and become the source for unvaccinated infants.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: DOSES.CNV
+    reasoning: Bound to DOSES, whose values run uma through nunca vacinado.
+  DT_ADM_ANT:
+    official_name: Data de início do antibiótico
+    translated_name: Date antibiotic started
+    description: 'When antibiotics began. Read against DT_CATARRA: started in the catarrhal
+      phase they change the course, later they only stop transmission.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ADM_ANT reads administração de antibiótico.
+  DT_CATARRA:
+    official_name: Data do início da fase catarral
+    translated_name: Date the catarrhal phase began
+    description: 'When the catarrhal phase began — the first stage, which looks like
+      an ordinary cold and is when the patient is most infectious. Antibiotics only
+      alter the course if started here.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; CATARRA reads catarral.
+  MED_BLOQUE:
+    official_name: Medida preventiva adotada
+    translated_name: Preventive measure taken
+    description: 'What was done around the case — a vaccination sweep, chemoprophylaxis,
+      both, or nothing. The control response, and the field that says whether one happened
+      at all.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MEDPREV.CNV
+    reasoning: 'Bound to MEDPREV, whose values are bloqueio vacinal, quimioprofilaxia,
+      ambos and não.
+
+      '
+  NM_OUT_COM:
+    official_name: Nome do outro comunicante
+    translated_name: Other contact's name
+    description: 'Free-text name of an additional close contact of the pertussis (COQU)
+      case, recorded when contact-tracing finds someone beyond the household contacts
+      already listed by name.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'COQU = Coqueluche; NM = nome, OUT = outro, COM = comunicante; width
+      30 fits a person''s name.
+
+      '
+  OUT_CONTAT:
+    official_name: Outro tipo de contato - descreva
+    translated_name: Other contact setting - describe
+    description: 'Free-text description of a pertussis (COQU) exposure contact setting
+      other than the household (e.g. daycare, school, workplace), distinct from NM_OUT_COM,
+      which records an individual contact''s name.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'COQU form; OUT_CONTAT = outro contato; width 30 free text; read as
+      a setting rather than a person''s name to distinguish it from NM_OUT_COM.
+
+      '
+  QUAN_COMUN:
+    official_name: Quantidade de comunicantes
+    translated_name: Contacts identified
+    description: 'How many contacts were identified. Pertussis is highly transmissible
+      within households, so this is usually the household size.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(4) tally of comunicantes.
+  QUAN_POSIT:
+    official_name: Comunicantes positivos
+    translated_name: Contacts testing positive
+    description: 'How many contacts tested positive. Against QUAN_COMUN it gives the
+      secondary attack rate, which is what makes household transmission measurable.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(4) tally; the positive subset of QUAN_COMUN.

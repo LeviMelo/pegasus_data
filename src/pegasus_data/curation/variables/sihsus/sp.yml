@@ -1,0 +1,69 @@
+# SIH.SP — Professional services
+# Serviços Profissionais
+#
+# One row per professional act billed within an admission, so many rows per
+# AIH. Joins to RD on the AIH number; summing it as though it were admissions
+# double-counts.
+system: SIHSUS
+asserted_by: pegasus_data
+
+variables:
+  SP_CGCHOSP:
+    official_name: Hospital BR(CNPJ)
+    translated_name: Hospital's CNPJ
+    description: 'CNPJ (federal taxpayer registry number) of the hospital, in the SP
+      (Serviços Profissionais — itemised professional-service) file. Same concept as
+      CGC_HOSP in the geocoded RD extract, using the post-1998 CNPJ term rather than
+      the older CGC.
+
+      '
+    code_system: none
+    source: def
+    source_ref: '[DEF-SP] display_name "Hospital BR(CNPJ)" for SP_CGCHOSP (DATASUS
+      also ships the identical binding per state, e.g. "Hospital AC(CNPJ)", "Hospital
+      SP(CNPJ)" — one CNPJ lookup table per UF under the same field).
+
+      '
+    notes: 'Values include both 13- and 14-digit numbers in the sample; CNPJ is formally
+      14 digits, so shorter values are almost certainly missing a leading zero rather
+      than naming a different identifier scheme.
+
+      '
+  SP_PF_CBO:
+    official_name: Código de Ocupação Brasileira do profissional
+    translated_name: Professional's occupation code
+    description: 'Occupation of the professional who performed the procedure, as a
+      CBO code.
+
+      '
+    code_system: external
+    codelist: CBO
+    source: layout_doc
+    notes: 'Six digits, which is CBO-2002. The CBO table on the tree mixes 3,000 three-digit
+      CBO-1994 codes with 2,813 six-digit CBO-2002 codes in one file, so a join must
+      match on width as well as value or it will silently match the wrong classification.
+
+      '
+  SP_PTSP_NF:
+    translated_name: Professional-service points (1997 SP file)
+    description: 'Point count used to remunerate the professional act billed on this
+      line, in the 1992-2007 SP (Servicos Profissionais) file. Point-based payment,
+      later converted to a monetary amount via SP_VALATO on the same row.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Not bound by any .DEF in the TAB_SIH auxiliary tree, but its declared
+      width (6) and its position - immediately after SP_QTD_ATO and before SP_VALATO
+      - match SP_PTSP exactly in the January-2008-forward SP*.dbf layout (DATASUS Informe
+      Tecnico IT_SIHSUS_1603.pdf: field 16 SP_PTSP char(6) "Quantidade de pontos").
+      This 1997-era file has one field in that slot rather than the later SP_PTSP/SP_NF
+      pair, so the name appears to be this vintage''s own label for what the point-count
+      field became.
+
+      '
+    notes: 'The neighbouring 2008+ field SP_NF (Nota fiscal) is a separate char(8)
+      field with no counterpart here - do not read this column as carrying invoice/date
+      information as well, only the point count.
+
+      '

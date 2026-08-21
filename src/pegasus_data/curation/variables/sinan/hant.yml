@@ -1,0 +1,1213 @@
+# SINAN.HANT —
+#
+# one notification of hantavirus infection
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AM_SANGUE:
+    official_name: Amostra de sangue
+    translated_name: Blood sample
+    description: 'Sim/Não flag for whether a blood sample was collected from the patient
+      for laboratory testing.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AM_ abbreviates amostra (sample) and SANGUE is blood; 1-character width
+      matches a collection-flag rather than a lab result.
+
+      '
+  ANO_DT_SIN:
+    official_name: Ano da data dos primeiros sintomas
+    translated_name: Year of first-symptoms date
+    description: 'Four-digit calendar year derived from DT_SIN_PRI (date of first symptoms)
+      — a convenience field for tabulating cases by year of onset rather than year
+      of notification, which can lag by weeks.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N4 numeric field; name reads ANO (year) + DT_SIN (first-symptoms date),
+      a derived rollup.
+  ANT_ARAGEM:
+    official_name: Antecedente de aragem
+    translated_name: 'Exposure: plowing/tilling soil'
+    description: 'Whether the patient plowed or tilled soil before symptom onset, a
+      rural-exposure question on the hantavirose form since tilling can aerosolize
+      rodent excreta. Distinct from ANT_DESMAT (land clearing) and ANT_MOAGEM (grain
+      milling).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N1 flag; ANT_=antecedente per prefix convention, ARAGEM=aração/aragem
+      (plowing).
+  ANT_ARRUMO:
+    official_name: Antecedente - arrumação de local fechado
+    translated_name: Cleaned/tidied an enclosed space (antecedent)
+    description: 'Whether the hantavirus patient had recently cleaned or tidied an
+      enclosed space (shed, silo, storeroom) before symptoms - a key exposure route
+      since disturbing such spaces aerosolizes dried rodent excreta.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANT_ = antecedente epidemiológico, ARRUMO = arrumação; cleaning closed
+      rural structures is a named risk exposure on the SINAN hantavirose (HANT) investigation
+      form.
+
+      '
+  ANT_COLHEI:
+    official_name: Atividade de colheita nos últimos 30 dias
+    translated_name: Harvesting activity in the last 30 days (flag)
+    description: 'Whether the patient did crop harvesting (colheita) in the 30 days
+      before symptoms - a rural occupational exposure to rodent-contaminated grain
+      and dust that is a classic hantavirus risk factor.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANT_ = antecedente (30-day exposure history block); COLHEI = colheita;
+      HANT series clusters several such rural-activity risk checkboxes (ANT_LAZER,
+      ANT_ROEDOR among them).
+
+      '
+  ANT_CORTE:
+    official_name: Antecedente de corte de mato/roçagem
+    translated_name: History of brush-cutting activity
+    description: 'Whether the hantavirus patient cut grass, brush, or grain before
+      symptom onset — a recognized rural exposure that stirs up rodent-contaminated
+      dust and aerosolizes the virus.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; ANT_ is the antecedente/exposure-history prefix, CORTE reads
+      "corte" (cutting); numeric N1 fits a coded yes/no exposure item.
+
+      '
+  ANT_DESMAT:
+    official_name: Antecedente de desmatamento
+    translated_name: 'Exposure: clearing forest/brush'
+    description: 'Whether the patient cleared forest or brush before symptom onset,
+      disturbing rodent habitat — one of three rural-activity exposure checkboxes alongside
+      ANT_ARAGEM and ANT_MOAGEM.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N1 flag; DESMAT=desmatamento (deforestation/clearing).
+  ANT_EXPOSI:
+    official_name: Antecedente - exposição em área de risco
+    translated_name: Risk-area exposure (antecedent)
+    description: 'Whether the hantavirus patient was present in a rural or wooded area
+      known for rodent activity in the weeks before symptom onset - the general risk-area
+      exposure checkbox among the epidemiological antecedents.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANT_ = antecedente, EXPOSI = exposição; a broad risk-area item alongside
+      the more specific ANT_ARRUMO and ANT_PLANTI on the same hantavirus antecedents
+      checklist.
+
+      '
+  ANT_LAZER:
+    official_name: Atividade de lazer em área de risco nos últimos 30 dias
+    translated_name: Recreational activity in risk area (flag)
+    description: 'Whether the patient did recreational activity (camping, hiking, fishing)
+      in rural or wild terrain in the 30 days before symptoms - a non-occupational
+      hantavirus exposure route, distinct from work-related ones like ANT_COLHEI.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ANT_ = antecedente; LAZER = lazer; HANT 30-day risk-history block.
+  ANT_LIMPEZ:
+    official_name: Antecedente de limpeza de local fechado
+    translated_name: History of cleaning an enclosed structure
+    description: 'Whether the hantavirus patient cleaned a shed, barn, or other closed
+      rural structure before symptom onset, a classic aerosol-exposure activity distinct
+      from ANT_CORTE''s outdoor brush-cutting.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; ANT_ prefix plus LIMPEZ ("limpeza"); pairs with ANT_CORTE
+      as one of several exposure-history checkboxes on the same form.
+
+      '
+  ANT_MOAGEM:
+    official_name: Antecedente de moagem de grãos
+    translated_name: 'Exposure: grain milling/threshing'
+    description: 'Whether the patient handled or milled stored grain before symptom
+      onset — the classic hantavirus exposure route via rodent-contaminated grain dust,
+      completing the trio with ANT_ARAGEM and ANT_DESMAT.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N1 flag; MOAGEM=moagem (milling/grinding).
+  ANT_PLANTI:
+    official_name: Antecedente - atividade de plantio
+    translated_name: Farming/planting activity (antecedent)
+    description: 'Whether the hantavirus patient engaged in planting or farming activity
+      before symptoms began - an agricultural exposure route distinct from cleaning
+      enclosed spaces (ANT_ARRUMO) on the same antecedents checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANT_ = antecedente, PLANTI = plantio; farming/planting is a listed
+      rural-exposure item on the SINAN hantavirose antecedents section.
+
+      '
+  ANT_ROEDOR:
+    official_name: Contato com roedores nos últimos 30 dias
+    translated_name: Rodent contact in the last 30 days (flag)
+    description: 'Whether the patient had direct contact with or sighted rodents in
+      the 30 days before symptoms - the most direct exposure marker for hantavirus,
+      which spreads via inhaling aerosolized rodent excreta.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ANT_ = antecedente; ROEDOR = roedor; same 30-day risk-history block.
+  CLI_ABDOMI:
+    official_name: Manifestações clínicas - Dor Abdominal
+    translated_name: Abdominal pain
+    description: 'Whether the hantavirus-suspect patient reported abdominal pain, one
+      item on the clinical-signs checklist: 1 Sim, 2 Não, 9 Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 36 "Dor Abdominal"
+
+      '
+  CLI_ANGUST:
+    official_name: Angústia respiratória
+    translated_name: Respiratory distress
+    description: 'Clinical-signs checklist item marking respiratory distress, the hallmark
+      of the cardiopulmonary phase of Hantavirus Pulmonary Syndrome that this notification
+      form exists to catch early.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; CLI_ is the clinical-sign prefix, ANGUST reads "angústia";
+      numeric N1 matches the coded checkbox pattern of the sign list.
+
+      '
+  CLI_ASTENI:
+    official_name: Astenia
+    translated_name: Weakness
+    description: 'Profound weakness in the prodrome. Hantavirus begins as an indistinguishable
+      flu-like illness, which is why it is caught late.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ASTENI reads astenia; a yes/no clinical flag.
+  CLI_CHOQUE:
+    official_name: Choque
+    translated_name: Shock
+    description: Circulatory shock, the endpoint of the hypotension in CLI_HIPOTE.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CHOQUE reads choque; a clinical flag.
+  CLI_DISPNE:
+    official_name: Manifestações clínicas - Dispnéia
+    translated_name: Dyspnea
+    description: 'Whether the patient had dyspnea (difficulty breathing) at presentation,
+      one of the checklist signs used to flag hantavirus cardiopulmonary syndrome:
+      1 Sim, 2 Não, 9 Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 36 "Dispnéia"
+
+      '
+  CLI_GARGAN:
+    official_name: Dor de garganta
+    translated_name: Sore throat (clinical sign)
+    description: 'Whether the patient reported sore throat — checked on the hantavirose
+      symptom list because its flu-like prodrome typically lacks upper-respiratory
+      signs like this and CLI_RINORR, helping rule the case in or out.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N1 flag; CLI_=clínico prefix, GARGAN=garganta (throat).
+  CLI_H:
+    official_name: Quadro clínico - sinal (H)
+    translated_name: Clinical sign (H-coded)
+    description: 'One of the itemized clinical-sign checkboxes on the hantavirus form,
+      most plausibly a hemorrhagic manifestation given the "H" and the single-digit
+      coded value; exact symptom not confirmed by other catalog evidence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CLI_ = clínico, a standard checkbox-series prefix; the trailing "H"
+      most likely abbreviates "hemorragia," a recognized complication of severe hantavirus
+      cardiopulmonary syndrome, but confidence is low.
+
+      '
+  CLI_HEMO:
+    official_name: Manifestação hemorrágica
+    translated_name: Bleeding
+    description: Bleeding, more prominent in the renal form than the cardiopulmonary
+      one.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: HEMO reads hemorrágica; a clinical flag.
+  CLI_HIPOTE:
+    official_name: Hipotensão
+    translated_name: Hypotension
+    description: 'Low blood pressure from the cardiogenic shock that accompanies the
+      pulmonary phase.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: HIPOTE reads hipotensão; a clinical flag.
+  CLI_H_DESC:
+    official_name: Outras manifestações Hemorrágicas (especificar)
+    translated_name: Other hemorrhagic manifestation, specify
+    description: 'Free-text description of the bleeding manifestation the patient showed,
+      filled in only when the "other hemorrhagic manifestations" checkbox above it
+      is marked yes.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 36 (DBF ds_manifestacao_hemor_outro)
+
+      '
+  CLI_LOMBAR:
+    official_name: Dor lombar
+    translated_name: Lower back pain
+    description: 'Lower back pain. More characteristic of the haemorrhagic-with-renal
+      form seen in the Old World than of the Brazilian cardiopulmonary form.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: LOMBAR reads lombar; a clinical flag.
+  CLI_MIAL_D:
+    official_name: Mialgia - detalhamento
+    translated_name: Myalgia - additional detail
+    description: 'Supplementary free-text detail on the myalgia (muscle pain) reported
+      by the hantavirus patient, elaborating the base CLI_MIALGI Sim/Não flag rather
+      than duplicating it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CLI_ = clínico; MIAL = mialgia, truncated to fit DBF''s 10-character
+      field-name limit alongside base flag CLI_MIALGI; width 30 fits free text rather
+      than a checkbox. Exact suffix meaning ("D") uncertain.
+
+      '
+  CLI_MIAL_G:
+    official_name: Mialgia generalizada
+    translated_name: Generalised muscle pain
+    description: Generalised muscle pain, a prominent prodromal feature.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MIAL_G reads mialgia generalizada; a clinical flag.
+  CLI_MUNICI:
+    official_name: Município do atendimento clínico
+    translated_name: Municipality of clinical care
+    description: 'IBGE code of the municipality where the hantavirus patient received
+      clinical care, which can differ from the patient''s home municipality when severe
+      cases are transferred to a referral hospital.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; numeric width N7 matches the standard 7-digit IBGE municipality
+      code rather than a 1-character clinical-sign flag, despite the CLI_ prefix shared
+      with the sign checkboxes.
+
+      '
+  CLI_NEUROL:
+    official_name: Manifestações clínicas - Sintomas Neurológicos
+    translated_name: Neurological symptoms
+    description: 'Whether the patient presented neurological symptoms, one item in
+      the hantavirus clinical-signs checklist: 1 Sim, 2 Não, 9 Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 36 "Sintomas Neurológicos"
+
+      '
+  CLI_OUT_D:
+    official_name: Manifestações clínicas / Outros (especificar)
+    translated_name: Other clinical manifestation, specify
+    description: 'Free-text description of an additional clinical manifestation the
+      patient had that is not covered by the named checklist items, enabled only when
+      that "other" flag is Sim.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 36 (DBF ds_manifestacao_outro)
+
+      '
+  CLI_RESPI:
+    official_name: Insuficiência respiratória
+    translated_name: Respiratory failure
+    description: 'Respiratory failure. The defining event of hantavirus cardiopulmonary
+      syndrome: the lungs flood over hours and mortality approaches forty per cent.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RESPI reads respiratória; a clinical flag.
+  CLI_RINORR:
+    official_name: Rinorreia
+    translated_name: Runny nose / rhinorrhea (clinical sign)
+    description: 'Whether the patient had nasal discharge — recorded with CLI_GARGAN
+      as a differential-diagnosis clue, since hantavirus''s febrile-myalgic prodrome
+      usually lacks the coryza typical of common respiratory infections.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N1 flag; RINORR=rinorreia (runny nose).
+  CLI_TONTUR:
+    official_name: Manifestações clínicas - Tontura/Vertigem
+    translated_name: Dizziness/vertigo
+    description: 'Whether the patient experienced dizziness or vertigo, one of the
+      checklist signs recorded for a suspected hantavirus case: 1 Sim, 2 Não, 9 Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 36 "Tontura/Vertigem"
+
+      '
+  CLI_TORACI:
+    official_name: Manifestações clínicas - Dor Torácica
+    translated_name: Chest pain
+    description: 'Whether the patient reported chest pain among the checklist of clinical
+      signs used to work up a suspected hantavirus case: 1 Sim, 2 Não, 9 Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 36 "Dor Torácica"
+
+      '
+  CLI_TOSSE:
+    official_name: Manifestações clínicas - Tosse Seca
+    translated_name: Dry cough
+    description: 'Whether the patient had a dry cough, one of the earliest clinical
+      signs checked for suspected hantavirus cardiopulmonary syndrome: 1 Sim, 2 Não,
+      9 Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 36 "Tosse Seca"
+
+      '
+  CONF_INF_M:
+    official_name: Município de confirmação da infecção
+    translated_name: Municipality of infection confirmation
+    description: 'IBGE code of the municipality where the hantavirus infection was
+      confirmed or most likely acquired, distinct from the patient''s residence municipality
+      - used to map the probable infection site.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CONF_ = confirmação, INF = infecção, M = município; N7 numeric width
+      matches an IBGE municipality code, and infection-site municipality is a standard
+      field in zoonotic-disease investigation.
+
+      '
+  CONF_INF_U:
+    official_name: UF provável de infecção
+    translated_name: State (UF) of probable infection
+    description: 'State where the patient most likely acquired hantavirus infection,
+      the UF-level component of the probable-infection-site investigation; a sibling
+      municipality-level field (not owned here) narrows it further.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CONF_INF_ = (local de) confirmação/infecção; U = UF, paralleling the
+      CON_INF_* municipality/UF/country pattern used elsewhere in SINAN for likely-infection-site
+      fields.
+
+      '
+  CON_AMB_DE:
+    official_name: Consulta ambulatorial (descrição)
+    translated_name: Outpatient consultation (description)
+    description: 'Free-text note tied to an ambulatory/outpatient consultation recorded
+      for the case; the exact sub-question it answers is not resolved from available
+      evidence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_AMB plausibly abbreviates consulta ambulatorial; 30-character width
+      fits a short free-text note.
+
+      '
+  CON_AREA:
+    official_name: Área provável de infecção
+    translated_name: Probable infection area
+    description: 'Whether infection was probably acquired in an urban, rural or periurban
+      area. Almost always rural for hantavirus, which is what distinguishes its geography
+      from leptospirosis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ZONA.CNV
+    reasoning: Bound to ZONA, urbana/rural/periurbana.
+  CON_AUTOPS:
+    official_name: Se óbito, realizou autópsia
+    translated_name: Autopsy performed
+    description: 'Whether an autopsy was performed, asked only when the case''s outcome
+      field records death from hantavirus or from another cause: 1 Sim, 2 Não, 9 Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 67 "Se óbito, realizou autópsia"
+
+      '
+  CON_DIAGNO:
+    official_name: Critério de confirmação diagnóstica
+    translated_name: Diagnostic confirmation criterion
+    description: 'Coded basis on which a hantavirus case was confirmed — laboratory
+      evidence versus clinical-epidemiological grounds alone.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; CON_ + DIAGNO reads "critério/condição de diagnóstico";
+      numeric N1 fits a small enumerated criterion code.
+
+      '
+  CON_DIAG_D:
+    official_name: Confirmação diagnóstica (nome truncado)
+    translated_name: Diagnosis-confirmation flag (truncated field name)
+    description: 'Single-character flag from the hantavirose form''s diagnosis section;
+      DBF''s 10-character limit truncated the original label. Best read as marking
+      how the diagnosis was confirmed (e.g. lab vs. clinical-epidemiological), though
+      the exact question isn''t fully recoverable from the evidence available.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Name is exactly 10 characters (the DBF field-name limit); CON_/DIAG_
+      read as condição/diagnóstico but no dictionary or codelist entry survives to
+      confirm the precise question.
+
+      '
+  CON_FORMA:
+    official_name: Confirmação - forma clínica
+    translated_name: Confirmation - clinical form
+    description: 'Short code for the clinical form/presentation type used to confirm
+      the case (e.g. which variant of the disease was diagnosed).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'FORMA reads forma (form/type); 1-character width matches a short enumerated
+      code.
+
+      '
+  CON_LOCAL2:
+    official_name: Contato - local (2)
+    translated_name: Contact - location (2)
+    description: 'Second instance of a contact/exposure location code, sibling of CON_LOCAL,
+      whose observed values (Unidade de Hemoterapia, Domicílio, Laboratório, Outro)
+      indicate a blood/procedure-related exposure setting.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_LOCAL is bound to a codelist with exactly those four values in
+      this catalog; CON_LOCAL2 shares the prefix and width, consistent with a second
+      recorded location for the same case.
+
+      '
+  CON_LOCALI:
+    official_name: Localidade provável de infecção
+    translated_name: Probable infection locality
+    description: The specific locality where infection was probably acquired.
+    code_system: none
+    source: inferred
+    reasoning: C(2) locality code in the infection-source block.
+  DESMATA_N:
+    official_name: Desmatamento
+    translated_name: Land clearing
+    description: 'Whether the patient was clearing land. Disturbing vegetation raises
+      dust from rodent nests, which is the classic exposure.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DESMATA reads desmatamento; an activity exposure flag.
+  DORMIU_N:
+    official_name: Dormiu em área de risco
+    translated_name: Slept in a risk area
+    description: 'Whether the patient slept in a risk area. Sleeping in a closed shed
+      or hut is a high-exposure setting, since the aerosol concentrates indoors.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DORMIU reads dormiu; an activity exposure flag.
+  DTDIASINAC:
+    official_name: Data de início da inatividade
+    translated_name: Date incapacity/leave began
+    description: 'Date a period of incapacity or work leave (afastamento) began, plausibly
+      from an occupational-disease investigation. AAAAMMDD.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT + DIAS + INAC most plausibly contracts data + dias de inatividade;
+      D8 width matches a full date rather than a day count.
+
+      '
+  DT_COL_IGM:
+    official_name: Data da coleta de IgM
+    translated_name: Date IgM sample taken
+    description: 'When the IgM sample was taken. IgM is already present when symptoms
+      appear, so unlike most serology a single early sample is diagnostic here.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the laboratory block.
+  DT_EVOLUC:
+    official_name: Data da evolução
+    translated_name: Date of outcome
+    description: When the outcome was recorded, closing the case.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the outcome block.
+  DT_RTPCR:
+    official_name: Data do RT-PCR
+    translated_name: Date of RT-PCR
+    description: 'Date an RT-PCR molecular test was performed or resulted. AAAAMMDD.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: RTPCR is the standard abbreviation for the test.
+  DT_TRNASRS:
+    official_name: Data de transmissão (RS)
+    translated_name: Transmission-route date (RS)
+    description: 'Date tied to another suspected exposure route in the same per-route
+      antecedents block as DT_TRNASRM (see that entry); the exact route "RS" denotes
+      is not resolved.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same transposed-letter naming pattern and D8 width as DT_TRNASRM, one
+      of several DT_TRANS*/DTTRANS* route-specific date fields.
+
+      '
+  EXPO_N:
+    official_name: Houve exposição
+    translated_name: Exposure occurred
+    description: Whether any risk exposure occurred, the gate for the activity flags.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: EXPO reads exposição; the block's opening flag.
+  LAB_ATIPIC:
+    official_name: Resultado A - Linfócitos Atípicos
+    translated_name: Atypical lymphocytes result
+    description: 'Whether atypical lymphocytes were seen on the blood exam drawn for
+      a suspected hantavirus case: 1 Sim, 2 Não, 3 Não realizado, 9 Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 38 "Linfócitos Atípicos"
+
+      '
+  LAB_BILATE:
+    official_name: Radiografia - infiltrado bilateral
+    translated_name: Bilateral pulmonary infiltrates (flag)
+    description: 'Whether chest imaging showed bilateral pulmonary infiltrates, the
+      radiological hallmark of hantavirus cardiopulmonary syndrome (HCPS), grouped
+      here with the exam-results fields despite not being a laboratory test per se.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'BILATE = bilateral; bilateral infiltrates are the signature imaging
+      finding in severe hantavirus disease, and N1 width fits a checkbox.
+
+      '
+  LAB_COLHEU:
+    official_name: Colheu material (amostra)
+    translated_name: Biological sample collected (flag)
+    description: 'Whether a biological sample was collected from the Hantavirose patient
+      for laboratory testing, gating the serology/RT-PCR result fields that follow.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond C1 declared type and HANT series membership;
+      the confirmed Hantavirose layout uses the analogous AM_SANGUE flag ("Colheu amostra
+      de sangue para exames clínicos/bioquímicos") to gate its own lab block, and LAB_COLHEU''s
+      name and role match that same "did collection happen" pattern for a different
+      lab step in the same form family.
+
+      '
+  LAB_DERRAM:
+    official_name: Alterações radiológicas - Derrame Pleural
+    translated_name: Chest X-ray finding - pleural effusion
+    description: 'Whether the Hantavirose patient''s chest X-ray showed pleural effusion,
+      one of three imaging findings (with LAB_DIFUSO and LAB_LOCAL) checked only when
+      a chest X-ray was actually done.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 41 "Se sim, apresentou alguma destas
+      alterações?"
+  LAB_DIFUSO:
+    official_name: Alterações radiológicas - Infiltrado Pulmonar Difuso
+    translated_name: Chest X-ray finding - diffuse pulmonary infiltrate
+    description: 'Whether the Hantavirose patient''s chest X-ray showed a diffuse pulmonary
+      infiltrate, the classic early radiographic sign of hantavirus cardiopulmonary
+      syndrome; sibling finding to LAB_LOCAL (localized infiltrate) and LAB_DERRAM
+      (pleural effusion).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 41 "Se sim, apresentou alguma destas
+      alterações?"
+  LAB_HEMATO:
+    official_name: Hematócrito
+    translated_name: Hematocrit (result category)
+    description: 'Categorized hematocrit finding (elevated/normal/low) from the hantavirus
+      patient''s blood count - hemoconcentration is a classic early marker of the vascular
+      leak in hantavirus cardiopulmonary syndrome.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial; HEMATO = hematócrito; width suggests a coded category
+      rather than a raw lab value.
+
+      '
+  LAB_HEMA_N:
+    official_name: Resultado A - Hematócrito > 45%
+    translated_name: Blood test result - hematocrit above 45%
+    description: 'Whether the Hantavirose patient''s hematocrit exceeded 45% (hemoconcentration,
+      a hantavirus cardiopulmonary syndrome marker), one of a blood-panel checklist
+      (with LAB_TROMBO, LAB_ATIPIC, LAB_UREIA, LAB_TGO, LAB_TGP) run only if a blood
+      sample was drawn.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 38 "Resultado A"
+  LAB_IGG:
+    official_name: Resultado da sorologia IgG
+    translated_name: IgG serology result
+    description: 'Result of the IgG antibody test for hantavirus, distinguished from
+      LAB_OUTRO (any additional test) by targeting this specific serologic marker used
+      to confirm past or current infection.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; LAB_ prefix plus explicit IGG; numeric N1 matches a coded
+      reagent/non-reagent/inconclusive result.
+
+      '
+  LAB_IGG_R:
+    official_name: Resultado de sorologia IgG
+    translated_name: IgG serology result
+    description: 'Result of the IgG antibody test for hantavirus (e.g. reactive, non-reactive,
+      inconclusive) — the convalescent/later-phase serology marker, paired with the
+      broader lab work in LAB_L_OUT and LAB_OUT_D.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N1 coded field; LAB_ is the lab prefix, IGG names the antibody class,
+      R=resultado.
+  LAB_IGM:
+    official_name: Sorologia IgM
+    translated_name: IgM serology result
+    description: 'Result of the IgM antibody serology test for hantavirus (positive/negative/pending),
+      the primary acute-phase test used to laboratory-confirm the case.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial, IGM = imunoglobulina M; IgM ELISA is the standard
+      first-line confirmatory test for hantavirus infection.
+
+      '
+  LAB_IGM_R:
+    official_name: Resultado IgM
+    translated_name: IgM serology result
+    description: 'Result of the hantavirus IgM antibody serology test on blood collected
+      after symptom onset: 1 reagente, 2 não reagente, 3 inconclusivo, 4 não realizado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 43 "Resultado IgM"
+
+      '
+  LAB_IMUNO:
+    official_name: Resultado Imunohistoquímica
+    translated_name: Immunohistochemistry result
+    description: 'Result of immunohistochemistry testing for hantavirus antigen: positivo,
+      negativo, inconclusivo, or não realizado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 44 "Resultado Imunohistoquimica"
+  LAB_LEUC_N:
+    official_name: Leucócitos
+    translated_name: Leukocyte count (result category)
+    description: 'Categorized white-blood-cell finding for the hantavirus patient;
+      leukocytosis with immature forms is part of the classic hematologic triad (with
+      hemoconcentration and thrombocytopenia) supporting a hantavirus cardiopulmonary
+      syndrome diagnosis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LAB_ = laboratorial; LEUC = leucócitos; sits beside LAB_HEMATO.
+  LAB_LOCAL:
+    official_name: Alterações radiológicas - Infiltrado Pulmonar localizado
+    translated_name: Chest X-ray finding - localized pulmonary infiltrate
+    description: 'Whether the Hantavirose patient''s chest X-ray showed a localized
+      (rather than diffuse) pulmonary infiltrate; sibling finding to LAB_DIFUSO and
+      LAB_DERRAM.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 41 "Se sim, apresentou alguma destas
+      alterações?"
+  LAB_L_C_DE:
+    official_name: Resultado de exame laboratorial complementar
+    translated_name: Supplementary laboratory test result
+    description: 'Result of a second, named confirmatory laboratory test for hantavirus
+      (e.g. RT-PCR or immunohistochemistry) beyond the IgG serology captured in LAB_IGG.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; LAB_ prefix and N1 coded-result width match the sibling
+      LAB_IGG and LAB_OUTRO fields; exact test the truncated name refers to could not
+      be confirmed from evidence available.
+
+      '
+  LAB_L_OUT:
+    official_name: Local de outro exame
+    translated_name: Site of an additional lab test performed
+    description: 'Flag indicating an additional laboratory test was performed beyond
+      the routine IgG panel — the yes/no companion to the free-text detail recorded
+      in LAB_OUT_D.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N1 flag; LAB_=lab prefix, L_OUT reads local/outro (site/other test).
+  LAB_L_S_DE:
+    official_name: Leucocitose com desvio à esquerda
+    translated_name: Leukocytosis with left shift (flag)
+    description: 'Whether blood work showed leukocytosis with a left shift, a characteristic
+      laboratory finding in hantavirus cardiopulmonary syndrome alongside thrombocytopenia
+      and hemoconcentration.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial; L_S_DE plausibly abbreviates leucócitos / desvio
+      [à esquerda], a textbook hantavirus lab finding; N1 width fits a checkbox.
+
+      '
+  LAB_MICRON:
+    official_name: Achado laboratorial microscópico
+    translated_name: Microscopic lab finding
+    description: 'A categorized hematologic/blood-smear finding recorded in the hantavirus
+      lab workup, alongside hematocrit and leukocyte fields; the precise finding the
+      name targets is not certain from the field name alone.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial; sits in the same HANT lab block as LAB_HEMATO
+      and LAB_LEUC_N; "MICRON" does not map cleanly to a standard term, so this is
+      a lower-confidence read.
+
+      '
+  LAB_OUTRO:
+    official_name: Resultado de outro exame laboratorial
+    translated_name: Other laboratory test result
+    description: 'Result of a laboratory test for hantavirus that isn''t one of the
+      named test fields on the form (e.g. not IgG or the supplementary test in LAB_L_C_DE)
+      — a catch-all lab result slot.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; LAB_OUTRO reads "outro" (other); numeric N1 matches the
+      coded-result pattern of the other LAB_ fields on the same form.
+
+      '
+  LAB_OUT_D:
+    official_name: Outro exame - descrição
+    translated_name: Additional lab test, description
+    description: 'Free-text name of an extra laboratory test performed for hantavirus
+      confirmation beyond routine serology (e.g. PCR, immunohistochemistry) — the write-in
+      detail behind the LAB_L_OUT flag.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C18 text; OUT_D reads outro/descrição, pairing with LAB_L_OUT.
+  LAB_OUT_E:
+    official_name: Outro exame laboratorial
+    translated_name: Other lab exam performed (flag)
+    description: 'Whether an additional laboratory exam, beyond the standard hantavirus
+      panel (serology, RT-PCR, immunohistochemistry), was performed for case confirmation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial, OUT = outro, E = exame; standard "other exam"
+      flag pattern seen across SINAN lab sections, C1 width fits a checkbox.
+
+      '
+  LAB_RADIOL:
+    official_name: Alteração radiológica
+    translated_name: Chest X-ray abnormal
+    description: 'Whether the chest X-ray is abnormal. Bilateral infiltrates appearing
+      rapidly are the radiological hallmark, and often the first objective sign.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RADIOL reads radiológica; a yes/no flag.
+  LAB_REALIZ:
+    official_name: Exame laboratorial realizado
+    translated_name: Laboratory exam performed (flag)
+    description: 'Whether laboratory testing (blood count, serology) was carried out
+      at all for the hantavirus patient - the gating flag the specific result fields
+      (LAB_HEMATO, LAB_LEUC_N, etc.) depend on.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LAB_ = laboratorial; REALIZ = realizado; standard gating-flag pattern.
+  LAB_RES_B:
+    official_name: Resultado do hemograma
+    translated_name: Blood count result
+    description: 'The white cell picture: normal, raised with a left shift, raised
+      without one, or low. Raised with a left shift alongside low platelets is the
+      pattern that should raise hantavirus.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RESULTADOB.CNV
+    reasoning: 'Bound to RESULTADOB, whose values are normais, aumentados com desvio
+      à esquerda, aumentados sem desvio and diminuídos.
+
+      '
+  LAB_RTPCR:
+    official_name: Resultado RT-PCR
+    translated_name: RT-PCR result
+    description: 'Result of RT-PCR testing for hantavirus RNA: positivo, negativo,
+      inconclusivo, or não realizado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 46 "Resultado RT-PCR"
+  LAB_TGO_D:
+    official_name: Especifique TGO
+    translated_name: TGO (AST) result, specified
+    description: 'Free-text detail entered when the coded TGO/AST liver-enzyme result
+      on the Hantavirose blood panel is Sim (abnormal); sibling free-text field to
+      LAB_TGP_D for TGP/ALT.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 38 "Especifique TGO"
+  LAB_TGP_D:
+    official_name: Especifique TGP
+    translated_name: TGP (ALT) result, specified
+    description: 'Same role as LAB_TGO_D but for the TGP/ALT liver-enzyme result.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 38 "Especifique TGP"
+  LAB_TROMBO:
+    official_name: Resultado A - Trombocitopenia
+    translated_name: Thrombocytopenia result
+    description: 'Whether the blood exam showed thrombocytopenia (a low platelet count),
+      a lab finding checked for suspected hantavirus cardiopulmonary syndrome: 1 Sim,
+      2 Não, 3 Não realizado, 9 Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      campo 38 "Trombocitopenia"
+
+      '
+  MOAGEM_N:
+    official_name: Moagem de grãos
+    translated_name: Grain milling
+    description: 'Grain milling. Stored grain attracts rodents and milling aerosolises
+      the dust, combining both halves of the exposure.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MOAGEM reads moagem; an activity exposure flag.
+  OUTRA_ATIV:
+    official_name: Outra atividade de risco
+    translated_name: Other risk activity
+    description: Any exposure activity the named flags do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the activity block.
+  OUTR_ATI_D:
+    official_name: Outra atividade - descrição
+    translated_name: Other activity - description
+    description: 'Free-text description of a rodent-exposure activity behind a hantavirus
+      (HANT) case that isn''t among the form''s named risk activities (farming, hunting,
+      cleaning closed spaces, etc.).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; OUTR_ATI_D = outra atividade + descreva; width 40 free text.
+
+      '
+  PESCOU_N:
+    official_name: Pesca
+    translated_name: Fishing
+    description: Fishing, an outdoor exposure recorded among the activity flags.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PESCOU reads pescou; an activity exposure flag.
+  ROEDOR_N:
+    official_name: Contato com roedores
+    translated_name: Contact with rodents
+    description: 'Contact with rodents. The only route of transmission — the virus
+      is inhaled from dried rodent urine and droppings — so this and the activity flags
+      around it are the whole exposure history.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ROEDOR reads roedor; a yes/no exposure flag.
+  TRANSPO_N:
+    official_name: Transporte de grãos
+    translated_name: Grain transport
+    description: Transporting grain, an exposure related to the milling one.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TRANSPO reads transporte; an activity exposure flag.
+  TRA_ANTIVI:
+    official_name: Suporte Terapêutico - Usou Medicamento Antiviral (Ribavirina)
+    translated_name: Therapeutic support - used antiviral drug (Ribavirin)
+    description: 'Whether the hospitalized Hantavirose patient received ribavirin,
+      the antiviral historically tried against hantavirus pulmonary syndrome, as part
+      of supportive treatment. 1=Sim, 2=Não, 9=Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 52
+  TRA_CORTIC:
+    official_name: Uso de corticoide
+    translated_name: Corticosteroid used (flag)
+    description: 'Whether the hantavirus patient received corticosteroid treatment,
+      one item on the therapy checklist (alongside vasoactive drugs and mechanical
+      ventilation) used to manage hantavirus cardiopulmonary syndrome''s shock and
+      respiratory failure.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TRA_ = tratamento; CORTIC = corticoide; HANT series'' treatment block
+      also lists TRA_VASOAT, TRA_MECANI, TRA_CPAP.
+
+      '
+  TRA_CPAP:
+    official_name: Uso de CPAP
+    translated_name: CPAP used
+    description: 'Whether the hantavirus patient required CPAP (continuous positive
+      airway pressure) respiratory support, reflecting the severe respiratory failure
+      that Hantavirus Pulmonary Syndrome can cause.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; TRA_ is the treatment prefix, CPAP is the named respiratory
+      device; C1 width fits a yes/no treatment flag.
+
+      '
+  TRA_DT_ALT:
+    official_name: Data de alta
+    translated_name: Discharge date
+    description: 'Date the hospitalized hantavirus patient was discharged, closing
+      out the treatment/outcome section of the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HANT form; TRA_ treatment prefix with DT_ALT reading "data de alta";
+      declared N8 width matches an AAAAMMDD date stored as a numeric field.
+
+      '
+  TRA_DT_INT:
+    official_name: Data da internação
+    translated_name: Hospital admission date
+    description: 'Calendar date the Hantavirose patient was admitted to hospital, filled
+      in only when hospitalization occurred; must fall on or after both the date of
+      first symptoms and the date of first medical care.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 48
+  TRA_ESPECI:
+    official_name: Suporte Terapêutico - Outro Tipo de Tratamento (Especificar)
+    translated_name: Therapeutic support - other treatment type (specify)
+    description: 'Free-text description of an unlisted therapeutic support given to
+      the Hantavirose patient, filled in only when TRA_TRATAM records that some treatment
+      beyond the standard options (ventilator, antiviral, corticoid, vasoactive drugs,
+      antibiotics) was used.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 52
+  TRA_HOSP:
+    official_name: Ocorreu Hospitalização
+    translated_name: Hospitalization occurred
+    description: 'Whether the Hantavirose patient was hospitalized. 1=Sim opens the
+      internment and therapeutic-support block; 2=Não or 9=Ignorado skip straight past
+      hospital details to the case-classification questions.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 47
+  TRA_MECANI:
+    official_name: Suporte Terapêutico - Ficou no Respirador mecânico
+    translated_name: Therapeutic support - placed on mechanical ventilator
+    description: 'Whether the hospitalized Hantavirose patient was put on a mechanical
+      ventilator, reflecting respiratory failure severe enough to need artificial breathing
+      support. 1=Sim, 2=Não, 9=Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 52
+  TRA_TRATAM:
+    official_name: Suporte Terapêutico - Outro tipo de tratamento
+    translated_name: Therapeutic support - other treatment type
+    description: 'Whether the Hantavirose patient received a therapeutic support beyond
+      the listed options (ventilator, antiviral, corticosteroid, vasoactive drugs,
+      antibiotics); 1=Sim unlocks the free-text TRA_ESPECI field naming it.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 52
+  TRA_VASOAT:
+    official_name: Uso de droga vasoativa
+    translated_name: Vasoactive drug treatment
+    description: 'Whether the patient received vasoactive medication (e.g. norepinephrine)
+      to treat shock — relevant to hantavirus pulmonary syndrome''s cardiogenic-shock
+      phase, though the same field recurs on other severe-illness forms with a shock/ICU
+      section.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TRA_=tratamento per prefix convention, VASOAT=vasoativa; its file count
+      (20) far exceeds the rest of this HANT batch (8), indicating it is shared with
+      other severe-case forms rather than HANT-exclusive.
+
+      '
+  TREINA_MIL:
+    official_name: Treinamento militar
+    translated_name: Military training
+    description: 'Military training. Recorded separately because outdoor exercises
+      have produced recognised clusters.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TREINA_MIL reads treinamento militar; an activity exposure flag.

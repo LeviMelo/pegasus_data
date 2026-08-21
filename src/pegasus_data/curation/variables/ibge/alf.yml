@@ -1,0 +1,40 @@
+# IBGE.ALF — Literacy
+# Alfabetização
+#
+# Literate and illiterate population counts by area.
+system: IBGE
+asserted_by: pegasus_data
+
+variables:
+  POPALFAB:
+    official_name: População alfabetizada
+    translated_name: Literate population
+    description: 'Number of people counted as literate in the area. Literacy in the
+      census is self-declared ability to read and write a simple note, which is a lower
+      bar than functional literacy.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'POP is população and ALFAB alfabetizada, in a table whose other columns
+      are population counts.
+
+      '
+    notes: 'A count, not a rate. The denominator is the total population column, not
+      POPALFAB plus POPNALFAB, which exclude the age groups the question is not asked
+      of.
+
+      '
+  POPNALFAB:
+    official_name: População não alfabetizada
+    translated_name: Illiterate population
+    description: 'Number of people counted as not literate — the complement of POPALFAB
+      within the population the literacy question is asked of.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'N prefixed to ALFAB is the negation DATASUS uses elsewhere (HOSP_NSUS
+      for não-SUS); a population count in the same table.
+
+      '

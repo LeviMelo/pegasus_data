@@ -1,0 +1,928 @@
+# CNES.DC — Complementary data
+# Dados Complementares
+#
+# Additional establishment attributes not carried on the ST record.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+  ABRANDAD:
+    official_name: Indica se faz tratamento de agua com abrandador
+    translated_name: Water treatment with water softener
+    description: 'Flag (1-Sim, 0-Nao) for whether the establishment''s dialysis water-treatment
+      chain includes a water softener. This sits in the DC record''s dialysis-infrastructure
+      block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
+      specifically, not general building water treatment.'
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 34
+  ARMAZ_FT:
+    official_name: Numero de salas de armazenamento de fontes - (Radioterapia)
+    translated_name: Radiotherapy sealed-source storage rooms
+    description: Count of sealed-source storage rooms reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-infrastructure block. Establishments
+      without a registered radiotherapy service report 0 here, so a 0 does not by itself
+      mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 42
+  BLOCOPER:
+    official_name: Numero de salas de bloco personalizado - (Radioterapia)
+    translated_name: Radiotherapy custom-block fabrication rooms
+    description: Count of custom-block fabrication rooms reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-infrastructure block. Establishments
+      without a registered radiotherapy service report 0 here, so a 0 does not by itself
+      mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 45
+  CNS_ADM:
+    official_name: CNS do medico responsavel - ADMINISTRADOR OU RESPONSAVEL TECNICO
+    translated_name: CNS of the responsible administrator/technical director
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible administrator/technical director for the radiotherapy/oncology
+      service, on the DC record. Personal identifier of a named professional, not a
+      coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 67
+  CNS_CONC:
+    official_name: CNS do medico responsavel - CIRURGIA ONCOLOGICA
+    translated_name: CNS of the responsible oncologic surgeon
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible oncologic surgeon for the radiotherapy/oncology service,
+      on the DC record. Personal identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 69
+  CNS_CRES:
+    official_name: CNS do medico medico capacitado RESPONSAVEL
+    translated_name: CNS of the responsible qualified responsible physician
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible qualified responsible physician for the hemotherapy
+      service, on the DC record. Personal identifier of a named professional, not a
+      coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 109
+  CNS_FNUC:
+    official_name: CNS do medico responsavel - FISICO NUCLEAR
+    translated_name: CNS of the responsible nuclear/medical physicist
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible nuclear/medical physicist for the radiotherapy/oncology
+      service, on the DC record. Personal identifier of a named professional, not a
+      coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 72
+  CNS_HMTL:
+    official_name: CNS do medico responsavel - HEMATOLOGISTA
+    translated_name: CNS of the responsible hematologist
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible hematologist for the hemotherapy service, on the DC
+      record. Personal identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 108
+  CNS_HMTR:
+    official_name: CNS do medico responsavel - HEMOTERAPEUTA
+    translated_name: CNS of the responsible hemotherapist
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible hemotherapist for the hemotherapy service, on the DC
+      record. Personal identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 107
+  CNS_MRAD:
+    official_name: CNS do medico responsavel - RADIOTERAPEUTA
+    translated_name: CNS of the responsible radiotherapist
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible radiotherapist for the radiotherapy/oncology service,
+      on the DC record. Personal identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 71
+  CNS_NEFR:
+    official_name: CNS do MEDICO NEFROLOGISTA RESPONSAVEL
+    translated_name: CNS of the responsible nephrologist
+    description: National Health Card (CNS) number of the nephrologist formally designated
+      as responsible for the establishment's dialysis service, as declared on the DC
+      record. This is a personal identifier of a named professional, not a code with
+      a label.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 38
+    notes: Personal identifier (CNS). Cross-references a person in the PF file via
+      CNS_PROF; may be blank when no dialysis service is registered.
+  CNS_OCLIN:
+    official_name: CNS do medico responsavel - ONCOLOGISTA CLINICO
+    translated_name: CNS of the responsible clinical oncologist
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible clinical oncologist for the radiotherapy/oncology service,
+      on the DC record. Personal identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 70
+  CNS_OPED:
+    official_name: CNS do medico responsavel - ONCOLOGISTA PEDIATRICO
+    translated_name: CNS of the responsible pediatric oncologist
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible pediatric oncologist for the radiotherapy/oncology service,
+      on the DC record. Personal identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 68
+    notes: The layout PDF's OCR text renders this label as 'CNS_OPlD'; the catalogued
+      field name is CNS_OPED and the description follows the surrounding row order
+      (oncologista pediatrico).
+  CNS_RTEC:
+    official_name: CNS do medico responsavel - responsavel TECNICO / SOROLOGIA
+    translated_name: CNS of the responsible serology technical director
+    description: National Health Card (CNS) number of the physician the establishment
+      names as its responsible serology technical director for the hemotherapy service,
+      on the DC record. Personal identifier of a named professional, not a coded value.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 110
+  CONF_MAS:
+    official_name: Numero de salas confeccao masc. - (Radioterapia)
+    translated_name: Radiotherapy mask-fabrication rooms
+    description: Count of mask-fabrication rooms reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-infrastructure block. Establishments
+      without a registered radiotherapy service report 0 here, so a 0 does not by itself
+      mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 43
+  DEIONIZA:
+    official_name: Indica se faz tratamento de agua com deionizador
+    translated_name: Water treatment with deionizer
+    description: 'Flag (1-Sim, 0-Nao) for whether the establishment''s dialysis water-treatment
+      chain includes a deionizer. This sits in the DC record''s dialysis-infrastructure
+      block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
+      specifically, not general building water treatment.'
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 35
+  DIALISE:
+    official_name: Indica a existencia de algum REQUISITO DE DIALISE para este CNES
+    translated_name: Dialysis service requirements met
+    description: Flag (1-Sim, 0-Nao) summarizing whether the establishment meets the
+      set of declared dialysis-service requirements (water treatment, machines, responsible
+      nephrologist, etc.) captured elsewhere on this same DC record. It is a derived
+      compliance-style indicator rather than an independently observed fact.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 39
+    notes: Depends on the dialysis water-treatment flags, MAQ_PROP/MAQ_OUTR and CNS_NEFR
+      reported on the same record; treat as a summary, not a primary observation.
+  EQBRALTA:
+    official_name: Quantidade de Equipamentos de Braquiterapia Alta
+    translated_name: Radiotherapy - high-dose-rate brachytherapy units
+    description: Count of high-dose-rate brachytherapy units reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 61
+  EQBRBAIX:
+    official_name: Quantidade de Equipamentos de Braquiterapia Baixa
+    translated_name: Radiotherapy - low-dose-rate brachytherapy units
+    description: Count of low-dose-rate brachytherapy units reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 59
+  EQBRMEDI:
+    official_name: Quantidade de Equipamentos de Braquiterapia Media
+    translated_name: Radiotherapy - medium-dose-rate brachytherapy units
+    description: Count of medium-dose-rate brachytherapy units reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 60
+  EQDOSCLI:
+    official_name: Quantidade de dosimetro clinico
+    translated_name: Radiotherapy - clinical dosimeters
+    description: Count of clinical dosimeters reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-equipment block. As with the radiotherapy
+      room counts, 0 is the expected value for establishments with no radiotherapy
+      service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 65
+  EQFONSEL:
+    official_name: Quantidade de fontes seladas
+    translated_name: Radiotherapy - sealed radioactive sources
+    description: Count of sealed radioactive sources reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 66
+  EQSISPLN:
+    official_name: Quantidade de sistema de Computacao para Planejamento
+    translated_name: Radiotherapy - treatment-planning computer systems
+    description: Count of treatment-planning computer systems reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 64
+  EQ_MAREA:
+    official_name: Quantidade de Monitor de Area
+    translated_name: Radiotherapy - area radiation monitors
+    description: Count of area radiation monitors reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 62
+  EQ_MINDI:
+    official_name: Quantidade de Monitor Individual
+    translated_name: Radiotherapy - personal (individual) dosimetry monitors
+    description: Count of personal (individual) dosimetry monitors reported for the
+      establishment's radiotherapy service, on the DC record's radiotherapy-equipment
+      block. As with the radiotherapy room counts, 0 is the expected value for establishments
+      with no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 63
+  F_AREIA:
+    official_name: Indica se faz tratamento de agua com filtro de areia
+    translated_name: Water treatment with sand filter
+    description: 'Flag (1-Sim, 0-Nao) for whether the establishment''s dialysis water-treatment
+      chain includes a sand filter. This sits in the DC record''s dialysis-infrastructure
+      block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
+      specifically, not general building water treatment.'
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 32
+  F_CARVAO:
+    official_name: Indica se faz tratamento de agua com filtro de carvao
+    translated_name: Water treatment with carbon filter
+    description: 'Flag (1-Sim, 0-Nao) for whether the establishment''s dialysis water-treatment
+      chain includes a carbon filter. This sits in the DC record''s dialysis-infrastructure
+      block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
+      specifically, not general building water treatment.'
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 33
+  HEMOTERA:
+    official_name: Indica a existencia de algum REQUISITO DE HEMOTERAPIA para este
+      CNES
+    translated_name: Hemotherapy requirements met
+    description: Flag (1-Sim, 0-Nao) summarizing whether the establishment meets the
+      declared set of hemotherapy/blood-bank requirements (rooms, equipment, responsible
+      physicians) captured elsewhere on this DC record. Derived summary, like DIALISE
+      and QUIMRADI.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 111
+    notes: Depends on S_AFERES, the QT_* hemotherapy equipment counts and the hemotherapy
+      responsible-physician CNS fields on the same record (plus some hemotherapy room
+      fields outside this column range).
+  MAQ_OUTR:
+    official_name: Quantidade de outras maquinas
+    translated_name: Other dialysis machines
+    description: Count of dialysis machines of types other than the proportioning machines
+      counted in MAQ_PROP, reported on the same DC dialysis-service block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 31
+  MAQ_PROP:
+    official_name: Quantidade de maquinas de proporcao
+    translated_name: Proportioning dialysis machines
+    description: Count of proportioning ('de proporcao') hemodialysis machines reported
+      for the establishment's dialysis service, on the Dados Complementares (DC) record.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 30
+  ORTV1050:
+    official_name: Quantidade de Equipamentos de Ortovoltagem 10-50 KV
+    translated_name: Radiotherapy - orthovoltage units, 10-50 kV
+    description: Count of orthovoltage units, 10-50 kV reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 55
+  ORV50150:
+    official_name: Quantidade de Equipamentos de Ortovoltagem 50-150 KV
+    translated_name: Radiotherapy - orthovoltage units, 50-150 kV
+    description: Count of orthovoltage units, 50-150 kV reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 56
+  OSMOSE_R:
+    official_name: Indica se faz tratamento de agua com maquina de osmose reversa
+    translated_name: Water treatment with reverse-osmosis unit
+    description: 'Flag (1-Sim, 0-Nao) for whether the establishment''s dialysis water-treatment
+      chain includes a reverse-osmosis unit. This sits in the DC record''s dialysis-infrastructure
+      block (alongside CNS_NEFR/DIALISE): it describes water pretreatment for hemodialysis
+      specifically, not general building water treatment.'
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 36
+  OUT_TRAT:
+    official_name: Indica se faz tratamento de agua com outros tipos de equipamento
+    translated_name: Water treatment with other water-treatment equipment
+    description: 'Flag (1-Sim, 0-Nao) for whether the establishment''s dialysis water-treatment
+      chain includes a other water-treatment equipment. This sits in the DC record''s
+      dialysis-infrastructure block (alongside CNS_NEFR/DIALISE): it describes water
+      pretreatment for hemodialysis specifically, not general building water treatment.'
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 37
+  OV150500:
+    official_name: Quantidade de Equipamentos de Ortovoltagem 150-500 KV
+    translated_name: Radiotherapy - orthovoltage units, 150-500 kV
+    description: Count of orthovoltage units, 150-500 kV reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 57
+  PLANJ_RD:
+    official_name: Numero de salas de Planejamento - (Radioterapia)
+    translated_name: Radiotherapy treatment-planning rooms
+    description: Count of treatment-planning rooms reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-infrastructure block. Establishments
+      without a registered radiotherapy service report 0 here, so a 0 does not by itself
+      mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 41
+  QT_AGIPL:
+    official_name: Quantidade de agitadores de plaquetas
+    translated_name: Hemotherapy - platelet agitators
+    description: Count of platelet agitators reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 99
+  QT_AGLTN:
+    official_name: Quantidade de aglutinoscopio
+    translated_name: Hemotherapy - agglutinoscopes
+    description: Count of agglutinoscopes reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 102
+  QT_CADRE:
+    official_name: Quantidade de cadeiras reclinaveis
+    translated_name: Hemotherapy - reclining donor chairs
+    description: Count of reclining donor chairs reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 92
+  QT_CAPFL:
+    official_name: Quantidade de capelas fluxo laminar
+    translated_name: Hemotherapy - laminar-flow cabinets
+    description: Count of laminar-flow cabinets reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 106
+  QT_CENRE:
+    official_name: Quantidade de centrifugas refrigeradas
+    translated_name: Hemotherapy - refrigerated centrifuges
+    description: Count of refrigerated centrifuges reported for the establishment's
+      hemotherapy (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 93
+  QT_CONRA:
+    official_name: Quantidade de congeladores rapidos
+    translated_name: Hemotherapy - rapid/blast freezers
+    description: Count of rapid/blast freezers reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 95
+  QT_EXTPL:
+    official_name: Quantidade de extratores automaticos de plasma
+    translated_name: Hemotherapy - automatic plasma extractors
+    description: Count of automatic plasma extractors reported for the establishment's
+      hemotherapy (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 96
+  QT_FRE18:
+    official_name: Quantidade de freezers -18C
+    translated_name: Hemotherapy - -18C freezers
+    description: Count of -18C freezers reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 97
+  QT_FRE30:
+    official_name: Quantidade de freezers -30C
+    translated_name: Hemotherapy - -30C freezers
+    description: Count of -30C freezers reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 98
+  QT_IRRHE:
+    official_name: Quantidade de irradiadores de hemocomponentes
+    translated_name: Hemotherapy - blood-component irradiators
+    description: Count of blood-component irradiators reported for the establishment's
+      hemotherapy (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 101
+  QT_MAQAF:
+    official_name: Quantidade de maquinas de aferese
+    translated_name: Hemotherapy - apheresis machines
+    description: Count of apheresis machines reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 103
+  QT_REFAS:
+    official_name: Quantidade de refrigeradores para guarda de amostras de sangue
+    translated_name: Hemotherapy - blood-sample-storage refrigerators
+    description: Count of blood-sample-storage refrigerators reported for the establishment's
+      hemotherapy (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 105
+  QT_REFRE:
+    official_name: Quantidade de refrigeradores para guarda de reagentes
+    translated_name: Hemotherapy - reagent-storage refrigerators
+    description: Count of reagent-storage refrigerators reported for the establishment's
+      hemotherapy (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 104
+  QT_REFSA:
+    official_name: Quantidade de refrigeradores para guarda de sangue
+    translated_name: Hemotherapy - blood-storage refrigerators
+    description: Count of blood-storage refrigerators reported for the establishment's
+      hemotherapy (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 94
+  QT_SELAD:
+    official_name: Quantidade de seladoras
+    translated_name: Hemotherapy - tube/bag sealers
+    description: Count of tube/bag sealers reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-equipment block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 100
+  QUIMRADI:
+    official_name: Indica a existencia de algum REQUISITO DE QUIMIO/RADIO para este
+      CNES
+    translated_name: Chemo/radiotherapy requirements met
+    description: Flag (1-Sim, 0-Nao) summarizing whether the establishment meets the
+      declared set of requirements for chemotherapy/radiotherapy service (rooms, equipment,
+      responsible physicians) captured elsewhere on this DC record. Like DIALISE, it
+      is a derived summary rather than an independently observed fact.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 73
+    notes: Depends on the radiotherapy room/equipment counts and responsible-physician
+      CNS fields on the same record (and on chemotherapy-room fields outside this column
+      range); treat as a summary indicator.
+  SALA_MOL:
+    official_name: Numero de salas de salas de molde - (Radioterapia)
+    translated_name: Radiotherapy mould-room facilities
+    description: Count of mould-room facilities reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-infrastructure block. Establishments
+      without a registered radiotherapy service report 0 here, so a 0 does not by itself
+      mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 44
+  SIMUL_RD:
+    official_name: Numero de salas simulacao - (Radioterapia)
+    translated_name: Radiotherapy simulation rooms
+    description: Count of simulation rooms reported for the establishment's radiotherapy
+      service, on the DC record's radiotherapy-infrastructure block. Establishments
+      without a registered radiotherapy service report 0 here, so a 0 does not by itself
+      mean under-reporting.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 40
+  S_ACELL6:
+    official_name: Quantidade de Acelerador Linear ate 6 MeV
+    translated_name: Radiotherapy - linear accelerators up to 6 MeV
+    description: Count of linear accelerators up to 6 MeV reported for the establishment's
+      radiotherapy service, on the DC record's radiotherapy-equipment block. As with
+      the radiotherapy room counts, 0 is the expected value for establishments with
+      no radiotherapy service.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 52
+  S_AFERES:
+    official_name: Numero de salas de aferese
+    translated_name: Apheresis rooms
+    description: Count of apheresis rooms reported for the establishment's hemotherapy
+      (blood bank) service, on the DC record's hemotherapy-infrastructure block.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 78
+  S_ALCOME:
+    official_name: Aférese com equipamento
+    translated_name: Apheresis, with equipment
+    description: 'An apheresis capacity count paired with S_ALSEME. Which arrangement
+      each of the pair denotes is not established, and no values were observed.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AL with the COM/SEM contrast against S_ALSEME marks a with/without
+      pair in the blood bank block. Hedged: the pairing is evident, the subject is
+      not.
+
+      '
+  S_ALSEME:
+    official_name: Aférese sem equipamento
+    translated_name: Apheresis, without equipment
+    description: The complement of S_ALCOME, and hedged for the same reason.
+    code_system: none
+    source: inferred
+    reasoning: The SEM half of the COM/SEM pair opened by S_ALCOME.
+  S_ARMAZE:
+    official_name: Armazenamento
+    translated_name: Storage capacity
+    description: 'Storage capacity. Components have short and differing shelf lives
+      — platelets days, red cells weeks — so storage is a real constraint rather than
+      a formality.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ARMAZE reads armazenamento, in the S_ blood bank block.
+  S_BIOMOL:
+    official_name: Biologia molecular
+    translated_name: Molecular biology capacity
+    description: 'Molecular testing capacity. In a blood bank this is NAT screening,
+      which shortens the window period serology cannot cover.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BIOMOL reads biologia molecular, in the S_ block.
+  S_COLETA:
+    official_name: Coleta de sangue
+    translated_name: Blood collection capacity
+    description: 'Blood collection capacity in the establishment''s complementary data.
+      The S_ block counts capacity across the blood bank, dialysis and radiotherapy
+      services; all are N(3) counts with no values observed in the catalogue.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'S_ prefixes a block of N(3) service counts in the DC dataset; COLETA
+      reads coleta, the first step of the transfusion chain.
+
+      '
+  S_CONTRQ:
+    official_name: Controle de qualidade
+    translated_name: Quality control capacity
+    description: 'Quality control on the service''s own outputs — a regulatory requirement
+      for a blood establishment rather than an optional activity.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CONTRQ reads controle de qualidade, in the S_ block.
+  S_CPFLUX:
+    official_name: Citometria de fluxo
+    translated_name: Flow cytometry capacity
+    description: Flow cytometry capacity, the technique behind immunophenotyping.
+    code_system: none
+    source: inferred
+    reasoning: 'CPFLUX reads citometria de fluxo, sitting beside S_IMUNFE which depends
+      on it. Lower confidence than the plainly-named items in this block.
+
+      '
+  S_DISTRI:
+    official_name: Distribuição
+    translated_name: Distribution capacity
+    description: 'Distribution of components to the services that transfuse them. Many
+      hospitals do not collect blood and depend entirely on this step.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DISTRI reads distribuição, in the S_ blood bank block.
+  S_DPAC:
+    official_name: Diálise peritoneal ambulatorial contínua
+    translated_name: CAPD capacity
+    description: 'Continuous ambulatory peritoneal dialysis capacity. Done by the patient
+      at home rather than at a machine in a clinic, so it is capacity of a quite different
+      kind from haemodialysis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DPAC is the standard abbreviation for diálise peritoneal ambulatorial
+      contínua.
+  S_DPI:
+    official_name: Diálise peritoneal intermitente
+    translated_name: Intermittent peritoneal dialysis capacity
+    description: 'Intermittent peritoneal dialysis capacity — performed in sessions
+      at the service, as against the continuous home modality in S_DPAC.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DPI is the standard abbreviation for diálise peritoneal intermitente.
+  S_ESTOQU:
+    official_name: Estoque
+    translated_name: Stock capacity
+    description: Stock held, as against the physical storage capacity in S_ARMAZE.
+    code_system: none
+    source: inferred
+    reasoning: ESTOQU reads estoque, in the S_ blood bank block.
+  S_HBSAGN:
+    official_name: HBsAg não reagente
+    translated_name: HBsAg negative donations
+    description: Donations testing negative for HBsAg; the denominator for S_HBSAGP.
+    code_system: none
+    source: inferred
+    reasoning: N for negativo, the counterpart of S_HBSAGP.
+  S_HBSAGP:
+    official_name: HBsAg reagente
+    translated_name: HBsAg positive donations
+    description: 'Donations testing positive for hepatitis B surface antigen. A discard
+      figure, and a crude measure of hepatitis B prevalence among donors.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: HBSAG is the hepatitis B surface antigen and P positivo; paired with
+      S_HBSAGN.
+  S_HEMOST:
+    official_name: Hemostasia
+    translated_name: Haemostasis testing capacity
+    description: Coagulation and haemostasis testing capacity.
+    code_system: none
+    source: inferred
+    reasoning: HEMOST reads hemostasia, in the S_ block.
+  S_IMUNFE:
+    official_name: Imunofenotipagem
+    translated_name: Immunophenotyping capacity
+    description: 'Immunophenotyping capacity, used in diagnosing leukaemias rather
+      than in routine transfusion work.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: IMUNFE reads imunofenotipagem, in the S_ block.
+  S_IMUNOH:
+    official_name: Imuno-hematologia
+    translated_name: Immunohaematology capacity
+    description: 'Immunohaematology — blood grouping and antibody screening, which
+      is what makes a unit safe for a particular recipient rather than safe in general.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: IMUNOH reads imuno-hematologia, in the S_ blood bank block.
+  S_PREEST:
+    official_name: Pré-estoque
+    translated_name: Pre-stock capacity
+    description: 'Units held before release to stock — collected and processed, but
+      not yet cleared by serology.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PREEST reads pré-estoque, preceding S_ESTOQU in the chain.
+  S_PREPAR:
+    official_name: Preparo de hemocomponentes
+    translated_name: Component preparation capacity
+    description: Preparation of blood components for issue, following processing.
+    code_system: none
+    source: inferred
+    reasoning: PREPAR reads preparo, in the S_ blood bank block.
+  S_PRETRA:
+    official_name: Exames pré-transfusionais
+    translated_name: Pre-transfusion testing capacity
+    description: 'Pre-transfusion compatibility testing — the crossmatch performed
+      for a specific patient immediately before transfusion.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PRETRA reads pré-transfusional, in the S_ blood bank block.
+  S_PROCES:
+    official_name: Processamento
+    translated_name: Processing capacity
+    description: 'Processing whole blood into components — red cells, plasma, platelets.
+      One donation becomes several products, which is why processing capacity is counted
+      apart from collection.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PROCES reads processamento, in the S_ blood bank block.
+  S_QCDURA:
+    official_name: Controle de qualidade, duração
+    translated_name: Quality control duration
+    description: 'A duration recorded against quality control. What it measures is
+      not established from the catalogue and no values were observed.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QC reads controle de qualidade and DURA duração, paired with S_QLDURA.
+      Hedged deliberately: the pairing is clear, the quantity is not.
+
+      '
+  S_QLDURA:
+    official_name: Controle laboratorial, duração
+    translated_name: Laboratory control duration
+    description: 'A duration recorded against laboratory control, paired with S_QCDURA.
+      As with that field, the quantity itself is not established.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: QL against QC in a matched pair; both hedged for the same reason.
+  S_REAGN:
+    official_name: Amostras não reagentes
+    translated_name: Non-reactive samples
+    description: Samples non-reactive on screening; the counterpart of S_REAGP.
+    code_system: none
+    source: inferred
+    reasoning: N for negativo, the counterpart of S_REAGP.
+  S_REAGP:
+    official_name: Amostras reagentes
+    translated_name: Reactive samples
+    description: 'Samples reactive on screening, across the serology panel rather than
+      for one marker. Reactive is not confirmed positive: screening is deliberately
+      over-sensitive.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: REAG reads reagente and P positivo; paired with S_REAGN.
+  S_RECEPC:
+    official_name: Recepção de doadores
+    translated_name: Donor reception capacity
+    description: Donor reception capacity, the step before collection in the blood
+      bank chain.
+    code_system: none
+    source: inferred
+    reasoning: RECEPC reads recepção, in the S_ blood bank block.
+  S_REHCV:
+    official_name: Reagentes para HCV
+    translated_name: HCV reactive samples
+    description: 'Samples reactive for hepatitis C. Broken out from the general reactive
+      count because hepatitis C was the marker that most changed transfusion safety
+      when testing arrived.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: RE reads reagente and HCV the hepatitis C virus; in the S_ serology
+      block.
+  S_SGDOAD:
+    official_name: Sangue de doador
+    translated_name: Donor blood capacity
+    description: Capacity relating to donor blood as a product line within the service.
+    code_system: none
+    source: inferred
+    reasoning: SGDOAD reads sangue de doador, in the S_ blood bank block.
+  S_SIMULA:
+    official_name: Simulador de radioterapia
+    translated_name: Radiotherapy simulator capacity
+    description: 'Radiotherapy simulator capacity. Simulation plans where the beam
+      will go before any treatment is given, so it is a bottleneck ahead of the treatment
+      machines.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SIMULA reads simulador and sits beside UN_COBAL, placing it in the
+      radiotherapy part of the complementary data.
+
+      '
+  S_SOROLO:
+    official_name: Sorologia
+    translated_name: Serology capacity
+    description: 'Serological testing of donated blood. The step that keeps transfusion-
+      transmitted infection out of the supply, and the reason the HBsAg and reagent
+      counts below exist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: SOROLO reads sorologia, in the S_ blood bank block.
+  S_TRANSF:
+    official_name: Transfusão
+    translated_name: Transfusion capacity
+    description: The transfusion itself, the last step of the chain the rest of this
+      block supports.
+    code_system: none
+    source: inferred
+    reasoning: TRANSF reads transfusão, in the S_ blood bank block.
+  S_TRICLI:
+    official_name: Triagem clínica
+    translated_name: Clinical screening capacity
+    description: 'Clinical screening of donors — the interview that excludes donors
+      on history before any blood is taken.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TRICLI reads triagem clínica, in the S_ blood bank block.
+  S_TRIHMT:
+    official_name: Triagem hematológica
+    translated_name: Haematological screening capacity
+    description: 'Haematological screening of donors — the blood count that excludes
+      anaemic donors, as against the interview in S_TRICLI.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TRIHMT reads triagem hematológica, in the S_ blood bank block.
+  UN_COBAL:
+    official_name: Unidades de cobalto
+    translated_name: Cobalt units
+    description: 'Cobalt-60 teletherapy units. Older technology than the linear accelerators
+      that have replaced it, so a count above zero dates the service''s equipment.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'UN reads unidade and COBAL cobalto; cobalt-60 teletherapy, beside the
+      radiotherapy simulator count.
+
+      '

@@ -1,0 +1,68 @@
+# CNES.LT — Beds
+# Leitos
+#
+# Bed counts by establishment and bed type.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+  CODLEITO:
+    official_name: Especialidade do leito
+    translated_name: Bed specialty
+    description: 'Which specialty the beds on this row belong to, on the same 71-entry
+      list the QTLEIT columns are numbered by. In the LT dataset the specialty is a
+      column rather than being encoded in the column name.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ESP_LEIT.CNV
+    reasoning: Bound to ESP_LEIT, the bed specialty codelist.
+  QT_CONTR:
+    official_name: Quantidade de leitos contratados
+    translated_name: Contracted beds
+    description: 'Beds the establishment has contracted to SUS. A contractual figure
+      rather than a physical one, so it can differ from QT_SUS, which is what is actually
+      made available.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(4) tally in the bed record; CONTR reads contratado.
+  QT_NSUS:
+    official_name: Quantidade de leitos não SUS
+    translated_name: Beds not available to SUS
+    description: 'Beds reserved for private and supplementary-health patients. Adding
+      these to QT_SUS gives the hospital''s total capacity, which answers a different
+      question from SUS capacity.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(4) count paired with QT_SUS; NSUS reads não SUS.
+  QT_SUS:
+    official_name: Quantidade de leitos SUS
+    translated_name: Beds available to SUS
+    description: 'Beds this establishment makes available to SUS. The figure to use
+      for public capacity; QT_NSUS holds the rest and the two must not be added when
+      the question is about SUS.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(4) count paired with QT_NSUS; SUS names the public system.
+  TP_LEITO:
+    official_name: Tipo de leito
+    translated_name: Bed type
+    description: 'The coarse grouping above the specialty — surgical, clinical, complementary,
+      obstetric, paediatric, other, or day hospital. Complementary beds are intensive
+      care, so this field is how ICU capacity is isolated.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LT_H_COM.CNV
+    reasoning: 'Bound to TIP1LEIT, whose values are cirúrgico, clínico, complementar,
+      obstétrico, pediátrico, outras especialidades and hospital/dia.
+
+      '

@@ -1,0 +1,219 @@
+# SINAN.ACGR —
+#
+# one notification of serious work-related accident
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ATENDE_MED:
+    official_name: Atendimento médico
+    translated_name: Medical care given
+    description: Whether the worker received medical care after the accident.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ATENDE_MED reads atendimento médico; a yes/no flag.
+  CID_ACID:
+    official_name: CID do acidente
+    translated_name: Accident CID code
+    description: 'The CID-10 code for the accident itself — how it happened, on the
+      external causes chapter.
+
+      '
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to AGRAVNET.
+  CID_LESAO:
+    official_name: CID da lesão
+    translated_name: Injury CID code
+    description: 'The CID-10 code for the resulting injury. Paired with CID_ACID, which
+      records the mechanism: one says how, the other says what.
+
+      '
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to AGRAVNET.
+  CNAE_PRIN:
+    official_name: CNAE da atividade econômica
+    translated_name: Economic activity code
+    description: 'The employer''s economic activity on the CNAE classification. What
+      makes occupational accident rates comparable between industries, and the field
+      that identifies the dangerous ones.
+
+      '
+    code_system: external
+    codelist: cnae
+    source: inferred
+    reasoning: C(10) CNAE code bound to CNAENET, the economic activity codelist.
+  HORA_ACID:
+    official_name: Hora do Acidente
+    translated_name: Hour of accident
+    description: 'Hour of the day, 0 through 23, at which the reported work accident
+      occurred, paired with a separate minutes field to give the accident''s clock
+      time.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf, campo 50
+  HORA_JOR:
+    official_name: Horas após início da jornada
+    translated_name: Hours into work shift at accident
+    description: 'Number of whole hours elapsed since the worker''s shift began when
+      the accident happened, used to study whether fatigue late in a shift raises accident
+      risk.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf, campo 51
+  LOCAL_ACID:
+    official_name: Local onde ocorreu o acidente
+    translated_name: Where the accident happened
+    description: 'Where the reported work accident physically took place: the employer''s
+      own premises, a public street, a third party''s premises, the worker''s own home,
+      or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf, campo 34
+  MAIS_TRAB:
+    official_name: Houve Outros Trabalhadores Atingidos?
+    translated_name: Other workers also affected
+    description: 'Whether other workers, besides the one being notified, were also
+      injured in the same work accident: yes, no, or unknown; a following field records
+      how many if yes.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf, campo 56
+  MIN_ACID:
+    official_name: Minuto do acidente
+    translated_name: Accident time - minute
+    description: 'Minute component of the clock time a severe workplace accident occurred,
+      paired with an hour field; used with MIN_JOR to timestamp both when the accident
+      happened and how far into the shift the worker was.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C2, two digits — consistent
+      with a minute value) and ACGR (Acidente de Trabalho Grave) series membership.
+      "MIN" plus "ACID" (acidente) decomposes directly to a minute-of-accident field,
+      a standard companion to an hour field on severe-accident investigation forms.
+
+      '
+  MIN_JOR:
+    official_name: Minuto da jornada
+    translated_name: Work-shift elapsed time - minute
+    description: 'Minute component of how far into the worker''s shift (jornada) the
+      accident occurred, sibling to MIN_ACID which timestamps the accident''s clock
+      time rather than shift-elapsed time.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same basis as MIN_ACID: C2 width and ACGR series membership, with "JOR"
+      (jornada) distinguishing this from the accident-clock-time sibling.
+
+      '
+  MUN_ACID:
+    official_name: Município do acidente
+    translated_name: Municipality of the accident
+    description: 'Municipality where the accident happened. Not necessarily where the
+      worker lives or was treated, which is why all three are recorded.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code in the accident-location block.
+  MUN_ATENDE:
+    official_name: Município do atendimento
+    translated_name: Municipality of treatment
+    description: 'Municipality where the worker was treated. Severe accidents are referred
+      to larger centres, so this clusters differently from MUN_ACID.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code in the treatment-location block.
+  NU_TRAB:
+    official_name: Número de trabalhadores expostos ao mesmo risco
+    translated_name: Number of workers exposed to the same risk
+    description: 'Count of workers at the establishment exposed to the same hazard
+      that caused this severe work accident, recorded on the ACGR (Acidente de Trabalho
+      Grave) form to gauge how many others were at risk, not just the injured worker.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_ = número, TRAB = trabalhadores; the field belongs to the ACGR (severe
+      occupational accident) series, whose form asks how many workers share the accident''s
+      risk; width 5 supports a headcount.
+
+      '
+  PART_CORP1:
+    official_name: Parte do corpo atingida (1ª)
+    translated_name: Body part injured (1st)
+    description: 'Coded body region injured in a severe (ACGR) work accident - first
+      of up to three selections the form allows, since one accident can affect more
+      than one body part (e.g. head, hand, trunk).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PART_CORP = parte do corpo, numbered 1-3 for multiple selections; width
+      2 fits a short region code with no bound codelist in the catalog.
+
+      '
+  PART_CORP2:
+    official_name: Parte do corpo atingida (2ª)
+    translated_name: Body part injured (2nd)
+    description: 'Second body region injured, recorded alongside PART_CORP1 when the
+      severe work accident affected more than one part of the body; same coding scheme
+      as PART_CORP1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Second of three same-pattern fields; see PART_CORP1.
+  PART_CORP3:
+    official_name: Parte do corpo atingida (3ª)
+    translated_name: Body part injured (3rd)
+    description: 'Third body region injured, completing the up-to-three-part injury
+      record alongside PART_CORP1 and PART_CORP2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Third of three same-pattern fields; see PART_CORP1.
+  UF_ACID:
+    official_name: UF do acidente
+    translated_name: State of the accident
+    description: State where the accident happened.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code in the accident-location block.
+  UF_ATENDE:
+    official_name: UF do atendimento
+    translated_name: State of treatment
+    description: State where the worker was treated.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code in the treatment-location block.
+  UNI_ATENDE:
+    official_name: Unidade de atendimento
+    translated_name: Treating establishment
+    description: The establishment that treated the worker, by CNES code.
+    code_system: internal
+    source: def
+    source_ref: UNIDINVEST.CNV
+    reasoning: C(7) establishment code bound to UNIDINVEST.

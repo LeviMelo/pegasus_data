@@ -1,0 +1,360 @@
+# SINAN.SRC — Congenital rubella syndrome
+# Síndrome da Rubéola Congênita
+#
+# One case of congenital rubella syndrome.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AUDITIVA:
+    official_name: Deficiência auditiva
+    translated_name: Hearing loss
+    description: 'Sensorineural deafness. The commonest manifestation, and often the
+      only one, which is why a baby who looks normal at birth still needs testing.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: AUDITIVA reads auditiva; a clinical flag.
+  BLOQUEIO:
+    official_name: Bloqueio vacinal
+    translated_name: Vaccination sweep
+    description: Whether a vaccination sweep was carried out around the case.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: BLOQUEIO reads bloqueio vacinal; a yes/no flag.
+  CARDIOPATI:
+    official_name: Cardiopatia congênita
+    translated_name: Congenital heart disease
+    description: 'Congenital heart disease, typically patent ductus arteriosus or pulmonary
+      artery stenosis. The third element of the classic triad.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CARDIOPATI reads cardiopatia; a clinical flag.
+  CATARATA:
+    official_name: Catarata
+    translated_name: Cataract
+    description: 'Congenital cataract. One of the classic triad — cataract, deafness,
+      heart defect — that defines congenital rubella syndrome.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CATARATA reads catarata; a yes/no clinical flag.
+  CS_LIQUOR:
+    official_name: Coleta - líquor
+    translated_name: Specimen collected - CSF
+    description: 'Sim/Não flag for whether a cerebrospinal fluid (líquor) sample was
+      collected for laboratory testing, part of a specimen-collection checklist alongside
+      CS_SECRECA and CS_URINA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LIQUOR is CSF; the CS_ prefix here marks specimen collection rather
+      than the classificação/situação sense it carries in CS_MENING, and it clusters
+      with two other named-specimen flags of identical shape.
+
+      '
+  CS_SECRECA:
+    official_name: Coleta - secreção
+    translated_name: Specimen collected - secretion
+    description: 'Sim/Não flag for whether a secretion sample was collected, sibling
+      of CS_LIQUOR and CS_URINA in the same specimen-collection checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as CS_LIQUOR.
+  CS_URINA:
+    official_name: Coleta - urina
+    translated_name: Specimen collected - urine
+    description: 'Sim/Não flag for whether a urine sample was collected, sibling of
+      CS_LIQUOR and CS_SECRECA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as CS_LIQUOR.
+  DG_OUT_N:
+    official_name: Diagnóstico outro (nome)
+    translated_name: Other diagnosis (name)
+    description: 'Free-text name of a diagnosis not covered by the form''s standard
+      diagnosis codelist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DG abbreviates diagnóstico; OUT_N matches SINAN''s "other, name it"
+      free-text pattern, at 30-character width.
+
+      '
+  DIAG_MAE:
+    official_name: Critério do diagnóstico materno
+    translated_name: How the mother was diagnosed
+    description: 'Whether the mother''s rubella was confirmed by laboratory, by epidemiological
+      link, or clinically. Clinical diagnosis is unreliable for rubella, so the criterion
+      bounds the certainty of the whole case.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CONFSRC.CNV
+    reasoning: 'Bound to CONFSRC, whose values are laboratório, vínculo epidemiológico
+      and clínico.
+
+      '
+  DSCARDIOP:
+    official_name: Descrição - cardiopatia
+    translated_name: Description - cardiac condition
+    description: 'Free-text description of a cardiac comorbidity (cardiopatia) recorded
+      for the patient.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DSCARDIOP contracts descrição + cardiopatia; 30-character free text.
+  DS_RESU_OU:
+    official_name: Descrição - resultado outro
+    translated_name: Description - other result
+    description: 'Free-text description of a laboratory result not covered by the form''s
+      standard result options.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: RESU_OU contracts resultado + outro; 30-character free text.
+  DT_COL1:
+    official_name: Data da primeira coleta
+    translated_name: Date of first sample
+    description: 'When the first serum was taken. Rubella IgM in a newborn is diagnostic
+      because it cannot have crossed the placenta.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of three samples.
+  DT_COL2:
+    official_name: Data da segunda coleta
+    translated_name: Date of second sample
+    description: When the second serum was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of three samples.
+  DT_COL3:
+    official_name: Data da terceira coleta
+    translated_name: Date of third sample
+    description: 'When the third serum was taken. Persisting IgG beyond about six months
+      confirms the child''s own antibody rather than the mother''s.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third of three samples.
+  DT_VACINA:
+    official_name: Data da vacinação da mãe
+    translated_name: Date mother was vaccinated
+    description: 'When the mother was vaccinated. Rubella vaccine in early pregnancy
+      is a theoretical concern, so this date against the pregnancy matters.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the maternal antecedent block.
+  GLAUCOMA:
+    official_name: Glaucoma congênito
+    translated_name: Congenital glaucoma
+    description: Congenital glaucoma, the other major eye manifestation beside cataract.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: GLAUCOMA reads glaucoma; a clinical flag.
+  HEPA_ESP:
+    official_name: Hepatoesplenomegalia
+    translated_name: Enlarged liver and spleen
+    description: Enlarged liver and spleen, another sign of active infection at birth.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: HEPA_ESP reads hepatoesplenomegalia; a clinical flag.
+  IDADEMAE:
+    official_name: Idade da mãe
+    translated_name: Mother's age
+    description: 'Mother''s age in completed years at the time of the congenital-syphilis
+      investigation, a plain two-digit numeric field on the SRC (Sífilis Congênita)
+      form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (N2, two-digit numeric) and
+      SRC series membership. "IDADEMAE" decomposes unambiguously to "idade da mãe",
+      and congenital syphilis is the one SINAN agravo whose subject is an infant, making
+      the mother''s age a standard companion field to the child''s own age.
+
+      '
+  ID_DG_DES:
+    official_name: Diagnóstico diferencial
+    translated_name: Differential diagnosis
+    description: 'Which other congenital infection was considered — toxoplasmosis,
+      congenital syphilis, cytomegalovirus, or another. These produce a nearly identical
+      picture, so the differential is the point of the field.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CRITRUBENET.CNV
+    reasoning: 'Bound to CRITRUBENET, whose values are toxoplasmose, sífilis congênita,
+      citomegalovírus and outras.
+
+      '
+  MENINGO:
+    official_name: Meningoencefalite
+    translated_name: Meningoencephalitis
+    description: Meningoencephalitis in the newborn, part of the acute infection.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MENINGO reads meningoencefalite; a clinical flag.
+  MICROCEFA:
+    official_name: Microcefalia
+    translated_name: Microcephaly
+    description: 'Small head circumference. Part of the central nervous system involvement
+      that follows infection early in pregnancy.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MICROCEFA reads microcefalia; a clinical flag.
+  OSSEA:
+    official_name: Alteração óssea
+    translated_name: Bone abnormality
+    description: 'Radiological bone changes, the "celery stalk" appearance of the long
+      bone metaphyses.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: OSSEA reads óssea; a clinical flag.
+  PERIODO:
+    official_name: Período gestacional da infecção
+    translated_name: Gestational period of infection
+    description: 'Trimester (or equivalent period) of pregnancy in which the mother''s
+      rubella infection likely occurred, recorded on the Congenital Rubella Syndrome
+      (SRC) form because earlier infection carries higher fetal-defect risk.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: SRC form; PERIODO = período; width 1 coded value.
+  PURPURA:
+    official_name: Púrpura
+    translated_name: Purpura
+    description: 'The "blueberry muffin" purpura of congenital rubella, from low platelets
+      and extramedullary haematopoiesis. Present at birth and transient.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PURPURA reads púrpura; a clinical flag.
+  RECEM_NASC:
+    official_name: Recém-nascido
+    translated_name: Newborn (flag)
+    description: 'Whether the Congenital Rubella Syndrome (SRC) case is being reported
+      for a newborn, as opposed to an older infant identified later, affecting which
+      clinical/lab findings are expected at notification.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: SRC form; RECEM_NASC = recém-nascido; width 1 checkbox.
+  RETAR_PM:
+    official_name: Retardo do desenvolvimento
+    translated_name: Developmental delay
+    description: 'Delayed psychomotor development. A later finding than the birth defects,
+      so it only appears where the child was followed up.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RETAR_PM reads retardo psicomotor; a clinical flag.
+  RETINOPA:
+    official_name: Retinopatia
+    translated_name: Retinopathy
+    description: 'The pigmentary retinopathy of congenital rubella. Does not usually
+      affect vision, but it is a durable marker long after the infection.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RETINOPA reads retinopatia; a clinical flag.
+  S3_IGG:
+    official_name: IgG na terceira amostra
+    translated_name: IgG, third sample
+    description: 'IgG on the third serum. Maternal IgG has waned by then, so persisting
+      IgG is the child''s own and confirms infection.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the third sample's IgG.
+  S3_IGM:
+    official_name: IgM na terceira amostra
+    translated_name: IgM, third sample
+    description: IgM on the third serum, completing the antibody sequence.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the third sample's IgM.
+  VACINACAO:
+    official_name: Situação vacinal da mãe (rubéola)
+    translated_name: Mother's rubella vaccination status
+    description: 'Whether the mother was vaccinated against rubella, recorded on the
+      congenital rubella syndrome form since maternal immunity is what prevents the
+      syndrome in the first place.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is SRC (síndrome da rubéola congênita); name reads "vacinação";
+      C1 width fits a coded yes/no immunization flag.
+
+      '
+  VACINADUPL:
+    official_name: Vacina dupla viral
+    translated_name: Measles-rubella (dupla viral) vaccination history
+    description: 'Whether the mother had received the dupla viral (measles-rubella)
+      vaccine before or during pregnancy — used on the congenital rubella syndrome
+      form to assess maternal vaccination failure or gaps.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; VACINA=vacina, DUPL=dupla, in the SRC (síndrome da rubéola
+      congênita) stratum.
+  VACINARUBE:
+    official_name: Vacinação anti-rubéola da mãe
+    translated_name: Maternal rubella vaccination (flag)
+    description: 'Whether the mother was vaccinated against rubella before or during
+      pregnancy - maternal immunization history used to assess congenital rubella syndrome
+      (SRC) risk in the newborn.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'VACINA = vacina, RUBE = rubéola; maternal rubella immunity is the central
+      preventable risk factor investigated for SRC, C1 fits a checkbox.
+
+      '

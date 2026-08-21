@@ -1,0 +1,31 @@
+# SINASC.DNR — Live births, corrected base
+# Nascidos Vivos, base retificada
+#
+# The corrected republication of DN.
+system: SINASC
+asserted_by: pegasus_data
+
+variables:
+  CODIGO:
+    official_name: Código do estabelecimento de ocorrência
+    translated_name: Facility code where the birth occurred (locally coded)
+    description: 'Code of the health establishment where the birth occurred, filled
+      when the birth took place at a hospital or other health facility. Locally assigned
+      by each state or municipality in this 1994-1995 layout, not a national registry
+      code.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'SIM''s parallel legacy layout has an identically-named CODIGO field,
+      "Codigo do estabelecimento onde ocorreu o obito...não fazendo parte da base nacional"
+      (ESTRUTURA-SIM pos. 12), filled only when the place of occurrence was a health
+      facility. SINASC''s CODIGO is read as the birth-record counterpart of the same
+      convention.
+
+      '
+    notes: 'Not a CNES registry code — CNES numbering for the facility of birth arrives
+      later as CODESTAB (SINASC''s 1996+ layout, from year 2000).
+
+      '

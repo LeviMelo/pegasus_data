@@ -226,7 +226,7 @@ class Ontology:
     def load(cls, curation_dir: Path | None = None) -> Ontology:
         """Read the declaration from ``curation/``.
 
-        SINAN's per-agravo datasets live in ``datasets_sinan.yml`` rather than
+        SINAN's per-agravo datasets live in ``datasets/sinan_agravos.yml`` rather than
         being restated here — one agravo per dataset, 58 of them, and they were
         already curated. They are folded in as dataset nodes so that
         ``info("SINAN.DENG")`` resolves like any other.
@@ -263,7 +263,7 @@ class Ontology:
             )
 
         # SINAN agravos, declared in their own file.
-        sinan_path = root / "datasets_sinan.yml"
+        sinan_path = root / "datasets" / "sinan_agravos.yml"
         if sinan_path.exists():
             for code, body in (_read_yaml(sinan_path).get("datasets") or {}).items():
                 body = body or {}

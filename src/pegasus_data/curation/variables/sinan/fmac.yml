@@ -1,0 +1,397 @@
+# SINAN.FMAC —
+#
+# one notification of spotted fever
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AMBIENTE:
+    official_name: Ambiente de exposição
+    translated_name: Exposure setting
+    description: 'Where the exposure happened — home, work, leisure, or other. Leisure
+      exposure near rivers and parks is a recognised pattern, since that is where capybara
+      populations concentrate.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: AMBIENTE.CNV
+    reasoning: 'Bound to AMBIENTE, whose values are domiciliar, trabalho, lazer and
+      outro.
+
+      '
+  ANIM_ESP:
+    official_name: Espécie do animal
+    translated_name: Animal species
+    description: 'Free-text species of an animal involved in the case''s exposure history
+      (e.g. the biting or contact animal), distinct from the coded per-species Sim/Não
+      flags (BOVINO, CAO_GATO, CAPIVARA) elsewhere on the same checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ESP abbreviates espécie; 30-character width fits free text, unlike
+      the 1-character per-species flags around it.
+
+      '
+  BOVINO:
+    official_name: Bovino
+    translated_name: Cattle
+    description: 'Sim/Não flag for contact/exposure with cattle, part of an animal-
+      contact checklist alongside CAO_GATO, CAPIVARA and CARRAPATO — consistent with
+      a zoonotic-disease exposure history (e.g. leptospirose, febre maculosa).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'BOVINO names the species directly; 1-character width matches the other
+      per-animal contact flags at the same rarity tier.
+
+      '
+  CAO_GATO:
+    official_name: Cão/gato
+    translated_name: Dog/cat
+    description: 'Sim/Não flag for contact with dogs or cats, sibling of BOVINO in
+      the same animal-contact checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as BOVINO.
+  CAPIVARA:
+    official_name: Capivara
+    translated_name: Capybara
+    description: 'Sim/Não flag for contact/exposure with capybaras, a known tick host
+      and reservoir for febre maculosa (Brazilian spotted fever); sibling of CARRAPATO
+      in the same exposure checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CAPIVARA names the species; its pairing with CARRAPATO (tick) in the
+      same checklist points to febre maculosa rather than a generic zoonosis.
+
+      '
+  CARRAPATO:
+    official_name: Carrapato
+    translated_name: Tick
+    description: 'Sim/Não flag for tick contact/bite, the strongest single indicator
+      in this cluster that the source form is a febre maculosa (Brazilian spotted fever)
+      investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CARRAPATO is tick; pairs with CAPIVARA, a well-known tick host in febre
+      maculosa transmission.
+  COMA:
+    official_name: Coma
+    translated_name: Coma (flag)
+    description: 'Whether the patient presented with coma - a severe neurological complication
+      of Brazilian spotted fever, whose rickettsial vasculitis can progress to encephalitis
+      and coma in fulminant cases.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: COMA = coma; FMAC's severity/complications checklist (with CHOQUE, CONVULSAO,
+      HEMORRAGI).
+  COMUNHOSP:
+    official_name: Município de hospitalização
+    translated_name: Municipality of hospitalisation
+    description: 'Municipality where the patient was admitted. Spotted fever kills
+      within days untreated, so the distance from exposure to a hospital that recognises
+      it is itself a risk factor.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; COMUNHOSP reads código município hospitalização.
+  CONVULSAO:
+    official_name: Convulsão
+    translated_name: Seizure (complication)
+    description: 'Whether the patient had seizures — a severe neurological complication
+      of Brazilian spotted fever, recorded alongside the respiratory-complication flag
+      RESPIRATO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named directly for the finding.
+  COUFHOSP:
+    official_name: UF de hospitalização
+    translated_name: State of hospitalisation
+    description: State where the patient was admitted.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; COUFHOSP reads código UF hospitalização.
+  DIAGNO_LAB:
+    official_name: Diagnóstico laboratorial realizado
+    translated_name: Laboratory diagnosis done
+    description: 'Whether laboratory diagnosis was attempted. Treatment must start
+      on suspicion alone — waiting for confirmation is what kills patients — so this
+      field is about the investigation rather than the care.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DIAGNO_LAB reads diagnóstico laboratorial; a yes/no flag.
+  DIAG_DESCA:
+    official_name: Diagnóstico de descarte
+    translated_name: Alternative diagnosis on discard
+    description: 'Alternative/definitive diagnosis recorded when a suspected spotted
+      fever case is discarded (descartado) on investigation - explains what the illness
+      turned out to be instead.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DIAG_DESCA = diagnóstico + descarte; FMAC carries CLASSI_FIN/CRITERIO
+      for the confirm/discard decision itself.
+  DTS1:
+    official_name: Data - sinal/sintoma 1
+    translated_name: Date of first sign/symptom
+    description: 'Date of symptom or sign onset for a Brazilian spotted fever (FMAC)
+      case, establishing the case timeline that the necrotic-lesion field NECROSE is
+      assessed against.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT = data, S1 = sinal/sintoma 1; D8 date type fits, though the exact
+      milestone ("S1") is not confirmed by other catalog evidence.
+
+      '
+  DTS2:
+    official_name: Data do 2º soro
+    translated_name: Date of 2nd serum sample
+    description: 'Collection date of the second (convalescent-phase) serum sample in
+      spotted fever''s paired-serology protocol - mirrors dengue''s DT_SORO1/SORO2
+      pattern, read against the IgG/IgM S1/S2 titer fields also on this form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DTS2 = data soro 2; FMAC series carries matching TIT_IGG_S2/TIT_IGM_S2
+      titer fields and an unlisted DTS1 sibling.
+
+      '
+  EQUINOS:
+    official_name: Contato com equinos
+    translated_name: Contact with horses
+    description: 'Whether the Brazilian spotted fever (Febre Maculosa) patient had
+      contact with horses, a recognized amplifying host for the Amblyomma ticks that
+      transmit Rickettsia rickettsii.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
+      Horse contact is a documented epidemiological risk factor for Brazilian spotted
+      fever, and the field sits among other exposure/clinical-sign flags (FOI_MATA,
+      HEMORRAG, HIPEREMIA, LINFADENO) confirmed to share this series.
+
+      '
+  FOI_MATA:
+    official_name: Esteve em área de mata
+    translated_name: Was in forest/woodland area
+    description: 'Whether the Brazilian spotted fever patient had been in a forest/woodland
+      area before onset, an exposure-history item alongside EQUINOS given the disease''s
+      tick-vector ecology.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
+      "FOI_MATA" reads as "foi à mata" (went to the woods); woodland/pasture exposure
+      is the standard risk-history question on Brazilian spotted fever investigation
+      forms, alongside animal-contact items like EQUINOS.
+
+      '
+  HEMORRAG:
+    official_name: Manifestações hemorrágicas
+    translated_name: Hemorrhagic manifestations
+    description: 'Whether the Brazilian spotted fever (Febre Maculosa) patient showed
+      hemorrhagic signs, one item of a clinical-signs checklist alongside HIPEREMIA
+      and LINFADENO. HEMORRAGI is a closely related item on the same form; the catalog
+      does not preserve enough of the original layout to say how the two differ.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
+      Petechiae, purpura and gastrointestinal bleeding are recognized severity markers
+      of Brazilian spotted fever, making a hemorrhagic-manifestation flag a natural
+      checklist item; two similarly-named fields (HEMORRAG/HEMORRAGI) could not be
+      told apart from the evidence available.
+
+      '
+  HEMORRAGI:
+    official_name: Manifestações hemorrágicas (item associado)
+    translated_name: Hemorrhagic manifestations (related item)
+    description: 'Sibling checklist flag to HEMORRAG on the same Febre Maculosa form;
+      see HEMORRAG for what the pair jointly captures. The precise distinction between
+      the two (e.g. site or severity) is not recoverable from the evidence here.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Same basis as HEMORRAG: C1 width, FMAC series, no further catalog evidence
+      to separate the two similarly-named fields.
+
+      '
+  HIPEREMIA:
+    official_name: Hiperemia
+    translated_name: Skin hyperemia/flushing
+    description: 'Whether the Brazilian spotted fever patient showed hyperemia (skin
+      redness/flushing), a clinical-signs checklist item alongside LINFADENO.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
+      Skin hyperemia is a recognized early clinical finding in Brazilian spotted fever,
+      fitting alongside the confirmed-series siblings EQUINOS, HEMORRAG and LINFADENO
+      on the same checklist.
+
+      '
+  HISTOPATO:
+    official_name: Histopatologia
+    translated_name: Histopathology
+    description: 'Histopathology showing the vasculitis that spotted fever causes.
+      Supports the diagnosis rather than confirming the organism.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; HISTOPATO reads histopatologia.
+  IGG_S1:
+    official_name: IgG na primeira amostra
+    translated_name: IgG, first sample
+    description: IgG on the first serum, the baseline for the paired comparison.
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; the first sample's IgG.
+  IGG_S2:
+    official_name: IgG na segunda amostra
+    translated_name: IgG, second sample
+    description: 'IgG on the second serum. A fourfold rise against IGG_S1 is the confirmatory
+      criterion, and it arrives long after the outcome is decided.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; the second sample's IgG.
+  IGM_S1:
+    official_name: IgM na primeira amostra
+    translated_name: IgM, first sample
+    description: 'IgM on the first serum. Usually negative in the first week, which
+      is exactly when the patient is dying, so a negative result must never delay treatment.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO, positive/negative/inconclusive/not done.
+  IGM_S2:
+    official_name: IgM na segunda amostra
+    translated_name: IgM, second sample
+    description: IgM on the second serum, taken two to four weeks later.
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; the second sample's IgM.
+  IMUNOHIST:
+    official_name: Imuno-histoquímica
+    translated_name: Immunohistochemistry
+    description: 'Immunohistochemistry on tissue. Often performed post mortem on skin
+      or organs, and frequently the only confirmation in fatal cases.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; IMUNOHIST reads imuno-histoquímica.
+  LINFADENO:
+    official_name: Linfadenopatia
+    translated_name: Lymphadenopathy
+    description: 'Whether the Brazilian spotted fever patient had swollen lymph nodes,
+      a clinical-signs checklist item alongside HIPEREMIA and HEMORRAG.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
+      Lymphadenopathy is a documented clinical finding in rickettsial spotted fevers,
+      fitting the same checklist as the confirmed-series siblings EQUINOS, FOI_MATA
+      and HIPEREMIA.
+
+      '
+  NECROSE:
+    official_name: Necrose
+    translated_name: Skin necrosis (flag)
+    description: 'Whether the patient developed skin necrosis (a necrotic eschar or
+      lesion), a distinctive and severe clinical sign of Brazilian spotted fever (febre
+      maculosa) reflecting Rickettsia-driven vasculitis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Direct decode of NECROSE; necrotic skin lesions are a recognized severe
+      manifestation of febre maculosa (FMAC), C1 fits a checkbox.
+
+      '
+  OLIGURIA:
+    official_name: Oligúria
+    translated_name: Oliguria (flag)
+    description: 'Whether the patient had reduced urine output - a marker of renal
+      impairment or shock in severe spotted fever, where vasculitis can cause multi-organ
+      dysfunction.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: OLIGURIA = oligúria; FMAC's severity checklist alongside COMA and CHOQUE.
+  OUTROANI:
+    official_name: Outro animal envolvido
+    translated_name: Other animal involved
+    description: 'Flag for whether an animal other than the disease''s typical tick-associated
+      hosts (e.g. horses, capybaras) was reported in the epidemiological context of
+      this Brazilian spotted fever case.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is FMAC (febre maculosa); OUTROANI reads "outro animal"; C1
+      width fits a coded yes/no flag.
+
+      '
+  RESPIRATO:
+    official_name: Insuficiência respiratória
+    translated_name: Respiratory complication (flag)
+    description: 'Whether the patient developed respiratory distress or failure — a
+      severe spotted-fever complication, recorded alongside the neurological complication
+      flag CONVULSAO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; RESPIRATO=respiratório.
+  ZONA:
+    official_name: Zona de ocorrência
+    translated_name: Zone
+    description: 'Urban, rural or periurban. Brazilian spotted fever is transmitted
+      by ticks carried by capybaras and horses, which puts it on the rural and periurban
+      fringe rather than in city centres.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ZONA.CNV
+    reasoning: Bound to ZONA, urbana/rural/periurbana.

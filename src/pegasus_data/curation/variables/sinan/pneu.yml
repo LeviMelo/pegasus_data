@@ -1,0 +1,196 @@
+# SINAN.PNEU —
+#
+# one notification of pneumoconiose trabalho
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  BIOPSIA:
+    official_name: Biópsia realizada
+    translated_name: Biopsy performed
+    description: 'Whether a biopsy was taken as part of investigating the case.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Biópsia without its accent; C(1) flag.
+  CANCER:
+    official_name: Câncer
+    translated_name: Cancer present
+    description: 'Whether cancer was identified in the person notified. On the occupational
+      forms this is the outcome being notified; elsewhere it is a comorbidity.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Câncer without its accent; C(1) flag.
+  CARVAO:
+    official_name: Carvão ativado
+    translated_name: Activated charcoal given
+    description: 'Whether activated charcoal was administered — the first-line decontamination
+      for many ingested poisons, and one of the treatment options the exogenous-intoxication
+      form asks about.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Carvão without its accent, on the poisoning form; C(1) admits a given/not-given
+      flag.
+
+      '
+  FLUXO_AERE:
+    official_name: Obstrução ao fluxo aéreo
+    translated_name: Airflow obstruction (spirometry finding)
+    description: 'Spirometry-based finding on the pneumoconiosis investigation form,
+      marking whether the worker''s lung-function test showed airflow obstruction.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'No catalog evidence exists for this field beyond declared type (C1)
+      and its PNEU (pneumoconiose) series membership. "Fluxo aéreo" is standard spirometry
+      terminology, and pneumoconiosis investigation forms routinely record spirometry
+      pattern (obstructive/restrictive/mixed) as a diagnostic aid.
+
+      '
+  OUTRO_DOE:
+    official_name: Outra doença associada
+    translated_name: Other associated disease (flag)
+    description: 'Whether the pneumoconiosis patient has a pre-existing or associated
+      disease not covered by the form''s named comorbidity checkboxes (e.g. tuberculosis,
+      autoimmune conditions). Paired with OUT_DOE_DE, which names the disease.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PNEU = Pneumoconioses; OUTRO_DOE = "outra doença"; companion free-text
+      field OUT_DOE_DE confirms the checkbox+specify pattern; width 1.
+
+      '
+  OUT_DOE_DE:
+    official_name: Outra doença associada - descrição
+    translated_name: Other associated disease - description
+    description: 'Free-text name of the associated disease recorded when OUTRO_DOE
+      flags a comorbidity outside the pneumoconiosis form''s standard checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DE = "descreva"; width 30 fits a disease name; pairs with OUTRO_DOE.
+
+      '
+  OUT_EXAME:
+    official_name: Realização de outro exame complementar
+    translated_name: Other complementary exam performed (flag)
+    description: 'Whether a diagnostic test other than the pneumoconiosis form''s named
+      exams (e.g. chest X-ray, tomography as in TOMOGRAFIA) was performed, without
+      identifying which one.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PNEU form; OUT_ = outro, EXAME = exame; width 1 checkbox, no accompanying
+      specify field found among this batch''s columns.
+
+      '
+  POEIRAS:
+    official_name: Exposição a poeiras
+    translated_name: Dust exposure (general)
+    description: 'Whether the pneumoconiosis patient had occupational exposure to dust
+      in general - the umbrella risk-factor checkbox above the form''s specific dust-type
+      items (abrasive, mixed, organic).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PNEU form; POEIRAS = poeiras (dusts); width 1 checkbox.
+  POE_ABRASI:
+    official_name: Exposição a poeira abrasiva
+    translated_name: Exposure to abrasive dust
+    description: 'Whether exposure was specifically to abrasive dust (e.g. from sandblasting
+      or grinding), one of three dust-type refinements - alongside mixed (POE_MISTA)
+      and organic (POE_ORGANI) - of the general POEIRAS flag.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: POE_ = poeira; ABRASI = abrasiva; width 1 checkbox.
+  POE_MISTA:
+    official_name: Exposição a poeira mista
+    translated_name: Exposure to mixed dust
+    description: 'Whether exposure was to mixed dust, the second of the three dust-type
+      refinements of POEIRAS, alongside abrasive (POE_ABRASI) and organic (POE_ORGANI).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: POE_ = poeira; MISTA = mista; width 1 checkbox.
+  POE_ORGANI:
+    official_name: Exposição a poeira orgânica
+    translated_name: Exposure to organic dust
+    description: 'Whether exposure was to organic dust (e.g. agricultural/biological
+      material rather than mineral dust), the third refinement of POEIRAS alongside
+      abrasive and mixed dust.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: POE_ = poeira; ORGANI = orgânica; width 1 checkbox.
+  STAVALIA:
+    official_name: Situação da avaliação
+    translated_name: Evaluation status
+    description: 'Status of the pneumoconiosis patient''s clinical/functional evaluation
+      (e.g. completed vs pending), tracked separately from STRESULTA, which records
+      the outcome once an exam is done.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ST = situação, AVALIA = avaliação; PNEU form; width 1.
+  STRESULTA:
+    official_name: Situação do resultado
+    translated_name: Result status
+    description: 'Outcome status of the pneumoconiosis diagnostic evaluation (e.g.
+      normal vs altered), recorded once STAVALIA shows the assessment was completed.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ST = situação, RESULTA = resultado; PNEU form; width 1.
+  TIREOIDITE:
+    official_name: Doença associada - Tireoidite
+    translated_name: Associated disease - thyroiditis
+    description: 'Whether the pneumoconiosis (PNEU) patient has thyroiditis, one of
+      the form''s named associated-disease checkboxes, distinct from the free-text
+      "other disease" captured by OUTRO_DOE/OUT_DOE_DE.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PNEU form comorbidity checklist; TIREOIDITE = tireoidite; width 1 checkbox.
+
+      '
+  TOMOGRAFIA:
+    official_name: Realização de tomografia
+    translated_name: CT scan performed (flag)
+    description: 'Whether a chest CT scan was performed to support the pneumoconiosis
+      diagnosis, one of the form''s named-exam checkboxes, distinct from the unnamed
+      "other exam" flagged by OUT_EXAME.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PNEU form; TOMOGRAFIA = tomografia; width 1 checkbox.
+  VINC_ESP:
+    official_name: Vínculo empregatício - especifique
+    translated_name: Employment bond - specify
+    description: 'Free-text detail of the pneumoconiosis patient''s employment relationship
+      (e.g. contract type or employer) when the form''s standard employment-bond categories
+      don''t fit.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PNEU form; VINC_ESP = vínculo + especifique; width 30 free text.
+
+      '

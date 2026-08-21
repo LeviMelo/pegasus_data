@@ -1,0 +1,773 @@
+# SINAN.TUBE —
+#
+# one notification of tuberculose
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AGRAVAIDS:
+    official_name: Doenças e agravos associados - Aids
+    translated_name: Associated condition - AIDS (Tuberculosis)
+    description: 'Whether the TB patient also has AIDS at notification (yes/no/ignored).
+      Marking yes auto-fills the HIV field as positive and locks it against further
+      edits.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 37
+  AGRAVALCOO:
+    official_name: Doenças e agravos associados - Alcoolismo
+    translated_name: Associated condition - alcoholism (Tuberculosis)
+    description: 'Whether the TB patient has a diagnosis of alcoholism at notification
+      (yes/no/ignored), one of seven parallel comorbidity flags recorded alongside
+      the TB case.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 37
+  AGRAVDIABE:
+    official_name: Doenças e agravos associados - Diabetes
+    translated_name: Associated condition - diabetes (Tuberculosis)
+    description: 'Whether the TB patient has diabetes at notification (yes/no/ignored);
+      diabetes raises TB risk and complicates treatment, so it is tracked as a comorbidity
+      flag.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 37
+  AGRAVDOENC:
+    official_name: Doenças e agravos associados - Doença Mental
+    translated_name: Associated condition - mental illness (Tuberculosis)
+    description: 'Whether the TB patient has a diagnosed mental illness at notification
+      (yes/no/ignored), tracked because it affects treatment adherence support needs.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 37
+  AGRAVDROGA:
+    official_name: Doenças e agravos associados - Uso de drogas ilícitas
+    translated_name: Associated condition - illicit drug use (Tuberculosis)
+    description: 'Whether the TB patient uses illicit drugs at notification (yes/no/ignored),
+      tracked as a risk factor for poor treatment adherence.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 37
+  AGRAVOUTDE:
+    official_name: Outro agravo associado
+    translated_name: Other associated notifiable condition
+    description: 'Name of another notifiable condition associated with the tuberculosis
+      case (e.g. HIV/AIDS, diabetes) — a comorbidity flag commonly captured on the
+      TB form given how often these conditions co-occur and affect treatment.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text; AGRAVO=agravo, OUT=outro, in the TUBE (tuberculose) stratum.
+  AGRAVOUTRA:
+    official_name: Doenças e agravos associados - Outras
+    translated_name: Associated condition - other (Tuberculosis)
+    description: 'Whether the TB patient has some other associated condition not covered
+      by the named flags (yes/no/ignored); answering yes enables a free-text field
+      naming it.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 37
+  AGRAVTABAC:
+    official_name: Doenças e agravos associados - Tabagismo
+    translated_name: Associated condition - tobacco use (Tuberculosis)
+    description: 'Whether the TB patient is a tobacco user at notification (yes/no/ignored),
+      the last of the seven comorbidity/risk-factor flags recorded on the TB case.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 37
+  ANT_RETRO:
+    official_name: Terapia Antirretroviral durante o tratamento para a TB
+    translated_name: Antiretroviral therapy during TB treatment
+    description: 'Whether the TB patient received antiretroviral therapy for HIV/AIDS
+      while being treated for TB (yes/no/ignored); disabled unless the HIV field is
+      positive.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 41 (ANTIRRETROVIRAL)
+  BACILOSC_1:
+    official_name: Baciloscopia no 1º mês
+    translated_name: Sputum smear microscopy, treatment month 1
+    description: 'Result of sputum smear microscopy for AFB on a sample collected at
+      the end of the 1st month of TB treatment; same positive/negative/not performed/not
+      applicable scale as BACILOSC_E.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 58
+  BACILOSC_2:
+    official_name: Baciloscopia no 2º mês
+    translated_name: Sputum smear microscopy, treatment month 2
+    description: 'Second monthly follow-up smear, sampled at the close of treatment
+      month 2, tracking whether the patient is converting to negative under therapy.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 58
+  BACILOSC_3:
+    official_name: Baciloscopia no 3º mês
+    translated_name: Sputum smear microscopy, treatment month 3
+    description: 'Third monthly follow-up smear, sampled at the close of treatment
+      month 3; same positive/negative/not performed/not applicable scale as BACILOSC_1.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 58
+  BACILOSC_4:
+    official_name: Baciloscopia no 4º mês
+    translated_name: Sputum smear microscopy, treatment month 4
+    description: 'Fourth monthly follow-up smear, sampled at the close of treatment
+      month 4; same positive/negative/not performed/not applicable scale as BACILOSC_1.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 58
+  BACILOSC_5:
+    official_name: Baciloscopia no 5º mês
+    translated_name: Sputum smear microscopy, treatment month 5
+    description: 'Fifth monthly follow-up smear, sampled at the close of treatment
+      month 5; same positive/negative/not performed/not applicable scale as BACILOSC_1.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 58
+  BACILOSC_6:
+    official_name: Baciloscopia no 6º mês
+    translated_name: Sputum smear microscopy, treatment month 6
+    description: 'Result of sputum smear microscopy for AFB on samples collected in
+      the 6th month of TB treatment, the last of the monthly follow-up smears after
+      BACILOSC_1 through BACILOSC_5.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 58
+  BACILOSC_E:
+    official_name: Baciloscopia de escarro (diagnóstico)
+    translated_name: Sputum smear microscopy at diagnosis (Tuberculosis)
+    description: 'Result of sputum smear microscopy for AFB done at TB diagnosis, before
+      treatment starts: positive, negative, not performed, or not applicable (set for
+      extrapulmonary cases).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 38
+  BACILOSC_O:
+    official_name: Baciloscopia de outro material
+    translated_name: Smear microscopy on other (non-sputum) material
+    description: 'Result of BAAR smear microscopy done on material other than sputum
+      (e.g. gastric lavage, pleural fluid) for TB diagnosis when a sputum sample could
+      not be obtained. 1=Positiva, 2=Negativa, 3=Não realizada.
+
+      '
+    code_system: internal
+    codelists:
+    - POSNEGNR
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      41 "Baciloscopia de outro material", DBF BACILOSC_O
+
+      '
+  BACILOS_E2:
+    official_name: Baciloscopia de escarro - 2ª amostra
+    translated_name: Sputum smear microscopy, 2nd sample
+    description: 'Result of a second sputum sample examined for acid-fast bacilli (BAAR)
+      at TB diagnosis, alongside the first-sample field BACILOSC_E; a positive result
+      in either sample confirms bacteriological diagnosis.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      40 "Baciloscopia de escarro - 2ª amostra", DBF BACILOS_E2
+
+      '
+  BAC_APOS_6:
+    official_name: Baciloscopia após o 6º mês
+    translated_name: Sputum smear microscopy after month 6
+    description: 'Result of a sputum BAAR smear from a sample collected after the 6th
+      month of TB treatment, for patients whose treatment extends beyond the standard
+      six-month course. 1=Positiva,2=Negativa,3=Não realizada,4=Não se aplica.
+
+      '
+    code_system: internal
+    codelists:
+    - POSNEGNRNA
+    source: layout_doc
+    source_ref: 'DICI_DADOS_NET_Tuberculose_23_07_2020.pdf (portalsinan.saude.gov.br),
+      campo 58 "Baciloscopia após 6º mês"
+
+      '
+  BENEF_GOV:
+    official_name: Beneficiário de programa de transferência de renda do governo
+    translated_name: Recipient of a government cash-transfer program
+    description: 'Marks whether the TB patient receives a government cash-transfer
+      benefit such as Bolsa Família, recorded as a socioeconomic vulnerability indicator
+      at notification. 1=Sim,2=Não,9=Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICI_DADOS_NET_Tuberculose_23_07_2020.pdf (portalsinan.saude.gov.br),
+      campo 34 "Beneficiário de programa de transferência de renda do governo"
+
+      '
+  CULTURA_ES:
+    official_name: Cultura de escarro
+    translated_name: Sputum culture
+    description: 'Result of a sputum culture for Mycobacterium tuberculosis, a slower
+      but more sensitive confirmatory test than smear microscopy, and the sample used
+      for the drug-sensitivity test. 1=Positiva,2=Negativa,3=Em andamento,4=Não realizada.
+
+      '
+    code_system: internal
+    codelists:
+    - POSNEGEM
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      42 "Cultura de escarro", DBF CULTURA_ES
+
+      '
+  CULTURA_OU:
+    official_name: Cultura de outro material
+    translated_name: Culture on other (non-sputum) material
+    description: 'Result of a culture for M. tuberculosis performed on non-sputum material
+      (e.g. pleural fluid, gastric lavage, biopsy) for patients with suspected extrapulmonary
+      disease. 1=Positiva,2=Negativa,3=Em andamento,4=Não realizada.
+
+      '
+    code_system: internal
+    codelists:
+    - POSNEGEM
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      43 "Cultura de outro material", DBF CULTURA_OU
+
+      '
+  DT_MUDANCA:
+    official_name: Data da mudança de tratamento
+    translated_name: Date treatment regimen was changed
+    description: 'Date the patient''s TB drug regimen was changed because of medication
+      intolerance, toxicity, or treatment failure; must fall on or after the treatment
+      start date and not later than the current date.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      13 "Data da mudança de tratamento" (Tela de Acompanhamento), DBF DT_MUDANCA
+
+      '
+  ESTREPTOMI:
+    official_name: Drogas - Estreptomicina
+    translated_name: Drug used - Streptomycin
+    description: 'Marks whether streptomycin, an injectable drug used in retreatment
+      or drug-resistant TB regimens, was part of the patient''s prescribed treatment
+      recorded at this notification. 1=Sim,2=Não.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      47 "Drogas", DBF ESTREPTOMI (Estreptomicina)
+
+      '
+  ETAMBUTOL:
+    official_name: Drogas - Etambutol
+    translated_name: Drug used - Ethambutol
+    description: 'Marks whether ethambutol, one of the four first-line drugs in the
+      standard TB treatment regimen, was part of the patient''s prescribed treatment
+      recorded at this notification. 1=Sim,2=Não.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      47 "Drogas", DBF ETAMBUTOL
+
+      '
+  ETIONAMIDA:
+    official_name: Drogas - Etionamida
+    translated_name: Drug used - Ethionamide
+    description: 'Marks whether ethionamide, a second-line drug used in retreatment
+      or multidrug-resistant TB regimens, was part of the patient''s prescribed treatment
+      recorded at this notification. 1=Sim,2=Não.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      47 "Drogas", DBF ETIONAMIDA
+
+      '
+  EXTRAPU1_N:
+    official_name: Se extrapulmonar - 1º campo
+    translated_name: Extrapulmonary site (1st field)
+    description: 'Primary extrapulmonary site of disease (e.g. pleural, bone, meningeal,
+      cutaneous), filled when the case''s clinical form is Extrapulmonar or Pulmonar+Extrapulmonar;
+      one of ten coded anatomical sites plus "Outra".
+
+      '
+    code_system: internal
+    codelists:
+    - EXTRAPULNET
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      38 "Se extrapulmonar - 1º campo", DBF EXTRAPU1_N
+
+      '
+  EXTRAPU2_N:
+    official_name: Se extrapulmonar - 2º campo
+    translated_name: Extrapulmonary site (2nd field)
+    description: 'A second extrapulmonary disease site, recorded alongside EXTRAPU1_N
+      when the patient has more than one extrapulmonary site affected at once; same
+      ten coded anatomical sites plus "Outra".
+
+      '
+    code_system: internal
+    codelists:
+    - EXTRAPULNET
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      38 "Se extrapulmonar - 2º campo", DBF EXTRAPU2_N
+
+      '
+  EXTRAPUL_O:
+    official_name: Forma extrapulmonar - Outra
+    translated_name: Extrapulmonary site - other, specified
+    description: 'Free-text name of the extrapulmonary tuberculosis site when it is
+      not one of the form''s named options (e.g. pleural, ganglionar, óssea, miliar),
+      on the tuberculosis investigation form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C30, a free-text width) and
+      TUBE series membership. TUBE forms code the extrapulmonary site from a fixed
+      list with an "outra" escape hatch, matching the standard coded-field-plus-free-text-specify
+      pattern confirmed repeatedly elsewhere in SINAN (e.g. MAT_ORG_DE, ESP_OUT).
+
+      '
+  HISTOPATOL:
+    official_name: Histopatologia
+    translated_name: Histopathology result
+    description: 'Result of histopathological examination of tissue for TB diagnosis:
+      1=Baar Positivo,2=Sugestivo de TB,3=Não sugestivo de TB,4=Em andamento,5=Não
+      realizado.
+
+      '
+    code_system: internal
+    codelists:
+    - BASUTBEM
+    source: layout_doc
+    source_ref: 'DICI_DADOS_NET_Tuberculose_23_07_2020.pdf (portalsinan.saude.gov.br),
+      campo 42 "Histopatologia", DBF HISTOPATOL
+
+      '
+  ID_MUNIC_2:
+    official_name: Município de residência atual
+    translated_name: Current residence municipality
+    description: 'IBGE code of the patient''s current residence municipality, auto-filled
+      from the residence address at notification but editable during follow-up if the
+      patient later moves.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      7 "Município de residência atual" (Tela de Acompanhamento), DBF ID_MUNIC_2
+
+      '
+  ID_MUNIC_A:
+    official_name: Município de atendimento/notificação atual
+    translated_name: Current follow-up municipality
+    description: 'IBGE code of the municipality of the health unit currently responsible
+      for the patient''s TB follow-up; changes when two records are linked after a
+      transfer between units.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      2 "Município de atendimento atual" (Tela de Acompanhamento), DBF ID_MUNIC_A
+
+      '
+  ISONIAZIDA:
+    official_name: Drogas - Isoniazida
+    translated_name: Drug used - Isoniazid
+    description: 'Marks whether isoniazid, a first-line drug at the core of the standard
+      TB treatment regimen, was part of the patient''s prescribed treatment recorded
+      at this notification. 1=Sim,2=Não.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      47 "Drogas", DBF ISONIAZIDA
+
+      '
+  MUN_TRANSF:
+    official_name: Município de transferência (destino do paciente)
+    translated_name: Destination municipality of transfer
+    description: 'IBGE code of the destination municipality when the case''s closure
+      reason (Situação de Encerramento) is transfer to another municipality, state,
+      or a foreign nation.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: 'DICI_DADOS_NET_Tuberculose_23_07_2020.pdf (portalsinan.saude.gov.br),
+      campo 65 "Município de Transferência", DBF MUN_TRANSF
+
+      '
+  NU_COMU_EX:
+    official_name: Número de contatos examinados
+    translated_name: Number of contacts examined
+    description: 'Count of the TB patient''s identified close contacts who were actually
+      clinically examined during contact investigation; must not exceed the number
+      of contacts identified (NU_CONTATO).
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      14 "Número de contatos examinados" (Tela de Acompanhamento), DBF NU_COMU_EX
+
+      '
+  NU_CONTATO:
+    official_name: Número de contatos registrados
+    translated_name: Number of contacts identified
+    description: 'Count of close contacts identified around the TB patient at the time
+      of diagnosis, the starting figure against which contact-tracing examination coverage
+      (NU_COMU_EX) is measured.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      49 "Número de contatos registrados", DBF NU_CONTATO
+
+      '
+  OUTRAS_DES:
+    official_name: Outro desfecho (especificar)
+    translated_name: Other treatment outcome (specify)
+    description: 'Free-text field specifying the tuberculosis treatment outcome when
+      it doesn''t match the form''s standard closing categories (cure, default, death,
+      transfer).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is TUBE (tuberculose); OUTRAS_DES reads "outro[a] desfecho";
+      wide C40 width fits a free-text "other, specify" outcome field.
+
+      '
+  PIRAZINAMI:
+    official_name: Drogas - Pirazinamida
+    translated_name: Drug used - Pyrazinamide
+    description: 'Marks whether pyrazinamide, one of the four first-line drugs in the
+      standard TB treatment regimen, was part of the patient''s prescribed treatment
+      recorded at this notification. 1=Sim,2=Não.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
+      47 "Drogas", DBF PIRAZINAMI
+
+      '
+  POP_IMIG:
+    official_name: Populações Especiais - Imigrante
+    translated_name: Special population - Immigrant
+    description: 'Marks whether the patient is an immigrant, defined as a foreigner
+      who has lived in Brazil for less than two years, recorded as a TB vulnerable-population
+      indicator. 1=Sim,2=Não,9=Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICI_DADOS_NET_Tuberculose_23_07_2020.pdf (portalsinan.saude.gov.br),
+      campo 33 "Populações Especiais - Imigrante", DBF POP_IMIG
+
+      '
+  POP_LIBER:
+    official_name: Populações Especiais - População privada de liberdade
+    translated_name: Special population - Incarcerated
+    description: 'Marks whether the patient is incarcerated in the prison system, defined
+      as over 18 and in custody in a prison unit (excluding the juvenile justice system).
+      1=Sim,2=Não,9=Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICI_DADOS_NET_Tuberculose_23_07_2020.pdf (portalsinan.saude.gov.br),
+      campo 33 "Populações Especiais - População privada de liberdade", DBF POP_LIBER
+
+      '
+  POP_RUA:
+    official_name: Populações Especiais - População em situação de rua
+    translated_name: Special population - Homeless
+    description: 'Marks whether the patient is homeless, living in the street, recorded
+      as a social-vulnerability indicator associated with elevated TB risk. 1=Sim,2=Não,9=Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICI_DADOS_NET_Tuberculose_23_07_2020.pdf (portalsinan.saude.gov.br),
+      campo 33 "Populações Especiais - População em situação de rua", DBF POP_RUA
+
+      '
+  POP_SAUDE:
+    official_name: Populações Especiais - Profissional de saúde
+    translated_name: Special population - Healthcare worker
+    description: 'Marks whether the patient works as a healthcare professional, an
+      occupational-exposure indicator since health workers have more contact with infectious
+      TB patients. 1=Sim,2=Não,9=Ignorado.
+
+      '
+    code_system: internal
+    codelists:
+    - SIM_NAO
+    source: layout_doc
+    source_ref: 'DICI_DADOS_NET_Tuberculose_23_07_2020.pdf (portalsinan.saude.gov.br),
+      campo 33 "Populações Especiais - Profissional de saúde", DBF POP_SAUDE
+
+      '
+  RAIOX_TORA:
+    official_name: Radiografia do tórax
+    translated_name: Chest X-ray result
+    description: 'Chest X-ray finding recorded when the TB case was notified: 1=Suspeito
+      (findings compatible with TB), 2=Normal, 3=Outra patologia (abnormal but unrelated
+      to TB), 4=Não realizado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 39
+  RIFAMPICIN:
+    official_name: Droga - Rifampicina
+    translated_name: Rifampicin in regimen
+    description: 'Whether rifampicin was part of the patient''s initial TB drug regimen
+      — one of several yes/no drug-presence flags, alongside isoniazid, ethambutol,
+      streptomycin, pyrazinamide and ethionamide, filled in at treatment start.
+
+      '
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'TuberculNET.def names the field "Drog RIFAMPICINA" bound to codelist
+      SIM_NAO; in the schema it sits right after DT_INIC_TR (treatment start date)
+      beside ISONIAZIDA, ETAMBUTOL, ESTREPTOMI, PIRAZINAMI and ETIONAMIDA — a regimen
+      checklist, not a resistance test.
+
+      '
+  SG_UF_2:
+    official_name: UF de residência atual
+    translated_name: Current state of residence
+    description: 'Patient''s state (UF) of residence as currently known, auto-filled
+      from the notification''s residence UF but editable when the patient''s address
+      changes during follow-up.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 53
+  SG_UF_AT:
+    official_name: UF de notificação atual
+    translated_name: Current notifying state
+    description: 'State (UF) of the health unit currently handling the case, auto-filled
+      from the UF at first notification and updated when the record is linked to a
+      later notification after a transfer.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 48
+  SITUA_12_M:
+    official_name: Situação no 12º mês
+    translated_name: Status at treatment month 12
+    description: 'Treatment follow-up status recorded at the 12th month for drug-resistant
+      TB cases, whose regimens run well past the standard six months — still on treatment,
+      cured, abandoned, transferred, or died.
+
+      '
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Bound to codelist family CUABOB12NET/SIT12MES, the same CUABOB* naming
+      pattern as SITUA_ENCE (CUABOB15NET, confirmed case-closure outcome); appears
+      only in the TUBE series paired with SITUA_9_M, matching the 12-month checkpoint
+      used in Brazilian DR-TB treatment monitoring.
+
+      '
+  SITUA_9_M:
+    official_name: Situação no 9º mês
+    translated_name: Status at treatment month 9
+    description: 'Treatment follow-up status recorded at the 9th month for drug-resistant
+      TB cases — still on treatment, cured, abandoned, transferred, or died — an earlier
+      checkpoint than SITUA_12_M.
+
+      '
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Bound to codelist CUABOBT9NET, sharing the CUABOB* family with SITUA_12_M
+      (CUABOB12NET) and SITUA_ENCE (CUABOB15NET, confirmed case-closure outcome); appears
+      only in the TUBE series, consistent with periodic follow-up of the longer DR-TB
+      regimen.
+
+      '
+  SITUA_ENCE:
+    official_name: Situação de encerramento
+    translated_name: Case closure status
+    description: 'Outcome that closed the TB case: cure, treatment abandonment, death
+      from TB, death from another cause, transfer, diagnosis change, drug-resistant
+      TB (TB-DR), regimen change, treatment failure, or early abandonment.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 62
+  TESTE_TUBE:
+    official_name: Teste tuberculínico
+    translated_name: Tuberculin skin test (PPD)
+    description: 'Tuberculin skin test (PPD) reaction result recorded on the TB notification
+      form, graded from non-reactive through a weak or strong reaction, or not performed.
+
+      '
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'TuberculNET.def names the field "Teste Tuberculin." bound to codelist
+      NAOREATO ("não reator"/non-reactor), standard PPD grading vocabulary in Brazilian
+      TB programs; the field is absent from the current v5.0 dictionary''s numbered
+      field list (campos 31-66).
+
+      '
+  TEST_MOLEC:
+    official_name: Teste Molecular Rápido para TB (TRM-TB)
+    translated_name: Rapid molecular TB test result
+    description: 'Result of the rapid molecular test for M. tuberculosis and rifampicin
+      resistance: detectable and rifampicin-sensitive, detectable and rifampicin-resistant,
+      not detectable, inconclusive, or not performed.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 44
+  TEST_SENSI:
+    official_name: Teste de sensibilidade
+    translated_name: Drug susceptibility test result
+    description: 'Result of the culture-based drug susceptibility test: resistant only
+      to isoniazid, only to rifampicin, to both, to another first-line drug, fully
+      sensitive, in progress, or not performed.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 45
+  TRANSF:
+    official_name: Se transferência
+    translated_name: Transfer distance
+    description: 'When the case closed by transfer, how far the patient moved: same
+      municipality, a different municipality in the same state, a different state,
+      or abroad.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 63
+  TRATSUP_AT:
+    official_name: Tratamento Diretamente Observado (TDO) realizado
+    translated_name: Directly observed treatment performed
+    description: 'Whether directly observed treatment was actually delivered; credited
+      as done only once 24 doses were observed in the intensive phase and 48 in the
+      maintenance phase.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 60
+  TRAT_SUPER:
+    official_name: Tratamento supervisionado indicado
+    translated_name: Supervised treatment indicated
+    description: 'Whether directly observed treatment was clinically indicated for
+      the patient, a separate yes/no flag from TRATSUP_AT, which records whether it
+      was actually carried out.
+
+      '
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'TuberculNET.def names it "Trat.Superv. indicado" bound to SIM_NAO,
+      distinct from TRATSUP_AT''s "Trat.Superv. realizado" (the current dictionary''s
+      TDO-realizado field, campo 60) — indicated vs. actually performed follows directly
+      from the two DEF labels.
+
+      '
+  UF_TRANSF:
+    official_name: UF de transferência
+    translated_name: Transfer destination state
+    description: 'State (UF) the patient was transferred to when the case closed by
+      a move to a different state, filled in whenever TRANSF records a different-state
+      transfer.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 64

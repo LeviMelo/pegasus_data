@@ -1,0 +1,73 @@
+# SIH.RJ — Rejected AIH
+# AIH Rejeitada
+#
+# Admissions whose AIH was rejected in processing. Excluded from RD, so an
+# analysis of RD alone silently drops them.
+system: SIHSUS
+asserted_by: pegasus_data
+
+variables:
+  ST_BLOQ:
+    official_name: Situação bloqueio
+    translated_name: AIH block status
+    description: 'Whether this AIH, in the RJ (rejeitadas) file, is under an administrative
+      block: 0 AIH autorizada, 2 Bloqueio AIH, 5 Liberação bloqueio AIH. The flag that
+      ST_MOT_BLO then gives a reason for.
+
+      '
+    code_system: internal
+    codelists:
+    - SITBLOQUEIO
+    source: def
+    source_ref: '[DEF-RD9297]/[DEF-RD2008] (RJ.DEF/RJ2008.DEF) display_name "Situação
+      bloqueio", lookup SITBLOQUEIO.CNV.
+
+      '
+    notes: 'Present only in RJ — a record only carries this field once it has already
+      failed to pass straight through to payment.
+
+      '
+  ST_MOT_BLO:
+    official_name: Motivo bloqueio
+    translated_name: Reason for the AIH block
+    description: 'DATASUS''s numeric reason code for why ST_BLOQ shows this AIH blocked
+      — a long enumerated list mixing audit holds ("PARA AUDITORIA NO PRONTUÁRIO"),
+      duplicate-billing holds ("DUPL.INTERNAÇÃO C/INTERSERCÇÃO DE PERÍODOS") and unexplained
+      holds.
+
+      '
+    code_system: internal
+    codelists:
+    - MOTBLOQUEIO
+    depends_on:
+    - ST_BLOQ
+    source: def
+    source_ref: '[DEF-RD9297]/[DEF-RD2008] (RJ.DEF/RJ2008.DEF) display_name "Motivo
+      bloqueio", lookup MOTBLOQUEIO.CNV.
+
+      '
+    notes: '"NÃO ESPECIFICADO" (code 00) is itself the single most common value observed
+      — this column under-explains more often than it explains.
+
+      '
+  ST_SITUAC:
+    official_name: Situação rejeição
+    translated_name: Rejection status
+    description: 'Flags that this AIH was rejected during processing. The only value
+      observed in this batch, 1 "AIH rejeitada", is consistent with every row of the
+      RJ file being a rejection by construction.
+
+      '
+    code_system: internal
+    codelists:
+    - SITREJEICAO
+    source: def
+    source_ref: '[DEF-RD9297]/[DEF-RD2008] (RJ.DEF/RJ2008.DEF) display_name "Situação
+      rejeição", lookup SITREJEICAO.CNV.
+
+      '
+    notes: 'Near-constant within RJ, since every row there is already a rejection;
+      it likely exists to distinguish rejection from other statuses in a record layout
+      shared with other files rather than to carry information on its own.
+
+      '

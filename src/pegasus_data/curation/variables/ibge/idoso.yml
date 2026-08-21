@@ -1,0 +1,22 @@
+# IBGE.IDOSO — Older population
+# População Idosa
+#
+# Population aged 60 and over, published as its own table.
+system: IBGE
+asserted_by: pegasus_data
+
+variables:
+  POPDEPEND:
+    official_name: População dependente
+    translated_name: Dependent-age population
+    description: 'Number of people in the dependent age groups — the young and the
+      old, those outside working age. The numerator of the dependency ratio, which
+      is what this column exists to let you compute.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DEPEND is dependente; a count in the population table, and the dependency
+      ratio is the standard use of such a split.
+
+      '

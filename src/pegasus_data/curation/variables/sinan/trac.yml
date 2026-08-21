@@ -1,0 +1,87 @@
+# SINAN.TRAC — Trachoma
+# Tracoma
+#
+# One notified case of trachoma, found through school screening surveys.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ENCAMINHA:
+    official_name: Encaminhamento
+    translated_name: Referred
+    description: 'Whether the case was referred, which for trichiasis means referral
+      for the surgery that prevents blindness.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ENCAMINHA reads encaminhamento; a yes/no flag.
+  FORMA_CO:
+    official_name: Forma CO, opacificação corneana
+    translated_name: Corneal opacity
+    description: 'Corneal opacity. The end stage: blindness that has already happened
+      and cannot be reversed.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CO is the WHO grade for corneal opacity.
+  FORMA_TF:
+    official_name: Forma TF, folicular
+    translated_name: Trachomatous inflammation, follicular
+    description: 'Follicular trachomatous inflammation. The WHO grading runs TF, TI,
+      TS, TT, CO in order of progression: TF and TI are active infection and treatable,
+      the later grades are scarring that is not.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TF is the WHO trachoma grade for follicular inflammation.
+  FORMA_TI:
+    official_name: Forma TI, intensa
+    translated_name: Trachomatous inflammation, intense
+    description: 'Intense trachomatous inflammation. The more severe active grade,
+      and the one most likely to scar.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TI is the WHO grade for intense inflammation.
+  FORMA_TS:
+    official_name: Forma TS, cicatricial
+    translated_name: Trachomatous scarring
+    description: 'Conjunctival scarring. Past infection, no longer treatable with antibiotics,
+      and the stage from which the blinding complications follow.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TS is the WHO grade for scarring.
+  FORMA_TT:
+    official_name: Forma TT, triquíase
+    translated_name: Trachomatous trichiasis
+    description: 'In-turned eyelashes scraping the cornea. The stage needing surgery,
+      and the last point at which blindness can be prevented.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TT is the WHO grade for trichiasis.
+  NU_CASO:
+    official_name: Número do caso
+    translated_name: Case sequence number (within survey/notification)
+    description: 'Sequential case number within a tracoma screening survey or batch
+      notification (which can cover many people at once), distinct from NU_NOTIFIC,
+      the individual notification''s own identifier.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N5 numeric; NU_=número, CASO=caso, fits a sequence count in the TRAC
+      (tracoma) stratum.

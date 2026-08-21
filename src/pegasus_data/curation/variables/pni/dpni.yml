@@ -1,0 +1,111 @@
+# PNI.DPNI — Doses administered
+# Doses Aplicadas
+#
+# Doses given, aggregated by municipality, immunobiological and dose number.
+# The IG and UF variants are the same measure at different aggregations.
+system: PNI
+asserted_by: pegasus_data
+
+variables:
+  ABAND:
+    official_name: Taxa de Abandono
+    translated_name: Vaccination dropout (abandonment) rate
+    description: 'Published dropout-rate percentage for this row''s vaccine/dose/age
+      combination — DIFER (DOSE1 minus DOSEN) divided by DOSE1 and multiplied by 100,
+      the same computation chain documented for DOSE1/DOSEN/DIFER in pni_a.yml, here
+      as the final output figure.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"ABAND" abbreviates abandono; the column appears only in the DPNIUF
+      (dropout-by-UF) tabulation series, completing the DOSE1/DOSEN/DIFER dropout-rate
+      family already documented, the same way COBERT is that family''s completed coverage
+      percentage.
+
+      '
+    notes: 'Declared N(11,0) with zero decimals despite representing a percentage —
+      consistent with the width/type quirks already flagged on QT_DOSE and other PNI
+      fields in pni_a.yml.
+
+      '
+  ANOMES:
+    official_name: Ano/Mês
+    translated_name: Year-month reference period (YYYYMM)
+    description: 'Combined 6-digit year+month reference period (YYYYMM, e.g. "201401")
+      — the time axis in PNI''s monthly dropout-rate tabulations, matching the ranges
+      in ANOMES.CNV (e.g. code "001" = "199400-199412").
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANO+MES compound field name; declared width C(6,0) matches a 4-digit
+      year plus 2-digit month; ANOMES.CNV/ANOMESC.CNV map short codes to year-month
+      ranges rather than a free-standing category list.
+
+      '
+    notes: 'Spuriously bound to codelists ANOMES, ANOMESC and MES even though it is
+      a period value, not a category.
+
+      '
+  DIFER:
+    official_name: Diferença D1-Dn
+    translated_name: Dose difference (D1 minus the closing dose)
+    description: 'DOSE1 minus DOSEN: the count of people who received a vaccine''s
+      first dose but never received its closing dose — the numerator of the PNI dropout-rate
+      formula.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/notatecnicaTx.pdf
+    notes: 'Divided by DOSE1 and multiplied by 100 to get the published dropout rate
+      for most vaccines; for Meningocócica C, VIP/VOP sequential, Pentavalente, combined
+      Poliomielite and Tetravalente the denominator is already folded into DIFER itself.
+
+      '
+  DOSE1:
+    official_name: Doses D1 (dose inicial do esquema)
+    translated_name: First-dose (D1) count for a dropout-rate scheme
+    description: 'Count of first-dose (D1) applications for a vaccine''s schedule —
+      the base figure of PNI''s dropout-rate (taxa de abandono) calculation, produced
+      only for the handful of multidose vaccines the report covers.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/notatecnicaTx.pdf
+    notes: 'Covers Hepatite B, Rotavírus (VORH), Pneumocócica 10/13V, Meningocócica
+      C, VIP/VOP sequential, Pentavalente, Tríplice Viral, combined Poliomielite and
+      Tetravalente only.
+
+      '
+  DOSEN:
+    official_name: Doses Dn (dose final do esquema)
+    translated_name: Final-dose count for a dropout-rate scheme
+    description: 'Count of applications of whichever dose closes a vaccine''s primary
+      series — D3 for most of the covered vaccines, but D2 for Rotavírus, Meningocócica
+      C, and (from 2013) Tríplice Viral.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/notatecnicaTx.pdf
+    notes: 'Which literal dose (D2 vs D3) a DOSEN value represents depends on IMUNO
+      and is not itself recorded in this column.
+
+      '
+  MES:
+    official_name: Mês
+    translated_name: Month
+    description: 'Calendar month of the reference period: 1=Janeiro through 12=Dezembro,
+      plus code 13 "não discriminado" for rows not broken out by month, per MES.CNV.
+
+      '
+    code_system: none
+    source: def
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/AUXILIARES/MES.CNV
+    notes: 'Code 13 is not a real calendar month; filter it out before treating MES
+      as an ordinary 1-12 index.
+
+      '

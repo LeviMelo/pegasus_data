@@ -1,0 +1,107 @@
+# IBGE — columns carried by more than one dataset.
+#
+# The notification header and other cross-dataset fields. Described once
+# against the system, because that is the scope on which they are the
+# same column.
+system: IBGE
+asserted_by: pegasus_data
+
+variables:
+  ANO:
+    official_name: Ano
+    translated_name: Year
+    description: 'Calendar year the record refers to: a census year (1991, 2000 or
+      2010) or an annual year for the population estimates and projections DATASUS
+      publishes between censuses.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  CORRACA:
+    translated_name: Race/color
+    description: 'IBGE cor/raça (race/color) self-declared classification of the tallied
+      population: Branca, Preta, Amarela, Parda, Indígena and Sem declaração, one digit
+      per category.
+
+      '
+    source: web
+    source_ref: sidra.ibge.gov.br/tabela/9605 (População residente por cor ou raça)
+  IDADE:
+    translated_name: Age
+    description: 'Age of the tallied group. In tables using single-year bands it is
+      a 3-digit code grouped into 5-year classes (000-004 = "0 a 4 anos"); in literacy
+      and elderly indicator tables it is a wider range code instead, e.g. 6099.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Naming grammar (no DT_/CS_ prefix, a bare demographic noun) plus the
+      two distinct value formats actually observed — 3-digit single years bound to
+      IDADEDETSVS, and 4-digit wide ranges in the ALF/IDOSO series — match DATASUS''s
+      dual age-coding convention used alongside FXETARIA.
+
+      '
+    asserted_by: pegasus_data
+  MUNCOD:
+    translated_name: Municipality code (6-digit)
+    description: '6-digit IBGE municipality code, without the verification digit, used
+      as the geography key in the literacy, schooling, income and child-labor census
+      indicator tables (ALF, ESCA, RENDA series).
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'CO_ prefix = código naming grammar; bound to the MUNICBR codelist as
+      a 6-digit municipality code and appears across the same ALF/ESCA/RENDA series
+      as MUNIC_RES, under a differently spelled field name.
+
+      '
+    asserted_by: pegasus_data
+  POPTOT:
+    translated_name: Total population (indicator base)
+    description: 'Total population of the demographic cell (age band, sex, race and
+      município) that a literacy or schooling rate is computed against in the ALF/ESCA
+      series.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'POP=população, TOT=total per naming grammar; appears alongside literacy
+      and schooling breakdowns as an additive numeric measure with no codelist, consistent
+      with a denominator population count for those rates.
+
+      '
+    asserted_by: pegasus_data
+  POPULACAO:
+    translated_name: Population count
+    description: 'Number of residents counted for one combination of município, ano,
+      sexo, situação de domicílio and faixa etária — the headcount held by that cell
+      of the IBGE census/estimate population table.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  SEXO:
+    official_name: Sexo
+    translated_name: Sex
+    description: 'Sex of the tallied population. Numeric-coded tables use 1=Masculino,
+      2=Feminino; some series carry the same two categories as the letters M and F
+      instead.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  SITUACAO:
+    official_name: Situação de domicílio
+    translated_name: Urban/rural situation
+    description: 'Urban/rural classification of the household. Numeric tables use 1=Urbano,
+      2=Rural, 3=Não levantado; other series carry the same three categories as U,
+      R and I.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm

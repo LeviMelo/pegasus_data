@@ -1,0 +1,45 @@
+# SIA.AM — APAC, medicines
+# APAC de Medicamentos
+#
+# One authorisation for a specialised-component medicine, the route by which
+# high-cost drugs are dispensed.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  AM_ALTURA:
+    official_name: Altura do paciente em cm
+    translated_name: Patient height
+    description: Patient's height in centimetres, recorded to compute drug dosing for
+      the authorised medication.
+    code_system: none
+  AM_GESTANT:
+    official_name: Indicador de Gestante (S = Sim; N = Não)
+    translated_name: Pregnancy indicator
+    description: Whether the patient was pregnant at the time this medication APAC
+      was issued.
+    code_system: internal
+    codelists:
+    - GESTANTE
+  AM_PESO:
+    official_name: Peso do paciente em kg
+    translated_name: Patient weight
+    description: Patient's weight in kilograms, recorded to compute drug dosing for
+      the authorised medication.
+    code_system: none
+  AM_QTDTRAN:
+    official_name: Quantidade de Transplantes
+    translated_name: Number of transplants
+    description: Number of organ/tissue transplants the patient has undergone, relevant
+      context for the immunosuppressant or other medication this APAC authorises.
+    code_system: none
+    notes: The catalog binds this field to a QDT_TRAN codelist, likely a TabNet display
+      lookup for a small integer range rather than a real classification.
+  AM_TRANSPL:
+    official_name: Indicador se o paciente fez transplante
+    translated_name: Transplant indicator
+    description: Whether the patient has had a transplant, gating whether AM_QTDTRAN
+      is meaningful.
+    code_system: internal
+    codelists:
+    - TRANSPL

@@ -1,0 +1,790 @@
+# SISCAN.CM — Breast cytology
+# Citopatológico de Mama
+#
+# One breast cytology exam and its result.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+  CCLIMATDPC:
+    official_name: Material enviado - tipo de coleta
+    translated_name: Specimen collection-method code
+    description: 'Ties to the ''5. Material enviado:'' checkboxes (descarga papilar
+      / puncao aspirativa / conteudo cistico) - which of the three specimen types accompanies
+      the request.
+
+      '
+    codelists:
+    - CCLIMATDPC
+    code_system: internal
+    source: inferred
+    reasoning: 'CCLI (caracteristica clinica) + MAT (material) + DPC reads as an abbreviation
+      of descarga papilar / conteudo (cistico), the specimen-source checkboxes under
+      ''Material enviado'' once CCLIMATMAM (laterality) is set aside.
+
+      '
+    notes: 'Moderate confidence; the exact option wording per code value is not confirmed.
+
+      '
+  CCLIMATMAM:
+    official_name: Lateralidade da mama (material enviado)
+    translated_name: Breast laterality of specimen
+    description: 'From ''Mama direita / Mama esquerda'' under ''Material enviado''
+      - which breast the specimen came from.
+
+      '
+    codelists:
+    - CCLIMATMAM
+    code_system: internal
+    source: inferred
+    reasoning: 'CCLI+MAT+MAM reads as caracteristica-material-mama; laterality is the
+      remaining checkbox in that section once CCLIMATDPC accounts for the collection-method
+      options.
+
+      '
+    notes: 'Moderate confidence.
+
+      '
+  CNPJ_MANT:
+    official_name: CNPJ da mantenedora
+    translated_name: Maintaining entity's CNPJ
+    description: 'Brazilian company-registry number (CNPJ) of the legal entity that
+      administers the health facility in this SISMAMA provider-registration record;
+      passes through unmodified, an identifier not a label.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Follows CNES-style cadastro naming (CNPJ_MAN identifies the mantenedora
+      entity); the sampled file path CMAC*.dbc under SISMAMA/Dados matches the Cadastro
+      Mantenedora registration-file pattern used elsewhere in DATASUS.
+
+      '
+    source_ref: naming grammar + strata sampled_path SISMAMA/Dados/CMAC0907.dbc
+  COMPET:
+    official_name: Competência
+    translated_name: Reference period
+    description: 'Reference month and year (YYYYMM) this SISMAMA provider-registration
+      snapshot describes, the same competência convention SISCAN uses to date its exam
+      records.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '6-digit declared width matches YYYYMM; SISCAN''s technical notes define
+      competência as the month/year a record is released, and this cadastro file reuses
+      that same DATASUS convention.
+
+      '
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 competência field
+  CO_CLI_DES:
+    official_name: Descarga papilar (achado clínico)
+    translated_name: Nipple discharge characteristic (clinical finding)
+    description: 'Characteristic of nipple discharge reported on clinical exam of the
+      breast — Cristalina or Hemorrágica — from question 4 (EXAME CLÍNICO DAS MAMAS)
+      on the breast cytology requisition. Bound to CCLIDESC.
+
+      '
+    codelists:
+    - CCLIDESC
+    code_system: internal
+    source: layout_doc
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files//media/document//formulario-colorido-exame-citopatologico-mama.pdf,
+      page 1, EXAME CLÍNICO DAS MAMAS — Descarga papilar
+  CO_CLI_NOD:
+    official_name: Nódulo/tumor (achado clínico)
+    translated_name: Palpable nodule characteristic (clinical finding)
+    description: 'Characteristic of a palpable breast nodule found on clinical exam
+      — Sólido, Cístico, or Sólido-cístico — from the same EXAME CLÍNICO DAS MAMAS
+      section. Bound to CCLINODU.
+
+      '
+    codelists:
+    - CCLINODU
+    code_system: internal
+    source: layout_doc
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files//media/document//formulario-colorido-exame-citopatologico-mama.pdf,
+      page 1, EXAME CLÍNICO DAS MAMAS — Nódulo (tumor)
+  CO_SEQ_SISCAN_CITO_MAMA_RESID:
+    official_name: Sequencial SISCAN citopatologia mama (resultado)
+    translated_name: Record sequence number (breast-cytology result)
+    description: Row-sequence identifier on the main SISCAN_CITO_MAMA result/exam-record
+      table, distinct from the _PACNT patient-dimension sequence.
+    code_system: none
+    source: inferred
+    reasoning: Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID
+      in siscan_fill_02.yml.
+  CRESBENIG:
+    official_name: Resultado da puncao aspirativa - Processos Benignos. Negativo para
+      malignidade
+    translated_name: 'PAAF result category: Processos Benignos. Negativo para malignidade'
+    description: 'One of the four fine-needle-aspiration (PAAF) result categories the
+      SISMAMA 2010 informe itself charts by name in Figura 9 (''Processos Benignos.
+      Negativo para malignidade'' among them) - the top-level classification of a breast
+      FNA cytology result. Bound to a self-named internal codelist enumerating the
+      specific findings within the category (see the PBEN*/PMALIN*/PSUS*/PPOSMAC* entries).
+
+      '
+    codelists:
+    - CRESBENIG
+    code_system: internal
+    source: web
+    source_ref: 'https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf,
+      INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle
+      do cancer de mama no Brasil (2010)'
+  CRESDERPAP:
+    official_name: Resultado — descarga papilar / conteúdo cístico
+    translated_name: Nipple-discharge / cystic-content specimen result flag
+    description: 'Flags that the specimen examined was nipple discharge or cystic content
+      rather than a fine-needle aspirate of a solid nodule — the form gives this its
+      own result section (RESULTADO DA DESCARGA PAPILAR / CONTEÚDO CÍSTICO) with its
+      own six-category outcome set (see DEMATACELU/DENEGMALIG/DEMALIINDT/DEPOSMALIG/DELESMALIG/DEPROCINFL).
+
+      '
+    codelists:
+    - CRESDERPAP
+    code_system: internal
+    source: layout_doc
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files//media/document//formulario-colorido-exame-citopatologico-mama.pdf,
+      page 2, RESULTADO DA DESCARGA PAPILAR / CONTEÚDO CÍSTICO
+  CRESMALIIN:
+    official_name: Resultado da puncao aspirativa - Malignidade Indeterminada Compativel
+    translated_name: 'PAAF result category: Malignidade Indeterminada Compativel'
+    description: 'One of the four fine-needle-aspiration (PAAF) result categories the
+      SISMAMA 2010 informe itself charts by name in Figura 9 (''Malignidade Indeterminada
+      Compativel'' among them) - the top-level classification of a breast FNA cytology
+      result. Bound to a self-named internal codelist enumerating the specific findings
+      within the category (see the PBEN*/PMALIN*/PSUS*/PPOSMAC* entries).
+
+      '
+    codelists:
+    - CRESMALIIN
+    code_system: internal
+    source: web
+    source_ref: 'https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf,
+      INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle
+      do cancer de mama no Brasil (2010)'
+  CRESPOSMAL:
+    official_name: Resultado da puncao aspirativa - Positivo para Malignidade
+    translated_name: 'PAAF result category: Positivo para Malignidade'
+    description: 'One of the four fine-needle-aspiration (PAAF) result categories the
+      SISMAMA 2010 informe itself charts by name in Figura 9 (''Positivo para Malignidade''
+      among them) - the top-level classification of a breast FNA cytology result. Bound
+      to a self-named internal codelist enumerating the specific findings within the
+      category (see the PBEN*/PMALIN*/PSUS*/PPOSMAC* entries).
+
+      '
+    codelists:
+    - CRESPOSMAL
+    code_system: internal
+    source: web
+    source_ref: 'https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf,
+      INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle
+      do cancer de mama no Brasil (2010)'
+  CRESSUSMAL:
+    official_name: Resultado da puncao aspirativa - Suspeito para Malignidade
+    translated_name: 'PAAF result category: Suspeito para Malignidade'
+    description: 'One of the four fine-needle-aspiration (PAAF) result categories the
+      SISMAMA 2010 informe itself charts by name in Figura 9 (''Suspeito para Malignidade''
+      among them) - the top-level classification of a breast FNA cytology result. Bound
+      to a self-named internal codelist enumerating the specific findings within the
+      category (see the PBEN*/PMALIN*/PSUS*/PPOSMAC* entries).
+
+      '
+    codelists:
+    - CRESSUSMAL
+    code_system: internal
+    source: web
+    source_ref: 'https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf,
+      INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle
+      do cancer de mama no Brasil (2010)'
+  C_ANM_TCAN:
+    official_name: Risco Elevado (anamnese)
+    translated_name: Known elevated breast cancer risk
+    description: 'Whether the patient reported a known elevated risk for breast cancer,
+      such as a personal history of breast cancer or a first-degree relative diagnosed
+      before age 50.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Shares the ANM (anamnese) + TCAN (câncer) pattern with CANMPACANC (MMAMA4.def)
+      and C_CLI_TCAN (HMAMA4.def), both labeled "Risco Elevado" and defined in Nota
+      Tecnica 8.
+
+      '
+    source_ref: 'naming grammar + Nota Tecnica 8 SISCAN - Mamografia, campo Risco elevado
+
+      '
+  DELESMALIG:
+    official_name: Descarga papilar/cístico — consistente com lesão papilar
+    translated_name: Nipple-discharge/cystic result — consistent with papillary lesion
+    description: Count of nipple-discharge or cystic-content specimens whose cytological
+      pattern was "Consistente com lesão papilar".
+    code_system: none
+    source: inferred
+    reasoning: 'Completes the six-category "Padrão citopatológico da amostra" checklist
+      on the descarga-papilar/conteúdo-cístico result panel alongside DEMATACELU, DENEGMALIG,
+      DEMALIINDT, DEPOSMALIG and DEPROCINFL — those five map cleanly by their letters,
+      and this is the one remaining checkbox ("Consistente com lesão papilar") for
+      which DELESMALIG is the only unassigned field left in the family.
+
+      '
+    asserted_by: pegasus_data
+  DEMALIINDT:
+    official_name: Descarga papilar - Padrao citopatologico de malignidade indeterminada
+    translated_name: 'Nipple-discharge finding: Padrao citopatologico de malignidade
+      indeterminada'
+    description: 'One of the checkboxes for ''Padrao citopatologico de malignidade
+      indeterminada'' under ''Padrao citopatologico da amostra'' in RESULTADO DA DESCARGA
+      PAPILAR / CONTEUDO CISTICO.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESDERPAP
+  DEMATACELU:
+    official_name: Descarga papilar - Material acelular
+    translated_name: 'Nipple-discharge finding: Material acelular'
+    description: 'One of the checkboxes for ''Material acelular'' under ''Padrao citopatologico
+      da amostra'' in RESULTADO DA DESCARGA PAPILAR / CONTEUDO CISTICO.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESDERPAP
+  DENEGMALIG:
+    official_name: Descarga papilar - Negativo para malignidade
+    translated_name: 'Nipple-discharge finding: Negativo para malignidade'
+    description: 'One of the checkboxes for ''Negativo para malignidade'' under ''Padrao
+      citopatologico da amostra'' in RESULTADO DA DESCARGA PAPILAR / CONTEUDO CISTICO.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESDERPAP
+  DEPOSMALIG:
+    official_name: Descarga papilar - Positivo para malignidade
+    translated_name: 'Nipple-discharge finding: Positivo para malignidade'
+    description: 'One of the checkboxes for ''Positivo para malignidade'' under ''Padrao
+      citopatologico da amostra'' in RESULTADO DA DESCARGA PAPILAR / CONTEUDO CISTICO.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESDERPAP
+  DEPROCINFL:
+    official_name: Descarga papilar - Consistente com processo inflamatorio
+    translated_name: 'Nipple-discharge finding: Consistente com processo inflamatorio'
+    description: 'One of the checkboxes for ''Consistente com processo inflamatorio''
+      under ''Padrao citopatologico da amostra'' in RESULTADO DA DESCARGA PAPILAR /
+      CONTEUDO CISTICO.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESDERPAP
+  NU_PAAF_B_ABC_SUBARE:
+    official_name: PAAF, benigno — abscesso subareolar
+    translated_name: Count of benign FNA results, subareolar abscess
+    description: Count of fine-needle aspirations (PAAF) reading benign with a subareolar
+      abscess — an infected duct beneath the nipple.
+    code_system: none
+    source: inferred
+    reasoning: PAAF_B is PAAF, benigno; ABC_SUBARE abbreviates abscesso subareolar.
+  NU_PAAF_B_COM_FIB_MAM:
+    official_name: PAAF, benigno — condição fibrocística mamária
+    translated_name: Count of benign FNA results, fibrocystic breast condition
+    description: Count of benign PAAF results showing fibrocystic breast changes —
+      the FNA counterpart of HISTO_MAMA's NU_CONDICAO_FIBROCISTICA (siscan_fill_07.yml).
+    code_system: none
+    source: inferred
+    reasoning: PAAF_B_COM_FIB_MAM most plausibly abbreviates PAAF benigno, condição
+      fibrocística mamária.
+  NU_PAAF_B_FIBROAD:
+    official_name: PAAF, benigno — fibroadenoma
+    translated_name: Count of benign FNA results, fibroadenoma
+    description: Count of benign PAAF results reading fibroadenoma — the FNA counterpart
+      of HISTO_MAMA's NU_FIBROADENOMA.
+    code_system: none
+    source: inferred
+    reasoning: PAAF_B_FIBROAD is PAAF benigno, fibroadenoma, truncated.
+  NU_PAAF_B_L_E_P:
+    official_name: PAAF, benigno — lesão epitelial papilar
+    translated_name: Count of benign FNA results, papillary lesion
+    description: 'Count of benign PAAF results reading a papillary lesion. Papillary
+      breast lesions span a benign-to-malignant spectrum, which is why this same L_E_P
+      stem recurs under the suspicious category (NU_PAAF_SUS_L_E_P) below.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: L_E_P most plausibly initials lesão epitelial papilar; recurs identically
+      under a different top-level category, consistent with a spectrum finding rather
+      than a single fixed diagnosis.
+  NU_PAAF_B_MASTITE:
+    official_name: PAAF, benigno — mastite
+    translated_name: Count of benign FNA results, mastitis
+    description: Count of benign PAAF results reading mastitis.
+    code_system: none
+    source: inferred
+    reasoning: PAAF_B_MASTITE is PAAF benigno, mastite, unabbreviated.
+  NU_PAAF_B_NECR_GORDUR:
+    official_name: PAAF, benigno — necrose gordurosa
+    translated_name: Count of benign FNA results, fat necrosis
+    description: Count of benign PAAF results reading fat necrosis — often post-traumatic,
+      the cytology counterpart of HISTO_MAMA's oil-cyst finding.
+    code_system: none
+    source: inferred
+    reasoning: NECR_GORDUR abbreviates necrose gordurosa.
+  NU_PAAF_B_OUTRAS:
+    official_name: PAAF, benigno — outras
+    translated_name: Count of other benign FNA results
+    description: Count of benign PAAF results not fitting any of this batch's other
+      named benign categories — closes out the seven-way PAAF_B breakdown.
+    code_system: none
+    source: inferred
+    reasoning: OUTRAS is the standard residual/other category label.
+  NU_PAAF_M_IND_OUTROS:
+    official_name: PAAF, indeterminado — outros
+    translated_name: Count of indeterminate FNA results, other
+    description: 'Count of PAAF results in the least-settled category of this batch
+      — M_IND does not decompose with full confidence, but reads most plausibly as
+      an indeterminate-result grouping distinct from the determined-malignancy P_M
+      group below.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Shares the PAAF_ stem with the confidently-read B/P_M/SUS groups; IND
+      plausibly abbreviates indeterminado, paired here with a residual OUTROS subtype.
+
+      '
+    notes: 'DELIBERATELY UNDER-SPECIFIED — no observed values or codelist confirm what
+      M_IND, TUMF or TUMPA (its sibling subtypes) each mean precisely.
+
+      '
+  NU_PAAF_M_IND_TUMF:
+    official_name: PAAF, indeterminado — TUMF
+    translated_name: Count of indeterminate FNA results, "TUMF" subtype
+    description: 'A subtype of the indeterminate PAAF category (see NU_PAAF_M_IND_OUTROS)
+      whose specific referent — possibly a fixed/non-mobile palpable mass — is not
+      established.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same M_IND stem as NU_PAAF_M_IND_OUTROS/TUMPA; TUM plausibly abbreviates
+      tumoração.
+    notes: DELIBERATELY UNDER-SPECIFIED — see NU_PAAF_M_IND_OUTROS.
+  NU_PAAF_M_IND_TUMPA:
+    official_name: PAAF, indeterminado — TUMPA
+    translated_name: Count of indeterminate FNA results, "TUMPA" subtype
+    description: 'A subtype of the indeterminate PAAF category (see NU_PAAF_M_IND_OUTROS)
+      whose specific referent — possibly a palpable mass — is not established.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same M_IND stem as NU_PAAF_M_IND_OUTROS/TUMF; TUM plausibly abbreviates
+      tumoração, PA possibly palpável.
+    notes: DELIBERATELY UNDER-SPECIFIED — see NU_PAAF_M_IND_OUTROS.
+  NU_PAAF_P_M_CARC_DUC:
+    official_name: PAAF, positivo para malignidade — carcinoma ductal
+    translated_name: Count of malignant FNA results, ductal carcinoma
+    description: Count of PAAF results positive for malignancy and typed as ductal
+      carcinoma — the most common breast-cancer cell type.
+    code_system: none
+    source: inferred
+    reasoning: P_M plausibly abbreviates positivo [para] malignidade, paired with the
+      determined subtypes CARC_DUC/CARC_LOB/OUTROS.
+  NU_PAAF_P_M_CARC_LOB:
+    official_name: PAAF, positivo para malignidade — carcinoma lobular
+    translated_name: Count of malignant FNA results, lobular carcinoma
+    description: Count of PAAF results positive for malignancy and typed as lobular
+      carcinoma — the counterpart of NU_PAAF_P_M_CARC_DUC.
+    code_system: none
+    source: inferred
+    reasoning: Same P_M stem as NU_PAAF_P_M_CARC_DUC; CARC_LOB is carcinoma lobular.
+  NU_PAAF_P_M_OUTROS:
+    official_name: PAAF, positivo para malignidade — outros
+    translated_name: Count of malignant FNA results, other type
+    description: Count of PAAF results positive for malignancy with a cell type other
+      than ductal or lobular carcinoma.
+    code_system: none
+    source: inferred
+    reasoning: Same P_M stem as NU_PAAF_P_M_CARC_DUC/LOB; OUTROS is the residual/other
+      category.
+  NU_PAAF_SUSM_OUTROS:
+    official_name: PAAF, suspeito de malignidade — outros
+    translated_name: Count of suspicious FNA results, other
+    description: 'Count of PAAF results classified suspicious for malignancy (a category
+      between benign and positive), not otherwise sub-typed.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: SUSM plausibly contracts suspeito [de] malignidade; OUTROS is the residual
+      category.
+  NU_PAAF_SUS_L_E_P:
+    official_name: PAAF, suspeito — lesão epitelial papilar
+    translated_name: Count of suspicious FNA results, papillary lesion
+    description: 'Count of PAAF results reading a papillary lesion classified suspicious
+      rather than benign — the higher-concern counterpart of NU_PAAF_B_L_E_P, reflecting
+      papillary lesions'' benign-to-malignant spectrum.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same L_E_P stem as NU_PAAF_B_L_E_P; SUS here (vs. SUSM above) is an
+      inconsistent abbreviation of the same suspeito category, a naming inconsistency
+      rather than a distinct third category.
+
+      '
+  NU_QDESC_LES_PAPIL:
+    official_name: Descarga papilar — lesão papilar
+    translated_name: Count of nipple-discharge-cytology results, papillary lesion
+    description: 'Count of nipple-discharge cytology specimens reading a papillary
+      lesion — this batch''s second specimen type, alongside PAAF.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QDESC most plausibly abbreviates descarga [papilar] (nipple discharge),
+      SISCAN''s other breast-cytology collection method besides PAAF; LES_PAPIL is
+      lesão papilar.
+
+      '
+    notes: DESC's exact expansion is not confirmed by any observed value or dictionary
+      entry.
+  NU_QDESC_MALIG_INDT:
+    official_name: Descarga papilar — maligno indeterminado
+    translated_name: Count of nipple-discharge-cytology results, indeterminate malignancy
+    description: Count of nipple-discharge cytology specimens read as indeterminate
+      for malignancy.
+    code_system: none
+    source: inferred
+    reasoning: Same QDESC stem as NU_QDESC_LES_PAPIL; MALIG_INDT is maligno indeterminado.
+  NU_QDESC_MAT_ACELULAR:
+    official_name: Descarga papilar — material acelular
+    translated_name: Count of nipple-discharge-cytology results, acellular material
+    description: 'Count of nipple-discharge cytology specimens containing no cellular
+      material — an inadequacy/unsatisfactory-sample result rather than a diagnosis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: MAT_ACELULAR is material acelular, unabbreviated.
+  NU_QDESC_NEG_MALIG:
+    official_name: Descarga papilar — negativo para malignidade
+    translated_name: Count of nipple-discharge-cytology results, negative for malignancy
+    description: Count of nipple-discharge cytology specimens read as negative for
+      malignancy — this dataset's normal/benign result for this specimen type.
+    code_system: none
+    source: inferred
+    reasoning: NEG_MALIG is negativo [para] malignidade, unabbreviated.
+  NU_QDESC_POS_MALIG:
+    official_name: Descarga papilar — positivo para malignidade
+    translated_name: Count of nipple-discharge-cytology results, positive for malignancy
+    description: Count of nipple-discharge cytology specimens read as positive for
+      malignancy — the counterpart of NU_QDESC_NEG_MALIG.
+    code_system: none
+    source: inferred
+    reasoning: POS_MALIG is positivo [para] malignidade, unabbreviated.
+  NU_QDESC_PROC_INFL:
+    official_name: Descarga papilar — processo inflamatório
+    translated_name: Count of nipple-discharge-cytology results, inflammatory process
+    description: Count of nipple-discharge cytology specimens showing an inflammatory
+      process rather than a neoplastic finding.
+    code_system: none
+    source: inferred
+    reasoning: PROC_INFL is processo inflamatório, unabbreviated.
+  PBENABSUBA:
+    official_name: PAAF benigno - Abscesso subareolar recorrente
+    translated_name: 'Benign PAAF finding: Abscesso subareolar recorrente'
+    description: 'One of the seven specific findings listed under ''Processos Benignos.
+      Negativo para malignidade compativel com:'' in the PAAF result section - ''Abscesso
+      subareolar recorrente''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESBENIG
+  PBENCONDFI:
+    official_name: PAAF benigno - Condicao fibrocistica mamaria
+    translated_name: 'Benign PAAF finding: Condicao fibrocistica mamaria'
+    description: 'One of the seven specific findings listed under ''Processos Benignos.
+      Negativo para malignidade compativel com:'' in the PAAF result section - ''Condicao
+      fibrocistica mamaria''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESBENIG
+  PBENFIBROA:
+    official_name: PAAF benigno - Fibroadenoma
+    translated_name: 'Benign PAAF finding: Fibroadenoma'
+    description: 'One of the seven specific findings listed under ''Processos Benignos.
+      Negativo para malignidade compativel com:'' in the PAAF result section - ''Fibroadenoma''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESBENIG
+  PBENLESEPI:
+    official_name: PAAF benigno - Lesao epitelial benigna proliferativa sem atipias
+    translated_name: 'Benign PAAF finding: Lesao epitelial benigna proliferativa sem
+      atipias'
+    description: 'One of the seven specific findings listed under ''Processos Benignos.
+      Negativo para malignidade compativel com:'' in the PAAF result section - ''Lesao
+      epitelial benigna proliferativa sem atipias''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESBENIG
+  PBENMASTIT:
+    official_name: PAAF benigno - Mastite
+    translated_name: 'Benign PAAF finding: Mastite'
+    description: 'One of the seven specific findings listed under ''Processos Benignos.
+      Negativo para malignidade compativel com:'' in the PAAF result section - ''Mastite''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESBENIG
+  PBENNECGOR:
+    official_name: PAAF benigno - Necrose gordurosa
+    translated_name: 'Benign PAAF finding: Necrose gordurosa'
+    description: 'One of the seven specific findings listed under ''Processos Benignos.
+      Negativo para malignidade compativel com:'' in the PAAF result section - ''Necrose
+      gordurosa''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESBENIG
+  PBENOUTRAS:
+    official_name: PAAF benigno - Outros (exclusivamente benignos)
+    translated_name: 'Benign PAAF finding: Outros (exclusivamente benignos)'
+    description: 'One of the seven specific findings listed under ''Processos Benignos.
+      Negativo para malignidade compativel com:'' in the PAAF result section - ''Outros
+      (exclusivamente benignos)''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESBENIG
+  PMALINOUTR:
+    official_name: PAAF malignidade indeterminada - Outros
+    translated_name: 'Indeterminate-malignancy PAAF finding: Outros'
+    description: 'From ''Padrao citopatologico de malignidade indeterminada compativel
+      com: Tumor papilar / Tumor filoide / Outros'' - ''Outros''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESMALIIN
+  PMALINTUMF:
+    official_name: PAAF malignidade indeterminada - Tumor filoide
+    translated_name: 'Indeterminate-malignancy PAAF finding: Tumor filoide'
+    description: 'From ''Padrao citopatologico de malignidade indeterminada compativel
+      com: Tumor papilar / Tumor filoide / Outros'' - ''Tumor filoide''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESMALIIN
+  PMALINTUMP:
+    official_name: PAAF malignidade indeterminada - Tumor papilar
+    translated_name: 'Indeterminate-malignancy PAAF finding: Tumor papilar'
+    description: 'From ''Padrao citopatologico de malignidade indeterminada compativel
+      com: Tumor papilar / Tumor filoide / Outros'' - ''Tumor papilar''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESMALIIN
+  PPOSMACDUC:
+    official_name: PAAF positivo malignidade - Carcinoma ductal
+    translated_name: 'Malignant PAAF finding: Carcinoma ductal'
+    description: 'From ''Padrao citopatologico positivo para malignidade compativel
+      com: Carcinoma ductal / Carcinoma lobular / Outros'' - ''Carcinoma ductal''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESPOSMAL
+  PPOSMACLOB:
+    official_name: PAAF positivo malignidade - Carcinoma lobular
+    translated_name: 'Malignant PAAF finding: Carcinoma lobular'
+    description: 'From ''Padrao citopatologico positivo para malignidade compativel
+      com: Carcinoma ductal / Carcinoma lobular / Outros'' - ''Carcinoma lobular''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESPOSMAL
+  PPOSMACOUT:
+    official_name: PAAF positivo malignidade - Outros (exclusivamente malignos)
+    translated_name: 'Malignant PAAF finding: Outros (exclusivamente malignos)'
+    description: 'From ''Padrao citopatologico positivo para malignidade compativel
+      com: Carcinoma ductal / Carcinoma lobular / Outros'' - ''Outros (exclusivamente
+      malignos)''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESPOSMAL
+  PRESULPAAF:
+    official_name: Resultado geral da puncao aspirativa
+    translated_name: Overall FNA (PAAF) result code
+    description: 'Summary code for the overall PAAF result across the four categories
+      (benigno / indeterminado / suspeito / positivo), rather than any one sub-finding.
+      Declared with two widths across files in the catalog (C(1,0) and C(8,0)) - its
+      encoding appears to have changed at some point across the 2009-2015 span rather
+      than being one stable format throughout.
+
+      '
+    codelists:
+    - PRESULPAAF
+    code_system: internal
+    source: web
+    source_ref: 'https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf,
+      INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle
+      do cancer de mama no Brasil (2010)'
+    reasoning: 'P(uncao) RESUL(tado) PAAF spells out directly, and Figura 9 of the
+      SISMAMA informe reports the result of PAAF exams as exactly these four categories
+      in aggregate.
+
+      '
+  PSUSLEJPCA:
+    official_name: PAAF suspeito malignidade - lesao epitelial proliferativa com atipias
+    translated_name: 'Suspicious PAAF finding: proliferative epithelial lesion with
+      atypia'
+    description: 'From ''Padrao citopatologico suspeito para malignidade: Lesao epitelial
+      proliferativa com atipias / Outros''.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESSUSMAL
+    notes: 'The field name does not spell the finding cleanly; assigned by elimination
+      since the ''suspeito'' section on the form has only two checkboxes (this one
+      and ''Outros'').
+
+      '
+  PSUSOUTROS:
+    official_name: PAAF suspeito malignidade - outros
+    translated_name: 'Suspicious PAAF finding: other'
+    description: 'The ''Outros'' checkbox in the same ''suspeito para malignidade''
+      section as PSUSLEJPCA.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Mama (formulario
+      no.416), p.1-2
+    depends_on:
+    - CRESSUSMAL
+  QT_EXAME:
+    official_name: Quantidade de exames
+    translated_name: Total exam count
+    description: Total number of breast cytology exams in this row's aggregation —
+      the denominator the NU_PAAF_*/NU_QDESC_* result counts are drawn from.
+    code_system: none
+    source: inferred
+    reasoning: QT_ is DATASUS's standard quantidade prefix; EXAME is exame, unabbreviated.
+  RAZAO:
+    official_name: Razão social
+    translated_name: Corporate name
+    description: 'Legal corporate name (razão social) of the mantenedora entity in
+      this SISMAMA provider-registration record; a real name, not a coded label, passed
+      through unmodified.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'RAZAO follows CNES-style cadastro field naming for razão social, matching
+      the CNPJ_MANT/COMPET fields in the same file, which together read as a legal-entity
+      registration record.
+
+      '
+    source_ref: naming grammar

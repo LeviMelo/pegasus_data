@@ -1,0 +1,1022 @@
+# SINAN.LEPT —
+#
+# one notification of leptospirosis
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANT_ANIMAI:
+    official_name: Casos Anteriores de Leptospirose... Casos Animais
+    translated_name: Prior leptospirosis at the probable infection site - animal cases
+    description: 'Whether animals were known to have had leptospirosis at the site
+      where the patient was probably infected, in the two months before the investigation
+      — a local-outbreak indicator, not the patient''s own medical history.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 34
+  ANT_CB_CAI:
+    official_name: Contato com caixa d'água
+    translated_name: Contact with a water tank
+    description: 'Contact with a water tank. The ANT_CB_ block enumerates specific
+      exposures, and a contaminated tank is a recognised urban source.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CB_CAI reads caixa d'água; a yes/no exposure flag.
+  ANT_CB_CAR:
+    official_name: Antecedente - contato com carcaça de animal
+    translated_name: Contact with animal carcass (antecedent)
+    description: 'Whether the leptospirosis patient had contact with an animal carcass
+      in the 30 days before symptoms, one of several epidemiological-antecedent exposure
+      checkboxes (alongside floodwater, mud, sewage, rodents) used to trace the contamination
+      source.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANT_ = antecedente epidemiológico, a standard leptospirosis section;
+      CB_CAR most plausibly abbreviates carcaça/cadáver de animal, a known exposure
+      route for Leptospira; decode of CB_CAR is uncertain.
+
+      '
+  ANT_CB_COR:
+    official_name: Situação de Risco - Rio, córrego, lagoa ou represa
+    translated_name: Risk exposure - river, stream, lagoon, or dam
+    description: 'Whether the patient had contact with water from a river, stream,
+      lagoon, or dam in the 30 days before symptom onset — a classic leptospirosis
+      exposure route via Leptospira-contaminated fresh water.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
+  ANT_CB_CRI:
+    official_name: Situação de Risco - Criação de animais
+    translated_name: Risk exposure - raising or keeping animals
+    description: 'Whether the patient kept or worked with livestock or other domestic
+      animals in the 30 days before symptoms began, since animal urine is a common
+      source of Leptospira contamination.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
+  ANT_CB_FOS:
+    official_name: Situação de Risco - Fossa, caixa de gordura ou esgoto
+    translated_name: Risk exposure - septic tank, grease trap, or sewage
+    description: 'Whether the patient had contact with a septic tank, grease trap,
+      or open sewage in the 30 days before symptoms, a known leptospirosis exposure
+      route through rodent-contaminated waste water.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
+  ANT_CB_GRA:
+    official_name: Contato com criação de animais
+    translated_name: Contact with livestock
+    description: 'Contact with livestock. Cattle and pigs shed leptospires in urine,
+      making this an occupational exposure for farm and abattoir workers.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: An exposure flag in the ANT_CB_ block.
+  ANT_CB_LAM:
+    official_name: Situação de Risco - Água ou lama de enchente
+    translated_name: Risk exposure - flood water or mud
+    description: 'Whether the patient waded through or contacted flood water or mud
+      in the 30 days before symptom onset — the single most common leptospirosis exposure
+      recorded in Brazilian urban outbreaks.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
+  ANT_CB_LAV:
+    official_name: Contato com água/lavagem em local de risco nos últimos 30 dias
+    translated_name: Contact with contaminated water for washing (flag)
+    description: 'Whether the patient washed clothes/items or otherwise had washing
+      contact with potentially contaminated water in the 30 days before symptoms -
+      one of several leptospirosis exposure-history checkboxes alongside flood water
+      and rodent-contact items.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANT_CB_ = antecedente (30-day risk-history block, same naming family
+      as the flood/rodent/agriculture items in the LEPT form); LAV = lavagem (washing);
+      lower confidence on the exact activity.
+
+      '
+  ANT_CB_LIM:
+    official_name: Antecedente de limpeza de bueiro/córrego
+    translated_name: History of cleaning a drain or ditch
+    description: 'Whether the leptospirosis patient cleaned a storm drain, culvert,
+      or ditch before symptom onset — a recognized urban exposure to rodent-urine-contaminated
+      water.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is LEPT; ANT_ is the antecedente/exposure prefix, CB/LIM read
+      as "bueiro/limpeza"; C1 width fits a coded yes/no exposure item alongside CON_TERREN
+      on the same form.
+
+      '
+  ANT_CB_LIX:
+    official_name: Situação de Risco - Lixo/Entulho
+    translated_name: Risk exposure - garbage or rubble
+    description: 'Whether the patient had contact with uncollected garbage or construction
+      rubble in the 30 days before symptoms — sites that attract the rodents whose
+      urine spreads Leptospira bacteria.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
+  ANT_CB_OUT:
+    official_name: Situação de Risco - Outras
+    translated_name: Risk exposure - other
+    description: 'Whether the patient reported a leptospirosis risk exposure not covered
+      by the listed categories (water, animals, sewage, rodents, garbage); 1=Sim enables
+      a free-text field naming the exposure.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
+  ANT_CB_PLA:
+    official_name: Contato com plantação
+    translated_name: Contact with crops
+    description: 'Work or contact with planted land. The rural counterpart to the urban
+      flooding exposures, and the route for cane and rice workers.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CB_PLA reads plantação; an exposure flag.
+  ANT_CB_ROE:
+    official_name: Situação de Risco - Roedores diretamente
+    translated_name: Risk exposure - direct contact with rodents
+    description: 'Whether the patient had direct contact with rodents (rats, mice)
+      in the 30 days before symptom onset, the primary animal reservoir that sheds
+      Leptospira in its urine.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
+  ANT_CB_SIN:
+    official_name: Contato com sinusite ou fossa
+    translated_name: Contact with a cesspit
+    description: Contact with a cesspit or septic system, a route through contaminated
+      water.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: An exposure flag in the ANT_CB_ block.
+  ANT_CB_TER:
+    official_name: Contato com terreno baldio
+    translated_name: Contact with waste ground
+    description: 'Contact with waste ground. Rat habitat, and the exposure most associated
+      with urban cases outside flood periods.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CB_TER reads terreno baldio; an exposure flag.
+  ANT_HUMANO:
+    official_name: Casos Anteriores de Leptospirose... Casos Humanos
+    translated_name: Prior leptospirosis at the probable infection site - human cases
+    description: 'Whether other people were known to have had leptospirosis at the
+      site where the patient was probably infected, in the two months before the investigation
+      began.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 34
+  ANT_OU_DES:
+    official_name: Antecedente outro - descrição
+    translated_name: Other antecedent - description
+    description: 'A fourth parallel "other, specify" text field alongside ANT_OUTROS,
+      ANT_OUTR_D and ANT_OUT_D, none of which can be tied to a specific sub-category
+      from available evidence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as ANT_OUTROS.
+  ATE_DT_ALT:
+    official_name: Data de Alta
+    translated_name: Hospital discharge date
+    description: 'Calendar date the Leptospirose patient was discharged from hospital,
+      recorded only when an admission date is present; must fall on or after that admission
+      date.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 39
+  CLI_CONGES:
+    official_name: Sinais e sintomas - Congestão conjuntival
+    translated_name: Signs and symptoms - conjunctival congestion
+    description: 'Whether the patient showed conjunctival congestion — visibly reddened,
+      engorged eyes without discharge — a clinical sign distinctive enough to help
+      separate leptospirosis from other febrile illnesses.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 36
+  CLI_DESC_O:
+    official_name: Descrição de outro sinal/sintoma
+    translated_name: Other clinical sign (free-text)
+    description: 'Free-text description of a leptospirosis clinical sign or symptom
+      not covered by the form''s itemized checkboxes, filled in when an "other" option
+      in the clinical-findings section is marked.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CLI_ = clínico, DESC = descrição, O = outro; C30 width supports free
+      text rather than a coded value, matching the "other, specify" pattern used elsewhere
+      on SINAN forms.
+
+      '
+  CLI_HEMOPU:
+    official_name: Hemorragia pulmonar
+    translated_name: Pulmonary haemorrhage
+    description: 'Bleeding into the lungs. The most lethal form of leptospirosis, killing
+      faster than the jaundice-and-kidney-failure presentation and often within hours.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: HEMOPU reads hemorragia pulmonar; a clinical flag.
+  CLI_MENING:
+    official_name: Sinais e sintomas - Meningismo
+    translated_name: Signs and symptoms - meningismus
+    description: 'Whether the patient showed meningismus — meningitis-like signs such
+      as neck stiffness and headache without confirmed central-nervous-system infection
+      — a recognized complication of severe leptospirosis.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 36
+  CLI_OTRDES:
+    official_name: Clínico - outro sintoma (descrição)
+    translated_name: Clinical - other symptom (description)
+    description: 'Free-text field naming a clinical sign or symptom not covered by
+      the form''s standard checklist. Distinct from CLI_OUTR_3, a separate numbered
+      "other" slot in what looks like a repeated field family.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'OTRDES contracts outro + descrição; 30-character width fits short free
+      text, matching SINAN''s "other, specify" pattern.
+
+      '
+  CLI_PANTUR:
+    official_name: Clínico - dor na panturrilha
+    translated_name: Clinical - calf pain
+    description: 'Sim/Não flag for dor na panturrilha (calf pain/myalgia), a hallmark
+      clinical sign of leptospirosis rather than the meningitis-oriented CLI_ fields
+      around it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PANTUR abbreviates panturrilha (calf); calf myalgia is specific enough
+      to leptospirosis to identify the source form despite the shared CLI_ prefix with
+      unrelated meningitis symptom flags.
+
+      '
+  CLI_PROST:
+    official_name: Prostração
+    translated_name: Prostration
+    description: Marked prostration, part of the severe systemic phase.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PROST reads prostração; a yes/no clinical flag.
+  CON_ALIMEN:
+    official_name: Contato com alimento contaminado
+    translated_name: Contact with contaminated food/water
+    description: 'Whether the leptospirosis patient consumed food or water suspected
+      of contamination by rodent urine, one of several exposure-history items on the
+      form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LEPT form; CON_ contexto/contact prefix, ALIMEN reads "alimento"; C1
+      width matches sibling exposure flags CON_TERREN and ANT_CB_LIM.
+
+      '
+  CON_ANIMAI:
+    official_name: Contato com animais
+    translated_name: Contact with animals (exposure flag)
+    description: 'Whether the patient had contact with animals (rats, dogs, cattle,
+      etc.) before symptom onset — an exposure question distinct from CON_ENCHEN, the
+      flood-water contact question, on the leptospirosis antecedents checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; CON_=contato per prefix convention, ANIMAI=animais.
+  CON_CLAS_E:
+    official_name: Classificação da exposição
+    translated_name: Exposure classification
+    description: 'Coded or short-text classification of how the leptospirosis patient
+      was likely exposed (e.g. urban flooding, occupational, recreational water contact),
+      summarizing the exposure-history section.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LEPT form; CON_ prefix with CLAS_E reading "classificação"; wider C20
+      width fits a short descriptive category rather than a single flag.
+
+      '
+  CON_ENCHEN:
+    official_name: Contato com enchente
+    translated_name: Contact with flood water (exposure flag)
+    description: 'Whether the patient had contact with flood water before symptom onset
+      — the single most common leptospirosis exposure route in Brazil, recorded separately
+      from general animal contact (CON_ANIMAI).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; ENCHEN=enchente (flood).
+  CON_ENTULH:
+    official_name: Contato com entulho
+    translated_name: Contact with rubble/debris
+    description: 'Whether the patient had contact with rubble or debris (e.g. after
+      flooding or demolition work) before symptom onset - a leptospirosis epidemiological-antecedent
+      checkbox distinct from floodwater or sewage exposure.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_ = contato, ENTULH = entulho (rubble); a named exposure item on
+      the standard leptospirosis antecedents checklist, C1 width fits a checkbox.
+
+      '
+  CON_ESGOTO:
+    official_name: Esgoto no local provável de infecção
+    translated_name: Sewage present at likely infection site (flag)
+    description: 'Whether open sewage or a septic/grease trap was present at the site
+      investigators identified as the likely infection location - an environmental-conditions
+      field, distinct from the patient''s own 30-day exposure history (ANT_CB_*).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_ = condições do local provável de infecção; ESGOTO = esgoto; leptospirosis''s
+      classic environmental risk factor.
+
+      '
+  CON_RIO:
+    official_name: Contato com rio
+    translated_name: Contact with river/stream
+    description: 'Whether the patient had contact with a river, stream, or similar
+      natural water body before symptoms began, distinguishing this exposure from floodwater,
+      sewage, or standing water on the same leptospirosis antecedents checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_ = contato, RIO = rio; matches the pattern of sibling exposure
+      checkboxes (CON_ENTULH and others) on the leptospirosis form.
+
+      '
+  CON_ROEDOR:
+    official_name: Sinais de roedores no local provável de infecção
+    translated_name: Signs of rodents at likely infection site (flag)
+    description: 'Whether the site identified as the likely infection location showed
+      signs of rodent presence - an environmental finding recorded by investigators,
+      paired with CON_ESGOTO in the same site-conditions block.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CON_ = condições do local; ROEDOR = roedor; sibling of CON_ESGOTO.
+  CON_TERREN:
+    official_name: Contato com terreno alagado/contaminado
+    translated_name: Contact with flooded/contaminated ground
+    description: 'Whether the patient had contact with flooded or rodent-infested ground/soil
+      before symptom onset, distinct from CON_ALIMEN''s food/water contamination route.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LEPT form; CON_ prefix, TERREN reads "terreno" (land/ground); C1 width
+      matches the other coded exposure flags on the same form.
+
+      '
+  CO_MUN_R1:
+    official_name: Município de residência anterior 1
+    translated_name: Previous municipality of residence 1
+    description: The municipality paired with CO_UF_R1 in the residence history.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the municipality half of the first slot.
+  CO_MUN_R2:
+    official_name: Município de residência anterior 2
+    translated_name: Previous municipality of residence 2
+    description: The municipality paired with CO_UF_R2.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the municipality half of the second slot.
+  CO_MUN_R3:
+    official_name: Município de residência anterior 3
+    translated_name: Previous municipality of residence 3
+    description: The municipality paired with CO_UF_R3.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the municipality half of the third slot.
+  CO_MUN_R4:
+    official_name: Município de residência anterior 4
+    translated_name: Previous municipality of residence 4
+    description: The municipality paired with CO_UF_R4.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the municipality half of the fourth slot.
+  CO_UF_R1:
+    official_name: UF de residência anterior 1
+    translated_name: Previous state of residence 1
+    description: 'A state the patient lived in before notification. Four slots exist
+      because the disease''s incubation can span years, so residence history is what
+      locates the exposure rather than the diagnosis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the first of four residence-history slots.
+  CO_UF_R2:
+    official_name: UF de residência anterior 2
+    translated_name: Previous state of residence 2
+    description: A second previous state of residence. See CO_UF_R1.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the second residence-history slot.
+  CO_UF_R3:
+    official_name: UF de residência anterior 3
+    translated_name: Previous state of residence 3
+    description: A third previous state of residence. See CO_UF_R1.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the third residence-history slot.
+  CO_UF_R4:
+    official_name: UF de residência anterior 4
+    translated_name: Previous state of residence 4
+    description: A fourth previous state of residence, the last slot the form offers.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the fourth residence-history slot.
+  CS_ZONA:
+    official_name: Zona de residência
+    translated_name: Residence zone
+    description: 'Urban, rural or periurban. Leptospirosis splits along this line:
+      urban cases follow flooding and rats, rural ones follow livestock and fieldwork.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ZONA.CNV
+    reasoning: Bound to ZONA, whose values are urbana, rural and periurbana.
+  DTIMUNO:
+    official_name: Data da imunofluorescência
+    translated_name: Date of immunofluorescence
+    description: When immunofluorescence was performed, a faster alternative to culture.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; IMUNO reads imunofluorescência.
+  DTISOLA:
+    official_name: Data do isolamento
+    translated_name: Date of isolation
+    description: 'When the organism was isolated in culture. Definitive but slow —
+      leptospires take weeks to grow — so it confirms after the fact rather than guiding
+      treatment.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ISOLA reads isolamento.
+  DTMICRO1:
+    official_name: Data da primeira microaglutinação
+    translated_name: Date of first microagglutination test
+    description: 'When the first MAT sample was taken. MAT is the reference test, and
+      a single early sample is usually negative because antibodies take a week.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; MICRO reads microaglutinação.
+  DTMICRO2:
+    official_name: Data da segunda microaglutinação
+    translated_name: Date of second microagglutination test
+    description: 'When the second MAT sample was taken. The pair is what shows a rising
+      titre, which is how leptospirosis is actually confirmed.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the paired second MAT sample.
+  DT_RISCO1:
+    official_name: Data da primeira exposição de risco
+    translated_name: Date of first risk exposure
+    description: 'When the first risk exposure occurred. Up to four are recorded, because
+      the incubation window is one to thirty days and several exposures often fall
+      inside it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of four exposure dates.
+  DT_RISCO2:
+    official_name: Data da segunda exposição de risco
+    translated_name: Date of second risk exposure
+    description: The second exposure date. See DT_RISCO1.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of four exposure dates.
+  DT_RISCO3:
+    official_name: Data da terceira exposição de risco
+    translated_name: Date of third risk exposure
+    description: The third exposure date. See DT_RISCO1.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third of four exposure dates.
+  DT_RISCO4:
+    official_name: Data da quarta exposição de risco
+    translated_name: Date of fourth risk exposure
+    description: The fourth exposure date. See DT_RISCO1.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the fourth of four exposure dates.
+  ID_DT_RESI:
+    official_name: Identificador - data de residência
+    translated_name: Residence-date record identifier
+    description: 'Internal identifier tying a leptospirosis record to the date its
+      residence-address data was captured. Appears in only one file in the catalog,
+      suggesting a rare or legacy layout artifact rather than a routine field.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ID_ = identificador, DT = data, RESI = residência; extremely low file
+      weight (1) and C4 width point to a narrow, non-standard field rather than a core
+      clinical variable.
+
+      '
+  LAB_BD:
+    official_name: Laboratório - código de lote/banco
+    translated_name: Lab batch/reference code
+    description: 'Short alphanumeric code tied to a leptospirosis laboratory test -
+      most likely a test-kit batch or reference number recorded alongside the other
+      LAB_ result fields, rather than a date or titer itself.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial, a common prefix in this series; BD''s exact meaning
+      is not decodable with confidence, but C4 width rules out a date or long free-text
+      result.
+
+      '
+  LAB_BI:
+    official_name: Bilirrubina
+    translated_name: Bilirubin (test result)
+    description: 'Bilirubin test result for the leptospirosis patient, relevant because
+      jaundice (Weil''s disease) is the hallmark of severe leptospirosis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LAB_ = laboratorial; BI = bilirrubina; width 4 fits a short coded/numeric
+      value.
+  LAB_BT:
+    official_name: Bilirrubina total
+    translated_name: Total bilirubin
+    description: 'Total bilirubin lab value for the leptospirosis patient, relevant
+      because severe leptospirosis (Weil''s disease) causes jaundice from liver involvement.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LEPT form; LAB_ lab-result prefix with BT reading "bilirrubina total";
+      C4 width fits a short numeric lab value stored as text.
+
+      '
+  LAB_CREATI:
+    official_name: Creatinina
+    translated_name: Creatinine test result
+    description: 'Creatinine level or reading recorded for the case — the key renal-function
+      marker used to flag severe leptospirosis (Weil''s disease), distinct from the
+      paired-serology fields LAB_R_1/LAB_S_2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C3 field; LAB_=lab prefix, CREATI=creatinina.
+  LAB_DT_1:
+    official_name: Sorologia IgM - Elisa - Data da Coleta - 1ª amostra
+    translated_name: IgM ELISA serology - collection date, 1st sample
+    description: 'Calendar date the first blood sample was drawn for ELISA IgM antibody
+      testing against leptospirosis; must fall on or after the date the patient''s
+      symptoms began.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 43
+  LAB_DT_2:
+    official_name: Sorologia IgM - Elisa - Data da Coleta - 2ª amostra
+    translated_name: IgM ELISA serology - collection date, 2nd sample
+    description: 'Calendar date a second, convalescent blood sample was drawn for ELISA
+      IgM leptospirosis testing, taken to catch seroconversion when the first sample
+      tested negative; must postdate the first sample.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 45
+  LAB_DT_3:
+    official_name: Data da coleta laboratorial 3
+    translated_name: Date of third lab sample
+    description: 'Collection date of a third laboratory sample taken for leptospirosis
+      confirmation, extending the paired-sample serology pattern seen in LAB_R_2 and
+      LAB_S_3.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial, DT = data, 3 = terceira coleta; D8 AAAAMMDD type
+      matches, and repeat sampling is standard for leptospirosis titer confirmation.
+
+      '
+  LAB_ELIS_1:
+    official_name: Sorologia IgM-Elisa - Resultado 1ª amostra
+    translated_name: IgM-ELISA serology - 1st sample result
+    description: 'Result of the first IgM-ELISA serology sample for leptospirosis:
+      reagente, não reagente, inconclusivo, or não realizado. Only run when the patient
+      was hospitalized; paired with LAB_ELIS_2 for the second sample.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 44 "Resultado 1ª Amostra"
+  LAB_ELIS_2:
+    official_name: Sorologia IgM-Elisa - Resultado 2ª amostra
+    translated_name: IgM-ELISA serology - 2nd sample result
+    description: 'Same IgM-ELISA test as LAB_ELIS_1, run on a second sample collected
+      later.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 46 "Resultado 2ª Amostra"
+  LAB_MACRO:
+    official_name: Soroaglutinação macroscópica
+    translated_name: Macroscopic agglutination test (flag)
+    description: 'Whether the rapid macroscopic agglutination screening test was performed
+      for leptospirosis - a bedside screen distinct from the reference microscopic
+      agglutination test (LAB_SOROAG).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LAB_ = laboratorial; MACRO = macroscópica; pairs with LAB_SOROAG.
+  LAB_METODO:
+    official_name: Método do exame laboratorial
+    translated_name: Laboratory test method
+    description: 'Coded method used for the leptospirosis confirmatory test (e.g. microscopic
+      agglutination test, ELISA, PCR), distinguishing which assay produced the recorded
+      lab results.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LEPT form; LAB_ prefix, METODO reads "método"; C1 width fits a small
+      enumerated method code.
+
+      '
+  LAB_MET_D:
+    official_name: Outro método laboratorial - descrição
+    translated_name: Other lab test method, description
+    description: 'Free-text name of an additional or alternative laboratory method
+      used to confirm leptospirosis beyond the standard paired-serology titers (e.g.
+      PCR, culture).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C20 text; LAB_=lab prefix, MET=método, D=descrição.
+  LAB_MICRO:
+    official_name: Resultado - microaglutinação
+    translated_name: Microscopic agglutination test result
+    description: 'Result of the microscopic agglutination test (MAT) or dark-field
+      microscopy for leptospirosis - the reference method that detects agglutinating
+      antibodies against specific Leptospira serovars.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial, MICRO = microaglutinação/microscopia, the reference
+      confirmatory technique named in leptospirosis lab protocols; C1 fits a coded
+      result.
+
+      '
+  LAB_MICR_1:
+    official_name: Resultado MICRO aglutinação 1ª amostra
+    translated_name: Microscopic agglutination test - 1st sample result
+    description: 'Result of the microscopic agglutination test (MAT), leptospirosis''s
+      reference serology, on the first sample: reagente, não reagente, não realizada,
+      or ignorado. Recorded with the sorovar/titer pair MICRO1_S1/MICRO1_T_1.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 50 "Resultado MICRO aglutinação
+      1ª amostra"
+  LAB_MICR_2:
+    official_name: Resultado MICRO aglutinação 2ª amostra
+    translated_name: Microscopic agglutination test - 2nd sample result
+    description: 'Same MAT test as LAB_MICR_1, run on the second paired sample (collected
+      after the first) to detect titer rise.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 54 "Resultado MICRO aglutinação
+      2ª amostra"
+  LAB_PLAQUE:
+    official_name: Plaquetas
+    translated_name: Platelet count
+    description: 'Platelet count for the leptospirosis patient; thrombocytopenia is
+      a common finding and contributes to the bleeding risk seen in severe cases.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LAB_ = laboratorial; PLAQUE = plaquetas; width 6 fits a numeric count.
+  LAB_POTASS:
+    official_name: Potássio sérico
+    translated_name: Serum potassium
+    description: 'Serum potassium lab value for the leptospirosis patient, tracked
+      because severe cases cause acute kidney injury with hyperkalemia.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LEPT form; LAB_ prefix, POTASS reads "potássio"; C4 width fits a short
+      numeric lab value stored as text, alongside LAB_BT.
+
+      '
+  LAB_R_1:
+    official_name: Resultado da 1ª amostra
+    translated_name: First serology sample result/titer
+    description: 'Result (e.g. MAT titer) of the first blood sample tested for leptospirosis
+      antibodies — paired with LAB_S_2, the second sample, to show the diagnostic four-fold
+      rise between acute and convalescent titers.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C6 fits a titer string (e.g. "1:200"); R_1 read as resultado/amostra
+      1, paired with LAB_S_2.
+  LAB_R_2:
+    official_name: Resultado laboratorial 2
+    translated_name: Second lab result/titer
+    description: 'Result or antibody titer from a second leptospirosis laboratory sample,
+      tracked alongside LAB_DT_3 and LAB_S_3 to show titer change across sequential
+      draws.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial, R = resultado, 2 = segunda coleta; C6 width fits
+      a titer-style value (e.g. "1:400") rather than a single-digit code.
+
+      '
+  LAB_SOROAG:
+    official_name: Soroaglutinação microscópica
+    translated_name: Microscopic agglutination test - MAT (flag or result)
+    description: 'Whether/how the microscopic agglutination test (MAT), the reference
+      serologic standard for leptospirosis, was performed - distinct from the rapid
+      macroscopic screen (LAB_MACRO).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LAB_ = laboratorial; SOROAG = soroaglutinação; MAT is leptospirosis's
+      gold-standard serology.
+  LAB_S_1:
+    official_name: Título sorológico - sorovar 1
+    translated_name: Serology titer - serovar 1
+    description: 'Antibody titer against the first serovar in the panel used for the
+      leptospirosis microscopic agglutination test (MAT), one of several numbered per-serovar
+      titer results alongside LAB_S_5.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LEPT form; LAB_S_ pattern with numeric suffix; C6 width fits a titer
+      expressed as a ratio (e.g. "1:400"), the standard MAT result format.
+
+      '
+  LAB_S_2:
+    official_name: Resultado da 2ª amostra
+    translated_name: Second (convalescent) serology sample result/titer
+    description: 'Result of the second, later blood sample tested for leptospirosis
+      antibodies — compared against LAB_R_1 (first sample) to confirm diagnosis via
+      a rising titer.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C6, same shape as LAB_R_1; S_2 read as segunda amostra.
+  LAB_S_3:
+    official_name: Sorologia laboratorial 3
+    translated_name: Third serology result/titer
+    description: 'Result or antibody titer from a third leptospirosis serology sample,
+      the last in the sequence with LAB_R_2 and LAB_DT_3 used to confirm infection
+      by a rising titer across draws.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAB_ = laboratorial, S = sorologia, 3 = terceira coleta; C6 width matches
+      the titer-value pattern of its sibling LAB_R_2.
+
+      '
+  LAB_S_4:
+    official_name: Sorologia - amostra 4
+    translated_name: Serology - sample/reading 4
+    description: 'A serology titer or sample-sequence value in the leptospirosis lab
+      workup, numbered as a fourth reading/collection; exact position in the testing
+      sequence is not certain from the field name alone.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LAB_S = sorologia; "_4" suggests a numbered sample/titer in a series;
+      width 6 fits a titer-like value.
+  LAB_S_5:
+    official_name: Título sorológico - sorovar 5
+    translated_name: Serology titer - serovar 5
+    description: 'Antibody titer against the fifth serovar in the MAT panel; same measurement
+      as LAB_S_1 but for a different serovar in the diagnostic panel run against the
+      patient''s serum.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same evidence as LAB_S_1; distinguished only by which serovar in the
+      numbered panel it reports.
+
+      '
+  LAB_UF:
+    official_name: UF do laboratório
+    translated_name: State (UF) where the lab test was performed
+    description: 'Two-letter state abbreviation of the laboratory that ran the leptospirosis
+      confirmatory test, not necessarily the patient''s home state.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C2 fits a UF abbreviation; LAB_=lab prefix, UF is the standard state-code
+      field name across DATASUS systems.
+  MICRO1_S1:
+    official_name: Micro 1ª Amostra - 1º Sorovar
+    translated_name: MAT 1st sample - 1st serovar
+    description: 'Leptospira serovar identified by the microscopic agglutination test
+      on the first sample, paired with the titer in MICRO1_T_1; a second serovar can
+      be recorded in the sibling pair MICRO1_S_2/MICRO1_T_2.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 48 "Micro 1ª Amostra 1º Sorovar"
+  MICRO1_S_2:
+    official_name: Micro 1ª Amostra - 2º Sorovar
+    translated_name: MAT 1st sample - 2nd serovar
+    description: 'Second Leptospira serovar identified on the same first-sample MAT
+      test as MICRO1_S1, paired with its own titer in MICRO1_T_2.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 49 "Micro 1ª Amostra 2º Sorovar"
+  MICRO1_T_1:
+    official_name: Micro 1ª Amostra - título (1º sorovar)
+    translated_name: MAT 1st sample - titer (1st serovar)
+    description: 'Agglutination titer for the serovar named in MICRO1_S1; required
+      whenever that field is filled in.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 48 "Micro 1ª Amostra título"
+  MICRO1_T_2:
+    official_name: Micro 1ª Amostra - título (2º sorovar)
+    translated_name: MAT 1st sample - titer (2nd serovar)
+    description: 'Agglutination titer for the serovar named in MICRO1_S_2.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 49 "Micro 1ª Amostra título"
+  MICRO2_S1:
+    official_name: Resultado 2ª Amostra - 1º Sorovar
+    translated_name: MAT 2nd sample - 1st serovar
+    description: 'Leptospira serovar identified by the MAT test on the second, later
+      sample — used to confirm titer rise against MICRO1_S1 — paired with titer MICRO2_T_1.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 52 "Resultado 2ª Amostra 1º Sorovar"
+  MICRO2_S_2:
+    official_name: Resultado 2ª Amostra - 2º Sorovar
+    translated_name: MAT 2nd sample - 2nd serovar
+    description: 'Second serovar identified on the same second-sample MAT test as MICRO2_S1,
+      paired with titer MICRO2_T_2.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 53 "Resultado 2ª Amostra 2º Sorovar"
+  MICRO2_T_1:
+    official_name: Micro 2ª Amostra - título (1º sorovar)
+    translated_name: MAT 2nd sample - titer (1st serovar)
+    description: 'Agglutination titer for the serovar named in MICRO2_S1.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 52 "Micro 2ª Amostra título"
+  MICRO2_T_2:
+    official_name: Micro 2ª Amostra - título (2º sorovar)
+    translated_name: MAT 2nd sample - titer (2nd serovar)
+    description: 'Agglutination titer for the serovar named in MICRO2_S_2.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 53 "Micro 2ª Amostra título"
+  RES_IMUNO:
+    official_name: Resultado do exame imunológico
+    translated_name: Immunological test result
+    description: 'Whether the leptospirosis (LEPT) patient''s immunological (serology)
+      test came back positive, one of three parallel lab-method result flags alongside
+      isolation culture (RES_ISOL) and PCR (RES_PCR).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LEPT form; RES_IMUNO = resultado + imunológico; width 1.
+  RES_ISOL:
+    official_name: Resultado do isolamento (cultura)
+    translated_name: Culture/isolation result
+    description: 'Whether Leptospira was successfully isolated by culture from the
+      patient, one of three parallel confirmatory lab-method flags on the leptospirosis
+      (LEPT) form alongside RES_PCR and RES_IMUNO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LEPT form; RES_ISOL = resultado + isolamento; width 1.
+  RES_PCR:
+    official_name: Resultado do PCR
+    translated_name: PCR result
+    description: 'Whether a PCR test for Leptospira DNA came back positive, the molecular
+      counterpart to the culture-based RES_ISOL and serology-based RES_IMUNO results
+      on the same form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LEPT form; RES_PCR = resultado + PCR; width 1.

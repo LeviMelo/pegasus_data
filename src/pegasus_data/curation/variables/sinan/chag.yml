@@ -1,0 +1,893 @@
+# SINAN.CHAG —
+#
+# one notification of acute Chagas disease
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AFIRMATIVO:
+    official_name: Resposta afirmativa (antecedentes epidemiológicos)
+    translated_name: Affirmative response (epidemiological antecedents)
+    description: 'Marks which epidemiological-antecedent question(s) for the acute-Chagas
+      investigation were answered "yes" (vector contact, food-borne exposure, transfusion,
+      etc.) — a rollup of the transmission-route questions rather than one plain flag.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C5, wider than a plain flag, suggesting it can hold more than one code;
+      AFIRMATIVO reads literally "affirmative," fitting a summary of which antecedent
+      items (CON_TRIAT, CON_INFECC, etc.) were marked yes.
+
+      '
+  ANOREXIA:
+    official_name: Anorexia
+    translated_name: Anorexia / loss of appetite (symptom)
+    description: 'Whether the patient had complete loss of appetite during acute Chagas
+      disease — a distinct, more severe checklist item than HIPOREXIA (reduced appetite);
+      both come from the acute-phase symptom list.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named directly for the symptom.
+  ANT_UF_1:
+    official_name: UF de residência anterior 1
+    translated_name: Previous state of residence 1
+    description: 'A state the patient lived in previously. Chagas has a decades-long
+      latency and a sharply defined endemic geography, so residence history is what
+      locates where infection actually happened.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the first of three residence-history slots.
+  ANT_UF_2:
+    official_name: UF de residência anterior 2
+    translated_name: Previous state of residence 2
+    description: A second previous state of residence. See ANT_UF_1.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the second residence-history slot.
+  ANT_UF_3:
+    official_name: UF de residência anterior 3
+    translated_name: Previous state of residence 3
+    description: A third previous state of residence. See ANT_UF_1.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the third residence-history slot.
+  ARRITMIAS:
+    official_name: Taquicardia persistente/Arritmias
+    translated_name: Persistent tachycardia/arrhythmia
+    description: 'Whether the patient had persistent tachycardia or an arrhythmia,
+      a cardiac sign of acute Chagas myocarditis recorded on the investigation form''s
+      sinais-e-sintomas checklist.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: Chagas_v5_instr.pdf, campo 41 (Sinais e Sintomas)
+  ASSINTOMA:
+    official_name: Assintomático
+    translated_name: Asymptomatic
+    description: 'Marks a confirmed acute Chagas case as asymptomatic: none of the
+      form''s listed signs (fever, edema, chagoma, hepatomegaly, etc.) were present,
+      so only this checkbox is marked "Sim".
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: Chagas_v5_instr.pdf, campo 41 (Sinais e Sintomas)
+  AUMENTO:
+    official_name: Aumento de órgão (hepatoesplenomegalia)
+    translated_name: Organ enlargement (flag)
+    description: 'Whether the acute Chagas disease patient showed organ enlargement
+      (hepatomegaly/splenomegaly), a classic sign of the systemic inflammation and
+      myocarditis seen in the acute phase.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AUMENTO = aumento (enlargement); hepatosplenomegaly is a named clinical
+      sign on the Chagas (CHAG) investigation form''s exam checklist, C1 width fits
+      a checkbox.
+
+      '
+  BIOSSEG:
+    official_name: Biossegurança
+    translated_name: Biosafety
+    description: 'Whether biosafety measures applied to the case''s exposure (Sim/Não/Não
+      se aplica), most plausibly on a laboratory-acquired or occupational exposure
+      investigation.
+
+      '
+    code_system: internal
+    codelist: BIOSSEG
+    source: inferred
+    reasoning: 'The catalog binds this field to a BIOSSEG codelist with exactly those
+      three values (Sim/Não/Não se aplica).
+
+      '
+  CHAGOMA:
+    official_name: Chagoma de inoculação/Sinal de Romaña
+    translated_name: Inoculation chagoma/Romaña's sign
+    description: 'Whether the patient had an inoculation chagoma or Romaña''s sign:
+      localized swelling, often around one eye, marking the skin or mucosal site where
+      the Chagas parasite entered the body.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: Chagas_v5_instr.pdf, campo 41 (Sinais e Sintomas)
+  CONFIRMAD:
+    official_name: Caso confirmado
+    translated_name: Case confirmed (flag)
+    description: 'Whether the Chagas case was confirmed, an early/legacy confirmation
+      flag that predates the more granular CLASSI_FIN (final classification) and CRITERIO
+      (confirmation criterion) fields also on this form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CONFIRMAD = confirmado; not found in the 2010 CHAG data dictionary,
+      consistent with the low file-count schema this field belongs to (an older/rarer
+      layout).
+
+      '
+  CONTROLE:
+    official_name: Existência de controle sorológico na Unidade de Hemoterapia
+    translated_name: Blood-bank serological screening existed
+    description: 'Whether the blood/hemoderivative unit the Chagas patient used performs
+      serological screening of donors for T. cruzi: 1-Sim, 2-Não, 3-Não se aplica,
+      9-Ignorado. Only asked when a transfusion history is reported.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf, campo 37 (Existência de controle sorológico
+      na Unidade de Hemoterapia)
+  CON_INFECC:
+    official_name: Condição/via provável de infecção
+    translated_name: Probable route of infection
+    description: 'How the patient was likely infected with T. cruzi — vectorial (triatomine
+      contact), oral (contaminated food/juice), transfusional, congenital, or accidental
+      — investigated alongside CON_TRIAT, the specific vector-contact question.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 coded field; CON_=condição per prefix convention, INFECC=infecção.
+  CON_LOCAL:
+    official_name: Local provável de infecção (no período de 90 dias)
+    translated_name: Probable infection site (type)
+    description: 'Type of place where the patient most likely acquired acute Chagas
+      infection in the 90 days before symptoms - blood-transfusion unit, household,
+      laboratory, or other - central to classifying vectorial vs. transfusional transmission.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'SINAN data dictionary (Chagas aguda, revised July 2010): field 62,
+      values 1-unidade de hemoterapia, 2-domicílio, 3-laboratório, 4-outro.
+
+      '
+    reasoning: Confirmed by the CHAG data dictionary text and by the catalog's own
+      value list.
+  CON_OUTRA:
+    official_name: Outra forma de contágio
+    translated_name: Other route of transmission (specify)
+    description: 'Free-text field on the acute Chagas disease form used when the suspected
+      transmission route is not one of the standard options (vectorial, transfusional,
+      oral, vertical) — the investigator writes in the alternative route here.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is CHAG (Chagas); CON_ prefix pairs with an "outra" free-text
+      slot (C30) typical of DATASUS forms where a fixed-option field has an "other,
+      specify" companion.
+
+      '
+  CON_PROVAV:
+    official_name: Modo Provável da Infecção
+    translated_name: Probable Chagas transmission route
+    description: 'Probable route by which a confirmed Chagas case was infected: 1-transfusional,
+      2-vetorial (triatomine bug), 3-transplacentária, 4-acidental (lab exposure),
+      5-oral (contaminated food), 6-outra, 9-ignorada.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf, campo 61 (Modo Provável da Infecção)
+  CON_TRIAT:
+    official_name: Contato com triatomíneo
+    translated_name: Contact with triatomine bug (vector)
+    description: 'Whether the patient had contact with a triatomine ("barbeiro") bug,
+      the classic Chagas disease vector, before symptom onset.
+
+      '
+    code_system: internal
+    codelists:
+    - CON_TRIAT
+    source: web
+    source_ref: https://github.com/rfsaldanha/microdatasus/blob/7109ec2c42cf/R/process_sinan_chagas.R#CON_TRIAT
+    notes: Coded 1=Sim, 2=Não, 3=Não se aplica.
+  DOSAGEM:
+    official_name: Dosagem do medicamento
+    translated_name: Drug dosage
+    description: 'Recorded dose of the antitrypanosomal treatment (benznidazole or
+      nifurtimox) given for acute Chagas disease, stored as a short numeric code rather
+      than free text.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CHAG form; narrow width (C3) fits a coded dose amount/range rather
+      than a description, alongside the treatment-scheme fields on the same form.
+
+      '
+  DT_COL_DIR:
+    official_name: Data da coleta do exame direto
+    translated_name: Date of direct parasitological exam collection
+    description: 'Date blood was drawn for the direct parasitological exam (thick smear
+      / fresh blood exam) used to confirm acute Chagas disease, when parasitemia is
+      high enough to be seen directly rather than by serology.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CHAG form; DT_ date prefix, COL_DIR reads "coleta direta" (direct-exam
+      collection), the standard parasitological confirmation test for the acute phase.
+
+      '
+  DT_COL_IND:
+    official_name: Data de coleta - exame indireto
+    translated_name: Date sample collected for indirect diagnostic test
+    description: 'Date a specimen was collected for an indirect parasitological method
+      (e.g. xenodiagnosis or hemoculture) used to confirm acute Chagas when direct
+      blood-smear microscopy is negative or unavailable.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'D8 date; COL=coleta, IND read as indireto, fitting the confirmatory-testing
+      theme of this stratum; exact expansion not independently confirmed.
+
+      '
+  DT_COL_S1:
+    official_name: Data da coleta da primeira amostra
+    translated_name: Date first sample collected
+    description: 'When the first serum was taken. Acute Chagas is diagnosed by seeing
+      the parasite directly; chronic Chagas needs two different serological tests to
+      agree.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; S1 is the first sample.
+  DT_COL_S2:
+    official_name: Data da coleta - sorologia 2
+    translated_name: Date of second serology sample
+    description: 'Collection date of the second (convalescent) serology sample for
+      Chagas disease confirmation, paired with a first-sample draw to show antibody
+      titer change over time.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ = data, COL = coleta, S2 = segunda sorologia; D8 date type matches,
+      and paired-sample serology is standard practice for Chagas confirmation.
+
+      '
+  ECG:
+    official_name: Eletrocardiograma
+    translated_name: Electrocardiogram (flag or result)
+    description: 'Whether an electrocardiogram was performed on the Chagas patient
+      - a standard exam for detecting acute myocarditis, a hallmark cardiac complication
+      of acute Chagas disease.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ECG = eletrocardiograma; not in the 2010 dictionary excerpt found, but
+      fits the acute-Chagas cardiac workup context.
+  ECG_RESULT:
+    official_name: Resultado do ECG
+    translated_name: ECG result
+    description: 'Short coded summary of the electrocardiogram result for a suspected
+      acute Chagas case, flagging the myocarditis and conduction abnormalities the
+      acute phase can produce.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CHAG form; name directly reads "resultado do ECG"; width C20 fits a
+      short result code/phrase rather than a raw tracing.
+
+      '
+  ELI_IGG_S1:
+    official_name: Sorologia ELISA IgG - amostra 1
+    translated_name: ELISA IgG serology - sample 1
+    description: 'IgG-ELISA result for the first serum sample in a Chagas Aguda investigation,
+      one test in a three-method serology panel (ELISA, hemaglutinação HEM_*, imunofluorescência
+      IMU_*) each split into IgG/IgM and sample 1/2.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
+      The IGG/IGM x S1/S2 naming exactly parallels the confirmed sample-pairing pattern
+      on the Leptospirose and exanthematous-disease forms, and acute Chagas disease
+      is confirmed serologically with paired IgM/IgG samples by design.
+
+      '
+  ELI_IGG_S2:
+    official_name: Sorologia ELISA IgG - amostra 2
+    translated_name: ELISA IgG serology - sample 2
+    description: 'Second-sample ELISA IgG result, paired with ELI_IGG_S1 to track antibody-titer
+      change across the two draws.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as ELI_IGG_S1.
+  ELI_IGM_S1:
+    official_name: Sorologia ELISA IgM - amostra 1
+    translated_name: ELISA IgM serology - sample 1
+    description: 'IgM-ELISA result for the first serum sample, the acute-phase antibody
+      test in the same Chagas serology panel as ELI_IGG_S1.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as ELI_IGG_S1.
+  ELI_IGM_S2:
+    official_name: Sorologia ELISA IgM - amostra 2
+    translated_name: ELISA IgM serology - sample 2
+    description: 'Second-sample ELISA IgM result, paired with ELI_IGM_S1.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as ELI_IGG_S1.
+  ESPECIFICO:
+    official_name: Tipo de Tratamento - Específico
+    translated_name: Specific antiparasitic treatment given
+    description: 'Whether the acute Chagas disease patient received specific antiparasitic
+      drug treatment (benznidazole or an alternative) rather than only symptomatic
+      care. 1=Sim, 2=Não, 9=Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf, campo 53
+  ESPLENOM:
+    official_name: Sinais e sintomas - Esplenomegalia
+    translated_name: Enlarged spleen
+    description: 'Whether the acute Chagas disease patient presented an enlarged spleen
+      on exam, one of the acute-phase clinical signs recorded alongside hepatomegaly
+      and fever. 1=Sim, 2=Não, 9=Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf, campo 41
+  EXAME:
+    official_name: Exames Realizados - Parasitológico Direto, Exame a Fresco
+    translated_name: Fresh blood smear exam result
+    description: 'Result of the fresh-blood-smear direct parasitological exam looking
+      for T. cruzi parasites in a suspected acute Chagas disease case. 1=Positivo,
+      2=Negativo, 3=Não realizado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf, campo 43
+  FISCALIZA:
+    official_name: Fiscalização Sanitária em Unidade de Hemoterapia
+    translated_name: Blood bank sanitary inspection
+    description: 'Whether health authorities inspected the blood transfusion service
+      tied to a transfusion-suspected Chagas case, as a control measure after the case
+      was investigated. 1=Sim, 2=Não, 3=Não se aplica, 9=Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf, campo 56
+  GANGLIOS:
+    official_name: Gânglios (adenomegalia localizada)
+    translated_name: Lymphadenopathy (localized)
+    description: 'Clinical-signs checklist item for acute Chagas disease: localized
+      lymph-node enlargement near the site of inoculation. Distinct from POLIADENO,
+      the same list''s item for widespread node enlargement.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CHAG form; C1 width matches the other single-character sign checkboxes
+      (HEPAESPLE, INESPECIF) on the same clinical-signs section.
+
+      '
+  HEMO:
+    official_name: Hemocultura
+    translated_name: Blood culture (flag or result)
+    description: 'Blood culture result for T. cruzi, one of the parasitological detection
+      methods on the Chagas form alongside direct blood exam (PARASITO) and xenodiagnosis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HEMO likely abbreviates hemocultura; the dictionary documents a full
+      "Hemocultivo" field (DBF code HEMOCULT) in the same parasitological-exam block.
+
+      '
+  HEMOCULT:
+    official_name: Hemocultura
+    translated_name: Blood culture (for T. cruzi)
+    description: 'Result of blood culture attempted to recover Trypanosoma cruzi in
+      an acute Chagas disease investigation, one of the panel''s direct parasitological
+      tests alongside MICRO_HEMA (microhematocrit).
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
+      Hemocultura is a standard, if low-sensitivity, direct method for confirming acute
+      Chagas disease, and the single-character width matches the positivo/negativo/não
+      realizado coding used elsewhere on this form''s lab fields.
+
+      '
+  HEM_IGG_S1:
+    official_name: Sorologia Hemaglutinação IgG - amostra 1
+    translated_name: Hemagglutination IgG serology - sample 1
+    description: 'IgG hemagglutination-inhibition result for the first serum sample
+      in a Chagas Aguda investigation, one of three serology methods on this form (with
+      ELI_IGG_S1 for ELISA and IMU_IGG_S1 for immunofluorescence).
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
+      The IGG/IGM x S1/S2 naming mirrors the confirmed ELI_* fields on the same form,
+      and hemagglutination inhibition is a standard third method run alongside ELISA
+      and IFI in Chagas serology panels.
+
+      '
+  HEM_IGG_S2:
+    official_name: Sorologia Hemaglutinação IgG - amostra 2
+    translated_name: Hemagglutination IgG serology - sample 2
+    description: 'Second-sample result matching HEM_IGG_S1.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as HEM_IGG_S1.
+  HEM_IGM_S1:
+    official_name: Sorologia Hemaglutinação IgM - amostra 1
+    translated_name: Hemagglutination IgM serology - sample 1
+    description: 'IgM hemagglutination-inhibition result for the first sample, the
+      acute-phase test matching HEM_IGG_S1.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as HEM_IGG_S1.
+  HEM_IGM_S2:
+    official_name: Sorologia Hemaglutinação IgM - amostra 2
+    translated_name: Hemagglutination IgM serology - sample 2
+    description: 'Second-sample result matching HEM_IGM_S1.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as HEM_IGG_S1.
+  HEPAESPLE:
+    official_name: Hepatoesplenomegalia
+    translated_name: Hepatosplenomegaly
+    description: 'Clinical-signs checklist item for acute Chagas disease flagging enlargement
+      of liver and spleen, a common finding in the acute phase.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CHAG form; name is a direct contraction of hepatoesplenomegalia; C1
+      width matches sibling sign checkboxes on the same form section.
+
+      '
+  HIPOREXIA:
+    official_name: Hiporexia
+    translated_name: Reduced appetite (symptom)
+    description: 'Whether the patient had diminished but not absent appetite — the
+      milder counterpart to ANOREXIA on the acute-Chagas symptom checklist, recorded
+      as a separate item.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named directly for the symptom.
+  HISTORIA:
+    official_name: História de uso de sangue ou hemoderivados nos últimos 120 dias
+    translated_name: Recent blood/blood-product transfusion history
+    description: 'Whether the acute Chagas disease patient received blood or blood
+      products in the days before falling ill, flagging transfusion as a possible route
+      of T. cruzi infection distinct from vector-borne spread.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 36.
+  IMPLANTA:
+    official_name: Implantação de colônia de triatomíneos
+    translated_name: Household triatomine colonization found (flag)
+    description: 'Whether the entomological investigation found an established triatomine
+      colony in or near the patient''s household — evidence of local, rather than imported,
+      vector-borne transmission risk.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; IMPLANTA reads implantação, fitting the entomological-investigation
+      theme shared with CON_TRIAT and QUANTOS.
+  IMUNO:
+    official_name: Método imunológico utilizado
+    translated_name: Immunological test method used (flag)
+    description: 'Whether an immunological/serological method (ELISA, indirect immunofluorescence,
+      indirect hemagglutination) was used to confirm the Chagas disease case, one of
+      several confirmatory method categories alongside parasitological and histopathological
+      tests.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'IMUNO = imunológico; C1 width fits a checkbox, and serology is a standard
+      confirmatory route for Chagas disease alongside the direct parasitological methods.
+
+      '
+  IMU_IGG_S1:
+    official_name: Sorologia Imunofluorescência IgG - amostra 1
+    translated_name: Immunofluorescence IgG serology - sample 1
+    description: 'IgG immunofluorescence (IFI) result for the first sample in a Chagas
+      Aguda investigation, the third serology method on this form alongside ELISA (ELI_IGG_S1)
+      and hemagglutination (HEM_IGG_S1).
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
+      Immunofluorescence is the standard third leg of a Chagas serology panel run with
+      ELISA and hemagglutination inhibition, and the naming mirrors the confirmed pattern
+      of the other two methods on this same form.
+
+      '
+  IMU_IGG_S2:
+    official_name: Sorologia Imunofluorescência IgG - amostra 2
+    translated_name: Immunofluorescence IgG serology - sample 2
+    description: 'Second-sample result matching IMU_IGG_S1.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as IMU_IGG_S1.
+  IMU_IGM_S1:
+    official_name: Sorologia Imunofluorescência IgM - amostra 1
+    translated_name: Immunofluorescence IgM serology - sample 1
+    description: 'IgM immunofluorescence result for the first sample, the acute-phase
+      test matching IMU_IGG_S1.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as IMU_IGG_S1.
+  IMU_IGM_S2:
+    official_name: Sorologia Imunofluorescência IgM - amostra 2
+    translated_name: Immunofluorescence IgM serology - sample 2
+    description: 'Second-sample result matching IMU_IGM_S1.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as IMU_IGG_S1.
+  INESPECIF:
+    official_name: Sinais e sintomas inespecíficos
+    translated_name: Nonspecific signs and symptoms
+    description: 'Clinical-signs checklist item for acute Chagas disease marking nonspecific
+      complaints (malaise, fever without a more specific sign) that don''t fit the
+      form''s named clinical findings.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CHAG form; name reads "inespecífico"; C1 width matches the other checklist
+      sign fields on the same clinical section.
+
+      '
+  MAECHAGA:
+    official_name: Mãe com doença de Chagas
+    translated_name: Mother has Chagas disease
+    description: 'Whether the mother has Chagas. The vertical route, which is why the
+      field carries a "não se aplica" value for patients where it cannot arise.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MAECHAGA.CNV
+    reasoning: Bound to MAECHAGA, whose values are sim, não and não se aplica.
+  MANIPULA:
+    official_name: Manipulação de Material com T. Cruzi
+    translated_name: Handled material containing T. cruzi
+    description: 'Whether the acute Chagas patient handled laboratory or other material
+      containing Trypanosoma cruzi, flagging accidental/occupational exposure as a
+      possible infection route distinct from vector or oral transmission.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 38.
+  MED_CONTR:
+    official_name: Medidas de controle adotadas
+    translated_name: Control measures taken
+    description: 'Whether vector-control measures (e.g. insecticide spraying of the
+      dwelling) were carried out in response to a suspected acute Chagas case, part
+      of the outbreak-response section of the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CHAG form; MED_CONTR reads "medida[s] de controle"; C1 width fits a
+      yes/no field alongside SUSPEITOS in the same outbreak-response block.
+
+      '
+  MED_OUTRO:
+    official_name: Medidas Tomadas - Outros
+    translated_name: Other control measure taken
+    description: 'Whether some control measure other than triatomine-bug control, hemotherapy-unit
+      inspection, or lab biosafety implementation was carried out in response to an
+      acute Chagas case.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 56.
+  MENINGOE:
+    official_name: Sinais e sintomas - Sinais de Meningoencefalite
+    translated_name: Meningoencephalitis signs
+    description: 'Whether the acute Chagas patient showed signs of meningoencephalitis,
+      a rare but severe central-nervous-system manifestation listed among the form''s
+      clinical sign checkboxes.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 41.
+  MICRO_HEMA:
+    official_name: Micro-hematócrito
+    translated_name: Microhematocrit concentration test
+    description: 'Result of the microhematocrit technique, a direct parasitological
+      method for finding circulating Trypanosoma cruzi in acute Chagas disease; sibling
+      direct-detection test to HEMOCULT on the same form.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
+      Microhematocrit concentration is a standard, widely used parasitological test
+      specifically for acute Chagas disease, and its pairing with HEMOCULT (also CHAG,
+      also a direct-detection method) supports the reading.
+
+      '
+  MUN_1:
+    official_name: Município de residência anterior 1
+    translated_name: Previous municipality of residence 1
+    description: The municipality paired with ANT_UF_1 in the residence history.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the first residence-history municipality.
+  MUN_2:
+    official_name: Município de residência anterior 2
+    translated_name: Previous municipality of residence 2
+    description: The municipality paired with ANT_UF_2.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the second residence-history municipality.
+  MUN_3:
+    official_name: Município de residência anterior 3
+    translated_name: Previous municipality of residence 3
+    description: The municipality paired with ANT_UF_3.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the third residence-history municipality.
+  ORAL:
+    official_name: Transmissão oral
+    translated_name: Oral transmission
+    description: 'Whether transmission was oral, through contaminated food — açaí and
+      sugar cane juice above all. Now the dominant route for acute Chagas in Brazil,
+      and it produces outbreaks rather than single cases.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ORAL.CNV
+    reasoning: Bound to ORAL, a sim/não flag for the oral route.
+  PARASITO:
+    official_name: Data do encontro dos vestígios do parasito
+    translated_name: Date parasite found on direct exam
+    description: 'Date T. cruzi trypomastigotes were seen on direct parasitological
+      examination of the Chagas patient''s blood - the definitive confirmatory finding
+      for acute infection.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'SINAN data dictionary (Chagas aguda, revised July 2010): field 35,
+      dt_encontro_parasito.'
+    reasoning: 'Declared as a date (D8), matching the dictionary''s "dt_encontro_parasito"
+      field exactly.
+
+      '
+  POLIADENO:
+    official_name: Poliadenomegalia
+    translated_name: Generalized lymphadenopathy
+    description: 'Clinical-signs checklist item for acute Chagas disease: widespread
+      (multi-site) lymph-node enlargement, as opposed to GANGLIOS, which marks localized
+      node enlargement near the inoculation site.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CHAG form; name reads "poliadenomegalia" (multiple enlarged nodes);
+      pairs with GANGLIOS as the localized/generalized split of the same sign.
+
+      '
+  PRESENCA:
+    official_name: Presença de Vestígios de Triatomídeos Intra-Domicílio
+    translated_name: Triatomine-bug traces found in the home
+    description: 'Whether feces, exoskeletons, or live/dead triatomine ("barbeiro")
+      bugs were found inside the home of an acute Chagas suspect, the main epidemiological
+      antecedent for vector-borne transmission.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 34.
+  QUANTOS:
+    official_name: Quantos exemplares capturados
+    translated_name: Number of triatomine specimens captured
+    description: 'Count of triatomine bugs collected during the household entomological
+      investigation — recorded with IMPLANTA (whether a colony was found) to gauge
+      infestation level.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C5; QUANTOS="how many," fitting the entomological-count theme paired
+      with IMPLANTA.
+  RAI_RESULT:
+    official_name: Resultado - reação de aglutinação indireta
+    translated_name: Indirect agglutination test result
+    description: 'Free-text result of an indirect hemagglutination/agglutination serology
+      test for Chagas disease, one of the named confirmatory antibody assays alongside
+      indirect immunofluorescence and ELISA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'RAI = reação de aglutinação indireta, RESULT = resultado; C20 width
+      fits a free-text or titer-style result rather than a single code.
+
+      '
+  RECEMNASC:
+    official_name: Recém-nascido - mãe com infecção chagásica
+    translated_name: Newborn with Chagas-infected mother (flag)
+    description: 'For patients aged 9 months or under, whether the mother has chagasic
+      infection - the question used to investigate congenital transmission as the case''s
+      probable infection route.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'SINAN data dictionary (Chagas aguda, revised July 2010): field 39,
+      DBF code MAECHAGA.'
+    reasoning: 'Dictionary field 39 asks exactly this ("Menor ou igual a 9 meses de
+      idade: Mãe com infecção chagásica"); RECEMNASC = recém-nascido names the same
+      concept from the notification-form side.
+
+      '
+  RESUL_HIS:
+    official_name: Resultado - exame histopatológico
+    translated_name: Histopathology exam result
+    description: 'Date/result of histopathological examination for Chagas disease confirmation
+      (e.g. tissue biopsy showing amastigotes), a less common confirmatory method than
+      serology or direct parasitology.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'RESUL_ = resultado, HIS = histopatológico; D8 declared type suggests
+      the field actually stores the exam date rather than a result code.
+
+      '
+  RES_HIST:
+    official_name: Resultado do exame histopatológico
+    translated_name: Histopathology result
+    description: 'Result of histopathological examination for the Chagas patient (positive/negative/not
+      performed) - one of the confirmatory lab methods alongside direct parasite exam
+      and hemoculture.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'SINAN data dictionary (Chagas aguda, revised July 2010): field 52,
+      values 1-positivo, 2-negativo, 3-não realizado, 9-ignorado.
+
+      '
+    reasoning: Confirmed by the CHAG data dictionary text and by the catalog's own
+      value list.
+  SINAIS_ICC:
+    official_name: Sinais de insuficiência cardíaca
+    translated_name: Signs of heart failure
+    description: 'Heart failure signs. The chronic cardiomyopathy is what kills in
+      Chagas, typically twenty or more years after infection.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: Bound to SINAIS_ICC; ICC is insuficiência cardíaca congestiva.
+  SINTOMATIC:
+    official_name: Sintomático
+    translated_name: Symptomatic
+    description: 'Whether the patient has symptoms. Most acute Chagas is silent and
+      most chronic Chagas is silent for decades, so this separates detected disease
+      from detected infection.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: Bound to SINTOMATIC, a sim/não flag.
+  SUSPEITOS:
+    official_name: Existem outros casos suspeitos
+    translated_name: Other suspected cases exist
+    description: 'Whether other suspected acute Chagas cases are known from the same
+      exposure (shared meal, same rural site), relevant because Brazil''s acute Chagas
+      outbreaks are often oral (contaminated food) and cluster.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CHAG form; SUSPEITOS reads "suspeitos"; C1 width fits a yes/no flag
+      in the outbreak-context section alongside MED_CONTR.
+
+      '
+  TEMPO:
+    official_name: Tempo entre exposição e sintomas
+    translated_name: Days from exposure to symptom onset
+    description: 'Number of days between the suspected Chagas exposure (or symptom
+      onset) and diagnosis/notification, an interval used to characterize the case
+      timeline.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TEMPO = tempo (time interval); N3 numeric width fits a day count up
+      to a few hundred days.
+
+      '
+  XENODIAG:
+    official_name: Xenodiagnóstico
+    translated_name: Xenodiagnosis result (Chagas disease)
+    description: 'Result of xenodiagnosis for acute Chagas disease: positive, negative,
+      or not performed. An indirect parasitological test where uninfected triatomine
+      bugs feed on the patient and are later checked for T. cruzi.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf,
+      campo 44-Exames realizados

@@ -1,0 +1,1311 @@
+# CNES — columns carried by more than one dataset.
+#
+# The notification header and other cross-dataset fields. Described once
+# against the system, because that is the scope on which they are the
+# same column.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+  AP01CV01:
+    official_name: Atendimento prestado INTERNACAO/Convenio SUS
+    translated_name: Inpatient admission (internacao) offered under the SUS public
+      system
+    description: 'SUS-covered patients: flag (1=yes/0=no) for whether the establishment
+      offers inpatient admission (internacao), self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 157
+    codelists:
+    - ATPRES01
+    notes: This same 7x6 grid (7 services x 6 payers) is also carried, field-for-field,
+      on the Dados Complementares (DC) record and, from Apr/2007 onward, on the Equipes
+      (EP) record - confirm which file an extract's AP0#CV0# column actually came from.
+      The seven per-service any- payer flags roll up into a single establishment-level
+      summary flag, ATEND_PR, which sits outside this batch (ST SEQ 199).
+  AP01CV02:
+    official_name: Atendimento prestado INTERNACAO/Convenio PARTICULAR
+    translated_name: Inpatient admission (internacao) offered under out-of-pocket/private
+      pay (particular), i.e. no insurer
+    description: 'Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no)
+      for whether the establishment offers inpatient admission (internacao), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 158
+  AP01CV03:
+    official_name: Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO PROPRIO
+    translated_name: Inpatient admission (internacao) offered under the establishment's
+      own company health plan/insurance (plano-seguro proprio)
+    description: 'Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether
+      the establishment offers inpatient admission (internacao), self-declared on its
+      service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 161
+    codelists:
+    - ATPRES1X
+  AP01CV04:
+    official_name: Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO TERCEIRO
+    translated_name: Inpatient admission (internacao) offered under a third party's
+      company health plan/insurance (plano-seguro terceiro)
+    description: 'Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no)
+      for whether the establishment offers inpatient admission (internacao), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 162
+  AP01CV05:
+    official_name: Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PUBLICO
+    translated_name: Inpatient admission (internacao) offered under a public health
+      plan (plano de saude publico)
+    description: 'Public-plan patients (plano publico): flag (1=yes/0=no) for whether
+      the establishment offers inpatient admission (internacao), self-declared on its
+      service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 159
+  AP01CV06:
+    official_name: Atendimento prestado INTERNACAO/Convenio PLANO de SAUDE PRIVADO
+    translated_name: Inpatient admission (internacao) offered under a private health
+      plan (plano de saude privado)
+    description: 'Private-plan patients (plano privado): flag (1=yes/0=no) for whether
+      the establishment offers inpatient admission (internacao), self-declared on its
+      service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 160
+  AP01CV07:
+    official_name: Atendimento prestado INTERNAÇÃO / Convênio Gratuidade
+    translated_name: Inpatient (Internação) care given free of charge (Gratuidade)
+    description: 'Marks that the establishment provides INTERNAÇÃO (inpatient) care
+      under the Gratuidade convênio category — given free of charge, billed neither
+      to SUS nor any insurance plan. 1=Sim, 0=Não.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same AP0[1-7]CV07 grid as the documented AP03CV07-AP07CV07 (SADT through
+      Regulação, convênio 07=Gratuidade per Manual_preench_ficha_02.pdf item 5.10);
+      AP01 is grid-category 1, Internação, per AP01CV01''s own citation (IT_CNES_1706.pdf
+      SEQ 157) already in cnes_b.yml.
+
+      '
+  AP02CV01:
+    official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio SUS
+    translated_name: Outpatient care (atendimento ambulatorial) offered under the SUS
+      public system
+    description: 'SUS-covered patients: flag (1=yes/0=no) for whether the establishment
+      offers outpatient care (atendimento ambulatorial), self-declared on its service/payer
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 163
+    codelists:
+    - ATPRES02
+  AP02CV02:
+    official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PARTICULAR
+    translated_name: Outpatient care (atendimento ambulatorial) offered under out-of-pocket/private
+      pay (particular), i.e. no insurer
+    description: 'Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no)
+      for whether the establishment offers outpatient care (atendimento ambulatorial),
+      self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 164
+  AP02CV03:
+    official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO
+      PROPRIO
+    translated_name: Outpatient care (atendimento ambulatorial) offered under the establishment's
+      own company health plan/insurance (plano-seguro proprio)
+    description: 'Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether
+      the establishment offers outpatient care (atendimento ambulatorial), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 167
+    codelists:
+    - ATPRES2X
+  AP02CV04:
+    official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO
+      TERCEIRO
+    translated_name: Outpatient care (atendimento ambulatorial) offered under a third
+      party's company health plan/insurance (plano-seguro terceiro)
+    description: 'Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no)
+      for whether the establishment offers outpatient care (atendimento ambulatorial),
+      self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 168
+  AP02CV05:
+    official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de
+      SAUDE PUBLICO
+    translated_name: Outpatient care (atendimento ambulatorial) offered under a public
+      health plan (plano de saude publico)
+    description: 'Public-plan patients (plano publico): flag (1=yes/0=no) for whether
+      the establishment offers outpatient care (atendimento ambulatorial), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 165
+  AP02CV06:
+    official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO de
+      SAUDE PRIVADO
+    translated_name: Outpatient care (atendimento ambulatorial) offered under a private
+      health plan (plano de saude privado)
+    description: 'Private-plan patients (plano privado): flag (1=yes/0=no) for whether
+      the establishment offers outpatient care (atendimento ambulatorial), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 166
+  AP02CV07:
+    official_name: Atendimento prestado AMBULATORIAL / Convênio Gratuidade
+    translated_name: Outpatient (Ambulatorial) care given free of charge (Gratuidade)
+    description: 'Marks that the establishment provides AMBULATORIAL (outpatient) care
+      under the Gratuidade convênio category — given free of charge, billed neither
+      to SUS nor any insurance plan. 1=Sim, 0=Não.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same grid as AP01CV07 above; AP02 is grid-category 2, Atendimento Ambulatorial,
+      per AP02CV01''s own citation (IT_CNES_1706.pdf SEQ 163) in cnes_b.yml, and CV07
+      is the Gratuidade convênio already established by the documented AP03CV07-AP07CV07
+      siblings.
+
+      '
+  AP03CV01:
+    official_name: Atendimento prestado SADT/Convenio SUS
+    translated_name: Diagnostic/therapy support services (SADT) offered under the SUS
+      public system
+    description: 'SUS-covered patients: flag (1=yes/0=no) for whether the establishment
+      offers diagnostic and therapy support services (SADT), self-declared on its service/payer
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 169
+    codelists:
+    - ATPRES03
+  AP03CV02:
+    official_name: Atendimento prestado SADT/Convenio PARTICULAR
+    translated_name: Diagnostic/therapy support services (SADT) offered under out-of-pocket/private
+      pay (particular), i.e. no insurer
+    description: 'Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no)
+      for whether the establishment offers diagnostic and therapy support services
+      (SADT), self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 170
+  AP03CV03:
+    official_name: Atendimento prestado SADT/Convenio PLANO-SEGURO PROPRIO
+    translated_name: Diagnostic/therapy support services (SADT) offered under the establishment's
+      own company health plan/insurance (plano-seguro proprio)
+    description: 'Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether
+      the establishment offers diagnostic and therapy support services (SADT), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 173
+    codelists:
+    - ATPRES3X
+  AP03CV04:
+    official_name: Atendimento prestado SADT/Convenio PLANO-SEGURO TERCEIRO
+    translated_name: Diagnostic/therapy support services (SADT) offered under a third
+      party's company health plan/insurance (plano-seguro terceiro)
+    description: 'Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no)
+      for whether the establishment offers diagnostic and therapy support services
+      (SADT), self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 174
+  AP03CV05:
+    official_name: Atendimento prestado SADT/Convenio PLANO de SAUDE PUBLICO
+    translated_name: Diagnostic/therapy support services (SADT) offered under a public
+      health plan (plano de saude publico)
+    description: 'Public-plan patients (plano publico): flag (1=yes/0=no) for whether
+      the establishment offers diagnostic and therapy support services (SADT), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 171
+  AP03CV06:
+    official_name: Atendimento prestado SADT/Convenio PLANO de SAUDE PRIVADO
+    translated_name: Diagnostic/therapy support services (SADT) offered under a private
+      health plan (plano de saude privado)
+    description: 'Private-plan patients (plano privado): flag (1=yes/0=no) for whether
+      the establishment offers diagnostic and therapy support services (SADT), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 172
+  AP03CV07:
+    official_name: Atendimento prestado SADT / Convênio Gratuidade
+    translated_name: SADT care given free of charge (Gratuidade)
+    description: 'Marks that the establishment provides SADT (diagnostic and therapy
+      support) care under the Gratuidade convênio category: services given free of
+      charge, billed neither to SUS nor any insurance plan. 1=Sim, 0=Não.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento
+      Prestado categories 1-Internação to 7-Regulação)
+
+      '
+  AP04CV01:
+    official_name: Atendimento prestado URGENCIA/Convenio SUS
+    translated_name: Emergency/urgent care (urgencia) offered under the SUS public
+      system
+    description: 'SUS-covered patients: flag (1=yes/0=no) for whether the establishment
+      offers emergency/urgent care (urgencia), self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 175
+    codelists:
+    - ATPRES04
+  AP04CV02:
+    official_name: Atendimento prestado URGENCIA/Convenio PARTICULAR
+    translated_name: Emergency/urgent care (urgencia) offered under out-of-pocket/private
+      pay (particular), i.e. no insurer
+    description: 'Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no)
+      for whether the establishment offers emergency/urgent care (urgencia), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 176
+  AP04CV03:
+    official_name: Atendimento prestado URGENCIA/Convenio PLANO-SEGURO PROPRIO
+    translated_name: Emergency/urgent care (urgencia) offered under the establishment's
+      own company health plan/insurance (plano-seguro proprio)
+    description: 'Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether
+      the establishment offers emergency/urgent care (urgencia), self-declared on its
+      service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 179
+    codelists:
+    - ATPRES4X
+  AP04CV04:
+    official_name: Atendimento prestado URGENCIA/Convenio PLANO-SEGURO TERCEIRO
+    translated_name: Emergency/urgent care (urgencia) offered under a third party's
+      company health plan/insurance (plano-seguro terceiro)
+    description: 'Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no)
+      for whether the establishment offers emergency/urgent care (urgencia), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 180
+  AP04CV05:
+    official_name: Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PUBLICO
+    translated_name: Emergency/urgent care (urgencia) offered under a public health
+      plan (plano de saude publico)
+    description: 'Public-plan patients (plano publico): flag (1=yes/0=no) for whether
+      the establishment offers emergency/urgent care (urgencia), self-declared on its
+      service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 177
+  AP04CV06:
+    official_name: Atendimento prestado URGENCIA/Convenio PLANO de SAUDE PRIVADO
+    translated_name: Emergency/urgent care (urgencia) offered under a private health
+      plan (plano de saude privado)
+    description: 'Private-plan patients (plano privado): flag (1=yes/0=no) for whether
+      the establishment offers emergency/urgent care (urgencia), self-declared on its
+      service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 178
+  AP04CV07:
+    official_name: Atendimento prestado URGÊNCIA / Convênio Gratuidade
+    translated_name: Emergency (URGÊNCIA) care given free of charge (Gratuidade)
+    description: 'Marks that the establishment provides URGÊNCIA (structured emergency,
+      pronto-socorro-type) care under the Gratuidade convênio category: given free
+      of charge, not billed to SUS or any insurance plan. 1=Sim, 0=Não.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento
+      Prestado categories 1-Internação to 7-Regulação)
+
+      '
+  AP05CV01:
+    official_name: Atendimento prestado OUTROS/Convenio SUS
+    translated_name: Other care (outros) offered under the SUS public system
+    description: 'SUS-covered patients: flag (1=yes/0=no) for whether the establishment
+      offers other care (outros), self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 181
+    codelists:
+    - ATPRES05
+  AP05CV02:
+    official_name: Atendimento prestado OUTROS/Convenio PARTICULAR
+    translated_name: Other care (outros) offered under out-of-pocket/private pay (particular),
+      i.e. no insurer
+    description: 'Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no)
+      for whether the establishment offers other care (outros), self-declared on its
+      service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 182
+  AP05CV03:
+    official_name: Atendimento prestado OUTROS/Convenio PLANO-SEGURO PROPRIO
+    translated_name: Other care (outros) offered under the establishment's own company
+      health plan/insurance (plano-seguro proprio)
+    description: 'Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether
+      the establishment offers other care (outros), self-declared on its service/payer
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 185
+    codelists:
+    - ATPRES5X
+  AP05CV04:
+    official_name: Atendimento prestado OUTROS/Convenio PLANO-SEGURO TERCEIRO
+    translated_name: Other care (outros) offered under a third party's company health
+      plan/insurance (plano- seguro terceiro)
+    description: 'Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no)
+      for whether the establishment offers other care (outros), self-declared on its
+      service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 186
+  AP05CV05:
+    official_name: Atendimento prestado OUTROS/Convenio PLANO de SAUDE PUBLICO
+    translated_name: Other care (outros) offered under a public health plan (plano
+      de saude publico)
+    description: 'Public-plan patients (plano publico): flag (1=yes/0=no) for whether
+      the establishment offers other care (outros), self-declared on its service/payer
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 183
+  AP05CV06:
+    official_name: Atendimento prestado OUTROS/Convenio PLANO de SAUDE PRIVADO
+    translated_name: Other care (outros) offered under a private health plan (plano
+      de saude privado)
+    description: 'Private-plan patients (plano privado): flag (1=yes/0=no) for whether
+      the establishment offers other care (outros), self-declared on its service/payer
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 184
+  AP05CV07:
+    official_name: Atendimento prestado OUTROS / Convênio Gratuidade
+    translated_name: '"Outros" care given free of charge (Gratuidade)'
+    description: 'Marks that a Farmácia or Cooperativa establishment — the only types
+      allowed to use the OUTROS attendance category — provides that care under Gratuidade,
+      free of any SUS or insurance billing. 1=Sim, 0=Não.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (05-Outros restricted
+      to Farmácia/Cooperativa establishments)
+
+      '
+  AP06CV01:
+    official_name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio SUS
+    translated_name: Health surveillance (vigilancia em saude) offered under the SUS
+      public system
+    description: 'SUS-covered patients: flag (1=yes/0=no) for whether the establishment
+      offers health surveillance (vigilancia em saude), self-declared on its service/payer
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 187
+    codelists:
+    - ATPRES06
+  AP06CV02:
+    official_name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PARTICULAR
+    translated_name: Health surveillance (vigilancia em saude) offered under out-of-pocket/private
+      pay (particular), i.e. no insurer
+    description: 'Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no)
+      for whether the establishment offers health surveillance (vigilancia em saude),
+      self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 188
+  AP06CV03:
+    official_name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO PROPRIO
+    translated_name: Health surveillance (vigilancia em saude) offered under the establishment's
+      own company health plan/insurance (plano-seguro proprio)
+    description: 'Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether
+      the establishment offers health surveillance (vigilancia em saude), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 191
+    codelists:
+    - ATPRES6X
+  AP06CV04:
+    official_name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO TERCEIRO
+    translated_name: Health surveillance (vigilancia em saude) offered under a third
+      party's company health plan/insurance (plano-seguro terceiro)
+    description: 'Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no)
+      for whether the establishment offers health surveillance (vigilancia em saude),
+      self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 192
+  AP06CV05:
+    official_name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE
+      PUBLICO
+    translated_name: Health surveillance (vigilancia em saude) offered under a public
+      health plan (plano de saude publico)
+    description: 'Public-plan patients (plano publico): flag (1=yes/0=no) for whether
+      the establishment offers health surveillance (vigilancia em saude), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 189
+  AP06CV06:
+    official_name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO de SAUDE
+      PRIVADO
+    translated_name: Health surveillance (vigilancia em saude) offered under a private
+      health plan (plano de saude privado)
+    description: 'Private-plan patients (plano privado): flag (1=yes/0=no) for whether
+      the establishment offers health surveillance (vigilancia em saude), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 190
+  AP06CV07:
+    official_name: Atendimento prestado VIGILÂNCIA EM SAÚDE / Convênio Gratuidade
+    translated_name: Health-surveillance care given free of charge (Gratuidade)
+    description: 'Marks that the establishment carries out VIGILÂNCIA EM SAÚDE (health
+      surveillance) actions under the Gratuidade convênio category: performed free
+      of charge, not billed to SUS or any insurance plan. 1=Sim, 0=Não.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento
+      Prestado categories 1-Internação to 7-Regulação)
+
+      '
+  AP07CV01:
+    official_name: Atendimento prestado REGULACAO/Convenio SUS
+    translated_name: Regulation/referral management (regulacao) offered under the SUS
+      public system
+    description: 'SUS-covered patients: flag (1=yes/0=no) for whether the establishment
+      offers regulation/referral management (regulacao), self-declared on its service/payer
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 193
+    codelists:
+    - ATPRES07
+  AP07CV02:
+    official_name: Atendimento prestado REGULACAO/Convenio PARTICULAR
+    translated_name: Regulation/referral management (regulacao) offered under out-of-pocket/private
+      pay (particular), i.e. no insurer
+    description: 'Out-of-pocket patients (particular, uninsured): flag (1=yes/0=no)
+      for whether the establishment offers regulation/referral management (regulacao),
+      self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 194
+  AP07CV03:
+    official_name: Atendimento prestado REGULACAO/Convenio PLANO-SEGURO PROPRIO
+    translated_name: Regulation/referral management (regulacao) offered under the establishment's
+      own company health plan/insurance (plano-seguro proprio)
+    description: 'Own-plan patients (plano-seguro proprio): flag (1=yes/0=no) for whether
+      the establishment offers regulation/referral management (regulacao), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 197
+    codelists:
+    - ATPRES7X
+  AP07CV04:
+    official_name: Atendimento prestado REGULACAO/Convenio PLANO-SEGURO TERCEIRO
+    translated_name: Regulation/referral management (regulacao) offered under a third
+      party's company health plan/insurance (plano-seguro terceiro)
+    description: 'Third-party-plan patients (plano-seguro terceiro): flag (1=yes/0=no)
+      for whether the establishment offers regulation/referral management (regulacao),
+      self-declared on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 198
+  AP07CV05:
+    official_name: Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PUBLICO
+    translated_name: Regulation/referral management (regulacao) offered under a public
+      health plan (plano de saude publico)
+    description: 'Public-plan patients (plano publico): flag (1=yes/0=no) for whether
+      the establishment offers regulation/referral management (regulacao), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 195
+  AP07CV06:
+    official_name: Atendimento prestado REGULACAO/Convenio PLANO de SAUDE PRIVADO
+    translated_name: Regulation/referral management (regulacao) offered under a private
+      health plan (plano de saude privado)
+    description: 'Private-plan patients (plano privado): flag (1=yes/0=no) for whether
+      the establishment offers regulation/referral management (regulacao), self-declared
+      on its service/payer grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 196
+  AP07CV07:
+    official_name: Atendimento prestado REGULAÇÃO / Convênio Gratuidade
+    translated_name: Bed/vacancy-regulation function given free of charge (Gratuidade)
+    description: 'Marks that the establishment performs REGULAÇÃO (bed/vacancy-allocation
+      regulation, restricted to establishments with that function) under Gratuidade:
+      at no charge, not billed to SUS or any insurance plan. 1=Sim, 0=Não.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (07-Regulação
+      restricted to establishments with regulação de vagas)
+
+      '
+  ATEND_PR:
+    official_name: Atendimento prestado
+    translated_name: '"Any service provided" flag'
+    description: 'Summary flag for whether the establishment has any "atendimento prestado"
+      recorded at all. Appears to be a roll-up of a more detailed per-service-type
+      grid (columns named AP01CV01…AP07CV06) that this batch could not independently
+      verify — see notes.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Indica a existência de algum atendimento prestado"'
+    notes: 'Do not infer the meaning of the AP0#CV0# columns from this flag; they were
+      left undescribed in this batch because no source could confirm what the AP0#
+      groups or CV0# sub-columns individually represent.
+
+      '
+  ATIVIDAD:
+    official_name: Atividade de ensino
+    translated_name: Teaching/research activity of the establishment
+    description: 'Whether and how the establishment is linked to teaching or research
+      activity — the domain runs roughly from university unit through teaching hospital,
+      with a not-applicable/not-informed code for facilities with no such link. This
+      is an institutional attribute independent of care volume: a large hospital with
+      no teaching link still treats patients normally.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[MICRODATASUS] `"1"~"Unidade Universitária" ... "5"~"Hospital de ensino"`
+
+      '
+    codelists:
+    - ATIV_ENS
+    notes: 'Independent of TP_UNID (facility type) — a hospital can be TP_UNID=hospital
+      and ATIVIDAD=teaching-linked at the same time; the two axes are orthogonal.
+
+      '
+  CLIENTEL:
+    official_name: Fluxo de clientela
+    translated_name: Patient-flow / referral-intake type
+    description: 'How patients reach the establishment — spontaneous demand (walk-in),
+      referred-only, a mix of both, or "flow not required" when the concept does not
+      apply to that facility type. This is about intake channel, not clinical urgency
+      or triage.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[MICRODATASUS] `"1"~"Atendimento de demanda espontânea" ... "0"~"Fluxo
+      não exigido"`
+
+      '
+    codelists:
+    - FLUX_CLI
+  CMPT_FIM:
+    official_name: Competência final
+    translated_name: End year-month of the habilitação record's validity period
+    description: 'The AAAAMM year-month at which the habilitação/accreditation record
+      this row describes (see SGRUPHAB) stopped being in effect; an accreditation still
+      current at extraction time typically carries the latest available competência
+      rather than a real end date. Paired with CMPT_INI.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same reasoning as CMPT_INI, its paired start-of-period column.
+  CMPT_INI:
+    official_name: Competência inicial
+    translated_name: Start year-month of the habilitação record's validity period
+    description: 'The AAAAMM year-month at which the habilitação/accreditation record
+      this row describes (see SGRUPHAB) began being in effect. Read together with CMPT_FIM,
+      which marks the end of the same validity window.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CMPT_ is DATASUS''s "competência" period-field prefix (paired here
+      with CMPT_FIM), the column is bound to the "COMPT" period codelist, and it appears
+      only in the habilitação- family series (EE, EF, EFUFAAMM, GM, GMUFAAMM, HB) alongside
+      SGRUPHAB/DTPORTAR/ MAPORTAR/PORTARIA.
+
+      '
+  CNPJ_MAN:
+    official_name: CNPJ da mantenedora
+    translated_name: CNPJ of the establishment's holding/maintaining entity
+    description: 'National registry number (CNPJ) of the legal entity that maintains/owns
+      the establishment — e.g. a hospital chain''s holding company, the diocese running
+      a philanthropic hospital, or a municipal health secretariat. One mantenedora
+      CNPJ commonly recurs across many CNES establishment records belonging to the
+      same network.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[PCDAS] "CNPJ da mantenedora do estabelecimento"'
+    notes: An organizational tax identifier, not a personal one — pass through unmodified.
+  CODUFMUN:
+    official_name: Código do Município (UF + Município)
+    translated_name: IBGE municipality code of the establishment
+    description: 'The 6-digit IBGE code (state digits + municipality digits) of the
+      municipality where the establishment is registered. It is also the join key the
+      catalog uses to reach several derived territorial-classification lookups (Legal
+      Amazon membership, state- capital flag, extreme-poverty area, land-border-strip
+      zone) — those are auxiliary joins keyed on this code, not separate facts stored
+      in the column itself.
+
+      '
+    code_system: external
+    source: web
+    source_ref: '[PCDAS] "Código do município do estabelecimento: UF + MUNIC"'
+    codelists:
+    - BR_AMAZLEGAL
+    - BR_CAPITAL
+    - BR_EXTRPOBREZ
+    - BR_FRONTFAIXA
+    - BR_FRONTZONA
+  COD_CEP:
+    official_name: Código de Endereçamento Postal (CEP)
+    translated_name: Postal code (CEP) of the establishment's address
+    description: 'The Brazilian postal code (CEP) of the establishment''s registered
+      street address — finer-grained than CODUFMUN. Useful for street/neighbourhood-level
+      geocoding, but CEP boundaries are redrawn by the postal service over time and
+      are not a stable long-run key.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[PCDAS] "Código do CEP do estabelecimento"'
+  COD_IR:
+    official_name: Código de retenção do imposto de renda
+    translated_name: Income-tax withholding classification code
+    description: 'Classifies the establishment''s institutional nature for income-tax
+      withholding purposes on the SUS payments it receives — roughly twenty categories
+      spanning public, philanthropic, and private-for-profit institutions. An administrative/fiscal
+      attribute of the payee, not a clinical field.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Indicates tax retention type (10=Public through 19=Code 19)";
+      [MICRODATASUS] "Maps codes 0-19 to institutional types (public, philanthropic,
+      private, etc)"
+
+      '
+    codelists:
+    - RETENMAN
+    notes: 'Conceptually close to RETENCAO (also a tax-withholding classification);
+      the two were not confirmed to be identical, so keep them as separate columns
+      rather than assuming redundancy.
+
+      '
+  COMPETEN:
+    official_name: Competência (Ano/Mês)
+    translated_name: Reference year-month of the CNES snapshot
+    description: 'The AAAAMM (year+month) "competência" the record belongs to — which
+      monthly CNES extract this row was published in, not a date tied to any real-world
+      event at the establishment. CNES is republished monthly, so the same establishment
+      reappears under the same identity fields across many COMPETEN values as its record
+      is refreshed.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[PCDAS] "Ano e Mês de competência da informação (AAAAMM)"'
+  CPF_CNPJ:
+    official_name: CPF/CNPJ do estabelecimento
+    translated_name: CPF or CNPJ of the establishment itself
+    description: 'The establishment''s own tax/personal identifier: a CPF (individual
+      taxpayer number) when PF_PJ marks it as pessoa física — e.g. a self-employed
+      professional''s own office — or a CNPJ (company registry number) when it is pessoa
+      jurídica. Distinct from CNPJ_MAN, which identifies the parent/maintaining entity
+      rather than the establishment itself.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[PCDAS] "CPF do estabelecimento, caso pessoa física ou CNPJ"'
+    notes: 'Can hold a CPF — a personal identifier of an individual professional/proprietor,
+      not just an organizational code. Surface it plainly; propose no masking.
+
+      '
+  DISTRADM:
+    official_name: Distrito administrativo / Módulo assistencial
+    translated_name: Local administrative/care-module district code
+    description: 'Code of a local administrative subdivision ("módulo assistencial")
+      a municipal or state health authority uses to organize its services. The source
+      dictionary states this explicitly follows a locally defined table, so the same
+      numeric code means different things in different municipalities.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[PCDAS] "Código do Módulo Assistencial conforme tabela local"'
+    notes: 'Codes are defined per municipality, not nationally — cross-municipality
+      comparison or aggregation needs each municipality''s own lookup, which this catalog
+      does not carry.
+
+      '
+  DISTRSAN:
+    official_name: Distrito sanitário
+    translated_name: Sanitary/health district code
+    description: 'Code of the sanitary district — a health-service administrative subdivision,
+      chiefly used by larger municipalities to split the city into local health-planning
+      areas — that the establishment belongs to.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[PCDAS] "Código do distrito sanitário"'
+    notes: No codelist is bound to this column in this catalog; the district numbering
+      is set locally.
+  DTPORTAR:
+    official_name: Data da portaria
+    translated_name: Date of the ordinance (portaria) granting the habilitação
+    description: 'Calendar date of the ministerial/state ordinance ("portaria") that
+      granted or altered the habilitação/accreditation this row records — the legal
+      act''s date, not the date CNES was updated to reflect it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ is DATASUS''s date-field prefix; the same record group carries
+      PORTARIA (declared as a long text field consistent with an ordinance citation)
+      and MAPORTAR (a companion AAAAMM period), so DTPORTAR reads naturally as the
+      calendar date of that same ordinance.
+
+      '
+  ESFERA_A:
+    official_name: Esfera administrativa
+    translated_name: Administrative sphere / level of government
+    description: 'One of federal, state, municipal, or private — which of those holds
+      administrative authority over the establishment. This is about who administers
+      the facility, separate from who is responsible for it within SUS (that is TPGESTAO):
+      a privately-owned facility can still be municipally managed within SUS.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Código da esfera administrativa: 01-Federal; 02-Estadual";
+      [MICRODATASUS] `"1"~"Federal", "2"~"Estadual", "3"~"Municipal", "4"~"Privada"`
+
+      '
+    codelists:
+    - ESFERADM
+  GESPRG1E:
+    official_name: Indicador se a gestao da atividade ATENCAO BASICA do Nivel de Atencao
+      AMBULATORIAL e ESTADUAL
+    translated_name: State-level management of outpatient primary care
+    description: 'Outpatient primary care (atencao basica), state-level management:
+      flag (1=yes/0=no) self- declared by the establishment on its gestao/nivel-de-atencao
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 40
+    codelists:
+    - GESPROG1
+    notes: Read alongside GESPRG1M (the other sphere for the same program) and the
+      coarser NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
+      tier exists at all, not how it is managed.
+  GESPRG1M:
+    official_name: Indicador se a gestao da atividade ATENCAO BASICA do Nivel de Atencao
+      AMBULATORIAL e MUNICIPAL
+    translated_name: Municipal-level management of outpatient primary care
+    description: 'Outpatient primary care (atencao basica), municipal-level management:
+      flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 41
+  GESPRG2E:
+    official_name: Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de
+      Atencao AMBULATORIAL e ESTADUAL
+    translated_name: State-level management of outpatient medium-complexity care
+    description: 'Outpatient medium-complexity care (media complexidade ambulatorial),
+      state-level management: flag (1=yes/0=no) self-declared by the establishment
+      on its gestao/nivel-de- atencao grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 42
+    codelists:
+    - GESPROG2
+    notes: Read alongside GESPRG2M (the other sphere for the same program) and the
+      coarser NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
+      tier exists at all, not how it is managed.
+  GESPRG2M:
+    official_name: Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de
+      Atencao AMBULATORIAL e MUNICIPAL
+    translated_name: Municipal-level management of outpatient medium-complexity care
+    description: 'Outpatient medium-complexity care (media complexidade ambulatorial),
+      municipal-level management: flag (1=yes/0=no) self-declared by the establishment
+      on its gestao/nivel-de- atencao grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 43
+  GESPRG3E:
+    official_name: Indicador se a gestao do programa cod. 03 e ESTADUAL
+    translated_name: Legacy state-level 'internacao' (general inpatient) management
+      indicator, marked ANTIGO
+    description: State-level legacy indicator for general inpatient ('internacao')
+      management, labelled ANTIGO (old) in DATASUS's own field list - superseded by
+      the media/alta-complexidade split in GESPRG5E/GESPRG6E.
+    code_system: internal
+    source: def
+    source_ref: Estabelecimento.def line 'Internacao Estadual (ANTIGO), GESPRG3E' /
+      'Internacao Municipal(ANTIGO), GESPRG3M', and CNV/GESPROG3.CNV, both from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip
+    codelists:
+    - GESPROG3
+  GESPRG3M:
+    official_name: Indicador se a gestao do programa cod. 03 e MUNICIPAL
+    translated_name: Legacy municipal-level 'internacao' (general inpatient) management
+      indicator, marked ANTIGO
+    description: Municipal-level legacy indicator for general inpatient ('internacao')
+      management, labelled ANTIGO (old) in DATASUS's own field list - superseded by
+      the media/alta-complexidade split in GESPRG5M/GESPRG6M.
+    code_system: internal
+    source: def
+    source_ref: Estabelecimento.def line 'Internacao Estadual (ANTIGO), GESPRG3E' /
+      'Internacao Municipal(ANTIGO), GESPRG3M', and CNV/GESPROG3.CNV, both from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip
+  GESPRG4E:
+    official_name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de
+      Atencao AMBULATORIAL e ESTADUAL
+    translated_name: State-level management of outpatient high-complexity care
+    description: 'Outpatient high-complexity care (alta complexidade ambulatorial),
+      state-level management: flag (1=yes/0=no) self-declared by the establishment
+      on its gestao/nivel-de-atencao grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 44
+    codelists:
+    - GESPROG4
+    notes: Read alongside GESPRG4M (the other sphere for the same program) and the
+      coarser NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
+      tier exists at all, not how it is managed.
+  GESPRG4M:
+    official_name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de
+      Atencao AMBULATORIAL e MUNICIPAL
+    translated_name: Municipal-level management of outpatient high-complexity care
+    description: 'Outpatient high-complexity care (alta complexidade ambulatorial),
+      municipal-level management: flag (1=yes/0=no) self-declared by the establishment
+      on its gestao/nivel-de- atencao grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 45
+  GESPRG5E:
+    official_name: Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de
+      Atencao HOSPITALAR e ESTADUAL
+    translated_name: State-level management of inpatient medium-complexity care
+    description: 'Inpatient medium-complexity care (media complexidade hospitalar),
+      state-level management: flag (1=yes/0=no) self-declared by the establishment
+      on its gestao/nivel-de-atencao grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 49
+    codelists:
+    - GESPROG5
+    notes: Read alongside GESPRG5M (the other sphere for the same program) and the
+      coarser NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
+      tier exists at all, not how it is managed.
+  GESPRG5M:
+    official_name: Indicador se a gestao da atividade MEDIA COMPLEXIDADE do Nivel de
+      Atencao HOSPITALAR e MUNICIPAL
+    translated_name: Municipal-level management of inpatient medium-complexity care
+    description: 'Inpatient medium-complexity care (media complexidade hospitalar),
+      municipal-level management: flag (1=yes/0=no) self-declared by the establishment
+      on its gestao/nivel-de- atencao grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 50
+  GESPRG6E:
+    official_name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de
+      Atencao HOSPITALAR e ESTADUAL
+    translated_name: State-level management of inpatient high-complexity care
+    description: 'Inpatient high-complexity care (alta complexidade hospitalar), state-level
+      management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 51
+    codelists:
+    - GESPROG6
+    notes: Read alongside GESPRG6M (the other sphere for the same program) and the
+      coarser NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
+      tier exists at all, not how it is managed.
+  GESPRG6M:
+    official_name: Indicador se a gestao da atividade ALTA COMPLEXIDADE do Nivel de
+      Atencao HOSPITALAR e MUNICIPAL
+    translated_name: Municipal-level management of inpatient high-complexity care
+    description: 'Inpatient high-complexity care (alta complexidade hospitalar), municipal-level
+      management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao
+      grid.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 52
+  MAPORTAR:
+    official_name: Mês/Ano da portaria
+    translated_name: Year-month of the ordinance (portaria)
+    description: 'The AAAAMM year-month of the same ordinance recorded in DTPORTAR/PORTARIA
+      — a coarser, period-grain companion to the exact date.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared width C(6,0) matches AAAAMM, and it is bound to the same "COMPT"
+      period codelist as CMPT_INI/CMPT_FIM; sits beside DTPORTAR/PORTARIA in the habilitação
+      series.
+
+      '
+  MICR_REG:
+    official_name: Microrregião de saúde
+    translated_name: Health micro-region code (NOAS regionalization)
+    description: 'Code of the health micro-region — a finer subdivision of REGSAUDE
+      — the establishment is assigned to under the same NOAS regionalization framework.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[PCDAS] "Código da microrregião de saúde NOAS"'
+    notes: Same caveat as REGSAUDE — no codelist is bound to it in this catalog.
+  NIVATE_A:
+    official_name: Indica a existencia de Nivel de Atencao AMBULATORIAL, de gestao
+      Municipal/Estadual, para este CNES
+    translated_name: Outpatient (ambulatorial) care tier exists for this establishment
+    description: Flag (1-sim, 0-nao) for whether this establishment has an outpatient
+      (ambulatorial) care tier at all, under either municipal or state management,
+      on the Estabelecimentos (ST) record. It is a coarse existence flag - it does
+      not say which of GESPRG1E/M, GESPRG2E/M or GESPRG4E/M is the one that is set,
+      only that at least one ambulatorial management combination applies.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 46
+  NIVATE_H:
+    official_name: Indica a existencia de Nivel de Atencao HOSPITALAR, de gestao Municipal/Estadual,
+      para este CNES
+    translated_name: Inpatient (hospitalar) care tier exists for this establishment
+    description: Flag (1-sim, 0-nao) for whether this establishment has an inpatient
+      (hospitalar) care tier at all, under either municipal or state management, on
+      the Estabelecimentos (ST) record. Sibling of NIVATE_A for the hospital side;
+      a coarse existence flag, not a breakdown by GESPRG5E/M vs GESPRG6E/M.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 53
+  NIV_DEP:
+    official_name: Grau/Nível de dependência
+    translated_name: Institutional dependency level
+    description: 'Whether the establishment is administratively independent (Individual)
+      or subordinate to / maintained by another establishment or entity (Mantida) —
+      e.g. a satellite outpatient unit reported under its parent hospital''s registration.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Grau de dependência, onde: 1-Individual 3-Mantida"; [MICRODATASUS]
+      `"1" ~ "Individual", "3" ~ "Mantida"`
+
+      '
+    codelists:
+    - NIVELDEP
+  NIV_HIER:
+    official_name: Nível de hierarquia
+    translated_name: Care-network hierarchy level
+    description: 'Places the establishment within the SUS care-complexity hierarchy
+      (roughly primary/ basic care through higher-complexity referral levels). The
+      exact mapping from code to hierarchy level was not individually confirmed for
+      every code in the sources found; rely on the bound codelist for that, not on
+      this description.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Código do nível de hierarquia"; [MICRODATASUS] (8 hierarchy
+      levels)'
+    codelists:
+    - NIV_HIER
+  PF_PJ:
+    official_name: Indicador de pessoa física/jurídica
+    translated_name: Individual-person vs legal-entity indicator
+    description: 'Marks whether the establishment is registered as a natural person
+      (pessoa física, code 1 — e.g. an independent professional''s own practice) or
+      a legal entity (pessoa jurídica, code 3 — a company, hospital, clinic, etc).
+      Governs whether CPF_CNPJ holds a CPF or a CNPJ.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Indicador de pessoa: 1-Física 3-Jurídica"; [MICRODATASUS]
+      `"1" ~ "Pessoa física", "3" ~ "Pessoa jurídica"`
+
+      '
+    codelists:
+    - TP_PFPJ
+  PORTARIA:
+    official_name: Portaria
+    translated_name: Ordinance number/citation
+    description: 'Identifier of the ministerial/state ordinance ("portaria") that authorized
+      the habilitação/accreditation this row records — e.g. its number and issuing
+      body. Declared as a 50-character field, consistent with holding a citation string
+      rather than a bare numeric code.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Field name plus declared C(50,0) width (too wide for a bare code, right
+      for a citation string) and its presence alongside DTPORTAR/MAPORTAR/SGRUPHAB
+      in the same habilitação series.
+
+      '
+  QT_EXIST:
+    official_name: Quantidade existente
+    translated_name: Existing-quantity count
+    description: 'A generic numeric count of how many of the thing this record is about
+      currently exist at the establishment. The same column name is reused across file
+      series with different referents: in the LT (leitos/beds) series it counts existing
+      beds of the row''s type, and in the EQ (equipamentos) series it counts existing
+      units of the row''s equipment type. Always read it together with whatever row-identifying
+      code sits alongside it in that series — the column itself does not say what is
+      being counted.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QT_ is DATASUS''s quantity-field prefix, declared N(4,0) numeric; [PDFCOFFEE]
+      independently glosses it as "Quantidade de Leitos Existentes" in the beds context,
+      and the evidence shows the same column also carries the EQ equipment series,
+      so the generic "existing quantity of X" reading (rather than a beds-only meaning)
+      is inferred from combining the two.
+
+      '
+  REGSAUDE:
+    official_name: Região de saúde
+    translated_name: Health-region code (NOAS regionalization)
+    description: 'Code of the health region — a Ministry of Health NOAS-regionalization
+      grouping of several neighbouring municípios used for health-service planning
+      above the municipal level — that the establishment''s municipality belongs to.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[PCDAS] "Código da região de saúde NOAS"'
+    notes: 'A real regional-planning identifier used across several SUS systems, not
+      a DATASUS-invented code — but no codelist is bound to it in this catalog, so
+      there is no label to resolve it to here.
+
+      '
+  RETENCAO:
+    official_name: Código de retenção
+    translated_name: Tax-withholding classification code
+    description: 'Classifies the establishment for tax-withholding ("retenção na fonte")
+      purposes on payments it receives — a small enumerated domain (roughly 0-16) tied
+      to the establishment''s institutional/ownership category. An administrative/fiscal
+      attribute, not a clinical one.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Tax retention code (00-16 range)"; [MICRODATASUS] "Maps codes
+      0-16 to establishment types"
+
+      '
+    codelists:
+    - RETENCAO
+    notes: See COD_IR — a related but not confirmed-identical tax-classification column.
+  SGRUPHAB:
+    official_name: Sigla do grupo de habilitação
+    translated_name: Habilitação (SUS accreditation) group code
+    description: 'Identifies which specific SUS service accreditation/habilitação this
+      row grants the establishment — e.g. a qualification tied to a particular incentive
+      programme, bed type, or specialized-service designation. The catalog binds it
+      to six different DATASUS domain tables rather than one single codelist, so resolving
+      a given code''s meaning needs the matching domain table, not an assumption from
+      the column alone.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'SGRUPHAB sits in the same EE/EF/GM/HB series as CMPT_INI, CMPT_FIM,
+      DTPORTAR, MAPORTAR and PORTARIA — a period-plus-ordinance cluster of fields consistent
+      with a habilitação record — and is bound to six habilitação/incentive-related
+      DATASUS domain tables (ESTABENS, ESTABFIL, GESTAO, HABILITA, INCENTIVOS, REGRAS),
+      matching DATASUS''s SG_ ("sigla") short-code naming convention.
+
+      '
+    codelists:
+    - ESTABENS
+    - ESTABFIL
+    - GESTAO
+    - HABILITA
+    - INCENTIVOS
+    - REGRAS
+  TERCEIRO:
+    official_name: Terceiro
+    translated_name: Outsourced-link flag
+    description: 'Binary flag marking whether the linked professional or service relationship
+      recorded in this row is an outsourced/third-party ("terceirizado") arrangement
+      rather than a direct bond to the establishment. Appears in the team/professional-linkage
+      series (e.g. EE, EF, EP, GM), not in the core ST establishment file.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[MICRODATASUS] `"1"~"Sim", "0"/"2"~"Não"`'
+    codelists:
+    - TERCEIRO
+  TPGESTAO:
+    official_name: Tipo de gestão
+    translated_name: SUS management level
+    description: 'Which level of the SUS system manages and is responsible for the
+      establishment''s inclusion in the health network: Municipal, Estadual (state),
+      Dupla (dual state+municipal), or Z/S for "sem gestão" (not informed/none). See
+      ESFERA_A for the separate question of who administratively owns the facility.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[MICRODATASUS] `"D"~"Dupla", "E"~"Estadual", "M"~"Municipal", "Z"/"S"~"Sem
+      gestão"`
+
+      '
+    codelists:
+    - NIVELDEP
+    - TPGESTAO
+  TP_PREST:
+    official_name: Tipo de prestador
+    translated_name: Provider ownership/legal-nature classification
+    description: 'Classifies the establishment as a services provider by ownership/legal
+      nature for SUS billing purposes — the domain runs from public-federal through
+      private-nonprofit (public federal/state/municipal, private for-profit, private
+      nonprofit, etc).
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[MICRODATASUS] `"30"~"Público federal" ... "60"~"Privado sem fins
+      lucrativos"`; [PCDAS] "Healthcare provider type (30-99 range)"
+
+      '
+    codelists:
+    - TIPOPRES
+  TP_UNID:
+    official_name: Tipo de unidade (estabelecimento)
+    translated_name: Health-establishment type
+    description: 'CNES''s own facility-type taxonomy — over 30 category codes distinguishing,
+      e.g., general hospital, basic health unit (UBS), specialty clinic, diagnostic-support
+      unit, pharmacy, mobile unit, etc. This is the primary "what kind of place is
+      this" field that most downstream tabulations filter or group by.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Tipo de unidade (estabelecimento)"; [MICRODATASUS] (30+ codes
+      mapped to facility types)'
+    codelists:
+    - TP_ESTAB
+  TURNO_AT:
+    official_name: Turno de atendimento
+    translated_name: Operating shift/hours code
+    description: 'Which shift(s) the establishment operates in — the domain runs from
+      intermittent/ irregular hours through fixed day/evening/night shifts, with a
+      not-informed code. Describes the opening-hours pattern, not staffing levels or
+      attendance volume.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[MICRODATASUS] `"1"~"Turnos intermitentes" ... "7"~"Noite"`
+
+      '
+    codelists:
+    - TURNOSAT
+  VINC_SUS:
+    official_name: Vínculo com o SUS
+    translated_name: SUS-linkage flag
+    description: 'Whether the establishment has a formal bond with SUS, the public
+      health system (1-Sim) or not (0/2-Não, i.e. it serves only private/supplementary-health
+      patients). A yes/no relationship flag, not a measure of how much SUS activity
+      the facility performs.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Vínculo com SUS: 1-Sim 0-Não"; [MICRODATASUS] `"0"/"2" ~
+      "Não", "1" ~ "Sim"`
+
+      '
+    codelists:
+    - VINC_SUS

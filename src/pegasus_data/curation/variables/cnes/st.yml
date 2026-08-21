@@ -1,0 +1,1529 @@
+# CNES.ST — Establishments
+# Estabelecimentos
+#
+# One row per health establishment — the spine of CNES, which every other CNES
+# dataset hangs off by CNES code.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+  ALVARA:
+    official_name: Número do alvará
+    translated_name: Operating-permit (alvará) number
+    description: 'The establishment''s operating-license/permit number, as issued by
+      the local sanitary or municipal authority. A free-form identifier, not a code
+      with a lookup meaning.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[PCDAS] "Número do alvará"'
+  ATENDAMB:
+    official_name: Atendimento ambulatorial (instalação física)
+    translated_name: Outpatient-care physical-facility flag
+    description: 'Flags whether the establishment has a physical installation for outpatient/ambulatory
+      care. About physical infrastructure existing, not whether outpatient visits actually
+      occurred in a given period.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Indica a existência de instalação física de ATENDIMENTO AMBULATORIAL"'
+  ATENDHOS:
+    official_name: Atendimento hospitalar (instalação física)
+    translated_name: Inpatient-care physical-facility flag
+    description: 'Flags whether the establishment has a physical installation for hospital/inpatient
+      care. Mirrors ATENDAMB for the inpatient side.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[PCDAS] "Indica a existência de instalação física de ATENDIMENTO HOSPITALAR"'
+  AV_ACRED:
+    official_name: Indica se o estabelecimento foi avaliado segundo o Manual de Acreditacao
+      Hospitalar do MS
+    translated_name: Evaluated under the Ministry of Health Hospital Accreditation
+      Manual
+    description: Flag for whether the establishment has been evaluated under the Ministry
+      of Health's Manual de Acreditacao Hospitalar, on the Estabelecimentos (ST) record.
+      Records only that an evaluation took place, not the resulting grade (see CLASAVAL)
+      or its date (DT_ACRED).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 35
+    codelists:
+    - AVALIADO
+    notes: Coded 1-Sim / 2-Nao in this layout table - note the 2, not the 0 used by
+      most other CNES sim/nao flags in this batch (e.g. LEITHOSP, COMISS01-12 all use
+      1-sim/0-nao). Do not assume 0/1 semantics for this field.
+  AV_PNASS:
+    official_name: Indica se o estabelecimento foi avaliado segundo o Programa Nacional
+      de Avaliacao de Servicos de Saude - PNASS
+    translated_name: Evaluated under PNASS (National Health-Services Evaluation Program)
+    description: Flag for whether the establishment has been evaluated under PNASS
+      (Programa Nacional de Avaliacao de Servicos de Saude), on the Estabelecimentos
+      (ST) record. Independent of, and not to be confused with, the separate AV_ACRED
+      hospital-accreditation evaluation.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 38
+    notes: Coded 1-Sim / 2-Nao, the same non-0/1 convention as AV_ACRED - see that
+      field's note.
+  CENTRCIR:
+    official_name: Indica a existencia de INSTALACAO FISICA de ATENDIMENTO HOSPITALAR-CENTRO
+      CIRURGICO para este CNES
+    translated_name: Surgical center (centro cirurgico) installation exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a physical surgical-center
+      installation, on the Estabelecimentos (ST) record's facilities block. Physical
+      infrastructure only, not a count of operating rooms or a statement that surgery
+      is an authorized/offered activity (that is tracked separately via the AP0#CV0#
+      service flags).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 93
+  CENTRNEO:
+    official_name: Indica a existencia de INSTALACAO FISICA de ATENDIMENTO HOSPITALAR-UNIDADE
+      NEONATAL para este CNES
+    translated_name: Neonatal unit installation exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a physical neonatal-unit
+      installation, on the Estabelecimentos (ST) record's facilities block. Physical
+      infrastructure only, distinct from the neonatal bed totals carried separately
+      in the Leitos (LT) file.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 114
+  CENTROBS:
+    official_name: Indica a existencia de INSTALACAO FISICA de ATENDIMENTO HOSPITALAR-CENTRO
+      OBSTETRICO para este CNES
+    translated_name: Obstetric center (centro obstetrico) installation exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a physical obstetric-center
+      installation (e.g. delivery/labour facilities), on the Estabelecimentos (ST)
+      record's facilities block. Physical infrastructure only.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 98
+  CLASAVAL:
+    official_name: Classificacao da avaliacao do estabelecimento segundo o Manual de
+      Acreditacao Hospitalar do MS
+    translated_name: Hospital accreditation classification/grade
+    description: 'Grade from the Ministry of Health''s Manual de Acreditacao Hospitalar,
+      applying when AV_ACRED marks the establishment evaluated: 1/2/3 = accredited
+      at level 1/2/3, 0 = did not meet the minimum standards, -9 = grade not informed.'
+    code_system: internal
+    source: def
+    source_ref: CNV/CLASAVAL.CNV, from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip
+      (TabWin value-label table bound to the CLASAVAL codelist)
+    codelists:
+    - CLASAVAL
+  COLETRES:
+    official_name: Indica a existencia de alguma coleta de residuo para este CNES
+    translated_name: Any waste-collection arrangement exists
+    description: 'Aggregate flag (1-sim, 0-nao): true if the establishment declared
+      at least one of the four waste-collection streams - biological, chemical, radioactive,
+      common (RES_BIOL, RES_QUIM, RES_RADI, RES_COMU) - on the Estabelecimentos (ST)
+      record. It is a derived any-of indicator over those four fields, not an independently
+      collected fact; the four component flags themselves fall outside this batch (ST
+      SEQ 139-142).'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 143
+    depends_on:
+    - RES_BIOL
+    - RES_QUIM
+    - RES_RADI
+    - RES_COMU
+  COMISS01:
+    official_name: Existe comissao de ETICA MEDICA
+    translated_name: Medical ethics commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing medical
+      ethics commission ('comissao de etica medica'), on the Estabelecimentos (ST)
+      record's commissions block. Records the declared existence of the commission,
+      not its membership, meeting cadence, or activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 144
+    codelists:
+    - COM_ETMD
+  COMISS02:
+    official_name: Existe comissao de ETICA DE ENFERMAGEM
+    translated_name: Nursing ethics commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing nursing
+      ethics commission ('comissao de etica de enfermagem'), on the Estabelecimentos
+      (ST) record's commissions block. Records the declared existence of the commission,
+      not its membership, meeting cadence, or activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 145
+    codelists:
+    - COM_ETEF
+  COMISS03:
+    official_name: Existe comissao de FARMACIA E TERAPEUTICA
+    translated_name: Pharmacy and therapeutics commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing pharmacy
+      and therapeutics commission ('comissao de farmacia e terapeutica'), on the Estabelecimentos
+      (ST) record's commissions block. Records the declared existence of the commission,
+      not its membership, meeting cadence, or activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 146
+    codelists:
+    - COM_FMTR
+  COMISS04:
+    official_name: Existe comissao de CONTROLE DE INFECCAO HOSPITALAR
+    translated_name: Hospital infection control commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing hospital
+      infection control commission ('comissao de controle de infeccao hospitalar'),
+      on the Estabelecimentos (ST) record's commissions block. Records the declared
+      existence of the commission, not its membership, meeting cadence, or activity
+      level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 147
+    codelists:
+    - COM_CTIH
+  COMISS05:
+    official_name: Existe comissao de APROPRIACAO DE CUSTOS
+    translated_name: Cost apportionment commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing cost
+      apportionment commission ('comissao de apropriacao de custos'), on the Estabelecimentos
+      (ST) record's commissions block. Records the declared existence of the commission,
+      not its membership, meeting cadence, or activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 148
+    codelists:
+    - COM_APCT
+  COMISS06:
+    official_name: Existe comissao de CIPA
+    translated_name: CIPA (internal workplace-accident prevention commission) commission
+      exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing CIPA
+      (internal workplace-accident prevention commission) commission ('comissao de
+      cipa'), on the Estabelecimentos (ST) record's commissions block. Records the
+      declared existence of the commission, not its membership, meeting cadence, or
+      activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 149
+    codelists:
+    - COM_CIPA
+  COMISS07:
+    official_name: Existe comissao de REVISAO DE PRONTUARIOS
+    translated_name: Medical-record review commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing medical-record
+      review commission ('comissao de revisao de prontuarios'), on the Estabelecimentos
+      (ST) record's commissions block. Records the declared existence of the commission,
+      not its membership, meeting cadence, or activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 150
+    codelists:
+    - COM_RVPR
+  COMISS08:
+    official_name: Existe comissao de REVISAO DE DOCUMENTACAO MEDICA E ESTATISTICA
+    translated_name: Medical/statistical documentation review commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing medical/statistical
+      documentation review commission ('comissao de revisao de documentacao medica
+      e estatistica'), on the Estabelecimentos (ST) record's commissions block. Records
+      the declared existence of the commission, not its membership, meeting cadence,
+      or activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 151
+    codelists:
+    - COM_RDME
+  COMISS09:
+    official_name: Existe comissao de ANALISE DE OBITOS E BIOPSIAS
+    translated_name: Death and biopsy review commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing death
+      and biopsy review commission ('comissao de analise de obitos e biopsias'), on
+      the Estabelecimentos (ST) record's commissions block. Records the declared existence
+      of the commission, not its membership, meeting cadence, or activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 152
+    codelists:
+    - COM_ANOB
+  COMISS10:
+    official_name: Existe comissao de INVESTIGACAO EPIDEMIOLOGICA
+    translated_name: Epidemiological investigation commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing epidemiological
+      investigation commission ('comissao de investigacao epidemiologica'), on the
+      Estabelecimentos (ST) record's commissions block. Records the declared existence
+      of the commission, not its membership, meeting cadence, or activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 153
+    codelists:
+    - COM_IVEP
+  COMISS11:
+    official_name: Existe comissao de NOTIFICACAO DE DOENCAS
+    translated_name: Disease notification commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing disease
+      notification commission ('comissao de notificacao de doencas'), on the Estabelecimentos
+      (ST) record's commissions block. Records the declared existence of the commission,
+      not its membership, meeting cadence, or activity level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 154
+    codelists:
+    - COM_NTFD
+  COMISS12:
+    official_name: Existe comissao de CONTROLE DE ZOONOSES E VETORES
+    translated_name: Zoonoses and vector control commission exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a standing zoonoses
+      and vector control commission ('comissao de controle de zoonoses e vetores'),
+      on the Estabelecimentos (ST) record's commissions block. Records the declared
+      existence of the commission, not its membership, meeting cadence, or activity
+      level.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 155
+    codelists:
+    - COM_CTZV
+  COMISSAO:
+    official_name: Indica a existencia de alguma comissao para este CNES
+    translated_name: Any standing commission exists
+    description: 'Aggregate flag (1-sim, 0-nao): true if the establishment declared
+      at least one of the twelve standing commissions COMISS01-COMISS12 on the Estabelecimentos
+      (ST) record. Derived any-of indicator over those twelve fields, not an independently
+      collected fact.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 156
+    depends_on:
+    - COMISS01
+    - COMISS02
+    - COMISS03
+    - COMISS04
+    - COMISS05
+    - COMISS06
+    - COMISS07
+    - COMISS08
+    - COMISS09
+    - COMISS10
+    - COMISS11
+    - COMISS12
+  CONTRATE:
+    official_name: Numero do contrato/convenio ESTADUAL do vinculo com o SUS
+    translated_name: State SUS contract/agreement number
+    description: Contract/agreement number of the establishment's state-level (ESTADUAL)
+      linkage to the SUS, on the Estabelecimentos (ST) record; the state-level sibling
+      of CONTRATM. A free-form identifier, not a coded classification; paired with
+      its publication year-month in DT_PUBLE.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 30
+    notes: The layout table documents this field as CHAR(20), but the declared width
+      actually observed on the CNES file headers in this catalog is 11 characters -
+      the same width as CONTRATM. Do not size buffers or validate on the documented
+      20-character width.
+  CONTRATM:
+    official_name: Numero do contrato/convenio MUNICIPAL do vinculo com o SUS
+    translated_name: Municipal SUS contract/agreement number
+    description: Contract/agreement number of the establishment's municipal-level (MUNICIPAL)
+      linkage to the SUS, on the Estabelecimentos (ST) record. A free-form identifier,
+      not a coded classification; paired with its publication year-month in DT_PUBLM.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 28
+  CO_AGENC:
+    official_name: Codigo da Agencia do Estabelecimento
+    translated_name: Bank branch/agency number of the establishment's account
+    description: Branch/agency number, at the bank identified by CO_BANCO, of the establishment's
+      bank account, on the Estabelecimentos (ST) record. An identifying number specific
+      to that bank, not a classification code.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 26
+  CO_BANCO:
+    official_name: Codigo do Banco do Estabelecimento
+    translated_name: Bank code (Febraban/COMPE) of the establishment's account
+    description: The Febraban/COMPE bank-identification code (e.g. 001 Banco do Brasil,
+      341 Itau Unibanco) of the bank holding the establishment's account, on the Estabelecimentos
+      (ST) record. A nationally standardized bank code, kept beside CO_AGENC and C_CORREN.
+    code_system: external
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 25
+  C_CORREN:
+    official_name: Codigo da Conta Corrente do Estabelecimento
+    translated_name: Checking-account number of the establishment
+    description: Checking-account number, at the branch identified by CO_AGENC, of
+      the establishment's bank account, on the Estabelecimentos (ST) record. Free-form
+      banking identifier.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 27
+  DT_ACRED:
+    official_name: Ano e Mes da Acreditacao (AAAAMM)
+    translated_name: Year-month of the hospital accreditation evaluation
+    description: Year and month (AAAAMM, 6 digits) the AV_ACRED/CLASAVAL hospital accreditation
+      evaluation was recorded, on the Estabelecimentos (ST) record.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 37
+  DT_ATUAL:
+    official_name: Ano e Mes de competencia da atualizacao da informacao pelo estabelecimento
+      (AAAAMM)
+    translated_name: Year-month the establishment last updated its registration data
+    description: Year and month (AAAAMM, 6 digits) of the competencia in which the
+      establishment itself last updated its registration information, on the Estabelecimentos
+      (ST) record - distinct from COMPETEN, the competencia of the CNES snapshot/extract
+      itself (ST SEQ 202, outside this batch).
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 201
+    codelists:
+    - ANO_MES
+    notes: Printed in the source PDF as 'DT_ATUA' (the table cell appears to drop the
+      trailing letter); the catalogued/actual field name is DT_ATUAL, matched here
+      by its CHAR(6)/AAAAMM description and its position right after MOTDESAB in the
+      SEQ order.
+  DT_EXPED:
+    official_name: Ano e Mes de da expedicao do alvara (AAAAMM)
+    translated_name: Year-month the operating license (alvara) was issued
+    description: Year and month (AAAAMM, 8-character field) the establishment's operating
+      license (alvara) was issued, on the Estabelecimentos (ST) record; paired with
+      ORGEXPED.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 33
+    codelists:
+    - ANO_MES
+  DT_PNASS:
+    official_name: Ano e Mes da Avaliacao PNASS (AAAAMM)
+    translated_name: Year-month of the PNASS evaluation
+    description: Year and month (AAAAMM, 6 digits) the AV_PNASS evaluation was recorded,
+      on the Estabelecimentos (ST) record.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 39
+  DT_PUBLE:
+    official_name: Ano e Mes de publicacao do contrato/convenio ESTADUAL (AAAAMM)
+    translated_name: Year-month the state SUS contract was published
+    description: Year and month (AAAAMM, 8-character field) the CONTRATE state contract/agreement
+      was published, on the Estabelecimentos (ST) record.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 31
+    codelists:
+    - ANO_MES
+  DT_PUBLM:
+    official_name: Ano e Mes de publicacao do contrato/convenio MUNICIPAL (AAAAMM)
+    translated_name: Year-month the municipal SUS contract was published
+    description: Year and month (AAAAMM, 8-character field) the CONTRATM municipal
+      contract/agreement was published, on the Estabelecimentos (ST) record.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 29
+    codelists:
+    - ANO_MES
+  LEITHOSP:
+    official_name: Indica a existencia de LEITOS HOSPITALARES-CIRURGICOS, CLINICOS
+      E COMPLEMENTARES para este CNES
+    translated_name: Surgical/clinical/complementary hospital beds exist
+    description: Flag (1-sim, 0-nao) for whether this establishment has any of the
+      three legacy bed categories - cirurgico, clinico, complementar - counted by QTLEITP1/QTLEITP2/QTLEITP3
+      (outside this batch, ST SEQ 54-56). An existence flag, not a total.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 57
+  ORGEXPED:
+    official_name: 'Orgao expedidor do alvara: 1-SES 2-SMS'
+    translated_name: Issuing body of the operating license (state or municipal health
+      secretariat)
+    description: 'Code for which body issued the establishment''s operating license
+      (alvara): 1 = SES (state health secretariat) or 2 = SMS (municipal health secretariat),
+      on the Estabelecimentos (ST) record.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 34
+    codelists:
+    - ORGEXPED
+  QTINST01:
+    official_name: Qt.Sala Atendimento Pediatria
+    translated_name: Pediatric emergency treatment rooms count, installations grid
+      position 1
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of pediatric emergency treatment rooms (''sala de atendimento pediatria'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 1
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 58, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST02:
+    official_name: Qt.Sala Atendimento Feminino
+    translated_name: Female emergency treatment rooms count, installations grid position
+      2
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of female emergency treatment rooms (''sala de atendimento feminino'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 2
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 59, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST03:
+    official_name: Qt.Sala Atendimento Masculino
+    translated_name: Male emergency treatment rooms count, installations grid position
+      3
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of male emergency treatment rooms (''sala de atendimento masculino'') at
+      this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 3
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 60, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST04:
+    official_name: Qt.Sala Atendimento Indifer.
+    translated_name: Unsegregated emergency treatment rooms count, installations grid
+      position 4
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of unsegregated emergency treatment rooms (''sala de atendimento indiferenciado'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 4
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 61, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST05:
+    official_name: Qt.Sala Repouso/Obs. Pediatria
+    translated_name: Pediatric rest/observation rooms count, installations grid position
+      5
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of pediatric rest/observation rooms (''sala de repouso/observacao pediatria'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 5
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 62, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST06:
+    official_name: Qt.Sala Repouso/Obs. Feminino
+    translated_name: Female rest/observation rooms count, installations grid position
+      6
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of female rest/observation rooms (''sala de repouso/observacao feminino'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 6
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 63, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST07:
+    official_name: Qt.Sala Repouso/Obs.Masculino
+    translated_name: Male rest/observation rooms count, installations grid position
+      7
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of male rest/observation rooms (''sala de repouso/observacao masculino'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 7
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 64, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST08:
+    official_name: Qt.Sala Repouso/Obs.Indiferen.
+    translated_name: Unsegregated rest/observation rooms count, installations grid
+      position 8
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of unsegregated rest/observation rooms (''sala de repouso/observacao indiferenciado'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 8
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 65, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST09:
+    official_name: Qt.Consultorio Odontologia
+    translated_name: Dental consulting rooms count, installations grid position 9
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of dental consulting rooms (''consultorio de odontologia'') at this fixed
+      grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 9
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 66, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST10:
+    official_name: Qt.sala Higienizacao
+    translated_name: Hygiene/cleaning rooms count, installations grid position 10
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of hygiene/cleaning rooms (''sala de higienizacao'') at this fixed grid
+      position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 10
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 67, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST11:
+    official_name: Qt.sala de Gesso
+    translated_name: Orthopedic-cast rooms count, installations grid position 11
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of orthopedic-cast rooms (''sala de gesso'') at this fixed grid position
+      (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 11
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 68, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST12:
+    official_name: Qt.sala de Curativo
+    translated_name: Dressing/wound-care rooms count, installations grid position 12
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of dressing/wound-care rooms (''sala de curativo'') at this fixed grid
+      position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 12
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 69, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST13:
+    official_name: Qt.sala Pequena Cirurgia
+    translated_name: Minor-surgery rooms count, installations grid position 13
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of minor-surgery rooms (''sala de pequena cirurgia'') at this fixed grid
+      position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 13
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 70, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST14:
+    official_name: Qt.Consultorios Medico
+    translated_name: General physician consulting rooms count, installations grid position
+      14
+    description: 'Among the establishment''s urgencia/emergencia (emergency-care) installations:
+      count of general physician consulting rooms (''consultorio medico'') at this
+      fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 14
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 71, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST15:
+    official_name: Qt.Consultorio Clinica Basica
+    translated_name: Primary-care consulting rooms count, installations grid position
+      15
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of primary-care consulting rooms (''consultorio de clinica basica'') at
+      this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 15
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 73, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST16:
+    official_name: Qt.Consultorio Clinica Especial.
+    translated_name: Specialty-clinic consulting rooms count, installations grid position
+      16
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of specialty- clinic consulting rooms (''consultorio de clinica especializada'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 16
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 74, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST17:
+    official_name: Qt.Consultorio Clinica Indiferen.
+    translated_name: Unsegregated-clinic consulting rooms count, installations grid
+      position 17
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of unsegregated- clinic consulting rooms (''consultorio de clinica indiferenciada'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 17
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 75, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST18:
+    official_name: Qt.Consultorio Nao Medico
+    translated_name: Non-physician consulting rooms count, installations grid position
+      18
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of non-physician consulting rooms (''consultorio nao medico'') at this
+      fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 18
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 76, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST19:
+    official_name: Qt.Sala Repouso/Obs.Feminino
+    translated_name: Female rest/observation rooms count, installations grid position
+      19
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of female rest/observation rooms (''sala de repouso/observacao feminino'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 19
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 77, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST20:
+    official_name: Qt.Sala Repouso/Obs.Masculino
+    translated_name: Male rest/observation rooms count, installations grid position
+      20
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of male rest/observation rooms (''sala de repouso/observacao masculino'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 20
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 78, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST21:
+    official_name: Qt.Sala Repouso/Obs.Pediatria
+    translated_name: Pediatric rest/observation rooms count, installations grid position
+      21
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of pediatric rest/observation rooms (''sala de repouso/observacao pediatria'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 21
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 79, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST22:
+    official_name: Qt.Sala Repouso/Obs.Indiferen.
+    translated_name: Unsegregated rest/observation rooms count, installations grid
+      position 22
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of unsegregated rest/observation rooms (''sala de repouso/observacao indiferenciado'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 22
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 80, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST23:
+    official_name: Qt.Consultorio Odontologia
+    translated_name: Dental consulting rooms count, installations grid position 23
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of dental consulting rooms (''consultorio de odontologia'') at this fixed
+      grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 23
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 81, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST24:
+    official_name: Qt.sala Pequenas Cirurgias
+    translated_name: Minor-surgery rooms count, installations grid position 24
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of minor-surgery rooms (''sala de pequenas cirurgias'') at this fixed grid
+      position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 24
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 82, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST25:
+    official_name: Qt.sala Enfermagem
+    translated_name: Nursing rooms count, installations grid position 25
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of nursing rooms (''sala de enfermagem'') at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 25
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 83, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST26:
+    official_name: Qt.sala Imunizacao
+    translated_name: Immunization rooms count, installations grid position 26
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of immunization rooms (''sala de imunizacao'') at this fixed grid position
+      (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 26
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 84, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST27:
+    official_name: Qt.sala Nebulizacao
+    translated_name: Nebulization (inhalation-therapy) rooms count, installations grid
+      position 27
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of nebulization (inhalation-therapy) rooms (''sala de nebulizacao'') at
+      this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 27
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 85, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST28:
+    official_name: Qt.sala de Gesso
+    translated_name: Orthopedic-cast rooms count, installations grid position 28
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of orthopedic-cast rooms (''sala de gesso'') at this fixed grid position
+      (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 28
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 86, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST29:
+    official_name: Qt.sala de Curativo
+    translated_name: Dressing/wound-care rooms count, installations grid position 29
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of dressing/wound- care rooms (''sala de curativo'') at this fixed grid
+      position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 29
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 87, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST30:
+    official_name: Qt.sala Cirurgia Ambulatorial
+    translated_name: Outpatient (ambulatory) surgery rooms count, installations grid
+      position 30
+    description: 'Among the establishment''s ambulatorio (outpatient) installations:
+      count of outpatient (ambulatory) surgery rooms (''sala de cirurgia ambulatorial'')
+      at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 30
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 88, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST31:
+    official_name: Qt.sala Cirurgia
+    translated_name: Surgical operating rooms count, installations grid position 31
+    description: 'Among the establishment''s hospital centro cirurgico (surgical-center)
+      installations, sibling of the CENTRCIR existence flag: count of surgical operating
+      rooms (''sala de cirurgia'') at this fixed grid position (NUMERIC(3)).'
+    code_system: none
+    source: def
+    source_ref: Estabelecimento.def (TabWin tabulation definitions), from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip,
+      section 'Instalacoes Fisicas para Assistencia - LFCES015', position 31
+    notes: Position and NUMERIC(3) width corroborated by IT_CNES_1706.pdf's generic
+      'Quantidade de salas/consultorios' row at ST SEQ 90, which does not itself name
+      the installation type - that identification comes from Estabelecimento.def, not
+      the layout PDF.
+  QTINST32:
+    official_name: Instalações físicas do tipo 32
+    translated_name: Physical installations, type 32
+    description: 'Number of physical installations of type 32 at the establishment.
+      The QTINST series counts rooms and facilities by a type code; no codelist for
+      the type numbering is present in the catalogue.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QTINST<nn> is a N(3) count per installation type, parallel to QTLEIT<nn>
+      for beds. The type codelist is not carried in the catalogue, so the type is identified
+      by its number and no more.
+
+      '
+  QTINST33:
+    official_name: Instalações físicas do tipo 33
+    translated_name: Physical installations, type 33
+    description: Number of physical installations of type 33. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 33.
+  QTINST34:
+    official_name: Instalações físicas do tipo 34
+    translated_name: Physical installations, type 34
+    description: Number of physical installations of type 34. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 34.
+  QTINST35:
+    official_name: Instalações físicas do tipo 35
+    translated_name: Physical installations, type 35
+    description: Number of physical installations of type 35. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 35.
+  QTINST36:
+    official_name: Instalações físicas do tipo 36
+    translated_name: Physical installations, type 36
+    description: Number of physical installations of type 36. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 36.
+  QTINST37:
+    official_name: Instalações físicas do tipo 37
+    translated_name: Physical installations, type 37
+    description: Number of physical installations of type 37. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 37.
+  QTLEIT05:
+    official_name: Leitos de gastroenterologia
+    translated_name: Gastroenterology beds
+    description: 'Surgical beds in gastroenterology. A count, so sum the value rather
+      than the rows.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QTLEIT<nn> counts beds of ESP_LEIT specialty <nn>; 05 is GASTROENTEROLOGIA
+      in that codelist.
+
+      '
+  QTLEIT06:
+    official_name: Leitos de ginecologia
+    translated_name: Gynaecology beds
+    description: Surgical beds in gynaecology.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 06 is GINECOLOGIA.
+  QTLEIT07:
+    official_name: Leitos cirúrgico/diagnóstico/terapêutico
+    translated_name: Surgical, diagnostic and therapeutic beds
+    description: 'Beds serving surgery, diagnosis and therapy together — a combined
+      category rather than one clinical specialty.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 07 is CIRURGICO/DIAGNOSTICO/TERAPEUTICO.
+  QTLEIT08:
+    official_name: Leitos de nefrologia e urologia
+    translated_name: Nephrology and urology beds
+    description: Surgical beds in nephrology and urology.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 08 is NEFROLOGIA/UROLOGIA.
+  QTLEIT09:
+    official_name: Leitos de neurocirurgia
+    translated_name: Neurosurgery beds
+    description: Surgical beds in neurosurgery.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 09 is NEUROCIRURGIA.
+  QTLEIT19:
+    official_name: Leitos de especialidade não discriminada, código 19
+    translated_name: Beds, undesignated specialty 19
+    description: 'Beds in specialty slot 19. DATASUS''s own codelist marks codes 17
+      to 30 as "não discriminado", so the column counts beds whose specialty the Ministry
+      does not name.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QTLEIT<nn> follows ESP_LEIT, where 19 falls in the 17-30 range whose
+      entries read "Não discriminado".
+
+      '
+  QTLEIT20:
+    official_name: Leitos de especialidade não discriminada, código 20
+    translated_name: Beds, undesignated specialty 20
+    description: Beds in specialty slot 20, which DATASUS leaves unnamed. See QTLEIT19.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT code 20 is in the undesignated 17-30 range.
+  QTLEIT21:
+    official_name: Leitos de especialidade não discriminada, código 21
+    translated_name: Beds, undesignated specialty 21
+    description: Beds in specialty slot 21, which DATASUS leaves unnamed. See QTLEIT19.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT code 21 is in the undesignated 17-30 range.
+  QTLEIT22:
+    official_name: Leitos de especialidade não discriminada, código 22
+    translated_name: Beds, undesignated specialty 22
+    description: Beds in specialty slot 22, which DATASUS leaves unnamed. See QTLEIT19.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT code 22 is in the undesignated 17-30 range.
+  QTLEIT23:
+    official_name: Leitos de especialidade não discriminada, código 23
+    translated_name: Beds, undesignated specialty 23
+    description: Beds in specialty slot 23, which DATASUS leaves unnamed. See QTLEIT19.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT code 23 is in the undesignated 17-30 range.
+  QTLEIT32:
+    official_name: Leitos clínicos de cardiologia
+    translated_name: Cardiology beds, clinical
+    description: 'Clinical cardiology beds. Distinct from the surgical cardiology beds
+      counted under code 02, since ESP_LEIT numbers surgical and clinical specialties
+      in separate ranges.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 32 is CARDIOLOGIA in the 31-49 clinical range.
+  QTLEIT34:
+    official_name: Leitos de crônicos
+    translated_name: Chronic care beds
+    description: 'Beds for chronic patients — long stays, which makes them behave quite
+      differently from acute beds in any occupancy calculation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 34 is CRONICOS.
+  QTLEIT38:
+    official_name: Leitos de hematologia
+    translated_name: Haematology beds
+    description: Clinical beds in haematology.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 38 is HEMATOLOGIA.
+  QTLEIT39:
+    official_name: Leitos de hospital-dia
+    translated_name: Day hospital places
+    description: 'Day-hospital places. Not overnight beds: the patient is discharged
+      the same day, so counting these with inpatient beds overstates capacity.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 39 is LEITO/DIA.
+  QTLEIT40:
+    official_name: Leitos de nefrologia e urologia, clínicos
+    translated_name: Nephrology and urology beds, clinical
+    description: 'Clinical nephrology and urology beds, as against the surgical ones
+      under code 08.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 40 is NEFROUROLOGIA in the clinical range.
+  QTLEITP1:
+    official_name: Quantidade de leitos tipo 1 (cirurgico) existentes
+    translated_name: Existing surgical beds (legacy rollup)
+    description: Count of hospital beds of the broad legacy category 'tipo 1 (cirurgico)'
+      reported by the establishment on the Estabelecimentos (ST) record. This is a
+      coarse, establishment-level rollup that predates the specialty-level bed breakdown
+      carried in the Leitos (LT) file, where the same beds are instead split by TP_LEITO/CODLEITO/QT_EXIST/QT_SUS.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 54
+    notes: Legacy field. For current, specialty-level bed counts (and the SUS-available
+      subset), use the LT*.dbf file instead - QTLEITP1-3 can disagree with LT because
+      they are not always refreshed on the same cadence.
+  QTLEITP2:
+    official_name: Quantidade de leitos tipo 2 (clinico) existentes
+    translated_name: Existing clinical beds (legacy rollup)
+    description: Count of hospital beds of the broad legacy category 'tipo 2 (clinico)'
+      reported on the Estabelecimentos (ST) record; sibling field to QTLEITP1 and QTLEITP3.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 55
+    notes: See QTLEITP1 note on preferring LT*.dbf for current specialty-level bed
+      counts.
+  QTLEITP3:
+    official_name: Quantidade de leitos tipo 3 (complementar) existentes
+    translated_name: Existing complementary beds (legacy rollup)
+    description: Count of hospital beds of the broad legacy category 'tipo 3 (complementar)'
+      (e.g. ICU/intermediate-care type beds bundled together) reported on the Estabelecimentos
+      (ST) record; sibling field to QTLEITP1 and QTLEITP2.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 56
+    notes: See QTLEITP1 note on preferring LT*.dbf for current specialty-level bed
+      counts.
+  RES_BIOL:
+    official_name: Existe coleta de residuo biologico
+    translated_name: Biological waste collection exists
+    description: Flag for whether the establishment declared having a collection circuit
+      for biological waste (1-sim, 0-nao). It records the declared existence of a segregated
+      biological-waste collection arrangement, not a volume, a provider, or verified
+      regulatory compliance (Brazil's ANVISA RDC waste-management rules require segregated
+      biological/chemical/radioactive/common streams for health establishments).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 139
+    codelists:
+    - RES_BIOL
+  RES_COMU:
+    official_name: Existe coleta de residuo comum
+    translated_name: Common/general waste collection exists
+    description: Flag for whether the establishment declared having a collection circuit
+      for common/general waste (1-sim, 0-nao). It records the declared existence of
+      a segregated common/general-waste collection arrangement, not a volume, a provider,
+      or verified regulatory compliance (Brazil's ANVISA RDC waste-management rules
+      require segregated biological/chemical/radioactive/common streams for health
+      establishments).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 142
+    codelists:
+    - RES_COMU
+  RES_QUIM:
+    official_name: Existe coleta de residuo quimico
+    translated_name: Chemical waste collection exists
+    description: Flag for whether the establishment declared having a collection circuit
+      for chemical waste (1-sim, 0-nao). It records the declared existence of a segregated
+      chemical-waste collection arrangement, not a volume, a provider, or verified
+      regulatory compliance (Brazil's ANVISA RDC waste-management rules require segregated
+      biological/chemical/radioactive/common streams for health establishments).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 140
+    codelists:
+    - RES_QUIM
+  RES_RADI:
+    official_name: Existe coleta de residuo radioativo
+    translated_name: Radioactive waste collection exists
+    description: Flag for whether the establishment declared having a collection circuit
+      for radioactive waste (1-sim, 0-nao). It records the declared existence of a
+      segregated radioactive-waste collection arrangement, not a volume, a provider,
+      or verified regulatory compliance (Brazil's ANVISA RDC waste-management rules
+      require segregated biological/chemical/radioactive/common streams for health
+      establishments).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 141
+    codelists:
+    - RES_RADI
+  SERAP01P:
+    official_name: Servico de apoio S.A.M.E. ou S.P.P. proprio
+    translated_name: Medical-records service (SAME/SPP) provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'S.A.M.E.
+      ou S.P.P.' support service with its own in-house staff/structure, as opposed
+      to outsourcing it (see SERAP01T). A 0 does not mean the service is absent - it
+      may still be delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 116
+    codelists:
+    - SRV_AP01
+  SERAP01T:
+    official_name: Servico de apoio S.A.M.E. ou S.P.P. terceirizado
+    translated_name: Medical-records service (SAME/SPP) outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'S.A.M.E. ou S.P.P.'
+      support service is delivered by an outsourced/third-party provider rather than
+      in-house staff (see SERAP01P). The two flags are not mutually exclusive in principle
+      (a service could be partly own, partly contracted) and neither records volume
+      or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 117
+  SERAP02P:
+    official_name: Servico de apoio Servico Social proprio
+    translated_name: Social work service provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Servico
+      Social' support service with its own in-house staff/structure, as opposed to
+      outsourcing it (see SERAP02T). A 0 does not mean the service is absent - it may
+      still be delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 118
+    codelists:
+    - SRV_AP02
+  SERAP02T:
+    official_name: Servico de apoio Servico Social terceirizado
+    translated_name: Social work service outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Servico Social'
+      support service is delivered by an outsourced/third-party provider rather than
+      in-house staff (see SERAP02P). The two flags are not mutually exclusive in principle
+      (a service could be partly own, partly contracted) and neither records volume
+      or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 119
+  SERAP03P:
+    official_name: Servico de apoio Farmacia proprio
+    translated_name: Pharmacy provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Farmacia'
+      support service with its own in-house staff/structure, as opposed to outsourcing
+      it (see SERAP03T). A 0 does not mean the service is absent - it may still be
+      delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 120
+    codelists:
+    - SRV_AP03
+  SERAP03T:
+    official_name: Servico de apoio Farmacia terceirizado
+    translated_name: Pharmacy outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Farmacia' support
+      service is delivered by an outsourced/third-party provider rather than in-house
+      staff (see SERAP03P). The two flags are not mutually exclusive in principle (a
+      service could be partly own, partly contracted) and neither records volume or
+      contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 121
+  SERAP04P:
+    official_name: Servico de apoio Esterilizacao de Materiais proprio
+    translated_name: Sterile-supply/CSSD service provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Esterilizacao
+      de Materiais' support service with its own in-house staff/structure, as opposed
+      to outsourcing it (see SERAP04T). A 0 does not mean the service is absent - it
+      may still be delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 122
+    codelists:
+    - SRV_AP04
+  SERAP04T:
+    official_name: Servico de apoio Esterilizacao de Materiais terceirizado
+    translated_name: Sterile-supply/CSSD service outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Esterilizacao
+      de Materiais' support service is delivered by an outsourced/third-party provider
+      rather than in-house staff (see SERAP04P). The two flags are not mutually exclusive
+      in principle (a service could be partly own, partly contracted) and neither records
+      volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 123
+  SERAP05P:
+    official_name: Servico de apoio Nutricao/Dietetica (S.N.D.) proprio
+    translated_name: Nutrition/dietetics service provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Nutricao/Dietetica
+      (S.N.D.)' support service with its own in-house staff/structure, as opposed to
+      outsourcing it (see SERAP05T). A 0 does not mean the service is absent - it may
+      still be delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 124
+    codelists:
+    - SRV_AP05
+  SERAP05T:
+    official_name: Servico de apoio Nutricao/Dietetica (S.N.D.) terceirizado
+    translated_name: Nutrition/dietetics service outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Nutricao/Dietetica
+      (S.N.D.)' support service is delivered by an outsourced/third-party provider
+      rather than in-house staff (see SERAP05P). The two flags are not mutually exclusive
+      in principle (a service could be partly own, partly contracted) and neither records
+      volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 125
+  SERAP06P:
+    official_name: Servico de apoio Lactario proprio
+    translated_name: Milk-preparation room (lactario) provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Lactario'
+      support service with its own in-house staff/structure, as opposed to outsourcing
+      it (see SERAP06T). A 0 does not mean the service is absent - it may still be
+      delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 126
+    codelists:
+    - SRV_AP06
+  SERAP06T:
+    official_name: Servico de apoio Lactario terceirizado
+    translated_name: Milk-preparation room (lactario) outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Lactario' support
+      service is delivered by an outsourced/third-party provider rather than in-house
+      staff (see SERAP06P). The two flags are not mutually exclusive in principle (a
+      service could be partly own, partly contracted) and neither records volume or
+      contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 127
+  SERAP07P:
+    official_name: Servico de apoio Banco De Leite proprio
+    translated_name: Human milk bank provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Banco
+      De Leite' support service with its own in-house staff/structure, as opposed to
+      outsourcing it (see SERAP07T). A 0 does not mean the service is absent - it may
+      still be delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 128
+    codelists:
+    - SRV_AP07
+  SERAP07T:
+    official_name: Servico de apoio Banco De Leite terceirizado
+    translated_name: Human milk bank outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Banco De Leite'
+      support service is delivered by an outsourced/third-party provider rather than
+      in-house staff (see SERAP07P). The two flags are not mutually exclusive in principle
+      (a service could be partly own, partly contracted) and neither records volume
+      or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 129
+  SERAP08P:
+    official_name: Servico de apoio Lavanderia proprio
+    translated_name: Laundry service provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Lavanderia'
+      support service with its own in-house staff/structure, as opposed to outsourcing
+      it (see SERAP08T). A 0 does not mean the service is absent - it may still be
+      delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 130
+    codelists:
+    - SRV_AP08
+  SERAP08T:
+    official_name: Servico de apoio Lavanderia terceirizado
+    translated_name: Laundry service outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Lavanderia' support
+      service is delivered by an outsourced/third-party provider rather than in-house
+      staff (see SERAP08P). The two flags are not mutually exclusive in principle (a
+      service could be partly own, partly contracted) and neither records volume or
+      contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 131
+  SERAP09P:
+    official_name: Servico de apoio Manutencao de Equipamento proprio
+    translated_name: Equipment-maintenance service provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Manutencao
+      de Equipamento' support service with its own in-house staff/structure, as opposed
+      to outsourcing it (see SERAP09T). A 0 does not mean the service is absent - it
+      may still be delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 132
+    codelists:
+    - SRV_AP09
+  SERAP09T:
+    official_name: Servico de apoio Manutencao de Equipamento terceirizado
+    translated_name: Equipment-maintenance service outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Manutencao de
+      Equipamento' support service is delivered by an outsourced/third-party provider
+      rather than in-house staff (see SERAP09P). The two flags are not mutually exclusive
+      in principle (a service could be partly own, partly contracted) and neither records
+      volume or contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 133
+  SERAP10P:
+    official_name: Servico de apoio Ambulancia proprio
+    translated_name: Ambulance service provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Ambulancia'
+      support service with its own in-house staff/structure, as opposed to outsourcing
+      it (see SERAP10T). A 0 does not mean the service is absent - it may still be
+      delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 134
+    codelists:
+    - SRV_AP10
+  SERAP10T:
+    official_name: Servico de apoio Ambulancia terceirizado
+    translated_name: Ambulance service outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Ambulancia' support
+      service is delivered by an outsourced/third-party provider rather than in-house
+      staff (see SERAP10P). The two flags are not mutually exclusive in principle (a
+      service could be partly own, partly contracted) and neither records volume or
+      contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 135
+  SERAP11P:
+    official_name: Servico de apoio Necroterio proprio
+    translated_name: Morgue (necroterio) provided in-house
+    description: Flag (1-sim, 0-nao) for whether the establishment provides its 'Necroterio'
+      support service with its own in-house staff/structure, as opposed to outsourcing
+      it (see SERAP11T). A 0 does not mean the service is absent - it may still be
+      delivered on an outsourced basis.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 136
+    codelists:
+    - SRV_AP11
+  SERAP11T:
+    official_name: Servico de apoio Necroterio terceirizado
+    translated_name: Morgue (necroterio) outsourced
+    description: Flag (1-sim, 0-nao) for whether the establishment's 'Necroterio' support
+      service is delivered by an outsourced/third-party provider rather than in-house
+      staff (see SERAP11P). The two flags are not mutually exclusive in principle (a
+      service could be partly own, partly contracted) and neither records volume or
+      contract value.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 137
+  SERAPOIO:
+    official_name: Indica a existencia de algum servico de apoio para este CNES
+    translated_name: Any support service exists
+    description: 'Aggregate flag (1-sim, 0-nao): true if the establishment reported
+      at least one of the eleven support services (SERAP01P/T through SERAP11P/T) as
+      either in-house or outsourced. It is a derived any-of indicator, not an independently
+      collected fact.'
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 138
+    depends_on:
+    - SERAP01P
+    - SERAP01T
+    - SERAP02P
+    - SERAP02T
+    - SERAP03P
+    - SERAP03T
+    - SERAP04P
+    - SERAP04T
+    - SERAP05P
+    - SERAP05T
+    - SERAP06P
+    - SERAP06T
+    - SERAP07P
+    - SERAP07T
+    - SERAP08P
+    - SERAP08T
+    - SERAP09P
+    - SERAP09T
+    - SERAP10P
+    - SERAP10T
+    - SERAP11P
+    - SERAP11T
+    notes: Derived from the 22 SERAPnnP/SERAPnnT flags; recomputing it from those 22
+      fields should reproduce this value, so mismatches usually indicate a stale extract.
+  URGEMERG:
+    official_name: Indica a existencia de INSTALACAO FISICA de URGENCIA/EMERGENCIA
+      para este CNES
+    translated_name: Emergency-care physical installation exists
+    description: Flag (1-sim, 0-nao) for whether the establishment has a physical emergency/urgent-care
+      installation (rooms/area), as declared on the ST record's facilities block. This
+      records physical infrastructure, not whether the establishment is authorized
+      or actually operates urgency/emergency care as a listed activity (that is tracked
+      separately, e.g. via the AP04CVxx service-by-payer flags and TP_UNID).
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 72

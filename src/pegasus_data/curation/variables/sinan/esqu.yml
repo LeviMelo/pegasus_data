@@ -1,0 +1,165 @@
+# SINAN.ESQU —
+#
+# one notification of schistosomiasis
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AN_QUALI:
+    official_name: Análise - resultado qualitativo
+    translated_name: Analysis - qualitative result
+    description: 'Qualitative result (e.g. reagente/não reagente) of a laboratory analysis,
+      paired with AN_QUANT which records the same analysis''s numeric/quantitative
+      result.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AN_QUALI/AN_QUANT is a qualitative/quantitative pair; 1-character width
+      fits a short reagent-style result code.
+
+      '
+  AN_QUANT:
+    official_name: Análise - resultado quantitativo
+    translated_name: Analysis - quantitative result
+    description: 'Numeric result (e.g. a titer) of the same laboratory analysis described
+      qualitatively by AN_QUALI.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 6-digit numeric width fits a titer or measured value, unlike AN_QUALI's
+      1-character code.
+  DS_FORMA:
+    official_name: Descrição da forma
+    translated_name: Description of form/manner
+    description: 'Free-text description of the form or manner of a condition or exposure
+      recorded on the case; the exact sub-question is not resolved from available evidence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DS_FORMA contracts descrição + forma; 30-character free text.
+  DTTRAT:
+    official_name: Data do tratamento
+    translated_name: Treatment date
+    description: 'Date treatment began, paired with DS_TRAT which describes the treatment
+      itself. AAAAMMDD.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DTTRAT contracts data + tratamento.
+  DT_COPRO:
+    official_name: Data da coproscopia
+    translated_name: Date of stool examination
+    description: 'When the stool was examined for schistosome eggs, on the schistosomiasis
+      form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; COPRO reads coproscopia.
+  DT_RESU3:
+    official_name: Data do resultado (3)
+    translated_name: Date of result (3)
+    description: 'Date a third laboratory result was obtained/reported, one of a numbered
+      series of result dates on the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: RESU3 contracts resultado (3); D8 width fits a full date.
+  NOCOLINF:
+    official_name: Nome da coleção hídrica de infecção
+    translated_name: Name of infection water body
+    description: 'Free-text name of the water body (stream, dam, irrigation canal)
+      where the schistosomiasis (ESQU) patient likely had contact with contaminated
+      water, used to target follow-up snail-control work at that site.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ESQU form; NOCOLINF read as nome + coleção (hídrica) + infecção, standard
+      schistosomiasis epidemiological terminology; width 100 fits a location name.
+
+      '
+  NOPROPIN:
+    official_name: Nome da propriedade/local de infecção
+    translated_name: Name of property/infection site
+    description: 'Free-text name of the property or locality associated with the water
+      contact that likely infected the schistosomiasis patient, complementing NOCOLINF''s
+      record of the water body itself.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NOPROPIN read as nome + propriedade; ESQU form; width 100 free text.
+
+      '
+  OUTRO_EX:
+    official_name: Outro exame - especifique
+    translated_name: Other exam - specify
+    description: 'Free-text name of a diagnostic test used to confirm schistosomiasis
+      other than the standard Kato-Katz stool exam, such as a biopsy or serological
+      test.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ESQU form; OUTRO_EX = outro exame; width 40 free text.
+  STCURA1:
+    official_name: Cura - Critério 1
+    translated_name: Cure criterion (1st)
+    description: 'Whether the first of the schistosomiasis (ESQU) form''s cure-confirmation
+      criteria (e.g. negative follow-up stool exam) was met, one of several checkboxes
+      (STCURA2, STCURA3) tracking different evidence of parasitological cure.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ESQU form; STCURA1/2/3 = situação de cura, numbered; width 1.
+  STCURA2:
+    official_name: Cura - Critério 2
+    translated_name: Cure criterion (2nd)
+    description: 'Second cure-confirmation criterion tracked on the schistosomiasis
+      follow-up form, alongside STCURA1 and STCURA3.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Second of three same-pattern fields; see STCURA1.
+  STCURA3:
+    official_name: Cura - Critério 3
+    translated_name: Cure criterion (3rd)
+    description: 'Third cure-confirmation criterion, completing the set alongside STCURA1
+      and STCURA2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Third of three same-pattern fields; see STCURA1.
+  TRATAM:
+    official_name: Tratamento
+    translated_name: Treatment given (flag/type)
+    description: 'Whether/what treatment (e.g. praziquantel) was given for the schistosomiasis
+      case — the ESQU form''s core treatment field.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 field; TRATAM=tratamento, in the ESQU (esquistossomose) stratum.
+  TRATANAO:
+    official_name: Tratamento não realizado
+    translated_name: Treatment not given (flag)
+    description: 'Whether the schistosomiasis (ESQU) patient did NOT receive antiparasitic
+      treatment (e.g. praziquantel) - capturing refusal, contraindication, or loss
+      to follow-up rather than treatment given.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TRAT_ = tratamento, A_NAO reads as "tratou? não"; C1 width fits a checkbox,
+      and non-treatment tracking complements the disease''s standard treatment fields.
+
+      '

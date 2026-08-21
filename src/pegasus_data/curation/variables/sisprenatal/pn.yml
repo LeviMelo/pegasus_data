@@ -1,0 +1,649 @@
+# SISPRENATAL.PN — Antenatal follow-up
+# Acompanhamento Pré-Natal
+#
+# One pregnancy enrolled in antenatal monitoring.
+system: SISPRENATAL
+asserted_by: pegasus_data
+
+variables:
+  CO_ESC_GP:
+    official_name: Escolaridade
+    translated_name: Education level (grouped)
+    description: 'Educational attainment of the pregnant woman, coded against a fixed
+      16-category Ministry of Health list bundled with the SISPRENATAL dictionary (Escola.cnv)
+      — running from "00 Analfabetizado" (illiterate) through primary/secondary/higher
+      tiers up to "11 Pós Doutorado", with a separate secondary-teaching-track-for-indigenous-students
+      category and a not-informed code. The _GP suffix (shared with CO_ETN_GP and CO_RAC_GP
+      in this same dictionary) marks it as the grouped/classificatory version of the
+      field.
+
+      '
+    code_system: internal
+    codelist: ESCOLA
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "xEscolaridade , CO_ESC_GP ,1 ,ESCOLA.CNV"
+
+      '
+    notes: 'Declared C(2,0), matching Escola.cnv''s two-digit 00-13 codes. The catalog''s
+      automatic codelist binder does not attach ESCOLA to this field (unlike ETNIA/MUNICBR/UF/ANO
+      on neighbouring fields), so this classification rests on the dictionary file
+      itself, not on the catalog''s own binding — expect a validator warning for that
+      gap.
+
+      '
+  CO_ETN_GP:
+    official_name: Etnia Indígena
+    translated_name: Indigenous ethnicity
+    description: 'Self-declared indigenous ethnic group of the pregnant woman, coded
+      against a roughly 264-entry list of named Brazilian indigenous peoples (etnia.cnv)
+      — the same "Tabela de Etnias Indígenas" used elsewhere across DATASUS/SESAI systems.
+      Populated only when the woman self-identifies as indigenous; it is not the general
+      race/color field (that is CO_RAC_GP).
+
+      '
+    code_system: external
+    codelist: ETNIA
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "LEtnia Indigena , CO_ETN_GP ,1 ,etnia.cnv"
+
+      '
+    notes: Declared C(4,0), matching etnia.cnv's 4-digit codes (0001-0264).
+  CO_GESTANT:
+    official_name: Número da Gestante no SISPRENATAL
+    translated_name: Pregnant woman's SISPRENATAL case number
+    description: 'The system-generated case number assigned to a pregnant woman when
+      she is first registered — printed on her "carteira da gestante" (pregnancy card)
+      and reused across all her prenatal/puerperium visit records so they link to one
+      pregnancy episode. The numbering series was widened to eleven digits in January
+      2008 specifically to give every municipality headroom.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'http://lproweb.procempa.com.br/pmpa/prefpoa/cgvs/usu_doc/ev_sisprenatal_manual_rede.pdf
+      (SISPRENATAL, Manual de Preenchimento dos Formulários, Porto Alegre CGVS/SMS,
+      2009) — "Campo 7- Número do SISPRENTAL - que foi destinado a gestante. Esse número
+      também deverá ser registrado na carteira da gestante"; "A nova série numérica
+      passou a ter onze dígitos."
+
+      '
+    notes: 'Declared C(12,0), one digit wider than the eleven-digit series the manual
+      describes — plausibly padding. Functions as a de facto personal identifier for
+      the pregnancy episode even though it is not a national ID number; it passes through
+      unmodified, no masking proposed.
+
+      '
+  CO_MUN_UBS:
+    official_name: Município da UBS
+    translated_name: Municipality of the health unit
+    description: 'IBGE 6-digit code of the municipality where the primary-care unit
+      (UBS) that registered/attends the pregnant woman is located — not necessarily
+      the municipality where she resides.
+
+      '
+    code_system: external
+    codelist: MUNICBR
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "LMunicípio da UBS , CO_MUN_UBS ,1 ,MUNICBR.CNV"
+
+      '
+  CO_PAIS:
+    official_name: País (nacionalidade)
+    translated_name: Country / nationality code
+    description: 'Code for the pregnant woman''s country of nationality, drawn from
+      the standard DATASUS country table (the same 3-digit scheme used for país/nacionalidade
+      fields elsewhere, e.g. SINASC''s CODPAISRES).
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'CO_ prefix (código) plus the C(3,0) declared width matches the standard
+      DATASUS país/nacionalidade code table used across other systems. The field is
+      not referenced in Gestantes.def and the catalog binds no codelist to it, so this
+      rests on naming convention and the standard table''s known width, not a direct
+      citation naming this specific column.
+
+      '
+    notes: 'The bundled dictionary ships a one-row "no_pais_re.cnv" containing only
+      "BRASIL" — too thin to be the real codelist; do not treat it as the full country
+      table. Expect a validator warning that no codelist is bound to this field in
+      the catalog.
+
+      '
+  CO_RAC_GP:
+    official_name: Raça / Cor
+    translated_name: Race/color (grouped)
+    description: 'Self-declared race/color of the pregnant woman: 01 Branca, 02 Preta,
+      03 Parda, 04 Amarela, 05 Indígena, 99 Sem informação (RACA_COR.CNV) — the standard
+      IBGE race/color classification used across Brazilian government statistics, not
+      a SISPRENATAL-specific invention.
+
+      '
+    code_system: external
+    codelist: RACA_COR
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "xRaca / Cor , CO_RAC_GP ,1 ,RACA_COR.CNV"
+
+      '
+    notes: 'The catalog''s automatic binder does not attach RACA_COR to this field
+      (unlike ETNIA/MUNICBR/UF on neighbouring fields), so this classification rests
+      on the dictionary file, not the catalog''s own binding — expect a validator warning
+      for that gap.
+
+      '
+  CO_STF_GP:
+    official_name: Situação Familiar (agrupada)
+    translated_name: Household/family living situation (grouped)
+    description: 'Whom the pregnant woman lives with: with a partner and child(ren),
+      with a partner and no children, with a partner plus other relatives, with relatives
+      and no partner, with unrelated people, or alone — a cohabitation classification,
+      not a civil/marital-status code.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'CO_..._GP matches the grouped-field pattern of CO_ESC_GP/CO_RAC_GP/
+      CO_ETN_GP in this same GestacaoWeb.dbf schema. The registration form for this
+      exact system (SISTEMA DE MONITORAMENTO E AVALIAÇÃO DO PRÉ-NATAL, PARTO, PUERPÉRIO
+      E CRIANÇA, "SISPRENATAL N:") sits its "Estado civil/união" question between Escolaridade
+      and Raça/cor, with six cohabitation options (codes 0,2-6, no 1) rather than single/married/
+      divorced categories — content and position match CO_STF_GP.
+
+      '
+    notes: '"STF" is read as Situação Familiar; the exact official expansion is not
+      confirmed, only the field''s subject and coded shape.
+
+      '
+  CO_TPO_GRA:
+    official_name: Tipo de Gravidez
+    translated_name: Pregnancy type (singleton/multiple)
+    description: 'Whether the pregnancy is singleton or multiple: 1 Única (singleton),
+      2 Gemelar (twin), 3 Tripla ou mais (triplet or more), 4 Ignorado (unknown).
+
+      '
+    code_system: internal
+    codelist: CO_TPO_GRA
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "XTipo de Gravidez , CO_TPO_GRA ,1 ,co_tpo_gra.cnv"
+
+      '
+    notes: 'Declared C(10,0), far wider than the single-digit 1-4 codes in co_tpo_gra.cnv
+      — likely a generic export width, not evidence the raw value is longer than one
+      digit.
+
+      '
+  CO_UF_IBGE:
+    official_name: UF da Gestante
+    translated_name: State (UF) of the pregnant woman
+    description: IBGE 2-digit code of the Brazilian state (UF) associated with the
+      record.
+    code_system: external
+    codelist: UF
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, lines "LUF da Gestante , CO_UF_IBGE ,1 ,UF.CNV" / "SUF da Gestante
+      , CO_UF_IBGE ,1 ,UF.CNV"
+
+      '
+  DS_ZONA:
+    official_name: Zona
+    translated_name: Residential zone
+    description: 'Residential zone of the pregnant woman, stored as the label text
+      itself rather than a code — one of URBANA, RURAL, PERIURBANA, or IGNORADO (ds_zona.cnv,
+      shipped in the SISPRENATAL dictionary though not wired into Gestantes.def''s
+      own tabulation lines).
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> ds_zona.cnv (4-row lookup: IGNORADO/PERIURBANA/RURAL/URBANA)
+
+      '
+    notes: 'Declared C(50,0) even though the domain is four short words; the DS_ prefix
+      marks DATASUS fields that store the decoded label directly instead of a code,
+      which is why code_system is none rather than internal.
+
+      '
+  DT_ATEND:
+    official_name: Ano/Mês de Atendimento
+    translated_name: Year-month of the consultation
+    description: 'Year and month (YYYYMM, 6 digits) of the recorded prenatal/puerperium
+      consultation. The def file does not say whether this is the first, most recent,
+      or latest-updated visit, so treat it as "the service period this record reflects"
+      rather than a specific named milestone.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "XAno/Mês de Atendim, DT_ATEND ,1 ,MMAA2008.CNV"
+
+      '
+    notes: 'The catalog binds this to codelist MMAA2008 because TabWin uses MMAA2008.CNV
+      to bucket the date for cross-tabs; the raw column is a plain year-month date,
+      not a categorical code — that binding is a tabulation artifact, not evidence
+      the column is coded. Expect a SPURIOUS-BINDING? warning here.
+
+      '
+  DT_DPP:
+    official_name: Data Provável do Parto
+    translated_name: Expected delivery date (EDD)
+    description: 'Estimated/expected date of delivery, an 8-digit date — the standard
+      Brazilian obstetric abbreviation "DPP", normally computed from the last-menstrual-period
+      date (DT_DUM) plus roughly 40 weeks.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ prefix marks a date field, declared C(8,0) consistent with the
+      other 8-digit dates in this dictionary (e.g. DT_DUM). "DPP" is the near universal
+      Brazilian prenatal-care abbreviation for Data Provável do Parto, and its adjacency
+      to DT_DUM in the field list matches the standard DUM-to-EDD relationship. Not
+      referenced in Gestantes.def, so only the DT_/date shape is dictionary-grounded
+      — the label itself is domain convention.
+
+      '
+  DT_DUM:
+    official_name: Data da Última Menstruação (DUM)
+    translated_name: Last menstrual period date (LMP)
+    description: 'Date of the pregnant woman''s last menstrual period as reported at
+      registration — used by SISPRENATAL to compute gestational age and the window
+      for on-time registration. When the woman cannot recall the exact date, the program''s
+      own filling instructions say to record the 15th of the month she remembers, or
+      to estimate from uterine height if even the month is unknown — so a cluster of
+      DT_DUM values falling on day 15 is a filling convention, not a real clustering
+      of last periods.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'http://lproweb.procempa.com.br/pmpa/prefpoa/cgvs/usu_doc/ev_sisprenatal_manual_rede.pdf
+      (SISPRENATAL, Manual de Preenchimento dos Formulários, Porto Alegre CGVS/SMS,
+      2009) — "Campo 20 – Data da Última Menstruação (DUM): registrar dia, mês e ano
+      ... registrar dia 15 do mês que ela informa ... o pré-natalista deve usar a altura
+      uterina para determinar aproximadamente a DUM"
+
+      '
+    notes: See description — the day-of-month component is frequently a filled-in placeholder
+      (15), not an observed fact.
+  DT_INC:
+    official_name: Data de Inclusão
+    translated_name: Registration (inclusion) date
+    description: 'Full 8-digit date the record was included/registered in SISPRENATAL
+      — distinct from DT_ATEND (a 6-digit year-month of the consultation itself). TabWin
+      collapses this full date down to year-month via MMAA2008.CNV for the "Ano/Mês
+      de Inclusão" tabulation axis, but the stored value is a complete date.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "XAno/Mês de Inclusã, DT_INC ,1 ,MMAA2008.CNV"
+
+      '
+    notes: 'Declared C(8,0) (a full date) even though the def label and bound codelist
+      (MMAA2008, year-month buckets) describe only the tabulation view of it — do not
+      confuse with DT_ATEND, which is genuinely stored at year-month granularity (C(6,0)).
+      Expect a SPURIOUS-BINDING? warning.
+
+      '
+  NU_ANO_GES:
+    official_name: Ano da Gestação
+    translated_name: Year of the pregnancy record
+    description: 'Calendar year associated with the pregnancy/registration (4 digits),
+      drawn from a shared DATASUS year codelist (ANO.CNV) that also carries special
+      codes for missing/invalid/blank year (9000, 9999) alongside the plain calendar
+      years seen in this table (2007-2014).
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "XAno da Gestacao , NU_ANO_GES ,1 ,ANO.CNV"
+
+      '
+    notes: Expect a SPURIOUS-BINDING? warning (ANO codelist bound to what is fundamentally
+      a year value, not a category).
+  NU_CNS:
+    official_name: Número do Cartão Nacional de Saúde
+    translated_name: National Health Card (CNS) number
+    description: 'The pregnant woman''s Cartão Nacional de Saúde number — Brazil''s
+      national health-system patient identifier, stored 15 digits wide as it is across
+      DATASUS systems generally.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_CNS is a fixed, unambiguous DATASUS field name that appears identically
+      (always 15 digits) across dozens of systems (SINASC, SIM, SIASUS, SISCAN, etc.).
+      It is not referenced in Gestantes.def for SISPRENATAL specifically, so this is
+      grounded in that universal naming/width convention rather than a SISPRENATAL-specific
+      citation.
+
+      '
+    notes: 'This is a real personal identifier (a national health-system ID) and passes
+      through unmodified in the source data — flagged here, no masking proposed.
+
+      '
+  NU_GESTA:
+    official_name: Número de Gestações
+    translated_name: Number of pregnancies (gravidity)
+    description: 'Count of pregnancies the woman has had, not counting the current
+      one — SISPRENATAL Web''s obstetric-history question is documented as recording
+      00 for a first pregnancy.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_ prefix (número) plus "GESTA" (gestações). Not referenced in Gestantes.def,
+      so grounded in DATASUS naming grammar together with general published guidance
+      describing SISPRENATAL Web''s "number of previous pregnancies, 00 if first pregnancy"
+      question.
+
+      '
+    notes: Declared C(6,0), wider than a small gravidity count would need — likely
+      a generic export width.
+  NU_IDADE:
+    official_name: Idade da Gestante
+    translated_name: Pregnant woman's age
+    description: 'Age of the pregnant woman in completed years, drawn from a small
+      integer domain (10-60 years, idade.CNV).
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "XIdate da Gestante , NU_IDADE ,1 ,IDADE.CNV"
+
+      '
+    notes: 'Declared C(15,0) — far wider than the two-digit ages the bound codelist
+      actually enumerates (10-60) — likely a generic export width rather than evidence
+      of a different format. Expect a SPURIOUS-BINDING? warning (IDADE codelist bound
+      to what is fundamentally a numeric age).
+
+      '
+  NU_NIS:
+    official_name: Número do NIS
+    translated_name: Social ID Number (NIS)
+    description: 'The pregnant woman''s NIS (Número de Identificação Social — the PIS/PASEP/NIT-derived
+      social identification number Brazil uses to key CadÚnico and Bolsa Família records),
+      stored 15 digits wide like NU_CNS. Municipal SISPRENATAL guidance explicitly
+      recommends tracking Bolsa Família beneficiaries during prenatal follow-up, which
+      is the likely reason this field exists.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_ (número) + NIS is a standard, unambiguous Brazilian abbreviation
+      for Número de Identificação Social. Corroborated by the Porto Alegre SISPRENATAL
+      manual''s recommendation to identify Bolsa Família beneficiaries among gestantes
+      for follow-up (SISVAN section). Not referenced in Gestantes.def, so the field''s
+      existence-rationale is inferred, not verbatim-sourced.
+
+      '
+    notes: 'Personal identifier (a social-benefit ID number) — passes through unmodified,
+      no masking proposed. The adjacent field NU_NIS_REP was left out of this file
+      because its exact referent (a confirmation re-entry of the same NIS, versus a
+      different person''s NIS) could not be determined.
+
+      '
+  NU_NIS_REP:
+    official_name: Nº NIS do Representante Familiar
+    translated_name: Family representative's NIS number
+    description: 'NIS (Número de Identificação Social) of the "representante familiar"
+      — the adult who signs for the pregnant woman on her registration form when she
+      is a minor or otherwise legally incapable — recorded next to that person''s name,
+      separately from the gestante''s own NU_NIS.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'uberaba.mg.gov.br/portal/acervo/saude/arquivos/sisprenatal/RelGestante_FichaEmBranco.pdf
+      — Ficha de Cadastramento da Gestante, campo 16 "Representante familiar: (se menor
+      incapaz)" paired with campo 17 "Nº NIS"
+
+      '
+    notes: 'Real personal identifier (a social-benefit ID number belonging to the guardian,
+      not the gestante) and passes through unmodified; no masking proposed.
+
+      '
+  QT_AB_ECT:
+    official_name: Quantidade de Abortos Ectópicos
+    translated_name: Ectopic-pregnancy count (obstetric history)
+    description: Count of previous ectopic pregnancies in the woman's obstetric history.
+    code_system: none
+    source: inferred
+    reasoning: 'QT_ (quantidade) + AB (abortos) + ECT (ectópico) is an unambiguous
+      DATASUS abbreviation chain, part of the same obstetric-history block as QT_AB_GER,
+      QT_AB_MOL, QT_NSC_VIV/MOR and QT_PRT_CIR/FOR/VAG.
+
+      '
+  QT_AB_GER:
+    official_name: Quantidade de Abortos (Geral)
+    translated_name: Abortion count, general/other
+    description: 'Count of previous abortions not classified as ectopic (QT_AB_ECT)
+      or molar (QT_AB_MOL) — the residual/general abortion tally in the obstetric-history
+      block.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QT_ + AB (abortos) + GER most plausibly abbreviates "geral" (general),
+      reading as the catch-all category alongside the two specifically-named abortion
+      subtypes in the same block. Less certain than QT_AB_ECT/ QT_AB_MOL — GER could
+      in principle abbreviate something else — but no alternative reading fits the
+      surrounding DATASUS grammar as well.
+
+      '
+    notes: Whether GER covers spontaneous and induced abortions together, or is a genuinely
+      separate "other" bucket, could not be confirmed from available sources.
+  QT_AB_MOL:
+    official_name: Quantidade de Abortos Molares
+    translated_name: Molar-pregnancy count (obstetric history)
+    description: Count of previous molar pregnancies (mola hidatiforme) in the woman's
+      obstetric history.
+    code_system: none
+    source: inferred
+    reasoning: QT_ (quantidade) + AB (abortos) + MOL (molar/mola), the same pattern
+      as QT_AB_ECT.
+  QT_CONS:
+    official_name: Qt Consultas
+    translated_name: Consultation count (summable)
+    description: 'Number of prenatal/puerperium consultations, stored as a true numeric
+      field (N, unlike the character-typed QT_CONSULT) and flagged in the dictionary
+      as an "increment" variable — the one TabWin sums when producing totals across
+      many women, rather than the one used to bucket into "1-5 / 6+" categories.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "IQt Consultas , QT_CONS"
+
+      '
+    notes: 'QT_CONS and QT_CONSULT look like the same underlying count of consultations
+      exposed twice, in two different types/roles (numeric-summable vs. character-categorised);
+      summing both in the same analysis double-counts. The def file gives no further
+      description distinguishing them beyond this typing/role difference.
+
+      '
+  QT_CONSULT:
+    official_name: Consultas
+    translated_name: Number of consultations (categorised)
+    description: 'Number of prenatal consultations, stored as a zero-padded character
+      count. The def file binds it to CONSULTA.CNV, a tabulation-only grouping ("1-5
+      consultas" for 001-005, "6 ou mais consultas" for 006-099) used to build the
+      "Consultas" cross-tab axis — not a code the raw column itself carries.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "SConsultas , QT_CONSULT ,1 ,CONSULTA.CNV"
+
+      '
+    notes: 'See QT_CONS — likely the same underlying quantity in a different representation;
+      do not sum the two. Expect a SPURIOUS-BINDING? warning (CONSULTA codelist bound
+      to what is fundamentally a count).
+
+      '
+  QT_MOR_APS:
+    official_name: Óbitos de Nascidos Vivos até 1 Semana
+    translated_name: Early death count, before completing 1 week
+    description: 'Count, in the woman''s obstetric history, of her previously live-born
+      children who died before completing one week of life — one of two timing-split
+      death counts branching off "Nascidos Vivos" on the obstetric-history diagram,
+      alongside QT_MOR_PS.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Sits between the abortion counts and QT_NSC_MOR/QT_NSC_VIV in the GestacaoWeb.dbf
+      field order. The registration form''s Antecedentes Obstétricos diagram (same
+      "SISPRENATAL N:" system) branches "Nascidos Vivos" into "Vivem" (alive) and two
+      fillable count boxes labelled "mortos 1 Semana" and "depois 1 Semana" — read
+      as APS = até (before/by) the first week, PS = pós (after) the week.
+
+      '
+  QT_MOR_PS:
+    official_name: Óbitos de Nascidos Vivos após 1 Semana
+    translated_name: Later death count, after 1 week
+    description: 'Count, in the woman''s obstetric history, of her previously live-born
+      children who died after completing one week of life — the "depois 1 Semana" branch
+      of the same live-birth outcome diagram that QT_MOR_APS''s "mortos 1 Semana" branch
+      comes from.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same diagram evidence as QT_MOR_APS: the two boxes are adjacent, sequential
+      outcomes of "Nascidos Vivos" (died within the first week vs. died later), matching
+      the field order QT_MOR_APS immediately followed by QT_MOR_PS.
+
+      '
+  QT_NSC_MOR:
+    official_name: Quantidade de Nascidos Mortos
+    translated_name: Stillbirth count (obstetric history)
+    description: Count of previous stillbirths (nascidos mortos) in the woman's obstetric
+      history.
+    code_system: none
+    source: inferred
+    reasoning: QT_ (quantidade) + NSC (nascidos) + MOR (mortos), mirroring QT_NSC_VIV
+      in the same block.
+  QT_NSC_VIV:
+    official_name: Quantidade de Nascidos Vivos
+    translated_name: Live-birth count (obstetric history)
+    description: Count of previous live births (nascidos vivos) in the woman's obstetric
+      history.
+    code_system: none
+    source: inferred
+    reasoning: QT_ (quantidade) + NSC (nascidos) + VIV (vivos), a standard DATASUS
+      abbreviation chain.
+  QT_PRT_CIR:
+    official_name: Quantidade de Partos Cirúrgicos
+    translated_name: Surgical (cesarean) delivery count
+    description: Count of previous deliveries by cesarean/surgical route, in the woman's
+      obstetric history.
+    code_system: none
+    source: inferred
+    reasoning: 'QT_ (quantidade) + PRT (partos) + CIR (cirúrgico), part of the same
+      three-way delivery-route breakdown as QT_PRT_FOR and QT_PRT_VAG.
+
+      '
+  QT_PRT_FOR:
+    official_name: Quantidade de Partos Fórceps
+    translated_name: Forceps delivery count
+    description: Count of previous forceps-assisted deliveries, in the woman's obstetric
+      history.
+    code_system: none
+    source: inferred
+    reasoning: QT_ (quantidade) + PRT (partos) + FOR (fórceps).
+  QT_PRT_VAG:
+    official_name: Quantidade de Partos Vaginais
+    translated_name: Vaginal delivery count
+    description: Count of previous vaginal deliveries, in the woman's obstetric history.
+    code_system: none
+    source: inferred
+    reasoning: QT_ (quantidade) + PRT (partos) + VAG (vaginal).
+  ST_AUX_DSL:
+    official_name: Precisa de Auxílio Deslocamento
+    translated_name: Needs transportation-assistance flag
+    description: 'Single-character yes/no flag for whether the pregnant woman needs
+      help getting to her prenatal appointments — asked at intake alongside DUM, DPP,
+      height and weight, not part of the obstetric-history block.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: 'uberaba.mg.gov.br/portal/acervo/saude/arquivos/sisprenatal/RelGestante_FichaEmBranco.pdf
+      — Ficha de Acompanhamento da Gestante, campo 50 "Precisa de auxílio deslocamento",
+      NÃO/SIM
+
+      '
+  ST_GESTAC:
+    official_name: Status da Gestação
+    translated_name: Pregnancy case status
+    description: 'Single-character status of the pregnancy case as tracked by SISPRENATAL
+      (e.g. still being followed vs. concluded/interrupted). The code-to-label mapping
+      lives in ST_GESTAC.CNV, which Gestantes.def references but which was not present
+      in the TAB_SISPRENATAL.zip bundle actually retrieved, so no code values are asserted
+      here.
+
+      '
+    code_system: internal
+    codelist: ST_GESTAC
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
+      -> Gestantes.def, line "XStatus da Gestação, ST_GESTAC ,1 ,ST_GESTAC.CNV"
+
+      '
+    notes: 'Do not infer the individual code meanings (e.g. active/concluded/ interrupted)
+      — only the field''s subject is grounded; the ST_GESTAC.CNV lookup file itself
+      was missing from the downloaded archive.
+
+      '
+  ST_GRA_ANT:
+    official_name: Final da Gestação Anterior, menos de 1 Ano
+    translated_name: Previous pregnancy ended under a year ago flag
+    description: 'Single-character yes/no flag marking that the woman''s previous pregnancy
+      ended less than one year before this one began — a short inter-pregnancy-interval
+      marker recorded in the Antecedentes Obstétricos block.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: 'uberaba.mg.gov.br/portal/acervo/saude/arquivos/sisprenatal/RelGestante_FichaEmBranco.pdf
+      — Ficha de Acompanhamento da Gestante, campo 56 Antecedentes Obstétricos, "Final
+      da gestação anterior, < de 1 anos", NÃO/SIM
+
+      '
+  ST_GRA_PLA:
+    official_name: Gravidez Planejada
+    translated_name: Planned-pregnancy flag
+    description: 'Single-character flag for whether the pregnancy was planned. General
+      documentation of SISPRENATAL Web describes its cadastro form asking whether the
+      pregnancy was planned (yes/no); this is likely Sim/Não (S/N) coded like the other
+      single-character ST_ flags shipped in this same dictionary (simnao.CNV, st_tp_risc.cnv,
+      st_ra_ct_a.cnv all follow that S/N pattern), though this specific field is not
+      bound to a codelist in the catalog and is not referenced in Gestantes.def.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'ST_ prefix (status/situação flag, declared C(1,0)) + GRA (gravidez,
+      confirmed elsewhere in this same dictionary via CO_TPO_GRA''s "Tipo de Gravidez"
+      label) + PLA (planejada). Corroborated by general published documentation of
+      SISPRENATAL Web collecting a planned-pregnancy yes/no question.
+
+      '
+    notes: 'The exact code values (S/N, or 1/2) are not confirmed for this specific
+      field — only the subject and likely Sim/Não shape are grounded. Expect a validator
+      warning that no codelist is bound to it in the catalog.
+
+      '

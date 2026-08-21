@@ -1,0 +1,128 @@
+# CNES.SR — Specialised services
+# Serviços Especializados
+#
+# Specialised services offered, and their classifications.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+  AMB_NSUS:
+    official_name: Atendimento ambulatorial não SUS
+    translated_name: Outpatient care outside SUS
+    description: 'Whether the service treats outpatients outside SUS. The non-SUS side
+      of the ambulatorial/hospitalar split.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: AMB_HOSP.CNV
+    reasoning: AMB reads ambulatorial and NSUS não SUS; bound to the AMB_HOSP codelist.
+  AMB_SUS:
+    official_name: Atendimento ambulatorial SUS
+    translated_name: Outpatient care for SUS
+    description: 'Whether the service treats SUS outpatients. Pairs with AMB_NSUS,
+      and the two are not exclusive — most establishments do both.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: A yes/no flag; the SUS half of the ambulatorial pair.
+  CARACTER:
+    official_name: Caracterização do serviço
+    translated_name: Service arrangement
+    description: 'Whether the service is run in-house or contracted out, and whether
+      it is outpatient or hospital, SUS or not. Four distinctions in one code.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SRV_CARACT.CNV
+    reasoning: 'Bound to SRV_CARACT, whose values are próprio, terceirizado, ambulatorial,
+      SUS-ambulatorial, hospitalar and SUS-hospitalar.
+
+      '
+  CLASS_SR:
+    official_name: Classificação do Serviço Especializado
+    translated_name: Specialized-service classification code
+    description: 'Sub-classification code for the specialized service (serviço especializado)
+      reported in this SR record — the finer category nested under a broader service
+      type, e.g. which specific modality within an imaging or laboratory service group.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'CLASS_ is DATASUS''s standard "classificação" prefix; the column only
+      appears in the SR file, whose documented purpose in this catalog''s own ontology
+      is "specialised services offered, and their classifications" — CLASS_SR is the
+      classification half of that service/classification pair.
+
+      '
+    notes: 'No observed values or bound codelist were captured, so which numeric codes
+      map to which classification labels is not established here.
+
+      '
+  CNESTERC:
+    official_name: CNES do terceiro
+    translated_name: Contracted provider CNES
+    description: 'The CNES code of the third party providing a contracted-out service.
+      What makes it possible to follow a service to the establishment that actually
+      performs it rather than the one that reports it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(7) CNES establishment code; TERC reads terceirizado.
+  CONTSRVU:
+    official_name: Serviço terceirizado
+    translated_name: Service is contracted out
+    description: 'Whether the service is provided under contract by a third party rather
+      than by the establishment itself.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CONT reads contratado or terceirizado with SRVU for serviço único; C(1)
+      flag.
+  HOSP_NSUS:
+    official_name: Atendimento hospitalar não SUS
+    translated_name: Hospital care outside SUS
+    description: 'Whether the service admits non-SUS patients. Set together with HOSP_SUS
+      for the mixed hospitals that are most of Brazilian capacity.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: A yes/no flag; the non-SUS half of the hospitalar pair.
+  HOSP_SUS:
+    official_name: Atendimento hospitalar SUS
+    translated_name: Hospital care for SUS
+    description: 'Whether the service admits SUS patients. The hospital counterpart
+      of AMB_SUS, and the flag that identifies which establishments SIH activity can
+      come from.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: A yes/no flag; the SUS half of the hospitalar pair.
+  SERV_ESP:
+    official_name: Serviço especializado
+    translated_name: Specialised service
+    description: 'Which specialised service the establishment offers. Read with SRVUNICO,
+      which narrows it to a classification: the service alone is too coarse to interpret.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: S_CLASSEA.CNV
+    reasoning: C(3) code bound to the S_CLASSE service codelists.
+  SRVUNICO:
+    official_name: Classificação do serviço
+    translated_name: Service classification
+    description: 'The classification within the service — the second half of the pair
+      that SERV_ESP opens.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SRA_ORD_A.CNV
+    reasoning: C(3) code bound to the SRA_ORD service-classification codelists.

@@ -1,0 +1,536 @@
+# SINAN.LTAN —
+#
+# one notification of cutaneous leishmaniasis
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  CLAS_FORMA:
+    official_name: Forma Clínica
+    translated_name: Clinical form (leishmaniasis)
+    description: 'Clinical form established for a tegumentary leishmaniasis case: 1-Cutânea
+      (skin ulcer), 2-Mucosa (destructive nose/mouth/throat lesion), 9-Ignorada. Auto-filled
+      from CLI_CUTANE/CLI_MUCOSA, mucosa wins.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LTA_v5.pdf, campo 40 (Forma Clínica)
+  CLAS_TIPO_:
+    official_name: Classificação do tipo clínico
+    translated_name: Clinical type classification
+    description: 'Coded clinical form of American cutaneous leishmaniasis for this
+      case — localized cutaneous, disseminated cutaneous, or mucosal — determining
+      the treatment protocol.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is LTAN (leishmaniose tegumentar); CLAS_TIPO reads "classificação
+      do tipo"; C12 width fits a short coded/text category.
+
+      '
+  CLA_TIPO_N:
+    official_name: Classificação quanto ao tipo
+    translated_name: Case-type classification
+    description: 'Classifies a leishmaniose tegumentar (LTAN) notification as a new
+      case, a relapse, or a transfer between health units: 1=Caso novo, 2=Recidiva,
+      3=Transferência.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Catalog dictionary gives values 1=Caso novo, 2=Recidiva, 3=Transferência;
+      CLA_ = classificação, TIPO_N = tipo de notificação, a standard case-status axis
+      on SINAN forms.
+
+      '
+  CLI_CICATR:
+    official_name: Presença de cicatrizes cutâneas
+    translated_name: Cutaneous scarring present (leishmaniasis)
+    description: 'Whether cutaneous scarring is present alongside a mucosal lesion
+      in a leishmaniasis case, suggesting an earlier untreated skin lesion that preceded
+      the mucosal spread. 1-Sim, 2-Não; only asked when CLI_MUCOSA=1.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LTA_v5.pdf, campo 34 (presença de cicatrizes cutâneas)
+    depends_on:
+    - CLI_MUCOSA
+  CLI_CO_HIV:
+    official_name: Coinfecção com HIV
+    translated_name: HIV co-infection
+    description: 'Whether the patient also has HIV. Co-infection produces atypical,
+      extensive disease that responds poorly, so it changes both prognosis and treatment.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: Bound to CLI_CO_HIV, a sim/não flag.
+  CLI_CUTANE:
+    official_name: Presença de lesão Cutânea
+    translated_name: Cutaneous lesion present (leishmaniasis)
+    description: 'Whether the patient has a cutaneous (skin) leishmaniasis lesion,
+      typically a painless round ulcer with raised borders: 1-Sim, 2-Não. At least
+      one of CLI_CUTANE or CLI_MUCOSA must be Sim for a valid LTA case.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LTA_v5.pdf, campo 33 (Presença de lesão Cutânea)
+  CLI_CUT_DI:
+    official_name: Lesão cutânea - descrição
+    translated_name: Cutaneous lesion, clinical description
+    description: 'Coded or short free-text description of the skin lesion''s clinical
+      appearance (e.g. ulcer type) recorded on exam — supports the clinical diagnostic
+      criterion for cutaneous leishmaniasis, apart from the entomological ENTO_* findings.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C11; CLI_=clínico, CUT=cutâneo; width fits a short descriptive code
+      rather than a full sentence.
+  CLI_MUCOSA:
+    official_name: Presença de lesão mucosa
+    translated_name: Mucosal lesion present (leishmaniasis)
+    description: 'Whether the patient has a mucosal leishmaniasis lesion, a destructive
+      process usually in the nose, mouth, or throat: 1-Sim, 2-Não. Marking Sim auto-sets
+      CLAS_FORMA to 2 (Mucosa) regardless of the skin field.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LTA_v5.pdf, campo 33 (Presença de lesão mucosa)
+  CON_AUTO_M:
+    official_name: Condição de autoctonia no município
+    translated_name: Autochthonous in municipality (flag)
+    description: 'Whether the leishmaniose tegumentar infection is autochthonous to
+      the patient''s municipality of residence, as opposed to being acquired elsewhere
+      and only diagnosed locally - the municipality-level leg of the standard autochthony
+      triad (municipality/state/country).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_ = condição, AUTO = autóctone, M = município; autochthony by municipality/UF/country
+      is a standard classification set on vector-borne disease investigation forms.
+
+      '
+  CON_AUTO_U:
+    official_name: Caso autóctone da UF
+    translated_name: Autochthonous to state (UF) (flag)
+    description: 'Whether the case was locally acquired within the patient''s state
+      of residence - the state-level autochthony flag, distinguished from the municipality-level
+      flag CON_AUTO_M by geographic scope.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_AUTO_ = autóctone; U = UF; LTAN series carries the matching municipality-level
+      sibling CON_AUTO_M and the overall TPAUTOCTO classification field.
+
+      '
+  CON_CLASS_:
+    official_name: Classificação epidemiológica
+    translated_name: Epidemiological classification
+    description: 'Whether the case was acquired locally, imported, or is indeterminate.
+      Autochthonous cases mean local transmission and trigger vector control; imported
+      ones do not.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CON_CLASS_.CNV
+    reasoning: 'Bound to CLASSLTANET, whose values are autóctone, importado and indeterminado.
+
+      '
+  CON_IMPORT:
+    official_name: Caso importado
+    translated_name: Imported case
+    description: 'Whether the leishmaniasis case is classified as imported — infection
+      likely acquired outside the notifying municipality — distinguishing it from locally
+      (autochthonous) transmitted cases.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LTAN form; CON_IMPORT reads "caso importado"; C13 width fits a coded
+      flag with room for a short qualifier.
+
+      '
+  CON_MUNICI:
+    official_name: Município provável de infecção
+    translated_name: Likely municipality of infection
+    description: 'Municipality considered the likely place of infection for this leishmaniasis
+      case, distinct from the patient''s residence municipality when the two differ
+      (relevant given CON_IMPORT).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LTAN form; CON_ context prefix with MUNICI reading "município"; C12
+      text width, wider than a plain IBGE numeric code, fits a name/context field.
+
+      '
+  CON_PAIS:
+    official_name: País de contágio
+    translated_name: Country of probable infection
+    description: 'Country where the patient most likely acquired cutaneous leishmaniasis,
+      used to flag imported cases — the international counterpart to CON_UF (Brazilian
+      state of contágio).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C10 text; CON_=contágio in this context (place of likely infection),
+      PAIS=país.
+  CON_UF:
+    official_name: UF de contágio
+    translated_name: State (UF) of probable infection
+    description: 'Brazilian state where the patient most likely acquired cutaneous
+      leishmaniasis, used when transmission is domestic rather than imported — pairs
+      with CON_PAIS for the international case.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C8; CON_=contágio, UF=state code.
+  ENTO_ANIMA:
+    official_name: Investigação entomológica - presença de animais
+    translated_name: Animal reservoirs present (entomological survey)
+    description: 'Presence of animal reservoirs (dogs, equines, wild fauna) identified
+      during the entomological/environmental investigation around the leishmaniose
+      tegumentar case''s likely exposure site.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ENTO_ = entomológico, ANIMA = animais; reservoir-animal presence is
+      routinely checked alongside vector (sandfly) findings in leishmaniasis field
+      investigations.
+
+      '
+  ENTO_CAO:
+    official_name: Presença de cão no local de investigação entomológica
+    translated_name: Dog present at entomological investigation site (flag)
+    description: 'Whether a dog was found at the site surveyed during the entomological
+      investigation - dogs are a possible reservoir host checked alongside other animals
+      (ENTO_EQUIN for horses) when tracing the case''s likely transmission setting.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ENTO_ = entomológico (vector/reservoir survey block); CAO = cão.
+  ENTO_CAPTU:
+    official_name: Captura entomológica
+    translated_name: Entomological capture description
+    description: 'Free-text description of the vector-capture activity carried out
+      during the entomological survey (where and how sandflies were trapped), part
+      of the LTA form''s vector-investigation section.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LTAN form; ENTO_ reads "entomológico" and CAPTU reads "captura"; wide
+      C50 width fits free-text description rather than a coded field.
+
+      '
+  ENTO_EQUIN:
+    official_name: Presença de equinos
+    translated_name: Horses present near residence (entomological finding)
+    description: 'Whether horses were present near the patient''s household — equines
+      can be peridomestic hosts that draw the sandfly vector close to homes, part of
+      the entomological-investigation checklist with ENTO_INSET and ENTO_PERID.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C12 flag/short code; ENTO_=entomológico per prefix convention, EQUIN=equino.
+  ENTO_EXIST:
+    official_name: Investigação entomológica - existência de vetor
+    translated_name: Vector presence confirmed (entomological survey)
+    description: 'Whether the entomological investigation found evidence of the sandfly
+      vector (Lutzomyia) in the area of suspected exposure - the general existence
+      flag that the more specific ENTO_INTRA/ENTO_PROXI fields refine.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ENTO_ = entomológico, EXIST = existência; a base "vector found" flag
+      preceding the location-specific ENTO_INTRA and ENTO_PROXI fields in the same
+      series.
+
+      '
+  ENTO_EXI_1:
+    official_name: Pesquisa entomológica - item 1
+    translated_name: Entomological investigation - finding 1
+    description: 'First of up to four numbered sub-items under the entomological/vector
+      investigation''s "existência de pesquisa" checklist for this cutaneous leishmaniasis
+      case; the specific finding each number covers isn''t recoverable from the field
+      name alone.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ENTO_EXI = existência de pesquisa entomológica; LTAN carries ENTO_EXI_1
+      through _4 as a numbered checklist, but their individual meanings are not distinguishable
+      from naming alone.
+
+      '
+  ENTO_EXI_2:
+    official_name: Exame entomológico 2
+    translated_name: Entomological finding 2
+    description: 'Second entry in a numbered series of entomological survey findings
+      for this leishmaniasis investigation, alongside the sandfly- and other-vector-specific
+      fields ENTO_FLEBO and ENTO_OUTRO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LTAN form; ENTO_ prefix with numeric suffix indicating a repeated finding
+      slot; C11 width fits a coded/short-text entry.
+
+      '
+  ENTO_EXI_3:
+    official_name: Existência de [item 3] no peridomicílio
+    translated_name: Presence of a third checklist item (entomological survey)
+    description: 'Whether a specific reservoir/environmental feature — the third item
+      in a numbered peridomestic checklist alongside ENTO_EQUIN and ENTO_INSET — was
+      found near the household during the entomological survey; the exact item behind
+      "3" isn''t confirmed by the evidence available.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C11; ENTO_=entomológico, EXI=existência, trailing 3 implies a numbered
+      series (ENTO_EXI_1/2 not in this partition), so the specific checklist item can''t
+      be pinned down from name alone.
+
+      '
+  ENTO_EXI_4:
+    official_name: Investigação entomológica - existência (categoria 4)
+    translated_name: Vector presence, category 4
+    description: 'A further-graded vector-presence result distinguished from ENTO_EXIST
+      by a numeric suffix, likely a specific distance zone or vector-species category
+      in the entomological survey; exact category not confirmed by other catalog evidence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Shares the ENTO_EXI root with ENTO_EXIST but the "_4" suffix marks
+      a distinct, more granular variant; low file weight (7) limits further confirmation.
+
+      '
+  ENTO_EXTRA:
+    official_name: Vetor encontrado em ambiente extradomiciliar
+    translated_name: Vector found in extradomestic setting (flag)
+    description: 'Whether the sandfly vector or evidence of it was found outside the
+      home during the entomological survey, as opposed to inside it (ENTO_INTRA) -
+      used to characterize whether transmission risk is domestic or peridomestic/wild.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ENTO_ = entomológico; EXTRA = extradomiciliar; LTAN carries the matching
+      ENTO_INTRA field.
+  ENTO_FLEBO:
+    official_name: Flebotomíneos capturados
+    translated_name: Sandflies captured
+    description: 'Entomological finding recording the sandfly (Phlebotominae, the LTA
+      vector) species or counts identified during the vector survey, distinct from
+      ENTO_OUTRO''s non-sandfly findings.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LTAN form; ENTO_FLEBO reads "entomológico - flebotomíneo", the leishmaniasis
+      vector; C13 width fits a short species/count entry.
+
+      '
+  ENTO_INSET:
+    official_name: Presença de insetos vetores
+    translated_name: Sandfly vector insects found (entomological finding)
+    description: 'Whether sandflies (the Lutzomyia vector) were captured or observed
+      at the investigation site — the direct vector-presence finding, compared with
+      the reservoir-host flags ENTO_EQUIN and ENTO_EXI_3.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C12; ENTO_=entomológico, INSET=inseto.
+  ENTO_INTRA:
+    official_name: Investigação entomológica - vetor intradomiciliar
+    translated_name: Vector found inside the home
+    description: 'Whether the sandfly vector was found inside the patient''s home (intradomiciliar),
+      as opposed to only nearby - distinguishes this exposure setting from ENTO_PROXI''s
+      peridomestic finding.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ENTO_ = entomológico, INTRA = intradomiciliar; indoor vs. peridomestic
+      vector presence is a standard distinction in leishmaniasis entomological surveys.
+
+      '
+  ENTO_LOCAL:
+    official_name: Local da pesquisa entomológica
+    translated_name: Site of entomological investigation
+    description: 'The specific location surveyed for sandfly vectors and reservoir
+      animals during this case''s investigation (e.g. patient''s residence, workplace)
+      - the site identifier the other ENTO_ findings are reported against.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ENTO_ = entomológico; LOCAL = local; anchors the ENTO_ finding block.
+  ENTO_OUTRO:
+    official_name: Outro vetor capturado
+    translated_name: Other vector captured
+    description: 'Entomological finding for a vector or insect species collected during
+      the survey other than the sandflies recorded in ENTO_FLEBO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LTAN form; ENTO_OUTRO reads "entomológico - outro"; C13 width matches
+      the sibling ENTO_FLEBO field.
+
+      '
+  ENTO_PERID:
+    official_name: Investigação peridomiciliar
+    translated_name: Peridomestic area investigated (flag)
+    description: 'Whether the area immediately around the household was investigated
+      for leishmaniasis transmission risk — the umbrella flag for the peridomestic
+      entomological checklist that includes ENTO_EQUIN and ENTO_INSET.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C12; ENTO_=entomológico, PERID=peridomiciliar.
+  ENTO_PROXI:
+    official_name: Investigação entomológica - vetor próximo ao domicílio
+    translated_name: Vector found near the home
+    description: 'Whether the sandfly vector was found close to, but not inside, the
+      patient''s home (peridomestic) - the counterpart to ENTO_INTRA''s indoor finding
+      in the same entomological survey.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ENTO_ = entomológico, PROXI = próximo; peridomestic vector presence
+      is tracked separately from intradomiciliary presence on the LTAN investigation
+      form.
+
+      '
+  ENTO_TRANS:
+    official_name: Classificação da transmissão
+    translated_name: Transmission setting classification
+    description: 'Classifies the transmission setting for the case (e.g. domestic,
+      peridomestic, or wild/forest) based on the entomological and reservoir findings
+      gathered during investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ENTO_ = entomológico; TRANS = transmissão; summarizes the ENTO_ investigation
+      block.
+  ID_OCUPACA:
+    official_name: Ocupação do paciente
+    translated_name: Patient occupation
+    description: 'Patient''s occupation, recorded on the leishmaniasis form because
+      cutaneous leishmaniasis risk is strongly tied to rural, agricultural, or forest-related
+      work.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LTAN form; ID_OCUPACA reads "identificação/ocupação"; C13 width fits
+      a short occupation code or abbreviation.
+
+      '
+  LAB_IRM:
+    official_name: IRM (Intradermorreação de Montenegro)
+    translated_name: Montenegro skin test result
+    description: 'Result of the Montenegro intradermal reaction, a delayed-hypersensitivity
+      skin test to Leishmania antigen used to support diagnosis of cutaneous leishmaniasis;
+      positive results also auto-confirm the case.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LTA_v5.pdf (Leishmaniose Tegumentar Americana), campo 37.
+  LAB_PARASI:
+    official_name: Parasitológico Direto
+    translated_name: Direct parasitological exam result
+    description: 'Result of the direct microscopic search for Leishmania parasites
+      in a skin-lesion sample from a cutaneous leishmaniasis suspect, the laboratory
+      test that, if positive, confirms the case outright.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LTA_v5.pdf (Leishmaniose Tegumentar Americana), campo 36.
+  TRA_AMPOLA:
+    official_name: Número de ampolas
+    translated_name: Ampoules prescribed (leishmaniasis treatment)
+    description: 'Count of antimonial (Sb+5) ampoules prescribed and dispensed for
+      a cutaneous leishmaniasis patient''s treatment course; a fractioned ampoule''s
+      remainder is discarded, not carried over.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose Tegumentar
+      Americana/LTA_v5_instr.pdf, campo 45
+  TRA_DOSE:
+    official_name: Dose prescrita
+    translated_name: Prescribed antimonial dose (leishmaniasis treatment)
+    description: 'Prescribed dose of pentavalent antimonial (Sb+5), standardized at
+      10-20 mg/Kg/day: 15 mg/Kg/day for cutaneous lesions, 20 mg/Kg/day for mucosal
+      lesions, per Ministry of Health treatment protocol.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose Tegumentar
+      Americana/LTA_v5_instr.pdf, campo 44
+  TRA_DROGA_:
+    official_name: Droga utilizada na falência do tratamento inicial
+    translated_name: Second-line drug (leishmaniasis treatment)
+    description: 'Which antimonial/antileishmanial drug was switched to after the patient''s
+      initial cutaneous-leishmaniasis treatment failed to cure the lesion.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose Tegumentar
+      Americana/LTA_v5_instr.pdf, campo 46
+  TRA_OUTRA_:
+    official_name: Tratamento com outra droga
+    translated_name: Other drug used in treatment (flag)
+    description: 'Whether a drug other than the standard antimonial (Glucantime) regimen
+      was used to treat the cutaneous leishmaniasis case - paired with TRA_DROGA_ (which
+      names the standard drug) and TRA_DOSE/TRA_PESO (dose, weight) in the treatment
+      block.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TRA_ = tratamento; OUTRA = outra (droga); LTAN treatment block.
+  TRA_OUTR_N:
+    official_name: Outro medicamento utilizado
+    translated_name: Other drug used
+    description: 'Which alternative drug was used — pentavalent antimonial, amphotericin
+      B, pentamidine, or another. Amphotericin is the escalation when antimonials fail
+      or are contraindicated.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ANTIMO1.CNV
+    reasoning: 'Bound to ANTIMO1, whose values are antimonial pentavalente, anfotericina
+      B, pentamidina and outras.
+
+      '

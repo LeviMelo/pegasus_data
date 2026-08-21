@@ -1,0 +1,43 @@
+# PNI.CPNI — Vaccination coverage
+# Cobertura Vacinal
+#
+# Coverage — doses over target population. A rate, already divided, so it must
+# not be summed across areas.
+system: PNI
+asserted_by: pegasus_data
+
+variables:
+  COBERT:
+    official_name: Cobertura Vacinal
+    translated_name: Vaccination coverage (percent)
+    description: 'Vaccination coverage percentage: doses applied of the vaccine''s
+      reference dose (D1, D2, D3, DU, or D, depending on the vaccine) divided by target
+      population (POP), times 100.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Cobertura_desde_1994.pdf
+    notes: 'Which dose counts as "the indicated dose" is vaccine-specific (e.g. BCG
+      sums dose-única, Hepatite B sums D3 pooled across HB+PENTA+HEXA). Values above
+      100% occur because POP is an estimate, not a census of who actually presented
+      for vaccination.
+
+      '
+  POP:
+    official_name: População Alvo
+    translated_name: Target population (coverage denominator)
+    description: 'Target population used as COBERT''s denominator, by municipality/UF,
+      year and age bracket — IBGE census/estimate data through 2005, then SINASC live
+      births for the infant brackets from 2006 onward.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Cobertura_desde_1994.pdf
+    notes: 'Not the same series as "população residente" published elsewhere on DATASUS:
+      CGPNI deliberately kept each year''s first preliminary IBGE estimate even after
+      later revisions. SINASC-sourced infant counts lag and get backfilled with the
+      prior year''s figure when not yet available.
+
+      '

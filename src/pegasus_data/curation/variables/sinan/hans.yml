@@ -1,0 +1,315 @@
+# SINAN.HANS — Leprosy
+# Hanseníase
+#
+# One notified case of leprosy, carrying the operational classification and
+# the treatment regimen, which run for months to years.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AVALIA_N:
+    official_name: Avaliação do Grau de Incapacidade Física no Diagnóstico
+    translated_name: Disability grade at diagnosis
+    description: 'Physical-disability grade assessed at leprosy diagnosis on the WHO
+      0/I/II scale: grade zero is no damage, grade I is sensory loss only, grade II
+      is visible deformity or injury; code 3 means not evaluated.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 37
+  AVAL_ATU_N:
+    official_name: Avaliação de incapacidade física no momento da cura
+    translated_name: Disability grade at cure
+    description: 'The same WHO physical-disability grade reassessed at cure or treatment
+      completion, letting the program measure whether disability worsened, stayed stable,
+      or was prevented during multidrug therapy.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, tela de acompanhamento, campo 13
+  BACILOSCOP:
+    official_name: Baciloscopia
+    translated_name: Skin-smear microscopy result
+    description: 'Result of the skin-smear microscopy for M. leprae bacilli at leprosy
+      diagnosis: a positive smear classifies the case as multibacillary even when its
+      clinical form looks paucibacillary.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 40 (Baciloscopia)
+  CLASSATUAL:
+    official_name: Classificação operacional atual
+    translated_name: Current operational classification (leprosy)
+    description: 'Current operational classification of the leprosy case, used to pick
+      the treatment scheme: 1-PB paucibacilar, 2-MB multibacilar. Seeded from the diagnosis
+      classification but updatable during follow-up visits.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 12 (Tela de Acompanhamento, Classificação
+      operacional atual)
+  CLASSOPERA:
+    official_name: Classificação Operacional
+    translated_name: Operational classification at diagnosis (leprosy)
+    description: 'Operational classification of the leprosy case at diagnosis, used
+      to select the multidrug therapy scheme: 1-PB paucibacilar, 2-MB multibacilar.
+      Distinct from CLASSATUAL, which tracks it during follow-up.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 35 (Classificação Operacional)
+  CONTEXAM:
+    official_name: Número de contatos examinados
+    translated_name: Contacts examined (leprosy)
+    description: 'Count of the leprosy patient''s household contacts who actually underwent
+      a dermatoneurological exam, capped at the number recorded in CONTREG. Used to
+      monitor how much contact tracing was completed.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 18 (Número de contatos examinados)
+    depends_on:
+    - CONTREG
+  CONTREG:
+    official_name: Número de contatos registrados
+    translated_name: Contacts registered (leprosy)
+    description: 'Count of people who lived, or had lived, with the leprosy patient
+      during the five years before diagnosis: the household contacts flagged as needing
+      dermatoneurological examination for the disease.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 43 (Número de contatos registrados)
+  DOSE_RECEB:
+    official_name: Número de doses supervisionadas
+    translated_name: Supervised doses received (leprosy)
+    description: 'Number of directly-observed multidrug-therapy doses the leprosy patient
+      has actually received under supervision, tracked during follow-up rather than
+      the number of doses merely prescribed.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 15 (Número de doses supervisionadas)
+  DTALTA_N:
+    official_name: Data da alta
+    translated_name: Discharge date (leprosy)
+    description: 'Date the leprosy patient was discharged from treatment, whether by
+      cure, transfer, death, or abandonment (the type is recorded in TPALTA_N); required
+      whenever a discharge type has been entered.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 20 (Data da alta)
+    depends_on:
+    - TPALTA_N
+  DTINICTRAT:
+    official_name: Data do início do tratamento
+    translated_name: Treatment start date (leprosy)
+    description: 'Date the patient began multidrug therapy for leprosy, required to
+      fall on or after the diagnosis date. Its first entry auto-seeds the follow-up
+      field DTULTCOMP, Date of the last health-unit visit.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 41 (Data do início do tratamento)
+  DTMUDESQ:
+    official_name: Data de mudança do Esquema
+    translated_name: Treatment-scheme change date (leprosy)
+    description: 'Date the leprosy patient''s multidrug therapy scheme was changed,
+      for example switched between paucibacillar and multibacillar regimens or to a
+      substitute drug; filled only when such a change occurred.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 17 (Data de mudança do Esquema)
+  DTULTCOMP:
+    official_name: Data do último comparecimento
+    translated_name: Last follow-up visit date (leprosy)
+    description: 'Date of the leprosy patient''s most recent visit to the health unit,
+      or contact with a health agent, during treatment follow-up; must fall on or after
+      the treatment start date, DTINICTRAT.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 11 (Tela de Acompanhamento, Data
+      do último comparecimento)
+    depends_on:
+    - DTINICTRAT
+  EPIS_RACIO:
+    official_name: Episódio Reacional Durante o Tratamento
+    translated_name: Reactional episode during treatment
+    description: 'Type of leprosy immune-reaction episode the patient had during multidrug
+      therapy. 1=Reação tipo 1 (reversal reaction), 2=Reação tipo 2 (erythema nodosum
+      leprosum), 3=both types occurred during treatment.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 16
+  ESQ_ATU_N:
+    official_name: Esquema terapêutico atual
+    translated_name: Current therapeutic regimen
+    description: 'Multidrug therapy regimen the leprosy patient is currently on; auto-filled
+      from the initial regimen at first entry but editable if the scheme changes during
+      follow-up. 1=PQT/PB/6 doses, 2=PQT/MB/12 doses, 3=Outros Substitutos.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 14 (Tela de Acompanhamento)
+  ESQ_INI_N:
+    official_name: Esquema terapêutico inicial
+    translated_name: Initial therapeutic regimen
+    description: 'Multidrug therapy regimen prescribed at diagnosis, chosen from the
+      operational classification (paucibacillary/multibacillary) made at that time.
+      1=PQT/PB/6 doses, 2=PQT/MB/12 doses, 3=Outros Esquemas Substitutos.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 42
+  FORMACLINI:
+    official_name: Forma Clínica
+    translated_name: Clinical form
+    description: 'Leprosy''s clinical form at diagnosis per the Madrid classification,
+      which reflects the patient''s immune response to M. leprae. 1=Indeterminada,
+      2=Tuberculóide, 3=Dimorfa, 4=Virchowiana, 5=Não classificado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 34
+  ID_MUNI_AT:
+    official_name: Município de atendimento atual
+    translated_name: Current treatment municipality
+    description: 'IBGE code and name of the municipality where the health facility
+      currently treating the leprosy patient is located, auto-filled from the notifying
+      municipality and updated whenever care is transferred.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento, campo 2.
+  ID_UNID_AT:
+    official_name: Unidade de atendimento atual
+    translated_name: Current treatment facility (CNES)
+    description: 'CNES code and name of the health facility currently responsible for
+      the leprosy patient''s treatment, auto-filled from the notifying facility and
+      updated whenever the patient is transferred to another unit.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento, campo 5.
+  MODODETECT:
+    official_name: Modo de detecção de caso novo
+    translated_name: New-case detection method
+    description: 'How a new leprosy case was found - referral, spontaneous demand,
+      population screening, or contact examination - filled only when MODOENTR marks
+      the record as a new case rather than a transfer or relapse.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 39.
+  MODOENTR:
+    official_name: Modo de entrada
+    translated_name: Case entry mode
+    description: 'How the patient entered the leprosy record: new case, transfer from
+      another facility, municipality, state, or abroad, relapse, or other re-admission;
+      distinct from how a new case was first detected.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 38.
+  MUNIRESAT:
+    official_name: Município de residência atual
+    translated_name: Current municipality of residence
+    description: 'IBGE code of the leprosy patient''s municipality of residence as
+      of the most recent follow-up visit, auto-filled from the notification but editable
+      if the patient later moves.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento, campo 7.
+  NERVOSAFET:
+    official_name: Nº de nervos afetados
+    translated_name: Number of nerves affected
+    description: 'Number of peripheral nerves found clinically affected in a leprosy
+      patient at diagnosis, distinct from NU_LESOES which tallies skin lesions.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 36.
+  NU_LESOES:
+    official_name: Nº de lesões cutâneas
+    translated_name: Number of skin lesions
+    description: 'Number of dermatological lesions a leprosy patient presented at diagnosis;
+      system versions before 1.3 capped this tally at 20.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 33.
+  NU_LOTE_IA:
+    official_name: Transferência vertical da investigação e do acompanhamento
+    translated_name: Vertical-transfer batch number
+    description: 'Internal batch identifier stamped on a leprosy investigation/follow-up
+      record when it is moved between levels of the SINAN hierarchy (e.g. municipal
+      to state); not a diagnostic or clinical value.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento.
+  TPALTA_N:
+    official_name: Tipo de Saída
+    translated_name: Discharge/outcome type (Hanseníase)
+    description: 'How a leprosy case''s follow-up ended: cured, transferred to another
+      unit, municipality, state, or abroad, death, treatment abandonment, or diagnostic
+      error. Recorded only when a discharge date is filled in.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Hanseniase/DIC_DADOS_Hanseniase_v5.pdf,
+      campo 19-Tipo de Saída
+  UFATUAL:
+    official_name: UF de atendimento atual
+    translated_name: State of current treatment unit (Hanseníase)
+    description: 'State abbreviation of the health facility currently treating a leprosy
+      patient. Auto-filled from the notifying municipality''s state, then updated automatically
+      if the patient transfers to care elsewhere.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Hanseniase/DIC_DADOS_Hanseniase_v5.pdf,
+      campo 1-UF de atendimento atual
+  UFRESAT:
+    official_name: UF de residência atual
+    translated_name: State of current residence (Hanseníase)
+    description: 'State abbreviation of the leprosy patient''s current residence. Auto-filled
+      from the residence state at notification, then editable if the patient moves
+      during follow-up.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Hanseniase/DIC_DADOS_Hanseniase_v5.pdf,
+      campo 6-UF de residência atual

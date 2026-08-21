@@ -1,0 +1,514 @@
+# PCE.PCE — Schistosomiasis control programme
+# Programa de Controle da Esquistossomose
+#
+# Survey and treatment results for schistosomiasis, by locality.
+system: PCE
+asserted_by: pegasus_data
+
+variables:
+  CS_FASE:
+    official_name: Fase da atividade (categoria)
+    translated_name: Program phase (category)
+    description: 'Marca se a localidade está na fase ativa de inquérito/tratamento
+      do PCE ou já foi reclassificada para "fase de vigilância" - positividade abaixo
+      de 5% em dois ciclos consecutivos, reavaliada a cada 4 anos.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Prefixo CS_ é o padrão DATASUS para característica/categoria. "Fase"
+      corresponde ao conceito operacional das Diretrizes Técnicas Nacionais para a
+      Vigilância da Esquistossomose Mansoni (2024, Ministério da Saúde) - localidades
+      transitam de fase ativa de controle para "fase de vigilância" conforme critérios
+      de positividade e número de ciclos. O campo só aparece nos arquivos de 2024-2026
+      (33 arquivos), mesma leva em que surge ID_DRS, coerente com a publicação dessa
+      diretriz em nov/2024.
+
+      '
+    notes: 'Inferência de confiança moderada: nenhum dicionário de dados lista este
+      campo nem seus códigos; a largura declarada (1 caractere) é compatível com poucas
+      categorias de fase, mas os valores específicos não foram confirmados em nenhuma
+      fonte.
+
+      '
+  DT_COMP:
+    official_name: Competência (mês/ano) da atividade
+    translated_name: Reporting period (month/year of activity)
+    description: 'Mês e ano em que a atividade do programa (coproscopia ou levantamento
+      malacológico) foi executada, no formato AAAAMM - caracteres 1-4 dão o ano e 5-6
+      o mês. É a "competência" usada pelo TabNet para agrupar os dados por mês/ano,
+      calculada a partir da data em que a coproscopia ou a malacologia ocorreu - não
+      é a data em que o registro foi digitado.
+
+      '
+    code_system: none
+    codelists:
+    - ANO
+    - DT_COMP
+    notes: 'O cabeçalho do DBF declara este campo com 7 caracteres nos arquivos de
+      1995-2021 e com 6 (o padrão documentado, AAAAMM) a partir de 2022; o byte extra
+      nos arquivos antigos não faz parte do valor. O codelist ligado "MES" está vazio
+      no catálogo (sem linhas de dicionário) - ligação vazia, ver spurious_bindings;
+      ANO e DT_COMP têm rótulos reais (ex.: 199501 -> jan/1995).
+
+      '
+  ID_DISTR:
+    official_name: Código do Distrito/Regional de Saúde
+    translated_name: Health district/region code
+    description: 'Código do Distrito e da Regional de Saúde (subdivisão administrativa
+      dentro da UF) onde a atividade do programa foi executada, cadastrado no Sistema
+      de Localização Geográfica (SISLOC) do Ministério da Saúde - não é um código IBGE
+      nem CNES, é interno ao SISLOC.
+
+      '
+    code_system: internal
+    notes: 'A largura declarada no cabeçalho do DBF muda de 8 (1995-2021) para 2 (2024-2026,
+      batendo com o dicionário), e o campo está totalmente ausente da leva intermediária
+      de 2022-2023 (18 arquivos) - não é só mudança de largura, o campo some por dois
+      anos e reaparece. Nenhum codelist está ligado a este campo no catálogo (não há
+      tabela SISLOC pública crawleada) - ver spurious_bindings.
+
+      '
+  ID_DRS:
+    official_name: Código do Departamento Regional de Saúde (DRS)
+    translated_name: Regional Health Department (DRS) code
+    description: 'Provável código do Departamento Regional de Saúde (DRS) - divisão
+      administrativa regional de saúde do Estado de São Paulo (17 DRS, sucessoras dos
+      antigos DIR desde 2006). Aparece só em arquivos de 2024-2026 (33 arquivos), na
+      mesma leva em que surgem CS_FASE e NU_FASE.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'O prefixo ID_ é o padrão DATASUS para campo de identificação/código.
+      "DRS" não tem outro significado corrente em vigilância em saúde no Brasil além
+      de "Departamento Regional de Saúde" - divisão administrativa real e publicamente
+      documentada (17 departamentos em SP), não um código inventado pelo DATASUS. O
+      dicionário de dados oficial do PCE_DG (revisado em novembro/2021) não lista este
+      campo; ele só aparece nos arquivos mais recentes (2024-2026), consistente com
+      uma extensão de schema posterior à revisão do dicionário - plausivelmente ligada
+      à integração do sistema próprio de São Paulo que a nota técnica do PCE no TabNet
+      já registra ("O Estado de São Paulo possui Sistema de Informação próprio de onde
+      é feita a migração dos dados para o SISPCE").
+
+      '
+    notes: 'Inferência de confiança moderada: nenhum documento consultado confirma
+      explicitamente que este campo, neste arquivo, guarda um código de DRS, e não
+      há lista de códigos para validar contra. Não usar isoladamente para decisões
+      que exijam certeza sobre a região.
+
+      '
+  ID_LOC:
+    official_name: Código da localidade (UF + município + localidade)
+    translated_name: Locality code (state + municipality + locality)
+    description: 'Geocódigo composto de 12 caracteres que identifica a localidade (bairro,
+      vila, povoado, fazenda, sítio etc.) onde a atividade do programa foi executada.
+      Caracteres 1-2: código IBGE da UF. Caracteres 1-7: código IBGE do município (a
+      UF já embutida no prefixo). Caracteres 8-12: código de localidade específico
+      do Sistema de Localização Geográfica (SISLOC), sem correspondência em nenhuma
+      tabela do IBGE.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICAL
+    - MUNICBA
+    - MUNICBR
+    - MUNICCE
+    - MUNICES
+    - MUNICMA
+    - MUNICMG
+    - MUNICPB
+    - MUNICPE
+    - MUNICRN
+    - MUNICSE
+    notes: 'Não é um código de município "puro": apenas os 7 primeiros caracteres são
+      o código IBGE; os 5 finais são o código de localidade do SISLOC e não devem ser
+      tratados como parte do código do município para join com tabelas IBGE. As tabelas
+      ligadas cobrem os estados historicamente operados pelo SISPCE (AL, BA, CE, ES,
+      MA, MG, PB, PE, RN, SE) mais MUNICBR; não há tabela para SP porque, segundo a
+      nota técnica do PCE no TabNet, "o Estado de São Paulo possui Sistema de Informação
+      próprio de onde é feita a migração dos dados para o SISPCE". O catálogo também
+      liga este campo a UF, UFREG e REGIAO (1-2 dígitos), o que não faz sentido para
+      um campo de 12 caracteres - ver spurious_bindings.
+
+      '
+  ID_UF:
+    official_name: UF de execução da atividade (código)
+    translated_name: State (UF) where the activity was carried out - code
+    description: 'Código numérico de 2 dígitos, padronizado pelo IBGE, da Unidade da
+      Federação onde a atividade do programa (coproscopia ou levantamento malacológico)
+      foi executada.
+
+      '
+    code_system: external
+    notes: 'O dicionário documenta ID_UF e SG_UF na mesma linha - mesmo conceito, duas
+      representações (código numérico vs. sigla de 2 letras). Nos arquivos de 1995-2021
+      o cabeçalho do DBF declara largura 5 (não 2); o conteúdo continua sendo o código
+      de 2 dígitos, os bytes extras não têm valor. Apesar de ser claramente um código
+      de UF, nenhum codelist está ligado a ID_UF (nem a SG_UF) no catálogo - a ligação
+      de UF que existe está presa, ao que parece por engano, a ID_LOC; ver spurious_bindings.
+
+      '
+  NU_FASE:
+    official_name: Número do ciclo de trabalho
+    translated_name: Work cycle number
+    description: 'Contador numérico do ciclo de inquérito coproscópico ao qual o registro
+      pertence - as diretrizes do PCE exigem rastrear pelo menos dois ciclos consecutivos
+      (incluindo o Levantamento Inicial) antes de mudar a fase da localidade.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Prefixo NU_ é o padrão DATASUS para número/contador. As Diretrizes
+      Técnicas Nacionais para a Vigilância da Esquistossomose Mansoni (2024) descrevem
+      explicitamente o "número de ciclos de trabalho" (pelo menos dois, inclusive o
+      LI) como critério operacional do programa - conceito que corresponde ao nome
+      do campo. Aparece na mesma leva de arquivos (2024-2026) que CS_FASE e ID_DRS.
+
+      '
+    notes: 'Inferência de confiança moderada: não há dicionário de dados nem lista
+      de valores para este campo; a correspondência com "ciclo de trabalho" é dedução
+      a partir do nome e do contexto operacional documentado, não confirmação direta.
+
+      '
+  QT_17:
+    official_name: Positivos, 17 ou mais ovos
+    translated_name: Positives, 17+ eggs
+    description: 'Número de pessoas cujo exame de lâmina identificou 17 ou mais ovos
+      de Schistosoma mansoni na coproscopia - a faixa de maior carga parasitária, a
+      terceira parcela cuja soma com QT_1A4 e QT_5A16 dá QT_POS.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'DIC_DADOS_SISPCE_PCE-DG.pdf, página 1 (campo QT_17), revisado em novembro/2021;
+      confirmado na nota técnica do PCE no TabNet ("17 mais ovos"), http://tabnet.datasus.gov.br/cgi/sinan/pce/PCE-nota-tecnica.pdf
+
+      '
+    depends_on:
+    - QT_POS
+  QT_1A4:
+    official_name: Positivos, 1 a 4 ovos
+    translated_name: Positives, 1-4 eggs
+    description: 'Número de pessoas cujo exame de lâmina identificou entre 1 e 4 ovos
+      de Schistosoma mansoni - uma das três faixas de carga parasitária (com QT_5A16
+      e QT_17) cuja soma é QT_POS.
+
+      '
+    code_system: none
+    depends_on:
+    - QT_POS
+  QT_5A16:
+    official_name: Positivos, 5 a 16 ovos
+    translated_name: Positives, 5-16 eggs
+    description: 'Número de pessoas cujo exame de lâmina identificou entre 5 e 16 ovos
+      de Schistosoma mansoni.
+
+      '
+    code_system: none
+    depends_on:
+    - QT_POS
+  QT_ANC:
+    official_name: Positivos para Ancylostoma duodenale
+    translated_name: Positive for hookworm (Ancylostoma duodenale)
+    description: 'Número de pessoas cujo exame de lâmina identificou ovos de Ancylostoma
+      duodenale (ancilostomídeo) - achado incidental do mesmo exame coproscópico feito
+      para triagem de esquistossomose, não um indicador da própria esquistossomose.
+
+      '
+    code_system: none
+  QT_ASC:
+    official_name: Positivos para Ascaris lumbricoides
+    translated_name: Positive for Ascaris lumbricoides
+    description: 'Número de pessoas cujo exame de lâmina identificou ovos de Ascaris
+      lumbricoides - achado incidental do mesmo exame coproscópico.
+
+      '
+    code_system: none
+  QT_ATRAT:
+    official_name: Previstos para tratamento
+    translated_name: Scheduled for treatment
+    description: 'Número de pessoas previstas para serem medicadas contra a esquistossomose.
+      O próprio dicionário de dados adverte que isso não significa que todas sejam
+      positivas - a campanha pode tratar por critério coletivo/de área, não só por
+      resultado individual.
+
+      '
+    code_system: none
+  QT_AUS:
+    official_name: Não tratados por ausência
+    translated_name: Untreated, absent
+    description: 'Número de pessoas não tratadas por estarem ausentes no momento da
+      administração do medicamento.
+
+      '
+    code_system: none
+  QT_BGLA:
+    official_name: Capturados, Biomphalaria glabrata
+    translated_name: Captured, Biomphalaria glabrata
+    description: 'Quantidade de caramujos capturados da espécie Biomphalaria glabrata,
+      o principal hospedeiro intermediário do Schistosoma mansoni no Brasil, na atividade
+      de levantamento malacológico.
+
+      '
+    code_system: none
+  QT_BSTR:
+    official_name: Capturados, Biomphalaria straminea
+    translated_name: Captured, Biomphalaria straminea
+    description: 'Quantidade de caramujos capturados da espécie Biomphalaria straminea
+      na atividade de levantamento malacológico.
+
+      '
+    code_system: none
+  QT_BTEN:
+    official_name: Capturados, Biomphalaria tenagophila
+    translated_name: Captured, Biomphalaria tenagophila
+    description: 'Quantidade de caramujos capturados da espécie Biomphalaria tenagophila
+      na atividade de levantamento malacológico.
+
+      '
+    code_system: none
+  QT_CAP:
+    official_name: Caramujos capturados (total)
+    translated_name: Snails captured (total)
+    description: 'Número total de caramujos capturados na atividade de levantamento
+      malacológico (busca do hospedeiro intermediário do S. mansoni), somando todas
+      as espécies.
+
+      '
+    code_system: none
+  QT_CI:
+    official_name: Não tratados por contraindicação
+    translated_name: Untreated due to contraindication
+    description: 'Número de pessoas não tratadas por contraindicação clínica ao medicamento
+      esquistossomicida. O dicionário de dados lista os motivos cobertos - doença cardíaca,
+      estado febril, epilepsia ou outra doença neurológica, gravidez, amamentação e
+      "outros motivos" - mas não os desmembra em colunas próprias: só o total é gravado.
+
+      '
+    code_system: none
+    notes: 'As seis subcategorias de contraindicação existem apenas como texto explicativo
+      no dicionário de dados, não como campos separados no DBF. Não confundir com QT_OUT1
+      / QT_POSOUT, que são contagens de caramujos de "outras espécies", não motivos
+      de não-tratamento.
+
+      '
+  QT_EV:
+    official_name: Positivos para Enterobius vermicularis
+    translated_name: Positive for Enterobius vermicularis
+    description: 'Número de pessoas cujo exame de lâmina identificou ovos de Enterobius
+      vermicularis - achado incidental do mesmo exame coproscópico.
+
+      '
+    code_system: none
+  QT_EXAM:
+    official_name: Exames realizados
+    translated_name: Stool exams performed
+    description: 'Número de pessoas efetivamente examinadas por coproscopia (lâmina)
+      - o denominador para calcular a taxa de positivos (QT_POS / QT_EXAM), tipicamente
+      menor que QT_POP porque nem todo recipiente distribuído volta com material.
+
+      '
+    code_system: none
+    notes: 'Vale para este e para todos os demais campos QT_* do PCE: nos arquivos
+      de 1995-2021 o cabeçalho do DBF declara o tipo como Caractere (dígitos armazenados
+      como texto), passando a Numérico de fato só a partir de 2024 - o que já bate
+      com "Número" no dicionário de dados. Não muda o valor, mas um pipeline que decide
+      como ler a coluna a partir do tipo declarado pode se surpreender com arquivos
+      antigos.
+
+      '
+  QT_HN:
+    official_name: Positivos para Hymenolepis nana
+    translated_name: Positive for Hymenolepis nana
+    description: 'Número de pessoas cujo exame de lâmina identificou ovos de Hymenolepis
+      nana - achado incidental do mesmo exame coproscópico.
+
+      '
+    code_system: none
+  QT_NRECOL:
+    official_name: Recipientes não recolhidos
+    translated_name: Containers not collected back
+    description: 'Número de recipientes de coleta que NÃO foram recolhidos junto às
+      pessoas - mede a perda entre a distribuição (QT_POP) e o exame (QT_EXAM), não
+      o inverso.
+
+      '
+    code_system: none
+    notes: 'O nome sugere "recipientes coletados" (positivo), mas o dicionário de dados
+      é explícito: é a contagem dos recipientes NÃO recolhidos. Ler o sinal ao contrário
+      inverteria a interpretação da adesão ao exame.
+
+      '
+  QT_OUT:
+    official_name: Positivos para outras verminoses
+    translated_name: Positive for other intestinal worms
+    description: 'Número de pessoas cujo exame de lâmina identificou ovos de espécies
+      de vermes intestinais não cobertas pelos campos específicos (Ascaris, Ancylostoma,
+      Taenia, Trichuris, Enterobius, Strongyloides, Hymenolepis nana).
+
+      '
+    code_system: none
+    notes: 'Não confundir com QT_OUT1, que é "outras espécies de caramujo" no levantamento
+      malacológico - campo diferente, atividade diferente.
+
+      '
+  QT_OUT1:
+    official_name: Capturados, outras espécies de caramujo
+    translated_name: Captured, other snail species
+    description: 'Quantidade de caramujos capturados de espécies diferentes das três
+      nomeadas (Biomphalaria glabrata, B. straminea, B. tenagophila) na atividade de
+      levantamento malacológico.
+
+      '
+    code_system: none
+    notes: 'Não confundir com QT_OUT ("outras verminoses" no exame de fezes humano)
+      - QT_OUT1 é sobre caramujos, de uma atividade totalmente diferente (malacologia,
+      não coproscopia).
+
+      '
+  QT_PESQ:
+    official_name: Estações pesquisadas
+    translated_name: Sites (water collections) surveyed
+    description: 'Número de estações (pontos de coleção hídrica) pesquisadas durante
+      o levantamento malacológico - uma contagem de locais visitados, não de caramujos
+      encontrados.
+
+      '
+    code_system: none
+  QT_POP:
+    official_name: População trabalhada
+    translated_name: Population worked (people given a collection container)
+    description: 'Número de pessoas que receberam o recipiente para coleta de material
+      fecal para exame coproscópico - a base de pessoas "trabalhadas" pela equipe de
+      campo, não o número de exames de fato realizados (isso é QT_EXAM).
+
+      '
+    code_system: none
+  QT_POS:
+    official_name: Total de positivos
+    translated_name: Total positives
+    description: 'Número total de pessoas cujo exame identificou ovos de Schistosoma
+      mansoni. O dicionário de dados dá a fórmula explicitamente: QT_POS = QT_1A4 +
+      QT_5A16 + QT_17. É um campo derivado, redundante com as três faixas de carga
+      parasitária, não uma medição independente.
+
+      '
+    code_system: none
+    depends_on:
+    - QT_1A4
+    - QT_5A16
+    - QT_17
+    notes: 'Se a soma QT_1A4 + QT_5A16 + QT_17 não bater com QT_POS num arquivo, é
+      sinal de inconsistência de digitação naquele arquivo, não de uma definição alternativa
+      do campo.
+
+      '
+  QT_POSBGLA:
+    official_name: Positivos, Biomphalaria glabrata
+    translated_name: Positive, Biomphalaria glabrata
+    description: 'Quantidade de caramujos da espécie Biomphalaria glabrata encontrados
+      positivos (eliminando cercárias de S. mansoni), dentre os capturados em QT_BGLA.
+
+      '
+    code_system: none
+    depends_on:
+    - QT_BGLA
+  QT_POSBSTR:
+    official_name: Positivos, Biomphalaria straminea
+    translated_name: Positive, Biomphalaria straminea
+    description: 'Quantidade de caramujos da espécie Biomphalaria straminea encontrados
+      positivos, dentre os capturados em QT_BSTR.
+
+      '
+    code_system: none
+    depends_on:
+    - QT_BSTR
+  QT_POSBTEN:
+    official_name: Positivos, Biomphalaria tenagophila
+    translated_name: Positive, Biomphalaria tenagophila
+    description: 'Quantidade de caramujos da espécie Biomphalaria tenagophila encontrados
+      positivos, dentre os capturados em QT_BTEN.
+
+      '
+    code_system: none
+    depends_on:
+    - QT_BTEN
+  QT_POSOUT:
+    official_name: Positivos, outras espécies de caramujo
+    translated_name: Positive, other snail species
+    description: 'Quantidade de caramujos positivos de espécies diferentes das três
+      nomeadas, dentre os capturados em QT_OUT1.
+
+      '
+    code_system: none
+    depends_on:
+    - QT_OUT1
+  QT_PRED:
+    official_name: Prédios/domicílios visitados
+    translated_name: Buildings/households visited
+    description: 'Número de domicílios ou prédios visitados pela equipe de campo durante
+      a atividade - uma contagem de unidades domiciliares, não de pessoas.
+
+      '
+    code_system: none
+  QT_REC:
+    official_name: Não tratados por recusa
+    translated_name: Untreated, refused
+    description: 'Número de pessoas não tratadas por terem recusado o tratamento.
+
+      '
+    code_system: none
+  QT_SE:
+    official_name: Positivos para Strongyloides stercoralis
+    translated_name: Positive for Strongyloides stercoralis
+    description: 'Número de pessoas cujo exame de lâmina identificou ovos de Strongyloides
+      stercoralis - achado incidental do mesmo exame coproscópico.
+
+      '
+    code_system: none
+    notes: 'A nota técnica de tabulação do PCE no TabNet chama esse indicador de "SS
+      - Strongyloides", mas no dicionário de dados do DBF (PCE_DG) o nome do campo
+      é QT_SE - confirmado com a mesma descrição (Strongyloides stercoralis) nos dois
+      documentos.
+
+      '
+  QT_TAE:
+    official_name: Positivos para Taenia sp.
+    translated_name: Positive for Taenia sp.
+    description: 'Número de pessoas cujo exame de lâmina identificou ovos de Taenia
+      - achado incidental do mesmo exame coproscópico.
+
+      '
+    code_system: none
+  QT_TRAT:
+    official_name: Tratados
+    translated_name: Treated
+    description: 'Número de pessoas efetivamente tratadas contra a esquistossomose.
+
+      '
+    code_system: none
+  QT_TT:
+    official_name: Positivos para Trichuris trichiura
+    translated_name: Positive for Trichuris trichiura
+    description: 'Número de pessoas cujo exame de lâmina identificou ovos de Trichocephalus
+      trichiura (Trichuris trichiura) - achado incidental do mesmo exame coproscópico.
+
+      '
+    code_system: none
+  SG_UF:
+    official_name: UF de execução da atividade (sigla)
+    translated_name: State (UF) where the activity was carried out - abbreviation
+    description: 'Sigla de 2 letras, padronizada pelo IBGE (ex.: BA, PE, MG), da Unidade
+      da Federação onde a atividade do programa foi executada - mesma informação de
+      ID_UF, em formato de sigla em vez de código numérico.
+
+      '
+    code_system: external
+    notes: 'Ausente nos arquivos de 2024-2026 (33 arquivos): a partir dessa revisão
+      o sistema passou a gravar só ID_UF (numérico). Código que dependa de SG_UF para
+      filtrar por UF vai simplesmente não encontrar essas linhas nos arquivos mais
+      recentes. Como em ID_UF, nenhum codelist está ligado a este campo no catálogo.
+
+      '

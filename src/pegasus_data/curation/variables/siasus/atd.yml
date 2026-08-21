@@ -1,0 +1,241 @@
+# SIA.ATD — APAC, dialysis treatment
+# APAC de Tratamento Dialítico
+#
+# One authorisation for ongoing dialysis, the recurring counterpart to the
+# one-off fistula procedure in ACF.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  ATD_ACEVAS:
+    official_name: Acesso Vascular
+    translated_name: Vascular access
+    description: DATASUS code for the type of vascular access used for the patient's
+      dialysis (e.g. fistula, catheter).
+    code_system: internal
+    codelists:
+    - ATD_ACEVAS
+  ATD_ALBUMI:
+    official_name: Albumina
+    translated_name: Albumin
+    description: Patient's serum albumin lab result recorded on the dialysis-treatment
+      APAC, a nutritional/renal status marker.
+    code_system: none
+  ATD_CARACT:
+    official_name: Característica do tratamento
+    translated_name: Treatment characteristic
+    description: DATASUS code describing the modality/characteristic of the dialysis
+      treatment being authorised.
+    code_system: internal
+    codelists:
+    - ATD_CARACT
+    notes: The layout document names the field but does not spell out its code values
+      in the section covering this batch; do not infer specific category meanings beyond
+      'a treatment-modality code'.
+  ATD_DTCLI:
+    official_name: Data (AAAAMMDD) do início da dialise nesta clinica
+    translated_name: Start date of dialysis at this clinic
+    description: Date, AAAAMMDD, the patient started dialysis at the clinic filing
+      this APAC — not the same as the patient's first-ever dialysis date, which is
+      a separate field (AN_DTPDR/ATD_DTPDR) recording lifetime treatment history.
+    code_system: none
+  ATD_DTPDR:
+    official_name: Data de início em diálise
+    translated_name: Dialysis start date
+    description: 'Date this patient began renal replacement therapy, which is what
+      dialysis vintage — time on treatment — is computed from.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared C(8), the width of every AAAAMMDD date in this system, and
+      DT is the prefix DATASUS uses for a date throughout.
+
+      '
+  ATD_FOSFOR:
+    official_name: Fósforo
+    translated_name: Serum phosphorus
+    description: 'Serum phosphorus, in mg/dL. Raised phosphorus is the marker of the
+      mineral and bone disorder that dialysis patients are followed for.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: FOSFOR is fósforo; C(4), the same shape as the other lab values here.
+  ATD_HB:
+    official_name: Hemoglobina
+    translated_name: Haemoglobin
+    description: 'Patient''s haemoglobin at the time of the authorisation, in g/dL.
+      Anaemia management is part of what a dialysis APAC is monitored for.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: HB is haemoglobina; C(4) fits a value such as 11.2 without a separator.
+  ATD_HBSAG:
+    official_name: HBsAg em tratamento dialítico
+    translated_name: HBsAg during dialysis
+    description: 'Hepatitis B surface antigen on the dialysis record, repeated during
+      treatment rather than taken once at assessment as AN_HBSAG is.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATD_HBSAG.CNV
+    reasoning: Bound to ATD_HBSAG, positivo/negativo; the ATD counterpart of AN_HBSAG.
+  ATD_HCV:
+    official_name: Hepatite C em tratamento dialítico
+    translated_name: Hepatitis C during dialysis
+    description: 'Hepatitis C on the dialysis record. Seroconversion between authorisations
+      is evidence of transmission inside the unit, which is the reason for repeating
+      it.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATD_HCV.CNV
+    reasoning: Bound to ATD_HCV, positivo/negativo; the ATD counterpart of AN_HCV.
+  ATD_HIV:
+    official_name: Sorologia para HIV
+    translated_name: HIV serology
+    description: 'Whether the patient''s HIV serology is positive, negative or not
+      done. Recorded because it determines which machine and shift a haemodialysis
+      patient can be treated on.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'A single character beside the other serology and lab fields of the
+      dialysis block; C(1) admits only a flag, not a titre.
+
+      '
+    notes: 'A serostatus on an individual record. Handle as the identifying information
+      it is, and do not publish it disaggregated.
+
+      '
+  ATD_INTERC:
+    official_name: Intercorrência
+    translated_name: Intercurrent event
+    description: 'Whether an intercurrent event occurred during the authorisation period
+      — the complications that interrupt an otherwise routine schedule.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATD_INTERC.CNV
+    reasoning: Bound to ATD_INTERC, an S/N/Ignorado flag; INTERC reads intercorrência.
+  ATD_KTVSEM:
+    official_name: Kt/V semanal
+    translated_name: Weekly Kt/V
+    description: 'Weekly Kt/V for this patient: the standard measure of how much of
+      the blood''s urea a dialysis prescription actually clears. The number the programme
+      is judged on, since inadequate clearance predicts mortality.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Kt/V is the universal name for dialysis adequacy and SEM is semanal;
+      the column is C(4), which fits a value like 1.20 recorded without a separator.
+
+      '
+    notes: 'Stored without a decimal point. Read the width before scaling it.
+
+      '
+  ATD_MAISNE:
+    official_name: Acompanhamento por mais de um nefrologista
+    translated_name: Followed by more than one nephrologist
+    description: 'Whether more than one nephrologist follows the patient. Carries a
+      "não preenchido" value distinct from ignorado, so blank and unknown are different
+      states here.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATD_MAISNE.CNV
+    reasoning: 'Bound to ATD_MAISNE, whose values are sim, não, ignorado and não preenchido.
+      MAISNE reads mais de um nefrologista.
+
+      '
+  ATD_PTH:
+    official_name: Paratormônio (PTH)
+    translated_name: Parathyroid hormone
+    description: 'Parathyroid hormone, in pg/mL. Together with phosphorus it is what
+      secondary hyperparathyroidism is tracked by in chronic kidney disease.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PTH is the universal abbreviation and needs no expansion.
+  ATD_SEAPTO:
+    official_name: Encaminhamento se apto ao transplante
+    translated_name: Referral status if transplant-eligible
+    description: 'What has happened for a patient judged fit: registered with the transplant
+      centre, in pre-transplant assessment, awaiting an appointment, or not referred
+      at all. The last value is the one that matters, since it marks an eligible patient
+      going nowhere.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATD_SEAPTO.CNV
+    reasoning: 'Bound to ATD_SEAPTO, whose values run from inscrito no CNCDO through
+      sem encaminhamento.
+
+      '
+  ATD_SEPERI:
+    official_name: Peritonite no mês (diálise peritoneal)
+    translated_name: Peritonitis this month, peritoneal dialysis
+    description: 'Whether a patient on peritoneal dialysis was diagnosed with peritonitis
+      during the reporting month — S, N or I for yes, no or unknown. Peritonitis is
+      the complication specific to the catheter route, tracked separately from haemodialysis
+      patients'' complications.
+
+      '
+    code_system: internal
+    source: web
+    reasoning: 'A 2014 DATASUS APAC text-layout manual documents the equivalent field,
+      there named APA_SEPERI in the Tratamento Dialítico laudo block, verbatim as "Se
+      em diálise Peritoneal, houve peritonite diagnosticada no mês vigente? (S-Sim,
+      N-Não, I-Ignorado)". ATD_SEPERI is one character, matching that S/N/I domain.
+
+      '
+  ATD_SITINI:
+    official_name: Situação no início do tratamento
+    translated_name: Setting at start of treatment
+    description: 'Whether dialysis began in an outpatient setting or in hospital. Starting
+      in hospital usually means the failure was unplanned, and unplanned starts have
+      markedly worse outcomes.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATD_SITINI.CNV
+    reasoning: Bound to ATD_SITINI, whose values are ambulatorial and hospital.
+  ATD_SITTRA:
+    official_name: Situação quanto ao transplante
+    translated_name: Transplant fitness
+    description: 'Whether the patient is fit for transplant, unfit, has refused, or
+      is too recently started to assess — the last applying below ninety days of treatment.
+      The gate to the waiting list.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATD_SITTRA.CNV
+    reasoning: 'Bound to ATD_SITTRA, whose values are apto, inapto, recusa and não
+      aplicável for patients under ninety days of treatment.
+
+      '
+  ATD_TRU:
+    official_name: Taxa de redução de ureia
+    translated_name: Urea reduction ratio
+    description: 'Percentage by which the session reduced the patient''s blood urea
+      — the URR, the other standard adequacy measure alongside Kt/V.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TRU is the Portuguese initialism for taxa de redução de ureia, and
+      it sits in the same C(4) dialysis block as ATD_KTVSEM.
+
+      '

@@ -1,0 +1,1001 @@
+# SIA.PA — Outpatient production
+# Produção Ambulatorial
+#
+# Aggregate outpatient production: counts of procedures by establishment,
+# procedure and competência. No patient identity, and no individual rows — one
+# row is a procedure-establishment-month total.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  IDADEMAX:
+    official_name: Idade maxima do paciente para o procedimento
+    translated_name: Procedure's maximum eligible age
+    description: 'Upper bound of the patient age range SIGTAP allows for PA_PROC_ID,
+      used together with IDADEMIN to compute PA_FLIDADE. It describes the procedure''s
+      rule, not the patient who was actually treated.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  IDADEMIN:
+    official_name: Idade minima do paciente para o procedimento
+    translated_name: Procedure's minimum eligible age
+    description: 'Lower bound of the patient age range SIGTAP allows for PA_PROC_ID,
+      paired with IDADEMAX.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  NU_PA_TOT:
+    official_name: Valor Unitario do Procedimento da Tabela SIGTAP
+    translated_name: SIGTAP unit price (BRL)
+    description: 'Unit price of the procedure per the national SIGTAP table, independent
+      of what the managing authority actually pays (compare NU_VPA_TOT and PA_DIF_VAL).
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  NU_VPA_TOT:
+    official_name: Valor Unitario do Procedimento da Tabela VPA
+    translated_name: VPA unit price (BRL)
+    description: 'Unit price of the procedure per the VPA (Valor de Procedimento Ambulatorial)
+      table used by the managing authority, which can differ from the SIGTAP price
+      (NU_PA_TOT); PA_DIF_VAL captures that gap times the approved quantity.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_ALTA:
+    official_name: Indicador de Alta (APAC)
+    translated_name: Discharge indicator
+    description: 'Same discharge flag as AP_ALTA, carried onto the production-file
+      row for APAC-originated records.
+
+      '
+    codelists:
+    - ALTA
+    - PA_ALTA
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_AUTORIZ:
+    official_name: Numero da APAC ou autorizacao do BPA-I
+    translated_name: APAC/BPA-I authorization number
+    description: 'Authorization number carried onto the production file: the APAC number
+      for APAC-originated rows, or the (non-mandatory, uncritiqued) BPA-I authorization
+      number for BPA-I rows - so it can legitimately repeat across several BPA-I visits
+      for the same patient and should not be treated as a unique key.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'Not mandatory and not validated on BPA-I-origin rows; the same number can
+      legitimately repeat across unrelated BPA-I records.
+
+      '
+  PA_CATEND:
+    official_name: Carater de Atendimento (APAC ou BPA-I)
+    translated_name: Type of care episode
+    description: 'Same CARAT_AT-coded care-character field as AP_CATEND, carried onto
+      the production file for APAC- and BPA-I-originated rows.
+
+      '
+    codelists:
+    - CARAT_AT
+    - PA_CATEND
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_CBOCOD:
+    official_name: Codigo da Ocupacao (CBO)
+    translated_name: Executing professional's CBO occupation code
+    description: 'Occupation code of the professional who executed the procedure, per
+      the Classificacao Brasileira de Ocupacoes maintained by the Ministry of Labour
+      - a real national classification independent of DATASUS.
+
+      '
+    codelists:
+    - CBO
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_CIDCAS:
+    official_name: CID Causas Associadas (APAC)
+    translated_name: Associated-cause ICD-10 code
+    description: 'ICD-10 code for an associated cause on the production-file row, mirroring
+      AP_CIDCAS for APAC- originated records.
+
+      '
+    codelists:
+    - S_CID
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_CIDPRI:
+    official_name: CID Principal (APAC ou BPA-I)
+    translated_name: Primary ICD-10 code
+    description: 'ICD-10 code for the main diagnosis on the production-file row, populated
+      for rows originating from an APAC or a BPA-I (see PA_DOCORIG).
+
+      '
+    codelists:
+    - CID
+    - CID10GRUPOC
+    - S_CID
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_CIDSEC:
+    official_name: CID Secundario (APAC)
+    translated_name: Secondary ICD-10 code
+    description: 'ICD-10 code for a secondary diagnosis on the production-file row,
+      populated for APAC-originated rows.
+
+      '
+    codelists:
+    - CID
+    - S_CID
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_CMP:
+    official_name: Data da Realizacao do Procedimento / Competencia
+    translated_name: Care competence month
+    description: 'AAAAMM competence month the procedure was carried out, as opposed
+      to PA_MVM (when DATASUS processed it). The production-file equivalent of AP_CMP.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists
+      rather than a real vocabulary for this field.
+
+      '
+  PA_CNPJCPF:
+    official_name: CNPJ do Estabelecimento executante
+    translated_name: Executing establishment's CNPJ/CPF
+    description: 'Tax ID of the executing establishment on the production file, with
+      the same CNPJ-or-CPF ambiguity as AP_CNPJCPF for individual-professional executants.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'May hold a personal CPF (11 digits) instead of an establishment CNPJ (14
+      digits) - treat short values as a personal identifier.
+
+      '
+  PA_CNPJMNT:
+    official_name: CNPJ da Mantenedora
+    translated_name: Establishment's parent-organization CNPJ
+    description: 'CNPJ of the establishment''s maintaining organization on the production
+      file, or zeros when it has none.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_CNPJ_CC:
+    official_name: CNPJ do Orgao que recebeu por cessao de credito
+    translated_name: Credit-assignment recipient's CNPJ
+    description: 'CNPJ of the organization that received payment through a "cessao
+      de credito" (credit assignment) arrangement, or zeros when the production was
+      not assigned. Unlike the raw executant/mantenedora CNPJ fields, the catalog binds
+      this one to lookup codelists, suggesting it resolves against a bounded list of
+      registered recipient organizations rather than being an open-ended identifier.
+
+      '
+    codelists:
+    - CESSAO
+    - S_FORNEC
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_CNSMED:
+    official_name: Numero do CNS do profissional executante
+    translated_name: Executing professional's CNS number
+    description: 'CNS (Cartao Nacional de Saude) number of the health professional
+      who executed the procedure - a personal identifier of the provider, not the patient.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'Direct personal identifier (CNS) of the executing professional, not the
+      patient. Passed through unmodified per project policy; propose no masking, but
+      treat it as sensitive.
+
+      '
+  PA_CODESP:
+    official_name: Código da Especialidade/Atividade Profissional (inferido)
+    translated_name: Professional-activity code
+    description: Code for the professional activity/specialty associated with the procedure
+      on the pre-2008 PA file — the era's equivalent of a specialty axis later folded
+      into the CBO-based fields.
+    code_system: internal
+    source: inferred
+    source_ref: null
+    reasoning: COD is código and ESP is the standard abbreviation for especialidade.
+      Bound to ATIVPROF and ATVPRF02, both named for 'Atividade Profissional' rather
+      than a medical specialty proper, so the description is worded around professional
+      activity rather than asserting a clinical specialty the codelist names don't
+      support. This field is not covered by the current SIA/SUS layout document (Informe
+      Técnico SIASUS, which documents only the post-January-2008 unified layout); it
+      belongs to an earlier PA file generation, before PA_PROC_ID, PA_UFMUN and the
+      other prefixed PA_ names in the modern layout replaced it. No pre-2008 SIA layout
+      PDF was found on the crawled FTP tree or reachable DATASUS pages, so this is
+      read from the field name and the catalog's own evidence, not a written record
+      layout.
+  PA_CODOCO:
+    official_name: Codigo de Ocorrencia
+    translated_name: Occurrence code
+    description: 'Processing-occurrence code recorded against the production-file row
+      (e.g. flags applied during the audit/critique pipeline).
+
+      '
+    codelists:
+    - CODOCO
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_CODPRO:
+    official_name: Código do Procedimento (inferido)
+    translated_name: Procedure code
+    description: Procedure code on the pre-2008 PA file, at the era's own width — the
+      predecessor of the unified 10-digit PA_PROC_ID used after the January 2008 SIGTAP
+      unification.
+    code_system: external
+    source: inferred
+    source_ref: null
+    reasoning: 'COD is código and PRO is the natural reading of procedimento, reinforced
+      by every codelist bound to it being procedure-flavoured: PAB (Piso de Atenção
+      Básica, a procedure/financing table), GRPR1199 and ITEMPROG/ITEMP898 (grouped
+      procedure-item tables), and CNRAC_PR. The field is catalogued at both 3 and 7
+      characters, consistent with the pre-2008 SIA procedure table''s own varying code
+      widths before the 2008 unification fixed it at 10. This field is not covered
+      by the current SIA/SUS layout document (Informe Técnico SIASUS, which documents
+      only the post-January-2008 unified layout); it belongs to an earlier PA file
+      generation, before PA_PROC_ID, PA_UFMUN and the other prefixed PA_ names in the
+      modern layout replaced it. No pre-2008 SIA layout PDF was found on the crawled
+      FTP tree or reachable DATASUS pages, so this is read from the field name and
+      the catalog''s own evidence, not a written record layout.'
+  PA_CODUNI:
+    official_name: Codigo do Estabelecimento no CNES
+    translated_name: Establishment's CNES code
+    description: '7-digit CNES code of the establishment on the production file - the
+      same national facility registry as AP_CODUNI.
+
+      '
+    codelists:
+    - CADGERAC
+    - CADGERAL (per-state CNES facility registries)
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_CONDIC:
+    official_name: Sigla do Tipo de Gestao
+    translated_name: Management-type code
+    description: 'Management-arrangement code of the establishment/municipality on
+      the production file, same vocabulary as AP_CONDIC.
+
+      '
+    codelists:
+    - TPGESTAO
+    - TPGEST_C
+    - TP_GESTAO
+    - TP_GEST_C
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_DATPR:
+    official_name: Data do Procedimento / Competência (inferido)
+    translated_name: Procedure/competência date
+    description: Period (year or year-month) the procedure was billed under on the
+      pre-2008 PA file — the era's equivalent of the modern PA_CMP/PA_MVM competência
+      fields.
+    code_system: none
+    source: inferred
+    source_ref: null
+    reasoning: DAT is data (date) and PR reads as procedimento, matching the modern
+      PA_DOCORIG-adjacent competência concept. The field is catalogued at widths of
+      4 and 6 characters and is bound only to year and year-month codelists (ANO, ANO99_03,
+      ANO_0803, MESANO, MMAA0803) across several SIA eras (99-03, pre/post Aug 2003)
+      — consistent with a period field whose width changed as the format evolved, not
+      a classification code. This field is not covered by the current SIA/SUS layout
+      document (Informe Técnico SIASUS, which documents only the post-January-2008
+      unified layout); it belongs to an earlier PA file generation, before PA_PROC_ID,
+      PA_UFMUN and the other prefixed PA_ names in the modern layout replaced it. No
+      pre-2008 SIA layout PDF was found on the crawled FTP tree or reachable DATASUS
+      pages, so this is read from the field name and the catalog's own evidence, not
+      a written record layout.
+  PA_DATREF:
+    official_name: Data de Referência (inferido)
+    translated_name: Reference date
+    description: A second period/competência field on the pre-2008 PA file, distinct
+      from PA_DATPR — most likely the reference semester or the period a retroactive
+      adjustment refers back to.
+    code_system: none
+    source: inferred
+    source_ref: null
+    reasoning: DAT is data and REF is the natural abbreviation for referência. Bound
+      to the same family of year/year-month codelists as PA_DATPR (ANO, ANO_0803, MESANO,
+      MMAA0803) plus SEME0803, a semester table PA_DATPR is not bound to — that extra
+      binding is what distinguishes it from a duplicate of PA_DATPR rather than confirming
+      its exact role. This field is not covered by the current SIA/SUS layout document
+      (Informe Técnico SIASUS, which documents only the post-January-2008 unified layout);
+      it belongs to an earlier PA file generation, before PA_PROC_ID, PA_UFMUN and
+      the other prefixed PA_ names in the modern layout replaced it. No pre-2008 SIA
+      layout PDF was found on the crawled FTP tree or reachable DATASUS pages, so this
+      is read from the field name and the catalog's own evidence, not a written record
+      layout.
+  PA_DIF_VAL:
+    official_name: Diferenca do Valor Unitario
+    translated_name: Unit-price gap x approved quantity (BRL)
+    description: 'Difference between the unified-table unit value and the value actually
+      practiced by the production''s managing authority, multiplied by the approved
+      quantity (PA_QTDAPR) - a derived reconciliation figure, not an independently
+      observed price.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_DOCORIG:
+    official_name: Instrumento de Registro
+    translated_name: Source-instrument code
+    description: 'The single most load-bearing column in the production file: it says
+      which registration instrument generated this row, and therefore how to read every
+      other column on it. Per the layout''s own text: P = APAC main procedure, S =
+      APAC secondary procedure, C = BPA-Consolidado, A = RAAS-Atencao Domiciliar, B
+      = RAAS-Psicossocial, I = BPA-Individualizado. Patient-identifying fields (PA_CNSMED
+      aside, PA_MUNPCN etc.) are only reliably about the patient for P/S/A/B/I rows
+      - C-origin (BPA-C) rows carry no patient identity and fall back to the establishment''s
+      own municipality per the layout''s note on PA_MUNPCN.
+
+      '
+    codelists:
+    - DOCORIG
+    - DOC_ORIG
+    - DO_ORIGC
+    - PA_DOCORIG
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'Read this column before trusting any patient-level field on the same row:
+      BPA-C-origin (C) rows do not identify a real patient.
+
+      '
+  PA_ENCERR:
+    official_name: Indicador de Encerramento (APAC)
+    translated_name: Closure indicator
+    description: 'Same episode-closure flag as AP_ENCERR, carried onto the production
+      file for APAC-originated rows.
+
+      '
+    codelists:
+    - ENCERRAM
+    - PA_ENCERR
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_ETNIA:
+    official_name: Etnia do paciente
+    translated_name: Patient's indigenous ethnicity
+    description: 'Code for the patient''s specific indigenous ethnicity on the production
+      file, from the DATASUS/FUNAI ethnicity table. As documented for the equivalent
+      BPA-I field, it is only meaningful, and normally only filled, when the race/color
+      field is 05-Indigena.
+
+      '
+    codelists:
+    - PA_ETNIA
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'Populated only when the paired race/color field is 05-Indigena; blank/zero
+      otherwise is expected, not missingness.
+
+      '
+  PA_FLER:
+    official_name: Indicador de erro de corpo da APAC
+    translated_name: APAC body-error flag
+    description: 'Flag set by the processing pipeline when the body of the APAC record
+      failed a structural check. No codelist is bound in this catalog build, so the
+      specific code values cannot be decoded from the evidence available here.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_FLIDADE:
+    official_name: Compatibilidade com a faixa de idade do procedimento
+    translated_name: Age-eligibility compatibility flag
+    description: 'Whether the patient''s age (PA_IDADE) fits the procedure''s SIGTAP-allowed
+      range (IDADEMIN- IDADEMAX). Value meanings are given verbatim in the layout:
+      0 = idade nao exigida (age not required by the procedure), 1 = compativel (age
+      within range), 2 = fora da faixa (age outside range), 3 = idade inexistente (no
+      age recorded), 4 = idade em branco (age left blank).
+
+      '
+    codelists:
+    - FL_IDADE
+    - PA_FLIDADE
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_FLQT:
+    official_name: Indicador de erro de Quantidade Produzida
+    translated_name: Submitted-quantity error flag
+    description: 'Flag set by the processing pipeline when PA_QTDPRO failed a validation
+      check. No codelist is bound in this catalog build.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_FNTORC:
+    official_name: Fonte de Recursos
+    translated_name: Funding source code
+    description: 'Code for the public budget line (fonte de remuneração) that financed
+      this outpatient procedure, e.g. federal MAC block funding versus a municipality''s
+      own resources; drives how DATASUS aggregates spending, not clinical meaning.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: FONTEREM domain table bound to this field in the catalog
+  PA_FXETAR:
+    official_name: Faixa etária
+    translated_name: Age band
+    description: 'Age band on the aggregate production record. Banded rather than exact,
+      because PA carries no individual, and one band exists specifically for pregnant
+      women rather than for an age.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: FXETARIA.CNV
+    reasoning: 'Bound to FXETARIA, whose values include grupo gestantes alongside the
+      age ranges.
+
+      '
+  PA_GESTAO:
+    official_name: Codigo da UF+Municipio de Gestao
+    translated_name: Managing UF+municipality IBGE code
+    description: '7-char IBGE code of the managing authority (gestor), or UF0000 under
+      state management - the payer/regulator location, distinct from PA_UFMUN (place
+      of care) and PA_MUNPCN (patient residence).
+
+      '
+    codelists:
+    - BR_MUNICGESTOR
+    - MUNICBR
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_IDADE:
+    official_name: Idade do paciente em anos
+    translated_name: Patient's age in years
+    description: 'The patient''s age in years at the time of the procedure, as a plain
+      count - not a coded category, despite the catalog binding described below.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'SPURIOUS-BINDING: the catalog binds an ''IDADE'' codelist to this column,
+      but the layout describes it as a plain age-in-years count. This looks like the
+      same TabNet auto-derived-tabulation-axis pattern seen on the date columns, applied
+      here to a numeric column instead.
+
+      '
+  PA_INCOUT:
+    official_name: Incremento Outros
+    translated_name: Other-increment code
+    description: 'Code for a non-urgency payment increment/adjustment applied to the
+      procedure''s value; the layout gives only the field''s label, not the increment
+      schedule itself.
+
+      '
+    codelists:
+    - INCREMENTO
+    - PA_INCOUT
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_INCURG:
+    official_name: Incremento Urgencia
+    translated_name: Urgency-increment code
+    description: 'Code for an urgency-related payment increment/adjustment applied
+      to the procedure''s value, alongside PA_INCOUT.
+
+      '
+    codelists:
+    - INCREMENTO
+    - PA_INCURG
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_INDICA:
+    official_name: Indicativo de situacao da producao
+    translated_name: Approval-status indicator
+    description: 'Whether the claimed production on this row was approved: 0 = nao
+      aprovado (rejected), 5 = aprovado total (fully approved), 6 = aprovado parcial
+      (partially approved). Value meanings are given verbatim in the layout table.
+      Filtering to 5/6 is usually the right choice for "what actually happened" analyses;
+      including 0 mixes in rejected claims.
+
+      '
+    codelists:
+    - INDICA
+    - PA_INDICA
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_INE:
+    official_name: Código de Identificação Nacional de Equipes
+    translated_name: National team identification code
+    description: CNES code of the specific care team (e.g. an ESF or NASF team) that
+      carried out the action, used to attribute production to a team rather than just
+      an establishment.
+    code_system: external
+  PA_MNDIF:
+    official_name: Municipio de residencia diferente do estabelecimento
+    translated_name: Patient-vs-establishment municipality mismatch flag
+    description: 'Same derived cross-municipality flag as AP_MNDIF, on the production
+      file: 0 = mesmo municipio, 1 = municipio diferente, per the layout table.
+
+      '
+    codelists:
+    - INVASAO
+    - PA_MNDIF
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_MN_IND:
+    official_name: Estabelecimento Mantido / Individual
+    translated_name: Maintained-vs-individual establishment flag
+    description: 'Same maintained-vs-standalone establishment flag as AP_MN_IND, on
+      the production file.
+
+      '
+    codelists:
+    - MANT_IND
+    - PA_MN_IND
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_MORFOL:
+    official_name: Morfologia do tumor
+    translated_name: Tumour morphology
+    description: 'Tumour morphology on the CID-O morphology axis, which describes the
+      cell type where the CID-10 code describes the site.
+
+      '
+    code_system: external
+    codelist: cid_o
+    source: inferred
+    reasoning: C(6) code bound to S_CIDM, the morphology codelist.
+  PA_MOTSAI:
+    official_name: Motivo de saida
+    translated_name: Exit-reason code
+    description: 'Exit/continuation reason code on the production file, or zeros when
+      the row has none (e.g. non- APAC-originated rows) - same vocabulary as AP_MOTSAI.
+
+      '
+    codelists:
+    - MOTSAIPE
+    - PA_MOTSAI
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_MUNAT:
+    official_name: Município de Atendimento (inferido)
+    translated_name: Municipality of attendance
+    description: IBGE municipality code (UF+município, 6 digits) of where the patient
+      was attended — the pre-2008 PA file's equivalent of the modern PA_UFMUN.
+    code_system: external
+    source: inferred
+    source_ref: null
+    reasoning: MUN is the standard DATASUS abbreviation for município and AT for atendimento
+      (seen throughout this same document, e.g. PA_TPATEN, AP_TPATEN). The field is
+      declared CHAR(6), matching the UF+município IBGE code width used by every other
+      'where' field in this layout (PA_UFMUN, PA_MUNPCN, AP_MUNPCN). This field is
+      not covered by the current SIA/SUS layout document (Informe Técnico SIASUS, which
+      documents only the post-January-2008 unified layout); it belongs to an earlier
+      PA file generation, before PA_PROC_ID, PA_UFMUN and the other prefixed PA_ names
+      in the modern layout replaced it. No pre-2008 SIA layout PDF was found on the
+      crawled FTP tree or reachable DATASUS pages, so this is read from the field name
+      and the catalog's own evidence, not a written record layout.
+  PA_MUNPCN:
+    official_name: UF+Municipio de residencia do paciente
+    translated_name: Patient's home municipality IBGE code
+    description: '7-char IBGE UF+municipality code of the patient''s residence, or
+      of the establishment instead when the row''s source instrument does not identify
+      the patient (BPA-C-originated rows - check PA_DOCORIG). This same caveat is stated
+      directly in the layout document.
+
+      '
+    codelists:
+    - AC_MUNICIP
+    - '..._MUNICIP (per-UF IBGE municipality lists)'
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'Falls back to the establishment''s own municipality on BPA-C-originated
+      rows (PA_DOCORIG=''C''), which carry no patient identity - check PA_DOCORIG before
+      treating this as a true residence.
+
+      '
+  PA_MVM:
+    official_name: Data de Processamento / Movimento
+    translated_name: Processing (movimento) month
+    description: 'AAAAMM competence in which DATASUS processed this production-file
+      row - the same processing-vs- care-month distinction as AP_MVM/PA_CMP.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists
+      rather than a real vocabulary for this field.
+
+      '
+  PA_NAT_JUR:
+    official_name: Código da Natureza Jurídica
+    translated_name: Legal nature code
+    description: Legal-constitution category of the executing establishment, sourced
+      from CNES, which in turn takes it from Receita Federal's CNPJ registration (public
+      administration, business entity, non-profit, individual, or extraterritorial).
+    code_system: external
+    codelists:
+    - NATJUR
+    - NATJURC
+  PA_NH:
+    official_name: Nível de hierarquia
+    translated_name: Hierarchy level
+    description: 'The establishment''s hierarchy level — how complex the care it is
+      authorised to provide is. Used to separate primary from specialised production.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: NIV_HIER.CNV
+    reasoning: Bound to NIV_HIER, whose labels are nível de hierarquia da UPS values.
+  PA_NIVCPL:
+    official_name: Complexidade do Procedimento
+    translated_name: Procedure complexity level
+    description: 'Codes the procedure''s complexity tier (e.g. basic/medium/high complexity)
+      per SUS''s care- complexity classification.
+
+      '
+    codelists:
+    - COMPLEX
+    - PA_NIVCPL
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_NUMAPA:
+    official_name: Número da APAC (inferido)
+    translated_name: APAC number
+    description: APAC authorization number on the pre-2008 PA file — the same concept
+      the modern layout carries as PA_AUTORIZ/AP_AUTORIZ.
+    code_system: none
+    source: inferred
+    source_ref: null
+    reasoning: NUM is número and APA is the natural truncation of APAC within a 10-character
+      DBF field-name budget (PA_+NUMAPA = 9 characters). The field is catalogued at
+      widths of both 11 and 13 characters across the era; 13 exactly matches the documented
+      APAC numbering law 'UFAATsssssssd' (2+2+1+7+1=13) that this same document gives
+      for PA_AUTORIZ/AP_AUTORIZ. This field is not covered by the current SIA/SUS layout
+      document (Informe Técnico SIASUS, which documents only the post-January-2008
+      unified layout); it belongs to an earlier PA file generation, before PA_PROC_ID,
+      PA_UFMUN and the other prefixed PA_ names in the modern layout replaced it. No
+      pre-2008 SIA layout PDF was found on the crawled FTP tree or reachable DATASUS
+      pages, so this is read from the field name and the catalog's own evidence, not
+      a written record layout.
+  PA_OBITO:
+    official_name: Indicador de Obito (APAC)
+    translated_name: Death indicator
+    description: 'Same death flag as AP_OBITO, carried onto the production file for
+      APAC-originated rows.
+
+      '
+    codelists:
+    - OBITO
+    - PA_OBITO
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_PERMAN:
+    official_name: Indicador de Permanencia (APAC)
+    translated_name: Continuation indicator
+    description: 'Same still-in-treatment flag as AP_PERMAN, carried onto the production
+      file for APAC-originated rows.
+
+      '
+    codelists:
+    - PERMANEN
+    - PA_PERMAN
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_RACACOR:
+    official_name: Raca/Cor do paciente
+    translated_name: Patient's race/color
+    description: 'Same standard race/color categories as AP_RACACOR (01-Branca, 02-Preta,
+      03-Parda, 04-Amarela, 05-Indigena, 99-Sem informacao), on the production file.
+
+      '
+    codelists:
+    - RACA_COR
+    - PA_RACACOR
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_RCB:
+    official_name: Número do recibo
+    translated_name: Receipt number
+    description: 'Six-character receipt number assigned when this outpatient-production
+      (BPA) record was transmitted to the managing health authority for processing
+      — the protocol number a facility cites when tracking payment of a submitted batch.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'RCB is the standard DATASUS abbreviation for recibo; PA_RCB sits beside
+      PA_RCBDF, a one-character companion field, the same value-plus-check- digit pairing
+      DATASUS uses elsewhere (e.g. the APAC number itself, 12 digits plus 1 check digit).
+
+      '
+  PA_RCBDF:
+    official_name: Dígito verificador do recibo
+    translated_name: Receipt check digit
+    description: 'One-character check digit validating PA_RCB''s six-character receipt
+      number. Carries no information of its own beyond confirming PA_RCB was transcribed
+      correctly.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DF is DATASUS''s usual abbreviation for dígito (verificador); the field
+      is one character and sits immediately after PA_RCB, matching the number-plus-check-digit
+      pairing documented for the APAC number in the same file family.
+
+      '
+  PA_REGCT:
+    official_name: Codigo da Regra Contratual
+    translated_name: Contract-rule code
+    description: 'Code identifying the contractual rule under which the establishment''s
+      production is financed; the layout gives only the field''s label.
+
+      '
+    codelists:
+    - REGRA_C
+    - PA_REGCT
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_SEXO:
+    official_name: Sexo do paciente
+    translated_name: Patient sex
+    description: Sex of the patient the procedure was billed for, as recorded on the
+      PA outpatient-production line. Bound to the SEXO codelist (1=Masculino, 2=Feminino,
+      9=Ignorado in the DATASUS convention used across SIA/SIH).
+    code_system: internal
+    codelists:
+    - SEXO
+  PA_SRV_C:
+    official_name: Código do Serviço Especializado / Classificação CBO (de acordo com
+      o CNES)
+    translated_name: Specialised service / CBO classification code
+    description: Combined CNES service-and-classification code identifying the kind
+      of specialised service the establishment used to render the procedure (the CNES
+      'Serviço/Classificação' pair packed into one 6-character field).
+    code_system: external
+    notes: The layout document names this field PA_SRC_C (Código do SeRviço-Classificação),
+      but the catalogued file headers carry it as PA_SRV_C at the same width (6 chars)
+      and file coverage — almost certainly the same column under two spellings; DATASUS's
+      own documentation and its shipped files disagree on the name.
+  PA_SUBFIN:
+    official_name: Subtipo de Financiamento da produção
+    translated_name: Production financing subtype
+    description: 'Sub-category of PA_TPFIN: a finer-grained DATASUS code for which
+      federal budget line financed the procedure (e.g. a specific strategic-action
+      or incentive program within the broader financing type).'
+    code_system: internal
+    notes: No codelist is bound to this exact field name in the catalog; only the paired
+      PA_TPFIN carries one (FINANC/TP_FINAN). Read PA_SUBFIN together with PA_TPFIN.
+  PA_TIPATE:
+    official_name: Tipo de Atendimento (inferido)
+    translated_name: Attendance type
+    description: Type-of-attendance code on the pre-2008 PA file — the era's equivalent
+      of the modern AP_TPATEN/PA_CATEND attendance-type fields.
+    code_system: internal
+    source: inferred
+    source_ref: null
+    reasoning: TIP is tipo and ATE is the standard abbreviation for atendimento, used
+      throughout this same document (AP_TPATEN, PA_CATEND). Bound to GRUPO_AT ('grupo
+      atendimento'), GRUPOCOL and GRUP1199 — codelist names built around 'atendimento',
+      supporting this reading over a procedure- or provider-type one. This field is
+      not covered by the current SIA/SUS layout document (Informe Técnico SIASUS, which
+      documents only the post-January-2008 unified layout); it belongs to an earlier
+      PA file generation, before PA_PROC_ID, PA_UFMUN and the other prefixed PA_ names
+      in the modern layout replaced it. No pre-2008 SIA layout PDF was found on the
+      crawled FTP tree or reachable DATASUS pages, so this is read from the field name
+      and the catalog's own evidence, not a written record layout.
+  PA_TIPPRE:
+    official_name: Tipo de Prestador
+    translated_name: Provider-type code
+    description: 'Legal sphere/type of the executing provider on the production file,
+      same concept as AP_TIPPRE.
+
+      '
+    codelists:
+    - ESFERA
+    - ESFERA_C
+    - PUBLPRIV
+    - PUBPRCOL
+    - RETENCAO
+    - RETENC_C
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_TIPPRO:
+    official_name: Tipo de atendimento
+    translated_name: Attendance type
+    description: 'Whether the contact was urgent, a first consultation, a follow-up,
+      or a referred emergency. First and subsequent consultations behave very differently
+      in any productivity measure.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: TIPATEND.CNV
+    reasoning: 'Bound to TIPATEND, whose values are urgência/emergência, primeira consulta,
+      consulta subsequente and urgência com referência.
+
+      '
+  PA_TPFIN:
+    official_name: Tipo de Financiamento da produção
+    translated_name: Production financing type
+    description: DATASUS code for which SUS budget block paid for the procedure (e.g.
+      Atenção Básica, Média/Alta Complexidade, FAEC). Drives how spending is attributed
+      across financing ceilings, not a clinical attribute of the case.
+    code_system: internal
+    codelists:
+    - FINANC
+    - TP_FINAN
+  PA_TPUPS:
+    official_name: Tipo de Estabelecimento
+    translated_name: Establishment type
+    description: DATASUS classification of the kind of health facility that executed
+      the procedure (e.g. hospital, basic health unit, outpatient clinic), drawn from
+      the CNES establishment-type table.
+    code_system: internal
+    codelists:
+    - TP_ESTAB
+  PA_TRANSF:
+    official_name: Indicador de Transferência
+    translated_name: Transfer indicator
+    description: Flags whether the patient was transferred to another establishment
+      in connection with this procedure line.
+    code_system: internal
+    codelists:
+    - TRANSFER
+  PA_UFDIF:
+    official_name: Indica se a UF de residência do paciente é diferente da UF de localização
+      do estabelecimento
+    translated_name: Patient UF differs from facility UF
+    description: 0 if the patient's state of residence (PA_MUNPCN) matches the state
+      of the executing establishment (PA_UFMUN); 1 if they differ, i.e. the patient
+      crossed a state line for care.
+    code_system: internal
+  PA_UFMUN:
+    official_name: UF+Municipio do estabelecimento
+    translated_name: Establishment's municipality IBGE code
+    description: '7-char IBGE UF+municipality code of where the establishment is located,
+      on the production file - the place of care, not the patient''s residence (PA_MUNPCN).
+
+      '
+    codelists:
+    - AC_MUNICIP
+    - '..._MUNICIP (per-UF IBGE municipality lists)'
+    code_system: external
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_VALAPR:
+    official_name: Valor Aprovado do procedimento
+    translated_name: Approved value (BRL)
+    description: 'Monetary value actually approved for this procedure line, in reais
+      - the production-file analogue of PA_QTDAPR for money rather than quantity.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+  PA_VALPRO:
+    official_name: Valor Produzido (APRESENTADO)
+    translated_name: Submitted value (BRL)
+    description: 'Monetary value as originally submitted/claimed for this procedure
+      line, before auditing - see PA_VALAPR for the approved value.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
+    notes: 'Pre-audit submitted value; PA_VALAPR is usually the right column for spend
+      actually paid.
+
+      '
+  PA_VL_CF:
+    official_name: Valor do Complemento Federal
+    translated_name: Federal supplement value
+    description: Extra amount the federal government added on top of the SIGTAP table
+      price for this procedure line, in reais.
+    code_system: none
+  PA_VL_CL:
+    official_name: Valor do Complemento Local
+    translated_name: Local supplement value
+    description: Extra amount the state or municipal manager added on top of the SIGTAP
+      table price for this procedure line, in reais.
+    code_system: none
+  PA_VL_INC:
+    official_name: Valor do Incremento
+    translated_name: Increment value
+    description: Additional incentive/increment amount paid on top of the base procedure
+      value, in reais (distinct from PA_VL_CF and PA_VL_CL, which are the federal and
+      local complements).
+    code_system: none

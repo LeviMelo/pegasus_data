@@ -288,10 +288,24 @@ _NOT_CURATION = frozenset({"ontology.yml"})
 
 
 def iter_curation_files(root: Path) -> Iterator[Path]:
-    for pattern in ("variables/*.yml", "variables/*.yaml", "*.yml", "*.yaml"):
+    """Every curation file, variables first.
+
+    ``variables/`` is organised one folder per system and one file per dataset
+    (``variables/sinan/botu.yml``), so the walk has to recurse. It used to glob
+    one level, which was right when the folder was 128 flat files and would
+    silently have loaded nothing once they moved.
+    """
+    seen: set[Path] = set()
+    for pattern in (
+        "variables/**/*.yml", "variables/**/*.yaml",
+        "datasets/**/*.yml", "datasets/**/*.yaml",
+        "*.yml", "*.yaml",
+    ):
         for path in sorted(root.glob(pattern)):
-            if path.name not in _NOT_CURATION:
-                yield path
+            if path.name in _NOT_CURATION or path in seen:
+                continue
+            seen.add(path)
+            yield path
 
 
 # -------------------------------------------------------------------- loading

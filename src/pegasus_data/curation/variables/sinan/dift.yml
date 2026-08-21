@@ -1,0 +1,408 @@
+# SINAN.DIFT —
+#
+# one notification of diphtheria
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANT_DOS_N:
+    official_name: Número de doses da vacina
+    translated_name: Vaccine doses received
+    description: 'Doses of diphtheria vaccine received, banded from one through three
+      plus two boosters, or never vaccinated. Diphtheria in a fully vaccinated person
+      is rare enough to question the diagnosis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: DOSES.CNV
+    reasoning: 'Bound to DOSES, whose values are uma, duas, três, três mais reforço,
+      três mais dois reforços and nunca vacinado.
+
+      '
+  ANT_OUTROS:
+    official_name: Antecedente outro (especificar)
+    translated_name: Other antecedent (specify)
+    description: 'Free-text field for the antecedent named when ANT_OUTR is marked.
+      One of several parallel "other, specify" text fields in the same antecedents
+      block (see also ANT_OUTR_D, ANT_OUT_D, ANT_OU_DES); which exact sub-question
+      each answers is not resolved from available evidence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '30-character width fits free text; the near-duplicate naming (ANT_OUTROS/ANT_OUTR_D/ANT_OUT_D/ANT_OU_DES)
+      matches SINAN''s pattern of one specify-field per antecedent sub-category.
+
+      '
+  ANT_TIPOCO:
+    official_name: Local do contato
+    translated_name: Place of contact
+    description: 'Where contact with a case occurred — home, neighbourhood, work, school,
+      health facility, or elsewhere. Diphtheria spreads in crowded settings, so the
+      place directs the contact tracing.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LOCALCONCNET.CNV
+    reasoning: 'Bound to LOCALCONCNET, whose values run from domicílio through sem
+      história de contato.
+
+      '
+  ANT_ULTI_D:
+    official_name: Data da última dose
+    translated_name: Date of last dose
+    description: 'Date of the last dose. Diphtheria immunity wanes, so a distant last
+      dose leaves an adult susceptible despite a complete childhood schedule.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date following the dose count.
+  ATE_UF_INT:
+    official_name: Atendimento - UF de internação
+    translated_name: Encounter - admission state
+    description: 'UF (state) code of the facility where the patient was admitted (internado);
+      see ATE_UF_HOS for the state of the initial encounter.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as ATE_UF_HOS.
+  CLI_AMIGDA:
+    official_name: Placas nas amígdalas
+    translated_name: Membrane on the tonsils
+    description: 'Pseudomembrane on the tonsils. The defining lesion of diphtheria,
+      and the CLI_ site flags map how far it has spread.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; AMIGDA reads amígdalas.
+  CLI_ARRITM:
+    official_name: Arritmia cardíaca
+    translated_name: Cardiac arrhythmia
+    description: 'Arrhythmia from diphtheritic myocarditis, which appears one to two
+      weeks in and is the commonest cause of death.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; ARRITM reads arritmia.
+  CLI_CAVIDA:
+    official_name: Placas na cavidade nasal
+    translated_name: Membrane in the nasal cavity
+    description: 'Pseudomembrane in the nose. Nasal diphtheria is milder and often
+      missed, which makes it an efficient source of transmission.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CAVIDA reads cavidade nasal.
+  CLI_CONDUT:
+    official_name: Placas no conduto auditivo
+    translated_name: Membrane in the ear canal
+    description: Pseudomembrane in the ear canal, an uncommon site.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CONDUT reads conduto auditivo.
+  CLI_CONJUN:
+    official_name: Lesão conjuntival
+    translated_name: Conjunctival lesion
+    description: Diphtheritic lesion of the conjunctiva.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CONJUN reads conjuntival.
+  CLI_CORDAO:
+    official_name: Adenomegalia cervical
+    translated_name: Cervical lymph node enlargement
+    description: Enlarged neck lymph nodes, the finding underlying the bull-neck appearance.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CORDAO reads cordão ganglionar.
+  CLI_EDEMAG:
+    official_name: Edema generalizado
+    translated_name: Generalised swelling
+    description: Generalised oedema, beyond the cervical swelling in CLI_PESCOC.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; EDEMAG reads edema generalizado.
+  CLI_FARING:
+    official_name: Placas na faringe
+    translated_name: Membrane on the pharynx
+    description: Pseudomembrane on the pharynx, one step wider than the tonsils.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; FARING reads faringe.
+  CLI_LARING:
+    official_name: Placas na laringe
+    translated_name: Membrane on the larynx
+    description: 'Pseudomembrane on the larynx. The dangerous extension, because a
+      membrane here obstructs the airway.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; LARING reads laringe.
+  CLI_NEFRIT:
+    official_name: Nefrite
+    translated_name: Nephritis
+    description: 'Kidney inflammation from the toxin. One of the three classic late
+      toxic complications, with myocarditis and the paralyses.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; NEFRIT reads nefrite.
+  CLI_ORGAOS:
+    official_name: Lesão em outros órgãos
+    translated_name: Lesion in other organs
+    description: Diphtheritic lesion at a site the named flags do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual site item of the lesion block.
+  CLI_PALATO:
+    official_name: Placas no palato
+    translated_name: Membrane on the palate
+    description: Pseudomembrane on the palate.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PALATO reads palato.
+  CLI_PALIDE:
+    official_name: Palidez
+    translated_name: Pallor
+    description: Pallor, part of the toxaemic picture.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PALIDE reads palidez.
+  CLI_PARALB:
+    official_name: Paralisia do palato mole
+    translated_name: Palatal paralysis
+    description: 'Paralysis of the soft palate. Typically the first of the diphtheritic
+      neuropathies, causing a nasal voice and regurgitation.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: 'A yes/no flag; one of three CLI_PARAL items covering the toxic neuropathies
+      at different sites.
+
+      '
+  CLI_PARALM:
+    official_name: Paralisia de músculos respiratórios
+    translated_name: Respiratory muscle paralysis
+    description: 'Paralysis of the respiratory muscles. The late complication that
+      kills after the throat has healed, and the reason recovery is watched for weeks.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; the respiratory member of the CLI_PARAL group.
+  CLI_PARALP:
+    official_name: Paralisia periférica
+    translated_name: Peripheral paralysis
+    description: 'Peripheral paralysis, appearing weeks after the acute illness as
+      the toxin damages peripheral nerves.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; the peripheral member of the CLI_PARAL group.
+  CLI_PELE:
+    official_name: Lesão cutânea
+    translated_name: Skin lesion
+    description: 'Cutaneous diphtheria. Common in poor and crowded conditions, and
+      a persistent reservoir even where respiratory disease has been controlled.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PELE reads pele.
+  CLI_PESCOC:
+    official_name: Edema cervical
+    translated_name: Neck swelling
+    description: 'Swelling of the neck — the "bull neck" of severe diphtheria, caused
+      by massive lymph node enlargement and a marker of a large toxin burden.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PESCOC reads pescoço.
+  CLI_PROSTR:
+    official_name: Prostração
+    translated_name: Prostration
+    description: 'Marked prostration. Out of proportion to the local findings, because
+      the illness is driven by circulating toxin rather than by the throat lesion.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PROSTR reads prostração.
+  CLI_TEMPER:
+    official_name: Temperatura
+    translated_name: Temperature
+    description: 'Body temperature. Diphtheria characteristically causes only modest
+      fever despite a severe throat, which is itself a diagnostic clue.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(3) numeric temperature in the clinical block.
+  CLI_TRAQUE:
+    official_name: Placas na traqueia
+    translated_name: Membrane in the trachea
+    description: 'Pseudomembrane in the trachea, the furthest extension down the airway
+      and the point at which a tracheostomy may be needed.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; TRAQUE reads traqueia.
+  LAB_CULTUR:
+    official_name: Resultado da cultura
+    translated_name: Culture result
+    description: 'Whether the culture grew Corynebacterium diphtheriae. Confirmation,
+      but a negative culture does not discard a clinically typical case.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: POSNEGDI.CNV
+    reasoning: 'Bound to POSNEGDI, whose values name positive and negative for C. diphtheriae.
+
+      '
+  LAB_DATA_C:
+    official_name: Data da coleta
+    translated_name: Date specimen collected
+    description: 'When the swab was taken. Culture yield collapses once antibiotics
+      start, so a swab taken after treatment cannot exclude the diagnosis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the laboratory block.
+  LAB_MATE_N:
+    official_name: Material coletado
+    translated_name: Specimen collected
+    description: 'Whether the swab was from the oropharynx, the nasopharynx, both,
+      or was not taken. Both sites raise the yield, so this bounds what a negative
+      culture means.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MAT_COLE.CNV
+    reasoning: 'Bound to MAT_COLE, whose values are orofaringe, nasofaringe, both,
+      and não coletado.
+
+      '
+  LAB_PROVAS:
+    official_name: Prova de toxigenicidade
+    translated_name: Toxigenicity test
+    description: 'Whether the isolate produces toxin. A non-toxigenic strain causes
+      a sore throat and not diphtheria, so this distinguishes carriage from disease.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: POSNEGNR.CNV
+    reasoning: Bound to POSNEGNR, positive/negative/not done.
+  MED_MATERI:
+    official_name: Coleta de material (swab)
+    translated_name: Specimen (swab) collection flag
+    description: 'Whether a nasopharyngeal/oropharyngeal swab was collected for culture
+      in a diphtheria investigation, the specimen diagnosis for Corynebacterium diphtheriae
+      depends on.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1, consistent with Sim/Não)
+      and DIFT series membership. Diphtheria confirmation is culture-based, so a swab-collection
+      flag is a standard companion to the culture-result field; "MATERI" reads as a
+      truncation of "material" (the collected specimen), paralleling how other SINAN
+      forms name their specimen-collected flags (e.g. ID_SANGUE, ID_URINA).
+
+      '
+  MED_PREVEN:
+    official_name: Medicação preventiva (contatos)
+    translated_name: Preventive medication given to contacts
+    description: 'Whether antibiotic chemoprophylaxis was given to a diphtheria case''s
+      close contacts, paired with MED_QUAN_P for how many contacts received it.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and DIFT series membership.
+      Contact chemoprophylaxis is a standard control measure recorded on SINAN''s diphtheria
+      and meningitis forms alike (see the confirmed MED_QUIMIO on the Meningite form
+      for the same concept under a different field name).
+
+      '
+  MED_QUAN_M:
+    official_name: Quantidade de comunicantes
+    translated_name: Contacts identified
+    description: 'How many contacts were identified for investigation. Diphtheria control
+      is contact tracing, culture and prophylaxis, so this measures the response.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(3) tally of comunicantes in the measures block.
+  MED_QUAN_P:
+    official_name: Quantidade de pessoas (medicação preventiva)
+    translated_name: Number of contacts given preventive medication
+    description: 'Count of contacts who received chemoprophylaxis, companion numeric
+      field to the MED_PREVEN flag.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared as N3 (three-digit numeric) with DIFT series membership, matching
+      a headcount rather than a coded flag; "QUAN_P" reads as "quantidade de pessoas",
+      the natural pairing to a Sim/Não prophylaxis flag.
+
+      '
+  TRA_DATA_A:
+    official_name: Data do início do antibiótico
+    translated_name: Date antibiotic started
+    description: 'When antibiotics began. They stop transmission and halt further toxin
+      production, but do nothing about toxin already circulating, which is why antitoxin
+      is given as well.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the antibiotic counterpart of TRA_DATA_S.
+  TRA_DATA_S:
+    official_name: Data da soroterapia
+    translated_name: Date antitoxin given
+    description: 'When diphtheria antitoxin was given. Antitoxin only neutralises toxin
+      not yet bound to tissue, so every hour of delay costs effect — the single most
+      time-critical treatment on this form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; TRA_DATA_S is the soroterapia date.

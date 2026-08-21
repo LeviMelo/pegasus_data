@@ -1,0 +1,1089 @@
+# SISCAN.CC — Cervical cytology
+# Citopatológico do Colo do Útero
+#
+# One cervical cytology (Pap) exam and its result.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+  ALTERADO:
+    official_name: Resultado alterado
+    translated_name: Result abnormal
+    description: 'Whether the exam was abnormal overall. A summary of the specific
+      findings rather than an extra one, so counting it alongside them double-counts.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ALTERADO is the summary abnormality flag; C(8), values unobserved.
+  AMOSREJALH:
+    official_name: Amostra rejeitada por identificação alheia
+    translated_name: Rejected, identification mismatched
+    description: 'Sample rejected because the identification on the slide did not match
+      the form. Distinct from AMOSREJAUS, where identification was missing rather than
+      wrong.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ALH reads alheia, in the rejection-reason block; C(8), values unobserved.
+  AMOSREJAUS:
+    official_name: Amostra rejeitada por ausência de identificação
+    translated_name: Rejected, unidentified
+    description: 'Sample rejected because it or its form was not identified. The AMOSREJ_
+      items give the reason behind a rejection in CO_ADEQ_MA, and they are failures
+      of process rather than of the specimen.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AMOSREJ reads amostra rejeitada and AUS ausência de identificação;
+      C(8) with no observed values, so the encoding is unknown.
+
+      '
+  AMOSREJDAN:
+    official_name: Amostra rejeitada por lâmina danificada
+    translated_name: Rejected, slide damaged
+    description: 'Sample rejected because the slide arrived broken or damaged. A transport
+      failure, and the reason most reducible by better packaging.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DAN reads danificada, in the rejection-reason block; C(8), values unobserved.
+  AMOSREJOUT:
+    official_name: Amostra rejeitada por outro motivo
+    translated_name: Rejected, other reason
+    description: Any rejection reason the named items do not cover.
+    code_system: none
+    source: inferred
+    reasoning: The OUT residual item closing the rejection-reason block.
+  CARCINO:
+    official_name: Carcinoma epidermoide invasor
+    translated_name: Invasive squamous carcinoma
+    description: 'Invasive squamous carcinoma on cytology. Not a screening result but
+      a cancer found by screening, and the point at which the pathway stops being preventive.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CARCINO reads carcinoma, the invasive category; C(8), values unobserved.
+  CBEMATROF:
+    official_name: Alterações celulares benignas, atrofia com inflamação
+    translated_name: Benign change, atrophy with inflammation
+    description: 'Atrophic change with inflammation, typical after the menopause. Atrophy
+      makes cells look abnormal and is a recognised source of false positives, so reporting
+      it explains an otherwise worrying smear.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ATROF reads atrofia, a Bethesda reactive category; C(8), values unobserved.
+  CBEMINFLA:
+    official_name: Alterações celulares benignas, inflamação
+    translated_name: Benign change, inflammation
+    description: 'Inflammatory change. The CBEM_ block records benign reactive findings
+      — not neoplastic, not a reason to refer, and by far the commonest thing a Pap
+      smear reports.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CBEM reads células benignas and INFLA inflamação; one of the Bethesda
+      reactive categories. C(8), values unobserved.
+
+      '
+  CBEMMETAS:
+    official_name: Alterações celulares benignas, metaplasia escamosa imatura
+    translated_name: Benign change, immature squamous metaplasia
+    description: 'Immature squamous metaplasia — normal repair of the transformation
+      zone. Benign, but it can mimic atypia, which is why it is reported explicitly.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: METAS reads metaplasia, a Bethesda reactive category; C(8), values unobserved.
+  CBEMOUT:
+    official_name: Outras alterações celulares benignas
+    translated_name: Benign change, other
+    description: Any benign reactive change the named items do not cover.
+    code_system: none
+    source: inferred
+    reasoning: The OUT residual item closing the benign-changes block.
+  CBEMRADI:
+    official_name: Alterações celulares benignas, radiação
+    translated_name: Benign change, radiation effect
+    description: 'Cellular change caused by radiotherapy. Appears in women already
+      treated for cervical cancer, and is benign despite looking dramatic.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: RADI reads radiação, a Bethesda reactive category; C(8), values unobserved.
+  CBEMREPAR:
+    official_name: Alterações celulares benignas, reparação
+    translated_name: Benign change, repair
+    description: Reparative change following injury or inflammation.
+    code_system: none
+    source: inferred
+    reasoning: REPAR reads reparação, a Bethesda reactive category; C(8), values unobserved.
+  CMICACTI:
+    official_name: Microbiologia, Actinomyces
+    translated_name: Actinomyces seen
+    description: 'Actinomyces, associated with intrauterine devices. Reported because
+      it changes contraceptive management, not because it bears on cancer.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ACTI is Actinomyces, an organism item; C(8), values unobserved.
+  CMICBACI:
+    official_name: Microbiologia, bacilos supracitoplasmáticos
+    translated_name: Supracytoplasmic bacilli seen
+    description: 'Bacilli lying over the cell cytoplasm — the clue cells of bacterial
+      vaginosis, distinct from the ordinary bacilli of normal flora.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BACI reads bacilos, an organism item; C(8), values unobserved.
+  CMICCAND:
+    official_name: Microbiologia, Candida
+    translated_name: Candida seen
+    description: Candida species, a treatable cause of symptoms rather than a cancer
+      risk.
+    code_system: none
+    source: inferred
+    reasoning: CAND is Candida, an organism item; C(8), values unobserved.
+  CMICCHLA:
+    official_name: Microbiologia, Chlamydia
+    translated_name: Chlamydia seen
+    description: Chlamydia, again inferred from cell appearance rather than confirmed
+      by testing.
+    code_system: none
+    source: inferred
+    reasoning: CHLA is Chlamydia, an organism item; C(8), values unobserved.
+  CMICCOCO:
+    official_name: Microbiologia, cocos
+    translated_name: Cocci seen
+    description: Cocci, indicating a shift away from the normal lactobacillary flora.
+    code_system: none
+    source: inferred
+    reasoning: COCO reads cocos, an organism item; C(8), values unobserved.
+  CMICGARD:
+    official_name: Microbiologia, Gardnerella
+    translated_name: Gardnerella seen
+    description: Gardnerella vaginalis, reported alongside the supracytoplasmic bacilli
+      of vaginosis.
+    code_system: none
+    source: inferred
+    reasoning: GARD is Gardnerella, an organism item; C(8), values unobserved.
+  CMICHERP:
+    official_name: Microbiologia, efeito citopático do herpes
+    translated_name: Herpes cytopathic effect seen
+    description: 'The cytopathic effect of herpes simplex. A morphological inference
+      from the cells, not a virological test.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: HERP is herpes, an organism item; C(8), values unobserved.
+  CMICLACT:
+    official_name: Microbiologia, lactobacilos
+    translated_name: Lactobacilli seen
+    description: 'Lactobacilli, the normal vaginal flora. The CMIC_ block reports what
+      organisms the smear showed; this one is the finding that means normal.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CMIC reads citologia microbiologia and LACT lactobacilos; one of the
+      Bethesda organism categories. C(8), values unobserved.
+
+      '
+  CMICOUT:
+    official_name: Outros achados microbiológicos
+    translated_name: Other organism seen
+    description: Any organism the named items do not cover.
+    code_system: none
+    source: inferred
+    reasoning: The OUT residual item closing the microbiology block.
+  CMICTRICO:
+    official_name: Microbiologia, Trichomonas vaginalis
+    translated_name: Trichomonas seen
+    description: 'Trichomonas vaginalis. A sexually transmitted infection, so its presence
+      is a reason to offer wider testing rather than only to treat.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TRICO is Trichomonas, an organism item; C(8), values unobserved.
+  CO_ADEQ_MA:
+    official_name: Adequabilidade do material
+    translated_name: Specimen adequacy
+    description: 'Whether the smear was satisfactory, unsatisfactory, or rejected outright.
+      The first question asked of any cytology: an unsatisfactory slide has no result
+      at all and the woman must be recalled, so this field is the denominator problem
+      for every screening indicator.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ADEQMAT.CNV
+    reasoning: 'Bound to ADEQMAT, whose values are rejeitada, satisfatória and insatisfatória.
+
+      '
+  CO_AMOSTRA:
+    official_name: Adequabilidade da amostra
+    translated_name: Sample adequacy
+    description: 'Whether the collected material was adequate to report on. An inadequate
+      sample means the woman must be recalled, so this is the first thing a cytology
+      report settles.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'AMOSTRA is the sample; C(1) admits the small enumerated set the Brazilian
+      nomenclature defines for adequacy.
+
+      '
+  CO_ANM_PRE:
+    official_name: Exame citopatológico anterior alterado
+    translated_name: Previous cytology abnormal
+    description: 'Whether a previous smear was abnormal. Sets the context for the current
+      result: a second abnormal smear means something different from a first.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CITOANT.CNV
+    reasoning: 'Bound to CITOANT, whose values are sim, não, não sabe and sem informação
+      na ficha.
+
+      '
+  CO_ATI_ESC:
+    official_name: Atipias em células escamosas
+    translated_name: Atypical squamous cells
+    description: 'Squamous atypia of undetermined significance, split into ASC-US (possibly
+      non-neoplastic) and ASC-H (cannot exclude a high-grade lesion). The distinction
+      decides between repeat screening and immediate colposcopy.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATIPINDESC.CNV
+    reasoning: 'Bound to ATIPINDESC, whose values are the Bethesda ASC-US and ASC-H
+      categories.
+
+      '
+  CO_ATI_GLA:
+    official_name: Atipias em células glandulares
+    translated_name: Atypical glandular cells
+    description: 'Glandular atypia, again split by whether a high-grade lesion can
+      be excluded. Rarer than squamous atypia and carries a higher risk of underlying
+      disease, so it is referred more readily.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATIPINDGLA.CNV
+    reasoning: Bound to ATIPINDGLA, the glandular counterpart of ATIPINDESC.
+  CO_ATI_IND:
+    official_name: Atipias de origem indefinida
+    translated_name: Atypical cells of undefined origin
+    description: 'Atypia where the cell of origin could not be determined — neither
+      clearly squamous nor clearly glandular.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATIPINDIND.CNV
+    reasoning: Bound to ATIPINDIND, the indefinite-origin counterpart.
+  CO_BEN_ATR:
+    official_name: Alteração benigna — atrofia
+    translated_name: 'Benign change: atrophy'
+    description: 'Atrophy recorded as a benign reactive change. Common after the menopause
+      and not a lesion, but it makes a smear harder to read.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'BEN is the benign-changes block and ATR atrofia; C(1) flag, matching
+      its INF, RAD and REP siblings.
+
+      '
+  CO_BEN_INF:
+    official_name: Alteração benigna — inflamação
+    translated_name: 'Benign change: inflammation'
+    description: 'Inflammation recorded as a benign reactive change — by far the commonest
+      finding on a cervical smear and not in itself a reason to treat.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: INF is inflamação in the BEN block; C(1) flag.
+  CO_BEN_OUT:
+    official_name: Alteração benigna — outras
+    translated_name: 'Benign change: other'
+    description: 'A benign change the block''s named categories do not cover. The catch-all
+      that closes the enumeration.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'OUT is outras, and an OUT/OUTRO suffix is how DATASUS closes an enumerated
+      checklist throughout; C(1) flag.
+
+      '
+  CO_BEN_RAD:
+    official_name: Alteração benigna — radiação
+    translated_name: 'Benign change: radiation effect'
+    description: 'Cell changes attributable to previous radiotherapy. Recorded so they
+      are not mistaken for dysplasia, which they can resemble.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: RAD is radiação in the BEN block; C(1) flag.
+  CO_BEN_REP:
+    official_name: Alteração benigna — reparação
+    translated_name: 'Benign change: repair'
+    description: 'Reparative change, the appearance of epithelium healing after injury.
+      Benign, and another pattern that can be over-read as a lesion.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: REP is reparação in the BEN block; C(1) flag.
+  CO_CEL_ESC:
+    official_name: Células escamosas
+    translated_name: Squamous cells present
+    description: 'Whether squamous epithelial cells were present in the sample. Their
+      presence, with the endocervical cells, is what makes a smear representative of
+      the transformation zone.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: CEL ESC is células escamosas; C(1) flag.
+  CO_CEL_GLA:
+    official_name: Atipias em células glandulares, neoplasia
+    translated_name: Glandular neoplasia
+    description: 'Glandular neoplasia proper: adenocarcinoma in situ, or invasive adenocarcinoma
+      reported as cervical, endometrial or unspecified. A diagnosis on the cytology
+      rather than a referral category.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ATICELGLAN.CNV
+    reasoning: 'Bound to ATICELGLAN, whose values are adenocarcinoma in situ and the
+      invasive adenocarcinoma sites.
+
+      '
+  CO_EPI_MET:
+    official_name: Epitélio metaplásico na amostra
+    translated_name: Metaplastic epithelium present
+    description: 'Whether metaplastic or glandular epithelium was present. Its presence
+      shows the smear sampled the transformation zone, where cervical cancer arises
+      — a smear without it may be satisfactory and still have missed the target.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'EPI_MET reads epitélio metaplásico, an adequacy item; C(8), values
+      unobserved.
+
+      '
+  CO_INSA_AC:
+    official_name: Insatisf.Mat.Acelul
+    translated_name: Unsatisfactory - acellular/hypocellular material
+    description: 'Flags a cervical cytology (Pap smear) sample rejected as unsatisfactory
+      because it is acellular or hypocellular: too few epithelial cells present to
+      allow reliable microscopic evaluation.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CO_INSA_AC "Insatisf.Mat.Acelul".
+
+      '
+  CO_INSA_AR:
+    official_name: Insatisf.dessecam.
+    translated_name: Unsatisfactory - drying artifact
+    description: 'Flags a cervical cytology sample rejected as unsatisfactory because
+      drying artifact (dessecamento) before fixation distorted the cells over most
+      of the slide, making them unreadable.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CO_INSA_AR "Insatisf.dessecam.".
+
+      '
+  CO_INSA_CO:
+    official_name: Insatisf.cont.ext.
+    translated_name: Unsatisfactory - external contaminants
+    description: 'Flags a cervical cytology sample rejected as unsatisfactory because
+      external contaminants (lubricant, foreign material) cover most of the smear and
+      obscure the cells.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CO_INSA_CO "Insatisf.cont.ext.".
+
+      '
+  CO_INSA_OU:
+    official_name: Insatisf.outras
+    translated_name: Unsatisfactory - other reason
+    description: 'Flags a cervical cytology sample rejected as unsatisfactory for a
+      reason other than the specific ones listed elsewhere (blood, drying, pus cells,
+      contaminants, cell overlap, acellularity).
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CO_INSA_OU "Insatisf.outras".
+
+      '
+  CO_INSA_PI:
+    official_name: Insatisf.pres.pióc.
+    translated_name: Unsatisfactory - pus cells present
+    description: 'Flags a cervical cytology sample rejected as unsatisfactory because
+      pus cells (piócitos) from inflammation cover most of the smear, obscuring the
+      epithelial cells needed for reading.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CO_INSA_PI "Insatisf.pres.pióc.".
+
+      '
+  CO_INSA_SA:
+    official_name: Insatisf.pres.sang.
+    translated_name: Unsatisfactory - blood present
+    description: 'Flags a cervical cytology sample rejected as unsatisfactory because
+      blood covers most of the smear, obscuring the epithelial cells needed for reading.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CO_INSA_SA "Insatisf.pres.sang.".
+
+      '
+  CO_INSA_SU:
+    official_name: Insatisf.superp.cel
+    translated_name: Unsatisfactory - cell overlap
+    description: 'Flags a cervical cytology sample rejected as unsatisfactory because
+      intense cell superposition (thick, overlapping layers of cells) prevents individual
+      cells from being evaluated.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CO_INSA_SU "Insatisf.superp.cel".
+
+      '
+  CO_MIC_ACT:
+    official_name: Mic.actinomyces sp
+    translated_name: Microbiology - Actinomyces sp.
+    description: 'Marks that the cervical Pap smear''s microbiology assessment found
+      organisms morphologically consistent with Actinomyces sp., a bacterium linked
+      to IUD use and pelvic infection.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'CColo4.def has no entry for CO_MIC_ACT, but its microbiology block
+      lists CMICACTI = "Mic.actinomyces sp" at the position matching this field''s
+      ACT suffix; DATASUS''s CO_/CD_ = codigo naming grammar and the shared 3-letter
+      organism abbreviations across the CO_MIC_* set support the link.
+
+      '
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CMICACTI "Mic.actinomyces sp".
+
+      '
+  CO_MIC_BAC:
+    official_name: Mic.outros bacilos
+    translated_name: Microbiology - other bacilli
+    description: 'Marks that the cervical Pap smear''s microbiology assessment found
+      bacilli of a type not covered by the other named organisms (not Lactobacillus,
+      not the Gardnerella/Mobiluncus-suggestive morphotype).
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Matched via CColo4.def''s CMICBACI = "Mic.outros bacilos", the same
+      naming correspondence used for the other CO_MIC_* organism flags.
+
+      '
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CMICBACI "Mic.outros bacilos".
+
+      '
+  CO_MIC_CAN:
+    official_name: Mic.CANDIDA sp
+    translated_name: Microbiology - Candida sp.
+    description: 'Marks that the cervical Pap smear''s microbiology assessment found
+      Candida sp., the yeast that causes vaginal candidiasis, on the sample.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Matched via CColo4.def''s CMICCAND = "Mic.CANDIDA sp", the same naming
+      correspondence used for the other CO_MIC_* organism flags.
+
+      '
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CMICCAND "Mic.CANDIDA sp".
+
+      '
+  CO_MIC_CHL:
+    official_name: Mic.sug.chlamydia
+    translated_name: Microbiology - suggestive of Chlamydia
+    description: 'Marks that the cervical Pap smear''s microbiology assessment found
+      cell changes suggestive of Chlamydia sp. infection, a presumptive cytology finding
+      rather than a confirmed lab diagnosis.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Matched via CColo4.def''s CMICCHLA = "Mic.sug.chlamydia", the same
+      naming correspondence used for the other CO_MIC_* organism flags.
+
+      '
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CMICCHLA "Mic.sug.chlamydia".
+
+      '
+  CO_MIC_COC:
+    official_name: Mic.cocos
+    translated_name: Microbiology - cocci
+    description: 'Marks that the cervical Pap smear''s microbiology assessment found
+      coccus-shaped bacteria on the sample, a nonspecific flora finding.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Matched via CColo4.def''s CMICCOCO = "Mic.cocos", the same naming correspondence
+      used for the other CO_MIC_* organism flags.
+
+      '
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CMICCOCO "Mic.cocos".
+
+      '
+  CO_MIC_GAR:
+    official_name: Mic.bacil supracit.
+    translated_name: Microbiology - bacilli suggestive of Gardnerella/Mobiluncus
+    description: 'Marks that the cervical Pap smear''s microbiology assessment found
+      the bacterial morphotype associated with bacterial vaginosis (Gardnerella vaginalis
+      / Mobiluncus sp.).
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Matched via CColo4.def''s CMICGARD = "Mic.bacil supracit." (bacilos
+      supracitados, i.e. suggestive of Gardnerella/Mobiluncus), the same naming correspondence
+      used for the other CO_MIC_* organism flags.
+
+      '
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CMICGARD "Mic.bacil supracit.".
+
+      '
+  CO_MIC_HER:
+    official_name: Mic.vir gr.herpes
+    translated_name: Microbiology - Herpes-group viral effect
+    description: 'Marks that the cervical Pap smear''s microbiology assessment found
+      a cytopathic effect (cell changes) compatible with infection by a virus of the
+      Herpes group.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Matched via CColo4.def''s CMICHERP = "Mic.vir gr.herpes", the same
+      naming correspondence used for the other CO_MIC_* organism flags.
+
+      '
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CMICHERP "Mic.vir gr.herpes".
+
+      '
+  CO_MIC_LAC:
+    official_name: Mic.lactobacillus
+    translated_name: Microbiology - Lactobacillus sp.
+    description: 'Marks that the cervical Pap smear''s microbiology assessment found
+      Lactobacillus sp., the normal, protective vaginal flora bacterium.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Matched via CColo4.def''s CMICLACT = "Mic.lactobacillus", the same
+      naming correspondence used for the other CO_MIC_* organism flags.
+
+      '
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CMICLACT "Mic.lactobacillus".
+
+      '
+  CO_MIC_OUT:
+    official_name: Mic.outros
+    translated_name: Microbiology - other organism
+    description: 'Marks that the cervical Pap smear''s microbiology assessment found
+      an organism or flora finding not covered by any of the other named categories
+      (Lactobacillus, cocci, Candida, Chlamydia, herpes, etc.).
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Matched via CColo4.def''s CMICOUT = "Mic.outros", the same naming correspondence
+      used for the other CO_MIC_* organism flags.
+
+      '
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      -> CColo4.def, campo CMICOUT "Mic.outros".
+
+      '
+  CO_MIC_TRI:
+    official_name: Codigo de microrganismo - Trichomonas vaginalis
+    translated_name: Trichomonas vaginalis flag (cervical cytology)
+    description: 'Whether the Papanicolaou smear''s MICROBIOLOGIA block reported Trichomonas
+      vaginalis. The result form lists it as one of eight organism/finding checkboxes
+      a cytotechnician can mark; declared C(1,0), so this is a single-character presence
+      flag, not a count or an organism-load measure.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+    notes: 'Presence here means the organism was reported on this smear, not that the
+      patient was symptomatic or treated for it.
+
+      '
+  CO_NEO_MAL:
+    official_name: Codigo de outras neoplasias malignas (citologia)
+    translated_name: Other malignant neoplasm flag (cervical cytology)
+    description: 'Flags the ''OUTRAS NEOPLASIAS MALIGNAS'' checkbox under ATIPIAS EM
+      CELULAS GLANDULARES on the cytology result - a catch-all for a malignant tumour
+      seen on the smear that does not fit the printed squamous or glandular atypia
+      categories.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+    notes: 'OUTNEO, a wider C(8,0) field in the same file family, reads as the same
+      checkbox under a different naming pass; treat the two as probable duplicates
+      rather than independent findings.
+
+      '
+  CO_RES_NOR:
+    official_name: Resultado dentro dos limites da normalidade
+    translated_name: Cytology result within normal limits
+    description: 'Answer to ''Dentro dos limites da normalidade no material examinado?
+      Sim/Nao'' on the cytology result - whether the pathologist found the smear entirely
+      within normal limits, independent of the specific abnormal-cell categories recorded
+      elsewhere in the row. Bound to codelist LIMITENORM, an internal Yes/No list rather
+      than a clinical grading scale.
+
+      '
+    codelists:
+    - LIMITENORM
+    code_system: internal
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+  CO_SEQ_SISCAN_CITO_COLO_RESID:
+    official_name: Sequencial SISCAN citopatologia colo (resultado de origem)
+    translated_name: Originating cytology record reference
+    description: 'Links this histopathology (biopsy) row back to the cytology (Pap
+      smear) record whose abnormal result led to the biopsy — the two SISCAN datasets''
+      natural join key.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'A cervical biopsy is clinically triggered by an abnormal cytology result;
+      this column names CITO_COLO explicitly while living on the HISTO_COLO table,
+      which only makes sense as a cross-dataset reference rather than a same-table
+      sequence id.
+
+      '
+    notes: Distinguish from CO_SEQ_SISCAN_HISTO_COLO_RESID, this table's own row id.
+  CVCIONAL:
+    official_name: Coleta - meio convencional
+    translated_name: Conventional (slide) collection method flag
+    description: 'Reads as the companion flag to MEIOLIQU, marking that the sample
+      was collected as a conventional (dry-slide) Papanicolaou smear rather than liquid-based
+      cytology.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Decomposes to an abbreviation of ''convencional'', paired with the
+      neighbouring field MEIOLIQU (''meio liquido''). Liquid-based cervical cytology
+      became a billable SUS procedure alongside the conventional smear, so a binary
+      collection-method pair is the natural DATASUS-style encoding, but neither field
+      name is confirmed against a written source - the paper form on file predates
+      the liquid-based option and does not show either checkbox.
+
+      '
+    notes: 'Moderate confidence only; treat as a working hypothesis, not a citation.
+
+      '
+  C_EPI_ESCA:
+    official_name: Epitelio escamoso representado na amostra
+    translated_name: Squamous epithelium present in sample
+    description: 'Whether squamous epithelium is present in the smear - one of the
+      ADEQUABILIDADE DO MATERIAL checkboxes (''Epitelios representados na amostra:
+      Escamoso / Glandular / Metaplasico'') used to judge whether the sample is technically
+      adequate. This is a presence flag, distinct from O_CIT_ESCA, which carries the
+      actual squamous-abnormality diagnosis.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+  C_EPI_GLAN:
+    official_name: Epitelio glandular representado na amostra
+    translated_name: Glandular epithelium present in sample
+    description: 'Glandular counterpart of C_EPI_ESCA: whether glandular epithelium
+      is present in the smear, from the same ''Epitelios representados na amostra''
+      adequacy checkboxes.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+  DENCARCINV:
+    official_name: Carcinoma epidermoide invasor (citologia)
+    translated_name: Invasive squamous carcinoma flag (cytology)
+    description: 'Flag for the ''Carcinoma epidermoide invasor'' checkbox at the foot
+      of the ATIPIAS EM CELULAS ESCAMOSAS block on the cytology result - cytologic
+      evidence of frankly invasive squamous carcinoma, not a histologically confirmed
+      diagnosis.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+  DT_ANM_PRE:
+    official_name: Ano do exame preventivo anterior informado na anamnese
+    translated_name: Year of previously reported Pap smear
+    description: 'The 4-digit year the patient reported for her last Pap smear on anamnese
+      question 2 (''ano ___''). Declared C(4,0), matching a bare year rather than a
+      full DD/MM/AAAA date.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ is DATASUS''s date-field prefix; a declared width of 4 characters
+      only fits a bare year, which matches the ''ano ___'' blank on anamnese question
+      2 rather than any full-date field on the form.
+
+      '
+    notes: 'Do not expect day/month precision from this column - it is a year only.
+
+      '
+  INSATSFAC:
+    official_name: Amostra insatisfatoria para avaliacao oncotica
+    translated_name: Unsatisfactory sample flag (cytology)
+    description: 'Flags that the smear was judged unsatisfactory for oncotic evaluation.
+      The form lists six specific reasons (acellular/hypocellular material, >75% blood,
+      >75% pus cells, drying artefact, external contaminants, cell overlap) under this
+      heading; this column carries the overall insatisfatoria verdict, not which specific
+      reason applied.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+  LAGRAU:
+    official_name: Lesao intraepitelial de alto grau (familia)
+    translated_name: High-grade squamous lesion family flag
+    description: 'Ties to the ''alto grau'' squamous-lesion family on the cytology
+      result, which appears more than once on the form: as ''nao se pode afastar lesao
+      de alto grau'' (ASC-H-type wording, under celulas atipicas de significado indeterminado)
+      and as the definitive ''Lesao intra-epitelial de alto grau'' (HSIL) checkbox.
+      Which exact checkbox this column encodes could not be pinned down from the form
+      alone.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+    notes: 'Confidently in the high-grade squamous family; the exact checkbox (ASC-H
+      vs HSIL) is not independently confirmed. Do not treat as interchangeable with
+      LAGRAUMI, which is unambiguous.
+
+      '
+  LAGRAUMI:
+    official_name: Lesão intra-epitelial de alto grau, não podendo excluir microinvasão
+      (citologia)
+    translated_name: Count of high-grade lesion cytology results that cannot exclude
+      microinvasion
+    description: Count of cytology exams reporting a high-grade squamous intra-epithelial
+      lesion where microinvasion could not be excluded — the escalation category between
+      LAGRAU and an outright invasive carcinoma diagnosis.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf
+      — Nota Técnica 2 SISCAN, 'Les IE AG Mic. Inv'
+  LBGRAU:
+    official_name: Lesao intraepitelial de baixo grau
+    translated_name: Low-grade squamous intraepithelial lesion (LSIL) flag
+    description: 'Flag for ''Lesao intra-epitelial de baixo grau (compreendendo efeito
+      citopatico pelo HPV e neoplasia intra-epitelial cervical grau I)'' - LSIL - under
+      ATIPIAS EM CELULAS ESCAMOSAS.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+  LESALTGRA:
+    official_name: Lesão intraepitelial escamosa de alto grau
+    translated_name: High-grade squamous intraepithelial lesion
+    description: 'A high-grade squamous lesion (HSIL). The finding cervical screening
+      exists to catch: precancerous, treatable, and the direct indication for colposcopy.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LES ALT GRA reads lesão de alto grau; C(8), values unobserved.
+  MEIOLIQU:
+    official_name: Coleta - meio liquido
+    translated_name: Liquid-based collection method flag
+    description: 'Reads as the liquid-based-cytology counterpart to CVCIONAL - see
+      that entry for the reasoning and the same confidence caveat.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MEIO+LIQU decomposes directly to ''meio liquido'' (liquid medium),
+      the standard term for liquid-based Pap-smear preparation, paired with CVCIONAL
+      as the two collection-method options.
+
+      '
+    notes: 'Moderate confidence only; not confirmed against a written source.
+
+      '
+  NALTGRA:
+    official_name: Lesão intraepitelial de alto grau não podendo excluir microinvasão
+    translated_name: High-grade lesion, microinvasion not excluded
+    description: 'A high-grade lesion where microinvasion cannot be excluded. More
+      serious than LESALTGRA, because invasion changes the treatment from local excision
+      to staging.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'N ALT GRA reads não podendo excluir, alto grau, a distinct Bethesda
+      category; C(8), values unobserved.
+
+      '
+  NLSALTGRA:
+    official_name: Lesão intraepitelial de alto grau, variante
+    translated_name: High-grade lesion, variant field
+    description: 'The high-grade lesion item as carried in another generation of the
+      form. See PSNAONPLA on duplicated items across generations.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: A variant spelling of LESALTGRA in a different generation; C(8), values
+      unobserved.
+  NU_EXAME_ALTERADO:
+    official_name: Número de exames alterados
+    translated_name: Count of altered (abnormal) exam results
+    description: 'Count of cytology exams in this row''s aggregation with an abnormal
+      ("alterado") result — the complement of the normal category recorded in ST_DENTRO_LIMITE_NORMALIDADE.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NU_ is this dataset's count prefix; "exame alterado" is standard for
+      an abnormal result.
+    notes: Declared C(0,0); no observed values captured.
+  OUTNEO:
+    official_name: Outras neoplasias malignas (citologia)
+    translated_name: Other malignant neoplasm flag (cytology, alternate encoding)
+    description: 'Flag for the same ''OUTRAS NEOPLASIAS MALIGNAS'' checkbox as CO_NEO_MAL.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+    notes: 'Probable duplicate of CO_NEO_MAL - see that entry.
+
+      '
+  POSNAONEO:
+    official_name: Possivelmente não neoplásico
+    translated_name: Possibly non-neoplastic
+    description: 'The possibly-non-neoplastic category as recorded in another generation
+      of the form. See PSNAONPLA for why several near-identical fields exist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: POS NAO NEO reads possivelmente não neoplásico; C(8), values unobserved.
+  PSNAONPLA:
+    official_name: Células escamosas atípicas possivelmente não neoplásicas
+    translated_name: Squamous atypia, possibly non-neoplastic
+    description: 'The ASC-US finding carried as its own item. Duplicates part of CO_ATI_ESC
+      and comes from a different generation of the form, so the two must not be added
+      together.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PS reads possivelmente and NAONPLA não neoplásica, mirroring the ASC-US
+      value of ATIPINDESC; C(8), values unobserved.
+
+      '
+  PSNNPLA:
+    official_name: Células escamosas atípicas possivelmente não neoplásicas
+    translated_name: Squamous atypia, possibly non-neoplastic, variant field
+    description: 'A second field carrying the same ASC-US finding under a shorter name.
+      Schema generations of this form repeat items under variant names; read whichever
+      is populated for the year in hand.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: A truncated spelling of PSNAONPLA in a different generation; C(8), values
+      unobserved.
+  REJEITADA:
+    official_name: Amostra rejeitada
+    translated_name: Rejected sample flag (cytology)
+    description: 'Flags that the slide was rejected before analysis - the AMOSTRA REJEITADA
+      POR section (missing/wrong slide identification, damaged or absent slide, cause
+      outside the lab''s control, or another stated cause). A rejected sample carries
+      no cytologic result at all.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2
+    notes: 'Do not confuse with INSATSFAC, which covers samples that WERE read but
+      judged technically inadequate.
+
+      '
+  REPREZT:
+    official_name: Representacao da zona de transformacao
+    translated_name: Transformation-zone representation flag
+    description: 'Whether the transformation zone / endocervical component is represented
+      in the cervical smear - a standard adequacy sub-item in the Bethesda-based Brazilian
+      cervical-cytology nomenclature (Nomenclatura Brasileira para Laudos Cervicais,
+      INCA 2006), tracked alongside but separately from the basic satisfatoria/insatisfatoria
+      call. Only present from 2008 onward (2,210 of the 2,858 CC files), consistent
+      with a criterion added partway through the 2006-2015 window rather than present
+      at launch.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'REPREZT decomposes to ''representacao da zona de transformacao''; presence/absence
+      of the transformation-zone component is a documented part of the Brazilian cervical-cytology
+      reporting nomenclature, and the field''s later start year is consistent with
+      a criterion added after the system''s 2006 launch.
+
+      '
+    notes: 'Exact code values not verified against a written source - a well-reasoned
+      reading, not a citation.
+
+      '
+  RESNORM:
+    official_name: Resultado normal/benigno
+    translated_name: Normal/benign result flag
+    description: 'Summary ''resultado normal/benigno'' flag, matching the heading printed
+      at the top of the histopathology form''s citology-encaminhamento block.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero
+      (formulario no.414), p.1-2
+    notes: 'Likely a duplicate of CO_RES_NOR under a different naming pass - SISCOLO''s
+      export appears to carry more than one naming generation for some result flags
+      across the 2006-2015 span.
+
+      '
+  SATISFACT:
+    official_name: Exames satisfatórios (citologia)
+    translated_name: Count of satisfactory cytology exams
+    description: Count of exams in the stratum whose ADEQUABILIDADE DO MATERIAL was
+      classified Satisfatória. Pairs with INSATSFAC and REJEITADA as the three adequacy
+      outcomes.
+    code_system: none
+    source: layout_doc
+    source_ref: http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_1_cito_colo_paciente.pdf
+      — Nota Técnica 1 SISCAN, 'Adequabilidade'
+  ST_MON_EXT:
+    official_name: Selecionado para monitoramento externo
+    translated_name: Selected for external quality monitoring
+    description: 'Whether the slide was selected for external quality review. A property
+      of the laboratory''s quality programme, not of the woman, and it must be excluded
+      from clinical analyses.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MONEXT.CNV
+    reasoning: Bound to MONEXT, whose value is selecionado para monitoramento externo.
+  TEMPCITANT:
+    official_name: Tempo desde a citologia anterior
+    translated_name: Time since previous Pap smear
+    description: 'Codes how long ago the woman''s previous Pap smear was, drawn from
+      anamnese question 2 (''Fez o exame preventivo alguma vez? Sim, quando fez o ultimo
+      exame? ano ___''). Bound to codelist TEMPO, an internal set of time-since-last-exam
+      bins rather than a raw date.
+
+      '
+    codelists:
+    - TEMPO
+    code_system: internal
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
+      (formulario no.415), p.1-2

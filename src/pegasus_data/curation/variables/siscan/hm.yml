@@ -1,0 +1,579 @@
+# SISCAN.HM — Breast histopathology
+# Histopatológico de Mama
+#
+# One breast biopsy and its result.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+  CBENADENOS:
+    official_name: Lesão benigna — adenose, SOE
+    translated_name: Benign lesion count — adenosis, not otherwise specified
+    description: Count of breast histopathology exams reporting a benign lesion of
+      type "Adenose, SOE" (sem outra especificação), one of the twelve named benign-lesion
+      checkboxes on the result form.
+    code_system: none
+    source: layout_doc
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files//media/document//formulario-colorido-exame-histopatologico-mama.pdf,
+      page 2, LESÃO DE CARÁTER BENIGNO — Adenose, SOE
+  CBENESDERO:
+    official_name: Lesao esclerosante radial
+    translated_name: Radial sclerosing lesion flag
+    description: 'Reads as the ''Lesao esclerosante radial'' checkbox in the same benign-lesion
+      list.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ES+DERO is a compressed reading of esclerosante/radial; assigned mainly
+      by elimination against the printed benign-lesion checklist, alongside the six
+      sibling CBEN* fields that decompose cleanly.
+
+      '
+    notes: 'Moderate confidence - the abbreviation does not spell the term as cleanly
+      as its sibling fields.
+
+      '
+  CBENFIBROA:
+    official_name: Lesao benigna (histopatologia mama) - Fibroadenoma
+    translated_name: 'Benign breast lesion: Fibroadenoma'
+    description: 'Checkbox flag for ''Fibroadenoma'' under ''LESOES DE CARATER BENIGNO''
+      in the MICROSCOPIA section of the breast histopathology result.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Mama (formulario
+      no.335), p.1-2
+  CBENFIBROC:
+    official_name: Lesao benigna (histopatologia mama) - Condicao fibrocistica
+    translated_name: 'Benign breast lesion: Condicao fibrocistica'
+    description: 'Checkbox flag for ''Condicao fibrocistica'' under ''LESOES DE CARATER
+      BENIGNO'' in the MICROSCOPIA section of the breast histopathology result.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Mama (formulario
+      no.335), p.1-2
+  CBENFLORID:
+    official_name: Lesao benigna (histopatologia mama) - Papilomatose florida do mamilo
+    translated_name: 'Benign breast lesion: Papilomatose florida do mamilo'
+    description: 'Checkbox flag for ''Papilomatose florida do mamilo'' under ''LESOES
+      DE CARATER BENIGNO'' in the MICROSCOPIA section of the breast histopathology
+      result.
+
+      '
+    code_system: none
+    source: web
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Mama (formulario
+      no.335), p.1-2
+  CBENHIPCAT:
+    official_name: Lesão benigna — hiperplasia com atipias
+    translated_name: Benign lesion count — hyperplasia with atypia
+    description: 'Count of breast histopathology exams reporting hyperplasia "com atipias".
+      The form lists this as two separate checkboxes, ductal and lobular ("Hiperplasia
+      ductal com atipias" / "Hiperplasia lobular com atipias"), and this field''s name
+      does not disclose which one it counts.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"HIPCAT" reads as hiperplasia + com atipias, pairing with CBENHIPSAT
+      ("sem atipias"). Nota Técnica 13 names both a ductal-com-atipia measure (Les
+      B_Hip duc.c/at) and a lobular-com-atipia measure (Les B_Hip lob.c/at) separately,
+      so there should be two distinct fields here; only one appears in this column
+      range, and nothing in the field name or the catalog distinguishes which histological
+      type it counts.
+
+      '
+    asserted_by: pegasus_data
+    notes: 'Ductal-vs-lobular is unresolved — treat this as "hyperplasia with atypia,
+      subtype unknown" rather than assuming ductal. If a sibling field appears elsewhere
+      in the system carrying the other subtype, that would resolve which one this is
+      by elimination.
+
+      '
+  CBENHIPSAT:
+    official_name: Lesão benigna — hiperplasia ductal sem atipias
+    translated_name: Benign lesion count — ductal hyperplasia without atypia
+    description: 'Count of breast histopathology exams reporting "Hiperplasia ductal
+      sem atipias". "Sem atipias" only appears as a ductal category on the form (the
+      lobular checkbox is "com atipias" only), so this field is unambiguous despite
+      the abbreviated name.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files//media/document//formulario-colorido-exame-histopatologico-mama.pdf,
+      page 2, LESÃO DE CARÁTER BENIGNO — Hiperplasia ductal sem atipias
+  CBENLOBCAT:
+    official_name: Lesão benigna, neoplasia lobular in situ
+    translated_name: Benign, lobular neoplasia in situ
+    description: 'Lobular neoplasia in situ. Classified benign here, but it marks raised
+      risk in both breasts rather than being a local lesion, so it changes follow-up.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LOB reads lobular in the benign block; C(8), values unobserved.
+  CBENMASTIT:
+    official_name: Lesão benigna, mastite
+    translated_name: Benign, mastitis
+    description: 'Mastitis. Benign, but inflammatory breast cancer mimics it, which
+      is why it is reported rather than dismissed.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: MASTIT reads mastite in the benign block; C(8), values unobserved.
+  CBENMULTI:
+    official_name: Lesão benigna, cistos múltiplos
+    translated_name: Benign, multiple cysts
+    description: Multiple cysts, as against the single cyst of CBENSOLITA.
+    code_system: none
+    source: inferred
+    reasoning: MULTI reads múltiplos in the benign block; C(8), values unobserved.
+  CBENOUTROS:
+    official_name: Outra lesão benigna
+    translated_name: Benign, other
+    description: Any benign breast lesion the named items do not cover.
+    code_system: none
+    source: inferred
+    reasoning: The OUTROS residual item closing the benign block.
+  CBENSOLITA:
+    official_name: Lesão benigna, cisto solitário
+    translated_name: Benign, solitary cyst
+    description: 'A solitary cyst. The CBEN_ block covers benign breast disease, which
+      is most of what a breast biopsy finds.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: SOLITA reads solitário in the benign block; C(8), values unobserved.
+  CCLIDIAGIM:
+    official_name: Diagnóstico de Imagem
+    translated_name: Imaging diagnosis
+    description: 'The mammography or ultrasound impression that led to this breast
+      biopsy, recorded on the histopathology request as the imaging finding being investigated.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Diagnóstico de Imagem (CCLIDIAGIM.CNV)
+  CCLILOCA:
+    official_name: Localização da Lesão
+    translated_name: Lesion location
+    description: 'Where in the breast the biopsied lesion sits, e.g. which quadrant
+      or the retroareolar region, as marked on the histopathology request accompanying
+      the tissue sample.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Localização da Lesão (CCLILOCA.CNV)
+  CCLIMATPRO:
+    official_name: Procedimento de obtenção do material
+    translated_name: How the specimen was obtained
+    description: 'Which procedure produced the specimen — incisional or excisional
+      biopsy, core needle, stereotactic biopsy, segmental resection, duct excision.
+      It bounds what the pathology can conclude: a needle core cannot report margins.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CCLIMATPROC.CNV
+    reasoning: 'Bound to CCLIMATPROC, whose values enumerate the biopsy and resection
+      procedures.
+
+      '
+  CCLITANT:
+    official_name: Tratam anterior Câncer Mama
+    translated_name: Prior breast cancer treatment
+    description: 'Whether the patient had already been treated for breast cancer before
+      this histopathology exam, separating a first diagnostic biopsy from follow-up
+      sampling after treatment.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Tratam anterior Câncer Mama (CCLITANT.CNV)
+  CCLITPEXA:
+    official_name: Tipo Exame Histopatológico
+    translated_name: Type of histopathological exam
+    description: 'The tissue-sampling method used for the breast biopsy, such as core
+      needle biopsy, surgical excision, or frozen section, recorded on the histopathology
+      request.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Tipo Exame Histopatológico (CCLITPEXA.CNV)
+  CHISLINFCO:
+    official_name: Linfonodo Comprometido (inferido)
+    translated_name: Compromised axillary lymph nodes
+    description: 'Whether axillary lymph nodes taken with the breast tumor showed histopathological
+      evidence of metastatic involvement, distinct from the clinically palpable node
+      exam recorded separately.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'CHIS is the histopathology-result field prefix in HMAMA4.def, shared
+      with CHISRECES/CHISRECPR; LINFCO abbreviates "linfonodo comprometido", the standard
+      positive-node finding reported alongside receptor status.
+
+      '
+    source_ref: naming grammar + TAB_SISMAMA.zip!HMAMA4.def sibling fields CHISRECES/CHISRECPR
+  CHISRECES:
+    official_name: Receptor de Estrógeno
+    translated_name: Estrogen receptor
+    description: 'Whether the tumor tissue tested positive or negative for estrogen
+      receptor expression, a biomarker from the histopathology report used to gauge
+      eligibility for hormone therapy.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Receptor de Estrógeno (CHISRECES.CNV)
+  CHISRECPR:
+    official_name: Receptor de Progesterona
+    translated_name: Progesterone receptor
+    description: 'Whether the tumor tissue tested positive or negative for progesterone
+      receptor expression, the companion hormone-receptor biomarker to estrogen receptor
+      status on the same report.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: TAB_SISMAMA.zip!HMAMA4.def, campo Receptor de Progesterona (CHISRECPR.CNV)
+  CMICMICRCA:
+    official_name: Microcalcificações
+    translated_name: Microcalcifications
+    description: 'Whether microcalcifications were present. Often the only sign of
+      ductal carcinoma in situ, so they are what makes mammography able to find pre-invasive
+      disease.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CCLILINFO.CNV
+    reasoning: MICRCA reads microcalcificações; bound to the same sim/não list as the
+      node item.
+  CNEOMALIG:
+    official_name: Neoplasia maligna, variante
+    translated_name: Malignant neoplasm, variant field
+    description: 'The malignant diagnosis as carried in another generation of the form;
+      see C_NEO_MALI, which holds the same categories.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: The same CNEOMALIG categories under a variant column name; C(8), values
+      unobserved.
+  CO_CLI_MAM:
+    official_name: Mama examinada
+    translated_name: Breast examined
+    description: 'Which breast the findings refer to. Everything on the breast forms
+      is recorded per side, so a record without this cannot be placed.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CO_CLI_MAM.CNV
+    reasoning: Bound to CO_CLI_MAM, whose values are mama direita and mama esquerda.
+  CO_CLI_TAM:
+    official_name: Tamanho clínico do tumor
+    translated_name: Clinical tumour size
+    description: 'Tumour size as felt on examination, banded from under 2 cm to over
+      10 cm, with a not-palpable option. An estimate; CO_TAM_TUM carries the measured
+      size from the specimen.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CCLITAM.CNV
+    reasoning: 'Bound to CCLITAM, whose bands run from under 2 cm to over 10 cm plus
+      não palpável.
+
+      '
+  CO_HIS_GRA:
+    official_name: Grau histológico
+    translated_name: Histological grade
+    description: 'Histological grade I, II or III. How unlike normal tissue the tumour
+      looks, and with size and nodes one of the three classical prognostic factors.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CHISGRAU.CNV
+    reasoning: Bound to CHISGRAU, whose values are I, II, III and não avaliável.
+  CO_HIS_MAR:
+    official_name: Margens cirúrgicas
+    translated_name: Surgical margins
+    description: 'Whether the surgical margins were free of tumour or involved. Involved
+      margins mean the excision was incomplete and further surgery is needed, so this
+      field decides an operation.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CHISMARG.CNV
+    reasoning: 'Bound to CHISMARG, whose values are livres, comprometidas and impossível
+      de serem avaliadas.
+
+      '
+  CO_SEQ_SISCAN_HISTO_MAMA_RESID:
+    official_name: Sequencial SISCAN histopatologia mama (resultado)
+    translated_name: Record sequence number (breast-histopathology result)
+    description: Row-sequence identifier on the main SISCAN_HISTO_MAMA result/exam-record
+      table, distinct from the _PACNT patient-dimension sequence.
+    code_system: none
+    source: inferred
+    reasoning: Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID
+      in siscan_fill_02.yml.
+  CO_TAM_TUM:
+    official_name: Tamanho patológico do tumor
+    translated_name: Pathological tumour size
+    description: 'Tumour size measured on the specimen, banded under 2 cm, 2 to 5 cm
+      and over 5 cm — the T of TNM staging. More reliable than the clinical estimate
+      in CO_CLI_TAM.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CTAMTUM.CNV
+    reasoning: Bound to CTAMTUM, whose bands match the TNM size categories.
+  CRESPROCIR:
+    official_name: Procedimento cirúrgico realizado
+    translated_name: Surgical procedure performed
+    description: 'The surgical procedure carried out, on the same list as CCLIMATPRO.
+      The two differ in intent — one records how the diagnosis was obtained, the other
+      what surgery was done.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CCLIMATPROC.CNV
+    reasoning: Bound to the same CCLIMATPROC list as CCLIMATPRO.
+  C_CLI_DETE:
+    official_name: Forma de detecção da lesão
+    translated_name: How the lesion was detected
+    description: 'Whether the lesion was found by clinical examination (palpable) or
+      by imaging (impalpable). The distinction that separates screen-detected cancer
+      from symptomatic cancer, and it drives the prognosis difference between them.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CCLIDETEC.CNV
+    reasoning: 'Bound to CCLIDETEC, whose values are exame clínico da mama (palpável)
+      and imagem (não palpável).
+
+      '
+  C_CLI_LINF:
+    official_name: Linfonodo axilar palpável
+    translated_name: Palpable axillary node
+    description: 'Whether an axillary lymph node was palpable. The clinical proxy for
+      nodal spread, and the single strongest prognostic factor in breast cancer.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CCLILINFO.CNV
+    reasoning: Bound to CCLILINFO, a sim/não item for the palpable axillary node.
+  C_CLI_TCAN:
+    official_name: Risco elevado para câncer de mama
+    translated_name: High risk for breast cancer
+    description: 'Whether the woman is at high risk — family history or previous disease.
+      High-risk women enter a different screening schedule, so this field changes what
+      a normal result means.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RISCOELEVADO.CNV
+    reasoning: 'Bound to RISCOELEVADO, whose values are sim, não and não sabe for elevated
+      breast cancer risk.
+
+      '
+  C_NEO_MALI:
+    official_name: Neoplasia maligna
+    translated_name: Malignant neoplasm
+    description: 'The malignant diagnosis, from in situ carcinoma graded low to high
+      through invasive disease. The field that actually says whether this is cancer.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CNEOMALIG.CNV
+    reasoning: 'Bound to CNEOMALIG, whose values run from carcinoma intraductal in
+      situ by grade through invasive carcinoma.
+
+      '
+  LESBENIGIN:
+    official_name: Lesão benigna
+    translated_name: Benign lesion
+    description: 'A benign lesion recorded as a summary rather than by type; see the
+      CBEN_ items for the specific findings.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LES BENIG reads lesão benigna; C(8), values unobserved.
+  NU_ADENOSE_SOE:
+    official_name: Adenose, SOE
+    translated_name: Count of adenosis diagnoses, not otherwise specified
+    description: 'Count of breast biopsies diagnosed as adenosis (a benign proliferative
+      change of the lobules) without further sub-typing — SOE is the standard Brazilian
+      pathology "not otherwise specified" qualifier.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ADENOSE_SOE is adenose, SOE, unabbreviated.
+  NU_CONDICAO_FIBROCISTICA:
+    official_name: Condição fibrocística
+    translated_name: Count of fibrocystic-change diagnoses
+    description: Count of breast biopsies diagnosed with fibrocystic condition — the
+      most common benign breast finding.
+    code_system: none
+    source: inferred
+    reasoning: CONDICAO_FIBROCISTICA is condição fibrocística, unabbreviated.
+  NU_FIBROADENOMA:
+    official_name: Fibroadenoma
+    translated_name: Count of fibroadenoma diagnoses
+    description: Count of breast biopsies diagnosed as fibroadenoma — the most common
+      benign breast tumour, especially in younger women.
+    code_system: none
+    source: inferred
+    reasoning: FIBROADENOMA is unabbreviated.
+  NU_HIPERPLAS_DUCTAL_COM_ATIP:
+    official_name: Hiperplasia ductal com atipia
+    translated_name: Count of atypical ductal hyperplasia diagnoses
+    description: 'Count of biopsies diagnosed with atypical ductal hyperplasia (ADH)
+      — a premalignant marker that raises future breast-cancer risk, distinct from
+      its non-atypical counterpart below.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: HIPERPLAS_DUCTAL_COM_ATIP abbreviates hiperplasia ductal com atipia.
+  NU_HIPERPLAS_DUCTAL_SEM_ATIP:
+    official_name: Hiperplasia ductal sem atipia
+    translated_name: Count of usual ductal hyperplasia diagnoses (without atypia)
+    description: 'Count of biopsies diagnosed with ductal hyperplasia lacking atypia
+      (UDH) — a benign proliferative change, lower risk than NU_HIPERPLAS_DUCTAL_COM_ATIP.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same HIPERPLAS_DUCTAL stem; SEM_ATIP is sem atipia (without atypia).
+  NU_HIPERPLAS_LOBULAR_COM_ATIP:
+    official_name: Hiperplasia lobular com atipia
+    translated_name: Count of atypical lobular hyperplasia diagnoses
+    description: 'Count of biopsies diagnosed with atypical lobular hyperplasia (ALH)
+      — the lobular counterpart of NU_HIPERPLAS_DUCTAL_COM_ATIP, also a premalignant
+      risk marker.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: HIPERPLAS_LOBULAR_COM_ATIP abbreviates hiperplasia lobular com atipia.
+  NU_LESAO_ESCLEROSANTE_RADIAL:
+    official_name: Lesão esclerosante radial
+    translated_name: Count of radial scar / complex sclerosing lesion diagnoses
+    description: 'Count of biopsies diagnosed as radial scar (complex sclerosing lesion)
+      — a benign lesion that can distort tissue architecture and mimic cancer on imaging.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LESAO_ESCLEROSANTE_RADIAL is lesão esclerosante radial, unabbreviated.
+  NU_MASTITE:
+    official_name: Mastite
+    translated_name: Count of mastitis diagnoses
+    description: Count of biopsies diagnosed with mastitis — inflammation or infection
+      of breast tissue.
+    code_system: none
+    source: inferred
+    reasoning: MASTITE is unabbreviated.
+  NU_OUTROS:
+    official_name: Outros
+    translated_name: Count of other/residual diagnoses
+    description: Count of biopsies whose diagnosis falls outside every named category
+      in this HISTO_MAMA batch.
+    code_system: none
+    source: inferred
+    reasoning: OUTROS is the standard residual/catch-all category label.
+  NU_PAPILOMATOSE_FLORIDA_DO_MAM:
+    official_name: Papilomatose florida do mamilo
+    translated_name: Count of florid papillomatosis of the nipple diagnoses
+    description: 'Count of biopsies diagnosed as florid papillomatosis of the nipple
+      (nipple adenoma) — a benign, nipple-specific proliferative lesion.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PAPILOMATOSE_FLORIDA_DO_MAM abbreviates papilomatose florida do mamilo;
+      a named nipple-specific entity, distinct from NU_PAPILOMA_SOLITARIO/MULTIPLO''s
+      intraductal papillomas.
+
+      '
+    notes: MAM could alternatively read as "da mama" rather than "do mamilo"; no observed
+      value settles it.
+  NU_PAPILOMA_MULTIPLO:
+    official_name: Papiloma múltiplo
+    translated_name: Count of multiple intraductal papilloma diagnoses
+    description: 'Count of biopsies diagnosed with multiple intraductal papillomas
+      — carries a modestly higher cancer-risk association than the solitary form below.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PAPILOMA_MULTIPLO is papiloma múltiplo, unabbreviated.
+  NU_PAPILOMA_SOLITARIO:
+    official_name: Papiloma solitário
+    translated_name: Count of solitary intraductal papilloma diagnoses
+    description: Count of biopsies diagnosed with a single (solitary) intraductal papilloma
+      — lower risk than the multiple form above.
+    code_system: none
+    source: inferred
+    reasoning: PAPILOMA_SOLITARIO is papiloma solitário, unabbreviated.
+  ST_OUTRO_ESTUDO_IMUNOLO_HISTOQ:
+    official_name: Outro estudo imuno-histoquímico
+    translated_name: Additional immunohistochemistry study flag
+    description: 'Whether an immunohistochemistry (IHC) study beyond the standard hormone-receptor
+      panel (TP_RECEPTOR_HORMONAL_ESTROG/PROGES) was performed on this specimen.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: OUTRO_ESTUDO_IMUNOLO_HISTOQ abbreviates outro estudo imuno-histoquímico;
+      ST_ status-flag prefix used throughout this fill batch.
+    notes: No observed values or codelist were captured.
+  TP_RECEPTOR_HORMONAL_ESTROG:
+    official_name: Tipo de receptor hormonal — estrogênio
+    translated_name: Estrogen-receptor (ER) status
+    description: 'Estrogen-receptor status of this breast biopsy — a standard immunohistochemistry
+      biomarker used to guide hormone-therapy treatment decisions.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: RECEPTOR_HORMONAL_ESTROG is receptor hormonal, estrogênio; TP_ type-code
+      prefix.
+    notes: No observed values or codelist were captured.
+  TP_RECEPTOR_HORMONAL_PROGES:
+    official_name: Tipo de receptor hormonal — progesterona
+    translated_name: Progesterone-receptor (PR) status
+    description: Progesterone-receptor status of this breast biopsy — reported alongside
+      TP_RECEPTOR_HORMONAL_ESTROG as the standard paired hormone-receptor panel.
+    code_system: internal
+    source: inferred
+    reasoning: Same RECEPTOR_HORMONAL stem as TP_RECEPTOR_HORMONAL_ESTROG; PROGES is
+      progesterona.
+    notes: No observed values or codelist were captured.

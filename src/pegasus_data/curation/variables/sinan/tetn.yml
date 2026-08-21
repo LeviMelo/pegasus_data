@@ -1,0 +1,413 @@
+# SINAN.TETN —
+#
+# one notification of tetano neonatal
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  COUNIDINF:
+    official_name: Código da unidade de infecção
+    translated_name: Facility code where infection occurred
+    description: 'Code of the health facility where a neonatal tetanus infection likely
+      occurred (e.g. site of unhygienic cord care or delivery), distinct from the unit
+      that notified the case.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CO_ = código, UNID = unidade, INF = infecção; C7 width fits a facility
+      code, consistent with SINAN''s practice of tracking the infection site''s own
+      facility on the neonatal tetanus (TETN) form.
+
+      '
+  CS_ABDOMEN:
+    official_name: Abdome rígido
+    translated_name: Rigid abdomen
+    description: Abdominal rigidity from generalised muscle spasm.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ABDOMEN reads abdome; a clinical flag.
+  CS_ANALISE:
+    official_name: Situação da análise do caso
+    translated_name: Case analysis status
+    description: 'Status of the epidemiological analysis/investigation of the neonatal
+      tetanus case - an administrative-tracking field, unlike most of the form''s other
+      CS_ fields, which record the classic clinical signs (trismus, opisthotonus, risus
+      sardonicus).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CS_ here is TETN''s clinical-signs prefix, but ANALISE (analysis) doesn''t
+      fit that pattern; more plausibly investigation-status bookkeeping, given neonatal
+      tetanus is a sentinel, fully-preventable event subject to case review.
+
+      '
+  CS_ATEND_N:
+    official_name: Quem atendeu o parto
+    translated_name: Who attended the birth
+    description: 'Doctor, nurse, nursing auxiliary, trained or untrained traditional
+      midwife, or other. Neonatal tetanus is a disease of unclean delivery, so this
+      field is close to the cause.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RHSAUDENET.CNV
+    reasoning: 'Bound to RHSAUDENET, whose values run from médico through parteira
+      não treinada.
+
+      '
+  CS_BUSCAAT:
+    official_name: Busca ativa realizada
+    translated_name: Active case search performed
+    description: 'Whether active case-finding (busca ativa) was carried out for this
+      neonatal tetanus case, standard practice given how underreported the disease
+      is in areas with poor birth-registration coverage.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is TETN (tétano neonatal); CS_ characteristic prefix with BUSCAAT
+      reading "busca ativa"; C1 width fits a coded yes/no flag.
+
+      '
+  CS_CADASTR:
+    official_name: Cadastro (pré-natal/atenção básica)
+    translated_name: Registered in prenatal/primary care (flag)
+    description: 'Whether the mother was registered in prenatal care or a primary-care
+      program at the time of delivery — relevant to neonatal tetanus risk, since unregistered
+      mothers are more likely to have unattended, unhygienic deliveries.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; CS_=característica social per prefix convention, CADASTR=cadastro.
+  CS_CHORO:
+    official_name: Choro excessivo
+    translated_name: Excessive crying
+    description: Constant crying, from the painful spasms.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CHORO reads choro; a clinical flag.
+  CS_COBERTU:
+    official_name: Cobertura vacinal da mãe
+    translated_name: Maternal tetanus vaccination coverage (flag)
+    description: 'Whether the mother had adequate tetanus toxoid vaccination coverage
+      at the time of delivery - the key preventable risk factor tracked on the neonatal
+      tetanus investigation form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CS_ = cobertura, COBERTU = cobertura (vacinal); maternal immunization
+      status is the central risk factor for neonatal tetanus, C1 fits a checkbox.
+
+      '
+  CS_DIVULGA:
+    official_name: Divulgação do caso
+    translated_name: Case disclosed/reported (flag)
+    description: 'Whether the neonatal tetanus case was disclosed through a public
+      health bulletin or alert - tetanus neonatal being a sentinel event that triggers
+      mandatory public health follow-up and reporting.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CS_DIVULGA = divulgação; sits with CS_ANALISE among TETN's non-clinical
+      investigation fields.
+  CS_INF_COT:
+    official_name: Infecção do coto umbilical
+    translated_name: Umbilical stump infection
+    description: 'Whether the umbilical stump was infected. The entry point: the spores
+      enter through the cut cord, usually from a contaminated instrument or dressing.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: INF_COT reads infecção do coto; a yes/no flag.
+  CS_MAMAR:
+    official_name: Dificuldade de mamar
+    translated_name: Difficulty feeding
+    description: 'Trouble suckling. Almost always the first sign, because the jaw muscles
+      stiffen before anything else — a baby that fed well then stopped is the classic
+      history.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MAMAR reads mamar; a clinical flag.
+  CS_NASCIDO:
+    official_name: Local de nascimento
+    translated_name: Birth setting
+    description: 'Coded setting where the baby was born (e.g. hospital versus home
+      delivery), a key risk factor for neonatal tetanus since unsanitary umbilical
+      cord care during home births is the classic transmission route.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TETN form; CS_NASCIDO reads "característica - nascido"; C1 width fits
+      a small enumerated birth-setting code.
+
+      '
+  CS_ORIENTA:
+    official_name: Orientação recebida
+    translated_name: Mother received guidance/counseling (flag)
+    description: 'Whether the mother received health guidance (e.g. on tetanus vaccination
+      or safe delivery practices) before or around delivery — a health-education flag
+      distinct from the registration flag CS_CADASTR.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; CS_=característica social, ORIENTA=orientação.
+  CS_ORIGEM:
+    official_name: Origem da notificação
+    translated_name: How the case was found
+    description: 'Whether the case came from routine notification, active case-finding,
+      or a death certificate. Neonatal tetanus is heavily under-notified, so case-finding
+      and death certificates contribute a large share.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ORIGTET.CNV
+    reasoning: 'Bound to ORIGTET, whose values are notificação, busca ativa and declaração
+      de óbito.
+
+      '
+  CS_OUTRAS:
+    official_name: Cobertura - outras características
+    translated_name: Other coverage-related factor (flag)
+    description: 'Whether another vaccine-coverage-related factor, beyond the standard
+      checklist, applied to the mother - paired with the free-text detail field NO_COBOUTR.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CS_ = cobertura, OUTRAS = outras; shares the "coverage" root with CS_COBERTU
+      and pairs with NO_COBOUTR''s free-text detail, matching the flag+detail pattern.
+
+      '
+  CS_OUTROS:
+    official_name: Outro sinal
+    translated_name: Other sign, neonatal tetanus
+    description: 'A sign outside the neonatal tetanus list of feeding difficulty, crying
+      and abdominal rigidity.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the clinical block.
+  CS_SUGOU:
+    official_name: Criança sugou bem ao nascer
+    translated_name: Baby suckled normally at birth (flag)
+    description: 'Whether the newborn suckled/breastfed normally right after birth
+      - the classic early-warning question for neonatal tetanus, since loss of the
+      ability to suckle (before trismus appears) is often the first sign parents notice.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CS_SUGOU = sugou (suckled); a hallmark neonatal-tetanus history question,
+      distinct from the disease-agnostic CS_ prefix used elsewhere in SINAN.
+  CS_VACINAC:
+    official_name: Mãe vacinada
+    translated_name: Mother vaccinated
+    description: 'Whether the mother was vaccinated against tetanus. Maternal antibody
+      crosses the placenta and protects the newborn, so a vaccinated mother makes neonatal
+      tetanus nearly impossible.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: VACINAC reads vacinação, about the mother; a yes/no flag.
+  CS_VACTETA:
+    official_name: Mãe vacinada contra tétano
+    translated_name: Mother vaccinated against tetanus
+    description: 'Whether the mother received tetanus toxoid vaccination before or
+      during pregnancy, the primary measure that prevents neonatal tetanus by passive
+      antibody transfer to the newborn.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TETN form; CS_VACTETA reads "característica - vacinação tetânica";
+      C1 width fits a coded yes/no immunization flag.
+
+      '
+  DS_INF_LOC:
+    official_name: Local da infecção
+    translated_name: Site/type of infection location (flag)
+    description: 'Coded flag for the type of place where the newborn was likely infected
+      (e.g. home delivery vs. health facility) — a categorical field despite the DS_
+      (descrição) prefix, since it is stored as a single character rather than free
+      text.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C1 — unusually narrow for a DS_ (descrição) field, indicating it is
+      actually a coded category rather than free text; INF=infecção, LOC=local.
+
+      '
+  DS_INF_OUT:
+    official_name: Descrição de outra circunstância de infecção
+    translated_name: Other infection circumstance (free text)
+    description: 'Free-text description of an unlisted circumstance of neonatal tetanus
+      infection (e.g. a non-standard cord-care practice), filled in when the standard
+      checklist doesn''t capture it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DS_ = descrição, INF = infecção, OUT = outro; C30 width fits free text,
+      matching the "other, specify" pattern used across SINAN forms.
+
+      '
+  DT_1_DOSE:
+    official_name: Data da primeira dose materna
+    translated_name: Date of mother's first dose
+    description: When the mother received her first tetanus dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of the maternal dose dates.
+  DT_2_DOSE:
+    official_name: Data da segunda dose materna
+    translated_name: Date of mother's second dose
+    description: 'When the mother received her second dose. Two doses more than fifteen
+      days before birth is the minimum that protects the baby.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of the maternal dose dates.
+  DT_3_DOSE:
+    official_name: Data da terceira dose materna
+    translated_name: Date of mother's third dose
+    description: When the mother received her third dose, completing the primary course.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third of the maternal dose dates.
+  DT_REFORCO:
+    official_name: Data do reforço materno
+    translated_name: Date of mother's booster
+    description: 'When the mother had a booster. Tetanus immunity wanes over a decade,
+      so a distant primary course without a booster leaves the newborn unprotected.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; REFORCO reads reforço.
+  DT_TRISMO:
+    official_name: Data do trismo
+    translated_name: Date trismus began
+    description: 'Date the newborn developed trismus (lockjaw) - the pathognomonic
+      sign of neonatal tetanus - more specific than the general first-symptoms date
+      (DT_SIN_PRI) also on the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DT_TRISMO = data + trismo; TETN also carries CS_TRISMO (Sim/Não flag)
+      alongside this onset date.
+  ESCOLMAE_N:
+    official_name: Escolaridade da mãe (código numérico)
+    translated_name: Mother's education level (numeric code)
+    description: 'Mother''s education level recorded on the neonatal tetanus form as
+      a short numeric code, distinct from any text-labeled schooling field used elsewhere
+      in SINAN.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TETN form; ESCOLMAE reads "escolaridade da mãe"; the _N suffix and
+      C2 width indicate a numeric-coded variant of the schooling field.
+
+      '
+  NO_ATENOUT:
+    official_name: Nome do outro local de atendimento
+    translated_name: Name of another care facility (referral)
+    description: 'Free-text name of an additional health facility where the mother
+      or newborn was seen — a referral or transfer facility outside the notifying unit.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text; NO_=nome, ATEN=atendimento, OUT=outro.
+  NO_COBOUTR:
+    official_name: Nome - outra cobertura
+    translated_name: Other vaccine-coverage detail (free text)
+    description: 'Free-text name/detail of another maternal vaccine-coverage item not
+      captured by the standard checklist, paired with the CS_OUTRAS flag that marks
+      it applies.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NO_ = nome, COB = cobertura, OUTR = outro; C30 width fits free text,
+      and it shares the "cobertura" root with CS_COBERTU/CS_OUTRAS.
+
+      '
+  NO_OUPARTO:
+    official_name: Nome/descrição do outro local de parto
+    translated_name: Other birthplace - name/description
+    description: 'Free-text description of the birth location when it was not a standard
+      health facility (e.g. home birth, in transit) - relevant because non-sterile
+      umbilical cord care during non-institutional births is the classic neonatal tetanus
+      risk factor.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NO_OUPARTO = nome + outro + parto; "outro local de parto" is the standard
+      SINAN phrasing for a non-facility birth.
+  NO_OUTRAS:
+    official_name: Nome de outras informações
+    translated_name: Other information (free text)
+    description: 'Free-text field for naming an additional detail on the neonatal tetanus
+      form not captured by the standard coded fields (e.g. another risk factor or birth
+      attendant).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TETN form; NO_ reads "nome" and OUTRAS reads "outras"; C30 width fits
+      a free-text "other, specify" field.
+
+      '
+  NUM_CON_N:
+    official_name: Número de consultas (categoria)
+    translated_name: Prenatal visit-count category
+    description: 'Coded category for how many prenatal care visits the mother had (e.g.
+      none, few, adequate) rather than a raw count — inadequate prenatal care is a
+      recognized neonatal tetanus risk factor.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C1 — a single character can''t hold a raw visit count, so this reads
+      as a coded category; NUM_=número, CON_N=consultas.
+
+      '
+  NU_GESTA:
+    official_name: Número de gestações
+    translated_name: Number of pregnancies (parity)
+    description: 'Coded count of the mother''s pregnancies (parity), recorded on the
+      neonatal tetanus form to characterize her obstetric history and prior exposure
+      to antenatal care/vaccination opportunities.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_ = número, GESTA = gestação(ões); C1 width fits a short coded count
+      rather than free text.
+
+      '

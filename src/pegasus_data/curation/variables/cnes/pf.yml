@@ -1,0 +1,225 @@
+# CNES.PF — Professionals
+# Profissionais
+#
+# Professionals registered at an establishment, with their CBO occupation and
+# hours. One person appears once per establishment they work at.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+  CBO:
+    official_name: Codigo da especialidade do profissional
+    translated_name: Occupation code (CBO)
+    description: The professional's occupation/specialty code from Brazil's CBO (Classificacao
+      Brasileira de Ocupacoes), the national occupational classification - e.g. distinguishing
+      a general-practice physician from a nurse or a specific medical specialty. It
+      is a real, externally defined classification (not a DATASUS-only invention),
+      so codes keep meaning outside this dataset.
+    code_system: external
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 23
+    codelists:
+    - CBO_02
+    - CBO_94
+    - CBO_FAM2
+    notes: The catalog also surfaces low-confidence bindings to narrower medical-only
+      codelists (e.g. MEDICOS/MEDIC_02/NIVSUPER); CBO covers all occupations at a CNES-registered
+      establishment, not physicians only.
+  CBOUNICO:
+    official_name: Registro unico do Codigo da especialidade do profissional
+    translated_name: Unique CPF+CBO marker
+    description: Deduplication marker populated only once per unique (CPF, CBO) combination
+      across the professional's PF rows - i.e. once per distinct occupation actually
+      held by that person, even if that combination recurs across several establishment
+      rows.
+    code_system: internal
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 24
+    modifies: CBO
+    codelists:
+    - CBO_02
+    - CBO_94
+    - CBO_FAM2
+    notes: Use together with CPFUNICO to avoid overcounting when a professional holds
+      the same occupation at multiple establishments; the actual DBF field name drops
+      the underscore present in the PDF's 'CBO_UNICO' label.
+  CNS_PROF:
+    official_name: CNS do profissional ou "999999999999999" caso nao seja preenchido.
+    translated_name: Professional's CNS (or sentinel)
+    description: The professional's National Health Card (CNS) number, or the literal
+      sentinel string of fifteen 9s ('999999999999999') when not captured. Personal
+      identifier; filter out the sentinel before using it for linkage or deduplication.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 26
+    notes: Contains the literal placeholder '999999999999999' for missing values.
+  CONSELHO:
+    official_name: Codigo do conselho de classe
+    translated_name: Professional council code
+    description: Code identifying the professional regulatory council the professional
+      is registered with (e.g. CRM for physicians, COREN for nursing professionals)
+      - a real external registry identity, not a DATASUS-only invention. REGISTRO (not
+      in this column range) carries the professional's actual registration number within
+      that council.
+    code_system: external
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 27
+    codelists:
+    - CR_CONSEL
+  CPFUNICO:
+    official_name: Contador de CPF UNICO do Profissional
+    translated_name: Unique-CPF marker
+    description: 'Deduplication marker that is populated only once per distinct CPF
+      across the professional''s rows in the PF file (a professional can appear on
+      multiple rows: one per establishment, or one per CBO held at the same establishment).
+      When CPF_PROF is the missing-value sentinel ''99999999999'', the layout mandates
+      CPFUNICO=''1'' for every such row (so it cannot be used to deduplicate rows with
+      a missing CPF).'
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 22
+    modifies: CPF_PROF
+    notes: Use this (filtered to CPF_PROF != the sentinel) to count distinct professionals
+      without double-counting a person who holds bonds at several establishments or
+      several CBOs at one; the field name in the actual DBF drops the underscore present
+      in the PDF's 'CPF_UNICO' label.
+  CPF_PROF:
+    official_name: CPF do Profissional ou caso "99999999999" caso nao seja preenchido.
+    translated_name: Professional's CPF (or sentinel)
+    description: The professional's individual taxpayer ID (CPF), or the literal sentinel
+      string '99999999999' (eleven 9s) when no CPF was captured. Personal identifier
+      - the sentinel must be filtered out before treating the field as a real identifier
+      (e.g. for deduplication or linkage).
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 21
+    notes: Contains the literal placeholder '99999999999' for missing values; do not
+      treat it as a real, shared CPF when counting distinct professionals.
+  HORAHOSP:
+    official_name: Carga horaria HOSPITALAR
+    translated_name: Weekly hours - hospital
+    description: Self-reported weekly contracted hours the professional dedicates at
+      this establishment to hospital (inpatient) activity. Sibling of HORA_AMB and
+      HORAOUTR.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 36
+    notes: 'Same caveat as HORAOUTR: declared hours per establishment bond, can double-count
+      a person''s time across establishments.'
+  HORAOUTR:
+    official_name: Carga horaria nao ambulatorial, nem hospitalar
+    translated_name: Weekly hours - other setting
+    description: Self-reported weekly contracted hours the professional dedicates at
+      this establishment to activities that are neither outpatient (ambulatorial) nor
+      inpatient/hospital (hospitalar) - e.g. administrative, teaching, or support duties.
+      Sibling of HORA_AMB and HORAHOSP.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 35
+    notes: Contracted/declared hours, not hours actually worked; a professional with
+      bonds at several establishments can have hours summing above a full workweek
+      without any error in the data.
+  HORA_AMB:
+    official_name: Carga horaria AMBULATORIAL
+    translated_name: Weekly hours - outpatient
+    description: Self-reported weekly contracted hours the professional dedicates at
+      this establishment to outpatient (ambulatorial) activity. Sibling of HORAHOSP
+      and HORAOUTR.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 37
+    notes: 'Same caveat as HORAOUTR: declared hours per establishment bond, can double-count
+      a person''s time across establishments.'
+  NOMEPROF:
+    official_name: Nome do profissional
+    translated_name: Professional's name
+    description: Free-text full name of the health professional as registered in CNES.
+      Personal identifier; subject to inconsistent capitalization/accents and occasional
+      data-entry variation across competencies for the same person.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 25
+  PROFNSUS:
+    official_name: Caracterizacao do PROFISSIONAL que realiza ATENDIMENTO NAO SUS
+    translated_name: Professional serves non-SUS patients
+    description: Flag characterizing whether this professional, in this role/bond,
+      provides care to non-SUS (private/insurance) patients at the establishment. Sibling
+      field to PROF_SUS.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 34
+  PROF_SUS:
+    official_name: Caracterizacao do PROFISSIONAL que realiza ATENDIMENTO SUS
+    translated_name: Professional serves SUS patients
+    description: Flag characterizing whether this professional, in this role/bond,
+      provides care to SUS (public health system) patients at the establishment. Sibling
+      field to PROFNSUS; the two are not necessarily mutually exclusive.
+    code_system: none
+    source: layout_doc
+    source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
+      Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 33
+  UFMUNRES:
+    official_name: UF e município de residência do profissional
+    translated_name: Professional's state and municipality of residence
+    description: 'Where the professional lives, state and municipality packed into
+      one field. Against the establishment''s municipality it shows commuting, which
+      is how staffing shortages in small municipalities become visible.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C(8) carrying a two-digit UF followed by a six-digit IBGE municipality
+      code; UFMUNRES reads UF e município de residência.
+
+      '
+  VINCULAC:
+    official_name: Tipo de vínculo do profissional
+    translated_name: Professional's employment link
+    description: 'How the professional is attached to the establishment — employed,
+      self-employed, or link not identified. The unidentified value is common enough
+      that it should be reported rather than dropped.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: VINCULO.CNV
+    reasoning: 'Bound to VINCULAC, whose values are profissional contratado, autônomo
+      and vínculo não identificado.
+
+      '
+  VINCUL_A:
+    official_name: Vínculo autônomo
+    translated_name: Autonomous link flag
+    description: Whether the professional works as self-employed here. See VINCUL_C.
+    code_system: none
+    source: inferred
+    reasoning: A suffix for autônomo, parallel to VINCUL_C.
+  VINCUL_C:
+    official_name: Vínculo contratual
+    translated_name: Contractual link flag
+    description: 'Whether the professional holds a contractual link. The VINCUL_ flags
+      decompose VINCULAC into separate yes/no items, and a professional can hold more
+      than one kind at the same establishment.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C suffix for contratual, one of three parallel flags decomposing VINCULAC.
+  VINCUL_N:
+    official_name: Vínculo não identificado
+    translated_name: Unidentified link flag
+    description: Whether the link could not be identified. See VINCUL_C.
+    code_system: none
+    source: inferred
+    reasoning: N suffix for não identificado, parallel to VINCUL_C.

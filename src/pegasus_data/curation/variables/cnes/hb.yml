@@ -1,0 +1,20 @@
+# CNES.HB — Accreditations
+# Habilitações
+#
+# High-complexity accreditations an establishment holds — what it is
+# authorised to bill for.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+  NULEITOS:
+    official_name: Número de leitos da habilitação
+    translated_name: Beds under the accreditation
+    description: 'Beds attached to a high-complexity accreditation. Counts only the
+      beds the accreditation covers, not the establishment''s total.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(3) count in the HB accreditation dataset; NU_LEITOS reads número de
+      leitos.

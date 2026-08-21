@@ -1,0 +1,395 @@
+# SINAN.SIFC — Congenital syphilis
+# Sífilis congênita
+#
+# One case of syphilis transmitted in pregnancy. Treated as a sentinel
+# indicator: a congenital case means antenatal screening or treatment failed.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANTSIFIL_N:
+    official_name: Antecedente de sífilis materna (normalizado)
+    translated_name: Maternal syphilis history (normalized code)
+    description: 'A recoded/normalized version of the mother''s syphilis-history flag,
+      following DATASUS''s convention of adding a "_N" companion field with cleaned
+      numeric codes alongside the original for easier tabulation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANTSIFIL = antecedente de sífilis; the "_N" suffix matches DATASUS''s
+      normalized-field convention seen elsewhere in SINAN (e.g. NU_IDADE_N, CS_ESCOL_N).
+
+      '
+  ANT_IDADE:
+    official_name: Idade da mãe
+    translated_name: Mother's age
+    description: 'The mother''s age, banded. Congenital syphilis concentrates in young
+      mothers with poor antenatal access, so this is a marker of the failure rather
+      than of biology.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: FXID10MAENET.CNV
+    reasoning: Bound to FXID10MAENET, whose labels are ten-year maternal age bands.
+  ANT_MUNI_C:
+    official_name: Município do contato
+    translated_name: Municipality of contact
+    description: 'Where contact with a case or a source occurred. Distinct from the
+      residence history: this is a specific exposure event rather than a period of
+      living somewhere.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; ANT_MUNI_C sits in the antecedent contact block.
+  ANT_PRE_NA:
+    official_name: Realizou pré-natal
+    translated_name: Attended antenatal care
+    description: 'Whether the mother attended antenatal care. Congenital syphilis in
+      a woman who did attend is a different failure from one in a woman who did not:
+      the first means the system missed it, the second that it never had the chance.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PRE_NA reads pré-natal; a yes/no flag.
+  ANT_RACA:
+    official_name: Raça ou cor da mãe
+    translated_name: Mother's race
+    description: 'The mother''s self-declared race or colour. Recorded because congenital
+      syphilis rates differ sharply by race in Brazil, which is a measure of unequal
+      antenatal care.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RAÇA.CNV
+    reasoning: Bound to RAÇA, whose values are branca, preta, amarela, parda and indígena.
+  ANT_TRATAD:
+    official_name: Parceiro tratado
+    translated_name: Partner treated
+    description: 'Whether the mother''s partner was treated. An untreated partner reinfects
+      the mother, which is the commonest reason adequate maternal treatment still ends
+      in a congenital case.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TRATAD reads tratado, in the antecedent block about the partner.
+  ANT_UF_CRI:
+    official_name: UF de residência da criança
+    translated_name: Child's state of residence
+    description: 'Two-letter state (UF) abbreviation for the child''s residence, recorded
+      on the congenital syphilis form separately from the mother''s own residence data.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is SIFC (sífilis congênita); ANT_UF_CRI reads "[cadastro] UF
+      criança"; C2 width matches the standard 2-letter Brazilian state abbreviation.
+
+      '
+  CLI_OSTEO:
+    official_name: Alterações osteoarticulares
+    translated_name: Osteoarticular findings (clinical sign)
+    description: 'Whether the newborn had bone/joint findings such as periostitis or
+      osteochondritis — a classic congenital syphilis sign, distinct from the skin/mucosal
+      findings in LESOES.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; CLI_=clínico, OSTEO=ósseo/osteoarticular.
+  CLI_RINITE:
+    official_name: Rinite sifilítica
+    translated_name: Syphilitic rhinitis (flag)
+    description: 'Whether the newborn showed syphilitic rhinitis ("coriza sifilítica"
+      or snuffles), a classic early clinical sign of congenital syphilis (SIFC) caused
+      by nasal mucosa involvement.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CLI_ = clínico, RINITE = rinite; nasal discharge/snuffles is a named
+      early sign in congenital syphilis clinical presentation, C1 fits a checkbox.
+
+      '
+  DS_ESQUEMA:
+    official_name: Descrição do esquema de tratamento
+    translated_name: Treatment scheme description
+    description: 'Free-text description of the antibiotic treatment scheme given for
+      congenital syphilis (drug, dose, duration), complementing the coded scheme category
+      in TRA_ESQU_1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SIFC form; DS_ description prefix with ESQUEMA reading "esquema"; C30
+      free-text width fits a written treatment description.
+
+      '
+  ESCOLMAE:
+    official_name: Escolaridade da mãe
+    translated_name: Mother's schooling
+    description: 'The mother''s education, from illiterate upward. The strongest social
+      predictor of whether antenatal syphilis was caught and treated.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ESCOLARNET.CNV
+    reasoning: Bound to ESCOLARNET, the schooling codelist.
+  EVO_DIAG_N:
+    official_name: Diagnóstico final
+    translated_name: Final diagnosis
+    description: 'How the case closed: recent congenital syphilis, late congenital
+      syphilis, abortion, stillbirth, or discarded. Abortion and stillbirth are outcomes
+      of the disease, so excluding them undercounts its burden.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: DIAGSIFC.CNV
+    reasoning: 'Bound to DIAGSIFC, whose values are sífilis congênita recente, tardia,
+      aborto, natimorto and descartado.
+
+      '
+  LABC_DT:
+    official_name: Data do exame IgG
+    translated_name: Date of IgG test
+    description: When the infant's IgG was measured.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with LABC_IGG.
+  LABC_DT_1:
+    official_name: Data do exame de sangue da criança
+    translated_name: Date of infant blood test
+    description: When the infant's blood test was done.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the infant laboratory block.
+  LABC_DT_2:
+    official_name: Data do exame de líquor
+    translated_name: Date of CSF test
+    description: When the infant's CSF was examined.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the infant laboratory block.
+  LABC_EVIDE:
+    official_name: Evidência radiológica
+    translated_name: Radiological evidence
+    description: 'Whether long-bone X-rays show the changes of congenital syphilis.
+      Often the only objective sign in a baby who looks well at birth.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAONRE.CNV
+    reasoning: Bound to SIM_NAONRE; EVIDE reads evidência.
+  LABC_IGG:
+    official_name: IgG da criança
+    translated_name: Infant IgG
+    description: 'The infant''s IgG. Crosses the placenta, so it reflects the mother
+      as much as the child and is the least decisive of the infant tests.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGE.CNV
+    reasoning: Bound to REAGE; the infant IgG marker.
+  LABC_LIQUO:
+    official_name: Teste no líquor da criança
+    translated_name: Infant CSF test
+    description: 'The infant''s CSF test. A reactive CSF means neurosyphilis, which
+      requires ten days of intravenous penicillin rather than a single injection —
+      so this field changes the treatment.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGE.CNV
+    reasoning: Bound to REAGE; LIQUO reads líquor in the infant block.
+  LABC_LIQ_1:
+    official_name: Alteração liquórica
+    translated_name: CSF abnormality
+    description: 'Whether the CSF was abnormal on cells or protein, beside the serological
+      result in LABC_LIQUO.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAONRE.CNV
+    reasoning: Bound to SIM_NAONRE; a second CSF item in the infant block.
+  LABC_SANGU:
+    official_name: Teste não treponêmico do sangue da criança
+    translated_name: Infant blood non-treponemal test
+    description: 'The infant''s VDRL on blood. Maternal antibody crosses the placenta,
+      so a reactive result alone does not diagnose the baby — the titre comparison
+      does.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REATIVO.CNV
+    reasoning: 'Bound to REATIVO; LABC_ marks the criança block against the maternal
+      LAB_ one.
+
+      '
+  LABC_TITUL:
+    official_name: Titulação realizada
+    translated_name: Titration performed
+    description: Whether a titration was carried out at all, as against simple reactivity.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAONRE.CNV
+    reasoning: Bound to SIM_NAONRE, sim/não/não realizado.
+  LABC_TIT_1:
+    official_name: Titulação do sangue da criança
+    translated_name: Infant blood titre
+    description: 'The infant''s blood titre. A titre more than fourfold the mother''s
+      indicates the baby''s own infection rather than transferred antibody.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(4) numeric titre paired with LABC_SANGU.
+  LABC_TIT_2:
+    official_name: Titulação do líquor
+    translated_name: CSF titre
+    description: The infant's CSF titre, beside the reactivity in LABC_LIQUO.
+    code_system: none
+    source: inferred
+    reasoning: N(4) numeric titre paired with LABC_LIQUO.
+  LAB_CONF:
+    official_name: Teste treponêmico
+    translated_name: Treponemal test
+    description: 'The confirmatory treponemal test. Stays reactive for life, so it
+      confirms that infection occurred but says nothing about whether it is active.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGE.CNV
+    reasoning: Bound to REAGE; the confirmatory test beside the non-treponemal one.
+  LAB_DT3:
+    official_name: Data do exame no parto
+    translated_name: Date of test at delivery
+    description: When the delivery-time test was done.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the maternal laboratory block.
+  LAB_PARTO:
+    official_name: Teste não treponêmico no parto
+    translated_name: Non-treponemal test at delivery
+    description: 'The mother''s VDRL at delivery. The last chance to detect maternal
+      syphilis before the baby is exposed.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGE.CNV
+    reasoning: Bound to REAGE, reagente/não reagente/não realizado.
+  LAB_TITU_2:
+    official_name: Titulação no parto
+    translated_name: Titre at delivery
+    description: 'The numeric titre at delivery. The titre, not merely reactivity,
+      is what distinguishes active infection from a serological scar, and comparing
+      it with the infant''s is the core of the diagnosis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(4) numeric titre paired with LAB_PARTO.
+  LESOES:
+    official_name: Lesões cutâneo-mucosas
+    translated_name: Skin/mucosal lesions (clinical sign)
+    description: 'Whether the newborn had skin or mucosal lesions (e.g. palmoplantar
+      pemphigus, condyloma lata) — another classic congenital syphilis sign, recorded
+      separately from the bone findings in CLI_OSTEO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named directly for the finding (lesões).
+  MUN_PRE_NA:
+    official_name: Município do pré-natal
+    translated_name: Municipality of antenatal care
+    description: 'Where the antenatal care was given. Frequently not the municipality
+      of residence, since small municipalities refer pregnancies out — which is itself
+      part of why antenatal screening fails.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; PRE_NA reads pré-natal.
+  SIN_OUTR_E:
+    official_name: Outro sinal - especificar
+    translated_name: Other clinical sign, specify (free text)
+    description: 'Free-text name of a congenital syphilis sign not covered by the form''s
+      fixed checklist (CLI_OSTEO, LESOES, hepatosplenomegaly, etc.).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text; SIN_=sinal, OUTR=outro, E read as especificar.
+  TRA_DIAG_C:
+    official_name: Tratamento no diagnóstico - completo
+    translated_name: Treatment at diagnosis completed (flag)
+    description: 'Whether the mother''s syphilis treatment, given at/after her diagnosis,
+      was completed per the recommended regimen - a key field for judging maternal-treatment
+      adequacy, distinct from TRA_DIAG_T (which records the regimen type).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TRA_DIAG_ = tratamento no diagnóstico; SIFC carries the matching TRA_DIAG_T
+      sibling.
+  TRA_DIAG_T:
+    official_name: Tratamento da criança
+    translated_name: Infant treated
+    description: Whether the infant was treated.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAONRE.CNV
+    reasoning: Bound to SIM_NAONRE, in the treatment block.
+  TRA_DT:
+    official_name: Data do tratamento
+    translated_name: Date of treatment
+    description: 'When the mother was treated. Treatment must be complete more than
+      thirty days before delivery to be judged adequate, so this date against the birth
+      is what decides that.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the maternal treatment block.
+  TRA_ESQU_1:
+    official_name: Esquema de tratamento (1)
+    translated_name: Treatment scheme (1)
+    description: 'Coded category for the treatment scheme used for congenital syphilis,
+      the structured counterpart to the free-text DS_ESQUEMA description.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SIFC form; TRA_ treatment prefix with ESQU reading "esquema"; C1 width
+      fits a small enumerated scheme code, paired with the free-text DS_ESQUEMA field.
+
+      '
+  UF_PRE_NAT:
+    official_name: UF do pré-natal
+    translated_name: State (UF) of prenatal care
+    description: 'State where the mother received prenatal care - relevant to tracing
+      whether and where prenatal syphilis screening occurred; paired with MUN_PRE_NA
+      for the municipality.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: UF_PRE_NAT = UF + pré-natal; SIFC carries the matching MUN_PRE_NA field.

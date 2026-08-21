@@ -1,0 +1,2232 @@
+# SIA.AC — APAC, registry follow-up
+# APAC de Acompanhamento
+#
+# The 2002-era renal replacement registry, published as self-extracting
+# archives carrying seven linked datasets rather than as one flat table. See
+# FINDINGS.md 3j — its patient block carries date of birth, postcode and
+# diagnosis, and joins one-to-one to a serology block.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  APA_CODUNI:
+    official_name: Código da Unidade
+    translated_name: Provider unit CNES code
+    description: 'CNES code (with check digit) of the health facility billing this
+      APAC; the observed value 000240 resolves to FUNDHACRE, an Acre state hospital
+      foundation, via the bound CNES codelist.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'CODUNI mirrors the documented general-layout field apa_codcnes, "Código
+      da Unidade Prestadora de Serviços (c/ dígito verificador)"; the catalog''s CNES
+      codelist binding and the FUNDHACRE label on the top observed value confirm it.
+
+      '
+    source_ref: 'fehosp.com.br "Layout da interface texto do APAC e do SIA", página
+      2 (campo apa_codcnes)
+
+      '
+  APA_CONDIC:
+    official_name: Condição de Gestão
+    translated_name: Management arrangement code
+    description: 'Code for the administrative management arrangement of the health
+      system under which the reporting unit operates; value EC (Estado Convencional)
+      means the state government manages it directly, not the municipality.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: TPGESTAO/TPGEST_C domain tables bound to this field in the catalog
+  APA_CONTN:
+    official_name: Indicador de continuidade
+    translated_name: Continuity flag
+    description: 'Single-character flag on every APAC authorisation record, constant
+      at "1" across all 305 rows in this file. CONTN reads continu[idade]; consistent
+      with a dialysis registry where almost every authorisation renews an ongoing therapy
+      rather than opening a first-time request.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Measured constant "1" across 305/305 rows in ACAC0201.DBF; CONTN is
+      readable as an abbreviation of continuidade. No codelist is bound.
+
+      '
+  APA_CPFDIR:
+    official_name: CPF do Autorizador/Diretor
+    translated_name: Authorizing physician CPF
+    description: 'CPF of the physician or clinical director who authorized the APAC,
+      passed through unmodified with no masking; nearly constant per facility since
+      one director signs most of a unit''s authorizations.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Parallels the documented sibling field APA_CNSDIR ("CNS do Autorizador
+      Responsável") in the same layout, where DIR abbreviates the authorizing director/responsible
+      signer.
+
+      '
+  APA_CPFPCN:
+    official_name: CPF do Paciente
+    translated_name: Patient CPF
+    description: 'The patient''s Brazilian taxpayer ID (CPF), passed through unmodified
+      with no masking; the repeating-digit value 33333333374 seen for many records
+      is a placeholder used when the real CPF was unavailable.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"CPF" is the Brazilian tax-ID abbreviation and "PCN" parallels "PCT"
+      in the documented sibling field APA_CNSPCT ("Cartão Nacional de Saúde Paciente");
+      the placeholder pattern is directly observed in the catalog.
+
+      '
+  APA_CPFRES:
+    official_name: CPF do Médico Responsável
+    translated_name: Responsible physician CPF
+    description: 'CPF of the physician responsible for the patient''s ongoing treatment
+      named on the APAC, passed through unmodified with no masking; distinct from APA_CPFDIR,
+      the authorizing physician''s CPF.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Parallels the documented sibling field APA_CNSRES ("CNS Médico Responsável")
+      in the same layout, where RES abbreviates "responsável" for the treating physician.
+
+      '
+  APA_DATEM:
+    official_name: Data de emissão
+    translated_name: Emission month
+    description: 'Year-month (AAAAMM) the APAC authorization was first issued; a continuation
+      APAC (APA_TIPAPA=2) keeps this original month even as later batches process it
+      under a newer APA_DATREF.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'DAT=data, EM=emissão follows the regular DATASUS abbreviation grammar;
+      distinguishing it from the co-located competência field APA_DATREF matches how
+      APA_TIPAPA''s inicial/continuidade distinction is normally carried in APAC records.
+
+      '
+  APA_DATREF:
+    official_name: Data de referência
+    translated_name: Reference month (competência)
+    description: 'Year-month (AAAAMM) of the processing batch this record belongs to
+      — the competência this extract covers, e.g. 200201 for a January 2002 file.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'DAT=data, REF=referência follows the regular DATASUS abbreviation grammar;
+      the field is bound to year-month codelists (ANOMES03, AM_0803) and its one observed
+      value (200201) matches the file''s own extraction month exactly, as a competência
+      field would.
+
+      '
+  APA_DTFIMV:
+    official_name: Data final de validade
+    translated_name: Validity end date
+    description: 'Calendar date (AAAAMMDD) on which this APAC authorization stops being
+      valid — the last day of the covered treatment period, generally the last day
+      of the competência month.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC_JUL07.doc, campo 006 (apa_dtfimval, "Data final da validade da
+      APAC")
+
+      '
+  APA_DTINIV:
+    official_name: Data inicial de validade
+    translated_name: Validity start date
+    description: 'Calendar date (AAAAMMDD) from which this APAC authorization is valid
+      — the first day of the treatment period it covers, typically the 1st of the competência
+      month.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC_JUL07.doc, campo 005 (apa_dtiinval, "Data inicial da validade
+      da APAC")
+
+      '
+  APA_DTOCOR:
+    official_name: Data de ocorrência
+    translated_name: Occurrence date
+    description: 'Date the outcome named in APA_MOTCOB happened — the discharge, transfer,
+      or death that ended this segment of care — not necessarily the same day the batch
+      itself was processed.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Immediately follows APA_MOTCOB in the record layout, exactly where
+      APAC_JUL07.doc places apa_dtobitoalta/APA_DTOBAL ("date of the discharge-or-death
+      event") in its older and newer APAC layouts; observed dates fall within the same
+      competência month as APA_DTINIV/APA_DTFIMV, consistent with an event date rather
+      than a processing date.
+
+      '
+  APA_GESTAO:
+    official_name: Código de gestão
+    translated_name: Managing authority code
+    description: 'IBGE code of the municipality (or UF) holding SUS administrative
+      and financial responsibility for the facility that issued this APAC; 129999-style
+      codes mark the managing municipality as unrecorded.
+
+      '
+    code_system: external
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: '"Gestão" is the standard SIA/SUS field naming a record''s managing
+      municipality/state under decentralised financing, confirmed here by the bound
+      MUNICBR/UF/UFGESTAO codelists and by the observed value 129999 labelled "Município
+      ignorado - AC".
+
+      '
+  APA_MOTCOB:
+    official_name: Motivo da cobrança
+    translated_name: Billing/closing reason
+    description: 'Code for why this APAC segment closed this month: e.g. 69=discharge
+      on completing treatment, 71=stayed at the same facility on the same procedure,
+      81=transferred elsewhere, 91=death.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'APAC_JUL07.doc, campo 053 (apa_motcobra, "conforme tabela do Anexo
+      VII da PT/MS/SAS 205/96")
+
+      '
+  APA_NOMEDI:
+    official_name: Nome do diretor
+    translated_name: Facility director's name
+    description: 'Full name of the director of the health facility that provided the
+      service, entered as free text and passed through unmodified — a personal identifier,
+      not a coded field.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC_JUL07.doc, campo 056 (apa_nomediretor, "Nome do Diretor da Unidade
+      Prestadora do Serviço"), truncated to 10 characters as the DBF field name
+
+      '
+  APA_NOMERE:
+    official_name: Nome do médico responsável
+    translated_name: Responsible physician's name
+    description: 'Full name of the physician responsible for the patient''s treatment
+      under this APAC, entered as free text and passed through unmodified — a personal
+      identifier, not a coded field.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC_JUL07.doc, campo 022 (apa_nomeresp, "Nome do médico responsável"),
+      truncated to 10 characters as the DBF field name
+
+      '
+  APA_NUM:
+    official_name: Número da APAC
+    translated_name: APAC number
+    description: 'The APAC''s own control number: an 11-digit sequence plus a check
+      digit assigned when the authorization is issued, used to link every later billing
+      record back to this authorization.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: APAC_JUL07.doc, campo 003 (apa_num)
+  APA_PRIPAL:
+    official_name: Procedimento principal
+    translated_name: Main procedure code
+    description: 'SIA/SUS procedure code for the main treatment this APAC authorizes,
+      e.g. hemodiálise, tomografia computadorizada or a named medication — the code
+      that drives what care and quantities get billed.
+
+      '
+    code_system: external
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Bound to procedure codelists (PROC1199, PROCSIAV, DIALISE7) and every
+      observed value is a SIGTAP-style procedure code matching a real DATASUS procedure
+      name (hemodiálise, tomografia, calcitriol); "PRIPAL" reads as the truncated DBF
+      form of "procedimento principal", which APAC_JUL07.doc''s layout describes as
+      the authorization''s main billed procedure.
+
+      '
+  APA_TIPAPA:
+    official_name: Tipo de APAC
+    translated_name: APAC type
+    description: 'Marks whether this authorization is the first month of a treatment
+      (1=Inicial), a later month continuing the same course (2=Continuidade), or a
+      one-off procedure needing no renewal (3=Única).
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: APAC_JUL07.doc, campo 008 (apa_tipapac)
+  APA_TIPATE:
+    official_name: Tipo de atendimento
+    translated_name: Type of care
+    description: 'Code for the broad care category this APAC authorizes: observed values
+      include 27 (renal replacement therapy/dialysis), 35 (diagnostic imaging or tests)
+      and 36 (dispensed medications), which sets which of the record''s variable fields
+      apply.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC_JUL07.doc, campo 007 (apa_tipate); values cross-checked against
+      the procedure codes carried in APA_PRIPAL for the same records
+
+      '
+  COB_CODESP:
+    official_name: Código da especialidade
+    translated_name: Specialty code
+    description: 'Code identifying the medical specialty under which the billed procedure
+      was performed or billed, e.g. codes 26, 40, 65 and 66 recurring for this facility''s
+      APAC production.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'CO_=código, ESP=especialidade follows the regular grammar; two-digit
+      values are consistent with SIA/SUS''s specialty-code range, though the catalog
+      carries no codelist for this table to confirm labels.
+
+      '
+  COB_CODPR:
+    official_name: Código do procedimento
+    translated_name: Procedure code
+    description: 'SIA/SUS code of the specific procedure being billed on this line,
+      e.g. tomografia or hemodiálise — the same code space as APA_PRIPAL''s authorization-level
+      main procedure, but at the level of one billed item.
+
+      '
+    code_system: external
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'CO_=código, PR=procedimento follows the regular grammar, and every
+      observed value matches a real SIGTAP-style procedure code also seen in APA_PRIPAL
+      for the same records.
+
+      '
+  COB_CODUNI:
+    official_name: Código da unidade
+    translated_name: Facility identifier
+    description: 'Identifier of the health establishment that carried out the billed
+      procedure; only a handful of distinct facility codes recur across this UF''s
+      records.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'CO_=código, UNI=unidade follows the regular grammar; values are short
+      numeric facility codes consistent with the pre-7-digit CNES unit identifiers
+      used in this era of SIA/SUS files.
+
+      '
+  COB_CONDIC:
+    official_name: Condição do registro
+    translated_name: Record condition flag
+    description: 'Two-letter processing-status code on every billing (cobrança) record,
+      constant at "EC" across all 485 rows. The identical code and width recur on EXA_CONDIC
+      and UDI_CONDIC elsewhere in this archive, so it reads as a DATASUS-internal control
+      flag rather than something a biller enters by hand.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Measured constant "EC" across 485/485 rows in COAC0201.DBF, matching
+      the same value on EXA_CONDIC (52/52) and UDI_CONDIC (2/2) in the same archive.
+
+      '
+  COB_CPFPCN:
+    official_name: CPF do paciente
+    translated_name: Patient's CPF
+    description: 'The patient''s Brazilian taxpayer ID (CPF), an 11-digit personal
+      identifier that passes through unmodified from the source file with no masking
+      applied.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'APAC_JUL07.doc, campo 009 (apa_cpfpcnte, "Número de registro do paciente
+      no Cadastro de Pessoas Físicas... CPF"), same identifier carried in the paired
+      COB_ billing record
+
+      '
+  COB_DATREF:
+    official_name: Data de referência
+    translated_name: Reference month (competência)
+    description: 'Year-month (AAAAMM) of the billing batch this line belongs to, matching
+      APA_DATREF in the paired APAC header file for the same UF and competência.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Shares the value 200201 and the DAT=data, REF=referência grammar with
+      APA_DATREF in the sibling "AC" file for the same competência.
+
+      '
+  COB_GESTAO:
+    official_name: Código de gestão
+    translated_name: Managing authority code
+    description: 'IBGE code of the municipality (or UF) holding administrative and
+      financial responsibility for the billed procedure, the same role APA_GESTAO plays
+      in the paired APAC record.
+
+      '
+    code_system: external
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Bound to MUNICBR and shares the same "129999 Município ignorado" value
+      as APA_GESTAO in the sibling APAC file; "gestão" is the standard SIA/SUS field
+      naming the managing municipality/state.
+
+      '
+  COB_NUM:
+    official_name: Número da APAC
+    translated_name: APAC number
+    description: 'The 11-digit control number of the parent APAC this billed procedure
+      belongs to, letting each line in the billing file be joined back to its APA_NUM
+      header record.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Same 11-digit value format as APA_NUM in the paired "AC" header file
+      for the same UF and competência; COB records are the itemised billing lines generated
+      from each APAC and link back to it by this number.
+
+      '
+  COB_QTAP:
+    official_name: Quantidade apresentada
+    translated_name: Quantity presented
+    description: 'Number of units of this procedure the provider submitted for payment
+      on this billing line, before any reduction by the payer''s approval.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'QT_=quantidade, AP=apresentada follows the regular grammar and the
+      standard SIA/SUS BPA distinction between quantity presented (QTAP) and quantity
+      approved/produced (QTPR).
+
+      '
+  COB_QTPR:
+    official_name: Quantidade produzida
+    translated_name: Quantity approved/produced
+    description: 'Number of units of this procedure actually approved and counted for
+      payment on this billing line, the paid counterpart to the requested COB_QTAP.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'QT_=quantidade, PR=produzida follows the regular grammar and the standard
+      SIA/SUS BPA distinction between apresentada (requested) and produzida/aprovada
+      (paid) quantities.
+
+      '
+  COB_SEQ:
+    official_name: Sequência
+    translated_name: Line sequence number
+    description: 'Sequential position of this procedure line within its parent APAC''s
+      set of billed items, starting at 1; higher numbers mean more procedures were
+      billed under the same authorization.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'SEQ=sequência follows the regular grammar; values run upward from 1
+      and repeat alongside the same COB_NUM, consistent with numbering multiple billing
+      lines under one APAC.
+
+      '
+  COB_TIPATE:
+    official_name: Tipo de atendimento
+    translated_name: Type of care
+    description: 'Code for the care category of the billed procedure — the same value
+      set (27 renal therapy, 35 imaging/tests, 36 medications) seen in APA_TIPATE for
+      the linked APAC header.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Identical value distribution (27, 35, 36, 08, 38) to APA_TIPATE in
+      the paired "AC" file for the same competência, and TIPATE=tipo de atendimento
+      follows the regular DATASUS abbreviation grammar.
+
+      '
+  COB_VALAP:
+    official_name: Valor aprovado
+    translated_name: Approved value
+    description: 'Amount approved for payment on the authorisation, in nominal reais
+      at the time of billing.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'COB is cobrança and VAL AP reads valor aprovado; the observed values
+      are decimal amounts (86.7600, 1.8500).
+
+      '
+    notes: 'Nominal reais, never deflated. Comparing 2002 to 2020 without an index
+      compares two different currencies.
+
+      '
+  COB_VALPR:
+    official_name: Valor apresentado
+    translated_name: Presented value
+    description: 'Amount the establishment presented for payment, before approval.
+      Where it differs from COB_VALAP, the difference is what was refused.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'VAL PR reads valor apresentado, the counterpart of valor aprovado,
+      with the same decimal shape.
+
+      '
+  EXA_CODUNI:
+    official_name: Código da unidade
+    translated_name: Establishment code
+    description: 'Code of the establishment that performed the examination, in the
+      six-character form these 2002-era files use rather than the seven-digit CNES
+      that replaced it.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'COD UNI reads código da unidade, and the observed value (000240) is
+      six characters, predating the CNES numbering.
+
+      '
+  EXA_CONDIC:
+    official_name: Condição do registro (bloco de exames)
+    translated_name: Record condition flag, examinations block
+    description: 'The same two-letter "EC" processing-status flag as COB_CONDIC, here
+      on the examination block. Constant across all 52 rows in this file.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same CONDIC stem and identical constant value as COB_CONDIC.
+  EXA_CPFPCN:
+    official_name: CPF do paciente (bloco de exames)
+    translated_name: Patient CPF, examinations block
+    description: 'The patient pseudonym carried on the examination records — the block
+      that also holds EXA_HIV, EXA_HBSAG, EXA_HEPAT and EXA_HLA. All 52 values fail
+      the CPF check digit.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same CPFPCN stem under the EXA_ prefix; 0 of 52 pass the CPF check digit.
+    notes: 'A PSEUDONYMOUS identifier sharing a table with HIV and hepatitis serology.
+      It does not name anyone by itself. The re-identification risk lies in the patient
+      block it joins to (PAC_NUM to EXA_NUM, measured 52/52 one-to-one), which carries
+      a real date of birth, sex, municipality and postcode.
+
+      '
+  EXA_DATREF:
+    official_name: Data de referência
+    translated_name: Reference year-month
+    description: 'Competência the examination is reported under, as AAAAMM.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DAT REF reads data de referência; observed value 200201 is a year-month.
+  EXA_GESTAO:
+    official_name: Gestão
+    translated_name: Managing authority
+    description: 'Which authority manages the establishment — the municipality or the
+      state. Recorded as a municipality code, where 9999 in the last four digits marks
+      state rather than municipal management.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: 'Bound to MUNICBR, and the observed value 129999 is the Acre state code
+      with the 9999 suffix that DATASUS uses for state-level management.
+
+      '
+  EXA_HBSAG:
+    official_name: Resultado do HBsAg
+    translated_name: Hepatitis B surface antigen result
+    description: 'Hepatitis B surface antigen result, positive or negative. A positive
+      HBsAg means active infection and, in a dialysis unit, isolation.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'HBsAg is the universal abbreviation for the hepatitis B surface antigen;
+      observed values are N and P.
+
+      '
+    notes: Infection status on an identifiable individual. See EXA_HIV.
+  EXA_HEPAT:
+    official_name: Resultado do exame de hepatite
+    translated_name: Hepatitis test result
+    description: 'Hepatitis test result alongside the specific HBsAg column, positive
+      or negative.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: HEPAT is hepatite; observed values are N and P.
+    notes: Infection status on an identifiable individual. See EXA_HIV.
+  EXA_HIV:
+    official_name: Resultado do exame de HIV
+    translated_name: HIV test result
+    description: 'Result of the patient''s HIV test, recorded as positive or negative.
+      Dialysis units test for it because it determines which machine and shift a patient
+      can use.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'HIV needs no expansion, and the observed values are exactly N and P
+      — negativo and positivo.
+
+      '
+    notes: 'HIV STATUS ON AN IDENTIFIABLE INDIVIDUAL. This column shares its rows with
+      EXA_CPFPCN. Publishing the two together is a disclosure of the most sensitive
+      category of health data there is, and it is why these files are the subject of
+      a finding rather than merely a column description.
+
+      '
+  EXA_HLA:
+    official_name: Tipagem HLA realizada
+    translated_name: HLA typing done
+    description: 'Whether HLA tissue typing was carried out — the compatibility test
+      that places a dialysis patient on a transplant waiting list.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'HLA is the human leukocyte antigen system; the observed values are
+      the same N/P flags as the serology fields beside it.
+
+      '
+  EXA_INDCRE:
+    official_name: Índice de referência (CRE)
+    translated_name: Exam reference index (CRE)
+    description: 'Three-digit numeric code on each exam entry (e.g. 124, 046, 083),
+      nearly as varied as the rows themselves — 44 distinct values across 52 records
+      — so it behaves as a near-unique per-record index rather than a small category.
+      Distinct from the decoded serology fields (EXA_HIV, EXA_HBSAG) beside it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'IND reads indicador/índice; distinct_count 44 of 52 non-null rows rules
+      out a small enumerated domain. No codelist is bound in the catalog.
+
+      '
+  EXA_INDUPR:
+    official_name: Índice de referência (UPR)
+    translated_name: Exam reference index (UPR)
+    description: 'Four-digit sibling of EXA_INDCRE, one digit wider and reaching higher
+      values (up to the 1800s in this file) with 43 distinct values across 52 records
+      — again closer to a per-record index than a coded category.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same IND-prefixed family as EXA_INDCRE, distinct_count 43 of 52 non-null
+      rows, four-character width versus INDCRE''s three.
+
+      '
+  EXA_INDUPS:
+    official_name: Índice de referência (UPS)
+    translated_name: Exam reference index (UPS)
+    description: 'Four-digit sibling of EXA_INDUPR, somewhat less varied — 37 distinct
+      values across 52 records rather than 43 — but drawn from the same value range
+      (three- and four-digit codes below 2000).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same IND-prefixed family as EXA_INDCRE/INDUPR, distinct_count 37 of
+      52 non-null rows.
+
+      '
+  EXA_NUM:
+    official_name: Número da APAC (bloco de exames)
+    translated_name: APAC number, examinations block
+    description: 'The same authorisation number on the examination records, which is
+      how a serology result is attached to a patient.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same eleven-digit values as PAC_NUM.
+  OPC_AIHNUM:
+    official_name: Número da AIH
+    translated_name: Hospital admission authorisation number
+    description: 'AIH number where the episode also generated a hospital admission
+      — a link out of SIASUS into SIHSUS for the same patient.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: AIHNUM names the AIH, the hospital authorisation, in an outpatient file.
+  OPC_AIHPRO:
+    official_name: Procedimento da AIH (bloco OPC)
+    translated_name: AIH procedure code, OPC block
+    description: 'Eight-character field for a linked hospital-admission (AIH) procedure
+      code. Present in the OPC schema but empty in every one of the 155 rows here —
+      this Acre file''s dialysis episodes generated no linked hospital admission that
+      month.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AIHPRO reads procedimento da AIH, paralleling the already-documented
+      OPC_AIHNUM; 0 of 155 rows are non-null in this file.
+
+      '
+  OPC_CEPPCN:
+    official_name: CEP do paciente (bloco OPC)
+    translated_name: Patient postcode, OPC block
+    description: 'The patient''s postcode on the OPC records.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same CEPPCN stem under the OPC_ prefix.
+    notes: Identifying in combination. See PAC_CEPPCN.
+  OPC_CID:
+    official_name: CID, bloco OPC
+    translated_name: Diagnosis, OPC block
+    description: The CID-10 diagnosis on the OPC block.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: Bound to the CID and CID10 codelists.
+  OPC_CODUNI:
+    official_name: Código da unidade, bloco OPC
+    translated_name: Establishment code, OPC block
+    description: The treating unit on the OPC block. See PAC_CODUNI.
+    code_system: internal
+    source: def
+    source_ref: CNESUAC.CNV
+    reasoning: The OPC_ block's copy of CODUNI, on the same CNESU codelists.
+  OPC_CONDIC:
+    official_name: Condição de gestão, bloco OPC
+    translated_name: Management arrangement, OPC block
+    description: The management arrangement on the OPC block. See PAC_CONDIC.
+    code_system: internal
+    source: def
+    source_ref: TPGESTAO.CNV
+    reasoning: The OPC_ block's copy of CONDIC, bound to TPGESTAO.
+  OPC_CPFPCN:
+    official_name: CPF do paciente (bloco OPC)
+    translated_name: Patient CPF, OPC block
+    description: 'The patient pseudonym in the third block. All 155 rows carry a single
+      distinct value, so this column identifies nobody.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same CPFPCN stem under the OPC_ prefix; 0 of 155 pass the CPF check
+      digit, 1 distinct value.
+    notes: A PSEUDONYMOUS identifier, effectively constant here. See PAC_CPFPCN.
+  OPC_DATREF:
+    official_name: Competência de referência, bloco OPC
+    translated_name: Reference competência, OPC block
+    description: The competência on the OPC block. See PAC_DATREF.
+    code_system: internal
+    source: def
+    source_ref: AM_0803.CNV
+    reasoning: The OPC_ block's copy of DATREF.
+  OPC_DTTRAN:
+    official_name: Data de transferência (bloco OPC)
+    translated_name: Transfer date, OPC block
+    description: 'Eight-character date field for a patient transfer between dialysis
+      units, entirely empty in this file (0 of 155 rows) — none of these episodes recorded
+      an inter-clinic transfer.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DTTRAN reads data de transferência; 0 of 155 rows are non-null.
+  OPC_GESTAO:
+    official_name: Município gestor, bloco OPC
+    translated_name: Managing municipality, OPC block
+    description: The managing municipality on the OPC block. See PAC_GESTAO.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The OPC_ block's copy of GESTAO, bound to MUNICBR.
+  OPC_MUNPCN:
+    official_name: Município do paciente, bloco OPC
+    translated_name: Patient municipality, OPC block
+    description: The patient's municipality on the OPC block. See PAC_MUNPCN.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The OPC_ block's copy of MUNPCN, bound to MUNICBR.
+  OPC_NASCPC:
+    official_name: Data de nascimento do paciente (bloco OPC)
+    translated_name: Patient date of birth, OPC block
+    description: 'Date of birth on the OPC records, in the same AAAAMMDD form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same NASCPC stem, same eight-digit date values.
+    notes: Identifying in combination. See PAC_CPFPCN.
+  OPC_NUM:
+    official_name: Número da APAC (bloco OPC)
+    translated_name: APAC number, OPC block
+    description: 'The authorisation number on the OPC records.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same eleven-digit APAC number format.
+  OPC_PRIPAL:
+    official_name: Procedimento principal, bloco OPC
+    translated_name: Principal procedure, OPC block
+    description: The principal procedure authorised on the OPC block.
+    code_system: internal
+    source: def
+    source_ref: MUNICBR.CNV
+    reasoning: Bound to PROC1199, a procedure codelist of the period.
+  OPC_RESULT:
+    official_name: Resultado (bloco OPC)
+    translated_name: Outcome code, OPC block
+    description: 'Three-way outcome code on the OPC authorisation record — values 1,
+      2 and 3, split roughly 31/67/51 across the 149 filled rows — most likely distinguishing
+      whether the episode continued, ended or transferred, alongside the "situação"
+      style codes used elsewhere in this registry.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'RESULT reads resultado; distinct_count 3 with observed values {1,2,3}
+      over 149 of 155 rows. No codelist confirms the specific mapping.
+
+      '
+  OPC_SEXOPC:
+    official_name: Sexo do paciente, bloco OPC
+    translated_name: Patient sex, OPC block
+    description: The patient's sex on the OPC block. See PAC_SEXOPC.
+    code_system: internal
+    source: def
+    source_ref: SEXO.CNV
+    reasoning: The OPC_ block's copy of SEXOPC, bound to SEXO.
+  OPC_UFNASC:
+    official_name: UF de nascimento do paciente (bloco OPC)
+    translated_name: Patient state of birth, OPC block
+    description: 'State of birth on the OPC records, again as a two-letter abbreviation.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same UFNASC stem under the OPC_ prefix.
+  PAC_CEPPCN:
+    official_name: CEP do paciente
+    translated_name: Patient postcode
+    description: 'The patient''s postcode, eight digits. Brazilian CEPs resolve to
+      a street or a block in urban areas, so this locates a household rather than a
+      district.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CEP PCN reads CEP do paciente; the observed values are eight-digit
+      codes in the Acre range, which is where these files come from.
+
+      '
+    notes: 'Identifying in combination, and more precisely so than most people expect
+      — a CEP is not a coarse geography.
+
+      '
+  PAC_CODUNI:
+    official_name: Código da unidade, bloco do paciente
+    translated_name: Establishment code, patient block
+    description: 'The dialysis unit treating this patient. The AC registry repeats
+      the same header columns under each block prefix — PAC_, PAF_ and OPC_ — so the
+      three carry the same meaning for different record types.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CNESUAC.CNV
+    reasoning: 'Bound to the CNESU establishment codelists; CODUNI reads código da
+      unidade, repeated across the AC blocks.
+
+      '
+  PAC_CONDIC:
+    official_name: Condição de gestão, bloco do paciente
+    translated_name: Management arrangement, patient block
+    description: 'Whether the establishment is under municipal, state or shared management.
+      Determines who authorises and pays for the treatment.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: TPGESTAO.CNV
+    reasoning: Bound to TPGESTAO, whose values are municipal, estadual and dupla.
+  PAC_CPFPCN:
+    official_name: CPF do paciente
+    translated_name: Patient CPF
+    description: 'An eleven-digit patient pseudonym. The name reads CPF do paciente,
+      but the values are NOT valid CPFs: all 52 in the reference file fail the CPF
+      check digit, as do every patient CPF column in the archive (0 of 1,147). Treat
+      it as a per-patient key, not as a taxpayer number.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CPF PCN reads CPF do paciente and the values are eleven digits, but
+      the CPF check digit rejects 100% of them, so the field does not carry a real
+      CPF. Measured on SIASUS/APAC/2002/acac0201.exe; see FINDINGS.md 3j.
+
+      '
+    notes: 'A PSEUDONYMOUS identifier, not a direct one — an earlier note here claimed
+      it was a CPF in the clear and that was wrong. It remains sensitive: it is highly
+      distinct, so it links a patient''s records to each other, and it sits on a row
+      carrying a real date of birth, postcode, municipality and CID-10 diagnosis, with
+      HIV serology joinable through PAC_NUM. Passed through unmodified deliberately:
+      masking is the Ministry''s decision, and a library that silently altered it would
+      destroy the evidence of what is published.
+
+      '
+  PAC_DATREF:
+    official_name: Competência de referência, bloco do paciente
+    translated_name: Reference competência, patient block
+    description: The AAAAMM competência the record belongs to.
+    code_system: internal
+    source: def
+    source_ref: AM_0803.CNV
+    reasoning: Bound to the AM_0803 competência codelists.
+  PAC_DIAGPR:
+    official_name: Diagnóstico principal, bloco do paciente
+    translated_name: Primary diagnosis, patient block
+    description: 'CID-10 primary diagnosis, overwhelmingly N18.9 — chronic kidney disease
+      — since this registry covers renal replacement therapy.
+
+      '
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: Bound to the CID and CID10 codelists.
+  PAC_DIAGSE:
+    official_name: Diagnóstico secundário do paciente
+    translated_name: Patient secondary diagnosis
+    description: 'CID-10 code of the condition underlying the renal failure. The observed
+      values are dominated by N18.9, chronic kidney disease unspecified, which is what
+      a dialysis registry would be expected to hold.
+
+      '
+    code_system: external
+    codelists:
+    - CID10
+    source: inferred
+    reasoning: 'Bound to CID10 in the catalog, and the observed values (N189, N19)
+      are valid CID-10 renal codes.
+
+      '
+  PAC_DTINSC:
+    official_name: Data de inscrição
+    translated_name: Enrolment date
+    description: 'Six-character enrolment/registration date on the patient block, entirely
+      empty in this file (0 of 52 rows). DTINSC reads data de inscrição — when the
+      patient enrolled in the dialysis programme.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DTINSC decomposes to data de inscrição; 0 of 52 rows are non-null.
+  PAC_DTTRS1:
+    official_name: Data da 1ª terapia renal substitutiva anterior
+    translated_name: Start date, 1st prior renal-replacement episode
+    description: 'Six-character year-month marking the start of the patient''s first
+      previous stint on renal replacement therapy (TRS) — the same TRS stem that names
+      this whole subsystem — tracking dialysis history predating this authorisation.
+      Entirely empty in this file (0 of 52 rows).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DTTRS decomposes to data de [início da] TRS (Terapia Renal Substitutiva);
+      the sibling field PAF_DTTRS1 in the PAF block carries real six-digit year-month
+      values (e.g. 200106, 197309), confirming the format and the TRS reading even
+      though PAC_DTTRS1 itself is null here.
+
+      '
+  PAC_DTTRS2:
+    official_name: Data da 2ª terapia renal substitutiva anterior
+    translated_name: Start date, 2nd prior renal-replacement episode
+    description: 'The second slot in the same DTTRS1-DTTRS3 series as PAC_DTTRS1, for
+      a patient''s second previous TRS episode. Entirely empty in this file (0 of 52
+      rows).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same DTTRS stem as PAC_DTTRS1, one position later; 0 of 52 non-null.
+  PAC_DTTRS3:
+    official_name: Data da 3ª terapia renal substitutiva anterior
+    translated_name: Start date, 3rd prior renal-replacement episode
+    description: 'The third slot in the same DTTRS1-DTTRS3 series, for a patient''s
+      third previous TRS episode. Entirely empty in this file (0 of 52 rows).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same DTTRS stem as PAC_DTTRS1, two positions later; 0 of 52 non-null.
+  PAC_GESTAO:
+    official_name: Município gestor, bloco do paciente
+    translated_name: Managing municipality, patient block
+    description: 'IBGE code of the municipality managing the establishment. Not the
+      patient''s municipality, which PAC_MUNPCN carries.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: Bound to MUNICBR, the national municipality codelist.
+  PAC_INDTRA:
+    official_name: Indicador de transplante
+    translated_name: Transplant indicator
+    description: 'One-character transplant flag on the patient block, constant at "N"
+      across all 52 rows — consistent with a file of active dialysis patients rather
+      than post-transplant patients.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'INDTRA reads indicador de transplante; measured constant "N" across
+      52/52 rows.
+
+      '
+  PAC_INITRA:
+    official_name: Início do tratamento
+    translated_name: Treatment start, year-month
+    description: 'Competência in which the patient began renal replacement therapy,
+      as AAAAMM. What time on dialysis is counted from.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'INI TRA reads início do tratamento, and the observed values are six-digit
+      year-months (200012, 200103).
+
+      '
+  PAC_INSTRA:
+    official_name: Inscrito para transplante
+    translated_name: Enrolled for transplant
+    description: 'One-character flag for whether the patient is enrolled on a transplant
+      waiting list (the CNCDO list referenced elsewhere in this registry family), constant
+      at "N" across all 52 rows in this file.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'INSTRA reads inscrito [para] transplante; measured constant "N" across
+      52/52 rows; parallels the CNCDO enrolment flag documented in later APAC dialysis
+      layouts.
+
+      '
+  PAC_MUNPCN:
+    official_name: Município do paciente
+    translated_name: Patient municipality
+    description: 'IBGE code of the patient''s municipality. Real and unobfuscated,
+      and with the date of birth and postcode on the same record it is part of what
+      makes this registry re-identifiable. See FINDINGS.md 3j.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: Bound to MUNICBR; MUNPCN reads município do paciente.
+  PAC_NASCPC:
+    official_name: Data de nascimento do paciente
+    translated_name: Patient date of birth
+    description: 'Patient''s date of birth as AAAAMMDD, real and unobfuscated. This
+      is the column that actually carries re-identification risk here: with sex, municipality
+      and an eight-digit postcode on the same row, a date of birth is the classic quasi-identifier
+      triple, and no direct identifier is needed to single someone out.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NASC PC reads nascimento do paciente, and the observed values are eight-digit
+      dates such as 19350610.
+
+      '
+    notes: 'Identifying in combination. See PAC_CPFPCN.
+
+      '
+  PAC_NUM:
+    official_name: Número da APAC
+    translated_name: APAC number
+    description: 'Number of the authorisation this record belongs to. Eleven digits,
+      and the key that ties the patient, examination and billing blocks of the archive
+      to one another.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NUM under the patient prefix, with observed values (00012053965) matching
+      those of EXA_NUM row for row — which is what makes it the join key.
+
+      '
+  PAC_SEXOPC:
+    official_name: Sexo do paciente
+    translated_name: Patient sex
+    description: 'The patient''s sex, M or F. Real and unobfuscated, and one of the
+      quasi-identifiers that makes this record re-identifiable alongside the birth
+      date and postcode on the same row.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SEXO.CNV
+    reasoning: Bound to SEXO; SEXOPC reads sexo do paciente.
+  PAC_SITTRA:
+    official_name: Situação de transplante
+    translated_name: Transplant status
+    description: 'One-character transplant-status code, constant at "0" across all
+      52 rows. Later APAC dialysis layouts use a 1-4 domain for this same SITTRA stem
+      (fit/unfit/declined/not-applicable); the catalog''s own profiling flags this
+      constant "0" as a likely retired placeholder value predating that scheme.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SITTRA reads situação de transplante; measured constant "0" across
+      52/52 rows, and the catalog''s semantic profile marks it looks_like_retired_placeholder=true.
+
+      '
+  PAC_UFNASC:
+    official_name: UF de nascimento do paciente
+    translated_name: Patient state of birth
+    description: 'Two-letter abbreviation of the state where the patient was born,
+      recorded as the postal abbreviation rather than the IBGE numeric code.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'UF NASC reads UF de nascimento, and the observed values are letter
+      pairs (AC, CE, PA) rather than digits.
+
+      '
+  PAF_CEPPCN:
+    official_name: CEP do paciente (bloco PAF)
+    translated_name: Patient postcode, second block
+    description: 'The patient''s postcode on the PAF records.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same CEPPCN stem under the PAF_ prefix.
+    notes: Identifying in combination. See PAC_CEPPCN.
+  PAF_CODUNI:
+    official_name: Código da unidade, bloco PAF
+    translated_name: Establishment code, PAF block
+    description: The treating unit on the PAF block. See PAC_CODUNI.
+    code_system: internal
+    source: def
+    source_ref: CNESUAC.CNV
+    reasoning: The PAF_ block's copy of CODUNI, on the same CNESU codelists.
+  PAF_CONDIC:
+    official_name: Condição de gestão, bloco PAF
+    translated_name: Management arrangement, PAF block
+    description: The management arrangement on the PAF block. See PAC_CONDIC.
+    code_system: internal
+    source: def
+    source_ref: TPGESTAO.CNV
+    reasoning: The PAF_ block's copy of CONDIC, bound to TPGESTAO.
+  PAF_CPFPCN:
+    official_name: CPF do paciente (bloco PAF)
+    translated_name: Patient CPF, second block
+    description: 'The same eleven-digit patient pseudonym in the second patient block.
+      All 98 values fail the CPF check digit.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same CPFPCN stem under the PAF_ prefix; 0 of 98 pass the CPF check digit.
+    notes: A PSEUDONYMOUS identifier, not a real CPF. See PAC_CPFPCN.
+  PAF_DATREF:
+    official_name: Competência de referência, bloco PAF
+    translated_name: Reference competência, PAF block
+    description: The competência on the PAF block. See PAC_DATREF.
+    code_system: internal
+    source: def
+    source_ref: AM_0803.CNV
+    reasoning: The PAF_ block's copy of DATREF.
+  PAF_DIAGPR:
+    official_name: Diagnóstico principal, bloco PAF
+    translated_name: Primary diagnosis, PAF block
+    description: The primary CID-10 diagnosis on the PAF block. See PAC_DIAGPR.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: The PAF_ block's copy of DIAGPR, bound to CID10.
+  PAF_DIAGSE:
+    official_name: Diagnóstico secundário do paciente (bloco PAF)
+    translated_name: Patient secondary diagnosis, second block
+    description: 'CID-10 code on the PAF records. Its observed values range wider than
+      PAC_DIAGSE''s — hepatitis, schizophrenia, nutritional codes — so this block records
+      comorbidity rather than the renal diagnosis alone.
+
+      '
+    code_system: external
+    codelists:
+    - CID10
+    source: inferred
+    reasoning: 'Bound to CID10, with observed values (N189, B182, E611, F205) spanning
+      several chapters rather than clustering on renal codes.
+
+      '
+  PAF_DTINSC:
+    official_name: Data de inscrição (bloco PAF)
+    translated_name: Enrolment date, PAF block
+    description: 'The PAF-block sibling of PAC_DTINSC, same six-character enrolment-date
+      field. Entirely empty in this file (0 of 98 rows).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same DTINSC stem as PAC_DTINSC; 0 of 98 rows are non-null.
+  PAF_DTTRS1:
+    official_name: Data da 1ª terapia renal substitutiva anterior (bloco PAF)
+    translated_name: Start date, 1st prior renal-replacement episode, PAF block
+    description: 'The PAF-block sibling of PAC_DTTRS1: year-month start of the patient''s
+      first previous TRS episode. Filled for 11 of 98 rows here, with values spanning
+      1973 to 2001 — evidence this tracks a patient''s real dialysis history, not just
+      the current competência.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Matched DATASUS''s yyyymm competência pattern (10 distinct values,
+      100% month-valid) over 11 of 98 non-null rows, including 197309 and 200106.
+
+      '
+  PAF_DTTRS2:
+    official_name: Data da 2ª terapia renal substitutiva anterior (bloco PAF)
+    translated_name: Start date, 2nd prior renal-replacement episode, PAF block
+    description: 'The second slot in the PAF-block DTTRS series, paralleling PAF_DTTRS1.
+      Entirely empty in this file (0 of 98 rows).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same DTTRS stem as PAF_DTTRS1, one position later; 0 of 98 non-null.
+  PAF_DTTRS3:
+    official_name: Data da 3ª terapia renal substitutiva anterior (bloco PAF)
+    translated_name: Start date, 3rd prior renal-replacement episode, PAF block
+    description: 'The third slot in the PAF-block DTTRS series. Entirely empty in this
+      file (0 of 98 rows).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same DTTRS stem as PAF_DTTRS1, two positions later; 0 of 98 non-null.
+  PAF_GESTAO:
+    official_name: Município gestor, bloco PAF
+    translated_name: Managing municipality, PAF block
+    description: The managing municipality on the PAF block. See PAC_GESTAO.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The PAF_ block's copy of GESTAO, bound to MUNICBR.
+  PAF_INDTRA:
+    official_name: Indicador de transplante (bloco PAF)
+    translated_name: Transplant indicator, PAF block
+    description: 'The PAF-block sibling of PAC_INDTRA, constant at "N" across all 98
+      rows in this file.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same INDTRA stem as PAC_INDTRA; measured constant "N" across 98/98 rows.
+  PAF_INITRA:
+    official_name: Início do tratamento (bloco PAF)
+    translated_name: Treatment start, year-month, PAF block
+    description: 'The PAF-block sibling of the already-documented PAC_INITRA: the competência
+      in which the patient began renal replacement therapy, as AAAAMM. Filled for all
+      98 rows, 40 distinct year-months observed.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same INITRA stem as PAC_INITRA; matched the yyyymm competência pattern
+      over 98/98 non-null rows (e.g. 200111, 200012, 200201).
+
+      '
+  PAF_INSTRA:
+    official_name: Inscrito para transplante (bloco PAF)
+    translated_name: Enrolled for transplant, PAF block
+    description: 'The PAF-block sibling of PAC_INSTRA, constant at "N" across all 98
+      rows in this file.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same INSTRA stem as PAC_INSTRA; measured constant "N" across 98/98 rows.
+  PAF_MUNPCN:
+    official_name: Município de residência do paciente (bloco PAF)
+    translated_name: Patient's municipality of residence, PAF block
+    description: 'IBGE municipality code of the patient''s residence, on the PAF block.
+      All 8 distinct values observed carry the 12 (Acre) state prefix, matching where
+      these files originate.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: 'Bound to MUNICBR in the catalog at 0.9 confidence; all 98 non-null
+      values match the 6-digit IBGE code pattern with an Acre (12xxxx) prefix.
+
+      '
+  PAF_NASCPC:
+    official_name: Data de nascimento do paciente (bloco PAF)
+    translated_name: Patient date of birth, PAF block
+    description: 'The PAF-block sibling of the already-documented PAC_NASCPC: patient
+      date of birth as AAAAMMDD, real and unobfuscated. Filled for all 98 rows, spanning
+      births from 1921 to 1993.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Matched DATASUS''s date8/YYYYMMDD pattern at 0.95 confidence over 98/98
+      non-null rows.
+
+      '
+    notes: 'Identifying in combination, on a row that also carries PAF_CPFPCN, PAF_CEPPCN
+      and PAF_MUNPCN. See PAC_CPFPCN in siasus_apac_registry.yml.
+
+      '
+  PAF_NUM:
+    official_name: Número da APAC (bloco PAF)
+    translated_name: APAC number, PAF block
+    description: 'The same eleven-digit APAC authorisation number as PAC_NUM, on the
+      second patient block — the join key tying this row to the other six blocks of
+      the archive. Unique across all 98 rows here.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same NUM stem as the already-documented PAC_NUM/EXA_NUM/OPC_NUM, all
+      confirmed as the APAC join key; eleven digits, distinct on every row (98 of 98).
+      The catalog''s generic profiler flags this shape as "looks like a CPF", but an
+      eleven-digit unique row key under the NUM stem, in a family where every other
+      NUM column is the established join key, is read as the APAC number here, not
+      a patient identifier.
+
+      '
+  PAF_SEXOPC:
+    official_name: Sexo do paciente (bloco PAF)
+    translated_name: Patient sex, PAF block
+    description: 'Patient sex on the PAF block, M or F. 64 of the 98 rows are male,
+      34 female.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: SEXOPC reads sexo do paciente; observed values are exactly M and F.
+  PAF_SITTRA:
+    official_name: Situação de transplante (bloco PAF)
+    translated_name: Transplant status, PAF block
+    description: 'Transplant-status flag on the PAF block: 0 for 87 of the 98 rows,
+      1 for the other 11. A simpler two-way version of the same SITTRA stem that later
+      APAC dialysis layouts expand into a four-way fit/unfit/ declined/not-applicable
+      code.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same SITTRA stem as PAC_SITTRA (constant "0" there); here it varies
+      between "0" and "1" across 98 rows, unlike PAC_SITTRA''s single retired-looking
+      placeholder value.
+
+      '
+  PAF_UFNASC:
+    official_name: UF de nascimento do paciente (bloco PAF)
+    translated_name: Patient state of birth, PAF block
+    description: 'The PAF-block sibling of the already-documented PAC_UFNASC/OPC_UFNASC:
+      two-letter state-of-birth abbreviation. 5 distinct states observed across the
+      98 rows.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Same UFNASC stem; matched DATASUS''s two-letter UF pattern (alpha_rate
+      1.0) over all 98 non-null rows.
+
+      '
+  UDI_APCGC1:
+    official_name: CNPJ da entidade (1)
+    translated_name: Linked-entity tax id, slot 1
+    description: 'Tax id (CNPJ) of the first entity linked to this dialysis unit''s
+      registration. Identical on both of the two Acre units in this file — 63602940000170,
+      the CNPJ of FUNDHACRE, the state hospital foundation — reading as the unit''s
+      own operating entity rather than a distinct backup-service partner.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Measured constant "63602940000170" across both non-null rows in UDAC0201.DBF;
+      the same CNPJ recurs as entity 1 of the UDI_PC, UDI_RD and UDI_US triples in
+      this file, and as UDI_APRZ1''s paired name, "FUNDHACRE".
+
+      '
+  UDI_APCGC2:
+    official_name: CNPJ da entidade (2)
+    translated_name: Linked-entity tax id, slot 2
+    description: 'Tax id for a second linked entity in the same AP category as UDI_APCGC1.
+      Unfilled in this file — both rows carry the all-zero placeholder, so no second
+      entity was recorded.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Measured constant "00000000000000" across both non-null rows, the standard
+      DATASUS zero-fill for an empty CNPJ slot.
+
+      '
+  UDI_APMN1:
+    official_name: Município da entidade (1)
+    translated_name: Linked-entity municipality, slot 1
+    description: 'Municipality of the entity named in UDI_APCGC1/APRZ1 — 120040 (Rio
+      Branco, Acre) on both rows here, matching FUNDHACRE''s home city.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: 'Bound to MUNICBR at 0.9 confidence; both non-null rows read 120040,
+      the IBGE code for Rio Branco.
+
+      '
+  UDI_APMN2:
+    official_name: Município da entidade (2)
+    translated_name: Linked-entity municipality, slot 2
+    description: 'Municipality of the second AP entity. Never filled in this file —
+      both rows are null, matching UDI_APCGC2 and UDI_APRZ2''s empty slot 2.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: 0 of 2 rows non-null, consistent with an unfilled slot 2 across the
+      AP triple.
+  UDI_APRZ1:
+    official_name: Razão social da entidade (1)
+    translated_name: Linked-entity legal name, slot 1
+    description: 'Legal name of the entity in UDI_APCGC1/APMN1 — "FUNDHACRE" on both
+      rows, the Fundação Hospitalar do Acre, the state authority operating this dialysis
+      unit.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "FUNDHACRE" across both non-null rows.
+  UDI_APRZ2:
+    official_name: Razão social da entidade (2)
+    translated_name: Linked-entity legal name, slot 2
+    description: 'Legal name for the second AP entity. Never filled here, matching
+      UDI_APCGC2 and UDI_APMN2''s empty slot 2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 0 of 2 rows non-null.
+  UDI_CODUNI:
+    official_name: Código da unidade
+    translated_name: Establishment code, dialysis unit
+    description: 'Code of the dialysis unit itself, in the six-character form these
+      2002-era files use rather than the seven-digit CNES that replaced it — the same
+      convention already documented on EXA_CODUNI. The two rows here read 000002 and
+      000240, one per Acre dialysis unit.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'Same CODUNI stem as the already-documented EXA_CODUNI; two distinct
+      six-character values, one per row.
+
+      '
+  UDI_CONDIC:
+    official_name: Condição do registro (bloco UDI)
+    translated_name: Record condition flag, dialysis unit block
+    description: 'The same two-letter "EC" processing-status flag documented on COB_CONDIC
+      and EXA_CONDIC, here on the dialysis unit''s own record. Constant across both
+      rows.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same CONDIC stem, same constant "EC" value, as COB_CONDIC/EXA_CONDIC.
+  UDI_DATREF:
+    official_name: Data de referência (bloco UDI)
+    translated_name: Reference year-month, dialysis unit block
+    description: 'Competência this dialysis unit registration is reported under, as
+      AAAAMM — the same DATREF stem already documented on EXA_DATREF. Constant at 200201
+      (January 2002) across both rows.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same DATREF stem as EXA_DATREF; constant "200201" across both rows.
+  UDI_DIRCPF:
+    official_name: CPF do diretor
+    translated_name: Clinic director's CPF
+    description: 'The dialysis unit director''s CPF — a real taxpayer number, unlike
+      the patient CPFPCN columns elsewhere in this archive. One distinct value per
+      unit (2 rows, 2 CPFs), paired with the director''s name in UDI_DIRNM.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DIR CPF reads CPF do diretor; per the task brief''s check-digit survey
+      this column passes the CPF check digit 100% of the time, unlike the *_CPFPCN
+      patient-pseudonym columns.
+
+      '
+    notes: 'A genuine direct identifier, but of a facility director acting in a professional
+      capacity, not of a patient — a materially different privacy posture from the
+      patient CPFPCN/serology combination flagged in siasus_apac_registry.yml.
+
+      '
+  UDI_DIRNM:
+    official_name: Nome do diretor
+    translated_name: Clinic director's name
+    description: 'Full name of the dialysis unit''s director, paired with UDI_DIRCPF.
+      Two distinct names observed, one per Acre unit in this file.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DIR NM reads nome do diretor; paired one-to-one with UDI_DIRCPF.
+  UDI_GESTAO:
+    official_name: Gestão (bloco UDI)
+    translated_name: Managing authority, dialysis unit block
+    description: 'Which authority manages the dialysis unit, recorded as a municipality
+      code — the same GESTAO convention already documented on EXA_GESTAO. Both rows
+      read 129999, the Acre state code with the 9999 suffix DATASUS uses for state-level
+      rather than municipal management.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: 'Same GESTAO stem as EXA_GESTAO; bound to MUNICBR; both rows read 129999.
+
+      '
+  UDI_HGCGC1:
+    official_name: CNPJ do hospital geral de apoio (1)
+    translated_name: Backup general hospital tax id, slot 1
+    description: 'Tax id of the general hospital this dialysis unit relies on for emergencies
+      and admissions it cannot handle itself — constant 04034526000224 across both
+      rows, one branch of the Rio Branco general hospital group named in UDI_HGRZ1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HG reads Hospital Geral; the paired UDI_HGRZ1 values ("HOSP.DE CLINICAS
+      DE RIO BRANCO", "HOSP.GERAL DE CLINICAS DE R BRANCO") are general-hospital names,
+      confirming the reading. Constant CNPJ across both rows.
+
+      '
+  UDI_HGCGC2:
+    official_name: CNPJ do hospital geral de apoio (2)
+    translated_name: Backup general hospital tax id, slot 2
+    description: 'Tax id for a second backup-hospital slot. Both rows read 63602940000170
+      — FUNDHACRE''s own CNPJ again, rather than a distinct second hospital.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Constant "63602940000170" across both rows, matching UDI_APCGC1''s
+      value and UDI_HGRZ2''s paired "FUNDHACRE".
+
+      '
+  UDI_HGMN1:
+    official_name: Município do hospital geral de apoio (1)
+    translated_name: Backup general hospital municipality, slot 1
+    description: 'Municipality of the first backup hospital — 120040, Rio Branco, on
+      both rows.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+  UDI_HGMN2:
+    official_name: Município do hospital geral de apoio (2)
+    translated_name: Backup general hospital municipality, slot 2
+    description: 'Municipality of the second backup-hospital slot — also 120040, Rio
+      Branco, consistent with UDI_HGCGC2 pointing back to the local FUNDHACRE entity
+      rather than an outside hospital.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+  UDI_HGRZ1:
+    official_name: Razão social do hospital geral de apoio (1)
+    translated_name: Backup general hospital legal name, slot 1
+    description: 'Legal name of the first backup hospital: "HOSP.DE CLINICAS DE RIO
+      BRANCO" on one Acre unit''s row and "HOSP.GERAL DE CLINICAS DE R BRANCO" on the
+      other — the same Rio Branco general hospital, spelled slightly differently between
+      the two units'' submissions.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Two distinct values observed, both naming the same Rio Branco general
+      hospital.
+  UDI_HGRZ2:
+    official_name: Razão social do hospital geral de apoio (2)
+    translated_name: Backup general hospital legal name, slot 2
+    description: 'Legal name for the second backup-hospital slot — "FUNDHACRE" on both
+      rows, again the unit''s own operating foundation rather than a named hospital.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Constant "FUNDHACRE" across both rows.
+  UDI_HTPCGC:
+    official_name: CNPJ do hospital para transplante renal
+    translated_name: Renal-transplant referral hospital tax id
+    description: 'Tax id of the hospital this dialysis unit refers patients to for
+      kidney transplantation. Constant 00054015000213 across both rows — the CNPJ of
+      the Hospital de Base do Distrito Federal in Brasília, outside Acre entirely,
+      since the state has no transplant centre of its own.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HTP reads Hospital para Transplante; the paired UDI_HTPRZ value, "HOSP.
+      DE BASE DO DISTRITO FEDERAL", and UDI_HTPMN''s municipality code 530010 (Brasília),
+      confirm an out-of-state transplant-referral hospital rather than a local one.
+
+      '
+  UDI_HTPMN:
+    official_name: Município do hospital para transplante renal
+    translated_name: Renal-transplant referral hospital municipality
+    description: 'Municipality of the transplant-referral hospital — 530010, Brasília/
+      Distrito Federal, on both rows, not a municipality in Acre at all.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 530010, the Distrito Federal
+      code.
+  UDI_HTPRZ:
+    official_name: Razão social do hospital para transplante renal
+    translated_name: Renal-transplant referral hospital legal name
+    description: 'Legal name of the transplant-referral hospital: "HOSP. DE BASE DO
+      DISTRITO FEDERAL", constant across both Acre units in this file.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "HOSP. DE BASE DO DISTRITO FEDERAL" across both rows.
+  UDI_INDTR1:
+    official_name: Indicador de tratamento oferecido (1)
+    translated_name: Treatment-type offered flag, item 1
+    description: 'First of six yes/no flags (INDTR1-INDTR6) on the dialysis unit''s
+      registration, most likely a checklist of which renal-replacement modalities the
+      unit offers (e.g. haemodialysis, CAPD, intermittent peritoneal dialysis). Varies
+      0/1 between the two Acre units.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'INDTR reads indicador de tratamento; six sibling flags (INDTR1-6),
+      one character each, values 0/1 across 2 rows. No codelist confirms which modality
+      each position marks.
+
+      '
+  UDI_INDTR2:
+    official_name: Indicador de tratamento oferecido (2)
+    translated_name: Treatment-type offered flag, item 2
+    description: 'Second flag in the same INDTR1-INDTR6 checklist as UDI_INDTR1. Varies
+      0/1 between the two Acre units.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same INDTR stem as UDI_INDTR1, one position later.
+  UDI_INDTR3:
+    official_name: Indicador de tratamento oferecido (3)
+    translated_name: Treatment-type offered flag, item 3
+    description: 'Third flag in the same INDTR checklist. Varies 0/1 between the two
+      Acre units.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same INDTR stem as UDI_INDTR1, two positions later.
+  UDI_INDTR4:
+    official_name: Indicador de tratamento oferecido (4)
+    translated_name: Treatment-type offered flag, item 4
+    description: 'Fourth flag in the same INDTR checklist, constant at 0 for both Acre
+      units — neither offers whichever modality this position marks.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same INDTR stem as UDI_INDTR1, three positions later; measured constant
+      "0" across both rows.
+
+      '
+  UDI_INDTR5:
+    official_name: Indicador de tratamento oferecido (5)
+    translated_name: Treatment-type offered flag, item 5
+    description: 'Fifth flag in the same INDTR checklist. Varies 0/1 between the two
+      Acre units.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same INDTR stem as UDI_INDTR1, four positions later.
+  UDI_INDTR6:
+    official_name: Indicador de tratamento oferecido (6)
+    translated_name: Treatment-type offered flag, item 6
+    description: 'Sixth and last flag in the INDTR checklist, constant at 0 for both
+      Acre units.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same INDTR stem as UDI_INDTR1, five positions later; measured constant
+      "0" across both rows.
+
+      '
+  UDI_LAACGC:
+    official_name: CNPJ do laboratório de análises
+    translated_name: Analysis laboratory tax id
+    description: 'Tax id of the analysis laboratory linked to this dialysis unit —
+      two distinct contractors, one per Acre unit (CNPJs 03466327000141 and 01634845000100),
+      neither the FUNDHACRE/hospital entities seen elsewhere in this record.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LAA reads Laboratório de Análises; paired UDI_LAARZ names ("SAERB",
+      "QUILAB/ C. SIMAO SILVA") read as commercial lab/service providers, distinct
+      from the hospital and foundation entities in the AP/HG/HTP slots.
+
+      '
+  UDI_LAAMN:
+    official_name: Município do laboratório de análises
+    translated_name: Analysis laboratory municipality
+    description: 'Municipality of the linked analysis laboratory — 120040, Rio Branco,
+      on both rows, i.e. a locally contracted lab rather than an out-of-state one.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+  UDI_LAARZ:
+    official_name: Razão social do laboratório de análises
+    translated_name: Analysis laboratory legal name
+    description: 'Legal name of the linked lab: "SAERB" on one Acre unit''s row — the
+      same name that unit gives for its maintenance contractor (UDI_MTARZ), suggesting
+      a combined water-analysis-and-upkeep vendor — and "QUILAB/ C. SIMAO SILVA", an
+      ordinary clinical lab, on the other.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Two distinct free-text values measured, one of which ("SAERB") duplicates
+      UDI_MTARZ''s value on the same row.
+
+      '
+  UDI_LHCCGC:
+    official_name: CNPJ do laboratório de histocompatibilidade
+    translated_name: Histocompatibility laboratory tax id
+    description: 'Tax id of the tissue-typing (HLA) laboratory this unit''s transplant
+      candidates are referred to. Constant 00054015000213 on both rows — the same CNPJ
+      as UDI_HTPCGC, the Brasília transplant-referral hospital, so the histocompatibility
+      testing happens at that same out-of-state hospital.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LHC reads Laboratório de HistoCompatibilidade; the CNPJ, municipality
+      (530010, Brasília) and legal name ("HOSP. DE BASE DO DISTRITO FEDERAL") are identical
+      to UDI_HTPCGC/HTPMN/HTPRZ — the same hospital does both the transplant workup
+      and the tissue typing for Acre''s dialysis patients.
+
+      '
+  UDI_LHCMN:
+    official_name: Município do laboratório de histocompatibilidade
+    translated_name: Histocompatibility laboratory municipality
+    description: 'Municipality of the histocompatibility lab — 530010, Brasília, on
+      both rows, matching UDI_HTPMN.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 530010, matching UDI_HTPMN.
+  UDI_LHCRZ:
+    official_name: Razão social do laboratório de histocompatibilidade
+    translated_name: Histocompatibility laboratory legal name
+    description: 'Legal name of the histocompatibility lab: "HOSP. DE BASE DO DISTRITO
+      FEDERAL", constant across both rows and identical to UDI_HTPRZ.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Measured constant, identical to UDI_HTPRZ's value.
+  UDI_MEDCGC:
+    official_name: CNPJ do fornecedor de material médico
+    translated_name: Medical-supplies vendor tax id
+    description: 'Tax id of this unit''s dialysis equipment/consumables supplier. Two
+      distinct vendors, one per Acre unit (49351786000180 and 01092701000160).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Paired UDI_MEDRZ names ("BAXTER HOSPITALAR LTDA", a major dialysis
+      solutions and equipment manufacturer, and "CONCISE COM.APAR.E EQUIP.ELET.LTDA",
+      an electrical-equipment trading company) confirm an equipment/supplies vendor
+      rather than a clinical entity.
+
+      '
+  UDI_MEDMN:
+    official_name: Município do fornecedor de material médico
+    translated_name: Medical-supplies vendor municipality
+    description: 'Municipality of the equipment vendor — 355030 (São Paulo) on both
+      rows, an out-of-state commercial supplier rather than a local one.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 355030, the São Paulo city
+      code.
+  UDI_MEDRZ:
+    official_name: Razão social do fornecedor de material médico
+    translated_name: Medical-supplies vendor legal name
+    description: 'Legal name of the equipment vendor: "BAXTER HOSPITALAR LTDA" for
+      one Acre unit, "CONCISE COM.APAR.E EQUIP.ELET.LTDA" for the other.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Two distinct values measured, one per row.
+  UDI_MTACGC:
+    official_name: CNPJ da empresa de manutenção
+    translated_name: Maintenance contractor tax id
+    description: 'Tax id of the company that maintains this unit''s dialysis machines
+      and water-treatment system — heavily regulated equipment that requires a documented
+      maintenance contract. Two distinct contractors, one per Acre unit.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MTA reads manutenção; paired UDI_MTARZ names ("SAERB", "FLUIDTECH"
+      — the latter literally "fluid technology") read as water-system/ equipment maintenance
+      vendors.
+
+      '
+  UDI_MTAMN:
+    official_name: Município da empresa de manutenção
+    translated_name: Maintenance contractor municipality
+    description: 'Municipality of the maintenance contractor — 120040 (Rio Branco)
+      for one Acre unit, 411915 (a Paraná municipality) for the other, showing one
+      unit uses an out-of-state specialist maintenance vendor.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: 'Bound to MUNICBR; the two non-null values are 120040 and 411915, one
+      local and one in Paraná.
+
+      '
+  UDI_MTARZ:
+    official_name: Razão social da empresa de manutenção
+    translated_name: Maintenance contractor legal name
+    description: 'Legal name of the maintenance contractor: "SAERB" for one Acre unit
+      (the same name that unit also gives for its analysis lab, UDI_LAARZ) and "FLUIDTECH"
+      for the other.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Two distinct values measured; "SAERB" duplicates the value in UDI_LAARZ.
+  UDI_NFRCPF:
+    official_name: CPF do enfermeiro responsável
+    translated_name: Responsible nurse's CPF
+    description: 'The real CPF of the nurse responsible for the dialysis unit — unlike
+      the patient CPFPCN columns elsewhere in this archive, this one passes the CPF
+      check digit. One distinct value per Acre unit, paired with UDI_NFRNM.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Per the task brief''s check-digit survey, UDI_NFRCPF is one of the
+      columns confirmed as a genuine CPF (100% pass), identifying the responsible nurse.
+
+      '
+    notes: 'A direct identifier of a named health professional acting in a professional
+      capacity, not a patient — see the note on UDI_DIRCPF in siasus_ac_02.yml for
+      the same distinction.
+
+      '
+  UDI_NFRNM:
+    official_name: Nome do enfermeiro responsável
+    translated_name: Responsible nurse's name
+    description: 'Full name of the responsible nurse, paired with UDI_NFRCPF. Two distinct
+      names observed, one per Acre unit.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NFR NM reads nome do enfermeiro; paired one-to-one with UDI_NFRCPF.
+  UDI_PCCGC1:
+    official_name: CNPJ da entidade de referência (1)
+    translated_name: Reference-entity tax id, slot 1
+    description: 'Tax id of the first entity in a further reference-institution pair.
+      Constant 63602940000170 across both rows — FUNDHACRE again, the same entity that
+      fills the AP, HG-slot-2, RD and US "entity 1" positions throughout this record.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Measured constant, identical to UDI_APCGC1''s value and paired with
+      UDI_PCRZ1''s "FUNDHACRE".
+
+      '
+  UDI_PCCGC2:
+    official_name: CNPJ da entidade de referência (2)
+    translated_name: Reference-entity tax id, slot 2
+    description: 'Tax id of the second entity in the same reference pair — constant
+      04034526000143, the same CNPJ root as the backup general hospital in UDI_HGCGC1,
+      paired here with "Laboratório Central de Saúde Pública" (LACEN) in UDI_PCRZ2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Measured constant across both rows; paired UDI_PCRZ2 names the state
+      public-health reference laboratory, plausibly consulted for the water and dialysate
+      quality testing dialysis units are required to document.
+
+      '
+  UDI_PCMN1:
+    official_name: Município da entidade de referência (1)
+    translated_name: Reference-entity municipality, slot 1
+    description: 'Municipality of the first reference entity — 120040, Rio Branco,
+      on both rows.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+  UDI_PCMN2:
+    official_name: Município da entidade de referência (2)
+    translated_name: Reference-entity municipality, slot 2
+    description: 'Municipality of the second reference entity — also 120040, Rio Branco,
+      consistent with LACEN''s home city.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+  UDI_PCRZ1:
+    official_name: Razão social da entidade de referência (1)
+    translated_name: Reference-entity legal name, slot 1
+    description: 'Legal name of the first reference entity — "FUNDHACRE", constant
+      across both rows.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "FUNDHACRE" across both rows, matching UDI_APRZ1.
+  UDI_PCRZ2:
+    official_name: Razão social da entidade de referência (2)
+    translated_name: Reference-entity legal name, slot 2
+    description: 'Legal name of the second entity in the UDI_PC reference pair (see
+      UDI_PCCGC2 in siasus_ac_03.yml): "LABORATORIO CENTRAL DE S. PUBLICA" on one Acre
+      unit''s row, "LAB. CENTRAL DE SAUDE PUBLICA" on the other — the same state public-health
+      reference laboratory (LACEN), spelled slightly differently between the two submissions.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Two distinct free-text values measured, both plainly abbreviating Laboratório
+      Central de Saúde Pública.
+
+      '
+  UDI_QTDAG1:
+    official_name: Quantidade de equipamento de tratamento de água (1)
+    translated_name: Water-treatment equipment count, type 1
+    description: 'Count of one category of water-treatment equipment the dialysis unit
+      operates — 0 on one Acre row, 1 on the other. Dialysate water treatment is the
+      most heavily regulated part of a dialysis unit''s equipment, which is why this
+      registration form itemises it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QTD reads quantidade; AG plausibly abbreviates água, consistent with
+      the task brief''s note that this form covers water treatment in detail. Observed
+      values are small counts (0, 1), not a flag domain.
+
+      '
+  UDI_QTDAG2:
+    official_name: Quantidade de equipamento de tratamento de água (2)
+    translated_name: Water-treatment equipment count, type 2
+    description: 'Count of a second category of water-treatment equipment, alongside
+      UDI_QTDAG1 — 0 on one Acre row, 1 on the other.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same QTDAG stem as UDI_QTDAG1, second position; same value pattern.
+  UDI_QTDDPA:
+    official_name: Quantidade de diálise peritoneal ambulatorial
+    translated_name: Ambulatory peritoneal dialysis capacity
+    description: 'Count related to continuous ambulatory peritoneal dialysis (CAPD)
+      capacity at this unit, constant at 1 across both Acre rows.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QTD DPA reads quantidade de diálise peritoneal ambulatorial; constant
+      "01" across both rows.
+
+      '
+  UDI_QTDDPI:
+    official_name: Quantidade de diálise peritoneal intermitente
+    translated_name: Intermittent peritoneal dialysis capacity
+    description: 'Count related to intermittent peritoneal dialysis (IPD) capacity,
+      alongside UDI_QTDDPA, constant at 1 across both Acre rows.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: QTD DPI reads quantidade de diálise peritoneal intermitente; constant
+      "01".
+  UDI_QTDMQD:
+    official_name: Quantidade de máquinas de diálise (D)
+    translated_name: Dialysis machine count, category D
+    description: 'Count of dialysis machines in one operational category at this unit
+      — 0 on one Acre row, 3 on the other, the first non-trivial machine count in this
+      UDI_QTD family.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'QTD MQ reads quantidade de máquinas; the trailing D, O and P letters
+      on this and its two siblings plausibly distinguish machine states (e.g. in service,
+      idle, unit-owned), though no codelist confirms which is which. Observed values
+      0 and 3.
+
+      '
+  UDI_QTDMQO:
+    official_name: Quantidade de máquinas de diálise (O)
+    translated_name: Dialysis machine count, category O
+    description: 'Count of dialysis machines in a second category, alongside UDI_QTDMQD
+      and UDI_QTDMQP, constant at 0 across both Acre rows.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same QTDMQ stem as UDI_QTDMQD; measured constant "00" across both rows.
+  UDI_QTDMQP:
+    official_name: Quantidade de máquinas de diálise (P)
+    translated_name: Dialysis machine count, category P
+    description: 'Count of dialysis machines in a third category — 0 on one Acre row,
+      10 on the other, the largest machine count in this UDI_QTD family and plausibly
+      the total or unit-owned machine count.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same QTDMQ stem as UDI_QTDMQD; observed values 0 and 10.
+  UDI_RDCGC1:
+    official_name: CNPJ da entidade de referência (1)
+    translated_name: Reference-entity tax id, slot 1
+    description: 'Tax id of the first entity in a further reference-institution pair.
+      Constant 63602940000170 across both rows — FUNDHACRE again, matching UDI_APCGC1,
+      UDI_PCCGC1 and UDI_USCGC1''s entity-1 slots throughout this record.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Measured constant, identical to UDI_APCGC1/UDI_PCCGC1; paired UDI_RDRZ1
+      "FUNDHACRE".
+  UDI_RDCGC2:
+    official_name: CNPJ da entidade de referência (2)
+    translated_name: Reference-entity tax id, slot 2
+    description: 'Tax id of the second entity in the same pair — filled for one Acre
+      unit only (04034526000143, the same CNPJ root as the backup general hospital),
+      left at the all-zero placeholder for the other.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'One non-null value shared with UDI_HGCGC1''s CNPJ root and UDI_PCCGC2''s
+      exact value; the other row is the standard empty-slot placeholder.
+
+      '
+  UDI_RDMN1:
+    official_name: Município da entidade de referência (1)
+    translated_name: Reference-entity municipality, slot 1
+    description: 'Municipality of the first entity in this reference pair — 120040,
+      Rio Branco, on both rows.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+  UDI_RDMN2:
+    official_name: Município da entidade de referência (2)
+    translated_name: Reference-entity municipality, slot 2
+    description: 'Municipality of the second entity in this reference pair — 120040,
+      Rio Branco, filled for only one of the two Acre rows.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; the single non-null row reads 120040.
+  UDI_RDRZ1:
+    official_name: Razão social da entidade de referência (1)
+    translated_name: Reference-entity legal name, slot 1
+    description: 'Legal name of the first entity — "FUNDHACRE", constant across both
+      rows.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "FUNDHACRE" across both rows, matching UDI_APRZ1/UDI_PCRZ1.
+  UDI_RDRZ2:
+    official_name: Razão social da entidade de referência (2)
+    translated_name: Reference-entity legal name, slot 2
+    description: 'Legal name of the second entity, filled on one Acre unit''s row only:
+      "HOSPITAL G. DE CL. DE RIO BRANCO" — the same Rio Branco general hospital already
+      named in the UDI_HG triple, referenced again here under a different category.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Single non-null value measured, naming the same hospital as UDI_HGRZ1''s
+      Rio Branco general hospital.
+
+      '
+  UDI_USCGC1:
+    official_name: CNPJ da entidade de referência (1)
+    translated_name: Reference-entity tax id, slot 1
+    description: 'Tax id of the first entity in a fourth reference-institution pair.
+      Constant 63602940000170 across both rows — FUNDHACRE once more, the same pattern
+      as its AP, PC and RD entity-1 slots.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Measured constant, identical to UDI_APCGC1/UDI_PCCGC1/UDI_RDCGC1.
+  UDI_USCGC2:
+    official_name: CNPJ da entidade de referência (2)
+    translated_name: Reference-entity tax id, slot 2
+    description: 'Tax id for the second entity in this pair. Never filled for either
+      Acre unit — both rows carry the all-zero placeholder.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "00000000000000" across both rows, the standard empty-slot
+      fill.
+  UDI_USMN1:
+    official_name: Município da entidade de referência (1)
+    translated_name: Reference-entity municipality, slot 1
+    description: 'Municipality of the first entity in this pair — 120040, Rio Branco,
+      on both rows.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Bound to MUNICBR; both non-null rows read 120040.
+  UDI_USMN2:
+    official_name: Município da entidade de referência (2)
+    translated_name: Reference-entity municipality, slot 2
+    description: 'Municipality of the second entity in this pair. Never filled for
+      either Acre unit, matching UDI_USCGC2''s empty slot.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: 0 of 2 rows non-null, consistent with the unfilled slot 2 seen on UDI_USCGC2/USRZ2.
+  UDI_USRZ1:
+    official_name: Razão social da entidade de referência (1)
+    translated_name: Reference-entity legal name, slot 1
+    description: 'Legal name of the first entity — "FUNDHACRE", constant across both
+      rows.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Measured constant "FUNDHACRE" across both rows, matching UDI_APRZ1/UDI_PCRZ1/UDI_RDRZ1.
+  UDI_USRZ2:
+    official_name: Razão social da entidade de referência (2)
+    translated_name: Reference-entity legal name, slot 2
+    description: 'Legal name for the second entity in this pair. Never filled for either
+      Acre unit, matching UDI_USCGC2/USMN2''s empty slot.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 0 of 2 rows non-null.

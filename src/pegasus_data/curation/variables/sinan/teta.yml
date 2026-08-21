@@ -1,0 +1,191 @@
+# SINAN.TETA —
+#
+# one notification of tetano acidental
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  CS_ABDOMIN:
+    official_name: Rigidez abdominal
+    translated_name: Abdominal rigidity
+    description: Abdominal rigidity, the adult counterpart of the neonatal CS_ABDOMEN.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ABDOMIN reads abdominal; a clinical flag.
+  CS_CRISES:
+    official_name: Crises convulsivas
+    translated_name: Spasms
+    description: 'Generalised spasms. What distinguishes tetanus from simple muscle
+      stiffness, and what makes airway management necessary.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CRISES reads crises; a clinical flag.
+  CS_SIN_OUT:
+    official_name: Outro sinal
+    translated_name: Other sign, accidental tetanus
+    description: 'A sign outside the accidental tetanus list of spasms and abdominal
+      rigidity.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the clinical block.
+  NM_SIN_OUT:
+    official_name: Outros sinais e sintomas - especifique
+    translated_name: Other signs/symptoms - specify
+    description: 'Free-text name of an additional clinical sign or symptom the accidental-tetanus
+      (TETA) patient presented that isn''t among the form''s named checkboxes (trismus,
+      opisthotonus, etc.).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NM_SIN_OUT = nome + sinal + outro; TETA form; width 30 free text.
+
+      '
+  NU_DOSE:
+    official_name: Número de doses da vacina
+    translated_name: Vaccine doses received
+    description: 'Doses of tetanus vaccine received, banded from one through three
+      plus two boosters, or never vaccinated.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: DOSES.CNV
+    reasoning: Bound to DOSES, the standard vaccine-dose banding.
+  SG_UF_INTE:
+    official_name: Sigla da UF de internação
+    translated_name: State of hospitalization (abbreviation)
+    description: 'Two-letter abbreviation of the state where the accidental-tetanus
+      (TETA) patient was hospitalized, which can differ from the state of residence
+      or notification when the patient is treated elsewhere.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TETA form; SG_ = sigla, UF_INTE = UF de internação; width 2 matches
+      a state abbreviation.
+
+      '
+  TP_ANALISE:
+    official_name: Tipo de ferimento analisado
+    translated_name: Wound type classification
+    description: 'Classifies the wound''s type/severity (e.g. clean minor wound vs.
+      contaminated major wound) to assess tetanus risk and guide prophylaxis - grouped
+      with the form''s other wound-description fields (TP_CAUSA for cause, TP_LOCALLE
+      for body site, TP_ORIGEM for origin).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TP_ = tipo; sits among TETA''s wound-characteristic fields (TP_CAUSA/TP_LOCALLE/TP_ORIGEM),
+      so ANALISE more likely classifies the wound examined than the case-review status
+      seen in TETN''s differently-purposed CS_ANALISE.
+
+      '
+  TP_CAUSA:
+    official_name: Causa do ferimento
+    translated_name: Cause of the wound
+    description: 'What caused the wound — injection, laceration, burn, surgery, puncture,
+      abrasion, septic abortion, or other. Puncture wounds are the classic cause, because
+      the spores need low oxygen to germinate.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CAUSATET.CNV
+    reasoning: 'Bound to CAUSATET, whose values run from injeção through abortamento
+      séptico.
+
+      '
+  TP_CAUSOUT:
+    official_name: Outro tipo de causa (especificar)
+    translated_name: Other injury cause (specify)
+    description: 'Free-text field describing the cause of the wound that put the patient
+      at risk of accidental tetanus, used when the injury type isn''t one of the form''s
+      standard cause categories.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is TETA (tétano acidental); TP_CAUSOUT reads "tipo de causa
+      - outro"; wide C30 width fits a free-text "other, specify" companion to the coded
+      TP_ORIGEM field.
+
+      '
+  TP_IDENTFI:
+    official_name: Tipo de identificação do ferimento
+    translated_name: Wound identification type
+    description: 'Type of wound identification/classification recorded on the accidental
+      tetanus (TETA) investigation form, characterizing how the injury that led to
+      infection was assessed.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TP_ = tipo, IDENTFI = identificação; accidental tetanus forms classify
+      the causative wound, and C1 width fits a coded category.
+
+      '
+  TP_LOCALLE:
+    official_name: Local da lesão
+    translated_name: Site of the wound
+    description: 'Where the wound was — lower limbs, upper limbs, trunk, head and neck,
+      or oral cavity. A wound closer to the head shortens the incubation and worsens
+      the prognosis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LOCALTET.CNV
+    reasoning: 'Bound to LOCALTET, whose values enumerate the body sites from membros
+      inferiores to cavidade oral.
+
+      '
+  TP_ORIGEM:
+    official_name: Tipo de origem do ferimento
+    translated_name: Wound origin type
+    description: 'Coded category of how the tetanus-prone wound occurred (e.g. agricultural,
+      domestic, occupational injury), the structured counterpart to the free-text TP_CAUSOUT.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TETA form; TP_ tipo prefix with ORIGEM reading "origem"; C1 width fits
+      a small enumerated cause category.
+
+      '
+  TP_PROFILA:
+    official_name: Profilaxia realizada
+    translated_name: Prophylaxis given
+    description: 'What was given after the wound — antitetanus serum, immunoglobulin,
+      vaccine, antibiotic, or nothing. Tetanus in a patient who received prophylaxis
+      is a treatment failure worth investigating.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: PROFILAC.CNV
+    reasoning: 'Bound to PROFILAC, whose values are soro antitetânico, imunoglobulina,
+      vacina, antibiótico and nenhum.
+
+      '
+  TP_VACINA:
+    official_name: Tipo de vacina antitetânica
+    translated_name: Tetanus vaccine type
+    description: 'Coded type of tetanus vaccine (e.g. dT, dTpa) given to the patient
+      as prophylaxis or treatment following the injury.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TETA form; TP_VACINA reads "tipo de vacina"; C1 width fits a small
+      enumerated vaccine-type code.
+
+      '

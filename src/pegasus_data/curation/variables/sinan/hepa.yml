@@ -1,0 +1,557 @@
+# SINAN.HEPA —
+#
+# one notification of viral hepatitis
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ACUPUNTURA:
+    official_name: Acupuntura
+    translated_name: Acupuncture
+    description: Acupuncture, another percutaneous route through reused needles.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; ACUPUNTURA reads acupuntura.
+  AGHBE:
+    official_name: HBeAg
+    translated_name: Hepatitis B e antigen
+    description: 'The e antigen. Marks active viral replication and high infectivity,
+      so it matters for whether contacts need prophylaxis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; AGHBE is the e antigen.
+  AGHBS:
+    official_name: HBsAg
+    translated_name: Hepatitis B surface antigen
+    description: 'Hepatitis B surface antigen. Its presence means current infection,
+      acute or chronic; the rest of the B panel decides which.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: 'Bound to HEPREAG, whose values are reagente, não reagente, inconclusivo
+      and não realizado. AGHBS is the surface antigen.
+
+      '
+  AGUA_ALIME:
+    official_name: Água/alimento como via de transmissão
+    translated_name: Water/food transmission route (flag)
+    description: 'Whether contaminated water or food is the likely transmission route
+      for this viral hepatitis (HEPA) case - relevant to the fecal-oral spread pattern
+      of hepatitis A and E, as opposed to bloodborne routes.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AGUA_ = água, ALIME = alimento; water/food exposure is the defining
+      transmission-route question for enterically-spread hepatitis viruses, C1 fits
+      a checkbox.
+
+      '
+  ANTIHAVIGM:
+    official_name: Anti-HAV IgM
+    translated_name: Anti-HAV IgM
+    description: 'IgM against hepatitis A. The single test that diagnoses acute hepatitis
+      A, which has no chronic form.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the hepatitis A IgM marker.
+  ANTIHBCIGM:
+    official_name: Anti-HBc IgM
+    translated_name: Anti-HBc IgM
+    description: 'IgM against the core antigen. The marker of ACUTE hepatitis B: with
+      HBsAg present, IgM says the infection is recent rather than chronic.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the IgM class of the core antibody.
+  ANTIHBE:
+    official_name: Anti-HBe
+    translated_name: Anti-HBe antibody
+    description: 'Antibody to the e antigen. Its appearance as HBeAg disappears marks
+      seroconversion and falling infectivity.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the e antibody.
+  ANTIHBS:
+    official_name: Anti-HBs
+    translated_name: Anti-HBs antibody
+    description: 'Antibody to the surface antigen. Means immunity — from vaccination
+      if anti-HBc is absent, from resolved infection if it is present. The pair is
+      what distinguishes the two.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; ANTIHBS is the surface antibody.
+  ANTIHCV:
+    official_name: Anti-HCV
+    translated_name: Anti-HCV antibody test result
+    description: 'Result of the anti-HCV serology screening test (reactive, non-reactive,
+      not done) — the antibody test that first flags possible hepatitis C, distinct
+      from HCV, the case''s final etiologic classification.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 coded field; ANTI+HCV names the antibody test directly.
+  ANTIHDV:
+    official_name: Anti-HDV
+    translated_name: Anti-HDV antibody
+    description: 'Antibody to hepatitis D. Delta only infects alongside hepatitis B,
+      and it is endemic in the western Amazon, so this marker matters regionally far
+      more than nationally.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the hepatitis D antibody.
+  ANTIHDVIGM:
+    official_name: Anti-HDV IgM
+    translated_name: Anti-HDV IgM
+    description: 'IgM against hepatitis D, marking recent delta infection as against
+      the past exposure ANTIHDV shows.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the IgM class of the delta antibody.
+  ANTIHEVIGM:
+    official_name: Anti-HEV IgM
+    translated_name: Anti-HEV IgM
+    description: 'IgM against hepatitis E. Rare in Brazil, tested to exclude it in
+      acute cases where A and B are negative.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the hepatitis E IgM marker.
+  BANCOSANGU:
+    official_name: Local de detecção
+    translated_name: Where the infection was detected
+    description: 'Whether the infection was found at a blood bank or a testing centre.
+      Cases found at a blood bank are asymptomatic donors, so they represent a quite
+      different population from those found clinically.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: BANCOSAN.CNV
+    reasoning: 'Bound to BANCOSAN, whose values are banco de sangue, centro de testagem
+      and não se aplica.
+
+      '
+  CIRURGICO:
+    official_name: Procedimento cirúrgico
+    translated_name: Surgical procedure
+    description: Surgery in the exposure window, a parenteral route.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; CIRURGICO reads cirúrgico.
+  COLETAMARC:
+    official_name: Data da coleta dos marcadores
+    translated_name: Date markers were collected
+    description: 'When the serology sample was taken. Marker interpretation depends
+      on timing — IgM windows open and close — so the date is what makes the panel
+      readable.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date for the marker collection.
+  CO_MUN_EX2:
+    official_name: Município da segunda exposição
+    translated_name: Municipality of second exposure
+    description: Municipality of the second exposure location.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The second slot of the exposure municipality series.
+  CO_MUN_EX3:
+    official_name: Município da terceira exposição
+    translated_name: Municipality of third exposure
+    description: Municipality of the third exposure location.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The third slot of the exposure municipality series.
+  CO_MUN_EXP:
+    official_name: Município da exposição
+    translated_name: Municipality of exposure
+    description: Municipality where the exposure happened, the finer companion to CO_UF_EXP.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code bound to the municipality codelists.
+  CO_UF_EX2:
+    official_name: UF da segunda exposição
+    translated_name: State of second exposure
+    description: State of a second exposure location. See CO_UF_EXP.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: The second slot of the three exposure-location pairs.
+  CO_UF_EX3:
+    official_name: UF da terceira exposição
+    translated_name: State of third exposure
+    description: State of a third exposure location.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: The third slot of the exposure state series.
+  CO_UF_EXP:
+    official_name: UF da exposição
+    translated_name: State of exposure
+    description: 'State where the exposure happened. Three exposure locations can be
+      recorded, since the source is often not where the patient lives.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code bound to the UF codelists; EXP reads exposição.
+  DENTARIO:
+    official_name: Tratamento dentário
+    translated_name: Dental treatment
+    description: 'Dental treatment, recorded separately from surgery because instrument
+      sterilisation in dentistry has its own transmission history.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; DENTARIO reads dentário.
+  DOMICILI:
+    official_name: Contato domiciliar
+    translated_name: Household contact
+    description: 'Contact with a case in the household, with the same six-month split.
+      Household transmission is the dominant route for hepatitis A.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; DOMICILI reads domiciliar.
+  DSFONTE:
+    official_name: Descrição da fonte de infecção
+    translated_name: Source of infection, description
+    description: 'Free-text note on the suspected source or route of hepatitis exposure
+      (blood transfusion, injection drug use, sexual contact, vertical transmission,
+      etc.) gathered during the epidemiological investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text; DS_=descrição, FONTE=fonte (source).
+  DT_ACIDENT:
+    official_name: Data do acidente
+    translated_name: Date of the exposure incident
+    description: Date of the exposure incident, where one specific event is identifiable.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; DT_ACIDENT reads data do acidente.
+  GEN_VHC:
+    official_name: Genótipo do HCV
+    translated_name: Hepatitis C genotype
+    description: 'Which of genotypes 1 to 6 the virus is. It determined treatment choice
+      and duration in the interferon era, and detecting it at all confirms current
+      rather than past infection.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: GENOTIPO.CNV
+    reasoning: Bound to GENOTIPO, whose values are genótipo 1 through 6.
+  HAV:
+    official_name: Sorologia para hepatite A (Anti-HAV)
+    translated_name: Hepatitis A serology result
+    description: 'Result of anti-HAV serology confirming Hepatitis A virus infection
+      - one of several virus-specific serology flags on the viral hepatitis notification
+      form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: HAV = the standard abbreviation for Hepatitis A Virus; HEPA series tests
+      multiple hepatitis viruses.
+  HBC_TOTAL:
+    official_name: Anti-HBc total
+    translated_name: Anti-HBc total
+    description: 'Total core antibody, IgM and IgG together. Persists for life after
+      any infection, so it separates a vaccinated person from one who was infected
+      and recovered.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the total core antibody.
+  HBV:
+    official_name: Marcador de hepatite B
+    translated_name: Hepatitis B marker
+    description: 'Coded result flag for hepatitis B virus serologic markers, one of
+      the per-virus result fields on the viral hepatitis form alongside HEV.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is HEPA (hepatites virais); name is the standard HBV abbreviation;
+      C1 width fits a coded reactive/non-reactive result.
+
+      '
+  HCV:
+    official_name: Hepatite C
+    translated_name: Case classified as hepatitis C (flag)
+    description: 'Whether the case''s final etiologic classification is hepatitis C
+      — one checkbox among the virus-type classification (A/B/C/D/E) on the viral-hepatitis
+      form, distinct from the ANTIHCV screening-test result that feeds into it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named for the virus itself rather than the antibody test (compare
+      ANTIHCV).
+  HDV:
+    official_name: Vírus da Hepatite D
+    translated_name: Hepatitis D virus marker (flag)
+    description: 'Whether the patient tested positive for hepatitis D virus (Delta),
+      which only causes infection alongside hepatitis B - a specific viral marker distinct
+      from the HBV/HCV fields on the hepatitis (HEPA) investigation form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HDV is the standard abbreviation for Hepatitis D Virus; C1 width fits
+      a checkbox, and HDV requires HBV coinfection to replicate.
+
+      '
+  HEMODIALIS:
+    official_name: Hemodiálise
+    translated_name: Haemodialysis
+    description: 'Haemodialysis exposure. Dialysis units have transmitted hepatitis
+      B and C through the blood circuit, which is why dialysis patients are screened
+      repeatedly.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; HEMODIALIS reads hemodiálise.
+  HEPATITA:
+    official_name: Vacinação contra hepatite A
+    translated_name: Hepatitis A vaccination
+    description: 'Whether hepatitis A vaccination is complete, incomplete, or absent.
+      Susceptibility is the point: a fully vaccinated patient with hepatitis is unlikely
+      to have A.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPNAOVA.CNV
+    reasoning: 'Bound to HEPNAOVA, whose values are completa, incompleta and não vacinado.
+
+      '
+  HEPATITB:
+    official_name: Vacinação contra hepatite B
+    translated_name: Hepatitis B vaccination
+    description: 'Hepatitis B vaccination status. Read with ANTIHBS, which shows whether
+      the vaccination actually produced immunity.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPNAOVA.CNV
+    reasoning: Bound to HEPNAOVA, the same completa/incompleta/não vacinado list.
+  HEPATITE_N:
+    official_name: Tipo de hepatite (normalizado)
+    translated_name: Hepatitis type (normalized code)
+    description: 'Recoded/normalized classification of which hepatitis virus (A/B/C/D/E)
+      was identified, derived from the individual virus-specific serology flags (like
+      HAV) for easier tabulation - the DATASUS "_N" companion pattern.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: HEPATITE = hepatite; the "_N" suffix matches DATASUS's normalized-field
+      convention seen across SINAN.
+  HEV:
+    official_name: Marcador de hepatite E
+    translated_name: Hepatitis E marker
+    description: 'Coded result flag for hepatitis E virus serologic markers, the companion
+      field to HBV for a different hepatitis virus on the same form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HEPA form; name is the standard HEV abbreviation; C1 width matches
+      the sibling HBV result flag.
+
+      '
+  INAL_CRACK:
+    official_name: Uso de drogas inaladas
+    translated_name: Inhaled drug use
+    description: 'Inhaled drug use. Recorded because shared straws transmit hepatitis
+      C through nasal mucosa, so the route is not confined to injecting.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; INAL_CRACK reads inalação de crack.
+  INJETAVEIS:
+    official_name: Uso de drogas injetáveis
+    translated_name: Injecting drug use
+    description: 'Injecting drug use. The highest-risk route for hepatitis C, and the
+      reason INAL_CRACK is asked beside it.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; INJETAVEIS reads injetáveis.
+  MATBIOLOGI:
+    official_name: Material biológico coletado
+    translated_name: Biological specimen type
+    description: 'Coded type of biological specimen collected for hepatitis testing
+      (e.g. blood/serum), recorded once per case regardless of which virus markers
+      (HBV, HEV, etc.) were tested.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HEPA form; name reads "material biológico"; C1 width fits a small enumerated
+      specimen-type code.
+
+      '
+  OCUPACIO:
+    official_name: Exposição ocupacional
+    translated_name: Occupational exposure
+    description: 'Occupational exposure to blood or body fluids. The route that makes
+      hepatitis B an occupational disease for health workers.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; OCUPACIO reads ocupacional.
+  OUTRA_DST:
+    official_name: Outra DST
+    translated_name: Other sexually transmitted infection
+    description: 'Another sexually transmitted infection. Its presence corroborates
+      a sexual route where the exposure history is uncertain.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; DST reads doença sexualmente transmissível.
+  RES_HBSAG:
+    official_name: Resultado do HBsAg
+    translated_name: HBsAg result
+    description: 'The HBsAg result as carried in a second field, beside AGHBS. Schema
+      generations of this form record the same marker twice, so read whichever is populated.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; a duplicate of the AGHBS marker.
+  RE_ANTIHBC:
+    official_name: Resultado do anti-HBc
+    translated_name: Anti-HBc result
+    description: The core antibody result in a second field, beside HBC_TOTAL.
+    code_system: none
+    source: inferred
+    reasoning: C(1) duplicate of the core antibody marker in another generation.
+  RE_ANTIHCV:
+    official_name: Resultado do anti-HCV
+    translated_name: Anti-HCV result
+    description: 'Antibody to hepatitis C. Screening only: it stays positive after
+      cure, so it does not distinguish current from past infection.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(1) hepatitis C antibody result, paired with TP_SOROHCV.
+  SEXUAL:
+    official_name: Exposição sexual
+    translated_name: Sexual exposure
+    description: 'Sexual exposure, and whether it was within the last six months or
+      earlier. The exposure block is not a yes/no: the six-month split is what makes
+      an exposure plausible as the source of an acute infection.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: 'Bound to HEPA6MES, whose values are sim há menos de 6 meses, sim há
+      mais de seis meses, and não.
+
+      '
+  TATU_PIER:
+    official_name: Tatuagem ou piercing
+    translated_name: Tattoo or piercing
+    description: Tattooing or piercing, a percutaneous route through shared equipment.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; TATU_PIER reads tatuagem/piercing.
+  TP_SOROHCV:
+    official_name: Sorologia para hepatite C
+    translated_name: Hepatitis C serology
+    description: 'The hepatitis C serology result on the coded scale. Confirming current
+      infection needs the genotype or a viral load, which is why GEN_VHC exists.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the coded hepatitis C serology.
+  TRANSFUSAO:
+    official_name: Transfusão de sangue
+    translated_name: Blood transfusion
+    description: 'Transfusion in the exposure window. Historically the major route
+      for hepatitis C, and now rare enough that a positive answer is investigated.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; TRANSFUSAO reads transfusão.
+  TRANSPLA:
+    official_name: Transplante
+    translated_name: Transplant
+    description: Transplant exposure, another route through donated tissue.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; TRANSPLA reads transplante.
+  TRESMAIS:
+    official_name: Três ou mais parceiros sexuais
+    translated_name: Three or more sexual partners
+    description: 'Three or more sexual partners in the exposure window, a quantified
+      companion to the SEXUAL flag.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; TRESMAIS reads três ou mais.

@@ -1,0 +1,143 @@
+# SINAN.ESPO — Sporotrichosis
+# Esporotricose
+#
+# One notified case of sporotrichosis, the fungal infection transmitted
+# largely by cats, notifiable in some states before it was nationally.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  C_D:
+    official_name: Coordenada geográfica - graus
+    translated_name: Geographic coordinate - degrees
+    description: 'Degrees component of one geographic coordinate used to locate the
+      likely animal-contact/exposure site for the sporotrichosis case (paired with
+      a minutes component, C_M, not owned here).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ESPO''s field set includes C_D/C_M and G_D/G_M alongside TP_ZN_OCO
+      and TP_AMB_OCO (zone/environment of occurrence), consistent with a degrees/minutes
+      geocoordinate pair for the exposure site.
+
+      '
+  C_M:
+    official_name: Contato com mordedura
+    translated_name: Contact by bite
+    description: 'Sporotrichosis-form field recording whether the patient''s exposure
+      to an infected cat was through a bite, part of the form''s contact-type breakdown
+      for this cat-transmitted fungal disease.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is ESPO (esporotricose, typically cat-transmitted); short numeric
+      (N1) code fits a categorical contact-type field; exact label inferred from the
+      abbreviation and disease context rather than confirmed documentation.
+
+      '
+  DS_OUT_AMB:
+    official_name: Outro ambiente de exposição
+    translated_name: Other exposure setting, description
+    description: 'Free-text description of a setting, other than the patient''s own
+      home, where contact with an infected cat (the dominant Brazilian transmission
+      route) may have occurred.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C29 text; DS_=descrição, OUT=outro, AMB=ambiente.
+  DT_INI_EPI:
+    official_name: Data de início - semana epidemiológica
+    translated_name: Onset date for epidemiological week
+    description: 'Date used to place a sporotrichosis (ESPO) case in its epidemiological
+      week for surveillance charts, functioning as the case''s reference onset date.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ = data, INI = início, EPI = epidemiológica; D8 date type fits,
+      and an epidemiological-week reference date is standard for outbreak curve tracking.
+
+      '
+  ESPECIE:
+    official_name: Espécie do animal envolvido
+    translated_name: Animal species involved
+    description: 'Species of the animal involved in transmitting sporotrichosis to
+      the patient - almost always a cat (the main reservoir/vector in Brazil''s sporotrichosis
+      epidemic), but the field allows other species.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ESPECIE = espécie; sporotrichosis is predominantly a zoonosis transmitted
+      by cat scratches/bites.
+  G_D:
+    official_name: Gatos doentes no domicílio
+    translated_name: Sick cats in the household
+    description: 'Sporotrichosis-form field recording how many cats in the patient''s
+      household were visibly ill, since household cats are the main source of human
+      infection.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ESPO form; N2 numeric width suggests a small count rather than a yes/no
+      flag, consistent with "quantity of sick cats"; exact label not confirmed by documentation.
+
+      '
+  G_M:
+    official_name: Gatos (contagem/faixa)
+    translated_name: Cats involved in suspected transmission
+    description: 'Numeric count or category of cats implicated in the suspected sporotrichosis
+      exposure — sporotrichosis in Brazil is overwhelmingly transmitted through scratches/bites
+      from infected cats.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'N2 numeric field in the ESPO stratum; G read as gato (cat), though
+      the exact unit (count vs. coded range) isn''t confirmed by the evidence available.
+
+      '
+  ID_NOTIFIC:
+    official_name: Identificador da notificação
+    translated_name: Notification record identifier
+    description: 'Sequential numeric identifier for a sporotrichosis (ESPO) notification
+      record, distinguishing individual case entries within the dataset.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ID_ = identificador, NOTIFIC = notificação; N5 numeric width fits a
+      sequential record number rather than a coded value.
+
+      '
+  TP_AMB_OCO:
+    official_name: Ambiente de ocorrência
+    translated_name: Setting of occurrence
+    description: 'Where the case arose — home, park or zoo, wild area, ecological reserve,
+      or other. On the sporotrichosis form, where the domestic setting dominates because
+      cats transmit it.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: AMB_EPIZ.CNV
+    reasoning: 'Bound to AMB_EPIZ, whose values are domicílio, parque/praça/zoo, área
+      silvestre and reserva ecológica.
+
+      '
+  TP_ZN_OCO:
+    official_name: Tipo de zona de ocorrência
+    translated_name: Occurrence zone type
+    description: 'Urban/rural/peri-urban classification of the zone where the sporotrichosis
+      exposure occurred - a standard geographic classification alongside the environment-type
+      field TP_AMB_OCO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TP_ = tipo; ZN = zona; OCO = ocorrência; ESPO's site-classification
+      field.

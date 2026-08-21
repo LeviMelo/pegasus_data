@@ -1,0 +1,113 @@
+# SIA.BI — Individualised outpatient production
+# Boletim de Produção Ambulatorial Individualizado
+#
+# Outpatient production at individual level, so one row is one procedure for
+# one person — the individualised counterpart to PA.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  AUTORIZ:
+    official_name: Número da APAC ou número de autorização do BPA-I
+    translated_name: Authorization number
+    description: APAC/authorization number on the BPA-I production line, formed as
+      UF+AA+T+sssssss+d (state, year, type, 7-digit sequence, check digit).
+    code_system: none
+    notes: In BPA-I this field is optional and DATASUS does not validate it, unlike
+      the mandatory APAC number it shares a format with — do not assume every non-blank
+      value is a real, checked APAC.
+  CBOPROF:
+    official_name: Código da Ocupação do profissional na Classificação Brasileira de
+      Ocupações
+    translated_name: Professional's CBO occupation code
+    description: CBO (Classificação Brasileira de Ocupações, Ministry of Labour) code
+      of the professional who executed the procedure recorded on this BPA-I line.
+    code_system: external
+    codelists:
+    - CBO
+  CNPJ_CC:
+    official_name: CNPJ do Órgão que recebeu pela produção por cessão de crédito
+    translated_name: Credit-cession recipient CNPJ
+    description: CNPJ of the organisation that received payment for this production
+      line via credit cession (a different entity than the executing establishment),
+      or all zeros when no cession applies.
+    code_system: none
+  CNSPROF:
+    official_name: Número do CNS (Cartão Nacional de Saúde) do profissional de saúde
+      executante
+    translated_name: Executing professional's CNS
+    description: National Health Card number (CNS) of the professional who performed
+      the procedure on this BPA-I line.
+    code_system: none
+    notes: Personal identifier — this is the treating professional's own CNS, not the
+      patient's. Passed through unmodified in the source files; no masking is applied
+      here.
+  CODUNI:
+    official_name: Código do Estabelecimento no CNES
+    translated_name: CNES establishment code
+    description: CNES registry code of the health establishment that produced this
+      BPA-I line.
+    code_system: external
+    codelists:
+    - CNES
+  MNDIF:
+    official_name: Indica se o município de residência do paciente é diferente do município
+      de localização do estabelecimento
+    translated_name: Patient municipality differs from facility municipality
+    description: 0 if the patient's municipality of residence matches the executing
+      establishment's municipality; 1 if they differ.
+    code_system: internal
+  PROC_ID:
+    official_name: Código do Procedimento Ambulatorial
+    translated_name: Outpatient procedure code
+    description: SIGTAP procedure code billed on this BPA-I line — the same nomenclature
+      the unified PA file carries as PA_PROC_ID, but under the BPA-I file's own unprefixed
+      field name.
+    code_system: external
+    codelists:
+    - TPROC10
+  QT_APRES:
+    official_name: Quantidade Produzida (APRESENTADA)
+    translated_name: Quantity presented (produced)
+    description: Number of units of the procedure the establishment reported having
+      performed on this BPA-I line, before any approval/audit adjustment.
+    code_system: none
+  QT_APROV:
+    official_name: Quantidade Aprovada do procedimento
+    translated_name: Quantity approved
+    description: Number of units of the procedure the manager actually approved for
+      payment on this BPA-I line; may be lower than QT_APRES when part of the reported
+      production is rejected.
+    code_system: none
+  SUBFIN:
+    official_name: Subtipo de Financiamento da produção
+    translated_name: Production financing subtype
+    description: BPA-I file's own copy of the financing-subtype code — the same concept
+      the unified PA file carries as PA_SUBFIN.
+    code_system: internal
+  TPFIN:
+    official_name: Tipo de Financiamento da produção
+    translated_name: Production financing type
+    description: BPA-I file's own copy of the SUS financing-type code — the same concept
+      the unified PA file carries as PA_TPFIN.
+    code_system: internal
+  UFDIF:
+    official_name: Indica se a UF de residência do paciente é diferente da UF de localização
+      do estabelecimento
+    translated_name: Patient UF differs from facility UF
+    description: 0 if the patient's state of residence matches the executing establishment's
+      state; 1 if they differ. BPA-I's own copy of the flag the unified PA file carries
+      as PA_UFDIF.
+    code_system: internal
+  VL_APRES:
+    official_name: Valor Produzido (APRESENTADO)
+    translated_name: Value presented (produced)
+    description: Monetary value of the production reported on this BPA-I line, before
+      approval, in reais.
+    code_system: none
+  VL_APROV:
+    official_name: Valor Aprovado do procedimento
+    translated_name: Value approved
+    description: Monetary value actually approved for payment on this BPA-I line, in
+      reais; may be lower than VL_APRES.
+    code_system: none

@@ -1,0 +1,2358 @@
+# SISCAN — columns carried by more than one dataset.
+#
+# The notification header and other cross-dataset fields. Described once
+# against the system, because that is the scope on which they are the
+# same column.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+  ADENCARCIN:
+    official_name: Adenocarcinoma
+    translated_name: Adenocarcinoma
+    description: 'Adenocarcinoma — glandular rather than squamous cancer. Screening
+      detects it less reliably than squamous disease, which is why its share of cervical
+      cancers has risen as squamous disease has been controlled.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ADENCARCIN reads adenocarcinoma; present on both the CC and HC forms.
+      C(8), values unobserved.
+  ANO_COMP:
+    official_name: Ano de competência
+    translated_name: Competence year
+    description: 'Four-digit year of the competência the exam was reported under —
+      the administrative reporting month, not the date the exam was performed or read.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared C(4) and bound by .DEF to the ANO tabulation axis; competência
+      is SISCAN''s reporting period throughout.
+
+      '
+  CANMPACANC:
+    official_name: Risco elevado para câncer de mama
+    translated_name: High breast cancer risk
+    description: 'Whether the woman is at elevated risk, as recorded on the cytology
+      and mammography forms; C_CLI_TCAN carries the same question on the histopathology
+      form.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RISCOELEVADO.CNV
+    reasoning: Bound to RISCOELEVADO, the same elevated-risk list as C_CLI_TCAN.
+  CLABIBGE:
+    official_name: Município do laboratório (IBGE)
+    translated_name: Laboratory municipality
+    description: 'IBGE code of the municipality where the reading laboratory is. Cervical
+      cytology is often read far from where it was collected, so this and CO_US_IBGE
+      routinely differ.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Declared C(7) and bound to MUNICBR.
+  CLABUF:
+    official_name: UF do laboratório
+    translated_name: Laboratory state
+    description: 'Two-digit IBGE code of the state the reading laboratory is in.
+
+      '
+    code_system: external
+    codelists:
+    - ESTADO
+    source: inferred
+    reasoning: Declared C(2) and bound to ESTADO.
+  CO_ALT_CEL_ATROFIA:
+    official_name: Alt. ben:Atr. inflam
+    translated_name: Benign atrophic cellular change
+    description: 'Flags an atrophic cellular change with inflammation on the cervical
+      Pap smear, a benign reactive finding common in postmenopausal women, one of the
+      standard benign-alteration categories.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: 'TAB_SISCAN.rar!cito_colo.def, campo Alt. ben:Atr. inflam (A_B_ATROF)
+
+      '
+  CO_ALT_CEL_INFLAMACAO:
+    official_name: Alt.ben.inflamação
+    translated_name: Benign changes - inflammation
+    description: 'Exam negative for cervical cancer, with benign reactive or reparative
+      cellular changes tied to inflammation, one of several non-neoplastic causes distinguished
+      on the same cytopathology report.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Alt.ben.inflamação
+  CO_ALT_CEL_METAPLASIA:
+    official_name: Alt.ben.metap.esca
+    translated_name: Benign changes - immature squamous metaplasia
+    description: 'Exam negative for cervical cancer, with benign reactive cellular
+      changes from immature squamous metaplasia, normal epithelial regrowth rather
+      than a precancerous finding.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Alt.ben.metap.esca
+  CO_ALT_CEL_OUT:
+    official_name: Alt.ben.outros
+    translated_name: Benign changes - other cause
+    description: 'Exam negative for cervical cancer, with benign reactive or reparative
+      cellular changes from a cause other than inflammation, metaplasia, radiation,
+      or repair reported on the same exam.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Alt.ben.outros
+  CO_ALT_CEL_RADIACAO:
+    official_name: Alt.ben.radiação
+    translated_name: Benign changes - radiation
+    description: 'Exam negative for cervical cancer, with benign reactive cellular
+      changes attributed to prior radiation exposure, distinguished from inflammation-
+      or repair-related changes on the same report.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Alt.ben.radiação
+  CO_ALT_CEL_REPARACAO:
+    official_name: Alt.ben.reparação
+    translated_name: Benign changes - repair
+    description: 'Exam negative for cervical cancer, with benign cellular changes associated
+      with tissue repair, the healing response following prior injury to the cervical
+      epithelium.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Alt.ben.reparação
+  CO_ANO_LIBERACAO:
+    official_name: Ano de liberação (inferido)
+    translated_name: Year of report release
+    description: 'Calendar year the laboratory released the cytopathology report to
+      the requesting service, the release event underlying but distinct from Mês/Ano
+      competência, which also folds in billing.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CO_ANO + LIBERACAO by naming grammar; Nota Tecnica 2 defines Mês/Ano
+      competência as "o mês/ano em que o exame foi liberado e faturado", showing liberação
+      is a distinct dated event this field isolates.
+
+      '
+    source_ref: 'naming grammar + Nota Tecnica 2 SISCAN - Citopatologico Colo, campo
+      Mês/Ano competência
+
+      '
+  CO_ANO_MES_LIBERACAO:
+    official_name: Mês/Ano de liberação (inferido)
+    translated_name: Year-month of report release
+    description: 'Year and month the laboratory released the cytopathology report,
+      the month-level counterpart to CO_ANO_LIBERACAO for the same release event.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same reasoning as CO_ANO_LIBERACAO, applied at month grain; mirrors
+      the ANO/ANO_MES pairing already documented for CO_ANO_RESULTADO and CO_ANO_MES_RESULTADO
+      elsewhere in SISCAN.
+
+      '
+    source_ref: 'naming grammar + Nota Tecnica 2 SISCAN - Citopatologico Colo, campo
+      Mês/Ano competência
+
+      '
+  CO_ANO_MES_RESULTADO:
+    official_name: Mês/Ano Resultado
+    translated_name: Year-month of result
+    description: 'Year and month in which the exam''s report was released by the service
+      provider, the month-level counterpart to CO_ANO_RESULTADO.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 8 SISCAN - Mamografia, campo Mês/Ano Resultado
+  CO_ANO_RESULTADO:
+    official_name: Ano de resultado
+    translated_name: Year of result
+    description: 'Calendar year in which the exam''s report was released by the service
+      provider, which can fall later than the year the sample was collected.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Ano de resultado
+  CO_BEN_MET:
+    official_name: Achado benigno, metaplasia
+    translated_name: Benign finding, metaplasia
+    description: 'Metaplasia reported as a benign finding on the histopathology side,
+      where CBEMMETAS carries it on the cytology side.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BEN_MET reads benigno metaplasia; appears on both CC and HC. C(8), values
+      unobserved.
+  CO_CNES:
+    official_name: CNES do laboratório
+    translated_name: Laboratory CNES code
+    description: 'CNES code of the laboratory that read the slide or the mammogram.
+      In these files it identifies the reader, not the collector — CO_US is the collector.
+
+      '
+    code_system: external
+    codelists:
+    - TB_LAB
+    source: inferred
+    reasoning: 'Declared C(7), the CNES width, and bound to TB_LAB — the laboratory
+      table rather than the general establishment table, which is what distinguishes
+      it from CO_US.
+
+      '
+  CO_EPIT_ESCAMOSO:
+    official_name: Epitélio escamoso
+    translated_name: Squamous epithelium present
+    description: 'Flags that squamous epithelial cells are represented on the examined
+      slide, one of three epithelium types recorded to judge whether the sample adequately
+      covers the cervix.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Epitélio escamoso
+  CO_EPIT_GLANDULAR:
+    official_name: Epitélio glandular
+    translated_name: Glandular epithelium present
+    description: 'Flags that endocervical glandular epithelial cells are represented
+      on the examined slide; together with metaplastic cells this marks the sample
+      as reaching the transformation zone.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Epitélio glandular
+  CO_EPIT_METAPLAS:
+    official_name: Epitélio metaplas.
+    translated_name: Metaplastic epithelium present
+    description: 'Flags that metaplastic epithelial cells are represented on the examined
+      slide; together with glandular cells this marks the sample as reaching the cervix''s
+      transformation zone.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Epitélio metaplas.
+  CO_ESCOLARIDADE:
+    official_name: Escolaridade
+    translated_name: Education level
+    description: 'The patient''s schooling level, self-reported and imported from the
+      Cartão Nacional de Saúde, coded to IBGE''s standard education categories.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Escolaridade
+  CO_ETNIA:
+    official_name: Etnia indígena
+    translated_name: Indigenous ethnicity
+    description: 'Code for the patient''s specific indigenous ethnic group, drawn from
+      the IBGE/FUNAI ethnicity table and populated only when her raça/cor is registered
+      as Indígena on the Cartão SUS.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'Distinct from a race/color field, DATASUS''s "etnia" column consistently
+      names the indigenous-ethnicity code table imported from Cartão Nacional de Saúde
+      demographics across systems that share this import path.
+
+      '
+    source_ref: naming grammar + domain knowledge of DATASUS etnia table
+  CO_FAIXA_ETARIA_PACIENTE:
+    official_name: Faixa etária
+    translated_name: Age bracket
+    description: 'Patient''s age grouped into five-year brackets (e.g. 40-44, 45-49)
+      on the breast cytopathology form, used for age-stratified screening tabulation.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf
+
+      '
+  CO_FX_ETAR:
+    official_name: Faixa etária
+    translated_name: Age band
+    description: 'The age band the person falls in, as SISCAN''s screening bands rather
+      than a general age grouping — the bands follow the ages at which cervical and
+      breast screening is recommended.
+
+      '
+    code_system: internal
+    codelists:
+    - FETARIA
+    source: inferred
+    reasoning: Declared C(2) and bound to FETARIA, whose labels are age ranges.
+    notes: 'A banding of CO_PAC_IDA, not an independent fact. Use one or the other.
+
+      '
+  CO_IDADE_PACIENTE:
+    official_name: Idade da paciente
+    translated_name: Patient age
+    description: 'Patient''s age in years at the time of the cervical cytopathology
+      exam, recorded on the SISCAN request form and used to build the Faixa Etária
+      five-year age brackets shown in tabulation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CO_ prefix plus IDADE/PACIENTE by naming grammar; SISCAN''s own age-bracket
+      variable is documented as derived from an underlying per-exam age value.
+
+      '
+    source_ref: naming grammar
+  CO_IND_CLINICA:
+    official_name: Indicação clínica
+    translated_name: Clinical indication
+    description: 'Whether the mammogram was ordered as screening, on a patient with
+      no breast-cancer signs or symptoms, or as diagnostic, on a patient who has them.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
+
+      '
+  CO_INS_ARTEF_DES:
+    official_name: Ins. pres.art.desec.
+    translated_name: Unsatisfactory - drying artifact
+    description: 'Marks the sample unsatisfactory because drying artifact before fixation
+      distorted cells over more than 75 percent of the smear, preventing reliable reading.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Ins. pres.art.desec.
+  CO_INS_CONTAM_EXTERNOS:
+    official_name: Ins. pres.cont.exte
+    translated_name: Unsatisfactory - external contaminants
+    description: 'Marks the sample unsatisfactory because external contaminants, such
+      as lubricant or foreign material, obscure more than 75 percent of the smear.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Ins. pres.cont.exte
+  CO_INS_INTENSA_SUPER:
+    official_name: Ins. pres.sup.celul
+    translated_name: Unsatisfactory - cell overlap
+    description: 'Marks the sample unsatisfactory because intense cellular overlap
+      covers more than 75 percent of the smear, hiding the individual cells needed
+      for reading.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Ins. pres.sup.celul
+  CO_INS_MAT_CELULAR:
+    official_name: Ins. mat. acelular
+    translated_name: Unsatisfactory - scanty cellular material
+    description: 'Marks the sample unsatisfactory because it is acellular or hypocellular,
+      with epithelial cells covering less than 10 percent of the smear.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Ins. mat. acelular
+  CO_INS_OUTROS:
+    official_name: Ins. Outros
+    translated_name: Unsatisfactory - other cause
+    description: 'Marks the sample unsatisfactory for a reason other than blood, pus
+      cells, drying artifact, contaminants, or cell overlap, each recorded as a separate
+      cause on the same report.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Ins. Outros
+  CO_INS_PIOCITOS:
+    official_name: Ins. pres. piócitos
+    translated_name: Unsatisfactory - pus cells
+    description: 'Marks the sample unsatisfactory because pus cells from inflammation
+      cover more than 75 percent of the smear, obscuring the epithelial cells needed
+      for reading.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Ins. pres. piócitos
+  CO_INS_SANGUE:
+    official_name: Ins. pres. sangue
+    translated_name: Unsatisfactory - blood
+    description: 'Marks the sample unsatisfactory because blood covers more than 75
+      percent of the smear, obscuring the epithelial cells needed for reading.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Ins. pres. sangue
+  CO_INTERVALO_COLETA:
+    official_name: Intervalo de coleta
+    translated_name: Collection interval
+    description: 'Days elapsed between the date the exam sample was collected and the
+      date it arrived at the analysis laboratory.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatológico Colo, campo Intervalo de coleta
+  CO_INTERVALO_EXAME:
+    official_name: Intervalo de resultado
+    translated_name: Result interval
+    description: 'Days elapsed between the sample''s arrival at the analysis laboratory
+      and the release of its report, the second half of total turnaround alongside
+      the collection interval.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Nota Tecnica 2 names three time metrics for this dataset (Intervalo
+      de coleta, Intervalo de resultado, Tempo Exame); CO_INTERVALO_COLETA and CO_TEMPO_EXAME
+      already match two by name, leaving Intervalo de resultado as the remaining match
+      for this field.
+
+      '
+    source_ref: 'naming grammar + Nota Tecnica 2 SISCAN - Citopatológico Colo, campo
+      Intervalo de resultado
+
+      '
+  CO_INTERVALO_RESULTADO:
+    official_name: Intervalo do resultado
+    translated_name: Result-turnaround interval
+    description: 'Days elapsed between the mammogram being performed and the imaging
+      service releasing its report, DATASUS''s timeliness indicator for result delivery.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
+
+      '
+  CO_INTERVALO_SOLICITACAO:
+    official_name: Intervalo da solicitação
+    translated_name: Scheduling-wait interval
+    description: 'Days elapsed between the mammogram being requested and actually performed,
+      DATASUS''s timeliness indicator for exam scheduling.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
+
+      '
+  CO_LAUDO_CITOPATOLOGICO:
+    official_name: Laudo citopatológico (inferido)
+    translated_name: Overall cytopathology result
+    description: 'Single code carrying the exam''s overall diagnostic conclusion, spanning
+      normal, ASC-US/ASC-H, low- or high-grade squamous or glandular lesions, and invasive
+      carcinoma categories.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CO_ + LAUDO_CITOPATOLOGICO by naming grammar; Nota Tecnica 2 lists
+      the full set of mutually exclusive diagnostic-result categories (Dentro da Normalidade
+      through Outras Neoplasias) this single field is the code for.
+
+      '
+    source_ref: 'naming grammar + Nota Tecnica 2 SISCAN - Citopatologico Colo, resultado
+      categories section
+
+      '
+  CO_MIC_ACTINOMYCES:
+    official_name: Mic.actinomyces sp (inferido)
+    translated_name: Microbiology - Actinomyces sp.
+    description: 'Marks that the sample''s microbiology assessment found organisms
+      morphologically consistent with Actinomyces sp., a bacterium associated with
+      long-term IUD use.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MIC_BACILOS_SUPRA:
+    official_name: Mic.bacil supracit. (inferido)
+    translated_name: Microbiology - supracytoplasmic bacilli
+    description: 'Marks that the sample''s microbiology assessment found supracytoplasmic
+      bacilli, a morphotype suggestive of Gardnerella vaginalis or Mobiluncus and bacterial
+      vaginosis.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MIC_CANDIDA:
+    official_name: Mic.CANDIDA sp (inferido)
+    translated_name: Microbiology - Candida sp.
+    description: 'Marks that the sample''s microbiology assessment found Candida sp.,
+      the yeast responsible for vaginal candidiasis.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MIC_COCOS:
+    official_name: Mic.cocos (inferido)
+    translated_name: Microbiology - cocci
+    description: 'Marks that the sample''s microbiology assessment found coccus-shaped
+      bacteria, a nonspecific vaginal flora finding distinct from the other named organisms.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MIC_EFEITO_CITOPATICO:
+    official_name: Mic.vir gr.herpes (inferido)
+    translated_name: Microbiology - Herpes-group viral effect
+    description: 'Marks that the sample''s microbiology assessment found cytopathic
+      cell changes compatible with infection by a virus of the Herpes group, distinct
+      from the HPV effect reported under squamous lesion findings.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MIC_LACTOBACILLUS:
+    official_name: Mic.lactobacillus (inferido)
+    translated_name: Microbiology - Lactobacillus sp.
+    description: 'Marks that the sample''s microbiology assessment found Lactobacillus
+      sp., the normal, protective bacterium of healthy vaginal flora.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MIC_OUTROS:
+    official_name: Mic.outros (inferido)
+    translated_name: Microbiology - other organism
+    description: 'Marks that the sample''s microbiology assessment found an organism
+      or flora finding not covered by Lactobacillus, cocci, supracytoplasmic bacilli,
+      Candida, Actinomyces, or the herpes-group viral effect.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MIC_OUTROS_BACILOS:
+    official_name: Outros bacilos
+    translated_name: Microbiology - other bacilli
+    description: 'Marks that the sample''s microbiology assessment found bacillus-shaped
+      organisms not matching Lactobacillus or the Gardnerella/Mobiluncus- suggestive
+      supracytoplasmic pattern, a residual bacterial-flora category on the same report.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MIC_SUGEST_CHLAMYDIA:
+    official_name: Sugestivo de Chlamydia sp.
+    translated_name: Microbiology - suggestive of Chlamydia sp.
+    description: 'Marks that the smear''s cell changes were read as suggestive of Chlamydia
+      sp. infection, a cytologic impression rather than a confirmed laboratory diagnosis
+      of chlamydia.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MIC_TRICHOMONAS:
+    official_name: Trichomonas vaginalis
+    translated_name: Microbiology - Trichomonas vaginalis
+    description: 'Marks that the sample''s microbiology assessment found Trichomonas
+      vaginalis, a motile protozoan parasite transmitted sexually, distinct from the
+      bacterial and fungal organisms in sibling microbiology fields.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  CO_MUN_PREST_SERVICO:
+    official_name: Município do prestador de serviço
+    translated_name: Provider's municipality
+    description: 'IBGE code of the municipality where the laboratory or clinic that
+      performed the exam is located, distinct from the requesting unit''s municipality.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
+
+      '
+  CO_MUN_RESIDENCIA:
+    official_name: Munic. de residência
+    translated_name: Municipality of residence
+    description: 'IBGE code for the patient''s municipality of residence, as registered
+      on the Cartão Nacional de Saúde, ordered by state code and then municipality.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Munic. de residência
+  CO_MUN_UNIDADE_SAUDE:
+    official_name: Município da unidade de saúde
+    translated_name: Requesting unit's municipality
+    description: 'IBGE code of the municipality where the health unit that requested
+      the exam is located, as registered on the patient''s Cartão SUS.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
+
+      '
+  CO_PAC_ESC:
+    official_name: Escolaridade do paciente
+    translated_name: Patient schooling
+    description: 'Level of schooling recorded for the person examined. A single character,
+      drawn on the schooling categories used across Brazilian health records.
+
+      '
+    code_system: internal
+    codelists:
+    - ESCOLARIDADE
+    source: inferred
+    reasoning: Declared C(1) and bound by .DEF to ESCOLARIDADE.
+  CO_PAC_IBG:
+    official_name: Município de residência do paciente (IBGE)
+    translated_name: Patient municipality of residence
+    description: 'IBGE code of the municipality where the person examined lives — not
+      where the exam was collected, which is the unit''s municipality (CO_US_IBGE),
+      and not where it was read, which is the laboratory''s (CLABIBGE).
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Declared C(7) and bound to MUNICBR; seven digits is the IBGE code.
+    notes: 'Screening is often collected away from home. Counting exams by the unit''s
+      municipality and calling it coverage of that municipality''s women is the standard
+      mistake these three columns exist to let you avoid.
+
+      '
+  CO_PAC_IDA:
+    official_name: Idade do paciente
+    translated_name: Patient age
+    description: 'Age of the person examined, in completed years, as a three-digit
+      number. Unlike SIH and SIM this carries no unit code beside it — the value is
+      always years.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared C(3), no codelist bound, and the sibling CO_FX_ETAR holds
+      the banded form of the same quantity.
+
+      '
+  CO_PAC_RAC:
+    official_name: Raça/cor do paciente
+    translated_name: Patient race or colour
+    description: 'Race or colour of the person examined, on the IBGE categories used
+      throughout Brazilian health data (branca, preta, parda, amarela, indígena). Self-declared
+      in principle; in practice often recorded by staff.
+
+      '
+    code_system: internal
+    codelists:
+    - RACACOR
+    source: inferred
+    reasoning: Declared C(2) and bound by .DEF to RACACOR.
+    notes: 'Missing and "ignorado" are common and not distributed evenly by region,
+      so race-stratified rates from this column understate some groups.
+
+      '
+  CO_PAC_SEX:
+    official_name: Sexo do paciente
+    translated_name: Patient sex
+    description: 'Sex recorded for the person examined. Overwhelmingly female across
+      every series here, since these are cervical and breast screening programmes.
+
+      '
+    code_system: internal
+    codelists:
+    - SEXO
+    source: inferred
+    reasoning: Declared C(1) and bound by .DEF to the SEXO codelist.
+  CO_PAC_UF:
+    official_name: UF de residência do paciente
+    translated_name: Patient state of residence
+    description: 'Two-digit IBGE code of the state where the person examined lives.
+
+      '
+    code_system: external
+    codelists:
+    - ESTADO
+    source: inferred
+    reasoning: Declared C(2) and bound to ESTADO.
+  CO_PERIODO_PREVENTIVO:
+    official_name: Período preventivo
+    translated_name: Preventive-exam periodicity/interval code
+    description: 'Code for the recommended screening-interval category applied to this
+      cervical cytology exam (e.g. routine annual/triennial screening vs. an earlier-than-routine
+      repeat) — part of the request form''s screening-history section.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Full-word Portuguese field name (período preventivo, "preventive[-
+      exam] period"), on the SISCAN_CITO_COLO yearly extracts alongside TP_MOTIVO_EXAME
+      (exam reason).
+
+      '
+    notes: 'Declared C(0,0) — a CSV yearly-extract column, not a fixed-width DBF field;
+      no observed values were captured.
+
+      '
+  CO_PREST_SERVICO:
+    official_name: Prestador de serviço
+    translated_name: Service provider
+    description: 'CNES code identifying the laboratory or clinic that performed and
+      analyzed the exam, as opposed to the unit that requested it.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'Builds on the provider/requesting-unit distinction SISCAN''s technical
+      notes draw explicitly for the parallel municipality fields; this is the code
+      identifying that same provider.
+
+      '
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+  CO_RACA_COR:
+    official_name: Raça/Cor
+    translated_name: Race/color
+    description: 'The patient''s self-identified race or color, imported from the Cartão
+      Nacional de Saúde and coded to IBGE''s classification (Branca, Preta, Parda,
+      Amarela, Indígena).
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Raça/Cor
+  CO_RECOMENDACAO:
+    official_name: Recomendação de conduta
+    translated_name: Recommended follow-up action
+    description: 'Follow-up action tied to the mammogram''s BI-RADS category: repeat
+      mammography in 2 years for categories 1-2, radiological control in 6-12 months
+      for category 3, biopsy for categories 4-5, or specific treatment for category
+      6.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Quadro 10 - Recomendacao de conduta
+
+      '
+  CO_REJ_AUSENCIA:
+    official_name: Rejeitada id. lâmin
+    translated_name: Rejected - slide/vial identification missing
+    description: 'Rejection-reason code marking that the slide or specimen vial arrived
+      with no patient identification, or an identification error, so the lab could
+      not link it to a request and never read it.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Rejeitada id.
+      lâmin
+
+      '
+  CO_REJ_CAUSA_ALHEIA:
+    official_name: Rej. causas alheias
+    translated_name: Rejected - cause external to the laboratory
+    description: 'Rejection-reason code marking a slide turned away for a cause outside
+      the laboratory''s own responsibility, arising before or at receipt rather than
+      from its collection, staining, or reading process.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Rej. causas alheias
+
+      '
+  CO_REJ_LAMINA:
+    official_name: Rej. lâmina danif
+    translated_name: Rejected - slide damaged or missing
+    description: 'Rejection-reason code marking that the physical slide itself was
+      damaged or absent when it reached the laboratory, so no material was available
+      to read at all.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Rej. lâmina danif
+
+      '
+  CO_REJ_OUT_CAUSAS:
+    official_name: 'Rejeitada: Outros'
+    translated_name: Rejected - other cause
+    description: 'Rejection-reason code marking a slide rejected for a cause not covered
+      by the identification, physical-damage, or external-cause categories recorded
+      on the same report.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida "Rejeitada: Outros"
+
+      '
+  CO_RES_ADE:
+    official_name: Adequabilidade do resultado
+    translated_name: Result adequacy
+    description: 'Whether the breast specimen was satisfactory. The breast counterpart
+      of CO_ADEQ_MA on the cervical form.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CRESADEQ.CNV
+    reasoning: 'Bound to CRESADEQ, whose values are satisfatório and insatisfatório.
+      Declared C(70), far wider than the code needs.
+
+      '
+  CO_RISCO_ELEVADO:
+    official_name: Risco elevado
+    translated_name: Elevated breast-cancer risk
+    description: 'Whether the patient meets INCA''s high-risk criteria for breast cancer:
+      a first-degree relative diagnosed before 50, bilateral or ovarian cancer, male
+      breast cancer, an atypical proliferative lesion, or the patient''s own prior
+      breast cancer.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 2
+
+      '
+  CO_TEMPO_EXAME:
+    official_name: Tempo Exame
+    translated_name: Total exam turnaround
+    description: 'Total days from sample collection to release of the exam report,
+      equal to the sum of the collection interval and the result interval.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatológico Colo, campo Tempo Exame
+  CO_TEMPO_MAMO_ANTERIOR:
+    official_name: Fez mamografia alguma vez
+    translated_name: Prior mammogram history
+    description: 'Whether the patient ever had a mammogram before this request and,
+      if so, the year of the last one; the other options are "never" and "does not
+      know".
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 4
+
+      '
+  CO_TEM_NODULO:
+    official_name: Tem nódulo ou caroço na mama
+    translated_name: Reported breast lump
+    description: 'Whether the patient reports a palpable lump in the breast at the
+      time of the request, recorded separately for the right breast, the left breast,
+      or marked absent.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 1
+
+      '
+  CO_UF_PREST_SERVICO:
+    official_name: UF do prestador de serviço
+    translated_name: Provider's state
+    description: 'State (UF) code where the exam-performing service provider is located,
+      the state-level counterpart to the provider''s municipality code.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'Same provider/requesting-unit distinction as CO_MUN_PREST_SERVICO,
+      at state rather than municipality granularity, using the standard DATASUS UF
+      code table.
+
+      '
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+  CO_UF_RESIDENCIA:
+    official_name: UF residência
+    translated_name: State of residence
+    description: 'IBGE code for the patient''s state of residence, imported from the
+      Cartão Nacional de Saúde alongside the municipality of residence.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'Nota Tecnica 1 describes Munic. de residência as ordered by "código
+      do estado e seus municípios", implying this parallel state-level code field from
+      the same Cartão SUS/IBGE import.
+
+      '
+    source_ref: naming grammar + Nota Tecnica 1 SISCAN - Pacientes, campo Munic. de
+      residência
+  CO_UF_UNIDADE_SAUDE:
+    official_name: UF da unidade de saúde
+    translated_name: Requesting unit's state
+    description: 'State (UF) code where the requesting health unit is located, the
+      state-level counterpart to the requesting unit''s municipality code.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'Same requesting-unit field Nota Tecnica 8 describes at municipality
+      level, applied here at state granularity.
+
+      '
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+  CO_UNIDADE_SAUDE:
+    official_name: Unidade de saúde
+    translated_name: Requesting health unit
+    description: 'CNES code of the health unit that requested the exam, e.g. a primary-care
+      clinic, as opposed to the laboratory that performed it.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'Counterpart code field to CO_PREST_SERVICO, following the requesting-unit/provider
+      distinction SISCAN''s technical notes describe for the parallel municipality
+      fields.
+
+      '
+    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+  CO_US:
+    official_name: Código da unidade de saúde
+    translated_name: Health unit code
+    description: 'CNES code of the health unit that collected the sample or performed
+      the mammogram. The point of contact with the woman, distinct from the laboratory
+      that read it.
+
+      '
+    code_system: external
+    codelists:
+    - UNIDSAUDE
+    source: inferred
+    reasoning: 'Declared C(7) — the CNES establishment width — and bound to UNIDSAUDE
+      plus a per-state family of unit tables.
+
+      '
+  CO_US_IBGE:
+    official_name: Município da unidade de saúde (IBGE)
+    translated_name: Health unit municipality
+    description: 'IBGE code of the municipality where the collecting unit is, which
+      is where the exam happened rather than where the woman lives.
+
+      '
+    code_system: external
+    codelists:
+    - MUNICBR
+    source: inferred
+    reasoning: Declared C(7) and bound to MUNICBR.
+  CO_US_UF:
+    official_name: UF da unidade de saúde
+    translated_name: Health unit state
+    description: 'Two-digit IBGE code of the state the collecting unit is in.
+
+      '
+    code_system: external
+    codelists:
+    - ESTADO
+    source: inferred
+    reasoning: Declared C(2) and bound to ESTADO.
+  DINTCOLETA:
+    official_name: Intervalo até a coleta
+    translated_name: Interval to collection, banded
+    description: 'How long the woman waited for the sample to be collected, as a band
+      rather than a number of days: 1 is 0–10 days, 2 is 11–20, 3 is 21–30, and so
+      on.
+
+      '
+    code_system: internal
+    codelists:
+    - INTCOLETA
+    source: inferred
+    reasoning: 'Declared C(1) and bound to INTCOLETA, whose labels are day ranges ("0
+      - 10 dias", "11 - 20 dias").
+
+      '
+    notes: 'Banded, so it cannot be averaged. Treat it as ordered categories.
+
+      '
+  DINTRESULT:
+    official_name: Intervalo até o resultado
+    translated_name: Interval to result, banded
+    description: 'How long the result took to come back, in the same day-range bands:
+      1 is 0–10 days, 2 is 11–20, 3 is 21–30. This is the delay that decides whether
+      a screening programme reaches a woman in time to act.
+
+      '
+    code_system: internal
+    codelists:
+    - INTRESULTADO
+    source: inferred
+    reasoning: 'Declared C(1) and bound to INTRESULTADO, whose labels are day ranges.
+
+      '
+    notes: 'Banded, not a day count. Averaging the code numbers produces a number with
+      no meaning.
+
+      '
+  DINTTEMPEX:
+    official_name: Intervalo de tempo do exame
+    translated_name: Exam turnaround, banded
+    description: 'Total time the exam took end to end, banded the same way as DINTCOLETA
+      and DINTRESULT rather than given in days.
+
+      '
+    code_system: internal
+    codelists:
+    - INTTEMPOEXAME
+    source: inferred
+    reasoning: 'Declared C(1) and bound to INTTEMPOEXAME, a sibling of the other two
+      interval tables.
+
+      '
+  DT_ID_COMP:
+    official_name: Competência (AAAAMM)
+    translated_name: Competence year-month
+    description: 'Competência as AAAAMM: the month a record was reported in. Two records
+      of the same exam re-sent in different months carry different values here.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared C(6) and bound to ANOMES; six characters and that binding
+      admit only AAAAMM.
+
+      '
+    notes: 'Counting by competência counts reporting, not screening activity.
+
+      '
+  NU_ADENOCAR_INS_SITU:
+    official_name: Adenocarc in situ
+    translated_name: Adenocarcinoma in situ count
+    description: 'Count of exams diagnosed with adenocarcinoma in situ: malignant glandular
+      (endocervical) cells confined within the gland, not yet invading the underlying
+      stroma.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Adenocarc in situ
+
+      '
+  NU_ADENOCAR_INVASOR:
+    official_name: Adenocarc invasor
+    translated_name: Invasive adenocarcinoma count
+    description: 'Count of exams diagnosed with invasive adenocarcinoma, malignant
+      glandular cells that breached the basement membrane; covers cervical, endometrial,
+      or unspecified-site reports alike.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Adenocarc invasor
+
+      '
+  NU_AMOSTRA_REJEITADA:
+    official_name: Adequabilidade - Rejeitada
+    translated_name: Sample rejected count
+    description: 'Count of exams whose slide was turned away outright at the laboratory,
+      before any cytologic reading, for identification, damage, or other rejection
+      reasons captured elsewhere on the same report.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, campo Adequabilidade
+      (categoria Rejeitada)
+
+      '
+  NU_AMOSTRA_SATISFATORIA:
+    official_name: Adequabilidade - Satisfatória
+    translated_name: Sample satisfactory count
+    description: 'Count of exams whose sample was judged satisfactory: enough well-preserved,
+      visible cervical cells to support a reliable cytologic reading, per the Nomenclatura
+      Brasileira adequacy criteria.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, campo Adequabilidade
+      (categoria Satisfatória)
+
+      '
+  NU_ANO_COMPETENCIA:
+    official_name: Ano de competência
+    translated_name: Year of competência (billing period)
+    description: 'Calendar year in which the exam was released and billed by the service
+      provider, the period SISCAN uses to group exams for reporting, not the year of
+      collection.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Ano de competência
+  NU_ANO_MES_COMPETENCIA:
+    official_name: Mês/Ano competência
+    translated_name: Year-month of competência (billing period)
+    description: 'Year and month in which the exam was released and billed by the service
+      provider, the month-level counterpart to NU_ANO_COMPETENCIA used to group exams
+      for reporting.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatológico Colo, campo Mês/Ano competência
+  NU_CARC_EPIDERM_INV:
+    official_name: Carc. Epiderm. Inv
+    translated_name: Invasive squamous carcinoma count
+    description: 'Count of exams diagnosed with invasive squamous cell (epidermoid)
+      carcinoma: malignant squamous cells that have invaded the cervical stroma beyond
+      high-grade intraepithelial disease.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Carc. Epiderm.
+      Inv
+
+      '
+  NU_CA_ESCAMOSA_N_AF_LESAO_AG:
+    official_name: ASC-H
+    translated_name: Atypical squamous cells, cannot exclude high-grade lesion
+    description: 'Count of exams reporting ASC-H: atypical squamous cells of undetermined
+      significance where the reader could not rule out an underlying high-grade intraepithelial
+      lesion, the more concerning of the two squamous-atypia categories.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida ASC-H
+  NU_CA_ESCAMOSA_P_NAO_NEOPLAST:
+    official_name: ASC-US
+    translated_name: Atypical squamous cells, probably non-neoplastic
+    description: 'Count of exams reporting ASC-US: atypical squamous cells of undetermined
+      significance judged probably non-neoplastic, the milder counterpart to NU_CA_ESCAMOSA_N_AF_LESAO_AG''s
+      ASC-H finding.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Tecnica 2 SISCAN - Citopatologico Colo, medida ASC-US
+  NU_CA_GLANDULAR_NAO_NEOPL:
+    official_name: At. Glan.Ind.Não Neo
+    translated_name: Atypical glandular cells, probably non-neoplastic
+    description: 'Count of exams reporting atypical glandular cells of undetermined
+      significance judged probably non-neoplastic, the glandular-cell analogue of ASC-US
+      rather than a squamous finding.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida At. Glan.Ind.Não
+      Neo
+
+      '
+  NU_CA_GLANDULA_N_AF_LESAO_AG:
+    official_name: At.Glan.Ind. Alto Grau
+    translated_name: Atypical glandular cells, cannot exclude high-grade lesion
+    description: 'Count of exams reporting atypical glandular cells of undetermined
+      significance where a high-grade lesion could not be excluded, more concerning
+      than NU_CA_GLANDULAR_NAO_NEOPL''s probably-benign counterpart.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida At.Glan.Ind. Alto
+      Grau
+
+      '
+  NU_CA_IND_NAO_LESAO:
+    official_name: Ori. Indef. Alto Grau (inferido)
+    translated_name: Atypical cells of indefinite origin, cannot exclude high-grade
+      lesion
+    description: 'Count of exams reporting atypical cells of indefinite origin where
+      a high-grade lesion could not be excluded, the more concerning counterpart to
+      NU_CA_ORIGEM_IND_NAO_NEOPLAST.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    depends_on:
+    - NU_CA_ORIGEM_IND_NAO_NEOPLAST
+    reasoning: 'This column''s name breaks the ORIGEM/NAO_NEOPLAST pattern its sibling
+      carries. Across the escamosa and glandular pairs in this same file the milder,
+      probably-non-neoplastic member always keeps a NAO_NEOPL(AST) suffix, so the sibling
+      lacking that suffix is assigned to the higher-severity "não se pode afastar lesão
+      de alto grau" category by elimination.
+
+      '
+    source_ref: 'naming grammar (sibling-pair pattern) + Nota Tecnica 2 SISCAN - Citopatologico
+      Colo, medida Ori. Indef. Alto Grau
+
+      '
+  NU_CA_ORIGEM_IND_NAO_NEOPLAST:
+    official_name: Ori. Indef. Não Neo
+    translated_name: Atypical cells of indefinite origin, probably non-neoplastic
+    description: 'Count of exams reporting atypical cells that could not be classified
+      as squamous or glandular, judged probably non-neoplastic; the milder of the two
+      origin-indefinite atypia categories.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Ori. Indef. Não
+      Neo
+
+      '
+  NU_LESAO_IE_ALTO_GRAU:
+    official_name: Les IEp Alto Grau
+    translated_name: High-grade squamous intraepithelial lesion count
+    description: 'Count of exams reporting a high-grade squamous intraepithelial lesion
+      (HSIL): cervical intraepithelial neoplasia grades II and III, more severe than
+      NU_LESAO_IE_BAIXO_GRAU''s low-grade finding.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Les IEp Alto Grau
+
+      '
+  NU_LESAO_IE_BAIXO_GRAU:
+    official_name: Les IE Baixo Grau
+    translated_name: Low-grade squamous intraepithelial lesion count
+    description: 'Count of exams reporting a low-grade squamous intraepithelial lesion
+      (LSIL): HPV cytopathic effect together with cervical intraepithelial neoplasia
+      grade I.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Les IE Baixo Grau
+
+      '
+  NU_LES_IE_ALTO_GRAU_N_MIC_INV:
+    official_name: Les IE AG Mic. Inv
+    translated_name: High-grade lesion, cannot exclude microinvasion
+    description: 'Count of exams reporting a high-grade squamous intraepithelial lesion
+      where microinvasion could not be excluded, a step beyond plain HSIL and short
+      of the confirmed NU_CARC_EPIDERM_INV diagnosis.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Les IE AG Mic.
+      Inv
+
+      '
+  NU_LIMITE_NORMALIDADE:
+    official_name: Dentro da Normalidade
+    translated_name: Within normal limits count
+    description: 'Count of exams read as within normal limits: no cellular atypia of
+      oncogenic interest and no benign reactive or reparative change recorded on the
+      report.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, campo Dentro da Normalidade
+
+      '
+  NU_OUTRAS_NEOPLASIAS:
+    official_name: Outras Neoplasias
+    translated_name: Other malignant neoplasms count
+    description: 'Count of exams reporting a malignant cervical neoplasm that does
+      not fit any of the named squamous or glandular carcinoma categories tallied in
+      the sibling NU_ fields.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, medida Outras Neoplasias
+
+      '
+  NU_TAMANHO_NODULO:
+    official_name: Tamanho do nódulo
+    translated_name: Nodule size band
+    description: 'Banded size of the largest mammographic nodule, measured as its longest
+      axis: under 10mm, 11-20mm, 21-50mm, or over 50mm.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Nodulo, campo Tamanho, p.22
+
+      '
+  PRESTMUN:
+    official_name: Município do prestador
+    translated_name: Provider municipality
+    description: 'IBGE code of the municipality of the laboratory or service. Screening
+      is centralised, so this is frequently not the woman''s municipality and must
+      not be used as residence.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(7) bound to MUNICBR, the national municipality codelist.
+  PRESTUF:
+    official_name: UF do prestador
+    translated_name: Provider state
+    description: State of the service that performed the exam, the coarser companion
+      to PRESTMUN.
+    code_system: internal
+    source: def
+    source_ref: ESTADO.CNV
+    reasoning: C(2) bound to ESTADO, the state codelist.
+  QTDEXA:
+    official_name: Quantidade de exames
+    translated_name: Number of exams
+    description: 'The same count as QUANTEXAME under the shorter name a different generation
+      of the layout uses. Only one of the two is present in any given file.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared C(8), unbound, and never appears in the same schema signature
+      as QUANTEXAME — the abbreviation pattern DATASUS uses when a layout is revised.
+
+      '
+  QUANTEXAME:
+    official_name: Quantidade de exames
+    translated_name: Number of exams
+    description: 'Number of exams the record accounts for. Ordinarily 1, since one
+      row is one exam; values above 1 mean the row stands for several.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared C(8) with no codelist bound; QUANT/QTD is DATASUS''s prefix
+      for a count and EXAME names what is counted.
+
+      '
+    notes: 'Rows are not necessarily one exam each. Sum this column rather than counting
+      rows.
+
+      '
+  REGLAB:
+    official_name: Região do laboratório
+    translated_name: Laboratory region
+    description: 'Macro-region of the reading laboratory, as a single digit.
+
+      '
+    code_system: internal
+    codelists:
+    - REGIAO
+    source: inferred
+    reasoning: Declared C(1) and bound to REGIAO; derived from CLABUF.
+  REGRESID:
+    official_name: Região de residência
+    translated_name: Region of residence
+    description: 'Macro-region of the person''s residence — North, Northeast, Southeast,
+      South, Centre-West — as a single digit.
+
+      '
+    code_system: internal
+    codelists:
+    - REGIAO
+    source: inferred
+    reasoning: Declared C(1) and bound to REGIAO; derived from CO_PAC_UF.
+  REGUS:
+    official_name: Região da unidade de saúde
+    translated_name: Health unit region
+    description: 'Macro-region of the collecting unit, as a single digit.
+
+      '
+    code_system: internal
+    codelists:
+    - REGIAO
+    source: inferred
+    reasoning: Declared C(1) and bound to REGIAO; derived from CO_US_UF.
+  SG_SEXO:
+    official_name: Sexo
+    translated_name: Sex
+    description: 'The patient''s sex, masculine or feminine, imported from the Cartão
+      Nacional de Saúde; a small share of breast-exam records are male since men can
+      also be diagnosed.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: Nota Tecnica 8 SISCAN - Mamografia, campo Sexo
+  SG_UF_RESIDENCIA:
+    official_name: UF residência (sigla)
+    translated_name: State of residence (abbreviation)
+    description: 'Two-letter abbreviation of the patient''s state of residence (e.g.
+      SP, RJ, BA), the sigla counterpart to the numeric CO_UF_RESIDENCIA code, imported
+      from the Cartão SUS.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'SG_=sigla by naming grammar; same state-of-residence concept documented
+      for CO_UF_RESIDENCIA, here expressed as the letter abbreviation rather than the
+      numeric code.
+
+      '
+    source_ref: naming grammar + Nota Tecnica 1 SISCAN - Pacientes, campo Munic. de
+      residência
+  ST_CELULA_ENDOMETRIAL_PRESENTE:
+    official_name: Presença de células endometriais
+    translated_name: Endometrial cells present
+    description: 'Flags whether endometrial cells were seen in the collected material;
+      their presence outside menses or in a woman over 40 can prompt further gynecologic
+      work-up.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: 'Nota Tecnica 2 SISCAN - Citopatologico Colo, campo Presença de células
+      endometriais
+
+      '
+  ST_DENTRO_LIMITE_NORMALIDADE:
+    official_name: Dentro dos limites da normalidade
+    translated_name: Result within normal limits (DLN) flag
+    description: 'Whether the cytology result was classified "dentro dos limites da
+      normalidade" (DLN) — the standard category for a normal, non-atypical smear,
+      as opposed to any abnormal-finding category.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: '"Dentro do limite de normalidade" is the standard nomenclature category
+      for a normal Pap result in Brazilian cervical cytology; ST_ is this dataset''s
+      status-flag prefix.
+
+      '
+    notes: Declared C(0,0); no observed values captured.
+  ST_MICROCALCIFICACAO:
+    official_name: Microcalcificações
+    translated_name: Microcalcifications present
+    description: 'Whether microcalcifications, small calcium-density particles that
+      can mark ductal carcinoma in situ, are present in the breast tissue specimen
+      examined by the pathologist.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Field label "Microcalcificações" and lookup MICROCALC.CNV in TAB_SISCAN.rar!histo_mama.def
+      name a presence flag; DATASUS ST_ prefix marks status/boolean fields per the
+      naming grammar.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field MICROCALC
+
+      '
+  ST_OUTRA_NEOPLASIA_MALIGNA:
+    official_name: Outra neoplasia maligna
+    translated_name: Other malignant neoplasm
+    description: 'Flags whether the cervical cytopathology report classified a finding
+      as a malignant tumor other than squamous or glandular cervical carcinoma, e.g.
+      a metastatic or non-cervical malignancy.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'ST_=status/flag by naming grammar; "Outras neoplasias malignas" is
+      a top-level diagnostic category in the Nomenclatura Brasileira para Laudos Citopatológicos
+      Cervicais, alongside the squamous/glandular atypia categories that appear in
+      the same file.
+
+      '
+    source_ref: naming grammar + Nomenclatura Brasileira para Laudos Cervicais
+  ST_REPRESENTATI_ZONA_TRANSFORM:
+    official_name: Representatividade da zona de transformação
+    translated_name: Transformation-zone representativity flag
+    description: 'Whether the transformation zone — where most cervical lesions arise
+      — is represented in the collected sample, a standard specimen-adequacy criterion
+      reported alongside DLN status.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: '"Representatividade da zona de transformação" (ZT/JEC representation)
+      is standard Brazilian cytology-adequacy terminology; ST_ status-flag prefix.
+
+      '
+    notes: Declared C(0,0); no observed values captured.
+  ST_SCREENING_REALIZADO:
+    official_name: Screening realizado
+    translated_name: Automated screening performed flag
+    description: 'Whether the slide underwent computer-assisted ("automated") pre-screening
+      before manual review — a lab-process flag, not a clinical finding.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: '"Screening realizado" reads literally; ST_ status-flag prefix consistent
+      with its siblings in this batch.
+
+      '
+    notes: Declared C(0,0); no observed values captured.
+  ST_SINAL_SUGESTIVO_DST:
+    official_name: Sinal sugestivo de DST
+    translated_name: Sign suggestive of an STD flag
+    description: 'Whether the cytology specimen showed cellular changes suggestive
+      of a sexually transmitted disease (e.g. Chlamydia, Trichomonas, HSV) — a finding
+      category distinct from the neoplastic/pre-neoplastic ones.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: '"Sinal sugestivo de DST" reads literally as a standard cytology finding
+      category; ST_ status-flag prefix.
+
+      '
+    notes: Declared C(0,0); no observed values captured.
+  TP_ACHADO_COLPOSCOPICO:
+    official_name: Achado colposcópico
+    translated_name: Colposcopic finding
+    description: 'Colposcopy classification under the Brazilian/IFCPC 2011 nomenclature:
+      normal findings, minor (grade 1) or major (grade 2) abnormal findings, suspicion
+      of invasive cancer, or an unsatisfactory exam.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Achados colposcopicos anormais: grau 1 (menor), Revista Brasileira
+      de Patologia do Trato Genital Inferior, rbptgi.emnuvens.com.br/revista/article/view/113
+      (IFCPC Rio de Janeiro 2011 nomenclature)
+
+      '
+  TP_ADEQUABILIDAD_MATERIAL:
+    official_name: Adequabilidade do material
+    translated_name: Material adequacy
+    description: 'Whether the breast fine-needle or nipple-discharge sample was adequate
+      for cytological reading: satisfactory or unsatisfactory, per the SISCAN breast-cytology
+      result form.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf
+
+      '
+  TP_ATIPIA_CELULAR_ESCAMOS:
+    official_name: Atipias em células escamosas
+    translated_name: Squamous cell atypia
+    description: 'Type of abnormal squamous cell finding in the cervical cytology report:
+      ASC-US, ASC-H, low-grade lesion (LSIL/HPV effect), high-grade lesion (HSIL),
+      or squamous carcinoma.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  TP_ATIPIA_CELULAR_GLANDUL:
+    official_name: Atipias em células glandulares
+    translated_name: Glandular cell atypia
+    description: 'Type of abnormal glandular cell finding in the cervical cytology
+      report: atypical glandular cells (AGC), adenocarcinoma in situ, or invasive adenocarcinoma.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  TP_AVALIACAO_AMOSTRA:
+    official_name: Adequabilidade da amostra
+    translated_name: Sample evaluation
+    description: 'Quality classification of the cervical cytology sample: rejected,
+      satisfactory, or unsatisfactory for evaluation, per the Nomenclatura Brasileira
+      para Laudos Citopatológicos Cervicais.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 1 SISCAN - Pacientes, tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_1_cito_colo_paciente.pdf
+
+      '
+  TP_CEL_ESCAM_SIGN_INDETER:
+    official_name: Células escamosas atípicas de significado indeterminado
+    translated_name: Squamous cells of undetermined significance
+    description: 'Subtype of squamous atypia of undetermined significance: possibly
+      non-neoplastic (ASC-US) versus cannot rule out a high-grade lesion (ASC-H).
+
+      '
+    code_system: internal
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  TP_CEL_GLAND_SIGNIF_INDET:
+    official_name: Células glandulares atípicas de significado indeterminado
+    translated_name: Glandular cells of undetermined significance
+    description: 'Subtype of atypical glandular cell finding: possibly non-neoplastic
+      versus cannot rule out a neoplastic or high-grade glandular lesion.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  TP_CEL_ORIG_INF_SIGN_INDE:
+    official_name: Células de origem indefinida, de significado indeterminado
+    translated_name: Cells of undetermined origin
+    description: 'Subtype for atypical cells the cytologist could not classify as squamous
+      or glandular: possibly non-neoplastic versus cannot rule out a high-grade lesion.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: 'Nomenclatura Brasileira para Laudos Cervicais, bvsms.saude.gov.br/bvs/publicacoes/Nomenclaturas_2_1705.pdf
+
+      '
+  TP_DESCARGA_PAPILAR:
+    official_name: Descarga papilar
+    translated_name: Nipple discharge type
+    description: 'Type of spontaneous nipple discharge reported by the patient: clear
+      or serous ("cristalina") versus bloody ("hemorrágica"), one of the breast-cancer
+      warning signs on the request form.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Subitem 5a
+
+      '
+  TP_DETECCAO_LESAO:
+    official_name: Detecção da lesão
+    translated_name: How the lesion was detected
+    description: 'How the breast lesion sent for histopathology was first found: through
+      clinical or self breast exam, screening mammography, diagnostic mammography,
+      or another imaging method.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Field label "Detecção da lesão" (lookup CCLIDETEC.CNV) in TAB_SISCAN.rar!histo_mama.def
+      names the detection route; SISCAN''s mammography request already distinguishes
+      clinical-finding-driven exams from screening exams, the same split reused here.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field DET_LESAO
+
+      '
+  TP_DIAGNOSTICO_IMAGEM:
+    official_name: Diagnóstico por imagem
+    translated_name: Imaging modality
+    description: 'Imaging method, such as mammography, ultrasound, or magnetic resonance,
+      that identified the finding for which the breast biopsy or surgical specimen
+      was obtained.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Field label "Diagn_imagem" (lookup diagn_imagem.cnv) in TAB_SISCAN.rar!histo_mama.def,
+      a TP_ (tipo) field naming which imaging technique drove the diagnosis.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field DIAG_IMAG
+
+      '
+  TP_ENCAMINHAMENTO:
+    official_name: Tipo de encaminhamento
+    translated_name: Referral reason
+    description: 'Reason the patient was referred for cervical histopathology: an abnormal
+      Pap smear result, an abnormal colposcopy finding, or another clinical indication
+      that prompted the biopsy.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Field label "Tipo Encaminhamento" (lookup tpencaminh.CNV) in TAB_SISCAN.rar!histo_colo.def,
+      on the cervical histopathology request; SISCAN routes patients to biopsy from
+      either altered cytology or altered colposcopy.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_colo.def, field TP_ENCAMINH
+
+      '
+  TP_EXAME_HISTOPATOLOGICO:
+    official_name: Procedimento cirúrgico
+    translated_name: Specimen-collection procedure
+    description: 'How the breast tissue was obtained for histopathology: needle/core
+      biopsy, incisional or excisional surgical biopsy, segmentectomy, or mastectomy,
+      among other listed procedure types.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Field label "Proc. Cirúrgico" (lookup TP_PROCEDIMENTO_CIRURGICO_HISTO.CNV)
+      in TAB_SISCAN.rar!histo_mama.def; procedure names match the breast surgery list
+      defined on INCA''s mammography request form (biópsia incisional/excisional, segmentectomia,
+      mastectomia, etc.).
+
+      '
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def, field PROC_CIR + Orientacoes para elaboracao
+      de laudo no SISMAMA (INCA, 2011), Campo 11 definicoes
+
+      '
+  TP_GRAU_DIFERENCIACAO:
+    official_name: Grau de diferenciação
+    translated_name: Tumor differentiation grade
+    description: 'How closely an invasive cervical carcinoma resembles normal tissue
+      under the microscope: well, moderately, or poorly differentiated, a marker of
+      how aggressive the tumor is.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Field label "Grau de diferenciação" (lookup DifGrau.CNV) in TAB_SISCAN.rar!histo_colo.def;
+      well/moderate/poor differentiation is the standard pathology grading scale for
+      invasive carcinoma.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_colo.def, field GRAU_DIFER
+
+      '
+  TP_GRAU_HISTOLOGICO:
+    official_name: Grau histológico
+    translated_name: Histological grade
+    description: 'Breast tumor grade on the Nottingham/Scarff-Bloom-Richardson scale:
+      Grade I, II, or III, combining tubule formation, nuclear pleomorphism, and mitotic
+      count into one aggressiveness score.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Field label "Grau Histológico" (lookup CHISGRAU.CNV) in TAB_SISCAN.rar!histo_mama.def;
+      this is the standard breast-cancer grading scheme used throughout INCA pathology
+      guidance.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field GRAU_HIST
+
+      '
+  TP_LATERALIDADE_LESAO:
+    official_name: Mama (histopatológico)
+    translated_name: Lesion laterality
+    description: 'Which breast the biopsied or excised lesion sent for histopathology
+      came from: right, left, or bilateral.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Def field LATER_MAMA, labeled "Mama" (lookup CCLIMATMAM.CNV) in TAB_SISCAN.rar!histo_mama.def,
+      the laterality field DATASUS renamed TP_LATERALIDADE_LESAO in this series'' modern
+      export.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field LATER_MAMA
+
+      '
+  TP_LATERALIDADE_MAMA:
+    official_name: Mama (citopatológico)
+    translated_name: Breast side sampled
+    description: 'Which breast the cytology material, nipple discharge or a needle-aspirated
+      nodule, was collected from: right or left, distinct from TP_LATERALIDADE_LESAO''s
+      histopathology-request counterpart.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    depends_on:
+    - TP_LATERALIDADE_LESAO
+    reasoning: 'Def field LATER_MAMA, labeled "Mama" (lookup CCLIMATMAM.CNV) in TAB_SISCAN.rar!cito_mama.def,
+      the same laterality concept as TP_LATERALIDADE_LESAO but on the cytology request
+      series.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!cito_mama.def, field LATER_MAMA
+
+      '
+  TP_LESAO:
+    official_name: Tipo de lesão
+    translated_name: Lesion type
+    description: 'Overall histopathological classification of the breast specimen:
+      benign lesion, proliferative lesion, in-situ neoplasia, or invasive malignant
+      neoplasia, ahead of any malignant subtype detail.
+
+      '
+    code_system: internal
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Def label "Tipo Lesão" (lookup TP_LESAO.CNV) in TAB_SISCAN.rar!histo_mama.def,
+      already bound as a codelist in the catalog; it precedes and is more general than
+      LESAO_CNM (TP_LESAO_CARAT_NEOPL_MALI), which characterizes malignant cases specifically.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field TP_LESAO
+
+      '
+  TP_LESAO_CARAT_NEOPL_MALI:
+    official_name: Lesão característica de neoplasia maligna
+    translated_name: Malignant neoplasia subtype
+    description: 'Specific malignant breast tumor subtype recorded when TP_LESAO is
+      malignant: for example invasive or in-situ ductal carcinoma, or invasive or in-situ
+      lobular carcinoma.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    depends_on:
+    - TP_LESAO
+    reasoning: 'Def label "Les carat neo mal" (lookup CNEOMALIG.CNV, "categoria neoplasia
+      maligna") in TAB_SISCAN.rar!histo_mama.def.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field LESAO_CNM
+
+      '
+  TP_LESAO_CARAT_NEOP_PRENEO:
+    official_name: Resultado neoplasia pré-neoplásica escamosa
+    translated_name: Squamous pre-neoplastic lesion grade
+    description: 'Grade of squamous pre-cancerous cervical lesion found on histopathology:
+      cervical intraepithelial neoplasia I, II, or III, or squamous carcinoma in situ.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Def label "Res_Neopl_Preneo_Escam" (lookup RES_NEOPL_PRENEO_ESCAM.cnv)
+      in TAB_SISCAN.rar!histo_colo.def; NIC I-III is the standard grading for squamous
+      cervical pre-cancer.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_colo.def, field R_NEOPREESC
+
+      '
+  TP_LESAO_CARAT_NEOP_PREN_AD:
+    official_name: Resultado neoplasia glandular
+    translated_name: Glandular pre-neoplastic lesion grade
+    description: 'Glandular, as opposed to squamous, pre-cancerous or cancerous finding
+      on cervical histopathology: adenocarcinoma in situ or invasive adenocarcinoma.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    depends_on:
+    - TP_LESAO_CARAT_NEOP_PRENEO
+    reasoning: 'Def label "Res_Neopl_Glandular" (lookup RES_NEOPLl_GLANDULAR.cnv) in
+      TAB_SISCAN.rar!histo_colo.def, the glandular counterpart to TP_LESAO_CARAT_NEOP_PRENEO''s
+      squamous result.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_colo.def, field R_NEOGLAND
+
+      '
+  TP_LINFONODO_AXILAR_PALPAVEL:
+    official_name: Linfonodo axilar palpável
+    translated_name: Palpable axillary lymph node
+    description: 'Whether an axillary lymph node was felt as enlarged on clinical breast
+      exam at the time the histopathology specimen was requested: yes or no.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Def label "Linf axil palp" (lookup CCLILINFO.CNV) in TAB_SISCAN.rar!histo_mama.def,
+      a clinical-exam finding distinct from the mammographic axillary-lymph-node fields
+      TP_LINFONODO_DIR/ESQ.
+
+      '
+    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field LINF_A_PAL
+
+      '
+  TP_LINFONODO_DIR:
+    official_name: Linfonodo axilar mama direita
+    translated_name: Right axillary lymph node finding
+    description: 'Mammography reading of the right axillary lymph nodes: normal, not
+      visualized, enlarged (over 20mm without a fatty hilum), dense, or confluent/grouped.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Linfonodos axilares, p.30
+
+      '
+  TP_LINFONODO_ESQ:
+    official_name: Linfonodo axilar mama esquerda
+    translated_name: Left axillary lymph node finding
+    description: 'Same mammographic lymph-node classification as TP_LINFONODO_DIR (normal,
+      not visualized, enlarged, dense, or confluent) but read on the left breast''s
+      axilla.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Linfonodos axilares, p.30
+
+      '
+  TP_MAMA_DIR:
+    official_name: Composição da mama direita
+    translated_name: Right breast composition
+    description: 'Density category of the right breast on mammography: dense, fatty
+      ("adiposa"), predominantly dense, or predominantly fatty, describing how much
+      glandular tissue was replaced by fat.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Composicao da mama, p.20
+
+      '
+  TP_MAMA_ESQ:
+    official_name: Composição da mama esquerda
+    translated_name: Left breast composition
+    description: 'Same breast-density classification as TP_MAMA_DIR (dense, fatty,
+      predominantly dense, or predominantly fatty) but describing the left breast''s
+      mammogram.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'Orientacoes para elaboracao de laudo no SISMAMA (INCA, 2011), bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      secao Composicao da mama, p.20
+
+      '
+  TP_MAMA_PELE_DIR:
+    official_name: Mama dir pele
+    translated_name: Right breast skin appearance
+    description: 'Whether the right breast''s skin appeared normal or altered on the
+      mammogram, one of the imaging findings recorded per breast in the SISCAN mammography
+      report.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
+      campo Mama dir pele
+
+      '
+  TP_MAMA_PELE_ESQ:
+    official_name: Mama esq pele
+    translated_name: Left breast skin appearance
+    description: 'Whether the left breast''s skin appeared normal or altered on the
+      mammogram, the same imaging finding as TP_MAMA_PELE_DIR reported for the opposite
+      breast.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
+      campo Mama esq pele
+
+      '
+  TP_MAMOGRAFIA_RASTREAMENT:
+    official_name: Tipo Mamo rast
+    translated_name: Screening mammogram type
+    description: 'Why a screening mammogram (no symptoms) was ordered: routine target-population
+      screening (ages 50-69), screening for elevated familial risk, or follow-up in
+      a patient already treated for breast cancer.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
+      campo Tipo Mamo rast
+
+      '
+  TP_MARGEM_CIRURGICA:
+    official_name: Margem cirúrgica
+    translated_name: Surgical margin
+    description: 'Whether the tumor reaches the cut edge of tissue removed by conization
+      or EZT in a cervical histopathology exam: margin free of lesion, compromised,
+      or not assessable.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'TP_=tipo by naming grammar; SISCAN''s cervical histopathology form
+      records the excision procedure (EZT/conização) that produces a surgical margin,
+      and margin status is the standard pathology-report category for such specimens.
+
+      '
+    source_ref: naming grammar + SISCAN Nota Tecnica 4 procedure field
+  TP_MATERIAL:
+    official_name: Material Enviado
+    translated_name: Material submitted
+    description: 'Source of the specimen sent for breast cytology: nipple discharge,
+      fine-needle aspiration, or fluid drained from a cyst.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
+      campo Material Enviado
+
+      '
+  TP_MATER_ENVIA_PROCEDENTE:
+    official_name: Proc. Material
+    translated_name: Material's procedural origin
+    description: 'On the breast-histopathology requisition, the broad category the
+      tissue sample came from, e.g. a percutaneous needle biopsy versus a surgical
+      specimen, recorded before the pathologist''s own procedure field.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def, campo Proc. Material (PROC_MAT, CCLIMATPROC.CNV)
+
+      '
+  TP_MOTIVO_EXAME:
+    official_name: Motivo do exame
+    translated_name: Reason for the exam (type)
+    description: 'Why this cervical cytology exam was requested — e.g. routine screening
+      versus a repeat after a prior unsatisfactory or abnormal result. A standard field
+      on the SISCAN cytology request form.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Full-word Portuguese decomposition (tipo + motivo do exame); TP_ type-code
+      prefix.
+    notes: Declared C(0,0); no observed values captured.
+  TP_NODULO:
+    official_name: Tipo Nódulo
+    translated_name: Nodule type
+    description: 'Consistency of a palpable breast lump found on clinical exam before
+      cytology: solid, mixed solid-cystic, or purely cystic.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
+      campo Tipo Nódulo
+
+      '
+  TP_NODULO_CAROCO_MAMA:
+    official_name: Nódulo_requis
+    translated_name: Reported lump on requisition
+    description: 'Whether the mammography requisition reports a palpable lump noticed
+      by the patient or clinician, and if so in the right breast, the left, or both.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
+      campo Nódulo_requis
+
+      '
+  TP_PADRAO_CITOPATOL_AMOST:
+    official_name: Result Desc/cist
+    translated_name: Cytology pattern for discharge/cyst material
+    description: 'For breast material from nipple discharge or cyst fluid rather than
+      a needle aspirate, the cytology pattern: acellular, negative, indeterminate,
+      positive for malignancy, consistent with a papillary lesion, or inflammatory.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'TP_ plus PADRAO_CITOPATOL_AMOST names a cytology-pattern-of-the-sample
+      field. The sibling TP_RESULTA_PUNCAO_ASPIRATIVA already matches cito_mama.def''s
+      PAAF-specific "Resultado PAAF" field, leaving this column to match the def''s
+      separate "Result Desc/cist" field (RESULT_DC, CRESDERPAP.CNV), whose six categories
+      Nota Tecnica 12 lists for discharge/cystic-content material specifically.
+
+      '
+    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Result Desc/cist (RESULT_DC) +
+      Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf
+
+      '
+  TP_PADR_CITO_MALIG_INDET:
+    official_name: Malignid Indeterm
+    translated_name: Indeterminate-malignancy pattern
+    description: 'When an FNA breast sample''s cytology reads as indeterminate for
+      malignancy, which lesion it is consistent with: a papillary tumor, a phyllodes
+      tumor, or another.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
+      campo Malignid Indeterm
+
+      '
+  TP_PADR_CITO_POSI_MALIG:
+    official_name: Positivo malignid
+    translated_name: Positive-for-malignancy pattern
+    description: 'When an FNA breast sample''s cytology is positive for malignancy,
+      which cancer type it is consistent with: ductal carcinoma, lobular carcinoma,
+      or another.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
+      campo Positivo malignid
+
+      '
+  TP_PADR_CITO_SUSP_MALIG:
+    official_name: Suspeito malignid
+    translated_name: Suspicious-for-malignancy pattern
+    description: 'When an FNA breast sample''s cytology is suspicious but not positive
+      for malignancy, which finding it shows: a proliferative epithelial lesion with
+      atypia, or another.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
+      campo Suspeito malignid
+
+      '
+  TP_PROCEDIMENTO:
+    official_name: Tipo de procedimento (mat. enviado)
+    translated_name: Cervical specimen procedure type
+    description: 'How the cervical tissue sent for histopathology was obtained: e.g.
+      a directed biopsy, an excisional procedure such as conization or LEEP, or a hysterectomy
+      specimen.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_colo.def, campo Tipo de procedimento (mat. enviado)
+      (TP_PROCED, tpproced.CNV)
+
+      '
+  TP_PROCEDIMENTO_CIRURGICO:
+    official_name: Proc. Cirúrgico
+    translated_name: Breast surgical procedure type
+    description: 'Which surgical procedure produced the breast tissue examined by histopathology,
+      reported with the result: e.g. core-needle biopsy, incisional or excisional biopsy,
+      or mastectomy.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def, campo Proc. Cirúrgico (PROC_CIR, TP_PROCEDIMENTO_CIRURGICO_HISTO.CNV)
+
+      '
+  TP_PROC_BENI_NEGA_MALI_COMPATI:
+    official_name: Proc Ben Neg mal
+    translated_name: Benign-negative pattern, compatible diagnosis
+    description: 'When an FNA breast sample reads as benign and negative for malignancy,
+      which process it matches: mastitis, recurrent subareolar abscess, fibroadenoma,
+      fat necrosis, fibrocystic change, or another.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
+      campo Proc Ben Neg mal
+
+      '
+  TP_RECOMENDACAO_DIREITA:
+    official_name: Recomendação - mama direita
+    translated_name: Right-breast follow-up recommendation
+    description: 'Follow-up action recommended for the right breast in the mammography
+      report, e.g. routine annual screening, additional imaging, six-month follow-up,
+      or biopsy, tied to its BI-RADS category.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'TP_=tipo, RECOMENDACAO=recommendation, DIREITA=the laterality suffix
+      already used by sibling fields TP_MAMA_PELE_DIR and TP_RECOMENDACAO_ESQUERDA
+      in the same mammography series; BI-RADS mammography reporting assigns a management
+      recommendation per breast, independently for each side.
+
+      '
+    source_ref: naming grammar + BI-RADS per-breast recommendation convention
+  TP_RECOMENDACAO_ESQUERDA:
+    official_name: Recomendação - mama esquerda
+    translated_name: Left-breast follow-up recommendation
+    description: 'Follow-up action recommended for the left breast in the mammography
+      report, the counterpart to TP_RECOMENDACAO_DIREITA reported for the opposite
+      breast.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Same laterality-suffix pattern as TP_RECOMENDACAO_DIREITA and TP_MAMA_PELE_ESQ;
+      BI-RADS mammography reporting assigns a management recommendation per breast,
+      independently for each side.
+
+      '
+    source_ref: naming grammar + BI-RADS per-breast recommendation convention
+  TP_RESP_ANT_MAMA_EXA_PROF_SAUD:
+    official_name: Ex Clin Ant
+    translated_name: Prior clinical breast exam
+    description: 'Whether the patient reports having had her breasts examined by a
+      health professional before this mammography request, self-reported on the requisition.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
+      campo Ex Clin Ant
+
+      '
+  TP_RESP_APRES_RISC_ELEV_CANCER:
+    official_name: Risco elevado
+    translated_name: Elevated breast-cancer risk
+    description: 'Self-reported elevated breast-cancer risk (Sim/Não/Não sabe): personal
+      history of breast cancer, an atypical proliferative lesion, a first-degree relative
+      diagnosed before 50, bilateral breast cancer, or ovarian cancer.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
+      campo Risco elevado
+
+      '
+  TP_RESP_EXAME_PREVENTIVO_REALI:
+    official_name: Responsável pelo exame preventivo realizado
+    translated_name: Type of professional who collected the exam
+    description: 'Category of health professional (e.g. physician, nurse) who performed
+      the specimen collection for this preventive (cytology) exam — REALI is "realizado"
+      truncated to the field-name limit.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Full-word decomposition (tipo + responsável + exame preventivo realizado);
+      pairs with TP_MOTIVO_EXAME on the same request-form section.
+
+      '
+    notes: Declared C(0,0); no observed values captured.
+  TP_RESP_FEZ_MAMOGRA_ALGUMA_VEZ:
+    official_name: Mamog. Anterior
+    translated_name: Ever had a mammogram before
+    description: 'Whether the patient reports having ever had a mammogram before this
+      one, self-reported when the current exam is requested.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf,
+      campo Mamog. Anterior
+
+      '
+  TP_RESULTA_PUNCAO_ASPIRATIVA:
+    official_name: Resultado PAAF
+    translated_name: Fine-needle-aspiration result
+    description: 'Overall cytology classification of a breast fine-needle-aspiration
+      sample: benign and negative for malignancy, indeterminate, suspicious, or positive
+      for malignancy.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf,
+      campo Resultado PAAF
+
+      '
+  TP_RISCO_ELEVADO:
+    official_name: Risco elevado (histopatológico de mama)
+    translated_name: Elevated breast-cancer risk (histopathology form)
+    description: 'Same elevated-breast-cancer-risk flag (Sim/Não/Não sabe) as the mammography
+      and cytology forms, recorded here on the breast histopathology requisition.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def campo Risco elevado (RISCO_ELEV, RiscoElevado.cnv
+      - same lookup file as the mammography Risco elevado field documented in Nota
+      Tecnica 8)
+
+      '
+  TP_TAMANHO_LESAO:
+    official_name: Tam_lesão_req
+    translated_name: Lesion size on requisition
+    description: 'Size of the breast lesion, grouped into bands, as estimated on the
+      histopathology requisition from clinical exam or imaging, before the specimen
+      itself is examined.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def, campo Tam_lesão_req (TAM_LESREQ, CCLITAM.CNV)
+
+      '
+  TP_TAMANHO_TUMOR:
+    official_name: Tamanho_tumor
+    translated_name: Pathologic tumor size
+    description: 'Size of the tumor as measured by the pathologist on the excised breast
+      specimen, grouped into bands, distinct from the pre-exam TP_TAMANHO_LESAO estimate.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_mama.def, campo Tamanho_tumor (TAM_TUMOR, TP_TAMANHO_TUMOR.CNV)
+
+      '
+  TP_ZONA_TRANSF_ADEQUABILIDADE:
+    official_name: Adequab Zona de Transformação
+    translated_name: Transformation-zone adequacy
+    description: 'Whether an excised cervical specimen (conization or LEEP) adequately
+      included the squamocolumnar transformation zone, the area where most precancerous
+      lesions arise.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: 'TAB_SISCAN.rar!histo_colo.def, campo Adequab Zona de Transformação
+      (ADEQ_ZT, adequib_zt.cnv)
+
+      '

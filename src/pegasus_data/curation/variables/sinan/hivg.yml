@@ -1,0 +1,142 @@
+# SINAN.HIVG — Pregnant woman with HIV
+# Gestante com HIV
+#
+# One pregnancy in a woman with HIV, notified so that vertical transmission
+# prophylaxis can be tracked.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANT_EVLABO:
+    official_name: Momento do diagnóstico
+    translated_name: When HIV was diagnosed
+    description: 'Whether the diagnosis came before antenatal care, during it, during
+      delivery, or after. Diagnosis before or during antenatal care allows full prophylaxis;
+      at delivery allows only part; after allows none.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: EVIHIV.CNV
+    reasoning: 'Bound to EVIHIV, whose values are antes do pré-natal, durante o pré-natal,
+      durante o parto and após o parto.
+
+      '
+  PAR_ANTIDU:
+    official_name: Parceiro em uso de antirretroviral
+    translated_name: Partner on antiretroviral therapy (flag)
+    description: 'Whether the pregnant woman''s sexual partner was on antiretroviral
+      therapy at the time of her HIV diagnosis - part of the partner-status block (PAR_TIPO,
+      PAR_EVOLUC) that parallels the mother''s own prenatal ARV field, PRE_ANTRET.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PAR_ = parceiro; the form's PRE_ANTRET (mother's prenatal ARV use) gives
+      a direct parallel for reading ANTIDU as antirretroviral-related.
+  PAR_DT_PAR:
+    official_name: Data do parto
+    translated_name: Date of delivery
+    description: 'When the birth happened. With the antiretroviral start date it gives
+      how long the mother was treated before delivery.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the delivery block.
+  PAR_EVOLUC:
+    official_name: Evolução do parto
+    translated_name: Delivery outcome
+    description: 'Outcome of the pregnancy/delivery for an HIV-positive pregnant patient
+      (e.g. vaginal delivery, cesarean, loss), recorded to track mother-to-child transmission
+      risk factors.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is HIVG (HIV em gestante); PAR_ reads "parto" and EVOLUC reads
+      "evolução"; C1 width fits a small enumerated delivery-outcome code.
+
+      '
+  PAR_INICPR:
+    official_name: Início do pré-natal/parto
+    translated_name: Prenatal-care or delivery-onset timing (HIV in pregnancy)
+    description: 'Field on the HIV-in-pregnancy notification tracking the timing of
+      prenatal care or delivery onset relative to diagnosis/ART start — used to judge
+      how promptly treatment began. The exact referent is not fully confirmed by the
+      evidence available.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C1 coded field in the HIVG stratum; PAR/INIC/PR read as parto/início/pré-natal,
+      but no dictionary evidence pins the precise question.
+
+      '
+  PAR_TIPO:
+    official_name: Tipo de parceiro
+    translated_name: Partner type/classification
+    description: 'Type/classification of the sexual partner recorded during the HIV-in-pregnancy
+      (HIVG) investigation, relevant for partner notification and assessing vertical-transmission
+      risk.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PAR_ = parceiro, TIPO = tipo; C1 coded width fits a short classification,
+      and partner information is routinely collected in maternal HIV case investigation.
+
+      '
+  PAR_UFPART:
+    official_name: UF do parceiro
+    translated_name: State (UF) associated with the partner
+    description: 'State associated with the sexual partner recorded on the HIV-in-
+      pregnancy notification (e.g. where he was tested or resides) - distinct from
+      the mother''s own UF fields.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PAR_ = parceiro; UFPART = UF + parceiro; HIVG's partner-detail block.
+  PRE_ANTRET:
+    official_name: Antirretroviral no pré-natal
+    translated_name: Antiretrovirals in pregnancy
+    description: 'Whether antiretrovirals were given during pregnancy. The single intervention
+      that cuts vertical transmission from around a quarter to under two per cent.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ANTRET reads antirretroviral; a yes/no flag in the antenatal block.
+  PRE_DT_RET:
+    official_name: Data de início do antirretroviral
+    translated_name: Date antiretrovirals started
+    description: 'When antiretrovirals began. Started early in pregnancy they suppress
+      the viral load before delivery, which is what the protection depends on.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with PRE_ANTRET.
+  PRE_MUNIPA:
+    official_name: Município do pré-natal
+    translated_name: Municipality of antenatal care
+    description: Where the antenatal care was given, by IBGE code.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code in the antenatal block.
+  PRE_PRENAT:
+    official_name: Realizou pré-natal
+    translated_name: Received prenatal care
+    description: 'Whether the HIV-positive pregnant patient received prenatal care
+      during this pregnancy, a key factor in whether mother-to-child HIV transmission
+      prevention measures could be started.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HIVG form; PRENAT reads "pré-natal"; C1 width fits a yes/no coded flag.
+
+      '

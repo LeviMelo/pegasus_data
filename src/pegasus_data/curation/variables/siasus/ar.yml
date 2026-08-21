@@ -1,0 +1,221 @@
+# SIA.AR — APAC, radiotherapy
+# APAC de Radioterapia
+#
+# One authorisation for a radiotherapy course.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  AR_CID10:
+    official_name: CID-10 - Topografia
+    translated_name: CID-10 topography
+    description: ICD-10 code for the tumour's anatomical site (topography) that justifies
+      this radiotherapy APAC.
+    code_system: external
+    codelists:
+    - S_CID
+  AR_CIDINI1:
+    official_name: CID 1º Tratamento anterior
+    translated_name: CID of 1st prior treatment
+    description: ICD-10 diagnosis associated with the patient's first previously-received
+      cancer treatment, paired with the start date in AR_DTINI1.
+    code_system: external
+    codelists:
+    - S_CID
+  AR_CIDINI2:
+    official_name: CID 2º Tratamento anterior
+    translated_name: CID of 2nd prior treatment
+    description: ICD-10 diagnosis associated with the patient's second previously-received
+      cancer treatment, paired with the start date in AR_DTINI2.
+    code_system: external
+    codelists:
+    - S_CID
+  AR_CIDINI3:
+    official_name: CID 3º Tratamento anterior
+    translated_name: CID of 3rd prior treatment
+    description: ICD-10 diagnosis associated with the patient's third previously-received
+      cancer treatment, paired with the start date in AR_DTINI3.
+    code_system: external
+    codelists:
+    - S_CID
+  AR_CIDTR1:
+    official_name: CID Topográfico 1º
+    translated_name: Topographic CID for radiation field 1
+    description: ICD-10 topography code for the first radiation field/target planned
+      on this APAC.
+    code_system: external
+    codelists:
+    - S_CID
+  AR_CIDTR2:
+    official_name: CID Topográfico 2º
+    translated_name: Topographic CID for radiation field 2
+    description: ICD-10 topography code for the second radiation field/target planned
+      on this APAC.
+    code_system: external
+    codelists:
+    - S_CID
+  AR_CIDTR3:
+    official_name: CID Topográfico 3º
+    translated_name: Topographic CID for radiation field 3
+    description: ICD-10 topography code for the third radiation field/target planned
+      on this APAC.
+    code_system: external
+    codelists:
+    - S_CID
+  AR_CONTTR:
+    official_name: Continuidade do tratamento (S = Sim; N = Não)
+    translated_name: Treatment continuity
+    description: Whether this APAC continues a radiotherapy course already under way,
+      rather than starting a new one.
+    code_system: internal
+    codelists:
+    - CONT_TRAT
+  AR_DTIDEN:
+    official_name: Data da identificação patológica do caso (AAAAMMDD)
+    translated_name: Date of pathological identification
+    description: Date the cancer diagnosis was pathologically confirmed for this case,
+      in AAAAMMDD format.
+    code_system: none
+    notes: Bound in the catalog to an ANOMES2008 year-month codelist, a TabNet tabulation
+      axis rather than a real classification of the column — the binding is spurious,
+      not this field's description.
+  AR_DTINI1:
+    official_name: Data de INÍCIO (AAAAMMDD) 1º tratamento anterior
+    translated_name: Start date of 1st prior treatment
+    description: Start date, AAAAMMDD, of the patient's first previously-received cancer
+      treatment.
+    code_system: none
+  AR_DTINI2:
+    official_name: Data de INÍCIO (AAAAMMDD) 2º tratamento anterior
+    translated_name: Start date of 2nd prior treatment
+    description: Start date, AAAAMMDD, of the patient's second previously-received
+      cancer treatment.
+    code_system: none
+  AR_DTINI3:
+    official_name: Data de início (AAAAMMDD) 3º tratamento anterior
+    translated_name: Start date of 3rd prior treatment
+    description: Start date, AAAAMMDD, of the patient's third previously-received cancer
+      treatment.
+    code_system: none
+  AR_DTINTR:
+    official_name: Data de INÍCIO do tratamento solicitado (AAAAMMDD)
+    translated_name: Start date of the requested treatment
+    description: Start date, AAAAMMDD, of the radiotherapy course this APAC itself
+      is requesting/authorising, distinct from the prior-treatment dates in AR_DTINI1-3.
+    code_system: none
+  AR_ESTADI:
+    official_name: Estádio - UICC (0; 1; 2; 3; 4)
+    translated_name: UICC stage
+    description: Cancer stage at diagnosis, on a single-digit 0-4 scale DATASUS derived
+      from the UICC staging system.
+    code_system: external
+    codelists:
+    - ESTADIO
+  AR_FIMAR1:
+    official_name: Data de Fim 1º (AAAAMMDD)
+    translated_name: End date, radiation field 1
+    description: Planned end date, AAAAMMDD, of the first radiation field/application
+      on this APAC.
+    code_system: none
+  AR_FIMAR2:
+    official_name: Data de FIM 2º (AAAAMMDD)
+    translated_name: End date, radiation field 2
+    description: Planned end date, AAAAMMDD, of the second radiation field/application
+      on this APAC.
+    code_system: none
+  AR_FIMAR3:
+    official_name: Data de Fim 3º (AAAAMMDD)
+    translated_name: End date, radiation field 3
+    description: Planned end date, AAAAMMDD, of the third radiation field/application
+      on this APAC.
+    code_system: none
+  AR_FINALI:
+    official_name: Finalidade do Tratamento
+    translated_name: Treatment purpose
+    description: Clinical intent of the radiotherapy course, coded 1=Radical, 2=Adjuvante,
+      3=Antiálgica, 4=Paliativa, 5=Prévia, 6=Antihemorrágica — these six meanings are
+      spelled out explicitly in the DATASUS layout document itself.
+    code_system: internal
+    codelists:
+    - FINALID
+  AR_GRAHIS:
+    official_name: Grau Histopatológico
+    translated_name: Histopathological grade
+    description: DATASUS code for the tumour's histopathological grade as recorded
+      on the radiotherapy APAC.
+    code_system: internal
+    codelists:
+    - GRAU_HIS
+  AR_INIAR1:
+    official_name: Data de INÍCIO 1º (AAAAMMDD)
+    translated_name: Start date, radiation field 1
+    description: Planned start date, AAAAMMDD, of the first radiation field/application
+      on this APAC.
+    code_system: none
+  AR_INIAR2:
+    official_name: Data de INÍCIO 2º (AAAAMMDD)
+    translated_name: Start date, radiation field 2
+    description: Planned start date, AAAAMMDD, of the second radiation field/application
+      on this APAC.
+    code_system: none
+  AR_INIAR3:
+    official_name: Data de INÍCIO 3º (AAAAMMDD)
+    translated_name: Start date, radiation field 3
+    description: Planned start date, AAAAMMDD, of the third radiation field/application
+      on this APAC.
+    code_system: none
+  AR_LINFIN:
+    official_name: Linfonodos regionais invadidos (S = Sim; N =Não; 3= Não Avaliáveis)
+    translated_name: Regional lymph nodes invaded
+    description: Whether regional lymph nodes were found invaded by the tumour, with
+      a separate code for cases where nodes could not be assessed.
+    code_system: internal
+    codelists:
+    - LINF_INV
+  AR_NUMC1:
+    official_name: Nº Campo/Inserções 1º
+    translated_name: Field/insertion count, radiation field 1
+    description: Number of radiation fields or brachytherapy insertions delivered for
+      the first course segment.
+    code_system: none
+    notes: Bound in the catalog to an INSERCAO codelist, likely a TabNet display lookup
+      for a small integer range rather than a real classification.
+  AR_NUMC2:
+    official_name: Nº Campo/Inserções 2º
+    translated_name: Field/insertion count, radiation field 2
+    description: Number of radiation fields or brachytherapy insertions delivered for
+      the second course segment.
+    code_system: none
+  AR_NUMC3:
+    official_name: Nº Campo/Inserções 3º
+    translated_name: Field/insertion count, radiation field 3
+    description: Number of radiation fields or brachytherapy insertions delivered for
+      the third course segment.
+    code_system: none
+  AR_SMRD:
+    official_name: Sessões/dose de radioterapia
+    translated_name: Radiotherapy sessions
+    description: 'Count in the radiotherapy block of the APAC, at three digits. Radiotherapy
+      is authorised as a course of a stated number of fractions, which is what a three-digit
+      count in this block records.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C(3) in the AR_ radiotherapy block, whose other fields are counts of
+      fractions and fields. The expansion of SMRD itself is not attested.
+
+      '
+    notes: 'The abbreviation is not resolved by any source found. Treat the exact quantity
+      as unconfirmed and check against AR_ siblings before using it.
+
+      '
+  AR_TRANTE:
+    official_name: Tratamentos anteriores (S = Sim; N = Não)
+    translated_name: Prior treatments indicator
+    description: Whether the patient had already received cancer treatment before this
+      APAC; when S, up to three prior treatments are detailed in the AR_CIDINI*/AR_DTINI*
+      fields.
+    code_system: internal
+    codelists:
+    - TRA_ANTE

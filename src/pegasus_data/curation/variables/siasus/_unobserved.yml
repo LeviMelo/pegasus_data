@@ -1,0 +1,79 @@
+# SIASUS — described columns not observed in any stratum.
+#
+# Kept rather than dropped: a description whose column the crawl has not
+# seen is a lead, not a mistake. It may belong to a generation that was
+# never sampled, or to a dataset published since the last crawl.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  SP_ATOPROF:
+    official_name: Procedimento realizado (ato profissional)
+    translated_name: Procedure performed
+    description: Code of the procedure performed, from the SUS procedure table.
+    code_system: external
+    codelists:
+    - TPROC
+    - TPROC10
+    source: inferred
+    reasoning: 'Observed at two widths in the sampled values: 398 distinct 8-character
+      codes and 400 distinct 10-character ones. TPROC holds 23,151 8-character codes
+      and TPROC10 holds 23,136 10-character ones, so the column spans the 1994-era
+      table and the post-2008 Tabela Unificada. Both are bound; exact width selects
+      per row. The instruction expected 8-digit only, which is true of the older era
+      and not of the whole column.
+
+      '
+    notes: 'A join must match width exactly. An 8-character code is not a truncated
+      10-character one, and treating it as such maps procedures to the wrong classification
+      entirely.
+
+      '
+  SP_COMPLEX:
+    official_name: Complexidade do procedimento
+    translated_name: Procedure complexity
+    code_system: internal
+    source: layout_doc
+    notes: Two-character code. Five distinct values observed.
+  SP_DES_HOS:
+    official_name: Indicador de desconto hospitalar
+    translated_name: Hospital discount indicator
+    code_system: internal
+    source: layout_doc
+    notes: Single-character flag. Four distinct values observed.
+  SP_PF_CBO:
+    official_name: Ocupação do profissional
+    translated_name: Professional's occupation
+    description: Occupation of the professional who performed the procedure.
+    code_system: external
+    codelist: CBO
+    source: layout_doc
+    notes: 'Observed only at 6 characters, which is CBO-2002. The CBO table on the
+      tree mixes 3,000 three-character CBO-1994 codes with 2,813 six-character CBO-2002
+      codes in one file, so this is a mixed-width table and the join must not pad or
+      truncate.
+
+      '
+  SP_PROCREA:
+    official_name: Procedimento realizado
+    translated_name: Procedure performed (realised)
+    code_system: external
+    codelists:
+    - TPROC
+    - TPROC10
+    source: inferred
+    reasoning: 'Same two-width pattern as SP_ATOPROF: 400 distinct 8-character values
+      and 395 distinct 10-character ones in the sample. Bound to both tables for the
+      same reason.
+
+      '
+  SP_PTSP:
+    official_name: Indicador de participação do profissional
+    translated_name: Professional participation indicator
+    code_system: internal
+    source: layout_doc
+    notes: 'Observed at widths 1 to 4, which is unusual for a flag and suggests the
+      column carries more than one thing across generations. Not bound until that is
+      settled.
+
+      '

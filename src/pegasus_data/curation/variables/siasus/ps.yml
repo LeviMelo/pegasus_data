@@ -1,0 +1,34 @@
+# SIA.PS — RAAS, psychosocial care
+# RAAS Psicossocial
+#
+# Registro das Ações Ambulatoriais de Saúde for psychosocial care — CAPS
+# activity, recorded as actions rather than authorisations.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  LOC_REALIZ:
+    official_name: Local de Realização (C – CAPS, T - Território)
+    translated_name: Place of delivery
+    description: Whether the psychosocial-care activity was delivered inside the CAPS
+      facility (C) or out in the community/territory (T).
+    code_system: internal
+    codelists:
+    - LOC_REALIZ
+  SIT_RUA:
+    official_name: Situação de Rua (S- SIM, N - NÃO)
+    translated_name: Homelessness status
+    description: Whether the patient was in a street/homelessness situation at the
+      time of this RAAS-Psicossocial record.
+    code_system: internal
+    codelists:
+    - SIT_RUA
+  TP_DROGA:
+    official_name: TIPO DE DROGA (A - Álcool, C - Crack, O - Outros)
+    translated_name: Drug type
+    description: 'Primary substance the psychosocial-care record focuses on: alcohol,
+      crack, or another drug — DATASUS spells these three codes out explicitly in the
+      layout document.'
+    code_system: internal
+    codelists:
+    - TP_DROGA

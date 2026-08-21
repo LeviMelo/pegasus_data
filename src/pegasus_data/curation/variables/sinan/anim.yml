@@ -1,0 +1,505 @@
+# SINAN.ANIM —
+#
+# one notification of venomous animal accident
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANI_ARANHA:
+    official_name: Gênero da aranha
+    translated_name: Spider genus
+    description: 'Which spider syndrome — phoneutrism, loxoscelism, latrodectism, or
+      another spider. Loxoscelism causes the slow necrotic lesion; phoneutrism causes
+      immediate severe pain. Quite different presentations and antivenoms.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ARAESPNET.CNV
+    reasoning: 'Bound to ARAESPNET, whose values are foneutrismo, loxoscelismo, latrodectismo
+      and outra aranha.
+
+      '
+  ANI_LAGART:
+    official_name: Gênero da lagarta
+    translated_name: Caterpillar genus
+    description: 'Whether the caterpillar was Lonomia or another. The distinction matters
+      more than any other on this form''s animal branch: Lonomia causes a haemorrhagic
+      syndrome that kills, while other caterpillars cause local pain.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LAGARTA.CNV
+    reasoning: Bound to LAGARTA, whose values are Lonomia and outra lagarta.
+  ANI_SERPEN:
+    official_name: Gênero da serpente
+    translated_name: Snake genus
+    description: 'Which snake group — bothropic, crotalic, elapidic, lachetic, or non-venomous.
+      This chooses the antivenom, and the four venomous groups need different ones,
+      so getting it wrong wastes the only treatment there is.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SERPESPNET.CNV
+    reasoning: 'Bound to SERPESPNET, whose values are botrópico, crotálico, elapídico,
+      laquético and não peçonhenta.
+
+      '
+  ANI_TIPO_1:
+    official_name: Tipo de animal (1)
+    translated_name: Animal type (1)
+    description: 'Free-text species/type of the animal involved in the case (e.g. the
+      biting animal in a rabies exposure), first of a possible numbered series of animal
+      entries.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANI_TIPO reads tipo de animal; 30-character width fits free text, and
+      it clusters with AEROFOBIA/AGITACAO/AGRESSIVI, consistent with a Raiva Humana
+      (rabies) exposure-history block.
+
+      '
+  ANT_DT_ACI:
+    official_name: Data do acidente
+    translated_name: Date of the accident
+    description: 'When the bite or sting happened. With the notification date it gives
+      the delay, but ANT_TEMPO_ carries the clinically decisive interval directly.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SEMANAEP.CNV
+    reasoning: DT_ACI reads data do acidente; D(8) date.
+  ANT_LOCA_1:
+    official_name: Local da picada
+    translated_name: Bite site
+    description: 'Where on the body the bite or sting was — head, arm, hand, finger,
+      trunk, leg, foot, toe. Hands and feet dominate, which is what makes the accident
+      an occupational and rural problem.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LOCALPIC.CNV
+    reasoning: 'Bound to LOCALPIC, whose values enumerate body sites from cabeça to
+      dedo do pé.
+
+      '
+  ANT_MUNIC_:
+    official_name: Município do acidente
+    translated_name: Municipality of the accident
+    description: 'Where the accident happened, by IBGE code. Often not where the patient
+      was treated, since antivenom is held at designated centres.
+
+      '
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code bound to the municipality codelists.
+  ANT_TEMPO_:
+    official_name: Tempo entre o acidente e o atendimento
+    translated_name: Time from accident to care
+    description: 'How long until care, banded from under an hour to over 24 hours.
+      The most important field on this form: antivenom neutralises circulating venom,
+      so its effect falls sharply with delay.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: FXHORAS.CNV
+    reasoning: 'Bound to FXHORAS, whose bands run 0 to 1 hour, 1 to 3, 3 to 6, 6 to
+      12, 12 to 24 and 24 or more.
+
+      '
+  ANT_UF:
+    official_name: Antecedente - UF
+    translated_name: Prior event - state
+    description: 'Brazilian state (UF) code for where an antecedent event took place;
+      paired with ANT_PAIS for the country-level version of the same antecedent-location
+      field.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 2-character width matches the standard UF code; sits alongside ANT_PAIS.
+  CLI_DOR:
+    official_name: Dor local
+    translated_name: Local pain
+    description: 'Pain at the bite site. Immediate and severe pain with little swelling
+      suggests phoneutrism or a scorpion; pain developing slowly suggests loxoscelism.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DOR reads dor, a local sign in the CLI_ block.
+  CLI_EDEMA:
+    official_name: Edema local
+    translated_name: Local swelling
+    description: 'Swelling at the site. Its extent is part of how bothropic accidents
+      are graded, so it feeds directly into TRA_CLASSI.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: EDEMA reads edema, a local sign in the CLI_ block.
+  CLI_EQUIMO:
+    official_name: Equimose local
+    translated_name: Local bruising
+    description: 'Bruising at the site, from the local haemorrhage bothropic venom
+      causes.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: EQUIMO reads equimose, a local sign in the CLI_ block.
+  CLI_LOCAL_:
+    official_name: Outra manifestação local
+    translated_name: Other local sign
+    description: Any local sign the named items do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item closing the local-signs block.
+  CLI_LOCA_1:
+    official_name: Clínico - local (1)
+    translated_name: Clinical - location (1)
+    description: 'Free-text body location or site associated with the symptom flagged
+      by CLI_LOCAL (e.g. where a lesion or localized sign was observed).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 30-character width fits free text, distinguishing it from the CLI_LOCAL
+      flag.
+  CLI_MIOLIT:
+    official_name: Mioanálise ou mialgia
+    translated_name: Muscle breakdown
+    description: 'Muscle breakdown. The hallmark of crotalic envenoming, and the mechanism
+      by which it destroys the kidneys — which is why COM_RENAL sits downstream.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MIOLIT reads miólise, a systemic sign in the CLI_ block.
+  CLI_NECROS:
+    official_name: Necrose local
+    translated_name: Local necrosis
+    description: 'Tissue death at the site. The characteristic late lesion of loxoscelism
+      and of severe bothropic envenoming, and the sign that most often leads to amputation.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: NECROS reads necrose, a local sign in the CLI_ block.
+  CLI_NEURO:
+    official_name: Manifestações neurológicas
+    translated_name: Neurological signs
+    description: 'Neurological signs. Characteristic of crotalic and elapidic envenoming
+      — drooping eyelids and blurred vision — rather than of bothropic.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: NEURO reads neurológicas, a systemic sign in the CLI_ block.
+  CLI_OUTR_2:
+    official_name: Outra manifestação sistêmica
+    translated_name: Other systemic sign
+    description: Any systemic sign the named items do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item closing the systemic-signs block.
+  CLI_OUTR_3:
+    official_name: Clínico - outro sintoma (3)
+    translated_name: Clinical - other symptom (3)
+    description: 'Third slot of a numbered "other symptom" free-text series in the
+      CLI_ checklist; see CLI_OTRDES for the shared "other, specify" pattern.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'The "_3" suffix implies at least two earlier slots in the same series;
+      not otherwise distinguishable from CLI_OTRDES''s evidence.
+
+      '
+  CLI_TEMPO_:
+    official_name: Tempo de coagulação
+    translated_name: Coagulation time
+    description: 'Whether clotting time is normal, altered, or was not done. The single
+      most useful test in snakebite: an unclottable sample confirms bothropic or lachetic
+      envenoming even when the snake was never seen.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: TEMPCOA.CNV
+    reasoning: 'Bound to TEMPCOA, whose values are normal, alterado and não realizado.
+
+      '
+  CLI_VAGAIS:
+    official_name: Manifestações vagais
+    translated_name: Vagal signs
+    description: 'Vagal signs — sweating, nausea, slow pulse, hypotension. Typical
+      of phoneutrism and scorpion stings, especially in children.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: VAGAIS reads vagais, a systemic sign in the CLI_ block.
+  COM_APUTAC:
+    official_name: Amputação
+    translated_name: Amputation
+    description: 'Amputation of the affected limb or digit. The most severe local outcome,
+      and the endpoint that necrosis and compartment syndrome lead to.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: APUTAC is a misspelling of amputação in the complications block.
+  COM_CHOQUE:
+    official_name: Choque
+    translated_name: Shock
+    description: 'Circulatory shock. Either from the envenoming itself or from anaphylaxis
+      to the antivenom, and the form does not distinguish the two.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CHOQUE reads choque, a systemic complication.
+  COM_COMPOR:
+    official_name: Síndrome compartimental
+    translated_name: Compartment syndrome
+    description: 'Compartment syndrome — swelling raising pressure inside the limb
+      until blood supply fails. A surgical emergency, and the direct route to amputation.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: COMPOR reads compartimental, a complication.
+  COM_DEFICT:
+    official_name: Déficit funcional
+    translated_name: Functional deficit
+    description: Lasting loss of function in the affected limb.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DEFICT reads déficit, a complication.
+  COM_EDEMA:
+    official_name: Edema como complicação
+    translated_name: Oedema as a complication
+    description: Persistent swelling recorded as a complication rather than a presenting
+      sign.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: EDEMA in the COM_ block, against CLI_EDEMA at presentation.
+  COM_LOC:
+    official_name: Complicação local
+    translated_name: Local complication
+    description: 'Whether a local complication occurred. The COM_ block records what
+      went wrong afterwards, as against the CLI_ block which records the presentation.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: COM_ opens the complications block; LOC the local group.
+  COM_NECROS:
+    official_name: Necrose como complicação
+    translated_name: Necrosis as a complication
+    description: 'Necrosis appearing as a complication, distinct from CLI_NECROS which
+      records it as a presenting sign.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: NECROS in the COM_ complications block, against CLI_NECROS at presentation.
+  COM_RENAL:
+    official_name: Insuficiência renal aguda
+    translated_name: Acute kidney injury
+    description: 'Acute kidney injury. The commonest cause of death in crotalic envenoming,
+      following the muscle breakdown recorded in CLI_MIOLIT.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RENAL reads renal, a systemic complication.
+  COM_SECUND:
+    official_name: Infecção secundária
+    translated_name: Secondary infection
+    description: 'Secondary infection of the wound. Common because snake mouths carry
+      bacteria and because the bitten limb is often swollen and poorly perfused.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SECUND reads infecção secundária, a complication.
+  COM_SEPTIC:
+    official_name: Septicemia
+    translated_name: Septicaemia
+    description: Septicaemia, following the secondary wound infection in COM_SECUND.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SEPTIC reads septicemia, a systemic complication.
+  COM_SISTEM:
+    official_name: Complicação sistêmica
+    translated_name: Systemic complication
+    description: Whether a systemic complication occurred, the gate for the systemic
+      items below.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SISTEM reads sistêmica, opening the systemic complications.
+  CON_SOROTE:
+    official_name: Soroterapia realizada
+    translated_name: Antivenom given
+    description: 'Whether antivenom was given at all. A severe accident with this unset
+      is the failure the surveillance is looking for, usually because the serum was
+      not held locally.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SOROTE reads soroterapia; a yes/no flag.
+  MCLI_LOCAL:
+    official_name: Manifestações clínicas locais
+    translated_name: Local signs present
+    description: 'Whether local signs are present at all. The gate for the CLI_ local
+      block that follows.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MCLI reads manifestações clínicas, LOCAL the local group.
+  MCLI_SIST:
+    official_name: Manifestações clínicas sistêmicas
+    translated_name: Systemic signs present
+    description: 'Whether systemic signs are present. Systemic involvement is what
+      moves an accident from moderate to severe, and it is the indication for antivenom
+      regardless of local appearance.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MCLI with SIST for sistêmicas; the gate for the systemic block.
+  NU_AMPOLAS:
+    official_name: Número de ampolas de soro
+    translated_name: Antivenom vials given
+    description: 'How many vials of antivenom were given. Dosing goes by severity rather
+      than by body weight, so a child and an adult with the same grade receive the
+      same number.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NU_AMPOLAS reads número de ampolas; N(2) count.
+  NU_AMPOL_1:
+    official_name: Ampolas de soro, tipo 1
+    translated_name: Antivenom vials, type 1
+    description: 'Vials of one specific antivenom. The numbered fields split the total
+      by serum type, since a patient may receive more than one.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'One of nine numbered N(2) vial counts beside NU_AMPOLAS; the numbering
+      selects the serum type and the mapping is not carried in the catalogue.
+
+      '
+  NU_AMPOL_3:
+    official_name: Ampolas de soro, tipo 3
+    translated_name: Antivenom vials, type 3
+    description: Vials of antivenom type 3. See NU_AMPOL_1.
+    code_system: none
+    source: inferred
+    reasoning: A numbered vial count in the antivenom block.
+  NU_AMPOL_4:
+    official_name: Ampolas de soro, tipo 4
+    translated_name: Antivenom vials, type 4
+    description: Vials of antivenom type 4. See NU_AMPOL_1.
+    code_system: none
+    source: inferred
+    reasoning: A numbered vial count in the antivenom block.
+  NU_AMPOL_6:
+    official_name: Ampolas de soro, tipo 6
+    translated_name: Antivenom vials, type 6
+    description: Vials of antivenom type 6. See NU_AMPOL_1.
+    code_system: none
+    source: inferred
+    reasoning: A numbered vial count in the antivenom block.
+  NU_AMPOL_8:
+    official_name: Ampolas de soro, tipo 8
+    translated_name: Antivenom vials, type 8
+    description: Vials of antivenom type 8. See NU_AMPOL_1.
+    code_system: none
+    source: inferred
+    reasoning: A numbered vial count in the antivenom block.
+  NU_AMPOL_9:
+    official_name: Ampolas de soro, tipo 9
+    translated_name: Antivenom vials, type 9
+    description: Vials of antivenom type 9. See NU_AMPOL_1.
+    code_system: none
+    source: inferred
+    reasoning: A numbered vial count in the antivenom block.
+  NU_AMPO_5:
+    official_name: Ampolas de soro, tipo 5
+    translated_name: Antivenom vials, type 5
+    description: Vials of antivenom type 5. See NU_AMPOL_1.
+    code_system: none
+    source: inferred
+    reasoning: A numbered vial count in the antivenom block.
+  NU_AMPO_7:
+    official_name: Ampolas de soro, tipo 7
+    translated_name: Antivenom vials, type 7
+    description: Vials of antivenom type 7. See NU_AMPOL_1.
+    code_system: none
+    source: inferred
+    reasoning: A numbered vial count in the antivenom block.
+  TP_ACIDENT:
+    official_name: Tipo de acidente
+    translated_name: Type of animal
+    description: 'Which animal — snake, spider, scorpion, caterpillar, bee, or other.
+      The first branch of the form: everything downstream depends on it, and each type
+      has its own antivenom.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SERARAESNET.CNV
+    reasoning: 'Bound to SERARAESNET, whose values are serpente, aranha, escorpião,
+      lagarta, abelha and outros.
+
+      '
+  TRA_CLASSI:
+    official_name: Classificação do caso
+    translated_name: Severity classification
+    description: 'Mild, moderate, severe, or inconclusive. This decides how much antivenom
+      is given, so NU_AMPOLAS follows from it.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LEVEMODE.CNV
+    reasoning: 'Bound to LEVEMODE, whose values are leve, moderado, grave and inconclusivo.
+
+      '

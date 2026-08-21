@@ -1,0 +1,133 @@
+# SINAN.SIFG — Syphilis in pregnancy
+# Sífilis em gestante
+#
+# One case of syphilis detected during pregnancy — the notification that
+# should prevent a SINAN.SIFC case.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  DSMOTIVO:
+    official_name: Descrição do motivo
+    translated_name: Reason, free text
+    description: 'Free-text explanation of why treatment (of the pregnant woman or
+      her case) was not completed as expected — broader than TPMOTPARC, which is specifically
+      about the sexual partner''s non-treatment.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text; DS_=descrição, MOTIVO=motivo.
+  DSTITULO1:
+    official_name: Descrição do título 1
+    translated_name: First serology titer (free text)
+    description: 'Free-text result of the first VDRL/RPR antibody titer (e.g. "1:8")
+      recorded for a pregnant woman with syphilis (SIFG), used to track titer trend
+      across treatment and follow-up.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DS_ = descrição, TITULO1 = título, primeira amostra; C30 width fits
+      a titer notation rather than a coded value, and titer tracking is standard in
+      syphilis follow-up.
+
+      '
+  DTTESTE1:
+    official_name: Data do primeiro teste
+    translated_name: Date of first test
+    description: 'When the first test was done. Early enough in pregnancy, treatment
+      prevents congenital syphilis entirely.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with TPTESTE1.
+  TPCONFIRMA:
+    official_name: Teste confirmatório
+    translated_name: Confirmatory test
+    description: 'The confirmatory treponemal test. Needed because non-treponemal screening
+      produces false positives in pregnancy itself.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REATIVO.CNV
+    reasoning: Bound to REATIVO; the confirmatory step after TPTESTE1.
+  TPESQPAR:
+    official_name: Tipo de esquema do parceiro
+    translated_name: Partner's treatment regimen type
+    description: 'Type of antibiotic regimen given to the sexual partner of a pregnant
+      woman diagnosed with syphilis (SIFG), distinct from TRATPARC''s simple yes/no
+      flag for whether the partner was treated at all.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TP_ = tipo, ESQ = esquema, PAR = parceiro; partner treatment is essential
+      to prevent syphilis reinfection, and this field''s coded C1 width fits a regimen-type
+      code.
+
+      '
+  TPESQUEMA:
+    official_name: Tipo de esquema de tratamento
+    translated_name: Treatment regimen type
+    description: 'Treatment regimen (e.g. benzathine penicillin protocol by disease
+      stage) prescribed for the pregnant woman''s syphilis - distinct from TPESQPAR,
+      the same classification for her partner''s treatment.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TP_ = tipo; ESQUEMA = esquema; SIFG carries the parallel partner-facing
+      field TPESQPAR.
+  TPEVIDENCI:
+    official_name: Tipo de evidência diagnóstica
+    translated_name: Type of diagnostic evidence
+    description: 'Coded category of the evidence used to confirm maternal syphilis
+      (e.g. clinical signs, non-treponemal test, treponemal test) on the syphilis-in-pregnancy
+      notification.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is SIFG (sífilis em gestante); TPEVIDENCI reads "tipo de evidência";
+      C1 width fits a small enumerated evidence-type code.
+
+      '
+  TPMOTPARC:
+    official_name: Tipo de motivo - parceiro não tratado
+    translated_name: Reason partner wasn't treated (coded)
+    description: 'Coded reason the sexual partner was not treated for syphilis (e.g.
+      not located, refused, untested) — the categorical counterpart to DSMOTIVO''s
+      free text, specific to the partner rather than the case.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 coded field; TP_=tipo, MOT=motivo, PARC=parceiro.
+  TPTESTE1:
+    official_name: Primeiro teste
+    translated_name: First test
+    description: 'The first syphilis test in pregnancy — reactive, non-reactive, or
+      not done. Screening is meant to happen at least twice in a pregnancy, and a "not
+      done" here is the failure that produces congenital cases.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REATIVO.CNV
+    reasoning: Bound to REATIVO, reativo/não reativo/não realizado.
+  TRATPARC:
+    official_name: Tratamento do parceiro
+    translated_name: Partner treated (flag)
+    description: 'Whether the sexual partner of a pregnant woman with syphilis (SIFG)
+      received treatment, the basic yes/no companion to TPESQPAR''s regimen-type detail.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TRAT_ = tratamento, PARC = parceiro; partner treatment status is a
+      required field on the syphilis-in-pregnancy investigation form.
+
+      '

@@ -1,0 +1,61 @@
+# IBGE.POP — Resident population
+# População Residente
+#
+# Resident population by municipality — the denominator for most rates
+# computed against the health systems.
+system: IBGE
+asserted_by: pegasus_data
+
+variables:
+  COD_MUN:
+    translated_name: Municipality code (7-digit)
+    description: '7-digit IBGE municipality code, including the verification digit,
+      used by newer wide population-estimate tables in place of the 6-digit MUNIC_RES/
+      MUNCOD form.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'CO_ prefix follows the código naming grammar; bound to the MUNICBR
+      codelist as a 7-digit municipality code and appears only in the POPS:POP22+ series,
+      the newer annual population tables that use the checksum-digit form.
+
+      '
+    asserted_by: pegasus_data
+  FXETARIA:
+    official_name: Faixa Etária detalhada
+    translated_name: Detailed age band
+    description: '4-digit age-band code: 0000 = under 1 year, individual single years
+      through 19, 5-year bands from 20 onward (2024 = 20 a 24 anos), 8099 = 80 anos
+      ou mais, I000 = idade ignorada.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  MUNIC_RES:
+    official_name: código do município
+    translated_name: Municipality of residence
+    description: '6-digit IBGE municipality code, without the verification digit, identifying
+      where the tallied population resides — the geography key of the population table''s
+      rows.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
+  POP:
+    translated_name: Population (annual series column)
+    description: 'Estimated resident population of the municipality for one year of
+      an annual series, where each year is its own like-named column (e.g. POP22 for
+      2022), generalized here under POP.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Field appears only in POPS:POP<yy>/POPS:pop<yy> series — a wide table
+      with one population column per year — matching the TCU/IBGE municipal population-estimate
+      methodology documented in the Pop_Residente_TCU PDFs on the IBGE FTP tree.
+
+      '
+    asserted_by: pegasus_data

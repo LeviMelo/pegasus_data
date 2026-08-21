@@ -1,0 +1,55 @@
+# SIA.SAD — RAAS, home care
+# RAAS Atenção Domiciliar
+#
+# Home-care actions under the Melhor em Casa programme.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  CO_INE:
+    official_name: Identificador Nacional de Equipe
+    translated_name: National care-team identifier
+    description: 'National ID number of the primary-care or home-care team (e.g. Estratégia
+      Saúde da Família) attending the case, assigned once per team so its history can
+      be tracked across CNES facility changes.
+
+      '
+    code_system: external
+    source: web
+    source_ref: 'wiki.saude.gov.br/cnes "Cadastro de Equipes" - INE defined as the
+      team''s national identification code
+
+      '
+  PA_CID:
+    official_name: CID do atendimento
+    translated_name: Diagnosis
+    description: CID-10 diagnosis recorded on the home care action.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to S_CID, on the SAD dataset.
+  PA_EQUIPE:
+    official_name: Equipe
+    translated_name: Health team identifier
+    description: 'Identifier of the health team credited with the production record,
+      for procedures delivered by a registered team rather than an individual professional.
+
+      '
+    code_system: external
+    source: inferred
+    reasoning: 'Declared C(12), which is the INE team-code width used in CNES, and
+      EQUIPE names it.
+
+      '
+  PA_TP_EQP:
+    official_name: Tipo de equipe
+    translated_name: Team type
+    description: 'Which kind of team delivered the home care action, on the same team
+      codelist CNES uses. Home care is delivered by designated multiprofessional teams
+      rather than by individuals.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: EQUIPE.CNV
+    reasoning: Bound to EQUIPE, the CNES team-type codelist.

@@ -1,0 +1,568 @@
+# SINAN.DENG —
+#
+# one notification of dengue
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AMOS_OUT:
+    official_name: Amostra outra
+    translated_name: Other sample collected (flag)
+    description: 'Whether an additional biological sample, beyond the standard blood
+      draw, was collected for dengue laboratory diagnosis - e.g. for viral isolation
+      or a repeat serology. Part of the dengue (DENG) lab-workup section.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AMOS_ = amostra (sample), OUT = outra (other); C1 width fits a Sim/Não
+      checkbox on the dengue investigation form''s lab section.
+
+      '
+  AMOS_PCR:
+    official_name: Amostra para RT-PCR
+    translated_name: Sample collected for RT-PCR
+    description: 'Whether a specimen was collected for RT-PCR molecular testing of
+      dengue virus, the direct-detection method used early in illness (viremic phase),
+      before antibodies appear and serology (DT_SORO1/SORO2) becomes useful.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AMOS_ = amostra, PCR = the molecular test; DENG series; distinguishes
+      the molecular-diagnosis path from the paired-serology path also on this form.
+
+      '
+  ANO:
+    official_name: Ano
+    translated_name: Year
+    description: 'Four-digit epidemiological year associated with this dengue record,
+      used to group cases by season/year independently of the full notification date
+      fields.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is DENG (dengue); name reads "ano" and C4 width matches a 4-digit
+      year rather than a full date.
+
+      '
+  ASCITE:
+    official_name: Ascite
+    translated_name: Ascites
+    description: 'Whether the patient had ascites (fluid in the abdominal cavity),
+      one of the plasma-leakage warning signs checked when reviewing a severe or fatal
+      dengue case, alongside MIOCARDI and INSUFICIEN.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C1 flag in a low-coverage DENG stratum; ASCITE directly names the clinical
+      sign, a recognized severe-dengue plasma-leakage marker.
+
+      '
+  DENGUE:
+    official_name: Dengue
+    translated_name: Dengue case flag
+    description: 'Single-letter flag marking the notification as a dengue case, as
+      opposed to another arbovirus considered in the differential diagnosis. Appears
+      only in a rare, older variant of the dengue (DENG) schema, later superseded by
+      the fuller CLASSI_FIN classification.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Field name matches the series (DENGUE in DENG); C1 width and very low
+      file weight (7) point to a legacy pre-2014 schema checkbox rather than a lab
+      result.
+
+      '
+  DT_CHOQUE:
+    official_name: Data do choque
+    translated_name: Date of shock onset
+    description: 'Calendar date the patient developed dengue shock syndrome, if it
+      occurred — the point of hemodynamic decompensation from plasma leakage. Recorded
+      with DT_COL_PLQ and DT_SOROR1 to reconstruct the clinical timeline of a severe
+      case.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'D8 date field named CHOQUE (shock); DT_ is the date prefix, grouped
+      with other timeline dates in the same DENG stratum.
+
+      '
+  DT_COL_HE2:
+    official_name: Data da coleta - Hemograma 2
+    translated_name: Date of second blood-count sample
+    description: 'Date the second hematocrit/blood-count sample was drawn from a dengue
+      patient. Serial hematocrit is how clinicians track hemoconcentration, the warning
+      sign of plasma leakage toward severe dengue.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ = data, COL = coleta, HE2 = hemograma/hematócrito, segunda coleta;
+      D8 AAAAMMDD type fits a collection date, and dengue monitoring routinely repeats
+      the blood count.
+
+      '
+  DT_COL_HEM:
+    official_name: Data da coleta de sangue
+    translated_name: Date blood sample collected
+    description: 'Date a blood specimen was drawn from the dengue patient for laboratory
+      workup, generically capturing collection timing rather than tying to one specific
+      test (unlike DT_SORO1, which is dated serology collection specifically).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DT_ = data, COL = coleta, HEM = sangue; declared as a date (D8).
+  DT_COL_PL2:
+    official_name: Data da 2ª coleta de plaquetas
+    translated_name: Date of second platelet count
+    description: 'Date of the second platelet-count blood draw for a dengue patient,
+      used to track the falling platelet trend that signals progression to severe dengue.
+      Distinct from DT_SORO2, the paired serology sample date.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DENG form; DT_COL reads "data coleta" and PL2 reads "plaquetas 2";
+      D8 width fits a clinical monitoring date, paired conceptually with DT_SORO2 but
+      tracking a different lab value.
+
+      '
+  DT_COL_PLQ:
+    official_name: Data de coleta de plaquetas
+    translated_name: Date platelet-count sample was collected
+    description: 'Date blood was drawn to count platelets, tracking thrombocytopenia
+      — a core severe-dengue marker. Distinct from DT_SOROR1, which dates the serology
+      sample instead.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D8 date; COL=coleta, PLQ=plaquetas, matches the lab-timeline fields
+      in this stratum.
+  DT_DOSE:
+    official_name: Data da dose (vacina dengue)
+    translated_name: Dengue vaccine dose date
+    description: 'Date a dengue vaccine dose was administered to the notified patient,
+      used when investigating a case in a vaccinated person (breakthrough or pre-vaccination
+      exposure timing).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ = data, DOSE = dose; sits in the DENG series where Brazil''s dengue
+      vaccination program (Qdenga) makes a dose date a plausible addition to case investigation.
+
+      '
+  DT_SORO1:
+    official_name: Data da coleta do 1º soro
+    translated_name: Date of 1st serum sample collection
+    description: 'Collection date of the first (acute-phase) blood serum sample in
+      dengue''s paired-serology protocol, read against S1_TIT1''s titer and against
+      the second sample (SORO2) to confirm infection by a rise in antibody titer.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_SORO1 pairs with SORO2/S1_TIT1 in the same DENG series; "1" marks
+      it as the first of two paired serum draws, the classic acute/convalescent dengue
+      serology design.
+
+      '
+  DT_SORO2:
+    official_name: Data da 2ª sorologia
+    translated_name: Date of second serology sample
+    description: 'Collection date of the second (convalescent-phase) dengue serology
+      sample, paired with an earlier acute-phase sample to confirm infection by rising
+      antibody titer.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DENG form; SORO2 reads "sorologia 2"; D8 width fits a date, and pairs
+      with S2_TIT1, the titer result from this same sample.
+
+      '
+  DT_SOROR1:
+    official_name: Data da 1ª sorologia
+    translated_name: Date of first serology sample collection
+    description: 'Date the first blood sample for dengue serology (IgM/IgG) was drawn.
+      Distinct from DT_COL_PLQ (platelet count) — used to judge whether serology was
+      collected within the diagnostic window.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D8 date; SOROR=sorologia, trailing 1 marks it as the first of a possible
+      series.
+  DT_SOROR2:
+    official_name: Data da sorologia 2
+    translated_name: Date of second serology sample
+    description: 'Collection date of the second (convalescent-phase) serology sample
+      for dengue IgM/IgG confirmation, paired with SORO1''s first-sample result to
+      show antibody titer rising over time.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ = data, SOROR2 = sorologia, segunda amostra; D8 date type matches,
+      and paired-sample serology is standard for dengue confirmation.
+
+      '
+  HEMA_MAIOR:
+    official_name: Maior valor de hematócrito
+    translated_name: Highest hematocrit value recorded
+    description: 'Peak hematocrit percentage observed during the case, tracking hemoconcentration
+      — a rise signals plasma leakage and impending severe dengue, independent of the
+      shock and platelet dates recorded separately.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C6 fits a percentage value rather than a flag; HEMA=hematócrito, MAIOR=highest,
+      a standard severe-dengue marker.
+
+      '
+  HEMA_MENOR:
+    official_name: Hematócrito menor
+    translated_name: Lowest hematocrit value
+    description: 'The lowest hematocrit reading recorded during a dengue case''s clinical
+      course, the baseline against which a later rise (signalling plasma leakage and
+      possible severe dengue) is measured.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HEMA_ = hematócrito, MENOR = menor (lowest); C6 alphanumeric width
+      fits a percentage value, and dengue protocols track hematocrit trend, not a single
+      reading.
+
+      '
+  HIPOTENSAO:
+    official_name: Hipotensão postural
+    translated_name: Postural hypotension (warning sign)
+    description: 'Whether the dengue patient showed postural hypotension, one of the
+      official "sinais de alarme" (warning signs) that flags progression toward dengue
+      shock and triggers closer clinical monitoring.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Direct decode of HIPOTENSAO; postural hypotension is a named warning
+      sign in the Brazilian dengue clinical-management protocol, and C1 width fits
+      a checkbox.
+
+      '
+  HISTOPA:
+    official_name: Resultado do exame histopatológico
+    translated_name: Histopathology exam result
+    description: 'Result of tissue histopathology examination in a dengue case, typically
+      run post-mortem to confirm organ involvement (e.g. liver, lung) in fatal or severe
+      dengue investigations; paired with IMUNOH for antigen confirmation on the same
+      tissue.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: HISTOPA = histopatologia; DENG series with other autopsy-style fields.
+  IMUNOH:
+    official_name: Resultado da imuno-histoquímica
+    translated_name: Immunohistochemistry result
+    description: 'Result of immunohistochemical staining for dengue viral antigen in
+      collected tissue - a more specific confirmatory test than plain histopathology
+      (HISTOPA), used in the same fatal/severe-case workup.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: IMUNOH = imuno-histoquímica; sits alongside HISTOPA in the DENG series.
+  INSUFICIEN:
+    official_name: Insuficiência de órgãos
+    translated_name: Organ insufficiency (complication)
+    description: 'Whether the case involved failure of an organ system (e.g. hepatic
+      or renal) as a complication — one of the fatal-case complication checkboxes alongside
+      MIOCARDI and ASCITE.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; name reads as insuficiência (insufficiency), grouped with other
+      complication flags in the DENG stratum.
+  MANIFESTA:
+    official_name: Manifestações hemorrágicas
+    translated_name: Hemorrhagic manifestations (flag)
+    description: 'Whether the dengue patient showed hemorrhagic signs (petechiae, gum
+      bleeding, epistaxis, etc.), one of the itemized clinical-manifestation checkboxes
+      distinct from the free-text OUTROS_M field beside it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MANIFESTA(ÇÕES) decodes directly; hemorrhagic manifestations are a
+      standard checkbox group on the dengue clinical section, and the field sits next
+      to OUTROS_M (other manifestation, specify).
+
+      '
+  MATERIAL:
+    official_name: Material coletado
+    translated_name: Specimen material collected
+    description: 'Type of biological specimen collected for dengue lab testing (e.g.
+      blood, tissue, cerebrospinal fluid), the general specimen-type field that OUTROS_M_D
+      extends when the type isn''t on the standard list.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Plain "material" field name; paired with the "outro material" free-text
+      sibling.
+  MIOCARDI:
+    official_name: Miocardite
+    translated_name: Myocarditis (complication)
+    description: 'Whether myocarditis or cardiac involvement was recorded as a complication
+      — a recognized severe-dengue cardiac complication, distinguished from the organ-failure
+      flag INSUFICIEN and the fluid-accumulation sign ASCITE.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; MIOCARDI directly names the clinical complication.
+  OUTROS_M:
+    official_name: Outras manifestações
+    translated_name: Other manifestation (flag/specify)
+    description: 'Whether the dengue patient had a clinical manifestation not covered
+      by the itemized checkboxes (e.g. MANIFESTA), used to flag/specify an atypical
+      sign observed during the case investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'OUTROS_ = outros, M = manifestações; standard "outro, especifique"
+      companion pattern to a checkbox list, consistent with the DENG series'' clinical-signs
+      section.
+
+      '
+  OUTROS_M_D:
+    official_name: Outro material - descrição
+    translated_name: Other specimen material - description
+    description: 'Free-text name of the specimen type collected when it falls outside
+      MATERIAL''s standard options, e.g. an unusual tissue or fluid sampled during
+      a dengue death investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'OUTROS_M_D = outros materiais + descrição, the standard "outro - especifique"
+      pairing with MATERIAL; width 20 fits free text.
+
+      '
+  OUTRO_S:
+    official_name: Outro sinal/sintoma
+    translated_name: Other sign/symptom
+    description: 'Flag for an additional dengue sign or symptom present that isn''t
+      covered by the form''s named clinical-signs fields (e.g. PLEURAL).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DENG form; OUTRO_S reads "outro s[inal/intoma]"; C1 width fits a coded
+      yes/no flag alongside the form''s other named sign checkboxes.
+
+      '
+  OUTRO_S_D:
+    official_name: Outro tecido - descrição
+    translated_name: Other tissue collected, description
+    description: 'Free-text name of a tissue type sampled at autopsy that falls outside
+      the standard checklist (heart, liver, spleen, kidney, lung, brain) — the write-in
+      detail paired with the TECIDOS collection flag.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C20 text sitting alongside TECIDOS in the same stratum; OUTRO=other,
+      read as the specify-field for an "other tissue" checkbox rather than a clinical-sign
+      field like SIN_OUT.
+
+      '
+  PALQ_MAIOR:
+    official_name: Plaquetas maior
+    translated_name: Highest platelet count
+    description: 'The highest platelet count recorded during a dengue case''s clinical
+      course, the counterpart to a "menor" (lowest) reading used to track the thrombocytopenia
+      trend that accompanies severe dengue.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PALQ = plaquetas (likely a transposition of PLAQ), MAIOR = maior (highest);
+      C6 width fits a lab count value, mirroring the paired HEMA_MENOR pattern for
+      hematocrit.
+
+      '
+  PERICARDI:
+    official_name: Derrame pericárdico
+    translated_name: Pericardial effusion
+    description: 'Whether pericardial effusion was found - a serositis/plasma-leakage
+      finding that marks severe dengue, where increased vascular permeability lets
+      fluid collect around the heart as well as in the pleural and abdominal cavities.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PERICARDI = pericárdico; classic severe-dengue plasma-leakage sign.
+  PLEURAL:
+    official_name: Derrame pleural
+    translated_name: Pleural effusion
+    description: 'Clinical-signs checklist item marking pleural effusion, a warning
+      sign of plasma leakage that flags progression toward severe dengue.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DENG form; name reads "derrame pleural" directly; C1 width matches
+      the coded sign-checklist pattern used elsewhere on the dengue form.
+
+      '
+  RESUL_OUT:
+    official_name: Resultado de outro exame
+    translated_name: Other test result
+    description: 'Result of an additional dengue-related laboratory test not captured
+      by the form''s named result fields — a catch-all lab-result slot.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DENG form; RESUL_OUT reads "resultado outro"; C1 width fits a coded
+      result flag, the same catch-all pattern seen elsewhere (e.g. LAB_OUTRO on the
+      hantavirus form).
+
+      '
+  RESUL_PCR:
+    official_name: Resultado do PCR
+    translated_name: RT-PCR test result
+    description: 'Outcome of the dengue RT-PCR molecular test (e.g. positive, negative,
+      inconclusive, not done) — the direct-detection lab confirmation used alongside
+      the serology dated by DT_SOROR1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 coded field; RESUL_ is the lab-result prefix, PCR names the test.
+  RESUL_VIRA:
+    official_name: Resultado - isolamento viral
+    translated_name: Viral isolation result
+    description: 'Result of viral isolation testing for dengue (positive/negative/not
+      done), one of several lab-confirmation methods on the form alongside serology
+      (SORO1) and the technique field (TECNICA).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'RESUL_ = resultado, VIRA = viral (isolamento viral); C1 width fits
+      a short result code, and viral isolation is a listed confirmatory method for
+      dengue.
+
+      '
+  S1_TIT1:
+    official_name: Título do 1º soro
+    translated_name: Titer of 1st serum sample
+    description: 'Antibody titer measured on the first (acute-phase) serum sample,
+      collected on DT_SORO1; compared against the second sample''s titer to confirm
+      dengue by a diagnostic rise between paired sera.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: S1 = soro 1, TIT1 = título 1; pairs with DT_SORO1 in the same series.
+  S2_TIT1:
+    official_name: Título da 2ª sorologia
+    translated_name: Second serology titer
+    description: 'Antibody titer from the second (convalescent-phase) dengue serology
+      sample, collected on the date recorded in DT_SORO2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DENG form; S2 reads "sorologia 2" and TIT1 reads "título"; C4 width
+      fits a short numeric titer value, and it pairs directly with DT_SORO2.
+
+      '
+  SIN_OUT:
+    official_name: Outros sinais e sintomas
+    translated_name: Other signs/symptoms (free text)
+    description: 'Free-text note of clinical signs or symptoms the case presented beyond
+      the form''s fixed checklist (ascites, myocarditis, etc.) — captured as a summary
+      note rather than as individual checkboxes.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C20 text; SIN_=sinal/sintoma, OUT=outro, distinct from the tissue-specific
+      OUTRO_S_D.
+  SORO1:
+    official_name: Sorologia 1 - resultado
+    translated_name: First serology result
+    description: 'Result of the first dengue serology sample (IgM/IgG), taken in the
+      acute phase and compared against a later convalescent-phase draw (see DT_SOROR2)
+      to confirm infection by titer rise.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SORO1 = sorologia, primeira amostra; C1 fits a coded result, and it
+      pairs naturally with DT_SOROR2 in the same series.
+
+      '
+  SORO2:
+    official_name: Coleta do 2º soro
+    translated_name: 2nd serum sample collected (flag)
+    description: 'Whether the second (convalescent-phase) serum sample was collected,
+      completing the paired-sera protocol begun with DT_SORO1/S1_TIT1 for confirming
+      dengue by antibody titer rise.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: SORO2 = soro 2, second of the acute/convalescent pair.
+  TECIDOS:
+    official_name: Coleta de tecidos
+    translated_name: Tissue samples collected (flag)
+    description: 'Whether tissue samples were collected at autopsy for histopathological
+      or immunohistochemical confirmation of dengue — relevant only to fatal cases
+      under investigation. Paired with the free-text OUTRO_S_D.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named directly for the action (tecidos=tissues) in the DENG
+      death-review stratum.
+  TECNICA:
+    official_name: Técnica utilizada
+    translated_name: Lab technique used
+    description: 'Free-text name of the laboratory method used for a dengue diagnostic
+      test (e.g. ELISA, hemaglutinação, isolamento), recorded alongside the test''s
+      result fields rather than being itself a result.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TECNICA = técnica; C20 width is long enough for a method name rather
+      than a coded result, and it sits among the dengue lab-result fields.
+
+      '
+  VACINADO:
+    official_name: Vacinado contra dengue
+    translated_name: Dengue vaccinated
+    description: 'Whether the patient had dengue vaccine. Relevant because the vaccine
+      can worsen a first infection in someone never previously exposed, which is why
+      its use is restricted.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: VACINADO reads vacinado, on the dengue form; a yes/no flag.

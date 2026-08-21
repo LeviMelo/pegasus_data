@@ -1,0 +1,910 @@
+# SINAN.SDTA — Foodborne disease outbreak
+# Surto de Doença Transmitida por Alimentos
+#
+# One outbreak, not one person — the unit here is the event, so these rows
+# must never be added to individual-case counts.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AGENTE_ET0:
+    official_name: Agente etiológico (descrição)
+    translated_name: Etiological agent (free text)
+    description: 'Free-text name of the pathogen or toxin suspected or confirmed as
+      the cause of a foodborne/waterborne disease outbreak (SDTA - Surto de Doença
+      Transmitida por Água e Alimentos). The wide C41 field allows a full organism
+      name.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AGENTE_ET = agente etiológico, a core field on the SDTA outbreak investigation
+      form; C41 width fits free text rather than a short code.
+
+      '
+  AGENTE_ET1:
+    official_name: Agente etiológico 1
+    translated_name: First identified/suspected etiologic agent
+    description: 'Name of the first pathogen identified or suspected as the cause of
+      the foodborne-disease outbreak (e.g. Salmonella, Staphylococcus aureus, Norovirus)
+      — paired with AGENTE_ET2 when a second agent is also implicated.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C40, wide enough for a pathogen name; AGENTE_ET=agente etiológico, trailing
+      1 implies a numbered series.
+  AGENTE_ET2:
+    official_name: Agente etiológico 2
+    translated_name: Second identified/suspected etiologic agent
+    description: 'Name of a second pathogen implicated in the same outbreak, when more
+      than one etiologic agent is identified — the companion field to AGENTE_ET1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C38, same pattern as AGENTE_ET1 with trailing 2.
+  AGENTE_ET3:
+    official_name: Agente etiológico (código)
+    translated_name: Etiological agent (coded)
+    description: 'Shorter, coded alternative to AGENTE_ET0 for the suspected/confirmed
+      outbreak pathogen, seen far less often (3 files vs 14) - likely a variant layout
+      that used a code instead of free text.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same AGENTE_ET root as AGENTE_ET0 but C10 width and much lower file
+      count suggest a distinct, less common schema variant of the same concept.
+
+      '
+  AGENTE_ETI:
+    official_name: Agente etiológico
+    translated_name: Etiologic agent
+    description: 'Causative agent identified for a foodborne/waterborne disease outbreak
+      (e.g. Salmonella, Staphylococcus, norovirus) - the summary field alongside numbered
+      variants (AGENTE_ET0-3) for outbreaks with more than one suspected agent.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: AGENTE_ETI = agente etiológico; SDTA is an outbreak (surto), aggregate-level
+      series.
+  ALIMENTO_C:
+    official_name: Alimento consumido
+    translated_name: Food item consumed
+    description: 'Free-text name of the specific food item suspected of causing a foodborne-disease
+      outbreak (surto de DTA), as reported by exposed people during the outbreak investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is SDTA (surto de doença transmitida por alimentos); ALIMENTO
+      reads "alimento" (food); wide C49 free-text width fits a food description rather
+      than a coded field.
+
+      '
+  CS_TRANS:
+    official_name: Modo de transmissão
+    translated_name: Transmission mode
+    description: 'Whether transmission was direct, person to person, or indirect through
+      a vehicle. Indirect is the ordinary foodborne case and TP_INDIRET then names
+      the vehicle.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MODOTRANS.CNV
+    reasoning: Bound to MODOTRANS, whose values are direta and indireta.
+  DS_F_OUTRO:
+    official_name: Descrição de outro fator
+    translated_name: Other contributing factor (free text)
+    description: 'Free-text description of an additional contributing factor to the
+      outbreak (e.g. improper storage, cross-contamination) not covered by the SDTA
+      form''s standard checklist, paired with the status flag ST_F_OUTRO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DS_ = descrição, F = fator, OUTRO = outro; C30 width fits free text,
+      and it names the same "F_OUTRO" root as its status-flag sibling.
+
+      '
+  DTTRANSDM:
+    official_name: Data de transferência - nível distrital/municipal
+    translated_name: Data transfer date - municipal level
+    description: 'Internal SINAN dataflow timestamp marking when this outbreak record
+      synced to the municipal-level database - bookkeeping, not a case date. One of
+      a family (DM/RM/RS/SE/SM/US) tracking the record up the municipal-to-federal
+      reporting chain.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_TRANS + DM; the same six-suffix family recurs across nearly every
+      SINAN series as standard database-sync metadata, not clinical data.
+
+      '
+  DTTRANSRM:
+    official_name: Data de transmissão - nível regional
+    translated_name: Transmission date to regional level
+    description: 'Administrative timestamp marking when this outbreak record was transmitted
+      from the municipal level up to the regional health office, part of DATASUS''s
+      tiered data-flow tracking rather than a clinical date.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Pairs with DTTRANSUS; DT_TRANS + RM is the standard DATASUS abbreviation
+      for "transmissão regional" seen across multiple systems'' pipeline-tracking fields.
+
+      '
+  DTTRANSRS:
+    official_name: Data relacionada à transmissão
+    translated_name: Transmission-related date
+    description: 'A date tied to the outbreak''s transmission event (e.g. the suspect
+      meal or transmission window), stored as text rather than a native date type.
+      The exact question isn''t confirmed by the evidence available.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'C10 (not D8, unlike most SINAN dates) but named with the DT_ date prefix
+      and TRANS (transmissão); low file coverage (17f) suggests a less-common or regionally
+      added field whose precise scope could not be pinned down further.
+
+      '
+  DTTRANSSE:
+    official_name: Data de transmissão (semana epidemiológica)
+    translated_name: Transmission date / epidemiological week
+    description: 'Date tied to the outbreak''s transmission period, stored in a legacy
+      9-character format rather than the standard 8-digit date field - likely combining
+      a date with an epidemiological-week marker for the outbreak''s epidemic curve.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT = data, TRANS = transmissão, SE = semana epidemiológica; C9 (not
+      the usual D8) width suggests an unusual encoding worth flagging rather than a
+      plain date.
+
+      '
+  DTTRANSSM:
+    official_name: Data de transferência - nível da secretaria municipal
+    translated_name: Data transfer date - municipal secretariat level
+    description: 'Internal SINAN dataflow timestamp for this outbreak record, distinct
+      from DTTRANSDM by administrative level within the same municipal-to-federal sync
+      chain - bookkeeping, not a case date.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DT_TRANS + SM; sibling of DTTRANSDM in the same six-field transfer-timestamp
+      family.
+  DTTRANSUS:
+    official_name: Data de transmissão - nível estadual
+    translated_name: Transmission date to state level
+    description: 'Administrative timestamp marking when this outbreak record was transmitted
+      up to the state (UF) level, the next tier above DTTRANSRM in DATASUS''s municipal-to-federal
+      data flow.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_TRANS + US/UF is the standard DATASUS abbreviation for state-level
+      transmission, paired with DTTRANSRM as the regional-level equivalent.
+
+      '
+  MAX_INC:
+    official_name: Incubação máxima
+    translated_name: Maximum incubation period observed
+    description: 'Longest incubation period (onset minus exposure) observed among the
+      outbreak''s cases — used with NU_INCUB_M (the minimum) to bound the likely exposure
+      window in the epidemic curve.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N3 numeric; MAX_INC=máxima incubação.
+  MAX_ST_INC:
+    official_name: Situação do período máximo de incubação
+    translated_name: Maximum incubation period status
+    description: 'Status/qualifier for the outbreak''s maximum incubation-period estimate
+      (e.g. whether it was determined or approximate), companion to the numeric incubation
+      fields like NU_INC_ME.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MAX_ = máximo, ST_ = situação, INC = incubação; C1 width fits a short
+      status code rather than the day count itself, which sits in the separate numeric
+      NU_INC_ME field.
+
+      '
+  NU10_19_N:
+    official_name: Doentes femininas de 10 a 19 anos
+    translated_name: Female cases 10 to 19
+    description: Female cases aged 10 to 19.
+    code_system: none
+    source: inferred
+    reasoning: The 10-19 band of the female series.
+  NU1_4_F_NU:
+    official_name: Doentes femininas de 1 a 4 anos
+    translated_name: Female cases 1 to 4
+    description: Female cases aged 1 to 4.
+    code_system: none
+    source: inferred
+    reasoning: The 1-4 band of the female series.
+  NU5_9_F_NU:
+    official_name: Doentes femininas de 5 a 9 anos
+    translated_name: Female cases 5 to 9
+    description: Female cases aged 5 to 9.
+    code_system: none
+    source: inferred
+    reasoning: The 5-9 band of the female series.
+  NU_10_19:
+    official_name: Total de doentes de 10 a 19 anos
+    translated_name: Total cases 10 to 19
+    description: All cases aged 10 to 19.
+    code_system: none
+    source: inferred
+    reasoning: The 10-19 band of the totals series.
+  NU_10_19IG:
+    official_name: Doentes de sexo ignorado de 10 a 19 anos
+    translated_name: Cases of unknown sex, 10 to 19
+    description: Cases aged 10 to 19 whose sex was not recorded.
+    code_system: none
+    source: inferred
+    reasoning: The 10-19 band of the unknown-sex series.
+  NU_10_19_M:
+    official_name: Doentes masculinos de 10 a 19 anos
+    translated_name: Male cases 10 to 19
+    description: Male cases aged 10 to 19. See NU_1_M_NU.
+    code_system: none
+    source: inferred
+    reasoning: The 10-19 band of the male series.
+  NU_1_4_IGN:
+    official_name: Doentes de sexo ignorado de 1 a 4 anos
+    translated_name: Cases of unknown sex, 1 to 4
+    description: Cases aged 1 to 4 whose sex was not recorded.
+    code_system: none
+    source: inferred
+    reasoning: The 1-4 band of the unknown-sex series.
+  NU_1_4_NU:
+    official_name: Doentes masculinos de 1 a 4 anos
+    translated_name: Male cases 1 to 4
+    description: Male cases aged 1 to 4. See NU_1_M_NU for the grid.
+    code_system: none
+    source: inferred
+    reasoning: The 1-4 band of the male series.
+  NU_1_4_TOT:
+    official_name: Total de doentes de 1 a 4 anos
+    translated_name: Total cases 1 to 4
+    description: All cases aged 1 to 4.
+    code_system: none
+    source: inferred
+    reasoning: The 1-4 band of the totals series.
+  NU_1_F_NU:
+    official_name: Doentes femininas menores de 1 ano
+    translated_name: Female cases under 1
+    description: Female cases under one year. The female series of the same grid; see
+      NU_1_M_NU.
+    code_system: none
+    source: inferred
+    reasoning: F marks feminino in the under-1 band.
+  NU_1_IGN:
+    official_name: Doentes de sexo ignorado menores de 1 ano
+    translated_name: Cases of unknown sex under 1
+    description: 'Cases under one year whose sex was not recorded. The third series
+      of the grid; without it the male and female series do not sum to the total.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: IGN marks sexo ignorado in the under-1 band.
+  NU_1_M_NU:
+    official_name: Doentes masculinos menores de 1 ano
+    translated_name: Male cases under 1
+    description: 'Male cases under one year old. The first cell of an age-by-sex grid
+      repeated for male, female, unknown and total; only one of the four sets should
+      be used at a time.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_1 is the under-1 band and M masculino; the parallel _F_, _IGN and
+      _TOT names give the same band for the other sex categories.
+
+      '
+  NU_1_TOT_N:
+    official_name: Total de doentes menores de 1 ano
+    translated_name: Total cases under 1
+    description: 'All cases under one year, across the sexes. The total series is the
+      sum of the other three, so adding it to them double-counts.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TOT marks the totals series in the under-1 band.
+  NU_20_49:
+    official_name: Total de doentes de 20 a 49 anos
+    translated_name: Total cases 20 to 49
+    description: All cases aged 20 to 49.
+    code_system: none
+    source: inferred
+    reasoning: The 20-49 band of the totals series.
+  NU_20_49IG:
+    official_name: Doentes de sexo ignorado de 20 a 49 anos
+    translated_name: Cases of unknown sex, 20 to 49
+    description: Cases aged 20 to 49 whose sex was not recorded.
+    code_system: none
+    source: inferred
+    reasoning: The 20-49 band of the unknown-sex series.
+  NU_20_49_F:
+    official_name: Doentes femininas de 20 a 49 anos
+    translated_name: Female cases 20 to 49
+    description: Female cases aged 20 to 49.
+    code_system: none
+    source: inferred
+    reasoning: The 20-49 band of the female series.
+  NU_20_49_N:
+    official_name: Doentes masculinos de 20 a 49 anos
+    translated_name: Male cases 20 to 49
+    description: 'Male cases aged 20 to 49. The widest band, and usually the largest,
+      which is a property of the banding rather than of risk.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: The 20-49 band of the male series.
+  NU_50_F_NU:
+    official_name: Doentes femininas de 50 anos e mais
+    translated_name: Female cases 50 and over
+    description: Female cases aged 50 or more.
+    code_system: none
+    source: inferred
+    reasoning: The 50-and-over band of the female series.
+  NU_50_IGN:
+    official_name: Doentes de sexo ignorado de 50 anos e mais
+    translated_name: Cases of unknown sex, 50 and over
+    description: Cases aged 50 or more whose sex was not recorded.
+    code_system: none
+    source: inferred
+    reasoning: The 50-and-over band of the unknown-sex series.
+  NU_50_M_NU:
+    official_name: Doentes masculinos de 50 anos e mais
+    translated_name: Male cases 50 and over
+    description: Male cases aged 50 or more. See NU_1_M_NU.
+    code_system: none
+    source: inferred
+    reasoning: The 50-and-over band of the male series.
+  NU_50_TOT:
+    official_name: Total de doentes de 50 anos e mais
+    translated_name: Total cases 50 and over
+    description: All cases aged 50 or more.
+    code_system: none
+    source: inferred
+    reasoning: The 50-and-over band of the totals series.
+  NU_5_9_IGN:
+    official_name: Doentes de sexo ignorado de 5 a 9 anos
+    translated_name: Cases of unknown sex, 5 to 9
+    description: Cases aged 5 to 9 whose sex was not recorded.
+    code_system: none
+    source: inferred
+    reasoning: The 5-9 band of the unknown-sex series.
+  NU_5_9_NU:
+    official_name: Doentes masculinos de 5 a 9 anos
+    translated_name: Male cases 5 to 9
+    description: Male cases aged 5 to 9. See NU_1_M_NU.
+    code_system: none
+    source: inferred
+    reasoning: The 5-9 band of the male series.
+  NU_5_9_TOT:
+    official_name: Total de doentes de 5 a 9 anos
+    translated_name: Total cases 5 to 9
+    description: All cases aged 5 to 9.
+    code_system: none
+    source: inferred
+    reasoning: The 5-9 band of the totals series.
+  NU_ABDOM_N:
+    official_name: Número de doentes com dor abdominal
+    translated_name: Cases with abdominal pain
+    description: How many had abdominal pain.
+    code_system: none
+    source: inferred
+    reasoning: ABDOM reads abdominal; a per-symptom count.
+  NU_A_ALIM:
+    official_name: Número de amostras de alimento
+    translated_name: Food samples taken
+    description: 'How many food samples were collected. Without samples the vehicle
+      can only be inferred epidemiologically, so this is what separates a suspected
+      vehicle from a confirmed one.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: A_ALIM reads amostras de alimento.
+  NU_A_CLINI:
+    official_name: Número de casos com quadro clínico
+    translated_name: Case count with clinical picture
+    description: 'Count of outbreak cases that presented a given clinical picture,
+      part of the SDTA outbreak form''s summary of how many affected people showed
+      each symptom pattern.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_ = número, CLINI = clínico; N2 numeric width fits a small case count,
+      consistent with outbreak-summary tallying fields.
+
+      '
+  NU_A_NUM_1:
+    official_name: Número de casos associados ao alimento/agente 1
+    translated_name: Case count for suspect item 1
+    description: 'Count of outbreak cases linked to the first of several numbered suspect
+      foods or agents in a multi-vehicle foodborne outbreak investigation; NU_A_NUM_3
+      is the same count for the third item.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_ = número; SDTA carries a matching NU_A_ALIM (cases by food) and
+      NU_A_CLINI (cases by clinical picture); the "_1/_3" numbering parallels AGENTE_ET0-3''s
+      multiple suspect items.
+
+      '
+  NU_A_NUM_2:
+    official_name: Número da amostra 2
+    translated_name: Sample/case number 2
+    description: 'Identifier for a second food or clinical sample collected during
+      a foodborne-outbreak investigation, one of several numbered sample slots alongside
+      NU_NUM_3.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SDTA form; NU_ is the número prefix; alphanumeric C10 width fits a
+      sample identifier rather than a pure count; numbered alongside NU_NUM_3 as a
+      parallel slot.
+
+      '
+  NU_A_NUM_3:
+    official_name: Número de casos associados ao alimento/agente 3
+    translated_name: Case count for suspect item 3
+    description: 'Count of outbreak cases linked to the third numbered suspect food
+      or agent, completing the set with NU_A_NUM_1 (and an unlisted _2) for outbreaks
+      with multiple implicated items.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Third of a numbered case-count series; see NU_A_NUM_1.
+  NU_CEFAL_N:
+    official_name: Número de doentes com cefaleia
+    translated_name: Cases with headache
+    description: How many had headache.
+    code_system: none
+    source: inferred
+    reasoning: CEFAL reads cefaleia; a per-symptom count.
+  NU_CLI_NUM:
+    official_name: Número de doentes com quadro clínico registrado
+    translated_name: Cases with a clinical picture recorded
+    description: 'How many cases had any clinical detail recorded at all — the denominator
+      the symptom counts should be read against.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CLI_NUM reads clínico número; the base for the symptom counts.
+  NU_DIARR_N:
+    official_name: Número de doentes com diarreia
+    translated_name: Cases with diarrhoea
+    description: 'How many cases had diarrhoea. The symptom counts describe the outbreak''s
+      clinical picture, which is what narrows the likely agent before any laboratory
+      result arrives.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DIARR reads diarreia; a per-symptom count across the outbreak.
+  NU_ENTR:
+    official_name: Número de pessoas entrevistadas
+    translated_name: People interviewed
+    description: 'How many people were interviewed in the investigation. The denominator
+      for the attack rate, and the field that says how thorough the investigation was.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NU_ENTR reads número de entrevistados; N(7) count on the outbreak record.
+  NU_ENT_DOE:
+    official_name: Número de entrevistados doentes
+    translated_name: Interviewed who fell ill
+    description: 'How many of those interviewed were ill. With NU_ENTR this gives the
+      attack rate, which is the primary measure of an outbreak''s severity.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ENT_DOE reads entrevistados doentes; the numerator to NU_ENTR.
+  NU_FEBRE_N:
+    official_name: Número de doentes com febre
+    translated_name: Cases with fever
+    description: 'How many had fever. Fever separates an invasive infection from a
+      toxin, which is the main branch in identifying the agent.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: FEBRE reads febre; a per-symptom count.
+  NU_F_TOT:
+    official_name: Número final total
+    translated_name: Total final count
+    description: 'Total count of people affected (cases, or people exposed) in a foodborne-disease
+      outbreak, tallied once the investigation closes.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SDTA form; NU_F_TOT reads "número final total"; numeric N3 width fits
+      an outbreak-size count (up to 999 people).
+
+      '
+  NU_F_TOT_N:
+    official_name: Total geral de doentes
+    translated_name: Grand total of cases
+    description: 'The grand total across the whole grid. Should agree with NU_TOT,
+      and a disagreement means the grid was filled inconsistently.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: The grand total closing the age-by-sex grid.
+  NU_IGN_NU:
+    official_name: Total de doentes de idade ignorada
+    translated_name: Total cases, age unknown
+    description: All cases whose age was not recorded, across the sexes.
+    code_system: none
+    source: inferred
+    reasoning: The idade ignorada cell of the totals series.
+  NU_IGRA_NU:
+    official_name: Doentes masculinos de idade ignorada
+    translated_name: Male cases, age unknown
+    description: 'Male cases whose age was not recorded. Must be added back before
+      any age distribution is computed, or the distribution silently excludes them.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: IGRA marks idade ignorada in the male series.
+  NU_IG_F_NU:
+    official_name: Doentes femininas de idade ignorada
+    translated_name: Female cases, age unknown
+    description: Female cases whose age was not recorded. See NU_IGRA_NU.
+    code_system: none
+    source: inferred
+    reasoning: IG marks idade ignorada in the female series.
+  NU_IG_IGN:
+    official_name: Doentes de sexo e idade ignorados
+    translated_name: Cases of unknown sex and age
+    description: 'Cases where neither sex nor age was recorded. The cell that quantifies
+      how incomplete the outbreak''s demography is.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Both IG and IGN, the doubly-unknown cell of the grid.
+  NU_INCUB_M:
+    official_name: Incubação mínima
+    translated_name: Minimum incubation period observed
+    description: 'Shortest incubation period observed among the outbreak''s cases —
+      the lower bound paired with MAX_INC (the maximum) to narrow the probable exposure
+      window.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N3 numeric, same shape as MAX_INC; NU_=número prefix, INCUB=incubação,
+      trailing M read as mínima (paired opposite of MAX_).
+  NU_INC_ME:
+    official_name: Período de incubação mínimo
+    translated_name: Minimum incubation period
+    description: 'Shortest incubation period (in days or hours) observed among the
+      outbreak''s cases, the counterpart to MAX_ST_INC''s maximum-period status, used
+      to characterize the suspected agent.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_ = número, INC = incubação, ME = mínimo/menor; N2 numeric width
+      fits a short duration value.
+
+      '
+  NU_NAUSE_P:
+    official_name: Número de doentes com náusea
+    translated_name: Cases with nausea
+    description: How many had nausea, recorded apart from vomiting.
+    code_system: none
+    source: inferred
+    reasoning: NAUSE reads náusea; a per-symptom count.
+  NU_NEURO_N:
+    official_name: Número de doentes com sintomas neurológicos
+    translated_name: Cases with neurological symptoms
+    description: 'How many had neurological symptoms. Rare in foodborne illness and
+      alarming when present, since it raises botulism and marine toxins.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NEURO reads neurológico; a per-symptom count.
+  NU_NUM_2:
+    official_name: Número 2
+    translated_name: Secondary reference number
+    description: 'A secondary numeric/code field on the SDTA outbreak record, likely
+      a second case or investigation reference number; the generic name and low file
+      count (3) leave its exact role uncertain.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NU_ = número, "2" marks it as a second instance of some numbered field;
+      C8 alphanumeric width and sparse presence in the catalog limit further decoding.
+
+      '
+  NU_NUM_3:
+    official_name: Número da amostra 3
+    translated_name: Sample/case number 3
+    description: 'Identifier for a third food or clinical sample collected during a
+      foodborne-outbreak investigation, the next numbered slot after NU_A_NUM_2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SDTA form; NU_ prefix with explicit "3" suffix; alphanumeric C8 width
+      matches the sibling NU_A_NUM_2 sample-identifier field.
+
+      '
+  NU_OBITO:
+    official_name: Número de óbitos
+    translated_name: Deaths
+    description: Deaths in the outbreak. Rare, and what turns an investigation into
+      an urgent one.
+    code_system: none
+    source: inferred
+    reasoning: NU_OBITO reads número de óbitos.
+  NU_OUTRO_N:
+    official_name: Número de doentes com outros sintomas
+    translated_name: Cases with other symptoms
+    description: How many had symptoms outside the named list.
+    code_system: none
+    source: inferred
+    reasoning: The residual item of the symptom counts.
+  NU_RESU_3:
+    official_name: Número de resultados - item 3
+    translated_name: Result count for suspect item 3
+    description: 'Count of laboratory results returned for the third numbered suspect
+      food/agent item in the outbreak investigation, paired with that item''s case
+      count (NU_A_NUM_3).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NU_RESU = número de resultados; "_3" follows the same numbered-item
+      convention as NU_A_NUM_3.
+  NU_TOT:
+    official_name: Número total de doentes
+    translated_name: Total cases
+    description: 'Total people ill in the outbreak, including those never interviewed.
+      Larger than NU_ENT_DOE, and the figure to report as the outbreak''s size.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NU_TOT reads número total; N(7) count on the outbreak record.
+  NU_TOT_HOS:
+    official_name: Número de hospitalizados
+    translated_name: Hospitalised
+    description: 'How many were admitted to hospital. The severity marker for the outbreak,
+      since most foodborne illness resolves without care.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TOT_HOS reads total hospitalizados.
+  NU_TOT_IGN:
+    official_name: Total de doentes de sexo ignorado
+    translated_name: Cases of unknown sex, total
+    description: All cases whose sex was not recorded.
+    code_system: none
+    source: inferred
+    reasoning: The row total of the unknown-sex series.
+  NU_TO_F_NU:
+    official_name: Total de doentes femininas
+    translated_name: Female cases, total
+    description: 'All female cases. Should equal the female age bands summed, and a
+      mismatch is a data-quality check rather than a finding.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TO_F reads total feminino; the row total of the female series.
+  NU_VOMTO_N:
+    official_name: Número de doentes com vômito
+    translated_name: Cases with vomiting
+    description: 'How many had vomiting. Vomiting predominating over diarrhoea, with
+      a short incubation, points to a preformed toxin rather than an infection.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: VOMTO reads vômito; a per-symptom count.
+  QT_TOTAL_C:
+    official_name: Quantidade total de casos
+    translated_name: Total case count
+    description: 'Total cases as carried in a later generation of the form, beside
+      rather than instead of NU_TOT.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: QT_TOTAL_C reads quantidade total de casos; C(10).
+  ST_ALIMEN:
+    official_name: Situação do alimento
+    translated_name: Food item status
+    description: 'Status of the suspect food item at the time of investigation (e.g.
+      still available for sampling versus already discarded/consumed), recorded as
+      a single coded character.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SDTA form; ST_ is the situação prefix, ALIMEN reads "alimento"; C1
+      width fits a short status code.
+
+      '
+  ST_A_CLINI:
+    official_name: Situação - caso clínico
+    translated_name: Case meets clinical-only criteria (flag)
+    description: 'Whether the case was classified using clinical criteria alone, without
+      laboratory confirmation of the etiologic agent — one of the outbreak''s case-classification
+      flags alongside ST_INC_ME.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; ST_=situação per prefix convention, A_CLINI read as caso clínico.
+  ST_F_OUTRO:
+    official_name: Situação - outro fator
+    translated_name: Other contributing factor (status)
+    description: 'Status/code flag marking whether an additional, non-listed contributing
+      factor applied to the outbreak, with its detail written into the paired free-text
+      field DS_F_OUTRO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ST_ = situação, F = fator, OUTRO = outro; shares the F_OUTRO root with
+      DS_F_OUTRO, matching the flag+detail pattern used across SINAN "outro, especifique"
+      fields.
+
+      '
+  ST_IMPRO:
+    official_name: Situações impróprias identificadas
+    translated_name: Unsanitary conditions identified
+    description: 'Coded record of food-handling or storage irregularities found during
+      inspection of the outbreak''s food source (e.g. improper storage temperature,
+      contamination, expired product).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SDTA form; IMPRO reads "impróprio" (improper); C8 width, wider than
+      a single flag, fits several concatenated irregularity codes rather than one yes/no
+      item.
+
+      '
+  ST_IMPRO_:
+    official_name: Situação - alimento impróprio
+    translated_name: Food deemed improper (flag)
+    description: 'Whether inspectors found the implicated food improper for consumption
+      (spoiled or mishandled) during the outbreak investigation; a near-duplicate field
+      ST_IMPRO (without the trailing underscore) also exists, likely from a schema-version
+      rename.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ST_IMPRO(_) = situação impróprio; both spellings appear across SDTA
+      schema years, consistent with a DBF field-name collision/rename.
+
+      '
+  ST_INAD:
+    official_name: Situação - conservação inadequada
+    translated_name: Inadequate storage/conservation (flag)
+    description: 'Whether the suspect food''s storage or conservation conditions were
+      found inadequate - a food-safety inspection finding distinct from ST_IMPRO (food
+      already spoiled) and ST_MANIP (handling practices).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ST_INAD = situação inadequada; SDTA outbreak-inspection field set.
+  ST_INCUB_M:
+    official_name: Situação do período de incubação
+    translated_name: Incubation-period compatibility
+    description: 'Single-character flag on the outbreak form indicating whether a case''s
+      symptom-onset timing is compatible with the incubation period expected for the
+      suspected foodborne pathogen.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SDTA form; ST_ situação prefix with INCUB reading "incubação"; C1 width
+      fits a compatible/not-compatible coded flag.
+
+      '
+  ST_INC_ME:
+    official_name: Situação da incubação estimada
+    translated_name: Incubation-period estimate status (flag)
+    description: 'Whether the outbreak''s incubation-period figures (MAX_INC, NU_INCUB_M)
+      were directly observed or estimated — a data-quality flag on those two numeric
+      fields rather than a clinical finding.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; ST_=situação, INC=incubação, ME read as estimada/medida.
+  ST_MANIP:
+    official_name: Situação do manipulador de alimentos
+    translated_name: Food handler involvement status
+    description: 'Status of a food handler''s (manipulador de alimentos) involvement
+      in the outbreak - e.g. whether a symptomatic or carrier handler was identified
+      as a likely contamination source.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ST_ = situação, MANIP = manipulador; food-handler involvement is a
+      standard line of inquiry on foodborne-outbreak (SDTA) investigation forms.
+
+      '
+  TP_INDIRET:
+    official_name: Tipo de transmissão indireta
+    translated_name: Indirect transmission vehicle
+    description: 'What carried the agent — food, water, a vector, a product, or a fomite.
+      The distinction between food and water changes the whole investigation and the
+      intervention that follows it.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MODOIND.CNV
+    reasoning: 'Bound to MODOIND, whose values are alimento, recursos hídricos, vetor,
+      produto and fômite.
+
+      '
+  TP_LOCAL:
+    official_name: Tipo de local
+    translated_name: Venue type
+    description: 'Type of venue where the outbreak-linked meal was served or consumed
+      (e.g. home, restaurant, school, event) - a standard classification on foodborne
+      outbreak investigation forms.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TP_ = tipo, LOCAL = local; SDTA outbreak-context field.
+  TP_PRO_PRE:
+    official_name: Tipo de processamento/preparo
+    translated_name: Type of food processing/preparation
+    description: 'Coded category of how the suspect food was processed or prepared
+      before consumption (e.g. raw, undercooked, reheated), used to help identify how
+      contamination or toxin survival occurred.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SDTA form; TP_ tipo prefix, PRO_PRE reads "processamento/preparo";
+      C2 width fits a small enumerated code.
+
+      '

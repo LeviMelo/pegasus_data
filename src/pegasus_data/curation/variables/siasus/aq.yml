@@ -1,0 +1,243 @@
+# SIA.AQ — APAC, chemotherapy
+# APAC de Quimioterapia
+#
+# One authorisation for a chemotherapy regimen, carrying the tumour staging
+# and the regimen billed.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  AQ_CID10:
+    official_name: CID 10 – Topografia
+    translated_name: CID-10 topography
+    description: ICD-10 code for the tumour's anatomical site (topography) that justifies
+      this chemotherapy APAC.
+    code_system: external
+    codelists:
+    - S_CID
+  AQ_CIDINI1:
+    official_name: CID 1º Tratamento anterior
+    translated_name: CID of 1st prior treatment
+    description: ICD-10 diagnosis associated with the patient's first previously-received
+      cancer treatment (only filled when AQ_TRANTE=S), paired with the start date in
+      AQ_DTINI1.
+    code_system: external
+    codelists:
+    - S_CID
+  AQ_CIDINI2:
+    official_name: CID 2º Tratamento anterior
+    translated_name: CID of 2nd prior treatment
+    description: ICD-10 diagnosis associated with the patient's second previously-received
+      cancer treatment, paired with the start date in AQ_DTINI2.
+    code_system: external
+    codelists:
+    - S_CID
+  AQ_CIDINI3:
+    official_name: CID 3º Tratamento anterior
+    translated_name: CID of 3rd prior treatment
+    description: ICD-10 diagnosis associated with the patient's third previously-received
+      cancer treatment, paired with the start date in AQ_DTINI3.
+    code_system: external
+    codelists:
+    - S_CID
+  AQ_CONTTR:
+    official_name: Continuidade do tratamento (S = Sim; N = Não)
+    translated_name: Treatment continuity
+    description: Whether this APAC continues a chemotherapy regimen already under way,
+      rather than starting a new one.
+    code_system: internal
+    codelists:
+    - CONT_TRAT
+  AQ_DTIDEN:
+    official_name: Data da identificação patológica do caso (AAAAMMDD)
+    translated_name: Date of pathological identification
+    description: Date the cancer diagnosis was pathologically confirmed for this case,
+      in AAAAMMDD format — the clinical starting point of the case, not the date this
+      APAC was issued.
+    code_system: none
+    notes: The catalog binds this field to an ANOMES2008 (year-month) codelist. That
+      is a TabNet tabulation axis derived from the date column, not a real classification
+      of the data — the binding is spurious, not this field's description.
+  AQ_DTINI1:
+    official_name: Data de início (AAAAMMDD) 1º tratamento anterior
+    translated_name: Start date of 1st prior treatment
+    description: Start date, AAAAMMDD, of the patient's first previously-received cancer
+      treatment, paired with the diagnosis in AQ_CIDINI1.
+    code_system: none
+  AQ_DTINI2:
+    official_name: Data de início (AAAAMMDD) 2º tratamento anterior
+    translated_name: Start date of 2nd prior treatment
+    description: Start date, AAAAMMDD, of the patient's second previously-received
+      cancer treatment, paired with the diagnosis in AQ_CIDINI2.
+    code_system: none
+  AQ_DTINI3:
+    official_name: Data de início (AAAAMMDD) 3º tratamento anterior
+    translated_name: Start date of 3rd prior treatment
+    description: Start date, AAAAMMDD, of the patient's third previously-received cancer
+      treatment, paired with the diagnosis in AQ_CIDINI3.
+    code_system: none
+  AQ_DTINTR:
+    official_name: Data de INÍCIO do tratamento solicitado (AAAAMMDD)
+    translated_name: Start date of the requested treatment
+    description: Start date, AAAAMMDD, of the chemotherapy regimen this APAC itself
+      is requesting/authorising — the current treatment, not one of the prior treatments
+      recorded in AQ_DTINI1-3.
+    code_system: none
+  AQ_ESQU_P1:
+    official_name: ESQUEMA (Sigla ou abrev.) - 5 primeiras posições
+    translated_name: Regimen code, first 5 characters
+    description: First 5 characters of the free-text abbreviation for the chemotherapy
+      drug regimen prescribed; the remaining characters are in AQ_ESQU_P2.
+    code_system: none
+    notes: Split across two columns because the original form field was wider than
+      one DBF CHAR field comfortably held. Concatenate AQ_ESQU_P1 + AQ_ESQU_P2 to recover
+      the full regimen abbreviation.
+  AQ_ESQU_P2:
+    official_name: ESQUEMA (Sigla ou abrev.) - 10 últimas posições
+    translated_name: Regimen code, last 10 characters
+    description: Remaining characters of the free-text chemotherapy regimen abbreviation
+      begun in AQ_ESQU_P1.
+    code_system: none
+    depends_on:
+    - AQ_ESQU_P1
+  AQ_ESTADI:
+    official_name: Estádio - UICC (0; 1; 2; 3; 4)
+    translated_name: UICC stage
+    description: Cancer stage at diagnosis, on a single-digit 0-4 scale DATASUS derived
+      from the UICC (Union for International Cancer Control) staging system.
+    code_system: external
+    codelists:
+    - ESTADIO
+  AQ_GRAHIS:
+    official_name: Grau Histopatológico
+    translated_name: Histopathological grade
+    description: DATASUS code for the tumour's histopathological grade (degree of cell
+      differentiation) as recorded on the chemotherapy APAC.
+    code_system: internal
+    codelists:
+    - GRAU_HIS
+  AQ_LINFIN:
+    official_name: Linfonodos regionais invadidos (S = Sim; N = Não; 3 = Não Avaliáveis)
+    translated_name: Regional lymph nodes invaded
+    description: Whether regional lymph nodes were found invaded by the tumour, with
+      a separate code for cases where nodes could not be assessed.
+    code_system: internal
+    codelists:
+    - LINF_INV
+  AQ_MED01:
+    official_name: Medicamento 1 do esquema quimioterápico
+    translated_name: Chemotherapy drug 1
+    description: 'First drug of the regimen, on a coded oncology drug list. Chemotherapy
+      is given in combinations, so the ten AQ_MED slots together are the regimen and
+      no single one identifies it.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: 'Bound to MED_ONC, whose values are oncology drug names such as acalabrutinibe
+      and acetato de abiraterona.
+
+      '
+  AQ_MED02:
+    official_name: Medicamento 2 do esquema quimioterápico
+    translated_name: Chemotherapy drug 2
+    description: Second drug of the regimen, on the same oncology drug list. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 2 of ten.
+  AQ_MED03:
+    official_name: Medicamento 3 do esquema quimioterápico
+    translated_name: Chemotherapy drug 3
+    description: Third drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 3 of ten.
+  AQ_MED04:
+    official_name: Medicamento 4 do esquema quimioterápico
+    translated_name: Chemotherapy drug 4
+    description: Fourth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 4 of ten.
+  AQ_MED05:
+    official_name: Medicamento 5 do esquema quimioterápico
+    translated_name: Chemotherapy drug 5
+    description: Fifth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 5 of ten.
+  AQ_MED06:
+    official_name: Medicamento 6 do esquema quimioterápico
+    translated_name: Chemotherapy drug 6
+    description: Sixth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 6 of ten.
+  AQ_MED07:
+    official_name: Medicamento 7 do esquema quimioterápico
+    translated_name: Chemotherapy drug 7
+    description: Seventh drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 7 of ten.
+  AQ_MED08:
+    official_name: Medicamento 8 do esquema quimioterápico
+    translated_name: Chemotherapy drug 8
+    description: Eighth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 8 of ten.
+  AQ_MED09:
+    official_name: Medicamento 9 do esquema quimioterápico
+    translated_name: Chemotherapy drug 9
+    description: Ninth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 9 of ten.
+  AQ_MED10:
+    official_name: Medicamento 10 do esquema quimioterápico
+    translated_name: Chemotherapy drug 10
+    description: 'Tenth and last drug slot. Regimens rarely fill it, so a populated
+      AQ_MED10 marks an unusually complex protocol.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 10 of ten.
+  AQ_TOTMAU:
+    official_name: Total de MESES Autorizados
+    translated_name: Total months authorised
+    description: Number of months of chemotherapy the manager authorised for this regimen;
+      compare with AQ_TOTMPL, the number planned by the requesting physician.
+    code_system: none
+    notes: The catalog binds this field to a MESES2 codelist. That is a display lookup
+      TabNet uses to label a small integer range, not a real classification — the binding
+      is spurious, not this field's description.
+  AQ_TOTMPL:
+    official_name: Total de MESES Planejados
+    translated_name: Total months planned
+    description: Number of months of chemotherapy the requesting physician planned
+      for this regimen; compare with AQ_TOTMAU, the number actually authorised.
+    code_system: none
+    notes: The catalog binds this field to a MESES2 codelist, a TabNet display lookup
+      for a small integer range rather than a real classification — the binding is
+      spurious, not this field's description.
+  AQ_TRANTE:
+    official_name: Tratamentos anteriores (S = Sim; N = Não)
+    translated_name: Prior treatments indicator
+    description: Whether the patient had already received cancer treatment before this
+      APAC; when S, up to three prior treatments are detailed in the AQ_CIDINI*/AQ_DTINI*
+      fields.
+    code_system: internal
+    codelists:
+    - TRA_ANTE

@@ -1,0 +1,234 @@
+# SIH.RD — Reduced AIH
+# AIH Reduzida
+#
+# One row per approved admission, carrying the fields common to all AIHs. This
+# is the dataset almost every SIH analysis actually uses.
+system: SIHSUS
+asserted_by: pegasus_data
+
+variables:
+  COD_ARQ:
+    translated_name: Reduced-AIH record-type code
+    description: 'A low-cardinality flag; only two values (1, 2) are observed across
+      the 1992–2006 RD files in this tree, which is a record-type marker rather than
+      a per-record unique identifier.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[GEOCOD-AIH] p.7: "COD_ARQ - Código identificador do registro reduzido
+      de AIH".
+
+      '
+    notes: 'The source naming this field does not say what 1 vs 2 means, and no lookup
+      table for it was found in the tree — treat the split as unexplained rather than
+      safe to filter on.
+
+      '
+  COD_SEG:
+    translated_name: Segment/batch code (RD, 2005-2006 vintage only)
+    description: 'An 8-digit code seen only in RD files from 2005-2006, repeating across
+      many rows — one value alone covers roughly 1,700 records — consistent with a
+      processing-batch, remessa-segment, or facility-group identifier rather than a
+      per-admission value.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'High per-value repetition (hundreds to ~1,700 rows sharing one code)
+      rules out a per-record sequence number; the narrow 2005-2006 window coincides
+      with the pre-2008 to 200801_ layout transition in this system, and "SEG" most
+      plausibly abbreviates segmento.
+
+      '
+    notes: 'What specifically the segment groups — hospital complex, submission batch,
+      region — is not established here.
+
+      '
+  CONT:
+    translated_name: Legacy control field, constant value
+    description: 'Present only in the RD (Reduzida/AIH) files from the earliest vintages
+      (1992-2006) and observed to hold the literal value "1" in every row — a vestigial
+      counter or flag from the original extraction format, not carried into later RD
+      layouts.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'The catalog''s own detector flags it a constant_column (confidence
+      0.9) with a single observed value "1" across ~47k rows; "CONT" most plausibly
+      abbreviates "contador," the same internal-control naming DATASUS uses elsewhere
+      (SIM''s own CONTADOR, documented there as "dado para controle interno").
+
+      '
+    notes: 'DELIBERATELY UNDER-SPECIFIED — no .DEF label, dictionary entry or documentation
+      names this field; only its observed constant behaviour is asserted here.
+
+      '
+  DIAG_SEC:
+    translated_name: Secondary diagnosis (1997 CID-9 predecessor of DIAG_SECUN)
+    description: 'Secondary-diagnosis code recorded on this admission in the 1997 RD
+      files, using CID-9 rather than CID-10 — the predecessor of the DIAG_SECUN column
+      documented in sihsus_rd.yml. ''000000'' "Código inválido - fora da CID" is itself
+      the most common observed value.
+
+      '
+    code_system: external
+    codelists:
+    - CID9X01
+    - CID9X02
+    - CID9X03
+    - CID9X04
+    - CID9X05
+    - CID9X06
+    source: def
+    source_ref: '[DEF-RD9297] binds DIAG_SEC to seventeen CID-9 chapter lookups ("DSec
+      CID9 cap 01" .. "cap 17D") plus "(capit)", "(categ)" and "inválido" tables. The
+      general concept (secondary diagnosis) is confirmed independently for this column
+      name in [GEOCOD-AIH] p.6, "DIAG_SEC - Diagnóstico secundário, segundo a CID-10"
+      — the CID-9 vs CID-10 wording difference is exactly the vintage boundary this
+      column sits on.
+
+      '
+    vintage_note: 'Confined to RD 1997 in this tree — the CID-9/CID-10 changeover year,
+      sitting between the CID-9 era and the CID-10-coded DIAG_SECUN that follows. Do
+      not concatenate DIAG_SEC and DIAG_SECUN into one series without converting CID-9
+      codes to CID-10 first.
+
+      '
+    notes: 'The catalog surfaces only 6 of the 17 CID-9 chapter codelists the .DEF
+      actually binds to this field (CID9X01–06 of a full CID9X01–17 set).
+
+      '
+  SEMIPLEN:
+    official_name: Gestão (95-97)
+    translated_name: Management type (1995–1997 predecessor of GESTAO)
+    description: 'Predecessor of GESTAO, present only in 1995–1997 files and bound
+      to the same GESTAO codelist (''0'' Estadual is the only value observed in this
+      batch). DATASUS''s own .DEF label for this column is literally "Gestão (95-97)"
+      — the field was renamed GESTAO from 1998 on.
+
+      '
+    code_system: internal
+    codelists:
+    - GESTAO
+    source: def
+    source_ref: '[DEF-RD9297] display_name "Gestão (95-97)" for SEMIPLEN, lookup GESTAO.CNV
+      — the same CNV bound to GESTAO itself.
+
+      '
+    vintage_note: '1995–1997 only. GESTAO is the field carrying this concept for every
+      other year in this tree; a management-type series spanning 1995–1997 has to read
+      SEMIPLEN for those years, not GESTAO.
+
+      '
+    notes: 'The name echoes "gestão semi-plena," the transitional SUS management category
+      used before NOB-96''s fuller "gestão plena" framework — but because the bound
+      codelist is GESTAO''s own 0/1/2 table, treat the values as GESTAO''s three categories
+      rather than assume a distinct semi-plena-specific code space.
+
+      '
+  US_ORTP:
+    translated_name: Orthotics/prosthetics value, in US dollars
+    description: Portion of this admission's bill for órteses e próteses (orthotic
+      and prosthetic devices), expressed in US dollars.
+    code_system: none
+    source: inferred
+    reasoning: Same VAL_*/US_* pairing basis as US_SH; VAL_ORTP is documented as "Valor
+      de órtese e prótese" [GEOCOD-AIH p.5].
+    notes: Same currency caveat as US_SH.
+  US_RN:
+    translated_name: Newborn-nursery value, in US dollars
+    description: 'Portion of this admission''s bill for the newborn (recém-nato) nursery
+      component, expressed in US dollars. Only exists for admissions from December
+      1994 on.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same VAL_*/US_* pairing basis as US_SH; VAL_RN is documented as "Valor
+      de recém-nato (a partir de dezembro de 1994)" [GEOCOD-AIH p.5].
+    vintage_note: Not present before December 1994 — its Real-valued sibling VAL_RN
+      did not exist before then either.
+    notes: Same currency caveat as US_SH.
+  US_SADT:
+    translated_name: SADT-services value, in US dollars
+    description: 'Portion of this admission''s bill for SADT (serviços auxiliares de
+      diagnóstico e terapia — auxiliary diagnostic/therapy services such as labs and
+      imaging), expressed in US dollars.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same VAL_*/US_* pairing basis as US_SH; VAL_SADT is documented as "Valor
+      de SADT (serviços auxiliares de diagnose e terapia)" [GEOCOD-AIH p.5].
+    notes: Same currency caveat as US_SH.
+  US_SANGUE:
+    translated_name: Blood/hemoderivatives value, in US dollars
+    description: 'Portion of this admission''s bill for blood and blood products, expressed
+      in US dollars. In 1992 files this cost is instead folded into US_SADT rather
+      than broken out separately.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Same VAL_*/US_* pairing basis as US_SH; VAL_SANG (the Real-valued sibling)
+      is documented as "Valor gasto com sangue; nos arquivos de 1992, este valor está
+      somado em VAL_SADT" [GEOCOD-AIH p.5].
+
+      '
+    vintage_note: 1992 files fold this value into the SADT component; only from 1993
+      is it broken out.
+    notes: Same currency caveat as US_SH.
+  US_SH:
+    translated_name: Hospital-services value, in US dollars
+    description: 'Portion of this admission''s bill attributed to "serviços hospitalares"
+      (hospital services: bed, nursing, ward costs) expressed in US dollars.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'No .DEF binds a display name to US_SH, but the same RD layout documents
+      US_TOT as "Valor total da AIH (VAL_TOT) em dólares" [GEOCOD-AIH p.5] — the dollar-denominated
+      twin of the Real-valued VAL_TOT — and separately documents VAL_SH as "Valor de
+      serviços hospitalares" [GEOCOD-AIH p.5]. US_SH follows the identical VAL_*/US_*
+      pairing for the SH component; the catalog''s own detector independently classifies
+      this column as money-shaped.
+
+      '
+    notes: 'The catalog''s automatic unit detector labels this column BRL — that is
+      wrong. Brazil ran three currencies across 1992–1997 (cruzeiro, cruzeiro real,
+      then the real from July 1994), and DATASUS carried a dollar-pegged shadow value
+      through that instability so figures would compare across the changeovers; US_SH
+      is that dollar value, not reais. The Real-denominated VAL_SH is not yet curated
+      in this project.
+
+      '
+  US_SP:
+    translated_name: Professional-services value, in US dollars
+    description: 'Portion of this admission''s bill attributed to "serviços profissionais"
+      (professional/physician fees) expressed in US dollars.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same VAL_*/US_* pairing basis as US_SH; VAL_SP is documented as "Valor
+      de serviços profissionais" [GEOCOD-AIH p.5].
+    notes: Same currency caveat as US_SH — this is US dollars, not reais, despite the
+      detector's BRL label.
+  UTI_TOTAL:
+    official_name: Diárias de UTI
+    translated_name: ICU days
+    description: 'Count of ICU (UTI) days billed for this admission — how many days
+      of the stay were spent in an intensive-care bed, not how many separate ICU stays
+      occurred.
+
+      '
+    code_system: none
+    source: def
+    source_ref: '[DEF-AIHMA] display_name "Diárias de UTI" for UTI_TOTAL.'
+    notes: 'Present in RD 1992–1999 in this tree. The large majority of admissions
+      carry 0 (no ICU use), so this is a sparse, right-skewed count, not something
+      to average without acknowledging the mass at zero.
+
+      '

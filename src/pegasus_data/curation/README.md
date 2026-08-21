@@ -28,11 +28,33 @@ description presented as documented is the failure this whole module exists to
 prevent, so the loader refuses an `inferred` entry that does not write out its
 reasoning.
 
-## Files
+## Layout
 
-    curation/variables/<system>_<series>.yml   one per dataset
-    curation/datasets.yml                      what one row IS, per dataset
-    curation/systems.yml                       prefix -> system overrides
+    curation/
+      ontology.yml              WHAT EXISTS: 20 systems, 131 datasets, declared
+      prefix_systems.yml        manual overrides for the learned prefix -> system map
+      datasets/
+        core.yml                what one row IS, for the first datasets documented
+        declared.yml            the same, for the rest of the declared datasets
+        sinan_agravos.yml       one entry per SINAN agravo
+      variables/
+        <system>/<dataset>.yml  what each COLUMN means — one file per dataset
+        <system>/_shared.yml    columns carried by more than one dataset
+        <system>/_unobserved.yml  described, but not seen in any stratum
+
+The `variables/` folder is organised by the ontology, not by whoever wrote it.
+It used to be 128 flat files named after hashes (`sinan_36e08ceb`), waves
+(`cnes_b`) and agent batches (`sinan_w2c_04`), and a SINAN batch file typically
+spanned three unrelated agravos — so there was no file you could open to see one
+form. Now `variables/sinan/botu.yml` is the botulism form, and that matches the
+unit the work is actually done in.
+
+`scripts/reorganize_curation.py` regroups the folder if it drifts again. It
+moves content without changing it: the run compares the complete
+`{(system, column): body}` mapping before and after and refuses to finish if
+they differ. It also settles duplicates — 83 columns were defined in two files
+at once, and since the loader replaces by `(system, field_name)`, one silently
+won with no record of the contest.
 
 ## Fields
 

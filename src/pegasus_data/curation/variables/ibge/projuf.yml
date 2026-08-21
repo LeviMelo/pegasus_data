@@ -1,0 +1,19 @@
+# IBGE.PROJUF — Population projection by state
+# Projeção da População por UF
+#
+# Projected population by state, used where census counts are too old for the
+# period being analysed.
+system: IBGE
+asserted_by: pegasus_data
+
+variables:
+  UFCOD:
+    official_name: Unidade da Federação
+    translated_name: State code
+    description: '2-digit IBGE code for the state (unidade da federação) the record''s
+      geography belongs to, e.g. 11=Rondônia, 35=São Paulo, 53=Distrito Federal.
+
+      '
+    code_system: external
+    source: def
+    source_ref: BR_UF codelist (catalog binding, IBGE state code table)

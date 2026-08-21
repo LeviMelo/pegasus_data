@@ -1,0 +1,148 @@
+# SINAN.CANC —
+#
+# one notification of work-related cancer
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ALCATRAO:
+    official_name: Alcatrão
+    translated_name: Tar
+    description: 'Sim/Não flag for occupational exposure to tar, one item in a chemical
+      carcinogen exposure checklist alongside AMINA, BENZENO, CADMIO and CROMO (work-related
+      cancer investigation).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ALCATRAO names a specific chemical; it shares its rarity tier and 1-character
+      width with several other named-substance flags, matching SINAN''s per-substance
+      occupational-exposure checklist pattern.
+
+      '
+  AMINA:
+    official_name: Amina aromática
+    translated_name: Aromatic amine
+    description: 'Sim/Não flag for occupational exposure to aromatic amines, part of
+      the same chemical-agent checklist as ALCATRAO, BENZENO, CADMIO and CROMO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same clustering and width evidence as ALCATRAO.
+  BENZENO:
+    official_name: Benzeno
+    translated_name: Benzene
+    description: 'Sim/Não flag for occupational exposure to benzene, one item in the
+      same chemical-carcinogen checklist as ALCATRAO, AMINA, CADMIO and CROMO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Named-substance field with 1-character width, matching the other per-chemical
+      occupational-exposure flags at the same rarity tier.
+
+      '
+  CADMIO:
+    official_name: Cádmio
+    translated_name: Cadmium
+    description: 'Sim/Não flag for occupational exposure to cadmium, part of the same
+      chemical-agent checklist as BENZENO, ALCATRAO and AMINA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as BENZENO.
+  CROMO:
+    official_name: Cromo
+    translated_name: Chromium
+    description: 'Sim/Não flag for occupational exposure to chromium, part of the same
+      chemical-carcinogen checklist as BENZENO, CADMIO, ALCATRAO and AMINA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as BENZENO.
+  HIDROCARBO:
+    official_name: Agentes de Exposição - Hidrocarbonetos
+    translated_name: Occupational exposure - hydrocarbons
+    description: 'Whether the patient was ever occupationally exposed to aliphatic
+      or aromatic hydrocarbons (or their halogenated derivatives), one item of a fixed
+      lifetime-carcinogen-exposure checklist on the work-related-cancer form (with
+      BERILIO, SILICA, CROMO, NIQUEL and others).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Cancer_v5.pdf, campo 49 "Houve exposição nos locais de
+      trabalho"
+  HORMONIO:
+    official_name: Agentes de Exposição - Hormônios
+    translated_name: Occupational exposure - hormones
+    description: 'Whether the patient was ever occupationally exposed to hormones as
+      a suspected carcinogen, sibling item to HIDROCARBO on the same work-related-cancer
+      lifetime-exposure checklist.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Cancer_v5.pdf, campo 49 "Houve exposição nos locais de
+      trabalho"
+  IONIZANTES:
+    official_name: Agentes de Exposição - Radiações Ionizantes
+    translated_name: Occupational exposure - ionizing radiation
+    description: 'Whether the patient was ever occupationally exposed to ionizing radiation,
+      sibling item to HIDROCARBO and HORMONIO on the work-related-cancer form''s lifetime
+      carcinogen-exposure checklist.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Cancer_v5.pdf, campo 49 "Houve exposição nos locais de
+      trabalho"
+  NAO_IONIZA:
+    official_name: Exposição a radiação não ionizante
+    translated_name: Non-ionizing radiation exposure
+    description: 'Whether the work-related cancer (CANC) patient had occupational exposure
+      to non-ionizing radiation (e.g. UV, radiofrequency), one of the carcinogen-exposure
+      checkboxes alongside nickel (NIQUEL) and oils (OLEOS).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NAO_IONIZA = não ionizante; CANC form exposure checklist; width 1.
+
+      '
+  NEOPLASICO:
+    official_name: Confirmação de doença neoplásica
+    translated_name: Neoplastic disease confirmed (flag)
+    description: 'Whether the case''s diagnosis has been confirmed as a neoplastic
+      (cancer) disease, the core case-definition flag on the work-related cancer form,
+      distinct from the specific carcinogen-exposure checkboxes.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CANC form; NEOPLASICO = neoplásico; width 1 checkbox.
+  NIQUEL:
+    official_name: Exposição a níquel
+    translated_name: Nickel exposure
+    description: 'Whether the work-related cancer patient had occupational exposure
+      to nickel, a recognized carcinogen and one of the named exposure-agent checkboxes
+      on the CANC form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CANC form; NIQUEL = níquel; width 1 checkbox.
+  OLEOS:
+    official_name: Exposição a óleos
+    translated_name: Mineral/cutting oil exposure
+    description: 'Whether the work-related cancer (CANC) patient had occupational exposure
+      to oils (e.g. mineral or cutting oils), a named carcinogen-exposure checkbox
+      alongside nickel (NIQUEL) and non-ionizing radiation (NAO_IONIZA).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CANC form; OLEOS = óleos; width 1 checkbox.

@@ -1,0 +1,17 @@
+# IBGE.ESCA — Educational attainment
+# Escolaridade
+#
+# Population by years of schooling. ESCB is the second breakdown.
+system: IBGE
+asserted_by: pegasus_data
+
+variables:
+  ESCOLARID:
+    translated_name: Years of schooling completed
+    description: 'Years of schooling completed, banded: 0000=less than 1 year, 0103=1
+      to 3 years, 0407=4 to 7 years, 0899=8 or more years, ALFA=adult literacy program,
+      IGNO=undetermined.
+
+      '
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/escadescr.htm

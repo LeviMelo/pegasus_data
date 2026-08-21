@@ -1,0 +1,413 @@
+# SINAN.LEIV —
+#
+# one notification of visceral leishmaniasis
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AMPOLAS:
+    official_name: Ampolas
+    translated_name: Ampoules
+    description: 'Number of ampoules (vials) of a therapeutic serum administered, most
+      plausibly an antitoxin or antivenom, alongside DTSORO (date of administration).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AMPOLAS is ampoules; a 3-digit numeric field co-occurring with DTSORO
+      fits a serotherapy dosage count.
+
+      '
+  BACO:
+    official_name: Aumento do Baço
+    translated_name: Enlarged spleen
+    description: 'Whether the patient''s spleen was found enlarged on exam, one of
+      the sign/symptom checkboxes on the visceral leishmaniasis (kala-azar) investigation
+      form alongside fever, weakness and pallor.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LV_v5.pdf, campo 33 (Sinais e Sintomas)
+  CASO:
+    official_name: Tipo de caso
+    translated_name: Case type
+    description: 'Classifies the visceral leishmaniasis case as new or a relapse (recidiva)
+      - relapse after treatment is a recognized issue for this disease, distinct from
+      CLASSI_FIN (confirmed/discarded) and EVOLUCAO (outcome).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CASO sits alongside CLASSI_FIN/CRITERIO/EVOLUCAO in the LEIV series;
+      relapse tracking is a known feature of VL surveillance.
+  CON_INF_BA:
+    official_name: Bairro provável de infecção
+    translated_name: Probable-infection neighborhood
+    description: 'Reference to the neighborhood (bairro) associated with the probable
+      infection location for visceral leishmaniasis, part of the local location-tracing
+      fields alongside CO_UF_3 and DS_MUN_2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_ = condição/local, INF = infecção, BA = bairro; sits with the LEIV
+      series'' other location fields tracking where infection likely occurred.
+
+      '
+  CON_INF_DI:
+    official_name: Distrito provável de infecção
+    translated_name: District of probable infection
+    description: 'District-level component of the address investigators identified
+      as the likely infection site, sibling to CON_INF_BA (neighborhood) and CON_INF_MU
+      (municipality) in the same address breakdown.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CON_INF_ = (local provável de) infecção; DI = distrito; LEIV carries
+      the matching _BA/_MU/_UF/_PA siblings.
+  CO_PAIS_1:
+    official_name: País de infecção 1
+    translated_name: Country of infection 1
+    description: 'A country where infection may have been acquired. Three slots exist
+      because the incubation runs to months and travel history matters over that whole
+      window.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: PAISNET.CNV
+    reasoning: N(3) country code bound to PAISNET; the first of three slots.
+  CO_PAIS_2:
+    official_name: País de infecção 2
+    translated_name: Country of infection 2
+    description: A second possible country of infection. See CO_PAIS_1.
+    code_system: internal
+    source: def
+    source_ref: PAISNET.CNV
+    reasoning: N(3) country code bound to PAISNET; the second slot.
+  CO_PAIS_3:
+    official_name: País de infecção 3
+    translated_name: Country of infection 3
+    description: A third possible country of infection. See CO_PAIS_1.
+    code_system: internal
+    source: def
+    source_ref: PAISNET.CNV
+    reasoning: N(3) country code bound to PAISNET; the third slot.
+  CO_UF_1:
+    official_name: Código da UF (1)
+    translated_name: State code (1)
+    description: 'Two-character state (UF) code, first of what is likely a repeated
+      slot for a place relevant to visceral leishmaniasis exposure or travel history,
+      paired with the free-text DS_TRANS_1 in the same section.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is LEIV (leishmaniose visceral); CO_UF reads "código UF"; C2
+      width matches the standard 2-letter/2-digit Brazilian state code, and the "_1"
+      suffix mirrors DS_TRANS_1''s numbered-slot pattern.
+
+      '
+  CO_UF_2:
+    official_name: UF de deslocamento 2
+    translated_name: State (UF) code, travel-history entry 2
+    description: 'IBGE/UF code of the second location in a numbered travel or residence-history
+      series, gathered to trace where visceral leishmaniasis transmission likely occurred.
+      Pairs with DS_MUN_1 and DS_TRANS_2 (other entries in the same series).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C2, matches a UF code; CO_=código, trailing 2 marks it as the second
+      slot of a repeating location block.
+  CO_UF_3:
+    official_name: Código UF (local 3)
+    translated_name: State code (location field 3)
+    description: 'Two-letter Brazilian state code for a third location field on the
+      visceral leishmaniasis form - e.g. a probable-infection state distinct from the
+      residence state - paired with DS_MUN_2''s municipality name.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CO_ = código, UF = unidade federativa, "3" marks it as a third location
+      slot in a numbered series; C2 width matches a state abbreviation.
+
+      '
+  DIAG_PARA:
+    official_name: Diagnóstico parasitológico
+    translated_name: Parasitological diagnosis result
+    description: 'Result of the parasitological/direct exam for Leishmania (e.g. bone
+      marrow aspirate microscopy) - a companion numeric/detail field DIAG_PAR_N extends
+      this result.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DIAG_PARA = diagnóstico parasitológico; LEIV's direct-exam confirmation
+      method.
+  DIAG_PAR_N:
+    official_name: Resultado do exame parasitológico
+    translated_name: Parasitological exam result
+    description: 'Result of the direct parasitological exam (e.g. bone-marrow or splenic
+      aspirate microscopy) used to confirm visceral leishmaniasis: coded 1=Positivo,
+      2=Negativo, 3=Não realizado.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'LEIV form; catalog dictionary gives explicit values 1=Positivo, 2=Negativo,
+      3=Não realizado, confirming this as a coded lab-result field rather than free
+      text.
+
+      '
+  DOSE:
+    official_name: Dose do medicamento
+    translated_name: Drug dose
+    description: 'The dose given. Visceral leishmaniasis treatment is weight-based
+      and runs for weeks, and the antimonials are toxic enough that dose matters.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(1) dose field in the treatment block.
+  DS_MUN_1:
+    official_name: Município de deslocamento 1
+    translated_name: Municipality name, travel-history entry 1
+    description: 'Name of the first municipality in the patient''s travel/residence
+      history, used to reconstruct likely exposure locations before visceral leishmaniasis
+      onset. First slot of the same repeating block as CO_UF_2 and DT_DESLC3.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C60, wide enough for a place name rather than a code; DS_=descrição,
+      MUN=município, trailing 1 for the first slot.
+  DS_MUN_2:
+    official_name: Descrição do município (local 2)
+    translated_name: Municipality name (location field 2)
+    description: 'Free-text municipality name for a second location field on the visceral
+      leishmaniasis form (e.g. probable infection site), distinct from the coded residence
+      municipality, paired with CO_UF_3''s state code.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DS_ = descrição, MUN = município, "2" marks the second location slot;
+      C60 width fits a free-text place name rather than an IBGE code.
+
+      '
+  DS_MUN_3:
+    official_name: Município de deslocamento (3º)
+    translated_name: Municipality of travel/displacement (3rd)
+    description: 'Free-text name of the third municipality visited in the patient''s
+      travel history, used to trace possible visceral leishmaniasis exposure; paired
+      with DT_DESLC3 (that trip''s date) and DS_MUN_1/2 for earlier stops.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DS_MUN = descrição do município; "_3" is third of a numbered travel-history
+      series (DS_MUN_1-3, DT_DESLC1-3).
+  DS_TRANS_1:
+    official_name: Descrição do local de transmissão (1)
+    translated_name: Transmission location description (1)
+    description: 'Free-text description of a place considered a likely site of visceral
+      leishmaniasis transmission, first of a numbered set of location slots paired
+      with CO_UF_1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LEIV form; DS_TRANS reads "descrição - transmissão"; C30 free-text
+      width fits a place description; the "_1" suffix pairs with CO_UF_1 as a repeated
+      location-instance pattern.
+
+      '
+  DS_TRANS_2:
+    official_name: Descrição do local de transmissão 2
+    translated_name: Probable-transmission-site note, entry 2
+    description: 'Free-text note on why the second travel-history location is considered
+      a probable transmission site — the descriptive counterpart to CO_UF_2 in the
+      same numbered series.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text; DS_=descrição, TRANS read as transmissão, trailing 2 matching
+      the CO_UF_2 slot.
+  DT_DESLC1:
+    official_name: Data de deslocamento (1º)
+    translated_name: Date of travel/displacement (1st)
+    description: 'Date of the first of up to three recorded travel/movement events
+      in the patient''s history, used alongside DS_MUN_1 (destination) to trace possible
+      exposure locations for visceral leishmaniasis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DT_DESLC = data de deslocamento; first of the numbered DT_DESLC1-3 series.
+  DT_DESLC2:
+    official_name: Data do 2º deslocamento
+    translated_name: Date of second travel/movement
+    description: 'Date of a second recorded trip or change of location for the visceral
+      leishmaniasis patient, used to help trace where infection was likely acquired
+      when travel history includes more than one relevant move.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LEIV form; DT_DESLC reads "data - deslocamento"; D8 width fits a date,
+      and the "2" suffix indicates the second of a numbered travel-date series.
+
+      '
+  DT_DESLC3:
+    official_name: Data do deslocamento 3
+    translated_name: Travel date, entry 3
+    description: 'Date associated with the third location in the travel/residence history
+      series — completes the repeating block with CO_UF_2 and DS_MUN_1, each covering
+      a different slot or field of the same history.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D8 date; DT_=data, DESLC=deslocamento, trailing 3 for the third slot.
+  EMAGRA:
+    official_name: Sinais e Sintomas - Emagrecimento
+    translated_name: Weight loss
+    description: 'Whether the visceral leishmaniasis patient showed weight loss at
+      diagnosis, one of the disease''s defining wasting signs alongside fever and weakness.
+      1=Sim, 2=Não, 9=Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LV_v5.pdf, campo 33 (Sinais e Sintomas - Emagrecimento)
+  ENDEMICO:
+    official_name: Área endêmica
+    translated_name: Case located in a recognized endemic area (flag)
+    description: 'Whether the case''s residence or investigation area is classified
+      as an established (autochthonous) visceral leishmaniasis transmission zone, as
+      opposed to an imported or newly-affected area.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C11; ENDEMICO=endêmico, a classification field on the LEIV epidemiological-investigation
+      section.
+  ENTRADA:
+    official_name: Tipo de entrada do caso
+    translated_name: Case-entry type
+    description: 'Coded classification of how the visceral leishmaniasis case entered
+      surveillance — e.g. new case, relapse or transfer from another notifying unit.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and LEIV series membership.
+      "Entrada" (entry/admission type) is a category SINAN forms for chronic or relapsing
+      conditions typically carry to distinguish a genuinely new case from a returning
+      one; the single-character width fits a small coded list rather than free text.
+
+      '
+  FALENCIA:
+    official_name: Outra droga utilizada, na falência do tratamento inicial
+    translated_name: Drug used after initial treatment failure
+    description: 'Second-line drug given when the visceral leishmaniasis patient''s
+      first-line antimonial treatment failed. 1=Anfotericina B, 2=Anfotericina B lipossomal,
+      3=Outras, 4=Não se aplica (no failure occurred).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LV_v5.pdf, campo 43
+  FEN_HEMORR:
+    official_name: Fenômeno Hemorrágico
+    translated_name: Hemorrhagic phenomenon
+    description: 'Whether the visceral leishmaniasis patient showed a hemorrhagic manifestation
+      (e.g. bleeding gums, epistaxis), a marker of severe/complicated disease.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and LEIV series membership.
+      "FEN_HEMORR" decomposes directly to "fenômeno hemorrágico", and hemorrhagic complications
+      are a recognized severity marker in visceral leishmaniasis.
+
+      '
+  FIGADO:
+    official_name: Sinais e Sintomas - Aumento do Fígado
+    translated_name: Enlarged liver
+    description: 'Whether the visceral leishmaniasis patient showed liver enlargement
+      (hepatomegaly) at diagnosis, one of the disease''s classic organomegaly signs
+      alongside splenomegaly. 1=Sim, 2=Não, 9=Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LV_v5.pdf, campo 33 (Sinais e Sintomas - Aumento do Fígado)
+  FRAQUEZA:
+    official_name: Sinais e Sintomas - Fraqueza
+    translated_name: Weakness
+    description: 'Whether the visceral leishmaniasis patient reported weakness (asthenia)
+      at diagnosis, recorded alongside fever and weight loss as one of the disease''s
+      core presenting symptoms. 1=Sim, 2=Não, 9=Ignorado.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LV_v5.pdf, campo 33 (Sinais e Sintomas - Fraqueza)
+  IFI:
+    official_name: Diagnóstico Imunológico - IFI
+    translated_name: Indirect immunofluorescence test result
+    description: 'Result of the indirect immunofluorescence reaction against Leishmania
+      run on a visceral leishmaniasis suspect; a positive result auto-fills the case
+      as lab-confirmed, separately from the direct parasitological test.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_LV_v5.pdf (Leishmaniose Visceral), campo 36.
+  INFECCIOSO:
+    official_name: Quadro infeccioso associado
+    translated_name: Associated infectious condition (flag)
+    description: 'Whether the visceral leishmaniasis patient had a concurrent infectious
+      condition complicating the clinical picture (e.g. a secondary bacterial infection),
+      recorded as a single coded flag.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and LEIV series membership.
+      Secondary bacterial infection is a well-known complication driving mortality
+      in visceral leishmaniasis, making a general infectious-complication flag a plausible
+      fit for the name and width, though no document confirms the exact wording.
+
+      '
+  OUTROS_ESP:
+    official_name: Outros - especificar
+    translated_name: Other, specify (free text)
+    description: 'Free-text detail for an "other" option not covered by this form''s
+      fixed checklists (e.g. an uncommon reservoir animal or exposure type) — a general
+      specify field distinct from the travel-history fields above.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text; OUTROS_=outros, ESP=especificar.
+  PALIDEZ:
+    official_name: Palidez
+    translated_name: Pallor (flag)
+    description: 'Whether the visceral leishmaniasis patient showed pallor, the clinical
+      sign of the anemia caused by bone-marrow suppression that is characteristic of
+      this disease: 1=Sim, 2=Não.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Catalog dictionary gives values 1=Sim, 2=Não; pallor from anemia is
+      a textbook visceral leishmaniasis (kala-azar) clinical finding.
+
+      '

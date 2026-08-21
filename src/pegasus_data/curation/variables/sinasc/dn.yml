@@ -1,0 +1,202 @@
+# SINASC.DN — Live birth declaration
+# Declaração de Nascido Vivo
+#
+# One live birth.
+system: SINASC
+asserted_by: pegasus_data
+
+variables:
+  CODBAINASC:
+    official_name: Código do bairro de nascimento
+    translated_name: Neighbourhood-of-birth code
+    description: 'Code of the neighbourhood (bairro) within the municipality of occurrence
+      where the birth took place. Bairro codes are assigned locally by the municipality
+      or state, not by a national register, so the same code means different neighbourhoods
+      in different municipalities and is meaningless without CODMUNNASC.
+
+      '
+    code_system: none
+    depends_on:
+    - CODMUNNASC
+    source: layout_doc
+    source_ref: '[ESTRUTURA-ANT] "CODBAINASC C(08) Código Bairro nascimento" (and C(03)
+      in the pre-2005 structure); [DIC-DN] "CODBAINASC caracter 8 Código do bairro
+      de nascimento".
+
+      '
+    vintage_note: 'Present only in the 2002–2009 files in this tree (440 files).
+
+      '
+  CODBAIRES:
+    official_name: Código do bairro de residência
+    translated_name: Neighbourhood-of-residence code
+    description: 'Code of the neighbourhood (bairro) within the mother''s municipality
+      of residence. Locally assigned, so it only has meaning paired with CODMUNRES.
+
+      '
+    code_system: none
+    depends_on:
+    - CODMUNRES
+    source: layout_doc
+    source_ref: '[ESTRUTURA-ANT] "CODBAIRES C(08) Código bairro residência" (C(03)
+      in the pre-2005 structure); [DIC-DN] "CODBAIRES caracter 8 Código do bairro de
+      residência".
+
+      '
+    vintage_note: 'Present only in the 2002–2009 files in this tree (440 files).
+
+      '
+    notes: 'The observed values are not even internally consistent in width — both
+      8-character zero-padded forms ("00000001") and bare 3-character forms ("001",
+      "999") occur in the same column, so any comparison has to normalise before matching,
+      and "999" appears often enough to look like a filler.
+
+      '
+  CODCART:
+    official_name: Código do cartório
+    translated_name: Registry office code
+    description: 'Identifier of the civil registry office (cartório de registro civil)
+      where this birth was registered. Observed values are 3–5 digit numbers. It identifies
+      an office, not a person or a place — the office''s municipality is CODMUNCART.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[EVOL-1996-2019] row 29 "CODCART C 7 — Código do Cartório — 2010";
+      [DIC-DN] "CODCART caracter 8 Código do cartório". https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+
+      '
+    vintage_note: 'Only in the 2010–2013 files in this tree. No label table for cartório
+      codes ships with SINASC, so the code is all you get.
+
+      '
+  CODMUNCART:
+    official_name: Código do município do cartório
+    translated_name: Municipality of the registry office
+    description: 'IBGE code of the municipality of the civil registry office where
+      the birth was registered. Observed values are 6-digit IBGE codes (e.g. 330455,
+      355030). Registration municipality is an administrative fact about the paperwork
+      and is a third geography alongside residence (CODMUNRES) and occurrence (CODMUNNASC).
+
+      '
+    code_system: external
+    source: web
+    source_ref: '[EVOL-1996-2019] row 60 "CODMUNCART C 10 — Código do município do
+      Cartório — 2013"; [DIC-DN] "CODMUNCART caracter 7 Código do município do cartório".
+      https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+
+      '
+    vintage_note: 'Only in the 2013 files in this tree (55 files).
+
+      '
+    notes: 'Same 6-digit truncated IBGE coding as CODMUNNASC/CODMUNRES. No codelist
+      is bound to it in the catalog even though it holds the same municipality codes
+      those columns do.
+
+      '
+  DTRECORIG:
+    official_name: Data do primeiro recebimento do lote
+    translated_name: Date the batch was first received
+    description: 'Date the batch containing this record was first received at the central
+      level via Sisnet, ddmmaaaa. It measures how long the record took to travel from
+      the notifying unit up the chain, not anything about the birth.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[EVOL-1996-2019] row 36: "DTRECORIG C 9 — Data do primeiro recebimento
+      do lote, dada pelo Sisnet — 2010"; see also [DIC-DN] "DTRECORIG ... Data do 1º
+      recebimento do lote, dada pelo Sisnet." https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+
+      '
+    vintage_note: 'From 2014 DATASUS creates DTRECORIGA, which copies DTRECORIG and
+      falls back to DTRECEBIM and then DTCADASTRO when null ([ESTRUTURA-2019]). Use
+      DTRECORIGA for a complete series; DTRECORIG alone is sparse in later years.
+
+      '
+    notes: 'The catalog binds this to MESES (a TabNet month-extraction axis). That
+      is a tabulation axis derived from a date, not a codelist.
+
+      '
+  DTREGCART:
+    official_name: Data do registro no cartório
+    translated_name: Date of civil registration
+    description: 'Date, ddmmaaaa, on which the birth was registered at the civil registry
+      office. It lags DTNASC by days to months and is the date that matters for civil-registry
+      statistics, not for natality — counting births by this date measures registration
+      behaviour.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[EVOL-1996-2019] row 31 "DTREGCART C 9 — Data do registro no cartório
+      — 2010"; [DIC-DN] "DTREGCART caracter 8 Data do registro no cartório". https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+
+      '
+    vintage_note: 'Only in the 2010–2013 files in this tree.
+
+      '
+  NUMREGCART:
+    official_name: Número do registro civil (cartório)
+    translated_name: Civil registration number
+    description: 'The number under which this birth was entered in the civil registry
+      book at the cartório. This is a real-world identifier of a named individual''s
+      birth record: with CODCART, CODMUNCART and DTREGCART it points at the actual
+      civil registry entry, from which the person''s name is obtainable. It passes
+      through the public microdata unmodified.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[EVOL-1996-2019] row 30 "NUMREGCART C 10 — Numero do Registro do Cartório
+      — 2010"; [DIC-DN] "NUMREGCART caracter 10 Número do registro civil (cartório)".
+      https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+
+      '
+    notes: 'Observed values include small integers restarting from 1, so the number
+      is only unique within a cartório (and probably within a book and year) — it is
+      not a national key, and grouping by it alone will merge unrelated births.
+
+      '
+  RACACORN:
+    official_name: Raça/cor do nascido
+    translated_name: Newborn race/colour
+    description: 'Race/colour recorded for the newborn (1 Branca, 2 Preta, 3 Amarela,
+      4 Parda, 5 Indígena) in the 2012–2013 files, under the field name DATASUS used
+      after the DNV form stopped carrying the newborn''s race/colour in 2011.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[EVOL-1996-2019] row 58: "RACACORN C 8 — Tipo de raça e cor do nascido:
+      1– Branca; 2– Preta; 3– Amarela; 4– Parda; 5– Indígena — 2012" https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+
+      '
+    vintage_note: 'Present only in DN 2012–2013. The same content lives in RACACOR
+      before 2011, in RACACOR_RN in 2011, and from 2011 onward the mother''s race/colour
+      is in RACACORMAE. Anyone building a newborn race/colour series has to coalesce
+      RACACOR, RACACOR_RN and RACACORN, and the break is not a data-quality artefact
+      — the form changed.
+
+      '
+    notes: 'No codelist is bound to this name in the catalog even though the codes
+      are the same 1–5 set as RACACOR; the binder attached RACA.CNV to RACACOR only.
+
+      '
+  RACACOR_RN:
+    official_name: Raça/cor do nascido
+    translated_name: Newborn race/colour
+    description: 'Race/colour recorded for the newborn (1 Branca, 2 Preta, 3 Amarela,
+      4 Parda, 5 Indígena) in the 2011 files only — the one-year field name used when
+      the redesigned DNV moved race/colour into the mother''s block.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: '[EVOL-1996-2019] row 57: "RACACOR_RN C 10 — Tipo de raça e cor do
+      nascido: 1– Branca; 2– Preta; 3– Amarela; 4– Parda; 5– Indígena — 2011" https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+
+      '
+    vintage_note: 'DN 2011 only. Renamed RACACORN from 2012. The "_RN" suffix is recém-nascido.
+
+      '

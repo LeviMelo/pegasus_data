@@ -1,0 +1,811 @@
+# SINAN.MENI —
+#
+# one notification of meningitis
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANT_AC:
+    official_name: Vacina contra meningococo A e C
+    translated_name: Meningococcal A and C vaccine
+    description: 'Whether the patient received meningococcal A and C vaccine. The ANT_
+      vaccine flags each pair with a date, and together they say which meningitis the
+      patient could still get.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; AC names the meningococcal A/C vaccine.
+  ANT_AIDS:
+    official_name: Aids
+    translated_name: AIDS
+    description: 'Whether the patient has AIDS. The comorbidity block records what
+      makes an unusual organism plausible; in AIDS that means cryptococcal and tuberculous
+      meningitis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag opening the comorbidity block.
+  ANT_BC:
+    official_name: Vacina contra meningococo B e C
+    translated_name: Meningococcal B and C vaccine
+    description: 'Whether the patient received the B and C vaccine, a different serogroup
+      combination from ANT_AC.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; BC names the meningococcal B/C vaccine.
+  ANT_BCG:
+    official_name: Vacina BCG
+    translated_name: BCG vaccine
+    description: 'Whether BCG was given. Relevant because BCG protects specifically
+      against tuberculous meningitis in young children.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; BCG names the vaccine.
+  ANT_CONJ_C:
+    official_name: Vacina meningocócica conjugada C
+    translated_name: Conjugate meningococcal C vaccine
+    description: 'Whether the conjugate C vaccine was given. Conjugate vaccines protect
+      infants, whom the older polysaccharide vaccines do not, so this flag distinguishes
+      real infant protection.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CONJ_C names the conjugate C vaccine.
+  ANT_CONT_N:
+    official_name: Local do contato
+    translated_name: Place of contact
+    description: 'Where contact with a case occurred. Meningococcal disease clusters
+      in households and nurseries, and this directs chemoprophylaxis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LOCALCONMEN.CNV
+    reasoning: 'Bound to LOCALCONMEN, whose values run from domicílio through sem história
+      de contato.
+
+      '
+  ANT_DOSES_:
+    official_name: Doses de vacina B e C
+    translated_name: Meningococcal B and C doses
+    description: How many doses of the B and C vaccine were given.
+    code_system: none
+    source: inferred
+    reasoning: N(2) dose count paired with ANT_BC.
+  ANT_DOSE_3:
+    official_name: Doses de vacina A e C
+    translated_name: Meningococcal A and C doses
+    description: How many doses of the A and C vaccine were given.
+    code_system: none
+    source: inferred
+    reasoning: C(2) dose count paired with ANT_AC.
+  ANT_DOSE_4:
+    official_name: Antecedente - dose 4 (dia)
+    translated_name: Prior regimen - dose 4 (day)
+    description: 'Day-count on which the 4th dose of a prior antirábica prophylaxis
+      regimen was given (rabies schedules are dosed by day-since-bite: 0, 3, 7, 14,
+      28). Sibling of ANT_DOSE_5/7/C/T for other doses in the same regimen.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared as 2-digit numeric (N2), which fits a day number but not a
+      full date; it belongs to the ANTEC_PRE/POS prior-vaccination block.
+
+      '
+  ANT_DOSE_5:
+    official_name: Antecedente - dose 5 (dia)
+    translated_name: Prior regimen - dose 5 (day)
+    description: 'Day-count for the 5th dose of the same prior antirábica regimen;
+      see ANT_DOSE_4.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as ANT_DOSE_4; distinguished only by dose number.
+  ANT_DOSE_7:
+    official_name: Antecedente - dose 7 (dia)
+    translated_name: Prior regimen - dose 7 (day)
+    description: 'Day-count for the 7th dose of the same prior antirábica regimen;
+      see ANT_DOSE_4.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as ANT_DOSE_4; distinguished only by dose number.
+  ANT_DOSE_C:
+    official_name: Antecedente - dose complementar
+    translated_name: Prior regimen - booster dose
+    description: 'Flag/day-count for a complementary or booster ("reforço") dose in
+      the same prior antirábica regimen as ANT_DOSE_4/5/7, rather than a numbered dose
+      in the primary series.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'The C suffix breaks the numeric 4/5/7 pattern, consistent with "complementar"
+      marking a booster rather than an ordinal dose.
+
+      '
+  ANT_DOSE_T:
+    official_name: Antecedente - total de doses
+    translated_name: Prior regimen - total doses
+    description: 'Total count of doses the patient received in the prior antirábica
+      regimen summarized by ANT_DOSE_4/5/7/C.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: T suffix (total) fits a summary count closing out the same dose series.
+  ANT_DTULT_:
+    official_name: Data da última dose B e C
+    translated_name: Date of last B and C dose
+    description: Date of the last meningococcal B and C dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_BC.
+  ANT_DTUL_3:
+    official_name: Data da última dose A e C
+    translated_name: Date of last A and C dose
+    description: Date of the last meningococcal A and C dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_AC.
+  ANT_DTUL_4:
+    official_name: Data da vacina BCG
+    translated_name: Date of BCG
+    description: Date the BCG was given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_BCG.
+  ANT_DTUL_5:
+    official_name: Data da vacina tríplice
+    translated_name: Date of triple vaccine
+    description: Date the triple vaccine was given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_TRIPLI.
+  ANT_DTUL_7:
+    official_name: Data da outra vacina
+    translated_name: Date of other vaccine
+    description: Date the other vaccine was given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_OUTRA.
+  ANT_DTUL_8:
+    official_name: Antecedente - data da última dose
+    translated_name: Prior regimen - date of last dose
+    description: 'Date of the last dose in the prior antirábica prophylaxis regimen
+      described by ANT_DOSE_4/5/7/C/T. AAAAMMDD.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DTUL reads data última (last date); D8 width matches a full date, and
+      it closes the same antecedent-vaccination block as the ANT_DOSE_* series.
+
+      '
+  ANT_DTUL_C:
+    official_name: Data da última dose conjugada C
+    translated_name: Date of last conjugate C dose
+    description: Date of the last conjugate meningococcal C dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_CONJ_C.
+  ANT_DTUL_T:
+    official_name: Data da última dose de Hib
+    translated_name: Date of last Hib dose
+    description: Date of the last Hib dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_HEMO_T.
+  ANT_HEMO_T:
+    official_name: Vacina contra Haemophilus influenzae b
+    translated_name: Hib vaccine
+    description: 'Whether Hib vaccine was given. Its introduction removed Haemophilus
+      as a major cause of childhood meningitis, so this flag largely determines whether
+      that agent is plausible.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; HEMO names Haemophilus influenzae b.
+  ANT_IMUNO:
+    official_name: Imunodepressão
+    translated_name: Immunosuppression
+    description: 'Immunosuppression from any other cause, widening the range of plausible
+      organisms in the same way.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; IMUNO reads imunodepressão.
+  ANT_INF_HO:
+    official_name: Infecção hospitalar
+    translated_name: Hospital-acquired infection
+    description: 'Whether the meningitis was hospital-acquired, typically after neurosurgery.
+      The organisms differ from community cases and so does the antibiotic choice.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; INF_HO reads infecção hospitalar.
+  ANT_IRA:
+    official_name: Infecção respiratória aguda
+    translated_name: Acute respiratory infection
+    description: 'A preceding acute respiratory infection — the usual route by which
+      meningococcus and pneumococcus reach the meninges.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; IRA is infecção respiratória aguda.
+  ANT_OUTRA:
+    official_name: Outra vacina
+    translated_name: Other vaccine
+    description: Whether another relevant vaccine was given.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the vaccination block.
+  ANT_OUTRO:
+    official_name: Outra condição
+    translated_name: Other condition
+    description: Any other relevant condition the named flags do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the comorbidity block.
+  ANT_OUTR_D:
+    official_name: Antecedente outro - descrição
+    translated_name: Other antecedent - description
+    description: 'A third parallel "other, specify" text field in the ANT_OUTROS antecedents
+      block, likely for yet another antecedent sub-category. See ANT_OUTROS.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as ANT_OUTROS.
+  ANT_OU_DE:
+    official_name: Especificação de outra vacina
+    translated_name: Other vaccine, specified
+    description: 'Free text naming the other vaccine. Thirty characters of uncontrolled
+      vocabulary, so it must be read rather than grouped.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(30) free text following ANT_OUTRA.
+  ANT_SECUND:
+    official_name: Caso secundário
+    translated_name: Secondary case
+    description: 'Whether this is a secondary case — someone who caught it from a known
+      case. Secondary cases mean prophylaxis failed or was not given, so each is investigated.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; SECUND reads secundário.
+  ANT_TRAUMA:
+    official_name: Traumatismo craniano
+    translated_name: Head injury
+    description: 'Previous head injury. A skull fracture can leave a direct route from
+      the nose to the meninges and cause recurrent bacterial meningitis.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; TRAUMA reads traumatismo.
+  ANT_TRIPLI:
+    official_name: Vacina tríplice
+    translated_name: Triple vaccine
+    description: Whether the triple vaccine was given.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; TRIPLI reads tríplice.
+  ANT_TUBE:
+    official_name: Tuberculose
+    translated_name: Tuberculosis
+    description: 'Whether the patient has tuberculosis. Tuberculous meningitis is slower
+      and needs quite different treatment, so this flag redirects the whole management.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; TUBE reads tuberculose.
+  ATE_UF_HOS:
+    official_name: Atendimento - UF do hospital
+    translated_name: Encounter - hospital state
+    description: 'UF (state) code of the hospital where the patient was first attended.
+      Distinct from ATE_UF_INT, the state of inpatient admission, which may differ
+      when a patient is transferred.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'HOS abbreviates hospital and INT internação; both are 2-character UF
+      fields under the same ATE_ (atendimento) prefix.
+
+      '
+  CLA_ME_ASS:
+    official_name: Classificação meningite - associada
+    translated_name: Meningitis classification - associated condition
+    description: 'Short code for a condition or classification associated with the
+      meningitis case (e.g. a concurrent diagnosis). Sibling of CLA_ME_BAC (bacterial
+      subtype) and CLA_ME_ETI (etiological classification) in the same Meningite classification
+      block.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CLA_ME_ is classificação meningite; ASS/BAC/ETI are three parallel
+      4-character coded sub-classifications of the same case.
+
+      '
+  CLA_ME_BAC:
+    official_name: Classificação meningite - bacteriana
+    translated_name: Meningitis classification - bacterial subtype
+    description: 'Short code identifying the specific bacterial agent/subtype when
+      the case is classified as bacterial meningitis; see CLA_ME_ASS for the sibling
+      associated-condition code.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as CLA_ME_ASS; BAC specifically abbreviates bacteriana.
+  CLA_ME_ETI:
+    official_name: Classificação meningite - etiológica
+    translated_name: Meningitis classification - etiologic
+    description: 'Short code for the etiologic classification of the meningitis case
+      (e.g. bacterial, viral, other), sibling of CLA_ME_ASS (associated condition)
+      and CLA_ME_BAC (bacterial subtype) in the same Meningite classification block.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ETI abbreviates etiológica; same CLA_ME_ prefix and 4-character width
+      as its two siblings.
+
+      '
+  CLA_SOROGR:
+    official_name: Classificação - sorogrupo
+    translated_name: Classification - serogroup
+    description: 'Numeric code for the meningococcal serogroup (e.g. A, B, C, W, Y)
+      identified in laboratory testing, part of the Meningite/Doença Meningocócica
+      classification block.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SOROGR abbreviates sorogrupo; a 4-digit numeric field alongside the
+      CLA_ME_* meningitis classification codes fits a coded serogroup result.
+
+      '
+  CLI_ABAULA:
+    official_name: Clínico - abaulamento de fontanela
+    translated_name: Clinical - bulging fontanelle
+    description: 'Sim/Não flag for abaulamento de fontanela (bulging fontanelle), a
+      classic infant meningitis sign, part of the CLI_ clinical-symptom checklist alongside
+      CLI_COMA, CLI_CONVUL and CLI_RIGIDE.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ABAULA abbreviates abaulamento; 1-character width matches a binary
+      symptom flag, and it clusters with other meningitis-specific signs.
+
+      '
+  CLI_COMA:
+    official_name: Clínico - coma
+    translated_name: Clinical - coma
+    description: 'Sim/Não flag for coma, part of the same meningitis clinical-symptom
+      checklist as CLI_ABAULA, CLI_CONVUL and CLI_RIGIDE.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as CLI_ABAULA.
+  CLI_CONVUL:
+    official_name: Clínico - convulsão
+    translated_name: Clinical - seizure
+    description: 'Sim/Não flag for convulsions/seizures, part of the same clinical-symptom
+      checklist as CLI_COMA; CLI_CON_ES holds a free-text elaboration of a related
+      clinical condition.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as CLI_ABAULA.
+  CLI_RIGIDE:
+    official_name: Clínico - rigidez de nuca
+    translated_name: Clinical - neck stiffness
+    description: 'Sim/Não flag for rigidez de nuca (neck stiffness), a classic meningitis
+      sign, part of the same checklist as CLI_ABAULA and CLI_COMA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: RIGIDE abbreviates rigidez; matches the meningitis symptom cluster.
+  CON_DIAGES:
+    official_name: Condição - diagnóstico gestacional
+    translated_name: Condition - pregnancy-related diagnosis
+    description: 'Short code classifying a pregnancy-related diagnosis or condition
+      associated with the case, echoing the DS_INI_GES/DS_FIM_GES (gestation start/end)
+      fields seen elsewhere in SINAN''s obstetric block.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DIAGES plausibly contracts diagnóstico + gestacional; 2-character width
+      fits a short coded category rather than free text.
+
+      '
+  LAB_AGLIQU:
+    official_name: LATEX líquor
+    translated_name: Latex agglutination test - CSF
+    description: 'Etiologic-agent code from the latex particle agglutination test on
+      CSF, part of the meningitis form''s four-test-by-four-specimen laboratory grid;
+      sibling to LAB_AGSANG (same test on blood/serum).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "LATEX líquor"
+  LAB_AGSANG:
+    official_name: LATEX Sangue/soro
+    translated_name: Latex agglutination test - blood/serum
+    description: 'Same latex-agglutination test as LAB_AGLIQU, run on blood/serum instead
+      of CSF.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "LATEX Sangue/soro"
+  LAB_ASPECT:
+    official_name: Aspecto do líquor
+    translated_name: CSF appearance
+    description: 'How the CSF looked — clear, purulent, haemorrhagic, cloudy, xanthochromic
+      or other. Purulent means bacterial and directs immediate treatment; clear keeps
+      viral and tuberculous causes open. Available at the bedside, hours before any
+      culture.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LIQUOR.CNV
+    reasoning: 'Bound to LIQUOR, whose values are límpido, purulento, hemorrágico,
+      turvo and xantocrômico.
+
+      '
+  LAB_BCESCA:
+    official_name: Bacterioscopia escarro
+    translated_name: Gram stain (bacterioscopy) - sputum
+    description: 'Etiologic-agent code from Gram-stain microscopy of sputum, one specimen
+      in the meningitis form''s bacterioscopy row alongside LAB_BCLESA (skin lesion),
+      LAB_BCLIQU (CSF) and LAB_BCSANG (blood).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Bacterioscopia escarro"
+  LAB_BCLESA:
+    official_name: Bacterioscopia lesão petequial
+    translated_name: Gram stain (bacterioscopy) - petechial lesion
+    description: 'Same Gram-stain test as LAB_BCESCA, run on material from a petechial
+      skin lesion rather than sputum.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Bacterioscopia lesão petequial"
+  LAB_BCLIQU:
+    official_name: Bacterioscopia líquor
+    translated_name: Gram stain (bacterioscopy) - CSF
+    description: 'Same Gram-stain test as LAB_BCESCA, run on cerebrospinal fluid —
+      the specimen most central to a meningitis diagnosis.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Bacterioscopia líquor"
+  LAB_BCSANG:
+    official_name: Bacterioscopia Sangue/soro
+    translated_name: Gram stain (bacterioscopy) - blood/serum
+    description: 'Same Gram-stain test as LAB_BCESCA, run on blood/serum.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Bacterioscopia Sangue/soro"
+  LAB_CILIQU:
+    official_name: CIE líquor
+    translated_name: Counterimmunoelectrophoresis - CSF
+    description: 'Etiologic-agent code from counterimmunoelectrophoresis (CIE) on CSF,
+      a second antigen-detection test alongside the latex-agglutination pair (LAB_AGLIQU/LAB_AGSANG);
+      sibling to LAB_CISANG on blood/serum.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "CIE líquor"
+  LAB_CISANG:
+    official_name: CIE Sangue/soro
+    translated_name: Counterimmunoelectrophoresis - blood/serum
+    description: 'Same CIE test as LAB_CILIQU, run on blood/serum.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "CIE Sangue/soro"
+  LAB_CLOR:
+    official_name: Exame Quimiocitológico - Cloreto
+    translated_name: CSF chemocytology - chloride
+    description: 'Chloride concentration measured in the meningitis patient''s CSF,
+      one value in the quimiocitológico panel alongside LAB_HEMA, LAB_GLICO, LAB_PROT
+      and the cell counts. A plain numeric lab value, not a coded field.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Cloreto"
+  LAB_CTESCA:
+    official_name: Cultura escarro
+    translated_name: Culture - sputum
+    description: 'Etiologic-agent code from microbial culture of sputum, one specimen
+      in the meningitis form''s culture row alongside LAB_CTLESA (skin lesion), LAB_CTLIQU
+      (CSF) and LAB_CTSANG (blood).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Cultura escarro"
+  LAB_CTLESA:
+    official_name: Cultura lesão petequial
+    translated_name: Culture - petechial lesion
+    description: 'Same culture test as LAB_CTESCA, run on material from a petechial
+      skin lesion.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Cultura lesão petequial"
+  LAB_CTLIQU:
+    official_name: Cultura Líquor
+    translated_name: Culture - CSF
+    description: 'Same culture test as LAB_CTESCA, run on cerebrospinal fluid — the
+      reference specimen for confirming bacterial meningitis.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Cultura Líquor"
+  LAB_CTSANG:
+    official_name: Cultura Sangue/soro
+    translated_name: Culture - blood/serum
+    description: 'Same culture test as LAB_CTESCA, run on blood/serum.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Cultura Sangue/soro"
+  LAB_DTPUNC:
+    official_name: Data da punção lombar
+    translated_name: Date of lumbar puncture
+    description: 'When the puncture was done. A puncture after antibiotics have started
+      rarely grows the organism, so the order of the two matters.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with LAB_PUNCAO.
+  LAB_EOSI:
+    official_name: Exame Quimiocitológico - Eosinófilos
+    translated_name: CSF chemocytology - eosinophils
+    description: 'Eosinophil count in the meningitis patient''s CSF, part of the quimiocitológico
+      panel alongside LAB_LEUCO, LAB_NEUTRO, LAB_LINFO and LAB_MONO. A plain numeric
+      lab value.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Eosinófilos"
+  LAB_GLICO:
+    official_name: Exame Quimiocitológico - Glicose
+    translated_name: CSF chemocytology - glucose
+    description: 'Glucose concentration in the meningitis patient''s CSF, part of the
+      same quimiocitológico panel as LAB_CLOR and LAB_PROT.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Glicose"
+  LAB_HEMA:
+    official_name: Exame Quimiocitológico - Hemácias
+    translated_name: CSF chemocytology - red blood cells
+    description: 'Red-cell count in the meningitis patient''s CSF. Distinct from LAB_HEMA_N,
+      which is a Hantavirose blood-hematocrit flag, not a CSF cell count.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Hemácias"
+  LAB_ISFEZE:
+    official_name: Isolamento viral fezes
+    translated_name: Viral isolation - stool
+    description: 'Etiologic-agent code from viral isolation attempted on a stool sample
+      in a meningitis investigation, sibling test to LAB_ISLIQU (CSF).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Isolamento viral fezes"
+  LAB_ISLIQU:
+    official_name: Isolamento viral líquor
+    translated_name: Viral isolation - CSF
+    description: 'Same viral-isolation test as LAB_ISFEZE, attempted on CSF instead
+      of stool.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Isolamento viral líquor"
+  LAB_LEUCO:
+    official_name: Exame Quimiocitológico - Leucócitos
+    translated_name: CSF chemocytology - white blood cells
+    description: 'Total white-cell count in the meningitis patient''s CSF, the headline
+      value of the quimiocitológico panel that also breaks the differential out into
+      LAB_NEUTRO, LAB_LINFO, LAB_MONO and LAB_EOSI.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Leucócitos"
+  LAB_LINFO:
+    official_name: Exame Quimiocitológico - Linfócitos
+    translated_name: CSF chemocytology - lymphocytes
+    description: 'Lymphocyte count in the meningitis patient''s CSF, one component
+      of the LAB_LEUCO white-cell differential.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Linfócitos"
+  LAB_MONO:
+    official_name: Exame Quimiocitológico - Monócitos
+    translated_name: CSF chemocytology - monocytes
+    description: 'Monocyte count in the meningitis patient''s CSF, one component of
+      the LAB_LEUCO white-cell differential alongside LAB_NEUTRO and LAB_LINFO.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Monócitos"
+  LAB_NEUTRO:
+    official_name: Exame Quimiocitológico - Neutrófilos
+    translated_name: CSF chemocytology - neutrophils
+    description: 'Neutrophil count in the meningitis patient''s CSF, the differential
+      component most diagnostic of bacterial (vs. viral) meningitis.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Neutrófilos"
+  LAB_PCESCA:
+    official_name: PCR escarro
+    translated_name: PCR - sputum
+    description: 'Etiologic-agent code from PCR testing of sputum, completing the meningitis
+      form''s specimen grid (with LAB_PCLESA, LAB_PCLIQU, LAB_PCSANG) alongside the
+      cultura, bacterioscopia, CIE and látex rows.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR escarro"
+  LAB_PCLESA:
+    official_name: PCR lesão petequial
+    translated_name: PCR - petechial lesion
+    description: 'Same PCR test as LAB_PCESCA, run on material from a petechial skin
+      lesion.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR lesão petequial"
+  LAB_PCLIQU:
+    official_name: PCR líquor
+    translated_name: PCR - CSF
+    description: 'Same PCR test as LAB_PCESCA, run on cerebrospinal fluid.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR líquor"
+  LAB_PCSANG:
+    official_name: PCR Sangue/soro
+    translated_name: PCR - blood/serum
+    description: 'Same PCR test as LAB_PCESCA, run on blood/serum.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR Sangue/soro"
+  LAB_PROT:
+    official_name: Exame Quimiocitológico - Proteínas
+    translated_name: CSF chemocytology - protein
+    description: 'Protein concentration in the meningitis patient''s CSF, part of the
+      same quimiocitológico panel as LAB_GLICO and LAB_CLOR.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, "Exame Quimiocitológico Proteínas"
+  LAB_PUNCAO:
+    official_name: Punção lombar realizada
+    translated_name: Lumbar puncture done
+    description: 'Whether a lumbar puncture was performed. Without it meningitis can
+      only be diagnosed clinically and the organism never identified.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PUNCAO reads punção.
+  MED_DT_EVO:
+    official_name: Data da evolução
+    translated_name: Date of outcome
+    description: Date the outcome was recorded, closing the investigation.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the measures block.
+  MED_DT_QUI:
+    official_name: Se sim, data (Quimioprofilaxia)
+    translated_name: Chemoprophylaxis date
+    description: 'Date chemoprophylaxis was given to a confirmed meningitis case''s
+      close contacts, filled in only when MED_QUIMIO is Sim.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 56 "Se sim, data"
+  MED_NUCOMU:
+    official_name: Número de comunicantes
+    translated_name: Contacts identified
+    description: 'How many contacts were identified for chemoprophylaxis, which is
+      the control measure for meningococcal disease.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(2) tally of comunicantes in the measures block.
+  MED_QUIMIO:
+    official_name: Realizada Quimioprofilaxia dos Comunicantes
+    translated_name: Chemoprophylaxis given to contacts
+    description: 'Whether chemoprophylaxis was given to a confirmed meningitis case''s
+      close contacts, only asked when the case was confirmed as meningococcal, pneumococcal
+      or Haemophilus meningitis.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Meningite_v5.pdf, campo 55 "Realizada Quimioprofilaxia dos
+      Comunicantes"

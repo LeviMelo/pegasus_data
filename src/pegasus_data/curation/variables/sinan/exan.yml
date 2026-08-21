@@ -1,0 +1,483 @@
+# SINAN.EXAN — Exanthematous diseases
+# Doenças exantemáticas
+#
+# One notified rash-and-fever case investigated for measles or rubella. A
+# surveillance channel rather than a single disease: most notifications are
+# discarded on investigation.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  CS_DESCART:
+    official_name: Caso descartado
+    translated_name: Case discarded
+    description: 'Sim/Não flag marking the case as discarded/ruled out, distinct from
+      CLASSI_FIN, the standard final-classification field used across all SINAN agravos.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CS_ is the classificação/situação prefix and DESCART abbreviates descartado;
+      1-character width matches a binary flag.
+
+      '
+  CS_FONTE:
+    official_name: Local provável de contágio
+    translated_name: Probable place of infection
+    description: 'Where the infection was probably acquired — home, neighbourhood,
+      work, school or nursery, a health facility, or another state or country. Import
+      is the key question in a country that has eliminated measles.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LOCALCONNET.CNV
+    reasoning: 'Bound to LOCALCONNET, whose values run from domicílio through outra
+      UF and outro país.
+
+      '
+  CS_VACINA:
+    official_name: Vacinado
+    translated_name: Vaccinated
+    description: 'Whether the patient had been vaccinated against measles or rubella.
+      Vaccine can itself cause a rash and a positive IgM, so this field is what raises
+      that alternative explanation.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no vaccination flag opening the EXAN antecedent block.
+  CS_VACINAL:
+    official_name: Situação vacinal
+    translated_name: Vaccination status
+    description: 'Code/flag for the patient''s vaccination status against the disease
+      under investigation, distinct from the specimen-collection CS_ fields (CS_LIQUOR/CS_SECRECA/CS_URINA)
+      — here CS_ carries its usual classificação/situação sense.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: VACINAL reads vacinal; 1-character width matches a short status code.
+  DE15A39ANO:
+    official_name: Contatos de 15 a 39 anos
+    translated_name: Contacts 15 to 39
+    description: 'How many contacts aged 15 to 39 were identified. The band that matters
+      for rubella, because infection in pregnancy causes congenital rubella syndrome.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(3) count; the 15-39 band of the contact tally.
+  DE5A14ANOS:
+    official_name: Contatos de 5 a 14 anos
+    translated_name: Contacts 5 to 14
+    description: How many contacts aged 5 to 14 were identified. See MENOR_5ANO.
+    code_system: none
+    source: inferred
+    reasoning: N(3) count; the 5-14 band of the contact tally.
+  DT_COL_1:
+    official_name: Data da coleta da primeira amostra
+    translated_name: Date first sample collected
+    description: 'When the first serum was taken. Taken too early it misses IgM, which
+      is why a second sample exists.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of the paired sera.
+  DT_COL_2:
+    official_name: Data da coleta da segunda amostra
+    translated_name: Date second sample collected
+    description: 'When the second serum was taken, weeks after the first. The pair
+      is what shows a rising titre, which confirms recent infection where a single
+      sample cannot.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of the paired sera.
+  DT_DOSE_N:
+    official_name: Data da última dose
+    translated_name: Date of last dose
+    description: 'Date of the last vaccine dose. A rash within about two weeks of a
+      dose is likely vaccine-associated, so the interval decides the interpretation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date following CS_VACINA.
+  DT_INICIO_:
+    official_name: Data do início do exantema
+    translated_name: Date the rash began
+    description: 'When the rash started. Serology timing is measured from rash onset,
+      not from fever, so this is the anchor for the whole laboratory sequence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the rash onset that dates the sample intervals.
+  ETIOL_OUTR:
+    official_name: Etiologia Viral se Outras especificar
+    translated_name: Viral etiology - other, specified
+    description: 'Free-text name of the causative virus, filled in only when ID_ETIOLOG
+      is coded "9-Outras" — a confirmed agent outside the fixed measles/rubella/dengue/HHV-6/parvovirus/enterovirus
+      list.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 50 "Etiologia Viral se Outras
+      especificar"
+  ID_ARTRALG:
+    official_name: Artralgia
+    translated_name: Joint pain
+    description: 'Joint pain. Points to rubella rather than measles, especially in
+      adult women, so it pulls the differential the other way from the triad.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; ARTRALG reads artralgia.
+  ID_CONJUNT:
+    official_name: Conjuntivite
+    translated_name: Conjunctivitis
+    description: Conjunctivitis, the third element of the measles triad. See ID_TOSSE.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; CONJUNT reads conjuntivite.
+  ID_CORIZA:
+    official_name: Coriza
+    translated_name: Coryza
+    description: Runny nose, the second element of the measles triad. See ID_TOSSE.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; CORIZA reads coriza.
+  ID_ETIOLOG:
+    official_name: Etiologia viral
+    translated_name: Viral etiology (measles/rubella exanthem panel)
+    description: 'Single-digit code for the virus identified when a clinical sample
+      was collected (blood, urine, nasopharyngeal secretion or CSF) in a suspected
+      measles/rubella case: wild or vaccine measles/rubella strain, dengue, HHV-6,
+      parvovirus B19, enterovirus, another agent, or none detected. Filled in only
+      when a sample-collection flag (ID_SANGUE, ID_URINA, ID_SECRECA, ID_LIQUOR) is
+      Sim.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 50 "Etiologia viral"
+  ID_GANGLIO:
+    official_name: Linfadenopatia
+    translated_name: Swollen lymph nodes
+    description: Swollen lymph nodes, characteristic of rubella.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; GANGLIO reads gânglios.
+  ID_HOSPIT:
+    official_name: Hospitalização
+    translated_name: Hospitalised
+    description: 'Whether the patient was admitted. Measles complications — pneumonia,
+      encephalitis — are what drive admission in a rash illness.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; HOSPIT reads hospitalização.
+  ID_LIQUOR:
+    official_name: Amostra clínica coletada - Liquor
+    translated_name: Clinical sample collected - CSF
+    description: 'Whether cerebrospinal fluid was collected for viral isolation in
+      a measles/rubella (exanthematous-disease) investigation, one of four specimen-collection
+      flags (with ID_SANGUE, ID_URINA, ID_SECRECA).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 49 "Isolamento viral - Amostra
+      clínica coletada"
+  ID_RETRO:
+    official_name: Linfadenopatia retroauricular
+    translated_name: Retroauricular nodes
+    description: 'Nodes behind the ears specifically. The classic rubella sign, recorded
+      apart from general lymphadenopathy because the site is what makes it diagnostic.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; RETRO reads retroauricular.
+  ID_RE_IGG:
+    official_name: IgG no reexame
+    translated_name: IgG, re-test
+    description: IgG on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the re-test IgG.
+  ID_RE_IGG_:
+    official_name: IgG no reexame, segundo agente
+    translated_name: IgG, re-test, second agent
+    description: IgG for the second agent on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgG on the re-test.
+  ID_RE_IGM:
+    official_name: IgM no reexame
+    translated_name: IgM, re-test
+    description: 'IgM on a re-tested sample. Re-testing happens when the paired results
+      were discordant or the first was inconclusive.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; RE marks the reexame group.
+  ID_RE_IGM_:
+    official_name: IgM no reexame, segundo agente
+    translated_name: IgM, re-test, second agent
+    description: IgM for the second agent on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgM on the re-test.
+  ID_RE_IG_1:
+    official_name: Imunoglobulina adicional no reexame
+    translated_name: Additional immunoglobulin, re-test
+    description: A further antibody result on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; a further marker slot on the re-test.
+  ID_RE_IG_2:
+    official_name: Segunda imunoglobulina adicional no reexame
+    translated_name: Second additional immunoglobulin, re-test
+    description: A second further antibody result on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; another marker slot on the re-test.
+  ID_S1_IGG:
+    official_name: IgG na primeira amostra
+    translated_name: IgG, first sample
+    description: 'IgG on the first serum. Past infection or vaccination on its own;
+      the rise between samples is what makes it informative.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the IgG marker of the first sample.
+  ID_S1_IGG_:
+    official_name: IgG na primeira amostra, segundo agente
+    translated_name: IgG, first sample, second agent
+    description: IgG for the second agent on the first serum. See ID_S1_IGM_.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgG on sample 1.
+  ID_S1_IGM:
+    official_name: IgM na primeira amostra
+    translated_name: IgM, first sample
+    description: 'IgM on the first serum. Marks recent infection. The S1, S2 and RE
+      groups repeat the same antibody panel for the first sample, the second, and a
+      re-test.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: 'Bound to REAGENTE; S1 is the first sample and the parallel S2 and RE
+      prefixes carry the same markers at later points.
+
+      '
+  ID_S1_IGM_:
+    official_name: IgM na primeira amostra, segundo agente
+    translated_name: IgM, first sample, second agent
+    description: 'IgM for the second agent on the first serum. Each sample is tested
+      against measles and rubella in parallel, because the form is a syndrome channel
+      rather than a single-disease one.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: 'Bound to REAGENTE; the trailing underscore and the _1/_2 suffixes mark
+      further agents tested on the same sample.
+
+      '
+  ID_S1_IG_1:
+    official_name: Imunoglobulina adicional, primeira amostra
+    translated_name: Additional immunoglobulin, first sample
+    description: A further antibody result on the first serum, for an additional agent
+      tested.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; a further marker slot on sample 1.
+  ID_S1_IG_2:
+    official_name: Segunda imunoglobulina adicional, primeira amostra
+    translated_name: Second additional immunoglobulin, first sample
+    description: A second further antibody result on the first serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; another marker slot on sample 1.
+  ID_S2_IGG:
+    official_name: IgG na segunda amostra
+    translated_name: IgG, second sample
+    description: 'IgG on the second serum. Compared with ID_S1_IGG, a fourfold rise
+      confirms recent infection.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the S2 sample's IgG.
+  ID_S2_IGG_:
+    official_name: IgG na segunda amostra, segundo agente
+    translated_name: IgG, second sample, second agent
+    description: IgG for the second agent on the second serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgG on sample 2.
+  ID_S2_IGM:
+    official_name: IgM na segunda amostra
+    translated_name: IgM, second sample
+    description: IgM on the second serum, the paired counterpart of ID_S1_IGM.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the S2 sample's IgM.
+  ID_S2_IGM_:
+    official_name: IgM na segunda amostra, segundo agente
+    translated_name: IgM, second sample, second agent
+    description: IgM for the second agent on the second serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgM on sample 2.
+  ID_S2_IG_1:
+    official_name: Imunoglobulina adicional, segunda amostra
+    translated_name: Additional immunoglobulin, second sample
+    description: A further antibody result on the second serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; a further marker slot on sample 2.
+  ID_S2_IG_2:
+    official_name: Segunda imunoglobulina adicional, segunda amostra
+    translated_name: Second additional immunoglobulin, second sample
+    description: A second further antibody result on the second serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; another marker slot on sample 2.
+  ID_SANGUE:
+    official_name: Amostra clínica coletada - Sangue total
+    translated_name: Clinical sample collected - whole blood
+    description: 'Whether whole blood was collected for viral isolation in a measles/rubella
+      investigation; sibling specimen flag to ID_LIQUOR, ID_URINA and ID_SECRECA. If
+      all four are Não/Ignorado, the form skips straight to vaccination ring-blocking.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 49 "Isolamento viral - Amostra
+      clínica coletada"
+  ID_SECRECA:
+    official_name: Amostra clínica coletada - Secreção nasofaríngea
+    translated_name: Clinical sample collected - nasopharyngeal secretion
+    description: 'Whether nasopharyngeal secretion was collected for viral isolation
+      in a measles/rubella investigation; sibling specimen flag to ID_LIQUOR, ID_SANGUE
+      and ID_URINA.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 49 "Isolamento viral - Amostra
+      clínica coletada"
+  ID_TOSSE:
+    official_name: Tosse
+    translated_name: Cough
+    description: 'Cough. With coryza and conjunctivitis it forms the triad that distinguishes
+      measles from rubella clinically, before any laboratory result.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; TOSSE reads tosse.
+  ID_URINA:
+    official_name: Amostra clínica coletada - Urina
+    translated_name: Clinical sample collected - urine
+    description: 'Whether urine was collected for viral isolation in a measles/rubella
+      investigation; sibling specimen flag to ID_LIQUOR, ID_SANGUE and ID_SECRECA.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 49 "Isolamento viral - Amostra
+      clínica coletada"
+  INT_TEMPO:
+    official_name: Em caso afirmativo, especifique intervalo de tempo
+    translated_name: Vaccine ring-blocking response time
+    description: 'How quickly the vaccination ring-block (bloqueio vacinal) was carried
+      out after notification of a measles/rubella case: within 72 hours or after. Only
+      filled in when a ring-block was actually done (CS_VACINAL = Sim).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 53 "Em caso afirmativo, especifique
+      intervalo de tempo"
+  MENOR_5ANO:
+    official_name: Contatos menores de 5 anos
+    translated_name: Contacts under 5
+    description: 'How many contacts under five were identified. The contact age bands
+      drive the vaccination sweep around a case, and the under-fives are the priority.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(3) count; the first band of the contact age tally.
+  NM_MUN_HOS:
+    official_name: Município de hospitalização
+    translated_name: Municipality of hospitalisation
+    description: Where the patient was admitted, by IBGE code.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code bound to the municipality codelists.
+  TPEXANTE:
+    official_name: Tipo de exantema
+    translated_name: Rash type/characteristic
+    description: 'Type or pattern of skin rash (e.g. maculopapular, distribution) recorded
+      on the exanthematous-illness investigation form used for measles/rubella-like
+      rash surveillance.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 coded field; TP_=tipo, EXANTE=exantema.
+  UF_H:
+    official_name: UF do hospital
+    translated_name: State of hospital
+    description: 'Two-letter state code of the hospital where a suspected exanthematous-disease
+      (measles/rubella, EXAN) patient was treated, distinct from the patient''s state
+      of residence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'UF_ = unidade federativa, H = hospital; C2 width matches a state abbreviation,
+      and hospital location tracking supports outbreak case-finding.
+
+      '

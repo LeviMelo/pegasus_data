@@ -1,0 +1,155 @@
+# SISCAN.PACNT — Patients
+# Pacientes
+#
+# The patient dimension published beside each exam dataset in the open-data
+# tree, joined to the exam records rather than repeated on them.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+  CO_LAUDO:
+    official_name: Código do laudo
+    translated_name: Mammography report identifier
+    description: Identifying number of the mammography report (laudo), on the patient-dimension
+      extract.
+    code_system: none
+    source: inferred
+    reasoning: LAUDO is the standard Portuguese word for a diagnostic report, unabbreviated.
+  CO_PACIENTE:
+    official_name: Código do paciente
+    translated_name: Patient code
+    description: 'SISCAN''s internal identifier for a woman, distinct from her CNS
+      number, used to link her cytopathology exams across years so DATASUS can count
+      distinct patients rather than exams.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CO_=codigo, PACIENTE=patient by naming grammar; SISCAN''s technical
+      notes state tabulations count women, not exams, which requires a per-patient
+      linking key such as this one.
+
+      '
+    source_ref: naming grammar + SISCAN Nota Tecnica 1 measures section
+  CO_SEQ_SISCAN_CITO_COLO_PACNT:
+    official_name: Sequencial SISCAN citopatologia colo (paciente)
+    translated_name: Record sequence number (cervical-cytology patient extract)
+    description: 'Row-sequence identifier on the SISCAN_CITO_COLO_PACNT (patient- dimension)
+      yearly extract — this table''s own row number, not a national patient identifier.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CO_SEQ_SISCAN_* is this catalog''s recurring row-identifier pattern
+      across every SISCAN yearly extract (six near-identical PACNT/RESID variants across
+      this fill batch alone); PACNT marks the patient- dimension table per SISCAN.PACNT
+      in ontology.yml.
+
+      '
+    notes: Declared C(0,0); no observed values captured.
+  CO_SEQ_SISCAN_CITO_MAMA_PACNT:
+    official_name: Sequencial SISCAN citopatologia mama (paciente)
+    translated_name: Record sequence number (breast-cytology patient extract)
+    description: Row-sequence identifier on the SISCAN_CITO_MAMA_PACNT (patient-dimension)
+      yearly extract.
+    code_system: none
+    source: inferred
+    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
+      in siscan_fill_01.yml.
+  CO_SEQ_SISCAN_HISTO_COLO_PACNT:
+    official_name: Sequencial SISCAN histopatologia colo (paciente)
+    translated_name: Record sequence number (cervical-histopathology patient extract)
+    description: 'Row-sequence identifier on the SISCAN_HISTO_COLO_PACNT (patient-
+      dimension) yearly extract — this table''s own row number.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
+      in siscan_fill_01.yml.
+  CO_SEQ_SISCAN_HISTO_MAMA_PACNT:
+    official_name: Sequencial SISCAN histopatologia mama (paciente)
+    translated_name: Record sequence number (breast-histopathology patient extract)
+    description: Row-sequence identifier on the SISCAN_HISTO_MAMA_PACNT (patient-dimension)
+      yearly extract.
+    code_system: none
+    source: inferred
+    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
+      in siscan_fill_01.yml.
+  CO_SEQ_SISCAN_MAMOGRAFIA_PACNT:
+    official_name: Sequencial SISCAN mamografia (paciente)
+    translated_name: Record sequence number (mammography patient extract)
+    description: Row-sequence identifier on the SISCAN_MAMOGRAFIA_PACNT (patient-dimension)
+      yearly extract.
+    code_system: none
+    source: inferred
+    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
+      in siscan_fill_01.yml.
+  IDADE:
+    official_name: Idade
+    translated_name: Patient age
+    description: 'Patient''s age, in years, at the time of this cervical cytology exam
+      — on the patient-dimension extract.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: IDADE is the plain, unabbreviated Portuguese word for age.
+  NU_ANO_RESULTADO:
+    official_name: Ano do resultado
+    translated_name: Year of the result
+    description: Year the histopathology result was issued, on the patient-dimension
+      extract.
+    code_system: none
+    source: inferred
+    reasoning: Full-word decomposition (ano do resultado); NU_ prefix shared with this
+      table's other numeric fields despite not being a count here.
+  NU_LAUDO_HISTOP:
+    official_name: Número do laudo histopatológico
+    translated_name: Histopathology report number
+    description: Identifying number of the histopathology report (laudo) this patient-dimension
+      row refers to.
+    code_system: none
+    source: inferred
+    reasoning: LAUDO_HISTOP unambiguously abbreviates laudo histopatológico (histopathology
+      report).
+  REQ:
+    official_name: Requisição
+    translated_name: Exam request (order) number
+    description: Identifying number of the mammography exam request/order this report
+      was issued against.
+    code_system: none
+    source: inferred
+    reasoning: REQ is the standard abbreviation for requisição (request), on the patient-dimension
+      extract alongside CO_LAUDO.
+  TP_INSPECAO_COLO:
+    official_name: Tipo de inspeção do colo
+    translated_name: Type of cervical (visual) inspection
+    description: 'Category of visual cervical inspection performed alongside the cytology
+      collection — e.g. whether the cervix appeared normal, altered, or was not visualised.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Full-word decomposition (tipo + inspeção do colo); TP_ type-code prefix.
+    notes: Declared C(0,0); no observed values captured.
+  TP_LAUDO_CITOP:
+    official_name: Tipo de laudo citopatológico
+    translated_name: Type of cytology report
+    description: Category of this breast cytology report — e.g. which collection method
+      (PAAF or nipple discharge) it covers.
+    code_system: internal
+    source: inferred
+    reasoning: Full-word decomposition (tipo de laudo citopatológico); TP_ type-code
+      prefix.
+    notes: No observed values or codelist were captured.
+  TP_LAUDO_HISTOPATOLOGICO:
+    official_name: Tipo de laudo histopatológico
+    translated_name: Type of histopathology report
+    description: Category of this breast histopathology report — e.g. which biopsy/procedure
+      type it covers.
+    code_system: internal
+    source: inferred
+    reasoning: Full-word decomposition (tipo de laudo histopatológico); TP_ type-code
+      prefix.
+    notes: No observed values or codelist were captured.

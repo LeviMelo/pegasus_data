@@ -1,0 +1,119 @@
+# SINAN.PAIR —
+#
+# one notification of noise-induced hearing loss, work-related
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  CONDUTA_DE:
+    official_name: Descrição da conduta
+    translated_name: Management, free text
+    description: 'Free text describing what was done for the patient, where the coded
+      management fields did not cover it. Thirty characters.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Conduta with a DE (descrição) suffix truncated to ten characters; C(30),
+      the same shape as CIRCUN_DES.
+
+      '
+  FALA:
+    official_name: Sintomas - Dificuldade para compreensão da fala
+    translated_name: Symptom - difficulty understanding speech
+    description: 'Whether the worker reported difficulty understanding speech, one
+      of four symptom checkboxes (with ZUMBIDO, TONTURA, CEFALEIA) on the noise-induced
+      hearing loss (PAIR) investigation form.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_PAIR_v5.pdf, campo 51 "Sintomas"
+  GASES:
+    official_name: Exposição Concomitante a Ruído e Gases Tóxicos
+    translated_name: Concurrent toxic-gas exposure
+    description: 'Whether the worker being investigated for noise-induced hearing loss
+      was also exposed to toxic gases at the same time as the workplace noise: yes,
+      no, or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_PAIR_v5.pdf, campo 50
+  MEDICA:
+    official_name: Exposição Concomitante a Ruído e Medicamentos Ototóxicos
+    translated_name: Concurrent exposure - noise and ototoxic drugs
+    description: 'Whether the worker, alongside noise, was also exposed to ototoxic
+      drugs (e.g. aminoglycoside antibiotics) that can compound noise-induced hearing
+      loss; one of five concurrent-exposure checkboxes on the PAIR form (with SOLVENTE,
+      METAL, GASES, RUIDO_OUT).
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_PAIR_v5.pdf, campo 50 "Exposição Concomitante a Ruído"
+  RUIDO_OUT:
+    official_name: Outra fonte de ruído
+    translated_name: Other noise source (flag)
+    description: 'Whether the noise-induced hearing loss (PAIR) patient was exposed
+      to a workplace noise source not covered by the form''s standard list. Paired
+      with RUI_OUTDES, which names it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: RUIDO_OUT = ruído + outro; width 1 checkbox.
+  RUI_OUTDES:
+    official_name: Outra fonte de ruído - descrição
+    translated_name: Other noise source - description
+    description: 'Free-text description of the other noise source flagged by RUIDO_OUT.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'RUI_OUTDES = ruído + outro + descrição; width 30 fits free text; pairs
+      with RUIDO_OUT.
+
+      '
+  SOLVENTE:
+    official_name: Exposição a solventes
+    translated_name: Solvent exposure
+    description: 'Whether the hearing-loss (PAIR) patient was also exposed to ototoxic
+      solvents at work, a chemical risk factor tracked alongside noise because solvents
+      can worsen or mimic noise-induced hearing damage.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PAIR form; SOLVENTE = solvente; width 1 checkbox.
+  TONTURA:
+    official_name: Sinais e sintomas - Tontura
+    translated_name: Dizziness
+    description: 'Whether the noise-induced hearing loss (PAIR) patient reports dizziness/vertigo,
+      a vestibular symptom checkbox recorded alongside tinnitus (ZUMBIDO).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PAIR form; TONTURA = tontura; width 1 checkbox.
+  TPRUIDO:
+    official_name: Tipo de ruído
+    translated_name: Type of noise
+    description: 'Pattern of the occupational noise exposure behind the hearing loss
+      - e.g. continuous, intermittent, or impact/impulse noise - distinct from TONTURA
+      and ZUMBIDO, which record symptoms rather than exposure type.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TP_ = tipo, RUIDO = ruído; PAIR form; width 1.
+  ZUMBIDO:
+    official_name: Sinais e sintomas - Zumbido
+    translated_name: Tinnitus
+    description: 'Whether the noise-induced hearing loss patient reports tinnitus (ringing
+      in the ears), the symptom most closely tied to PAIR alongside dizziness (TONTURA).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PAIR form; ZUMBIDO = zumbido; width 1 checkbox.

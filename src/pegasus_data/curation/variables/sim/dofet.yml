@@ -1,0 +1,134 @@
+# SIM.DOFET — Fetal death certificate
+# Declaração de Óbito Fetal
+#
+# Fetal deaths, kept separate because a fetal death is not counted in
+# mortality rates and has its own certificate.
+system: SIM
+asserted_by: pegasus_data
+
+variables:
+  LINHAA_O:
+    official_name: Linha A (original)
+    translated_name: Death certificate line A cause, as originally entered
+    description: 'CID-10 code(s) entered on Line A of the death certificate (the direct/terminal
+      cause of death) as originally recorded, before any automatic recoding/reselection.
+      Seen only in DOFET files in this batch, where the observed codes are almost entirely
+      ICD-10 Chapter XVI "P" perinatal codes (e.g. "P20.9", written with the ICD dagger-asterisk
+      "*" prefix) — expected for fetal deaths.
+
+      '
+    code_system: external
+    codelists:
+    - CID1017
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: '[ESTRUTURA-SIM] documents the base field LINHAA (no suffix) at position
+      69 as "CIDs informados na Linha A da DO ... (causa terminal - doença ou estado
+      mórbido que causou diretamente a morte). (Códigos CID 10)." The "_O" suffix is
+      not itself documented for LINHAA, but the same document confirms "_O = original,
+      pre-reselection" for CAUSABAS_O at position 83 ("Causa básica informada antes
+      da resseleção"), and observed LINHAA_O values are well-formed asterisk-prefixed
+      CID-10 codes.
+
+      '
+    notes: 'The leading "*" is ICD-10''s own dagger-asterisk notation for an asterisk
+      (manifestation) code, not a data artefact — do not strip it before treating the
+      rest as a plain CID-10 code.
+
+      '
+  LINHAB_O:
+    official_name: Linha B (original)
+    translated_name: Death certificate line B cause, as originally entered
+    description: 'CID-10 code(s) entered on Line B of the death certificate (the antecedent/consequential
+      cause that produced the Line A condition) as originally recorded, before recoding.
+      Same "_O = original" pattern as LINHAA_O; seen only in DOFET files.
+
+      '
+    code_system: external
+    codelists:
+    - CID1017
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Same basis as LINHAA_O: base field LINHAB is documented at [ESTRUTURA-SIM]
+      position 70 ("CIDs informados na Linha B da DO ... (Códigos CID 10)"), and the
+      "_O" suffix follows the CAUSABAS_O "original, pre-reselection" pattern documented
+      elsewhere in the same layout.
+
+      '
+  LINHAC_O:
+    official_name: Linha C (original)
+    translated_name: Death certificate line C cause, as originally entered
+    description: 'CID-10 code(s) entered on Line C of the death certificate as originally
+      recorded, before recoding. Same "_O = original" pattern as LINHAA_O; seen only
+      in DOFET files.
+
+      '
+    code_system: external
+    codelists:
+    - CID1017
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Same basis as LINHAA_O: base field LINHAC is documented at [ESTRUTURA-SIM]
+      position 71 ("CIDs informados na Linha C da DO ... (Códigos CID 10)"), with the
+      same "_O" suffix pattern.
+
+      '
+  LINHAD_O:
+    official_name: Linha D (original)
+    translated_name: Death certificate line D cause, as originally entered
+    description: 'CID-10 code(s) entered on Line D of the death certificate (the underlying/basic
+      cause chain) as originally recorded, before recoding. Same "_O = original" pattern
+      as LINHAA_O; seen only in DOFET files.
+
+      '
+    code_system: external
+    codelists:
+    - CID1017
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Same basis as LINHAA_O: base field LINHAD is documented at [ESTRUTURA-SIM]
+      position 72 ("CIDs informados na Linha D da DO ... (Códigos CID 10)"), with the
+      same "_O" suffix pattern.
+
+      '
+  LINHAII_O:
+    official_name: Parte II (original)
+    translated_name: Death certificate Part II contributing causes, as originally entered
+    description: 'CID-10 code(s) entered in Part II of the death certificate (other
+      significant conditions contributing to death, outside the main causal chain in
+      Part I) as originally recorded, before recoding. Same "_O = original" pattern
+      as LINHAA_O; seen only in DOFET files.
+
+      '
+    code_system: external
+    codelists:
+    - CID1017
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Same basis as LINHAA_O: base field LINHAII is documented at [ESTRUTURA-SIM]
+      position 73 ("CIDs informados na Parte II da DO ... causa contribuinte ... (Códigos
+      CID 10)"), with the same "_O" suffix pattern.
+
+      '
+  MEDICO:
+    official_name: Médico
+    translated_name: Certifying physician's name
+    description: 'Free-text name of the certifying/attending physician, seen only in
+      DOFET files (2014+). A personal identifier of the doctor, not of the deceased.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'Not listed by this name in [ESTRUTURA-SIM]. The field name is literally
+      the Portuguese word for "doctor," and every observed value in the evidence is
+      a plausible human first-name/partial-name string (e.g. "FRANCISCO", "ANA MARIA",
+      "LUCIANO MO..." — several truncated, consistent with a fixed-width name field),
+      which is what settles it rather than the name alone.
+
+      '
+    notes: 'This is a personal identifier (a named individual, the certifying physician)
+      — flagged here, not masked. Handle it with the same care as any other directly-identifying
+      field.
+
+      '

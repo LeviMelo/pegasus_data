@@ -1,0 +1,615 @@
+# CIH.CR — Hospital admission communication
+# Comunicação de Internação Hospitalar
+#
+# One non-SUS-funded admission reported to the Ministry.
+system: CIH
+asserted_by: pegasus_data
+
+variables:
+  ANO_CMPT:
+    official_name: Ano de competência
+    translated_name: Reference-period year
+    description: 'The 4-digit calendar year of the competência (reference/processing
+      period) the record was filed under - the month DATASUS books the record to, not
+      necessarily the year the admission or discharge happened. A stay spanning New
+      Year''s Eve can carry a DT_INTER in one year and an ANO_CMPT in the next.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "XAno competência ,ANO_CMPT ,3 ,ANO.CNV".
+
+      '
+    notes: 'The catalog binds ANO/ANOMES/ANOMESC codelists to this field, but those
+      are TabNet''s own year and year-month tabulation axes built from this same column,
+      not a code the raw field carries - ANO_CMPT stores a plain 4-digit year. Pair
+      with MES_CMPT for the full competência.
+
+      '
+  CAR_INT:
+    official_name: Caráter da internação
+    translated_name: Character/urgency of the admission
+    description: 'A 2-digit code for whether the admission was elective ("eletiva")
+      or urgent/emergency ("urgência/emergência"), including sub-codes for admissions
+      compatible with a workplace accident, a commute accident, a traffic accident,
+      or other injury/poisoning by physical or chemical agents. A December 2007 Ministry
+      portaria (719/2007) simplified this to a shorter 01-06 code set for competências
+      from 2008 onward, which is the version in force for this batch''s 2008-2010 files.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: 'CEM/CEBRAP, "Dicionário da Base de Dados Geocodificados AIH - SUS,
+      2000-2016, Município de São Paulo" (2017), field "CAR_INT - Caráter da internação,
+      conforme a Tabela de caráter de internação", pp.10-11. https://centrodametropole.fflch.usp.br/en/file/16359/download?token=IZj2Dr43
+
+      '
+    notes: 'This source documents the field for DATASUS''s SIH/AIH-SUS system, a close
+      relative of CIH that shares this field''s name, declared width and several other
+      codelists verified directly against CIH''s own dictionary (SEXO, COBRANCA/SAIDAPERM,
+      NATUREZA, GESTAO). No codelist is bound to CAR_INT in this catalog and no per-file
+      layout document for old-format CIH was located, so treat the exact code list
+      as corroborated-but-external rather than confirmed from CIH''s own dictionary.
+      Not to be confused with the CIHA system (2011+), whose own layout document marks
+      this same field name as reserved and blank.
+
+      '
+  CGC_HOSP:
+    official_name: CGC (CNPJ) do hospital
+    translated_name: Hospital's CNPJ (tax id)
+    description: 'The 14-digit CNPJ (Cadastro Nacional da Pessoa Jurídica) of the reporting
+      hospital''s legal entity - the same identifier the CADGERBR establishment registry
+      keys on as RAZ_SOCI (corporate name lookup). CNES in this same record identifies
+      the physical facility unit; one CNPJ can own several CNES-coded units.
+
+      '
+    code_system: external
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "LHospital BR (CNPJ),CGC_HOSP ,RAZ_SOCI ,CADGERBR.DBF".
+
+      '
+    notes: 'An organizational tax id, not personal data about the patient - but it
+      is a real-world identifier that, combined with CNES/MUNIC_MOV, pins down a specific
+      hospital.
+
+      '
+  CNES:
+    official_name: Código CNES do estabelecimento
+    translated_name: CNES code of the establishment
+    description: 'The 7-digit Cadastro Nacional de Estabelecimentos de Saúde (CNES)
+      code of the specific facility that filed the record - DATASUS''s standard cross-system
+      key for attaching an establishment''s registered attributes (type, management
+      sphere, address, services) to a production record.
+
+      '
+    code_system: external
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "LHospital BR (CNES),CNES ,FANTASIA ,CADGERBR.DBF".
+
+      '
+    notes: 'The catalog binds CNES to per-state establishment cadastre tables (CADGERxx,
+      xx = UF), not one national table - use the table matching the record''s state
+      to resolve a code to the establishment''s name.
+
+      '
+  COBRANCA:
+    official_name: Motivo de saída/permanência
+    translated_name: Discharge/stay-outcome reason code
+    description: 'A 2-digit code for why the episode this record documents ended (or,
+      for long stays, why the patient is still there) - "alta curada", transfer, death
+      with autopsy, administrative closure, and so on. The field name literally means
+      "billing" but nothing about it is a monetary figure; it is the discharge/permanence-reason
+      classification, per the "Motivo Saída/Perm" label CIH''s own dictionary gives
+      it and the SAIDAPERM codelist it draws on.
+
+      '
+    code_system: internal
+    codelists:
+    - SAIDAPERM
+    - SAIDAPERMC
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "LMotivo Saída/Perm ,COBRANCA ,1 ,SAIDAPERM.CNV";
+      codes read directly from "SAIDAPERM.CNV" (e.g. "11 Alta curado", "31 Transferência...",
+      "41 Óbito com...").
+
+      '
+    notes: 'Do not read COBRANCA as a charge amount or fee code because of its name
+      - it is a discharge-reason classification. The successor CIHA01 layout (2011+)
+      renamed this same concept CO_MOTIVO_SAIDA, which is a clearer name for the same
+      information.
+
+      '
+  COD_IDADE:
+    official_name: Unidade de idade
+    translated_name: Age unit code
+    description: 'A 1-digit code for the unit IDADE (the paired numeric age column,
+      not in this batch) is expressed in. CIH''s own IDADEDET codelist is keyed by
+      a 3-digit raw code built as this unit digit followed by IDADE''s 2-digit value
+      (e.g. raw "200".."229" label as "0 dias".."29 dias", "301".."311" as "1 mês".."11
+      meses", "401" onward as "1 ano" onward) - which shows the unit digit runs 2 =
+      dias, 3 = meses, 4 = anos.
+
+      '
+    code_system: internal
+    codelists:
+    - IDADEDET
+    - IDADE18
+    depends_on:
+    - IDADE
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF" (binds COD_IDADE to IDADEDET.CNV/IDADE18.CNV) and "IDADEDET.CNV"
+      itself, whose raw-value ranges (200-229, 301-311, 401...) show the unit-digit
+      pattern.
+
+      '
+    notes: 'Reading IDADE as "years" unconditionally is wrong whenever COD_IDADE is
+      2 or 3 (age recorded in days or months, typically newborns/infants under one
+      year) - always read the two columns together. No observed value_frequencies are
+      catalogued for this system, so the exact digit for "ignorada" (0, by analogy
+      with the equivalent SIH/AIH field) is not asserted here from this file''s own
+      dictionary alone.
+
+      '
+  DIAG_PRINC:
+    official_name: Diagnóstico principal
+    translated_name: Primary diagnosis (ICD-10)
+    description: 'The primary ICD-10 (CID-10) diagnosis code for the admission, up
+      to 4 characters (category.subcategory, e.g. "A090"). CIH''s own dictionary binds
+      this field to notifiable-disease and CID-10 chapter/group codelists for tabulation.
+
+      '
+    code_system: external
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", section "CID-10 Prim.", binding DIAG_PRINC to CID10CAP.CNV,
+      CID10GRUPO.CNV, CID10_3D.CNV, AGRAVONOT.CNV and the per-chapter CIDX##.CNV /
+      CID10_##.CNV tables.
+
+      '
+    notes: 'The many bound codelists (chapter, group, 3-digit category, notifiable
+      -disease flag) are TabNet tabulation axes derived from the same raw CID-10 code,
+      not alternate values the column itself takes.
+
+      '
+  DIAG_SECUN:
+    official_name: Diagnóstico secundário
+    translated_name: Secondary diagnosis (ICD-10)
+    description: 'A secondary ICD-10 (CID-10) diagnosis code recorded alongside DIAG_PRINC,
+      same 4-character category.subcategory format. Present only when a secondary diagnosis
+      was recorded for the admission.
+
+      '
+    code_system: external
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", section "CID-10 Sec.", binding DIAG_SECUN to the same
+      family of CID-10 chapter/group codelists as DIAG_PRINC.
+
+      '
+    notes: 'No observed values are catalogued for this system, so whether an absent
+      secondary diagnosis is stored as blanks or as zero-fill is not asserted here.
+
+      '
+  DIAS_PERM:
+    official_name: Dias de permanência
+    translated_name: Length of stay (days)
+    description: 'The number of days the admission lasted, from DT_INTER to DT_SAIDA.
+      CIH''s own dictionary treats it as an "incremento" (summable measure) for TabNet
+      reports, and separately buckets it into display bands (0, 1, 2, ... 8-14, 15-21
+      days, ...) via the PERM codelist for cross-tabulation - the stored value itself
+      is the raw number of days, not a band code.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", lines "IPermanência ,DIAS_PERM" and "XDias permanência
+      ,DIAS_PERM ,2 ,PERM.CNV".
+
+      '
+    notes: 'The catalog binds a PERM codelist to this field (source def), but PERM
+      is a TabNet display band computed FROM this count, not a code the raw column
+      carries - this is the same pattern as the DT_INTER/ DT_SAIDA/ANO_CMPT bindings
+      below and is a catalog artifact, not an error in this description.
+
+      '
+  DT_INTER:
+    official_name: Data de internação
+    translated_name: Admission date
+    description: 'The date the hospital stay began, 8 digits. DATASUS''s system-wide
+      convention for 8-digit date fields is AAAAMMDD (year-month-day); this file''s
+      own dictionary only exposes year and month sub-parts of this field as separate
+      tabulation axes, consistent with that layout.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", lines "XAno de internação ,DT_INTER ,3 ,ANO.CNV" and
+      "XMês de internação ,DT_INTER ,5 ,MESES.CNV".
+
+      '
+    notes: 'SPURIOUS-BINDING pattern: the catalog binds ANO/MESES codelists to this
+      field, but those are TabNet''s year/month axes derived from the date, not values
+      the raw column takes - DT_INTER itself is a date.
+
+      '
+  DT_SAIDA:
+    official_name: Data de saída
+    translated_name: Discharge date
+    description: 'The date the hospital stay ended (discharge, transfer, or death),
+      8 digits, same AAAAMMDD convention as DT_INTER. DT_SAIDA minus DT_INTER is the
+      basis for DIAS_PERM, though DIAS_PERM is stored as its own column rather than
+      computed on read.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", lines "XAno de saída ,DT_SAIDA ,3 ,ANO.CNV" and "XMês
+      de saída ,DT_SAIDA ,5 ,MESES.CNV".
+
+      '
+    notes: 'Same catalog pattern as DT_INTER: the bound ANO/MESES codelists are derived
+      tabulation axes, not raw values.
+
+      '
+  ESPEC:
+    official_name: Especialidade do leito/da internação
+    translated_name: Ward/bed specialty
+    description: 'A 2-digit code for the medical specialty of the bed/ward the admission
+      used - clínica cirúrgica, obstetrícia, clínica médica, pediatria, psiquiatria,
+      and (from 2008) a more detailed breakdown of hospital-dia (day-hospital) specialties
+      such as AIDS, fibrose cística or saúde mental.
+
+      '
+    code_system: internal
+    source: web
+    source_ref: 'CEM/CEBRAP, "Dicionário da Base de Dados Geocodificados AIH - SUS,
+      2000-2016, Município de São Paulo" (2017), field "ESPEC - Especialidade da AIH",
+      p.4. https://centrodametropole.fflch.usp.br/en/file/16359/download?token=IZj2Dr43
+
+      '
+    notes: 'Same corroboration caveat as CAR_INT: documented for the related SIH/AIH-SUS
+      system, not bound to a codelist in this catalog, and no old-format CIH layout
+      document was located to confirm it directly. The 2008-onward 2-digit code range
+      this source gives matches this field''s declared width (2 characters) for this
+      batch''s 2008-2010 files.
+
+      '
+  FONTE:
+    official_name: Fonte da remuneração
+    translated_name: Payment/funding-source code
+    description: 'A 2-digit code naming which channel remunerates the admission, positioned
+      right after CNES and before the patient''s name. Distinct from COBRANCA (why
+      the stay ended) and from any money amount, which this field never carries.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "FQA CIH 180610.doc" (Ficha de Qualificação de Arquivo Disseminável), field
+      27 "FONTE ... CHAR (02) ... Fonte da remuneração".
+
+      '
+    notes: 'No code-list values for this field are listed in CIH''s own dictionary
+      or catalogued as observed data (CIH is profiled from headers, not per-file value
+      counts), so only the field''s purpose is asserted here.
+
+      '
+  GESTAO:
+    official_name: Tipo de gestão
+    translated_name: Management tier of the hospital
+    description: 'A 1-character code for which level of SUS management the reporting
+      hospital falls under at the time of the record - state-level or municipal-level
+      administration, or a "dupla" (dual) arrangement, per CIH''s own GESTAO codelist.
+
+      '
+    code_system: internal
+    codelists:
+    - GESTAO
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "XGestão ,GESTAO ,1 ,GESTAO.CNV"; codes read directly
+      from "GESTAO.CNV" (1 Estadual, 2 Municipal, 3 Dupla, 4 Não definida).
+
+      '
+    notes: 'A same-named GESTAO field exists in many other DATASUS systems (e.g. SIH/AIH)
+      with a different raw-code scheme (0/1/2, not 1/2/3/4) - do not carry another
+      system''s code/label pairing over onto this one; this description is grounded
+      in CIH''s own GESTAO.CNV.
+
+      '
+  HOMONIMO:
+    official_name: Indicador de homônimo
+    translated_name: Homonymous-patient flag
+    description: 'A single-character flag field with no codelist bound in this catalog.
+      "Homônimo" is Portuguese for "sharing the same name" - DATASUS''s hospital-record
+      systems use a field by this name to flag when a record''s patient-identifying
+      data matches another record''s closely enough to be a same-name duplicate, for
+      de-duplication and audit rather than clinical purposes.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared C(1,0) with no codelist bound and no observed values in this
+      catalog. The field name has one unambiguous everyday meaning in Portuguese ("homônimo"
+      = homonym), and DATASUS reuses this exact field name with this exact meaning
+      in the related SIH/AIH-SUS hospital record (its own hospital-admission microdata
+      line), which shares CIH''s record shape closely enough that several other fields
+      in this batch (SEXO, COBRANCA/motivo, NATUREZA, GESTAO, COD_IDADE) use identical
+      or near-identical codelists.
+
+      '
+    notes: 'No codelist is bound for this field in either CIH''s own dictionary or
+      this catalog, so the specific code(s) that mean "is a homonym" versus "is not"
+      are not asserted here - only the column''s purpose.
+
+      '
+  IDADE:
+    official_name: Idade
+    translated_name: Patient age (numeric value)
+    description: 'A 2-digit numeric age value. Its unit (days, months, or years) is
+      given by the paired COD_IDADE column, not by IDADE itself - the same raw number
+      "05" means 5 days for a code-2 newborn record and 5 years for a code-4 record.
+
+      '
+    code_system: none
+    depends_on:
+    - COD_IDADE
+    source: inferred
+    reasoning: 'CIH''s own dictionary binds COD_IDADE (not IDADE) to the IDADEDET/
+      IDADE18 age codelists, and IDADEDET''s raw codes are a concatenation of a unit
+      digit and this field''s 2-digit value (e.g. "004" = "3 dias" is unit 2 + value
+      "03"... "042" = "1 ano" is unit 4 + value "01"), confirming IDADE is the bare
+      numeric companion to COD_IDADE''s unit code rather than a self-contained value.
+
+      '
+    notes: 'Do not treat IDADE alone as "age in years" - it is meaningless without
+      COD_IDADE.
+
+      '
+  MES_CMPT:
+    official_name: Mês de competência
+    translated_name: Reference-period month
+    description: 'The 2-digit month of the competência (reference/processing period),
+      paired with ANO_CMPT. Together the two fields answer "which monthly batch did
+      DATASUS file this record under", which is an administrative-processing date,
+      not necessarily the admission month.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line ";XMês competência ,MES_CMPT ,1 ,MESES.CNV".
+
+      '
+    notes: 'This DEF line is commented out (leading ";") in the shipped dictionary
+      - TabNet only exposes the combined ANO_CMPT+MES_CMPT axis (ANOMES/ ANOMESC),
+      not a standalone "month" pick-list - but the field itself is real and present
+      in every record; the label text is still legible in the source file.
+
+      '
+  MORTE:
+    official_name: Óbito (saída com morte)
+    translated_name: Death outcome flag
+    description: 'A 1-character flag for whether the episode this record documents
+      ended in the patient''s death, per CIH''s own MORTES codelist ("com óbito" vs.
+      "sem óbito").
+
+      '
+    code_system: internal
+    codelists:
+    - MORTES
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "XÓbitos ,MORTE ,1 ,MORTES.CNV"; codes read directly
+      from "MORTES.CNV" (01 Com óbito = raw 1, 02 Sem óbito = raw 0).
+
+      '
+    notes: 'The catalog binds this field to a codelist named MORTES (plural), not MORTE
+      - same field, differently-named lookup table. This is a discharge outcome, not
+      a mortality-cause field (that is DIAG_PRINC/ DIAG_SECUN when COBRANCA indicates
+      a death).
+
+      '
+  MUNIC_MOV:
+    official_name: Município de internação (movimentação)
+    translated_name: Municipality where the hospital is located
+    description: 'The 6-digit IBGE code of the municipality where the reporting establishment
+      is physically located - i.e. where the care was given. Not the patient''s home
+      municipality; that is MUNIC_RES.
+
+      '
+    code_system: external
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", section "LOCAL INTERNAÇÃO", binding MUNIC_MOV to MUNICBR.CNV,
+      REGIAO.CNV, UF.CNV and related geography tables.
+
+      '
+    notes: '"Município de internação" measured by MUNIC_MOV can differ sharply from
+      the patient''s residence (MUNIC_RES) whenever the patient traveled for care -
+      conflating the two overstates a municipality''s true disease burden and understates
+      where patients actually live.
+
+      '
+  MUNIC_RES:
+    official_name: Município de residência
+    translated_name: Municipality of patient residence
+    description: 'The 6-digit IBGE code of the municipality where the patient lived,
+      as declared at admission - not where the hospital is located; that is MUNIC_MOV.
+
+      '
+    code_system: external
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", section "LOCAL RESIDENCIA", binding MUNIC_RES to MUNICBR.CNV,
+      REGIAO.CNV, UF.CNV and related geography tables.
+
+      '
+    notes: 'Same residence-vs-treatment caveat as MUNIC_MOV, in reverse: counting by
+      MUNIC_RES gives the patient''s home base regardless of which municipality actually
+      delivered the care.
+
+      '
+  NACIONAL:
+    official_name: Nacionalidade
+    translated_name: Patient nationality
+    description: 'A 3-digit code for the patient''s declared nationality/homeland,
+      drawn from CIH''s own NACION3D table (329 entries, e.g. "030" = Alemanha, "093"
+      = Albânia). This is a DATASUS-specific numbering, distinct from the ISO nationality
+      list.
+
+      '
+    code_system: internal
+    codelists:
+    - NACION3D
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "XNacionalidade ,NACIONAL ,1 ,NACION3D.CNV"; codes
+      read directly from "NACION3D.CNV".
+
+      '
+    notes: 'Declared width (3 characters) matches NACION3D''s 3-digit raw codes. A
+      differently-numbered ~30-entry "Tabela de Nacionalidades" is published for the
+      SIH/AIH system under the same field name - do not apply that table''s codes to
+      this column; it is not the same lookup.
+
+      '
+  NASC:
+    official_name: Data de nascimento
+    translated_name: Patient date of birth
+    description: 'The patient''s date of birth, 8 digits.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"NASC" is the standard DATASUS abbreviation for "nascimento" (birth),
+      and no codelist is bound to it - a date, not a coded field. Declared width (8
+      characters) matches DT_INTER/DT_SAIDA''s confirmed AAAAMMDD date format in the
+      same record, so the same year-month-day convention is expected, though this specific
+      field''s digit order is not spelled out anywhere in CIH''s own dictionary.
+
+      '
+    notes: 'Format (AAAAMMDD) is inferred from DATASUS''s system-wide date convention
+      and this record''s other date fields, not confirmed by a document that names
+      NASC specifically.
+
+      '
+  NATUREZA:
+    official_name: Natureza jurídica do estabelecimento
+    translated_name: Legal/organizational nature of the establishment
+    description: 'A 2-digit code for the reporting hospital''s own organizational category
+      - direct or indirect public administration, private company, cooperative, non-profit,
+      and so on - per CIH''s own NATUREZA codelist. This describes the legal form of
+      the entity operating the hospital, not its financial relationship to SUS.
+
+      '
+    code_system: internal
+    codelists:
+    - NATUREZA
+    - NATUREZC
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "LNatureza ,NATUREZA ,1 ,NATUREZA.CNV"; codes
+      read directly from "NATUREZA.CNV" (01 Administração direta da saúde ... 13 Sindicato).
+
+      '
+    notes: 'Two vintages of the code table are bound (NATUREZA and NATUREZC, the latter
+      with a different, larger set of 2-digit codes such as 10 Próprio, 60 Municipal)
+      - check which applies to a given record''s competência before assuming a code
+      is unlabelled. Do not confuse with a same-named SIH/AIH field, whose own code
+      table again numbers differently.
+
+      '
+  PROC_REA:
+    official_name: Procedimento realizado
+    translated_name: Procedure performed
+    description: 'The 10-digit SIGTAP (Sistema de Gerenciamento da Tabela de Procedimentos,
+      Medicamentos e OPM do SUS) code identifying the medical procedure billed for
+      this admission, e.g. a surgery or a diagnostic procedure code. Maintained by
+      the Ministry of Health, not DATASUS-invented.
+
+      '
+    code_system: external
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", section "PROCEDIMENTO", binding PROC_REA to TB_SIGTAP.DBF
+      (procedure description), TB_FORMA.DBF, TB_SUBGR.DBF and TB_GRUPO.DBF (organizational
+      form / sub-group / group of the procedure).
+
+      '
+    notes: 'Declared width (10 characters) matches SIGTAP''s standard 10-digit procedure
+      code length.
+
+      '
+  SEXO:
+    official_name: Sexo do paciente
+    translated_name: Patient sex
+    description: 'The patient''s coded sex, one character, per CIH''s own SEXO codelist
+      (raw 1 = Masculino; raw 2 or 3 = Feminino; anything else = Ignorado).
+
+      '
+    code_system: internal
+    codelists:
+    - SEXO
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "XSexo ,SEXO ,1 ,SEXO.CNV"; codes read directly
+      from "SEXO.CNV".
+
+      '
+    notes: 'No observed value_frequencies are catalogued for this system (CIH is profiled
+      from file headers plus its own bundled dictionary, not per-file value counts),
+      so this mapping comes from CIH''s own SEXO.CNV rather than from data actually
+      seen in a file.
+
+      '
+  UTI_INT_TO:
+    official_name: Diárias de UTI intermediária
+    translated_name: Intermediate-care ICU day count
+    description: 'A count of intermediate-care ICU (UTI intermediária) daily-rate units
+      billed for the admission. CIH''s own dictionary treats this as a summable "incremento"
+      measure for TabNet totals, not a coded field.
+
+      '
+    code_system: none
+    source: def
+    source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
+      -> "CIH [2008-2010].DEF", line "IDiárias UTI interm,UTI_INT_TO".
+
+      '
+    notes: 'Distinct from UTI_MES_TO (not individually labelled in CIH''s own dictionary)
+      - this field is specifically the intermediate-care tier.
+
+      '
+  UTI_MES_TO:
+    official_name: Diárias de UTI (total)
+    translated_name: Total ICU day count
+    description: 'A count of ICU daily-rate units billed for the admission, in the
+      same 3-character width as its sibling UTI_INT_TO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CIH''s own dictionary explicitly labels the sibling field UTI_INT_TO
+      as "Diárias UTI interm" (intermediate-care ICU days) but has no corresponding
+      line for UTI_MES_TO. Same C(3,0) declared width and _TO suffix as UTI_INT_TO,
+      and the DATASUS naming convention where a qualified field (UTI_INT_TO, the intermediate-care
+      subset) sits alongside an unqualified sibling (UTI_MES_TO) that carries the more
+      general/total count for the competência month, by parallel to how DIAS_PERM (total
+      stay days) is unqualified while more specific duration fields elsewhere carry
+      qualifiers.
+
+      '
+    notes: 'Not confirmed by CIH''s own dictionary or a located layout document - treat
+      "total (all ICU types)" as a reasoned guess about scope, not a quoted definition.
+      No observed values are catalogued to check it against.
+
+      '

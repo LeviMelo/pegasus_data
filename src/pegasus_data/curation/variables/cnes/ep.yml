@@ -1,0 +1,207 @@
+# CNES.EP — Teams
+# Equipes
+#
+# Registered care teams — primary care and family health teams — and their
+# composition.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+  ASSENTAD:
+    official_name: Atende assentamento
+    translated_name: Serves a land settlement
+    description: Whether the team serves a rural land-reform settlement.
+    code_system: none
+    source: inferred
+    reasoning: ASSENTAD reads assentamento, an item of the served-population block.
+  DESCSEGM:
+    official_name: Descrição do segmento
+    translated_name: Segment description
+    description: 'The territorial segment''s description, beside the coded ID_SEGM.
+      Free text describing a neighbourhood or locality.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(60) free text paired with the coded segment identifier.
+  DT_ATIVA:
+    official_name: Competência de ativação da equipe
+    translated_name: Team activation month
+    description: 'The competência in which the team became active. A month, not a date,
+      so it will not support day-level intervals.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: COMPT.CNV
+    reasoning: C(6) AAAAMM bound to COMPT, the competência codelist.
+  DT_DESAT:
+    official_name: Competência de desativação da equipe
+    translated_name: Team deactivation month
+    description: 'The competência in which the team was deactivated, empty while the
+      team is still running. With DT_ATIVA it gives the team''s lifetime.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: COMPT.CNV
+    reasoning: C(6) AAAAMM bound to COMPT; the counterpart of DT_ATIVA.
+  ESCOLA:
+    official_name: Atende escolares
+    translated_name: Serves schoolchildren
+    description: 'Whether the team works with schoolchildren, under the school health
+      programme.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ESCOLA names the school population, an item of the served-population
+      block.
+  IDEQUIPE:
+    official_name: Identificador da equipe
+    translated_name: Team identifier
+    description: 'The team''s identifier. Stable enough to follow one team across competências,
+      which is what makes team turnover measurable.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: EQP_AC.CNV
+    reasoning: C(18) identifier bound to the per-state team codelists.
+  ID_AREA:
+    official_name: Área de abrangência
+    translated_name: Coverage area
+    description: 'The area the team covers. Primary care in Brazil is territorial:
+      a team is responsible for a defined population, and this is that territory.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: AREA_AC.CNV
+    reasoning: C(10) identifier bound to the per-state area codelists.
+  ID_SEGM:
+    official_name: Segmento territorial
+    translated_name: Territorial segment
+    description: The segment within the coverage area, a subdivision below ID_AREA.
+    code_system: internal
+    source: def
+    source_ref: SEGM_AC.CNV
+    reasoning: C(8) identifier bound to the per-state segment codelists.
+  INDIGENA:
+    official_name: Atende população indígena
+    translated_name: Serves indigenous population
+    description: 'Whether the team serves an indigenous population. Indigenous health
+      has its own subsystem, so this flag marks teams working inside it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: An item of the served-population block; INDIGENA names the population.
+  MOTDESAT:
+    official_name: Motivo da desativação
+    translated_name: Reason for deactivation
+    description: 'Why the team was deactivated — reorganisation of the family health
+      strategy, or difficulty recruiting a doctor or a nurse. Recruitment failure is
+      a recurring and policy-relevant reason, which is why it has its own codes.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: MOTDESAT.CNV
+    reasoning: 'Bound to MOTDESAT, whose values include reorganização da ESF and dificuldade
+      de contratação de profissional médico or enfermeiro.
+
+      '
+  NOMEAREA:
+    official_name: Nome da área
+    translated_name: Coverage area name
+    description: 'The coverage area''s name as typed locally, beside the coded ID_AREA.
+      Same caution as NOME_EQP: it is a label, not a key.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(60) free text paired with the coded area identifier.
+  NOME_EQP:
+    official_name: Nome da equipe
+    translated_name: Team name
+    description: 'The team''s name as typed locally. Display text beside IDEQUIPE,
+      which is the identifier to group by; the same team is spelt several ways across
+      competências.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(60) free text paired with the coded team identifier.
+  POPGERAL:
+    official_name: Atende população geral
+    translated_name: Serves the general population
+    description: 'Whether the team serves the general population. The POPGERAL, INDIGENA,
+      QUILOMBO, ASSENTAD, ESCOLA and PRONASCI flags together say which populations
+      a team is responsible for, and a team can serve several.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C(1) flag opening the served-population block of the team record.
+  PRONASCI:
+    official_name: Equipe do PRONASCI
+    translated_name: PRONASCI team
+    description: 'Whether the team belongs to PRONASCI, the public-security-linked
+      programme placing health teams in areas of high violence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: PRONASCI names the programme, an item of the served-population block.
+  QUILOMBO:
+    official_name: Atende população quilombola
+    translated_name: Serves quilombola population
+    description: 'Whether the team serves a quilombola community — the descendants
+      of escaped-slave settlements, a population with specific health policy.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: POPULAC.CNV
+    reasoning: An item of the served-population block, bound to the POPULAC combinations.
+  TIPOSEGM:
+    official_name: Tipo do segmento
+    translated_name: Segment type
+    description: 'Whether the segment is urban or rural. Rural segments cover far larger
+      distances for the same population, so the distinction matters to any access measure.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: TIPOSEGM.CNV
+    reasoning: Bound to TIPOSEGM, whose values are segmento urbano and segmento rural.
+  TIPO_EQP:
+    official_name: Tipo de equipe
+    translated_name: Team type
+    description: 'Which kind of primary care team this is — family health team, family
+      health with oral health, community health agents, NASF support team, and so on.
+      The type determines the federal transfer the team attracts.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: EQUIPE.CNV
+    reasoning: 'Bound to EQUIPE, whose values are ESF, ESF com saúde bucal, EACS, NASF
+      and the other team types.
+
+      '
+  TP_DESAT:
+    official_name: Tipo de desativação
+    translated_name: Deactivation type
+    description: 'Whether the deactivation was temporary or definitive. A team still
+      shown as active carries the "ainda ativa" value rather than being blank.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: TP_DESAT.CNV
+    reasoning: 'Bound to TP_DESAT, whose values are equipe ainda ativa, temporária
+      and definitiva.
+
+      '

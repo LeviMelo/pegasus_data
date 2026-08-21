@@ -1,0 +1,56 @@
+# SINAN.NTRA — Work accident notification
+# Notificação de acidente de trabalho
+#
+# One notified occupational accident. Sits alongside the more specific ACGR
+# (severe) and ACBI (biological material) channels.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  NU_CASOEXA:
+    official_name: Casos examinados
+    translated_name: Cases examined
+    description: 'How many people were examined. On the trachoma survey form, where
+      the denominator is a screened population rather than a single patient.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(5) tally; CASOEXA reads casos examinados.
+  NU_CASOPOS:
+    official_name: Casos positivos
+    translated_name: Cases positive
+    description: 'How many were positive. With NU_CASOEXA it gives the prevalence that
+      decides whether mass treatment is indicated for the community.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: N(5) tally; the positive subset of NU_CASOEXA.
+  NU_LOTE:
+    official_name: Número do lote
+    translated_name: Screening batch/lot number
+    description: 'Sequential batch (lote) number for a group of individuals - typically
+      students at one school - examined together in a trachoma active-search screening
+      round, distinct from a case-level notification number.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NTRA''s schema carries NU_CASOEXA (cases examined) and NU_CASOPOS (cases
+      positive) alongside NU_LOTE/NU_LOTE_H/NU_LOTE_V, consistent with aggregate trachoma
+      school-screening surveillance rather than individual case notification.
+
+      '
+  NU_SEMA_EP:
+    official_name: Semana epidemiológica
+    translated_name: Epidemiological week
+    description: 'Epidemiological week in which this trachoma screening batch''s results
+      were recorded/notified - the standard SINAN time-unit field applied to this aggregate
+      surveillance series.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: NU_SEMA_EP = número da semana epidemiológica; standard SINAN aggregate-reporting
+      field.

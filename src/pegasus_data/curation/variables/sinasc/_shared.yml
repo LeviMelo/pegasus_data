@@ -1,0 +1,1273 @@
+# SINASC — columns carried by more than one dataset.
+#
+# The notification header and other cross-dataset fields. Described once
+# against the system, because that is the scope on which they are the
+# same column.
+system: SINASC
+asserted_by: pegasus_data
+
+variables:
+  APGAR1:
+    official_name: Índice de Apgar - 1º minuto
+    translated_name: Apgar score at 1 minute
+    description: 'Apgar score given to this newborn one minute after birth: an integer
+      00–10 summing five clinical signs scored 0–2 each. One value is one baby''s one-minute
+      score, stored zero-padded as a 2-character string.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Índice de Apgar - 1° minuto | APGAR1 | Caracter
+      2 | Números (entre ''00'' e ''10'') | Valor do Índice de Apgar, medido no 1º
+      minuto de vida"
+
+      '
+    notes: '"00" is a real and clinically extreme score, not a missing marker — a naive
+      numeric cast that turns blanks into 0 will manufacture asphyxiated newborns.
+      The catalog binds this column to the APGAR codelist; APGAR.CNV is a TabNet *banding*
+      of the numeric score for tabulation, not a code system, so keep the number.
+
+      '
+  APGAR5:
+    official_name: Índice de Apgar - 5º minuto
+    translated_name: Apgar score at 5 minutes
+    description: 'Apgar score given to the same newborn five minutes after birth, integer
+      00–10, stored zero-padded as a 2-character string. Independent of APGAR1: it
+      is a second observation, and the five-minute value is the one most published
+      indicators use.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Índice de Apgar - 5° minuto | APGAR5 | Caracter
+      2 | Números (entre ''00'' e ''10'') | Valor do Índice de Apgar, medido no 5º
+      minuto de vida"
+
+      '
+    notes: 'Same trap as APGAR1: "00" is a score, not a blank. Bound to APGAR.CNV,
+      which is a tabulation banding rather than a codelist.
+
+      '
+  AREA:
+    official_name: Área de residência
+    translated_name: Residence sub-area code
+    description: 'A locally assigned code for a residence area or district smaller
+      than the municipality, from the 1994-1995 birth-record layout. Each state or
+      municipality numbers these independently; no national lookup table exists for
+      the codes.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'SIM''s parallel 1979-1995 legacy layout documents its equivalent field,
+      AREARES, as "Área de residência...atribuído por cada estado e/ou município, não
+      fazendo parte da base nacional" (ESTRUTURA-SIM pos. 16). SINASC''s AREA is the
+      same era and naming grammar, so is read the same way.
+
+      '
+  BAIRRO_MAE:
+    official_name: Bairro de residência da mãe
+    translated_name: Neighbourhood of the mother's residence
+    description: 'Code of the neighbourhood within the mother''s municipality of residence,
+      in the 1994–1995 layout. Declared C(3) and locally assigned, so it identifies
+      a neighbourhood only in combination with MUNI_MAE.
+
+      '
+    code_system: none
+    depends_on:
+    - MUNI_MAE
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'The name is transparent Portuguese — BAIRRO (neighbourhood) suffixed
+      _MAE (mother), matching the _MAE / _OCOR residence-versus-occurrence pairing
+      this layout uses throughout (MUNI_MAE / MUNI_OCOR). NASC.DEF-1995 hangs a "Bairro
+      Resid" BAIRROS.CNV axis off the residence side of the record, and the 1996+ layout
+      documents a CODBAIRES "Código do bairro de residência" in exactly this role.
+      The column is declared C(3), i.e. a short code, not a name.
+
+      '
+    notes: 'No codelist is bound to this column in the catalog and no national bairro
+      register exists, so the code has no label outside the originating municipality.
+
+      '
+  CARTORIO:
+    official_name: Cartório
+    translated_name: Registry office code
+    description: 'Identifier of the civil registry office where the birth was registered,
+      in the 1994–1995 layout — the predecessor of CODCART. Observed values are 4-digit
+      zero-padded numbers.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'The column name is the Portuguese word for a civil registry office,
+      it is declared C(4), it sits beside DATA_CART ("Ano/Mês do Registro" in NASC.DEF-1995),
+      and the 1996+ layout carries an explicitly documented CODCART "Código do cartório"
+      in exactly this role. Observed values are 4-digit codes such as 0423, 0001, 0106
+      with a distinct 9999 at 2.3% of records, which is the shape of a small enumerated
+      office register.
+
+      '
+    notes: 'No label table for these codes exists in the tree, and no document states
+      whether the numbering is national or per-UF, so do not compare a code across
+      states. The meaning of the 9999 value is not documented anywhere consulted —
+      it is not asserted here.
+
+      '
+  CODANOMAL:
+    official_name: Código da anomalia congênita (CID-10)
+    translated_name: Congenital anomaly code (ICD-10)
+    description: 'ICD-10 (CID-10) code(s) for the congenital malformation or chromosomal
+      anomaly observed in this newborn. From 2006 the column is a fixed-width concatenation
+      of up to five 4-character CID-10 codes in one string; before that it held a single
+      4-character code. Filled only when IDANOMAL = 1.
+
+      '
+    code_system: external
+    codelists:
+    - CID1017
+    - ECLAMC
+    multi_valued: true
+    token_rule:
+      width: 4
+    depends_on:
+    - IDANOMAL
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Descrever a(s) anomalia(s) identificada(s) no momento
+      do nascimento | CODANOMAL | Códigos CID 10 | Campo será preenchido apenas se
+      6 = 1"; width history in [EVOL-1996-2019] row 21 (C 9 in 1996, C 16/C 19/C 20
+      from 2006); single-code C(04) form documented in [ESTRUTURA-ANT] "CODANOMAL (C04)
+      ... de acordo com a CID-10".
+
+      '
+    vintage_note: 'One code per record up to 2005; up to five concatenated codes from
+      2006. Splitting every vintage on width 4 is safe, but counting "records with
+      an anomaly" by string equality will silently disagree across the 2006 boundary.
+
+      '
+    notes: 'The catalog also binds grouping tables (ACPRIOR2025, GRUPOSPRIOR2025, ECLAMC,
+      CID1017). Those are TabNet groupings of CID-10 chapters/priority groups applied
+      to the split tokens, not alternative code systems — the stored value is CID-10.
+
+      '
+  CODMUNNASC:
+    official_name: Município de ocorrência do nascimento (código)
+    translated_name: Municipality of birth occurrence (code)
+    description: 'IBGE code of the municipality where the birth physically happened
+      — the hospital''s municipality for institutional births. This is NOT where the
+      mother lives: that is CODMUNRES, and the two differ systematically because women
+      travel to referral maternity hospitals, so counting births by this column measures
+      where obstetric capacity sits, not where the population is.
+
+      '
+    code_system: external
+    codelists:
+    - CAPITAIS
+    - CIRAC
+    - CIRACC
+    - CIRACN
+    - CIRAL
+    - CIRALC
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Município da ocorrência (Código) | CODMUNNASC |
+      Caracter 7 | Números | Código do município de nascimento | Campo obrigatório";
+      [EVOL-1996-2019] row 3 "Código IBGE do município de nascimento".
+
+      '
+    notes: 'DATASUS stores the 6-digit IBGE municipality code (2-digit UF + 4 digits),
+      with the IBGE check digit dropped, inside a field declared 7–10 characters wide.
+      Joining against a 7-digit IBGE table without truncating will match nothing.
+
+      '
+  CODOCUPMAE:
+    official_name: Código de ocupação da mãe (CBO)
+    translated_name: Mother's occupation code (CBO)
+    description: 'Occupation of the mother coded to the Classificação Brasileira de
+      Ocupações. One value is the job the mother reported, coded by the person filling
+      the form — it is a socioeconomic proxy collected at the maternity, not an employment
+      record.
+
+      '
+    code_system: external
+    codelists:
+    - CBO2002
+    - GRUPO1
+    - GRUPO2
+    - GRUPO3
+    - GRUPO4
+    - GRUPOCUP
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Código CBO 2002 | CODOCUPMAE | Caracter 6 | números
+      | Código de ocupação da mãe conforme tabela do CBO (Código Brasileiro de Ocupações)"
+
+      '
+    vintage_note: 'The classification changed under the column: [ESTRUTURA-ANT] gives
+      CODOCUPMAE as C(05) coded to the pre-2002 CBO for the CD-ROM-era files and C(06)
+      coded to CBO-2002 for the later structure. NASCIDO.def carries both a CBO2002
+      lookup and an "Ocup Sist Antigo" (OCUPA.CNV) lookup for the same column. Codes
+      are not comparable across the changeover without a conversion table.
+
+      '
+  CODUFNATU:
+    official_name: Código da UF de naturalidade da mãe
+    translated_name: State-of-birth code of the mother
+    description: 'IBGE 2-digit code of the Brazilian federative unit where the mother
+      was born. Pairs with CODMUNNATU (municipality of birth of the mother). Distinct
+      from the UF of residence (implied by CODMUNRES) and from the UF of the birth
+      (CODMUNNASC).
+
+      '
+    code_system: external
+    codelists:
+    - UFC
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "CODUFNATU | Caracter 2 | Números | Código da UF
+      de naturalidade da mãe"; [EVOL-1996-2019] row 61 gives 2013 as the first year
+      in the microdata.
+
+      '
+  CONSPRENAT:
+    official_name: Número de consultas de pré-natal
+    translated_name: Number of prenatal visits
+    description: 'Actual count of prenatal consultations attended during this pregnancy,
+      as an integer (the DN redesign replaced the banded CONSULTAS with this). One
+      of the two inputs to the derived KOTELCHUCK adequacy index.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Número de consultas de pré-natal | CONSPRENAT |
+      Caracter 2 | Número de consultas pré-natal por semana de gestação"; [DIC-DN]
+      "CONSPRENAT caracter 2 Número de consultas pré-natal".
+
+      '
+    notes: 'The catalog binds SEMADUM.CNV to this column — that is the gestational-week
+      banding table NASCIDO.def also uses for SEMAGESTAC, reused as a numeric-banding
+      axis. It is not a code system and it is not about weeks here; the stored value
+      is a visit count. Available only from 2010–2011 onward.
+
+      '
+  CONSULTAS:
+    official_name: Número de consultas de pré-natal (agrupado)
+    translated_name: Number of prenatal visits (banded)
+    description: 'Banded number of prenatal consultations the mother attended: 1 Nenhuma,
+      2 de 1 a 3, 3 de 4 a 6, 4 7 e mais, 9 Ignorado. The value is already a band,
+      not a number — "4" means seven or more visits, not four visits.
+
+      '
+    code_system: internal
+    codelists:
+    - CONSULTAS
+    - CONSULT
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Número de consultas de pré-natal (DN antiga) | CONSULTAS
+      | Caracter 1 | 1– Nenhuma; 2– de 1 a 3; 3– de 4 a 6; 4– 7 e mais; 9– Ignorado
+      | Número de consultas de pré-natal Agrupada"
+
+      '
+    notes: 'This is the "DN antiga" banded field, kept alongside the exact count CONSPRENAT
+      from 2010–2011. Averaging or summing this column produces a meaningless number;
+      and mixing it with CONSPRENAT in one series compares a band code with a visit
+      count.
+
+      '
+  CONTADOR:
+    official_name: Número identificador do registro
+    translated_name: Record counter
+    description: 'A sequential counter DATASUS stamps on the records of a published
+      file. Observed values are small integers running from 1 upward within a file,
+      so it orders rows inside one file and nothing more — it is not the DN number
+      (NUMERODN), it does not identify a birth, and it repeats across every file in
+      the tree.
+
+      '
+    code_system: none
+    source: web
+    source_ref: '[EVOL-1996-2019] row 1: "CONTADOR C 8 — Número identificador do registro
+      — 1996" https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+
+      '
+    notes: 'Using it as a key, a join column or a de-duplication id will silently collide:
+      the value 1 exists once per file, in 1621 files.
+
+      '
+  CRITICA:
+    official_name: Crítica
+    translated_name: Internal edit/QA flag
+    description: 'An internal data-quality control code from the 1994-1995 legacy birth-record
+      layout. DATASUS''s documentation for the identical field in its sibling systems
+      gives it no meaning beyond "data for internal control," so individual codes are
+      not decodable.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'SIM''s ESTRUTURA-SIM documents CRITICA at the same C(7) width in its
+      own 1979-1995 legacy layout as "Dado para controle interno." SINASC''s CRITICA
+      shares the field name, the width, and the vintage, indicating the same bookkeeping
+      role.
+
+      '
+  CRS_MAE:
+    official_name: CRS de residência da mãe
+    translated_name: Health-region code of mother's residence (locally coded)
+    description: 'Code of the health region (Coordenadoria/Regional de Saúde) of the
+      mother''s residence, in the 1994-1995 legacy layout. Assigned independently by
+      each state or municipality, so the same code means different regions in different
+      places.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'SIM''s parallel legacy layout has CRSRES, "Regional de Saúde de residência...não
+      fazendo parte da base nacional" (ESTRUTURA-SIM pos. 47). SINASC''s residence
+      concept in this era attaches to the mother rather than the record subject, which
+      is why the SINASC field is named for the mother instead of "RES" generically.
+
+      '
+  CRS_OCOR:
+    official_name: CRS de ocorrência
+    translated_name: Health-region code of occurrence (locally coded)
+    description: 'Code of the health region (Coordenadoria/Regional de Saúde) where
+      the birth occurred, in the 1994-1995 legacy layout. Locally assigned by each
+      state or municipality, not standardized at national level.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'SIM''s parallel legacy layout has CRSOCOR, "Regional de Saúde de ocorrência...não
+      fazendo parte da base nacional" (ESTRUTURA-SIM pos. 46). SINASC''s CRS_OCOR shares
+      the name stem, the era, and the paired occurrence/residence field pattern.
+
+      '
+  DATA_CART:
+    official_name: Data do registro em cartório
+    translated_name: Date of civil registration
+    description: 'Date the birth was registered at the civil registry office, in the
+      1994–1995 layout — the predecessor of DTREGCART. It is a registration date, not
+      the birth date (DATA_NASC).
+
+      '
+    code_system: none
+    source: def
+    source_ref: '[NASC.DEF-1995] declares DATA_CART as "Ano do Registro" (ANO.CNV)
+      and "Mês do Registro" (MESES.CNV).
+
+      '
+    notes: 'Bound to ANO and MESES, which are tabulation axes derived from the date
+      rather than codelists.
+
+      '
+  DATA_NASC:
+    official_name: Data do nascimento
+    translated_name: Date of birth
+    description: 'Date this baby was born, in the 1994–1995 file layout — the predecessor
+      of DTNASC.
+
+      '
+    code_system: none
+    source: def
+    source_ref: '[NASC.DEF-1995] declares DATA_NASC twice, as "Ano do Nascimento" (ANO.CNV)
+      and "Mês do Nascimento" (MESES.CNV).
+
+      '
+    notes: 'The catalog binds ANO and MESES to this column. Those are TabNet year-
+      and month-extraction axes over a date, not codelists — the stored value is a
+      date.
+
+      '
+  DTDECLARAC:
+    official_name: Data do preenchimento da declaração
+    translated_name: Date the birth declaration was filled in
+    description: 'Date the Declaração de Nascido Vivo form itself was completed, ddmmaaaa.
+      It is an administrative date about the paperwork, not about the birth (DTNASC),
+      the data entry (DTCADASTRO) or the civil registration (DTREGCART).
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Data do preenchimento | DTDECLARAC | Caracter 8
+      | ddmmaaaa | Data do preenchimento da declaração"
+
+      '
+  DTNASCMAE:
+    official_name: Data de nascimento da mãe
+    translated_name: Mother's date of birth
+    description: 'The mother''s own date of birth as ddmmaaaa. Personal data about
+      an identified individual: combined with CODMUNRES and DTNASC it is a strong re-identification
+      key, and it passes through the public microdata unmodified.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Data de nascimento da mãe | DTNASCMAE | Caracter
+      8 | ddmmaaaa"
+
+      '
+    notes: 'IDADEMAE is collected separately on the same form rather than derived from
+      this field, so the two can disagree; neither is authoritative over the other.
+
+      '
+  DTULTMENST:
+    official_name: Data da última menstruação (DUM)
+    translated_name: Date of last menstrual period
+    description: 'First day of the mother''s last menstrual period, ddmmaaaa, as reported
+      on the DNV. It is the input the form intends for gestational age; SEMAGESTAC
+      and the banded GESTACAO are meant to be filled from an alternative method (TPMETESTIM)
+      when this is unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Data da última menstruação (DUM) | DTULTMENST |
+      Caracter 8 | ddmmaaaa"
+
+      '
+    notes: 'Recall-based. Gestational age computed from it will disagree with ultrasound-based
+      estimates, and the disagreement is not random with respect to prenatal care access.
+
+      '
+  ESTAB_OCOR:
+    official_name: Estabelecimento de ocorrência
+    translated_name: Establishment where the birth occurred
+    description: 'Identifier of the health establishment where the birth happened,
+      in the 1994–1995 layout. Declared C(6) and predating CNES (which SINASC only
+      adopts for CODESTAB from 2000), so these are pre-CNES establishment codes and
+      will not join to a CNES register.
+
+      '
+    code_system: none
+    depends_on:
+    - MUNI_OCOR
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'ESTAB is DATASUS''s standard abbreviation for estabelecimento (de saúde)
+      and _OCOR is the occurrence-side suffix this layout uses consistently (MUNI_OCOR,
+      LOCAL_OCOR, CRS_OCOR). The column is declared C(6), the width of an establishment
+      code rather than a name, and the 1996+ layout documents CODESTAB "Código do estabelecimento
+      de saúde onde ocorreu o nascimento" filling exactly this slot, appearing in the
+      microdata only from 2000 per [EVOL-1996-2019] row 24.
+
+      '
+    notes: 'No document consulted states which establishment register these codes come
+      from, so they should be treated as opaque within the 1994–1995 files rather than
+      linked anywhere.
+
+      '
+  ESTCIVMAE:
+    official_name: Situação conjugal da mãe
+    translated_name: Mother's marital status
+    description: 'The mother''s conjugal situation as declared on the form: 1 Solteira,
+      2 Casada, 3 Viúva, 4 Separada judicialmente/divorciada, 5 União estável (consensual),
+      9 Ignorada. Legal status and stable-union status are mixed in one axis, so "Solteira"
+      does not mean living alone.
+
+      '
+    code_system: internal
+    codelists:
+    - ESTCIVMAE
+    - ESTCIV
+    - SITCONJU
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Situação conjugal | ESTCIVMAE | Caracter 1 | 1–
+      Solteira; 2– Casada; 3– Viúva; 4– Separada judicialmente/divorciada; 5– União
+      estável; 9– Ignorada"
+
+      '
+    vintage_note: 'The oldest layout ([ESTRUTURA-ANT], estrutura para CD-ROM) lists
+      only 1–4 and 9, noting 5 União consensual as belonging to "versões anteriores".
+      Both ESTCIV.CNV and SITCONJU.CNV are bound; they are two TabNet labellings of
+      the same column from different eras, so pick one deliberately rather than letting
+      width matching choose.
+
+      '
+  ETNIA:
+    official_name: Etnia
+    translated_name: Ethnicity (likely Indigenous ethnic group)
+    description: 'A short numeric code recording ethnicity, present in this 1994-1995
+      vintage of the birth record. By the naming convention DATASUS used elsewhere
+      at the same time, this most likely records Indigenous ethnic group of the mother
+      or newborn.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'SIM introduced an identically-named ETNIA field in 1995, read there
+      as Indigenous ethnicity because it was added alongside RACACOR (race/colour,
+      code 5 = Indígena). SINASC''s own 1996+ layout adds RACACOR the very next year,
+      so an ETNIA field appearing in SINASC''s 1994-1995 records fits the same system-wide
+      timing.
+
+      '
+    notes: 'No codelist survives in the catalog for this column; treat individual codes
+      as uninterpretable without a table.
+
+      '
+  FIL_ABORT:
+    official_name: Abortos
+    translated_name: Previous abortions
+    description: 'How many of this mother''s previous pregnancies ended in abortion,
+      in the 1994–1995 layout. Reported separately from stillbirths here, unlike in
+      the 1996+ layout.
+
+      '
+    code_system: none
+    source: def
+    source_ref: '[NASC.DEF-1995] "Abortos" with lookup TIDOS.CNV.
+
+      '
+    notes: 'Bound to TIDOS.CNV, a banding of the count rather than a codelist. To compare
+      with 1996+ data, FIL_MORTOS and FIL_ABORT together correspond to QTDFILMORT.
+
+      '
+  FIL_MORTOS:
+    official_name: Filhos nascidos mortos
+    translated_name: Previous stillbirths
+    description: 'How many of this mother''s previous pregnancies ended in a stillbirth,
+      in the 1994–1995 layout — the predecessor of the fetal-loss half of QTDFILMORT.
+
+      '
+    code_system: none
+    source: def
+    source_ref: '[NASC.DEF-1995] "Filhos Nasc.Mortos" with lookup TIDOS.CNV.
+
+      '
+    notes: 'Bound to TIDOS.CNV, a banding of the count rather than a codelist. The
+      1996+ layout merges stillbirths and abortions into one QTDFILMORT ("número de
+      perdas fetais e abortos") while this layout keeps FIL_MORTOS and FIL_ABORT apart
+      — the two eras are not directly comparable.
+
+      '
+  FIL_VIVOS:
+    official_name: Filhos nascidos vivos
+    translated_name: Previous live births
+    description: 'How many children this mother had previously borne alive, in the
+      1994–1995 layout — the predecessor of QTDFILVIVO. Previous children, excluding
+      the baby this record is about.
+
+      '
+    code_system: none
+    source: def
+    source_ref: '[NASC.DEF-1995] "Filhos Nasc.Vivos" with lookup TIDOS.CNV.
+
+      '
+    notes: 'TIDOS.CNV is a TabNet banding of the number ("filhos tidos"), not a code
+      system — the stored value is a count.
+
+      '
+  HORANASC:
+    official_name: Hora do nascimento
+    translated_name: Time of birth
+    description: 'Clock time of the birth on a 24-hour clock. The filling instruction
+      explicitly allows an approximate time ("horário exato ou aproximado"), so this
+      is what the attendant wrote down, not an instrument reading.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Hora | HORANASC | Caracter 5 | Números (padrão 24
+      horas 00:00) | Horário exato ou aproximado do nascimento do recém nascido"
+
+      '
+    notes: 'Because approximate times are accepted, the distribution piles up on whole
+      and half hours — do not read hour-of-day peaks as a real circadian signal without
+      accounting for rounding. The catalog binds this to the HORAOBITO codelist; HORAOBITO.CNV
+      is SIM''s hour-band tabulation axis reused for tabulation, not a code system
+      — the value is a time. Declared width varies by vintage (the published DBF header
+      often reports the field-name length rather than the value length).
+
+      '
+  IDADEPAI:
+    official_name: Idade do pai
+    translated_name: Father's age
+    description: 'The father''s age in completed years at the time of the birth, as
+      declared. It is the only paternal variable in the published microdata — the father''s
+      name (NOMEPAI) is in the DN table but not in the public extract.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Idade do pai | IDADEPAI | Caracter 2 | Números";
+      block "IV - Pai".
+
+      '
+    notes: 'The catalog binds IDADEPAI.CNV, which is a TabNet age-band axis over the
+      number, not a code system — the stored value is the age itself.
+
+      '
+  IDADE_MAE:
+    official_name: Idade da mãe
+    translated_name: Mother's age
+    description: 'The mother''s age in completed years at the birth, in the 1994–1995
+      layout — the predecessor of IDADEMAE.
+
+      '
+    code_system: none
+    source: def
+    source_ref: '[NASC.DEF-1995] "Fx.Etária da Mãe" with lookup IDADEMAE.CNV.
+
+      '
+    notes: 'IDADEMAE.CNV is a TabNet age-band axis over the number, not a code system;
+      the stored value is the age.
+
+      '
+  IDANOMAL:
+    official_name: Anomalia congênita identificada
+    translated_name: Congenital anomaly detected
+    description: 'Whether any congenital anomaly was identified in this newborn at
+      the moment of birth: 1 Sim, 2 Não, 9 Ignorado. It is the gate for CODANOMAL —
+      the layout instructs that the anomaly description be filled only when this is
+      1.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Anomalia congênita | IDANOMAL | Caracter 1 | 1–
+      Sim; 2– Não; 9– Ignorado | Anomalia congênita identificada no momento do nascimento"
+
+      '
+    notes: 'Detection at birth only. It undercounts congenital anomalies that are diagnosed
+      later, so it is a birth-hospital screening indicator rather than a prevalence
+      measure.
+
+      '
+  INSTR_MAE:
+    official_name: Grau de instrução da mãe
+    translated_name: Mother's schooling
+    description: 'The mother''s schooling band, in the 1994–1995 layout — the predecessor
+      of ESCMAE, using the same INSTRUC label table (completed years of study, banded).
+
+      '
+    code_system: internal
+    codelists:
+    - INSTRUC
+    source: def
+    source_ref: '[NASC.DEF-1995] "Grau de Instrução" with lookup INSTRUC.CNV, the same
+      CNV NASCIDO.def binds to ESCMAE.
+
+      '
+    notes: 'Banded years of study, so it is not comparable with the post-2010 ESCMAE2010
+      / ESCMAEAGR1 schooling-level codes without a crosswalk.
+
+      '
+  KOTELCHUCK:
+    official_name: Índice de Kotelchuck — adequação da assistência pré-natal
+    translated_name: Kotelchuck prenatal care adequacy index
+    description: 'Adequacy of prenatal care for this pregnancy on the Kotelchuck scale,
+      computed by the SINASC application from the number of consultations and the month
+      care began: 1 Não fez pré-natal, 2 Inadequado, 3 Intermediário, 4 Adequado, 5
+      Mais que adequado, 6 Não classificados (inputs null or ignored).
+
+      '
+    code_system: internal
+    codelists:
+    - KOTELCHUCK
+    depends_on:
+    - CONSPRENAT
+    - MESPRENAT
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "KOTELCHUCK | Caracter 1 | 1 Não fez pré-natal (Campo33=0);
+      2 Inadequado (Campo34>3 ou Campo34<=3 e Campo33<3); 3 Intermediário (Campo34<=3
+      e Campo33 entre 3 e 5); 4 Adequado (Campo34<=3 e Campo33=6); 5 Mais que adequado
+      (Campo34<=3 e Campo33>=7); 6 Não Classificados (campos 33 ou 34, Nulo ou Ign)
+      | Códigos de classificação de adequação ao pré natal, gerado pelo sistema"
+
+      '
+    notes: 'Derived, available only from 2014, and its category 6 absorbs every record
+      with a missing input — so the share in categories 1–5 is conditional on completeness
+      of CONSPRENAT and MESPRENAT, and improves when reporting improves. DATASUS''s
+      own implementation bands the consultation count in a way that does not match
+      the published Kotelchuck index exactly; do not assume comparability with literature
+      values.
+
+      '
+  LOCAL_OCOR:
+    official_name: Local de ocorrência
+    translated_name: Place where the birth occurred
+    description: 'The kind of place the birth happened in, in the 1994–1995 layout
+      — the predecessor of LOCNASC, drawing on the same LOCOCOR label table.
+
+      '
+    code_system: internal
+    codelists:
+    - LOCOCOR
+    source: def
+    source_ref: '[NASC.DEF-1995] "Local Ocorrência" with lookup LOCOCOR.CNV, the same
+      CNV NASCIDO.def binds to LOCNASC.
+
+      '
+  LOCNASC:
+    official_name: Local de ocorrência do nascimento
+    translated_name: Place where the birth occurred
+    description: 'The kind of place this birth happened in: 1 Hospital, 2 Outros estabelecimentos
+      de saúde, 3 Domicílio, 4 Outros, 5 Aldeia indígena, 9 Ignorado. When it is 1
+      or 2 the layout requires CODESTAB and CODMUNNASC to be filled.
+
+      '
+    code_system: internal
+    codelists:
+    - LOCNASC
+    - LOCOCOR
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Local de ocorrência | LOCNASC | Caracter 1 | 1 –
+      Hospital; 2 – Outros estabelecimentos de saúde; 3 – Domicílio; 4 – Outros; 5
+      - Aldeia Indígena; 9 - Ignorado | Local onde ocorreu o nascimento | Campo obrigatório.
+      Se 7 = 1 ou 2, preencher 8 e 9"
+
+      '
+    vintage_note: 'Code 5 (Aldeia indígena) is a later addition; the older layouts
+      ([ESTRUTURA-ANT], [DIC-DN]) list only 1–4 and 9, so a 1996-era file will never
+      carry it and an absence of code 5 in early years is a form change, not a finding.
+
+      '
+    notes: 'Declared width in the published DBFs is C(7), which is the length of the
+      field name, not the length of the value — the value is a single character.
+
+      '
+  MESPRENAT:
+    official_name: Mês de gestação em que iniciou o pré-natal
+    translated_name: Month of pregnancy when prenatal care began
+    description: 'The month of pregnancy in which the mother had her first prenatal
+      consultation: 01 Primeiro through 09 Nono, 99 Ignorado. Early start (months 1–3)
+      is the timeliness half of prenatal-care adequacy; it is the second input to KOTELCHUCK.
+
+      '
+    code_system: internal
+    codelists:
+    - MEGEST
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Mês de gestação em que iniciou o pré-natal | MESPRENAT
+      | Caracter 2 | 01- Primeiro; 02-Segundo; 03-Terceiro; 04-Quarto, 05-Quinto; 06-Sexto;
+      07-Sétimo; 08-Oitavo; 09-Nono; 99-Ignorado"
+
+      '
+    notes: '99 is the ignored marker, not a month — treating this as numeric without
+      excluding 99 will push mean start-of-care into the tenth decade of pregnancy.
+
+      '
+  MUNI_MAE:
+    official_name: Município de residência da mãe
+    translated_name: Municipality of the mother's residence
+    description: 'IBGE code of the municipality where the mother lived, in the 1994–1995
+      layout — the predecessor of CODMUNRES. This is the denominator geography for
+      natality rates; MUNI_OCOR is not.
+
+      '
+    code_system: external
+    codelists:
+    - BR_CAPITAL
+    - AC_MUNICIP
+    - AL_MUNICIP
+    - AM_MUNICIP
+    - AP_MUNICIP
+    - BA_MUNICIP
+    source: def
+    source_ref: '[NASC.DEF-1995] declares MUNI_MAE with the residence-side municipality
+      lookups ("Capital Resid" BR_CAPITAL.CNV, "Munic Resid-XX" MUNICxx.CNV) and a
+      "Bairro Resid" BAIRROS.CNV entry.
+
+      '
+    notes: 'Same .DEF quirk as MUNI_OCOR: a BAIRROS neighbourhood table is bound to
+      a municipality column.
+
+      '
+  MUNI_OCOR:
+    official_name: Município de ocorrência
+    translated_name: Municipality of birth occurrence
+    description: 'IBGE code of the municipality where the birth happened, in the 1994–1995
+      layout — the predecessor of CODMUNNASC. As with the modern column, this is where
+      the maternity is, not where the mother lives (MUNI_MAE).
+
+      '
+    code_system: external
+    codelists:
+    - BR_CAPITAL
+    - AC_MUNICIP
+    - AL_MUNICIP
+    - AM_MUNICIP
+    - AP_MUNICIP
+    - BA_MUNICIP
+    source: def
+    source_ref: '[NASC.DEF-1995] declares MUNI_OCOR with the occurrence-side municipality
+      lookups ("Capital Ocorr" BR_CAPITAL.CNV, "Munic Ocorr-XX" MUNICxx.CNV) and a
+      "Bairro Ocor" BAIRROS.CNV entry.
+
+      '
+    notes: 'NASC.DEF also hangs a "Bairro Ocor" (BAIRROS.CNV) axis off this same column,
+      so the catalog binds a neighbourhood table to a municipality column. That binding
+      comes from the .DEF, not from the data; the stored value is a municipality code.
+
+      '
+  NATURALMAE:
+    official_name: Naturalidade da mãe
+    translated_name: Mother's place of birth (country, when foreign)
+    description: 'Where the mother was born. The layout states that when the mother
+      is foreign this 3-digit field carries the DATASUS country code of her country
+      of birth; a Brazilian mother''s place of birth is expressed instead through CODUFNATU
+      and CODMUNNATU.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Naturalidade da mãe | NATURALMAE | Caracter 3 |
+      Números | Se a mãe for estrangeira, constará o código do país de nascimento";
+      identical wording in [DIC-DN] and [EVOL-1996-2019] row 37.
+
+      '
+    depends_on:
+    - CODUFNATU
+    - CODMUNNATU
+    notes: 'Nothing in the layouts says what this holds for a Brazilian-born mother,
+      so do not read a non-blank value as "foreign" without checking the codes against
+      the DATASUS país table. No codelist is bound to it in the catalog.
+
+      '
+  NUM_EXPORT:
+    official_name: Número de exportação
+    translated_name: Export/batch sequence number
+    description: 'Sequence number stamped onto this record by the export process that
+      moved it out of the originating system, in the 1994–1995 legacy layout. Administrative
+      bookkeeping generated by data transmission, not something recorded on the birth
+      certificate — it carries no demographic or clinical content and is not safe to
+      use as a durable record identifier, since a re-export can renumber it.
+
+      '
+    code_system: none
+    source: inferred
+    asserted_by: pegasus_data
+    reasoning: 'NUM_ is the transparent Portuguese abbreviation for número ("number")
+      and EXPORT is the English word used as-is, together reading plainly as "export
+      number". The 1996+ layout documents an analogous purely-internal housekeeping
+      field in the same pipeline, NUMEROLOTE ("Número do lote... Campo interno do sistema",
+      per Estrutura_SINASC_para_CD.pdf), which confirms DATASUS''s SINASC processing
+      tracks batch/transmission sequence numbers as system bookkeeping separate from
+      the certificate''s substantive fields. The column is declared C(3)/C(10), the
+      width of an integer counter stored as text.
+
+      '
+    notes: 'No document consulted confirms the exact scope of the counter (per file,
+      per batch, per municipality, per submission) or ties it explicitly to the same
+      mechanism as NUMEROLOTE — only that it is administrative rather than clinical/demographic
+      in nature. Treat the numbering rule itself as unconfirmed.
+
+      '
+    vintage_note: 'Present only in the 1994–1995 legacy files in this tree (167 files:
+      DN, DNR, DNRIG).
+
+      '
+  PARIDADE:
+    official_name: Paridade
+    translated_name: Parity (nulliparous / multiparous)
+    description: 'Whether this is the mother''s first delivery or not: 0 nulípara,
+      1 multípara, 9 ignorado. It is computed by the SINASC application from the obstetric-history
+      counts, not collected on the form.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "PARIDADE | Caracter 1 | 0-nulípara; 1 multipara;
+      9- ignorado | Variável calculada pelo sistema"; [EVOL-1996-2019] row 68 "Define
+      se é a primeira gravidez ou se teve mais de uma. 1 – Multípara; 0- Nulípara"
+      from 2014.
+
+      '
+    notes: 'Derived, so it inherits every gap in QTDGESTANT/QTDPARTNOR/QTDPARTCES.
+      Available only from 2014 — a parity series that starts earlier has to be rebuilt
+      from the counts, and will not reproduce these values exactly. No codelist is
+      bound to it in the catalog.
+
+      '
+  PRE_NATAL:
+    official_name: Consultas de pré-natal
+    translated_name: Prenatal visits (banded)
+    description: 'Banded prenatal consultation history for this pregnancy in the 1994–1995
+      layout — the predecessor of CONSULTAS. Declared C(1), so the stored value is
+      a band code and not a visit count.
+
+      '
+    code_system: internal
+    codelists:
+    - PRENATAL
+    source: def
+    source_ref: '[NASC.DEF-1995] "Consult Pré-Natal" with lookup PRENATAL.CNV.
+
+      '
+    notes: 'PRENATAL.CNV and the later CONSULT.CNV are different tables; do not assume
+      the band boundaries match CONSULTAS when splicing a 1994–1995 series onto 1996+.
+
+      '
+  QTDGESTANT:
+    official_name: Número de gestações anteriores
+    translated_name: Number of previous pregnancies
+    description: 'How many pregnancies this mother had before the present one, as declared
+      in the "Histórico Gestacional" block of the DNV. Previous pregnancies, not previous
+      births — QTDPARTNOR + QTDPARTCES counts deliveries and QTDFILMORT counts fetal
+      losses.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Histórico Gestacional - n° de gestações anteriores
+      | QTDGESTANT | Caracter 2 | Número | Número de gestações anteriores"
+
+      '
+    notes: 'Bound to GESTANT.CNV, which is a TabNet banding of the number for tabulation,
+      not a codelist — keep the number.
+
+      '
+  QTDPARTCES:
+    official_name: Número de partos cesáreos anteriores
+    translated_name: Number of previous caesarean deliveries
+    description: 'How many caesarean deliveries this mother had before the present
+      birth. A non-zero value is what puts a woman in the "previous caesarean" Robson
+      groups, so it drives TPROBSON directly.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Histórico Gestacional - n° de cesáreas | QTDPARTCES
+      | Caracter 2 | Número | Número de partos cesáreos"
+
+      '
+    notes: 'Bound to PARTON.CNV, the same TabNet banding used for QTDPARTNOR; it is
+      a count.
+
+      '
+  QTDPARTNOR:
+    official_name: Número de partos vaginais anteriores
+    translated_name: Number of previous vaginal deliveries
+    description: 'How many vaginal deliveries this mother had before the present birth.
+      One of the inputs the system uses to derive PARIDADE and the Robson group (TPROBSON).
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Histórico Gestacional - n° de partos vaginais |
+      QTDPARTNOR | Caracter 2 | Número | Número de partos vaginais"
+
+      '
+    notes: 'Bound to PARTON.CNV, a TabNet banding of the count rather than a code system.
+
+      '
+  RACACORMAE:
+    official_name: Raça/cor da mãe
+    translated_name: Mother's race/colour
+    description: 'Race/colour of the mother as declared: 1 Branca, 2 Preta, 3 Amarela,
+      4 Parda, 5 Indígena. Present from 2010–2011, when the redesigned DNV moved race/colour
+      from the newborn''s block into the mother''s block.
+
+      '
+    code_system: internal
+    codelists:
+    - RACACORMAE
+    - RACA
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Raça/cor da mãe | RACACORMAE | Caracter 1 | 1– Branca;
+      2– Preta; 3– Amarela; 4– Parda; 5– Indígena | Tipo de raça e cor da mãe"
+
+      '
+    notes: 'This is the MOTHER''s race/colour. Substituting it for the newborn''s (RACACOR
+      / RACACOR_RN / RACACORN) to patch the 2011 break changes what is being measured;
+      the layouts show no 9/Ignorado code here, so missingness appears as blank rather
+      than as a category.
+
+      '
+  RACCOR:
+    official_name: Raça/cor
+    translated_name: Race/colour
+    description: 'Race/colour recorded for the newborn in the 1994–1995 layout — the
+      predecessor of RACACOR.
+
+      '
+    code_system: internal
+    codelists:
+    - RACACOR
+    source: def
+    source_ref: '[NASC.DEF-1995] "Raça/Cor" with lookup RACACOR.CNV.
+
+      '
+  STCESPARTO:
+    official_name: A cesárea ocorreu antes do trabalho de parto iniciar?
+    translated_name: Caesarean performed before labour began?
+    description: 'For a caesarean delivery, whether it was performed before labour
+      started: 1 Sim, 2 Não, 3 Não se aplica (vaginal birth), 9 Ignorado. It separates
+      pre-labour (elective or indicated) caesareans from intrapartum ones, which is
+      the distinction Robson group assignment turns on.
+
+      '
+    code_system: internal
+    codelists:
+    - STPARTO
+    depends_on:
+    - PARTO
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Cesárea decorreu antes do trabalho de parto iniciar?
+      | STCESPARTO | Caracter 1 | 1-Sim; 2-Não; 3 - Não se aplica; 9-Ignorado | Cesárea
+      ocorreu antes do trabalho de parto iniciar"
+
+      '
+  STDNEPIDEM:
+    official_name: Status de DN Epidemiológica
+    translated_name: Epidemiological birth declaration flag
+    description: 'Internal system flag on the record: 1 SIM, 0 NÃO, marking the declaration
+      as "epidemiológica". The layout classes it as a campo interno do sistema.
+
+      '
+    code_system: internal
+    codelists:
+    - DNNOVA
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "STDNEPIDEM | Caracter 1 | 1 – SIM; 0 – NÃO | Status
+      de DN Epidemiológica | Campo interno do sistema"
+
+      '
+    notes: 'The bound codelist is DNNOVA — the same CNV serves STDNNOVA and this column,
+      so the codelist name does not identify which flag you are reading. As with STDNNOVA,
+      the published dictionaries write "DO Epidemiológica"; that is their typo. No
+      document in the tree or online states the rule that sets this flag, so it should
+      not be filtered on without first checking its distribution by year and UF.
+
+      '
+  STDNNOVA:
+    official_name: Status de DN Nova
+    translated_name: New-model birth declaration flag
+    description: 'Internal system flag on the record: 1 SIM, 0 NÃO. The layout classes
+      it as a "campo interno do sistema" describing the record, not the birth.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "STDNNOVA | Caracter 1 | 1 – SIM; 0 – NÃO | Status
+      de DN Nova | Campo interno do sistema"
+
+      '
+    notes: 'NASCIDO.def labels the same column "DN novo modelo" through DNNOVA.CNV,
+      which reads as the record having been captured on the redesigned Declaração de
+      Nascido Vivo. Neither the layout nor the DN dictionary states the rule that sets
+      it, so do not use it as a form-version indicator without checking it against
+      the year. DATASUS''s published dictionaries write "Status de DO Nova" here —
+      DO is the death certificate; that is a copy-paste error in their document, not
+      a different field. No codelist is bound to it.
+
+      '
+  STTRABPART:
+    official_name: O trabalho de parto foi induzido?
+    translated_name: Was labour induced?
+    description: 'Whether labour was induced for this delivery: 1 Sim, 2 Não, 3 Não
+      se aplica, 9 Ignorado. "Não se aplica" is the answer for a caesarean performed
+      before labour began, which is the case STCESPARTO records.
+
+      '
+    code_system: internal
+    codelists:
+    - ANOMAL
+    depends_on:
+    - PARTO
+    - STCESPARTO
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "O trabalho de parto foi induzido? | STTRABPART |
+      Caracter 1 | 1– Sim; 2– Não; 9– Ignorado | Houve indução do Trabalho de parto?";
+      [DIC-DN] and [EVOL-1996-2019] row 52 additionally document "3– Não se aplica".
+
+      '
+    notes: 'The bound codelist is called ANOMAL — that is NASCIDO.def reusing a generic
+      Sim/Não/Ignorado CNV whose name comes from the anomaly question. The name says
+      nothing about this column''s meaning; anyone reading codelist names will be misled.
+
+      '
+  TIPO_GRAV:
+    official_name: Tipo de gravidez
+    translated_name: Type of pregnancy
+    description: 'Whether this was a single or multiple pregnancy, in the 1994–1995
+      layout — the predecessor of GRAVIDEZ, using the same GRAVIDEZ label table.
+
+      '
+    code_system: internal
+    codelists:
+    - GRAVIDEZ
+    source: def
+    source_ref: '[NASC.DEF-1995] "Tipo de Gravidez" with lookup GRAVIDEZ.CNV.
+
+      '
+    notes: 'One row is one live-born baby, so a twin birth contributes two rows both
+      flagged as a multiple pregnancy — this column does not count pregnancies.
+
+      '
+  TIPO_PARTO:
+    official_name: Tipo de parto
+    translated_name: Type of delivery
+    description: 'Vaginal or caesarean delivery, in the 1994–1995 layout — the predecessor
+      of PARTO, using the same PARTO label table.
+
+      '
+    code_system: internal
+    codelists:
+    - PARTO
+    source: def
+    source_ref: '[NASC.DEF-1995] "Tipo de Parto" with lookup PARTO.CNV.
+
+      '
+  TPAPRESENT:
+    official_name: Tipo de apresentação do recém-nascido
+    translated_name: Fetal presentation at delivery
+    description: 'How the baby was presenting at delivery: 1 Cefálica, 2 Pélvica ou
+      podálica, 3 Transversa, 9 Ignorado. Non-cephalic presentation is one of the axes
+      that assigns a birth to a Robson group.
+
+      '
+    code_system: internal
+    codelists:
+    - PARAPRE
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Apresentação | TPAPRESENT | Caracter 2 | 1– Cefálica;
+      2– Pélvica ou podálica; 3– Transversa; 9– Ignorado | Tipo de apresentação do
+      RN"
+
+      '
+  TPDOCRESP:
+    official_name: Tipo do documento do responsável
+    translated_name: Type of identifying document of the form-filler
+    description: 'Which kind of identifying document the person who completed the declaration
+      gave: 1 CNES, 2 CRM, 3 COREN, 4 RG, 5 CPF. Only the document *type* is here.
+
+      '
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Tipo documento | TPDOCRESP | Caracter 1 | 1 - CNES,
+      2 - CRM, 3 - COREN, 4 - RG, 5 - CPF | Tipo de documento do responsável pelo preenchimento
+      da declaração"
+
+      '
+    notes: 'The document number itself is a separate field, NUDOCRESP, which appears
+      in the DN table dictionary ([DIC-DN], caracter 20) but not in the published microdata
+      layout — so values 4 and 5 tell you a professional''s RG or CPF was captured
+      upstream even though the number is not in this extract. No codelist is bound
+      to this column in the catalog.
+
+      '
+  TPFUNCRESP:
+    official_name: Tipo de função do responsável pelo preenchimento
+    translated_name: Role of the person who completed the declaration
+    description: 'The role of the person who filled in this Declaração de Nascido Vivo:
+      1 Médico, 2 Enfermeiro/Enfermagem, 3 Parteira, 4 Funcionário do cartório, 5 Outros.
+      Code 4 marks records completed at the civil registry office rather than at the
+      place of birth.
+
+      '
+    code_system: internal
+    codelists:
+    - TPFUNC
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Função | TPFUNCRESP | Caracter 1 | 1 - Médico, 2
+      - Enfermagem, 3 - Parteira, 4 - Func. Cartório, 5 - Outros | Função exercida
+      pelo responsável pelo preenchimento da declaração"
+
+      '
+    notes: 'Describes the form-filler, not the birth attendant — TPNASCASSI is the
+      attendant. The two disagree often and conflating them mis-states who delivered
+      the baby.
+
+      '
+  TPMETESTIM:
+    official_name: Método utilizado para estimar as semanas de gestação
+    translated_name: Method used to estimate gestational age
+    description: 'How the gestational age recorded in SEMAGESTAC was arrived at when
+      the last menstrual period was unknown: 1 Exame físico, 2 Outro método, 9 Ignorado.
+      It qualifies the gestational-age measurement rather than describing the pregnancy.
+
+      '
+    code_system: internal
+    codelists:
+    - TPMETODO
+    modifies: SEMAGESTAC
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Método para estimar | TPMETESTIM | Caracter 2 |
+      1– Exame físico; 2– Outro método; 9– Ignorado | Método utilizado para verificar
+      n° de semanas de gestação"
+
+      '
+  TPNASCASSI:
+    official_name: Nascimento assistido por
+    translated_name: Birth attended by
+    description: 'The professional background of the person who attended this birth:
+      1 Médico, 2 Enfermeira/obstetriz, 3 Parteira, 4 Outros, 9 Ignorado. The layout
+      specifies that for a birth attended by a multiprofessional team, this records
+      the background of the person who led it.
+
+      '
+    code_system: internal
+    codelists:
+    - TPASSIST
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "Nascimento assistido por | TPNASCASSI | Caracter
+      2 | 1-Médico, 2-Enfermeira/Obstetriz, 3-Parteira, 4-Outros, 9-Ignorado | Formação
+      da pessoa que assistiu ao parto. Em partos assistidos por equipe multiprofissional,
+      formação da pessoa que coordenou os trabalhos."
+
+      '
+    vintage_note: '[EVOL-1996-2019] row 62 gives 2013 as the first year this reaches
+      the public microdata.
+
+      '
+  TPROBSON:
+    official_name: Código do Grupo de Robson
+    translated_name: Robson ten-group classification
+    description: 'Robson group (01–11) assigned to this delivery by the SINASC application
+      from parity, previous caesarean, plurality, presentation, gestational age and
+      how labour started — e.g. 01 nullipara, single cephalic ≥37 weeks, spontaneous
+      labour; 05 previous caesarean, single cephalic ≥37 weeks; 10 single cephalic
+      <36 weeks. Group 11 is the residual for births that could not be classified because
+      the required answers were missing.
+
+      '
+    code_system: internal
+    codelists:
+    - ROBSON
+    depends_on:
+    - PARIDADE
+    - QTDPARTCES
+    - GRAVIDEZ
+    - TPAPRESENT
+    - SEMAGESTAC
+    - STTRABPART
+    - STCESPARTO
+    source: layout_doc
+    source_ref: '[ESTRUTURA-2019] "TPROBSON | Caracter 2 | 01 Nulípara, gest un, cefál
+      >37sem, tp espontaneo; ... 11 Nasc n clas por aus resp aos itens necessarios
+      | Código do Grupo de Robson, gerado pelo sistema"
+
+      '
+    notes: 'Derived, not collected. Group 11 is a data-completeness category, not a
+      clinical one: caesarean rates computed within groups 1–10 are conditional on
+      the record having been classifiable, and the size of group 11 varies by state
+      and year.
+
+      '
+  UFINFORM:
+    official_name: UF informante
+    translated_name: Reporting state
+    description: 'IBGE 2-digit code of the federative unit that transmitted this record
+      to the national level. It is the administrative origin of the record, not where
+      the mother lives (CODMUNRES) nor where the birth happened (CODMUNNASC); the three
+      can all differ for a birth near a state border.
+
+      '
+    code_system: external
+    codelists:
+    - BR_UF
+    source: layout_doc
+    source_ref: '[ESTRUTURA-ANT] "UFINFORM C(02) Código da UF que informou o registro";
+      NASC.DEF-1995 display name "UF informante" with lookup BR_UF.CNV; [EVOL-1996-2019]
+      row 25 "Código da UF que informou o registro".
+
+      '
+    vintage_note: 'Present in the 1994–2009 files (and the DNR/DNRIG 1994–1995 series)
+      and absent after, so it cannot carry a whole-period series.
+
+      '

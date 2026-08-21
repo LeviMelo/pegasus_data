@@ -1,0 +1,307 @@
+# SINAN.COLE — Cholera
+# Cólera
+#
+# One notified case of cholera.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANTIB_DES:
+    official_name: Antibiótico - descrição
+    translated_name: Antibiotic used (free text)
+    description: 'Free-text name of the antibiotic administered to a cholera (COLE)
+      patient, part of the treatment section of the cholera case investigation form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ANTIB_ = antibiótico, DES = descrição; C30 width fits a drug name rather
+      than a coded value.
+
+      '
+  CS_ANTIB:
+    official_name: Uso de antibiótico
+    translated_name: Antibiotic given
+    description: 'Whether antibiotics were given. Secondary to rehydration in cholera:
+      they shorten shedding rather than save the patient.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ANTIB reads antibiótico; a yes/no flag.
+  CS_ANTIB_T:
+    official_name: Antibiótico antes da coleta
+    translated_name: Antibiotic before sampling
+    description: 'Whether antibiotics preceded the specimen. They sterilise the culture,
+      so this is what a negative result must be read against.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A second antibiotic flag, tied to the specimen rather than treatment.
+  CS_ASSINTO:
+    official_name: Assintomático
+    translated_name: Asymptomatic
+    description: 'Whether the person had no symptoms. Most Vibrio cholerae infections
+      are silent, and asymptomatic carriers found by contact tracing are how an outbreak''s
+      true size becomes visible.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ASSINTO reads assintomático; a yes/no flag.
+  CS_CAIMBRA:
+    official_name: Cãibras
+    translated_name: Cramps
+    description: 'Muscle cramps from the electrolyte loss. A characteristic and early
+      sign of severe depletion.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CAIMBRA reads cãibras; a clinical flag.
+  CS_CHOQUE:
+    official_name: Choque hipovolêmico
+    translated_name: Hypovolaemic shock
+    description: 'Shock from fluid loss. The mechanism of death in cholera, and entirely
+      reversible with prompt rehydration.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CHOQUE reads choque; a clinical flag.
+  CS_DESIT:
+    official_name: Situação de desidratação
+    translated_name: Dehydration status
+    description: 'Classifies the patient''s dehydration severity (e.g. none/some/severe)
+      - the key clinical staging for cholera, which causes severe watery diarrhea,
+      and the field that guides oral vs. IV rehydration therapy (CS_REIDRAT).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CS_ is COLE''s clinical-signs prefix (CS_DIARRE, CS_VOMITO, CS_CHOQUE);
+      DESIT reads as desidratação, matching the classic cholera severity assessment.
+
+      '
+  CS_DIARRE:
+    official_name: Diarreia
+    translated_name: Diarrhoea
+    description: Diarrhoea, the defining symptom.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DIARRE reads diarreia; a clinical flag.
+  CS_DOR:
+    official_name: Dor abdominal
+    translated_name: Abdominal pain
+    description: 'Abdominal pain. Notably mild in cholera despite the volume of stool,
+      which distinguishes it from dysentery.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DOR reads dor; a clinical flag.
+  CS_FEBRE:
+    official_name: Febre
+    translated_name: Fever
+    description: 'Fever. Usually absent in cholera, so its presence points to another
+      cause of diarrhoea.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: FEBRE reads febre; a clinical flag.
+  CS_FREQUEN:
+    official_name: Frequência das evacuações
+    translated_name: Stool frequency
+    description: 'How many stools a day, banded up to 5, 6 to 10, 11 to 20, and over
+      20. Above twenty is the volume that causes fatal dehydration within hours.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: FXEVACUA.CNV
+    reasoning: Bound to FXEVACUA, whose bands run from até 5 to acima de 20.
+  CS_MATERIA:
+    official_name: Coleta de material
+    translated_name: Specimen collected
+    description: Whether a stool specimen was collected for culture.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MATERIA reads material; a specimen flag.
+  CS_MUCO:
+    official_name: Muco nas fezes
+    translated_name: Mucus in stool
+    description: Mucus in the stool, part of the rice-water appearance.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MUCO reads muco; a clinical flag.
+  CS_NEG_ESP:
+    official_name: Espécie identificada (cultura negativa para cólera)
+    translated_name: Species identified (culture negative for cholera)
+    description: 'Free-text field recording an organism identified by stool culture
+      when the test came back negative for Vibrio cholerae — i.e. what alternate species,
+      if any, was found instead.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is COLE (cólera); NEG_ESP reads "negativo - espécie"; wide C30
+      width fits a free-text organism name rather than a coded flag.
+
+      '
+  CS_POSITIV:
+    official_name: Sorotipo isolado
+    translated_name: Serotype isolated
+    description: 'Which Vibrio cholerae serotype grew — Ogawa, Inaba, Hikojima, another,
+      or not Vibrio at all. Serotype tracks which epidemic wave the case belongs to.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SOROTCOL.CNV
+    reasoning: 'Bound to SOROTCOL, whose values are Ogawa, Inaba, Hikojima, outro sorotipo
+      and não Vibrio.
+
+      '
+  CS_REIDRAT:
+    official_name: Via de reidratação
+    translated_name: Rehydration route
+    description: 'Oral, intravenous, or both. Oral rehydration is the intervention
+      that turned cholera from routinely fatal into routinely survivable, so the route
+      is the treatment.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: ORALVENOSA.CNV
+    reasoning: 'Bound to ORALVENOSA, whose values are via oral, venosa and oral-venosa.
+
+      '
+  CS_TIPO:
+    official_name: Local de atendimento
+    translated_name: Care setting
+    description: 'Whether the patient was treated in hospital, as an outpatient, at
+      home, or not at all. Cholera is survivable with oral rehydration alone, so the
+      setting reflects severity and access together.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: HOSPAMB.CNV
+    reasoning: Bound to HOSPAMB, hospitalar/ambulatorial/domiciliar/nenhum.
+  CS_VOMITO:
+    official_name: Vômito
+    translated_name: Vomiting
+    description: 'Vomiting. Compounds the fluid loss and is what makes oral rehydration
+      fail, forcing intravenous fluids.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: VOMITO reads vômito; a clinical flag.
+  DT_ATENDIM:
+    official_name: Data do atendimento
+    translated_name: Date of care
+    description: 'When the patient was seen. Cholera kills within hours through dehydration,
+      so the interval from onset to care is the whole prognosis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ATENDIM reads atendimento.
+  FC_CONT_DE:
+    official_name: Fonte de contaminação - descrição
+    translated_name: Contamination source, described
+    description: 'Free-text description of the suspected contamination source (e.g.
+      a specific water supply or food item) in a cholera investigation, likely the
+      free-text half of a coded contamination-source field.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C30, a free-text width) and
+      COLE (Cólera) series membership. "FC" plausibly abbreviates "fonte de contaminação"
+      (contamination source) and "DE" the "descrição/especificar" suffix SINAN uses
+      throughout for the free-text half of a coded-plus-specify field pair.
+
+      '
+  NM_ANTIBIO:
+    official_name: Nome do antibiótico
+    translated_name: Name of antibiotic (treatment)
+    description: 'Name of the antibiotic used to treat the cholera case (e.g. doxiciclina,
+      azitromicina, ciprofloxacino) — shortens V. cholerae shedding and illness duration,
+      though rehydration is what actually prevents death.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text; NM_=nome, ANTIBIO=antibiótico, in the treatment section of
+      the cholera investigation form.
+  OUT_VINCUL:
+    official_name: Outro vínculo epidemiológico
+    translated_name: Other epidemiological link (free text)
+    description: 'Free-text description of an epidemiological link to another cholera
+      case or outbreak not covered by the form''s standard categories, used to trace
+      transmission chains.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'OUT_ = outro, VINCUL = vínculo; C30 width fits free text, and epidemiological
+      linkage is a standard element of cholera outbreak investigation.
+
+      '
+  TIP_DIARRE:
+    official_name: Característica da diarreia
+    translated_name: Stool character
+    description: 'Watery and yellowish, watery like rice water, or pasty. Rice-water
+      stool is the classic cholera description and is close to diagnostic on its own.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: CARACDIA.CNV
+    reasoning: 'Bound to CARACDIA, whose values are aquosa/amarelada, aquosa/água de
+      arroz and pastosa.
+
+      '
+  UF_HOSPITA:
+    official_name: UF de hospitalização
+    translated_name: State of hospitalization
+    description: 'Two-letter code of the Brazilian state where the cholera patient
+      was hospitalized, distinct from the state of residence or of probable infection.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'UF_ = unidade federativa, HOSPITA = hospitalização; C2 width matches
+      a standard state abbreviation.
+
+      '
+  VINCULO:
+    official_name: Vínculo epidemiológico sugerido
+    translated_name: Suggested epidemiological link
+    description: 'The suspected source: untreated water, sewage exposure, food, travel,
+      or other. Water and sewage point to an infrastructure failure and change what
+      the response must be.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SUGVIN.CNV
+    reasoning: 'Bound to SUGVIN, whose values are consumo de água não tratada, exposição
+      a esgoto, alimento, deslocamento and outros.
+
+      '

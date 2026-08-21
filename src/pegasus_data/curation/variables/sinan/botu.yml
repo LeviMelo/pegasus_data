@@ -1,0 +1,1247 @@
+# SINAN.BOTU — Botulism
+# Botulismo
+#
+# One notified case of botulism.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AGENTE_OUT:
+    official_name: Agente etiológico (outro)
+    translated_name: Etiologic agent (other)
+    description: 'Free-text field naming the causative agent when it is not covered
+      by the form''s standard etiologic-agent codelist. "Outro, especifique" style
+      field.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'AGENTE + OUT(ro) is SINAN''s standard pattern for an open-text overflow
+      field paired with a coded agent list; 30-character width fits a short free-text
+      entry.
+
+      '
+  DSALIMENTO:
+    official_name: Descrição do alimento
+    translated_name: Food description
+    description: 'Free-text description of a food item implicated in a foodborne-illness
+      investigation, part of the same block as DSCAUSALIM and the DS_ALI1/2 food-item
+      fields.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DS abbreviates descrição and ALIMENTO is food; 30-character width fits
+      free text.
+
+      '
+  DSCAUSALIM:
+    official_name: Descrição - causa alimentar
+    translated_name: Description - food-related cause
+    description: 'Free-text description of the suspected food-related cause of illness,
+      sibling of DSALIMENTO in the same foodborne-illness investigation block.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DSCAUSALIM contracts descrição + causa + alimentar; 30-character free
+      text.
+  DS_ALI1:
+    official_name: Descrição - alimento (1)
+    translated_name: Description - food item (1)
+    description: 'Free-text name of the first food item suspected in a foodborne-illness
+      outbreak; DS_ALI1OUT holds an "other" elaboration for this same slot, and DS_ALI2/DS_ALI2OUT
+      are the parallel second-item fields.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ALI abbreviates alimento; the 1/2 numbering and paired OUT suffix match
+      SINAN''s repeated-instance "other, specify" pattern.
+
+      '
+  DS_ALI1OUT:
+    official_name: Descrição - alimento (1), outro
+    translated_name: Description - food item (1), other
+    description: 'Free-text "other" detail for the first food item, used when DS_ALI1''s
+      standard entry does not cover the case; see DS_ALI1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DS_ALI1.
+  DS_ALI2:
+    official_name: Descrição - alimento (2)
+    translated_name: Description - food item (2)
+    description: 'Free-text name of the second suspected food item; parallel to DS_ALI1,
+      with DS_ALI2OUT as its own "other" detail field.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DS_ALI1; distinguished only by item number.
+  DS_ALI2OUT:
+    official_name: Descrição - alimento (2), outro
+    translated_name: Description - food item (2), other
+    description: 'Free-text "other" detail for the second food item; see DS_ALI2.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DS_ALI1.
+  DS_FIM_GES:
+    official_name: Descrição - fim da gestação
+    translated_name: Description - end of pregnancy
+    description: 'Short code for how a recorded pregnancy ended (e.g. delivery, miscarriage),
+      sibling of DS_INI_GES which marks its start.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'FIM_GES contracts fim + gestação; 4-character width matches a short
+      coded category rather than a date or free text.
+
+      '
+  DS_INDUS:
+    official_name: Descrição - indústria
+    translated_name: Description - industry
+    description: 'Free-text name of the industry or workplace sector, likely from an
+      occupational-disease (Doença Relacionada ao Trabalho) investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: INDUS abbreviates indústria; 30-character free text.
+  DS_INGEST:
+    official_name: Descrição - ingestão
+    translated_name: Description - ingestion
+    description: 'Short code recording ingestion as an exposure route (e.g. of a food,
+      toxin or medication), distinct from the free-text DS_ fields around it by its
+      narrow 4-character width.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: INGEST abbreviates ingestão; 4-character width fits a coded route rather
+      than free text.
+  DS_INI_GES:
+    official_name: Descrição - início da gestação
+    translated_name: Description - start of pregnancy
+    description: 'Short code marking the start of a recorded pregnancy; see DS_FIM_GES
+      for its end-of-pregnancy sibling.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DS_FIM_GES.
+  DS_LOCAL1:
+    official_name: Descrição - local (1)
+    translated_name: Description - location (1)
+    description: 'Free-text description of a first exposure/consumption location, wider
+      (30 characters) than the coded location fields (e.g. DS_TRANS1) seen elsewhere,
+      so it holds a place description rather than a place code.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '30-character width rules out an IBGE code; paired with DS_LOCAL2 as
+      a second slot.
+
+      '
+  DS_LOCAL2:
+    official_name: Descrição - local (2)
+    translated_name: Description - location (2)
+    description: 'Free-text description of a second exposure/consumption location;
+      see DS_LOCAL1.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DS_LOCAL1; distinguished only by ordinal position.
+  DS_OUTRO:
+    official_name: Descrição - outro
+    translated_name: Description - other
+    description: 'Generic free-text "other, specify" field not tied to a specific checklist
+      item elsewhere on the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DS_OUTRO is the plainest form of SINAN's recurring other/specify pattern.
+  DS_OUTROSI:
+    official_name: Descrição - outros
+    translated_name: Description - others
+    description: 'Another free-text "other, specify" field distinct from DS_OUTRO;
+      the trailing "SI" does not resolve to a clear sub-category from available evidence.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same free-text width and outro/descrição pattern as DS_OUTRO, but a
+      separate field name.
+  DS_OUTR_LO:
+    official_name: Descrição - outro local
+    translated_name: Description - other location
+    description: 'Free-text field for a location not covered by the form''s standard
+      location options.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: OUTR_LO contracts outro + local; 30-character free text.
+  DS_PARES:
+    official_name: Descrição - pares cranianos
+    translated_name: Description - cranial nerve pairs
+    description: 'Free-text note on cranial-nerve-pair involvement from a neurological
+      exam, plausible on a Raiva Humana, Botulismo or Guillain-Barré related investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PARES most plausibly abbreviates "pares cranianos", a standard neurological-exam
+      term; 30-character width fits a short free-text note.
+
+      '
+  DS_TRAT:
+    official_name: Descrição do tratamento
+    translated_name: Treatment description
+    description: 'Free-text description of the treatment administered to the patient,
+      paired with DTTRAT, the date treatment started.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: DS_TRAT contracts descrição + tratamento; 30-character free text.
+  DTATEND:
+    official_name: Data do atendimento
+    translated_name: Date of care
+    description: 'When the patient was seen. Antitoxin only neutralises toxin not yet
+      bound to nerve endings, so the delay from onset decides how much it can do.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ATEND reads atendimento.
+  DTELETRO:
+    official_name: Data do exame eletro
+    translated_name: Date of electro-diagnostic exam
+    description: 'Date an electro-diagnostic exam (electrocardiogram or electromyogram)
+      was performed. AAAAMMDD.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ELETRO abbreviates eletro(cardiograma/miograma); D8 width fits a full
+      date.
+  DTFEZESCOL:
+    official_name: Data de coleta de fezes
+    translated_name: Date of stool sample collection
+    description: 'Date a stool sample was collected for coprocultura (stool culture)
+      testing, matching the COPRO_D_1-3 result fields in the same foodborne-illness
+      investigation. AAAAMMDD.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: FEZESCOL contracts fezes (stool) + coleta (collection).
+  DTSORO:
+    official_name: Data do soro
+    translated_name: Date of serum/antitoxin administration
+    description: 'Date a therapeutic serum (soro antitóxico/antirrábico/antiofídico)
+      was administered, paired with AMPOLAS (ampoule count) in the same serotherapy
+      record. AAAAMMDD. Distinct from DTSOROCOL, the date a serum sample was collected
+      for testing.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'SORO is serum; it co-occurs with AMPOLAS, an ampoule count consistent
+      with antitoxin administration rather than a diagnostic sample.
+
+      '
+  DTSOROCOL:
+    official_name: Data de coleta de soro
+    translated_name: Date of serum sample collection
+    description: 'Date a serum sample was collected for serological testing; see DTSORO
+      for the administration-date sense of the related field.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: SOROCOL contracts soro + coleta, distinguishing it from DTSORO by the
+      collection sense.
+  DTSUSPEIC:
+    official_name: Data da suspeita
+    translated_name: Date of suspicion
+    description: 'When botulism was first suspected. Against DTATEND it measures diagnostic
+      delay — botulism is rare enough to be missed at first presentation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; SUSPEIC reads suspeita.
+  DT_ALI1COL:
+    official_name: Data de coleta - alimento (1)
+    translated_name: Collection date - food item (1)
+    description: 'Date a sample of the first suspected food item (DS_ALI1) was collected
+      for laboratory testing. AAAAMMDD.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ALI1COL contracts alimento (1) + coleta; pairs with the DS_ALI1 food-item
+      field.
+  DT_ALI2COL:
+    official_name: Data de coleta - alimento (2)
+    translated_name: Collection date - food item (2)
+    description: 'Date a sample of the second suspected food item (DS_ALI2) was collected;
+      see DT_ALI1COL.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DT_ALI1COL; distinguished only by item number.
+  DT_COLOUT:
+    official_name: Data de coleta - outro
+    translated_name: Collection date - other
+    description: 'Date a sample not covered by the form''s standard specimen types
+      was collected.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: COLOUT contracts coleta + outro.
+  DT_LIQUOR:
+    official_name: Data de coleta - líquor
+    translated_name: Collection date - CSF
+    description: 'Date the cerebrospinal fluid (líquor) sample was collected, paired
+      with the CS_LIQUOR Sim/Não collection flag. AAAAMMDD.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: LIQUOR is CSF; pairs directly with CS_LIQUOR's collection flag.
+  MUN_ING:
+    official_name: Município de ingestão do alimento suspeito
+    translated_name: Municipality where the suspect food was eaten
+    description: 'IBGE code of the municipality where the patient ate the food suspected
+      of causing botulism, which can differ from the residence or notifying municipality
+      when the meal was eaten while travelling.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Declared as C6 (matching an IBGE six-digit municipality code) with
+      BOTU series membership. "MUN_ING" decomposes to "município de ingestão", and
+      pinpointing where a suspect meal was eaten is the central epidemiological question
+      of a foodborne-botulism investigation.
+
+      '
+  NUATEND:
+    official_name: Número do atendimento
+    translated_name: Attendance number
+    description: The attendance's own identifier within the reporting service.
+    code_system: none
+    source: inferred
+    reasoning: N(10) identifier; NUATEND reads número do atendimento.
+  NUCONSOME:
+    official_name: Quantidade do alimento consumida
+    translated_name: Amount of food consumed
+    description: 'Numeric quantity of the suspect food the botulism (BOTU) patient
+      consumed, recorded to help gauge dose and link cases who shared the same meal
+      or product.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'NUCONSOME read as número + consumido; declared as a float(10), fitting
+      a measured quantity rather than a code; food exposure is central to botulism
+      outbreak tracing.
+
+      '
+  NU_CELULA:
+    official_name: Nº de células (líquor)
+    translated_name: CSF cell count
+    description: 'Cerebrospinal-fluid cell count from a lumbar puncture performed to
+      rule out Guillain-Barré syndrome and other neuromuscular mimics of botulism,
+      whose CSF is typically unremarkable.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'BOTU form; NU_CELULA = número de células; width 5 numeric-as-text lab
+      value.
+
+      '
+  NU_PROTEI:
+    official_name: Nº de proteínas (líquor)
+    translated_name: CSF protein level
+    description: 'Cerebrospinal-fluid protein level from the same differential- diagnosis
+      lumbar puncture as NU_CELULA; elevated protein with a normal cell count points
+      away from botulism toward Guillain-Barré syndrome.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'BOTU form; NU_PROTEI = número de proteínas; width 5, paired with NU_CELULA.
+
+      '
+  RESALIM1:
+    official_name: Coleta de amostra - Resto de alimento (1)
+    translated_name: Leftover food sample collected (1)
+    description: 'Whether a sample of leftover suspect food was collected for lab testing
+      in this botulism investigation - first of the food samples the form tracks, alongside
+      RESALIMOUT for any additional one.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'BOTU form; RESALIM1 = resto de alimento (1); width 1 checkbox.
+
+      '
+  RESALIMOUT:
+    official_name: Coleta de amostra - Resto de alimento (outro)
+    translated_name: Leftover food sample collected (other)
+    description: 'Whether an additional leftover-food sample, beyond the first (RESALIM1),
+      was collected for lab testing in the botulism investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'BOTU form; RESALIMOUT = resto de alimento + outro; width 1; pairs with
+      RESALIM1.
+
+      '
+  STALIMENTO:
+    official_name: Tipo de botulismo - Alimentar
+    translated_name: Foodborne botulism (flag)
+    description: 'Whether this case is classified as foodborne botulism - toxin ingested
+      in contaminated food - the most common of the BOTU form''s botulism-type categories,
+      distinct from the wound-related classification in STFERIMENT.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STALIMENTO = alimentar; width 1 checkbox.
+  STANTIBIO:
+    official_name: Uso de antibiótico
+    translated_name: Antibiotic given (flag)
+    description: 'Whether the botulism patient received antibiotic treatment, tracked
+      separately from the antitoxin serum (STANTIBOTU) because antibiotics address
+      secondary infection or wound botulism rather than neutralize circulating toxin.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STANTIBIO = antibiótico; width 1 checkbox.
+  STANTIBOTU:
+    official_name: Uso de soro antibotulínico
+    translated_name: Botulinum antitoxin given (flag)
+    description: 'Whether the patient received botulinum antitoxin serum, the specific
+      treatment that neutralizes circulating toxin, distinct from the general antibiotic
+      flag STANTIBIO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STANTIBOTU = soro antibotulínico; width 1.
+  STBOCA:
+    official_name: Sinais e sintomas - Boca seca
+    translated_name: Dry mouth
+    description: 'Whether the botulism patient reports dry mouth, one of the autonomic
+      symptom checkboxes recorded alongside constipation (STCONSTIPA), caused by the
+      toxin''s effect on smooth muscle.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STBOCA = boca (seca); width 1 checkbox.
+  STBROMATO:
+    official_name: Exame bromatológico realizado
+    translated_name: Food (bromatological) lab analysis performed
+    description: 'Whether the suspect food was sent for bromatological (food chemistry)
+      laboratory analysis to detect botulinum toxin or the causative bacteria, distinct
+      from the patient-sample lab flags (STFEZESMAT, STFEZESRES) elsewhere on the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STBROMATO = bromatológico; width 1 checkbox.
+  STBULBAR:
+    official_name: Sinais e sintomas - Paralisia bulbar
+    translated_name: Bulbar palsy
+    description: 'Whether the patient shows bulbar palsy (weakness of the lower cranial-nerve
+      muscles controlling swallowing and speech), marking progression of botulism''s
+      descending paralysis pattern.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STBULBAR = bulbar; width 1 checkbox.
+  STCARDIACA:
+    official_name: Alteração cardíaca
+    translated_name: Cardiac abnormality
+    description: 'Whether the botulism patient shows a cardiac abnormality (e.g. arrhythmia),
+      a systemic-complication checkbox distinct from the cranial-nerve and limb-paralysis
+      signs recorded elsewhere on the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STCARDIACA = cardíaca; width 1 checkbox.
+  STCASEIRA:
+    official_name: Fonte alimentar - Alimento caseiro
+    translated_name: Home-made food source
+    description: 'Whether the suspect food was home-made/home-preserved (e.g. home-canned
+      vegetables), the classic source for foodborne botulism, tracked alongside commercial
+      (STCOMERCIO) and restaurant (STRESTAURA) sources.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STCASEIRA = caseira; width 1 checkbox.
+  STCEFALEIA:
+    official_name: Sinais e sintomas - Cefaleia
+    translated_name: Headache
+    description: 'Whether the botulism patient reports headache, a general/nonspecific
+      symptom checkbox recorded alongside the disease''s more distinctive cranial-nerve
+      signs.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STCEFALEIA = cefaleia; width 1 checkbox.
+  STCLINICA:
+    official_name: Classificação clínica
+    translated_name: Clinical classification (flag)
+    description: 'Whether the botulism case is being classified based on clinical criteria
+      (signs and symptoms) rather than a confirmed lab test, part of the form''s case-classification
+      basis alongside its various lab-result fields.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STCLINICA = clínica; width 1 checkbox.
+  STCOMA:
+    official_name: Sinais e sintomas - Coma
+    translated_name: Coma
+    description: 'Whether the botulism patient progressed to coma, marking the most
+      severe end of the disease''s descending paralysis and a key indicator of respiratory/neurological
+      failure.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STCOMA = coma; width 1 checkbox.
+  STCOMERCIO:
+    official_name: Fonte alimentar - Produto comercial
+    translated_name: Commercial food source
+    description: 'Whether the suspect food was a commercially produced/packaged product,
+      as opposed to home-made or restaurant food, used to target product recalls alongside
+      STCASEIRA and STRESTAURA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STCOMERCIO = comércio; width 1 checkbox.
+  STCONSTIPA:
+    official_name: Sinais e sintomas - Constipação
+    translated_name: Constipation
+    description: 'Whether the botulism patient reports constipation, an autonomic-nervous-system
+      symptom caused by the toxin''s effect on smooth muscle, recorded alongside dry
+      mouth (STBOCA).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STCONSTIPA = constipação; width 1 checkbox.
+  STDESCENDE:
+    official_name: Sinais e sintomas - Paralisia descendente
+    translated_name: Descending paralysis
+    description: 'Whether the patient shows the descending pattern of paralysis (starting
+      cranial, progressing to limbs) that is the hallmark clinical course of botulism,
+      unlike the ascending paralysis of Guillain-Barré syndrome.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STDESCENDE = descendente; width 1 checkbox.
+  STDIARREIA:
+    official_name: Sinais e sintomas - Diarreia
+    translated_name: Diarrhea
+    description: 'Whether the botulism patient reports diarrhea, an early gastrointestinal
+      symptom that can precede the disease''s characteristic neurological signs.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STDIARREIA = diarreia; width 1 checkbox.
+  STDIPLOPIA:
+    official_name: Sinais e sintomas - Diplopia
+    translated_name: Double vision (diplopia)
+    description: 'Whether the patient reports double vision, one of the earliest cranial-nerve
+      signs of botulism, typically appearing with ptosis (STPTOSE) and mydriasis (STMIDRIASE).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STDIPLOPIA = diplopia; width 1 checkbox.
+  STDISARTRI:
+    official_name: Sinais e sintomas - Disartria
+    translated_name: Dysarthria (slurred speech)
+    description: 'Whether the botulism patient shows dysarthria (difficulty articulating
+      speech), a bulbar sign recorded alongside dysphagia (STDISFAGIA) and dysphonia
+      (STDISFONIA).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STDISARTRI = disartria; width 1 checkbox.
+  STDISFAGIA:
+    official_name: Sinais e sintomas - Disfagia
+    translated_name: Dysphagia (difficulty swallowing)
+    description: 'Whether the patient has difficulty swallowing, a bulbar sign of botulism
+      recorded alongside dysarthria and dysphonia as the toxin affects the cranial
+      nerves controlling the throat.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STDISFAGIA = disfagia; width 1 checkbox.
+  STDISFONIA:
+    official_name: Sinais e sintomas - Disfonia
+    translated_name: Dysphonia (voice change)
+    description: 'Whether the patient''s voice is altered (hoarse or weak), the third
+      bulbar cranial-nerve sign recorded together with dysarthria and dysphagia in
+      botulism''s symptom checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STDISFONIA = disfonia; width 1 checkbox.
+  STDISPNEIA:
+    official_name: Sinais e sintomas - Dispneia
+    translated_name: Dyspnea (shortness of breath)
+    description: 'Whether the botulism (BOTU) patient reports shortness of breath,
+      an early warning of the respiratory-muscle weakness that can progress to the
+      respiratory failure recorded in STRESPIRA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STDISPNEIA = dispneia; width 1 checkbox.
+  STDOMICILI:
+    official_name: Local de exposição - Domicílio
+    translated_name: Home exposure setting
+    description: 'Whether the suspect food was eaten at the patient''s own home, one
+      of several exposure-location checkboxes - alongside school, restaurant, and party
+      - used to trace where a shared contaminated food was served.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STDOMICILI = domicílio; width 1 checkbox.
+  STELETRO:
+    official_name: Eletroneuromiografia realizada
+    translated_name: Electroneuromyography performed
+    description: 'Whether an electroneuromyography (ENMG) test was performed, the neurophysiological
+      exam used to support a botulism diagnosis by showing the toxin''s characteristic
+      effect on neuromuscular transmission.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STELETRO = eletro(neuromiografia); width 1.
+  STESCOLA:
+    official_name: Local de exposição - Escola
+    translated_name: School exposure setting
+    description: 'Whether the suspect food was eaten at a school, one of the exposure-location
+      checkboxes used alongside home, restaurant, and party settings to trace a shared-meal
+      botulism outbreak.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STESCOLA = escola; width 1 checkbox.
+  STEXPALIM:
+    official_name: Exposição alimentar
+    translated_name: Food exposure (flag)
+    description: 'Whether this botulism case is linked to a food-exposure event at
+      all, the umbrella flag preceding the specific location checkboxes (home, school,
+      restaurant, party) recording where that food was eaten.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STEXPALIM = exposição alimentar; width 1.
+  STFACIAL:
+    official_name: Sinais e sintomas - Paralisia facial
+    translated_name: Facial paralysis
+    description: 'Whether the botulism patient shows facial-muscle weakness or paralysis,
+      one of the cranial-nerve signs marking the descending paralysis pattern, alongside
+      ptosis and the bulbar signs.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STFACIAL = facial; width 1 checkbox.
+  STFEBRE:
+    official_name: Sinais e sintomas - Febre
+    translated_name: Fever
+    description: 'Whether the botulism patient had fever, a nonspecific sign checked
+      mainly to help rule out other causes since classic botulism typically presents
+      afebrile.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STFEBRE = febre; width 1 checkbox.
+  STFERIMENT:
+    official_name: Tipo de botulismo - Por ferimento
+    translated_name: Wound botulism (flag)
+    description: 'Whether this case is classified as wound botulism - toxin produced
+      by bacteria infecting a wound rather than ingested in food - distinct from the
+      foodborne classification in STALIMENTO.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STFERIMENT = ferimento; width 1 checkbox.
+  STFESTA:
+    official_name: Local de exposição - Festa/evento
+    translated_name: Party/event exposure setting
+    description: 'Whether the suspect food was eaten at a party or social event, one
+      of the exposure-location checkboxes used to identify other people who may have
+      shared the same contaminated food.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STFESTA = festa; width 1 checkbox.
+  STFEZESMAT:
+    official_name: Coleta de amostra - Fezes (material)
+    translated_name: Stool sample collected
+    description: 'Whether a stool sample was collected from the botulism patient for
+      lab testing, tracked separately from STFEZESRES, which records what that test
+      found.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STFEZESMAT = fezes + material; width 1.
+  STFEZESRES:
+    official_name: Resultado do exame de fezes
+    translated_name: Stool test result
+    description: 'Result of the stool sample tested for botulinum toxin or C. botulinum,
+      filled in once STFEZESMAT confirms a sample was collected.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STFEZESRES = fezes + resultado; width 1.
+  STFLACIDEZ:
+    official_name: Sinais e sintomas - Flacidez muscular
+    translated_name: Muscle flaccidity
+    description: 'Whether the patient shows flaccid muscle weakness, the defining motor
+      sign of botulism''s descending symmetric paralysis, distinct from the specific
+      limb locations recorded in STMEMSUP/STMEMINF.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STFLACIDEZ = flacidez; width 1 checkbox.
+  STHOSPITAL:
+    official_name: Hospitalização
+    translated_name: Hospitalised
+    description: 'Whether the patient was admitted. Nearly always, since botulism requires
+      watching for respiratory failure whatever the initial severity.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: STHOSPITAL reads hospitalização; a yes/no flag.
+  STMEMINF:
+    official_name: Sinais e sintomas - Paralisia de membros inferiores
+    translated_name: Lower-limb paralysis
+    description: 'Whether paralysis has reached the lower limbs, marking a later stage
+      of botulism''s descending pattern than the upper-limb involvement recorded in
+      STMEMSUP.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STMEMINF = membros inferiores; width 1.
+  STMEMSUP:
+    official_name: Sinais e sintomas - Paralisia de membros superiores
+    translated_name: Upper-limb paralysis
+    description: 'Whether paralysis has reached the upper limbs, occurring earlier
+      in botulism''s head-to-toe descending pattern than the lower-limb involvement
+      recorded in STMEMINF.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STMEMSUP = membros superiores; width 1.
+  STMIDRIASE:
+    official_name: Sinais e sintomas - Midríase
+    translated_name: Mydriasis (dilated pupils)
+    description: 'Whether the patient''s pupils are dilated and poorly reactive, one
+      of the earliest ocular cranial-nerve signs of botulism alongside ptosis (STPTOSE)
+      and double vision (STDIPLOPIA).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STMIDRIASE = midríase; width 1 checkbox.
+  STNAUSEA:
+    official_name: Sinais e sintomas - Náusea
+    translated_name: Nausea
+    description: 'Whether the botulism patient reports nausea, an early gastrointestinal
+      symptom recorded alongside diarrhea that can precede the disease''s neurological
+      signs.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STNAUSEA = náusea; width 1 checkbox.
+  STOFTALMO:
+    official_name: Sinais e sintomas - Oftalmoplegia
+    translated_name: Ophthalmoplegia
+    description: 'Whether the patient shows ophthalmoplegia (paralysis of the eye muscles),
+      a cranial-nerve sign grouped with the other ocular findings (ptosis, mydriasis,
+      diplopia) that typically appear first in botulism.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STOFTALMO = oftalmoplegia; width 1 checkbox.
+  STOUTROLOC:
+    official_name: Local de exposição - Outro
+    translated_name: Other exposure setting
+    description: 'Whether the suspect food was eaten somewhere other than home, school,
+      restaurant, or party - the catch-all exposure-location checkbox completing that
+      group.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STOUTROLOC = outro local; width 1 checkbox.
+  STOUTROSIN:
+    official_name: Outro sinal ou sintoma
+    translated_name: Other sign or symptom (flag)
+    description: 'Whether the botulism patient presented a clinical sign or symptom
+      not covered by the form''s many named checkboxes (ptosis, diplopia, dysphagia,
+      etc.).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STOUTROSIN = outro sinal; width 1 checkbox.
+  STOUTROTRA:
+    official_name: Outro tratamento
+    translated_name: Other treatment (flag)
+    description: 'Whether the botulism patient received a treatment other than antitoxin
+      serum (STANTIBOTU) or antibiotics (STANTIBIO), the catch-all checkbox completing
+      that treatment group.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STOUTROTRA = outro tratamento; width 1.
+  STPARESTES:
+    official_name: Sinais e sintomas - Parestesia
+    translated_name: Paresthesia
+    description: 'Whether the botulism patient reports paresthesia (abnormal tingling
+      sensation), distinct from STSENSIVEL, which flags impaired sensitivity rather
+      than an abnormal sensation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STPARESTES = parestesia; width 1 checkbox.
+  STPTOSE:
+    official_name: Sinais e sintomas - Ptose palpebral
+    translated_name: Ptosis (drooping eyelid)
+    description: 'Whether the patient shows ptosis (drooping eyelid), typically the
+      earliest and most classic cranial-nerve sign of botulism, appearing alongside
+      diplopia and mydriasis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STPTOSE = ptose; width 1 checkbox.
+  STRESPIRA:
+    official_name: Insuficiência respiratória
+    translated_name: Respiratory failure
+    description: 'Whether the botulism patient developed respiratory failure requiring
+      ventilatory support, the most severe systemic consequence of the toxin''s progressive
+      paralysis, more advanced than the breathlessness recorded in STDISPNEIA.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STRESPIRA = respiratória; width 1 checkbox.
+  STRESTAURA:
+    official_name: Local de exposição - Restaurante
+    translated_name: Restaurant exposure setting
+    description: 'Whether the suspect food was eaten at a restaurant, one of the exposure-location
+      checkboxes used to trace a shared contaminated meal alongside home, school, and
+      party settings.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STRESTAURA = restaurante; width 1 checkbox.
+  STSENSIVEL:
+    official_name: Sinais e sintomas - Alteração de sensibilidade
+    translated_name: Sensory impairment
+    description: 'Whether the botulism patient shows reduced or altered sensitivity
+      to touch, distinct from STPARESTES, which flags an abnormal tingling sensation
+      rather than a loss of normal sensation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: BOTU form; STSENSIVEL = sensibilidade; width 1 checkbox.
+  STSIMETRIC:
+    official_name: Simetria
+    translated_name: Symmetric neurological signs (flag)
+    description: 'Whether the patient''s neurological/paralysis signs were symmetric
+      — a key diagnostic clue, since botulism causes symmetric descending paralysis,
+      unlike the asymmetric patterns seen in stroke or some Guillain-Barré presentations.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; ST_=sinal/status per prefix convention, SIMETRIC=simetria,
+      in the BOTU symptom checklist.
+  STSORO:
+    official_name: Situação - soro antibotulínico
+    translated_name: Antitoxin serum status
+    description: 'Status of antibotulinic antitoxin serum administration to the botulism
+      patient - the specific antidote treatment that must be given early, before paralysis
+      progresses to respiratory failure.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ST_ = situação, SORO = soro; antitoxin serum is the defining treatment
+      on the botulism (BOTU) investigation form, C1 fits a status code.
+
+      '
+  STSOROMAT:
+    official_name: Situação - material de soro enviado
+    translated_name: Serum material sent for testing (flag)
+    description: 'Whether a blood serum sample was collected and sent as material for
+      botulinum toxin testing - one of several "material sent" flags for botulism''s
+      different specimen types (serum, stool, suspect food).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ST = situação; SORO = soro; MAT = material; BOTU series has parallel
+      STBROMATO (food) and STFEZESMAT (stool) flags.
+  STSORORES:
+    official_name: Situação do resultado sorológico
+    translated_name: Serology result status
+    description: 'Status of the botulism serology/toxin-antibody test result (e.g.
+      pending, reactive, non-reactive), part of the laboratory confirmation section
+      of the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is BOTU (botulismo); ST_SORO_RES reads "situação sorologia resultado";
+      C1 width fits a coded status.
+
+      '
+  STTONTURA:
+    official_name: Tontura
+    translated_name: Dizziness (symptom)
+    description: 'Whether the patient reported dizziness — one item on the botulism
+      symptom checklist alongside STVOMITO, gathered to characterize the case''s clinical
+      presentation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; TONTURA=tontura (dizziness).
+  STTRABALHO:
+    official_name: Situação - vínculo com trabalho
+    translated_name: Work-linked food source (flag)
+    description: 'Whether the suspect food source in this botulism case was linked
+      to the patient''s workplace (e.g. a food-service job) rather than home preparation,
+      part of tracing the contaminated food''s origin.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ST_ = situação, TRABALHO = trabalho; botulism investigation traces
+      the suspect food''s preparation setting, and work vs. home is a natural split.
+
+      '
+  STVENTILA:
+    official_name: Necessidade de ventilação mecânica
+    translated_name: Mechanical ventilation required (flag)
+    description: 'Whether the botulism patient required mechanical ventilation - the
+      respiratory failure from descending flaccid paralysis that makes botulism life-threatening,
+      and the reason cases are hospitalized in intensive care.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ST = situação; VENTILA = ventilação; classic botulism severity marker.
+  STVISAO:
+    official_name: Alteração visual
+    translated_name: Visual disturbance
+    description: 'Clinical-signs checklist item marking visual disturbance (blurred
+      or double vision), an early symptom of botulism from the cranial-nerve palsies
+      the toxin causes.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'BOTU form; ST_VISAO reads "situação - visão"; C1 width fits a coded
+      sign checkbox in the botulism clinical-signs section.
+
+      '
+  STVOMITO:
+    official_name: Vômito
+    translated_name: Vomiting (symptom)
+    description: 'Whether the patient vomited — a gastrointestinal symptom checked
+      alongside the neurological signs (STSIMETRIC, STTONTURA), common in foodborne
+      botulism''s early prodrome.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; VOMITO=vômito.
+  ST_ALI1COL:
+    official_name: Situação - coleta do alimento 1
+    translated_name: First suspect food sample collected (flag)
+    description: 'Whether a sample of the first suspect food item was collected for
+      botulinum toxin testing, part of a numbered series (food 1, food 2) tracking
+      multiple suspect foods in the outbreak/case investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ST_ = situação, ALI1 = alimento 1, COL = coletado; pairs with TP_ALI2TO,
+      which covers the second suspect food item''s test type.
+
+      '
+  ST_ALI2COL:
+    official_name: Situação - alimento suspeito 2 coletado
+    translated_name: Suspect food item 2 sample collected (flag)
+    description: 'Whether a sample of the second suspect food item was collected for
+      laboratory testing, paired with DS_ALI2 (that item''s description) and DT_ALI2COL
+      (collection date); ST_ALI1COL covers the first item.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ST_ALI2 = alimento 2; COL = coletado; BOTU series numbers suspect foods
+      1 and 2 throughout.
+  ST_ALI2RES:
+    official_name: Resultado do 2º alimento
+    translated_name: Second food sample result
+    description: 'Result status of laboratory testing on a second suspect food sample
+      in a foodborne botulism investigation (commonly home-canned or preserved foods).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'BOTU form; ST_ALI2RES reads "situação alimento 2 resultado"; C1 width
+      fits a coded result status, numbered as the second of possibly several food samples.
+
+      '
+  TPBOTULISM:
+    official_name: Forma clínica do botulismo
+    translated_name: Botulism form
+    description: 'Foodborne, intestinal, wound, or other. The forms differ entirely
+      in source and in who gets them: foodborne comes from preserved food, intestinal
+      affects infants, wound follows injecting drug use.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: FORMABOTUL.CNV
+    reasoning: 'Bound to FORMABOTUL, whose values are alimentar, intestinal, por ferimento
+      and outra.
+
+      '
+  TPBROMATO:
+    official_name: Toxina identificada no alimento
+    translated_name: Toxin type in food
+    description: 'Which botulinum toxin type was found in the food — A, B, AB, E, F,
+      G or other. Type E is associated with fish and marine products and predominates
+      in some regions.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: TOXINA.CNV
+    reasoning: 'Bound to TOXINA, whose values are the botulinum toxin serotypes; BROMATO
+      names the food analysis.
+
+      '
+  TPCLINICA:
+    official_name: Toxina identificada na amostra clínica
+    translated_name: Toxin type in clinical sample
+    description: 'Which toxin type was found in the patient''s sample. Read with TPBROMATO,
+      the pair links a patient to a specific food.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: TOXINA.CNV
+    reasoning: Bound to TOXINA; the clinical counterpart of TPBROMATO.
+  TPFEZESTOX:
+    official_name: Tipo/resultado - toxina nas fezes
+    translated_name: Stool botulinum toxin test result
+    description: 'Type or result of the stool sample tested for botulinum toxin, one
+      of the specimen types (alongside serum and suspect food) used to laboratory-confirm
+      botulism.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TP_ = tipo, FEZES = fezes, TOX = toxina; stool toxin testing is a standard
+      confirmatory specimen for botulism.
+
+      '
+  TPNEURO:
+    official_name: Tipo de comprometimento neurológico
+    translated_name: Type of neurological involvement
+    description: 'Classifies the pattern of neurological involvement in the botulism
+      case (e.g. cranial-nerve vs. peripheral), distinct from TPBOTULISM (which classifies
+      foodborne/wound/infant botulism) and TP_MOTORA (motor-deficit pattern specifically).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TP = tipo; NEURO = neurológico; BOTU's cranial-nerve-sign checklist
+      (ptosis, diplopia, dysphagia) supports a neurologic-pattern classification field.
+  TPSOROTOX:
+    official_name: Tipo de sorotoxina
+    translated_name: Botulinum toxin serotype
+    description: 'Botulinum toxin serotype (A, B, E, etc.) identified in laboratory
+      testing of the causative agent, determining which antitoxin is appropriate for
+      treatment.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'BOTU form; TP_SOROTOX reads "tipo sorotoxina"; C1 width fits a small
+      enumerated serotype code.
+
+      '
+  TP_ALI1TOX:
+    official_name: Tipo de alimento suspeito 1
+    translated_name: Type of first suspected toxic food
+    description: 'Type of the first food item suspected as the botulinum toxin source
+      (e.g. home-canned vegetables, honey, cured meat) — the primary vehicle identified
+      in the food-source investigation.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 coded field; TP_=tipo, ALI=alimento, 1TOX=1º tóxico, naming the first
+      suspect-food slot.
+  TP_ALI2TO:
+    official_name: Tipo/resultado - toxina no alimento 2
+    translated_name: Second suspect food toxin test result
+    description: 'Type or result of botulinum toxin testing performed on the second
+      suspect food item, paired with ST_ALI1COL''s collection-status field for the
+      first item.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TP_ = tipo, ALI2 = alimento 2, TO = toxina; continues the numbered
+      suspect-food testing series alongside ST_ALI1COL.
+
+      '
+  TP_COLOUT:
+    official_name: Tipo de coleta - outro
+    translated_name: Other specimen type collected (flag)
+    description: 'Whether a specimen type outside the routine set (serum, stool, leftover
+      food) was collected for lab confirmation — the "other collection" checkbox on
+      the botulism lab-workup section.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; TP_=tipo, COL=coleta, OUT=outro.
+  TP_LIQUOR:
+    official_name: Aspecto do líquor
+    translated_name: CSF appearance
+    description: 'How the CSF looked. Normal in botulism, which is what distinguishes
+      it from the meningitis and encephalitis that present with similar weakness.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: LIQUOR.CNV
+    reasoning: Bound to LIQUOR, límpido/purulento/hemorrágico/turvo/xantocrômico.
+  TP_MOTORA:
+    official_name: Tipo de comprometimento motor
+    translated_name: Type of motor involvement
+    description: 'Classifies the pattern of motor deficit in the botulism case - used
+      with TP_SENSITI (sensory involvement) to characterize the neurologic exam; botulism
+      causes pure motor paralysis with sensation spared, which helps distinguish it
+      from Guillain-Barré syndrome.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TP_ = tipo; MOTORA = motora; BOTU series pairs it with TP_SENSITI.
+  TP_REPETE:
+    official_name: Repetição da exposição
+    translated_name: Repeated exposure to suspect food (flag)
+    description: 'Whether the patient consumed the suspect food source more than once
+      — relevant to source attribution in the food-borne case investigation, alongside
+      TP_ALI1TOX.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; TP_=tipo, REPETE=repete/repetição.
+  TP_SENSITI:
+    official_name: Tipo de alteração sensitiva
+    translated_name: Type of sensory disturbance
+    description: 'Type of sensory disturbance reported, if any. Clinically notable
+      in botulism because classic cases show pure motor paralysis without sensory loss,
+      so this field helps flag atypical presentations or alternative diagnoses.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'TP_ = tipo, SENSITI = sensitivo/sensibilidade; sensory findings are
+      diagnostically significant precisely because botulism is a motor-only neuropathy.
+
+      '
+  TP_TOXOUTR:
+    official_name: Tipo de toxina - outra
+    translated_name: Toxin type - other
+    description: 'Records the toxin/serotype identified when it falls outside the standard
+      botulinum serotype classification (TPBOTULISM) - an "other, specify" field for
+      atypical lab findings.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TP_TOXOUTR = tipo de toxina + outra; BOTU's toxin-typing fields (TPSOROTOX,
+      TPFEZESTOX) support this reading.
+  UF_ING:
+    official_name: UF de ingestão
+    translated_name: State (UF) where food was ingested
+    description: 'State where the patient ate the suspect food, distinct from their
+      state of residence (SG_UF) and state of hospitalization (UF_HOSP); paired with
+      MUN_ING for the municipality of ingestion.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: UF_ING = UF + ingestão; BOTU series carries the matching MUN_ING field.

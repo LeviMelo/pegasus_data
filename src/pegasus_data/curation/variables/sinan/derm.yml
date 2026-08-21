@@ -1,0 +1,57 @@
+# SINAN.DERM —
+#
+# one notification of work-related dermatosis
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AGENTE_DES:
+    official_name: Principal agente causador da dermatose, se outro (especificar)
+    translated_name: Causative agent of the skin disease, when "other"
+    description: 'Free-text name of the substance or material that caused the patient''s
+      occupational skin disease, filled in only when the coded causative-agent field
+      is answered 12-Outros (other).
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Dermatoses_v5.pdf, campo 49
+  EPICUTA:
+    official_name: Teste epicutâneo
+    translated_name: Patch test (epicutaneous test)
+    description: 'Whether an epicutaneous patch test was performed to confirm allergic
+      contact dermatitis in an occupational-dermatoses investigation, and/or its result.
+      Single-character field on the DRT Dermatoses form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'No catalog evidence (def_variables/dictionary/field_documentation)
+      exists for this field. "Epicutâneo" is standard Portuguese dermatology terminology
+      for the patch test used to confirm contact-allergen sensitization, and the column
+      belongs to the DERM (occupational dermatoses) series per schema_header_facts
+      — exactly the investigation where this test is used diagnostically.
+
+      '
+  LESAO:
+    official_name: Localização da lesão (parte do corpo atingida)
+    translated_name: Body part with occupational skin lesion
+    description: 'Body part where the occupational dermatosis lesion appears: hand,
+      upper limb, head, neck, thorax, abdomen, lower limb, foot, whole body, another
+      part, or unknown.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Dermatoses_v5.pdf, campo 50
+  LESAO_DES:
+    official_name: Localização da lesão - Se Outro Especificar
+    translated_name: Other lesion location
+    description: 'Free text naming the specific body part carrying the occupational
+      dermatosis lesion, filled in only when LESAO is coded "outro" because it is not
+      on the fixed body-part list.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Dermatoses_v5.pdf, campo 50

@@ -1,0 +1,132 @@
+# PNI — columns carried by more than one dataset.
+#
+# The notification header and other cross-dataset fields. Described once
+# against the system, because that is the scope on which they are the
+# same column.
+system: PNI
+asserted_by: pegasus_data
+
+variables:
+  ANO:
+    official_name: Ano
+    translated_name: Year (reference/competency year)
+    description: 'Calendar year the row''s doses-applied total or coverage percentage
+      is attributed to (ano de competência) — not necessarily the exact vaccination
+      date. Spans every PNI coverage and doses-applied series.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
+    notes: '1994-1996 rows are structurally missing several UFs (e.g. all of 1994 lacks
+      Alagoas, Amapá, DF, MS, MG, Paraíba, Paraná, RJ, RS, SP, Sergipe and Tocantins)
+      because the system was still rolling out there — an absent row is not a zero.
+      Also spuriously bound to codelists ANO/MESC even though it is a plain year, not
+      a category.
+
+      '
+  DOSE:
+    official_name: Dose
+    translated_name: Dose type / sequence within the scheme
+    description: 'Which dose in the multidose schedule a row reports: dose única, 1ª-4ª
+      dose, 1º/2º reforço (booster), revacinação, dose inicial, dose adicional, or
+      a generic "dose"/"tratamento" code, per DOSE.CNV.
+
+      '
+    code_system: internal
+    codelists:
+    - DOSE
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
+    notes: 'The same DOSE code marks a different point in the schedule depending on
+      IMUNO — "3ª dose" of Hepatite B and "3ª dose" of Poliomielite oral are different
+      clinical events.
+
+      '
+  FX_ETARIA:
+    official_name: Faixa Etária
+    translated_name: Age bracket of the vaccinated individual
+    description: 'Age bracket of the vaccinated individual (e.g. menor de 1 ano, 1
+      ano, 5 a 9 anos, 60 anos e mais) — the specific set of brackets collected differs
+      by immunobiologic.
+
+      '
+    code_system: internal
+    codelists:
+    - FXET
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
+    notes: 'BCG''s brackets stop at "7 a 14 anos"/"15 a 59 anos"/"60 anos e mais" and
+      never use "5 a 9 anos", unlike vaccines such as Febre Amarela — querying BCG
+      against a bracket outside its own scheme returns zero rows. FXET.CNV also groups
+      several raw codes under one bracket label (e.g. "6 meses a 1 ano" groups "--,
+      G1, H2"), so a bracket''s meaning is not guaranteed stable across the dataset''s
+      history.
+
+      '
+  IMUNO:
+    official_name: Imunobiológico
+    translated_name: Immunobiologic (vaccine, serum or immunoglobulin) type
+    description: 'Which immunobiologic the row''s dose total or coverage figure refers
+      to — BCG, Hepatite A/B, Tríplice Viral, Pentavalente, VOP/VIP, Toxóide Tetânico,
+      an antivenom serum, an immunoglobulin, etc. — coded per DATASUS''s Tabela de
+      Imunobiológicos.
+
+      '
+    code_system: internal
+    codelists:
+    - IMUNO
+    - IMUNOC
+    - COBIMUNO
+    - COBIMUC
+    - IMUNOCOB
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
+    notes: 'Vaccines enter and leave the PNI calendar over time (e.g. monovalent Sarampo
+      only through 2002, replaced by Tríplice Viral in 2003; Penta only from mid-2012),
+      and which DOSE/FX_ETARIA values apply to a given IMUNO code depends on its active
+      period.
+
+      '
+  MUNIC:
+    official_name: Município
+    translated_name: Municipality of vaccine application
+    description: 'IBGE municipality code (6 or 7 digits, depending on the file) of
+      where the vaccine was administered — administration site, not the patient''s
+      home municipality.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
+  QT_DOSE:
+    official_name: Quantidade de Doses Aplicadas
+    translated_name: Number of doses applied
+    description: 'Number of vaccine doses administered for the row''s year × location
+      × immunobiologic × dose × age-bracket combination — a raw administrative total,
+      not a rate or percentage.
+
+      '
+    code_system: none
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
+    notes: 'Declared as Character with widths 8, 10 or 40 across different .DEF files
+      despite holding a numeric total — a DEF-authoring quirk, not evidence the column
+      is textual. Also spuriously bound to a codelist named "100".
+
+      '
+  UF:
+    official_name: Unidade da Federação
+    translated_name: State (UF) of vaccine application
+    description: 'IBGE code, letter code, or name (depending on the resolving table)
+      of the state where the vaccine was administered — the administration site, not
+      the patient''s state of residence.
+
+      '
+    code_system: external
+    source: layout_doc
+    source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
+    notes: 'Shares the 1994-1996 rollout gaps documented under ANO: an absent UF in
+      an early year means not-yet-rolled-out, not a real zero.
+
+      '

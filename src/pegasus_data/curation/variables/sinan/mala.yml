@@ -1,0 +1,571 @@
+# SINAN.MALA —
+#
+# one notification of malaria
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AMALARIA:
+    official_name: Resultado de exame para Plasmodium malariae
+    translated_name: P. malariae test result
+    description: 'Result of a diagnostic test for Plasmodium malariae, one of several
+      species-specific malaria result fields; likely records a different test method
+      than the companion field PMALARIA (which also targets this species) rather than
+      a different species.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"MALARIA" names the species; MALA series carries a matching field PMALARIA,
+      so the "A" vs "P" prefixes most plausibly mark different test methods (e.g. antigen
+      vs. blood-smear) for the same species.
+
+      '
+  ARTEI:
+    official_name: Uso de arteméter
+    translated_name: Artemether given
+    description: 'Whether artemether (an artemisinin-based antimalarial) was given
+      as treatment, one of several single-drug yes/no flags on the malaria treatment
+      section alongside CLOROQ, QUININO, DOXOCI, and TETRAC.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is MALA (malária); name abbreviates "artemeter"; C1 width matches
+      the sibling per-drug treatment flags on the same form.
+
+      '
+  ARTEM:
+    official_name: Artemeter/Artesunato
+    translated_name: Artemisinin-based drug used (flag)
+    description: 'Whether an artemisinin derivative (artemeter or artesunato) was used
+      to treat the malaria case — first-line for P. falciparum in Brazil''s protocol,
+      one of several drug checkboxes alongside CLOROQI, PRIMAQ and QUININOI.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; ARTEM names the drug class directly, grouped with other treatment-drug
+      flags in the same MALA stratum.
+  ARTEMI:
+    official_name: Uso de artemisinina/derivado
+    translated_name: Artemisinin-based drug used (flag)
+    description: 'Whether an artemisinin-based drug (e.g. artesunato, artemeter) was
+      part of the malaria patient''s treatment regimen, one of the therapeutic-scheme
+      checkboxes on the malaria (MALA) investigation form alongside chloroquine/primaquine
+      fields.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'ARTEMI abbreviates artemisinina, a first-line antimalarial class in
+      Brazilian treatment protocols; C1 width fits a checkbox.
+
+      '
+  ARTESU:
+    official_name: Uso de artesunato
+    translated_name: Artesunate used (flag)
+    description: 'Whether artesunate was part of the malaria treatment regimen - commonly
+      combined with mefloquine (MEFLOQ) as an ACT regimen against P. falciparum, one
+      drug on the form''s treatment checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ARTESU = artesunato; MALA series' drug-given checklist (with MEFLOQ,
+      CLINDI).
+  ASSINTOM:
+    official_name: Caso assintomático
+    translated_name: Asymptomatic case
+    description: 'Whether the malaria case was asymptomatic, detected through active
+      case-finding or routine blood screening rather than because the patient sought
+      care for symptoms.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MALA form; name reads "assintomático"; C1 width fits a coded yes/no
+      case-detection flag.
+
+      '
+  AT_ATIVIDA:
+    official_name: Atividade exercida no momento da provável infecção
+    translated_name: Activity being performed at likely infection
+    description: 'What the patient was doing when likely exposed to malaria — agriculture,
+      ranching, domestic work, tourism, gold-mining (garimpo), plant harvesting, hunting/fishing,
+      road/dam construction, mining, traveling, or other — profiling occupational/environmental
+      transmission risk.
+
+      '
+    code_system: internal
+    codelists:
+    - AT_ATIVIDA
+    source: web
+    source_ref: https://github.com/rfsaldanha/microdatasus/blob/7109ec2c42cf/R/process_sinan_malaria.R#AT_ATIVIDA
+  AT_LAMINA:
+    official_name: Atividade que gerou a lâmina
+    translated_name: Activity that produced the blood smear
+    description: 'Which surveillance activity generated the malaria diagnostic blood
+      smear (lâmina): BP=Busca Passiva (patient sought care), BA=Busca Ativa (active
+      case search), LVC=Levantamento de Casos (case survey).
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Catalog dictionary gives values 1=BP, 2=BA, 3=LVC; AT_ = atividade,
+      LAMINA = lâmina (blood smear), and BP/BA/LVC map onto Brazil''s standard malaria
+      case-detection-mode abbreviations.
+
+      '
+  AT_SINTOMA:
+    official_name: Atendimento com sintomas
+    translated_name: Attended with symptoms (flag)
+    description: 'Whether the patient was symptomatic at the visit that generated this
+      malaria notification, as opposed to being found through active case-search while
+      asymptomatic (see ASSINTOM).
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Catalog dictionary confirms values 1=Com sintomas, 2=Sem sintomas for
+      this field in the MALA series.
+
+      '
+  CALAFRIO:
+    official_name: Calafrio
+    translated_name: Chills
+    description: 'Chills. Part of the paroxysm — chill, then fever, then sweating —
+      whose periodicity used to distinguish the species clinically.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CALAFRIO reads calafrio; a yes/no clinical flag.
+  CD_OUTRO:
+    official_name: Outro medicamento - descrição
+    translated_name: Other drug used, description
+    description: 'Free-text name of an antimalarial drug used in treatment that isn''t
+      one of the form''s fixed checkboxes (ARTEM, CLOROQI, PRIMAQ, QUININOI) — the
+      write-in detail for an "other drug" option.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C30 text field, wide enough for a drug name, sitting with the other
+      MALA treatment-drug flags.
+  CLIND:
+    official_name: Diagnóstico clínico
+    translated_name: Clinical (unconfirmed) diagnosis flag
+    description: 'Whether the malaria case was diagnosed by symptoms alone rather than
+      a positive blood smear/RDT - relevant in remote areas with limited lab access
+      - distinct from the lab-confirmed flag CON_CONFIR.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CLIN = clínica/clínico; malaria surveillance distinguishes clinically-diagnosed
+      from laboratory-confirmed cases, and this field sits beside the confirmation
+      flag CON_CONFIR.
+
+      '
+  CLINDI:
+    official_name: Uso de clindamicina
+    translated_name: Clindamycin used (flag)
+    description: 'Whether clindamycin was given as part of malaria treatment - typically
+      combined with quinine for severe cases or in pregnancy, when some standard antimalarials
+      are avoided; one item on the drug checklist alongside ARTESU and MEFLOQ.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CLINDI = clindamicina; a companion field CLIND (not owned here) suggests
+      a schema-revision variant of the same drug flag.
+  CLOROQ:
+    official_name: Uso de cloroquina
+    translated_name: Chloroquine given
+    description: 'Whether chloroquine was given as antimalarial treatment, a companion
+      flag to ARTEI, QUININO, DOXOCI, and TETRAC in the same per-drug treatment checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MALA form; name abbreviates "cloroquina"; C1 width matches the sibling
+      per-drug flags.
+
+      '
+  CLOROQI:
+    official_name: Cloroquina
+    translated_name: Chloroquine used (flag)
+    description: 'Whether chloroquine was used to treat the case — historically standard
+      for P. vivax in Brazil''s protocol, one of the drug checkboxes alongside ARTEM,
+      PRIMAQ and QUININOI.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; CLOROQI is cloroquina truncated.
+  CON_CONFIR:
+    official_name: Confirmação laboratorial
+    translated_name: Lab-confirmed case (flag)
+    description: 'Whether the malaria case was confirmed by a positive blood smear
+      or rapid test, the definitive classification separating confirmed cases from
+      the clinically-suspected ones flagged by CLIND.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_ = condição/confirmação, CONFIR = confirmado; lab confirmation
+      is the standard classification axis for malaria case status.
+
+      '
+  DEXAME:
+    official_name: Data do exame
+    translated_name: Date of examination
+    description: 'When the blood slide was examined. Malaria is diagnosed and treated
+      the same day in Brazil''s endemic areas, so this date usually equals the treatment
+      date.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; DEXAME reads data do exame.
+  DINTERNA:
+    official_name: Data de internação
+    translated_name: Date of hospital admission
+    description: 'Date the malaria patient was admitted to hospital, recorded for severe
+      cases; paired with MINTERNA and UFINTERNA giving the municipality and state of
+      that hospitalization.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D = data, INTERNA = internação; declared as a date; MALA series has
+      matching M/UF variants.
+  DOXOCI:
+    official_name: Uso de doxiciclina
+    translated_name: Doxycycline given
+    description: 'Whether doxycycline was given as antimalarial treatment (often paired
+      with quinine for chloroquine-resistant P. falciparum), a companion flag to CLOROQ,
+      QUININO, and TETRAC.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MALA form; name abbreviates "doxiciclina"; C1 width matches the sibling
+      per-drug treatment flags.
+
+      '
+  DSTRAESQUE:
+    official_name: Descrição do esquema de tratamento
+    translated_name: Treatment regimen - free-text description
+    description: 'Free-text description of the antimalarial regimen actually given,
+      used when it doesn''t match a standard coded scheme; complements the coded field
+      TRA_ESQUEM.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DS_TRA_ESQUE = descrição + tratamento + esquema; width 30 fits free
+      text; MALA series also carries the coded sibling TRA_ESQUEM.
+
+      '
+  DTRATA:
+    official_name: Data do tratamento
+    translated_name: Date treatment started
+    description: 'When treatment began. Against DEXAME it measures the gap the programme
+      works to keep at zero, since falciparum malaria can kill within days.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; DTRATA reads data do tratamento.
+  DTTRANSFU:
+    official_name: Data da transfusão
+    translated_name: Date of blood transfusion
+    description: 'Date of a blood transfusion linked to the case, relevant to classifying
+      transfusion-acquired malaria rather than mosquito-borne infection. Paired with
+      TRANSFU (whether it happened) and MTRANSFU (where).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D8 date; DT_+TRANSFU, grouped with the transfusion flags in this stratum.
+  GESTANTE:
+    official_name: Gestante
+    translated_name: Pregnant (flag)
+    description: 'Whether the malaria patient is pregnant. Pregnancy changes both the
+      drug regimen (artemisinin combinations are restricted in early pregnancy) and
+      clinical risk, since severe malaria is more likely in pregnant patients.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Direct decode of GESTANTE; pregnancy status is a standard field wherever
+      it affects malaria treatment choice, C1 width fits a checkbox.
+
+      '
+  LOC_INF:
+    official_name: Local provável de infecção
+    translated_name: Probable infection location (free text)
+    description: 'Free-text description of where the patient likely acquired malaria
+      (locality, village, mining site), used to map transmission foci separately from
+      the patient''s residence address.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'LOC_ = local, INF = infecção; C60 width fits free-text place names,
+      and probable-infection-site is a standard malaria epidemiological field.
+
+      '
+  MEFLOQ:
+    official_name: Uso de mefloquina
+    translated_name: Mefloquine used (flag)
+    description: 'Whether mefloquine was part of the malaria treatment regimen, usually
+      paired with artesunate (ARTESU) as an ACT combination against P. falciparum.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: MEFLOQ = mefloquina; MALA drug-checklist sibling of ARTESU/CLINDI.
+  MINTERNA:
+    official_name: Unidade de internação (CNES)
+    translated_name: Hospitalization facility (CNES code)
+    description: 'CNES code, stored as text, of the health facility where the malaria
+      patient was hospitalized, when the case required admission.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MALA form; C7 width matches the standard 7-digit CNES facility-code
+      length rather than a single yes/no flag; name reads "internação".
+
+      '
+  MTRANSFU:
+    official_name: Município da transfusão
+    translated_name: Municipality where transfusion occurred
+    description: 'IBGE code of the municipality where the transfusion took place —
+      used to trace the geographic source when malaria is suspected to be transfusion-transmitted
+      rather than mosquito-borne.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C7 matches a 7-digit IBGE municipality code; M_+TRANSFU reads município
+      da transfusão, grouped with TRANSFU/DTTRANSFU.
+  PCRUZ:
+    official_name: Parasitemia em cruzes
+    translated_name: Parasitaemia, cross scale
+    description: 'How heavy the infection is, on the traditional half-cross to four-cross
+      scale. A semi-quantitative reading of the slide, and high parasitaemia in falciparum
+      defines severe malaria.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: PCRUZ.CNV
+    reasoning: 'Bound to PCRUZ and CRUZES, whose values run from menor que meia cruz
+      to quatro cruzes.
+
+      '
+  PMALARIA:
+    official_name: Plasmodium malariae identificado
+    translated_name: Plasmodium malariae identified
+    description: 'Flag marking Plasmodium malariae as the species found on the blood
+      smear, called out separately from the more common P. vivax and P. falciparum
+      species codes recorded elsewhere on the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MALA form; name directly reads "P. malariae"; C1 width fits a species
+      flag distinct from the general species-code field owned elsewhere.
+
+      '
+  PMM:
+    official_name: Parasitemia (parasitos por mm³)
+    translated_name: Parasite density (parasites per mm³)
+    description: 'Quantitative parasite count from the malaria patient''s blood smear,
+      expressed as parasites per cubic millimeter of blood - a numeric lab value distinct
+      from the qualitative species-positive checkboxes elsewhere on the form.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MALA = Malária; declared character in some schema years and numeric
+      (width 8) in later ones, consistent with a lab count rather than a code; "parasitos/mm3"
+      is the standard unit for malaria parasitemia.
+
+      '
+  PRIMAQ:
+    official_name: Primaquina
+    translated_name: Primaquine used (flag)
+    description: 'Whether primaquine was used in treatment — clears P. vivax liver
+      hypnozoites and P. falciparum gametocytes, given alongside chloroquine or an
+      artemisinin combination per protocol.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; PRIMAQ is primaquina truncated.
+  PTRANSFU:
+    official_name: Provável transfusional
+    translated_name: Transfusion-related transmission (flag)
+    description: 'Whether blood transfusion, rather than mosquito bite, is the likely
+      route of malaria transmission for this case - a rare but tracked transmission
+      category distinct from the usual vector-borne route.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'P_ = provável, TRANSFU = transfusão/transfusional; transfusional malaria
+      is a recognized, separately-flagged transmission mode in Brazilian surveillance.
+
+      '
+  PUSUARIO:
+    official_name: Peso do usuário
+    translated_name: Patient's body weight
+    description: 'Patient''s body weight, recorded to support weight-based dosing of
+      antimalarial drugs (e.g. artesunate-mefloquine), which are dosed by mg/kg especially
+      in children.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'P_USUARIO read as peso do usuário; no direct textual confirmation found,
+      but fits the treatment-dosing context of the surrounding drug-checklist fields.
+
+      '
+  QUININO:
+    official_name: Uso de quinino
+    translated_name: Quinine given
+    description: 'Whether quinine was given as antimalarial treatment, typically for
+      chloroquine-resistant cases, alongside the other per-drug flags CLOROQ, DOXOCI,
+      ARTEI, and TETRAC.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MALA form; name reads "quinino"; C1 width matches the sibling per-drug
+      treatment flags.
+
+      '
+  QUININOI:
+    official_name: Quinino
+    translated_name: Quinine used (flag)
+    description: 'Whether quinine was used to treat the case — reserved mainly for
+      severe or treatment-resistant malaria, completing the drug checklist with ARTEM,
+      CLOROQI and PRIMAQ.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; QUININOI reads quinino.
+  RESULT:
+    official_name: Resultado do exame
+    translated_name: Examination result
+    description: 'Which species was seen: negative, falciparum, vivax, ovale, or mixed
+      infections. Species decides the drug — vivax needs primaquine to clear the liver
+      stage, falciparum does not.
+
+      '
+    code_system: internal
+    source: def
+    source_ref: RESULT.CNV
+    reasoning: 'Bound to RESULT and PARASITMANET, whose values name the Plasmodium
+      species and their combinations.
+
+      '
+  SOUTROS:
+    official_name: Se outros
+    translated_name: Other option used (flag)
+    description: 'Flag marking that the malaria patient''s treatment scheme included
+      a drug or category outside the standard listed options, paired with a free-text
+      field elsewhere naming it.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'S_OUTROS = "se outros" (if other); matches the flag+detail pattern
+      used across SINAN "outro, especifique" fields, C1 width fits a checkbox.
+
+      '
+  SUDORESE:
+    official_name: Sudorese
+    translated_name: Sweating (flag)
+    description: 'Whether the patient reported sweating - the diaphoretic phase of
+      the classic malaria paroxysm (chills, then fever, then drenching sweats), alongside
+      CALAFRIO (chills) and FEBRE on the symptom checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: SUDORESE = sudorese; MALA symptom-checklist field.
+  TETRAC:
+    official_name: Uso de tetraciclina
+    translated_name: Tetracycline given
+    description: 'Whether tetracycline was given as antimalarial treatment, a companion
+      drug flag to DOXOCI, QUININO, CLOROQ, and ARTEI on the same treatment checklist.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MALA form; name abbreviates "tetraciclina"; C1 width matches the sibling
+      per-drug flags.
+
+      '
+  TRANSFU:
+    official_name: Transfusão
+    translated_name: Blood transfusion (flag)
+    description: 'Whether the patient had a blood transfusion associated with the case
+      — flags a possible transfusion-transmitted malaria infection, investigated further
+      via DTTRANSFU (when) and MTRANSFU (where).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag, root of the DTTRANSFU/MTRANSFU trio.
+  UFINTERNA:
+    official_name: UF de internação
+    translated_name: State of hospitalization
+    description: 'Two-letter code of the Brazilian state where the malaria patient
+      was hospitalized, distinct from the state of residence or the state of probable
+      infection.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'UF_ = unidade federativa, INTERNA = internação; C2 width matches a
+      standard Brazilian state abbreviation.
+
+      '
+  UFTRANSFU:
+    official_name: UF da transfusão
+    translated_name: State (UF) of the transfusion
+    description: 'State where a blood transfusion linked to this malaria case took
+      place - one of a location set (with MTRANSFU for municipality, PTRANSFU for country,
+      UTRANSFU for facility) recorded when transfusional, not vector-borne, transmission
+      is investigated.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'UF + TRANSFU = transfusão; MALA series carries the full DTTRANSFU/MTRANSFU/PTRANSFU/UTRANSFU
+      location-and-date set for a transfusion-transmission workup.
+
+      '
+  UTRANSFU:
+    official_name: Unidade da transfusão (CNES)
+    translated_name: Transfusion facility (CNES code)
+    description: 'CNES code, stored as text, of the facility where a blood transfusion
+      was given to the patient, recorded to help trace transfusion-associated malaria
+      transmission.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'MALA form; name reads "unidade transfusão"; C7 width matches the standard
+      CNES facility-code length, the same pattern as MINTERNA.
+
+      '

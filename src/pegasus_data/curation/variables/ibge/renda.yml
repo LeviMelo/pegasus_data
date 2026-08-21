@@ -1,0 +1,112 @@
+# IBGE.RENDA — Income
+# Renda
+#
+# Population by income bracket.
+system: IBGE
+asserted_by: pegasus_data
+
+variables:
+  DENCRIREND:
+    translated_name: Child-poverty rate denominator
+    description: 'Denominator for child-poverty indicators: total resident population
+      under 14 years old in the município/ano, against which the poor-children counts
+      are divided.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/crianpobrdescr.htm
+  DENDESOCUP:
+    translated_name: Unemployment rate denominator
+    description: 'Denominator for the unemployment rate: economically active resident
+      population aged 16 or older in the município/ano, working or looking for work.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/desemprdescr.htm
+  DENRENDA:
+    translated_name: Income/poverty rate denominator
+    description: 'Denominator "população considerada": the resident population base
+      over which average per-capita household income and the poverty-share indicators
+      are computed.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/rendadescr.htm
+  DENTRABINF:
+    translated_name: Child-labor rate denominator
+    description: 'Denominator for the child-labor rate: total resident population aged
+      10 to 15 in the município/ano.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/trabinfdescr.htm
+  NUMCRIPOB:
+    translated_name: Children below half minimum wage
+    description: 'Number of children under 14 living in households where per-capita
+      monthly income is below half the reference minimum wage — the poverty line for
+      children.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/crianpobrdescr.htm
+  NUMCRIPOBX:
+    translated_name: Children below quarter minimum wage
+    description: 'Number of children under 14 living in households where per-capita
+      monthly income is below one-quarter the reference minimum wage — extreme poverty
+      for children.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/crianpobrdescr.htm
+  NUMDESOCUP:
+    translated_name: Unemployed population
+    description: 'Number of economically active residents aged 16 or older who were
+      without work and seeking employment during the census reference week.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/desemprdescr.htm
+  NUMPOBRES:
+    translated_name: Population below half minimum wage
+    description: 'Number of residents living in households where per-capita monthly
+      income is below half the reference minimum wage (R$510 in the 2010-anchored series):
+      the poverty line.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/pobrezadescr.htm
+  NUMPOBRESX:
+    translated_name: Population below quarter minimum wage
+    description: 'Number of residents living in households where per-capita monthly
+      income is below one-quarter the reference minimum wage: the extreme-poverty line.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/pobrezadescr.htm
+  NUMRENDA:
+    translated_name: Sum of per-capita household income
+    description: 'Sum of average per-capita household income, in reais, across the
+      population considered — the numerator used to compute mean income for a município/ano.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/rendadescr.htm
+  NUMTRABINF:
+    translated_name: Child laborers
+    description: 'Number of residents aged 10 to 15 who were working or looking for
+      work during the census reference week — the child-labor count.
+
+      '
+    code_system: none
+    source: web
+    source_ref: tabnet.datasus.gov.br/cgi/ibge/censo/trabinfdescr.htm

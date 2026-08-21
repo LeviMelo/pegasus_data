@@ -1,0 +1,289 @@
+# SIA.AMP — APAC, multiprofessional follow-up
+# APAC de Acompanhamento Multiprofissional
+#
+# One authorisation for multidisciplinary team follow-up.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  AMP_ACEVAS:
+    official_name: Acesso vascular
+    translated_name: Vascular access type
+    description: 'Which kind of vascular access the patient is dialysing through —
+      fistula, graft or catheter. Catheter use is the quality indicator here, since
+      it carries the highest infection risk.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'ACE VAS reads as acesso vascular, and C(1) admits a small enumerated
+      set rather than free text.
+
+      '
+  AMP_ALBUMI:
+    official_name: Albumina
+    translated_name: Serum albumin
+    description: 'Serum albumin, in g/dL, recorded at the dialysis follow-up. The routine
+      marker of nutritional status in patients on chronic dialysis.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: ALBUMI is albumina; C(4) matches the other lab values in the APAC blocks.
+  AMP_CARACT:
+    official_name: Característica
+    translated_name: Case characteristic
+    description: 'Marks whether this is a new dialysis patient or an existing one continuing
+      care; the operational form records value 1 as Novo (new) for a patient just starting
+      renal replacement therapy.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Característica -> 1 Novo"
+
+      '
+  AMP_DTCLI:
+    official_name: Data Clínica
+    translated_name: Clinical admission date
+    description: 'Date the patient was clinically admitted into the chronic-kidney-disease
+      follow-up program at this facility, which can precede AMP_DTINI when a patient
+      was followed before dialysis began.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'DT_ marks a date under the standard DATASUS naming grammar, and "CLI"
+      abbreviates "clínica"; the sibling field AMP_DTINI is confirmed as the first-dialysis
+      date, so DTCLI is the earlier clinical-admission date in the same record.
+
+      '
+  AMP_DTINI:
+    official_name: Data da 1ª Diálise
+    translated_name: First dialysis date
+    description: 'Date of the patient''s first hemodialysis or peritoneal dialysis
+      session, recorded when a new APAC is opened for renal replacement therapy; earlier
+      than AMP_DTCLI, the clinical follow-up admission date.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Data da 1ª Diálise"
+
+      '
+  AMP_FOSFOR:
+    official_name: Fósforo
+    translated_name: Serum phosphorus
+    description: 'Serum phosphorus level from the periodic lab panel required for dialysis
+      and chronic-kidney-disease patients, monitored alongside PTH to track the mineral-bone
+      disorder that comes with renal replacement therapy.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"FOSFOR" is the Portuguese word "fósforo" shortened; CKD/dialysis monitoring
+      protocols require phosphorus alongside the other lab fields present in this same
+      AMP record (Hb, PTH, HBsAg).
+
+      '
+  AMP_HB:
+    official_name: Hb
+    translated_name: Hemoglobin
+    description: 'Hemoglobin level from the patient''s routine renal-disease lab panel,
+      used to detect and monitor the anemia that is common in chronic kidney disease
+      and dialysis.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Hb" no formulário de Nefrologia
+
+      '
+  AMP_HBSAG:
+    official_name: HBs Ag
+    translated_name: Hepatitis B surface antigen result
+    description: 'Result of the hepatitis B surface antigen (HBsAg) screening test,
+      run on dialysis patients because of the blood-exposure risk in hemodialysis units
+      and required in the CKD lab panel.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "HBs Ag" no formulário de Nefrologia
+
+      '
+  AMP_HCV:
+    official_name: aa HCV
+    translated_name: Hepatitis C antibody result
+    description: 'Result of the anti-HCV (hepatitis C antibody) screening test, run
+      routinely on dialysis patients for the same blood-exposure risk as AMP_HBSAG
+      and recorded in the same panel.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "aa HCV" no formulário de Nefrologia
+
+      '
+  AMP_HIV:
+    official_name: aa HIV
+    translated_name: HIV antibody result
+    description: 'Result of the anti-HIV screening test performed as part of the same
+      routine serology panel drawn for dialysis patients, alongside AMP_HBSAG and AMP_HCV.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "aa HIV" no formulário de Nefrologia
+
+      '
+  AMP_INTERC:
+    official_name: Intercorrência
+    translated_name: Clinical complication flag
+    description: 'Flags whether a clinical intercurrence (a complication or adverse
+      event, such as infection or hospitalization) occurred during the period covered
+      by this dialysis follow-up record.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"INTERC" is the plain Portuguese clinical term "intercorrência" shortened,
+      a routine yes/no item on periodic treatment-monitoring records like the rest
+      of this AMP panel.
+
+      '
+  AMP_KTVSEM:
+    official_name: Kt/V Semanal
+    translated_name: Weekly Kt/V
+    description: 'Weekly Kt/V value, the standard dialysis-adequacy index measuring
+      how much urea is cleared relative to the patient''s total body water over a week
+      of hemodialysis sessions.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"KTV" is the clinical shorthand Kt/V and "SEM" abbreviates "semanal"
+      (weekly), the usual reporting period for this dialysis-adequacy index in Brazilian
+      nephrology monitoring.
+
+      '
+  AMP_MAISNE:
+    official_name: Acompanhamento há mais de 1 ano
+    translated_name: Followed over one year flag
+    description: 'Flags whether the patient has been in this chronic-kidney-disease
+      and dialysis follow-up program for more than one year, separating long-term cases
+      from recently admitted ones.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Acomp. há mais de 1 ano?"
+
+      '
+  AMP_PTH:
+    official_name: PTH
+    translated_name: Parathyroid hormone
+    description: 'Serum parathyroid hormone level, checked periodically in chronic
+      kidney disease and dialysis patients alongside phosphorus to track the secondary
+      hyperparathyroidism that develops as kidney function declines.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"PTH" is the standard clinical abbreviation for parathyroid hormone;
+      CKD monitoring protocols pair it with phosphorus (AMP_FOSFOR) in the same panel,
+      matching this field''s placement among the other AMP lab fields.
+
+      '
+  AMP_SEAPTO:
+    official_name: Situação de aptidão para transplante
+    translated_name: Transplant-eligibility status detail
+    description: 'One-digit code narrowing a transplant-eligible dialysis patient''s
+      exact standing — on the transplant centre''s waiting list, under evaluation there,
+      not yet referred, or awaiting an appointment. Filled only once the patient''s
+      broader transplant status is recorded as fit.
+
+      '
+    code_system: internal
+    source: web
+    reasoning: 'The 2014 DATASUS layout documents APA_SEAPTO, one character, in the
+      dialysis-treatment laudo block, filled only when transplant status = 1-Apto,
+      with domain 1=Inscrito na CNCDO, 2=Em avaliação no centro transplantador, 3=Sem
+      encaminhamento, 4=Aguardando agendamento. AMP_SEAPTO carries the same name and
+      one-character width under the multiprofissional chronic-kidney-disease follow-up
+      prefix.
+
+      '
+    notes: 'Confirmed against a related but not identical laudo block (Tratamento Dialítico)
+      in the source document, not against the AMP block itself — the AMP block''s own
+      field list in that document does not include SEAPTO. The domain above is carried
+      across by analogy, not verified for this exact file.
+
+      '
+  AMP_SEPERI:
+    official_name: Houve Peritonite
+    translated_name: Peritonitis occurrence flag
+    description: 'Flags whether the patient had an episode of peritonitis during the
+      period, the main complication tracked for patients on peritoneal dialysis rather
+      than hemodialysis.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Houve peritonite dig.?"
+
+      '
+  AMP_SITINI:
+    official_name: Situação Inicial
+    translated_name: Status at admission
+    description: 'Records the patient''s situation when starting this treatment episode,
+      such as ambulatory outpatient care versus having been hospitalized, filled on
+      the APAC''s Nefrologia screen.
+
+      '
+    code_system: none
+    source: web
+    source_ref: 'HC-UFG "Procedimento Operacional Padrão - Processamento de APAC Terapia
+      Renal" (gov.br/hubrasil, POPTRS1.1), campo "Situação do usuário na ocasião em
+      que Iniciou o Tra."
+
+      '
+  AMP_SITTRA:
+    official_name: Situação do Tratamento
+    translated_name: Current treatment status
+    description: 'Current status of the patient''s renal-replacement therapy at reporting
+      time - still in dialysis, transferred to another service, transplanted, or deceased
+      - the outcomes billing staff check monthly before renewing the APAC.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"SIT"+"TRA" pairs with the documented sibling AMP_SITINI ("situação
+      inicial") to give "situação do tratamento"; the outcome categories come from
+      the same operational manual''s monthly review step, which lists exactly these
+      possibilities (óbito, mudança de procedimento, transplante, transferência, continuidade).
+
+      '
+  AMP_TRU:
+    official_name: TRU
+    translated_name: Urea reduction rate
+    description: 'Taxa de Redução de Ureia (urea reduction ratio), a percentage measure
+      of how much blood urea drops during a hemodialysis session, reported alongside
+      Kt/V as the other standard dialysis-adequacy index.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: '"TRU" is the standard Brazilian-nephrology abbreviation for Taxa de
+      Redução de Ureia, the companion adequacy metric to Kt/V (AMP_KTVSEM) computed
+      from the same pre/post-dialysis blood draw.
+
+      '

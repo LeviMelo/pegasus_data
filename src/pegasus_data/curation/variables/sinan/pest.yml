@@ -1,0 +1,240 @@
+# SINAN.PEST —
+#
+# one notification of plague
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  COM_PEST:
+    official_name: Comunicante de peste
+    translated_name: Contact of a plague case
+    description: 'Whether this notification concerns a comunicante (traced contact
+      of a confirmed plague case) rather than an independently suspected case, used
+      in plague outbreak contact-tracing.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'Agravo is PEST (peste/plague); COM_ plausibly reads "comunicante";
+      C1 width fits a coded yes/no contact-tracing flag.
+
+      '
+  CON_GRAVID:
+    official_name: Condição de gravidez
+    translated_name: Pregnant (flag)
+    description: 'Whether the plague (PEST) patient is pregnant, relevant because first-line
+      plague treatment (aminoglycosides such as streptomycin) carries different risk
+      considerations in pregnancy.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CON_ = condição, GRAVID = gravidez; pregnancy status affects drug choice
+      for plague treatment, C1 fits a checkbox.
+
+      '
+  CO_FOCAL:
+    official_name: Condição focal
+    translated_name: Within a known plague focus (flag)
+    description: 'Whether the plague (PEST) case occurred within a recognized natural
+      "foco pestoso" (endemic enzootic focus area), rather than outside known plague-endemic
+      zones - Brazil''s plague surveillance is organized around such registered foci.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'CO_ = condição, FOCAL = focal; C1 width is too short for a focus identifying
+      code, pointing to a yes/no flag rather than the focus''s own ID.
+
+      '
+  CO_RISCO:
+    official_name: Condição de risco
+    translated_name: Risk condition code
+    description: 'Coded risk classification (e.g. occupational or environmental exposure
+      category) for the plague case, distinct from CO_FOCAL, which flags whether the
+      case falls within a recognized endemic natural focus.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: CO_ = condição; RISCO = risco; PEST series carries the related CO_FOCAL
+      field.
+  DT_S1:
+    official_name: Data da primeira amostra
+    translated_name: Date of first sample
+    description: When the first serum was taken, on the plague investigation form.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; S1 is the first sample.
+  DT_S2:
+    official_name: Data da segunda amostra
+    translated_name: Date of second sample
+    description: 'When the second serum was taken. The paired sample that confirms
+      plague by a rising titre.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; S2 is the second sample.
+  ELISA1:
+    official_name: Resultado ELISA - 1ª amostra
+    translated_name: ELISA result - 1st sample
+    description: 'Result of the first ELISA serology sample in a plague (Peste) investigation,
+      paired with ELISA2 for a second sample and with the separate IGM_T1/IGG_T2 titer
+      fields.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and PEST series membership.
+      The name and paired-sample pattern mirror the confirmed LAB_ELIS_1/LAB_ELIS_2
+      ELISA fields on the Leptospirose form, the same style of paired-sample serology
+      SINAN uses across its zoonosis forms.
+
+      '
+  ELISA2:
+    official_name: Resultado ELISA - 2ª amostra
+    translated_name: ELISA result - 2nd sample
+    description: 'Second-sample result paired with ELISA1 in the same plague-investigation
+      ELISA pair.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'Same basis as ELISA1: C1 width, PEST series, and the paired-sample
+      ELISA pattern confirmed elsewhere in SINAN (Leptospirose''s LAB_ELIS_1/2).
+
+      '
+  EPI_PESTE:
+    official_name: Epizootia
+    translated_name: Epizootic (rodent die-off) flag
+    description: 'Whether an epizootic — an abnormal die-off among local rodents —
+      was reported in the area before the human plague case, a classic early-warning
+      sign used in plague surveillance.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and PEST (Peste) series
+      membership. Rodent epizootics are the standard sentinel event plague surveillance
+      protocols look for before human cases appear, making an epizootic flag a plausible
+      fit for a field literally named "epi_peste".
+
+      '
+  HEMO_IGG:
+    official_name: Resultado Hemaglutinação IgG
+    translated_name: Hemagglutination inhibition test - IgG result
+    description: 'IgG result of the hemagglutination-inhibition serology test for plague
+      (Yersinia pestis), a single-sample test alongside the paired-sample ELISA fields
+      (ELISA1/ELISA2) on the same form.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and PEST series membership.
+      Hemagglutination inhibition is a classic plague serology method, and running
+      it alongside an ELISA panel matches how other SINAN zoonosis forms (e.g. Chagas)
+      run multiple serology methods side by side.
+
+      '
+  HEMO_IGM:
+    official_name: Resultado Hemaglutinação IgM
+    translated_name: Hemagglutination inhibition test - IgM result
+    description: 'IgM half of the same hemagglutination-inhibition test as HEMO_IGG,
+      for plague.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as HEMO_IGG.
+  IGG_T2:
+    official_name: Título IgG - 2ª amostra
+    translated_name: IgG titer - 2nd sample
+    description: 'IgG antibody titer from the plague hemagglutination-inhibition test
+      on the second sample, a companion field to the qualitative HEMO_IGG result.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C2, two digits — a titer
+      dilution step rather than a Sim/Não flag) and PEST series membership. "T2" reads
+      as "titer, 2nd sample", quantifying how strong the reaction was on top of the
+      qualitative HEMO_IGG/HEMO_IGM results.
+
+      '
+  IGM_T1:
+    official_name: Título IgM - 1ª amostra
+    translated_name: IgM titer - 1st sample
+    description: 'IgM antibody titer from the same plague hemagglutination-inhibition
+      test, read on the first sample; sibling field to IGG_T2.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: Same basis as IGG_T2, C2 width and PEST series membership.
+  LAB_ESFR:
+    official_name: Esfregaço
+    translated_name: Smear microscopy result
+    description: 'Result of direct smear microscopy (e.g. of bubo aspirate or blood)
+      for Yersinia pestis in a plague investigation, a rapid bedside test distinct
+      from the culture result in LAB_HEMO.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and PEST series membership.
+      "Esfregaço" (smear) is standard plague-diagnosis terminology for direct microscopy
+      of bubo aspirate, one of the fastest confirmatory tests available and a natural
+      companion to the culture and serology fields confirmed elsewhere on this form.
+
+      '
+  LAB_HEMO:
+    official_name: Hemocultura
+    translated_name: Blood/bubo culture result
+    description: 'Result of microbial culture (blood or bubo aspirate) for Yersinia
+      pestis, the plague form''s culture-based confirmation test, distinct from the
+      Chagas HEMOCULT field on a different agravo.
+
+      '
+    code_system: internal
+    source: inferred
+    reasoning: 'No catalog evidence beyond declared type (C1) and PEST series membership.
+      Culture is the reference standard for confirming plague, and pairing it with
+      the confirmed LAB_ESFR (smear) and ELISA/hemagglutination serology fields on
+      the same form fits the standard plague diagnostic workup.
+
+      '
+  SIN_GANG:
+    official_name: Sinal ganglionar (bubão)
+    translated_name: Bubo (swollen lymph node)
+    description: 'Clinical-signs checklist item marking presence of a bubo — a painful,
+      swollen lymph node — the hallmark clinical sign of bubonic plague.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: 'PEST form; SIN_ is the sinal/sign prefix, GANG reads "gânglio"; C1
+      width fits a coded sign checkbox.
+
+      '
+  SIN_PULM:
+    official_name: Sinais pulmonares
+    translated_name: Pulmonary signs (flag)
+    description: 'Whether the patient had pulmonary signs or symptoms — distinguishes
+      the highly lethal, person-to-person-transmissible pneumonic form of plague from
+      the bubonic and septicemic forms.
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; SIN_=sinal, PULM=pulmonar, in the PEST (peste) stratum.
+  TRATADO:
+    official_name: Tratado
+    translated_name: Treated (flag)
+    description: 'Whether the plague patient received treatment (typically streptomycin
+      or doxycycline).
+
+      '
+    code_system: none
+    source: inferred
+    reasoning: TRATADO = tratado; plain treatment-given flag on the PEST form.
