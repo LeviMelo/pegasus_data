@@ -39,6 +39,14 @@ DEFAULT_SIZE = 25
 DESCRIBED = """
 SELECT system, field_name FROM field_documentation
  WHERE description IS NOT NULL AND TRIM(description) <> ''
+   -- A .DEF display name is a NAME, not a description. `defnames` records what
+   -- TabNet calls a column -- "A column DATASUS tabulates under the name
+   -- 'Especialidade'" -- which says nothing about what CODLEITO holds. Counting
+   -- those as described hid 1,079 columns from this queue: they looked finished,
+   -- so no worker was ever handed them, and coverage read 96% while genuine
+   -- coverage was 67%. A name is a lead, not an answer.
+   AND description NOT LIKE 'A column DATASUS tabulates%'
+   AND description NOT LIKE 'A quantity DATASUS tabulates%'
 UNION
 SELECT system, field_name FROM variable_docs
  WHERE description IS NOT NULL AND TRIM(description) <> ''

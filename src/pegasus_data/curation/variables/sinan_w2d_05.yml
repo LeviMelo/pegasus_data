@@ -1,0 +1,343 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ANTIB_DES:
+    official_name: Antibiótico - descrição
+    translated_name: Antibiotic used (free text)
+    description: >
+      Free-text name of the antibiotic administered to a cholera (COLE)
+      patient, part of the treatment section of the cholera case
+      investigation form.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ANTIB_ = antibiótico, DES = descrição; C30 width fits a drug name
+      rather than a coded value.
+
+  OUT_VINCUL:
+    official_name: Outro vínculo epidemiológico
+    translated_name: Other epidemiological link (free text)
+    description: >
+      Free-text description of an epidemiological link to another cholera
+      case or outbreak not covered by the form's standard categories, used
+      to trace transmission chains.
+    code_system: none
+    source: inferred
+    reasoning: >
+      OUT_ = outro, VINCUL = vínculo; C30 width fits free text, and
+      epidemiological linkage is a standard element of cholera outbreak
+      investigation.
+
+  UF_HOSPITA:
+    official_name: UF de hospitalização
+    translated_name: State of hospitalization
+    description: >
+      Two-letter code of the Brazilian state where the cholera patient was
+      hospitalized, distinct from the state of residence or of probable
+      infection.
+    code_system: none
+    source: inferred
+    reasoning: >
+      UF_ = unidade federativa, HOSPITA = hospitalização; C2 width matches
+      a standard state abbreviation.
+
+  D_VOMITO:
+    official_name: Dias de vômito
+    translated_name: Days of vomiting
+    description: >
+      Number of days the rotavirus gastroenteritis patient experienced
+      vomiting, a duration field used alongside N_DIAR (days of diarrhea)
+      to characterize illness severity.
+    code_system: none
+    source: inferred
+    reasoning: >
+      D_ = dias, VOMITO = vômito; C2 width fits a zero-padded day count,
+      and vomiting duration is a standard severity indicator for acute
+      gastroenteritis (ROTA).
+
+  NOME_BACT:
+    official_name: Nome da bactéria
+    translated_name: Bacteria name (free text)
+    description: >
+      Free-text name of a bacterial pathogen identified in a stool culture
+      during a rotavirus/acute-diarrhea investigation, capturing a
+      co-infection or an alternative bacterial cause found alongside viral
+      testing.
+    code_system: none
+    source: inferred
+    reasoning: >
+      NOME_ = nome, BACT = bactéria; C15 width fits a short organism name,
+      and bacterial stool culture is a differential test in the ROTA
+      surveillance workup.
+
+  N_DIAR:
+    official_name: Número de dias de diarreia
+    translated_name: Days of diarrhea
+    description: >
+      Number of days the patient experienced diarrhea during a rotavirus
+      gastroenteritis case, the counterpart duration field to D_VOMITO.
+    code_system: none
+    source: inferred
+    reasoning: >
+      N_ = número, DIAR = diarreia; C2 width mirrors D_VOMITO's day-count
+      encoding.
+
+  DSTITULO1:
+    official_name: Descrição do título 1
+    translated_name: First serology titer (free text)
+    description: >
+      Free-text result of the first VDRL/RPR antibody titer (e.g. "1:8")
+      recorded for a pregnant woman with syphilis (SIFG), used to track
+      titer trend across treatment and follow-up.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DS_ = descrição, TITULO1 = título, primeira amostra; C30 width fits
+      a titer notation rather than a coded value, and titer tracking is
+      standard in syphilis follow-up.
+
+  TPESQPAR:
+    official_name: Tipo de esquema do parceiro
+    translated_name: Partner's treatment regimen type
+    description: >
+      Type of antibiotic regimen given to the sexual partner of a pregnant
+      woman diagnosed with syphilis (SIFG), distinct from TRATPARC's
+      simple yes/no flag for whether the partner was treated at all.
+    code_system: none
+    source: inferred
+    reasoning: >
+      TP_ = tipo, ESQ = esquema, PAR = parceiro; partner treatment is
+      essential to prevent syphilis reinfection, and this field's coded
+      C1 width fits a regimen-type code.
+
+  TRATPARC:
+    official_name: Tratamento do parceiro
+    translated_name: Partner treated (flag)
+    description: >
+      Whether the sexual partner of a pregnant woman with syphilis (SIFG)
+      received treatment, the basic yes/no companion to TPESQPAR's
+      regimen-type detail.
+    code_system: none
+    source: inferred
+    reasoning: >
+      TRAT_ = tratamento, PARC = parceiro; partner treatment status is a
+      required field on the syphilis-in-pregnancy investigation form.
+
+  DT_INI_EPI:
+    official_name: Data de início - semana epidemiológica
+    translated_name: Onset date for epidemiological week
+    description: >
+      Date used to place a sporotrichosis (ESPO) case in its
+      epidemiological week for surveillance charts, functioning as the
+      case's reference onset date.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ = data, INI = início, EPI = epidemiológica; D8 date type fits,
+      and an epidemiological-week reference date is standard for outbreak
+      curve tracking.
+
+  ID_NOTIFIC:
+    official_name: Identificador da notificação
+    translated_name: Notification record identifier
+    description: >
+      Sequential numeric identifier for a sporotrichosis (ESPO)
+      notification record, distinguishing individual case entries within
+      the dataset.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ID_ = identificador, NOTIFIC = notificação; N5 numeric width fits a
+      sequential record number rather than a coded value.
+
+  DTS1:
+    official_name: Data - sinal/sintoma 1
+    translated_name: Date of first sign/symptom
+    description: >
+      Date of symptom or sign onset for a Brazilian spotted fever (FMAC)
+      case, establishing the case timeline that the necrotic-lesion field
+      NECROSE is assessed against.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT = data, S1 = sinal/sintoma 1; D8 date type fits, though the exact
+      milestone ("S1") is not confirmed by other catalog evidence.
+
+  NECROSE:
+    official_name: Necrose
+    translated_name: Skin necrosis (flag)
+    description: >
+      Whether the patient developed skin necrosis (a necrotic eschar or
+      lesion), a distinctive and severe clinical sign of Brazilian spotted
+      fever (febre maculosa) reflecting Rickettsia-driven vasculitis.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Direct decode of NECROSE; necrotic skin lesions are a recognized
+      severe manifestation of febre maculosa (FMAC), C1 fits a checkbox.
+
+  SULFA:
+    official_name: Uso de sulfa
+    translated_name: Sulfa-class antibiotic used (flag)
+    description: >
+      Whether the typhoid fever (FTIF) patient received a sulfa-class
+      antibiotic (e.g. sulfametoxazol-trimetoprima) as part of treatment,
+      one of the drug-class checkboxes on the treatment section.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SULFA = sulfa; sulfonamide antibiotics are a recognized typhoid
+      treatment option, C1 width fits a checkbox.
+
+  URO_D_2:
+    official_name: Urocultura - segunda amostra
+    translated_name: Second urine culture result (free text)
+    description: >
+      Free-text result/detail of a second urine culture performed to help
+      confirm typhoid fever (FTIF), since Salmonella Typhi can be shed
+      intermittently in urine, making repeat sampling useful.
+    code_system: none
+    source: inferred
+    reasoning: >
+      URO_ = urocultura, D_2 = segunda coleta/dose; C30 width fits a
+      free-text lab result rather than a short code.
+
+  AGUA_ALIME:
+    official_name: Água/alimento como via de transmissão
+    translated_name: Water/food transmission route (flag)
+    description: >
+      Whether contaminated water or food is the likely transmission route
+      for this viral hepatitis (HEPA) case - relevant to the fecal-oral
+      spread pattern of hepatitis A and E, as opposed to bloodborne routes.
+    code_system: none
+    source: inferred
+    reasoning: >
+      AGUA_ = água, ALIME = alimento; water/food exposure is the defining
+      transmission-route question for enterically-spread hepatitis
+      viruses, C1 fits a checkbox.
+
+  HDV:
+    official_name: Vírus da Hepatite D
+    translated_name: Hepatitis D virus marker (flag)
+    description: >
+      Whether the patient tested positive for hepatitis D virus (Delta),
+      which only causes infection alongside hepatitis B - a specific viral
+      marker distinct from the HBV/HCV fields on the hepatitis (HEPA)
+      investigation form.
+    code_system: none
+    source: inferred
+    reasoning: >
+      HDV is the standard abbreviation for Hepatitis D Virus; C1 width
+      fits a checkbox, and HDV requires HBV coinfection to replicate.
+
+  CON_GRAVID:
+    official_name: Condição de gravidez
+    translated_name: Pregnant (flag)
+    description: >
+      Whether the plague (PEST) patient is pregnant, relevant because
+      first-line plague treatment (aminoglycosides such as streptomycin)
+      carries different risk considerations in pregnancy.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CON_ = condição, GRAVID = gravidez; pregnancy status affects drug
+      choice for plague treatment, C1 fits a checkbox.
+
+  CO_FOCAL:
+    official_name: Condição focal
+    translated_name: Within a known plague focus (flag)
+    description: >
+      Whether the plague (PEST) case occurred within a recognized natural
+      "foco pestoso" (endemic enzootic focus area), rather than outside
+      known plague-endemic zones - Brazil's plague surveillance is
+      organized around such registered foci.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CO_ = condição, FOCAL = focal; C1 width is too short for a focus
+      identifying code, pointing to a yes/no flag rather than the focus's
+      own ID.
+
+  TRATANAO:
+    official_name: Tratamento não realizado
+    translated_name: Treatment not given (flag)
+    description: >
+      Whether the schistosomiasis (ESQU) patient did NOT receive
+      antiparasitic treatment (e.g. praziquantel) - capturing refusal,
+      contraindication, or loss to follow-up rather than treatment given.
+    code_system: none
+    source: inferred
+    reasoning: >
+      TRAT_ = tratamento, A_NAO reads as "tratou? não"; C1 width fits a
+      checkbox, and non-treatment tracking complements the disease's
+      standard treatment fields.
+
+  UF_H:
+    official_name: UF do hospital
+    translated_name: State of hospital
+    description: >
+      Two-letter state code of the hospital where a suspected
+      exanthematous-disease (measles/rubella, EXAN) patient was treated,
+      distinct from the patient's state of residence.
+    code_system: none
+    source: inferred
+    reasoning: >
+      UF_ = unidade federativa, H = hospital; C2 width matches a state
+      abbreviation, and hospital location tracking supports outbreak
+      case-finding.
+
+  PAR_TIPO:
+    official_name: Tipo de parceiro
+    translated_name: Partner type/classification
+    description: >
+      Type/classification of the sexual partner recorded during the
+      HIV-in-pregnancy (HIVG) investigation, relevant for partner
+      notification and assessing vertical-transmission risk.
+    code_system: none
+    source: inferred
+    reasoning: >
+      PAR_ = parceiro, TIPO = tipo; C1 coded width fits a short
+      classification, and partner information is routinely collected in
+      maternal HIV case investigation.
+
+  CLI_RINITE:
+    official_name: Rinite sifilítica
+    translated_name: Syphilitic rhinitis (flag)
+    description: >
+      Whether the newborn showed syphilitic rhinitis ("coriza sifilítica"
+      or snuffles), a classic early clinical sign of congenital syphilis
+      (SIFC) caused by nasal mucosa involvement.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CLI_ = clínico, RINITE = rinite; nasal discharge/snuffles is a named
+      early sign in congenital syphilis clinical presentation, C1 fits a
+      checkbox.
+
+  VACINARUBE:
+    official_name: Vacinação anti-rubéola da mãe
+    translated_name: Maternal rubella vaccination (flag)
+    description: >
+      Whether the mother was vaccinated against rubella before or during
+      pregnancy - maternal immunization history used to assess congenital
+      rubella syndrome (SRC) risk in the newborn.
+    code_system: none
+    source: inferred
+    reasoning: >
+      VACINA = vacina, RUBE = rubéola; maternal rubella immunity is the
+      central preventable risk factor investigated for SRC, C1 fits a
+      checkbox.
+
+  TP_IDENTFI:
+    official_name: Tipo de identificação do ferimento
+    translated_name: Wound identification type
+    description: >
+      Type of wound identification/classification recorded on the
+      accidental tetanus (TETA) investigation form, characterizing how the
+      injury that led to infection was assessed.
+    code_system: none
+    source: inferred
+    reasoning: >
+      TP_ = tipo, IDENTFI = identificação; accidental tetanus forms
+      classify the causative wound, and C1 width fits a coded category.

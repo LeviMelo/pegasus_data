@@ -1,0 +1,200 @@
+# SIASUS — the small non-AC groups: the shared APAC bariatric-surgery block
+# (AB_), the outpatient-production receipt pair (PA_RCB/RCBDF), the dialysis
+# treatment laudo's peritonitis flag (ATD_SEPERI), the nephrology laudo's
+# first-dialysis date (AN_DTPDR), and the multiprofessional chronic-kidney-
+# disease follow-up's transplant-status detail (AMP_SEAPTO).
+#
+# Several of these (ATD_SEPERI, AN_DTPDR, AB_PONTBAR, AMP_SEAPTO) were
+# confirmed against a 2014 DATASUS internal text-layout manual for APAC/SIA
+# (fehosp.com.br, "Layout da interface texto do APAC e do SIA") that documents
+# the equivalent fields under the shared APA_ prefix used in that later export
+# format. The 2002-era DBF columns in this catalog carry the older
+# per-subsystem prefixes (AN_, ATD_, AB_, AMP_) instead, but the field names,
+# widths and clinical context match one for one.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+
+  ATD_SEPERI:
+    official_name: Peritonite no mês (diálise peritoneal)
+    translated_name: Peritonitis this month, peritoneal dialysis
+    description: >
+      Whether a patient on peritoneal dialysis was diagnosed with peritonitis
+      during the reporting month — S, N or I for yes, no or unknown.
+      Peritonitis is the complication specific to the catheter route, tracked
+      separately from haemodialysis patients' complications.
+    code_system: internal
+    source: web
+    reasoning: >
+      A 2014 DATASUS APAC text-layout manual documents the equivalent field,
+      there named APA_SEPERI in the Tratamento Dialítico laudo block,
+      verbatim as "Se em diálise Peritoneal, houve peritonite diagnosticada no
+      mês vigente? (S-Sim, N-Não, I-Ignorado)". ATD_SEPERI is one character,
+      matching that S/N/I domain.
+
+  AN_DTPDR:
+    official_name: Data da primeira diálise realizada
+    translated_name: Date of first dialysis performed
+    description: >
+      Date, AAAAMMDD, of the patient's first-ever dialysis session. Filled
+      once, on the record documenting that first session, not repeated on
+      every subsequent monthly renewal of the authorisation.
+    code_system: none
+    source: web
+    reasoning: >
+      The same 2014 DATASUS layout documents the equivalent field, there
+      named APA_DTPDR in the Nefrologia laudo block, as "Data (AAAAMMDD) da
+      primeira dialise realizada", filled only at the first dialysis.
+      AN_DTPDR is eight characters, matching an AAAAMMDD date.
+
+  AB_PONTBAR:
+    official_name: Pontuação de Barros
+    translated_name: Barros score
+    description: >
+      Single-digit Barros score entered on the bariatric-surgery follow-up
+      authorisation, from a scale used in Brazilian bariatric practice to
+      grade a patient's post-operative weight-loss outcome against
+      expectation.
+    code_system: none
+    source: web
+    reasoning: >
+      The same 2014 DATASUS layout documents APA_PONTBARR, one character, as
+      "Pontuacao de Barros" in the pre-2013 post-bariatric-surgery follow-up
+      block, next to a companion "Tabela de Barros" field. AB_PONTBAR is one
+      character under the bariatric AB_ prefix, matching that field; it is
+      flagged shared because both the pre- and post-op bariatric tables carry
+      it.
+
+  AMP_SEAPTO:
+    official_name: Situação de aptidão para transplante
+    translated_name: Transplant-eligibility status detail
+    description: >
+      One-digit code narrowing a transplant-eligible dialysis patient's exact
+      standing — on the transplant centre's waiting list, under evaluation
+      there, not yet referred, or awaiting an appointment. Filled only once
+      the patient's broader transplant status is recorded as fit.
+    code_system: internal
+    source: web
+    reasoning: >
+      The 2014 DATASUS layout documents APA_SEAPTO, one character, in the
+      dialysis-treatment laudo block, filled only when transplant status =
+      1-Apto, with domain 1=Inscrito na CNCDO, 2=Em avaliação no centro
+      transplantador, 3=Sem encaminhamento, 4=Aguardando agendamento.
+      AMP_SEAPTO carries the same name and one-character width under the
+      multiprofissional chronic-kidney-disease follow-up prefix.
+    notes: >
+      Confirmed against a related but not identical laudo block (Tratamento
+      Dialítico) in the source document, not against the AMP block itself —
+      the AMP block's own field list in that document does not include
+      SEAPTO. The domain above is carried across by analogy, not verified for
+      this exact file.
+
+  AP_TPPRE:
+    official_name: Tipo de prestador
+    translated_name: Provider type
+    description: >
+      Two-digit code on the shared APAC header classifying the issuing
+      establishment's ownership — public, philanthropic, union-run or
+      private/contracted — the same provider-type axis SUS billing uses
+      elsewhere. Repeated on every laudo type a record belongs to, including
+      the bariatric follow-up (ABO) file it appears in here.
+    code_system: none
+    source: inferred
+    reasoning: >
+      TP PRE reads tipo de prestador, the standard SIA/APAC header field for
+      the billing establishment's ownership/contract type; its two-character
+      width matches DATASUS's small numeric type-code convention. No value
+      evidence is present in the catalog to confirm the exact codes.
+
+  PA_RCB:
+    official_name: Número do recibo
+    translated_name: Receipt number
+    description: >
+      Six-character receipt number assigned when this outpatient-production
+      (BPA) record was transmitted to the managing health authority for
+      processing — the protocol number a facility cites when tracking
+      payment of a submitted batch.
+    code_system: none
+    source: inferred
+    reasoning: >
+      RCB is the standard DATASUS abbreviation for recibo; PA_RCB sits beside
+      PA_RCBDF, a one-character companion field, the same value-plus-check-
+      digit pairing DATASUS uses elsewhere (e.g. the APAC number itself, 12
+      digits plus 1 check digit).
+
+  PA_RCBDF:
+    official_name: Dígito verificador do recibo
+    translated_name: Receipt check digit
+    description: >
+      One-character check digit validating PA_RCB's six-character receipt
+      number. Carries no information of its own beyond confirming PA_RCB was
+      transcribed correctly.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DF is DATASUS's usual abbreviation for dígito (verificador); the field
+      is one character and sits immediately after PA_RCB, matching the
+      number-plus-check-digit pairing documented for the APAC number in the
+      same file family.
+
+  AB_T_PRC2:
+    official_name: Tipo de procedimento (2ª consulta de acompanhamento)
+    translated_name: Procedure type, 2nd follow-up visit
+    description: >
+      Three-character procedure-type code for the second scheduled
+      post-bariatric follow-up visit on this ABO authorisation. Follow-up
+      after bariatric surgery is billed across a fixed multi-visit schedule;
+      this column and its T_PRC3-T_PRC6 siblings record each visit's
+      procedure classification in turn.
+    code_system: none
+    source: inferred
+    reasoning: >
+      AB_ is the bariatric-surgery block prefix and T_PRC reads tipo de
+      procedimento; the trailing 2 matches its position in the numbered
+      follow-up family (T_PRC2 through T_PRC6). No value evidence is present
+      in the catalog to confirm the exact codes used.
+
+  AB_T_PRC3:
+    official_name: Tipo de procedimento (3ª consulta de acompanhamento)
+    translated_name: Procedure type, 3rd follow-up visit
+    description: >
+      Three-character procedure-type code for the third scheduled
+      post-bariatric follow-up visit on this ABO authorisation, the next
+      entry after AB_T_PRC2 in the same numbered family.
+    code_system: none
+    source: inferred
+    reasoning: Same T_PRC stem as AB_T_PRC2, one position later in the sequence.
+
+  AB_T_PRC4:
+    official_name: Tipo de procedimento (4ª consulta de acompanhamento)
+    translated_name: Procedure type, 4th follow-up visit
+    description: >
+      Three-character procedure-type code for the fourth scheduled
+      post-bariatric follow-up visit on this ABO authorisation, continuing
+      the AB_T_PRC2/T_PRC3 series.
+    code_system: none
+    source: inferred
+    reasoning: Same T_PRC stem as AB_T_PRC2, two positions later in the sequence.
+
+  AB_T_PRC5:
+    official_name: Tipo de procedimento (5ª consulta de acompanhamento)
+    translated_name: Procedure type, 5th follow-up visit
+    description: >
+      Three-character procedure-type code for the fifth scheduled
+      post-bariatric follow-up visit on this ABO authorisation, continuing
+      the AB_T_PRC2-T_PRC4 series.
+    code_system: none
+    source: inferred
+    reasoning: Same T_PRC stem as AB_T_PRC2, three positions later in the sequence.
+
+  AB_T_PRC6:
+    official_name: Tipo de procedimento (6ª consulta de acompanhamento)
+    translated_name: Procedure type, 6th follow-up visit
+    description: >
+      Three-character procedure-type code for the sixth scheduled
+      post-bariatric follow-up visit on this ABO authorisation, the last in
+      the AB_T_PRC2-T_PRC6 series recorded on this form.
+    code_system: none
+    source: inferred
+    reasoning: Same T_PRC stem as AB_T_PRC2, four positions later in the sequence.

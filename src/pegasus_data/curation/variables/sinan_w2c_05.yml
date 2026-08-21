@@ -1,0 +1,267 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  # --- FTIF (febre tifoide): case-link flag, culture, symptom ---
+
+  SUGE_VINCU:
+    official_name: Sugestivo de vínculo epidemiológico
+    translated_name: Suggestive of epidemiological link (flag)
+    description: >
+      Whether the typhoid case appears epidemiologically linked to another
+      case (shared water/food source, household contact, etc.) — a
+      clustering flag used to trace chains of transmission.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; SUGE_=sugestivo, VINCU=vínculo.
+
+  URO_D:
+    official_name: Urocultura - descrição
+    translated_name: Urine culture, result/description
+    description: >
+      Free-text detail on a urine culture performed for typhoid
+      confirmation (S. Typhi can be shed in urine in some patients) —
+      distinct from the blood/stool culture results captured elsewhere.
+    code_system: none
+    source: inferred
+    reasoning: C30 text; URO_=uro/urocultura, trailing D read as descrição.
+
+  VOMITOS:
+    official_name: Vômitos
+    translated_name: Vomiting (symptom)
+    description: >
+      Whether the patient reported vomiting — a gastrointestinal symptom
+      on the typhoid fever symptom checklist.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named directly for the symptom.
+
+  # --- ROTA (rotavírus): sentinel surveillance symptom duration and care-seeking ---
+
+  D_DIAR:
+    official_name: Duração da diarreia
+    translated_name: Diarrhea duration (days)
+    description: >
+      Length of the diarrhea episode, in days, recorded on the rotavirus
+      sentinel-surveillance form — paired with T_FEBRE (fever duration) to
+      characterize episode severity.
+    code_system: none
+    source: inferred
+    reasoning: >
+      C2 fits a 1-2 digit day count, too narrow for a date despite the
+      D_ prefix; read as duração (duration) rather than data here.
+
+  OUT_MEDIC:
+    official_name: Outro atendimento médico
+    translated_name: Sought care at another medical facility (detail)
+    description: >
+      Whether/where the patient sought care at a facility other than the
+      rotavirus sentinel unit — relevant to sentinel surveillance, which
+      tracks care-seeking behavior around acute gastroenteritis episodes.
+    code_system: none
+    source: inferred
+    reasoning: C20 text; OUT_=outro, MEDIC=médico/atendimento médico.
+
+  T_FEBRE:
+    official_name: Duração da febre
+    translated_name: Fever duration (days)
+    description: >
+      Length of the fever episode, in days, recorded alongside D_DIAR
+      (diarrhea duration) on the rotavirus sentinel-surveillance form.
+    code_system: none
+    source: inferred
+    reasoning: C2, same shape as D_DIAR; T_ read as tempo (duration), FEBRE=fever.
+
+  # --- SIFC (sífilis congênita): newborn clinical signs ---
+
+  CLI_OSTEO:
+    official_name: Alterações osteoarticulares
+    translated_name: Osteoarticular findings (clinical sign)
+    description: >
+      Whether the newborn had bone/joint findings such as periostitis or
+      osteochondritis — a classic congenital syphilis sign, distinct from
+      the skin/mucosal findings in LESOES.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; CLI_=clínico, OSTEO=ósseo/osteoarticular.
+
+  LESOES:
+    official_name: Lesões cutâneo-mucosas
+    translated_name: Skin/mucosal lesions (clinical sign)
+    description: >
+      Whether the newborn had skin or mucosal lesions (e.g. palmoplantar
+      pemphigus, condyloma lata) — another classic congenital syphilis
+      sign, recorded separately from the bone findings in CLI_OSTEO.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named directly for the finding (lesões).
+
+  SIN_OUTR_E:
+    official_name: Outro sinal - especificar
+    translated_name: Other clinical sign, specify (free text)
+    description: >
+      Free-text name of a congenital syphilis sign not covered by the
+      form's fixed checklist (CLI_OSTEO, LESOES, hepatosplenomegaly,
+      etc.).
+    code_system: none
+    source: inferred
+    reasoning: C30 text; SIN_=sinal, OUTR=outro, E read as especificar.
+
+  # --- ESPO (esporotricose): zoonotic (feline) exposure setting ---
+
+  DS_OUT_AMB:
+    official_name: Outro ambiente de exposição
+    translated_name: Other exposure setting, description
+    description: >
+      Free-text description of a setting, other than the patient's own
+      home, where contact with an infected cat (the dominant Brazilian
+      transmission route) may have occurred.
+    code_system: none
+    source: inferred
+    reasoning: C29 text; DS_=descrição, OUT=outro, AMB=ambiente.
+
+  G_M:
+    official_name: Gatos (contagem/faixa)
+    translated_name: Cats involved in suspected transmission
+    description: >
+      Numeric count or category of cats implicated in the suspected
+      sporotrichosis exposure — sporotrichosis in Brazil is overwhelmingly
+      transmitted through scratches/bites from infected cats.
+    code_system: none
+    source: inferred
+    reasoning: >
+      N2 numeric field in the ESPO stratum; G read as gato (cat), though
+      the exact unit (count vs. coded range) isn't confirmed by the
+      evidence available.
+
+  # --- FMAC (febre maculosa): severe-case complications ---
+
+  CONVULSAO:
+    official_name: Convulsão
+    translated_name: Seizure (complication)
+    description: >
+      Whether the patient had seizures — a severe neurological
+      complication of Brazilian spotted fever, recorded alongside the
+      respiratory-complication flag RESPIRATO.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag named directly for the finding.
+
+  RESPIRATO:
+    official_name: Insuficiência respiratória
+    translated_name: Respiratory complication (flag)
+    description: >
+      Whether the patient developed respiratory distress or failure — a
+      severe spotted-fever complication, recorded alongside the
+      neurological complication flag CONVULSAO.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; RESPIRATO=respiratório.
+
+  # --- SIFG (sífilis em gestante): non-treatment reasons ---
+
+  DSMOTIVO:
+    official_name: Descrição do motivo
+    translated_name: Reason, free text
+    description: >
+      Free-text explanation of why treatment (of the pregnant woman or
+      her case) was not completed as expected — broader than TPMOTPARC,
+      which is specifically about the sexual partner's non-treatment.
+    code_system: none
+    source: inferred
+    reasoning: C30 text; DS_=descrição, MOTIVO=motivo.
+
+  TPMOTPARC:
+    official_name: Tipo de motivo - parceiro não tratado
+    translated_name: Reason partner wasn't treated (coded)
+    description: >
+      Coded reason the sexual partner was not treated for syphilis (e.g.
+      not located, refused, untested) — the categorical counterpart to
+      DSMOTIVO's free text, specific to the partner rather than the case.
+    code_system: none
+    source: inferred
+    reasoning: C1 coded field; TP_=tipo, MOT=motivo, PARC=parceiro.
+
+  # --- single-agravo columns ---
+
+  TRATAM:
+    official_name: Tratamento
+    translated_name: Treatment given (flag/type)
+    description: >
+      Whether/what treatment (e.g. praziquantel) was given for the
+      schistosomiasis case — the ESQU form's core treatment field.
+    code_system: none
+    source: inferred
+    reasoning: C1 field; TRATAM=tratamento, in the ESQU (esquistossomose) stratum.
+
+  TPEXANTE:
+    official_name: Tipo de exantema
+    translated_name: Rash type/characteristic
+    description: >
+      Type or pattern of skin rash (e.g. maculopapular, distribution)
+      recorded on the exanthematous-illness investigation form used for
+      measles/rubella-like rash surveillance.
+    code_system: none
+    source: inferred
+    reasoning: C1 coded field; TP_=tipo, EXANTE=exantema.
+
+  PAR_INICPR:
+    official_name: Início do pré-natal/parto
+    translated_name: Prenatal-care or delivery-onset timing (HIV in pregnancy)
+    description: >
+      Field on the HIV-in-pregnancy notification tracking the timing of
+      prenatal care or delivery onset relative to diagnosis/ART start —
+      used to judge how promptly treatment began. The exact referent is
+      not fully confirmed by the evidence available.
+    code_system: none
+    source: inferred
+    reasoning: >
+      C1 coded field in the HIVG stratum; PAR/INIC/PR read as
+      parto/início/pré-natal, but no dictionary evidence pins the precise
+      question.
+
+  SIN_PULM:
+    official_name: Sinais pulmonares
+    translated_name: Pulmonary signs (flag)
+    description: >
+      Whether the patient had pulmonary signs or symptoms — distinguishes
+      the highly lethal, person-to-person-transmissible pneumonic form of
+      plague from the bubonic and septicemic forms.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; SIN_=sinal, PULM=pulmonar, in the PEST (peste) stratum.
+
+  VACINADUPL:
+    official_name: Vacina dupla viral
+    translated_name: Measles-rubella (dupla viral) vaccination history
+    description: >
+      Whether the mother had received the dupla viral (measles-rubella)
+      vaccine before or during pregnancy — used on the congenital rubella
+      syndrome form to assess maternal vaccination failure or gaps.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; VACINA=vacina, DUPL=dupla, in the SRC (síndrome da rubéola congênita) stratum.
+
+  NU_CASO:
+    official_name: Número do caso
+    translated_name: Case sequence number (within survey/notification)
+    description: >
+      Sequential case number within a tracoma screening survey or batch
+      notification (which can cover many people at once), distinct from
+      NU_NOTIFIC, the individual notification's own identifier.
+    code_system: none
+    source: inferred
+    reasoning: N5 numeric; NU_=número, CASO=caso, fits a sequence count in the TRAC (tracoma) stratum.
+
+  AGRAVOUTDE:
+    official_name: Outro agravo associado
+    translated_name: Other associated notifiable condition
+    description: >
+      Name of another notifiable condition associated with the
+      tuberculosis case (e.g. HIV/AIDS, diabetes) — a comorbidity flag
+      commonly captured on the TB form given how often these conditions
+      co-occur and affect treatment.
+    code_system: none
+    source: inferred
+    reasoning: C30 text; AGRAVO=agravo, OUT=outro, in the TUBE (tuberculose) stratum.

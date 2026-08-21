@@ -1,0 +1,261 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  # --- LTAN (cutaneous leishmaniasis) - vector/reservoir investigation & treatment ---
+  CON_AUTO_U:
+    official_name: Caso autóctone da UF
+    translated_name: Autochthonous to state (UF) (flag)
+    description: >
+      Whether the case was locally acquired within the patient's state of
+      residence - the state-level autochthony flag, distinguished from the
+      municipality-level flag CON_AUTO_M by geographic scope.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CON_AUTO_ = autóctone; U = UF; LTAN series carries the matching
+      municipality-level sibling CON_AUTO_M and the overall TPAUTOCTO
+      classification field.
+
+  ENTO_CAO:
+    official_name: Presença de cão no local de investigação entomológica
+    translated_name: Dog present at entomological investigation site (flag)
+    description: >
+      Whether a dog was found at the site surveyed during the entomological
+      investigation - dogs are a possible reservoir host checked alongside
+      other animals (ENTO_EQUIN for horses) when tracing the case's
+      likely transmission setting.
+    code_system: none
+    source: inferred
+    reasoning: ENTO_ = entomológico (vector/reservoir survey block); CAO = cão.
+
+  ENTO_EXI_1:
+    official_name: Pesquisa entomológica - item 1
+    translated_name: Entomological investigation - finding 1
+    description: >
+      First of up to four numbered sub-items under the entomological/vector
+      investigation's "existência de pesquisa" checklist for this cutaneous
+      leishmaniasis case; the specific finding each number covers isn't
+      recoverable from the field name alone.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ENTO_EXI = existência de pesquisa entomológica; LTAN carries
+      ENTO_EXI_1 through _4 as a numbered checklist, but their individual
+      meanings are not distinguishable from naming alone.
+
+  ENTO_EXTRA:
+    official_name: Vetor encontrado em ambiente extradomiciliar
+    translated_name: Vector found in extradomestic setting (flag)
+    description: >
+      Whether the sandfly vector or evidence of it was found outside the
+      home during the entomological survey, as opposed to inside it
+      (ENTO_INTRA) - used to characterize whether transmission risk is
+      domestic or peridomestic/wild.
+    code_system: none
+    source: inferred
+    reasoning: ENTO_ = entomológico; EXTRA = extradomiciliar; LTAN carries the matching ENTO_INTRA field.
+
+  ENTO_LOCAL:
+    official_name: Local da pesquisa entomológica
+    translated_name: Site of entomological investigation
+    description: >
+      The specific location surveyed for sandfly vectors and reservoir
+      animals during this case's investigation (e.g. patient's residence,
+      workplace) - the site identifier the other ENTO_ findings are
+      reported against.
+    code_system: none
+    source: inferred
+    reasoning: ENTO_ = entomológico; LOCAL = local; anchors the ENTO_ finding block.
+
+  ENTO_TRANS:
+    official_name: Classificação da transmissão
+    translated_name: Transmission setting classification
+    description: >
+      Classifies the transmission setting for the case (e.g. domestic,
+      peridomestic, or wild/forest) based on the entomological and
+      reservoir findings gathered during investigation.
+    code_system: none
+    source: inferred
+    reasoning: ENTO_ = entomológico; TRANS = transmissão; summarizes the ENTO_ investigation block.
+
+  TRA_OUTRA_:
+    official_name: Tratamento com outra droga
+    translated_name: Other drug used in treatment (flag)
+    description: >
+      Whether a drug other than the standard antimonial (Glucantime)
+      regimen was used to treat the cutaneous leishmaniasis case - paired
+      with TRA_DROGA_ (which names the standard drug) and TRA_DOSE/TRA_PESO
+      (dose, weight) in the treatment block.
+    code_system: none
+    source: inferred
+    reasoning: TRA_ = tratamento; OUTRA = outra (droga); LTAN treatment block.
+
+  # --- LEIV (visceral leishmaniasis) ---
+  CASO:
+    official_name: Tipo de caso
+    translated_name: Case type
+    description: >
+      Classifies the visceral leishmaniasis case as new or a relapse
+      (recidiva) - relapse after treatment is a recognized issue for this
+      disease, distinct from CLASSI_FIN (confirmed/discarded) and EVOLUCAO
+      (outcome).
+    code_system: none
+    source: inferred
+    reasoning: CASO sits alongside CLASSI_FIN/CRITERIO/EVOLUCAO in the LEIV series; relapse tracking is a known feature of VL surveillance.
+
+  CON_INF_DI:
+    official_name: Distrito provável de infecção
+    translated_name: District of probable infection
+    description: >
+      District-level component of the address investigators identified as
+      the likely infection site, sibling to CON_INF_BA (neighborhood) and
+      CON_INF_MU (municipality) in the same address breakdown.
+    code_system: none
+    source: inferred
+    reasoning: CON_INF_ = (local provável de) infecção; DI = distrito; LEIV carries the matching _BA/_MU/_UF/_PA siblings.
+
+  DIAG_PARA:
+    official_name: Diagnóstico parasitológico
+    translated_name: Parasitological diagnosis result
+    description: >
+      Result of the parasitological/direct exam for Leishmania (e.g. bone
+      marrow aspirate microscopy) - a companion numeric/detail field
+      DIAG_PAR_N extends this result.
+    code_system: none
+    source: inferred
+    reasoning: DIAG_PARA = diagnóstico parasitológico; LEIV's direct-exam confirmation method.
+
+  DS_MUN_3:
+    official_name: Município de deslocamento (3º)
+    translated_name: Municipality of travel/displacement (3rd)
+    description: >
+      Free-text name of the third municipality visited in the patient's
+      travel history, used to trace possible visceral leishmaniasis
+      exposure; paired with DT_DESLC3 (that trip's date) and DS_MUN_1/2 for
+      earlier stops.
+    code_system: none
+    source: inferred
+    reasoning: DS_MUN = descrição do município; "_3" is third of a numbered travel-history series (DS_MUN_1-3, DT_DESLC1-3).
+
+  DT_DESLC1:
+    official_name: Data de deslocamento (1º)
+    translated_name: Date of travel/displacement (1st)
+    description: >
+      Date of the first of up to three recorded travel/movement events in
+      the patient's history, used alongside DS_MUN_1 (destination) to trace
+      possible exposure locations for visceral leishmaniasis.
+    code_system: none
+    source: inferred
+    reasoning: DT_DESLC = data de deslocamento; first of the numbered DT_DESLC1-3 series.
+
+  # --- TETN (neonatal tetanus) - classic clinical signs & investigation ---
+  CS_ANALISE:
+    official_name: Situação da análise do caso
+    translated_name: Case analysis status
+    description: >
+      Status of the epidemiological analysis/investigation of the neonatal
+      tetanus case - an administrative-tracking field, unlike most of the
+      form's other CS_ fields, which record the classic clinical signs
+      (trismus, opisthotonus, risus sardonicus).
+    code_system: none
+    source: inferred
+    reasoning: >
+      CS_ here is TETN's clinical-signs prefix, but ANALISE (analysis)
+      doesn't fit that pattern; more plausibly investigation-status
+      bookkeeping, given neonatal tetanus is a sentinel, fully-preventable
+      event subject to case review.
+
+  CS_DIVULGA:
+    official_name: Divulgação do caso
+    translated_name: Case disclosed/reported (flag)
+    description: >
+      Whether the neonatal tetanus case was disclosed through a public
+      health bulletin or alert - tetanus neonatal being a sentinel event
+      that triggers mandatory public health follow-up and reporting.
+    code_system: none
+    source: inferred
+    reasoning: CS_DIVULGA = divulgação; sits with CS_ANALISE among TETN's non-clinical investigation fields.
+
+  CS_SUGOU:
+    official_name: Criança sugou bem ao nascer
+    translated_name: Baby suckled normally at birth (flag)
+    description: >
+      Whether the newborn suckled/breastfed normally right after birth -
+      the classic early-warning question for neonatal tetanus, since loss
+      of the ability to suckle (before trismus appears) is often the first
+      sign parents notice.
+    code_system: none
+    source: inferred
+    reasoning: CS_SUGOU = sugou (suckled); a hallmark neonatal-tetanus history question, distinct from the disease-agnostic CS_ prefix used elsewhere in SINAN.
+
+  DT_TRISMO:
+    official_name: Data do trismo
+    translated_name: Date trismus began
+    description: >
+      Date the newborn developed trismus (lockjaw) - the pathognomonic sign
+      of neonatal tetanus - more specific than the general first-symptoms
+      date (DT_SIN_PRI) also on the form.
+    code_system: none
+    source: inferred
+    reasoning: DT_TRISMO = data + trismo; TETN also carries CS_TRISMO (Sim/Não flag) alongside this onset date.
+
+  NO_OUPARTO:
+    official_name: Nome/descrição do outro local de parto
+    translated_name: Other birthplace - name/description
+    description: >
+      Free-text description of the birth location when it was not a
+      standard health facility (e.g. home birth, in transit) - relevant
+      because non-sterile umbilical cord care during non-institutional
+      births is the classic neonatal tetanus risk factor.
+    code_system: none
+    source: inferred
+    reasoning: NO_OUPARTO = nome + outro + parto; "outro local de parto" is the standard SINAN phrasing for a non-facility birth.
+
+  # --- FMAC (Brazilian spotted fever / febre maculosa) ---
+  COMA:
+    official_name: Coma
+    translated_name: Coma (flag)
+    description: >
+      Whether the patient presented with coma - a severe neurological
+      complication of Brazilian spotted fever, whose rickettsial vasculitis
+      can progress to encephalitis and coma in fulminant cases.
+    code_system: none
+    source: inferred
+    reasoning: COMA = coma; FMAC's severity/complications checklist (with CHOQUE, CONVULSAO, HEMORRAGI).
+
+  DIAG_DESCA:
+    official_name: Diagnóstico de descarte
+    translated_name: Alternative diagnosis on discard
+    description: >
+      Alternative/definitive diagnosis recorded when a suspected spotted
+      fever case is discarded (descartado) on investigation - explains what
+      the illness turned out to be instead.
+    code_system: none
+    source: inferred
+    reasoning: DIAG_DESCA = diagnóstico + descarte; FMAC carries CLASSI_FIN/CRITERIO for the confirm/discard decision itself.
+
+  DTS2:
+    official_name: Data do 2º soro
+    translated_name: Date of 2nd serum sample
+    description: >
+      Collection date of the second (convalescent-phase) serum sample in
+      spotted fever's paired-serology protocol - mirrors dengue's
+      DT_SORO1/SORO2 pattern, read against the IgG/IgM S1/S2 titer fields
+      also on this form.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DTS2 = data soro 2; FMAC series carries matching TIT_IGG_S2/TIT_IGM_S2
+      titer fields and an unlisted DTS1 sibling.
+
+  OLIGURIA:
+    official_name: Oligúria
+    translated_name: Oliguria (flag)
+    description: >
+      Whether the patient had reduced urine output - a marker of renal
+      impairment or shock in severe spotted fever, where vasculitis can
+      cause multi-organ dysfunction.
+    code_system: none
+    source: inferred
+    reasoning: OLIGURIA = oligúria; FMAC's severity checklist alongside COMA and CHOQUE.

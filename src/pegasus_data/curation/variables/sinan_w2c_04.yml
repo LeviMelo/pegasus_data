@@ -1,0 +1,274 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  # --- BOTU (botulismo): symptom checklist and suspect-food investigation ---
+
+  STSIMETRIC:
+    official_name: Simetria
+    translated_name: Symmetric neurological signs (flag)
+    description: >
+      Whether the patient's neurological/paralysis signs were symmetric —
+      a key diagnostic clue, since botulism causes symmetric descending
+      paralysis, unlike the asymmetric patterns seen in stroke or some
+      Guillain-Barré presentations.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; ST_=sinal/status per prefix convention, SIMETRIC=simetria, in the BOTU symptom checklist.
+
+  STTONTURA:
+    official_name: Tontura
+    translated_name: Dizziness (symptom)
+    description: >
+      Whether the patient reported dizziness — one item on the botulism
+      symptom checklist alongside STVOMITO, gathered to characterize the
+      case's clinical presentation.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; TONTURA=tontura (dizziness).
+
+  STVOMITO:
+    official_name: Vômito
+    translated_name: Vomiting (symptom)
+    description: >
+      Whether the patient vomited — a gastrointestinal symptom checked
+      alongside the neurological signs (STSIMETRIC, STTONTURA), common in
+      foodborne botulism's early prodrome.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; VOMITO=vômito.
+
+  TP_ALI1TOX:
+    official_name: Tipo de alimento suspeito 1
+    translated_name: Type of first suspected toxic food
+    description: >
+      Type of the first food item suspected as the botulinum toxin source
+      (e.g. home-canned vegetables, honey, cured meat) — the primary
+      vehicle identified in the food-source investigation.
+    code_system: none
+    source: inferred
+    reasoning: C1 coded field; TP_=tipo, ALI=alimento, 1TOX=1º tóxico, naming the first suspect-food slot.
+
+  TP_COLOUT:
+    official_name: Tipo de coleta - outro
+    translated_name: "Other specimen type collected (flag)"
+    description: >
+      Whether a specimen type outside the routine set (serum, stool,
+      leftover food) was collected for lab confirmation — the "other
+      collection" checkbox on the botulism lab-workup section.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; TP_=tipo, COL=coleta, OUT=outro.
+
+  TP_REPETE:
+    official_name: Repetição da exposição
+    translated_name: Repeated exposure to suspect food (flag)
+    description: >
+      Whether the patient consumed the suspect food source more than once
+      — relevant to source attribution in the food-borne case
+      investigation, alongside TP_ALI1TOX.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; TP_=tipo, REPETE=repete/repetição.
+
+  # --- LEIV (leishmaniose visceral): travel/displacement history and endemicity ---
+
+  CO_UF_2:
+    official_name: UF de deslocamento 2
+    translated_name: State (UF) code, travel-history entry 2
+    description: >
+      IBGE/UF code of the second location in a numbered travel or
+      residence-history series, gathered to trace where visceral
+      leishmaniasis transmission likely occurred. Pairs with DS_MUN_1 and
+      DS_TRANS_2 (other entries in the same series).
+    code_system: none
+    source: inferred
+    reasoning: C2, matches a UF code; CO_=código, trailing 2 marks it as the second slot of a repeating location block.
+
+  DS_MUN_1:
+    official_name: Município de deslocamento 1
+    translated_name: Municipality name, travel-history entry 1
+    description: >
+      Name of the first municipality in the patient's travel/residence
+      history, used to reconstruct likely exposure locations before
+      visceral leishmaniasis onset. First slot of the same repeating block
+      as CO_UF_2 and DT_DESLC3.
+    code_system: none
+    source: inferred
+    reasoning: C60, wide enough for a place name rather than a code; DS_=descrição, MUN=município, trailing 1 for the first slot.
+
+  DS_TRANS_2:
+    official_name: Descrição do local de transmissão 2
+    translated_name: "Probable-transmission-site note, entry 2"
+    description: >
+      Free-text note on why the second travel-history location is
+      considered a probable transmission site — the descriptive
+      counterpart to CO_UF_2 in the same numbered series.
+    code_system: none
+    source: inferred
+    reasoning: C30 text; DS_=descrição, TRANS read as transmissão, trailing 2 matching the CO_UF_2 slot.
+
+  DT_DESLC3:
+    official_name: Data do deslocamento 3
+    translated_name: Travel date, entry 3
+    description: >
+      Date associated with the third location in the travel/residence
+      history series — completes the repeating block with CO_UF_2 and
+      DS_MUN_1, each covering a different slot or field of the same
+      history.
+    code_system: none
+    source: inferred
+    reasoning: D8 date; DT_=data, DESLC=deslocamento, trailing 3 for the third slot.
+
+  ENDEMICO:
+    official_name: Área endêmica
+    translated_name: Case located in a recognized endemic area (flag)
+    description: >
+      Whether the case's residence or investigation area is classified as
+      an established (autochthonous) visceral leishmaniasis transmission
+      zone, as opposed to an imported or newly-affected area.
+    code_system: none
+    source: inferred
+    reasoning: C11; ENDEMICO=endêmico, a classification field on the LEIV epidemiological-investigation section.
+
+  OUTROS_ESP:
+    official_name: Outros - especificar
+    translated_name: Other, specify (free text)
+    description: >
+      Free-text detail for an "other" option not covered by this form's
+      fixed checklists (e.g. an uncommon reservoir animal or exposure
+      type) — a general specify field distinct from the travel-history
+      fields above.
+    code_system: none
+    source: inferred
+    reasoning: C30 text; OUTROS_=outros, ESP=especificar.
+
+  # --- shared NTRA/TETN/TRAC: universal identifier ---
+
+  NU_NOTIFIC:
+    official_name: Número da notificação
+    translated_name: Notification number
+    description: >
+      Identifier the system assigns to a case notification when it is
+      registered — the record's key within its agravo/year/notifying-unit
+      combination, not a national patient ID.
+    code_system: none
+    source: inferred
+    reasoning: >
+      C7; NU_=número, NOTIFIC=notificação, a near-universal SINAN field
+      appearing here in a small residual stratum (anthrax, neonatal
+      tetanus, trachoma) not covered elsewhere.
+
+  # --- TETN (tétano neonatal): maternal registration, referral, prenatal care ---
+
+  CS_CADASTR:
+    official_name: Cadastro (pré-natal/atenção básica)
+    translated_name: Registered in prenatal/primary care (flag)
+    description: >
+      Whether the mother was registered in prenatal care or a primary-care
+      program at the time of delivery — relevant to neonatal tetanus risk,
+      since unregistered mothers are more likely to have unattended,
+      unhygienic deliveries.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; CS_=característica social per prefix convention, CADASTR=cadastro.
+
+  CS_ORIENTA:
+    official_name: Orientação recebida
+    translated_name: Mother received guidance/counseling (flag)
+    description: >
+      Whether the mother received health guidance (e.g. on tetanus
+      vaccination or safe delivery practices) before or around delivery —
+      a health-education flag distinct from the registration flag
+      CS_CADASTR.
+    code_system: none
+    source: inferred
+    reasoning: C1 flag; CS_=característica social, ORIENTA=orientação.
+
+  DS_INF_LOC:
+    official_name: Local da infecção
+    translated_name: Site/type of infection location (flag)
+    description: >
+      Coded flag for the type of place where the newborn was likely
+      infected (e.g. home delivery vs. health facility) — a categorical
+      field despite the DS_ (descrição) prefix, since it is stored as a
+      single character rather than free text.
+    code_system: none
+    source: inferred
+    reasoning: >
+      C1 — unusually narrow for a DS_ (descrição) field, indicating it is
+      actually a coded category rather than free text; INF=infecção,
+      LOC=local.
+
+  NO_ATENOUT:
+    official_name: Nome do outro local de atendimento
+    translated_name: Name of another care facility (referral)
+    description: >
+      Free-text name of an additional health facility where the mother or
+      newborn was seen — a referral or transfer facility outside the
+      notifying unit.
+    code_system: none
+    source: inferred
+    reasoning: C30 text; NO_=nome, ATEN=atendimento, OUT=outro.
+
+  NUM_CON_N:
+    official_name: Número de consultas (categoria)
+    translated_name: Prenatal visit-count category
+    description: >
+      Coded category for how many prenatal care visits the mother had
+      (e.g. none, few, adequate) rather than a raw count — inadequate
+      prenatal care is a recognized neonatal tetanus risk factor.
+    code_system: none
+    source: inferred
+    reasoning: >
+      C1 — a single character can't hold a raw visit count, so this reads
+      as a coded category; NUM_=número, CON_N=consultas.
+
+  # --- VIOL (violência interpessoal/autoprovocada): incident detail and "specify" fields ---
+
+  ENC_ESPEC:
+    official_name: Encaminhamento - especificar
+    translated_name: Referral destination, specify (free text)
+    description: >
+      Free-text name of where the case was referred, filled in when the
+      referral checklist's "other" option is chosen — distinct from
+      REL_ESPEC (relationship) and VIOL_ESPEC (violence type), the form's
+      other two specify fields.
+    code_system: none
+    source: inferred
+    reasoning: C30 text; ENC_=encaminhamento, ESPEC=especificar.
+
+  HORA_OCOR:
+    official_name: Hora da ocorrência
+    translated_name: Time the incident occurred
+    description: >
+      Time of day (HH:MM) the violent incident took place, complementing
+      the incident date recorded elsewhere on the form.
+    code_system: none
+    source: inferred
+    reasoning: C5 fits an HH:MM string; HORA_=hora, OCOR=ocorrência.
+
+  REL_ESPEC:
+    official_name: Relação com o agressor - especificar
+    translated_name: Relationship to aggressor, specify (free text)
+    description: >
+      Free-text description of the victim-aggressor relationship, filled
+      in when the standard relationship checklist's "other" option is
+      chosen — distinct from ENC_ESPEC (referral) and VIOL_ESPEC (violence
+      type).
+    code_system: none
+    source: inferred
+    reasoning: C30 text; REL_=relação, ESPEC=especificar.
+
+  VIOL_ESPEC:
+    official_name: Tipo de violência - especificar
+    translated_name: Violence type, specify (free text)
+    description: >
+      Free-text description of the type of violence, filled in when it
+      falls outside the standard categories (physical, sexual,
+      psychological, negligence) — distinct from ENC_ESPEC and REL_ESPEC,
+      the form's other specify fields.
+    code_system: none
+    source: inferred
+    reasoning: C30 text; VIOL_=violência, ESPEC=especificar.
