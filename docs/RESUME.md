@@ -8,11 +8,22 @@ session. Everything below is checked against the catalog, not recalled.
 | | |
 |---|---:|
 | columns catalogued | 4,528 |
-| columns described | 1,572 (**34.7%**) |
-| families | 1,633 across 16 systems |
-| datasets documented | 40 |
+| columns described | 4,528 (**100%**) |
+| data files bound to a declared dataset | 207,030 (**100%**) |
+| systems · datasets declared | 20 · 131 |
+| families | 1,633 |
+| datasets with `what_one_row_is` | 85 |
 | bindings measured to decode nothing | 658 of 1,871 (35.2%) |
-| tests | 541 passing |
+| open questions, recorded not guessed | 1,340 |
+| tests | 601 passing |
+
+**The description backlog is closed.** Read the coverage number carefully
+though: it briefly read 96% while 1,079 columns were "described" only by a
+`.DEF` display name. A name is not a description, and counting it as one also
+hid those columns from the work queue, so no worker was ever handed them. Real
+coverage at that moment was 72%. `scripts/doc_queue.py` no longer counts the
+`defnames` template, and `scripts/audit_vagueness.py` exists to catch the
+next version of that mistake.
 
 Working catalog (not in the repo — it is data):
 

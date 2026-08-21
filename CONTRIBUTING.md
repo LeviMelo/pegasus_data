@@ -21,7 +21,7 @@ That is a contribution. Describing 40 of 100 columns honestly is worth more than
 
 ```bash
 pip install -e ".[dev]"
-pytest -q                      # 541 tests, all offline
+pytest -q                      # 601 tests, all offline
 ruff check src/ tests/ scripts/
 ```
 
@@ -37,10 +37,55 @@ pegasus-data all               # hours: crawls 207,251 files
 or get one from whoever has it — it is a single SQLite file. `explore()` works
 without one, because the map of the tree ships with the package.
 
-## The main open work: describing variables
+## Describing variables
 
-**4,528 columns are catalogued; about half have a description.** The rest is the
-job. `docs/RESUME.md` carries the current numbers and where the good sources are.
+**All 4,528 catalogued columns now have a description.** That was the main open
+work and it is done; what remains is *improving* descriptions, and describing
+whatever DATASUS publishes next. `docs/RESUME.md` carries the current numbers.
+
+Two audits exist because "has a description" and "is described" are different
+claims, and the gap between them is where this work goes wrong:
+
+```bash
+python scripts/audit_descriptions.py $CATALOG          # duplicate or boilerplate prose
+python scripts/audit_vagueness.py $CATALOG --system SINAN  # well-formed, saying nothing
+```
+
+The first catches a run of columns sharing one description with a word swapped.
+The second catches the entry that passes every structural check and leaves the
+reader knowing exactly what the column name already told them. Coverage once
+read 96% because 1,079 columns were "described" by a `.DEF` display name — a
+*name*, not a description — which also hid them from the queue entirely. Real
+coverage was 72%. Neither audit would have let that stand.
+
+### The unit of work is a FORM, not a column
+
+A SINAN agravo is one notification form whose columns are a cross-product: four
+limbs by three modalities by two timepoints, or a block of exposure checkboxes.
+79% of SINAN columns belong to exactly one agravo. Describing them one at a time
+re-derives the same context for every one, and produces the incoherent output
+that comes from not knowing which disease you are looking at.
+
+```bash
+python scripts/formsheet.py $CATALOG SINAN.VIOL
+```
+
+That puts one dataset on one screen: declared type and width, observed values,
+what is already described, and — the part that is usually decisive and usually
+not looked at — **the codelist each column binds to, with its values spelled
+out**. On the polio form those codelists confirmed that `CLI_A_F*` is *força* and
+`CLI_A_S*` is *sensibilidade*, and disproved a reading of `LOCA_*` that looked
+obvious and was wrong.
+
+Once the prose is written, stop hand-typing `code_system`:
+
+```bash
+python scripts/attach_codelists.py $CATALOG curation/variables/FILE.yml
+```
+
+It copies the catalog's bindings into the file and refuses two kinds: date
+groupings (`ANOS`, `MESES`, `TRIME`), which say nothing about the column, and
+codelists whose labels are all `Ign/Branco`, which decode nothing.
 
 ### It runs off a queue
 
@@ -49,10 +94,14 @@ python scripts/doc_queue.py $CATALOG --summary      # what is left
 python scripts/doc_queue.py $CATALOG --size 25      # the units, as JSON
 ```
 
-A unit is ~25 columns. Take one, describe it, write
-`curation/variables/<slug>.yml`, validate, move on. Units are built from what is
-**still undescribed right now** and named by a hash of the columns they contain,
-so the queue is idempotent: re-running it after you stop produces fewer units and
+A unit is ~25 columns **from one dataset**. Take one, describe it, write
+`curation/variables/<slug>.yml`, validate, move on. Units are grouped by the
+dataset that carries them, so a worker gets a whole form rather than a slice of
+an alphabet; columns carried by many datasets go to a `*shared*` unit, where
+describing them once against the whole system is the right frame.
+
+Units are built from what is **still undescribed right now** and named by a hash
+of the columns they contain, so the queue is idempotent: re-running it after you stop produces fewer units and
 never repeats one. There is no state to maintain and no coordination needed
 between people working in parallel — two of you can take different units and
 neither will duplicate the other.
@@ -196,11 +245,37 @@ src/pegasus_data/
   curation/      HAND-WRITTEN. The manual-authority rung. Ships with the package.
   resources/     the 1 MB map of DATASUS, so explore() works offline
   view.py        read-time labelling and render profiles
+  ontology.py    DECLARED systems and datasets; binds observations to them
   retrieve.py    fetch(): one call, DATASUS to a table
-  explore.py     what is on the server, answered from the shipped map
-  translate.py   label data someone already has
-scripts/         operator tools: the doc queue, evidence, validation
-tests/           541 tests, offline
+  _info.py       info(): what a system, dataset or variable IS
+  _explore.py    explore(): what is on the server, from the shipped map
+  _translate.py  translate(): label data someone already has
+scripts/         operator tools: the doc queue, form sheets, audits, validation
+tests/           601 tests, offline
+```
+
+Three modules are private — `_info`, `_explore`, `_translate` — and that is not
+a style choice. A module named `explore.py` exporting a function named `explore`
+collide as attributes of the package: importing the submodule binds it over the
+function, and `from pegasus_data import explore` then returns a module, so
+calling it raises `'module' object is not callable`. **If you add a public
+function whose name matches its module, make the module private.**
+
+### The ontology is the backbone
+
+`curation/ontology.yml` declares 20 systems and 131 datasets. It is an
+*institutional* statement — "SIH publishes AIH Reduzida, known as RD" — true
+whether or not the FTP tree expresses it, and it survives DATASUS reorganising.
+The tree is evidence for it, never its definition.
+
+`fetch()`, `explore()` and `info()` all resolve through it, so **adding a dataset
+to that file is how the API learns to serve it**. Regression check 17 asserts
+that every data file on the tree binds to a declared dataset; if you add a
+dataset DATASUS has started publishing, declare it there or the check will tell
+you.
+
+```bash
+pegasus-data verify --step 17
 ```
 
 ## Things that will trip you up
