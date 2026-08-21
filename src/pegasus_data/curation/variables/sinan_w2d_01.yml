@@ -1,0 +1,327 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AMOS_OUT:
+    official_name: Amostra outra
+    translated_name: Other sample collected (flag)
+    description: >
+      Whether an additional biological sample, beyond the standard blood
+      draw, was collected for dengue laboratory diagnosis - e.g. for viral
+      isolation or a repeat serology. Part of the dengue (DENG) lab-workup
+      section.
+    code_system: none
+    source: inferred
+    reasoning: >
+      AMOS_ = amostra (sample), OUT = outra (other); C1 width fits a
+      Sim/Não checkbox on the dengue investigation form's lab section.
+
+  DENGUE:
+    official_name: Dengue
+    translated_name: Dengue case flag
+    description: >
+      Single-letter flag marking the notification as a dengue case, as
+      opposed to another arbovirus considered in the differential
+      diagnosis. Appears only in a rare, older variant of the dengue (DENG)
+      schema, later superseded by the fuller CLASSI_FIN classification.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Field name matches the series (DENGUE in DENG); C1 width and very
+      low file weight (7) point to a legacy pre-2014 schema checkbox rather
+      than a lab result.
+
+  DT_COL_HE2:
+    official_name: Data da coleta - Hemograma 2
+    translated_name: Date of second blood-count sample
+    description: >
+      Date the second hematocrit/blood-count sample was drawn from a
+      dengue patient. Serial hematocrit is how clinicians track
+      hemoconcentration, the warning sign of plasma leakage toward severe
+      dengue.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ = data, COL = coleta, HE2 = hemograma/hematócrito, segunda
+      coleta; D8 AAAAMMDD type fits a collection date, and dengue
+      monitoring routinely repeats the blood count.
+
+  DT_DOSE:
+    official_name: Data da dose (vacina dengue)
+    translated_name: Dengue vaccine dose date
+    description: >
+      Date a dengue vaccine dose was administered to the notified patient,
+      used when investigating a case in a vaccinated person (breakthrough
+      or pre-vaccination exposure timing).
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ = data, DOSE = dose; sits in the DENG series where Brazil's
+      dengue vaccination program (Qdenga) makes a dose date a plausible
+      addition to case investigation.
+
+  DT_SOROR2:
+    official_name: Data da sorologia 2
+    translated_name: Date of second serology sample
+    description: >
+      Collection date of the second (convalescent-phase) serology sample
+      for dengue IgM/IgG confirmation, paired with SORO1's first-sample
+      result to show antibody titer rising over time.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_ = data, SOROR2 = sorologia, segunda amostra; D8 date type
+      matches, and paired-sample serology is standard for dengue
+      confirmation.
+
+  HEMA_MENOR:
+    official_name: Hematócrito menor
+    translated_name: Lowest hematocrit value
+    description: >
+      The lowest hematocrit reading recorded during a dengue case's
+      clinical course, the baseline against which a later rise (signalling
+      plasma leakage and possible severe dengue) is measured.
+    code_system: none
+    source: inferred
+    reasoning: >
+      HEMA_ = hematócrito, MENOR = menor (lowest); C6 alphanumeric width
+      fits a percentage value, and dengue protocols track hematocrit
+      trend, not a single reading.
+
+  HIPOTENSAO:
+    official_name: Hipotensão postural
+    translated_name: Postural hypotension (warning sign)
+    description: >
+      Whether the dengue patient showed postural hypotension, one of the
+      official "sinais de alarme" (warning signs) that flags progression
+      toward dengue shock and triggers closer clinical monitoring.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Direct decode of HIPOTENSAO; postural hypotension is a named warning
+      sign in the Brazilian dengue clinical-management protocol, and C1
+      width fits a checkbox.
+
+  MANIFESTA:
+    official_name: Manifestações hemorrágicas
+    translated_name: Hemorrhagic manifestations (flag)
+    description: >
+      Whether the dengue patient showed hemorrhagic signs (petechiae, gum
+      bleeding, epistaxis, etc.), one of the itemized clinical-manifestation
+      checkboxes distinct from the free-text OUTROS_M field beside it.
+    code_system: none
+    source: inferred
+    reasoning: >
+      MANIFESTA(ÇÕES) decodes directly; hemorrhagic manifestations are a
+      standard checkbox group on the dengue clinical section, and the
+      field sits next to OUTROS_M (other manifestation, specify).
+
+  OUTROS_M:
+    official_name: Outras manifestações
+    translated_name: Other manifestation (flag/specify)
+    description: >
+      Whether the dengue patient had a clinical manifestation not covered
+      by the itemized checkboxes (e.g. MANIFESTA), used to flag/specify an
+      atypical sign observed during the case investigation.
+    code_system: none
+    source: inferred
+    reasoning: >
+      OUTROS_ = outros, M = manifestações; standard "outro, especifique"
+      companion pattern to a checkbox list, consistent with the DENG
+      series' clinical-signs section.
+
+  PALQ_MAIOR:
+    official_name: Plaquetas maior
+    translated_name: Highest platelet count
+    description: >
+      The highest platelet count recorded during a dengue case's clinical
+      course, the counterpart to a "menor" (lowest) reading used to track
+      the thrombocytopenia trend that accompanies severe dengue.
+    code_system: none
+    source: inferred
+    reasoning: >
+      PALQ = plaquetas (likely a transposition of PLAQ), MAIOR = maior
+      (highest); C6 width fits a lab count value, mirroring the paired
+      HEMA_MENOR pattern for hematocrit.
+
+  RESUL_VIRA:
+    official_name: Resultado - isolamento viral
+    translated_name: Viral isolation result
+    description: >
+      Result of viral isolation testing for dengue (positive/negative/not
+      done), one of several lab-confirmation methods on the form alongside
+      serology (SORO1) and the technique field (TECNICA).
+    code_system: none
+    source: inferred
+    reasoning: >
+      RESUL_ = resultado, VIRA = viral (isolamento viral); C1 width fits a
+      short result code, and viral isolation is a listed confirmatory
+      method for dengue.
+
+  SORO1:
+    official_name: Sorologia 1 - resultado
+    translated_name: First serology result
+    description: >
+      Result of the first dengue serology sample (IgM/IgG), taken in the
+      acute phase and compared against a later convalescent-phase draw
+      (see DT_SOROR2) to confirm infection by titer rise.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SORO1 = sorologia, primeira amostra; C1 fits a coded result, and it
+      pairs naturally with DT_SOROR2 in the same series.
+
+  TECNICA:
+    official_name: Técnica utilizada
+    translated_name: Lab technique used
+    description: >
+      Free-text name of the laboratory method used for a dengue diagnostic
+      test (e.g. ELISA, hemaglutinação, isolamento), recorded alongside
+      the test's result fields rather than being itself a result.
+    code_system: none
+    source: inferred
+    reasoning: >
+      TECNICA = técnica; C20 width is long enough for a method name rather
+      than a coded result, and it sits among the dengue lab-result fields.
+
+  ANT_CB_CAR:
+    official_name: Antecedente - contato com carcaça de animal
+    translated_name: Contact with animal carcass (antecedent)
+    description: >
+      Whether the leptospirosis patient had contact with an animal
+      carcass in the 30 days before symptoms, one of several
+      epidemiological-antecedent exposure checkboxes (alongside floodwater,
+      mud, sewage, rodents) used to trace the contamination source.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ANT_ = antecedente epidemiológico, a standard leptospirosis section;
+      CB_CAR most plausibly abbreviates carcaça/cadáver de animal, a known
+      exposure route for Leptospira; decode of CB_CAR is uncertain.
+
+  CLI_DESC_O:
+    official_name: Descrição de outro sinal/sintoma
+    translated_name: Other clinical sign (free-text)
+    description: >
+      Free-text description of a leptospirosis clinical sign or symptom
+      not covered by the form's itemized checkboxes, filled in when an
+      "other" option in the clinical-findings section is marked.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CLI_ = clínico, DESC = descrição, O = outro; C30 width supports free
+      text rather than a coded value, matching the "other, specify"
+      pattern used elsewhere on SINAN forms.
+
+  CON_ENTULH:
+    official_name: Contato com entulho
+    translated_name: Contact with rubble/debris
+    description: >
+      Whether the patient had contact with rubble or debris (e.g. after
+      flooding or demolition work) before symptom onset - a leptospirosis
+      epidemiological-antecedent checkbox distinct from floodwater or
+      sewage exposure.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CON_ = contato, ENTULH = entulho (rubble); a named exposure item on
+      the standard leptospirosis antecedents checklist, C1 width fits a
+      checkbox.
+
+  CON_RIO:
+    official_name: Contato com rio
+    translated_name: Contact with river/stream
+    description: >
+      Whether the patient had contact with a river, stream, or similar
+      natural water body before symptoms began, distinguishing this
+      exposure from floodwater, sewage, or standing water on the same
+      leptospirosis antecedents checklist.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CON_ = contato, RIO = rio; matches the pattern of sibling exposure
+      checkboxes (CON_ENTULH and others) on the leptospirosis form.
+
+  ID_DT_RESI:
+    official_name: Identificador - data de residência
+    translated_name: Residence-date record identifier
+    description: >
+      Internal identifier tying a leptospirosis record to the date its
+      residence-address data was captured. Appears in only one file in the
+      catalog, suggesting a rare or legacy layout artifact rather than a
+      routine field.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ID_ = identificador, DT = data, RESI = residência; extremely low
+      file weight (1) and C4 width point to a narrow, non-standard field
+      rather than a core clinical variable.
+
+  LAB_BD:
+    official_name: Laboratório - código de lote/banco
+    translated_name: Lab batch/reference code
+    description: >
+      Short alphanumeric code tied to a leptospirosis laboratory test - most
+      likely a test-kit batch or reference number recorded alongside the
+      other LAB_ result fields, rather than a date or titer itself.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LAB_ = laboratorial, a common prefix in this series; BD's exact
+      meaning is not decodable with confidence, but C4 width rules out a
+      date or long free-text result.
+
+  LAB_DT_3:
+    official_name: Data da coleta laboratorial 3
+    translated_name: Date of third lab sample
+    description: >
+      Collection date of a third laboratory sample taken for leptospirosis
+      confirmation, extending the paired-sample serology pattern seen in
+      LAB_R_2 and LAB_S_3.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LAB_ = laboratorial, DT = data, 3 = terceira coleta; D8 AAAAMMDD
+      type matches, and repeat sampling is standard for leptospirosis
+      titer confirmation.
+
+  LAB_MICRO:
+    official_name: Resultado - microaglutinação
+    translated_name: Microscopic agglutination test result
+    description: >
+      Result of the microscopic agglutination test (MAT) or dark-field
+      microscopy for leptospirosis - the reference method that detects
+      agglutinating antibodies against specific Leptospira serovars.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LAB_ = laboratorial, MICRO = microaglutinação/microscopia, the
+      reference confirmatory technique named in leptospirosis lab
+      protocols; C1 fits a coded result.
+
+  LAB_R_2:
+    official_name: Resultado laboratorial 2
+    translated_name: Second lab result/titer
+    description: >
+      Result or antibody titer from a second leptospirosis laboratory
+      sample, tracked alongside LAB_DT_3 and LAB_S_3 to show titer change
+      across sequential draws.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LAB_ = laboratorial, R = resultado, 2 = segunda coleta; C6 width
+      fits a titer-style value (e.g. "1:400") rather than a single-digit
+      code.
+
+  LAB_S_3:
+    official_name: Sorologia laboratorial 3
+    translated_name: Third serology result/titer
+    description: >
+      Result or antibody titer from a third leptospirosis serology sample,
+      the last in the sequence with LAB_R_2 and LAB_DT_3 used to confirm
+      infection by a rising titer across draws.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LAB_ = laboratorial, S = sorologia, 3 = terceira coleta; C6 width
+      matches the titer-value pattern of its sibling LAB_R_2.

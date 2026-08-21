@@ -1,0 +1,199 @@
+# SISCAN — SISCAN_HISTO_COLO and SISCAN_HISTO_COLO_PACNT, 2013-2018 yearly
+# extracts (cervical histopathology: the biopsy taken to confirm an abnormal
+# Pap smear, per SISCAN.HC in ontology.yml). This batch is the row-identity/
+# dimension columns plus the NIC-grade and adenocarcinoma diagnosis counts;
+# siscan_fill_03.yml continues with the benign-lesion and procedure counts
+# from the same table. All declared C(0,0) — CSV opendatasus extracts, not
+# fixed-width DBFs.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+
+  CO_ANO_COMPETENCIA:
+    official_name: Ano de competência
+    translated_name: Reference year
+    description: Calendar year this row's aggregated biopsy counts are attributed to.
+    code_system: none
+    source: inferred
+    reasoning: ANO_COMPETENCIA is DATASUS's standard reference-period naming across systems.
+
+  CO_ANO_MES_COMPETENCIA:
+    official_name: Ano/mês de competência
+    translated_name: Reference year-month
+    description: >
+      Combined year-month reference period this row's aggregated biopsy
+      counts are attributed to — a finer breakdown than CO_ANO_COMPETENCIA.
+    code_system: none
+    source: inferred
+    reasoning: ANO_MES_COMPETENCIA compounds the same reference-period naming as CO_ANO_COMPETENCIA.
+
+  CO_FAIXA_ETARIA:
+    official_name: Faixa etária
+    translated_name: Age bracket
+    description: Age bracket of the patients this row's biopsy counts are aggregated over.
+    code_system: internal
+    source: inferred
+    reasoning: FAIXA_ETARIA is the standard Brazilian age-bracket field name, used the same way elsewhere in this catalog (e.g. PNI's FX_ETARIA).
+
+  CO_RES_NEOPL_OUTRAS:
+    official_name: Resultado — outras neoplasias
+    translated_name: Other-neoplasm result subtype code
+    description: >
+      Identifies which specific diagnosis the catch-all NU_OUTRAS_NEOPL_MALIG
+      count refers to, when that count is non-zero — a residual-category
+      breakdown rather than a count itself.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      CO_ (not NU_) marks it a code/dimension in this table's convention;
+      RES_NEOPL_OUTRAS reads as "resultado, outras neoplasias," a natural
+      breakdown code for the "outras" bucket beside the named NIC/
+      adenocarcinoma/carcinoma counts in this same batch.
+    notes: No observed values or codelist were captured for this column.
+
+  CO_SEQ_SISCAN_CITO_COLO_RESID:
+    official_name: Sequencial SISCAN citopatologia colo (resultado de origem)
+    translated_name: Originating cytology record reference
+    description: >
+      Links this histopathology (biopsy) row back to the cytology (Pap
+      smear) record whose abnormal result led to the biopsy — the two
+      SISCAN datasets' natural join key.
+    code_system: none
+    source: inferred
+    reasoning: >
+      A cervical biopsy is clinically triggered by an abnormal cytology
+      result; this column names CITO_COLO explicitly while living on the
+      HISTO_COLO table, which only makes sense as a cross-dataset reference
+      rather than a same-table sequence id.
+    notes: Distinguish from CO_SEQ_SISCAN_HISTO_COLO_RESID, this table's own row id.
+
+  CO_SEQ_SISCAN_HISTO_COLO_PACNT:
+    official_name: Sequencial SISCAN histopatologia colo (paciente)
+    translated_name: Record sequence number (cervical-histopathology patient extract)
+    description: >
+      Row-sequence identifier on the SISCAN_HISTO_COLO_PACNT (patient-
+      dimension) yearly extract — this table's own row number.
+    code_system: none
+    source: inferred
+    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT in siscan_fill_01.yml.
+
+  CO_SEQ_SISCAN_HISTO_COLO_RESID:
+    official_name: Sequencial SISCAN histopatologia colo (resultado)
+    translated_name: Record sequence number (cervical-histopathology result)
+    description: >
+      Row-sequence identifier on this HISTO_COLO result/exam-record table —
+      distinct from the _PACNT patient-dimension sequence and from
+      CO_SEQ_SISCAN_CITO_COLO_RESID's cross-dataset reference.
+    code_system: none
+    source: inferred
+    reasoning: >
+      RESID reads as resultado; the same PACNT-vs-RESID split recurs for
+      CITO_MAMA, HISTO_MAMA and MAMOGRAFIA elsewhere in this batch, always
+      as this table's own id rather than a patient id.
+
+  NU_ANO_RESULTADO:
+    official_name: Ano do resultado
+    translated_name: Year of the result
+    description: Year the histopathology result was issued, on the patient-dimension extract.
+    code_system: none
+    source: inferred
+    reasoning: Full-word decomposition (ano do resultado); NU_ prefix shared with this table's other numeric fields despite not being a count here.
+
+  NU_LAUDO_HISTOP:
+    official_name: Número do laudo histopatológico
+    translated_name: Histopathology report number
+    description: Identifying number of the histopathology report (laudo) this patient-dimension row refers to.
+    code_system: none
+    source: inferred
+    reasoning: LAUDO_HISTOP unambiguously abbreviates laudo histopatológico (histopathology report).
+
+  NU_AC_ANORMAL_C_ALT_MAIOR:
+    official_name: Atipia celular anormal — alteração maior
+    translated_name: Count of high-grade cytological atypia (antecedent)
+    description: >
+      Count of biopsies whose antecedent cytology finding was graded a
+      major/high-grade cellular atypia — part of a four-way atypia-severity
+      breakdown alongside ALT_MENOR, MISCELANIA and SUGEST_CANCER.
+    code_system: none
+    source: inferred
+    reasoning: >
+      AC abbreviates atipia celular, ANORMAL qualifies it, and ALT_MAIOR
+      reads as "alteração maior" (major/high-grade change) — the standard
+      high/low-grade split used in Brazilian cervical cytology reporting.
+
+  NU_AC_ANORMAL_C_ALT_MENOR:
+    official_name: Atipia celular anormal — alteração menor
+    translated_name: Count of low-grade cytological atypia (antecedent)
+    description: >
+      Count of biopsies whose antecedent cytology finding was graded a
+      minor/low-grade cellular atypia — the low-grade counterpart of
+      NU_AC_ANORMAL_C_ALT_MAIOR.
+    code_system: none
+    source: inferred
+    reasoning: Same AC_ANORMAL_C_ALT_ stem as NU_AC_ANORMAL_C_ALT_MAIOR; MENOR is menor (lesser/minor).
+
+  NU_AC_ANORMAL_C_MISCELANIA:
+    official_name: Atipia celular anormal — miscelânea
+    translated_name: Count of miscellaneous-category cytological atypia (antecedent)
+    description: >
+      Count of biopsies whose antecedent cytology finding fell in a
+      miscellaneous/other atypia category, not fitting the major/minor
+      grade split.
+    code_system: none
+    source: inferred
+    reasoning: MISCELANIA is the unabbreviated Portuguese word for miscellaneous; sits in the same AC_ANORMAL_C_ cluster.
+
+  NU_AC_ANORMAL_C_SUGEST_CANCER:
+    official_name: Atipia celular anormal — sugestivo de câncer
+    translated_name: Count of cancer-suggestive cytological atypia (antecedent)
+    description: >
+      Count of biopsies whose antecedent cytology finding was itself
+      already classified as suggestive of cancer — the most severe category
+      in this atypia cluster.
+    code_system: none
+    source: inferred
+    reasoning: SUGEST_CANCER abbreviates sugestivo de câncer; completes the four-way AC_ANORMAL_C_ breakdown.
+
+  NU_NEOPLASICO_NIC_I:
+    official_name: NIC I
+    translated_name: Count of CIN 1 (mild dysplasia) diagnoses
+    description: Count of biopsies diagnosed as NIC I (Neoplasia Intraepitelial Cervical grau I) — mild cervical dysplasia.
+    code_system: none
+    source: inferred
+    reasoning: NIC is the standard Brazilian abbreviation for cervical intraepithelial neoplasia (CIN); I/II/III are its three grades.
+
+  NU_NEOPLASICO_NIC_II:
+    official_name: NIC II
+    translated_name: Count of CIN 2 (moderate dysplasia) diagnoses
+    description: Count of biopsies diagnosed as NIC II — moderate cervical dysplasia, one grade more severe than NIC I.
+    code_system: none
+    source: inferred
+    reasoning: Same NIC grading stem as NU_NEOPLASICO_NIC_I.
+
+  NU_NEOPLASICO_NIC_III:
+    official_name: NIC III
+    translated_name: Count of CIN 3 (severe dysplasia/carcinoma in situ) diagnoses
+    description: Count of biopsies diagnosed as NIC III — severe dysplasia/carcinoma in situ, the most advanced pre-invasive grade.
+    code_system: none
+    source: inferred
+    reasoning: Same NIC grading stem as NU_NEOPLASICO_NIC_I/II.
+
+  NU_NEO_ADENO_INVASOR:
+    official_name: Neoplasia — adenocarcinoma invasor
+    translated_name: Count of invasive adenocarcinoma diagnoses
+    description: Count of biopsies diagnosed as invasive cervical adenocarcinoma — glandular-cell cancer that has invaded beyond the epithelium.
+    code_system: none
+    source: inferred
+    reasoning: NEO_ADENO abbreviates neoplasia adenocarcinoma; INVASOR is invasor (invasive).
+
+  NU_NEO_ADENO_IN_SITU:
+    official_name: Neoplasia — adenocarcinoma in situ
+    translated_name: Count of adenocarcinoma-in-situ diagnoses
+    description: >
+      Count of biopsies diagnosed as adenocarcinoma in situ — the
+      pre-invasive glandular counterpart of NU_NEO_ADENO_INVASOR, confined
+      to the epithelium.
+    code_system: none
+    source: inferred
+    reasoning: Same NEO_ADENO stem as NU_NEO_ADENO_INVASOR; IN_SITU is the standard Latin pathology term, unabbreviated.

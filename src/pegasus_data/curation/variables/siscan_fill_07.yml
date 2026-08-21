@@ -1,0 +1,186 @@
+# SISCAN — SISCAN_HISTO_MAMA and SISCAN_HISTO_MAMA_PACNT, 2013-2018 yearly
+# extracts (breast histopathology: the biopsy read after a suspicious
+# mammogram, per SISCAN.HM in ontology.yml). All declared C(0,0) — CSV
+# opendatasus extracts, not fixed-width DBFs.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+
+  CO_SEQ_SISCAN_HISTO_MAMA_PACNT:
+    official_name: Sequencial SISCAN histopatologia mama (paciente)
+    translated_name: Record sequence number (breast-histopathology patient extract)
+    description: Row-sequence identifier on the SISCAN_HISTO_MAMA_PACNT (patient-dimension) yearly extract.
+    code_system: none
+    source: inferred
+    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT in siscan_fill_01.yml.
+
+  CO_SEQ_SISCAN_HISTO_MAMA_RESID:
+    official_name: Sequencial SISCAN histopatologia mama (resultado)
+    translated_name: Record sequence number (breast-histopathology result)
+    description: Row-sequence identifier on the main SISCAN_HISTO_MAMA result/exam-record table, distinct from the _PACNT patient-dimension sequence.
+    code_system: none
+    source: inferred
+    reasoning: Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID in siscan_fill_02.yml.
+
+  TP_LAUDO_HISTOPATOLOGICO:
+    official_name: Tipo de laudo histopatológico
+    translated_name: Type of histopathology report
+    description: Category of this breast histopathology report — e.g. which biopsy/procedure type it covers.
+    code_system: internal
+    source: inferred
+    reasoning: Full-word decomposition (tipo de laudo histopatológico); TP_ type-code prefix.
+    notes: No observed values or codelist were captured.
+
+  NU_ADENOSE_SOE:
+    official_name: Adenose, SOE
+    translated_name: Count of adenosis diagnoses, not otherwise specified
+    description: >
+      Count of breast biopsies diagnosed as adenosis (a benign proliferative
+      change of the lobules) without further sub-typing — SOE is the
+      standard Brazilian pathology "not otherwise specified" qualifier.
+    code_system: none
+    source: inferred
+    reasoning: ADENOSE_SOE is adenose, SOE, unabbreviated.
+
+  NU_CONDICAO_FIBROCISTICA:
+    official_name: Condição fibrocística
+    translated_name: Count of fibrocystic-change diagnoses
+    description: Count of breast biopsies diagnosed with fibrocystic condition — the most common benign breast finding.
+    code_system: none
+    source: inferred
+    reasoning: CONDICAO_FIBROCISTICA is condição fibrocística, unabbreviated.
+
+  NU_FIBROADENOMA:
+    official_name: Fibroadenoma
+    translated_name: Count of fibroadenoma diagnoses
+    description: Count of breast biopsies diagnosed as fibroadenoma — the most common benign breast tumour, especially in younger women.
+    code_system: none
+    source: inferred
+    reasoning: FIBROADENOMA is unabbreviated.
+
+  NU_HIPERPLAS_DUCTAL_COM_ATIP:
+    official_name: Hiperplasia ductal com atipia
+    translated_name: Count of atypical ductal hyperplasia diagnoses
+    description: >
+      Count of biopsies diagnosed with atypical ductal hyperplasia (ADH) —
+      a premalignant marker that raises future breast-cancer risk, distinct
+      from its non-atypical counterpart below.
+    code_system: none
+    source: inferred
+    reasoning: HIPERPLAS_DUCTAL_COM_ATIP abbreviates hiperplasia ductal com atipia.
+
+  NU_HIPERPLAS_DUCTAL_SEM_ATIP:
+    official_name: Hiperplasia ductal sem atipia
+    translated_name: Count of usual ductal hyperplasia diagnoses (without atypia)
+    description: >
+      Count of biopsies diagnosed with ductal hyperplasia lacking atypia
+      (UDH) — a benign proliferative change, lower risk than
+      NU_HIPERPLAS_DUCTAL_COM_ATIP.
+    code_system: none
+    source: inferred
+    reasoning: Same HIPERPLAS_DUCTAL stem; SEM_ATIP is sem atipia (without atypia).
+
+  NU_HIPERPLAS_LOBULAR_COM_ATIP:
+    official_name: Hiperplasia lobular com atipia
+    translated_name: Count of atypical lobular hyperplasia diagnoses
+    description: >
+      Count of biopsies diagnosed with atypical lobular hyperplasia (ALH) —
+      the lobular counterpart of NU_HIPERPLAS_DUCTAL_COM_ATIP, also a
+      premalignant risk marker.
+    code_system: none
+    source: inferred
+    reasoning: HIPERPLAS_LOBULAR_COM_ATIP abbreviates hiperplasia lobular com atipia.
+
+  NU_LESAO_ESCLEROSANTE_RADIAL:
+    official_name: Lesão esclerosante radial
+    translated_name: Count of radial scar / complex sclerosing lesion diagnoses
+    description: >
+      Count of biopsies diagnosed as radial scar (complex sclerosing
+      lesion) — a benign lesion that can distort tissue architecture and
+      mimic cancer on imaging.
+    code_system: none
+    source: inferred
+    reasoning: LESAO_ESCLEROSANTE_RADIAL is lesão esclerosante radial, unabbreviated.
+
+  NU_MASTITE:
+    official_name: Mastite
+    translated_name: Count of mastitis diagnoses
+    description: Count of biopsies diagnosed with mastitis — inflammation or infection of breast tissue.
+    code_system: none
+    source: inferred
+    reasoning: MASTITE is unabbreviated.
+
+  NU_OUTROS:
+    official_name: Outros
+    translated_name: Count of other/residual diagnoses
+    description: Count of biopsies whose diagnosis falls outside every named category in this HISTO_MAMA batch.
+    code_system: none
+    source: inferred
+    reasoning: OUTROS is the standard residual/catch-all category label.
+
+  NU_PAPILOMATOSE_FLORIDA_DO_MAM:
+    official_name: Papilomatose florida do mamilo
+    translated_name: Count of florid papillomatosis of the nipple diagnoses
+    description: >
+      Count of biopsies diagnosed as florid papillomatosis of the nipple
+      (nipple adenoma) — a benign, nipple-specific proliferative lesion.
+    code_system: none
+    source: inferred
+    reasoning: >
+      PAPILOMATOSE_FLORIDA_DO_MAM abbreviates papilomatose florida do
+      mamilo; a named nipple-specific entity, distinct from
+      NU_PAPILOMA_SOLITARIO/MULTIPLO's intraductal papillomas.
+    notes: MAM could alternatively read as "da mama" rather than "do mamilo"; no observed value settles it.
+
+  NU_PAPILOMA_MULTIPLO:
+    official_name: Papiloma múltiplo
+    translated_name: Count of multiple intraductal papilloma diagnoses
+    description: >
+      Count of biopsies diagnosed with multiple intraductal papillomas —
+      carries a modestly higher cancer-risk association than the solitary
+      form below.
+    code_system: none
+    source: inferred
+    reasoning: PAPILOMA_MULTIPLO is papiloma múltiplo, unabbreviated.
+
+  NU_PAPILOMA_SOLITARIO:
+    official_name: Papiloma solitário
+    translated_name: Count of solitary intraductal papilloma diagnoses
+    description: Count of biopsies diagnosed with a single (solitary) intraductal papilloma — lower risk than the multiple form above.
+    code_system: none
+    source: inferred
+    reasoning: PAPILOMA_SOLITARIO is papiloma solitário, unabbreviated.
+
+  ST_OUTRO_ESTUDO_IMUNOLO_HISTOQ:
+    official_name: Outro estudo imuno-histoquímico
+    translated_name: Additional immunohistochemistry study flag
+    description: >
+      Whether an immunohistochemistry (IHC) study beyond the standard
+      hormone-receptor panel (TP_RECEPTOR_HORMONAL_ESTROG/PROGES) was
+      performed on this specimen.
+    code_system: internal
+    source: inferred
+    reasoning: OUTRO_ESTUDO_IMUNOLO_HISTOQ abbreviates outro estudo imuno-histoquímico; ST_ status-flag prefix used throughout this fill batch.
+    notes: No observed values or codelist were captured.
+
+  TP_RECEPTOR_HORMONAL_ESTROG:
+    official_name: Tipo de receptor hormonal — estrogênio
+    translated_name: Estrogen-receptor (ER) status
+    description: >
+      Estrogen-receptor status of this breast biopsy — a standard
+      immunohistochemistry biomarker used to guide hormone-therapy
+      treatment decisions.
+    code_system: internal
+    source: inferred
+    reasoning: RECEPTOR_HORMONAL_ESTROG is receptor hormonal, estrogênio; TP_ type-code prefix.
+    notes: No observed values or codelist were captured.
+
+  TP_RECEPTOR_HORMONAL_PROGES:
+    official_name: Tipo de receptor hormonal — progesterona
+    translated_name: Progesterone-receptor (PR) status
+    description: Progesterone-receptor status of this breast biopsy — reported alongside TP_RECEPTOR_HORMONAL_ESTROG as the standard paired hormone-receptor panel.
+    code_system: internal
+    source: inferred
+    reasoning: Same RECEPTOR_HORMONAL stem as TP_RECEPTOR_HORMONAL_ESTROG; PROGES is progesterona.
+    notes: No observed values or codelist were captured.

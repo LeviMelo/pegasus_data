@@ -1,0 +1,191 @@
+# SISCAN — SISCAN_MAMOGRAFIA and SISCAN_MAMOGRAFIA_PACNT, 2013-2018 yearly
+# extracts (mammography with BI-RADS classification, per SISCAN.MM in
+# ontology.yml). This batch is the report-identity fields plus the nodule and
+# general-finding flags; siscan_fill_05.yml and siscan_fill_06.yml continue
+# with the rest of the mammography finding cluster. MD/ME suffixes are mama
+# direita/esquerda (right/left breast) — this dataset's newer, unabbreviated
+# counterpart of the D/E suffix used on the legacy DBF fields in
+# siscan_findings.yml (e.g. its NU_NODULO_DEN_HETEROG_MD/ME is the same
+# finding as that file's CNODDENHED/E, just on this later table). All
+# declared C(0,0) — CSV opendatasus extracts, not fixed-width DBFs.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+
+  CO_LAUDO:
+    official_name: Código do laudo
+    translated_name: Mammography report identifier
+    description: Identifying number of the mammography report (laudo), on the patient-dimension extract.
+    code_system: none
+    source: inferred
+    reasoning: LAUDO is the standard Portuguese word for a diagnostic report, unabbreviated.
+
+  CO_SEQ_SISCAN_MAMOGRAFIA_PACNT:
+    official_name: Sequencial SISCAN mamografia (paciente)
+    translated_name: Record sequence number (mammography patient extract)
+    description: Row-sequence identifier on the SISCAN_MAMOGRAFIA_PACNT (patient-dimension) yearly extract.
+    code_system: none
+    source: inferred
+    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT in siscan_fill_01.yml.
+
+  CO_SEQ_SISCAN_MAMOGRAFIA_RESID:
+    official_name: Sequencial SISCAN mamografia (resultado)
+    translated_name: Record sequence number (mammography result)
+    description: Row-sequence identifier on the main SISCAN_MAMOGRAFIA result/exam-record table, distinct from the _PACNT patient-dimension sequence.
+    code_system: none
+    source: inferred
+    reasoning: Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID in siscan_fill_02.yml.
+
+  CO_TAMANHO_NOD_DIR:
+    official_name: Tamanho do nódulo, mama direita
+    translated_name: Nodule size, right breast (mm)
+    description: Measured size of the largest/reported nodule found in the right breast on this mammogram.
+    code_system: none
+    source: inferred
+    reasoning: TAMANHO_NOD is tamanho do nódulo; DIR is direita, paired with CO_TAMANHO_NOD_ESQ.
+
+  CO_TAMANHO_NOD_ESQ:
+    official_name: Tamanho do nódulo, mama esquerda
+    translated_name: Nodule size, left breast (mm)
+    description: Measured size of the largest/reported nodule found in the left breast — the counterpart of CO_TAMANHO_NOD_DIR.
+    code_system: none
+    source: inferred
+    reasoning: Same TAMANHO_NOD stem; ESQ is esquerda.
+
+  REQ:
+    official_name: Requisição
+    translated_name: Exam request (order) number
+    description: Identifying number of the mammography exam request/order this report was issued against.
+    code_system: none
+    source: inferred
+    reasoning: REQ is the standard abbreviation for requisição (request), on the patient-dimension extract alongside CO_LAUDO.
+
+  NU_NODULO_CALCIFIC_MD:
+    official_name: Nódulo calcificado, mama direita
+    translated_name: Count of calcified nodules, right breast
+    description: >
+      Count of calcified nodules found in the right breast — the same
+      finding as siscan_findings.yml's CNODCALD, on this later,
+      unabbreviated-suffix table.
+    code_system: none
+    source: inferred
+    reasoning: NODULO_CALCIFIC is nódulo calcificado, unabbreviated; MD is mama direita.
+
+  NU_NODULO_CALCIFIC_ME:
+    official_name: Nódulo calcificado, mama esquerda
+    translated_name: Count of calcified nodules, left breast
+    description: The left-breast counterpart of NU_NODULO_CALCIFIC_MD — the same finding as siscan_findings.yml's CNODCALE.
+    code_system: none
+    source: inferred
+    reasoning: Same NODULO_CALCIFIC stem; ME is mama esquerda.
+
+  NU_NODULO_DENS_GORD_MD:
+    official_name: Nódulo com densidade de gordura, mama direita
+    translated_name: Count of fat-density nodules, right breast
+    description: >
+      Count of nodules with fat density in the right breast — a
+      fat-containing lesion (e.g. lipoma, oil cyst, galactocele) rather than
+      a solid mass.
+    code_system: none
+    source: inferred
+    reasoning: NODULO_DENS_GORD is nódulo [com] densidade [de] gordura, a standard BI-RADS lexicon descriptor; MD is mama direita.
+
+  NU_NODULO_DENS_GORD_ME:
+    official_name: Nódulo com densidade de gordura, mama esquerda
+    translated_name: Count of fat-density nodules, left breast
+    description: The left-breast counterpart of NU_NODULO_DENS_GORD_MD.
+    code_system: none
+    source: inferred
+    reasoning: Same NODULO_DENS_GORD stem; ME is mama esquerda.
+
+  NU_NODULO_DEN_HETEROG_MD:
+    official_name: Nódulo denso heterogêneo, mama direita
+    translated_name: Count of heterogeneous dense nodules, right breast
+    description: >
+      Count of dense nodules of heterogeneous appearance in the right
+      breast — the same finding as siscan_findings.yml's CNODDENHED, on
+      this later table.
+    code_system: none
+    source: inferred
+    reasoning: NODULO_DEN_HETEROG is nódulo denso heterogêneo; MD is mama direita.
+
+  NU_NODULO_DEN_HETEROG_ME:
+    official_name: Nódulo denso heterogêneo, mama esquerda
+    translated_name: Count of heterogeneous dense nodules, left breast
+    description: The left-breast counterpart of NU_NODULO_DEN_HETEROG_MD.
+    code_system: none
+    source: inferred
+    reasoning: Same NODULO_DEN_HETEROG stem; ME is mama esquerda.
+
+  ST_TEM_NODULO:
+    official_name: Tem nódulo
+    translated_name: Any-nodule-present flag
+    description: >
+      Whether this mammogram reported any nodule at all, in either breast —
+      a general flag distinct from the specific nodule-subtype counts
+      (calcified, fat-density, heterogeneous dense) above.
+    code_system: internal
+    source: inferred
+    reasoning: Tem nódulo reads literally as "has a nodule"; ST_ status-flag prefix used throughout this batch.
+    notes: No observed values or codelist were captured.
+
+  ST_TEM_MICROCALCIFICACAO:
+    official_name: Tem microcalcificação
+    translated_name: Microcalcification-present flag
+    description: Whether this mammogram reported microcalcifications — a finding tracked separately from the nodule findings above.
+    code_system: internal
+    source: inferred
+    reasoning: Tem microcalcificação reads literally; same ST_ status-flag prefix.
+    notes: No observed values or codelist were captured.
+
+  ST_ACHADO_BENIGNO:
+    official_name: Achado benigno
+    translated_name: Benign-finding flag
+    description: Whether this mammogram's overall assessment was a benign finding (BI-RADS category 2).
+    code_system: internal
+    source: inferred
+    reasoning: Achado benigno reads literally as "benign finding"; ST_ status-flag prefix.
+    notes: No observed values or codelist were captured.
+
+  ST_AREA_DENSA:
+    official_name: Área densa
+    translated_name: Dense-area flag
+    description: Whether this mammogram reported a focal dense area distinct from a discrete nodule.
+    code_system: internal
+    source: inferred
+    reasoning: Área densa reads literally; ST_ status-flag prefix.
+    notes: No observed values or codelist were captured.
+
+  ST_ASSIMETRIA_DIFUSA:
+    official_name: Assimetria difusa
+    translated_name: Diffuse-asymmetry flag
+    description: >
+      Whether this mammogram reported diffuse asymmetry — a standard BI-
+      RADS lexicon finding spanning a large portion of the breast, as
+      opposed to the focal form below.
+    code_system: internal
+    source: inferred
+    reasoning: Assimetria difusa reads literally, a standard BI-RADS descriptor; ST_ status-flag prefix.
+    notes: No observed values or codelist were captured.
+
+  ST_ASSIMETRIA_FOCAL:
+    official_name: Assimetria focal
+    translated_name: Focal-asymmetry flag
+    description: Whether this mammogram reported focal asymmetry — a localised counterpart of ST_ASSIMETRIA_DIFUSA.
+    code_system: internal
+    source: inferred
+    reasoning: Same ST_ + BI-RADS descriptor pattern as ST_ASSIMETRIA_DIFUSA.
+    notes: No observed values or codelist were captured.
+
+  ST_DISTORCAO_FOCAL:
+    official_name: Distorção focal
+    translated_name: Focal architectural-distortion flag
+    description: >
+      Whether this mammogram reported focal architectural distortion — a
+      BI-RADS lexicon finding that, unlike a discrete mass, warps the
+      surrounding tissue architecture and often prompts biopsy.
+    code_system: internal
+    source: inferred
+    reasoning: Distorção focal reads literally as a standard BI-RADS descriptor; ST_ status-flag prefix.
+    notes: No observed values or codelist were captured.

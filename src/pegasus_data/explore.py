@@ -185,6 +185,45 @@ def _resolve(target: str | None) -> tuple[str | None, str | None]:
     return system, series
 
 
+def _of_dataset(
+    rows: list[dict[str, object]], system: str | None, want_series: str
+) -> list[dict[str, object]]:
+    """Rows belonging to one dataset, matched through the ontology.
+
+    ``series`` is derived from filenames, so one dataset is spread across many
+    spellings of itself — SIA's monthly production is ``PA`` but also
+    ``PASP2509A`` and 700-odd other whole filenames. Comparing the string, as
+    this did, showed a fraction of what the dataset actually holds, and the
+    shortfall was invisible: the map simply looked smaller.
+
+    Same reasoning as :func:`pegasus_data.retrieve._families`, and the same
+    fallback — if the ontology cannot name the dataset, the plain match still
+    answers.
+    """
+    from .ontology import Ontology
+
+    try:
+        onto = Ontology.load()
+    except Exception:  # pragma: no cover - a broken declaration must not block the map
+        onto = None
+
+    if onto is not None:
+        found = onto.resolve(f"{system}.{want_series}" if system else want_series)
+        if found and found[0] == "dataset":
+            code = found[1].code
+            bound = [
+                r
+                for r in rows
+                if onto.bind(
+                    str(r.get("system") or ""), str(r.get("series") or "")
+                ).dataset
+                == code
+            ]
+            if bound:
+                return bound
+    return [r for r in rows if (r.get("series") or "").upper() == want_series]
+
+
 def explore(
     target: str | None = None,
     *,
@@ -244,7 +283,7 @@ def explore(
                 unknown=near or known_systems,
             )
     if want_series:
-        rows = [r for r in rows if (r.get("series") or "").upper() == want_series]
+        rows = _of_dataset(rows, system, want_series)
     if uf:
         rows = [r for r in rows if (r.get("uf") or "").upper() == uf.upper()]
     if year is not None:

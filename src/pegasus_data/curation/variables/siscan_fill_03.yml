@@ -1,0 +1,214 @@
+# SISCAN — SISCAN_HISTO_COLO, 2013-2018 yearly extracts, continued from
+# siscan_fill_02.yml: the invasive-carcinoma counts, the benign-finding
+# counts, the excision/biopsy procedure counts, and the transformation-zone
+# adequacy counts from the same cervical-histopathology table. All declared
+# C(0,0) — CSV opendatasus extracts, not fixed-width DBFs.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+
+  NU_NEO_CARC_EPID_IMPOSSIVEL:
+    official_name: Neoplasia — carcinoma epidermoide, invasão não avaliável
+    translated_name: Count of squamous-cell carcinoma with invasion not assessable
+    description: >
+      Count of biopsies diagnosed as squamous-cell (epidermoide) carcinoma
+      where depth of invasion could not be assessed from the specimen —
+      distinct from the confirmed invasive and microinvasive counts.
+    code_system: none
+    source: inferred
+    reasoning: NEO_CARC_EPID abbreviates neoplasia carcinoma epidermoide; IMPOSSIVEL is impossível (de avaliar), unabbreviated.
+
+  NU_NEO_CARC_EPID_INVASIVO:
+    official_name: Neoplasia — carcinoma epidermoide invasivo
+    translated_name: Count of invasive squamous-cell carcinoma diagnoses
+    description: Count of biopsies diagnosed as frankly invasive squamous-cell cervical carcinoma.
+    code_system: none
+    source: inferred
+    reasoning: Same NEO_CARC_EPID stem as its siblings in this cluster; INVASIVO is unabbreviated.
+
+  NU_NEO_CARC_EPID_MICRO_INVASIV:
+    official_name: Neoplasia — carcinoma epidermoide microinvasivo
+    translated_name: Count of microinvasive squamous-cell carcinoma diagnoses
+    description: >
+      Count of biopsies diagnosed as microinvasive squamous-cell carcinoma —
+      the earliest-stage invasive category, between carcinoma in situ (NIC
+      III) and frank invasion.
+    code_system: none
+    source: inferred
+    reasoning: Same NEO_CARC_EPID stem; MICRO_INVASIV is microinvasivo truncated to the field-name limit.
+
+  NU_OUTRAS_NEOPL_MALIG:
+    official_name: Outras neoplasias malignas
+    translated_name: Count of other malignant neoplasm diagnoses
+    description: >
+      Count of biopsies diagnosed with a malignant neoplasm outside the
+      named NIC/adenocarcinoma/carcinoma-epidermoide categories in this
+      batch. CO_RES_NEOPL_OUTRAS (siscan_fill_02.yml) records which specific
+      diagnosis this catch-all refers to.
+    code_system: none
+    source: inferred
+    reasoning: OUTRAS_NEOPL_MALIG is unabbreviated Portuguese for "other malignant neoplasms."
+
+  NU_LES_BEN_ALTO_CITO_COMPA:
+    official_name: Lesão benigna — alterações citopáticas compatíveis (HPV)
+    translated_name: Count of HPV-compatible cytopathic changes (benign)
+    description: >
+      Count of biopsies showing benign cytopathic changes compatible with
+      HPV infection (e.g. koilocytosis) — a reactive/viral finding, not a
+      neoplasm.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LES_BEN is lesão benigna, a recurring stem in this cluster;
+      ALTO_CITO_COMPA most plausibly contracts "alterações citopáticas
+      compatíveis," the standard term for HPV's cytopathic effect — the
+      single most common benign/reactive finding named in Brazilian
+      cervical-biopsy reporting.
+    notes: >
+      "ALTO" could alternatively read as the literal word alto (high); no
+      observed value or codelist confirms which.
+
+  NU_LES_BEN_CERVICITE_CRON:
+    official_name: Lesão benigna — cervicite crônica
+    translated_name: Count of chronic cervicitis diagnoses (benign)
+    description: Count of biopsies showing chronic cervicitis — benign, non-specific cervical inflammation.
+    code_system: none
+    source: inferred
+    reasoning: LES_BEN stem plus CERVICITE_CRON, an unabbreviated contraction of cervicite crônica.
+
+  NU_LES_BEN_METAPLASIA_ESC:
+    official_name: Lesão benigna — metaplasia escamosa
+    translated_name: Count of squamous metaplasia diagnoses (benign)
+    description: >
+      Count of biopsies showing squamous metaplasia — the normal reparative
+      replacement of glandular by squamous epithelium in the transformation
+      zone, not itself a lesion.
+    code_system: none
+    source: inferred
+    reasoning: LES_BEN stem plus METAPLASIA_ESC, escamosa truncated.
+
+  NU_LES_BEN_POLIPO_ENDOCERVICAL:
+    official_name: Lesão benigna — pólipo endocervical
+    translated_name: Count of endocervical polyp diagnoses (benign)
+    description: Count of biopsies showing a benign endocervical polyp.
+    code_system: none
+    source: inferred
+    reasoning: LES_BEN stem plus POLIPO_ENDOCERVICAL, unabbreviated.
+
+  NU_PROC_BIOPSIA:
+    official_name: Procedimento — biópsia
+    translated_name: Count of biopsy procedures
+    description: Count of rows/specimens in this aggregation obtained by biopsy, as opposed to an excisional procedure.
+    code_system: none
+    source: inferred
+    reasoning: PROC_BIOPSIA is procedimento biópsia, unabbreviated; opens the procedure-type cluster completed by the NU_PROC_EXERESE_* fields below.
+
+  NU_PROC_EXERESE_CONIZACAO:
+    official_name: Procedimento — exérese, conização
+    translated_name: Count of conization excision procedures
+    description: Count of specimens obtained by conization (cone biopsy) — an excisional procedure removing a cone-shaped section of the cervix.
+    code_system: none
+    source: inferred
+    reasoning: PROC_EXERESE is procedimento exérese; CONIZACAO is conização, unabbreviated.
+
+  NU_PROC_EXERESE_OUTROS:
+    official_name: Procedimento — exérese, outros
+    translated_name: Count of other excision procedures
+    description: Count of specimens obtained by an excisional procedure other than conization or Ver e Tratar.
+    code_system: none
+    source: inferred
+    reasoning: Same PROC_EXERESE stem as its siblings; OUTROS is the residual/other category.
+
+  NU_PROC_EXERESE_POS_BIOPSIA:
+    official_name: Procedimento — exérese pós-biópsia
+    translated_name: Count of excisions performed after a prior biopsy
+    description: >
+      Count of excision procedures performed as a follow-up after an
+      earlier biopsy, rather than as the initial diagnostic procedure.
+    code_system: none
+    source: inferred
+    reasoning: PROC_EXERESE stem plus POS_BIOPSIA, pós biópsia unabbreviated.
+
+  NU_PROC_EXERESE_VER_E_TRATAR:
+    official_name: Procedimento — exérese, Ver e Tratar
+    translated_name: Count of "See and Treat" excision procedures
+    description: >
+      Count of excisions performed under Brazil's "Ver e Tratar" (see-and-
+      treat) protocol, where colposcopy and excisional treatment are
+      combined in a single visit for a high-grade lesion.
+    code_system: none
+    source: inferred
+    reasoning: >
+      PROC_EXERESE stem; "Ver e Tratar" is the named strategy used in
+      Brazilian cervical-cancer-prevention services, spelled out rather
+      than abbreviated.
+
+  NU_RES_EXAMES_NEO_PRENEO:
+    official_name: Resultado dos exames — neoplásico/pré-neoplásico
+    translated_name: Count of neoplastic/pre-neoplastic results
+    description: >
+      Roll-up count of biopsies whose result fell anywhere in the
+      neoplastic or pre-neoplastic categories (NIC grades, carcinoma,
+      adenocarcinoma) — a summary figure over several of this batch's more
+      specific counts.
+    code_system: none
+    source: inferred
+    reasoning: RES_EXAMES is resultado dos exames; NEO_PRENEO contracts neoplásico/pré-neoplásico.
+
+  NU_ZT_SATIF_IND:
+    official_name: Zona de transformação satisfatória — tipo indeterminado
+    translated_name: Count of satisfactory transformation zones, indeterminate type
+    description: >
+      Count of colposcopy exams where the transformation zone was
+      satisfactory (fully visualised) but its IFCPC type could not be
+      determined — the residual category beside TP_I/II/III below.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ZT is zona de transformação, SATIF is satisfatória; IND is
+      indeterminado, paired with the TP_I/II/III type fields that follow.
+
+  NU_ZT_SATIF_TP_I:
+    official_name: Zona de transformação satisfatória — tipo I
+    translated_name: Count of satisfactory transformation zones, type I
+    description: >
+      Count of colposcopy exams with a fully visible, entirely ectocervical
+      transformation zone — Type 1 in the IFCPC colposcopy classification,
+      the most favourable type for complete assessment.
+    code_system: none
+    source: inferred
+    reasoning: Same ZT_SATIF_TP stem as its siblings; I/II/III is the standard IFCPC transformation-zone typing.
+
+  NU_ZT_SATIF_TP_II:
+    official_name: Zona de transformação satisfatória — tipo II
+    translated_name: Count of satisfactory transformation zones, type II
+    description: >
+      Count of colposcopy exams with a Type 2 transformation zone — visible
+      but partly extending into the endocervical canal, still fully
+      assessable with instruments.
+    code_system: none
+    source: inferred
+    reasoning: Same ZT_SATIF_TP stem as NU_ZT_SATIF_TP_I/III.
+
+  NU_ZT_SATIF_TP_III:
+    official_name: Zona de transformação satisfatória — tipo III
+    translated_name: Count of satisfactory transformation zones, type III
+    description: >
+      Count of colposcopy exams with a Type 3 transformation zone — extends
+      far enough into the canal that only part of it is visible.
+    code_system: none
+    source: inferred
+    reasoning: Same ZT_SATIF_TP stem as NU_ZT_SATIF_TP_I/II.
+
+  TP_PROCEDIMENTO_CIR:
+    official_name: Tipo de procedimento cirúrgico
+    translated_name: Type of surgical procedure
+    description: >
+      Category of surgical procedure performed to obtain this specimen
+      (e.g. biopsy, conization, Ver e Tratar excision) — the row-level type
+      field the NU_PROC_* counts above are aggregated from.
+    code_system: internal
+    source: inferred
+    reasoning: Full-word decomposition (tipo de procedimento cirúrgico); TP_ type-code prefix.
+    notes: No observed values or codelist were captured for this column.

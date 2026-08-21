@@ -1,0 +1,257 @@
+# SISCAN — SISCAN_CITO_MAMA and SISCAN_CITO_MAMA_PACNT, 2013-2018 yearly
+# extracts (breast cytology, per SISCAN.CM in ontology.yml). Two collection
+# methods are aggregated here: PAAF (punção aspirativa por agulha fina,
+# fine-needle aspiration — the NU_PAAF_* fields) and, most likely, nipple-
+# discharge cytology (the NU_QDESC_* fields — DESC most plausibly abbreviates
+# descarga papilar, a different specimen than a needle aspirate; not
+# confirmed). Within NU_PAAF_*, B is Benigno (benign), P_M reads as Positivo
+# [para] Malignidade (positive for malignancy, with CARC_DUC/CARC_LOB/OUTROS
+# as its determined subtypes), and SUS/SUSM is suspeito [de malignidade]
+# (suspicious) — M_IND's own subtypes (OUTROS/TUMF/TUMPA) are the least
+# certain reading in this batch, kept deliberately hedged. All declared
+# C(0,0) — CSV opendatasus extracts, not fixed-width DBFs.
+system: SISCAN
+asserted_by: pegasus_data
+
+variables:
+
+  CO_SEQ_SISCAN_CITO_MAMA_PACNT:
+    official_name: Sequencial SISCAN citopatologia mama (paciente)
+    translated_name: Record sequence number (breast-cytology patient extract)
+    description: Row-sequence identifier on the SISCAN_CITO_MAMA_PACNT (patient-dimension) yearly extract.
+    code_system: none
+    source: inferred
+    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT in siscan_fill_01.yml.
+
+  CO_SEQ_SISCAN_CITO_MAMA_RESID:
+    official_name: Sequencial SISCAN citopatologia mama (resultado)
+    translated_name: Record sequence number (breast-cytology result)
+    description: Row-sequence identifier on the main SISCAN_CITO_MAMA result/exam-record table, distinct from the _PACNT patient-dimension sequence.
+    code_system: none
+    source: inferred
+    reasoning: Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID in siscan_fill_02.yml.
+
+  QT_EXAME:
+    official_name: Quantidade de exames
+    translated_name: Total exam count
+    description: Total number of breast cytology exams in this row's aggregation — the denominator the NU_PAAF_*/NU_QDESC_* result counts are drawn from.
+    code_system: none
+    source: inferred
+    reasoning: QT_ is DATASUS's standard quantidade prefix; EXAME is exame, unabbreviated.
+
+  TP_LAUDO_CITOP:
+    official_name: Tipo de laudo citopatológico
+    translated_name: Type of cytology report
+    description: Category of this breast cytology report — e.g. which collection method (PAAF or nipple discharge) it covers.
+    code_system: internal
+    source: inferred
+    reasoning: Full-word decomposition (tipo de laudo citopatológico); TP_ type-code prefix.
+    notes: No observed values or codelist were captured.
+
+  NU_PAAF_B_ABC_SUBARE:
+    official_name: PAAF, benigno — abscesso subareolar
+    translated_name: Count of benign FNA results, subareolar abscess
+    description: Count of fine-needle aspirations (PAAF) reading benign with a subareolar abscess — an infected duct beneath the nipple.
+    code_system: none
+    source: inferred
+    reasoning: PAAF_B is PAAF, benigno; ABC_SUBARE abbreviates abscesso subareolar.
+
+  NU_PAAF_B_COM_FIB_MAM:
+    official_name: PAAF, benigno — condição fibrocística mamária
+    translated_name: Count of benign FNA results, fibrocystic breast condition
+    description: Count of benign PAAF results showing fibrocystic breast changes — the FNA counterpart of HISTO_MAMA's NU_CONDICAO_FIBROCISTICA (siscan_fill_07.yml).
+    code_system: none
+    source: inferred
+    reasoning: PAAF_B_COM_FIB_MAM most plausibly abbreviates PAAF benigno, condição fibrocística mamária.
+
+  NU_PAAF_B_FIBROAD:
+    official_name: PAAF, benigno — fibroadenoma
+    translated_name: Count of benign FNA results, fibroadenoma
+    description: Count of benign PAAF results reading fibroadenoma — the FNA counterpart of HISTO_MAMA's NU_FIBROADENOMA.
+    code_system: none
+    source: inferred
+    reasoning: PAAF_B_FIBROAD is PAAF benigno, fibroadenoma, truncated.
+
+  NU_PAAF_B_L_E_P:
+    official_name: PAAF, benigno — lesão epitelial papilar
+    translated_name: Count of benign FNA results, papillary lesion
+    description: >
+      Count of benign PAAF results reading a papillary lesion. Papillary
+      breast lesions span a benign-to-malignant spectrum, which is why this
+      same L_E_P stem recurs under the suspicious category
+      (NU_PAAF_SUS_L_E_P) below.
+    code_system: none
+    source: inferred
+    reasoning: L_E_P most plausibly initials lesão epitelial papilar; recurs identically under a different top-level category, consistent with a spectrum finding rather than a single fixed diagnosis.
+
+  NU_PAAF_B_MASTITE:
+    official_name: PAAF, benigno — mastite
+    translated_name: Count of benign FNA results, mastitis
+    description: Count of benign PAAF results reading mastitis.
+    code_system: none
+    source: inferred
+    reasoning: PAAF_B_MASTITE is PAAF benigno, mastite, unabbreviated.
+
+  NU_PAAF_B_NECR_GORDUR:
+    official_name: PAAF, benigno — necrose gordurosa
+    translated_name: Count of benign FNA results, fat necrosis
+    description: Count of benign PAAF results reading fat necrosis — often post-traumatic, the cytology counterpart of HISTO_MAMA's oil-cyst finding.
+    code_system: none
+    source: inferred
+    reasoning: NECR_GORDUR abbreviates necrose gordurosa.
+
+  NU_PAAF_B_OUTRAS:
+    official_name: PAAF, benigno — outras
+    translated_name: Count of other benign FNA results
+    description: Count of benign PAAF results not fitting any of this batch's other named benign categories — closes out the seven-way PAAF_B breakdown.
+    code_system: none
+    source: inferred
+    reasoning: OUTRAS is the standard residual/other category label.
+
+  NU_PAAF_M_IND_OUTROS:
+    official_name: PAAF, indeterminado — outros
+    translated_name: Count of indeterminate FNA results, other
+    description: >
+      Count of PAAF results in the least-settled category of this batch —
+      M_IND does not decompose with full confidence, but reads most
+      plausibly as an indeterminate-result grouping distinct from the
+      determined-malignancy P_M group below.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Shares the PAAF_ stem with the confidently-read B/P_M/SUS groups;
+      IND plausibly abbreviates indeterminado, paired here with a residual
+      OUTROS subtype.
+    notes: >
+      DELIBERATELY UNDER-SPECIFIED — no observed values or codelist confirm
+      what M_IND, TUMF or TUMPA (its sibling subtypes) each mean precisely.
+
+  NU_PAAF_M_IND_TUMF:
+    official_name: PAAF, indeterminado — TUMF
+    translated_name: Count of indeterminate FNA results, "TUMF" subtype
+    description: >
+      A subtype of the indeterminate PAAF category (see NU_PAAF_M_IND_OUTROS)
+      whose specific referent — possibly a fixed/non-mobile palpable mass —
+      is not established.
+    code_system: none
+    source: inferred
+    reasoning: Same M_IND stem as NU_PAAF_M_IND_OUTROS/TUMPA; TUM plausibly abbreviates tumoração.
+    notes: DELIBERATELY UNDER-SPECIFIED — see NU_PAAF_M_IND_OUTROS.
+
+  NU_PAAF_M_IND_TUMPA:
+    official_name: PAAF, indeterminado — TUMPA
+    translated_name: Count of indeterminate FNA results, "TUMPA" subtype
+    description: >
+      A subtype of the indeterminate PAAF category (see NU_PAAF_M_IND_OUTROS)
+      whose specific referent — possibly a palpable mass — is not
+      established.
+    code_system: none
+    source: inferred
+    reasoning: Same M_IND stem as NU_PAAF_M_IND_OUTROS/TUMF; TUM plausibly abbreviates tumoração, PA possibly palpável.
+    notes: DELIBERATELY UNDER-SPECIFIED — see NU_PAAF_M_IND_OUTROS.
+
+  NU_PAAF_P_M_CARC_DUC:
+    official_name: PAAF, positivo para malignidade — carcinoma ductal
+    translated_name: Count of malignant FNA results, ductal carcinoma
+    description: Count of PAAF results positive for malignancy and typed as ductal carcinoma — the most common breast-cancer cell type.
+    code_system: none
+    source: inferred
+    reasoning: P_M plausibly abbreviates positivo [para] malignidade, paired with the determined subtypes CARC_DUC/CARC_LOB/OUTROS.
+
+  NU_PAAF_P_M_CARC_LOB:
+    official_name: PAAF, positivo para malignidade — carcinoma lobular
+    translated_name: Count of malignant FNA results, lobular carcinoma
+    description: Count of PAAF results positive for malignancy and typed as lobular carcinoma — the counterpart of NU_PAAF_P_M_CARC_DUC.
+    code_system: none
+    source: inferred
+    reasoning: Same P_M stem as NU_PAAF_P_M_CARC_DUC; CARC_LOB is carcinoma lobular.
+
+  NU_PAAF_P_M_OUTROS:
+    official_name: PAAF, positivo para malignidade — outros
+    translated_name: Count of malignant FNA results, other type
+    description: Count of PAAF results positive for malignancy with a cell type other than ductal or lobular carcinoma.
+    code_system: none
+    source: inferred
+    reasoning: Same P_M stem as NU_PAAF_P_M_CARC_DUC/LOB; OUTROS is the residual/other category.
+
+  NU_PAAF_SUSM_OUTROS:
+    official_name: PAAF, suspeito de malignidade — outros
+    translated_name: Count of suspicious FNA results, other
+    description: >
+      Count of PAAF results classified suspicious for malignancy (a
+      category between benign and positive), not otherwise sub-typed.
+    code_system: none
+    source: inferred
+    reasoning: SUSM plausibly contracts suspeito [de] malignidade; OUTROS is the residual category.
+
+  NU_PAAF_SUS_L_E_P:
+    official_name: PAAF, suspeito — lesão epitelial papilar
+    translated_name: Count of suspicious FNA results, papillary lesion
+    description: >
+      Count of PAAF results reading a papillary lesion classified
+      suspicious rather than benign — the higher-concern counterpart of
+      NU_PAAF_B_L_E_P, reflecting papillary lesions' benign-to-malignant
+      spectrum.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same L_E_P stem as NU_PAAF_B_L_E_P; SUS here (vs. SUSM above) is an
+      inconsistent abbreviation of the same suspeito category, a naming
+      inconsistency rather than a distinct third category.
+
+  NU_QDESC_LES_PAPIL:
+    official_name: Descarga papilar — lesão papilar
+    translated_name: Count of nipple-discharge-cytology results, papillary lesion
+    description: >
+      Count of nipple-discharge cytology specimens reading a papillary
+      lesion — this batch's second specimen type, alongside PAAF.
+    code_system: none
+    source: inferred
+    reasoning: >
+      QDESC most plausibly abbreviates descarga [papilar] (nipple
+      discharge), SISCAN's other breast-cytology collection method besides
+      PAAF; LES_PAPIL is lesão papilar.
+    notes: DESC's exact expansion is not confirmed by any observed value or dictionary entry.
+
+  NU_QDESC_MALIG_INDT:
+    official_name: Descarga papilar — maligno indeterminado
+    translated_name: Count of nipple-discharge-cytology results, indeterminate malignancy
+    description: Count of nipple-discharge cytology specimens read as indeterminate for malignancy.
+    code_system: none
+    source: inferred
+    reasoning: Same QDESC stem as NU_QDESC_LES_PAPIL; MALIG_INDT is maligno indeterminado.
+
+  NU_QDESC_MAT_ACELULAR:
+    official_name: Descarga papilar — material acelular
+    translated_name: Count of nipple-discharge-cytology results, acellular material
+    description: >
+      Count of nipple-discharge cytology specimens containing no cellular
+      material — an inadequacy/unsatisfactory-sample result rather than a
+      diagnosis.
+    code_system: none
+    source: inferred
+    reasoning: MAT_ACELULAR is material acelular, unabbreviated.
+
+  NU_QDESC_NEG_MALIG:
+    official_name: Descarga papilar — negativo para malignidade
+    translated_name: Count of nipple-discharge-cytology results, negative for malignancy
+    description: Count of nipple-discharge cytology specimens read as negative for malignancy — this dataset's normal/benign result for this specimen type.
+    code_system: none
+    source: inferred
+    reasoning: NEG_MALIG is negativo [para] malignidade, unabbreviated.
+
+  NU_QDESC_POS_MALIG:
+    official_name: Descarga papilar — positivo para malignidade
+    translated_name: Count of nipple-discharge-cytology results, positive for malignancy
+    description: Count of nipple-discharge cytology specimens read as positive for malignancy — the counterpart of NU_QDESC_NEG_MALIG.
+    code_system: none
+    source: inferred
+    reasoning: POS_MALIG is positivo [para] malignidade, unabbreviated.
+
+  NU_QDESC_PROC_INFL:
+    official_name: Descarga papilar — processo inflamatório
+    translated_name: Count of nipple-discharge-cytology results, inflammatory process
+    description: Count of nipple-discharge cytology specimens showing an inflammatory process rather than a neoplastic finding.
+    code_system: none
+    source: inferred
+    reasoning: PROC_INFL is processo inflamatório, unabbreviated.
