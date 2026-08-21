@@ -1,0 +1,281 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  DS_RESU_OU:
+    official_name: Descrição - resultado outro
+    translated_name: Description - other result
+    description: >
+      Free-text description of a laboratory result not covered by the form's
+      standard result options.
+    code_system: none
+    source: inferred
+    reasoning: RESU_OU contracts resultado + outro; 30-character free text.
+
+  DS_TRAT:
+    official_name: Descrição do tratamento
+    translated_name: Treatment description
+    description: >
+      Free-text description of the treatment administered to the patient,
+      paired with DTTRAT, the date treatment started.
+    code_system: none
+    source: inferred
+    reasoning: DS_TRAT contracts descrição + tratamento; 30-character free text.
+
+  DTDIASINAC:
+    official_name: Data de início da inatividade
+    translated_name: Date incapacity/leave began
+    description: >
+      Date a period of incapacity or work leave (afastamento) began,
+      plausibly from an occupational-disease investigation. AAAAMMDD.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT + DIAS + INAC most plausibly contracts data + dias de inatividade;
+      D8 width matches a full date rather than a day count.
+
+  DTELETRO:
+    official_name: Data do exame eletro
+    translated_name: Date of electro-diagnostic exam
+    description: >
+      Date an electro-diagnostic exam (electrocardiogram or electromyogram)
+      was performed. AAAAMMDD.
+    code_system: none
+    source: inferred
+    reasoning: ELETRO abbreviates eletro(cardiograma/miograma); D8 width fits a full date.
+
+  DTFEZESCOL:
+    official_name: Data de coleta de fezes
+    translated_name: Date of stool sample collection
+    description: >
+      Date a stool sample was collected for coprocultura (stool culture)
+      testing, matching the COPRO_D_1-3 result fields in the same
+      foodborne-illness investigation. AAAAMMDD.
+    code_system: none
+    source: inferred
+    reasoning: FEZESCOL contracts fezes (stool) + coleta (collection).
+
+  DTPRICONS:
+    official_name: Data da primeira consulta
+    translated_name: Date of first consultation
+    description: >
+      Date of the patient's first medical consultation for the condition
+      being investigated. AAAAMMDD.
+    code_system: none
+    source: inferred
+    reasoning: PRICONS contracts primeira consulta.
+
+  DTSORO:
+    official_name: Data do soro
+    translated_name: Date of serum/antitoxin administration
+    description: >
+      Date a therapeutic serum (soro antitóxico/antirrábico/antiofídico) was
+      administered, paired with AMPOLAS (ampoule count) in the same
+      serotherapy record. AAAAMMDD. Distinct from DTSOROCOL, the date a
+      serum sample was collected for testing.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SORO is serum; it co-occurs with AMPOLAS, an ampoule count consistent
+      with antitoxin administration rather than a diagnostic sample.
+
+  DTSOROCOL:
+    official_name: Data de coleta de soro
+    translated_name: Date of serum sample collection
+    description: >
+      Date a serum sample was collected for serological testing; see DTSORO
+      for the administration-date sense of the related field.
+    code_system: none
+    source: inferred
+    reasoning: SOROCOL contracts soro + coleta, distinguishing it from DTSORO by the collection sense.
+
+  DTTRAT:
+    official_name: Data do tratamento
+    translated_name: Treatment date
+    description: >
+      Date treatment began, paired with DS_TRAT which describes the
+      treatment itself. AAAAMMDD.
+    code_system: none
+    source: inferred
+    reasoning: DTTRAT contracts data + tratamento.
+
+  DT_ALI1COL:
+    official_name: Data de coleta - alimento (1)
+    translated_name: Collection date - food item (1)
+    description: >
+      Date a sample of the first suspected food item (DS_ALI1) was collected
+      for laboratory testing. AAAAMMDD.
+    code_system: none
+    source: inferred
+    reasoning: ALI1COL contracts alimento (1) + coleta; pairs with the DS_ALI1 food-item field.
+
+  DT_ALI2COL:
+    official_name: Data de coleta - alimento (2)
+    translated_name: Collection date - food item (2)
+    description: >
+      Date a sample of the second suspected food item (DS_ALI2) was
+      collected; see DT_ALI1COL.
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DT_ALI1COL; distinguished only by item number.
+
+  DT_COLOUT:
+    official_name: Data de coleta - outro
+    translated_name: Collection date - other
+    description: >
+      Date a sample not covered by the form's standard specimen types was
+      collected.
+    code_system: none
+    source: inferred
+    reasoning: COLOUT contracts coleta + outro.
+
+  DT_HEMO2:
+    official_name: Data - hemocultura (2)
+    translated_name: Date - blood culture (2)
+    description: >
+      Date the second hemoculture (blood culture) sample was collected;
+      DT_HEMO3 is the parallel third-sample date.
+    code_system: none
+    source: inferred
+    reasoning: HEMO abbreviates hemocultura; numbered like the COPRO_D_1-3 stool-culture series.
+
+  DT_HEMO3:
+    official_name: Data - hemocultura (3)
+    translated_name: Date - blood culture (3)
+    description: >
+      Date the third hemoculture sample was collected; see DT_HEMO2.
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as DT_HEMO2; distinguished only by sample number.
+
+  DT_LIQUOR:
+    official_name: Data de coleta - líquor
+    translated_name: Collection date - CSF
+    description: >
+      Date the cerebrospinal fluid (líquor) sample was collected, paired
+      with the CS_LIQUOR Sim/Não collection flag. AAAAMMDD.
+    code_system: none
+    source: inferred
+    reasoning: LIQUOR is CSF; pairs directly with CS_LIQUOR's collection flag.
+
+  DT_RESU3:
+    official_name: Data do resultado (3)
+    translated_name: Date of result (3)
+    description: >
+      Date a third laboratory result was obtained/reported, one of a
+      numbered series of result dates on the form.
+    code_system: none
+    source: inferred
+    reasoning: RESU3 contracts resultado (3); D8 width fits a full date.
+
+  DT_RTPCR:
+    official_name: Data do RT-PCR
+    translated_name: Date of RT-PCR
+    description: >
+      Date an RT-PCR molecular test was performed or resulted. AAAAMMDD.
+    code_system: none
+    source: inferred
+    reasoning: RTPCR is the standard abbreviation for the test.
+
+  DT_TRNASRS:
+    official_name: Data de transmissão (RS)
+    translated_name: Transmission-route date (RS)
+    description: >
+      Date tied to another suspected exposure route in the same per-route
+      antecedents block as DT_TRNASRM (see that entry); the exact route "RS"
+      denotes is not resolved.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same transposed-letter naming pattern and D8 width as DT_TRNASRM, one
+      of several DT_TRANS*/DTTRANS* route-specific date fields.
+
+  AMPOLAS:
+    official_name: Ampolas
+    translated_name: Ampoules
+    description: >
+      Number of ampoules (vials) of a therapeutic serum administered, most
+      plausibly an antitoxin or antivenom, alongside DTSORO (date of
+      administration).
+    code_system: none
+    source: inferred
+    reasoning: >
+      AMPOLAS is ampoules; a 3-digit numeric field co-occurring with DTSORO
+      fits a serotherapy dosage count.
+
+  ANIM_ESP:
+    official_name: Espécie do animal
+    translated_name: Animal species
+    description: >
+      Free-text species of an animal involved in the case's exposure history
+      (e.g. the biting or contact animal), distinct from the coded per-species
+      Sim/Não flags (BOVINO, CAO_GATO, CAPIVARA) elsewhere on the same
+      checklist.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ESP abbreviates espécie; 30-character width fits free text, unlike the
+      1-character per-species flags around it.
+
+  BIOSSEG:
+    official_name: Biossegurança
+    translated_name: Biosafety
+    description: >
+      Whether biosafety measures applied to the case's exposure (Sim/Não/Não
+      se aplica), most plausibly on a laboratory-acquired or occupational
+      exposure investigation.
+    code_system: internal
+    codelist: BIOSSEG
+    source: inferred
+    reasoning: >
+      The catalog binds this field to a BIOSSEG codelist with exactly those
+      three values (Sim/Não/Não se aplica).
+
+  BOVINO:
+    official_name: Bovino
+    translated_name: Cattle
+    description: >
+      Sim/Não flag for contact/exposure with cattle, part of an animal-
+      contact checklist alongside CAO_GATO, CAPIVARA and CARRAPATO —
+      consistent with a zoonotic-disease exposure history (e.g. leptospirose,
+      febre maculosa).
+    code_system: none
+    source: inferred
+    reasoning: >
+      BOVINO names the species directly; 1-character width matches the
+      other per-animal contact flags at the same rarity tier.
+
+  CAO_GATO:
+    official_name: Cão/gato
+    translated_name: Dog/cat
+    description: >
+      Sim/Não flag for contact with dogs or cats, sibling of BOVINO in the
+      same animal-contact checklist.
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as BOVINO.
+
+  CAPIVARA:
+    official_name: Capivara
+    translated_name: Capybara
+    description: >
+      Sim/Não flag for contact/exposure with capybaras, a known tick host
+      and reservoir for febre maculosa (Brazilian spotted fever); sibling of
+      CARRAPATO in the same exposure checklist.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CAPIVARA names the species; its pairing with CARRAPATO (tick) in the
+      same checklist points to febre maculosa rather than a generic zoonosis.
+
+  CARRAPATO:
+    official_name: Carrapato
+    translated_name: Tick
+    description: >
+      Sim/Não flag for tick contact/bite, the strongest single indicator in
+      this cluster that the source form is a febre maculosa (Brazilian
+      spotted fever) investigation.
+    code_system: none
+    source: inferred
+    reasoning: CARRAPATO is tick; pairs with CAPIVARA, a well-known tick host in febre maculosa transmission.

@@ -1,0 +1,422 @@
+"""The data ontology: what the systems and datasets ARE, and how the crawl binds to them.
+
+There are two separate things in this module and conflating them is the mistake
+it exists to prevent.
+
+**The declared ontology** is institutional fact. "SIH publishes a dataset called
+AIH Reduzida, known as RD" is a statement about how the Ministry of Health
+organises its information systems. It is authored in ``curation/ontology.yml``,
+it is true whether or not the FTP server expresses it, and it survives DATASUS
+reorganising the tree. A declared node with no files is not an error — it is a
+dataset we know exists and have not found published.
+
+**The binding** is evidence. It maps what the crawler actually saw — a
+``(system, series)`` pair derived from a file path — onto a declared node. It is
+derived, auditable, and disposable: change a binding rule and you change what the
+crawler recognises, never what a dataset *is*.
+
+The two demonstrably come apart, which is why the separation is not academic:
+
+* One file, many datasets. ``SIASUS/APAC/2002/acac0201.exe`` carries seven
+  distinct datasets as seven DBF members.
+* One dataset, many locations. The SIA APAC datasets appear under ``SIASUS/`` and
+  again under ``Dados_Abertos/`` as ``APAC_AB``, ``APAC_AD`` and so on.
+* One dataset, many names. SINAN's agravos carry four-letter legacy codes in the
+  old tree and Portuguese names in the open-data tree.
+
+Binding also has to cope with a ``series`` column that is polluted, because it
+was derived from filenames: of 1,505 observed ``(system, series)`` pairs only 181
+are clean codes. The rest are archive members that leaked in (``RD:RDAC1701``),
+whole filenames (``PASP2509A`` = PA + SP + 2509 + part A), placeholder filenames
+DATASUS left in the tree (``EFUFAAMM``), and per-year dataset names
+(``SISCAN_CITO_COLO_2013``). The rules below collapse those 1,505 onto ~199
+canonical codes, and every rule records which one fired so the mapping can be
+audited rather than trusted.
+"""
+
+from __future__ import annotations
+
+import re
+import sqlite3
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Iterable, Mapping
+
+CURATION = Path(__file__).parent / "curation"
+
+#: Brazilian state codes plus BR, used to recognise a filename's UF segment.
+UFS = frozenset(
+    {
+        "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS",
+        "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC",
+        "SP", "SE", "TO", "BR",
+    }
+)
+
+#: ``<prefix><UF><date>[part]`` — the filename convention across the tree. The
+#: part suffix is ``_1``/``_2`` or a bare letter: SIA splits one month's
+#: production into ``PASP2509A``, ``PASP2509B``, ``PASP2509C`` when one file
+#: would be too large.
+_FILENAME = re.compile(
+    r"^(?P<prefix>[A-Z]{2,6}?)(?P<uf>[A-Z]{2})(?P<date>\d{2,8})(?:_\d+|[A-Z])?$"
+)
+#: Placeholder filenames left in the tree: ``EFUFAAMM`` is EF + UF + AA + MM.
+_TEMPLATE = re.compile(r"^(?P<prefix>[A-Z]{2,6})UFAAMM$")
+#: Per-year dataset names: ``SISCAN_CITO_COLO_2013``.
+_YEAR_TAIL = re.compile(r"^(?P<stem>[A-Z0-9_]+?)_(?:19|20)\d{2}$")
+
+
+def canonical_series(series: str) -> tuple[str, str]:
+    """Collapse an observed series string onto a canonical code.
+
+    Returns ``(code, rule)``. ``rule`` names which pattern fired — ``declared``
+    never appears here, because this function knows nothing about the ontology;
+    it only cleans up an artefact of filename parsing. Keeping the rule in the
+    return value is what makes the binding auditable instead of magic.
+    """
+    text = str(series or "").strip().upper()
+    if not text:
+        return "", "empty"
+
+    if ":" in text:  # an archive member leaked in as "SERIES:MEMBER[:MEMBER]"
+        return text.split(":", 1)[0], "colon-member"
+
+    match = _TEMPLATE.match(text)
+    if match:  # a placeholder filename, not a dataset
+        return match.group("prefix"), "template"
+
+    match = _YEAR_TAIL.match(text)
+    if match:
+        return match.group("stem"), "year-suffix"
+
+    match = _FILENAME.match(text)
+    if match and match.group("uf") in UFS:
+        return match.group("prefix"), "filename"
+
+    return text, "clean"
+
+
+# --------------------------------------------------------------------- nodes
+
+
+@dataclass(frozen=True)
+class SystemNode:
+    """An information system, as an institution declares it."""
+
+    code: str
+    official_name: str | None = None
+    translated_name: str | None = None
+    kind: str = "data"
+    status: str = "active"
+    what_it_is: str | None = None
+    authority: str | None = None
+    #: Names the crawler files this system under, when they differ from ``code``
+    #: (the tree says SIHSUS; the institution says SIH).
+    crawled_as: tuple[str, ...] = ()
+
+    @property
+    def is_data(self) -> bool:
+        return self.kind == "data"
+
+
+@dataclass(frozen=True)
+class DatasetNode:
+    """A dataset within a system — the subfamily level, e.g. ``SIH.RD``."""
+
+    code: str
+    system: str
+    official_name: str | None = None
+    translated_name: str | None = None
+    what_it_is: str | None = None
+    status: str = "active"
+    confidence: str = "high"
+    #: Declared evidence: series codes this dataset has been seen under. These
+    #: are hints for the binder, NOT part of the dataset's identity.
+    observed_as: tuple[str, ...] = ()
+
+    @property
+    def short_code(self) -> str:
+        """``RD`` from ``SIH.RD``."""
+        return self.code.split(".", 1)[-1]
+
+
+@dataclass(frozen=True)
+class Binding:
+    """One observed ``(system, series)`` pair resolved onto a declared node."""
+
+    observed_system: str
+    observed_series: str
+    dataset: str | None
+    system: str | None
+    rule: str
+    canonical: str
+
+    @property
+    def bound(self) -> bool:
+        return self.dataset is not None
+
+
+@dataclass
+class Reconciliation:
+    """What the declaration and the crawl each know that the other does not.
+
+    Both directions matter and they mean different things. A declared node with
+    no files is a dataset we believe exists and have not located — a research
+    lead. An observed series that binds to nothing is data we hold and cannot
+    name — a gap in the declaration, and the more urgent of the two, because the
+    API cannot describe it.
+    """
+
+    bound: list[Binding] = field(default_factory=list)
+    unbound: list[Binding] = field(default_factory=list)
+    unobserved: list[str] = field(default_factory=list)
+    files_by_dataset: dict[str, int] = field(default_factory=dict)
+
+    def summary(self) -> dict[str, Any]:
+        bound_files = sum(self.files_by_dataset.values())
+        unbound_files = sum(b_files for _, b_files in self._unbound_counts())
+        return {
+            "observed_pairs": len(self.bound) + len(self.unbound),
+            "bound_pairs": len(self.bound),
+            "unbound_pairs": len(self.unbound),
+            "datasets_declared": len(self.files_by_dataset) + len(self.unobserved),
+            "datasets_observed": len([k for k, v in self.files_by_dataset.items() if v]),
+            "datasets_unobserved": len(self.unobserved),
+            "files_bound": bound_files,
+            "files_unbound": unbound_files,
+        }
+
+    def _unbound_counts(self) -> Iterable[tuple[str, int]]:
+        return ()
+
+
+# ------------------------------------------------------------------ ontology
+
+
+class Ontology:
+    """The declared ontology, plus the machinery that binds observations to it."""
+
+    def __init__(
+        self,
+        systems: Mapping[str, SystemNode],
+        datasets: Mapping[str, DatasetNode],
+    ) -> None:
+        self.systems = dict(systems)
+        self.datasets = dict(datasets)
+        self._build_indexes()
+
+    # ------------------------------------------------------------- loading
+
+    @classmethod
+    def load(cls, curation_dir: Path | None = None) -> Ontology:
+        """Read the declaration from ``curation/``.
+
+        SINAN's per-agravo datasets live in ``datasets_sinan.yml`` rather than
+        being restated here — one agravo per dataset, 58 of them, and they were
+        already curated. They are folded in as dataset nodes so that
+        ``info("SINAN.DENG")`` resolves like any other.
+        """
+        root = curation_dir or CURATION
+        data = _read_yaml(root / "ontology.yml")
+
+        systems: dict[str, SystemNode] = {}
+        for code, body in (data.get("systems") or {}).items():
+            body = body or {}
+            systems[str(code).upper()] = SystemNode(
+                code=str(code).upper(),
+                official_name=body.get("official_name"),
+                translated_name=body.get("translated_name"),
+                kind=str(body.get("kind", "data")),
+                status=str(body.get("status", "active")),
+                what_it_is=_clean(body.get("what_it_is")),
+                authority=body.get("authority"),
+                crawled_as=tuple(str(x).upper() for x in (body.get("crawled_as") or ())),
+            )
+
+        datasets: dict[str, DatasetNode] = {}
+        for code, body in (data.get("datasets") or {}).items():
+            body = body or {}
+            datasets[str(code).upper()] = DatasetNode(
+                code=str(code).upper(),
+                system=str(body.get("system", "")).upper(),
+                official_name=body.get("official_name"),
+                translated_name=body.get("translated_name"),
+                what_it_is=_clean(body.get("what_it_is")),
+                status=str(body.get("status", "active")),
+                confidence=str(body.get("confidence", "high")),
+                observed_as=tuple(str(x).upper() for x in (body.get("observed_as") or ())),
+            )
+
+        # SINAN agravos, declared in their own file.
+        sinan_path = root / "datasets_sinan.yml"
+        if sinan_path.exists():
+            for code, body in (_read_yaml(sinan_path).get("datasets") or {}).items():
+                body = body or {}
+                series = str(body.get("series") or "").upper()
+                if not series:
+                    continue
+                node_code = f"SINAN.{series}"
+                if node_code in datasets:
+                    continue
+                datasets[node_code] = DatasetNode(
+                    code=node_code,
+                    system="SINAN",
+                    official_name=body.get("official_name"),
+                    translated_name=body.get("translated_name"),
+                    what_it_is=_clean(body.get("what_one_row_is")),
+                    observed_as=(series,),
+                )
+
+        return cls(systems, datasets)
+
+    def _build_indexes(self) -> None:
+        # Crawled system name -> declared system code. The tree says SIASUS; the
+        # institution says SIA.
+        self._system_alias: dict[str, str] = {}
+        for node in self.systems.values():
+            self._system_alias[node.code] = node.code
+            for alias in node.crawled_as:
+                self._system_alias[alias] = node.code
+
+        # (declared system, series) -> dataset, and a series-only fallback for
+        # republication trees, where the crawled system is Dados_Abertos but the
+        # dataset belongs to SIA.
+        self._by_system_series: dict[tuple[str, str], str] = {}
+        self._by_series: dict[str, str] = {}
+        self._series_collisions: set[str] = set()
+        for node in self.datasets.values():
+            keys = set(node.observed_as) | {node.short_code}
+            for key in keys:
+                self._by_system_series[(node.system, key)] = node.code
+                if key in self._by_series and self._by_series[key] != node.code:
+                    self._series_collisions.add(key)
+                else:
+                    self._by_series[key] = node.code
+
+    # ------------------------------------------------------------- binding
+
+    def bind(self, system: str, series: str) -> Binding:
+        """Resolve one observed pair onto a declared dataset.
+
+        Declaration is consulted before pattern rules: if a dataset says it has
+        been seen as ``APAC_AB``, that wins over anything the filename regex
+        would infer. The rules are a fallback for what nobody has declared yet.
+        """
+        observed_system = str(system or "").upper()
+        observed_series = str(series or "").upper()
+        declared_system = self._system_alias.get(observed_system)
+
+        # 1. The raw series, exactly as declared.
+        raw_hit = self._lookup(declared_system, observed_series)
+        if raw_hit:
+            return Binding(
+                observed_system, observed_series, raw_hit,
+                self.datasets[raw_hit].system, "declared", observed_series,
+            )
+
+        # 2. Clean the filename artefacts off, then try again.
+        canonical, rule = canonical_series(observed_series)
+        hit = self._lookup(declared_system, canonical)
+        if hit:
+            return Binding(
+                observed_system, observed_series, hit,
+                self.datasets[hit].system, rule, canonical,
+            )
+
+        return Binding(
+            observed_system, observed_series, None, declared_system, rule, canonical
+        )
+
+    def _lookup(self, declared_system: str | None, key: str) -> str | None:
+        if not key:
+            return None
+        if declared_system:
+            hit = self._by_system_series.get((declared_system, key))
+            if hit:
+                return hit
+        # Series-only fallback, but never when the code is ambiguous across
+        # systems — a wrong bind is worse than an unbound one.
+        if key not in self._series_collisions:
+            return self._by_series.get(key)
+        return None
+
+    def reconcile(self, conn: sqlite3.Connection) -> Reconciliation:
+        """Compare the declaration against what the crawl actually holds."""
+        report = Reconciliation()
+        seen: set[str] = set()
+        for system, series, files in conn.execute(
+            "SELECT system, series, SUM(file_count) FROM strata "
+            "WHERE system IS NOT NULL AND series IS NOT NULL GROUP BY 1, 2"
+        ):
+            binding = self.bind(str(system), str(series))
+            if binding.bound and binding.dataset:
+                report.bound.append(binding)
+                seen.add(binding.dataset)
+                report.files_by_dataset[binding.dataset] = (
+                    report.files_by_dataset.get(binding.dataset, 0) + int(files or 0)
+                )
+            else:
+                report.unbound.append(binding)
+        report.unobserved = sorted(set(self.datasets) - seen)
+        return report
+
+    # ----------------------------------------------------------- resolution
+
+    def resolve(self, target: str) -> tuple[str, Any] | None:
+        """Resolve a user-supplied string onto a node.
+
+        Accepts ``"SIH"``, ``"SIHSUS"``, ``"SIH.RD"``, ``"SIHSUS.RD"`` or a bare
+        ``"RD"``. Returns ``(kind, node)`` where kind is ``"system"`` or
+        ``"dataset"``, or ``None``.
+        """
+        text = str(target or "").strip().upper().replace("/", ".")
+        if not text:
+            return None
+
+        if text in self.datasets:
+            return ("dataset", self.datasets[text])
+
+        declared = self._system_alias.get(text)
+        if declared:
+            return ("system", self.systems[declared])
+
+        if "." in text:
+            head, tail = text.split(".", 1)
+            system = self._system_alias.get(head, head)
+            hit = self._lookup(system, tail)
+            if hit:
+                return ("dataset", self.datasets[hit])
+            return None
+
+        hit = self._lookup(None, text)
+        if hit:
+            return ("dataset", self.datasets[hit])
+        return None
+
+    def datasets_of(self, system: str) -> list[DatasetNode]:
+        declared = self._system_alias.get(str(system).upper(), str(system).upper())
+        return sorted(
+            (d for d in self.datasets.values() if d.system == declared),
+            key=lambda d: d.code,
+        )
+
+
+# ----------------------------------------------------------------- helpers
+
+
+def _clean(value: object) -> str | None:
+    if value is None:
+        return None
+    text = " ".join(str(value).split())
+    return text or None
+
+
+def _read_yaml(path: Path) -> dict[str, Any]:
+    try:
+        import yaml
+    except ImportError as exc:  # pragma: no cover - dependency is declared
+        raise RuntimeError("PyYAML is required to read the ontology") from exc
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8") as handle:
+        return yaml.safe_load(handle) or {}

@@ -1,0 +1,60 @@
+# CNES — the three columns left out of cnes_rest.yml ("guessing at a grid
+# position is how the QTINST family went wrong once already"). Both are now
+# grounded from within-repo evidence: cnes_b.yml already confirms AP01/AP02's
+# row meaning (Internação/Ambulatorial) via IT_CNES_1706.pdf SEQ 157/163, and
+# cnes_8992b539.yml already confirms CV07's column meaning (convênio
+# Gratuidade) for AP03CV07-AP07CV07 — so AP01CV07/AP02CV07 triangulate both
+# axes from documented siblings rather than guessing either one.
+system: CNES
+asserted_by: pegasus_data
+
+variables:
+
+  CLASS_SR:
+    official_name: Classificação do Serviço Especializado
+    translated_name: Specialized-service classification code
+    description: >
+      Sub-classification code for the specialized service (serviço
+      especializado) reported in this SR record — the finer category nested
+      under a broader service type, e.g. which specific modality within an
+      imaging or laboratory service group.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      CLASS_ is DATASUS's standard "classificação" prefix; the column only
+      appears in the SR file, whose documented purpose in this catalog's own
+      ontology is "specialised services offered, and their classifications" —
+      CLASS_SR is the classification half of that service/classification pair.
+    notes: >
+      No observed values or bound codelist were captured, so which numeric
+      codes map to which classification labels is not established here.
+
+  AP01CV07:
+    official_name: Atendimento prestado INTERNAÇÃO / Convênio Gratuidade
+    translated_name: Inpatient (Internação) care given free of charge (Gratuidade)
+    description: >
+      Marks that the establishment provides INTERNAÇÃO (inpatient) care under
+      the Gratuidade convênio category — given free of charge, billed
+      neither to SUS nor any insurance plan. 1=Sim, 0=Não.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same AP0[1-7]CV07 grid as the documented AP03CV07-AP07CV07 (SADT
+      through Regulação, convênio 07=Gratuidade per Manual_preench_ficha_02.pdf
+      item 5.10); AP01 is grid-category 1, Internação, per AP01CV01's own
+      citation (IT_CNES_1706.pdf SEQ 157) already in cnes_b.yml.
+
+  AP02CV07:
+    official_name: Atendimento prestado AMBULATORIAL / Convênio Gratuidade
+    translated_name: Outpatient (Ambulatorial) care given free of charge (Gratuidade)
+    description: >
+      Marks that the establishment provides AMBULATORIAL (outpatient) care
+      under the Gratuidade convênio category — given free of charge, billed
+      neither to SUS nor any insurance plan. 1=Sim, 0=Não.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same grid as AP01CV07 above; AP02 is grid-category 2, Atendimento
+      Ambulatorial, per AP02CV01's own citation (IT_CNES_1706.pdf SEQ 163) in
+      cnes_b.yml, and CV07 is the Gratuidade convênio already established by
+      the documented AP03CV07-AP07CV07 siblings.

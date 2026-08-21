@@ -32,7 +32,7 @@ variables:
       digit, as do every patient CPF column in the archive (0 of 1,147). Treat it
       as a per-patient key, not as a taxpayer number.
     code_system: none
-    source: measured
+    source: inferred
     reasoning: >
       CPF PCN reads CPF do paciente and the values are eleven digits, but the CPF
       check digit rejects 100% of them, so the field does not carry a real CPF.
@@ -53,7 +53,7 @@ variables:
       The same eleven-digit patient pseudonym in the second patient block. All
       98 values fail the CPF check digit.
     code_system: none
-    source: measured
+    source: inferred
     reasoning: Same CPFPCN stem under the PAF_ prefix; 0 of 98 pass the CPF check digit.
     notes: A PSEUDONYMOUS identifier, not a real CPF. See PAC_CPFPCN.
 
@@ -65,7 +65,7 @@ variables:
       also holds EXA_HIV, EXA_HBSAG, EXA_HEPAT and EXA_HLA. All 52 values fail
       the CPF check digit.
     code_system: none
-    source: measured
+    source: inferred
     reasoning: Same CPFPCN stem under the EXA_ prefix; 0 of 52 pass the CPF check digit.
     notes: >
       A PSEUDONYMOUS identifier sharing a table with HIV and hepatitis serology.
@@ -80,7 +80,7 @@ variables:
       The patient pseudonym in the third block. All 155 rows carry a single
       distinct value, so this column identifies nobody.
     code_system: none
-    source: measured
+    source: inferred
     reasoning: Same CPFPCN stem under the OPC_ prefix; 0 of 155 pass the CPF check digit, 1 distinct value.
     notes: A PSEUDONYMOUS identifier, effectively constant here. See PAC_CPFPCN.
 

@@ -152,6 +152,12 @@ pegasus_data/
     dictionary.py         merge, source authority, confidence, provenance
     reference.py icd.py gaps.py ledger.py pdf_harvest.py
     curation.py           curation/*.yml → variable_docs
+  curation/
+    ontology.yml          the DECLARED ontology: systems and datasets (§5.4)
+    datasets.yml          what one row IS, per dataset
+    datasets_sinan.yml    one entry per SINAN agravo
+    systems.yml           prefix → system overrides
+    variables/*.yml       per-dataset variable documentation
   normalize/
     engine.py types.py geo.py time.py
   persist/
@@ -160,6 +166,8 @@ pegasus_data/
     duck.py               DuckDB view registration
   sources/
     demas_api.py ibge.py sigtap.py community.py
+  ontology.py             declared systems/datasets; binds observations to them (§5.4)
+  info.py                 info(): what a system, dataset or variable IS (§14.5)
   view.py                 read-time labelling and render profiles
   retrieve.py             fetch(): one call, DATASUS to a table
   bundle.py               portable semantic bundle
@@ -268,6 +276,83 @@ keys with no error anywhere. The prefix→system map is *learned* from a healthy
 crawl, held against later moves, and a disagreement between name and path is
 recorded in `system_disagreements` as a finding — never resolved silently, and
 settled by a person through `prefix-adjudicate`.
+
+---
+
+### 5.4 The ontology — declaration, and binding to it `[D]`
+
+Strata and families (§5.3) are derived from what the crawl saw. That is the
+right basis for *inventory* and the wrong basis for *identity*, and the API
+needs identity: `fetch("SIH-RD")` and `info("SIH.RD")` both name a thing, and
+that thing has to mean something stable.
+
+**The ontology is an institutional declaration, not a picture of the FTP tree.**
+"SIH publishes a dataset called AIH Reduzida, known as RD" is a fact about how
+the Ministry of Health organises its information systems. It is true whether or
+not the server expresses it, and it survives DATASUS reorganising the tree. The
+declaration lives in `curation/ontology.yml`; the FTP layout is *evidence* for
+it, never its definition.
+
+That distinction is not academic. Three measured cases where the two come apart:
+
+| case | what the tree shows | what is true |
+|---|---|---|
+| one file, many datasets | `SIASUS/APAC/2002/acac0201.exe` | seven datasets, as seven DBF members |
+| one dataset, many locations | `SIASUS/…AB…` and `Dados_Abertos/APAC_AB` | one dataset, `SIA.AB` |
+| one dataset, many names | SINAN `DENG`; Dados_Abertos `DENG` in Portuguese | one dataset, two representations |
+
+So the module keeps two things apart, deliberately:
+
+- **Declaration** — `SystemNode`, `DatasetNode`. Identity, names, what the thing
+  is, status, confidence. Authored. A node may legitimately have **zero files**:
+  a dataset known to exist and not found published is a research lead, not a bug.
+- **Binding** — `Ontology.bind(system, series) → Binding`. Maps an observed pair
+  onto a declared node and records **which rule fired**, so the mapping is
+  auditable rather than magic. Derived and disposable.
+
+#### Why binding is not a string match
+
+`series` is derived from filenames, so one dataset is spread across many
+spellings of itself. Of 1,505 observed `(system, series)` pairs, only **181** are
+clean codes. The rest:
+
+| rule | count | example | means |
+|---|---:|---|---|
+| `filename` | 976 | `PASP2509A` | whole filename: PA + SP + 2509 + part A |
+| `colon-member` | 213 | `RD:RDAC1701` | an archive member leaked into the name |
+| `year-suffix` | 130 | `SISCAN_CITO_COLO_2013` | a per-year dataset name |
+| `template` | 5 | `EFUFAAMM` | a placeholder filename left in the tree |
+
+Declaration is consulted **before** the pattern rules: a dataset that says it has
+been seen as `APAC_AB` wins over anything a regex would infer. The rules are the
+fallback for what nobody has declared. An ambiguous bare code — one claimed by
+two systems — binds to **neither**, because a wrong bind files rows under a
+dataset they do not belong to and nothing downstream would notice.
+
+Current state: **1,505 of 1,505 observed pairs bind, 207,220 files, zero
+unbound, zero declared-but-unobserved**, across 20 systems and 131 datasets.
+
+#### The defect this fixed
+
+`retrieve._families()` resolved a dataset with `WHERE series = ?`. Because
+`series` carries all the spellings above, that under-collected silently:
+
+| spec | families, exact match | families, bound | files, exact | files, bound |
+|---|---:|---:|---:|---:|
+| `SIA-PA` | 9 | **736** | 10,076 | **10,803** |
+| `SIH-RD` | 20 | **32** | 18,638 | **18,986** |
+| `SIA-AC` | 0 | **7** | **0** | **274** |
+| `SISCAN-CC` | 3 | **16** | 2,858 | 2,871 |
+
+`fetch("SIA-AC")` returned nothing at all while reporting success — precisely the
+failure §11 says the fetch path exists to prevent. `_families` now resolves
+through the ontology and falls back to the plain match if the declaration cannot
+name the dataset: a narrower answer beats an exception.
+
+`SYSTEM_ALIASES` in `retrieve.py` is now **derived** from the declaration's
+`crawled_as` rather than hand-maintained a second time. One fact, one place.
+
+---
 
 ---
 
@@ -529,6 +614,12 @@ Three deliberate differences from microdatasus:
   The header census (§6.5) is what makes this affordable: families are keyed on
   schema, so discovery must know each stratum's columns, and reading them costs
   a few hundred bytes per stratum instead of a decode.
+- **It resolves the dataset through the ontology (§5.4), not by string match.**
+  `series` is derived from filenames, so one dataset is spread across many
+  spellings of itself. Matching the string found 9 of SIA-PA's 736 families
+  and none of SIA-AC's 7 — `fetch("SIA-AC")` returned nothing while
+  reporting success. Binding collapses the spellings onto the declared
+  dataset.
 - **It labels from a vintage-scoped dictionary**, through the same `render_table`
   the lake path uses. One entry point, two callers: a second labelling
   implementation would be a second set of labels to keep true.
@@ -672,6 +763,43 @@ in a notebook and serialisable in a pipeline.
 
 Names resolve lazily: `import pegasus_data` must not pay for pyarrow and duckdb
 when the caller wanted `Settings`.
+
+---
+
+### 14.5 `info()` — the ontology is askable `[D]`
+
+`explore()` answers *what is out there to fetch*. `describe()` answers *what does
+this column mean*. `info()` sits between them and answers **what IS this thing**,
+at any level: system, dataset, schema generation, or variable.
+
+```python
+info()                              # every system, with file counts
+info("SIH")                         # the system, and the datasets under it
+info("SIH.RD")                      # identity, coverage, schema generations
+info("SIH.RD", field_name="DIAG_PRINC")
+info("SIH.RD.DIAG_PRINC")           # same thing, one string
+```
+```bash
+pegasus-data info SIA.AQ
+pegasus-data info SIH.RD --json
+```
+
+Every answer keeps three things apart, because conflating them is how a
+well-documented dataset with no data gets mistaken for a well-covered one:
+
+- `identity` — what the node IS, from the declaration. Stable.
+- `evidence` — which `(system, series)` pairs bind to it, under which rule, and
+  how many files. Derived.
+- `coverage` — years, states, schema generations, file counts, and how much of
+  the column set is described.
+
+So `info("SIA.AB")` reports `seen as: AB, APAC_AB`-style evidence that one
+dataset is published in two trees, and a dataset declared but never observed
+says so in `notes` rather than appearing as an empty success.
+
+Aliases resolve throughout: `SIH` and `SIHSUS` are the same node, `SIH.RD`,
+`SIHSUS.RD`, `SIH/RD` and a bare `RD` all reach the same dataset, and an
+ambiguous bare code resolves to nothing rather than to a guess.
 
 ---
 

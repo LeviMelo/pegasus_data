@@ -48,6 +48,7 @@ from .config import Settings, load_settings
 from .decode.registry import ReaderRegistry
 from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
+from .ontology import Ontology
 from .pipeline import Pipeline
 from .progress import ItemTimeout, guarded, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
@@ -119,27 +120,29 @@ class FetchReport:
 #: How people write a dataset: "SIH-RD", "SIH/RD", "SIHSUS RD", "sih_rd".
 _SPLIT = re.compile(r"[\s\-_/.]+")
 
-#: What the short names people actually use expand to. These are aliases for
-#: typing convenience only — nothing here decides where a file lives or what a
-#: column means, so a wrong entry costs a lookup, not a wrong label.
+#: What the short names people actually use expand to — the name the *crawler*
+#: files a system under, since that is what the catalog is keyed on.
+#:
+#: The institutional side of this now lives in ``curation/ontology.yml``, where
+#: ``SIH`` declares ``crawled_as: [SIHSUS]``. Deriving the map from there keeps
+#: one fact in one place: a second hand-maintained copy is a second thing to
+#: forget to update. The literals below are the entries the declaration does not
+#: cover — short forms people type that are not the institution's own name.
 SYSTEM_ALIASES: dict[str, str] = {
-    "SIH": "SIHSUS",
-    "SIA": "SIASUS",
-    "SIM": "SIM",
-    "SINASC": "SINASC",
-    "SINAN": "SINAN",
-    "CNES": "CNES",
-    "CIHA": "CIHA",
-    "CIH": "CIH",
-    "PNI": "PNI",
-    "SISCAN": "SISCAN",
-    "PCE": "PCE",
-    "RESP": "RESP",
-    "IBGE": "IBGE",
-    "SISPRENATAL": "SISPRENATAL",
     "PAINEL": "PAINEL_ONCOLOGIA",
     "ESUS": "ESUSNOTIFICA",
 }
+
+
+def _load_aliases() -> None:
+    """Fold the ontology's ``crawled_as`` declarations into SYSTEM_ALIASES."""
+    onto = _ontology()
+    if onto is None:  # pragma: no cover - only when the declaration is unreadable
+        return
+    for node in onto.systems.values():
+        for crawled in node.crawled_as or (node.code,):
+            SYSTEM_ALIASES.setdefault(node.code, crawled)
+        SYSTEM_ALIASES.setdefault(node.code, node.code)
 
 
 def parse_dataset(spec: str, series: str | None = None) -> tuple[str, str | None]:
@@ -148,6 +151,7 @@ def parse_dataset(spec: str, series: str | None = None) -> tuple[str, str | None
     A bare system is left with no series, which means *every* series in it —
     ``fetch("SIM")`` is a legitimate request for all of SIM.
     """
+    _load_aliases()
     parts = [p for p in _SPLIT.split(spec.strip().upper()) if p]
     if not parts:
         raise DatasetUnknown("no dataset named")
@@ -320,16 +324,57 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
 
 
 def _families(catalog: Catalog, system: str, series: str | None) -> list[dict[str, Any]]:
-    clause = " AND series = ?" if series else ""
-    params: list[object] = [system] + ([series] if series else [])
-    return [
+    """Every family belonging to this dataset, resolved through the ontology.
+
+    An exact ``series = ?`` match is wrong here, and measurably so. ``series`` is
+    derived from filenames, so one dataset is spread across many spellings of
+    itself: SIA's monthly production appears as ``PA`` but also as ``PASP2509A``,
+    ``PAMG2101B`` and 700-odd other whole filenames, and SIH's ``RD`` also
+    appears as ``RD:RDAC1701`` where an archive member leaked into the name.
+    Matching the string found 9 of SIA-PA's 736 families and **none** of
+    SIA-AC's 7 — ``fetch("SIA-AC")`` returned nothing at all.
+
+    Binding each family's ``(system, series)`` through the ontology collapses
+    those spellings onto the declared dataset, which is what the caller asked
+    for. Falling back to the plain match keeps this working if the ontology
+    cannot name the dataset — a narrower answer beats an exception.
+    """
+    rows = [
         dict(r)
         for r in catalog.query(
             "SELECT family_id, system, series, schema_signature FROM families "
-            f"WHERE system = ?{clause} ORDER BY family_id",
-            params,
+            "WHERE system = ? ORDER BY family_id",
+            [system],
         )
     ]
+    if not series:
+        return rows
+
+    onto = _ontology()
+    target = onto.resolve(f"{system}.{series}") if onto else None
+    if target and target[0] == "dataset":
+        code = target[1].code
+        bound = [
+            r for r in rows
+            if onto.bind(str(r["system"]), str(r["series"])).dataset == code
+        ]
+        if bound:
+            return bound
+    return [r for r in rows if str(r["series"]) == series]
+
+
+@functools.lru_cache(maxsize=1)
+def _ontology() -> Ontology | None:
+    """The declared ontology, or ``None`` if it cannot be read.
+
+    Cached because ``fetch`` resolves per call and the declaration is a static
+    file; ``None`` rather than raising, so a malformed curation file degrades
+    resolution instead of breaking every fetch.
+    """
+    try:
+        return Ontology.load()
+    except Exception:  # pragma: no cover - a broken declaration must not block fetching
+        return None
 
 
 def _discover(

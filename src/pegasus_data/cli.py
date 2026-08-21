@@ -234,6 +234,27 @@ def search(
     _emit(hits, as_json, f"search: {query}")
 
 
+@app.command(name="info", rich_help_panel="UNDERSTAND")
+def info_cmd(
+    target: Annotated[str | None, typer.Argument(help="System, dataset or variable: SIH, SIH-RD, SIH.RD")] = None,
+    field: Annotated[str | None, typer.Option("--field", help="A column within the target")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """What a system, dataset or variable IS — identity, evidence and coverage.
+
+    ``explore`` says what is out there to fetch and ``dictionary`` says what a
+    column means. This says what a thing *is*, at any level of the ontology.
+    """
+    from .info import info as _info
+
+    answer = _info(target, field_name=field, root=root)
+    if as_json:
+        _emit(answer.as_dict(), True)
+        return
+    console.print(str(answer))
+
+
 @app.command(name="page", rich_help_panel="UNDERSTAND")
 def page(
     system: Annotated[str, typer.Argument(help="Information system, e.g. SIHSUS")],

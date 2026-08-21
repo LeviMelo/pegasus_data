@@ -1,0 +1,310 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  NM_SIN_OUT:
+    official_name: Outros sinais e sintomas - especifique
+    translated_name: Other signs/symptoms - specify
+    description: >
+      Free-text name of an additional clinical sign or symptom the
+      accidental-tetanus (TETA) patient presented that isn't among the
+      form's named checkboxes (trismus, opisthotonus, etc.).
+    code_system: none
+    source: inferred
+    reasoning: >
+      NM_SIN_OUT = nome + sinal + outro; TETA form; width 30 free text.
+
+  NOCOLINF:
+    official_name: Nome da coleção hídrica de infecção
+    translated_name: Name of infection water body
+    description: >
+      Free-text name of the water body (stream, dam, irrigation canal)
+      where the schistosomiasis (ESQU) patient likely had contact with
+      contaminated water, used to target follow-up snail-control work at
+      that site.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ESQU form; NOCOLINF read as nome + coleção (hídrica) + infecção,
+      standard schistosomiasis epidemiological terminology; width 100 fits
+      a location name.
+
+  NOPROPIN:
+    official_name: Nome da propriedade/local de infecção
+    translated_name: Name of property/infection site
+    description: >
+      Free-text name of the property or locality associated with the water
+      contact that likely infected the schistosomiasis patient,
+      complementing NOCOLINF's record of the water body itself.
+    code_system: none
+    source: inferred
+    reasoning: >
+      NOPROPIN read as nome + propriedade; ESQU form; width 100 free text.
+
+  NUCONSOME:
+    official_name: Quantidade do alimento consumida
+    translated_name: Amount of food consumed
+    description: >
+      Numeric quantity of the suspect food the botulism (BOTU) patient
+      consumed, recorded to help gauge dose and link cases who shared the
+      same meal or product.
+    code_system: none
+    source: inferred
+    reasoning: >
+      NUCONSOME read as número + consumido; declared as a float(10), fitting
+      a measured quantity rather than a code; food exposure is central to
+      botulism outbreak tracing.
+
+  NU_CELULA:
+    official_name: Nº de células (líquor)
+    translated_name: CSF cell count
+    description: >
+      Cerebrospinal-fluid cell count from a lumbar puncture performed to
+      rule out Guillain-Barré syndrome and other neuromuscular mimics of
+      botulism, whose CSF is typically unremarkable.
+    code_system: none
+    source: inferred
+    reasoning: >
+      BOTU form; NU_CELULA = número de células; width 5 numeric-as-text
+      lab value.
+
+  NU_PROTEI:
+    official_name: Nº de proteínas (líquor)
+    translated_name: CSF protein level
+    description: >
+      Cerebrospinal-fluid protein level from the same differential-
+      diagnosis lumbar puncture as NU_CELULA; elevated protein with a
+      normal cell count points away from botulism toward Guillain-Barré
+      syndrome.
+    code_system: none
+    source: inferred
+    reasoning: >
+      BOTU form; NU_PROTEI = número de proteínas; width 5, paired with
+      NU_CELULA.
+
+  OLEOS:
+    official_name: Exposição a óleos
+    translated_name: Mineral/cutting oil exposure
+    description: >
+      Whether the work-related cancer (CANC) patient had occupational
+      exposure to oils (e.g. mineral or cutting oils), a named
+      carcinogen-exposure checkbox alongside nickel (NIQUEL) and
+      non-ionizing radiation (NAO_IONIZA).
+    code_system: none
+    source: inferred
+    reasoning: CANC form; OLEOS = óleos; width 1 checkbox.
+
+  OUTROS_DES:
+    official_name: Outros - descreva
+    translated_name: Other - describe
+    description: >
+      Free-text entry for a risk factor, contact, or finding on the acute
+      flaccid paralysis (PFAN, polio surveillance) form that falls outside
+      its named checkbox options.
+    code_system: none
+    source: inferred
+    reasoning: >
+      OUTROS_DES = outros + descreva; PFAN form has a detailed
+      neuro-exam checklist plus this catch-all; width 30 free text.
+
+  OUTRO_EX:
+    official_name: Outro exame - especifique
+    translated_name: Other exam - specify
+    description: >
+      Free-text name of a diagnostic test used to confirm schistosomiasis
+      other than the standard Kato-Katz stool exam, such as a biopsy or
+      serological test.
+    code_system: none
+    source: inferred
+    reasoning: ESQU form; OUTRO_EX = outro exame; width 40 free text.
+
+  OUTR_ATI_D:
+    official_name: Outra atividade - descrição
+    translated_name: Other activity - description
+    description: >
+      Free-text description of a rodent-exposure activity behind a
+      hantavirus (HANT) case that isn't among the form's named risk
+      activities (farming, hunting, cleaning closed spaces, etc.).
+    code_system: none
+    source: inferred
+    reasoning: >
+      HANT form; OUTR_ATI_D = outra atividade + descreva; width 40 free
+      text.
+
+  OUTR_D1:
+    official_name: Outro antibiótico (1º) - descreva
+    translated_name: Other antibiotic (1st) - describe
+    description: >
+      Name of an antibiotic used to treat the typhoid fever (FTIF) patient
+      that falls outside the form's named drug checkboxes such as
+      QUINOLONA - first of up to three such entries.
+    code_system: none
+    source: inferred
+    reasoning: >
+      FTIF form; OUTR_D1/2/3 = outro (medicamento) + descreva, numbered;
+      width 30 free text.
+
+  OUTR_D2:
+    official_name: Outro antibiótico (2º) - descreva
+    translated_name: Other antibiotic (2nd) - describe
+    description: >
+      Second other-antibiotic entry recorded when the typhoid fever
+      patient's treatment used more than one non-listed drug, alongside
+      OUTR_D1.
+    code_system: none
+    source: inferred
+    reasoning: Second of three same-pattern fields; see OUTR_D1.
+
+  OUTR_D3:
+    official_name: Outro antibiótico (3º) - descreva
+    translated_name: Other antibiotic (3rd) - describe
+    description: >
+      Third other-antibiotic entry, completing the up-to-three-drug record
+      alongside OUTR_D1 and OUTR_D2.
+    code_system: none
+    source: inferred
+    reasoning: Third of three same-pattern fields; see OUTR_D1.
+
+  OUT_CONTAT:
+    official_name: Outro tipo de contato - descreva
+    translated_name: Other contact setting - describe
+    description: >
+      Free-text description of a pertussis (COQU) exposure contact setting
+      other than the household (e.g. daycare, school, workplace), distinct
+      from NM_OUT_COM, which records an individual contact's name.
+    code_system: none
+    source: inferred
+    reasoning: >
+      COQU form; OUT_CONTAT = outro contato; width 30 free text; read as a
+      setting rather than a person's name to distinguish it from NM_OUT_COM.
+
+  PARALISIA:
+    official_name: Sinais e sintomas - Paralisia
+    translated_name: Paralysis
+    description: >
+      Whether the human rabies (RAIV) patient shows paralysis, a
+      neurological sign recorded alongside paresthesia (PARESTESI) as the
+      disease progresses from prodrome to advanced illness.
+    code_system: none
+    source: inferred
+    reasoning: RAIV form; PARALISIA = paralisia; width 1 checkbox.
+
+  PARESTESI:
+    official_name: Sinais e sintomas - Parestesia
+    translated_name: Paresthesia
+    description: >
+      Whether the rabies patient reports paresthesia (abnormal tingling or
+      burning) at or near the bite site, an early sensory sign often
+      preceding the paralysis recorded in PARALISIA.
+    code_system: none
+    source: inferred
+    reasoning: RAIV form; PARESTESI = parestesia; width 1 checkbox.
+
+  PERIODO:
+    official_name: Período gestacional da infecção
+    translated_name: Gestational period of infection
+    description: >
+      Trimester (or equivalent period) of pregnancy in which the mother's
+      rubella infection likely occurred, recorded on the Congenital Rubella
+      Syndrome (SRC) form because earlier infection carries higher
+      fetal-defect risk.
+    code_system: none
+    source: inferred
+    reasoning: SRC form; PERIODO = período; width 1 coded value.
+
+  PROVA_BIOL:
+    official_name: Prova biológica
+    translated_name: Biological (mouse inoculation) test result
+    description: >
+      Result of the biological test for rabies virus - inoculation into
+      laboratory mice - one of the confirmatory lab methods recorded on the
+      human rabies form.
+    code_system: none
+    source: inferred
+    reasoning: >
+      RAIV form; PROVA_BIOL = prova biológica, the classic rabies
+      confirmatory bioassay; width 1.
+
+  PULSO:
+    official_name: Sinais e sintomas - Pulso (dissociação pulso-temperatura)
+    translated_name: Relative bradycardia (pulse-temperature dissociation)
+    description: >
+      Whether the typhoid fever (FTIF) patient shows the classic relative
+      bradycardia - pulse rate lower than expected for the fever - one of
+      the clinical-sign checkboxes on the form.
+    code_system: none
+    source: inferred
+    reasoning: >
+      FTIF form; PULSO = pulso, a well-known typhoid clinical sign; width
+      1 checkbox.
+
+  QUANTID:
+    official_name: Quantidade (soro/imunoglobulina antirrábica)
+    translated_name: Amount administered
+    description: >
+      Numeric amount of rabies immunoglobulin or serum administered to the
+      patient, a treatment-dosage value distinct from the vaccine dose-date
+      fields recorded elsewhere on the rabies forms.
+    code_system: none
+    source: inferred
+    reasoning: >
+      RAIV form; QUANTID = quantidade; declared numeric width 3, fitting a
+      dosage amount rather than a code.
+
+  QUINOLONA:
+    official_name: Uso de quinolona
+    translated_name: Quinolone antibiotic used
+    description: >
+      Whether a quinolone-class antibiotic (e.g. ciprofloxacin) was part of
+      the typhoid fever patient's treatment, a named-drug checkbox distinct
+      from the free-text OUTR_D1-D3 fields for other antibiotics.
+    code_system: none
+    source: inferred
+    reasoning: FTIF form; QUINOLONA = quinolona; width 1 checkbox.
+
+  RECEM_NASC:
+    official_name: Recém-nascido
+    translated_name: Newborn (flag)
+    description: >
+      Whether the Congenital Rubella Syndrome (SRC) case is being reported
+      for a newborn, as opposed to an older infant identified later,
+      affecting which clinical/lab findings are expected at notification.
+    code_system: none
+    source: inferred
+    reasoning: SRC form; RECEM_NASC = recém-nascido; width 1 checkbox.
+
+  RESALIM1:
+    official_name: Coleta de amostra - Resto de alimento (1)
+    translated_name: Leftover food sample collected (1)
+    description: >
+      Whether a sample of leftover suspect food was collected for lab
+      testing in this botulism investigation - first of the food samples
+      the form tracks, alongside RESALIMOUT for any additional one.
+    code_system: none
+    source: inferred
+    reasoning: >
+      BOTU form; RESALIM1 = resto de alimento (1); width 1 checkbox.
+
+  RESALIMOUT:
+    official_name: Coleta de amostra - Resto de alimento (outro)
+    translated_name: Leftover food sample collected (other)
+    description: >
+      Whether an additional leftover-food sample, beyond the first
+      (RESALIM1), was collected for lab testing in the botulism
+      investigation.
+    code_system: none
+    source: inferred
+    reasoning: >
+      BOTU form; RESALIMOUT = resto de alimento + outro; width 1; pairs
+      with RESALIM1.
+
+  RES_IMUNO:
+    official_name: Resultado do exame imunológico
+    translated_name: Immunological test result
+    description: >
+      Whether the leptospirosis (LEPT) patient's immunological (serology)
+      test came back positive, one of three parallel lab-method result
+      flags alongside isolation culture (RES_ISOL) and PCR (RES_PCR).
+    code_system: none
+    source: inferred
+    reasoning: LEPT form; RES_IMUNO = resultado + imunológico; width 1.

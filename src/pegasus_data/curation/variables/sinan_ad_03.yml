@@ -1,0 +1,303 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  CLA_ME_ETI:
+    official_name: Classificação meningite - etiológica
+    translated_name: Meningitis classification - etiologic
+    description: >
+      Short code for the etiologic classification of the meningitis case
+      (e.g. bacterial, viral, other), sibling of CLA_ME_ASS (associated
+      condition) and CLA_ME_BAC (bacterial subtype) in the same Meningite
+      classification block.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ETI abbreviates etiológica; same CLA_ME_ prefix and 4-character width
+      as its two siblings.
+
+  CLA_SOROGR:
+    official_name: Classificação - sorogrupo
+    translated_name: Classification - serogroup
+    description: >
+      Numeric code for the meningococcal serogroup (e.g. A, B, C, W, Y)
+      identified in laboratory testing, part of the Meningite/Doença
+      Meningocócica classification block.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SOROGR abbreviates sorogrupo; a 4-digit numeric field alongside the
+      CLA_ME_* meningitis classification codes fits a coded serogroup result.
+
+  CLI_ABAULA:
+    official_name: Clínico - abaulamento de fontanela
+    translated_name: Clinical - bulging fontanelle
+    description: >
+      Sim/Não flag for abaulamento de fontanela (bulging fontanelle), a
+      classic infant meningitis sign, part of the CLI_ clinical-symptom
+      checklist alongside CLI_COMA, CLI_CONVUL and CLI_RIGIDE.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ABAULA abbreviates abaulamento; 1-character width matches a binary
+      symptom flag, and it clusters with other meningitis-specific signs.
+
+  CLI_COMA:
+    official_name: Clínico - coma
+    translated_name: Clinical - coma
+    description: >
+      Sim/Não flag for coma, part of the same meningitis clinical-symptom
+      checklist as CLI_ABAULA, CLI_CONVUL and CLI_RIGIDE.
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as CLI_ABAULA.
+
+  CLI_CONVUL:
+    official_name: Clínico - convulsão
+    translated_name: Clinical - seizure
+    description: >
+      Sim/Não flag for convulsions/seizures, part of the same clinical-symptom
+      checklist as CLI_COMA; CLI_CON_ES holds a free-text elaboration of a
+      related clinical condition.
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as CLI_ABAULA.
+
+  CLI_CON_ES:
+    official_name: Clínico - condição especial
+    translated_name: Clinical - special condition
+    description: >
+      Free-text elaboration of a clinical condition or complication noted in
+      the CLI_ symptom checklist (60-character field, longer than the
+      1-character symptom flags around it).
+    code_system: none
+    source: inferred
+    reasoning: >
+      CLI_ prefix places it in the clinical block; the unusually wide
+      60-character width (vs 1-character for CLI_COMA/CLI_CONVUL) fits a
+      short free-text note rather than another binary flag.
+
+  CLI_LOCAL:
+    official_name: Clínico - sinal localizado
+    translated_name: Clinical - localized sign
+    description: >
+      Sim/Não flag for a localized clinical sign (e.g. focal pain or
+      neurological finding), part of the CLI_ symptom checklist. Distinct
+      from CLI_LOCA_1, the free-text field naming the location itself.
+    code_system: none
+    source: inferred
+    reasoning: 1-character width matches a binary flag, unlike the free-text CLI_LOCA_1.
+
+  CLI_LOCA_1:
+    official_name: Clínico - local (1)
+    translated_name: Clinical - location (1)
+    description: >
+      Free-text body location or site associated with the symptom flagged by
+      CLI_LOCAL (e.g. where a lesion or localized sign was observed).
+    code_system: none
+    source: inferred
+    reasoning: 30-character width fits free text, distinguishing it from the CLI_LOCAL flag.
+
+  CLI_OTRDES:
+    official_name: Clínico - outro sintoma (descrição)
+    translated_name: Clinical - other symptom (description)
+    description: >
+      Free-text field naming a clinical sign or symptom not covered by the
+      form's standard checklist. Distinct from CLI_OUTR_3, a separate
+      numbered "other" slot in what looks like a repeated field family.
+    code_system: none
+    source: inferred
+    reasoning: >
+      OTRDES contracts outro + descrição; 30-character width fits short free
+      text, matching SINAN's "other, specify" pattern.
+
+  CLI_OUTR_3:
+    official_name: Clínico - outro sintoma (3)
+    translated_name: Clinical - other symptom (3)
+    description: >
+      Third slot of a numbered "other symptom" free-text series in the CLI_
+      checklist; see CLI_OTRDES for the shared "other, specify" pattern.
+    code_system: none
+    source: inferred
+    reasoning: >
+      The "_3" suffix implies at least two earlier slots in the same series;
+      not otherwise distinguishable from CLI_OTRDES's evidence.
+
+  CLI_PANTUR:
+    official_name: Clínico - dor na panturrilha
+    translated_name: Clinical - calf pain
+    description: >
+      Sim/Não flag for dor na panturrilha (calf pain/myalgia), a hallmark
+      clinical sign of leptospirosis rather than the meningitis-oriented
+      CLI_ fields around it.
+    code_system: none
+    source: inferred
+    reasoning: >
+      PANTUR abbreviates panturrilha (calf); calf myalgia is specific enough
+      to leptospirosis to identify the source form despite the shared CLI_
+      prefix with unrelated meningitis symptom flags.
+
+  CLI_RIGIDE:
+    official_name: Clínico - rigidez de nuca
+    translated_name: Clinical - neck stiffness
+    description: >
+      Sim/Não flag for rigidez de nuca (neck stiffness), a classic
+      meningitis sign, part of the same checklist as CLI_ABAULA and CLI_COMA.
+    code_system: none
+    source: inferred
+    reasoning: RIGIDE abbreviates rigidez; matches the meningitis symptom cluster.
+
+  CLORAFEN:
+    official_name: Cloranfenicol
+    translated_name: Chloramphenicol
+    description: >
+      Sim/Não flag for whether chloramphenicol was the antibiotic used to
+      treat the case, sibling of AMPICILINA in the same per-drug bacterial
+      meningitis treatment checklist.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Chloramphenicol is a classic bacterial-meningitis antibiotic;
+      1-character width matches a per-drug-used flag.
+
+  COMP_OUT_D:
+    official_name: Complicação outra (descrição)
+    translated_name: Other complication (description)
+    description: >
+      Free-text field describing a clinical complication not covered by the
+      form's standard complication checklist.
+    code_system: none
+    source: inferred
+    reasoning: >
+      COMP most plausibly abbreviates complicação; the OUT_D suffix matches
+      SINAN's recurring outro/descrição free-text pattern (compare
+      ANT_OUT_D, DS_OUTR_LO).
+
+  CONSTIPA:
+    official_name: Constipação
+    translated_name: Constipation
+    description: >
+      Sim/Não flag for constipation, a symptom on a gastrointestinal
+      clinical-symptom checklist (plausibly Botulismo or an acute diarrheal
+      disease investigation).
+    code_system: none
+    source: inferred
+    reasoning: CONSTIPA abbreviates constipação; 1-character width matches a binary flag.
+
+  CONT_OUT:
+    official_name: Contato outro
+    translated_name: Other contact type
+    description: >
+      Free-text field for a type of contact/exposure not covered by the
+      form's standard contact-tracing options.
+    code_system: none
+    source: inferred
+    reasoning: CONT abbreviates contato; OUT plus 30-character width fits the "other, specify" pattern.
+
+  CON_AMB_DE:
+    official_name: Consulta ambulatorial (descrição)
+    translated_name: Outpatient consultation (description)
+    description: >
+      Free-text note tied to an ambulatory/outpatient consultation recorded
+      for the case; the exact sub-question it answers is not resolved from
+      available evidence.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CON_AMB plausibly abbreviates consulta ambulatorial; 30-character width
+      fits a short free-text note.
+
+  CON_DIAGES:
+    official_name: Condição - diagnóstico gestacional
+    translated_name: Condition - pregnancy-related diagnosis
+    description: >
+      Short code classifying a pregnancy-related diagnosis or condition
+      associated with the case, echoing the DS_INI_GES/DS_FIM_GES
+      (gestation start/end) fields seen elsewhere in SINAN's obstetric block.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DIAGES plausibly contracts diagnóstico + gestacional; 2-character width
+      fits a short coded category rather than free text.
+
+  CON_FORMA:
+    official_name: Confirmação - forma clínica
+    translated_name: Confirmation - clinical form
+    description: >
+      Short code for the clinical form/presentation type used to confirm the
+      case (e.g. which variant of the disease was diagnosed).
+    code_system: none
+    source: inferred
+    reasoning: >
+      FORMA reads forma (form/type); 1-character width matches a short
+      enumerated code.
+
+  CON_LOCAL2:
+    official_name: Contato - local (2)
+    translated_name: Contact - location (2)
+    description: >
+      Second instance of a contact/exposure location code, sibling of
+      CON_LOCAL, whose observed values (Unidade de Hemoterapia, Domicílio,
+      Laboratório, Outro) indicate a blood/procedure-related exposure
+      setting.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CON_LOCAL is bound to a codelist with exactly those four values in this
+      catalog; CON_LOCAL2 shares the prefix and width, consistent with a
+      second recorded location for the same case.
+
+  COPRO_D_1:
+    official_name: Coprocultura - resultado (1)
+    translated_name: Stool culture - result (1)
+    description: >
+      Free-text result/detail from a coprocultura (stool culture) exam, first
+      of a numbered series (COPRO_D_1-3) mirroring SINAN's HEMO_D_1-3
+      hemoculture fields, in a foodborne/diarrheal-disease investigation.
+    code_system: none
+    source: inferred
+    reasoning: >
+      COPRO abbreviates coprocultura; 30-character width is free text despite
+      the D suffix, unlike a true date field.
+
+  COPRO_D_2:
+    official_name: Coprocultura - resultado (2)
+    translated_name: Stool culture - result (2)
+    description: >
+      Second of the COPRO_D_1-3 stool-culture result series; see COPRO_D_1.
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as COPRO_D_1; distinguished only by ordinal position.
+
+  COPRO_D_3:
+    official_name: Coprocultura - resultado (3)
+    translated_name: Stool culture - result (3)
+    description: >
+      Third of the COPRO_D_1-3 stool-culture result series; see COPRO_D_1.
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as COPRO_D_1; distinguished only by ordinal position.
+
+  CROMO:
+    official_name: Cromo
+    translated_name: Chromium
+    description: >
+      Sim/Não flag for occupational exposure to chromium, part of the same
+      chemical-carcinogen checklist as BENZENO, CADMIO, ALCATRAO and AMINA.
+    code_system: none
+    source: inferred
+    reasoning: Same evidence as BENZENO.
+
+  CS_DESCART:
+    official_name: Caso descartado
+    translated_name: Case discarded
+    description: >
+      Sim/Não flag marking the case as discarded/ruled out, distinct from
+      CLASSI_FIN, the standard final-classification field used across all
+      SINAN agravos.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CS_ is the classificação/situação prefix and DESCART abbreviates
+      descartado; 1-character width matches a binary flag.

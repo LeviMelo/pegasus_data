@@ -1,0 +1,66 @@
+# SIHSUS — the three straggler columns doc_queue still had left: a constant
+# legacy field from the RD 1992-2006 vintage, an 8-digit code unique to the
+# RD 2005-2006 window, and a bare "TIPO" in the same 1995-1997 MT
+# (professional-acts) table sihsus_rest.yml's ATO_PROF/TIPO_ATO cluster
+# already covers — see that file's header for what "MT" itself is (left
+# unresolved there).
+system: SIHSUS
+asserted_by: pegasus_data
+
+variables:
+
+  CONT:
+    translated_name: Legacy control field, constant value
+    description: >
+      Present only in the RD (Reduzida/AIH) files from the earliest vintages
+      (1992-2006) and observed to hold the literal value "1" in every row —
+      a vestigial counter or flag from the original extraction format, not
+      carried into later RD layouts.
+    code_system: none
+    source: inferred
+    reasoning: >
+      The catalog's own detector flags it a constant_column (confidence 0.9)
+      with a single observed value "1" across ~47k rows; "CONT" most
+      plausibly abbreviates "contador," the same internal-control naming
+      DATASUS uses elsewhere (SIM's own CONTADOR, documented there as "dado
+      para controle interno").
+    notes: >
+      DELIBERATELY UNDER-SPECIFIED — no .DEF label, dictionary entry or
+      documentation names this field; only its observed constant behaviour
+      is asserted here.
+
+  COD_SEG:
+    translated_name: Segment/batch code (RD, 2005-2006 vintage only)
+    description: >
+      An 8-digit code seen only in RD files from 2005-2006, repeating across
+      many rows — one value alone covers roughly 1,700 records — consistent
+      with a processing-batch, remessa-segment, or facility-group identifier
+      rather than a per-admission value.
+    code_system: none
+    source: inferred
+    reasoning: >
+      High per-value repetition (hundreds to ~1,700 rows sharing one code)
+      rules out a per-record sequence number; the narrow 2005-2006 window
+      coincides with the pre-2008 to 200801_ layout transition in this
+      system, and "SEG" most plausibly abbreviates segmento.
+    notes: >
+      What specifically the segment groups — hospital complex, submission
+      batch, region — is not established here.
+
+  TIPO:
+    translated_name: Record-type code (1995-1997 professional-acts file)
+    description: >
+      A short category code on the MT (1995-1997 professional-acts) table —
+      the same file documented in sihsus_rest.yml's ATO_PROF/TIPO_ATO
+      cluster — distinct from the already-documented TIPO_ATO. Its own
+      categories are not established.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      Bare "TIPO" sits in the same MT table as ATO_PROF, TIPO_ATO and
+      QTD_ATO (sihsus_rest.yml); a standalone "TIPO" column beside a more
+      specific TIPO_ATO reads as a record/category-level flag rather than a
+      second name for the same concept.
+    notes: >
+      No observed values were captured in this batch, so it is distinguished
+      from TIPO_ATO by position and bareness of name only.

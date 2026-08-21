@@ -1,0 +1,53 @@
+# SIM — the two columns sim_rest.yml's header explicitly listed as left out
+# ("evidence too thin to describe honestly"). [ESTRUTURA-SIM] (see
+# sim_rest.yml's provenance shorthand for the full citation) gives both a
+# position and a vintage but a literally blank description cell for each, so
+# what follows is grounded in position/naming/observed-value shape only, in
+# the same DELIBERATELY UNDER-SPECIFIED style already used for SIHSUS's
+# RATEIO in sihsus_rest.yml.
+system: SIM
+asserted_by: pegasus_data
+
+variables:
+
+  NUDIASINF:
+    translated_name: Day-count field, 2014 investigation-outcome block
+    description: >
+      A "número de dias" field DATASUS added in 2014 alongside NUDIASOBCO
+      (death-to-investigation-conclusion days) and FONTESINF, in the same
+      investigation-outcome block of the DO record. Observed values are
+      three-digit day counts. Which two dates it differences is not
+      established.
+    code_system: none
+    source: inferred
+    reasoning: >
+      [ESTRUTURA-SIM] lists NUDIASINF at position 130 (2014, C9) with a
+      blank description cell — unlike its documented neighbour NUDIASOBCO at
+      position 126. "NU"+"DIAS" is this system's day-count-field convention,
+      and observed values (e.g. "0119", "0107") match a day-count's shape,
+      not a code or identifier.
+    notes: >
+      DELIBERATELY UNDER-SPECIFIED. Present across all current DO-family
+      series (DO, DOEXT, DOFET, DOINF, DOMAT, DOREXT) because those series
+      share one record layout — that is not itself evidence the field is
+      semantically meaningful in every one of them.
+
+  TPASSINA:
+    official_name: Tipo de assinatura
+    translated_name: Signature type on the death-certificate attestation
+    description: >
+      A flag introduced in 2006 alongside DTATESTADO (date of the atestado),
+      almost certainly recording the type or method of signature on the
+      death certificate's medical attestation. Which values it takes is not
+      documented anywhere consulted.
+    code_system: none
+    source: inferred
+    reasoning: >
+      "TP" is DATASUS's standard tipo prefix and "ASSINA" abbreviates
+      assinatura (signature); [ESTRUTURA-SIM] lists TPASSINA at position 79,
+      introduced the same year (2006) as DTATESTADO at position 80, with its
+      description cell blank rather than absent.
+    notes: >
+      DELIBERATELY UNDER-SPECIFIED — distinct from the older ATESTANTE field
+      (position 32, 1979 vintage, "condição do médico atestante"); no coded
+      values were captured for TPASSINA itself.

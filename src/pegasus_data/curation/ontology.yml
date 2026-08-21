@@ -1,0 +1,1053 @@
+# The declared ontology: what these information systems and datasets ARE.
+#
+# READ THIS BEFORE EDITING.
+#
+# Everything in this file is an *institutional* fact. "SIH publishes a dataset
+# called AIH Reduzida, known as RD" is a statement about how the Brazilian
+# Ministry of Health organises its information systems. It is true whether or
+# not the FTP server happens to express it, and it stays true if DATASUS
+# reorganises the tree tomorrow.
+#
+# The FTP layout is EVIDENCE for this ontology, never its definition. The two
+# demonstrably come apart, and the module has to survive all three cases:
+#
+#   * One file, many datasets. SIASUS/APAC/2002/acac0201.exe carries seven
+#     distinct datasets as seven DBF members.
+#   * One dataset, many locations. The SIA APAC datasets appear under SIASUS/
+#     and again under Dados_Abertos/ as APAC_AB, APAC_AD and so on.
+#   * One dataset, many names. SINAN's agravos carry four-letter legacy codes
+#     in the old tree and Portuguese names in Dados_Abertos.
+#
+# So: `code`, `system` and the names are IDENTITY, declared here.
+# `observed_as` is EVIDENCE — hints for the binder about how this node has been
+# seen in the crawl. Adding or removing an `observed_as` entry never changes
+# what the dataset IS; it changes only what the binder recognises. A node with
+# no `observed_as` and no matching files is not an error: it is a dataset we
+# know exists and have not found published.
+#
+# `status`: active | retired | unobserved | tooling
+# `kind`:   data | reference | tooling
+
+version: 1
+asserted_by: pegasus_data
+
+systems:
+
+  SIH:
+    official_name: Sistema de Informações Hospitalares do SUS
+    translated_name: Hospital Information System
+    crawled_as: [SIHSUS]
+    kind: data
+    what_it_is: >
+      The billing and reporting system for SUS-funded hospital admissions. Its
+      unit is the AIH — Autorização de Internação Hospitalar — which is an
+      authorisation-and-payment document, not a clinical record. Everything in
+      SIH inherits that: fields affecting payment are reliable, fields that do
+      not are often empty.
+    authority: Ministério da Saúde / DATASUS
+
+  SIA:
+    official_name: Sistema de Informações Ambulatoriais do SUS
+    translated_name: Outpatient Information System
+    crawled_as: [SIASUS]
+    kind: data
+    what_it_is: >
+      Reporting for SUS outpatient activity. Splits into aggregate production
+      (PA), individualised production (BI), and a family of APAC datasets —
+      Autorização de Procedimento de Alta Complexidade — one per high-complexity
+      programme, each with its own schema.
+    authority: Ministério da Saúde / DATASUS
+
+  SIM:
+    official_name: Sistema de Informações sobre Mortalidade
+    translated_name: Mortality Information System
+    kind: data
+    what_it_is: >
+      Every death certificate issued in Brazil. One of the oldest and most
+      complete national vital registration systems, running since 1979, and the
+      basis for all official mortality statistics.
+    authority: Ministério da Saúde / SVS
+
+  SINASC:
+    official_name: Sistema de Informações sobre Nascidos Vivos
+    translated_name: Live Birth Information System
+    kind: data
+    what_it_is: >
+      Every live birth declaration (Declaração de Nascido Vivo). The birth
+      counterpart to SIM, and the denominator for infant mortality.
+    authority: Ministério da Saúde / SVS
+
+  SINAN:
+    official_name: Sistema de Informação de Agravos de Notificação
+    translated_name: Notifiable Diseases Information System
+    kind: data
+    what_it_is: >
+      Compulsory notification of diseases and injuries. Unlike the other
+      systems, SINAN is not one dataset with one schema: each agravo (disease or
+      injury) is its own dataset with its own clinical fields, sharing only a
+      common notification header. The per-agravo datasets are declared in
+      datasets_sinan.yml.
+    authority: Ministério da Saúde / SVS
+
+  CNES:
+    official_name: Cadastro Nacional de Estabelecimentos de Saúde
+    translated_name: National Registry of Health Establishments
+    kind: reference
+    what_it_is: >
+      The register of health facilities, their beds, equipment, teams,
+      professionals and contractual arrangements. It is the reference dimension
+      the activity systems point at: SIH and SIA rows name a CNES establishment.
+    authority: Ministério da Saúde / DATASUS
+
+  SISCAN:
+    official_name: Sistema de Informação do Câncer
+    translated_name: Cancer Information System
+    kind: data
+    what_it_is: >
+      Cervical and breast cancer screening — exam requests, cytology,
+      histopathology and mammography results. Succeeded SISCOLO and SISMAMA,
+      which is why two naming regimes appear in the tree.
+    authority: Ministério da Saúde / INCA
+
+  PNI:
+    official_name: Programa Nacional de Imunizações
+    translated_name: National Immunisation Programme
+    kind: data
+    what_it_is: >
+      Vaccine doses administered and coverage. Published as aggregates by
+      municipality, immunobiological and age group rather than as individual
+      records.
+    authority: Ministério da Saúde / SVS
+
+  SISPRENATAL:
+    official_name: Sistema de Monitoramento e Avaliação do Pré-Natal
+    translated_name: Prenatal Care Monitoring System
+    kind: data
+    what_it_is: >
+      Antenatal care follow-up under the Rede Cegonha programme — enrolment and
+      the schedule of consultations and tests a pregnancy should receive.
+    authority: Ministério da Saúde
+
+  CIH:
+    official_name: Comunicação de Internação Hospitalar
+    translated_name: Hospital Admission Communication
+    kind: data
+    status: retired
+    what_it_is: >
+      Admissions NOT funded by SUS, reported so the Ministry could see hospital
+      activity it did not pay for. Its value is exactly that: it covers the
+      blind spot SIH has by construction.
+    authority: Ministério da Saúde / DATASUS
+
+  CIHA:
+    official_name: Comunicação de Internação Hospitalar e Ambulatorial
+    translated_name: Hospital and Outpatient Communication
+    kind: data
+    what_it_is: >
+      The successor to CIH, widened to include outpatient activity alongside
+      admissions.
+    authority: Ministério da Saúde / DATASUS
+
+  RESP:
+    official_name: Registro de Eventos em Saúde Pública
+    translated_name: Public Health Event Registry
+    kind: data
+    what_it_is: >
+      Stood up during the 2015-16 Zika epidemic to register suspected cases of
+      microcephaly and other congenital alterations, ahead of SINAN having a
+      form for them.
+    authority: Ministério da Saúde / SVS
+
+  PCE:
+    official_name: Programa de Controle da Esquistossomose
+    translated_name: Schistosomiasis Control Programme
+    kind: data
+    what_it_is: >
+      Field survey results for schistosomiasis — people examined, people
+      positive, and treatment, by locality.
+    authority: Ministério da Saúde / SVS
+
+  ESUSNOTIFICA:
+    official_name: e-SUS Notifica
+    translated_name: e-SUS Notify
+    kind: data
+    what_it_is: >
+      Notification of COVID-19 cases, built quickly in 2020 outside SINAN
+      because SINAN could not absorb the volume.
+    authority: Ministério da Saúde
+
+  PAINEL_ONCOLOGIA:
+    official_name: Painel de Monitoramento do Tratamento Oncológico
+    translated_name: Oncology Treatment Panel
+    kind: data
+    what_it_is: >
+      Follows a cancer patient from diagnosis to first treatment. It exists to
+      measure one legal obligation: treatment must begin within sixty days of
+      diagnosis.
+    authority: Ministério da Saúde / INCA
+
+  IBGE:
+    official_name: Instituto Brasileiro de Geografia e Estatística
+    translated_name: Brazilian Institute of Geography and Statistics
+    kind: reference
+    what_it_is: >
+      Not a health information system. Census and projection tables republished
+      on the DATASUS tree because they are the denominators every rate in the
+      other systems needs.
+    authority: IBGE
+
+  TABWIN:
+    official_name: TabWin
+    translated_name: TabWin
+    kind: tooling
+    status: tooling
+    what_it_is: >
+      DATASUS's tabulation application, plus its installers and helper files.
+      Present in the tree, but software rather than data.
+    authority: DATASUS
+
+  TABNET:
+    official_name: TabNet
+    translated_name: TabNet
+    kind: tooling
+    status: tooling
+    what_it_is: The web tabulation engine and its server-side definition files.
+    authority: DATASUS
+
+  TABDOS:
+    official_name: Tab para DOS
+    translated_name: Tab for DOS
+    kind: tooling
+    status: tooling
+    what_it_is: The original DOS-era tabulator, kept for historical access.
+    authority: DATASUS
+
+  DADOS_ABERTOS:
+    official_name: Dados Abertos
+    translated_name: Open Data
+    kind: reference
+    what_it_is: >
+      Not a system in its own right — a republication tree. It carries the same
+      datasets as the legacy trees under clearer names, and its record layouts
+      are the crosswalk that makes the four-letter legacy codes legible. Treat
+      it as an alternative representation, not a separate source.
+    authority: Ministério da Saúde / DATASUS
+
+
+datasets:
+
+  # ---------------------------------------------------------------- SIH
+  SIH.RD:
+    system: SIH
+    official_name: AIH Reduzida
+    translated_name: Reduced AIH
+    what_it_is: >
+      One row per approved admission, carrying the fields common to all AIHs.
+      This is the dataset almost every SIH analysis actually uses.
+    observed_as: [RD]
+
+  SIH.RJ:
+    system: SIH
+    official_name: AIH Rejeitada
+    translated_name: Rejected AIH
+    what_it_is: >
+      Admissions whose AIH was rejected in processing. Excluded from RD, so an
+      analysis of RD alone silently drops them.
+    observed_as: [RJ]
+
+  SIH.ER:
+    system: SIH
+    official_name: AIH Rejeitada com erro
+    translated_name: AIH rejected with error
+    what_it_is: >
+      Rejections carried with the error that caused them — the diagnostic
+      companion to RJ rather than a separate population.
+    observed_as: [ER]
+
+  SIH.SP:
+    system: SIH
+    official_name: Serviços Profissionais
+    translated_name: Professional services
+    what_it_is: >
+      One row per professional act billed within an admission, so many rows per
+      AIH. Joins to RD on the AIH number; summing it as though it were
+      admissions double-counts.
+    observed_as: [SP]
+
+  SIH.CH:
+    system: SIH
+    official_name: Cadastro Hospitalar
+    translated_name: Hospital register
+    what_it_is: >
+      The hospital register that accompanied the older SIH generations, before
+      CNES took over as the establishment reference.
+    observed_as: [CH]
+    status: retired
+
+  SIH.MT:
+    system: SIH
+    official_name: Mudança de Procedimento
+    translated_name: Procedure change
+    what_it_is: >
+      Records where the billed procedure changed during the admission. Small
+      and rarely used; kept because it explains discrepancies in RD.
+    observed_as: [MT]
+    confidence: low
+
+  SIH.BASE_AIH1:
+    system: SIH
+    official_name: Base AIH
+    translated_name: AIH base file
+    what_it_is: >
+      A consolidated AIH base file published outside the monthly competência
+      cycle. Not part of the regular series.
+    observed_as: [BASE_AIH1]
+    confidence: low
+
+  # ---------------------------------------------------------------- SIA
+  SIA.PA:
+    system: SIA
+    official_name: Produção Ambulatorial
+    translated_name: Outpatient production
+    what_it_is: >
+      Aggregate outpatient production: counts of procedures by establishment,
+      procedure and competência. No patient identity, and no individual rows —
+      one row is a procedure-establishment-month total.
+    observed_as: [PA]
+
+  SIA.BI:
+    system: SIA
+    official_name: Boletim de Produção Ambulatorial Individualizado
+    translated_name: Individualised outpatient production
+    what_it_is: >
+      Outpatient production at individual level, so one row is one procedure for
+      one person — the individualised counterpart to PA.
+    observed_as: [BI]
+
+  SIA.AB:
+    system: SIA
+    official_name: APAC de Cirurgia Bariátrica
+    translated_name: APAC, bariatric surgery
+    what_it_is: One authorisation for bariatric surgery.
+    observed_as: [AB, APAC_AB]
+
+  SIA.ABO:
+    system: SIA
+    official_name: APAC de Acompanhamento pós Cirurgia Bariátrica
+    translated_name: APAC, post-bariatric follow-up
+    what_it_is: One authorisation for follow-up care after bariatric surgery.
+    observed_as: [ABO, APAC_ABO]
+
+  SIA.ACF:
+    system: SIA
+    official_name: APAC de Confecção de Fístula Arteriovenosa
+    translated_name: APAC, arteriovenous fistula creation
+    what_it_is: >
+      One authorisation for creating the vascular access a haemodialysis patient
+      needs. Upstream of the dialysis datasets.
+    observed_as: [ACF, APAC_ACF]
+
+  SIA.AD:
+    system: SIA
+    official_name: APAC de Laudos Diversos
+    translated_name: APAC, miscellaneous authorisations
+    what_it_is: >
+      Authorisations for high-complexity procedures without a dedicated dataset
+      of their own — the residual APAC category.
+    observed_as: [AD, APAC_AD]
+
+  SIA.AM:
+    system: SIA
+    official_name: APAC de Medicamentos
+    translated_name: APAC, medicines
+    what_it_is: >
+      One authorisation for a specialised-component medicine, the route by which
+      high-cost drugs are dispensed.
+    observed_as: [AM]
+
+  SIA.AMP:
+    system: SIA
+    official_name: APAC de Acompanhamento Multiprofissional
+    translated_name: APAC, multiprofessional follow-up
+    what_it_is: One authorisation for multidisciplinary team follow-up.
+    observed_as: [AMP, APAC_AMP]
+
+  SIA.AN:
+    system: SIA
+    official_name: APAC de Nefrologia
+    translated_name: APAC, nephrology
+    what_it_is: One authorisation for nephrology care short of dialysis.
+    observed_as: [AN, APAC_AN]
+
+  SIA.AQ:
+    system: SIA
+    official_name: APAC de Quimioterapia
+    translated_name: APAC, chemotherapy
+    what_it_is: >
+      One authorisation for a chemotherapy regimen, carrying the tumour
+      staging and the regimen billed.
+    observed_as: [AQ, APAC_AQ]
+
+  SIA.AR:
+    system: SIA
+    official_name: APAC de Radioterapia
+    translated_name: APAC, radiotherapy
+    what_it_is: One authorisation for a radiotherapy course.
+    observed_as: [AR, APAC_AR]
+
+  SIA.ATD:
+    system: SIA
+    official_name: APAC de Tratamento Dialítico
+    translated_name: APAC, dialysis treatment
+    what_it_is: >
+      One authorisation for ongoing dialysis, the recurring counterpart to the
+      one-off fistula procedure in ACF.
+    observed_as: [ATD, APAC_ATD]
+
+  SIA.AC:
+    system: SIA
+    official_name: APAC de Acompanhamento
+    translated_name: APAC, registry follow-up
+    what_it_is: >
+      The 2002-era renal replacement registry, published as self-extracting
+      archives carrying seven linked datasets rather than as one flat table.
+      See FINDINGS.md 3j — its patient block carries date of birth, postcode and
+      diagnosis, and joins one-to-one to a serology block.
+    observed_as: [AC]
+
+  SIA.PS:
+    system: SIA
+    official_name: RAAS Psicossocial
+    translated_name: RAAS, psychosocial care
+    what_it_is: >
+      Registro das Ações Ambulatoriais de Saúde for psychosocial care — CAPS
+      activity, recorded as actions rather than authorisations.
+    observed_as: [PS, APAC_PS]
+
+  SIA.SAD:
+    system: SIA
+    official_name: RAAS Atenção Domiciliar
+    translated_name: RAAS, home care
+    what_it_is: Home-care actions under the Melhor em Casa programme.
+    observed_as: [SAD]
+
+  # ---------------------------------------------------------------- SIM
+  SIM.DO:
+    system: SIM
+    official_name: Declaração de Óbito
+    translated_name: Death certificate
+    what_it_is: One death certificate — the general mortality dataset.
+    observed_as: [DO]
+
+  SIM.DOFET:
+    system: SIM
+    official_name: Declaração de Óbito Fetal
+    translated_name: Fetal death certificate
+    what_it_is: >
+      Fetal deaths, kept separate because a fetal death is not counted in
+      mortality rates and has its own certificate.
+    observed_as: [DOFET]
+
+  SIM.DOINF:
+    system: SIM
+    official_name: Óbitos Infantis
+    translated_name: Infant deaths
+    what_it_is: Deaths under one year, extracted as their own file.
+    observed_as: [DOINF]
+
+  SIM.DOMAT:
+    system: SIM
+    official_name: Óbitos Maternos
+    translated_name: Maternal deaths
+    what_it_is: >
+      Deaths from causes related to pregnancy, childbirth and the puerperium,
+      the numerator of the maternal mortality ratio.
+    observed_as: [DOMAT]
+
+  SIM.DOEXT:
+    system: SIM
+    official_name: Óbitos por Causas Externas
+    translated_name: Deaths from external causes
+    what_it_is: Deaths from injury, violence and accidents.
+    observed_as: [DOEXT]
+
+  SIM.DOR:
+    system: SIM
+    official_name: Declaração de Óbito, base retificada
+    translated_name: Death certificate, corrected base
+    what_it_is: >
+      A corrected republication of the DO base. Later and more accurate than the
+      original for the same period, which matters when a year is reused.
+    observed_as: [DOR]
+    confidence: low
+
+  SIM.DOREXT:
+    system: SIM
+    official_name: Óbitos por Causas Externas, base retificada
+    translated_name: External-cause deaths, corrected base
+    what_it_is: The corrected counterpart to DOEXT.
+    observed_as: [DOREXT]
+    confidence: low
+
+  SIM.DORIG:
+    system: SIM
+    official_name: Declaração de Óbito, base original
+    translated_name: Death certificate, original base
+    what_it_is: >
+      The base as first published, kept alongside the corrected version so the
+      two can be compared.
+    observed_as: [DORIG]
+    confidence: low
+
+  # ---------------------------------------------------------------- SINASC
+  SINASC.DN:
+    system: SINASC
+    official_name: Declaração de Nascido Vivo
+    translated_name: Live birth declaration
+    what_it_is: One live birth.
+    observed_as: [DN]
+
+  SINASC.DNR:
+    system: SINASC
+    official_name: Nascidos Vivos, base retificada
+    translated_name: Live births, corrected base
+    what_it_is: The corrected republication of DN.
+    observed_as: [DNR]
+    confidence: low
+
+  SINASC.DNEX:
+    system: SINASC
+    official_name: Nascidos Vivos, base externa
+    translated_name: Live births, external base
+    what_it_is: Births registered outside the ordinary flow.
+    observed_as: [DNEX]
+    confidence: low
+
+  SINASC.DNRIG:
+    system: SINASC
+    official_name: Nascidos Vivos, base original
+    translated_name: Live births, original base
+    what_it_is: The base as first published, kept beside the corrected version.
+    observed_as: [DNRIG]
+    confidence: low
+
+  # ---------------------------------------------------------------- CNES
+  CNES.ST:
+    system: CNES
+    official_name: Estabelecimentos
+    translated_name: Establishments
+    what_it_is: >
+      One row per health establishment — the spine of CNES, which every other
+      CNES dataset hangs off by CNES code.
+    observed_as: [ST]
+
+  CNES.LT:
+    system: CNES
+    official_name: Leitos
+    translated_name: Beds
+    what_it_is: Bed counts by establishment and bed type.
+    observed_as: [LT]
+
+  CNES.PF:
+    system: CNES
+    official_name: Profissionais
+    translated_name: Professionals
+    what_it_is: >
+      Professionals registered at an establishment, with their CBO occupation
+      and hours. One person appears once per establishment they work at.
+    observed_as: [PF]
+
+  CNES.EQ:
+    system: CNES
+    official_name: Equipamentos
+    translated_name: Equipment
+    what_it_is: Equipment held by an establishment, and how much of it is in use.
+    observed_as: [EQ]
+
+  CNES.EP:
+    system: CNES
+    official_name: Equipes
+    translated_name: Teams
+    what_it_is: >
+      Registered care teams — primary care and family health teams — and their
+      composition.
+    observed_as: [EP]
+
+  CNES.IN:
+    system: CNES
+    official_name: Incentivos
+    translated_name: Incentives
+    what_it_is: Financial incentives an establishment receives.
+    observed_as: [IN]
+
+  CNES.RC:
+    system: CNES
+    official_name: Regra Contratual
+    translated_name: Contractual rules
+    what_it_is: The contractual arrangement under which an establishment serves SUS.
+    observed_as: [RC]
+
+  CNES.HB:
+    system: CNES
+    official_name: Habilitações
+    translated_name: Accreditations
+    what_it_is: >
+      High-complexity accreditations an establishment holds — what it is
+      authorised to bill for.
+    observed_as: [HB]
+
+  CNES.SR:
+    system: CNES
+    official_name: Serviços Especializados
+    translated_name: Specialised services
+    what_it_is: Specialised services offered, and their classifications.
+    observed_as: [SR]
+
+  CNES.DC:
+    system: CNES
+    official_name: Dados Complementares
+    translated_name: Complementary data
+    what_it_is: Additional establishment attributes not carried on the ST record.
+    observed_as: [DC]
+
+  CNES.EE:
+    system: CNES
+    official_name: Estabelecimento de Ensino
+    translated_name: Teaching establishment
+    what_it_is: Teaching and research attributes of an establishment.
+    observed_as: [EE]
+
+  CNES.EF:
+    system: CNES
+    official_name: Estabelecimento Filantrópico
+    translated_name: Philanthropic establishment
+    what_it_is: Philanthropic status and the conditions attached to it.
+    observed_as: [EF]
+
+  CNES.GM:
+    system: CNES
+    official_name: Gestão e Metas
+    translated_name: Management and targets
+    what_it_is: Management arrangements and contracted targets.
+    observed_as: [GM]
+
+  # ---------------------------------------------------------------- SISCAN
+  SISCAN.CC:
+    system: SISCAN
+    official_name: Citopatológico do Colo do Útero
+    translated_name: Cervical cytology
+    what_it_is: One cervical cytology (Pap) exam and its result.
+    observed_as: [CC, SISCAN_CITO_COLO]
+
+  SISCAN.HC:
+    system: SISCAN
+    official_name: Histopatológico do Colo do Útero
+    translated_name: Cervical histopathology
+    what_it_is: >
+      One cervical biopsy and its result — the confirmatory step after an
+      abnormal cytology.
+    observed_as: [HC, SISCAN_HISTO_COLO]
+
+  SISCAN.CM:
+    system: SISCAN
+    official_name: Citopatológico de Mama
+    translated_name: Breast cytology
+    what_it_is: One breast cytology exam and its result.
+    observed_as: [CM, SISCAN_CITO_MAMA]
+
+  SISCAN.HM:
+    system: SISCAN
+    official_name: Histopatológico de Mama
+    translated_name: Breast histopathology
+    what_it_is: One breast biopsy and its result.
+    observed_as: [HM, SISCAN_HISTO_MAMA]
+
+  SISCAN.MM:
+    system: SISCAN
+    official_name: Mamografia
+    translated_name: Mammography
+    what_it_is: One mammogram, with its BI-RADS classification.
+    observed_as: [MM, SISCAN_MAMOGRAFIA]
+
+  SISCAN.PACNT:
+    system: SISCAN
+    official_name: Pacientes
+    translated_name: Patients
+    what_it_is: >
+      The patient dimension published beside each exam dataset in the open-data
+      tree, joined to the exam records rather than repeated on them.
+    observed_as:
+      - SISCAN_CITO_COLO_PACNT
+      - SISCAN_HISTO_COLO_PACNT
+      - SISCAN_CITO_MAMA_PACNT
+      - SISCAN_HISTO_MAMA_PACNT
+      - SISCAN_MAMOGRAFIA_PACNT
+
+  # ---------------------------------------------------------------- others
+  PNI.DPNI:
+    system: PNI
+    official_name: Doses Aplicadas
+    translated_name: Doses administered
+    what_it_is: >
+      Doses given, aggregated by municipality, immunobiological and dose number.
+      The IG and UF variants are the same measure at different aggregations.
+    observed_as: [DPNI, DPNIIG, DPNIUF, DOSES_RESIDENCIA]
+
+  PNI.CPNI:
+    system: PNI
+    official_name: Cobertura Vacinal
+    translated_name: Vaccination coverage
+    what_it_is: >
+      Coverage — doses over target population. A rate, already divided, so it
+      must not be summed across areas.
+    observed_as: [CPNI, CPNIIG, CPNIUF, COBERTURA_RESIDENCIA]
+
+  CIH.CR:
+    system: CIH
+    official_name: Comunicação de Internação Hospitalar
+    translated_name: Hospital admission communication
+    what_it_is: One non-SUS-funded admission reported to the Ministry.
+    observed_as: [CR, DADOS]
+
+  CIHA.CIHA:
+    system: CIHA
+    official_name: Comunicação de Internação Hospitalar e Ambulatorial
+    translated_name: Hospital and outpatient communication
+    what_it_is: One admission or outpatient episode outside SUS funding.
+    observed_as: [CIHA]
+
+  RESP.RESP:
+    system: RESP
+    official_name: Registro de Eventos em Saúde Pública
+    translated_name: Public health event registry
+    what_it_is: >
+      One notified case of suspected microcephaly or congenital alteration.
+      The BR variant is the national consolidation.
+    observed_as: [RESP, RESPBR]
+
+  PCE.PCE:
+    system: PCE
+    official_name: Programa de Controle da Esquistossomose
+    translated_name: Schistosomiasis control programme
+    what_it_is: Survey and treatment results for schistosomiasis, by locality.
+    observed_as: [PCE]
+
+  SISPRENATAL.PN:
+    system: SISPRENATAL
+    official_name: Acompanhamento Pré-Natal
+    translated_name: Antenatal follow-up
+    what_it_is: One pregnancy enrolled in antenatal monitoring.
+    observed_as: [PN]
+
+  ESUSNOTIFICA.DCCR:
+    system: ESUSNOTIFICA
+    official_name: Notificações de COVID-19
+    translated_name: COVID-19 notifications
+    what_it_is: One notified case of COVID-19.
+    observed_as: [DCCR]
+
+  PAINEL_ONCOLOGIA.PO:
+    system: PAINEL_ONCOLOGIA
+    official_name: Painel de Oncologia
+    translated_name: Oncology panel
+    what_it_is: >
+      One cancer patient followed from diagnosis to first treatment, which is
+      what makes the sixty-day interval measurable.
+    observed_as: [PO]
+
+  IBGE.POP:
+    system: IBGE
+    official_name: População Residente
+    translated_name: Resident population
+    what_it_is: >
+      Resident population by municipality — the denominator for most rates
+      computed against the health systems.
+    observed_as: [POP, POPS, POPT]
+
+  IBGE.PROJUF:
+    system: IBGE
+    official_name: Projeção da População por UF
+    translated_name: Population projection by state
+    what_it_is: >
+      Projected population by state, used where census counts are too old for
+      the period being analysed.
+    observed_as: [PROJUF]
+
+  IBGE.ALF:
+    system: IBGE
+    official_name: Alfabetização
+    translated_name: Literacy
+    what_it_is: Literate and illiterate population counts by area.
+    observed_as: [ALF]
+
+  IBGE.ESCA:
+    system: IBGE
+    official_name: Escolaridade
+    translated_name: Educational attainment
+    what_it_is: Population by years of schooling. ESCB is the second breakdown.
+    observed_as: [ESCA, ESCB]
+
+  IBGE.RENDA:
+    system: IBGE
+    official_name: Renda
+    translated_name: Income
+    what_it_is: Population by income bracket.
+    observed_as: [RENDA]
+
+  IBGE.IDOSO:
+    system: IBGE
+    official_name: População Idosa
+    translated_name: Older population
+    what_it_is: Population aged 60 and over, published as its own table.
+    observed_as: [IDOSO]
+
+  # ------------------------------------------------- SINAN agravos not in
+  # datasets_sinan.yml. That file carries "what one row is" for 36 agravos;
+  # these 22 are declared here for identity so the API can resolve them, and
+  # should gain a row-level entry there as they are documented.
+
+  SINAN.AIDA:
+    system: SINAN
+    official_name: AIDS em adultos
+    translated_name: AIDS in adults
+    what_it_is: One AIDS case notified in a patient aged 13 or over.
+    observed_as: [AIDA]
+
+  SINAN.AIDC:
+    system: SINAN
+    official_name: AIDS em crianças
+    translated_name: AIDS in children
+    what_it_is: >
+      One AIDS case notified in a child under 13, kept separate because the
+      case definition and the transmission route differ from the adult form.
+    observed_as: [AIDC]
+
+  SINAN.HIVA:
+    system: SINAN
+    official_name: HIV em adultos
+    translated_name: HIV in adults
+    what_it_is: >
+      One HIV infection notified in an adult — notifiable in its own right since
+      2014, separately from progression to AIDS.
+    observed_as: [HIVA]
+    confidence: medium
+
+  SINAN.HIVC:
+    system: SINAN
+    official_name: HIV em crianças
+    translated_name: HIV in children
+    what_it_is: One HIV infection notified in a child.
+    observed_as: [HIVC]
+    confidence: medium
+
+  SINAN.HIVE:
+    system: SINAN
+    official_name: Criança exposta ao HIV
+    translated_name: Child exposed to HIV
+    what_it_is: >
+      One child born to a mother with HIV, followed until infection is confirmed
+      or excluded. An exposure record, not a diagnosis.
+    observed_as: [HIVE]
+    confidence: medium
+
+  SINAN.HIVG:
+    system: SINAN
+    official_name: Gestante com HIV
+    translated_name: Pregnant woman with HIV
+    what_it_is: >
+      One pregnancy in a woman with HIV, notified so that vertical transmission
+      prophylaxis can be tracked.
+    observed_as: [HIVG]
+    confidence: medium
+
+  SINAN.SIFC:
+    system: SINAN
+    official_name: Sífilis congênita
+    translated_name: Congenital syphilis
+    what_it_is: >
+      One case of syphilis transmitted in pregnancy. Treated as a sentinel
+      indicator: a congenital case means antenatal screening or treatment failed.
+    observed_as: [SIFC]
+
+  SINAN.SIFG:
+    system: SINAN
+    official_name: Sífilis em gestante
+    translated_name: Syphilis in pregnancy
+    what_it_is: >
+      One case of syphilis detected during pregnancy — the notification that
+      should prevent a SINAN.SIFC case.
+    observed_as: [SIFG]
+
+  SINAN.HANS:
+    system: SINAN
+    official_name: Hanseníase
+    translated_name: Leprosy
+    what_it_is: >
+      One notified case of leprosy, carrying the operational classification and
+      the treatment regimen, which run for months to years.
+    observed_as: [HANS]
+
+  SINAN.VIOL:
+    system: SINAN
+    official_name: Violência interpessoal e autoprovocada
+    translated_name: Interpersonal and self-inflicted violence
+    what_it_is: >
+      One notification of violence — domestic, sexual, or self-inflicted.
+      Notifiable universally since 2011, and heavily under-notified, so counts
+      track reporting practice as much as incidence.
+    observed_as: [VIOL]
+
+  SINAN.SDTA:
+    system: SINAN
+    official_name: Surto de Doença Transmitida por Alimentos
+    translated_name: Foodborne disease outbreak
+    what_it_is: >
+      One outbreak, not one person — the unit here is the event, so these rows
+      must never be added to individual-case counts.
+    observed_as: [SDTA]
+
+  SINAN.SRC:
+    system: SINAN
+    official_name: Síndrome da Rubéola Congênita
+    translated_name: Congenital rubella syndrome
+    what_it_is: One case of congenital rubella syndrome.
+    observed_as: [SRC]
+
+  SINAN.EXAN:
+    system: SINAN
+    official_name: Doenças exantemáticas
+    translated_name: Exanthematous diseases
+    what_it_is: >
+      One notified rash-and-fever case investigated for measles or rubella. A
+      surveillance channel rather than a single disease: most notifications are
+      discarded on investigation.
+    observed_as: [EXAN]
+
+  SINAN.VARC:
+    system: SINAN
+    official_name: Varicela
+    translated_name: Chickenpox
+    what_it_is: One notified case of varicella.
+    observed_as: [VARC]
+
+  SINAN.COLE:
+    system: SINAN
+    official_name: Cólera
+    translated_name: Cholera
+    what_it_is: One notified case of cholera.
+    observed_as: [COLE]
+
+  SINAN.BOTU:
+    system: SINAN
+    official_name: Botulismo
+    translated_name: Botulism
+    what_it_is: One notified case of botulism.
+    observed_as: [BOTU]
+
+  SINAN.ESPO:
+    system: SINAN
+    official_name: Esporotricose
+    translated_name: Sporotrichosis
+    what_it_is: >
+      One notified case of sporotrichosis, the fungal infection transmitted
+      largely by cats, notifiable in some states before it was nationally.
+    observed_as: [ESPO]
+    confidence: medium
+
+  SINAN.TRAC:
+    system: SINAN
+    official_name: Tracoma
+    translated_name: Trachoma
+    what_it_is: One notified case of trachoma, found through school screening surveys.
+    observed_as: [TRAC]
+
+  SINAN.DCRJ:
+    system: SINAN
+    official_name: Doença de Creutzfeldt-Jakob
+    translated_name: Creutzfeldt-Jakob disease
+    what_it_is: One notified case of Creutzfeldt-Jakob disease.
+    observed_as: [DCRJ]
+    confidence: medium
+
+  SINAN.LER:
+    system: SINAN
+    official_name: LER/DORT
+    translated_name: Work-related musculoskeletal disorder
+    what_it_is: >
+      One notified repetitive-strain or work-related musculoskeletal disorder.
+      The earlier code for what later files carry as LERD; both exist in the
+      tree and should be read together for a full series.
+    observed_as: [LER]
+    confidence: medium
+
+  SINAN.MENT:
+    system: SINAN
+    official_name: Transtornos mentais relacionados ao trabalho
+    translated_name: Work-related mental disorders
+    what_it_is: One notified mental health disorder attributed to work.
+    observed_as: [MENT]
+    confidence: medium
+
+  SINAN.NTRA:
+    system: SINAN
+    official_name: Notificação de acidente de trabalho
+    translated_name: Work accident notification
+    what_it_is: >
+      One notified occupational accident. Sits alongside the more specific
+      ACGR (severe) and ACBI (biological material) channels.
+    observed_as: [NTRA]
+    confidence: low
+
+  # ------------------------------------------------- republication and residue
+
+  DADOS_ABERTOS.APAC:
+    system: DADOS_ABERTOS
+    official_name: Layouts APAC
+    translated_name: APAC record layouts
+    what_it_is: >
+      The generic APAC record layouts published in the open-data tree, covering
+      the SIA APAC family as a group rather than one dataset. Documentation, not
+      microdata.
+    kind: reference
+    observed_as: [APAC]
+    confidence: medium
+
+  SIASUS.IMPBORL:
+    system: SIA
+    official_name: Importador BPA
+    translated_name: BPA importer
+    what_it_is: >
+      A support file shipped alongside the SIA production data rather than a
+      dataset. Retained so it binds to something and stops appearing as an
+      unexplained gap.
+    kind: tooling
+    status: tooling
+    observed_as: [IMPBORL]
+    confidence: low
+
+  TABWIN.APP:
+    system: TABWIN
+    official_name: TabWin, aplicativo e utilitários
+    translated_name: TabWin application and utilities
+    what_it_is: Installers and helper executables for the TabWin tabulator.
+    kind: tooling
+    status: tooling
+    observed_as: [INSTALADOR-TABWIN415, VERDBF]
+
+  TABNET.APP:
+    system: TABNET
+    official_name: TabNet, servidor
+    translated_name: TabNet server
+    what_it_is: The TabNet server distribution.
+    kind: tooling
+    status: tooling
+    observed_as: [TABNET27LINUX]
+
+  TABDOS.APP:
+    system: TABDOS
+    official_name: Tab para DOS
+    translated_name: Tab for DOS
+    what_it_is: The DOS-era tabulator.
+    kind: tooling
+    status: tooling
+    observed_as: [TAB]

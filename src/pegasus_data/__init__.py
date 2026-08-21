@@ -40,6 +40,9 @@ _EXPORTS: dict[str, str] = {
     "RenderReport": ".api",
     "PROFILES": ".api",
     "explore": ".explore",
+    "info": ".info",
+    "Info": ".info",
+    "Ontology": ".ontology",
     "Exploration": ".explore",
     "translate": ".translate",
     "TranslationImpossible": ".translate",
@@ -60,6 +63,8 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     # Re-exported through __getattr__ at runtime; `__all__` is built from
     # _EXPORTS, which a linter cannot follow.
     # ruff: noqa: F401
+    from .info import Info, info
+    from .ontology import Ontology
     from .api import (
         PROFILES,
         Catalog,
