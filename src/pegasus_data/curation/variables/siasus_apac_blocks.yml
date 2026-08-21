@@ -1,0 +1,973 @@
+# SIASUS — the clinical blocks of the APAC datasets.
+#
+# An APAC authorises a high-complexity procedure, and each programme adds its own
+# clinical block to the common AP_ header. Those blocks are what make these
+# datasets clinically usable rather than merely administrative, and each is
+# prefixed by its programme:
+#
+#   AN_   nephrology, the pre-dialysis assessment
+#   ATD_  dialysis, the ongoing treatment and transplant pathway
+#   ACF_  arteriovenous fistula creation, the vascular access
+#   AQ_   chemotherapy, the drug regimen
+#   AB_   bariatric surgery, and ABO_ its follow-up
+#
+# The three kidney blocks are one pathway read in order: AN_ assesses a patient
+# approaching kidney failure, ACF_ creates the access, ATD_ runs the dialysis and
+# tracks whether the patient is fit for a transplant.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+
+  # =============================================== nephrology assessment (AN)
+  AN_ACEVAS:
+    official_name: Acesso vascular
+    translated_name: Vascular access present
+    description: >
+      Whether the patient already has vascular access. Starting dialysis without
+      it means a temporary catheter, which carries far more infection risk, so
+      this field marks the difference between planned and unplanned starts.
+    code_system: internal
+    source: def
+    source_ref: ACES_VASC.CNV
+    reasoning: Bound to ACES_VASC, an S/N flag; ACEVAS reads acesso vascular.
+
+  AN_ALTURA:
+    official_name: Altura
+    translated_name: Height
+    description: >
+      Height in centimetres. Recorded with weight because dialysis dose is
+      scaled to body size, so neither is useful alone.
+    code_system: internal
+    source: def
+    source_ref: ALTURA.CNV
+    reasoning: Bound to ALTURA, whose labels are centimetre values.
+
+  AN_PESO:
+    official_name: Peso
+    translated_name: Weight
+    description: >
+      Weight in kilograms. In kidney failure weight also tracks fluid overload,
+      so a change between authorisations is not necessarily nutritional.
+    code_system: internal
+    source: def
+    source_ref: PESO.CNV
+    reasoning: Bound to PESO, whose labels are kilogram values.
+
+  AN_HB:
+    official_name: Hemoglobina
+    translated_name: Haemoglobin
+    description: >
+      Haemoglobin in g%. Anaemia is near universal in kidney failure because the
+      failing kidney stops making erythropoietin, and this value is what
+      justifies prescribing it.
+    code_system: internal
+    source: def
+    source_ref: HB.CNV
+    reasoning: Bound to HB, whose labels are g% values.
+
+  AN_ALBUMI:
+    official_name: Albumina
+    translated_name: Albumin
+    description: >
+      Serum albumin in g%. The standard nutritional marker in dialysis, and a
+      strong predictor of survival on it.
+    code_system: internal
+    source: def
+    source_ref: ALBINA.CNV
+    reasoning: Bound to ALBINA, whose labels are g% values.
+
+  AN_GLICOS:
+    official_name: Glicose
+    translated_name: Glucose
+    description: >
+      Blood glucose. Diabetes is the commonest cause of kidney failure in
+      Brazil, so this is both a comorbidity marker and a cause.
+    code_system: internal
+    source: def
+    source_ref: GLICOSE.CNV
+    reasoning: Bound to GLICOSE, a four-digit numeric field.
+
+  AN_DIURES:
+    official_name: Diurese
+    translated_name: Urine output
+    description: >
+      Residual urine output. Retaining some output makes dialysis easier to
+      manage and predicts better outcomes, so its loss is a milestone in the
+      disease.
+    code_system: internal
+    source: def
+    source_ref: DIURESE.CNV
+    reasoning: Bound to DIURESE, a four-digit numeric field.
+
+  AN_TRU:
+    official_name: Taxa de redução de ureia
+    translated_name: Urea reduction ratio
+    description: >
+      Urea reduction ratio — how much urea one dialysis session removes. The
+      standard adequacy measure: below about 65% the session is judged
+      insufficient, so this is the field that says whether the treatment works.
+    code_system: internal
+    source: def
+    source_ref: TRU.CNV
+    reasoning: >
+      Bound to TRU, whose labels spell out a numeric urea reduction value.
+      TRU abbreviates taxa de redução de ureia.
+
+  AN_HIV:
+    official_name: Sorologia para HIV
+    translated_name: HIV serology
+    description: >
+      HIV serology. Screened because dialysis involves repeated blood-circuit
+      exposure and shared machines, so the result determines isolation practice.
+    code_system: internal
+    source: def
+    source_ref: HIV.CNV
+    reasoning: Bound to HIV, whose values are positivo and negativo.
+
+  AN_HBSAG:
+    official_name: HBsAg
+    translated_name: Hepatitis B surface antigen
+    description: >
+      Hepatitis B surface antigen. A positive patient must be dialysed on a
+      dedicated machine in a separate room, which is why this single field
+      changes how a unit is organised.
+    code_system: internal
+    source: def
+    source_ref: HBSAG.CNV
+    reasoning: Bound to HBSAG, whose values are positivo and negativo.
+
+  AN_HCV:
+    official_name: Sorologia para hepatite C
+    translated_name: Hepatitis C serology
+    description: >
+      Hepatitis C serology. Historically transmitted within dialysis units
+      through the blood circuit, which is why it is screened repeatedly rather
+      than once.
+    code_system: internal
+    source: def
+    source_ref: HCV.CNV
+    reasoning: Bound to HCV, whose values are positivo and negativo.
+
+  AN_INTFIS:
+    official_name: Quantidade de fístulas
+    translated_name: Number of fistulas
+    description: >
+      How many arteriovenous fistulas the patient has had, as a banded code
+      rather than a bare number. Each failed access makes the next harder to
+      create, so it measures how far the patient's vascular options are used up.
+    code_system: internal
+    source: def
+    source_ref: QT_FISTOLA.CNV
+    reasoning: >
+      Bound to QT_FISTOLA, whose labels spell out a fistula count.
+
+  AN_ULSOAB:
+    official_name: Ultrassonografia abdominal
+    translated_name: Abdominal ultrasound done
+    description: >
+      Whether abdominal ultrasound was performed. Part of the work-up that
+      establishes why the kidneys failed and whether they are small and scarred
+      or obstructed.
+    code_system: internal
+    source: def
+    source_ref: ULTRA_AB.CNV
+    reasoning: Bound to ULTRA_AB, an S/N flag; ULSOAB reads ultrassonografia abdominal.
+
+  AN_CNCDO:
+    official_name: Inscrição na CNCDO
+    translated_name: Registered with the transplant centre
+    description: >
+      Whether the patient is registered with the state transplant notification
+      centre. Registration is what puts a patient on the transplant waiting
+      list, so this is the field that distinguishes waiting from not being
+      considered.
+    code_system: internal
+    source: def
+    source_ref: CNCDO.CNV
+    reasoning: >
+      Bound to CNCDO, an S/N flag. CNCDO is the Central de Notificação, Captação
+      e Distribuição de Órgãos.
+
+  # =============================================== dialysis treatment (ATD)
+  ATD_SITINI:
+    official_name: Situação no início do tratamento
+    translated_name: Setting at start of treatment
+    description: >
+      Whether dialysis began in an outpatient setting or in hospital. Starting
+      in hospital usually means the failure was unplanned, and unplanned starts
+      have markedly worse outcomes.
+    code_system: internal
+    source: def
+    source_ref: ATD_SITINI.CNV
+    reasoning: Bound to ATD_SITINI, whose values are ambulatorial and hospital.
+
+  ATD_SITTRA:
+    official_name: Situação quanto ao transplante
+    translated_name: Transplant fitness
+    description: >
+      Whether the patient is fit for transplant, unfit, has refused, or is too
+      recently started to assess — the last applying below ninety days of
+      treatment. The gate to the waiting list.
+    code_system: internal
+    source: def
+    source_ref: ATD_SITTRA.CNV
+    reasoning: >
+      Bound to ATD_SITTRA, whose values are apto, inapto, recusa and não
+      aplicável for patients under ninety days of treatment.
+
+  ATD_SEAPTO:
+    official_name: Encaminhamento se apto ao transplante
+    translated_name: Referral status if transplant-eligible
+    description: >
+      What has happened for a patient judged fit: registered with the transplant
+      centre, in pre-transplant assessment, awaiting an appointment, or not
+      referred at all. The last value is the one that matters, since it marks an
+      eligible patient going nowhere.
+    code_system: internal
+    source: def
+    source_ref: ATD_SEAPTO.CNV
+    reasoning: >
+      Bound to ATD_SEAPTO, whose values run from inscrito no CNCDO through sem
+      encaminhamento.
+
+  ATD_HBSAG:
+    official_name: HBsAg em tratamento dialítico
+    translated_name: HBsAg during dialysis
+    description: >
+      Hepatitis B surface antigen on the dialysis record, repeated during
+      treatment rather than taken once at assessment as AN_HBSAG is.
+    code_system: internal
+    source: def
+    source_ref: ATD_HBSAG.CNV
+    reasoning: Bound to ATD_HBSAG, positivo/negativo; the ATD counterpart of AN_HBSAG.
+
+  ATD_HCV:
+    official_name: Hepatite C em tratamento dialítico
+    translated_name: Hepatitis C during dialysis
+    description: >
+      Hepatitis C on the dialysis record. Seroconversion between authorisations
+      is evidence of transmission inside the unit, which is the reason for
+      repeating it.
+    code_system: internal
+    source: def
+    source_ref: ATD_HCV.CNV
+    reasoning: Bound to ATD_HCV, positivo/negativo; the ATD counterpart of AN_HCV.
+
+  ATD_INTERC:
+    official_name: Intercorrência
+    translated_name: Intercurrent event
+    description: >
+      Whether an intercurrent event occurred during the authorisation period —
+      the complications that interrupt an otherwise routine schedule.
+    code_system: internal
+    source: def
+    source_ref: ATD_INTERC.CNV
+    reasoning: Bound to ATD_INTERC, an S/N/Ignorado flag; INTERC reads intercorrência.
+
+  ATD_MAISNE:
+    official_name: Acompanhamento por mais de um nefrologista
+    translated_name: Followed by more than one nephrologist
+    description: >
+      Whether more than one nephrologist follows the patient. Carries a "não
+      preenchido" value distinct from ignorado, so blank and unknown are
+      different states here.
+    code_system: internal
+    source: def
+    source_ref: ATD_MAISNE.CNV
+    reasoning: >
+      Bound to ATD_MAISNE, whose values are sim, não, ignorado and não
+      preenchido. MAISNE reads mais de um nefrologista.
+
+  # ========================================= fistula creation (ACF)
+  ACF_PREFAV:
+    official_name: Fístula arteriovenosa prévia
+    translated_name: Previous fistula
+    description: >
+      Whether the patient has had a fistula before. The ACF_ block assesses the
+      limb before surgery, and a previous fistula limits where a new one can go.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; PREFAV reads prévia fístula arteriovenosa.
+
+  ACF_USOCAT:
+    official_name: Uso de cateter
+    translated_name: Catheter in use
+    description: >
+      Whether the patient is currently dialysing through a catheter. Catheters
+      are the temporary bridge a fistula is meant to replace, and time on one is
+      time at raised infection risk.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; USOCAT reads uso de cateter.
+
+  ACF_VEIAVI:
+    official_name: Veia visível
+    translated_name: Visible vein
+    description: >
+      Whether a suitable vein is visible on examination. The simplest predictor
+      of whether a fistula can be created at all.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; VEIAVI reads veia visível.
+
+  ACF_PULSO:
+    official_name: Pulso arterial palpável
+    translated_name: Palpable arterial pulse
+    description: >
+      Whether the arterial pulse is palpable. A fistula needs adequate arterial
+      inflow as well as a usable vein, so this is the arterial half of the
+      assessment that ACF_VEIAVI covers venously.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; PULSO reads pulso.
+
+  ACF_DUPLEX:
+    official_name: Ultrassom duplex scan
+    translated_name: Duplex ultrasound done
+    description: >
+      Whether duplex ultrasound was used to map the vessels. Imaging rather than
+      palpation, and it finds usable veins that examination misses.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; DUPLEX names the duplex scan.
+
+  ACF_FLEBIT:
+    official_name: Flebite
+    translated_name: Phlebitis
+    description: >
+      Whether phlebitis is present. Inflamed veins scar and become unusable, so
+      this records why a limb may be unsuitable.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; FLEBIT reads flebite.
+
+  ACF_HEMATO:
+    official_name: Hematoma
+    translated_name: Haematoma
+    description: >
+      Whether a haematoma is present, typically from repeated venepuncture — the
+      other common reason a limb's veins are no longer usable.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; HEMATO reads hematoma.
+
+  # ============================================= chemotherapy (AQ)
+  AQ_MED01:
+    official_name: Medicamento 1 do esquema quimioterápico
+    translated_name: Chemotherapy drug 1
+    description: >
+      First drug of the regimen, on a coded oncology drug list. Chemotherapy is
+      given in combinations, so the ten AQ_MED slots together are the regimen
+      and no single one identifies it.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: >
+      Bound to MED_ONC, whose values are oncology drug names such as
+      acalabrutinibe and acetato de abiraterona.
+
+  AQ_MED02:
+    official_name: Medicamento 2 do esquema quimioterápico
+    translated_name: Chemotherapy drug 2
+    description: Second drug of the regimen, on the same oncology drug list. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 2 of ten.
+
+  AQ_MED03:
+    official_name: Medicamento 3 do esquema quimioterápico
+    translated_name: Chemotherapy drug 3
+    description: Third drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 3 of ten.
+
+  AQ_MED04:
+    official_name: Medicamento 4 do esquema quimioterápico
+    translated_name: Chemotherapy drug 4
+    description: Fourth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 4 of ten.
+
+  AQ_MED05:
+    official_name: Medicamento 5 do esquema quimioterápico
+    translated_name: Chemotherapy drug 5
+    description: Fifth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 5 of ten.
+
+  AQ_MED06:
+    official_name: Medicamento 6 do esquema quimioterápico
+    translated_name: Chemotherapy drug 6
+    description: Sixth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 6 of ten.
+
+  AQ_MED07:
+    official_name: Medicamento 7 do esquema quimioterápico
+    translated_name: Chemotherapy drug 7
+    description: Seventh drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 7 of ten.
+
+  AQ_MED08:
+    official_name: Medicamento 8 do esquema quimioterápico
+    translated_name: Chemotherapy drug 8
+    description: Eighth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 8 of ten.
+
+  AQ_MED09:
+    official_name: Medicamento 9 do esquema quimioterápico
+    translated_name: Chemotherapy drug 9
+    description: Ninth drug of the regimen. See AQ_MED01.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 9 of ten.
+
+  AQ_MED10:
+    official_name: Medicamento 10 do esquema quimioterápico
+    translated_name: Chemotherapy drug 10
+    description: >
+      Tenth and last drug slot. Regimens rarely fill it, so a populated
+      AQ_MED10 marks an unusually complex protocol.
+    code_system: internal
+    source: def
+    source_ref: MED_ONC.CNV
+    reasoning: Bound to MED_ONC, slot 10 of ten.
+
+  # ================================= bariatric surgery (AB) and follow-up (ABO)
+  AB_PROCAIH:
+    official_name: Procedimento principal da AIH
+    translated_name: Principal AIH procedure
+    description: >
+      The hospital procedure code for the bariatric operation itself, carried on
+      the outpatient authorisation so the surgery and its follow-up can be
+      joined across SIH and SIA.
+    code_system: internal
+    source: def
+    source_ref: PROC_CB.CNV
+    reasoning: C(10) SIGTAP procedure code bound to PROC_CB and the SIGTAP table.
+
+  AB_PRCAIH2:
+    official_name: Segundo procedimento da AIH
+    translated_name: AIH procedure 2
+    description: >
+      A second hospital procedure on the same admission. The numbered slots
+      exist because a bariatric admission often carries several billed
+      procedures.
+    code_system: internal
+    source: def
+    source_ref: PROC_AIH.CNV
+    reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 2.
+
+  AB_PRCAIH3:
+    official_name: Terceiro procedimento da AIH
+    translated_name: AIH procedure 3
+    description: A third hospital procedure on the same admission. See AB_PRCAIH2.
+    code_system: internal
+    source: def
+    source_ref: PROC_AIH.CNV
+    reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 3.
+
+  AB_PRCAIH4:
+    official_name: Quarto procedimento da AIH
+    translated_name: AIH procedure 4
+    description: A fourth hospital procedure, on the follow-up dataset. See AB_PRCAIH2.
+    code_system: internal
+    source: def
+    source_ref: PROC_AIH.CNV
+    reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 4.
+
+  AB_PRCAIH5:
+    official_name: Quinto procedimento da AIH
+    translated_name: AIH procedure 5
+    description: A fifth hospital procedure. See AB_PRCAIH2.
+    code_system: internal
+    source: def
+    source_ref: PROC_AIH.CNV
+    reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 5.
+
+  AB_PRCAIH6:
+    official_name: Sexto procedimento da AIH
+    translated_name: AIH procedure 6
+    description: A sixth hospital procedure. See AB_PRCAIH2.
+    code_system: internal
+    source: def
+    source_ref: PROC_AIH.CNV
+    reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 6.
+
+  AB_DTCIRUR:
+    official_name: Data da cirurgia bariátrica
+    translated_name: Date of bariatric surgery
+    description: >
+      When the operation was performed. Follow-up authorisations are measured
+      from here, so it anchors the whole post-surgical series.
+    code_system: internal
+    source: def
+    source_ref: ANOMES2008.CNV
+    reasoning: C(8) date bound to ANOMES2008; DTCIRUR reads data da cirurgia.
+
+  AB_DTCIRG2:
+    official_name: Data da segunda cirurgia
+    translated_name: Date of second surgery
+    description: >
+      Date of a second operation, whether a revision or a reconstructive
+      procedure after weight loss.
+    code_system: internal
+    source: def
+    source_ref: ANOMES2008.CNV
+    reasoning: C(8) date bound to ANOMES2008; the second surgery date.
+
+  AB_TABBARR:
+    official_name: Classificação BAROS
+    translated_name: BAROS outcome score
+    description: >
+      The BAROS outcome band — insufficient, acceptable, good, very good or
+      excellent. A composite of weight loss, comorbidity resolution and quality
+      of life, and the standard way bariatric surgery is judged to have worked.
+    code_system: internal
+    source: def
+    source_ref: TAB_BAROS.CNV
+    reasoning: >
+      Bound to TAB_BAROS, whose values are insuficiente, aceitável, bom, muito
+      bom and excelente — the BAROS bands.
+
+  AP_TPATEND:
+    official_name: Tipo de atendimento da APAC
+    translated_name: APAC type
+    description: >
+      Which APAC programme this authorisation belongs to — general, medicines,
+      nephrology, chemotherapy, radiotherapy or bariatric surgery. It says which
+      clinical block on the record is populated.
+    code_system: internal
+    source: def
+    source_ref: TP_ATEND.CNV
+    reasoning: >
+      Bound to TP_ATEND, whose values name the APAC programmes from laudo geral
+      through cirurgia bariátrica.
+
+  AP_ADESAO:
+    official_name: Adesão ao tratamento
+    translated_name: Adherence to treatment
+    description: >
+      Whether the patient is following the post-surgical programme. Bariatric
+      outcomes depend on adherence, so it is recorded alongside the clinical
+      measures rather than treated as a soft factor.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; ADESAO reads adesão.
+
+  AP_ATV_FIS:
+    official_name: Prática de atividade física
+    translated_name: Physical activity
+    description: Whether the patient takes regular physical activity, part of the follow-up assessment.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; ATV_FIS reads atividade física.
+
+  AP_MEDICAM:
+    official_name: Uso de medicamentos
+    translated_name: Taking medication
+    description: >
+      Whether the patient is on medication. After bariatric surgery the
+      interesting change is usually medication stopped, as diabetes and
+      hypertension resolve.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; MEDICAM reads medicamentos.
+
+  AP_POLIVIT:
+    official_name: Uso de polivitamínico
+    translated_name: Taking multivitamins
+    description: >
+      Whether the patient takes multivitamins. Lifelong supplementation is
+      mandatory after bariatric surgery because the operation deliberately
+      impairs absorption, so a "no" here is a clinical problem.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; POLIVIT reads polivitamínico.
+
+  AP_REG_PES:
+    official_name: Reganho de peso
+    translated_name: Weight regain
+    description: >
+      Whether the patient has regained weight. The principal late failure of
+      bariatric surgery, and what the follow-up programme exists to catch.
+    code_system: internal
+    source: def
+    source_ref: SIMNAO2.CNV
+    reasoning: Bound to SIMNAO2; REG_PES reads reganho de peso.
+
+  AP_DTOOCOR:
+    official_name: Data da ocorrência
+    translated_name: Date of the event
+    description: Date of the event recorded on the follow-up authorisation.
+    code_system: internal
+    source: def
+    source_ref: ANO_2008.CNV
+    reasoning: C(8) date bound to ANOMES2008 and ANO_2008.
+
+  AP_CID_C1:
+    official_name: CID de comorbidade 1
+    translated_name: Comorbidity 1
+    description: >
+      First comorbidity, as a CID-10 code. Bariatric surgery is indicated partly
+      by comorbidity, and their resolution is how it is judged, so the five
+      slots are both the indication and the outcome.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: >
+      C(4) CID-10 code bound to CID_COM, whose labels are conditions such as
+      hipertensão arterial sistêmica and diabetes mellitus.
+
+  AP_CID_C2:
+    official_name: CID de comorbidade 2
+    translated_name: Comorbidity 2
+    description: Second comorbidity, as a CID-10 code. See AP_CID_C1.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to CID_COM, slot 2 of five.
+
+  AP_CID_C3:
+    official_name: CID de comorbidade 3
+    translated_name: Comorbidity 3
+    description: Third comorbidity, as a CID-10 code. See AP_CID_C1.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to CID_COM, slot 3 of five.
+
+  AP_CID_C4:
+    official_name: CID de comorbidade 4
+    translated_name: Comorbidity 4
+    description: Fourth comorbidity, as a CID-10 code. See AP_CID_C1.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to CID_COM, slot 4 of five.
+
+  AP_CID_C5:
+    official_name: CID de comorbidade 5
+    translated_name: Comorbidity 5
+    description: Fifth comorbidity, as a CID-10 code. See AP_CID_C1.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to CID_COM, slot 5 of five.
+
+  CO_CIDPRIM:
+    official_name: CID primário
+    translated_name: Primary diagnosis
+    description: The principal CID-10 diagnosis on the follow-up authorisation.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to S_CID.
+
+  CO_CIDSEC:
+    official_name: CID secundário
+    translated_name: Secondary diagnosis
+    description: The secondary CID-10 diagnosis, beside CO_CIDPRIM.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to S_CID.
+
+  # ============================== production and home care headers
+  PA_FXETAR:
+    official_name: Faixa etária
+    translated_name: Age band
+    description: >
+      Age band on the aggregate production record. Banded rather than exact,
+      because PA carries no individual, and one band exists specifically for
+      pregnant women rather than for an age.
+    code_system: internal
+    source: def
+    source_ref: FXETARIA.CNV
+    reasoning: >
+      Bound to FXETARIA, whose values include grupo gestantes alongside the age
+      ranges.
+
+  PA_MORFOL:
+    official_name: Morfologia do tumor
+    translated_name: Tumour morphology
+    description: >
+      Tumour morphology on the CID-O morphology axis, which describes the cell
+      type where the CID-10 code describes the site.
+    code_system: external
+    codelist: cid_o
+    source: inferred
+    reasoning: C(6) code bound to S_CIDM, the morphology codelist.
+
+  PA_NH:
+    official_name: Nível de hierarquia
+    translated_name: Hierarchy level
+    description: >
+      The establishment's hierarchy level — how complex the care it is
+      authorised to provide is. Used to separate primary from specialised
+      production.
+    code_system: internal
+    source: def
+    source_ref: NIV_HIER.CNV
+    reasoning: Bound to NIV_HIER, whose labels are nível de hierarquia da UPS values.
+
+  PA_TIPPRO:
+    official_name: Tipo de atendimento
+    translated_name: Attendance type
+    description: >
+      Whether the contact was urgent, a first consultation, a follow-up, or a
+      referred emergency. First and subsequent consultations behave very
+      differently in any productivity measure.
+    code_system: internal
+    source: def
+    source_ref: TIPATEND.CNV
+    reasoning: >
+      Bound to TIPATEND, whose values are urgência/emergência, primeira
+      consulta, consulta subsequente and urgência com referência.
+
+  PA_CID:
+    official_name: CID do atendimento
+    translated_name: Diagnosis
+    description: CID-10 diagnosis recorded on the home care action.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to S_CID, on the SAD dataset.
+
+  PA_TP_EQP:
+    official_name: Tipo de equipe
+    translated_name: Team type
+    description: >
+      Which kind of team delivered the home care action, on the same team
+      codelist CNES uses. Home care is delivered by designated multiprofessional
+      teams rather than by individuals.
+    code_system: internal
+    source: def
+    source_ref: EQUIPE.CNV
+    reasoning: Bound to EQUIPE, the CNES team-type codelist.
+
+  # ============================ the 2002 registry blocks (AC), header columns
+  PAC_CODUNI:
+    official_name: Código da unidade, bloco do paciente
+    translated_name: Establishment code, patient block
+    description: >
+      The dialysis unit treating this patient. The AC registry repeats the same
+      header columns under each block prefix — PAC_, PAF_ and OPC_ — so the
+      three carry the same meaning for different record types.
+    code_system: internal
+    source: def
+    source_ref: CNESUAC.CNV
+    reasoning: >
+      Bound to the CNESU establishment codelists; CODUNI reads código da
+      unidade, repeated across the AC blocks.
+
+  PAF_CODUNI:
+    official_name: Código da unidade, bloco PAF
+    translated_name: Establishment code, PAF block
+    description: The treating unit on the PAF block. See PAC_CODUNI.
+    code_system: internal
+    source: def
+    source_ref: CNESUAC.CNV
+    reasoning: The PAF_ block's copy of CODUNI, on the same CNESU codelists.
+
+  OPC_CODUNI:
+    official_name: Código da unidade, bloco OPC
+    translated_name: Establishment code, OPC block
+    description: The treating unit on the OPC block. See PAC_CODUNI.
+    code_system: internal
+    source: def
+    source_ref: CNESUAC.CNV
+    reasoning: The OPC_ block's copy of CODUNI, on the same CNESU codelists.
+
+  PAC_CONDIC:
+    official_name: Condição de gestão, bloco do paciente
+    translated_name: Management arrangement, patient block
+    description: >
+      Whether the establishment is under municipal, state or shared management.
+      Determines who authorises and pays for the treatment.
+    code_system: internal
+    source: def
+    source_ref: TPGESTAO.CNV
+    reasoning: Bound to TPGESTAO, whose values are municipal, estadual and dupla.
+
+  PAF_CONDIC:
+    official_name: Condição de gestão, bloco PAF
+    translated_name: Management arrangement, PAF block
+    description: The management arrangement on the PAF block. See PAC_CONDIC.
+    code_system: internal
+    source: def
+    source_ref: TPGESTAO.CNV
+    reasoning: The PAF_ block's copy of CONDIC, bound to TPGESTAO.
+
+  OPC_CONDIC:
+    official_name: Condição de gestão, bloco OPC
+    translated_name: Management arrangement, OPC block
+    description: The management arrangement on the OPC block. See PAC_CONDIC.
+    code_system: internal
+    source: def
+    source_ref: TPGESTAO.CNV
+    reasoning: The OPC_ block's copy of CONDIC, bound to TPGESTAO.
+
+  PAC_GESTAO:
+    official_name: Município gestor, bloco do paciente
+    translated_name: Managing municipality, patient block
+    description: >
+      IBGE code of the municipality managing the establishment. Not the
+      patient's municipality, which PAC_MUNPCN carries.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: Bound to MUNICBR, the national municipality codelist.
+
+  PAF_GESTAO:
+    official_name: Município gestor, bloco PAF
+    translated_name: Managing municipality, PAF block
+    description: The managing municipality on the PAF block. See PAC_GESTAO.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The PAF_ block's copy of GESTAO, bound to MUNICBR.
+
+  OPC_GESTAO:
+    official_name: Município gestor, bloco OPC
+    translated_name: Managing municipality, OPC block
+    description: The managing municipality on the OPC block. See PAC_GESTAO.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The OPC_ block's copy of GESTAO, bound to MUNICBR.
+
+  PAC_MUNPCN:
+    official_name: Município do paciente
+    translated_name: Patient municipality
+    description: >
+      IBGE code of the patient's municipality. Real and unobfuscated, and with
+      the date of birth and postcode on the same record it is part of what makes
+      this registry re-identifiable. See FINDINGS.md 3j.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: Bound to MUNICBR; MUNPCN reads município do paciente.
+
+  OPC_MUNPCN:
+    official_name: Município do paciente, bloco OPC
+    translated_name: Patient municipality, OPC block
+    description: The patient's municipality on the OPC block. See PAC_MUNPCN.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The OPC_ block's copy of MUNPCN, bound to MUNICBR.
+
+  PAC_SEXOPC:
+    official_name: Sexo do paciente
+    translated_name: Patient sex
+    description: >
+      The patient's sex, M or F. Real and unobfuscated, and one of the
+      quasi-identifiers that makes this record re-identifiable alongside the
+      birth date and postcode on the same row.
+    code_system: internal
+    source: def
+    source_ref: SEXO.CNV
+    reasoning: Bound to SEXO; SEXOPC reads sexo do paciente.
+
+  OPC_SEXOPC:
+    official_name: Sexo do paciente, bloco OPC
+    translated_name: Patient sex, OPC block
+    description: The patient's sex on the OPC block. See PAC_SEXOPC.
+    code_system: internal
+    source: def
+    source_ref: SEXO.CNV
+    reasoning: The OPC_ block's copy of SEXOPC, bound to SEXO.
+
+  PAC_DATREF:
+    official_name: Competência de referência, bloco do paciente
+    translated_name: Reference competência, patient block
+    description: The AAAAMM competência the record belongs to.
+    code_system: internal
+    source: def
+    source_ref: AM_0803.CNV
+    reasoning: Bound to the AM_0803 competência codelists.
+
+  PAF_DATREF:
+    official_name: Competência de referência, bloco PAF
+    translated_name: Reference competência, PAF block
+    description: The competência on the PAF block. See PAC_DATREF.
+    code_system: internal
+    source: def
+    source_ref: AM_0803.CNV
+    reasoning: The PAF_ block's copy of DATREF.
+
+  OPC_DATREF:
+    official_name: Competência de referência, bloco OPC
+    translated_name: Reference competência, OPC block
+    description: The competência on the OPC block. See PAC_DATREF.
+    code_system: internal
+    source: def
+    source_ref: AM_0803.CNV
+    reasoning: The OPC_ block's copy of DATREF.
+
+  PAC_DIAGPR:
+    official_name: Diagnóstico principal, bloco do paciente
+    translated_name: Primary diagnosis, patient block
+    description: >
+      CID-10 primary diagnosis, overwhelmingly N18.9 — chronic kidney disease —
+      since this registry covers renal replacement therapy.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: Bound to the CID and CID10 codelists.
+
+  PAF_DIAGPR:
+    official_name: Diagnóstico principal, bloco PAF
+    translated_name: Primary diagnosis, PAF block
+    description: The primary CID-10 diagnosis on the PAF block. See PAC_DIAGPR.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: The PAF_ block's copy of DIAGPR, bound to CID10.
+
+  OPC_CID:
+    official_name: CID, bloco OPC
+    translated_name: Diagnosis, OPC block
+    description: The CID-10 diagnosis on the OPC block.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: Bound to the CID and CID10 codelists.
+
+  OPC_PRIPAL:
+    official_name: Procedimento principal, bloco OPC
+    translated_name: Principal procedure, OPC block
+    description: The principal procedure authorised on the OPC block.
+    code_system: internal
+    source: def
+    source_ref: MUNICBR.CNV
+    reasoning: Bound to PROC1199, a procedure codelist of the period.
