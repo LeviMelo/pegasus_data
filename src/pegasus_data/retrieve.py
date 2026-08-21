@@ -163,6 +163,31 @@ def parse_dataset(spec: str, series: str | None = None) -> tuple[str, str | None
     return system, "".join(parts[1:])
 
 
+def _reject_unknown_system(spec: str, system: str) -> None:
+    """Fail fast, with suggestions, when the SYSTEM does not exist.
+
+    ``parse_dataset`` is deliberately permissive — it splits a string and does
+    not judge it — so ``fetch("SIHH")`` used to be accepted, reach the discovery
+    path, and spend a bounded crawl looking for a directory that was never
+    there. A typo should cost a message, not a network round trip.
+
+    Only the SYSTEM is rejected. An unrecognised *series* is left alone on
+    purpose: DATASUS adds datasets, and discovery finding one the declaration
+    has not caught up with is the feature working, not a mistake to block.
+    """
+    onto = _ontology()
+    if onto is None:  # pragma: no cover - only when the declaration is unreadable
+        return
+    if onto.resolve(system) is not None:
+        return
+    near = onto.suggest(spec)
+    hint = f" Did you mean: {', '.join(near)}?" if near else ""
+    raise DatasetUnknown(
+        f"{spec!r} names no system this build knows ({system!r} is not declared "
+        f"in the ontology).{hint}"
+    )
+
+
 def _as_years(years: int | Sequence[int] | range | None) -> list[int]:
     if years is None:
         return []
@@ -222,6 +247,7 @@ def fetch(
     """
     resolved_settings = settings or load_settings(root=Path(root) if root else None)
     system, series_name = parse_dataset(dataset, series)
+    _reject_unknown_system(dataset, system)
     want_years = _as_years(years)
     want_ufs = _as_list(uf)
     want_months = (

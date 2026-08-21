@@ -39,13 +39,13 @@ _EXPORTS: dict[str, str] = {
     "LabelUnavailable": ".api",
     "RenderReport": ".api",
     "PROFILES": ".api",
-    "explore": ".explore",
-    "info": ".info",
-    "Info": ".info",
+    "explore": "._explore",
+    "info": "._info",
+    "Info": "._info",
     "Ontology": ".ontology",
-    "Exploration": ".explore",
-    "translate": ".translate",
-    "TranslationImpossible": ".translate",
+    "Exploration": "._explore",
+    "translate": "._translate",
+    "TranslationImpossible": "._translate",
     "search": ".docsgen",
     "fetch": ".retrieve",
     "FetchReport": ".retrieve",
@@ -63,7 +63,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     # Re-exported through __getattr__ at runtime; `__all__` is built from
     # _EXPORTS, which a linter cannot follow.
     # ruff: noqa: F401
-    from .info import Info, info
+    from ._info import Info, info
     from .ontology import Ontology
     from .api import (
         PROFILES,
@@ -80,18 +80,31 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         open_lake,
     )
     from .bundle import BundleError, pack, read_manifest, unpack
-    from .explore import Exploration, explore
+    from ._explore import Exploration, explore
     from .retrieve import DatasetUnknown, FetchReport, NothingPublished, fetch
-    from .translate import TranslationImpossible, translate
+    from ._translate import TranslationImpossible, translate
 
 
 def __getattr__(name: str) -> Any:
+    """Resolve an export on first use, then cache it in this module's globals.
+
+    The implementation modules are PRIVATE — ``_explore``, ``_translate``,
+    ``_info`` — and that is not a style choice. A module named ``explore.py``
+    exporting a function named ``explore`` collide as attributes of this
+    package: importing the submodule binds it over the function, after which
+    ``from pegasus_data import explore`` hands back a module and calling it
+    raises ``'module' object is not callable``. Renaming the module removes the
+    ambiguity instead of arbitrating it, and keeps ``import
+    pegasus_data._explore`` working for anyone who wants the module itself.
+    """
     module_name = _EXPORTS.get(name)
     if module_name is None:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
     from importlib import import_module
 
-    return getattr(import_module(module_name, __name__), name)
+    value = getattr(import_module(module_name, __name__), name)
+    globals()[name] = value
+    return value
 
 
 def __dir__() -> list[str]:

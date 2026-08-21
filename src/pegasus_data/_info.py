@@ -216,13 +216,17 @@ def info(
 
         found = onto.resolve(text)
         if found is None:
+            near = onto.suggest(text)
+            notes = [f"'{target}' does not resolve to a system, dataset or alias."]
+            if near:
+                notes.append("Did you mean: " + ", ".join(near) + "?")
+            else:
+                notes.append("Call info() with no argument for the list of systems.")
             return Info(
                 kind="unknown",
                 code=text,
-                notes=[
-                    f"'{target}' does not resolve to a system, dataset or alias. "
-                    "Try info() for the list."
-                ],
+                evidence={"suggestions": near},
+                notes=notes,
             )
         kind, node = found
         if kind == "system":

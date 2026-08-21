@@ -282,7 +282,7 @@ def parse_datasets_file(path: Path, data: dict[str, Any]) -> list[DatasetDoc]:
 #:
 #: The division: ``ontology.yml`` says what a dataset is, ``datasets.yml`` says
 #: what one of its rows means. They are keyed differently on purpose
-#: (``SIH.RD`` against ``SIHSUS_RD``) and :func:`pegasus_data.info.info` joins
+#: (``SIH.RD`` against ``SIHSUS_RD``) and :func:`pegasus_data._info.info` joins
 #: them on either.
 _NOT_CURATION = frozenset({"ontology.yml"})
 

@@ -226,7 +226,7 @@ class TestSchemaGenerations:
                 )
 
     def test_groups_by_signature_not_family(self, catalog: Catalog) -> None:
-        from pegasus_data.info import _generations
+        from pegasus_data._info import _generations
 
         self._seed(catalog)
         families = [
@@ -242,7 +242,7 @@ class TestSchemaGenerations:
         assert gens[0]["families"] == 2
 
     def test_reports_added_and_dropped(self, catalog: Catalog) -> None:
-        from pegasus_data.info import _generations
+        from pegasus_data._info import _generations
 
         self._seed(catalog)
         families = [
@@ -258,6 +258,63 @@ class TestSchemaGenerations:
         assert gens[1]["dropped"] == []
 
     def test_empty_is_empty(self, catalog: Catalog) -> None:
-        from pegasus_data.info import _generations
+        from pegasus_data._info import _generations
 
         assert _generations(catalog, []) == []
+
+
+class TestSuggestions:
+    """A name that does not resolve should point at the one that does.
+
+    With 131 datasets, "try info() for the list" is not help. A typo or a
+    half-remembered word is the overwhelmingly common case, and the declaration
+    already holds everything needed to answer it.
+    """
+
+    def test_typo_finds_the_intended_dataset(self, onto: Ontology) -> None:
+        assert "SIH.RD" in onto.suggest("SIH-RDD")
+        assert "SIH.SP" in onto.suggest("SIH.SPP")
+        assert "SIA.AQ" in onto.suggest("SIA.AQQ")
+
+    def test_a_word_finds_the_dataset_it_names(self, onto: Ontology) -> None:
+        """People search by what the data IS, not by its code."""
+        assert "SIA.AQ" in onto.suggest("quimio")
+        assert "SISCAN.MM" in onto.suggest("mamografia")
+        assert "SINAN.DENG" in onto.suggest("dengue")
+        assert "SINAN.VIOL" in onto.suggest("violencia")
+
+    def test_the_right_system_ranks_first(self, onto: Ontology) -> None:
+        """Getting the system right and the dataset wrong is the usual mistake."""
+        assert onto.suggest("SIH-RDD")[0].startswith("SIH.")
+
+    def test_nonsense_suggests_nothing(self, onto: Ontology) -> None:
+        """Inventing a suggestion for genuine nonsense is worse than silence."""
+        assert onto.suggest("nonsense-xyz") == []
+
+
+class TestPublicNamesAreCallable:
+    """``from pegasus_data import explore`` must give the FUNCTION.
+
+    ``explore.py`` exporting ``explore`` collided as attributes of the package:
+    importing the submodule bound it over the function, so a from-import handed
+    back a module and calling it raised ``'module' object is not callable``.
+    The implementation modules are private now, and this holds that line.
+    """
+
+    def test_from_import_gives_functions(self) -> None:
+        from pegasus_data import explore, fetch, info, translate
+
+        for obj in (explore, translate, info, fetch):
+            assert callable(obj), f"{obj!r} is not callable"
+
+    def test_attribute_access_gives_functions(self) -> None:
+        import pegasus_data
+
+        for name in ("explore", "translate", "info", "fetch"):
+            assert callable(getattr(pegasus_data, name))
+
+    def test_the_module_is_still_reachable(self) -> None:
+        """Renaming must not make the implementation unreachable for testing."""
+        import pegasus_data._explore as module
+
+        assert hasattr(module, "tree_snapshot")

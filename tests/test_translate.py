@@ -21,7 +21,7 @@ import pytest
 from pegasus_data.catalog.store import Catalog
 from pegasus_data.persist.reference import register_reference_tables, write_reference_tables
 from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
-from pegasus_data.translate import TranslationImpossible, translate
+from pegasus_data._translate import TranslationImpossible, translate
 
 
 @pytest.fixture

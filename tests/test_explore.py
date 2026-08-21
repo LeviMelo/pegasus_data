@@ -18,7 +18,7 @@ from __future__ import annotations
 import pytest
 
 from pegasus_data.catalog.store import Catalog
-from pegasus_data.explore import explore, tree_snapshot
+from pegasus_data._explore import explore, tree_snapshot
 
 
 def add_file(
@@ -152,7 +152,7 @@ class TestItDoesNotPretendToKnow:
     def test_with_no_map_at_all_it_says_so_rather_than_returning_empty(
         self, settings, monkeypatch
     ):
-        import pegasus_data.explore as module
+        import pegasus_data._explore as module
 
         monkeypatch.setattr(module, "tree_snapshot", lambda: ([], None))
         with pytest.raises(FileNotFoundError, match="no map of DATASUS"):

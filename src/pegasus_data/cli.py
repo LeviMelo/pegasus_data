@@ -246,7 +246,7 @@ def info_cmd(
     ``explore`` says what is out there to fetch and ``dictionary`` says what a
     column means. This says what a thing *is*, at any level of the ontology.
     """
-    from .info import info as _info
+    from ._info import info as _info
 
     answer = _info(target, field_name=field, root=root)
     if as_json:
@@ -823,7 +823,7 @@ def explore(
     207,251 files ships with the package. A local crawl supersedes it, and the
     result always says which one answered.
     """
-    from .explore import explore as explore_tree
+    from ._explore import explore as explore_tree
 
     try:
         result = explore_tree(
@@ -868,8 +868,8 @@ def translate_file(
     R's microdatasus. --system is required: SEXO=3 is Feminino in SIHSUS and
     undefined in SINASC, so labelling without it would be guessing.
     """
-    from .translate import TranslationImpossible
-    from .translate import translate as translate_table
+    from ._translate import TranslationImpossible
+    from ._translate import translate as translate_table
 
     try:
         with console.status(f"labelling {path.name}…"):

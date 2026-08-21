@@ -167,7 +167,9 @@ pegasus_data/
   sources/
     demas_api.py ibge.py sigtap.py community.py
   ontology.py             declared systems/datasets; binds observations to them (§5.4)
-  info.py                 info(): what a system, dataset or variable IS (§14.5)
+  _info.py                info(): what a system, dataset or variable IS (§14.5)
+  _explore.py             explore(): the shipped map of the tree (§14.1)
+  _translate.py           translate(): the dictionary as a service (§14.2)
   view.py                 read-time labelling and render profiles
   retrieve.py             fetch(): one call, DATASUS to a table
   bundle.py               portable semantic bundle
@@ -767,6 +769,14 @@ when the caller wanted `Settings`.
 ---
 
 ### 14.5 `info()` — the ontology is askable `[D]`
+
+**A note on module names.** `explore`, `translate` and `info` are functions
+whose implementation modules are private — `_explore.py`, `_translate.py`,
+`_info.py`. A module named `explore.py` exporting a function named `explore`
+collide as attributes of the package: importing the submodule binds it over the
+function, and `from pegasus_data import explore` then returns a module, so
+calling it raises `'module' object is not callable`. The underscore removes the
+ambiguity rather than arbitrating it.
 
 `explore()` answers *what is out there to fetch*. `describe()` answers *what does
 this column mean*. `info()` sits between them and answers **what IS this thing**,

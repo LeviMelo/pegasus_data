@@ -433,6 +433,58 @@ class Ontology:
             return ("dataset", self.datasets[hit])
         return None
 
+    def suggest(self, target: str, *, limit: int = 5) -> list[str]:
+        """Near matches for something that did not resolve.
+
+        A name the API cannot resolve is almost always a typo or a
+        half-remembered code, not a request for the full list of 131 datasets.
+        ``SIH-RDD`` should produce ``SIH.RD``, and it is cheap to say so.
+
+        Ranked by: an exact system match first (the user got the system right
+        and the dataset wrong, which is the commonest case), then shared prefix,
+        then edit distance. Substring matches are included because people search
+        for ``QUIMIO`` expecting the chemotherapy dataset.
+        """
+        text = str(target or "").strip().upper().replace("/", ".").replace("-", ".")
+        if not text:
+            return []
+        head = text.split(".", 1)[0]
+        declared_head = self._system_alias.get(head)
+
+        scored: list[tuple[tuple[int, int, str], str]] = []
+        for code, node in self.datasets.items():
+            names = " ".join(
+                filter(None, [node.official_name, node.translated_name])
+            ).upper()
+            same_system = 0 if (declared_head and node.system == declared_head) else 1
+            distance = _edit_distance(text, code)
+            # Also try the SHORT code. "DENGUE" does not contain "SINAN.DENG"
+            # and vice versa, but it does contain "DENG", which is how a person
+            # actually searches for the dengue dataset.
+            short = node.short_code
+            if (
+                text in code
+                or code in text
+                or (len(short) >= 3 and (short in text or text in short))
+                or any(part and len(part) >= 3 and part in names for part in text.split("."))
+            ):
+                distance = min(distance, 1)
+            scored.append(((same_system, distance, code), code))
+
+        for code in self.systems:
+            scored.append(((0 if code == declared_head else 1, _edit_distance(text, code), code), code))
+
+        scored.sort(key=lambda item: item[0])
+        out: list[str] = []
+        for (_, distance, _), code in scored:
+            if distance > max(4, len(text) // 2):
+                continue
+            if code not in out:
+                out.append(code)
+            if len(out) >= limit:
+                break
+        return out
+
     def datasets_of(self, system: str) -> list[DatasetNode]:
         declared = self._system_alias.get(str(system).upper(), str(system).upper())
         return sorted(
@@ -442,6 +494,25 @@ class Ontology:
 
 
 # ----------------------------------------------------------------- helpers
+
+
+def _edit_distance(a: str, b: str) -> int:
+    """Levenshtein distance, iterative and small — these strings are short codes."""
+    if a == b:
+        return 0
+    if not a:
+        return len(b)
+    if not b:
+        return len(a)
+    previous = list(range(len(b) + 1))
+    for i, ca in enumerate(a, start=1):
+        current = [i]
+        for j, cb in enumerate(b, start=1):
+            current.append(
+                min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (ca != cb))
+            )
+        previous = current
+    return previous[-1]
 
 
 def _clean(value: object) -> str | None:
