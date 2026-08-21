@@ -61,8 +61,10 @@ variables:
       CNS is the national health card and PAC paciente; declared C(15), which is
       the CNS length.
     notes: >
-      A DIRECT PERSONAL IDENTIFIER in public data. It passes through this module
-      unmodified, and unmodified is what it must stay — no masking, hashing or
-      dropping is done here, because that decision belongs to the Ministry and
-      not to a library. Beside DT_NASC and a diagnosis it is re-identifying, and
-      the fact that it is published at all is a finding worth escalating.
+      UNVERIFIED whether this holds a readable CNS. The equivalent SIASUS column
+      (AP_CNSPCN) was measured and is obfuscated — fifteen non-numeric bytes, not
+      a CNS — but that result is SIASUS's and has not been tested here, so do not
+      assume it either way. Whatever it holds, it passes through this module
+      unmodified: no masking, hashing or dropping, because that decision belongs
+      to the Ministry and not to a library. Beside DT_NASC and a diagnosis the
+      row is re-identifying regardless of whether this column is readable.

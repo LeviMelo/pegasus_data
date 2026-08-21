@@ -27,62 +27,72 @@ variables:
     official_name: CPF do paciente
     translated_name: Patient CPF
     description: >
-      The patient's CPF — Brazil's individual taxpayer number, which identifies
-      a person uniquely and for life. Published here in full, eleven digits, in
-      an openly downloadable file.
+      An eleven-digit patient pseudonym. The name reads CPF do paciente, but the
+      values are NOT valid CPFs: all 52 in the reference file fail the CPF check
+      digit, as do every patient CPF column in the archive (0 of 1,147). Treat it
+      as a per-patient key, not as a taxpayer number.
     code_system: none
-    source: inferred
+    source: measured
     reasoning: >
-      CPF PCN reads CPF do paciente, and the observed values are eleven-digit
-      numbers, which is the CPF format.
+      CPF PCN reads CPF do paciente and the values are eleven digits, but the CPF
+      check digit rejects 100% of them, so the field does not carry a real CPF.
+      Measured on SIASUS/APAC/2002/acac0201.exe; see FINDINGS.md 3j.
     notes: >
-      A DIRECT PERSONAL IDENTIFIER. It sits in the same rows as a date of birth,
-      a postcode and, in the linked EXA_ block, HIV serology. Passed through
-      unmodified by this module deliberately: masking is the Ministry's decision
-      and a library that silently altered it would destroy the evidence that it
-      was published.
+      A PSEUDONYMOUS identifier, not a direct one — an earlier note here claimed
+      it was a CPF in the clear and that was wrong. It remains sensitive: it is
+      highly distinct, so it links a patient's records to each other, and it sits
+      on a row carrying a real date of birth, postcode, municipality and CID-10
+      diagnosis, with HIV serology joinable through PAC_NUM. Passed through
+      unmodified deliberately: masking is the Ministry's decision, and a library
+      that silently altered it would destroy the evidence of what is published.
 
   PAF_CPFPCN:
     official_name: CPF do paciente (bloco PAF)
     translated_name: Patient CPF, second block
     description: >
-      The same kind of identifier in the second patient block of these files.
-      Eleven digits, in the clear.
+      The same eleven-digit patient pseudonym in the second patient block. All
+      98 values fail the CPF check digit.
     code_system: none
-    source: inferred
-    reasoning: Same CPFPCN stem under the PAF_ prefix, same eleven-digit values.
-    notes: A DIRECT PERSONAL IDENTIFIER. See PAC_CPFPCN.
+    source: measured
+    reasoning: Same CPFPCN stem under the PAF_ prefix; 0 of 98 pass the CPF check digit.
+    notes: A PSEUDONYMOUS identifier, not a real CPF. See PAC_CPFPCN.
 
   EXA_CPFPCN:
     official_name: CPF do paciente (bloco de exames)
     translated_name: Patient CPF, examinations block
     description: >
-      The patient's CPF carried on the examination records, which is what joins
-      a person to their HIV and hepatitis results in these files.
+      The patient pseudonym carried on the examination records — the block that
+      also holds EXA_HIV, EXA_HBSAG, EXA_HEPAT and EXA_HLA. All 52 values fail
+      the CPF check digit.
     code_system: none
-    source: inferred
-    reasoning: Same CPFPCN stem under the EXA_ prefix.
+    source: measured
+    reasoning: Same CPFPCN stem under the EXA_ prefix; 0 of 52 pass the CPF check digit.
     notes: >
-      A DIRECT PERSONAL IDENTIFIER, and the join key that makes the serology
-      results in this block attributable to a named individual. This is the
-      worst of the combination.
+      A PSEUDONYMOUS identifier sharing a table with HIV and hepatitis serology.
+      It does not name anyone by itself. The re-identification risk lies in the
+      patient block it joins to (PAC_NUM to EXA_NUM, measured 52/52 one-to-one),
+      which carries a real date of birth, sex, municipality and postcode.
 
   OPC_CPFPCN:
     official_name: CPF do paciente (bloco OPC)
     translated_name: Patient CPF, OPC block
     description: >
-      The patient's CPF in the third block of the same archive.
+      The patient pseudonym in the third block. All 155 rows carry a single
+      distinct value, so this column identifies nobody.
     code_system: none
-    source: inferred
-    reasoning: Same CPFPCN stem under the OPC_ prefix.
-    notes: A DIRECT PERSONAL IDENTIFIER. See PAC_CPFPCN.
+    source: measured
+    reasoning: Same CPFPCN stem under the OPC_ prefix; 0 of 155 pass the CPF check digit, 1 distinct value.
+    notes: A PSEUDONYMOUS identifier, effectively constant here. See PAC_CPFPCN.
 
   PAC_NASCPC:
     official_name: Data de nascimento do paciente
     translated_name: Patient date of birth
     description: >
-      Patient's date of birth as AAAAMMDD. On its own a date of birth is weak
-      identification; beside a CPF and a postcode it is not.
+      Patient's date of birth as AAAAMMDD, real and unobfuscated. This is the
+      column that actually carries re-identification risk here: with sex,
+      municipality and an eight-digit postcode on the same row, a date of birth
+      is the classic quasi-identifier triple, and no direct identifier is needed
+      to single someone out.
     code_system: none
     source: inferred
     reasoning: >
