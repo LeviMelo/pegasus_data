@@ -1,0 +1,1755 @@
+# Five SINAN forms: viral hepatitis, exanthematous disease, diphtheria,
+# meningitis and anti-rabies prophylaxis.
+#
+# Each is a self-contained investigation form and they share almost nothing but
+# the notification header, so each block below is read on its own terms:
+#
+#   HEPA  exposure history, then the serology panel that names the virus
+#   EXAN  measles/rubella surveillance: paired sera, weeks apart
+#   DIFT  the pseudomembrane, its spread, and the toxin's late complications
+#   MENI  vaccination history, comorbidity, and the CSF appearance
+#   RAIV  what the animal did, where, how deep, and what prophylaxis followed
+#
+# A caution on RAIV. Most of its columns describe an ANTI-RABIES ATTENDANCE —
+# a person exposed to an animal and treated to prevent rabies — not a human
+# rabies case. Human rabies is nearly always fatal and vanishingly rare;
+# attendances number in the hundreds of thousands. Counting rows here as cases
+# of rabies overstates the disease by orders of magnitude.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  # ============================================ HEPA, viral hepatitis
+  HEPATITA:
+    official_name: Vacinação contra hepatite A
+    translated_name: Hepatitis A vaccination
+    description: >
+      Whether hepatitis A vaccination is complete, incomplete, or absent.
+      Susceptibility is the point: a fully vaccinated patient with hepatitis is
+      unlikely to have A.
+    code_system: internal
+    source: def
+    source_ref: HEPNAOVA.CNV
+    reasoning: >
+      Bound to HEPNAOVA, whose values are completa, incompleta and não vacinado.
+
+  HEPATITB:
+    official_name: Vacinação contra hepatite B
+    translated_name: Hepatitis B vaccination
+    description: >
+      Hepatitis B vaccination status. Read with ANTIHBS, which shows whether the
+      vaccination actually produced immunity.
+    code_system: internal
+    source: def
+    source_ref: HEPNAOVA.CNV
+    reasoning: Bound to HEPNAOVA, the same completa/incompleta/não vacinado list.
+
+  SEXUAL:
+    official_name: Exposição sexual
+    translated_name: Sexual exposure
+    description: >
+      Sexual exposure, and whether it was within the last six months or earlier.
+      The exposure block is not a yes/no: the six-month split is what makes an
+      exposure plausible as the source of an acute infection.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: >
+      Bound to HEPA6MES, whose values are sim há menos de 6 meses, sim há mais
+      de seis meses, and não.
+
+  DOMICILI:
+    official_name: Contato domiciliar
+    translated_name: Household contact
+    description: >
+      Contact with a case in the household, with the same six-month split.
+      Household transmission is the dominant route for hepatitis A.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; DOMICILI reads domiciliar.
+
+  OCUPACIO:
+    official_name: Exposição ocupacional
+    translated_name: Occupational exposure
+    description: >
+      Occupational exposure to blood or body fluids. The route that makes
+      hepatitis B an occupational disease for health workers.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; OCUPACIO reads ocupacional.
+
+  TRANSFUSAO:
+    official_name: Transfusão de sangue
+    translated_name: Blood transfusion
+    description: >
+      Transfusion in the exposure window. Historically the major route for
+      hepatitis C, and now rare enough that a positive answer is investigated.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; TRANSFUSAO reads transfusão.
+
+  HEMODIALIS:
+    official_name: Hemodiálise
+    translated_name: Haemodialysis
+    description: >
+      Haemodialysis exposure. Dialysis units have transmitted hepatitis B and C
+      through the blood circuit, which is why dialysis patients are screened
+      repeatedly.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; HEMODIALIS reads hemodiálise.
+
+  TRANSPLA:
+    official_name: Transplante
+    translated_name: Transplant
+    description: Transplant exposure, another route through donated tissue.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; TRANSPLA reads transplante.
+
+  CIRURGICO:
+    official_name: Procedimento cirúrgico
+    translated_name: Surgical procedure
+    description: Surgery in the exposure window, a parenteral route.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; CIRURGICO reads cirúrgico.
+
+  DENTARIO:
+    official_name: Tratamento dentário
+    translated_name: Dental treatment
+    description: >
+      Dental treatment, recorded separately from surgery because instrument
+      sterilisation in dentistry has its own transmission history.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; DENTARIO reads dentário.
+
+  INJETAVEIS:
+    official_name: Uso de drogas injetáveis
+    translated_name: Injecting drug use
+    description: >
+      Injecting drug use. The highest-risk route for hepatitis C, and the reason
+      INAL_CRACK is asked beside it.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; INJETAVEIS reads injetáveis.
+
+  INAL_CRACK:
+    official_name: Uso de drogas inaladas
+    translated_name: Inhaled drug use
+    description: >
+      Inhaled drug use. Recorded because shared straws transmit hepatitis C
+      through nasal mucosa, so the route is not confined to injecting.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; INAL_CRACK reads inalação de crack.
+
+  TATU_PIER:
+    official_name: Tatuagem ou piercing
+    translated_name: Tattoo or piercing
+    description: Tattooing or piercing, a percutaneous route through shared equipment.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; TATU_PIER reads tatuagem/piercing.
+
+  ACUPUNTURA:
+    official_name: Acupuntura
+    translated_name: Acupuncture
+    description: Acupuncture, another percutaneous route through reused needles.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; ACUPUNTURA reads acupuntura.
+
+  TRESMAIS:
+    official_name: Três ou mais parceiros sexuais
+    translated_name: Three or more sexual partners
+    description: >
+      Three or more sexual partners in the exposure window, a quantified
+      companion to the SEXUAL flag.
+    code_system: internal
+    source: def
+    source_ref: HEPA6MES.CNV
+    reasoning: Bound to HEPA6MES; TRESMAIS reads três ou mais.
+
+  OUTRA_DST:
+    official_name: Outra DST
+    translated_name: Other sexually transmitted infection
+    description: >
+      Another sexually transmitted infection. Its presence corroborates a sexual
+      route where the exposure history is uncertain.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; DST reads doença sexualmente transmissível.
+
+  BANCOSANGU:
+    official_name: Local de detecção
+    translated_name: Where the infection was detected
+    description: >
+      Whether the infection was found at a blood bank or a testing centre. Cases
+      found at a blood bank are asymptomatic donors, so they represent a quite
+      different population from those found clinically.
+    code_system: internal
+    source: def
+    source_ref: BANCOSAN.CNV
+    reasoning: >
+      Bound to BANCOSAN, whose values are banco de sangue, centro de testagem
+      and não se aplica.
+
+  DT_ACIDENT:
+    official_name: Data do acidente
+    translated_name: Date of the exposure incident
+    description: Date of the exposure incident, where one specific event is identifiable.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; DT_ACIDENT reads data do acidente.
+
+  CO_UF_EXP:
+    official_name: UF da exposição
+    translated_name: State of exposure
+    description: >
+      State where the exposure happened. Three exposure locations can be
+      recorded, since the source is often not where the patient lives.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code bound to the UF codelists; EXP reads exposição.
+
+  CO_MUN_EXP:
+    official_name: Município da exposição
+    translated_name: Municipality of exposure
+    description: Municipality where the exposure happened, the finer companion to CO_UF_EXP.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code bound to the municipality codelists.
+
+  CO_UF_EX2:
+    official_name: UF da segunda exposição
+    translated_name: State of second exposure
+    description: State of a second exposure location. See CO_UF_EXP.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: The second slot of the three exposure-location pairs.
+
+  CO_MUN_EX2:
+    official_name: Município da segunda exposição
+    translated_name: Municipality of second exposure
+    description: Municipality of the second exposure location.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The second slot of the exposure municipality series.
+
+  CO_UF_EX3:
+    official_name: UF da terceira exposição
+    translated_name: State of third exposure
+    description: State of a third exposure location.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: The third slot of the exposure state series.
+
+  CO_MUN_EX3:
+    official_name: Município da terceira exposição
+    translated_name: Municipality of third exposure
+    description: Municipality of the third exposure location.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: The third slot of the exposure municipality series.
+
+  # --- the serology panel: which virus, and which stage --------------------
+  AGHBS:
+    official_name: HBsAg
+    translated_name: Hepatitis B surface antigen
+    description: >
+      Hepatitis B surface antigen. Its presence means current infection, acute or
+      chronic; the rest of the B panel decides which.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: >
+      Bound to HEPREAG, whose values are reagente, não reagente, inconclusivo
+      and não realizado. AGHBS is the surface antigen.
+
+  RES_HBSAG:
+    official_name: Resultado do HBsAg
+    translated_name: HBsAg result
+    description: >
+      The HBsAg result as carried in a second field, beside AGHBS. Schema
+      generations of this form record the same marker twice, so read whichever
+      is populated.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; a duplicate of the AGHBS marker.
+
+  ANTIHBS:
+    official_name: Anti-HBs
+    translated_name: Anti-HBs antibody
+    description: >
+      Antibody to the surface antigen. Means immunity — from vaccination if
+      anti-HBc is absent, from resolved infection if it is present. The pair is
+      what distinguishes the two.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; ANTIHBS is the surface antibody.
+
+  ANTIHBCIGM:
+    official_name: Anti-HBc IgM
+    translated_name: Anti-HBc IgM
+    description: >
+      IgM against the core antigen. The marker of ACUTE hepatitis B: with HBsAg
+      present, IgM says the infection is recent rather than chronic.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the IgM class of the core antibody.
+
+  HBC_TOTAL:
+    official_name: Anti-HBc total
+    translated_name: Anti-HBc total
+    description: >
+      Total core antibody, IgM and IgG together. Persists for life after any
+      infection, so it separates a vaccinated person from one who was infected
+      and recovered.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the total core antibody.
+
+  RE_ANTIHBC:
+    official_name: Resultado do anti-HBc
+    translated_name: Anti-HBc result
+    description: The core antibody result in a second field, beside HBC_TOTAL.
+    code_system: none
+    source: inferred
+    reasoning: C(1) duplicate of the core antibody marker in another generation.
+
+  AGHBE:
+    official_name: HBeAg
+    translated_name: Hepatitis B e antigen
+    description: >
+      The e antigen. Marks active viral replication and high infectivity, so it
+      matters for whether contacts need prophylaxis.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; AGHBE is the e antigen.
+
+  ANTIHBE:
+    official_name: Anti-HBe
+    translated_name: Anti-HBe antibody
+    description: >
+      Antibody to the e antigen. Its appearance as HBeAg disappears marks
+      seroconversion and falling infectivity.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the e antibody.
+
+  ANTIHAVIGM:
+    official_name: Anti-HAV IgM
+    translated_name: Anti-HAV IgM
+    description: >
+      IgM against hepatitis A. The single test that diagnoses acute hepatitis A,
+      which has no chronic form.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the hepatitis A IgM marker.
+
+  RE_ANTIHCV:
+    official_name: Resultado do anti-HCV
+    translated_name: Anti-HCV result
+    description: >
+      Antibody to hepatitis C. Screening only: it stays positive after cure, so
+      it does not distinguish current from past infection.
+    code_system: none
+    source: inferred
+    reasoning: C(1) hepatitis C antibody result, paired with TP_SOROHCV.
+
+  TP_SOROHCV:
+    official_name: Sorologia para hepatite C
+    translated_name: Hepatitis C serology
+    description: >
+      The hepatitis C serology result on the coded scale. Confirming current
+      infection needs the genotype or a viral load, which is why GEN_VHC exists.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the coded hepatitis C serology.
+
+  GEN_VHC:
+    official_name: Genótipo do HCV
+    translated_name: Hepatitis C genotype
+    description: >
+      Which of genotypes 1 to 6 the virus is. It determined treatment choice and
+      duration in the interferon era, and detecting it at all confirms current
+      rather than past infection.
+    code_system: internal
+    source: def
+    source_ref: GENOTIPO.CNV
+    reasoning: Bound to GENOTIPO, whose values are genótipo 1 through 6.
+
+  ANTIHDV:
+    official_name: Anti-HDV
+    translated_name: Anti-HDV antibody
+    description: >
+      Antibody to hepatitis D. Delta only infects alongside hepatitis B, and it
+      is endemic in the western Amazon, so this marker matters regionally far
+      more than nationally.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the hepatitis D antibody.
+
+  ANTIHDVIGM:
+    official_name: Anti-HDV IgM
+    translated_name: Anti-HDV IgM
+    description: >
+      IgM against hepatitis D, marking recent delta infection as against the
+      past exposure ANTIHDV shows.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the IgM class of the delta antibody.
+
+  ANTIHEVIGM:
+    official_name: Anti-HEV IgM
+    translated_name: Anti-HEV IgM
+    description: >
+      IgM against hepatitis E. Rare in Brazil, tested to exclude it in acute
+      cases where A and B are negative.
+    code_system: internal
+    source: def
+    source_ref: HEPREAG.CNV
+    reasoning: Bound to HEPREAG; the hepatitis E IgM marker.
+
+  COLETAMARC:
+    official_name: Data da coleta dos marcadores
+    translated_name: Date markers were collected
+    description: >
+      When the serology sample was taken. Marker interpretation depends on
+      timing — IgM windows open and close — so the date is what makes the panel
+      readable.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date for the marker collection.
+
+  # ================================= EXAN, measles and rubella surveillance
+  CS_VACINA:
+    official_name: Vacinado
+    translated_name: Vaccinated
+    description: >
+      Whether the patient had been vaccinated against measles or rubella.
+      Vaccine can itself cause a rash and a positive IgM, so this field is what
+      raises that alternative explanation.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no vaccination flag opening the EXAN antecedent block.
+
+  DT_DOSE_N:
+    official_name: Data da última dose
+    translated_name: Date of last dose
+    description: >
+      Date of the last vaccine dose. A rash within about two weeks of a dose is
+      likely vaccine-associated, so the interval decides the interpretation.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date following CS_VACINA.
+
+  CS_FONTE:
+    official_name: Local provável de contágio
+    translated_name: Probable place of infection
+    description: >
+      Where the infection was probably acquired — home, neighbourhood, work,
+      school or nursery, a health facility, or another state or country. Import
+      is the key question in a country that has eliminated measles.
+    code_system: internal
+    source: def
+    source_ref: LOCALCONNET.CNV
+    reasoning: >
+      Bound to LOCALCONNET, whose values run from domicílio through outra UF and
+      outro país.
+
+  DT_INICIO_:
+    official_name: Data do início do exantema
+    translated_name: Date the rash began
+    description: >
+      When the rash started. Serology timing is measured from rash onset, not
+      from fever, so this is the anchor for the whole laboratory sequence.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the rash onset that dates the sample intervals.
+
+  ID_TOSSE:
+    official_name: Tosse
+    translated_name: Cough
+    description: >
+      Cough. With coryza and conjunctivitis it forms the triad that distinguishes
+      measles from rubella clinically, before any laboratory result.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; TOSSE reads tosse.
+
+  ID_CORIZA:
+    official_name: Coriza
+    translated_name: Coryza
+    description: Runny nose, the second element of the measles triad. See ID_TOSSE.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; CORIZA reads coriza.
+
+  ID_CONJUNT:
+    official_name: Conjuntivite
+    translated_name: Conjunctivitis
+    description: Conjunctivitis, the third element of the measles triad. See ID_TOSSE.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; CONJUNT reads conjuntivite.
+
+  ID_ARTRALG:
+    official_name: Artralgia
+    translated_name: Joint pain
+    description: >
+      Joint pain. Points to rubella rather than measles, especially in adult
+      women, so it pulls the differential the other way from the triad.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; ARTRALG reads artralgia.
+
+  ID_GANGLIO:
+    official_name: Linfadenopatia
+    translated_name: Swollen lymph nodes
+    description: Swollen lymph nodes, characteristic of rubella.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; GANGLIO reads gânglios.
+
+  ID_RETRO:
+    official_name: Linfadenopatia retroauricular
+    translated_name: Retroauricular nodes
+    description: >
+      Nodes behind the ears specifically. The classic rubella sign, recorded
+      apart from general lymphadenopathy because the site is what makes it
+      diagnostic.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag; RETRO reads retroauricular.
+
+  ID_HOSPIT:
+    official_name: Hospitalização
+    translated_name: Hospitalised
+    description: >
+      Whether the patient was admitted. Measles complications — pneumonia,
+      encephalitis — are what drive admission in a rash illness.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; HOSPIT reads hospitalização.
+
+  NM_MUN_HOS:
+    official_name: Município de hospitalização
+    translated_name: Municipality of hospitalisation
+    description: Where the patient was admitted, by IBGE code.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code bound to the municipality codelists.
+
+  DT_COL_1:
+    official_name: Data da coleta da primeira amostra
+    translated_name: Date first sample collected
+    description: >
+      When the first serum was taken. Taken too early it misses IgM, which is
+      why a second sample exists.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of the paired sera.
+
+  DT_COL_2:
+    official_name: Data da coleta da segunda amostra
+    translated_name: Date second sample collected
+    description: >
+      When the second serum was taken, weeks after the first. The pair is what
+      shows a rising titre, which confirms recent infection where a single
+      sample cannot.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of the paired sera.
+
+  ID_S1_IGM:
+    official_name: IgM na primeira amostra
+    translated_name: IgM, first sample
+    description: >
+      IgM on the first serum. Marks recent infection. The S1, S2 and RE groups
+      repeat the same antibody panel for the first sample, the second, and a
+      re-test.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: >
+      Bound to REAGENTE; S1 is the first sample and the parallel S2 and RE
+      prefixes carry the same markers at later points.
+
+  ID_S1_IGG:
+    official_name: IgG na primeira amostra
+    translated_name: IgG, first sample
+    description: >
+      IgG on the first serum. Past infection or vaccination on its own; the rise
+      between samples is what makes it informative.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the IgG marker of the first sample.
+
+  ID_S1_IGM_:
+    official_name: IgM na primeira amostra, segundo agente
+    translated_name: IgM, first sample, second agent
+    description: >
+      IgM for the second agent on the first serum. Each sample is tested against
+      measles and rubella in parallel, because the form is a syndrome channel
+      rather than a single-disease one.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: >
+      Bound to REAGENTE; the trailing underscore and the _1/_2 suffixes mark
+      further agents tested on the same sample.
+
+  ID_S1_IGG_:
+    official_name: IgG na primeira amostra, segundo agente
+    translated_name: IgG, first sample, second agent
+    description: IgG for the second agent on the first serum. See ID_S1_IGM_.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgG on sample 1.
+
+  ID_S1_IG_1:
+    official_name: Imunoglobulina adicional, primeira amostra
+    translated_name: Additional immunoglobulin, first sample
+    description: A further antibody result on the first serum, for an additional agent tested.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; a further marker slot on sample 1.
+
+  ID_S1_IG_2:
+    official_name: Segunda imunoglobulina adicional, primeira amostra
+    translated_name: Second additional immunoglobulin, first sample
+    description: A second further antibody result on the first serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; another marker slot on sample 1.
+
+  ID_S2_IGM:
+    official_name: IgM na segunda amostra
+    translated_name: IgM, second sample
+    description: IgM on the second serum, the paired counterpart of ID_S1_IGM.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the S2 sample's IgM.
+
+  ID_S2_IGG:
+    official_name: IgG na segunda amostra
+    translated_name: IgG, second sample
+    description: >
+      IgG on the second serum. Compared with ID_S1_IGG, a fourfold rise confirms
+      recent infection.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the S2 sample's IgG.
+
+  ID_S2_IGM_:
+    official_name: IgM na segunda amostra, segundo agente
+    translated_name: IgM, second sample, second agent
+    description: IgM for the second agent on the second serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgM on sample 2.
+
+  ID_S2_IGG_:
+    official_name: IgG na segunda amostra, segundo agente
+    translated_name: IgG, second sample, second agent
+    description: IgG for the second agent on the second serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgG on sample 2.
+
+  ID_S2_IG_1:
+    official_name: Imunoglobulina adicional, segunda amostra
+    translated_name: Additional immunoglobulin, second sample
+    description: A further antibody result on the second serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; a further marker slot on sample 2.
+
+  ID_S2_IG_2:
+    official_name: Segunda imunoglobulina adicional, segunda amostra
+    translated_name: Second additional immunoglobulin, second sample
+    description: A second further antibody result on the second serum.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; another marker slot on sample 2.
+
+  ID_RE_IGM:
+    official_name: IgM no reexame
+    translated_name: IgM, re-test
+    description: >
+      IgM on a re-tested sample. Re-testing happens when the paired results were
+      discordant or the first was inconclusive.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; RE marks the reexame group.
+
+  ID_RE_IGG:
+    official_name: IgG no reexame
+    translated_name: IgG, re-test
+    description: IgG on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the re-test IgG.
+
+  ID_RE_IGM_:
+    official_name: IgM no reexame, segundo agente
+    translated_name: IgM, re-test, second agent
+    description: IgM for the second agent on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgM on the re-test.
+
+  ID_RE_IGG_:
+    official_name: IgG no reexame, segundo agente
+    translated_name: IgG, re-test, second agent
+    description: IgG for the second agent on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the second agent's IgG on the re-test.
+
+  ID_RE_IG_1:
+    official_name: Imunoglobulina adicional no reexame
+    translated_name: Additional immunoglobulin, re-test
+    description: A further antibody result on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; a further marker slot on the re-test.
+
+  ID_RE_IG_2:
+    official_name: Segunda imunoglobulina adicional no reexame
+    translated_name: Second additional immunoglobulin, re-test
+    description: A second further antibody result on the re-tested sample.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; another marker slot on the re-test.
+
+  MENOR_5ANO:
+    official_name: Contatos menores de 5 anos
+    translated_name: Contacts under 5
+    description: >
+      How many contacts under five were identified. The contact age bands drive
+      the vaccination sweep around a case, and the under-fives are the priority.
+    code_system: none
+    source: inferred
+    reasoning: N(3) count; the first band of the contact age tally.
+
+  DE5A14ANOS:
+    official_name: Contatos de 5 a 14 anos
+    translated_name: Contacts 5 to 14
+    description: How many contacts aged 5 to 14 were identified. See MENOR_5ANO.
+    code_system: none
+    source: inferred
+    reasoning: N(3) count; the 5-14 band of the contact tally.
+
+  DE15A39ANO:
+    official_name: Contatos de 15 a 39 anos
+    translated_name: Contacts 15 to 39
+    description: >
+      How many contacts aged 15 to 39 were identified. The band that matters for
+      rubella, because infection in pregnancy causes congenital rubella
+      syndrome.
+    code_system: none
+    source: inferred
+    reasoning: N(3) count; the 15-39 band of the contact tally.
+
+  # ==================================================== DIFT, diphtheria
+  ANT_TIPOCO:
+    official_name: Local do contato
+    translated_name: Place of contact
+    description: >
+      Where contact with a case occurred — home, neighbourhood, work, school,
+      health facility, or elsewhere. Diphtheria spreads in crowded settings, so
+      the place directs the contact tracing.
+    code_system: internal
+    source: def
+    source_ref: LOCALCONCNET.CNV
+    reasoning: >
+      Bound to LOCALCONCNET, whose values run from domicílio through sem
+      história de contato.
+
+  ANT_DOS_N:
+    official_name: Número de doses da vacina
+    translated_name: Vaccine doses received
+    description: >
+      Doses of diphtheria vaccine received, banded from one through three plus
+      two boosters, or never vaccinated. Diphtheria in a fully vaccinated person
+      is rare enough to question the diagnosis.
+    code_system: internal
+    source: def
+    source_ref: DOSES.CNV
+    reasoning: >
+      Bound to DOSES, whose values are uma, duas, três, três mais reforço, três
+      mais dois reforços and nunca vacinado.
+
+  ANT_ULTI_D:
+    official_name: Data da última dose
+    translated_name: Date of last dose
+    description: >
+      Date of the last dose. Diphtheria immunity wanes, so a distant last dose
+      leaves an adult susceptible despite a complete childhood schedule.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date following the dose count.
+
+  CLI_TEMPER:
+    official_name: Temperatura
+    translated_name: Temperature
+    description: >
+      Body temperature. Diphtheria characteristically causes only modest fever
+      despite a severe throat, which is itself a diagnostic clue.
+    code_system: none
+    source: inferred
+    reasoning: N(3) numeric temperature in the clinical block.
+
+  CLI_AMIGDA:
+    official_name: Placas nas amígdalas
+    translated_name: Membrane on the tonsils
+    description: >
+      Pseudomembrane on the tonsils. The defining lesion of diphtheria, and the
+      CLI_ site flags map how far it has spread.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; AMIGDA reads amígdalas.
+
+  CLI_FARING:
+    official_name: Placas na faringe
+    translated_name: Membrane on the pharynx
+    description: Pseudomembrane on the pharynx, one step wider than the tonsils.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; FARING reads faringe.
+
+  CLI_LARING:
+    official_name: Placas na laringe
+    translated_name: Membrane on the larynx
+    description: >
+      Pseudomembrane on the larynx. The dangerous extension, because a membrane
+      here obstructs the airway.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; LARING reads laringe.
+
+  CLI_TRAQUE:
+    official_name: Placas na traqueia
+    translated_name: Membrane in the trachea
+    description: >
+      Pseudomembrane in the trachea, the furthest extension down the airway and
+      the point at which a tracheostomy may be needed.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; TRAQUE reads traqueia.
+
+  CLI_PALATO:
+    official_name: Placas no palato
+    translated_name: Membrane on the palate
+    description: Pseudomembrane on the palate.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PALATO reads palato.
+
+  CLI_CAVIDA:
+    official_name: Placas na cavidade nasal
+    translated_name: Membrane in the nasal cavity
+    description: >
+      Pseudomembrane in the nose. Nasal diphtheria is milder and often missed,
+      which makes it an efficient source of transmission.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CAVIDA reads cavidade nasal.
+
+  CLI_CONDUT:
+    official_name: Placas no conduto auditivo
+    translated_name: Membrane in the ear canal
+    description: Pseudomembrane in the ear canal, an uncommon site.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CONDUT reads conduto auditivo.
+
+  CLI_CONJUN:
+    official_name: Lesão conjuntival
+    translated_name: Conjunctival lesion
+    description: Diphtheritic lesion of the conjunctiva.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CONJUN reads conjuntival.
+
+  CLI_PELE:
+    official_name: Lesão cutânea
+    translated_name: Skin lesion
+    description: >
+      Cutaneous diphtheria. Common in poor and crowded conditions, and a
+      persistent reservoir even where respiratory disease has been controlled.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PELE reads pele.
+
+  CLI_ORGAOS:
+    official_name: Lesão em outros órgãos
+    translated_name: Lesion in other organs
+    description: Diphtheritic lesion at a site the named flags do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual site item of the lesion block.
+
+  CLI_PESCOC:
+    official_name: Edema cervical
+    translated_name: Neck swelling
+    description: >
+      Swelling of the neck — the "bull neck" of severe diphtheria, caused by
+      massive lymph node enlargement and a marker of a large toxin burden.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PESCOC reads pescoço.
+
+  CLI_EDEMAG:
+    official_name: Edema generalizado
+    translated_name: Generalised swelling
+    description: Generalised oedema, beyond the cervical swelling in CLI_PESCOC.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; EDEMAG reads edema generalizado.
+
+  CLI_CORDAO:
+    official_name: Adenomegalia cervical
+    translated_name: Cervical lymph node enlargement
+    description: Enlarged neck lymph nodes, the finding underlying the bull-neck appearance.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CORDAO reads cordão ganglionar.
+
+  CLI_PROSTR:
+    official_name: Prostração
+    translated_name: Prostration
+    description: >
+      Marked prostration. Out of proportion to the local findings, because the
+      illness is driven by circulating toxin rather than by the throat lesion.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PROSTR reads prostração.
+
+  CLI_PALIDE:
+    official_name: Palidez
+    translated_name: Pallor
+    description: Pallor, part of the toxaemic picture.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PALIDE reads palidez.
+
+  CLI_NEFRIT:
+    official_name: Nefrite
+    translated_name: Nephritis
+    description: >
+      Kidney inflammation from the toxin. One of the three classic late toxic
+      complications, with myocarditis and the paralyses.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; NEFRIT reads nefrite.
+
+  CLI_ARRITM:
+    official_name: Arritmia cardíaca
+    translated_name: Cardiac arrhythmia
+    description: >
+      Arrhythmia from diphtheritic myocarditis, which appears one to two weeks
+      in and is the commonest cause of death.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; ARRITM reads arritmia.
+
+  CLI_PARALB:
+    official_name: Paralisia do palato mole
+    translated_name: Palatal paralysis
+    description: >
+      Paralysis of the soft palate. Typically the first of the diphtheritic
+      neuropathies, causing a nasal voice and regurgitation.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: >
+      A yes/no flag; one of three CLI_PARAL items covering the toxic
+      neuropathies at different sites.
+
+  CLI_PARALP:
+    official_name: Paralisia periférica
+    translated_name: Peripheral paralysis
+    description: >
+      Peripheral paralysis, appearing weeks after the acute illness as the toxin
+      damages peripheral nerves.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; the peripheral member of the CLI_PARAL group.
+
+  CLI_PARALM:
+    official_name: Paralisia de músculos respiratórios
+    translated_name: Respiratory muscle paralysis
+    description: >
+      Paralysis of the respiratory muscles. The late complication that kills
+      after the throat has healed, and the reason recovery is watched for weeks.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; the respiratory member of the CLI_PARAL group.
+
+  LAB_MATE_N:
+    official_name: Material coletado
+    translated_name: Specimen collected
+    description: >
+      Whether the swab was from the oropharynx, the nasopharynx, both, or was
+      not taken. Both sites raise the yield, so this bounds what a negative
+      culture means.
+    code_system: internal
+    source: def
+    source_ref: MAT_COLE.CNV
+    reasoning: >
+      Bound to MAT_COLE, whose values are orofaringe, nasofaringe, both, and não
+      coletado.
+
+  LAB_DATA_C:
+    official_name: Data da coleta
+    translated_name: Date specimen collected
+    description: >
+      When the swab was taken. Culture yield collapses once antibiotics start,
+      so a swab taken after treatment cannot exclude the diagnosis.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the laboratory block.
+
+  LAB_CULTUR:
+    official_name: Resultado da cultura
+    translated_name: Culture result
+    description: >
+      Whether the culture grew Corynebacterium diphtheriae. Confirmation, but a
+      negative culture does not discard a clinically typical case.
+    code_system: internal
+    source: def
+    source_ref: POSNEGDI.CNV
+    reasoning: >
+      Bound to POSNEGDI, whose values name positive and negative for C.
+      diphtheriae.
+
+  LAB_PROVAS:
+    official_name: Prova de toxigenicidade
+    translated_name: Toxigenicity test
+    description: >
+      Whether the isolate produces toxin. A non-toxigenic strain causes a sore
+      throat and not diphtheria, so this distinguishes carriage from disease.
+    code_system: internal
+    source: def
+    source_ref: POSNEGNR.CNV
+    reasoning: Bound to POSNEGNR, positive/negative/not done.
+
+  TRA_DATA_S:
+    official_name: Data da soroterapia
+    translated_name: Date antitoxin given
+    description: >
+      When diphtheria antitoxin was given. Antitoxin only neutralises toxin not
+      yet bound to tissue, so every hour of delay costs effect — the single most
+      time-critical treatment on this form.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; TRA_DATA_S is the soroterapia date.
+
+  TRA_DATA_A:
+    official_name: Data do início do antibiótico
+    translated_name: Date antibiotic started
+    description: >
+      When antibiotics began. They stop transmission and halt further toxin
+      production, but do nothing about toxin already circulating, which is why
+      antitoxin is given as well.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the antibiotic counterpart of TRA_DATA_S.
+
+  MED_QUAN_M:
+    official_name: Quantidade de comunicantes
+    translated_name: Contacts identified
+    description: >
+      How many contacts were identified for investigation. Diphtheria control is
+      contact tracing, culture and prophylaxis, so this measures the response.
+    code_system: none
+    source: inferred
+    reasoning: N(3) tally of comunicantes in the measures block.
+
+  # ==================================================== MENI, meningitis
+  ANT_AC:
+    official_name: Vacina contra meningococo A e C
+    translated_name: Meningococcal A and C vaccine
+    description: >
+      Whether the patient received meningococcal A and C vaccine. The ANT_
+      vaccine flags each pair with a date, and together they say which
+      meningitis the patient could still get.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; AC names the meningococcal A/C vaccine.
+
+  ANT_DOSE_3:
+    official_name: Doses de vacina A e C
+    translated_name: Meningococcal A and C doses
+    description: How many doses of the A and C vaccine were given.
+    code_system: none
+    source: inferred
+    reasoning: C(2) dose count paired with ANT_AC.
+
+  ANT_DTUL_3:
+    official_name: Data da última dose A e C
+    translated_name: Date of last A and C dose
+    description: Date of the last meningococcal A and C dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_AC.
+
+  ANT_BC:
+    official_name: Vacina contra meningococo B e C
+    translated_name: Meningococcal B and C vaccine
+    description: >
+      Whether the patient received the B and C vaccine, a different serogroup
+      combination from ANT_AC.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; BC names the meningococcal B/C vaccine.
+
+  ANT_DOSES_:
+    official_name: Doses de vacina B e C
+    translated_name: Meningococcal B and C doses
+    description: How many doses of the B and C vaccine were given.
+    code_system: none
+    source: inferred
+    reasoning: N(2) dose count paired with ANT_BC.
+
+  ANT_DTULT_:
+    official_name: Data da última dose B e C
+    translated_name: Date of last B and C dose
+    description: Date of the last meningococcal B and C dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_BC.
+
+  ANT_CONJ_C:
+    official_name: Vacina meningocócica conjugada C
+    translated_name: Conjugate meningococcal C vaccine
+    description: >
+      Whether the conjugate C vaccine was given. Conjugate vaccines protect
+      infants, whom the older polysaccharide vaccines do not, so this flag
+      distinguishes real infant protection.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; CONJ_C names the conjugate C vaccine.
+
+  ANT_DTUL_C:
+    official_name: Data da última dose conjugada C
+    translated_name: Date of last conjugate C dose
+    description: Date of the last conjugate meningococcal C dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_CONJ_C.
+
+  ANT_HEMO_T:
+    official_name: Vacina contra Haemophilus influenzae b
+    translated_name: Hib vaccine
+    description: >
+      Whether Hib vaccine was given. Its introduction removed Haemophilus as a
+      major cause of childhood meningitis, so this flag largely determines
+      whether that agent is plausible.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; HEMO names Haemophilus influenzae b.
+
+  ANT_DTUL_T:
+    official_name: Data da última dose de Hib
+    translated_name: Date of last Hib dose
+    description: Date of the last Hib dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_HEMO_T.
+
+  ANT_BCG:
+    official_name: Vacina BCG
+    translated_name: BCG vaccine
+    description: >
+      Whether BCG was given. Relevant because BCG protects specifically against
+      tuberculous meningitis in young children.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; BCG names the vaccine.
+
+  ANT_DTUL_4:
+    official_name: Data da vacina BCG
+    translated_name: Date of BCG
+    description: Date the BCG was given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_BCG.
+
+  ANT_TRIPLI:
+    official_name: Vacina tríplice
+    translated_name: Triple vaccine
+    description: Whether the triple vaccine was given.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; TRIPLI reads tríplice.
+
+  ANT_DTUL_5:
+    official_name: Data da vacina tríplice
+    translated_name: Date of triple vaccine
+    description: Date the triple vaccine was given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_TRIPLI.
+
+  ANT_OUTRA:
+    official_name: Outra vacina
+    translated_name: Other vaccine
+    description: Whether another relevant vaccine was given.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the vaccination block.
+
+  ANT_OU_DE:
+    official_name: Especificação de outra vacina
+    translated_name: Other vaccine, specified
+    description: >
+      Free text naming the other vaccine. Thirty characters of uncontrolled
+      vocabulary, so it must be read rather than grouped.
+    code_system: none
+    source: inferred
+    reasoning: C(30) free text following ANT_OUTRA.
+
+  ANT_DTUL_7:
+    official_name: Data da outra vacina
+    translated_name: Date of other vaccine
+    description: Date the other vaccine was given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with ANT_OUTRA.
+
+  ANT_AIDS:
+    official_name: Aids
+    translated_name: AIDS
+    description: >
+      Whether the patient has AIDS. The comorbidity block records what makes an
+      unusual organism plausible; in AIDS that means cryptococcal and
+      tuberculous meningitis.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag opening the comorbidity block.
+
+  ANT_IMUNO:
+    official_name: Imunodepressão
+    translated_name: Immunosuppression
+    description: >
+      Immunosuppression from any other cause, widening the range of plausible
+      organisms in the same way.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; IMUNO reads imunodepressão.
+
+  ANT_IRA:
+    official_name: Infecção respiratória aguda
+    translated_name: Acute respiratory infection
+    description: >
+      A preceding acute respiratory infection — the usual route by which
+      meningococcus and pneumococcus reach the meninges.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; IRA is infecção respiratória aguda.
+
+  ANT_TUBE:
+    official_name: Tuberculose
+    translated_name: Tuberculosis
+    description: >
+      Whether the patient has tuberculosis. Tuberculous meningitis is slower and
+      needs quite different treatment, so this flag redirects the whole
+      management.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; TUBE reads tuberculose.
+
+  ANT_TRAUMA:
+    official_name: Traumatismo craniano
+    translated_name: Head injury
+    description: >
+      Previous head injury. A skull fracture can leave a direct route from the
+      nose to the meninges and cause recurrent bacterial meningitis.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; TRAUMA reads traumatismo.
+
+  ANT_INF_HO:
+    official_name: Infecção hospitalar
+    translated_name: Hospital-acquired infection
+    description: >
+      Whether the meningitis was hospital-acquired, typically after
+      neurosurgery. The organisms differ from community cases and so does the
+      antibiotic choice.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no comorbidity flag; INF_HO reads infecção hospitalar.
+
+  ANT_OUTRO:
+    official_name: Outra condição
+    translated_name: Other condition
+    description: Any other relevant condition the named flags do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the comorbidity block.
+
+  ANT_CONT_N:
+    official_name: Local do contato
+    translated_name: Place of contact
+    description: >
+      Where contact with a case occurred. Meningococcal disease clusters in
+      households and nurseries, and this directs chemoprophylaxis.
+    code_system: internal
+    source: def
+    source_ref: LOCALCONMEN.CNV
+    reasoning: >
+      Bound to LOCALCONMEN, whose values run from domicílio through sem história
+      de contato.
+
+  ANT_SECUND:
+    official_name: Caso secundário
+    translated_name: Secondary case
+    description: >
+      Whether this is a secondary case — someone who caught it from a known
+      case. Secondary cases mean prophylaxis failed or was not given, so each is
+      investigated.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; SECUND reads secundário.
+
+  LAB_PUNCAO:
+    official_name: Punção lombar realizada
+    translated_name: Lumbar puncture done
+    description: >
+      Whether a lumbar puncture was performed. Without it meningitis can only be
+      diagnosed clinically and the organism never identified.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PUNCAO reads punção.
+
+  LAB_DTPUNC:
+    official_name: Data da punção lombar
+    translated_name: Date of lumbar puncture
+    description: >
+      When the puncture was done. A puncture after antibiotics have started
+      rarely grows the organism, so the order of the two matters.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with LAB_PUNCAO.
+
+  LAB_ASPECT:
+    official_name: Aspecto do líquor
+    translated_name: CSF appearance
+    description: >
+      How the CSF looked — clear, purulent, haemorrhagic, cloudy, xanthochromic
+      or other. Purulent means bacterial and directs immediate treatment; clear
+      keeps viral and tuberculous causes open. Available at the bedside, hours
+      before any culture.
+    code_system: internal
+    source: def
+    source_ref: LIQUOR.CNV
+    reasoning: >
+      Bound to LIQUOR, whose values are límpido, purulento, hemorrágico, turvo
+      and xantocrômico.
+
+  MED_NUCOMU:
+    official_name: Número de comunicantes
+    translated_name: Contacts identified
+    description: >
+      How many contacts were identified for chemoprophylaxis, which is the
+      control measure for meningococcal disease.
+    code_system: none
+    source: inferred
+    reasoning: N(2) tally of comunicantes in the measures block.
+
+  MED_DT_EVO:
+    official_name: Data da evolução
+    translated_name: Date of outcome
+    description: Date the outcome was recorded, closing the investigation.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the measures block.
+
+  # ======================================= RAIV, anti-rabies attendance
+  MORDEDURA:
+    official_name: Exposição por mordedura
+    translated_name: Bite
+    description: >
+      Whether the exposure was a bite. Bites carry the highest risk of the three
+      exposure types and, with the site and depth, decide the prophylaxis
+      regimen.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag opening the exposure-type block.
+
+  ARRANHAO:
+    official_name: Exposição por arranhão
+    translated_name: Scratch
+    description: >
+      Whether the exposure was a scratch. Lower risk than a bite but still an
+      indication, since saliva on claws transmits the virus.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; ARRANHAO reads arranhão.
+
+  LAMBEDURA:
+    official_name: Exposição por lambedura
+    translated_name: Lick
+    description: >
+      Whether the exposure was a lick. Relevant only on broken skin or mucosa,
+      which is why it is recorded apart from the other two.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; LAMBEDURA reads lambedura.
+
+  CABECA:
+    official_name: Exposição na cabeça ou pescoço
+    translated_name: Head or neck exposure
+    description: >
+      Exposure to the head or neck. The highest-risk site: the virus travels up
+      nerves, so a short distance to the brain means a short incubation and less
+      time for prophylaxis to work.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag opening the exposure-site block.
+
+  MAOS_N:
+    official_name: Exposição nas mãos
+    translated_name: Hand exposure
+    description: >
+      Exposure to the hands. High risk because the hands are densely innervated,
+      and the commonest site in practice.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; MAOS reads mãos.
+
+  PES:
+    official_name: Exposição nos pés
+    translated_name: Foot exposure
+    description: Exposure to the feet, also densely innervated.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PES reads pés.
+
+  TRONCO:
+    official_name: Exposição no tronco
+    translated_name: Trunk exposure
+    description: Exposure to the trunk, a lower-risk site than the extremities or head.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; TRONCO reads tronco.
+
+  SUPERIORES:
+    official_name: Exposição em membros superiores
+    translated_name: Upper limb exposure
+    description: Exposure to the arms, apart from the hands recorded in MAOS_N.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; SUPERIORES reads membros superiores.
+
+  INFERIORES:
+    official_name: Exposição em membros inferiores
+    translated_name: Lower limb exposure
+    description: Exposure to the legs, apart from the feet recorded in PES.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; INFERIORES reads membros inferiores.
+
+  SUPERFICIA:
+    official_name: Ferimento superficial
+    translated_name: Superficial wound
+    description: >
+      A superficial wound. Depth is the third axis of the risk assessment, after
+      exposure type and site.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag opening the wound-depth block.
+
+  PROFUNDO:
+    official_name: Ferimento profundo
+    translated_name: Deep wound
+    description: >
+      A deep wound, which carries virus further into innervated tissue and moves
+      the case towards the fuller prophylaxis regimen.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; PROFUNDO reads profundo.
+
+  DILACERANT:
+    official_name: Ferimento dilacerante
+    translated_name: Lacerating wound
+    description: >
+      A lacerating wound. The most severe category, usually meaning both serum
+      and vaccine.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; DILACERANT reads dilacerante.
+
+  DT_EXPO:
+    official_name: Data da exposição
+    translated_name: Date of exposure
+    description: >
+      When the exposure happened. Prophylaxis started promptly is essentially
+      completely effective, and rabies once symptomatic is essentially always
+      fatal, so this date is the whole clock.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; DT_EXPO reads data da exposição.
+
+  ESPECIE_N:
+    official_name: Espécie do animal agressor
+    translated_name: Animal species
+    description: >
+      Which animal — dog, cat, bat, monkey, fox, herbivore or other. Bats are the
+      main rabies reservoir in Brazil now that canine rabies is largely
+      controlled, so this field carries most of the risk assessment.
+    code_system: internal
+    source: def
+    source_ref: ANIMALAG.CNV
+    reasoning: >
+      Bound to ANIMALAG, whose values are canina, felina, quiróptera, primata,
+      raposa, herbívora and outra.
+
+  VACINAD:
+    official_name: Animal vacinado
+    translated_name: Animal vaccinated
+    description: >
+      Whether the animal had been vaccinated against rabies. A vaccinated,
+      observable dog can make prophylaxis unnecessary; a bat never can.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag about the aggressor animal.
+
+  ANTI_RAB:
+    official_name: Vacina antirrábica indicada
+    translated_name: Rabies vaccine given
+    description: Whether rabies vaccine was given to the patient.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; ANTI_RAB reads antirrábica.
+
+  NUM_DOSES:
+    official_name: Número de doses da vacina
+    translated_name: Vaccine doses given
+    description: >
+      How many vaccine doses were given. An incomplete course is a real failure
+      mode here, since patients stop attending once the animal turns out to be
+      healthy.
+    code_system: none
+    source: inferred
+    reasoning: N(2) dose count in the prophylaxis block.
+
+  DOSES_A:
+    official_name: Doses aplicadas
+    translated_name: Doses applied
+    description: Doses actually applied, recorded beside the indicated count in NUM_DOSES.
+    code_system: none
+    source: inferred
+    reasoning: N(2) dose count; DOSES_A reads doses aplicadas.
+
+  DT_VAC1:
+    official_name: Data da primeira dose
+    translated_name: Date of first dose
+    description: >
+      When the vaccine course began. With DT_EXPO it gives the delay, the single
+      most important quality measure of the service.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first vaccine dose.
+
+  DT_VAC_ULT:
+    official_name: Data da última dose
+    translated_name: Date of last dose
+    description: When the course finished, which with DT_VAC1 shows whether it was completed.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the last vaccine dose.
+
+  DT_TR_RAB:
+    official_name: Data do tratamento antirrábico
+    translated_name: Date of rabies treatment
+    description: Date the anti-rabies treatment was recorded as given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the prophylaxis block.
+
+  DT_R_TRA:
+    official_name: Data de reinício do tratamento
+    translated_name: Date treatment restarted
+    description: >
+      Date treatment restarted after an interruption — the field that exists
+      because interrupted courses are common.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; R_TRA reads reinício do tratamento.
+
+  TRA_SORO:
+    official_name: Soro antirrábico
+    translated_name: Rabies immunoglobulin
+    description: >
+      Whether rabies immunoglobulin was given. Indicated for severe exposures
+      and provides immediate protection while the vaccine takes two weeks to
+      work.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag; TRA_SORO reads soro.
+
+  DT_APLI_SO:
+    official_name: Data da aplicação do soro
+    translated_name: Date immunoglobulin given
+    description: When the immunoglobulin was given.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with TRA_SORO.
+
+  INFILTRA:
+    official_name: Infiltração do soro na lesão
+    translated_name: Immunoglobulin infiltrated into the wound
+    description: >
+      Whether the immunoglobulin was infiltrated into the wound, fully or
+      partly. Infiltrating it at the site is what neutralises virus before it
+      enters the nerves, so partial infiltration is a real quality failure.
+    code_system: internal
+    source: def
+    source_ref: INFILTSOR.CNV
+    reasoning: >
+      Bound to INFILTSOR, whose values are sim total, sim parcial and não.
+
+  IMUNO_DIRE:
+    official_name: Imunofluorescência direta
+    translated_name: Direct immunofluorescence
+    description: >
+      Direct immunofluorescence on animal brain tissue. The standard rabies
+      test, and a positive result makes the exposed person's full course
+      mandatory.
+    code_system: internal
+    source: def
+    source_ref: POSNEGINNRE.CNV
+    reasoning: Bound to POSNEGINNRE, positive/negative/inconclusive/not done.
+
+  IMUNO_INDI:
+    official_name: Prova biológica
+    translated_name: Biological test
+    description: >
+      The confirmatory test performed when immunofluorescence is negative or
+      inconclusive, since it detects virus that direct testing can miss.
+    code_system: internal
+    source: def
+    source_ref: POSNEGINNRE.CNV
+    reasoning: Bound to POSNEGINNRE; the indirect counterpart of IMUNO_DIRE.
+
+  HISTOLOG_N:
+    official_name: Histopatologia
+    translated_name: Histopathology
+    description: >
+      Histopathology looking for Negri bodies. The oldest rabies test, less
+      sensitive than immunofluorescence and retained as a third line.
+    code_system: internal
+    source: def
+    source_ref: POSNEGINNRE.CNV
+    reasoning: Bound to POSNEGINNRE; the histological rabies test.
