@@ -1,136 +1,917 @@
-# CNES — the last of the establishment record.
+# CNES — the columns left across its registers.
 #
-# What is left after the .DEF names were harvested: the SUS/non-SUS service
-# flags, the outsourcing link, and the three sixty-character name fields that
-# carry text rather than codes.
+# Three blocks dominate, and all three are COUNTS rather than codes. Summing
+# rows is meaningless in every one of them; sum the quantity.
 #
-# Left out: CLASS_SR, AP01CV07 and AP02CV07. The AP..CV.. pair belongs to a
-# numbered grid whose axes are not established by anything found, and guessing
-# at a grid position is how the QTINST family went wrong once already.
+#   QTLEIT<nn>  beds of specialty <nn>, on the ESP_LEIT codelist
+#   QTINST<nn>  physical installations of type <nn>
+#   S_<name>    capacity in a specialised service, in the complementary data
+#
+# The QTLEIT suffix IS the specialty code: ESP_LEIT numbers 01-16 surgical,
+# 31-49 clinical and 61+ complementary, so QTLEIT05 counts gastroenterology beds
+# and QTLEIT39 day-hospital places. Codes 17 to 30 are "Não discriminado" in
+# DATASUS's own codelist — the columns exist and the Ministry does not say what
+# specialty they hold. That is recorded here as the fact it is.
 system: CNES
 asserted_by: pegasus_data
 
 variables:
 
-  HOSP_SUS:
-    official_name: Atendimento hospitalar SUS
-    translated_name: Provides SUS inpatient care
+  # ------------------------------------------------- beds, by specialty
+  QTLEIT05:
+    official_name: Leitos de gastroenterologia
+    translated_name: Gastroenterology beds
     description: >
-      Whether the establishment admits inpatients under the SUS. Paired with
-      HOSP_NSUS, since a hospital can do both and the two flags are set
-      independently.
-    code_system: internal
-    source: inferred
-    reasoning: >
-      HOSP is hospitalar and SUS needs no expansion; C(1) admits a flag, and it
-      sits directly beside HOSP_NSUS and AMB_SUS.
-
-  HOSP_NSUS:
-    official_name: Atendimento hospitalar não-SUS
-    translated_name: Provides non-SUS inpatient care
-    description: >
-      Whether the establishment admits inpatients outside the SUS — privately or
-      through supplementary health insurance. Set independently of HOSP_SUS.
-    code_system: internal
-    source: inferred
-    reasoning: NSUS is não-SUS, the negative counterpart of HOSP_SUS; C(1) flag.
-    notes: >
-      Non-SUS activity is recorded here but its *records* are not in DATASUS.
-      This flag says the capacity exists; it does not let you count it.
-
-  AMB_SUS:
-    official_name: Atendimento ambulatorial SUS
-    translated_name: Provides SUS outpatient care
-    description: >
-      Whether the establishment provides outpatient care under the SUS — the
-      companion to HOSP_SUS for the ambulatory side.
-    code_system: internal
-    source: inferred
-    reasoning: AMB is ambulatorial, in the same C(1) flag block as HOSP_SUS.
-
-  CNESTERC:
-    official_name: CNES do estabelecimento terceirizado
-    translated_name: Outsourced-to establishment CNES
-    description: >
-      CNES code of the establishment a service is contracted out to. Where a
-      hospital does not run a service itself, this is who does — which is what
-      makes the difference between where care is billed and where it happens.
-    code_system: external
-    source: inferred
-    reasoning: >
-      TERC is terceirizado and the column is C(7), the CNES establishment width,
-      so it holds another establishment's code rather than a flag.
-
-  QT_CONTR:
-    official_name: Quantidade contratada
-    translated_name: Contracted quantity
-    description: >
-      How much of a service the establishment is contracted to provide. The
-      ceiling an SUS contract sets, as against what was actually delivered,
-      which is in the production files.
+      Surgical beds in gastroenterology. A count, so sum the value rather than
+      the rows.
     code_system: none
     source: inferred
     reasoning: >
-      QT_ is the quantity prefix and CONTR contratada; declared N(4), numeric
-      rather than coded.
+      QTLEIT<nn> counts beds of ESP_LEIT specialty <nn>; 05 is
+      GASTROENTEROLOGIA in that codelist.
 
-  UFMUNRES:
-    official_name: Município de residência (UF + município)
-    translated_name: Municipality of residence
+  QTLEIT06:
+    official_name: Leitos de ginecologia
+    translated_name: Gynaecology beds
+    description: Surgical beds in gynaecology.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 06 is GINECOLOGIA.
+
+  QTLEIT07:
+    official_name: Leitos cirúrgico/diagnóstico/terapêutico
+    translated_name: Surgical, diagnostic and therapeutic beds
     description: >
-      Six-digit IBGE municipality code, state and municipality together, in the
-      form DATASUS uses everywhere — the check digit IBGE publishes as a seventh
-      character is not carried.
-    code_system: external
+      Beds serving surgery, diagnosis and therapy together — a combined category
+      rather than one clinical specialty.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 07 is CIRURGICO/DIAGNOSTICO/TERAPEUTICO.
+
+  QTLEIT08:
+    official_name: Leitos de nefrologia e urologia
+    translated_name: Nephrology and urology beds
+    description: Surgical beds in nephrology and urology.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 08 is NEFROLOGIA/UROLOGIA.
+
+  QTLEIT09:
+    official_name: Leitos de neurocirurgia
+    translated_name: Neurosurgery beds
+    description: Surgical beds in neurosurgery.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 09 is NEUROCIRURGIA.
+
+  QTLEIT19:
+    official_name: Leitos de especialidade não discriminada, código 19
+    translated_name: Beds, undesignated specialty 19
+    description: >
+      Beds in specialty slot 19. DATASUS's own codelist marks codes 17 to 30 as
+      "não discriminado", so the column counts beds whose specialty the Ministry
+      does not name.
+    code_system: none
     source: inferred
     reasoning: >
-      UF MUN RES reads as UF, município, residência, and C(6) is the DATASUS
-      municipality width throughout.
+      QTLEIT<nn> follows ESP_LEIT, where 19 falls in the 17-30 range whose
+      entries read "Não discriminado".
 
-  CODEQUIP:
-    official_name: Código do tipo de equipamento
-    translated_name: Equipment type code
+  QTLEIT20:
+    official_name: Leitos de especialidade não discriminada, código 20
+    translated_name: Beds, undesignated specialty 20
+    description: Beds in specialty slot 20, which DATASUS leaves unnamed. See QTLEIT19.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT code 20 is in the undesignated 17-30 range.
+
+  QTLEIT21:
+    official_name: Leitos de especialidade não discriminada, código 21
+    translated_name: Beds, undesignated specialty 21
+    description: Beds in specialty slot 21, which DATASUS leaves unnamed. See QTLEIT19.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT code 21 is in the undesignated 17-30 range.
+
+  QTLEIT22:
+    official_name: Leitos de especialidade não discriminada, código 22
+    translated_name: Beds, undesignated specialty 22
+    description: Beds in specialty slot 22, which DATASUS leaves unnamed. See QTLEIT19.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT code 22 is in the undesignated 17-30 range.
+
+  QTLEIT23:
+    official_name: Leitos de especialidade não discriminada, código 23
+    translated_name: Beds, undesignated specialty 23
+    description: Beds in specialty slot 23, which DATASUS leaves unnamed. See QTLEIT19.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT code 23 is in the undesignated 17-30 range.
+
+  QTLEIT32:
+    official_name: Leitos clínicos de cardiologia
+    translated_name: Cardiology beds, clinical
     description: >
-      Which kind of equipment a record concerns, in the CNES equipment
-      classification — the type, not an individual machine.
+      Clinical cardiology beds. Distinct from the surgical cardiology beds
+      counted under code 02, since ESP_LEIT numbers surgical and clinical
+      specialties in separate ranges.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 32 is CARDIOLOGIA in the 31-49 clinical range.
+
+  QTLEIT34:
+    official_name: Leitos de crônicos
+    translated_name: Chronic care beds
+    description: >
+      Beds for chronic patients — long stays, which makes them behave quite
+      differently from acute beds in any occupancy calculation.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 34 is CRONICOS.
+
+  QTLEIT38:
+    official_name: Leitos de hematologia
+    translated_name: Haematology beds
+    description: Clinical beds in haematology.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 38 is HEMATOLOGIA.
+
+  QTLEIT39:
+    official_name: Leitos de hospital-dia
+    translated_name: Day hospital places
+    description: >
+      Day-hospital places. Not overnight beds: the patient is discharged the
+      same day, so counting these with inpatient beds overstates capacity.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 39 is LEITO/DIA.
+
+  QTLEIT40:
+    official_name: Leitos de nefrologia e urologia, clínicos
+    translated_name: Nephrology and urology beds, clinical
+    description: >
+      Clinical nephrology and urology beds, as against the surgical ones under
+      code 08.
+    code_system: none
+    source: inferred
+    reasoning: ESP_LEIT 40 is NEFROUROLOGIA in the clinical range.
+
+  # --------------------------------------------- physical installations
+  QTINST32:
+    official_name: Instalações físicas do tipo 32
+    translated_name: Physical installations, type 32
+    description: >
+      Number of physical installations of type 32 at the establishment. The
+      QTINST series counts rooms and facilities by a type code; no codelist for
+      the type numbering is present in the catalogue.
+    code_system: none
+    source: inferred
+    reasoning: >
+      QTINST<nn> is a N(3) count per installation type, parallel to QTLEIT<nn>
+      for beds. The type codelist is not carried in the catalogue, so the type
+      is identified by its number and no more.
+
+  QTINST33:
+    official_name: Instalações físicas do tipo 33
+    translated_name: Physical installations, type 33
+    description: Number of physical installations of type 33. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 33.
+
+  QTINST34:
+    official_name: Instalações físicas do tipo 34
+    translated_name: Physical installations, type 34
+    description: Number of physical installations of type 34. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 34.
+
+  QTINST35:
+    official_name: Instalações físicas do tipo 35
+    translated_name: Physical installations, type 35
+    description: Number of physical installations of type 35. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 35.
+
+  QTINST36:
+    official_name: Instalações físicas do tipo 36
+    translated_name: Physical installations, type 36
+    description: Number of physical installations of type 36. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 36.
+
+  QTINST37:
+    official_name: Instalações físicas do tipo 37
+    translated_name: Physical installations, type 37
+    description: Number of physical installations of type 37. See QTINST32.
+    code_system: none
+    source: inferred
+    reasoning: The QTINST<nn> installation count series, type 37.
+
+  # ------------------------------------------- beds and equipment, LT and EQ
+  CODLEITO:
+    official_name: Especialidade do leito
+    translated_name: Bed specialty
+    description: >
+      Which specialty the beds on this row belong to, on the same 71-entry list
+      the QTLEIT columns are numbered by. In the LT dataset the specialty is a
+      column rather than being encoded in the column name.
     code_system: internal
+    source: def
+    source_ref: ESP_LEIT.CNV
+    reasoning: Bound to ESP_LEIT, the bed specialty codelist.
+
+  TP_LEITO:
+    official_name: Tipo de leito
+    translated_name: Bed type
+    description: >
+      The coarse grouping above the specialty — surgical, clinical,
+      complementary, obstetric, paediatric, other, or day hospital. Complementary
+      beds are intensive care, so this field is how ICU capacity is isolated.
+    code_system: internal
+    source: def
+    source_ref: LT_H_COM.CNV
+    reasoning: >
+      Bound to TIP1LEIT, whose values are cirúrgico, clínico, complementar,
+      obstétrico, pediátrico, outras especialidades and hospital/dia.
+
+  QT_SUS:
+    official_name: Quantidade de leitos SUS
+    translated_name: Beds available to SUS
+    description: >
+      Beds this establishment makes available to SUS. The figure to use for
+      public capacity; QT_NSUS holds the rest and the two must not be added when
+      the question is about SUS.
+    code_system: none
+    source: inferred
+    reasoning: N(4) count paired with QT_NSUS; SUS names the public system.
+
+  QT_NSUS:
+    official_name: Quantidade de leitos não SUS
+    translated_name: Beds not available to SUS
+    description: >
+      Beds reserved for private and supplementary-health patients. Adding these
+      to QT_SUS gives the hospital's total capacity, which answers a different
+      question from SUS capacity.
+    code_system: none
+    source: inferred
+    reasoning: N(4) count paired with QT_SUS; NSUS reads não SUS.
+
+  NULEITOS:
+    official_name: Número de leitos da habilitação
+    translated_name: Beds under the accreditation
+    description: >
+      Beds attached to a high-complexity accreditation. Counts only the beds the
+      accreditation covers, not the establishment's total.
+    code_system: none
+    source: inferred
+    reasoning: N(3) count in the HB accreditation dataset; NU_LEITOS reads número de leitos.
+
+  TIPEQUIP:
+    official_name: Tipo de equipamento
+    translated_name: Equipment type
+    description: >
+      Which equipment the row refers to — gamma camera, mammography unit, X-ray by
+      current rating, and so on. The type is what makes an equipment tally
+      interpretable.
+    code_system: internal
+    source: def
+    source_ref: EQUIP_TP.CNV
+    reasoning: >
+      Bound to EQUIP_TP, whose values are gama câmara, mamógrafo, raio X by
+      current and the rest of the equipment list.
+
+  QT_USO:
+    official_name: Quantidade de equipamentos em uso
+    translated_name: Equipment in use
+    description: >
+      How many of the registered units are actually in use. The gap between this
+      and the number existing is the interesting quantity: registered equipment
+      that has broken down is rarely deregistered.
+    code_system: none
+    source: inferred
+    reasoning: N(4) count; QT_USO reads quantidade em uso.
+
+  IND_SUS:
+    official_name: Equipamento disponível ao SUS
+    translated_name: Equipment available to SUS
+    description: >
+      Whether the equipment serves SUS patients. A scanner registered at a
+      hospital is not necessarily reachable through the public system.
+    code_system: internal
+    source: def
+    source_ref: IND_SUS.CNV
+    reasoning: >
+      Bound to IND_SUS, whose values are equipamento para o SUS and equipamento
+      não SUS.
+
+  IND_NSUS:
+    official_name: Equipamento não disponível ao SUS
+    translated_name: Equipment not available to SUS
+    description: The complement of IND_SUS, recorded as its own flag rather than derived.
+    code_system: none
+    source: inferred
+    reasoning: NSUS reads não SUS; the paired flag to IND_SUS.
+
+  # ------------------------------------------------------ teams, EP
+  TIPO_EQP:
+    official_name: Tipo de equipe
+    translated_name: Team type
+    description: >
+      Which kind of primary care team this is — family health team, family
+      health with oral health, community health agents, NASF support team, and
+      so on. The type determines the federal transfer the team attracts.
+    code_system: internal
+    source: def
+    source_ref: EQUIPE.CNV
+    reasoning: >
+      Bound to EQUIPE, whose values are ESF, ESF com saúde bucal, EACS, NASF and
+      the other team types.
+
+  IDEQUIPE:
+    official_name: Identificador da equipe
+    translated_name: Team identifier
+    description: >
+      The team's identifier. Stable enough to follow one team across
+      competências, which is what makes team turnover measurable.
+    code_system: internal
+    source: def
+    source_ref: EQP_AC.CNV
+    reasoning: C(18) identifier bound to the per-state team codelists.
+
+  ID_AREA:
+    official_name: Área de abrangência
+    translated_name: Coverage area
+    description: >
+      The area the team covers. Primary care in Brazil is territorial: a team is
+      responsible for a defined population, and this is that territory.
+    code_system: internal
+    source: def
+    source_ref: AREA_AC.CNV
+    reasoning: C(10) identifier bound to the per-state area codelists.
+
+  ID_SEGM:
+    official_name: Segmento territorial
+    translated_name: Territorial segment
+    description: The segment within the coverage area, a subdivision below ID_AREA.
+    code_system: internal
+    source: def
+    source_ref: SEGM_AC.CNV
+    reasoning: C(8) identifier bound to the per-state segment codelists.
+
+  TIPOSEGM:
+    official_name: Tipo do segmento
+    translated_name: Segment type
+    description: >
+      Whether the segment is urban or rural. Rural segments cover far larger
+      distances for the same population, so the distinction matters to any
+      access measure.
+    code_system: internal
+    source: def
+    source_ref: TIPOSEGM.CNV
+    reasoning: Bound to TIPOSEGM, whose values are segmento urbano and segmento rural.
+
+  DT_ATIVA:
+    official_name: Competência de ativação da equipe
+    translated_name: Team activation month
+    description: >
+      The competência in which the team became active. A month, not a date, so
+      it will not support day-level intervals.
+    code_system: internal
+    source: def
+    source_ref: COMPT.CNV
+    reasoning: C(6) AAAAMM bound to COMPT, the competência codelist.
+
+  DT_DESAT:
+    official_name: Competência de desativação da equipe
+    translated_name: Team deactivation month
+    description: >
+      The competência in which the team was deactivated, empty while the team is
+      still running. With DT_ATIVA it gives the team's lifetime.
+    code_system: internal
+    source: def
+    source_ref: COMPT.CNV
+    reasoning: C(6) AAAAMM bound to COMPT; the counterpart of DT_ATIVA.
+
+  TP_DESAT:
+    official_name: Tipo de desativação
+    translated_name: Deactivation type
+    description: >
+      Whether the deactivation was temporary or definitive. A team still shown as
+      active carries the "ainda ativa" value rather than being blank.
+    code_system: internal
+    source: def
+    source_ref: TP_DESAT.CNV
+    reasoning: >
+      Bound to TP_DESAT, whose values are equipe ainda ativa, temporária and
+      definitiva.
+
+  MOTDESAT:
+    official_name: Motivo da desativação
+    translated_name: Reason for deactivation
+    description: >
+      Why the team was deactivated — reorganisation of the family health
+      strategy, or difficulty recruiting a doctor or a nurse. Recruitment
+      failure is a recurring and policy-relevant reason, which is why it has its
+      own codes.
+    code_system: internal
+    source: def
+    source_ref: MOTDESAT.CNV
+    reasoning: >
+      Bound to MOTDESAT, whose values include reorganização da ESF and
+      dificuldade de contratação de profissional médico or enfermeiro.
+
+  POPGERAL:
+    official_name: Atende população geral
+    translated_name: Serves the general population
+    description: >
+      Whether the team serves the general population. The POPGERAL, INDIGENA,
+      QUILOMBO, ASSENTAD, ESCOLA and PRONASCI flags together say which
+      populations a team is responsible for, and a team can serve several.
+    code_system: none
+    source: inferred
+    reasoning: C(1) flag opening the served-population block of the team record.
+
+  INDIGENA:
+    official_name: Atende população indígena
+    translated_name: Serves indigenous population
+    description: >
+      Whether the team serves an indigenous population. Indigenous health has its
+      own subsystem, so this flag marks teams working inside it.
+    code_system: none
+    source: inferred
+    reasoning: An item of the served-population block; INDIGENA names the population.
+
+  QUILOMBO:
+    official_name: Atende população quilombola
+    translated_name: Serves quilombola population
+    description: >
+      Whether the team serves a quilombola community — the descendants of
+      escaped-slave settlements, a population with specific health policy.
+    code_system: internal
+    source: def
+    source_ref: POPULAC.CNV
+    reasoning: An item of the served-population block, bound to the POPULAC combinations.
+
+  ASSENTAD:
+    official_name: Atende assentamento
+    translated_name: Serves a land settlement
+    description: Whether the team serves a rural land-reform settlement.
+    code_system: none
+    source: inferred
+    reasoning: ASSENTAD reads assentamento, an item of the served-population block.
+
+  ESCOLA:
+    official_name: Atende escolares
+    translated_name: Serves schoolchildren
+    description: >
+      Whether the team works with schoolchildren, under the school health
+      programme.
+    code_system: none
+    source: inferred
+    reasoning: ESCOLA names the school population, an item of the served-population block.
+
+  PRONASCI:
+    official_name: Equipe do PRONASCI
+    translated_name: PRONASCI team
+    description: >
+      Whether the team belongs to PRONASCI, the public-security-linked programme
+      placing health teams in areas of high violence.
+    code_system: none
+    source: inferred
+    reasoning: PRONASCI names the programme, an item of the served-population block.
+
+  # -------------------------------------------- professionals and services
+  VINCULAC:
+    official_name: Tipo de vínculo do profissional
+    translated_name: Professional's employment link
+    description: >
+      How the professional is attached to the establishment — employed,
+      self-employed, or link not identified. The unidentified value is common
+      enough that it should be reported rather than dropped.
+    code_system: internal
+    source: def
+    source_ref: VINCULO.CNV
+    reasoning: >
+      Bound to VINCULAC, whose values are profissional contratado, autônomo and
+      vínculo não identificado.
+
+  VINCUL_C:
+    official_name: Vínculo contratual
+    translated_name: Contractual link flag
+    description: >
+      Whether the professional holds a contractual link. The VINCUL_ flags
+      decompose VINCULAC into separate yes/no items, and a professional can hold
+      more than one kind at the same establishment.
+    code_system: none
+    source: inferred
+    reasoning: C suffix for contratual, one of three parallel flags decomposing VINCULAC.
+
+  VINCUL_A:
+    official_name: Vínculo autônomo
+    translated_name: Autonomous link flag
+    description: Whether the professional works as self-employed here. See VINCUL_C.
+    code_system: none
+    source: inferred
+    reasoning: A suffix for autônomo, parallel to VINCUL_C.
+
+  VINCUL_N:
+    official_name: Vínculo não identificado
+    translated_name: Unidentified link flag
+    description: Whether the link could not be identified. See VINCUL_C.
+    code_system: none
+    source: inferred
+    reasoning: N suffix for não identificado, parallel to VINCUL_C.
+
+  SERV_ESP:
+    official_name: Serviço especializado
+    translated_name: Specialised service
+    description: >
+      Which specialised service the establishment offers. Read with SRVUNICO,
+      which narrows it to a classification: the service alone is too coarse to
+      interpret.
+    code_system: internal
+    source: def
+    source_ref: S_CLASSEA.CNV
+    reasoning: C(3) code bound to the S_CLASSE service codelists.
+
+  SRVUNICO:
+    official_name: Classificação do serviço
+    translated_name: Service classification
+    description: >
+      The classification within the service — the second half of the pair that
+      SERV_ESP opens.
+    code_system: internal
+    source: def
+    source_ref: SRA_ORD_A.CNV
+    reasoning: C(3) code bound to the SRA_ORD service-classification codelists.
+
+  CARACTER:
+    official_name: Caracterização do serviço
+    translated_name: Service arrangement
+    description: >
+      Whether the service is run in-house or contracted out, and whether it is
+      outpatient or hospital, SUS or not. Four distinctions in one code.
+    code_system: internal
+    source: def
+    source_ref: SRV_CARACT.CNV
+    reasoning: >
+      Bound to SRV_CARACT, whose values are próprio, terceirizado, ambulatorial,
+      SUS-ambulatorial, hospitalar and SUS-hospitalar.
+
+  CONTSRVU:
+    official_name: Serviço terceirizado
+    translated_name: Service is contracted out
+    description: >
+      Whether the service is provided under contract by a third party rather than
+      by the establishment itself.
+    code_system: none
+    source: inferred
+    reasoning: CONT reads contratado or terceirizado with SRVU for serviço único; C(1) flag.
+
+  AMB_NSUS:
+    official_name: Atendimento ambulatorial não SUS
+    translated_name: Outpatient care outside SUS
+    description: >
+      Whether the service treats outpatients outside SUS. The non-SUS side of the
+      ambulatorial/hospitalar split.
+    code_system: internal
+    source: def
+    source_ref: AMB_HOSP.CNV
+    reasoning: AMB reads ambulatorial and NSUS não SUS; bound to the AMB_HOSP codelist.
+
+  # ------------------------------- specialised service capacity, DC block
+  S_COLETA:
+    official_name: Coleta de sangue
+    translated_name: Blood collection capacity
+    description: >
+      Blood collection capacity in the establishment's complementary data. The
+      S_ block counts capacity across the blood bank, dialysis and radiotherapy
+      services; all are N(3) counts with no values observed in the catalogue.
+    code_system: none
     source: inferred
     reasoning: >
-      COD EQUIP is código de equipamento; C(2) admits a type code and is far too
-      narrow to identify a particular device.
+      S_ prefixes a block of N(3) service counts in the DC dataset; COLETA reads
+      coleta, the first step of the transfusion chain.
 
-  NOME_EQP:
-    official_name: Nome da equipe
-    translated_name: Team name
+  S_RECEPC:
+    official_name: Recepção de doadores
+    translated_name: Donor reception capacity
+    description: Donor reception capacity, the step before collection in the blood bank chain.
+    code_system: none
+    source: inferred
+    reasoning: RECEPC reads recepção, in the S_ blood bank block.
+
+  S_TRICLI:
+    official_name: Triagem clínica
+    translated_name: Clinical screening capacity
     description: >
-      Name the health team is registered under, as free text. The team's
-      identifier is the INE code elsewhere in the record; this is what it is
-      called.
+      Clinical screening of donors — the interview that excludes donors on
+      history before any blood is taken.
+    code_system: none
+    source: inferred
+    reasoning: TRICLI reads triagem clínica, in the S_ blood bank block.
+
+  S_TRIHMT:
+    official_name: Triagem hematológica
+    translated_name: Haematological screening capacity
+    description: >
+      Haematological screening of donors — the blood count that excludes anaemic
+      donors, as against the interview in S_TRICLI.
+    code_system: none
+    source: inferred
+    reasoning: TRIHMT reads triagem hematológica, in the S_ blood bank block.
+
+  S_SOROLO:
+    official_name: Sorologia
+    translated_name: Serology capacity
+    description: >
+      Serological testing of donated blood. The step that keeps transfusion-
+      transmitted infection out of the supply, and the reason the HBsAg and
+      reagent counts below exist.
+    code_system: none
+    source: inferred
+    reasoning: SOROLO reads sorologia, in the S_ blood bank block.
+
+  S_IMUNOH:
+    official_name: Imuno-hematologia
+    translated_name: Immunohaematology capacity
+    description: >
+      Immunohaematology — blood grouping and antibody screening, which is what
+      makes a unit safe for a particular recipient rather than safe in general.
+    code_system: none
+    source: inferred
+    reasoning: IMUNOH reads imuno-hematologia, in the S_ blood bank block.
+
+  S_IMUNFE:
+    official_name: Imunofenotipagem
+    translated_name: Immunophenotyping capacity
+    description: >
+      Immunophenotyping capacity, used in diagnosing leukaemias rather than in
+      routine transfusion work.
+    code_system: none
+    source: inferred
+    reasoning: IMUNFE reads imunofenotipagem, in the S_ block.
+
+  S_HEMOST:
+    official_name: Hemostasia
+    translated_name: Haemostasis testing capacity
+    description: Coagulation and haemostasis testing capacity.
+    code_system: none
+    source: inferred
+    reasoning: HEMOST reads hemostasia, in the S_ block.
+
+  S_BIOMOL:
+    official_name: Biologia molecular
+    translated_name: Molecular biology capacity
+    description: >
+      Molecular testing capacity. In a blood bank this is NAT screening, which
+      shortens the window period serology cannot cover.
+    code_system: none
+    source: inferred
+    reasoning: BIOMOL reads biologia molecular, in the S_ block.
+
+  S_CPFLUX:
+    official_name: Citometria de fluxo
+    translated_name: Flow cytometry capacity
+    description: Flow cytometry capacity, the technique behind immunophenotyping.
     code_system: none
     source: inferred
     reasoning: >
-      NOME is a name and the column is C(60), which cannot be a code; EQP is
-      equipe, matching the INE team fields around it.
+      CPFLUX reads citometria de fluxo, sitting beside S_IMUNFE which depends on
+      it. Lower confidence than the plainly-named items in this block.
 
-  NOMEAREA:
-    official_name: Nome da área
-    translated_name: Coverage area name
+  S_PROCES:
+    official_name: Processamento
+    translated_name: Processing capacity
     description: >
-      Name of the area a team covers, as free text. Areas are local names given
-      by the municipality, so these are not comparable between municipalities.
+      Processing whole blood into components — red cells, plasma, platelets.
+      One donation becomes several products, which is why processing capacity is
+      counted apart from collection.
     code_system: none
     source: inferred
-    reasoning: NOME plus área, at C(60) — free text, not a code.
-    notes: >
-      Locally assigned. Two municipalities can use the same area name for
-      unrelated territories.
+    reasoning: PROCES reads processamento, in the S_ blood bank block.
 
-  DESCSEGM:
-    official_name: Descrição do segmento
-    translated_name: Segment description
-    description: >
-      Free-text description of the segment a team's area is divided into — the
-      subdivision below the area, again named locally.
+  S_PREPAR:
+    official_name: Preparo de hemocomponentes
+    translated_name: Component preparation capacity
+    description: Preparation of blood components for issue, following processing.
     code_system: none
     source: inferred
-    reasoning: DESC is descrição and SEGM segmento; C(60) free text.
+    reasoning: PREPAR reads preparo, in the S_ blood bank block.
+
+  S_ARMAZE:
+    official_name: Armazenamento
+    translated_name: Storage capacity
+    description: >
+      Storage capacity. Components have short and differing shelf lives —
+      platelets days, red cells weeks — so storage is a real constraint rather
+      than a formality.
+    code_system: none
+    source: inferred
+    reasoning: ARMAZE reads armazenamento, in the S_ blood bank block.
+
+  S_ESTOQU:
+    official_name: Estoque
+    translated_name: Stock capacity
+    description: Stock held, as against the physical storage capacity in S_ARMAZE.
+    code_system: none
+    source: inferred
+    reasoning: ESTOQU reads estoque, in the S_ blood bank block.
+
+  S_PREEST:
+    official_name: Pré-estoque
+    translated_name: Pre-stock capacity
+    description: >
+      Units held before release to stock — collected and processed, but not yet
+      cleared by serology.
+    code_system: none
+    source: inferred
+    reasoning: PREEST reads pré-estoque, preceding S_ESTOQU in the chain.
+
+  S_DISTRI:
+    official_name: Distribuição
+    translated_name: Distribution capacity
+    description: >
+      Distribution of components to the services that transfuse them. Many
+      hospitals do not collect blood and depend entirely on this step.
+    code_system: none
+    source: inferred
+    reasoning: DISTRI reads distribuição, in the S_ blood bank block.
+
+  S_PRETRA:
+    official_name: Exames pré-transfusionais
+    translated_name: Pre-transfusion testing capacity
+    description: >
+      Pre-transfusion compatibility testing — the crossmatch performed for a
+      specific patient immediately before transfusion.
+    code_system: none
+    source: inferred
+    reasoning: PRETRA reads pré-transfusional, in the S_ blood bank block.
+
+  S_TRANSF:
+    official_name: Transfusão
+    translated_name: Transfusion capacity
+    description: The transfusion itself, the last step of the chain the rest of this block supports.
+    code_system: none
+    source: inferred
+    reasoning: TRANSF reads transfusão, in the S_ blood bank block.
+
+  S_SGDOAD:
+    official_name: Sangue de doador
+    translated_name: Donor blood capacity
+    description: Capacity relating to donor blood as a product line within the service.
+    code_system: none
+    source: inferred
+    reasoning: SGDOAD reads sangue de doador, in the S_ blood bank block.
+
+  S_CONTRQ:
+    official_name: Controle de qualidade
+    translated_name: Quality control capacity
+    description: >
+      Quality control on the service's own outputs — a regulatory requirement for
+      a blood establishment rather than an optional activity.
+    code_system: none
+    source: inferred
+    reasoning: CONTRQ reads controle de qualidade, in the S_ block.
+
+  S_QCDURA:
+    official_name: Controle de qualidade, duração
+    translated_name: Quality control duration
+    description: >
+      A duration recorded against quality control. What it measures is not
+      established from the catalogue and no values were observed.
+    code_system: none
+    source: inferred
+    reasoning: >
+      QC reads controle de qualidade and DURA duração, paired with S_QLDURA.
+      Hedged deliberately: the pairing is clear, the quantity is not.
+
+  S_QLDURA:
+    official_name: Controle laboratorial, duração
+    translated_name: Laboratory control duration
+    description: >
+      A duration recorded against laboratory control, paired with S_QCDURA. As
+      with that field, the quantity itself is not established.
+    code_system: none
+    source: inferred
+    reasoning: QL against QC in a matched pair; both hedged for the same reason.
+
+  S_HBSAGP:
+    official_name: HBsAg reagente
+    translated_name: HBsAg positive donations
+    description: >
+      Donations testing positive for hepatitis B surface antigen. A discard
+      figure, and a crude measure of hepatitis B prevalence among donors.
+    code_system: none
+    source: inferred
+    reasoning: HBSAG is the hepatitis B surface antigen and P positivo; paired with S_HBSAGN.
+
+  S_HBSAGN:
+    official_name: HBsAg não reagente
+    translated_name: HBsAg negative donations
+    description: Donations testing negative for HBsAg; the denominator for S_HBSAGP.
+    code_system: none
+    source: inferred
+    reasoning: N for negativo, the counterpart of S_HBSAGP.
+
+  S_REAGP:
+    official_name: Amostras reagentes
+    translated_name: Reactive samples
+    description: >
+      Samples reactive on screening, across the serology panel rather than for
+      one marker. Reactive is not confirmed positive: screening is deliberately
+      over-sensitive.
+    code_system: none
+    source: inferred
+    reasoning: REAG reads reagente and P positivo; paired with S_REAGN.
+
+  S_REAGN:
+    official_name: Amostras não reagentes
+    translated_name: Non-reactive samples
+    description: Samples non-reactive on screening; the counterpart of S_REAGP.
+    code_system: none
+    source: inferred
+    reasoning: N for negativo, the counterpart of S_REAGP.
+
+  S_REHCV:
+    official_name: Reagentes para HCV
+    translated_name: HCV reactive samples
+    description: >
+      Samples reactive for hepatitis C. Broken out from the general reactive
+      count because hepatitis C was the marker that most changed transfusion
+      safety when testing arrived.
+    code_system: none
+    source: inferred
+    reasoning: RE reads reagente and HCV the hepatitis C virus; in the S_ serology block.
+
+  S_ALCOME:
+    official_name: Aférese com equipamento
+    translated_name: Apheresis, with equipment
+    description: >
+      An apheresis capacity count paired with S_ALSEME. Which arrangement each
+      of the pair denotes is not established, and no values were observed.
+    code_system: none
+    source: inferred
+    reasoning: >
+      AL with the COM/SEM contrast against S_ALSEME marks a with/without pair in
+      the blood bank block. Hedged: the pairing is evident, the subject is not.
+
+  S_ALSEME:
+    official_name: Aférese sem equipamento
+    translated_name: Apheresis, without equipment
+    description: The complement of S_ALCOME, and hedged for the same reason.
+    code_system: none
+    source: inferred
+    reasoning: The SEM half of the COM/SEM pair opened by S_ALCOME.
+
+  S_DPAC:
+    official_name: Diálise peritoneal ambulatorial contínua
+    translated_name: CAPD capacity
+    description: >
+      Continuous ambulatory peritoneal dialysis capacity. Done by the patient at
+      home rather than at a machine in a clinic, so it is capacity of a quite
+      different kind from haemodialysis.
+    code_system: none
+    source: inferred
+    reasoning: DPAC is the standard abbreviation for diálise peritoneal ambulatorial contínua.
+
+  S_DPI:
+    official_name: Diálise peritoneal intermitente
+    translated_name: Intermittent peritoneal dialysis capacity
+    description: >
+      Intermittent peritoneal dialysis capacity — performed in sessions at the
+      service, as against the continuous home modality in S_DPAC.
+    code_system: none
+    source: inferred
+    reasoning: DPI is the standard abbreviation for diálise peritoneal intermitente.
+
+  S_SIMULA:
+    official_name: Simulador de radioterapia
+    translated_name: Radiotherapy simulator capacity
+    description: >
+      Radiotherapy simulator capacity. Simulation plans where the beam will go
+      before any treatment is given, so it is a bottleneck ahead of the
+      treatment machines.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SIMULA reads simulador and sits beside UN_COBAL, placing it in the
+      radiotherapy part of the complementary data.
+
+  UN_COBAL:
+    official_name: Unidades de cobalto
+    translated_name: Cobalt units
+    description: >
+      Cobalt-60 teletherapy units. Older technology than the linear accelerators
+      that have replaced it, so a count above zero dates the service's equipment.
+    code_system: none
+    source: inferred
+    reasoning: >
+      UN reads unidade and COBAL cobalto; cobalt-60 teletherapy, beside the
+      radiotherapy simulator count.
