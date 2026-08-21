@@ -112,6 +112,17 @@ class Info:
                 out.append("  known biases:")
                 out.extend("    " + line for line in _wrap(str(bias), 74))
 
+            questions = self.documentation.get("open_questions") or []
+            if questions:
+                out.append("")
+                out.append(f"  open questions ({len(questions)}) — unsettled, not guessed:")
+                for q in list(questions)[:4]:
+                    out.append(f"    {q.get('key', '')}")
+                    for line in _wrap(str(q.get("question") or ""), 68):
+                        out.append(f"        {line}")
+                if len(questions) > 4:
+                    out.append(f"    ... and {len(questions) - 4} more")
+
             gotchas = self.documentation.get("gotchas")
             if gotchas:
                 if isinstance(gotchas, str):
@@ -438,6 +449,8 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
     ):
         doc = {k: r[k] for k in r.keys() if r[k] is not None}
 
+    questions = _open_questions_for(store, crawled_systems, signatures)
+
     notes = []
     if node.confidence != "high":
         notes.append(f"Identity asserted with {node.confidence} confidence — verify before relying on it.")
@@ -474,9 +487,71 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
             **doc,
             "columns_total": total_cols,
             "columns_described": described,
+            "open_questions": questions,
         },
         notes=notes,
     )
+
+
+def _open_questions_for(
+    store: _Store, systems: set[str], signatures: set[str]
+) -> list[dict[str, Any]]:
+    """Unresolved questions that bear on this dataset.
+
+    "What is not known says so" is the rule the whole project runs on, and
+    ``info()`` is the front door — so a dataset with an unsettled question about
+    one of its codelists should say so when asked about, not only when someone
+    thinks to run ``pegasus-data questions``.
+
+    Questions are keyed by artefact rather than by dataset, so the join goes
+    through the codelists this dataset's columns actually bind to. That is a
+    real link, not a text match: a mixed-width reference table is a problem for
+    exactly the datasets whose columns decode against it.
+    """
+    if not systems or not signatures:
+        return []
+    sig_marks = ",".join("?" for _ in signatures)
+    cols = {
+        str(r["field_name"])
+        for r in store.query(
+            f"SELECT DISTINCT field_name FROM schema_presence "
+            f"WHERE schema_signature IN ({sig_marks})",
+            tuple(signatures),
+        )
+    }
+    if not cols:
+        return []
+
+    sys_marks = ",".join("?" for _ in systems)
+    codelists = {
+        str(r["codelist"])
+        for r in store.query(
+            f"SELECT DISTINCT field_name, codelist FROM field_codelists "
+            f"WHERE system IN ({sys_marks})",
+            tuple(systems),
+        )
+        if str(r["field_name"]) in cols
+    }
+    if not codelists:
+        return []
+
+    out: list[dict[str, Any]] = []
+    for row in store.query(
+        "SELECT key, area, question, blocking FROM open_questions "
+        "WHERE status = 'open' ORDER BY key"
+    ):
+        key = str(row["key"])
+        tail = key.rsplit(":", 1)[-1] if ":" in key else ""
+        if tail and tail in codelists:
+            out.append(
+                {
+                    "key": key,
+                    "area": row["area"],
+                    "question": row["question"],
+                    "blocking": row["blocking"],
+                }
+            )
+    return out
 
 
 def _generations(store: _Store, families: list[dict[str, Any]]) -> list[dict[str, Any]]:
