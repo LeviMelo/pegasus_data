@@ -97,6 +97,37 @@ class Info:
                 pct = 100.0 * (described or 0) / total
                 out.append(f"  columns: {described or 0}/{total} described ({pct:.0f}%)")
 
+            row = self.documentation.get("what_one_row_is")
+            if row:
+                out.append("")
+                out.append("  one row is:")
+                out.extend("    " + line for line in _wrap(str(row), 74))
+                unit = self.documentation.get("unit_of_analysis")
+                if unit:
+                    out.append(f"    unit of analysis: {unit}")
+
+            bias = self.documentation.get("known_biases")
+            if bias:
+                out.append("")
+                out.append("  known biases:")
+                out.extend("    " + line for line in _wrap(str(bias), 74))
+
+            gotchas = self.documentation.get("gotchas")
+            if gotchas:
+                if isinstance(gotchas, str):
+                    try:
+                        import json as _json
+
+                        gotchas = _json.loads(gotchas)
+                    except Exception:
+                        gotchas = [gotchas]
+                out.append("")
+                out.append("  gotchas:")
+                for g in list(gotchas)[:8]:
+                    wrapped = _wrap(str(g), 70)
+                    out.append(f"    - {wrapped[0]}")
+                    out.extend("      " + line for line in wrapped[1:])
+
         if self.evidence.get("observed_as"):
             out.append(f"  seen as: {', '.join(self.evidence['observed_as'][:8])}")
 

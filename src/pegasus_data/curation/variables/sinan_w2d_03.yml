@@ -1,0 +1,311 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  ARTEMI:
+    official_name: Uso de artemisinina/derivado
+    translated_name: Artemisinin-based drug used (flag)
+    description: >
+      Whether an artemisinin-based drug (e.g. artesunato, artemeter) was
+      part of the malaria patient's treatment regimen, one of the
+      therapeutic-scheme checkboxes on the malaria (MALA) investigation
+      form alongside chloroquine/primaquine fields.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ARTEMI abbreviates artemisinina, a first-line antimalarial class in
+      Brazilian treatment protocols; C1 width fits a checkbox.
+
+  AT_LAMINA:
+    official_name: Atividade que gerou a lâmina
+    translated_name: Activity that produced the blood smear
+    description: >
+      Which surveillance activity generated the malaria diagnostic blood
+      smear (lâmina): BP=Busca Passiva (patient sought care), BA=Busca
+      Ativa (active case search), LVC=Levantamento de Casos (case survey).
+    code_system: internal
+    source: inferred
+    reasoning: >
+      Catalog dictionary gives values 1=BP, 2=BA, 3=LVC; AT_ = atividade,
+      LAMINA = lâmina (blood smear), and BP/BA/LVC map onto Brazil's
+      standard malaria case-detection-mode abbreviations.
+
+  CLIND:
+    official_name: Diagnóstico clínico
+    translated_name: Clinical (unconfirmed) diagnosis flag
+    description: >
+      Whether the malaria case was diagnosed by symptoms alone rather than
+      a positive blood smear/RDT - relevant in remote areas with limited
+      lab access - distinct from the lab-confirmed flag CON_CONFIR.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CLIN = clínica/clínico; malaria surveillance distinguishes
+      clinically-diagnosed from laboratory-confirmed cases, and this field
+      sits beside the confirmation flag CON_CONFIR.
+
+  CON_CONFIR:
+    official_name: Confirmação laboratorial
+    translated_name: Lab-confirmed case (flag)
+    description: >
+      Whether the malaria case was confirmed by a positive blood smear or
+      rapid test, the definitive classification separating confirmed cases
+      from the clinically-suspected ones flagged by CLIND.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CON_ = condição/confirmação, CONFIR = confirmado; lab confirmation
+      is the standard classification axis for malaria case status.
+
+  GESTANTE:
+    official_name: Gestante
+    translated_name: Pregnant (flag)
+    description: >
+      Whether the malaria patient is pregnant. Pregnancy changes both the
+      drug regimen (artemisinin combinations are restricted in early
+      pregnancy) and clinical risk, since severe malaria is more likely in
+      pregnant patients.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Direct decode of GESTANTE; pregnancy status is a standard field
+      wherever it affects malaria treatment choice, C1 width fits a
+      checkbox.
+
+  LOC_INF:
+    official_name: Local provável de infecção
+    translated_name: Probable infection location (free text)
+    description: >
+      Free-text description of where the patient likely acquired malaria
+      (locality, village, mining site), used to map transmission foci
+      separately from the patient's residence address.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LOC_ = local, INF = infecção; C60 width fits free-text place names,
+      and probable-infection-site is a standard malaria epidemiological
+      field.
+
+  PTRANSFU:
+    official_name: Provável transfusional
+    translated_name: Transfusion-related transmission (flag)
+    description: >
+      Whether blood transfusion, rather than mosquito bite, is the likely
+      route of malaria transmission for this case - a rare but tracked
+      transmission category distinct from the usual vector-borne route.
+    code_system: none
+    source: inferred
+    reasoning: >
+      P_ = provável, TRANSFU = transfusão/transfusional; transfusional
+      malaria is a recognized, separately-flagged transmission mode in
+      Brazilian surveillance.
+
+  SOUTROS:
+    official_name: Se outros
+    translated_name: Other option used (flag)
+    description: >
+      Flag marking that the malaria patient's treatment scheme included a
+      drug or category outside the standard listed options, paired with a
+      free-text field elsewhere naming it.
+    code_system: none
+    source: inferred
+    reasoning: >
+      S_OUTROS = "se outros" (if other); matches the flag+detail pattern
+      used across SINAN "outro, especifique" fields, C1 width fits a
+      checkbox.
+
+  UFINTERNA:
+    official_name: UF de internação
+    translated_name: State of hospitalization
+    description: >
+      Two-letter code of the Brazilian state where the malaria patient was
+      hospitalized, distinct from the state of residence or the state of
+      probable infection.
+    code_system: none
+    source: inferred
+    reasoning: >
+      UF_ = unidade federativa, INTERNA = internação; C2 width matches a
+      standard Brazilian state abbreviation.
+
+  CLA_TIPO_N:
+    official_name: Classificação quanto ao tipo
+    translated_name: Case-type classification
+    description: >
+      Classifies a leishmaniose tegumentar (LTAN) notification as a new
+      case, a relapse, or a transfer between health units: 1=Caso novo,
+      2=Recidiva, 3=Transferência.
+    code_system: internal
+    source: inferred
+    reasoning: >
+      Catalog dictionary gives values 1=Caso novo, 2=Recidiva,
+      3=Transferência; CLA_ = classificação, TIPO_N = tipo de notificação,
+      a standard case-status axis on SINAN forms.
+
+  CON_AUTO_M:
+    official_name: Condição de autoctonia no município
+    translated_name: Autochthonous in municipality (flag)
+    description: >
+      Whether the leishmaniose tegumentar infection is autochthonous to
+      the patient's municipality of residence, as opposed to being
+      acquired elsewhere and only diagnosed locally - the municipality-level
+      leg of the standard autochthony triad (municipality/state/country).
+    code_system: none
+    source: inferred
+    reasoning: >
+      CON_ = condição, AUTO = autóctone, M = município; autochthony by
+      municipality/UF/country is a standard classification set on
+      vector-borne disease investigation forms.
+
+  ENTO_ANIMA:
+    official_name: Investigação entomológica - presença de animais
+    translated_name: Animal reservoirs present (entomological survey)
+    description: >
+      Presence of animal reservoirs (dogs, equines, wild fauna) identified
+      during the entomological/environmental investigation around the
+      leishmaniose tegumentar case's likely exposure site.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ENTO_ = entomológico, ANIMA = animais; reservoir-animal presence is
+      routinely checked alongside vector (sandfly) findings in
+      leishmaniasis field investigations.
+
+  ENTO_EXIST:
+    official_name: Investigação entomológica - existência de vetor
+    translated_name: Vector presence confirmed (entomological survey)
+    description: >
+      Whether the entomological investigation found evidence of the sandfly
+      vector (Lutzomyia) in the area of suspected exposure - the general
+      existence flag that the more specific ENTO_INTRA/ENTO_PROXI fields
+      refine.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ENTO_ = entomológico, EXIST = existência; a base "vector found"
+      flag preceding the location-specific ENTO_INTRA and ENTO_PROXI
+      fields in the same series.
+
+  ENTO_EXI_4:
+    official_name: Investigação entomológica - existência (categoria 4)
+    translated_name: Vector presence, category 4
+    description: >
+      A further-graded vector-presence result distinguished from
+      ENTO_EXIST by a numeric suffix, likely a specific distance zone or
+      vector-species category in the entomological survey; exact category
+      not confirmed by other catalog evidence.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Shares the ENTO_EXI root with ENTO_EXIST but the "_4" suffix marks a
+      distinct, more granular variant; low file weight (7) limits further
+      confirmation.
+
+  ENTO_INTRA:
+    official_name: Investigação entomológica - vetor intradomiciliar
+    translated_name: Vector found inside the home
+    description: >
+      Whether the sandfly vector was found inside the patient's home
+      (intradomiciliar), as opposed to only nearby - distinguishes this
+      exposure setting from ENTO_PROXI's peridomestic finding.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ENTO_ = entomológico, INTRA = intradomiciliar; indoor vs. peridomestic
+      vector presence is a standard distinction in leishmaniasis
+      entomological surveys.
+
+  ENTO_PROXI:
+    official_name: Investigação entomológica - vetor próximo ao domicílio
+    translated_name: Vector found near the home
+    description: >
+      Whether the sandfly vector was found close to, but not inside, the
+      patient's home (peridomestic) - the counterpart to ENTO_INTRA's
+      indoor finding in the same entomological survey.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ENTO_ = entomológico, PROXI = próximo; peridomestic vector presence
+      is tracked separately from intradomiciliary presence on the LTAN
+      investigation form.
+
+  STSORO:
+    official_name: Situação - soro antibotulínico
+    translated_name: Antitoxin serum status
+    description: >
+      Status of antibotulinic antitoxin serum administration to the
+      botulism patient - the specific antidote treatment that must be
+      given early, before paralysis progresses to respiratory failure.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ST_ = situação, SORO = soro; antitoxin serum is the defining
+      treatment on the botulism (BOTU) investigation form, C1 fits a
+      status code.
+
+  STTRABALHO:
+    official_name: Situação - vínculo com trabalho
+    translated_name: Work-linked food source (flag)
+    description: >
+      Whether the suspect food source in this botulism case was linked to
+      the patient's workplace (e.g. a food-service job) rather than home
+      preparation, part of tracing the contaminated food's origin.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ST_ = situação, TRABALHO = trabalho; botulism investigation traces
+      the suspect food's preparation setting, and work vs. home is a
+      natural split.
+
+  ST_ALI1COL:
+    official_name: Situação - coleta do alimento 1
+    translated_name: First suspect food sample collected (flag)
+    description: >
+      Whether a sample of the first suspect food item was collected for
+      botulinum toxin testing, part of a numbered series (food 1, food 2)
+      tracking multiple suspect foods in the outbreak/case investigation.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ST_ = situação, ALI1 = alimento 1, COL = coletado; pairs with
+      TP_ALI2TO, which covers the second suspect food item's test type.
+
+  TPFEZESTOX:
+    official_name: Tipo/resultado - toxina nas fezes
+    translated_name: Stool botulinum toxin test result
+    description: >
+      Type or result of the stool sample tested for botulinum toxin, one
+      of the specimen types (alongside serum and suspect food) used to
+      laboratory-confirm botulism.
+    code_system: none
+    source: inferred
+    reasoning: >
+      TP_ = tipo, FEZES = fezes, TOX = toxina; stool toxin testing is a
+      standard confirmatory specimen for botulism.
+
+  TP_ALI2TO:
+    official_name: Tipo/resultado - toxina no alimento 2
+    translated_name: Second suspect food toxin test result
+    description: >
+      Type or result of botulinum toxin testing performed on the second
+      suspect food item, paired with ST_ALI1COL's collection-status field
+      for the first item.
+    code_system: none
+    source: inferred
+    reasoning: >
+      TP_ = tipo, ALI2 = alimento 2, TO = toxina; continues the numbered
+      suspect-food testing series alongside ST_ALI1COL.
+
+  TP_SENSITI:
+    official_name: Tipo de alteração sensitiva
+    translated_name: Type of sensory disturbance
+    description: >
+      Type of sensory disturbance reported, if any. Clinically notable in
+      botulism because classic cases show pure motor paralysis without
+      sensory loss, so this field helps flag atypical presentations or
+      alternative diagnoses.
+    code_system: none
+    source: inferred
+    reasoning: >
+      TP_ = tipo, SENSITI = sensitivo/sensibilidade; sensory findings are
+      diagnostically significant precisely because botulism is a
+      motor-only neuropathy.

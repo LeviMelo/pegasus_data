@@ -1,0 +1,271 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+  AGENTE_ET0:
+    official_name: Agente etiológico (descrição)
+    translated_name: Etiological agent (free text)
+    description: >
+      Free-text name of the pathogen or toxin suspected or confirmed as the
+      cause of a foodborne/waterborne disease outbreak (SDTA - Surto de
+      Doença Transmitida por Água e Alimentos). The wide C41 field allows a
+      full organism name.
+    code_system: none
+    source: inferred
+    reasoning: >
+      AGENTE_ET = agente etiológico, a core field on the SDTA outbreak
+      investigation form; C41 width fits free text rather than a short
+      code.
+
+  AGENTE_ET3:
+    official_name: Agente etiológico (código)
+    translated_name: Etiological agent (coded)
+    description: >
+      Shorter, coded alternative to AGENTE_ET0 for the suspected/confirmed
+      outbreak pathogen, seen far less often (3 files vs 14) - likely a
+      variant layout that used a code instead of free text.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same AGENTE_ET root as AGENTE_ET0 but C10 width and much lower file
+      count suggest a distinct, less common schema variant of the same
+      concept.
+
+  DS_F_OUTRO:
+    official_name: Descrição de outro fator
+    translated_name: Other contributing factor (free text)
+    description: >
+      Free-text description of an additional contributing factor to the
+      outbreak (e.g. improper storage, cross-contamination) not covered by
+      the SDTA form's standard checklist, paired with the status flag
+      ST_F_OUTRO.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DS_ = descrição, F = fator, OUTRO = outro; C30 width fits free text,
+      and it names the same "F_OUTRO" root as its status-flag sibling.
+
+  DTTRANSSE:
+    official_name: Data de transmissão (semana epidemiológica)
+    translated_name: Transmission date / epidemiological week
+    description: >
+      Date tied to the outbreak's transmission period, stored in a legacy
+      9-character format rather than the standard 8-digit date field -
+      likely combining a date with an epidemiological-week marker for the
+      outbreak's epidemic curve.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT = data, TRANS = transmissão, SE = semana epidemiológica; C9
+      (not the usual D8) width suggests an unusual encoding worth flagging
+      rather than a plain date.
+
+  MAX_ST_INC:
+    official_name: Situação do período máximo de incubação
+    translated_name: Maximum incubation period status
+    description: >
+      Status/qualifier for the outbreak's maximum incubation-period
+      estimate (e.g. whether it was determined or approximate), companion
+      to the numeric incubation fields like NU_INC_ME.
+    code_system: none
+    source: inferred
+    reasoning: >
+      MAX_ = máximo, ST_ = situação, INC = incubação; C1 width fits a
+      short status code rather than the day count itself, which sits in
+      the separate numeric NU_INC_ME field.
+
+  NU_A_CLINI:
+    official_name: Número de casos com quadro clínico
+    translated_name: Case count with clinical picture
+    description: >
+      Count of outbreak cases that presented a given clinical picture,
+      part of the SDTA outbreak form's summary of how many affected people
+      showed each symptom pattern.
+    code_system: none
+    source: inferred
+    reasoning: >
+      NU_ = número, CLINI = clínico; N2 numeric width fits a small case
+      count, consistent with outbreak-summary tallying fields.
+
+  NU_INC_ME:
+    official_name: Período de incubação mínimo
+    translated_name: Minimum incubation period
+    description: >
+      Shortest incubation period (in days or hours) observed among the
+      outbreak's cases, the counterpart to MAX_ST_INC's maximum-period
+      status, used to characterize the suspected agent.
+    code_system: none
+    source: inferred
+    reasoning: >
+      NU_ = número, INC = incubação, ME = mínimo/menor; N2 numeric width
+      fits a short duration value.
+
+  NU_NUM_2:
+    official_name: Número 2
+    translated_name: Secondary reference number
+    description: >
+      A secondary numeric/code field on the SDTA outbreak record, likely a
+      second case or investigation reference number; the generic name and
+      low file count (3) leave its exact role uncertain.
+    code_system: none
+    source: inferred
+    reasoning: >
+      NU_ = número, "2" marks it as a second instance of some numbered
+      field; C8 alphanumeric width and sparse presence in the catalog
+      limit further decoding.
+
+  ST_F_OUTRO:
+    official_name: Situação - outro fator
+    translated_name: Other contributing factor (status)
+    description: >
+      Status/code flag marking whether an additional, non-listed
+      contributing factor applied to the outbreak, with its detail written
+      into the paired free-text field DS_F_OUTRO.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ST_ = situação, F = fator, OUTRO = outro; shares the F_OUTRO root
+      with DS_F_OUTRO, matching the flag+detail pattern used across SINAN
+      "outro, especifique" fields.
+
+  ST_MANIP:
+    official_name: Situação do manipulador de alimentos
+    translated_name: Food handler involvement status
+    description: >
+      Status of a food handler's (manipulador de alimentos) involvement in
+      the outbreak - e.g. whether a symptomatic or carrier handler was
+      identified as a likely contamination source.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ST_ = situação, MANIP = manipulador; food-handler involvement is a
+      standard line of inquiry on foodborne-outbreak (SDTA) investigation
+      forms.
+
+  ANT_ARRUMO:
+    official_name: Antecedente - arrumação de local fechado
+    translated_name: Cleaned/tidied an enclosed space (antecedent)
+    description: >
+      Whether the hantavirus patient had recently cleaned or tidied an
+      enclosed space (shed, silo, storeroom) before symptoms - a key
+      exposure route since disturbing such spaces aerosolizes dried rodent
+      excreta.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ANT_ = antecedente epidemiológico, ARRUMO = arrumação; cleaning
+      closed rural structures is a named risk exposure on the SINAN
+      hantavirose (HANT) investigation form.
+
+  ANT_EXPOSI:
+    official_name: Antecedente - exposição em área de risco
+    translated_name: Risk-area exposure (antecedent)
+    description: >
+      Whether the hantavirus patient was present in a rural or wooded area
+      known for rodent activity in the weeks before symptom onset - the
+      general risk-area exposure checkbox among the epidemiological
+      antecedents.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ANT_ = antecedente, EXPOSI = exposição; a broad risk-area item
+      alongside the more specific ANT_ARRUMO and ANT_PLANTI on the same
+      hantavirus antecedents checklist.
+
+  ANT_PLANTI:
+    official_name: Antecedente - atividade de plantio
+    translated_name: Farming/planting activity (antecedent)
+    description: >
+      Whether the hantavirus patient engaged in planting or farming
+      activity before symptoms began - an agricultural exposure route
+      distinct from cleaning enclosed spaces (ANT_ARRUMO) on the same
+      antecedents checklist.
+    code_system: none
+    source: inferred
+    reasoning: >
+      ANT_ = antecedente, PLANTI = plantio; farming/planting is a listed
+      rural-exposure item on the SINAN hantavirose antecedents section.
+
+  CLI_H:
+    official_name: Quadro clínico - sinal (H)
+    translated_name: Clinical sign (H-coded)
+    description: >
+      One of the itemized clinical-sign checkboxes on the hantavirus form,
+      most plausibly a hemorrhagic manifestation given the "H" and the
+      single-digit coded value; exact symptom not confirmed by other
+      catalog evidence.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CLI_ = clínico, a standard checkbox-series prefix; the trailing "H"
+      most likely abbreviates "hemorragia," a recognized complication of
+      severe hantavirus cardiopulmonary syndrome, but confidence is low.
+
+  CONF_INF_M:
+    official_name: Município de confirmação da infecção
+    translated_name: Municipality of infection confirmation
+    description: >
+      IBGE code of the municipality where the hantavirus infection was
+      confirmed or most likely acquired, distinct from the patient's
+      residence municipality - used to map the probable infection site.
+    code_system: none
+    source: inferred
+    reasoning: >
+      CONF_ = confirmação, INF = infecção, M = município; N7 numeric width
+      matches an IBGE municipality code, and infection-site municipality is
+      a standard field in zoonotic-disease investigation.
+
+  LAB_BILATE:
+    official_name: Radiografia - infiltrado bilateral
+    translated_name: Bilateral pulmonary infiltrates (flag)
+    description: >
+      Whether chest imaging showed bilateral pulmonary infiltrates, the
+      radiological hallmark of hantavirus cardiopulmonary syndrome (HCPS),
+      grouped here with the exam-results fields despite not being a
+      laboratory test per se.
+    code_system: none
+    source: inferred
+    reasoning: >
+      BILATE = bilateral; bilateral infiltrates are the signature imaging
+      finding in severe hantavirus disease, and N1 width fits a checkbox.
+
+  LAB_IGM:
+    official_name: Sorologia IgM
+    translated_name: IgM serology result
+    description: >
+      Result of the IgM antibody serology test for hantavirus
+      (positive/negative/pending), the primary acute-phase test used to
+      laboratory-confirm the case.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LAB_ = laboratorial, IGM = imunoglobulina M; IgM ELISA is the
+      standard first-line confirmatory test for hantavirus infection.
+
+  LAB_L_S_DE:
+    official_name: Leucocitose com desvio à esquerda
+    translated_name: Leukocytosis with left shift (flag)
+    description: >
+      Whether blood work showed leukocytosis with a left shift, a
+      characteristic laboratory finding in hantavirus cardiopulmonary
+      syndrome alongside thrombocytopenia and hemoconcentration.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LAB_ = laboratorial; L_S_DE plausibly abbreviates leucócitos /
+      desvio [à esquerda], a textbook hantavirus lab finding; N1 width
+      fits a checkbox.
+
+  LAB_OUT_E:
+    official_name: Outro exame laboratorial
+    translated_name: Other lab exam performed (flag)
+    description: >
+      Whether an additional laboratory exam, beyond the standard hantavirus
+      panel (serology, RT-PCR, immunohistochemistry), was performed for
+      case confirmation.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LAB_ = laboratorial, OUT = outro, E = exame; standard "other exam"
+      flag pattern seen across SINAN lab sections, C1 width fits a
+      checkbox.

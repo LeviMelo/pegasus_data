@@ -1,0 +1,304 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  ALIMENTO_C:
+    official_name: Alimento consumido
+    translated_name: Food item consumed
+    description: >
+      Free-text name of the specific food item suspected of causing a
+      foodborne-disease outbreak (surto de DTA), as reported by exposed
+      people during the outbreak investigation.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Agravo is SDTA (surto de doença transmitida por alimentos); ALIMENTO
+      reads "alimento" (food); wide C49 free-text width fits a food
+      description rather than a coded field.
+
+  DTTRANSRM:
+    official_name: Data de transmissão - nível regional
+    translated_name: Transmission date to regional level
+    description: >
+      Administrative timestamp marking when this outbreak record was
+      transmitted from the municipal level up to the regional health office,
+      part of DATASUS's tiered data-flow tracking rather than a clinical date.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Pairs with DTTRANSUS; DT_TRANS + RM is the standard DATASUS
+      abbreviation for "transmissão regional" seen across multiple systems'
+      pipeline-tracking fields.
+
+  DTTRANSUS:
+    official_name: Data de transmissão - nível estadual
+    translated_name: Transmission date to state level
+    description: >
+      Administrative timestamp marking when this outbreak record was
+      transmitted up to the state (UF) level, the next tier above DTTRANSRM
+      in DATASUS's municipal-to-federal data flow.
+    code_system: none
+    source: inferred
+    reasoning: >
+      DT_TRANS + US/UF is the standard DATASUS abbreviation for state-level
+      transmission, paired with DTTRANSRM as the regional-level equivalent.
+
+  NU_A_NUM_2:
+    official_name: Número da amostra 2
+    translated_name: Sample/case number 2
+    description: >
+      Identifier for a second food or clinical sample collected during a
+      foodborne-outbreak investigation, one of several numbered sample slots
+      alongside NU_NUM_3.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SDTA form; NU_ is the número prefix; alphanumeric C10 width fits a
+      sample identifier rather than a pure count; numbered alongside
+      NU_NUM_3 as a parallel slot.
+
+  NU_F_TOT:
+    official_name: Número final total
+    translated_name: Total final count
+    description: >
+      Total count of people affected (cases, or people exposed) in a
+      foodborne-disease outbreak, tallied once the investigation closes.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SDTA form; NU_F_TOT reads "número final total"; numeric N3 width fits
+      an outbreak-size count (up to 999 people).
+
+  NU_NUM_3:
+    official_name: Número da amostra 3
+    translated_name: Sample/case number 3
+    description: >
+      Identifier for a third food or clinical sample collected during a
+      foodborne-outbreak investigation, the next numbered slot after
+      NU_A_NUM_2.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SDTA form; NU_ prefix with explicit "3" suffix; alphanumeric C8 width
+      matches the sibling NU_A_NUM_2 sample-identifier field.
+
+  ST_ALIMEN:
+    official_name: Situação do alimento
+    translated_name: Food item status
+    description: >
+      Status of the suspect food item at the time of investigation (e.g.
+      still available for sampling versus already discarded/consumed),
+      recorded as a single coded character.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SDTA form; ST_ is the situação prefix, ALIMEN reads "alimento"; C1
+      width fits a short status code.
+
+  ST_IMPRO:
+    official_name: Situações impróprias identificadas
+    translated_name: Unsanitary conditions identified
+    description: >
+      Coded record of food-handling or storage irregularities found during
+      inspection of the outbreak's food source (e.g. improper storage
+      temperature, contamination, expired product).
+    code_system: none
+    source: inferred
+    reasoning: >
+      SDTA form; IMPRO reads "impróprio" (improper); C8 width, wider than a
+      single flag, fits several concatenated irregularity codes rather than
+      one yes/no item.
+
+  ST_INCUB_M:
+    official_name: Situação do período de incubação
+    translated_name: Incubation-period compatibility
+    description: >
+      Single-character flag on the outbreak form indicating whether a case's
+      symptom-onset timing is compatible with the incubation period expected
+      for the suspected foodborne pathogen.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SDTA form; ST_ situação prefix with INCUB reading "incubação"; C1
+      width fits a compatible/not-compatible coded flag.
+
+  TP_PRO_PRE:
+    official_name: Tipo de processamento/preparo
+    translated_name: Type of food processing/preparation
+    description: >
+      Coded category of how the suspect food was processed or prepared
+      before consumption (e.g. raw, undercooked, reheated), used to help
+      identify how contamination or toxin survival occurred.
+    code_system: none
+    source: inferred
+    reasoning: >
+      SDTA form; TP_ tipo prefix, PRO_PRE reads "processamento/preparo"; C2
+      width fits a small enumerated code.
+
+  ANT_CB_LIM:
+    official_name: Antecedente de limpeza de bueiro/córrego
+    translated_name: History of cleaning a drain or ditch
+    description: >
+      Whether the leptospirosis patient cleaned a storm drain, culvert, or
+      ditch before symptom onset — a recognized urban exposure to
+      rodent-urine-contaminated water.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Agravo is LEPT; ANT_ is the antecedente/exposure prefix, CB/LIM read as
+      "bueiro/limpeza"; C1 width fits a coded yes/no exposure item alongside
+      CON_TERREN on the same form.
+
+  CON_ALIMEN:
+    official_name: Contato com alimento contaminado
+    translated_name: Contact with contaminated food/water
+    description: >
+      Whether the leptospirosis patient consumed food or water suspected of
+      contamination by rodent urine, one of several exposure-history items on
+      the form.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LEPT form; CON_ contexto/contact prefix, ALIMEN reads "alimento"; C1
+      width matches sibling exposure flags CON_TERREN and ANT_CB_LIM.
+
+  CON_CLAS_E:
+    official_name: Classificação da exposição
+    translated_name: Exposure classification
+    description: >
+      Coded or short-text classification of how the leptospirosis patient
+      was likely exposed (e.g. urban flooding, occupational, recreational
+      water contact), summarizing the exposure-history section.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LEPT form; CON_ prefix with CLAS_E reading "classificação"; wider C20
+      width fits a short descriptive category rather than a single flag.
+
+  CON_TERREN:
+    official_name: Contato com terreno alagado/contaminado
+    translated_name: Contact with flooded/contaminated ground
+    description: >
+      Whether the patient had contact with flooded or rodent-infested
+      ground/soil before symptom onset, distinct from CON_ALIMEN's
+      food/water contamination route.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LEPT form; CON_ prefix, TERREN reads "terreno" (land/ground); C1 width
+      matches the other coded exposure flags on the same form.
+
+  LAB_BT:
+    official_name: Bilirrubina total
+    translated_name: Total bilirubin
+    description: >
+      Total bilirubin lab value for the leptospirosis patient, relevant
+      because severe leptospirosis (Weil's disease) causes jaundice from
+      liver involvement.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LEPT form; LAB_ lab-result prefix with BT reading "bilirrubina total";
+      C4 width fits a short numeric lab value stored as text.
+
+  LAB_METODO:
+    official_name: Método do exame laboratorial
+    translated_name: Laboratory test method
+    description: >
+      Coded method used for the leptospirosis confirmatory test (e.g.
+      microscopic agglutination test, ELISA, PCR), distinguishing which
+      assay produced the recorded lab results.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LEPT form; LAB_ prefix, METODO reads "método"; C1 width fits a small
+      enumerated method code.
+
+  LAB_POTASS:
+    official_name: Potássio sérico
+    translated_name: Serum potassium
+    description: >
+      Serum potassium lab value for the leptospirosis patient, tracked
+      because severe cases cause acute kidney injury with hyperkalemia.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LEPT form; LAB_ prefix, POTASS reads "potássio"; C4 width fits a short
+      numeric lab value stored as text, alongside LAB_BT.
+
+  LAB_S_1:
+    official_name: Título sorológico - sorovar 1
+    translated_name: Serology titer - serovar 1
+    description: >
+      Antibody titer against the first serovar in the panel used for the
+      leptospirosis microscopic agglutination test (MAT), one of several
+      numbered per-serovar titer results alongside LAB_S_5.
+    code_system: none
+    source: inferred
+    reasoning: >
+      LEPT form; LAB_S_ pattern with numeric suffix; C6 width fits a titer
+      expressed as a ratio (e.g. "1:400"), the standard MAT result format.
+
+  LAB_S_5:
+    official_name: Título sorológico - sorovar 5
+    translated_name: Serology titer - serovar 5
+    description: >
+      Antibody titer against the fifth serovar in the MAT panel; same
+      measurement as LAB_S_1 but for a different serovar in the diagnostic
+      panel run against the patient's serum.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same evidence as LAB_S_1; distinguished only by which serovar in the
+      numbered panel it reports.
+
+  PAR_EVOLUC:
+    official_name: Evolução do parto
+    translated_name: Delivery outcome
+    description: >
+      Outcome of the pregnancy/delivery for an HIV-positive pregnant patient
+      (e.g. vaginal delivery, cesarean, loss), recorded to track
+      mother-to-child transmission risk factors.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Agravo is HIVG (HIV em gestante); PAR_ reads "parto" and EVOLUC reads
+      "evolução"; C1 width fits a small enumerated delivery-outcome code.
+
+  PRE_PRENAT:
+    official_name: Realizou pré-natal
+    translated_name: Received prenatal care
+    description: >
+      Whether the HIV-positive pregnant patient received prenatal care
+      during this pregnancy, a key factor in whether mother-to-child HIV
+      transmission prevention measures could be started.
+    code_system: none
+    source: inferred
+    reasoning: >
+      HIVG form; PRENAT reads "pré-natal"; C1 width fits a yes/no coded flag.
+
+  COM_PEST:
+    official_name: Comunicante de peste
+    translated_name: Contact of a plague case
+    description: >
+      Whether this notification concerns a comunicante (traced contact of a
+      confirmed plague case) rather than an independently suspected case,
+      used in plague outbreak contact-tracing.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Agravo is PEST (peste/plague); COM_ plausibly reads "comunicante"; C1
+      width fits a coded yes/no contact-tracing flag.
+
+  SIN_GANG:
+    official_name: Sinal ganglionar (bubão)
+    translated_name: Bubo (swollen lymph node)
+    description: >
+      Clinical-signs checklist item marking presence of a bubo — a painful,
+      swollen lymph node — the hallmark clinical sign of bubonic plague.
+    code_system: none
+    source: inferred
+    reasoning: >
+      PEST form; SIN_ is the sinal/sign prefix, GANG reads "gânglio"; C1
+      width fits a coded sign checkbox.

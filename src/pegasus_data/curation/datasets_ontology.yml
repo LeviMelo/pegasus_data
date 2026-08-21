@@ -1,0 +1,604 @@
+# What one row IS, for the datasets the ontology declares.
+#
+# datasets.yml covers the four datasets documented first; this file covers the
+# rest of the data-bearing ones. Keyed on the ontology code (SIH.SP) so
+# info() joins them to the declaration in ontology.yml.
+#
+# The point of this file is not to restate the dataset's name. It is to record
+# the things that are true about a row and are NOT recoverable from the bytes:
+# what the row counts, what it silently excludes, and which mistake people make
+# with it first. Every gotcha here is a mistake that has actually been made.
+datasets:
+
+  # ------------------------------------------------------------------ SIH
+  SIH.SP:
+    system: SIH
+    series: SP
+    asserted_by: pegasus_data
+    what_one_row_is: one professional act billed inside an admission, NOT one admission
+    unit_of_analysis: professional service
+    known_biases: >
+      Only acts that were billed appear. Care given and not billed — which is
+      routine for salaried staff in public hospitals — leaves no row, so SP
+      undercounts activity in exactly the settings least driven by billing.
+    gotchas:
+      - Many rows per AIH. Counting rows counts services, not patients or admissions.
+      - Joins to SIH.RD on the AIH number; summing SP as though it were RD multiplies the count several-fold.
+      - SP_PROCREA and the RD procedure need not agree — one is the act, the other the admission.
+      - The professional identified is the one who billed, not necessarily the one who treated.
+
+  SIH.RJ:
+    system: SIH
+    series: RJ
+    asserted_by: pegasus_data
+    what_one_row_is: one AIH that was rejected in processing
+    unit_of_analysis: rejected admission claim
+    known_biases: >
+      A rejection is an administrative event, not a clinical one. Rejection rates
+      track the competence of a hospital's billing office as much as anything
+      about care.
+    gotchas:
+      - These admissions are ABSENT from SIH.RD. An analysis of RD alone silently drops them.
+      - A rejected AIH may be corrected and re-presented, appearing later in RD; the same episode can exist in both.
+      - Do not add RJ to RD as though they were disjoint populations over time.
+
+  SIH.ER:
+    system: SIH
+    series: ER
+    asserted_by: pegasus_data
+    what_one_row_is: one rejection, carrying the error that caused it
+    unit_of_analysis: rejection reason
+    known_biases: >
+      Diagnostic rather than epidemiological. It explains why claims failed and
+      says nothing about the patients behind them.
+    gotchas:
+      - The companion to SIH.RJ, not a separate population. Do not pool them.
+      - One AIH can carry several errors, so rows are not admissions.
+
+  # ----------------------------------------------------------------- CNES
+  CNES.ST:
+    system: CNES
+    series: ST
+    asserted_by: pegasus_data
+    what_one_row_is: one health establishment, as registered in one monthly competência
+    unit_of_analysis: establishment-month
+    known_biases: >
+      A register, not a census of activity. An establishment stays registered
+      whether or not it is treating anyone, and registration is a condition of
+      being paid, so the incentive is to register and keep registering.
+    gotchas:
+      - One establishment appears once per month. Pooling years without deduplicating counts it many times.
+      - The CNES code is the join key for SIH and SIA, and it is reused if an establishment changes hands.
+      - Establishments close and reopen under new codes, so a code is not a stable identity across long spans.
+
+  CNES.PF:
+    system: CNES
+    series: PF
+    asserted_by: pegasus_data
+    what_one_row_is: one professional's registration AT one establishment, in one month
+    unit_of_analysis: professional-establishment-month
+    known_biases: >
+      Registration reflects contractual attachment, not hours actually worked.
+      A professional formally attached to a facility they rarely attend still
+      generates a row.
+    gotchas:
+      - A doctor working at four hospitals is four rows. Counting rows counts posts, not people.
+      - Counting distinct professionals requires the professional identifier, not the row count.
+      - The occupation is a CBO code, and CBO was renumbered in 2002 — codes do not compare across that boundary.
+
+  CNES.LT:
+    system: CNES
+    series: LT
+    asserted_by: pegasus_data
+    what_one_row_is: a bed count for one establishment and bed type, in one month
+    unit_of_analysis: establishment-bed type-month
+    known_biases: >
+      Beds are split into SUS and non-SUS. Reporting only the SUS column
+      understates a hospital's capacity; reporting the total overstates what is
+      available to SUS patients.
+    gotchas:
+      - Already a count, not one row per bed. Summing rows is meaningless; sum the quantity column.
+      - SUS and non-SUS beds are separate columns and answer different questions.
+      - Beds existing is not beds staffed, which the ICU counts during 2020 made painfully clear.
+
+  CNES.EQ:
+    system: CNES
+    series: EQ
+    asserted_by: pegasus_data
+    what_one_row_is: an equipment count for one establishment and equipment type, in one month
+    unit_of_analysis: establishment-equipment type-month
+    known_biases: >
+      Registered equipment is not working equipment. There is no incentive to
+      deregister a machine that has broken down.
+    gotchas:
+      - Existing and in-use are separate columns; the gap between them is the interesting number.
+      - A count per row, so sum the quantity rather than the rows.
+
+  CNES.EP:
+    system: CNES
+    series: EP
+    asserted_by: pegasus_data
+    what_one_row_is: one registered care team at one establishment, in one month
+    unit_of_analysis: team-month
+    known_biases: >
+      Team registration drives primary-care funding transfers, so it is recorded
+      carefully and is sensitive to funding rule changes rather than to changes
+      in care.
+    gotchas:
+      - Team composition changes without the team changing identity.
+      - Family health coverage is usually computed from teams times a population parameter, not from this table alone.
+
+  CNES.HB:
+    system: CNES
+    series: HB
+    asserted_by: pegasus_data
+    what_one_row_is: one high-complexity accreditation held by an establishment
+    unit_of_analysis: accreditation
+    known_biases: >
+      Accreditation is what an establishment is AUTHORISED to bill for, which is
+      an upper bound on what it does and frequently well above it.
+    gotchas:
+      - Presence of an accreditation is not evidence the service was ever provided; check SIA or SIH for activity.
+      - Accreditations have validity dates and lapse; a row is not necessarily current.
+
+  CNES.SR:
+    system: CNES
+    series: SR
+    asserted_by: pegasus_data
+    what_one_row_is: one specialised service offered by an establishment, with its classification
+    unit_of_analysis: service-establishment
+    known_biases: Self-declared, and declaring a service costs nothing.
+    gotchas:
+      - Service and classification are a pair; the classification narrows the service and is meaningless alone.
+      - An establishment can declare many services, so rows are not establishments.
+
+  CNES.RC:
+    system: CNES
+    series: RC
+    asserted_by: pegasus_data
+    what_one_row_is: one contractual rule under which an establishment serves SUS
+    unit_of_analysis: contract rule
+    known_biases: Administrative. It describes the funding relationship, not the care.
+    gotchas:
+      - The rule governs how activity is paid, which shapes how it is reported in SIH and SIA.
+
+  CNES.IN:
+    system: CNES
+    series: IN
+    asserted_by: pegasus_data
+    what_one_row_is: one financial incentive an establishment receives
+    unit_of_analysis: incentive
+    known_biases: >
+      Incentives follow policy programmes, so the series is a record of federal
+      programme history as much as of establishments.
+    gotchas:
+      - Incentives start and stop with programmes; a break in the series is usually a policy change, not a data gap.
+
+  CNES.DC:
+    system: CNES
+    series: DC
+    asserted_by: pegasus_data
+    what_one_row_is: complementary attributes of one establishment, in one month
+    unit_of_analysis: establishment-month
+    known_biases: A supplement to CNES.ST rather than a population of its own.
+    gotchas:
+      - Only meaningful joined to CNES.ST on the CNES code and competência.
+
+  CNES.GM:
+    system: CNES
+    series: GM
+    asserted_by: pegasus_data
+    what_one_row_is: management arrangements and contracted targets for one establishment
+    unit_of_analysis: establishment-month
+    known_biases: >
+      Targets are negotiated, so they reflect what a manager agreed to be measured
+      on rather than what the population needs.
+    gotchas:
+      - Contracted target is not achieved activity; compare against SIH or SIA to get the latter.
+
+  CNES.EF:
+    system: CNES
+    series: EF
+    asserted_by: pegasus_data
+    what_one_row_is: philanthropic status of one establishment, and the conditions attached
+    unit_of_analysis: establishment-month
+    known_biases: >
+      Philanthropic status carries a tax exemption conditional on a minimum share
+      of SUS care, so the status is defended and the reporting is careful.
+    gotchas:
+      - Philanthropic hospitals are a large share of Brazilian hospital capacity; excluding them distorts any capacity analysis.
+
+  CNES.EE:
+    system: CNES
+    series: EE
+    asserted_by: pegasus_data
+    what_one_row_is: teaching and research attributes of one establishment
+    unit_of_analysis: establishment-month
+    known_biases: >
+      Teaching hospitals take more complex cases, so their outcome statistics are
+      not comparable with general hospitals without case-mix adjustment.
+    gotchas:
+      - Use this to identify teaching hospitals before comparing mortality or length of stay across facilities.
+
+  # ------------------------------------------------------------------ SIA
+  SIA.BI:
+    system: SIA
+    series: BI
+    asserted_by: pegasus_data
+    what_one_row_is: one outpatient procedure for one identified person
+    unit_of_analysis: procedure
+    known_biases: >
+      Individualised reporting was phased in unevenly. Early years and smaller
+      municipalities report through the aggregate PA instead, so BI's coverage
+      grows for reasons that have nothing to do with activity.
+    gotchas:
+      - The individualised counterpart to SIA.PA. Adding BI to PA double-counts the same care.
+      - One person appears many times; rows are procedures, not patients.
+      - The patient identifier is obfuscated, so it links a person's records to each other and does not name them.
+
+  SIA.PA:
+    system: SIA
+    series: PA
+    asserted_by: pegasus_data
+    what_one_row_is: a count of one procedure at one establishment in one competência
+    unit_of_analysis: procedure-establishment-month
+    known_biases: >
+      Aggregate, so no patient exists in it at all. Anything needing a person —
+      counting individuals, following a course of care — is impossible here by
+      construction, not by omission.
+    gotchas:
+      - Already aggregated. Sum the quantity column, never the rows.
+      - Quantity presented and quantity approved differ; only one of them was paid for.
+      - Do not pool with SIA.BI, which reports the same care individually.
+
+  SIA.AQ:
+    system: SIA
+    series: AQ
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation for a chemotherapy regimen, usually covering a month of treatment
+    unit_of_analysis: authorisation
+    known_biases: >
+      Only SUS-funded oncology appears. Private and supplementary-health treatment
+      is absent, and it is not evenly distributed by income or region.
+    gotchas:
+      - A course of chemotherapy is many consecutive authorisations, not one. Counting rows counts months, not patients.
+      - Carries tumour staging, which most SUS datasets do not; it is the reason this dataset is used at all.
+      - The staging is recorded at authorisation and is not revised as the disease progresses.
+
+  SIA.AR:
+    system: SIA
+    series: AR
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation for a radiotherapy course
+    unit_of_analysis: authorisation
+    known_biases: Same SUS-only limitation as SIA.AQ.
+    gotchas:
+      - A radiotherapy course spans many sessions under one authorisation, so rows are not sessions.
+      - Read alongside SIA.AQ for patients receiving both.
+
+  SIA.AM:
+    system: SIA
+    series: AM
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation to dispense a specialised-component medicine
+    unit_of_analysis: authorisation
+    known_biases: >
+      Covers the specialised component only — the high-cost drugs. Basic-component
+      medicines dispensed in primary care are not here, so this is not a picture
+      of pharmaceutical use in general.
+    gotchas:
+      - Continuing therapy is reauthorised periodically; rows are authorisation periods, not patients or prescriptions.
+      - Court-ordered dispensing appears here and can distort spending series for individual drugs.
+
+  SIA.AD:
+    system: SIA
+    series: AD
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation for a high-complexity procedure with no dataset of its own
+    unit_of_analysis: authorisation
+    known_biases: >
+      A residual category. Its composition changes whenever a procedure gets its
+      own APAC dataset, so a break in its series is usually a reclassification.
+    gotchas:
+      - Heterogeneous by construction. Always filter to a procedure before interpreting anything.
+
+  SIA.ATD:
+    system: SIA
+    series: ATD
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation for ongoing dialysis, covering a period of treatment
+    unit_of_analysis: authorisation
+    known_biases: >
+      Dialysis is lifelong until transplant or death, so the population is a
+      prevalent cohort. Counting authorisations measures treatment months, and
+      counting distinct patients measures prevalence — very different numbers.
+    gotchas:
+      - Rows are treatment periods, not patients and not sessions.
+      - Read with SIA.ACF, which records creating the vascular access this treatment needs.
+      - A patient leaving the series may have been transplanted, died, or moved to a private provider; the dataset does not say which.
+
+  SIA.ACF:
+    system: SIA
+    series: ACF
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation to create arteriovenous vascular access for haemodialysis
+    unit_of_analysis: authorisation
+    known_biases: >
+      A one-off procedure feeding a recurring one, so its volume tracks incidence
+      of end-stage kidney disease more closely than SIA.ATD does.
+    gotchas:
+      - One patient may need several attempts; rows are procedures, not patients.
+      - Upstream of SIA.ATD, and the interval between them is a quality indicator.
+
+  SIA.AN:
+    system: SIA
+    series: AN
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation for nephrology care short of dialysis
+    unit_of_analysis: authorisation
+    known_biases: Pre-dialysis care, so it captures a different disease stage from SIA.ATD.
+    gotchas:
+      - Do not pool with SIA.ATD; the clinical stage differs and so does the meaning of a row.
+
+  SIA.AC:
+    system: SIA
+    series: AC
+    asserted_by: pegasus_data
+    what_one_row_is: >
+      depends on the block. This dataset is seven linked tables in one archive,
+      joined by the APAC authorisation number
+    unit_of_analysis: varies by block; the patient block is one dialysis patient
+    known_biases: >
+      A 2002-era registry, published as self-extracting archives that
+      extension-based scanners skip entirely. It covers renal replacement therapy
+      only.
+    gotchas:
+      - Seven DBF members per file, not one table. Reading only the first member silently discards six datasets.
+      - The blocks join on their *_NUM column; the patient block matched the exam block one-to-one when measured.
+      - The exam block carries HIV, HBsAg, hepatitis and HLA results.
+      - Patient CPF columns fail the CPF check digit and are pseudonyms; the responsible-professional and director CPFs are real. See FINDINGS.md 3j.
+      - Date of birth, sex, municipality and full postcode are real and unobfuscated, which makes the record re-identifiable without any direct identifier.
+
+  SIA.ABO:
+    system: SIA
+    series: ABO
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation for follow-up care after bariatric surgery
+    unit_of_analysis: authorisation
+    known_biases: Follow-up is under-claimed relative to the surgery itself.
+    gotchas:
+      - Paired with SIA.AB, the surgery. The ratio between them is a follow-up completeness indicator, not a clinical result.
+
+  SIA.AB:
+    system: SIA
+    series: AB
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation for bariatric surgery
+    unit_of_analysis: authorisation
+    known_biases: >
+      SUS bariatric surgery is heavily rationed and waiting lists are long, so
+      volume reflects capacity far more than need.
+    gotchas:
+      - Read with SIA.ABO for the follow-up side.
+
+  SIA.AMP:
+    system: SIA
+    series: AMP
+    asserted_by: pegasus_data
+    what_one_row_is: one authorisation for multiprofessional team follow-up
+    unit_of_analysis: authorisation
+    known_biases: Reporting depends on a team being formally constituted and registered.
+    gotchas:
+      - Rows are authorisation periods, not encounters with each professional.
+
+  SIA.PS:
+    system: SIA
+    series: PS
+    asserted_by: pegasus_data
+    what_one_row_is: one psychosocial care action recorded under RAAS
+    unit_of_analysis: care action
+    known_biases: >
+      Covers CAPS and the psychosocial network. Mental health care delivered in
+      primary care or in hospital is not here, so this is not all mental health
+      activity.
+    gotchas:
+      - RAAS records actions, not authorisations; the reporting model differs from the APAC datasets.
+      - One user receives many actions; rows are not people.
+
+  SIA.SAD:
+    system: SIA
+    series: SAD
+    asserted_by: pegasus_data
+    what_one_row_is: one home-care action under the Melhor em Casa programme
+    unit_of_analysis: care action
+    known_biases: >
+      Only municipalities that joined the programme report, so absence usually
+      means the programme is not there rather than that home care is not happening.
+    gotchas:
+      - Rows are actions, not patients or home visits by a single professional.
+
+  # --------------------------------------------------------------- SISCAN
+  SISCAN.CC:
+    system: SISCAN
+    series: CC
+    asserted_by: pegasus_data
+    what_one_row_is: one cervical cytology exam and its result
+    unit_of_analysis: exam
+    known_biases: >
+      Screening data, so it describes who was screened rather than who has
+      disease. Women who never present are invisible, and they are the ones at
+      highest risk.
+    gotchas:
+      - One woman screened repeatedly is several rows; rows are exams, not people.
+      - An abnormal cytology is an indication for biopsy, not a diagnosis. SISCAN.HC carries the confirmation.
+      - Succeeded SISCOLO, so the series changes naming regime partway through.
+
+  SISCAN.HC:
+    system: SISCAN
+    series: HC
+    asserted_by: pegasus_data
+    what_one_row_is: one cervical biopsy and its histopathology result
+    unit_of_analysis: exam
+    known_biases: >
+      Only women referred after an abnormal screen reach here, so the population
+      is selected by the screening step and its abnormality rate is not a
+      population rate.
+    gotchas:
+      - The confirmatory counterpart to SISCAN.CC. Histopathology overrules cytology where they disagree.
+
+  SISCAN.MM:
+    system: SISCAN
+    series: MM
+    asserted_by: pegasus_data
+    what_one_row_is: one mammogram and its BI-RADS classification
+    unit_of_analysis: exam
+    known_biases: >
+      Screening and diagnostic mammograms are both here and mean different
+      things; mixing them distorts any positivity rate.
+    gotchas:
+      - BI-RADS is an ordered assessment category, not a diagnosis; categories 4 and 5 indicate biopsy.
+      - Succeeded SISMAMA, so naming changes partway through the series.
+
+  SISCAN.CM:
+    system: SISCAN
+    series: CM
+    asserted_by: pegasus_data
+    what_one_row_is: one breast cytology exam and its result
+    unit_of_analysis: exam
+    known_biases: Far less common than mammography; small counts are volatile.
+    gotchas:
+      - Distinct from SISCAN.HM, which is histopathology on tissue rather than cells.
+
+  SISCAN.HM:
+    system: SISCAN
+    series: HM
+    asserted_by: pegasus_data
+    what_one_row_is: one breast biopsy and its histopathology result
+    unit_of_analysis: exam
+    known_biases: Reached only after an abnormal mammogram, so the population is selected.
+    gotchas:
+      - The confirmatory step for SISCAN.MM, and the dataset that actually establishes a cancer diagnosis.
+
+  # --------------------------------------------------------------- others
+  CIHA.CIHA:
+    system: CIHA
+    series: CIHA
+    asserted_by: pegasus_data
+    what_one_row_is: one admission or outpatient episode NOT funded by SUS
+    unit_of_analysis: episode
+    known_biases: >
+      Reporting is a regulatory obligation with weak enforcement, so coverage is
+      substantially lower than SIH's and varies by state.
+    gotchas:
+      - The complement to SIH, which is the point of it — together they approach total hospital activity.
+      - Do not pool with SIH without deduplicating; the payment source differs and so does the meaning.
+      - Under-reporting means CIHA is a lower bound on non-SUS activity, never an estimate of it.
+
+  CIH.CR:
+    system: CIH
+    series: CR
+    asserted_by: pegasus_data
+    what_one_row_is: one non-SUS-funded hospital admission
+    unit_of_analysis: admission
+    known_biases: Same weak-enforcement problem as CIHA, and the series is retired.
+    gotchas:
+      - Superseded by CIHA. For a long series, read both and mind the transition.
+
+  PNI.DPNI:
+    system: PNI
+    series: DPNI
+    asserted_by: pegasus_data
+    what_one_row_is: a count of doses administered, by municipality, immunobiological and dose number
+    unit_of_analysis: municipality-vaccine-dose-period
+    known_biases: >
+      Doses are counted where they are given, not where the person lives, so
+      municipalities with regional vaccination posts look better than they are
+      and their neighbours look worse.
+    gotchas:
+      - Aggregate. Sum the quantity, never the rows.
+      - First, second and booster doses are different dose numbers; adding them across dose numbers does not give people vaccinated.
+      - The IG and UF variants are the same measure at different aggregations. Pooling them double-counts.
+
+  PNI.CPNI:
+    system: PNI
+    series: CPNI
+    asserted_by: pegasus_data
+    what_one_row_is: a vaccination coverage figure for one municipality, vaccine and period
+    unit_of_analysis: municipality-vaccine-period
+    known_biases: >
+      Coverage is doses over an estimated target population, so it inherits every
+      error in the denominator. Coverage above 100% is common and means the
+      denominator is wrong, not that everyone was vaccinated.
+    gotchas:
+      - A RATE, already divided. Never sum it across municipalities; recompute from doses and population instead.
+      - The denominator changes when population estimates are revised, so a coverage series can move without any change in doses.
+
+  SISPRENATAL.PN:
+    system: SISPRENATAL
+    series: PN
+    asserted_by: pegasus_data
+    what_one_row_is: one pregnancy enrolled in antenatal monitoring
+    unit_of_analysis: pregnancy
+    known_biases: >
+      Only pregnancies enrolled in the programme appear. Women who begin antenatal
+      care late or not at all are the ones the programme most wants to reach and
+      the ones least likely to be in the data.
+    gotchas:
+      - Rows are pregnancies, not women; a woman with two pregnancies appears twice.
+      - Enrolment date is not the date care began, and the gap matters for the first-trimester indicator.
+
+  PAINEL_ONCOLOGIA.PO:
+    system: PAINEL_ONCOLOGIA
+    series: PO
+    asserted_by: pegasus_data
+    what_one_row_is: one cancer patient followed from diagnosis to first treatment
+    unit_of_analysis: patient-tumour
+    known_biases: >
+      Built to measure one legal obligation — treatment within sixty days of
+      diagnosis — so it covers patients who reached treatment. Those who never
+      did are the ones the indicator cannot see.
+    gotchas:
+      - Dates are C(10) with separators here, unlike the bare AAAAMMDD used in SIH and SIM.
+      - The interval is diagnosis to FIRST treatment; later lines of treatment are not in it.
+      - A patient with two primary tumours appears twice.
+
+  RESP.RESP:
+    system: RESP
+    series: RESP
+    asserted_by: pegasus_data
+    what_one_row_is: one notified case of suspected microcephaly or congenital alteration
+    unit_of_analysis: notified case
+    known_biases: >
+      Created during the 2015-16 Zika epidemic under intense attention, so
+      notification was far more sensitive at the peak than before or after. The
+      case definition was also revised during the epidemic.
+    gotchas:
+      - Suspected cases, most of which were later discarded on investigation. Do not read notifications as confirmed cases.
+      - The head-circumference threshold defining a case changed mid-series; counts either side are not comparable.
+
+  PCE.PCE:
+    system: PCE
+    series: PCE
+    asserted_by: pegasus_data
+    what_one_row_is: survey and treatment results for schistosomiasis in one locality
+    unit_of_analysis: locality-survey
+    known_biases: >
+      Active case-finding surveys, so results depend entirely on where teams went.
+      A locality with no rows was not surveyed; it is not a locality without disease.
+    gotchas:
+      - Aggregate counts of people examined and positive, not individual records.
+      - Positivity is conditional on being surveyed, and surveys target known endemic areas.
+
+  ESUSNOTIFICA.DCCR:
+    system: ESUSNOTIFICA
+    series: DCCR
+    asserted_by: pegasus_data
+    what_one_row_is: one notified case of COVID-19
+    unit_of_analysis: notified case
+    known_biases: >
+      Notification tracked testing capacity, which varied enormously across the
+      pandemic and across the country. Case counts are a measure of testing at
+      least as much as of infection.
+    gotchas:
+      - Built outside SINAN in 2020 for volume reasons, so it does not share SINAN's structure.
+      - Self-reported notifications are included, with a different reliability from laboratory-confirmed ones.
