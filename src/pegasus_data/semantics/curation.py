@@ -271,9 +271,27 @@ def parse_datasets_file(path: Path, data: dict[str, Any]) -> list[DatasetDoc]:
     return out
 
 
+#: Curation files this loader must not read.
+#:
+#: ``ontology.yml`` declares dataset *identity* — what SIH.RD IS — and is read
+#: directly by :class:`~pegasus_data.ontology.Ontology`. It also happens to use a
+#: top-level ``datasets:`` key, so without this guard the dataset-docs loader
+#: swept it up and wrote 95 rows carrying nothing but an id: identity has no
+#: ``what_one_row_is``, and the shapes do not match. Two stores for one concept
+#: is how they drift.
+#:
+#: The division: ``ontology.yml`` says what a dataset is, ``datasets.yml`` says
+#: what one of its rows means. They are keyed differently on purpose
+#: (``SIH.RD`` against ``SIHSUS_RD``) and :func:`pegasus_data.info.info` joins
+#: them on either.
+_NOT_CURATION = frozenset({"ontology.yml"})
+
+
 def iter_curation_files(root: Path) -> Iterator[Path]:
     for pattern in ("variables/*.yml", "variables/*.yaml", "*.yml", "*.yaml"):
-        yield from sorted(root.glob(pattern))
+        for path in sorted(root.glob(pattern)):
+            if path.name not in _NOT_CURATION:
+                yield path
 
 
 # -------------------------------------------------------------------- loading

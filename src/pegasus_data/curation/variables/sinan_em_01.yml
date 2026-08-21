@@ -1,0 +1,337 @@
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  ID_DG_NOT:
+    official_name: Identificador de notificação (bloco Dados Gerais)
+    translated_name: Notification-record control code
+    description: >
+      Short internal code tied to the notification's "Dados Gerais" block,
+      present on Chagas Aguda, Dengue, Leptospirose and Malária forms as a
+      1-character code, on Leishmaniose forms as 11 characters, and as a
+      number on Hantavirose. The width swings across agravos rather than
+      holding one stable shape, pointing to a record-management artifact
+      rather than a clinical answer.
+    code_system: none
+    source: inferred
+    reasoning: >
+      No def_variables, dictionary, or field_documentation row exists for this
+      name in the catalog. Its declared type/width is inconsistent across the
+      seven agravos that carry it (C1 vs C11 vs N1), unlike genuine clinical
+      fields which keep a stable shape across forms; that instability, plus
+      the ID_ prefix SINAN uses for both identifiers and internal control
+      codes, is the basis for treating it as a record-control field rather
+      than guessing a specific clinical meaning.
+
+  ID_EV_NOT:
+    official_name: Identificador de notificação (bloco Evolução/Notificação)
+    translated_name: Notification-record control code (evolution block)
+    description: >
+      Sibling of ID_DG_NOT on the same seven agravo forms, with the same
+      cross-agravo width instability (1 character on Chagas/Dengue/
+      Leptospirose/Malária, 11 on the Leishmaniose forms, numeric on
+      Hantavirose). "EV" suggests a tie to the case's evolução/outcome block
+      rather than Dados Gerais, but nothing confirms a meaning distinct from
+      ID_DG_NOT.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same absence of evidence as ID_DG_NOT: no def_variables, dictionary or
+      field_documentation row, and a declared width that changes by agravo.
+      Recorded separately because the catalog treats it as a distinct column,
+      but the real distinction between the two beyond the DG/EV naming is not
+      verifiable here.
+
+  ID_ETIOLOG:
+    official_name: Etiologia viral
+    translated_name: Viral etiology (measles/rubella exanthem panel)
+    description: >
+      Single-digit code for the virus identified when a clinical sample was
+      collected (blood, urine, nasopharyngeal secretion or CSF) in a
+      suspected measles/rubella case: wild or vaccine measles/rubella strain,
+      dengue, HHV-6, parvovirus B19, enterovirus, another agent, or none
+      detected. Filled in only when a sample-collection flag (ID_SANGUE,
+      ID_URINA, ID_SECRECA, ID_LIQUOR) is Sim.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 50 "Etiologia viral"
+
+  EPICUTA:
+    official_name: Teste epicutâneo
+    translated_name: Patch test (epicutaneous test)
+    description: >
+      Whether an epicutaneous patch test was performed to confirm allergic
+      contact dermatitis in an occupational-dermatoses investigation, and/or
+      its result. Single-character field on the DRT Dermatoses form.
+    code_system: none
+    source: inferred
+    reasoning: >
+      No catalog evidence (def_variables/dictionary/field_documentation)
+      exists for this field. "Epicutâneo" is standard Portuguese dermatology
+      terminology for the patch test used to confirm contact-allergen
+      sensitization, and the column belongs to the DERM (occupational
+      dermatoses) series per schema_header_facts — exactly the investigation
+      where this test is used diagnostically.
+
+  EVO_OUTR:
+    official_name: Evolução do caso - especificar vírus
+    translated_name: Case outcome - virus specified (biological-material accident)
+    description: >
+      Free-text name of the virus when the case-evolution field on the
+      biological-material-accident form is coded "alta com conversão
+      sorológica" (seroconversion), naming which bloodborne virus (HIV/HBV/
+      HCV) the exposed worker converted to.
+    code_system: none
+    source: inferred
+    reasoning: >
+      The ACBI record layout's evolution-of-case row (campo 56) reads "1-Alta
+      com conversão sorológica Especificar vírus", but the source PDF's table
+      merges the coded field and this free-text companion into one cell, so
+      the free-text field's own DBF name is not printed there. EVO_OUTR is
+      C30 (a free-text width) and belongs to the ACBI series per the catalog,
+      matching that companion field.
+
+  FACIAL:
+    official_name: Uso de EPI - Proteção facial
+    translated_name: PPE used - face shield
+    description: >
+      Whether the worker was wearing a face shield at the moment of a
+      biological-material accident, one of six EPI checkboxes (luva, avental,
+      óculos, máscara, proteção facial, bota) that can be marked together.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 50 "Uso de EPI"
+
+  FALA:
+    official_name: Sintomas - Dificuldade para compreensão da fala
+    translated_name: Symptom - difficulty understanding speech
+    description: >
+      Whether the worker reported difficulty understanding speech, one of
+      four symptom checkboxes (with ZUMBIDO, TONTURA, CEFALEIA) on the
+      noise-induced hearing loss (PAIR) investigation form.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_PAIR_v5.pdf, campo 51 "Sintomas"
+
+  FLUXO_AERE:
+    official_name: Obstrução ao fluxo aéreo
+    translated_name: Airflow obstruction (spirometry finding)
+    description: >
+      Spirometry-based finding on the pneumoconiosis investigation form,
+      marking whether the worker's lung-function test showed airflow
+      obstruction.
+    code_system: none
+    source: inferred
+    reasoning: >
+      No catalog evidence exists for this field beyond declared type (C1) and
+      its PNEU (pneumoconiose) series membership. "Fluxo aéreo" is standard
+      spirometry terminology, and pneumoconiosis investigation forms routinely
+      record spirometry pattern (obstructive/restrictive/mixed) as a
+      diagnostic aid.
+
+  MAT_ORG_DE:
+    official_name: Material orgânico - descrição
+    translated_name: Biological material - other, specified
+    description: >
+      Free-text name of the biological material a worker was exposed to,
+      filled in only when the coded MAT_ORG field is "8-Outros" (not blood,
+      líquor, pleural/ascitic/amniotic fluid, blood-tinged fluid, or
+      serum/plasma).
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 47 "Outro material orgânico especificar"
+
+  MEDICA:
+    official_name: Exposição Concomitante a Ruído e Medicamentos Ototóxicos
+    translated_name: Concurrent exposure - noise and ototoxic drugs
+    description: >
+      Whether the worker, alongside noise, was also exposed to ototoxic drugs
+      (e.g. aminoglycoside antibiotics) that can compound noise-induced
+      hearing loss; one of five concurrent-exposure checkboxes on the PAIR
+      form (with SOLVENTE, METAL, GASES, RUIDO_OUT).
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_PAIR_v5.pdf, campo 50 "Exposição Concomitante a Ruído"
+
+  MIN_ACID:
+    official_name: Minuto do acidente
+    translated_name: Accident time - minute
+    description: >
+      Minute component of the clock time a severe workplace accident
+      occurred, paired with an hour field; used with MIN_JOR to timestamp
+      both when the accident happened and how far into the shift the worker
+      was.
+    code_system: none
+    source: inferred
+    reasoning: >
+      No catalog evidence beyond declared type (C2, two digits — consistent
+      with a minute value) and ACGR (Acidente de Trabalho Grave) series
+      membership. "MIN" plus "ACID" (acidente) decomposes directly to a
+      minute-of-accident field, a standard companion to an hour field on
+      severe-accident investigation forms.
+
+  MIN_JOR:
+    official_name: Minuto da jornada
+    translated_name: Work-shift elapsed time - minute
+    description: >
+      Minute component of how far into the worker's shift (jornada) the
+      accident occurred, sibling to MIN_ACID which timestamps the accident's
+      clock time rather than shift-elapsed time.
+    code_system: none
+    source: inferred
+    reasoning: >
+      Same basis as MIN_ACID: C2 width and ACGR series membership, with
+      "JOR" (jornada) distinguishing this from the accident-clock-time
+      sibling.
+
+  ESPLENO:
+    official_name: Sinais e sintomas - Esplenomegalia
+    translated_name: Symptom - splenomegaly
+    description: >
+      Whether the typhoid fever patient had splenomegaly (enlarged spleen),
+      one item of a fixed symptom checklist (with febre, cefaléia, diarréia,
+      roséola tífica and others) auto-filled "Não" for every item when
+      ASSINTOMAT is Sim.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 37 "Sinais e sintomas"
+
+  ESP_OUT:
+    official_name: Espécie do animal agressor - Outra, especificar
+    translated_name: Attacking animal species - other, specified
+    description: >
+      Free-text name of the animal species that exposed the patient to
+      rabies, filled in only when the coded species field
+      (canina/felina/quiróptera/primata/raposa/herbívora/outra/ignorada) is
+      "outra".
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Raiva_v5.pdf, campo 41 "Espécie do animal agressor"
+
+  ETIOL_OUTR:
+    official_name: Etiologia Viral se Outras especificar
+    translated_name: Viral etiology - other, specified
+    description: >
+      Free-text name of the causative virus, filled in only when ID_ETIOLOG
+      is coded "9-Outras" — a confirmed agent outside the fixed
+      measles/rubella/dengue/HHV-6/parvovirus/enterovirus list.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 50 "Etiologia Viral se Outras especificar"
+
+  FERIMENT_N:
+    official_name: Ferimento
+    translated_name: Wound count category
+    description: >
+      Coded category for how many bite/scratch wounds a rabies-exposure
+      patient had: único (one), múltiplo (more than one), sem ferimento
+      (indirect contact only, e.g. licking), or ignorado. Despite the "_N"
+      suffix this is a coded category, not a raw count.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Raiva_v5.pdf, campo 35 "Ferimento"
+
+  HEMO_D_1:
+    official_name: Hemocultura - Resultado da 1° coleta - Especificar
+    translated_name: 1st blood culture - result, specified
+    description: >
+      Free-text field naming the organism when the coded 1st blood-culture
+      result (HEMO_R1) is not a plain Salmonella positive/negative call —
+      e.g. an "outro agente" identified. Part of the typhoid fever form's
+      up-to-three-draw hemocultura block; sibling to HEMO_D_2 and HEMO_D_3.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura"
+
+  HEMO_D_2:
+    official_name: Hemocultura - Resultado da 2° coleta - Especificar
+    translated_name: 2nd blood culture - result, specified
+    description: >
+      Same free-text role as HEMO_D_1 but for the patient's second
+      blood-culture draw, paired with the coded result HEMO_R2.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura"
+
+  HEMO_D_3:
+    official_name: Hemocultura - Resultado da 3° coleta - Especificar
+    translated_name: 3rd blood culture - result, specified
+    description: >
+      Same free-text role as HEMO_D_1/HEMO_D_2 for the patient's third
+      blood-culture draw, paired with the coded result HEMO_R3.
+    code_system: none
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura"
+
+  HEMO_R2:
+    official_name: Hemocultura - Resultado da 2° coleta
+    translated_name: 2nd blood culture result
+    description: >
+      Coded result of the patient's second blood culture: 1 Salmonella typhi,
+      2 Salmonella SPP, 3 Negativo, 4 Outro agente (specified in HEMO_D_2).
+      Only collected if SANGUE (material coletado) is Sim.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura Resultado da 2° coleta"
+
+  HEMO_R3:
+    official_name: Hemocultura - Resultado da 3° coleta
+    translated_name: 3rd blood culture result
+    description: >
+      Same coding as HEMO_R2 (1 Salmonella typhi, 2 Salmonella SPP,
+      3 Negativo, 4 Outro agente) for the patient's third blood-culture draw.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Febre_Tifoide_v5.pdf, campo 46 "Hemocultura Resultado da 3° coleta"
+
+  HIDROCARBO:
+    official_name: Agentes de Exposição - Hidrocarbonetos
+    translated_name: Occupational exposure - hydrocarbons
+    description: >
+      Whether the patient was ever occupationally exposed to aliphatic or
+      aromatic hydrocarbons (or their halogenated derivatives), one item of a
+      fixed lifetime-carcinogen-exposure checklist on the work-related-cancer
+      form (with BERILIO, SILICA, CROMO, NIQUEL and others).
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Cancer_v5.pdf, campo 49 "Houve exposição nos locais de trabalho"
+
+  HIDROFOBI:
+    official_name: Principais sinais/sintomas - Hidrofobia
+    translated_name: Symptom - hydrophobia
+    description: >
+      Whether the rabies patient showed hydrophobia (fear/spasm triggered by
+      swallowing water), one of the classic-symptom checklist items (with
+      aerofobia, disfagia, agressividade, paralisia) on the investigation
+      form.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_Raiva_v5.pdf, campo 48 "Principais sinais/sintomas"
+
+  HORMONIO:
+    official_name: Agentes de Exposição - Hormônios
+    translated_name: Occupational exposure - hormones
+    description: >
+      Whether the patient was ever occupationally exposed to hormones as a
+      suspected carcinogen, sibling item to HIDROCARBO on the same
+      work-related-cancer lifetime-exposure checklist.
+    code_system: internal
+    source: layout_doc
+    source_ref: DIC_DADOS_DRT_Cancer_v5.pdf, campo 49 "Houve exposição nos locais de trabalho"
+
+  IDADEMAE:
+    official_name: Idade da mãe
+    translated_name: Mother's age
+    description: >
+      Mother's age in completed years at the time of the congenital-syphilis
+      investigation, a plain two-digit numeric field on the SRC (Sífilis
+      Congênita) form.
+    code_system: none
+    source: inferred
+    reasoning: >
+      No catalog evidence beyond declared type (N2, two-digit numeric) and SRC
+      series membership. "IDADEMAE" decomposes unambiguously to "idade da
+      mãe", and congenital syphilis is the one SINAN agravo whose subject is
+      an infant, making the mother's age a standard companion field to the
+      child's own age.
