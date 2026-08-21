@@ -1,0 +1,130 @@
+# The last SINAN columns: geography that repeats across forms.
+#
+# Every one of these is a place, and the reason there are so many slots is that
+# these diseases have long or uncertain incubation periods. Where a patient
+# lives when notified is often not where they were infected, so the forms record
+# several previous locations and let the investigation decide which one counts.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  CO_UF_R1:
+    official_name: UF de residência anterior 1
+    translated_name: Previous state of residence 1
+    description: >
+      A state the patient lived in before notification. Four slots exist because
+      the disease's incubation can span years, so residence history is what
+      locates the exposure rather than the diagnosis.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the first of four residence-history slots.
+
+  CO_MUN_R1:
+    official_name: Município de residência anterior 1
+    translated_name: Previous municipality of residence 1
+    description: The municipality paired with CO_UF_R1 in the residence history.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the municipality half of the first slot.
+
+  CO_UF_R2:
+    official_name: UF de residência anterior 2
+    translated_name: Previous state of residence 2
+    description: A second previous state of residence. See CO_UF_R1.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the second residence-history slot.
+
+  CO_MUN_R2:
+    official_name: Município de residência anterior 2
+    translated_name: Previous municipality of residence 2
+    description: The municipality paired with CO_UF_R2.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the municipality half of the second slot.
+
+  CO_UF_R3:
+    official_name: UF de residência anterior 3
+    translated_name: Previous state of residence 3
+    description: A third previous state of residence. See CO_UF_R1.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the third residence-history slot.
+
+  CO_MUN_R3:
+    official_name: Município de residência anterior 3
+    translated_name: Previous municipality of residence 3
+    description: The municipality paired with CO_UF_R3.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the municipality half of the third slot.
+
+  CO_UF_R4:
+    official_name: UF de residência anterior 4
+    translated_name: Previous state of residence 4
+    description: A fourth previous state of residence, the last slot the form offers.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the fourth residence-history slot.
+
+  CO_MUN_R4:
+    official_name: Município de residência anterior 4
+    translated_name: Previous municipality of residence 4
+    description: The municipality paired with CO_UF_R4.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the municipality half of the fourth slot.
+
+  ANT_MUNI_C:
+    official_name: Município do contato
+    translated_name: Municipality of contact
+    description: >
+      Where contact with a case or a source occurred. Distinct from the
+      residence history: this is a specific exposure event rather than a period
+      of living somewhere.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; ANT_MUNI_C sits in the antecedent contact block.
+
+  COD_UF_HOS:
+    official_name: UF de hospitalização
+    translated_name: State of hospitalisation
+    description: State where the patient was admitted.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; HOS reads hospitalização.
+
+  COD_MUN_HO:
+    official_name: Município de hospitalização
+    translated_name: Municipality of hospitalisation
+    description: >
+      Municipality where the patient was admitted. Severe cases are referred to
+      larger centres, so this concentrates in capitals and is not a measure of
+      where disease occurs.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; MUN_HO reads município de hospitalização.
+
+  MUN_PRE_NA:
+    official_name: Município do pré-natal
+    translated_name: Municipality of antenatal care
+    description: >
+      Where the antenatal care was given. Frequently not the municipality of
+      residence, since small municipalities refer pregnancies out — which is
+      itself part of why antenatal screening fails.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; PRE_NA reads pré-natal.

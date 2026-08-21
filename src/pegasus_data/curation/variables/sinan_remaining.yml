@@ -1,0 +1,3067 @@
+# The remaining SINAN forms, and the last CNES columns.
+#
+# Grouped by agravo, because that is the only order in which they mean anything.
+#
+# One correction worth recording. SINAN.ANTR is NOT anthrax, despite the
+# abbreviation looking like one. Its columns settle it: CONDIC_ANI grades the
+# animal sadio/suspeito/raivoso, FIM_ANIMAL reports whether the animal tested
+# positive for rabies, and TRAT_ATUAL offers "observação do animal (se cão ou
+# gato)" and "soro + vacina". ANTR is ATendimento aNTiRrábico — human
+# anti-rabies care — which is also how DATASUS files it in its open-data tree.
+# SINAN.RAIV covers the same ground in an earlier form generation.
+system: SINAN
+asserted_by: pegasus_data
+
+variables:
+
+  # ================================================ FTIF, typhoid fever
+  ATENDIMENT:
+    official_name: Local de atendimento
+    translated_name: Care setting
+    description: >
+      Whether the patient was treated in hospital, as an outpatient, at home, or
+      not at all. Typhoid needing admission is a different severity from typhoid
+      treated at a clinic.
+    code_system: internal
+    source: def
+    source_ref: HOSPAMB.CNV
+    reasoning: >
+      Bound to HOSPAMB, whose values are hospitalar, ambulatorial, domiciliar
+      and nenhum.
+
+  ENTERO:
+    official_name: Enterorragia
+    translated_name: Intestinal bleeding
+    description: >
+      Intestinal bleeding. One of the two classic complications of typhoid, both
+      arising in the third week as the ulcerated Peyer's patches erode.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ENTERO reads enterorragia; a yes/no complication flag.
+
+  PERFURA:
+    official_name: Perfuração intestinal
+    translated_name: Intestinal perforation
+    description: >
+      Intestinal perforation. The other classic complication, and a surgical
+      emergency with high mortality.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PERFURA reads perfuração; a yes/no complication flag.
+
+  COMP_OUT:
+    official_name: Outra complicação
+    translated_name: Other complication
+    description: Any complication the named items do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the complications block.
+
+  ANTIBIOTIC:
+    official_name: Uso prévio de antibiótico
+    translated_name: Prior antibiotic use
+    description: >
+      Whether antibiotics were taken before the samples. Prior antibiotics
+      sterilise the cultures, so this field is what a negative result has to be
+      read against.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no flag preceding the culture block.
+
+  SANGUE:
+    official_name: Coleta de sangue
+    translated_name: Blood collected
+    description: >
+      Whether blood was taken for culture. Blood culture is most sensitive in
+      the first week of illness, before stool culture becomes useful.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SANGUE reads sangue; a specimen flag.
+
+  FEZES:
+    official_name: Coleta de fezes
+    translated_name: Stool collected
+    description: >
+      Whether stool was taken. More useful later in the illness than blood, and
+      the specimen that identifies chronic carriers.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: FEZES reads fezes; a specimen flag.
+
+  DT_HEMO1:
+    official_name: Data da hemocultura
+    translated_name: Date of blood culture
+    description: When blood was taken for culture, which bounds how sensitive the result can be.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; HEMO reads hemocultura.
+
+  HEMO_R1:
+    official_name: Resultado da hemocultura
+    translated_name: Blood culture result
+    description: >
+      What the blood culture grew: Salmonella Typhi, another Salmonella,
+      nothing, or a different agent. Only S. Typhi confirms typhoid — other
+      Salmonella means a different illness entirely.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: >
+      Bound to SALMONELA, whose values are Salmonella Typhi, Salmonella SPP,
+      negativo and outro agente.
+
+  DT_URO:
+    official_name: Data da primeira urocultura
+    translated_name: Date of first urine culture
+    description: When the first urine sample was taken for culture.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; URO reads urocultura.
+
+  URO_R1:
+    official_name: Resultado da primeira urocultura
+    translated_name: First urine culture result
+    description: >
+      What the first urine culture grew, on the same Salmonella scale as the
+      blood culture. Three urine samples are taken because shedding is
+      intermittent.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the first of three urine cultures.
+
+  DT_URO2:
+    official_name: Data da segunda urocultura
+    translated_name: Date of second urine culture
+    description: When the second urine sample was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second urine culture.
+
+  URO_R2:
+    official_name: Resultado da segunda urocultura
+    translated_name: Second urine culture result
+    description: What the second urine culture grew. See URO_R1.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the second of three urine cultures.
+
+  DT_URO3:
+    official_name: Data da terceira urocultura
+    translated_name: Date of third urine culture
+    description: When the third urine sample was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third urine culture.
+
+  URO_R3:
+    official_name: Resultado da terceira urocultura
+    translated_name: Third urine culture result
+    description: What the third urine culture grew. See URO_R1.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the third of three urine cultures.
+
+  DT_COPRO1:
+    official_name: Data da primeira coprocultura
+    translated_name: Date of first stool culture
+    description: When the first stool sample was taken for culture.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; COPRO reads coprocultura.
+
+  COPRO_R1:
+    official_name: Resultado da primeira coprocultura
+    translated_name: First stool culture result
+    description: >
+      What the first stool culture grew. Three are taken; persistent growth
+      after recovery identifies a chronic carrier, who is the source that keeps
+      typhoid circulating.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the first of three stool cultures.
+
+  DT_COPRO2:
+    official_name: Data da segunda coprocultura
+    translated_name: Date of second stool culture
+    description: When the second stool sample was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second stool culture.
+
+  COPRO_R2:
+    official_name: Resultado da segunda coprocultura
+    translated_name: Second stool culture result
+    description: What the second stool culture grew. See COPRO_R1.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the second of three stool cultures.
+
+  DT_COPRO3:
+    official_name: Data da terceira coprocultura
+    translated_name: Date of third stool culture
+    description: When the third stool sample was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third stool culture.
+
+  COPRO_R3:
+    official_name: Resultado da terceira coprocultura
+    translated_name: Third stool culture result
+    description: What the third stool culture grew. See COPRO_R1.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the third of three stool cultures.
+
+  DT_OUTR1:
+    official_name: Data da primeira outra cultura
+    translated_name: Date of first other culture
+    description: >
+      When another specimen was taken — bone marrow or bile, which outperform
+      blood when antibiotics have already started.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of three other-specimen cultures.
+
+  OUTR_R1:
+    official_name: Resultado da primeira outra cultura
+    translated_name: First other culture result
+    description: What the other specimen grew, on the same Salmonella scale.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the first other-specimen culture.
+
+  DT_OUTR2:
+    official_name: Data da segunda outra cultura
+    translated_name: Date of second other culture
+    description: When a second other specimen was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second other-specimen culture.
+
+  OUTR_R2:
+    official_name: Resultado da segunda outra cultura
+    translated_name: Second other culture result
+    description: What the second other specimen grew.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the second other-specimen culture.
+
+  DT_OUTR3:
+    official_name: Data da terceira outra cultura
+    translated_name: Date of third other culture
+    description: When a third other specimen was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third other-specimen culture.
+
+  OUTR_R3:
+    official_name: Resultado da terceira outra cultura
+    translated_name: Third other culture result
+    description: What the third other specimen grew.
+    code_system: internal
+    source: def
+    source_ref: SALMONELA.CNV
+    reasoning: Bound to SALMONELA; the third other-specimen culture.
+
+  # ================================================= COQU, whooping cough
+  ANT_SENTIN:
+    official_name: Unidade sentinela
+    translated_name: Sentinel unit
+    description: >
+      Whether the case came from a sentinel unit. Sentinel surveillance samples
+      deliberately rather than exhaustively, so sentinel cases must not be
+      pooled with routine notifications as though they were one population.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SENTIN reads sentinela; a yes/no flag.
+
+  CS_VAC_N:
+    official_name: Doses de vacina recebidas
+    translated_name: Vaccine doses received
+    description: >
+      Doses of pertussis vaccine received, from one through three plus two
+      boosters, or never. Protection wanes, so adolescents and adults are
+      susceptible again and become the source for unvaccinated infants.
+    code_system: internal
+    source: def
+    source_ref: DOSES.CNV
+    reasoning: Bound to DOSES, whose values run uma through nunca vacinado.
+
+  DT_CATARRA:
+    official_name: Data do início da fase catarral
+    translated_name: Date the catarrhal phase began
+    description: >
+      When the catarrhal phase began — the first stage, which looks like an
+      ordinary cold and is when the patient is most infectious. Antibiotics only
+      alter the course if started here.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; CATARRA reads catarral.
+
+  CS_TOSSE_E:
+    official_name: Tosse em acessos
+    translated_name: Paroxysmal cough
+    description: >
+      Cough in paroxysms — the fits of coughing that define the second stage and
+      give the disease its Portuguese name, coqueluche.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TOSSE_E reads tosse em acessos; a yes/no clinical flag.
+
+  CS_TOSSE_P:
+    official_name: Guincho inspiratório
+    translated_name: Inspiratory whoop
+    description: >
+      The whoop drawn on breathing in after a paroxysm. Absent in infants, who
+      are the ones at real risk, so its absence does not exclude the diagnosis.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A yes/no clinical flag paired with CS_TOSSE_E.
+
+  CS_CIANOSE:
+    official_name: Cianose
+    translated_name: Cyanosis
+    description: >
+      Going blue during a paroxysm. In infants this marks the episodes that
+      become life-threatening.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CIANOSE reads cianose; a yes/no clinical flag.
+
+  CS_APNEIA:
+    official_name: Apneia
+    translated_name: Apnoea
+    description: >
+      Pauses in breathing. In young infants apnoea can be the ONLY sign of
+      pertussis, with no cough at all, and it is what kills them.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: APNEIA reads apneia; a yes/no clinical flag.
+
+  CS_TEMP37:
+    official_name: Febre até 37 graus
+    translated_name: Temperature up to 37
+    description: >
+      Little or no fever. Pertussis characteristically runs without fever, which
+      distinguishes it from other causes of persistent cough.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TEMP37 names the sub-38 band; paired with CS_TEMP_38.
+
+  CS_TEMP_38:
+    official_name: Febre acima de 38 graus
+    translated_name: Temperature above 38
+    description: >
+      Fever above 38. Unusual in pertussis itself and usually means a secondary
+      infection, most often the pneumonia in CS_PNEUMON.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TEMP_38 names the above-38 band; paired with CS_TEMP37.
+
+  CS_OUT_SIN:
+    official_name: Outro sinal ou sintoma
+    translated_name: Other sign, pertussis
+    description: >
+      A sign outside the pertussis list of paroxysms, whoop, cyanosis and
+      apnoea.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the clinical block.
+
+  CS_PNEUMON:
+    official_name: Pneumonia
+    translated_name: Pneumonia
+    description: >
+      Pneumonia as a complication. The commonest cause of death in pertussis,
+      and the reason infants are admitted.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PNEUMON reads pneumonia; a complication flag.
+
+  CS_ENCEFAL:
+    official_name: Encefalopatia
+    translated_name: Encephalopathy
+    description: >
+      Encephalopathy, from the hypoxia of repeated paroxysms. Rare and
+      frequently leaves permanent damage.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ENCEFAL reads encefalopatia; a complication flag.
+
+  CS_DESITRA:
+    official_name: Desidratação
+    translated_name: Dehydration
+    description: >
+      Dehydration, usually because the paroxysms make feeding and keeping food
+      down impossible.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DESITRA reads desidratação; a complication flag.
+
+  CS_OTITE:
+    official_name: Otite
+    translated_name: Otitis
+    description: Middle ear infection as a secondary complication.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: OTITE reads otite; a complication flag.
+
+  CS_DESNUTR:
+    official_name: Desnutrição
+    translated_name: Malnutrition
+    description: >
+      Malnutrition, from weeks of impaired feeding. It also worsens the
+      prognosis, so cause and consequence run both ways.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DESNUTR reads desnutrição; a complication flag.
+
+  CS_OUT_COM:
+    official_name: Outra complicação
+    translated_name: Other complication
+    description: Any complication the named items do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the complications block.
+
+  CS_ANTIBIO:
+    official_name: Uso de antibiótico
+    translated_name: Antibiotic given
+    description: >
+      Whether antibiotics were given. They shorten infectiousness even when they
+      no longer alter the illness, which is the main reason to give them late.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ANTIBIO reads antibiótico; a yes/no treatment flag.
+
+  DT_ADM_ANT:
+    official_name: Data de início do antibiótico
+    translated_name: Date antibiotic started
+    description: >
+      When antibiotics began. Read against DT_CATARRA: started in the catarrhal
+      phase they change the course, later they only stop transmission.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ADM_ANT reads administração de antibiótico.
+
+  CS_COLETA:
+    official_name: Coleta de material
+    translated_name: Specimen collected
+    description: >
+      Whether a nasopharyngeal specimen was taken. Culture yield falls sharply
+      after the catarrhal phase and after antibiotics.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: COLETA reads coleta; a specimen flag.
+
+  CS_CULTURA:
+    official_name: Resultado da cultura
+    translated_name: Culture result
+    description: >
+      Whether Bordetella grew. A negative culture is common in a genuine case,
+      so most confirmation is clinical or epidemiological rather than
+      laboratory.
+    code_system: internal
+    source: def
+    source_ref: POSNEGNR.CNV
+    reasoning: Bound to POSNEGNR, positive/negative/not done.
+
+  COLET_COMU:
+    official_name: Coleta em comunicantes
+    translated_name: Contacts sampled
+    description: Whether specimens were taken from contacts as part of the investigation.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: COMU reads comunicantes; a yes/no flag.
+
+  QUAN_COMUN:
+    official_name: Quantidade de comunicantes
+    translated_name: Contacts identified
+    description: >
+      How many contacts were identified. Pertussis is highly transmissible
+      within households, so this is usually the household size.
+    code_system: none
+    source: inferred
+    reasoning: N(4) tally of comunicantes.
+
+  QUAN_POSIT:
+    official_name: Comunicantes positivos
+    translated_name: Contacts testing positive
+    description: >
+      How many contacts tested positive. Against QUAN_COMUN it gives the
+      secondary attack rate, which is what makes household transmission
+      measurable.
+    code_system: none
+    source: inferred
+    reasoning: N(4) tally; the positive subset of QUAN_COMUN.
+
+  MED_BLOQUE:
+    official_name: Medida preventiva adotada
+    translated_name: Preventive measure taken
+    description: >
+      What was done around the case — a vaccination sweep, chemoprophylaxis,
+      both, or nothing. The control response, and the field that says whether
+      one happened at all.
+    code_system: internal
+    source: def
+    source_ref: MEDPREV.CNV
+    reasoning: >
+      Bound to MEDPREV, whose values are bloqueio vacinal, quimioprofilaxia,
+      ambos and não.
+
+  # ============================================ SIFC, congenital syphilis
+  ANT_IDADE:
+    official_name: Idade da mãe
+    translated_name: Mother's age
+    description: >
+      The mother's age, banded. Congenital syphilis concentrates in young
+      mothers with poor antenatal access, so this is a marker of the failure
+      rather than of biology.
+    code_system: internal
+    source: def
+    source_ref: FXID10MAENET.CNV
+    reasoning: Bound to FXID10MAENET, whose labels are ten-year maternal age bands.
+
+  ANT_RACA:
+    official_name: Raça ou cor da mãe
+    translated_name: Mother's race
+    description: >
+      The mother's self-declared race or colour. Recorded because congenital
+      syphilis rates differ sharply by race in Brazil, which is a measure of
+      unequal antenatal care.
+    code_system: internal
+    source: def
+    source_ref: RAÇA.CNV
+    reasoning: Bound to RAÇA, whose values are branca, preta, amarela, parda and indígena.
+
+  ESCOLMAE:
+    official_name: Escolaridade da mãe
+    translated_name: Mother's schooling
+    description: >
+      The mother's education, from illiterate upward. The strongest social
+      predictor of whether antenatal syphilis was caught and treated.
+    code_system: internal
+    source: def
+    source_ref: ESCOLARNET.CNV
+    reasoning: Bound to ESCOLARNET, the schooling codelist.
+
+  ANT_PRE_NA:
+    official_name: Realizou pré-natal
+    translated_name: Attended antenatal care
+    description: >
+      Whether the mother attended antenatal care. Congenital syphilis in a woman
+      who did attend is a different failure from one in a woman who did not: the
+      first means the system missed it, the second that it never had the chance.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PRE_NA reads pré-natal; a yes/no flag.
+
+  ANT_TRATAD:
+    official_name: Parceiro tratado
+    translated_name: Partner treated
+    description: >
+      Whether the mother's partner was treated. An untreated partner reinfects
+      the mother, which is the commonest reason adequate maternal treatment
+      still ends in a congenital case.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TRATAD reads tratado, in the antecedent block about the partner.
+
+  LAB_PARTO:
+    official_name: Teste não treponêmico no parto
+    translated_name: Non-treponemal test at delivery
+    description: >
+      The mother's VDRL at delivery. The last chance to detect maternal syphilis
+      before the baby is exposed.
+    code_system: internal
+    source: def
+    source_ref: REAGE.CNV
+    reasoning: Bound to REAGE, reagente/não reagente/não realizado.
+
+  LAB_TITU_2:
+    official_name: Titulação no parto
+    translated_name: Titre at delivery
+    description: >
+      The numeric titre at delivery. The titre, not merely reactivity, is what
+      distinguishes active infection from a serological scar, and comparing it
+      with the infant's is the core of the diagnosis.
+    code_system: none
+    source: inferred
+    reasoning: N(4) numeric titre paired with LAB_PARTO.
+
+  LAB_DT3:
+    official_name: Data do exame no parto
+    translated_name: Date of test at delivery
+    description: When the delivery-time test was done.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the maternal laboratory block.
+
+  LAB_CONF:
+    official_name: Teste treponêmico
+    translated_name: Treponemal test
+    description: >
+      The confirmatory treponemal test. Stays reactive for life, so it confirms
+      that infection occurred but says nothing about whether it is active.
+    code_system: internal
+    source: def
+    source_ref: REAGE.CNV
+    reasoning: Bound to REAGE; the confirmatory test beside the non-treponemal one.
+
+  TRA_DT:
+    official_name: Data do tratamento
+    translated_name: Date of treatment
+    description: >
+      When the mother was treated. Treatment must be complete more than thirty
+      days before delivery to be judged adequate, so this date against the birth
+      is what decides that.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the maternal treatment block.
+
+  LABC_SANGU:
+    official_name: Teste não treponêmico do sangue da criança
+    translated_name: Infant blood non-treponemal test
+    description: >
+      The infant's VDRL on blood. Maternal antibody crosses the placenta, so a
+      reactive result alone does not diagnose the baby — the titre comparison
+      does.
+    code_system: internal
+    source: def
+    source_ref: REATIVO.CNV
+    reasoning: >
+      Bound to REATIVO; LABC_ marks the criança block against the maternal LAB_
+      one.
+
+  LABC_TIT_1:
+    official_name: Titulação do sangue da criança
+    translated_name: Infant blood titre
+    description: >
+      The infant's blood titre. A titre more than fourfold the mother's
+      indicates the baby's own infection rather than transferred antibody.
+    code_system: none
+    source: inferred
+    reasoning: N(4) numeric titre paired with LABC_SANGU.
+
+  LABC_DT_1:
+    official_name: Data do exame de sangue da criança
+    translated_name: Date of infant blood test
+    description: When the infant's blood test was done.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the infant laboratory block.
+
+  LABC_LIQUO:
+    official_name: Teste no líquor da criança
+    translated_name: Infant CSF test
+    description: >
+      The infant's CSF test. A reactive CSF means neurosyphilis, which requires
+      ten days of intravenous penicillin rather than a single injection — so
+      this field changes the treatment.
+    code_system: internal
+    source: def
+    source_ref: REAGE.CNV
+    reasoning: Bound to REAGE; LIQUO reads líquor in the infant block.
+
+  LABC_TIT_2:
+    official_name: Titulação do líquor
+    translated_name: CSF titre
+    description: The infant's CSF titre, beside the reactivity in LABC_LIQUO.
+    code_system: none
+    source: inferred
+    reasoning: N(4) numeric titre paired with LABC_LIQUO.
+
+  LABC_DT_2:
+    official_name: Data do exame de líquor
+    translated_name: Date of CSF test
+    description: When the infant's CSF was examined.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the infant laboratory block.
+
+  LABC_IGG:
+    official_name: IgG da criança
+    translated_name: Infant IgG
+    description: >
+      The infant's IgG. Crosses the placenta, so it reflects the mother as much
+      as the child and is the least decisive of the infant tests.
+    code_system: internal
+    source: def
+    source_ref: REAGE.CNV
+    reasoning: Bound to REAGE; the infant IgG marker.
+
+  LABC_DT:
+    official_name: Data do exame IgG
+    translated_name: Date of IgG test
+    description: When the infant's IgG was measured.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with LABC_IGG.
+
+  LABC_TITUL:
+    official_name: Titulação realizada
+    translated_name: Titration performed
+    description: Whether a titration was carried out at all, as against simple reactivity.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAONRE.CNV
+    reasoning: Bound to SIM_NAONRE, sim/não/não realizado.
+
+  LABC_EVIDE:
+    official_name: Evidência radiológica
+    translated_name: Radiological evidence
+    description: >
+      Whether long-bone X-rays show the changes of congenital syphilis. Often
+      the only objective sign in a baby who looks well at birth.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAONRE.CNV
+    reasoning: Bound to SIM_NAONRE; EVIDE reads evidência.
+
+  LABC_LIQ_1:
+    official_name: Alteração liquórica
+    translated_name: CSF abnormality
+    description: >
+      Whether the CSF was abnormal on cells or protein, beside the serological
+      result in LABC_LIQUO.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAONRE.CNV
+    reasoning: Bound to SIM_NAONRE; a second CSF item in the infant block.
+
+  TRA_DIAG_T:
+    official_name: Tratamento da criança
+    translated_name: Infant treated
+    description: Whether the infant was treated.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAONRE.CNV
+    reasoning: Bound to SIM_NAONRE, in the treatment block.
+
+  EVO_DIAG_N:
+    official_name: Diagnóstico final
+    translated_name: Final diagnosis
+    description: >
+      How the case closed: recent congenital syphilis, late congenital syphilis,
+      abortion, stillbirth, or discarded. Abortion and stillbirth are outcomes
+      of the disease, so excluding them undercounts its burden.
+    code_system: internal
+    source: def
+    source_ref: DIAGSIFC.CNV
+    reasoning: >
+      Bound to DIAGSIFC, whose values are sífilis congênita recente, tardia,
+      aborto, natimorto and descartado.
+
+  # ================================================ LEPT, leptospirosis
+  CS_ZONA:
+    official_name: Zona de residência
+    translated_name: Residence zone
+    description: >
+      Urban, rural or periurban. Leptospirosis splits along this line: urban
+      cases follow flooding and rats, rural ones follow livestock and fieldwork.
+    code_system: internal
+    source: def
+    source_ref: ZONA.CNV
+    reasoning: Bound to ZONA, whose values are urbana, rural and periurbana.
+
+  ANT_CB_CAI:
+    official_name: Contato com caixa d'água
+    translated_name: Contact with a water tank
+    description: >
+      Contact with a water tank. The ANT_CB_ block enumerates specific exposures,
+      and a contaminated tank is a recognised urban source.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CB_CAI reads caixa d'água; a yes/no exposure flag.
+
+  ANT_CB_SIN:
+    official_name: Contato com sinusite ou fossa
+    translated_name: Contact with a cesspit
+    description: Contact with a cesspit or septic system, a route through contaminated water.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: An exposure flag in the ANT_CB_ block.
+
+  ANT_CB_PLA:
+    official_name: Contato com plantação
+    translated_name: Contact with crops
+    description: >
+      Work or contact with planted land. The rural counterpart to the urban
+      flooding exposures, and the route for cane and rice workers.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CB_PLA reads plantação; an exposure flag.
+
+  ANT_CB_GRA:
+    official_name: Contato com criação de animais
+    translated_name: Contact with livestock
+    description: >
+      Contact with livestock. Cattle and pigs shed leptospires in urine, making
+      this an occupational exposure for farm and abattoir workers.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: An exposure flag in the ANT_CB_ block.
+
+  ANT_CB_TER:
+    official_name: Contato com terreno baldio
+    translated_name: Contact with waste ground
+    description: >
+      Contact with waste ground. Rat habitat, and the exposure most associated
+      with urban cases outside flood periods.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CB_TER reads terreno baldio; an exposure flag.
+
+  CLI_PROST:
+    official_name: Prostração
+    translated_name: Prostration
+    description: Marked prostration, part of the severe systemic phase.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PROST reads prostração; a yes/no clinical flag.
+
+  CLI_HEMOPU:
+    official_name: Hemorragia pulmonar
+    translated_name: Pulmonary haemorrhage
+    description: >
+      Bleeding into the lungs. The most lethal form of leptospirosis, killing
+      faster than the jaundice-and-kidney-failure presentation and often within
+      hours.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: HEMOPU reads hemorragia pulmonar; a clinical flag.
+
+  DTMICRO1:
+    official_name: Data da primeira microaglutinação
+    translated_name: Date of first microagglutination test
+    description: >
+      When the first MAT sample was taken. MAT is the reference test, and a
+      single early sample is usually negative because antibodies take a week.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; MICRO reads microaglutinação.
+
+  DTMICRO2:
+    official_name: Data da segunda microaglutinação
+    translated_name: Date of second microagglutination test
+    description: >
+      When the second MAT sample was taken. The pair is what shows a rising
+      titre, which is how leptospirosis is actually confirmed.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the paired second MAT sample.
+
+  DTISOLA:
+    official_name: Data do isolamento
+    translated_name: Date of isolation
+    description: >
+      When the organism was isolated in culture. Definitive but slow —
+      leptospires take weeks to grow — so it confirms after the fact rather than
+      guiding treatment.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ISOLA reads isolamento.
+
+  DTIMUNO:
+    official_name: Data da imunofluorescência
+    translated_name: Date of immunofluorescence
+    description: When immunofluorescence was performed, a faster alternative to culture.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; IMUNO reads imunofluorescência.
+
+  DT_RISCO1:
+    official_name: Data da primeira exposição de risco
+    translated_name: Date of first risk exposure
+    description: >
+      When the first risk exposure occurred. Up to four are recorded, because
+      the incubation window is one to thirty days and several exposures often
+      fall inside it.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of four exposure dates.
+
+  DT_RISCO2:
+    official_name: Data da segunda exposição de risco
+    translated_name: Date of second risk exposure
+    description: The second exposure date. See DT_RISCO1.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of four exposure dates.
+
+  DT_RISCO3:
+    official_name: Data da terceira exposição de risco
+    translated_name: Date of third risk exposure
+    description: The third exposure date. See DT_RISCO1.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third of four exposure dates.
+
+  DT_RISCO4:
+    official_name: Data da quarta exposição de risco
+    translated_name: Date of fourth risk exposure
+    description: The fourth exposure date. See DT_RISCO1.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the fourth of four exposure dates.
+
+  # ================================================== HANT, hantavirus
+  CLI_ASTENI:
+    official_name: Astenia
+    translated_name: Weakness
+    description: >
+      Profound weakness in the prodrome. Hantavirus begins as an
+      indistinguishable flu-like illness, which is why it is caught late.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ASTENI reads astenia; a yes/no clinical flag.
+
+  CLI_MIAL_G:
+    official_name: Mialgia generalizada
+    translated_name: Generalised muscle pain
+    description: Generalised muscle pain, a prominent prodromal feature.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MIAL_G reads mialgia generalizada; a clinical flag.
+
+  CLI_LOMBAR:
+    official_name: Dor lombar
+    translated_name: Lower back pain
+    description: >
+      Lower back pain. More characteristic of the haemorrhagic-with-renal form
+      seen in the Old World than of the Brazilian cardiopulmonary form.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: LOMBAR reads lombar; a clinical flag.
+
+  CLI_RESPI:
+    official_name: Insuficiência respiratória
+    translated_name: Respiratory failure
+    description: >
+      Respiratory failure. The defining event of hantavirus cardiopulmonary
+      syndrome: the lungs flood over hours and mortality approaches forty per
+      cent.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RESPI reads respiratória; a clinical flag.
+
+  CLI_HIPOTE:
+    official_name: Hipotensão
+    translated_name: Hypotension
+    description: >
+      Low blood pressure from the cardiogenic shock that accompanies the
+      pulmonary phase.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: HIPOTE reads hipotensão; a clinical flag.
+
+  CLI_CHOQUE:
+    official_name: Choque
+    translated_name: Shock
+    description: Circulatory shock, the endpoint of the hypotension in CLI_HIPOTE.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CHOQUE reads choque; a clinical flag.
+
+  CLI_HEMO:
+    official_name: Manifestação hemorrágica
+    translated_name: Bleeding
+    description: Bleeding, more prominent in the renal form than the cardiopulmonary one.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: HEMO reads hemorrágica; a clinical flag.
+
+  ROEDOR_N:
+    official_name: Contato com roedores
+    translated_name: Contact with rodents
+    description: >
+      Contact with rodents. The only route of transmission — the virus is
+      inhaled from dried rodent urine and droppings — so this and the activity
+      flags around it are the whole exposure history.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ROEDOR reads roedor; a yes/no exposure flag.
+
+  DESMATA_N:
+    official_name: Desmatamento
+    translated_name: Land clearing
+    description: >
+      Whether the patient was clearing land. Disturbing vegetation raises dust
+      from rodent nests, which is the classic exposure.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DESMATA reads desmatamento; an activity exposure flag.
+
+  MOAGEM_N:
+    official_name: Moagem de grãos
+    translated_name: Grain milling
+    description: >
+      Grain milling. Stored grain attracts rodents and milling aerosolises the
+      dust, combining both halves of the exposure.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MOAGEM reads moagem; an activity exposure flag.
+
+  PESCOU_N:
+    official_name: Pesca
+    translated_name: Fishing
+    description: Fishing, an outdoor exposure recorded among the activity flags.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PESCOU reads pescou; an activity exposure flag.
+
+  DORMIU_N:
+    official_name: Dormiu em área de risco
+    translated_name: Slept in a risk area
+    description: >
+      Whether the patient slept in a risk area. Sleeping in a closed shed or hut
+      is a high-exposure setting, since the aerosol concentrates indoors.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DORMIU reads dormiu; an activity exposure flag.
+
+  TRANSPO_N:
+    official_name: Transporte de grãos
+    translated_name: Grain transport
+    description: Transporting grain, an exposure related to the milling one.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TRANSPO reads transporte; an activity exposure flag.
+
+  TREINA_MIL:
+    official_name: Treinamento militar
+    translated_name: Military training
+    description: >
+      Military training. Recorded separately because outdoor exercises have
+      produced recognised clusters.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TREINA_MIL reads treinamento militar; an activity exposure flag.
+
+  OUTRA_ATIV:
+    official_name: Outra atividade de risco
+    translated_name: Other risk activity
+    description: Any exposure activity the named flags do not cover.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the activity block.
+
+  EXPO_N:
+    official_name: Houve exposição
+    translated_name: Exposure occurred
+    description: Whether any risk exposure occurred, the gate for the activity flags.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: EXPO reads exposição; the block's opening flag.
+
+  CON_AREA:
+    official_name: Área provável de infecção
+    translated_name: Probable infection area
+    description: >
+      Whether infection was probably acquired in an urban, rural or periurban
+      area. Almost always rural for hantavirus, which is what distinguishes its
+      geography from leptospirosis.
+    code_system: internal
+    source: def
+    source_ref: ZONA.CNV
+    reasoning: Bound to ZONA, urbana/rural/periurbana.
+
+  CON_LOCALI:
+    official_name: Localidade provável de infecção
+    translated_name: Probable infection locality
+    description: The specific locality where infection was probably acquired.
+    code_system: none
+    source: inferred
+    reasoning: C(2) locality code in the infection-source block.
+
+  LAB_RADIOL:
+    official_name: Alteração radiológica
+    translated_name: Chest X-ray abnormal
+    description: >
+      Whether the chest X-ray is abnormal. Bilateral infiltrates appearing
+      rapidly are the radiological hallmark, and often the first objective sign.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RADIOL reads radiológica; a yes/no flag.
+
+  LAB_RES_B:
+    official_name: Resultado do hemograma
+    translated_name: Blood count result
+    description: >
+      The white cell picture: normal, raised with a left shift, raised without
+      one, or low. Raised with a left shift alongside low platelets is the
+      pattern that should raise hantavirus.
+    code_system: internal
+    source: def
+    source_ref: RESULTADOB.CNV
+    reasoning: >
+      Bound to RESULTADOB, whose values are normais, aumentados com desvio à
+      esquerda, aumentados sem desvio and diminuídos.
+
+  DT_COL_IGM:
+    official_name: Data da coleta de IgM
+    translated_name: Date IgM sample taken
+    description: >
+      When the IgM sample was taken. IgM is already present when symptoms
+      appear, so unlike most serology a single early sample is diagnostic here.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the laboratory block.
+
+  DT_EVOLUC:
+    official_name: Data da evolução
+    translated_name: Date of outcome
+    description: When the outcome was recorded, closing the case.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the outcome block.
+
+  # ============================== ANTR, human anti-rabies care (NOT anthrax)
+  PRE_EXPOS:
+    official_name: Tratamento pré-exposição
+    translated_name: Pre-exposure prophylaxis
+    description: >
+      Whether the patient had pre-exposure prophylaxis — vaccination before any
+      contact, given to vets, lab workers and people in remote areas. Changes
+      what post-exposure care is needed.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PRE_EXPOS reads pré-exposição; a yes/no flag.
+
+  POS_EXPOS:
+    official_name: Tratamento pós-exposição
+    translated_name: Post-exposure prophylaxis
+    description: >
+      Whether post-exposure prophylaxis was given after this contact — the
+      ordinary reason for an anti-rabies attendance.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: POS_EXPOS reads pós-exposição; a yes/no flag.
+
+  TRAT_ATUAL:
+    official_name: Conduta adotada
+    translated_name: Course of action taken
+    description: >
+      What was decided: pre-exposure course, no treatment needed, observe the
+      animal if it is a dog or cat, observation plus vaccine, vaccine alone, or
+      serum plus vaccine. Observing a healthy dog for ten days is what avoids
+      treating most exposures.
+    code_system: internal
+    source: def
+    source_ref: PREXPOSINET.CNV
+    reasoning: >
+      Bound to PREXPOSINET, whose values run from pré exposição and dispensa de
+      tratamento through soro mais vacina.
+
+  CONDIC_ANI:
+    official_name: Condição do animal
+    translated_name: Animal's condition
+    description: >
+      Whether the animal was healthy, suspect, rabid, or dead and disappeared. A
+      healthy observable animal makes treatment unnecessary; one that vanished
+      forces the full course.
+    code_system: internal
+    source: def
+    source_ref: SADSUSDENET.CNV
+    reasoning: >
+      Bound to SADSUSDENET, whose values are sadio, suspeito, raivoso and
+      morto/desaparecido.
+
+  OBSERVACAO:
+    official_name: Animal em observação
+    translated_name: Animal under observation
+    description: >
+      Whether the animal was kept under observation. Ten days is decisive: a dog
+      still well at ten days was not infectious at the time of the bite.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: OBSERVACAO reads observação; a yes/no flag.
+
+  FIM_ANIMAL:
+    official_name: Resultado da observação do animal
+    translated_name: Outcome for the animal
+    description: >
+      How the animal ended up: negative for rabies clinically or by laboratory,
+      or positive by either. A positive result makes the exposed person's full
+      course mandatory.
+    code_system: internal
+    source: def
+    source_ref: FIM_ANIMAL.CNV
+    reasoning: >
+      Bound to FIM_ANIMAL, whose values are negativo raiva clínica, negativo
+      laboratorial, and the positive counterparts.
+
+  FERIMENTO:
+    official_name: Tipo de ferimento
+    translated_name: Wound multiplicity
+    description: >
+      Whether the wound was single, multiple, or absent. Multiple wounds raise
+      the viral inoculum and move the case towards serum as well as vaccine.
+    code_system: internal
+    source: def
+    source_ref: UNICMULTNET.CNV
+    reasoning: >
+      Bound to UNICMULTNET, whose values are único, múltiplo and sem ferimento.
+
+  ANT_SUPERF:
+    official_name: Ferimento superficial
+    translated_name: Superficial wound
+    description: A superficial wound, the lower-risk depth category.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SUPERF reads superficial; a yes/no wound flag.
+
+  ANT_TRONCO:
+    official_name: Ferimento no tronco
+    translated_name: Trunk wound
+    description: >
+      A wound to the trunk. Lower risk than head or hands, because the virus has
+      further to travel along the nerves.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TRONCO reads tronco; a yes/no wound-site flag.
+
+  TIP_SORO:
+    official_name: Tipo de soro
+    translated_name: Immunoglobulin type
+    description: >
+      Whether the immunoglobulin was heterologous, from horses, or homologous,
+      from humans. Heterologous serum is cheaper and carries a real risk of
+      serum sickness, which REACAO_SOR records.
+    code_system: internal
+    source: def
+    source_ref: HETEHOMO.CNV
+    reasoning: Bound to HETEHOMO, whose values are heterólogo and homólogo.
+
+  TRA_QTD_SO:
+    official_name: Quantidade de soro
+    translated_name: Immunoglobulin quantity
+    description: >
+      How much immunoglobulin was given. Dosed by body weight, unlike the
+      vaccine, so it varies with the patient.
+    code_system: none
+    source: inferred
+    reasoning: C(3) quantity in the treatment block.
+
+  TRA_INFILT:
+    official_name: Infiltração do soro
+    translated_name: Immunoglobulin infiltrated
+    description: >
+      Whether the immunoglobulin was infiltrated into the wound. Infiltrating it
+      at the site is what neutralises virus before it reaches the nerves, so
+      giving it only intramuscularly wastes much of its effect.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: INFILT reads infiltração; a yes/no flag.
+
+  TRA_INFI_1:
+    official_name: Infiltração parcial do soro
+    translated_name: Immunoglobulin partly infiltrated
+    description: >
+      Whether only part of the dose was infiltrated, recorded apart from full
+      infiltration because partial infiltration is a real quality failure.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A second infiltration flag beside TRA_INFILT.
+
+  REACAO_SOR:
+    official_name: Reação ao soro
+    translated_name: Reaction to immunoglobulin
+    description: >
+      Whether the patient reacted to the serum. Serum sickness follows
+      heterologous serum in a meaningful minority, which is why TIP_SORO is
+      recorded.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: REACAO_SOR reads reação ao soro; a yes/no flag.
+
+  REACAO_VAC:
+    official_name: Reação à vacina
+    translated_name: Reaction to vaccine
+    description: >
+      Whether the patient reacted to the vaccine. Modern cell-culture vaccines
+      cause few reactions, so a rise here would be a signal about a batch.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: REACAO_VAC reads reação à vacina; a yes/no flag.
+
+  TRA_INTERR:
+    official_name: Tratamento interrompido
+    translated_name: Treatment interrupted
+    description: >
+      Whether the course was interrupted. The main failure mode in rabies
+      prophylaxis: patients stop attending once the animal turns out to be well.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: INTERR reads interrompido; a yes/no flag.
+
+  TRA_MOTIVO:
+    official_name: Motivo da interrupção
+    translated_name: Reason for interruption
+    description: >
+      Why the course stopped: the unit judged it unnecessary, the patient
+      abandoned it, or they transferred elsewhere. Only the middle one is a
+      genuine failure.
+    code_system: internal
+    source: def
+    source_ref: MOTIVO.CNV
+    reasoning: >
+      Bound to MOTIVO, whose values are unidade indicou, abandono and
+      transferência.
+
+  TRA_ANTIGO:
+    official_name: Tratamento anterior
+    translated_name: Previous treatment
+    description: >
+      Whether a previous anti-rabies course was within ninety days or longer
+      ago. A recent course means the patient is already protected and needs only
+      boosters.
+    code_system: internal
+    source: def
+    source_ref: AT90AP90.CNV
+    reasoning: Bound to AT90AP90, whose values are até 90 dias and após 90 dias.
+
+  TRA_INDI_N:
+    official_name: Tratamento indicado
+    translated_name: Treatment indicated
+    description: Whether treatment was indicated at all after the risk assessment.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TRA_INDI reads tratamento indicado; a yes/no flag.
+
+  BUSCA_ATIV:
+    official_name: Busca ativa
+    translated_name: Active follow-up
+    description: >
+      Whether the service actively sought the patient out. The response to an
+      interrupted course, and the measure that recovers abandoned treatments.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: BUSCA_ATIV reads busca ativa; a yes/no flag.
+
+  # ===================================== SRC, congenital rubella syndrome
+  DIAG_MAE:
+    official_name: Critério do diagnóstico materno
+    translated_name: How the mother was diagnosed
+    description: >
+      Whether the mother's rubella was confirmed by laboratory, by
+      epidemiological link, or clinically. Clinical diagnosis is unreliable for
+      rubella, so the criterion bounds the certainty of the whole case.
+    code_system: internal
+    source: def
+    source_ref: CONFSRC.CNV
+    reasoning: >
+      Bound to CONFSRC, whose values are laboratório, vínculo epidemiológico and
+      clínico.
+
+  DT_VACINA:
+    official_name: Data da vacinação da mãe
+    translated_name: Date mother was vaccinated
+    description: >
+      When the mother was vaccinated. Rubella vaccine in early pregnancy is a
+      theoretical concern, so this date against the pregnancy matters.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the maternal antecedent block.
+
+  CATARATA:
+    official_name: Catarata
+    translated_name: Cataract
+    description: >
+      Congenital cataract. One of the classic triad — cataract, deafness, heart
+      defect — that defines congenital rubella syndrome.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CATARATA reads catarata; a yes/no clinical flag.
+
+  GLAUCOMA:
+    official_name: Glaucoma congênito
+    translated_name: Congenital glaucoma
+    description: Congenital glaucoma, the other major eye manifestation beside cataract.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: GLAUCOMA reads glaucoma; a clinical flag.
+
+  RETINOPA:
+    official_name: Retinopatia
+    translated_name: Retinopathy
+    description: >
+      The pigmentary retinopathy of congenital rubella. Does not usually affect
+      vision, but it is a durable marker long after the infection.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RETINOPA reads retinopatia; a clinical flag.
+
+  AUDITIVA:
+    official_name: Deficiência auditiva
+    translated_name: Hearing loss
+    description: >
+      Sensorineural deafness. The commonest manifestation, and often the only
+      one, which is why a baby who looks normal at birth still needs testing.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: AUDITIVA reads auditiva; a clinical flag.
+
+  CARDIOPATI:
+    official_name: Cardiopatia congênita
+    translated_name: Congenital heart disease
+    description: >
+      Congenital heart disease, typically patent ductus arteriosus or pulmonary
+      artery stenosis. The third element of the classic triad.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CARDIOPATI reads cardiopatia; a clinical flag.
+
+  MICROCEFA:
+    official_name: Microcefalia
+    translated_name: Microcephaly
+    description: >
+      Small head circumference. Part of the central nervous system involvement
+      that follows infection early in pregnancy.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MICROCEFA reads microcefalia; a clinical flag.
+
+  MENINGO:
+    official_name: Meningoencefalite
+    translated_name: Meningoencephalitis
+    description: Meningoencephalitis in the newborn, part of the acute infection.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MENINGO reads meningoencefalite; a clinical flag.
+
+  RETAR_PM:
+    official_name: Retardo do desenvolvimento
+    translated_name: Developmental delay
+    description: >
+      Delayed psychomotor development. A later finding than the birth defects,
+      so it only appears where the child was followed up.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RETAR_PM reads retardo psicomotor; a clinical flag.
+
+  PURPURA:
+    official_name: Púrpura
+    translated_name: Purpura
+    description: >
+      The "blueberry muffin" purpura of congenital rubella, from low platelets
+      and extramedullary haematopoiesis. Present at birth and transient.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PURPURA reads púrpura; a clinical flag.
+
+  HEPA_ESP:
+    official_name: Hepatoesplenomegalia
+    translated_name: Enlarged liver and spleen
+    description: Enlarged liver and spleen, another sign of active infection at birth.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: HEPA_ESP reads hepatoesplenomegalia; a clinical flag.
+
+  OSSEA:
+    official_name: Alteração óssea
+    translated_name: Bone abnormality
+    description: >
+      Radiological bone changes, the "celery stalk" appearance of the long bone
+      metaphyses.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: OSSEA reads óssea; a clinical flag.
+
+  ID_DG_DES:
+    official_name: Diagnóstico diferencial
+    translated_name: Differential diagnosis
+    description: >
+      Which other congenital infection was considered — toxoplasmosis,
+      congenital syphilis, cytomegalovirus, or another. These produce a nearly
+      identical picture, so the differential is the point of the field.
+    code_system: internal
+    source: def
+    source_ref: CRITRUBENET.CNV
+    reasoning: >
+      Bound to CRITRUBENET, whose values are toxoplasmose, sífilis congênita,
+      citomegalovírus and outras.
+
+  DT_COL1:
+    official_name: Data da primeira coleta
+    translated_name: Date of first sample
+    description: >
+      When the first serum was taken. Rubella IgM in a newborn is diagnostic
+      because it cannot have crossed the placenta.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of three samples.
+
+  DT_COL2:
+    official_name: Data da segunda coleta
+    translated_name: Date of second sample
+    description: When the second serum was taken.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of three samples.
+
+  DT_COL3:
+    official_name: Data da terceira coleta
+    translated_name: Date of third sample
+    description: >
+      When the third serum was taken. Persisting IgG beyond about six months
+      confirms the child's own antibody rather than the mother's.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third of three samples.
+
+  S3_IGM:
+    official_name: IgM na terceira amostra
+    translated_name: IgM, third sample
+    description: IgM on the third serum, completing the antibody sequence.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the third sample's IgM.
+
+  S3_IGG:
+    official_name: IgG na terceira amostra
+    translated_name: IgG, third sample
+    description: >
+      IgG on the third serum. Maternal IgG has waned by then, so persisting IgG
+      is the child's own and confirms infection.
+    code_system: internal
+    source: def
+    source_ref: REAGENTE.CNV
+    reasoning: Bound to REAGENTE; the third sample's IgG.
+
+  BLOQUEIO:
+    official_name: Bloqueio vacinal
+    translated_name: Vaccination sweep
+    description: Whether a vaccination sweep was carried out around the case.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: BLOQUEIO reads bloqueio vacinal; a yes/no flag.
+
+  # ==================================================== COLE, cholera
+  CS_TIPO:
+    official_name: Local de atendimento
+    translated_name: Care setting
+    description: >
+      Whether the patient was treated in hospital, as an outpatient, at home, or
+      not at all. Cholera is survivable with oral rehydration alone, so the
+      setting reflects severity and access together.
+    code_system: internal
+    source: def
+    source_ref: HOSPAMB.CNV
+    reasoning: Bound to HOSPAMB, hospitalar/ambulatorial/domiciliar/nenhum.
+
+  DT_ATENDIM:
+    official_name: Data do atendimento
+    translated_name: Date of care
+    description: >
+      When the patient was seen. Cholera kills within hours through dehydration,
+      so the interval from onset to care is the whole prognosis.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ATENDIM reads atendimento.
+
+  CS_ASSINTO:
+    official_name: Assintomático
+    translated_name: Asymptomatic
+    description: >
+      Whether the person had no symptoms. Most Vibrio cholerae infections are
+      silent, and asymptomatic carriers found by contact tracing are how an
+      outbreak's true size becomes visible.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ASSINTO reads assintomático; a yes/no flag.
+
+  CS_DIARRE:
+    official_name: Diarreia
+    translated_name: Diarrhoea
+    description: Diarrhoea, the defining symptom.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DIARRE reads diarreia; a clinical flag.
+
+  TIP_DIARRE:
+    official_name: Característica da diarreia
+    translated_name: Stool character
+    description: >
+      Watery and yellowish, watery like rice water, or pasty. Rice-water stool is
+      the classic cholera description and is close to diagnostic on its own.
+    code_system: internal
+    source: def
+    source_ref: CARACDIA.CNV
+    reasoning: >
+      Bound to CARACDIA, whose values are aquosa/amarelada, aquosa/água de arroz
+      and pastosa.
+
+  CS_FREQUEN:
+    official_name: Frequência das evacuações
+    translated_name: Stool frequency
+    description: >
+      How many stools a day, banded up to 5, 6 to 10, 11 to 20, and over 20.
+      Above twenty is the volume that causes fatal dehydration within hours.
+    code_system: internal
+    source: def
+    source_ref: FXEVACUA.CNV
+    reasoning: Bound to FXEVACUA, whose bands run from até 5 to acima de 20.
+
+  CS_VOMITO:
+    official_name: Vômito
+    translated_name: Vomiting
+    description: >
+      Vomiting. Compounds the fluid loss and is what makes oral rehydration fail,
+      forcing intravenous fluids.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: VOMITO reads vômito; a clinical flag.
+
+  CS_CAIMBRA:
+    official_name: Cãibras
+    translated_name: Cramps
+    description: >
+      Muscle cramps from the electrolyte loss. A characteristic and early sign of
+      severe depletion.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CAIMBRA reads cãibras; a clinical flag.
+
+  CS_DOR:
+    official_name: Dor abdominal
+    translated_name: Abdominal pain
+    description: >
+      Abdominal pain. Notably mild in cholera despite the volume of stool, which
+      distinguishes it from dysentery.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DOR reads dor; a clinical flag.
+
+  CS_FEBRE:
+    official_name: Febre
+    translated_name: Fever
+    description: >
+      Fever. Usually absent in cholera, so its presence points to another cause
+      of diarrhoea.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: FEBRE reads febre; a clinical flag.
+
+  CS_MUCO:
+    official_name: Muco nas fezes
+    translated_name: Mucus in stool
+    description: Mucus in the stool, part of the rice-water appearance.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MUCO reads muco; a clinical flag.
+
+  CS_CHOQUE:
+    official_name: Choque hipovolêmico
+    translated_name: Hypovolaemic shock
+    description: >
+      Shock from fluid loss. The mechanism of death in cholera, and entirely
+      reversible with prompt rehydration.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CHOQUE reads choque; a clinical flag.
+
+  CS_REIDRAT:
+    official_name: Via de reidratação
+    translated_name: Rehydration route
+    description: >
+      Oral, intravenous, or both. Oral rehydration is the intervention that
+      turned cholera from routinely fatal into routinely survivable, so the
+      route is the treatment.
+    code_system: internal
+    source: def
+    source_ref: ORALVENOSA.CNV
+    reasoning: >
+      Bound to ORALVENOSA, whose values are via oral, venosa and oral-venosa.
+
+  CS_ANTIB:
+    official_name: Uso de antibiótico
+    translated_name: Antibiotic given
+    description: >
+      Whether antibiotics were given. Secondary to rehydration in cholera: they
+      shorten shedding rather than save the patient.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ANTIB reads antibiótico; a yes/no flag.
+
+  CS_ANTIB_T:
+    official_name: Antibiótico antes da coleta
+    translated_name: Antibiotic before sampling
+    description: >
+      Whether antibiotics preceded the specimen. They sterilise the culture, so
+      this is what a negative result must be read against.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: A second antibiotic flag, tied to the specimen rather than treatment.
+
+  CS_MATERIA:
+    official_name: Coleta de material
+    translated_name: Specimen collected
+    description: Whether a stool specimen was collected for culture.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MATERIA reads material; a specimen flag.
+
+  CS_POSITIV:
+    official_name: Sorotipo isolado
+    translated_name: Serotype isolated
+    description: >
+      Which Vibrio cholerae serotype grew — Ogawa, Inaba, Hikojima, another, or
+      not Vibrio at all. Serotype tracks which epidemic wave the case belongs
+      to.
+    code_system: internal
+    source: def
+    source_ref: SOROTCOL.CNV
+    reasoning: >
+      Bound to SOROTCOL, whose values are Ogawa, Inaba, Hikojima, outro sorotipo
+      and não Vibrio.
+
+  VINCULO:
+    official_name: Vínculo epidemiológico sugerido
+    translated_name: Suggested epidemiological link
+    description: >
+      The suspected source: untreated water, sewage exposure, food, travel, or
+      other. Water and sewage point to an infrastructure failure and change what
+      the response must be.
+    code_system: internal
+    source: def
+    source_ref: SUGVIN.CNV
+    reasoning: >
+      Bound to SUGVIN, whose values are consumo de água não tratada, exposição a
+      esgoto, alimento, deslocamento and outros.
+
+  # ==================================================== ROTA, rotavirus
+  SURTO:
+    official_name: Caso associado a surto
+    translated_name: Part of an outbreak
+    description: >
+      Whether the case belongs to an outbreak. Rotavirus is highly transmissible
+      in nurseries and wards, so clustering is common and changes the response.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SURTO reads surto; a yes/no flag.
+
+  CASO_ISOLA:
+    official_name: Caso isolado
+    translated_name: Isolated case
+    description: Whether the case stands alone, the complement of SURTO.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CASO_ISOLA reads caso isolado; the counterpart flag to SURTO.
+
+  DT_VOP:
+    official_name: Data da vacina oral de poliomielite
+    translated_name: Date of oral polio vaccine
+    description: >
+      When oral polio vaccine was given. Recorded because it is given alongside
+      the rotavirus vaccine and the two can interfere.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; VOP is vacina oral de poliomielite.
+
+  DT_1VAC:
+    official_name: Data da primeira dose da vacina de rotavírus
+    translated_name: Date of first rotavirus dose
+    description: >
+      When the first rotavirus dose was given. The schedule is strictly age
+      limited, because the vaccine raises intussusception risk if given late.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of the two-dose rotavirus schedule.
+
+  DT_2VAC:
+    official_name: Data da segunda dose da vacina de rotavírus
+    translated_name: Date of second rotavirus dose
+    description: When the second rotavirus dose was given, completing the schedule.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of the two-dose schedule.
+
+  LEITE:
+    official_name: Aleitamento
+    translated_name: Breastfeeding
+    description: >
+      Whether the child was breastfed. Breastfeeding is protective against
+      rotavirus, so it is a confounder in any vaccine effectiveness estimate.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: LEITE reads leite; a yes/no flag.
+
+  TIPO_LEITE:
+    official_name: Tipo de aleitamento
+    translated_name: Feeding type
+    description: >
+      Whether feeding was exclusively breast milk or mixed. Exclusivity is what
+      the protective effect depends on, so the split matters more than the flag.
+    code_system: internal
+    source: def
+    source_ref: TIPO_LEITE.CNV
+    reasoning: Bound to TIPO_LEITE, whose values are exclusivo and misto.
+
+  DT_FEZES:
+    official_name: Data da coleta de fezes
+    translated_name: Date stool collected
+    description: >
+      When the stool was collected. Rotavirus is shed heavily in the first days,
+      so a sample taken then is almost always positive.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; FEZES reads fezes.
+
+  DT_ENVIO:
+    official_name: Data do envio ao laboratório
+    translated_name: Date sent to laboratory
+    description: When the sample was despatched, giving the transit delay against DT_FEZES.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ENVIO reads envio.
+
+  ROTA_R:
+    official_name: Resultado para rotavírus
+    translated_name: Rotavirus result
+    description: Whether rotavirus was detected in the stool.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ROTA_R names the rotavirus result; a yes/no flag.
+
+  OUT_VIRUS:
+    official_name: Outro vírus detectado
+    translated_name: Other virus detected
+    description: >
+      Whether another virus was found — norovirus and adenovirus cause the same
+      illness and rise in importance as rotavirus vaccination reduces its share.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: OUT_VIRUS reads outro vírus; a yes/no flag.
+
+  PARASITA:
+    official_name: Parasita detectado
+    translated_name: Parasite detected
+    description: Whether a parasite was found as an alternative cause of the diarrhoea.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PARASITA reads parasita; a yes/no flag.
+
+  SANG:
+    official_name: Sangue nas fezes
+    translated_name: Blood in stool
+    description: >
+      Blood in the stool. Argues against rotavirus, which causes watery
+      diarrhoea, and towards a bacterial dysentery.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SANG reads sangue; a clinical flag.
+
+  # ============================================ TETN, neonatal tetanus
+  CS_ORIGEM:
+    official_name: Origem da notificação
+    translated_name: How the case was found
+    description: >
+      Whether the case came from routine notification, active case-finding, or a
+      death certificate. Neonatal tetanus is heavily under-notified, so
+      case-finding and death certificates contribute a large share.
+    code_system: internal
+    source: def
+    source_ref: ORIGTET.CNV
+    reasoning: >
+      Bound to ORIGTET, whose values are notificação, busca ativa and declaração
+      de óbito.
+
+  CS_ATEND_N:
+    official_name: Quem atendeu o parto
+    translated_name: Who attended the birth
+    description: >
+      Doctor, nurse, nursing auxiliary, trained or untrained traditional
+      midwife, or other. Neonatal tetanus is a disease of unclean delivery, so
+      this field is close to the cause.
+    code_system: internal
+    source: def
+    source_ref: RHSAUDENET.CNV
+    reasoning: >
+      Bound to RHSAUDENET, whose values run from médico through parteira não
+      treinada.
+
+  CS_INF_COT:
+    official_name: Infecção do coto umbilical
+    translated_name: Umbilical stump infection
+    description: >
+      Whether the umbilical stump was infected. The entry point: the spores
+      enter through the cut cord, usually from a contaminated instrument or
+      dressing.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: INF_COT reads infecção do coto; a yes/no flag.
+
+  CS_MAMAR:
+    official_name: Dificuldade de mamar
+    translated_name: Difficulty feeding
+    description: >
+      Trouble suckling. Almost always the first sign, because the jaw muscles
+      stiffen before anything else — a baby that fed well then stopped is the
+      classic history.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: MAMAR reads mamar; a clinical flag.
+
+  CS_CHORO:
+    official_name: Choro excessivo
+    translated_name: Excessive crying
+    description: Constant crying, from the painful spasms.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CHORO reads choro; a clinical flag.
+
+  CS_ABDOMEN:
+    official_name: Abdome rígido
+    translated_name: Rigid abdomen
+    description: Abdominal rigidity from generalised muscle spasm.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ABDOMEN reads abdome; a clinical flag.
+
+  CS_OUTROS:
+    official_name: Outro sinal
+    translated_name: Other sign, neonatal tetanus
+    description: >
+      A sign outside the neonatal tetanus list of feeding difficulty, crying and
+      abdominal rigidity.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the clinical block.
+
+  CS_VACINAC:
+    official_name: Mãe vacinada
+    translated_name: Mother vaccinated
+    description: >
+      Whether the mother was vaccinated against tetanus. Maternal antibody
+      crosses the placenta and protects the newborn, so a vaccinated mother
+      makes neonatal tetanus nearly impossible.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: VACINAC reads vacinação, about the mother; a yes/no flag.
+
+  DT_1_DOSE:
+    official_name: Data da primeira dose materna
+    translated_name: Date of mother's first dose
+    description: When the mother received her first tetanus dose.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the first of the maternal dose dates.
+
+  DT_2_DOSE:
+    official_name: Data da segunda dose materna
+    translated_name: Date of mother's second dose
+    description: >
+      When the mother received her second dose. Two doses more than fifteen days
+      before birth is the minimum that protects the baby.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the second of the maternal dose dates.
+
+  DT_3_DOSE:
+    official_name: Data da terceira dose materna
+    translated_name: Date of mother's third dose
+    description: When the mother received her third dose, completing the primary course.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; the third of the maternal dose dates.
+
+  DT_REFORCO:
+    official_name: Data do reforço materno
+    translated_name: Date of mother's booster
+    description: >
+      When the mother had a booster. Tetanus immunity wanes over a decade, so a
+      distant primary course without a booster leaves the newborn unprotected.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; REFORCO reads reforço.
+
+  # =============================================== TETA, accidental tetanus
+  TP_CAUSA:
+    official_name: Causa do ferimento
+    translated_name: Cause of the wound
+    description: >
+      What caused the wound — injection, laceration, burn, surgery, puncture,
+      abrasion, septic abortion, or other. Puncture wounds are the classic
+      cause, because the spores need low oxygen to germinate.
+    code_system: internal
+    source: def
+    source_ref: CAUSATET.CNV
+    reasoning: >
+      Bound to CAUSATET, whose values run from injeção through abortamento
+      séptico.
+
+  TP_LOCALLE:
+    official_name: Local da lesão
+    translated_name: Site of the wound
+    description: >
+      Where the wound was — lower limbs, upper limbs, trunk, head and neck, or
+      oral cavity. A wound closer to the head shortens the incubation and
+      worsens the prognosis.
+    code_system: internal
+    source: def
+    source_ref: LOCALTET.CNV
+    reasoning: >
+      Bound to LOCALTET, whose values enumerate the body sites from membros
+      inferiores to cavidade oral.
+
+  TP_PROFILA:
+    official_name: Profilaxia realizada
+    translated_name: Prophylaxis given
+    description: >
+      What was given after the wound — antitetanus serum, immunoglobulin,
+      vaccine, antibiotic, or nothing. Tetanus in a patient who received
+      prophylaxis is a treatment failure worth investigating.
+    code_system: internal
+    source: def
+    source_ref: PROFILAC.CNV
+    reasoning: >
+      Bound to PROFILAC, whose values are soro antitetânico, imunoglobulina,
+      vacina, antibiótico and nenhum.
+
+  NU_DOSE:
+    official_name: Número de doses da vacina
+    translated_name: Vaccine doses received
+    description: >
+      Doses of tetanus vaccine received, banded from one through three plus two
+      boosters, or never vaccinated.
+    code_system: internal
+    source: def
+    source_ref: DOSES.CNV
+    reasoning: Bound to DOSES, the standard vaccine-dose banding.
+
+  CS_CRISES:
+    official_name: Crises convulsivas
+    translated_name: Spasms
+    description: >
+      Generalised spasms. What distinguishes tetanus from simple muscle
+      stiffness, and what makes airway management necessary.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CRISES reads crises; a clinical flag.
+
+  CS_ABDOMIN:
+    official_name: Rigidez abdominal
+    translated_name: Abdominal rigidity
+    description: Abdominal rigidity, the adult counterpart of the neonatal CS_ABDOMEN.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ABDOMIN reads abdominal; a clinical flag.
+
+  CS_SIN_OUT:
+    official_name: Outro sinal
+    translated_name: Other sign, accidental tetanus
+    description: >
+      A sign outside the accidental tetanus list of spasms and abdominal
+      rigidity.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: The residual item of the clinical block.
+
+  # ==================================================== CHAG, Chagas disease
+  ORAL:
+    official_name: Transmissão oral
+    translated_name: Oral transmission
+    description: >
+      Whether transmission was oral, through contaminated food — açaí and sugar
+      cane juice above all. Now the dominant route for acute Chagas in Brazil,
+      and it produces outbreaks rather than single cases.
+    code_system: internal
+    source: def
+    source_ref: ORAL.CNV
+    reasoning: Bound to ORAL, a sim/não flag for the oral route.
+
+  MAECHAGA:
+    official_name: Mãe com doença de Chagas
+    translated_name: Mother has Chagas disease
+    description: >
+      Whether the mother has Chagas. The vertical route, which is why the field
+      carries a "não se aplica" value for patients where it cannot arise.
+    code_system: internal
+    source: def
+    source_ref: MAECHAGA.CNV
+    reasoning: Bound to MAECHAGA, whose values are sim, não and não se aplica.
+
+  SINTOMATIC:
+    official_name: Sintomático
+    translated_name: Symptomatic
+    description: >
+      Whether the patient has symptoms. Most acute Chagas is silent and most
+      chronic Chagas is silent for decades, so this separates detected disease
+      from detected infection.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: Bound to SINTOMATIC, a sim/não flag.
+
+  SINAIS_ICC:
+    official_name: Sinais de insuficiência cardíaca
+    translated_name: Signs of heart failure
+    description: >
+      Heart failure signs. The chronic cardiomyopathy is what kills in Chagas,
+      typically twenty or more years after infection.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: Bound to SINAIS_ICC; ICC is insuficiência cardíaca congestiva.
+
+  DT_COL_S1:
+    official_name: Data da coleta da primeira amostra
+    translated_name: Date first sample collected
+    description: >
+      When the first serum was taken. Acute Chagas is diagnosed by seeing the
+      parasite directly; chronic Chagas needs two different serological tests to
+      agree.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; S1 is the first sample.
+
+  ANT_UF_1:
+    official_name: UF de residência anterior 1
+    translated_name: Previous state of residence 1
+    description: >
+      A state the patient lived in previously. Chagas has a decades-long latency
+      and a sharply defined endemic geography, so residence history is what
+      locates where infection actually happened.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the first of three residence-history slots.
+
+  MUN_1:
+    official_name: Município de residência anterior 1
+    translated_name: Previous municipality of residence 1
+    description: The municipality paired with ANT_UF_1 in the residence history.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the first residence-history municipality.
+
+  ANT_UF_2:
+    official_name: UF de residência anterior 2
+    translated_name: Previous state of residence 2
+    description: A second previous state of residence. See ANT_UF_1.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the second residence-history slot.
+
+  MUN_2:
+    official_name: Município de residência anterior 2
+    translated_name: Previous municipality of residence 2
+    description: The municipality paired with ANT_UF_2.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the second residence-history municipality.
+
+  ANT_UF_3:
+    official_name: UF de residência anterior 3
+    translated_name: Previous state of residence 3
+    description: A third previous state of residence. See ANT_UF_1.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; the third residence-history slot.
+
+  MUN_3:
+    official_name: Município de residência anterior 3
+    translated_name: Previous municipality of residence 3
+    description: The municipality paired with ANT_UF_3.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; the third residence-history municipality.
+
+  # ============================================= FMAC, spotted fever
+  ZONA:
+    official_name: Zona de ocorrência
+    translated_name: Zone
+    description: >
+      Urban, rural or periurban. Brazilian spotted fever is transmitted by ticks
+      carried by capybaras and horses, which puts it on the rural and periurban
+      fringe rather than in city centres.
+    code_system: internal
+    source: def
+    source_ref: ZONA.CNV
+    reasoning: Bound to ZONA, urbana/rural/periurbana.
+
+  AMBIENTE:
+    official_name: Ambiente de exposição
+    translated_name: Exposure setting
+    description: >
+      Where the exposure happened — home, work, leisure, or other. Leisure
+      exposure near rivers and parks is a recognised pattern, since that is where
+      capybara populations concentrate.
+    code_system: internal
+    source: def
+    source_ref: AMBIENTE.CNV
+    reasoning: >
+      Bound to AMBIENTE, whose values are domiciliar, trabalho, lazer and outro.
+
+  COUFHOSP:
+    official_name: UF de hospitalização
+    translated_name: State of hospitalisation
+    description: State where the patient was admitted.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code; COUFHOSP reads código UF hospitalização.
+
+  COMUNHOSP:
+    official_name: Município de hospitalização
+    translated_name: Municipality of hospitalisation
+    description: >
+      Municipality where the patient was admitted. Spotted fever kills within
+      days untreated, so the distance from exposure to a hospital that
+      recognises it is itself a risk factor.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code; COMUNHOSP reads código município hospitalização.
+
+  DIAGNO_LAB:
+    official_name: Diagnóstico laboratorial realizado
+    translated_name: Laboratory diagnosis done
+    description: >
+      Whether laboratory diagnosis was attempted. Treatment must start on
+      suspicion alone — waiting for confirmation is what kills patients — so
+      this field is about the investigation rather than the care.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DIAGNO_LAB reads diagnóstico laboratorial; a yes/no flag.
+
+  IGM_S1:
+    official_name: IgM na primeira amostra
+    translated_name: IgM, first sample
+    description: >
+      IgM on the first serum. Usually negative in the first week, which is
+      exactly when the patient is dying, so a negative result must never delay
+      treatment.
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO, positive/negative/inconclusive/not done.
+
+  IGG_S1:
+    official_name: IgG na primeira amostra
+    translated_name: IgG, first sample
+    description: IgG on the first serum, the baseline for the paired comparison.
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; the first sample's IgG.
+
+  IGM_S2:
+    official_name: IgM na segunda amostra
+    translated_name: IgM, second sample
+    description: IgM on the second serum, taken two to four weeks later.
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; the second sample's IgM.
+
+  IGG_S2:
+    official_name: IgG na segunda amostra
+    translated_name: IgG, second sample
+    description: >
+      IgG on the second serum. A fourfold rise against IGG_S1 is the confirmatory
+      criterion, and it arrives long after the outcome is decided.
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; the second sample's IgG.
+
+  IMUNOHIST:
+    official_name: Imuno-histoquímica
+    translated_name: Immunohistochemistry
+    description: >
+      Immunohistochemistry on tissue. Often performed post mortem on skin or
+      organs, and frequently the only confirmation in fatal cases.
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; IMUNOHIST reads imuno-histoquímica.
+
+  HISTOPATO:
+    official_name: Histopatologia
+    translated_name: Histopathology
+    description: >
+      Histopathology showing the vasculitis that spotted fever causes. Supports
+      the diagnosis rather than confirming the organism.
+    code_system: internal
+    source: def
+    source_ref: RESULTADO.CNV
+    reasoning: Bound to RESULTADO; HISTOPATO reads histopatologia.
+
+  # ================================== ACGR, severe occupational accident
+  CID_ACID:
+    official_name: CID do acidente
+    translated_name: Accident CID code
+    description: >
+      The CID-10 code for the accident itself — how it happened, on the external
+      causes chapter.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to AGRAVNET.
+
+  CID_LESAO:
+    official_name: CID da lesão
+    translated_name: Injury CID code
+    description: >
+      The CID-10 code for the resulting injury. Paired with CID_ACID, which
+      records the mechanism: one says how, the other says what.
+    code_system: external
+    codelist: cid10
+    source: inferred
+    reasoning: C(4) CID-10 code bound to AGRAVNET.
+
+  CNAE_PRIN:
+    official_name: CNAE da atividade econômica
+    translated_name: Economic activity code
+    description: >
+      The employer's economic activity on the CNAE classification. What makes
+      occupational accident rates comparable between industries, and the field
+      that identifies the dangerous ones.
+    code_system: external
+    codelist: cnae
+    source: inferred
+    reasoning: C(10) CNAE code bound to CNAENET, the economic activity codelist.
+
+  ATENDE_MED:
+    official_name: Atendimento médico
+    translated_name: Medical care given
+    description: Whether the worker received medical care after the accident.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ATENDE_MED reads atendimento médico; a yes/no flag.
+
+  UNI_ATENDE:
+    official_name: Unidade de atendimento
+    translated_name: Treating establishment
+    description: The establishment that treated the worker, by CNES code.
+    code_system: internal
+    source: def
+    source_ref: UNIDINVEST.CNV
+    reasoning: C(7) establishment code bound to UNIDINVEST.
+
+  UF_ACID:
+    official_name: UF do acidente
+    translated_name: State of the accident
+    description: State where the accident happened.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code in the accident-location block.
+
+  MUN_ACID:
+    official_name: Município do acidente
+    translated_name: Municipality of the accident
+    description: >
+      Municipality where the accident happened. Not necessarily where the worker
+      lives or was treated, which is why all three are recorded.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code in the accident-location block.
+
+  UF_ATENDE:
+    official_name: UF do atendimento
+    translated_name: State of treatment
+    description: State where the worker was treated.
+    code_system: internal
+    source: def
+    source_ref: UFCCODIG.CNV
+    reasoning: C(2) state code in the treatment-location block.
+
+  MUN_ATENDE:
+    official_name: Município do atendimento
+    translated_name: Municipality of treatment
+    description: >
+      Municipality where the worker was treated. Severe accidents are referred
+      to larger centres, so this clusters differently from MUN_ACID.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code in the treatment-location block.
+
+  # ==================================================== BOTU, botulism
+  TPBOTULISM:
+    official_name: Forma clínica do botulismo
+    translated_name: Botulism form
+    description: >
+      Foodborne, intestinal, wound, or other. The forms differ entirely in
+      source and in who gets them: foodborne comes from preserved food,
+      intestinal affects infants, wound follows injecting drug use.
+    code_system: internal
+    source: def
+    source_ref: FORMABOTUL.CNV
+    reasoning: >
+      Bound to FORMABOTUL, whose values are alimentar, intestinal, por ferimento
+      and outra.
+
+  TPBROMATO:
+    official_name: Toxina identificada no alimento
+    translated_name: Toxin type in food
+    description: >
+      Which botulinum toxin type was found in the food — A, B, AB, E, F, G or
+      other. Type E is associated with fish and marine products and predominates
+      in some regions.
+    code_system: internal
+    source: def
+    source_ref: TOXINA.CNV
+    reasoning: >
+      Bound to TOXINA, whose values are the botulinum toxin serotypes; BROMATO
+      names the food analysis.
+
+  TPCLINICA:
+    official_name: Toxina identificada na amostra clínica
+    translated_name: Toxin type in clinical sample
+    description: >
+      Which toxin type was found in the patient's sample. Read with TPBROMATO,
+      the pair links a patient to a specific food.
+    code_system: internal
+    source: def
+    source_ref: TOXINA.CNV
+    reasoning: Bound to TOXINA; the clinical counterpart of TPBROMATO.
+
+  TP_LIQUOR:
+    official_name: Aspecto do líquor
+    translated_name: CSF appearance
+    description: >
+      How the CSF looked. Normal in botulism, which is what distinguishes it
+      from the meningitis and encephalitis that present with similar weakness.
+    code_system: internal
+    source: def
+    source_ref: LIQUOR.CNV
+    reasoning: Bound to LIQUOR, límpido/purulento/hemorrágico/turvo/xantocrômico.
+
+  STHOSPITAL:
+    official_name: Hospitalização
+    translated_name: Hospitalised
+    description: >
+      Whether the patient was admitted. Nearly always, since botulism requires
+      watching for respiratory failure whatever the initial severity.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: STHOSPITAL reads hospitalização; a yes/no flag.
+
+  DTATEND:
+    official_name: Data do atendimento
+    translated_name: Date of care
+    description: >
+      When the patient was seen. Antitoxin only neutralises toxin not yet bound
+      to nerve endings, so the delay from onset decides how much it can do.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; ATEND reads atendimento.
+
+  DTSUSPEIC:
+    official_name: Data da suspeita
+    translated_name: Date of suspicion
+    description: >
+      When botulism was first suspected. Against DTATEND it measures diagnostic
+      delay — botulism is rare enough to be missed at first presentation.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; SUSPEIC reads suspeita.
+
+  NUATEND:
+    official_name: Número do atendimento
+    translated_name: Attendance number
+    description: The attendance's own identifier within the reporting service.
+    code_system: none
+    source: inferred
+    reasoning: N(10) identifier; NUATEND reads número do atendimento.
+
+  # ================================================ TRAC, trachoma
+  FORMA_TF:
+    official_name: Forma TF, folicular
+    translated_name: Trachomatous inflammation, follicular
+    description: >
+      Follicular trachomatous inflammation. The WHO grading runs TF, TI, TS, TT,
+      CO in order of progression: TF and TI are active infection and treatable,
+      the later grades are scarring that is not.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TF is the WHO trachoma grade for follicular inflammation.
+
+  FORMA_TI:
+    official_name: Forma TI, intensa
+    translated_name: Trachomatous inflammation, intense
+    description: >
+      Intense trachomatous inflammation. The more severe active grade, and the
+      one most likely to scar.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TI is the WHO grade for intense inflammation.
+
+  FORMA_TS:
+    official_name: Forma TS, cicatricial
+    translated_name: Trachomatous scarring
+    description: >
+      Conjunctival scarring. Past infection, no longer treatable with
+      antibiotics, and the stage from which the blinding complications follow.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TS is the WHO grade for scarring.
+
+  FORMA_TT:
+    official_name: Forma TT, triquíase
+    translated_name: Trachomatous trichiasis
+    description: >
+      In-turned eyelashes scraping the cornea. The stage needing surgery, and
+      the last point at which blindness can be prevented.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: TT is the WHO grade for trichiasis.
+
+  FORMA_CO:
+    official_name: Forma CO, opacificação corneana
+    translated_name: Corneal opacity
+    description: >
+      Corneal opacity. The end stage: blindness that has already happened and
+      cannot be reversed.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CO is the WHO grade for corneal opacity.
+
+  ENCAMINHA:
+    official_name: Encaminhamento
+    translated_name: Referred
+    description: >
+      Whether the case was referred, which for trichiasis means referral for the
+      surgery that prevents blindness.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ENCAMINHA reads encaminhamento; a yes/no flag.
+
+  # ============================ ACBI, exposure to biological material
+  PERCUTANEA:
+    official_name: Exposição percutânea
+    translated_name: Percutaneous exposure
+    description: >
+      A needlestick or sharps injury. The highest-risk exposure for a health
+      worker, and the one that drives post-exposure prophylaxis.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PERCUTANEA reads percutânea; a yes/no exposure flag.
+
+  PELE_INTEG:
+    official_name: Exposição em pele íntegra
+    translated_name: Intact skin exposure
+    description: >
+      Contact with intact skin. Essentially no transmission risk, which is why
+      it is recorded separately from the others.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PELE_INTEG reads pele íntegra; a yes/no exposure flag.
+
+  PELE_NAO_I:
+    official_name: Exposição em pele não íntegra
+    translated_name: Broken skin exposure
+    description: >
+      Contact with broken skin. Carries real risk, unlike intact skin, so the
+      distinction between this and PELE_INTEG decides whether prophylaxis is
+      offered.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PELE_NAO_I reads pele não íntegra; a yes/no exposure flag.
+
+  RECUSA_QUI:
+    official_name: Recusa da quimioprofilaxia
+    translated_name: Refused prophylaxis
+    description: >
+      Whether the worker refused prophylaxis. Distinct from not being offered
+      it, which SEM_QUIMIO covers.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: RECUSA_QUI reads recusa da quimioprofilaxia; a yes/no flag.
+
+  SEM_QUIMIO:
+    official_name: Sem indicação de quimioprofilaxia
+    translated_name: Prophylaxis not indicated
+    description: >
+      Whether prophylaxis was judged unnecessary — because the source was
+      negative or the exposure carried no risk.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: SEM_QUIMIO reads sem quimioprofilaxia; a yes/no flag.
+
+  # ============================================ HIVG, HIV in pregnancy
+  ANT_EVLABO:
+    official_name: Momento do diagnóstico
+    translated_name: When HIV was diagnosed
+    description: >
+      Whether the diagnosis came before antenatal care, during it, during
+      delivery, or after. Diagnosis before or during antenatal care allows full
+      prophylaxis; at delivery allows only part; after allows none.
+    code_system: internal
+    source: def
+    source_ref: EVIHIV.CNV
+    reasoning: >
+      Bound to EVIHIV, whose values are antes do pré-natal, durante o pré-natal,
+      durante o parto and após o parto.
+
+  PRE_ANTRET:
+    official_name: Antirretroviral no pré-natal
+    translated_name: Antiretrovirals in pregnancy
+    description: >
+      Whether antiretrovirals were given during pregnancy. The single
+      intervention that cuts vertical transmission from around a quarter to
+      under two per cent.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: ANTRET reads antirretroviral; a yes/no flag in the antenatal block.
+
+  PRE_DT_RET:
+    official_name: Data de início do antirretroviral
+    translated_name: Date antiretrovirals started
+    description: >
+      When antiretrovirals began. Started early in pregnancy they suppress the
+      viral load before delivery, which is what the protection depends on.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with PRE_ANTRET.
+
+  PRE_MUNIPA:
+    official_name: Município do pré-natal
+    translated_name: Municipality of antenatal care
+    description: Where the antenatal care was given, by IBGE code.
+    code_system: external
+    codelist: ibge_municipio
+    source: inferred
+    reasoning: C(6) IBGE code in the antenatal block.
+
+  PAR_DT_PAR:
+    official_name: Data do parto
+    translated_name: Date of delivery
+    description: >
+      When the birth happened. With the antiretroviral start date it gives how
+      long the mother was treated before delivery.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date in the delivery block.
+
+  # ==================================================== MALA, malaria
+  CALAFRIO:
+    official_name: Calafrio
+    translated_name: Chills
+    description: >
+      Chills. Part of the paroxysm — chill, then fever, then sweating — whose
+      periodicity used to distinguish the species clinically.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: CALAFRIO reads calafrio; a yes/no clinical flag.
+
+  DEXAME:
+    official_name: Data do exame
+    translated_name: Date of examination
+    description: >
+      When the blood slide was examined. Malaria is diagnosed and treated the
+      same day in Brazil's endemic areas, so this date usually equals the
+      treatment date.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; DEXAME reads data do exame.
+
+  DTRATA:
+    official_name: Data do tratamento
+    translated_name: Date treatment started
+    description: >
+      When treatment began. Against DEXAME it measures the gap the programme
+      works to keep at zero, since falciparum malaria can kill within days.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; DTRATA reads data do tratamento.
+
+  RESULT:
+    official_name: Resultado do exame
+    translated_name: Examination result
+    description: >
+      Which species was seen: negative, falciparum, vivax, ovale, or mixed
+      infections. Species decides the drug — vivax needs primaquine to clear the
+      liver stage, falciparum does not.
+    code_system: internal
+    source: def
+    source_ref: RESULT.CNV
+    reasoning: >
+      Bound to RESULT and PARASITMANET, whose values name the Plasmodium species
+      and their combinations.
+
+  PCRUZ:
+    official_name: Parasitemia em cruzes
+    translated_name: Parasitaemia, cross scale
+    description: >
+      How heavy the infection is, on the traditional half-cross to four-cross
+      scale. A semi-quantitative reading of the slide, and high parasitaemia in
+      falciparum defines severe malaria.
+    code_system: internal
+    source: def
+    source_ref: PCRUZ.CNV
+    reasoning: >
+      Bound to PCRUZ and CRUZES, whose values run from menor que meia cruz to
+      quatro cruzes.
+
+  # =========================================== LEIV, visceral leishmaniasis
+  CO_PAIS_1:
+    official_name: País de infecção 1
+    translated_name: Country of infection 1
+    description: >
+      A country where infection may have been acquired. Three slots exist
+      because the incubation runs to months and travel history matters over that
+      whole window.
+    code_system: internal
+    source: def
+    source_ref: PAISNET.CNV
+    reasoning: N(3) country code bound to PAISNET; the first of three slots.
+
+  CO_PAIS_2:
+    official_name: País de infecção 2
+    translated_name: Country of infection 2
+    description: A second possible country of infection. See CO_PAIS_1.
+    code_system: internal
+    source: def
+    source_ref: PAISNET.CNV
+    reasoning: N(3) country code bound to PAISNET; the second slot.
+
+  CO_PAIS_3:
+    official_name: País de infecção 3
+    translated_name: Country of infection 3
+    description: A third possible country of infection. See CO_PAIS_1.
+    code_system: internal
+    source: def
+    source_ref: PAISNET.CNV
+    reasoning: N(3) country code bound to PAISNET; the third slot.
+
+  DOSE:
+    official_name: Dose do medicamento
+    translated_name: Drug dose
+    description: >
+      The dose given. Visceral leishmaniasis treatment is weight-based and runs
+      for weeks, and the antimonials are toxic enough that dose matters.
+    code_system: none
+    source: inferred
+    reasoning: C(1) dose field in the treatment block.
+
+  # ======================================= LTAN, cutaneous leishmaniasis
+  CLI_CO_HIV:
+    official_name: Coinfecção com HIV
+    translated_name: HIV co-infection
+    description: >
+      Whether the patient also has HIV. Co-infection produces atypical, extensive
+      disease that responds poorly, so it changes both prognosis and treatment.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: Bound to CLI_CO_HIV, a sim/não flag.
+
+  CON_CLASS_:
+    official_name: Classificação epidemiológica
+    translated_name: Epidemiological classification
+    description: >
+      Whether the case was acquired locally, imported, or is indeterminate.
+      Autochthonous cases mean local transmission and trigger vector control;
+      imported ones do not.
+    code_system: internal
+    source: def
+    source_ref: CON_CLASS_.CNV
+    reasoning: >
+      Bound to CLASSLTANET, whose values are autóctone, importado and
+      indeterminado.
+
+  TRA_OUTR_N:
+    official_name: Outro medicamento utilizado
+    translated_name: Other drug used
+    description: >
+      Which alternative drug was used — pentavalent antimonial, amphotericin B,
+      pentamidine, or another. Amphotericin is the escalation when antimonials
+      fail or are contraindicated.
+    code_system: internal
+    source: def
+    source_ref: ANTIMO1.CNV
+    reasoning: >
+      Bound to ANTIMO1, whose values are antimonial pentavalente, anfotericina
+      B, pentamidina and outras.
+
+  # ============================ MENT, work-related mental disorders
+  DROGAS:
+    official_name: Uso de drogas
+    translated_name: Drug use
+    description: >
+      Whether the patient uses drugs. Recorded because substance use and
+      work-related mental disorder frequently co-occur, and each complicates the
+      other's attribution to work.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: DROGAS reads drogas; a yes/no flag.
+
+  PSICO_FARM:
+    official_name: Uso de psicofármacos
+    translated_name: Psychotropic medication
+    description: Whether the patient is on psychotropic medication.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: PSICO_FARM reads psicofármacos; a yes/no flag.
+
+  CAPES:
+    official_name: Acompanhamento em CAPS
+    translated_name: Followed at a CAPS
+    description: >
+      Whether the patient is followed at a psychosocial care centre. The CAPS
+      network is where continuing mental health care happens, so this marks
+      whether the case entered it.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: >
+      CAPES names the Centro de Atenção Psicossocial; a yes/no flag. The
+      spelling in the column drops the second S.
+
+  # ============================================ SIFG, syphilis in pregnancy
+  TPTESTE1:
+    official_name: Primeiro teste
+    translated_name: First test
+    description: >
+      The first syphilis test in pregnancy — reactive, non-reactive, or not
+      done. Screening is meant to happen at least twice in a pregnancy, and a
+      "not done" here is the failure that produces congenital cases.
+    code_system: internal
+    source: def
+    source_ref: REATIVO.CNV
+    reasoning: Bound to REATIVO, reativo/não reativo/não realizado.
+
+  DTTESTE1:
+    official_name: Data do primeiro teste
+    translated_name: Date of first test
+    description: >
+      When the first test was done. Early enough in pregnancy, treatment
+      prevents congenital syphilis entirely.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date paired with TPTESTE1.
+
+  TPCONFIRMA:
+    official_name: Teste confirmatório
+    translated_name: Confirmatory test
+    description: >
+      The confirmatory treponemal test. Needed because non-treponemal screening
+      produces false positives in pregnancy itself.
+    code_system: internal
+    source: def
+    source_ref: REATIVO.CNV
+    reasoning: Bound to REATIVO; the confirmatory step after TPTESTE1.
+
+  # ======================================================= small remainders
+  NU_CASOEXA:
+    official_name: Casos examinados
+    translated_name: Cases examined
+    description: >
+      How many people were examined. On the trachoma survey form, where the
+      denominator is a screened population rather than a single patient.
+    code_system: none
+    source: inferred
+    reasoning: N(5) tally; CASOEXA reads casos examinados.
+
+  NU_CASOPOS:
+    official_name: Casos positivos
+    translated_name: Cases positive
+    description: >
+      How many were positive. With NU_CASOEXA it gives the prevalence that
+      decides whether mass treatment is indicated for the community.
+    code_system: none
+    source: inferred
+    reasoning: N(5) tally; the positive subset of NU_CASOEXA.
+
+  DT_S1:
+    official_name: Data da primeira amostra
+    translated_name: Date of first sample
+    description: When the first serum was taken, on the plague investigation form.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; S1 is the first sample.
+
+  DT_S2:
+    official_name: Data da segunda amostra
+    translated_name: Date of second sample
+    description: >
+      When the second serum was taken. The paired sample that confirms plague by
+      a rising titre.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; S2 is the second sample.
+
+  VACINADO:
+    official_name: Vacinado contra dengue
+    translated_name: Dengue vaccinated
+    description: >
+      Whether the patient had dengue vaccine. Relevant because the vaccine can
+      worsen a first infection in someone never previously exposed, which is why
+      its use is restricted.
+    code_system: internal
+    source: def
+    source_ref: SIM_NAO.CNV
+    reasoning: VACINADO reads vacinado, on the dengue form; a yes/no flag.
+
+  TP_AMB_OCO:
+    official_name: Ambiente de ocorrência
+    translated_name: Setting of occurrence
+    description: >
+      Where the case arose — home, park or zoo, wild area, ecological reserve, or
+      other. On the sporotrichosis form, where the domestic setting dominates
+      because cats transmit it.
+    code_system: internal
+    source: def
+    source_ref: AMB_EPIZ.CNV
+    reasoning: >
+      Bound to AMB_EPIZ, whose values are domicílio, parque/praça/zoo, área
+      silvestre and reserva ecológica.
+
+  DT_COPRO:
+    official_name: Data da coproscopia
+    translated_name: Date of stool examination
+    description: >
+      When the stool was examined for schistosome eggs, on the schistosomiasis
+      form.
+    code_system: none
+    source: inferred
+    reasoning: D(8) date; COPRO reads coproscopia.
+
+  CODISINF:
+    official_name: Código do distrito de infecção
+    translated_name: Infection district code
+    description: >
+      The health district where infection probably occurred. Finer than a
+      municipality, and used where large cities are subdivided for surveillance.
+    code_system: internal
+    source: def
+    source_ref: DISTRNET.CNV
+    reasoning: C(9) code bound to DISTRNET, the health district codelist.
