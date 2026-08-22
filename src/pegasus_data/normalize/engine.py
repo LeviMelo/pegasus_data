@@ -18,6 +18,8 @@ driven by the ledger rather than by a global rule:
 
 from __future__ import annotations
 
+import hashlib
+
 import json
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
@@ -89,6 +91,43 @@ class NormalizePlan:
 
     def for_field(self, name: str) -> FieldPlan:
         return self.fields.get(name) or FieldPlan(name=name)
+
+
+#: Bumped by hand when normalisation semantics change in a way that would give
+#: different output for the same input. The fingerprint below cannot hash the
+#: code, so this is the honest stand-in — and a build after a normalisation fix
+#: must not silently reuse partitions produced by the old rules.
+TRANSFORM_VERSION = "1"
+
+
+def plan_fingerprint(plan: NormalizePlan) -> str:
+    """A stable digest of everything in the plan that changes the output.
+
+    Stable across processes, so it must not touch `id()`, `hash()` of anything
+    salted, or dict ordering — hence the sorting.
+    """
+    h = hashlib.sha256()
+    h.update(b"pegasus.normalize.plan.v1\0")
+    h.update(TRANSFORM_VERSION.encode())
+    h.update(f"\0{plan.family_id}\0{plan.system}\0{plan.schema_signature}\0".encode())
+    h.update(f"keep_raw={plan.keep_raw}\0emit_labels={plan.emit_labels}\0".encode())
+    muni = plan.municipalities
+    # The municipality index is derived from the dictionary; its size moves when
+    # that evidence changes, which is exactly when re-normalising is warranted.
+    h.update(f"municipalities={muni.size if muni is not None else 0}\0".encode())
+    for name in sorted(plan.fields):
+        fp = plan.fields[name]
+        h.update(name.encode())
+        h.update(
+            f"\0{fp.physical_type}\0{fp.width}\0{fp.decimals}\0{fp.semantic_type}"
+            f"\0{fp.aggregation}\0{fp.official_name}\0{fp.date_order}"
+            f"\0{fp.codelist}\0{fp.hierarchical}\0".encode()
+        )
+        h.update(("|".join(sorted(fp.sentinels))).encode())
+        h.update(b"\0")
+        h.update(("|".join(f"{k}={v}" for k, v in sorted(fp.labels.items()))).encode())
+        h.update(b"\0")
+    return h.hexdigest()
 
 
 def build_plan(

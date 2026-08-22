@@ -94,6 +94,7 @@ class Lake:
         part: int = 0,
         source_paths: Sequence[str] = (),
         replace: bool = True,
+        build_fingerprint: str | None = None,
     ) -> WrittenPartition | None:
         """Write one partition, replacing whatever occupied it. None if no rows.
 
@@ -170,20 +171,56 @@ class Lake:
             self.catalog.executemany(
                 """
                 INSERT INTO lake_partitions (family_id, schema_signature, uf, year, relative_path,
-                                             row_count, byte_size, source_paths, written_at)
-                VALUES (?,?,?,?,?,?,?,?,?)
+                                             row_count, byte_size, source_paths, written_at,
+                                             build_fingerprint)
+                VALUES (?,?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(family_id, schema_signature, uf, year, relative_path) DO UPDATE SET
                     row_count=excluded.row_count, byte_size=excluded.byte_size,
-                    source_paths=excluded.source_paths, written_at=excluded.written_at
+                    source_paths=excluded.source_paths, written_at=excluded.written_at,
+                    build_fingerprint=excluded.build_fingerprint
                 """,
                 [
                     (
                         family_id, schema_signature, uf, year, written.relative_path,
                         written.row_count, written.byte_size, json.dumps(list(source_paths)), utcnow(),
+                        build_fingerprint,
                     )
                 ],
             )
         return written
+
+    def partition_is_current(
+        self,
+        *,
+        system: str,
+        family_id: str,
+        schema_signature: str,
+        uf: str,
+        year: int,
+        fingerprint: str,
+    ) -> bool:
+        """True when rebuilding this partition would reproduce what is there.
+
+        The catalog row alone is not enough evidence. A lake directory deleted
+        while the catalog survived would otherwise make every partition look
+        current and the build would write nothing at all — so the files the row
+        names are checked for existence, not assumed.
+        """
+        if self.catalog is None:
+            return False
+        rows = self.catalog.query(
+            "SELECT relative_path, build_fingerprint FROM lake_partitions "
+            "WHERE family_id=? AND schema_signature=? AND uf=? AND year=?",
+            (family_id, schema_signature, uf, year),
+        )
+        if not rows:
+            return False
+        for row in rows:
+            if row["build_fingerprint"] != fingerprint:
+                return False
+            if not (self.root / str(row["relative_path"])).is_file():
+                return False
+        return True
 
     def _clear_partition(
         self, system: str, family_id: str, schema_signature: str, uf: str, year: int

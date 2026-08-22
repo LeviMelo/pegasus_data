@@ -1073,6 +1073,15 @@ def build(
             "still be applied at read time from the dictionary.",
         ),
     ] = True,
+    rebuild: Annotated[
+        bool,
+        typer.Option(
+            "--rebuild",
+            help="Write every selected partition again. By default a partition whose "
+            "source files and normalisation plan are unchanged, and whose Parquet is "
+            "still on disk, is left alone.",
+        ),
+    ] = False,
     as_json: JsonOpt = False,
 ) -> None:
     """Normalise families into the partitioned Parquet lake."""
@@ -1088,6 +1097,7 @@ def build(
                 max_files_per_family=limit,
                 keep_raw=keep_raw,
                 emit_labels=labels,
+                rebuild=rebuild,
             )
         _emit(result.counts, as_json, "build")
     finally:

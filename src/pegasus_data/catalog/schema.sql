@@ -632,6 +632,10 @@ CREATE TABLE IF NOT EXISTS lake_partitions (
   byte_size        INTEGER,
   source_paths     TEXT,
   written_at       TEXT,
+  -- What this partition was built FROM and BY: the ordered source digests plus
+  -- the normalisation plan and options. Equal fingerprint and an intact file
+  -- means rebuilding would reproduce the same bytes, so the build skips it.
+  build_fingerprint TEXT,
   PRIMARY KEY (family_id, schema_signature, uf, year, relative_path)
 );
 

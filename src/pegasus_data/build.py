@@ -7,6 +7,7 @@ repeatedly with narrow scopes (one system, one UF, a range of years).
 
 from __future__ import annotations
 
+import hashlib
 import json
 import uuid
 from collections.abc import Callable, Sequence
@@ -18,7 +19,12 @@ import pyarrow as pa
 from .catalog.store import Catalog, utcnow
 from .config import Settings
 from .decode.registry import ReaderRegistry
-from .normalize.engine import NormalizePlan, build_plan, normalize_table
+from .normalize.engine import (
+    NormalizePlan,
+    build_plan,
+    normalize_table,
+    plan_fingerprint,
+)
 from .normalize.geo import MunicipalityIndex
 from .persist.lake import Lake
 from .pipeline import Pipeline, StageResult
@@ -32,6 +38,10 @@ class BuildStats:
     files: int = 0
     rows: int = 0
     partitions: int = 0
+    #: Partitions left alone because rebuilding them would reproduce the same
+    #: bytes. Reported, because "0 partitions written" must be legible as
+    #: "nothing changed" rather than "the build did nothing".
+    partitions_reused: int = 0
     bytes_written: int = 0
     skipped: list[str] = field(default_factory=list)
     errors: list[tuple[str, str]] = field(default_factory=list)
@@ -42,10 +52,38 @@ class BuildStats:
             "files": self.files,
             "rows": self.rows,
             "partitions": self.partitions,
+            "partitions_reused": self.partitions_reused,
             "bytes_written": self.bytes_written,
             "skipped": self.skipped[:20],
             "errors": self.errors[:20],
         }
+
+
+def partition_fingerprint(
+    plan_digest: str, group: Sequence[dict[str, object]], digests: dict[str, str]
+) -> str:
+    """What this partition would be built FROM and BY.
+
+    Sources are identified by CONTENT, not by path or mtime: DATASUS republishes
+    a competência under the same name with different bytes, and the CAS already
+    turns that into a different digest. Ordered, so the same set of files in a
+    different listing order is the same fingerprint.
+    """
+    h = hashlib.sha256()
+    h.update(b"pegasus.partition.v1\x00")
+    h.update(plan_digest.encode())
+    h.update(b"\x00")
+    for m in sorted(group, key=lambda x: str(x["path"])):
+        path = str(m["path"])
+        h.update(path.encode())
+        h.update(b"\x00")
+        # A file the fetcher could not resolve has no digest. It contributes its
+        # ABSENCE, so a later build that does get it has a different fingerprint.
+        h.update((digests.get(path) or "<unresolved>").encode())
+        h.update(b"\x00")
+        h.update(str(m["member"] or "").encode())
+        h.update(b"\x00")
+    return h.hexdigest()
 
 
 class Builder:
@@ -75,8 +113,16 @@ class Builder:
         max_files_per_family: int | None = None,
         keep_raw: bool | None = None,
         emit_labels: bool = True,
+        rebuild: bool = False,
         on_file: Callable[[str, str], None] | None = None,
     ) -> StageResult:
+        """Decode and normalise into the lake.
+
+        ``rebuild=True`` forces every selected partition to be written again.
+        The default skips a partition whose sources and normalisation plan are
+        unchanged and whose file is still on disk — the raw CAS already stops
+        us re-downloading, and this stops us re-decoding.
+        """
         stats = BuildStats()
         run_id = uuid.uuid4().hex[:12]
         outcomes: list[tuple[object, ...]] = []
@@ -155,7 +201,19 @@ class Builder:
             undecoded = 0
             schema_mismatch = 0
 
+            plan_digest = plan_fingerprint(plan)
             for (uf, year), group in sorted(grouped.items()):
+                fingerprint = partition_fingerprint(plan_digest, group, digests)
+                if not rebuild and self.lake.partition_is_current(
+                    system=family["system"],
+                    family_id=family_id,
+                    schema_signature=family["schema_signature"],
+                    uf=uf,
+                    year=year,
+                    fingerprint=fingerprint,
+                ):
+                    stats.partitions_reused += 1
+                    continue
                 batches: list[pa.RecordBatch] = []
                 sources: list[str] = []
                 rows_here = 0
@@ -203,6 +261,7 @@ class Builder:
                     uf=uf,
                     year=year,
                     source_paths=sources,
+                    build_fingerprint=fingerprint,
                 )
                 if written:
                     stats.partitions += 1
