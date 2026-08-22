@@ -303,9 +303,16 @@ def build_label_pack(
             "code_width": pa.array(w_c, pa.int32()),
         }
     )
+    # Sorted by codelist so that a single-codelist read touches one or two row
+    # groups. Without this the reader has to scan the whole pack, which is what
+    # made the first version cost 1.3 GB of RAM.
+    table = table.sort_by([("codelist", "ascending"), ("code_lo", "ascending")])
     target = Path(out)
     target.parent.mkdir(parents=True, exist_ok=True)
-    pq.write_table(table, target, compression="zstd", compression_level=19)
+    pq.write_table(
+        table, target, compression="zstd", compression_level=19,
+        row_group_size=20_000,
+    )
 
     if crosswalk:
         cross = pa.table(
@@ -347,32 +354,22 @@ def _pack_path() -> Path | None:
 
 
 @lru_cache(maxsize=1)
-def _index() -> dict[str, list[tuple[str | None, str, str, str, int]]]:
-    """``codelist -> [(system, code_lo, code_hi, label, width)]``, read once.
+def _dataset():
+    """The pack as a PyArrow dataset, opened once and never materialised.
 
-    The whole pack is ~20 MB on disk and is read in full rather than queried,
-    because a caller labelling one table touches dozens of codelists and paying
-    a parquet open per lookup is slower than holding the lot.
+    The first version of this read the whole pack into a Python dict of tuples:
+    **1,309 MB of RSS and 9.2 seconds**, for a 19.8 MB file, paid by every
+    labelled fetch whatever its size. A 15,810-row CNES fetch peaked at 1.4 GB
+    because of it.
+
+    The rows are written sorted by codelist, so Parquet row-group statistics
+    prune almost everything for a single-codelist predicate. Reading one
+    codelist now touches one or two row groups instead of 2.4 million rows.
     """
-    path = _pack_path()
-    if path is None:
-        return {}
-    import pyarrow.parquet as pq
+    import pyarrow.dataset as pads
 
-    table = pq.read_table(path)
-    out: dict[str, list[tuple[str | None, str, str, str, int]]] = {}
-    for system, codelist, lo, hi, label, width in zip(
-        table.column("system").to_pylist(),
-        table.column("codelist").to_pylist(),
-        table.column("code_lo").to_pylist(),
-        table.column("code_hi").to_pylist(),
-        table.column("label").to_pylist(),
-        table.column("code_width").to_pylist(),
-    ):
-        out.setdefault(str(codelist), []).append(
-            (system, str(lo), str(hi), str(label), int(width or len(str(lo))))
-        )
-    return out
+    path = _pack_path()
+    return pads.dataset(path, format="parquet") if path else None
 
 
 #: A single run wider than this is not expanded. Runs come from `.CNV` ranges
@@ -412,11 +409,27 @@ def read_packed(
     """
     import pyarrow as pa
 
-    runs = _index().get(codelist.upper())
-    if not runs:
+    import pyarrow.compute as pc
+
+    data = _dataset()
+    if data is None:
+        raise FileNotFoundError("this build ships no label pack")
+    # Pushed into the Parquet scan, not filtered afterwards: row-group
+    # statistics skip every group that cannot contain this codelist.
+    hit = data.to_table(filter=pc.field("codelist") == codelist.upper())
+    if not hit.num_rows:
         raise FileNotFoundError(
             f"no reference table {codelist!r} in the shipped label pack"
         )
+    runs = list(
+        zip(
+            hit.column("system").to_pylist(),
+            hit.column("code_lo").to_pylist(),
+            hit.column("code_hi").to_pylist(),
+            hit.column("label").to_pylist(),
+            hit.column("code_width").to_pylist(),
+        )
+    )
     wanted = (system or "").upper() or None
     specific = [r for r in runs if r[0] and str(r[0]).upper() == wanted]
     shared = [r for r in runs if not r[0]]
@@ -427,6 +440,7 @@ def read_packed(
     widths: list[int] = []
     seen: set[str] = set()
     for _sys, lo, hi, label, width in chosen:
+        width = int(width or len(str(lo)))
         if code_width is not None and width != code_width:
             continue
         for code in _expand(lo, hi):

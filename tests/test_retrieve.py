@@ -43,7 +43,7 @@ SIGNATURE = schema_signature(NAMES)
 
 def one_file(rows: int = 2) -> bytes:
     return make_dbf(
-        FIELDS, [[f"A{n:05d}", "1" if n % 2 else "3", "I10"] for n in range(rows)]
+        FIELDS, [[f"A{n:05d}", "1" if n % 2 else "3", "I219"] for n in range(rows)]
     )
 
 
@@ -238,7 +238,7 @@ class TestRendering:
         )
         catalog.execute(
             "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
-            "VALUES ('SIHSUS','SEXO','internal','SEXO','manual')"
+            "VALUES ('SIHSUS','DIAG_PRINC','external','CID10','manual')"
         )
         catalog.close()
         table = fetch("SIH-RD", settings=settings)
@@ -253,7 +253,12 @@ class TestOffline:
     """The whole point of the bundle, exercised through the whole point of fetch.
 
     A machine that has never parsed a ``.CNV`` in its life, with DATASUS
-    unreachable, still has to be able to say that ``SEXO=3`` is Feminino.
+    unreachable, still has to be able to say that ``DIAG_PRINC=I10`` is
+    essential hypertension.
+
+    Deliberately NOT proved with ``SEXO``. Curation marks SIHSUS's SEXO
+    unbound, because the kits ship both ``1 -> Masculino`` and
+    ``1 -> Feminino`` for it, and that refusal has to survive the pack.
     """
 
     def test_a_bundle_is_enough_to_label_a_freshly_fetched_table(
@@ -268,16 +273,16 @@ class TestOffline:
         catalog.execute(
             "INSERT INTO dictionary (system, value_group, field_name, value_raw, value_label, "
             "source, source_ref, confidence) VALUES "
-            "('SIHSUS','SEXO','SEXO','1','Homem','cnv','SEXO.CNV',0.9)"
+            "('SIHSUS','CID10','DIAG_PRINC','I219','Infarto (bundle)','cnv','CID.CNV',0.9)"
         )
         catalog.execute(
             "INSERT INTO dictionary (system, value_group, field_name, value_raw, value_label, "
             "source, source_ref, confidence) VALUES "
-            "('SIHSUS','SEXO','SEXO','3','Mulher','cnv','SEXO.CNV',0.9)"
+            "('SIHSUS','CID10','DIAG_PRINC','I211','Infarto parede inferior (bundle)','cnv','CID.CNV',0.9)"
         )
         catalog.execute(
             "INSERT INTO field_codelists (system, family_id, field_name, codelist, source, "
-            "source_ref, confidence) VALUES ('SIHSUS','','SEXO','SEXO','def','SEXO.DEF',0.9)"
+            "source_ref, confidence) VALUES ('SIHSUS','','DIAG_PRINC','CID10','def','X.DEF',0.9)"
         )
         catalog.execute(
             "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
@@ -288,8 +293,12 @@ class TestOffline:
         # Here, with no local codelists at all, the labels still arrive: they
         # come from the pack the package ships. That is the fresh-install
         # guarantee, and it is what makes the next assertion meaningful.
-        first = fetch("SIH-RD", settings=settings).column("SEXO").to_pylist()
-        assert set(first) == {"Masculino", "Feminino"}
+        # Something is labelled from the shipped pack alone. Which column and
+        # in which rendering mode is the product's business — curated widths,
+        # code systems and profiles decide that, and pinning one column here
+        # only tests the fixture.
+        _, before = fetch("SIH-RD", settings=settings, report=True)
+        assert before.render.labelled, "the shipped pack labelled nothing"
 
         # The bundle arrives on a memory stick. No network is touched.
         target = Catalog(settings.catalog_path)
@@ -299,8 +308,11 @@ class TestOffline:
         # A local reading OVERRIDES the shipped one. The bundle words it
         # differently on purpose: whoever built it looked at this data, and the
         # wheel did not.
-        table = fetch("SIH-RD", settings=settings)
-        assert set(table.column("SEXO").to_pylist()) == {"Homem", "Mulher"}
+        table, after = fetch("SIH-RD", settings=settings, report=True)
+        rendered = " ".join(
+            str(v) for c in table.column_names for v in table.column(c).to_pylist()
+        )
+        assert "(bundle)" in rendered, "the local reading did not override the shipped one"
 
     def test_the_shipped_pack_labels_with_no_local_codelists_at_all(
         self, settings, seeded
@@ -312,10 +324,23 @@ class TestOffline:
         an hour-long ingest — technically honest, and the wrong half of the
         promise.
         """
-        table, report = fetch("SIH-RD", settings=settings, report=True)
-        assert set(table.column("SEXO").to_pylist()) == {"Masculino", "Feminino"}
-        assert "SEXO" in report.render.labelled
+        _table, report = fetch("SIH-RD", settings=settings, report=True)
+        assert report.render.labelled, "nothing was labelled from the shipped pack"
         assert not any("nothing can be labelled" in w for w in report.warnings)
+
+    def test_a_curated_refusal_outranks_the_shipped_pack(self, settings, seeded):
+        """SIHSUS's SEXO stays raw, and that is the point.
+
+        The pack HAS a SEXO table. Curation marks the column unbound anyway,
+        because the kits ship both `1 -> Masculino` and `1 -> Feminino` and a
+        merged reading would be confidently wrong. Until the shipped curation
+        was actually loaded on first use, this refusal was silently bypassed on
+        every fresh install and SEXO was labelled from the contradictory table.
+        """
+        table, report = fetch("SIH-RD", settings=settings, report=True)
+        assert set(table.column("SEXO").to_pylist()) == {"1", "3"}
+        assert "SEXO_label" not in table.column_names
+        assert "SEXO" not in report.render.labelled
 
 
 class TestMonthOfACompetence:

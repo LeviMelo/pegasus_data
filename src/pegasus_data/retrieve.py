@@ -419,8 +419,20 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     # (bindings), and the table itself. On a fresh install the catalog has none
     # of them, so `fetch(labels=True)` returned data and translated nothing.
     if not pipeline.catalog.count("variable_docs"):
+        # load_curation, not pipeline.curate(): Pipeline has no such method, and
+        # the try/except below turned that AttributeError into a warning nobody
+        # reads. The effect was that variable_docs and dataset_docs stayed empty
+        # on every fresh install, so info() had no "what one row is" and
+        # describe() had nothing to describe — while the YAML sat in the wheel.
         try:
-            pipeline.curate()
+            from .ontology import CURATION
+            from .semantics.curation import load_curation
+
+            loaded = load_curation(pipeline.catalog, CURATION)
+            report.warnings.append(
+                "loaded the shipped curation on first use: "
+                + ", ".join(f"{k}={v}" for k, v in sorted(loaded.items())[:4])
+            )
         except Exception as exc:  # noqa: BLE001 - unreadable curation is not fatal
             report.warnings.append(f"could not load the shipped curation: {exc}")
     seeded = seed_bindings(pipeline.catalog)
