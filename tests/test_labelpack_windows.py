@@ -123,6 +123,28 @@ class TestBackwardsCompatibility:
             "(rebuild the pack) is visible rather than the answer being trusted"
         )
 
+    def test_the_default_still_labels_because_refusing_would_empty_the_pack(self):
+        """DATASUS publishes with a lag, so essentially all real data is
+        historical. Blanket refusal leaves every column unlabelled on a fresh
+        install, which defeats the pack's entire purpose."""
+        from pegasus_data.labelpack import read_packed
+
+        assert read_packed("CID10", year=1995).num_rows > 0
+
+    def test_refuse_is_available_for_callers_who_want_it(self):
+        """No label beats an unversioned one, for anyone who says so."""
+        from pegasus_data.labelpack import read_packed
+        from pegasus_data.persist.decisions import historical_label_policy
+
+        with historical_label_policy("refuse"), pytest.raises(FileNotFoundError):
+            read_packed("CID10", year=1995)
+
+    def test_an_unknown_policy_is_refused(self):
+        from pegasus_data.persist.decisions import historical_label_policy
+
+        with pytest.raises(ValueError, match="unknown historical_labels policy"),                 historical_label_policy("sometimes"):
+            pass
+
 
 class TestTheWindowRule:
     @pytest.mark.parametrize(

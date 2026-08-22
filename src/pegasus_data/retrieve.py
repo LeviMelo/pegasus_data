@@ -592,6 +592,7 @@ def fetch(
     max_files: int | None = None,
     on_missing_column: str = "raise",
     allow_partial: bool = False,
+    historical_labels: str = "current",
     max_bytes: int | None = DEFAULT_MAX_EAGER_BYTES,
     refresh: str | None = None,
     discover: bool = True,
@@ -713,25 +714,27 @@ def fetch(
         # labelled historical rows with today's tables. A fetched table has no
         # `year` column, but every row carries `_source_path` and the selection
         # knows each file's family and year.
+        from .persist.decisions import historical_label_policy
         from .render_groups import render_groups, split_by_source
 
-        rendered, render_report = render_groups(
-            split_by_source(
-                table,
-                fetch_report.source_facts,
-                fallback_year=min(want_years) if want_years else None,
-            ),
-            store=pipeline.catalog,
-            lake_root=resolved_settings.lake_dir,
-            system=system,
-            profile="codes" if not labels else profile,
-            render=render,
-            headers=headers,
-            values=values,
-            companions=companions,
-            derived=derived,
-            strict=strict_labels,
-        )
+        with historical_label_policy(historical_labels):
+            rendered, render_report = render_groups(
+                split_by_source(
+                    table,
+                    fetch_report.source_facts,
+                    fallback_year=min(want_years) if want_years else None,
+                ),
+                store=pipeline.catalog,
+                lake_root=resolved_settings.lake_dir,
+                system=system,
+                profile="codes" if not labels else profile,
+                render=render,
+                headers=headers,
+                values=values,
+                companions=companions,
+                derived=derived,
+                strict=strict_labels,
+            )
         # NAMED, not masked. The source data is passed through unmodified and
         # that is deliberate — this package does not silently alter what
         # DATASUS published. But it makes these files far easier to retrieve

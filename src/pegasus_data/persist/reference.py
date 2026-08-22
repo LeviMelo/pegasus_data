@@ -37,9 +37,7 @@ than pretending one string is the answer.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterator, Sequence
-from contextlib import contextmanager
-from contextvars import ContextVar
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -49,7 +47,28 @@ import pyarrow.dataset as pads
 import pyarrow.parquet as pq
 
 from ..catalog.store import Catalog
+from .decisions import (
+    borrowed_tables,
+    collecting,
+    fallback_vintages,
+    note_borrowed,
+    note_fallback,
+    note_pack_fallback,
+)
 from .staging import staged_tree
+
+__all__ = [
+    "borrowed_tables",
+    "collecting",
+    "fallback_vintages",
+    "note_borrowed",
+    "note_fallback",
+    "note_pack_fallback",
+    "read_reference_table",
+    "write_reference_tables",
+    "available_tables",
+    "systems_with_tables",
+]
 
 _SAFE = re.compile(r"[^A-Za-z0-9_.=-]+")
 
@@ -296,76 +315,12 @@ def flag_mixed_width_tables(catalog: Catalog, tables: Sequence[ReferenceTable]) 
     return flagged
 
 
-#: Codelists served from another system's copy because the requested system
-#: ships none. Read by the renderer so a borrowed label can be reported rather
-#: than passed off as native. Bounded: it only ever holds table/system pairs.
-_BORROWED: set[tuple[str, str]] = set()
-
-
-def borrowed_tables() -> set[tuple[str, str]]:
-    """``(table_id, requested_system)`` pairs served from a neighbour's copy."""
-    return set(_BORROWED)
-
-
-#: ``(table_id, requested_period, served)`` where `served` is "current" (no
-#: window covers the request, the open-ended table stood in) or "unresolved"
-#: (nothing covers it and there is no open-ended table either).
-_FALLBACK_VINTAGE: set[tuple[str, str, str]] = set()
-
-
-#: The collector for the render currently running on this thread/task, if any.
-#: The module-level sets above are process-lifetime and idempotent, so a caller
-#: cannot tell from them whether THIS render borrowed a table or whether some
-#: earlier one did — a set that already contains an entry does not change when
-#: the same decision is made again. Anything that reports per call needs its own
-#: box, and a ContextVar gives one per thread and per async task without
-#: threading an argument through every reference lookup.
-_COLLECTOR: ContextVar[dict[str, set] | None] = ContextVar(
-    "pegasus_reference_collector", default=None
-)
-
-
-@contextmanager
-def collecting() -> Iterator[dict[str, set]]:
-    """Collect the reference decisions made inside this block."""
-    box: dict[str, set] = {"borrowed": set(), "fallback": set()}
-    token = _COLLECTOR.set(box)
-    try:
-        yield box
-    finally:
-        _COLLECTOR.reset(token)
-
-
-def _record(kind: str, item: tuple) -> None:
-    box = _COLLECTOR.get()
-    if box is not None:
-        box[kind].add(item)
-
-
-def note_pack_fallback(
-    table_id: str, asked: str, served: str, *, windowed: bool
-) -> None:
-    """Record that the SHIPPED PACK could not answer a vintage.
-
-    Separate from the warehouse's own fallback because the cause differs and
-    the remedy differs: a pack built before validity windows existed cannot
-    answer a historical question at all, and the fix is to rebuild the pack,
-    not to materialise a reference table.
-    """
-    reason = served if windowed else "unwindowed-pack"
-    _FALLBACK_VINTAGE.add((table_id, asked, reason))
-    _record("fallback", (table_id, asked, reason))
-
-
-def fallback_vintages() -> set[tuple[str, str, str]]:
-    """Requests answered by a vintage other than the one asked for.
-
-    A historical label rendered from today's table is not wrong the way a
-    borrowed system's table is wrong, but it is not what was asked for either,
-    and the caller could only detect it by reading `valid_from` off the result
-    and knowing what to compare it against.
-    """
-    return set(_FALLBACK_VINTAGE)
+# The bookkeeping lives in `decisions`, which imports neither this module nor
+# `labelpack`. It used to live here, and `labelpack` imported it while this
+# module imports `labelpack` for the fresh-install fallback — a cycle that only
+# survived because both imports were hidden inside functions.
+#
+# Re-exported so every existing caller keeps working.
 
 
 def read_reference_table(
@@ -463,8 +418,7 @@ def read_reference_table(
             # from here, so `borrowed_for` records it for the renderer to
             # report. Attaching it to the returned table instead would change
             # the reference schema every caller relies on.
-            _BORROWED.add((_SAFE.sub("_", table_id), wanted))
-            _record("borrowed", (_SAFE.sub("_", table_id), wanted))
+            note_borrowed(_SAFE.sub("_", table_id), wanted)
     if code_width is not None and "code_width" in table.schema.names:
         table = table.filter(
             pa.array(
@@ -505,8 +459,7 @@ def read_reference_table(
         fallback = table.filter(pa.array(current, type=pa.bool_()))
         table_key = _SAFE.sub("_", table_id)
         if fallback.num_rows:
-            _FALLBACK_VINTAGE.add((table_key, asked, "current"))
-            _record("fallback", (table_key, asked, "current"))
+            note_fallback(table_key, asked, "current")
             return fallback
         # Nothing covers the request and there is no open-ended table either.
         # This used to return the WHOLE table — every historical window at once
@@ -514,8 +467,7 @@ def read_reference_table(
         # it merges windows that disagree and manufactures a contradiction out
         # of ordinary editorial drift. An unresolved request is answered as
         # unresolved.
-        _FALLBACK_VINTAGE.add((table_key, asked, "unresolved"))
-        _record("fallback", (table_key, asked, "unresolved"))
+        note_fallback(table_key, asked, "unresolved")
         return table.slice(0, 0)
 
     # No year asked for: give the CURRENT vintage, not every vintage at once.

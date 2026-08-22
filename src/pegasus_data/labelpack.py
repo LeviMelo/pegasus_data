@@ -45,6 +45,7 @@ from pathlib import Path
 from typing import Any
 
 from .catalog.store import Catalog
+from .persist.decisions import historical_labels, note_pack_fallback
 
 __all__ = [
     "LabelPackReport",
@@ -358,6 +359,16 @@ def build_label_pack(
     # groups. Without this the reader has to scan the whole pack, which is what
     # made the first version cost 1.3 GB of RAM.
     table = table.sort_by([("codelist", "ascending"), ("code_lo", "ascending")])
+    # Stamped, so a reader can tell which era an unwindowed pack speaks for
+    # instead of guessing from the running clock.
+    from datetime import UTC, datetime
+
+    table = table.replace_schema_metadata(
+        {
+            **(table.schema.metadata or {}),
+            b"pegasus_built_year": str(datetime.now(UTC).year).encode(),
+        }
+    )
     target = Path(out)
     target.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(
@@ -441,6 +452,38 @@ def _expand(lo: str, hi: str) -> list[str]:
     return [str(n).zfill(width) for n in range(start, stop + 1)]
 
 
+#: A pack without validity windows can only describe the era it was built in.
+#: A request more than this many years older is a historical question it cannot
+#: answer, and answering it with the current mapping is the substitution this
+#: refuses to make.
+PACK_CURRENT_ERA_YEARS = 2
+
+
+def _pack_built_year() -> int | None:
+    """The year the shipped pack was built, if it says.
+
+    Packs built before this metadata existed return ``None``, which is why the
+    caller falls back to the running year rather than assuming.
+    """
+    data = _dataset()
+    if data is None:
+        return None
+    try:
+        meta = (data.schema.metadata or {}).get(b"pegasus_built_year")
+        return int(meta.decode()) if meta else None
+    except (ValueError, AttributeError):  # pragma: no cover - malformed metadata
+        return None
+
+
+def _is_historical(asked: int) -> bool:
+    """Is this request older than the pack can plausibly speak for?"""
+    from datetime import UTC, datetime
+
+    year = int(str(asked)[:4])
+    built = _pack_built_year() or datetime.now(UTC).year
+    return year < built - PACK_CURRENT_ERA_YEARS
+
+
 def covers(valid_from: str, valid_to: str, span_lo: int, span_hi: int) -> bool:
     """Does a packed run's window cover the requested period?
 
@@ -522,10 +565,21 @@ def read_packed(
         dated = [r for r in runs if covers(str(r[5] or ""), str(r[6] or ""), span_lo, span_hi)]
         if dated:
             runs = dated
+        elif (
+            not has_windows
+            and _is_historical(asked)
+            and historical_labels() == "refuse"
+        ):
+            # REFUSE, rather than answer 1995 with today's mapping. This pack
+            # carries no validity windows, so it cannot choose the historically
+            # correct labels even in principle — and the project's own rule is
+            # that an unlabelled code is visibly unfinished while a confidently
+            # wrong label is not. The caller gets the raw codes and a recorded
+            # reason; the remedy is to rebuild the pack from a full catalog.
+            note_pack_fallback(codelist.upper(), str(asked), "unresolved", windowed=False)
+            runs = []
         else:
             current = [r for r in runs if not str(r[5] or "")]
-            from .persist.reference import note_pack_fallback
-
             note_pack_fallback(
                 codelist.upper(),
                 str(asked),
