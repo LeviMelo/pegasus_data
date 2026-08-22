@@ -809,21 +809,46 @@ class Pipeline:
         if not targets:
             return StageResult("schemas", counts={"examined": 0, "note": "nothing outstanding"})
 
-        client = FtpClient(
-            self.settings.host,
-            timeout=self.settings.timeout,
-            max_retries=self.settings.max_retries,
-            backoff_base=self.settings.backoff_base,
-        )
-        client.connect()
+        def _connect() -> FtpClient:
+            fresh = FtpClient(
+                self.settings.host,
+                timeout=self.settings.timeout,
+                max_retries=self.settings.max_retries,
+                backoff_base=self.settings.backoff_base,
+            )
+            fresh.connect()
+            return fresh
+
+        # A CELL, not a variable, because a timeout replaces the client.
+        #
+        # run_with_timeout() abandons its worker rather than killing it — Python
+        # cannot safely interrupt arbitrary code. That is tolerable for a
+        # decode, which owns its inputs. It is NOT tolerable here: the abandoned
+        # thread is inside `retrieve_prefix` on a shared `ftplib.FTP`, and
+        # ftplib has one control connection with one reply stream. Carrying on
+        # with that client means the next command may read the abandoned
+        # transfer's completion reply, and every command after it is answered by
+        # the one before — a failure that surfaces far from its cause.
+        client_cell = [_connect()]
+        abandoned: list[FtpClient] = []
         progress = StageProgress(stage="schemas", total=len(targets))
 
         def _fetch(path: str, size: int) -> bytes:
-            return run_with_timeout(
-                lambda: client.retrieve_prefix(path, size),
-                seconds=min(120.0, self.settings.item_timeout),
-                label=path,
-            )
+            client = client_cell[0]
+            try:
+                return run_with_timeout(
+                    lambda: client.retrieve_prefix(path, size),
+                    seconds=min(120.0, self.settings.item_timeout),
+                    label=path,
+                )
+            except ItemTimeout:
+                # Drop the sockets underneath the abandoned thread — that both
+                # stops its work and frees the resource — and carry on with a
+                # connection nobody else is holding.
+                client.abandon()
+                abandoned.append(client)
+                client_cell[0] = _connect()
+                raise
 
         def _seen(path: str) -> None:
             progress.current = path
@@ -835,9 +860,11 @@ class Pipeline:
             with Heartbeat(progress, interval=self.settings.heartbeat_interval):
                 census = run_census(self.catalog, _fetch, targets, on_item=_seen)
         finally:
-            client.close()
+            client_cell[0].close()
 
         counts = census.as_dict()
+        if abandoned:
+            counts["clients_replaced_after_timeout"] = len(abandoned)
         self.catalog.log_event(
             "schemas",
             "schema census",

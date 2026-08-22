@@ -183,6 +183,18 @@ def run_with_timeout(
     nothing the caller needs. The cost is a leaked thread per timeout, which is
     bounded by how many timeouts a run tolerates and is much cheaper than the
     alternative of stopping.
+
+    **The deadline bounds the caller's wait, not the work.** So `fn` must not
+    hold anything the caller will keep using. That is fine for a decode, which
+    reads an immutable blob and owns everything else it touches. It is NOT fine
+    for a stateful network client: `ftplib.FTP` has one control connection with
+    one reply stream, and an abandoned thread still reading it desynchronises
+    every later command on that connection.
+
+    A caller that wraps such a client is responsible for retiring it on
+    timeout — see :meth:`FtpClient.abandon`, and its use in the schema census.
+    Closing the socket underneath the abandoned thread is also the only thing
+    that reliably stops it.
     """
     box: dict[str, Any] = {}
 

@@ -143,6 +143,31 @@ class FtpClient:
             pass
         self.capabilities = ServerCapabilities(welcome, system, tuple(features))
 
+    def abandon(self) -> None:
+        """Drop this client's sockets without any protocol chatter.
+
+        For a client whose ownership is in doubt: an operation timed out and
+        left a thread somewhere inside it. `close()` sends QUIT first, which
+        writes to a control connection that thread may be mid-read on — exactly
+        the shared-protocol-state corruption we are trying to escape.
+
+        Closing the socket underneath it is also the only thing that reliably
+        unblocks a thread parked in `recv`. So this both releases the resource
+        and stops the abandoned work, which a daemon thread left to itself does
+        not. The caller is expected to connect a fresh client and never touch
+        this one again.
+        """
+        ftp = self._ftp
+        self._ftp = None
+        if ftp is None:
+            return
+        for handle in (getattr(ftp, "file", None), getattr(ftp, "sock", None)):
+            try:
+                if handle is not None:
+                    handle.close()
+            except Exception:  # noqa: BLE001 - it is going away regardless
+                pass
+
     def close(self) -> None:
         if self._ftp is None:
             return
