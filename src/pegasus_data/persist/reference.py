@@ -557,6 +557,27 @@ def register_reference_tables(catalog: Catalog, tables: Sequence[ReferenceTable]
     return len(tables)
 
 
+def systems_with_tables(lake_root: str | Path) -> set[str]:
+    """Which systems the reference warehouse actually holds tables for.
+
+    "Are there any reference tables?" is the wrong question on first use. The
+    warehouse is built per system, so a lake holding SINASC's codelists answers
+    yes while a SIH request still has nothing to join against — which made
+    reference availability depend on the order requests happened to arrive in.
+    """
+    root = Path(lake_root) / "reference"
+    if not root.exists():
+        return set()
+    found: set[str] = set()
+    for directory in root.iterdir():
+        if not directory.is_dir():
+            continue
+        for system_dir in directory.iterdir():
+            if system_dir.is_dir() and system_dir.name.startswith("system="):
+                found.add(system_dir.name.split("=", 1)[1].upper())
+    return found
+
+
 def available_tables(lake_root: str | Path) -> list[dict[str, object]]:
     root = Path(lake_root) / "reference"
     if not root.exists():

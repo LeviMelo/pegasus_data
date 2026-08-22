@@ -614,7 +614,7 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     join wants. It is a one-time cost, and skipped entirely once they exist.
     """
     from .labelpack import seed_bindings
-    from .persist.reference import available_tables, write_reference_tables
+    from .persist.reference import systems_with_tables, write_reference_tables
 
     # Three things have to exist before a code can become a label: what the
     # column MEANS (curation, which ships as YAML), which table decodes it
@@ -651,7 +651,13 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
             report.warnings.append(f"could not load the shipped curation: {exc}")
 
     lake_root = pipeline.settings.lake_dir
-    if available_tables(lake_root):
+    # Does THIS SYSTEM have tables, not "are there any". The warehouse is built
+    # per system, so a lake holding SINASC's codelists answered yes and a SIH
+    # request went unlabelled — reference availability depended on the order
+    # requests happened to arrive in.
+    wanted_system = str(report.system or "").upper()
+    present = systems_with_tables(lake_root)
+    if present and (not wanted_system or wanted_system in present):
         return
     if not pipeline.catalog.count("dictionary"):
         # No local dictionary. The shipped label pack answers instead, via

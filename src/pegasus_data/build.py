@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import uuid
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 from typing import Any
@@ -157,53 +157,65 @@ class Builder:
         belongs to which level.
         """
         tally = _PartitionTally()
-        batches: list[pa.RecordBatch] = []
         sources: list[str] = []
-        for m in group:
-            path = str(m["path"])
-            digest = digests.get(path)
-            if not digest:
-                stats.skipped.append(path)
-                tally.undecoded += 1
-                continue
-            if on_file:
-                on_file(family_id, path)
-            outcome = registry.open_path(
-                self.pipeline.blobs.path_for(digest), logical_path=path
-            )
-            wanted_member = str(m["member"] or "")
-            matched_here = False
-            for table in outcome.tables:
-                if wanted_member and table.member != wanted_member:
-                    continue
-                if not _matches_schema(table.field_names, plan):
-                    continue
-                matched_here = True
-                batches.extend(normalize_table(table, plan, blob_sha256=digest))
-            stats.files += 1
-            tally.decoded += 1
-            if not matched_here:
-                # The family claims this file but its schema does not fit the
-                # plan. This is the zero-row bug's signature, and it has to be
-                # counted rather than skipped past.
-                tally.mismatched += 1
-                stats.files_mismatched += 1
-                # NOT added to `sources`. That list becomes the partition's
-                # recorded provenance, and a file that contributed no rows did
-                # not provenance anything — it made the partition look derived
-                # from evidence it does not contain.
-                continue
-            sources.append(path)
-            stats.files_contributing += 1
-            tally.contributing += 1
 
-        if not batches:
-            return tally
+        def _normalised() -> Iterator[pa.RecordBatch]:
+            """Decode and normalise one member at a time, YIELDING as we go.
+
+            A generator, not a list. The whole state-year partition used to be
+            accumulated here and only then handed to the writer, so the storage
+            layer's streaming was preceded by materialising exactly what it was
+            streaming to avoid. `sources` and `tally` fill as this is consumed;
+            `write_batches` records provenance only after the batches are
+            written, so both are complete by the time it reads them.
+            """
+            for m in group:
+                path = str(m["path"])
+                digest = digests.get(path)
+                if not digest:
+                    stats.skipped.append(path)
+                    tally.undecoded += 1
+                    continue
+                if on_file:
+                    on_file(family_id, path)
+                outcome = registry.open_path(
+                    self.pipeline.blobs.path_for(digest), logical_path=path
+                )
+                wanted_member = str(m["member"] or "")
+                matched_here = False
+                for table in outcome.tables:
+                    if wanted_member and table.member != wanted_member:
+                        continue
+                    if not _matches_schema(table.field_names, plan):
+                        continue
+                    matched_here = True
+                    yield from normalize_table(table, plan, blob_sha256=digest)
+                stats.files += 1
+                tally.decoded += 1
+                if not matched_here:
+                    # The family claims this file but its schema does not fit
+                    # the plan. This is the zero-row bug's signature, and it has
+                    # to be counted rather than skipped past.
+                    tally.mismatched += 1
+                    stats.files_mismatched += 1
+                    # NOT added to `sources`. That list becomes the partition's
+                    # recorded provenance, and a file that contributed no rows
+                    # did not provenance anything — it made the partition look
+                    # derived from evidence it does not contain.
+                    continue
+                sources.append(path)
+                stats.files_contributing += 1
+                tally.contributing += 1
+
+        # No `if not batches` pre-check: knowing whether there are any would
+        # mean consuming the generator, which is the materialisation this
+        # removed. write_batches returns None when the stream yields no rows.
+
         # No part number: this build owns the whole partition, and write_batches
         # replaces it. Numbering from the files already there is what let a
         # rebuild land beside its own stale output.
         written = self.lake.write_batches(
-            batches,
+            _normalised(),
             system=str(family["system"]),
             family_id=family_id,
             schema_signature=str(family["schema_signature"]),

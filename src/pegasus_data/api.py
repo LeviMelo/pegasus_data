@@ -34,6 +34,7 @@ from .normalize.engine import MissingColumnError
 from .persist.duck import DuckLake
 from .persist.lake import Lake
 from .persist.reference import available_tables, is_hierarchical, read_reference_table
+from .persist.staging import staged_file
 from .profile.drift import field_availability
 from .semantics.dictionary import (
     binding_sources,
@@ -1097,13 +1098,20 @@ class LakeScan:
 
     @property
     def schema(self) -> pa.Schema:
-        """The first generation's schema. Others may differ — that is the point
-        of keeping them apart, and `schemas` gives all of them."""
-        return self.scanners[0][1].dataset_schema if self.scanners else pa.schema([])
+        """The first generation's PROJECTED schema — what a batch will carry.
+
+        `dataset_schema` is the physical file schema, which is not the scanner's
+        output when `columns=` was given. Reporting it made a projected scan
+        advertise columns the caller deliberately excluded, and
+        `_write_streaming` builds the output file from these: a two-column
+        request produced a file with every physical column, null-filled, and
+        could fail on a type conflict in a column nobody asked for.
+        """
+        return self.scanners[0][1].projected_schema if self.scanners else pa.schema([])
 
     @property
     def schemas(self) -> dict[str, pa.Schema]:
-        return {fam: sc.dataset_schema for fam, sc in self.scanners}
+        return {fam: sc.projected_schema for fam, sc in self.scanners}
 
     def count_rows(self) -> int:
         """How many rows the request matches, WITHOUT reading them.
@@ -1525,20 +1533,24 @@ def write_table(table: pa.Table, path: str | Path, format: str = "csv") -> Path:
     if target.parent != Path():
         target.parent.mkdir(parents=True, exist_ok=True)
 
-    if fmt == "parquet":
-        import pyarrow.parquet as pq
+    # STAGED, like every other artifact this package writes. An interrupted
+    # export used to leave a truncated file under the final name, and a short
+    # CSV is indistinguishable from a small answer — the exact rule the streaming
+    # writer already followed and this one did not.
+    with staged_file(target, require_nonempty=False) as staged:
+        if fmt == "parquet":
+            import pyarrow.parquet as pq
 
-        pq.write_table(table, target, compression="zstd")
-    elif fmt == "csv":
-        import pyarrow.csv as pacsv
+            pq.write_table(table, staged, compression="zstd")
+        elif fmt == "csv":
+            import pyarrow.csv as pacsv
 
-        # A list column (a multi-valued field's *_codes companion) has no CSV
-        # representation, so it is joined rather than silently stringified as a
-        # Python repr.
-        flattened = _flatten_lists(table)
-        pacsv.write_csv(flattened, target)
-    else:
-        _write_xlsx(table, target)
+            # A list column (a multi-valued field's *_codes companion) has no
+            # CSV representation, so it is joined rather than silently
+            # stringified as a Python repr.
+            pacsv.write_csv(_flatten_lists(table), staged)
+        else:
+            _write_xlsx(table, staged)
     return target
 
 

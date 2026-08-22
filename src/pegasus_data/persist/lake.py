@@ -107,8 +107,18 @@ class Lake:
         than emptiness: the build reports success, the row counts merely look
         high, and nothing fails until someone counts deaths and gets double.
         """
-        collected = [b for b in batches if b.num_rows]
-        if not collected:
+        # STREAMED, not collected. This materialised every batch of a state-year
+        # partition into a list before opening the writer, so the "storage
+        # boundary is streamed" comment below described the writer while the
+        # caller had already paid the whole partition in memory. Only the first
+        # batch is held, and only to learn the schema the writer needs.
+        stream = iter(batches)
+        first = None
+        for candidate in stream:
+            if candidate.num_rows:
+                first = candidate
+                break
+        if first is None:
             return None
         directory = self.partition_dir(system, family_id, schema_signature, uf, year)
         if replace:
@@ -136,22 +146,31 @@ class Lake:
         with staged_file(target) as staged:
             writer = pq.ParquetWriter(
                 staged,
-                collected[0].schema,
+                first.schema,
                 compression=self.compression,
                 use_dictionary=True,
                 write_statistics=True,
                 version="2.6",
             )
             try:
-                for batch in collected:
+                writer.write_batch(first, row_group_size=self.row_group_size)
+                rows_written += first.num_rows
+                for batch in stream:
+                    if not batch.num_rows:
+                        continue
                     writer.write_batch(batch, row_group_size=self.row_group_size)
                     rows_written += batch.num_rows
             finally:
                 writer.close()
-            if replace:
-                # Only once the replacement is written and about to be swapped
-                # in. Clearing first is what could lose a partition outright.
-                self._clear_partition(system, family_id, schema_signature, uf, year)
+        if replace:
+            # AFTER the swap, not before it. Clearing inside the staging context
+            # left an interval with the old partition deleted and the new one
+            # not yet renamed into place: a crash there lost the partition
+            # outright, which is the failure staging exists to prevent. The file
+            # that just landed is excluded from the sweep.
+            self._clear_partition(
+                system, family_id, schema_signature, uf, year, keep=target
+            )
         written = WrittenPartition(
             family_id=family_id,
             schema_signature=schema_signature,
@@ -217,7 +236,14 @@ class Lake:
         return True
 
     def _clear_partition(
-        self, system: str, family_id: str, schema_signature: str, uf: str, year: int
+        self,
+        system: str,
+        family_id: str,
+        schema_signature: str,
+        uf: str,
+        year: int,
+        *,
+        keep: Path | None = None,
     ) -> int:
         """Drop the Parquet and the catalog rows for one partition, together.
 
@@ -230,6 +256,10 @@ class Lake:
         removed = 0
         if directory.is_dir():
             for stale in directory.glob("*.parquet"):
+                if keep is not None and stale.resolve() == keep.resolve():
+                    # The replacement itself. Clearing now happens AFTER the
+                    # swap, so the file that just landed must survive it.
+                    continue
                 stale.unlink()
                 removed += 1
         if self.catalog is not None:
