@@ -426,7 +426,23 @@ def _write_core(
     # --- variables, and which datasets carry them -------------------------
     described = _described(store)
     field_meta = _field_meta(store)
-    per_dataset_cols: dict[str, set[tuple[str, str]]] = {}
+    # A dataset's columns, keyed by column name — NOT by (crawled system, name).
+    #
+    # This built the cross product of columns and crawled systems, so a dataset
+    # published in more than one tree counted every column once per tree. SIA.AB
+    # is crawled under both SIASUS and DADOS_ABERTOS and reported 116 columns; it
+    # has 58. The inflated number reached `datasets.columns_total`, which is the
+    # figure a reader would cite, and the duplicate rows were then silently
+    # dropped by the (dataset, name) primary key — so the table said 9,237 while
+    # the report said 13,281.
+    #
+    # Republication is exactly what the ontology exists to resolve: SIA.AB is one
+    # dataset with one set of columns however many trees carry it.
+    per_dataset_cols: dict[str, set[str]] = {}
+    #: (dataset, column) -> the system to attribute the column to. Variable docs
+    #: are keyed by the crawled system, so the attribution has to be whichever
+    #: one actually documents the column, with a deterministic fallback.
+    col_system: dict[tuple[str, str], str] = {}
     for code in wanted:
         sigs = binding.signatures.get(code, set())
         if not sigs:
@@ -440,12 +456,19 @@ def _write_core(
                 tuple(sigs),
             )
         }
-        systems_for = binding.crawled_systems.get(code, set())
-        per_dataset_cols[code] = {(s, c) for c in cols for s in systems_for}
+        systems_for = sorted(binding.crawled_systems.get(code, set()))
+        if not systems_for:
+            systems_for = [onto.datasets[code].system]
+        per_dataset_cols[code] = cols
+        for name in cols:
+            owner = next((s for s in systems_for if (s, name) in described), None)
+            col_system[(code, name)] = owner or systems_for[0]
 
-    seen_vars: set[tuple[str, str]] = set()
-    for pairs in per_dataset_cols.values():
-        seen_vars |= pairs
+    seen_vars: set[tuple[str, str]] = {
+        (col_system[(code, name)], name)
+        for code, cols in per_dataset_cols.items()
+        for name in cols
+    }
     var_rows = []
     for system, name in sorted(seen_vars):
         doc = described.get((system, name), {})
@@ -470,15 +493,21 @@ def _write_core(
     report.rows["variables"] = len(var_rows)
 
     link_rows = [
-        (code, system, name)
-        for code, pairs in per_dataset_cols.items()
-        for system, name in pairs
+        (code, col_system[(code, name)], name)
+        for code, cols in per_dataset_cols.items()
+        for name in sorted(cols)
     ]
     db.executemany(
         "INSERT OR REPLACE INTO dataset_variables (dataset, system, name) VALUES (?,?,?)",
         link_rows,
     )
-    report.rows["dataset_variables"] = len(link_rows)
+    # Count what landed, not what was offered. Reporting the length of the input
+    # list is how a row count survives being wrong: INSERT OR REPLACE collapses
+    # primary-key collisions, and the report went on claiming the pre-collapse
+    # number.
+    report.rows["dataset_variables"] = db.execute(
+        "SELECT COUNT(*) FROM dataset_variables"
+    ).fetchone()[0]
 
     # --- schema generations, with what each one changed -------------------
     gen_rows = _generations(store, onto, wanted, binding)
@@ -501,7 +530,7 @@ def _write_core(
         t = totals.get(code, {})
         doc = docs.get(code, {})
         cols = per_dataset_cols.get(code, set())
-        n_desc = sum(1 for pair in cols if pair in described)
+        n_desc = sum(1 for name in cols if (col_system[(code, name)], name) in described)
         ds_rows.append(
             (
                 code, node.system, node.short_code,

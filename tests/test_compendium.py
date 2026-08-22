@@ -175,3 +175,89 @@ class TestItSaysWhatItIs:
             r["name"] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
         }
         assert "open_questions" in tables
+
+
+class TestRepublicationDoesNotDoubleCountColumns:
+    """One dataset published in two trees still has one set of columns.
+
+    SIA.AB is crawled under both SIASUS and DADOS_ABERTOS. The column set was
+    built as the cross product of columns and CRAWLED systems, so every column
+    was counted once per tree: SIA.AB reported 116 columns and has 58. That
+    inflated number reached ``datasets.columns_total`` — the figure a reader
+    cites — and made description coverage read 70% when it was 100%.
+
+    The duplicates were then dropped by the ``(dataset, name)`` primary key, so
+    the table held 9,237 rows while the report claimed 13,281. Resolving through
+    the ontology fixes the count and the discrepancy together, because they were
+    the same bug seen from two ends.
+    """
+
+    @staticmethod
+    def _seed_two_trees(catalog: Catalog) -> None:
+        sig = "c" * 64
+        paths = [
+            "/dissemin/publicos/SIASUS/ABAC2201.dbc",
+            "/dissemin/publicos/Dados_Abertos/SIA/ABAC2202.dbc",
+        ]
+        catalog.upsert_files(
+            [{"path": p, "directory": "/d", "filename": p.rsplit("/", 1)[1],
+              "extension": ".dbc", "size": 10} for p in paths]
+        )
+        for path, system in zip(paths, ("SIASUS", "DADOS_ABERTOS")):
+            catalog.execute(
+                "INSERT OR REPLACE INTO file_facts (path, system, series_prefix,"
+                " geo_code, year, role) VALUES (?,?,?,?,?,?)",
+                (path, system, "AB", "AC", 2022, "data"),
+            )
+        catalog.execute(
+            "INSERT OR REPLACE INTO families (family_id, system, series,"
+            " schema_signature, field_count, time_min, time_max, file_count)"
+            " VALUES (?,?,?,?,?,?,?,?)",
+            ("f1", "SIASUS", "AB", sig, 2, 2022, 2022, 2),
+        )
+        catalog.execute(
+            "INSERT OR REPLACE INTO strata (stratum_id, system, series, year,"
+            " schema_signature, file_count) VALUES (?,?,?,?,?,?)",
+            ("s1", "SIASUS", "AB", 2022, sig, 2),
+        )
+        for order, name in enumerate(["AP_CODUNI", "AP_PRIPAL"]):
+            catalog.execute(
+                "INSERT INTO schema_presence (schema_signature, field_name, field_order)"
+                " VALUES (?,?,?)",
+                (sig, name, order),
+            )
+
+    def test_a_column_is_counted_once_per_dataset(self, settings, tmp_path) -> None:
+        store = Catalog(settings.catalog_path)
+        try:
+            self._seed_two_trees(store)
+        finally:
+            store.close()
+
+        out = tmp_path / "c.sqlite"
+        report = compendium(out, settings=settings)
+        conn = _open(out)
+        row = conn.execute(
+            "SELECT columns_total FROM datasets WHERE code='SIA.AB'"
+        ).fetchone()
+        assert row is not None and row["columns_total"] == 2
+        assert conn.execute(
+            "SELECT COUNT(*) FROM dataset_variables WHERE dataset='SIA.AB'"
+        ).fetchone()[0] == 2
+        assert report.rows["dataset_variables"] == 2
+
+    def test_the_reported_count_matches_the_table(self, seeded, tmp_path) -> None:
+        """The report counted rows offered, not rows stored."""
+        out = tmp_path / "c.sqlite"
+        report = compendium(out, settings=seeded)
+        conn = _open(out)
+        stored = conn.execute("SELECT COUNT(*) FROM dataset_variables").fetchone()[0]
+        assert report.rows["dataset_variables"] == stored
+
+    def test_columns_total_agrees_with_the_link_table(self, seeded, tmp_path) -> None:
+        out = tmp_path / "c.sqlite"
+        compendium(out, settings=seeded)
+        conn = _open(out)
+        total = conn.execute("SELECT SUM(columns_total) FROM datasets").fetchone()[0]
+        stored = conn.execute("SELECT COUNT(*) FROM dataset_variables").fetchone()[0]
+        assert total == stored
