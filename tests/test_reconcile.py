@@ -358,6 +358,12 @@ class TestMigrationRefusal:
         import sqlite3
 
         raw = sqlite3.connect(path)
+        # SQLite rewrites OTHER tables' foreign keys to follow a RENAME, so
+        # without this the helper also repoints file_facts at `files_x` and
+        # then drops it — breaking a second thing the test never meant to
+        # break, and which the constraint checker now (correctly) reports
+        # first.
+        raw.execute("PRAGMA legacy_alter_table = ON")
         raw.execute("ALTER TABLE files RENAME TO files_x")
         raw.execute(ddl)
         raw.execute("DROP TABLE files_x")

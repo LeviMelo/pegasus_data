@@ -36,6 +36,84 @@ _CREATE_TABLE = re.compile(
 _CONSTRAINT_WORDS = {"primary", "foreign", "unique", "check", "constraint"}
 
 
+def _declared_constraints(schema: str) -> dict[str, dict[str, object]]:
+    """Table-level constraints the shipped schema declares, per table.
+
+    ``_declared_columns`` deliberately skips any line beginning with a
+    constraint word, which is right for reading columns and meant nothing else
+    read them at all. So a changed composite ``PRIMARY KEY (a, b)``, a changed
+    ``UNIQUE``, or a changed foreign key looked identical to the checker, and a
+    catalog whose keys no longer match the code that reads it passed as
+    migrated.
+
+    Returns ``{table: {"pk": [...], "unique": [[...], ...], "fk": [(col, ref_table, ref_col), ...]}}``.
+    """
+    out: dict[str, dict[str, object]] = {}
+    for table, body in _CREATE_TABLE.findall(schema):
+        pk: list[str] = []
+        unique: list[list[str]] = []
+        fks: list[tuple[str, str, str]] = []
+        for raw in body.splitlines():
+            line = raw.split("--", 1)[0].strip().rstrip(",")
+            if not line:
+                continue
+            lowered = line.lower()
+            first = lowered.split()[0] if lowered.split() else ""
+            if first == "primary" and "(" in line:
+                pk = _column_list(line)
+            elif first == "unique" and "(" in line:
+                unique.append(_column_list(line))
+            elif first == "foreign" and "references" in lowered:
+                cols = _column_list(line)
+                ref = lowered.split("references", 1)[1].strip()
+                ref_table = ref.split("(")[0].strip().strip('"')
+                ref_cols = _column_list(ref) if "(" in ref else []
+                for i, col in enumerate(cols):
+                    fks.append(
+                        (col, ref_table, ref_cols[i] if i < len(ref_cols) else col)
+                    )
+            elif first not in _CONSTRAINT_WORDS:
+                # An inline `PRIMARY KEY` on a single column counts too.
+                parts = line.split()
+                name = parts[0].strip('"')
+                if name.isidentifier() and "primary key" in lowered:
+                    pk = [name]
+        out[table] = {"pk": pk, "unique": sorted(unique), "fk": sorted(fks)}
+    return out
+
+
+def _column_list(fragment: str) -> list[str]:
+    """The identifiers inside the first parenthesised group of ``fragment``."""
+    if "(" not in fragment:
+        return []
+    # The FIRST balanced group, not everything up to the last `)`. A line like
+    # `FOREIGN KEY (path) REFERENCES files (path)` has two groups, and rsplit
+    # swallowed the text between them into the column name.
+    after = fragment.split("(", 1)[1]
+    inner = after.split(")", 1)[0]
+    return [c.strip().strip('"') for c in inner.split(",") if c.strip()]
+
+
+def _actual_constraints(conn: sqlite3.Connection, table: str) -> dict[str, object]:
+    """The same shape, read from the installed database."""
+    info = list(conn.execute(f"PRAGMA table_info({table})"))
+    # PRAGMA reports pk as a 1-based position, so ordering is recoverable and a
+    # REORDERED composite key is a real difference rather than a set equality.
+    pk = [r[1] for r in sorted((r for r in info if r[5]), key=lambda r: r[5])]
+    unique: list[list[str]] = []
+    for idx in conn.execute(f"PRAGMA index_list({table})"):
+        if not idx[2]:  # not unique
+            continue
+        cols = [r[2] for r in conn.execute(f"PRAGMA index_info({idx[1]})")]
+        if cols and cols != pk:
+            unique.append(sorted(cols))
+    fks = sorted(
+        (str(r[3]), str(r[2]), str(r[4] or r[3]))
+        for r in conn.execute(f"PRAGMA foreign_key_list({table})")
+    )
+    return {"pk": pk, "unique": sorted(unique), "fk": fks}
+
+
 def _declared_columns(schema: str) -> dict[str, dict[str, str]]:
     """``table -> {column: type declaration}`` as the shipped schema declares it."""
     out: dict[str, dict[str, str]] = {}
@@ -79,6 +157,7 @@ def _structural_mismatches(conn: sqlite3.Connection, schema: str) -> list[str]:
     """
     problems: list[str] = []
     declared = _declared_columns(schema)
+    constraints = _declared_constraints(schema)
     existing_tables = {
         r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
     }
@@ -86,9 +165,16 @@ def _structural_mismatches(conn: sqlite3.Connection, schema: str) -> list[str]:
         if table not in existing_tables:
             continue
         actual = {r[1]: (r[2] or "").upper() for r in conn.execute(f"PRAGMA table_info({table})")}
-        actual_pk = [
-            r[1] for r in conn.execute(f"PRAGMA table_info({table})") if r[5]
-        ]
+        for name, decl in columns.items():
+            upper = decl.upper()
+            if name not in actual and (
+                "PRIMARY KEY" in upper
+                or ("NOT NULL" in upper and "DEFAULT" not in upper)
+            ):
+                problems.append(
+                    f"{table}.{name}: the shipped schema declares it {upper.strip()}, "
+                    "which cannot be added to an existing table without weakening it"
+                )
         for name, decl in columns.items():
             if name not in actual:
                 continue
@@ -98,14 +184,28 @@ def _structural_mismatches(conn: sqlite3.Connection, schema: str) -> list[str]:
                 problems.append(
                     f"{table}.{name}: catalog has {have}, shipped schema declares {want}"
                 )
-        want_pk = [
-            name
-            for name, decl in columns.items()
-            if "PRIMARY KEY" in decl.upper()
+        # TABLE-LEVEL constraints, which the column reader skips by design and
+        # nothing else was reading. A composite key that changed order, a
+        # UNIQUE that came or went, a foreign key that moved: all of them make
+        # the catalog disagree with the code, and all of them passed.
+        want = constraints.get(table, {})
+        have = _actual_constraints(conn, table)
+        want_pk = list(want.get("pk") or []) or [
+            name for name, decl in columns.items() if "PRIMARY KEY" in decl.upper()
         ]
-        if want_pk and actual_pk and sorted(want_pk) != sorted(actual_pk):
+        if want_pk and have["pk"] and want_pk != have["pk"]:
             problems.append(
-                f"{table}: primary key is {actual_pk}, shipped schema declares {want_pk}"
+                f"{table}: primary key is {have['pk']}, shipped schema declares {want_pk}"
+            )
+        if want.get("unique") and have["unique"] != want["unique"]:
+            problems.append(
+                f"{table}: UNIQUE constraints are {have['unique']}, shipped schema "
+                f"declares {want['unique']}"
+            )
+        if want.get("fk") and have["fk"] != want["fk"]:
+            problems.append(
+                f"{table}: foreign keys are {have['fk']}, shipped schema declares "
+                f"{want['fk']}"
             )
     return problems
 
@@ -126,9 +226,15 @@ def _missing_columns(
             if name in have:
                 continue
             # A column added to a populated table must be nullable and unkeyed;
-            # SQLite refuses anything else, and so would the data.
-            clean = decl.replace("PRIMARY KEY", "").replace("NOT NULL", "").strip()
-            missing.append((table, name, clean or "TEXT"))
+            # SQLite refuses anything else, and so would the data. But stripping
+            # the constraint and adding the column anyway produces a database
+            # WEAKER than the schema declares, silently — so a column that
+            # carries a constraint is refused here and left to the structural
+            # check, which names it and points at `catalog-rebuild`.
+            upper = decl.upper()
+            if "PRIMARY KEY" in upper or ("NOT NULL" in upper and "DEFAULT" not in upper):
+                continue
+            missing.append((table, name, decl.strip() or "TEXT"))
     return missing
 
 
@@ -215,7 +321,22 @@ class Catalog:
                 )
             self.conn.executescript(schema)
             row = self.conn.execute("SELECT MAX(version) AS v FROM schema_version").fetchone()
-            if row is None or row["v"] is None:
+            found = None if row is None or row["v"] is None else int(row["v"])
+            if found is not None and found > SCHEMA_VERSION:
+                # A catalog written by NEWER code. Reading it with older code
+                # means reading columns whose meaning may have changed, which is
+                # worse than refusing: nothing here can know what it does not
+                # know about.
+                raise CatalogSchemaError(
+                    f"catalog at {self.path} reports schema version {found}, but this "
+                    f"build understands {SCHEMA_VERSION}. Upgrade pegasus-data, or "
+                    "point at a different catalog."
+                )
+            if found != SCHEMA_VERSION:
+                # ADVANCED after a successful migration. Only inserting when no
+                # row existed meant a database upgraded from version 1 went on
+                # reporting version 1 forever, so the number could never be
+                # trusted to decide anything.
                 self.conn.execute(
                     "INSERT INTO schema_version (version, applied_at) VALUES (?, ?)",
                     (SCHEMA_VERSION, utcnow()),
