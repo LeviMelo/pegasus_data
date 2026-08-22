@@ -182,3 +182,78 @@ class TestFetchOneAnswersFromCache:
         result = fetcher.fetch_one("/p/a.dbc")
         assert isinstance(result, FetchResult)
         assert result.skipped and result.sha256 == digest
+
+
+class TestRemoteFreshnessValidatesAgainstWhatItObserved:
+    """One observation of the server, used for both decisions.
+
+    Under refresh="remote" the freshness check asked the server for the live
+    size, and then the transfer was validated against the CATALOG's older size.
+    A legitimate DATASUS republication that changed length was therefore
+    correctly detected as changed, downloaded in full, and rejected as
+    truncated. The file was right; the yardstick was stale.
+    """
+
+    def test_a_republication_is_validated_against_the_live_size(self, store, monkeypatch):
+        catalog, blobs = store
+        # The catalog remembers 100 bytes; the server now serves 250.
+        _stored(catalog, blobs, "/p/a.dbc", remote_size=100, listed_size=100)
+        seen: list[int | None] = []
+
+        class _Client:
+            def stat(self, path):
+                return 250, None
+
+            def retrieve_to_file(self, path, dest, *, expected_size=None, **kw):
+                seen.append(expected_size)
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(b"y" * 250)
+                return 250, "c" * 64
+
+        fetcher = Fetcher(catalog, blobs, host="example.invalid", refresh="remote")
+        result = fetcher._fetch_one(_Client(), "/p/a.dbc", force=False)
+        assert seen == [250], (
+            f"the transfer was validated against {seen}, not the live size the "
+            "freshness check had just observed"
+        )
+        assert result.error is None and result.byte_size == 250
+
+    def test_the_server_is_asked_only_once(self, store):
+        catalog, blobs = store
+        _stored(catalog, blobs, "/p/a.dbc", remote_size=100, listed_size=100)
+        calls = []
+
+        class _Client:
+            def stat(self, path):
+                calls.append(path)
+                return 250, None
+
+            def retrieve_to_file(self, path, dest, *, expected_size=None, **kw):
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(b"y" * 250)
+                return 250, "d" * 64
+
+        Fetcher(catalog, blobs, host="example.invalid", refresh="remote")._fetch_one(
+            _Client(), "/p/a.dbc", force=False
+        )
+        assert len(calls) == 1, f"the server was stat-ed {len(calls)} times for one file"
+
+    def test_the_catalog_policy_still_uses_the_listing(self, store):
+        catalog, blobs = store
+        _stored(catalog, blobs, "/p/a.dbc", remote_size=100, listed_size=100)
+        seen: list[int | None] = []
+
+        class _Client:
+            def stat(self, path):
+                raise AssertionError("the default policy must not dial the server")
+
+            def retrieve_to_file(self, path, dest, *, expected_size=None, **kw):
+                seen.append(expected_size)
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(b"z" * 100)
+                return 100, "e" * 64
+
+        Fetcher(catalog, blobs, host="example.invalid")._fetch_one(
+            _Client(), "/p/a.dbc", force=True
+        )
+        assert seen == [100]

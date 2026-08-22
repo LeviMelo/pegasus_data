@@ -136,7 +136,13 @@ class Fetcher:
 
     # ------------------------------------------------------------------ policy
 
-    def _should_skip(self, path: str, *, client: FtpClient | None = None) -> str | None:
+    def _should_skip(
+        self,
+        path: str,
+        *,
+        client: FtpClient | None = None,
+        live: tuple[int | None, str | None] | None = None,
+    ) -> str | None:
         """Return an existing digest when the file is judged unchanged.
 
         Judged against what ``self.refresh`` names — see :data:`REFRESH_POLICIES`.
@@ -165,14 +171,19 @@ class Fetcher:
             return str(digest)
         listed_size = row["listed_size"]
         listed_mtime = row["listed_mtime"]
-        if self.refresh == "remote" and client is not None:
+        if self.refresh == "remote" and (live is not None or client is not None):
             # ASK THE SERVER. Two commands per file, so it is opt-in, but it is
             # the only policy under which "unchanged" is a claim about DATASUS
-            # rather than about our last crawl.
-            try:
-                live_size, live_mtime = client.stat(path)
-            except Exception:  # noqa: BLE001 - an unreachable server is not proof of change
-                live_size, live_mtime = None, None
+            # rather than about our last crawl. The caller may already hold that
+            # observation — it has to be the SAME one the transfer is validated
+            # against, or a republication is detected and then rejected.
+            if live is not None:
+                live_size, live_mtime = live
+            else:
+                try:
+                    live_size, live_mtime = client.stat(path)  # type: ignore[union-attr]
+                except Exception:  # noqa: BLE001 - unreachable is not proof of change
+                    live_size, live_mtime = None, None
             if live_size is not None or live_mtime is not None:
                 listed_size = live_size if live_size is not None else listed_size
                 listed_mtime = live_mtime if live_mtime is not None else listed_mtime
@@ -424,14 +435,33 @@ class Fetcher:
         return stats
 
     def _fetch_one(self, client: FtpClient, path: str, *, force: bool) -> FetchResult:
+        # ONE observation of the server, used for BOTH decisions. Under
+        # refresh="remote" the freshness check asked the server for the live
+        # size, then the transfer was validated against the CATALOG's older
+        # size — so a legitimate DATASUS republication that changed length was
+        # correctly detected as changed, downloaded, and then rejected as
+        # truncated. The file was right and the yardstick was stale.
+        live: tuple[int | None, str | None] | None = None
+        if self.refresh == "remote":
+            try:
+                live = client.stat(path)
+            except Exception:  # noqa: BLE001 - an unreachable server is not proof of change
+                live = None
         if not force:
-            existing = self._should_skip(path, client=client)
+            existing = self._should_skip(path, client=client, live=live)
             if existing:
                 size = self.blobs.path_for(existing).stat().st_size
                 return FetchResult(path=path, sha256=existing, byte_size=size, skipped=True)
-        # Read the listing FIRST: it is a local catalog row, and knowing the
-        # expected size lets the transfer below reject a short or spliced file.
+        # The listing is a local catalog row, and knowing the expected size lets
+        # the transfer below reject a short or spliced file.
         remote_size, remote_modified = self._listing(path)
+        if live is not None:
+            # The server's own answer outranks the last crawl's.
+            live_size, live_modified = live
+            if live_size is not None:
+                remote_size = live_size
+            if live_modified is not None:
+                remote_modified = live_modified
         started = time.perf_counter()
         staged = self.blobs.staging_path(path)
         try:

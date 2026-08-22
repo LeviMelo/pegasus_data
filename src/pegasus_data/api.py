@@ -760,6 +760,20 @@ def _resolve_generations(
     return families, presence, axis_notes
 
 
+def _physical_columns(cat: Catalog, system: str, family_id: str) -> set[str]:
+    """What the written Parquet actually carries, when the catalog cannot say.
+
+    The last resort before making a claim: an empty answer here means the lake
+    holds nothing for this generation, which is a different fact from "the
+    field is absent" and is handled by the caller as a missing partition rather
+    than a missing column.
+    """
+    try:
+        return set(cat.lake.dataset(system, family_id).schema.names)
+    except (FileNotFoundError, OSError):
+        return set()
+
+
 def _read_generations(
     cat: Catalog,
     families: Sequence[Mapping[str, object]],
@@ -787,7 +801,18 @@ def _read_generations(
             # source schema, so `schema_presence` does not list them. Asking
             # for `year` or `uf` is legitimate and was being refused as a
             # column no generation carries.
-            present = presence.get(str(family["schema_signature"]), set()) | LAKE_COLUMNS
+            #
+            # AN UNCENSUSED GENERATION IS NOT AN EMPTY ONE. A signature with no
+            # `schema_presence` rows produced an empty set, so every requested
+            # column looked absent and the caller was told, positively, that the
+            # field does not exist there. That is unknown reported as absent —
+            # the one substitution this package exists to refuse. The Parquet
+            # files are the fallback evidence: they are the data, and they say
+            # exactly which columns are in them.
+            present = presence.get(str(family["schema_signature"]), set())
+            if not present:
+                present = _physical_columns(cat, system, str(family["family_id"]))
+            present = present | LAKE_COLUMNS
             missing = [c for c in wanted if c not in present]
             if missing and on_missing_column == "null_fill":
                 # Keep the generation and read what it does have; concat
