@@ -1251,3 +1251,9 @@ Counted on the shipped catalog, not estimated.
 
 The headline is the first two rows. The mechanism behind the 82,441-file
 difference is stated plainly in `docs/FINDINGS.md` §0.
+
+`docs/FINDINGS.md` records what we measured that contradicted an assumption.
+**`docs/CONFIDENCE.md` records the opposite** — claims this project makes that
+are NOT well-evidenced, ranked by how much damage a wrong one would do, each
+with what would settle it. A project whose pitch is that it says what it does
+not know owes the reader that list somewhere they can find it.
