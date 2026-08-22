@@ -1070,9 +1070,16 @@ def load_reference(
             cat.close()
 
 
-def reference_tables(root: str | Path | None = None) -> list[dict[str, Any]]:
-    """Which reference tables the lake holds, and in which validity windows."""
-    cat = Catalog(root)
+def reference_tables(
+    root: str | Path | None = None, *, settings: Settings | None = None
+) -> list[dict[str, Any]]:
+    """Which reference tables the lake holds, and in which validity windows.
+
+    ``settings=`` for the same reason every neighbouring reader takes it: a
+    caller holding a configured Settings should not have to reconstruct one
+    from a path to ask this question.
+    """
+    cat = Catalog(root, settings=settings)
     try:
         return available_tables(cat.settings.lake_dir)
     finally:

@@ -60,6 +60,7 @@ from .view import RenderReport
 __all__ = [
     "fetch", "FetchReport", "DatasetUnknown", "NothingPublished", "FilterHasNoAxis",
     "PartialFetchError",
+    "RequestTooLarge",
     "axis_refusal",
 ]
 
@@ -176,6 +177,15 @@ class FetchReport:
     #: makes the retrieval look seven times heavier than it was.
     sources_selected: int = 0
     sources_read: int = 0
+    #: Columns in the answer the ledger classifies as direct personal
+    #: identifiers, as `{column: semantic_type}`. NOT masked, dropped or
+    #: hashed — the source data is passed through unmodified and that is
+    #: deliberate. Named, because a package whose whole purpose is making these
+    #: files easy to retrieve and export should not let a CPF column leave
+    #: unremarked. The flag is also the evidence for escalating upstream.
+    sensitive_columns: dict[str, str] = field(default_factory=dict)
+    #: Selected source bytes, before decoding. What a preflight weighs.
+    bytes_selected: int = 0
     render: RenderReport | None = None
     warnings: list[str] = field(default_factory=list)
 
@@ -232,6 +242,8 @@ class FetchReport:
             "cache_hits": self.cache_hits,
             "network_fetches": self.network_fetches,
             "megabytes_downloaded": round(self.bytes_downloaded / 2**20, 2),
+            "sensitive_columns": self.sensitive_columns,
+            "bytes_selected": self.bytes_selected,
             "acquisition_failures": self.acquisition_failures[:10],
             "excluded": {k: v[:10] for k, v in self.excluded.items()},
             "discovered": self.discovered,
@@ -426,6 +438,123 @@ def _reject_unknown_system(spec: str, system: str) -> None:
     )
 
 
+#: The federal units DATASUS files are split by, plus the national token.
+class RequestTooLarge(RuntimeError):
+    """An eager fetch would materialise more than the caller agreed to.
+
+    ``fetch()`` builds the whole answer in memory. That is the right shape for
+    ``fetch("SIH-RD", uf="AC", years=2024)`` and the wrong one for
+    ``fetch("SIH-RD", years=range(2000, 2026))``, where the honest failure is
+    a refusal up front rather than an out-of-memory kill twenty minutes in.
+
+    The estimate is deliberately crude — selected source bytes, which the
+    catalog already knows — because the point is to catch the request that is
+    obviously too big, not to predict resident set precisely.
+    """
+
+    def __init__(self, selected: int, byte_estimate: int, limit: int) -> None:
+        self.selected = selected
+        self.byte_estimate = byte_estimate
+        self.limit = limit
+        super().__init__(
+            f"this request selects {selected:,} source files totalling about "
+            f"{byte_estimate / 2**30:.1f} GiB compressed, over the "
+            f"{limit / 2**30:.1f} GiB eager limit. fetch() materialises the whole "
+            "answer in memory. Narrow it with uf=/years=/columns=, raise "
+            "max_bytes=, or build the lake and use scan(), which streams."
+        )
+
+
+#: What an eager fetch will take on without being asked twice. Compressed source
+#: bytes, not rows: it is the number the catalog already has before anything is
+#: downloaded or decoded.
+DEFAULT_MAX_EAGER_BYTES = 4 * 1024**3
+
+
+def _sensitive_columns(
+    catalog: Catalog, system: str, present: Sequence[str]
+) -> dict[str, str]:
+    """Columns in this answer the ledger calls direct personal identifiers.
+
+    Read from the ledger rather than pattern-matched here, so the classification
+    has one home and one provenance trail.
+    """
+    names = {str(n).upper() for n in present}
+    if not names:
+        return {}
+    try:
+        rows = catalog.query(
+            "SELECT field_name, semantic_type FROM ledger"
+            " WHERE system = ? AND semantic_type LIKE 'personal_identifier%'",
+            (system,),
+        )
+    except Exception:  # noqa: BLE001 - a catalog without a ledger is not fatal
+        return {}
+    return {
+        str(r["field_name"]).upper(): str(r["semantic_type"])
+        for r in rows
+        if str(r["field_name"]).upper() in names
+    }
+
+
+def _clean_ufs(values: object) -> list[str]:
+    """Upper-case, de-duplicate and CHECK the requested federal units.
+
+    A typo used to travel all the way to a Hive partition filter and come back
+    as an empty result, which reads as "that state published nothing" rather
+    than "that is not a state". The axis guard catches a filter the files are
+    not split on; this catches a filter the files could not possibly match.
+    """
+    from .config import UF_CODES
+
+    if values is None:
+        return []
+    raw = [values] if isinstance(values, str) else list(values)
+    out: list[str] = []
+    for item in raw:
+        text = str(item).strip().upper()
+        if not text:
+            continue
+        if text not in UF_CODES:
+            raise ValueError(
+                f"{text!r} is not a federal unit. DATASUS splits files by "
+                + ", ".join(sorted(UF_CODES))
+            )
+        if text not in out:
+            out.append(text)
+    return out
+
+
+def _clean_months(values: object) -> list[int]:
+    """Months as 1..12. Anything else is a mistake, not a narrow request."""
+    if values is None:
+        return []
+    raw = [values] if isinstance(values, int) else list(values)
+    out: list[int] = []
+    for item in raw:
+        month = int(item)
+        if not 1 <= month <= 12:
+            raise ValueError(f"month {month} is not in 1..12")
+        if month not in out:
+            out.append(month)
+    return sorted(out)
+
+
+def _check_choice(name: str, value: str, allowed: tuple[str, ...]) -> str:
+    """One of a fixed set, or a message naming the set.
+
+    A misspelled policy used to fall through to the default silently — so
+    `on_missing_column="null-fill"` (hyphen) quietly raised on a missing
+    column instead of null-filling, which is the opposite of what was asked.
+    """
+    if value not in allowed:
+        raise ValueError(
+            f"{name}={value!r} is not recognised; use one of "
+            + ", ".join(repr(a) for a in allowed)
+        )
+    return value
+
+
 def _as_years(years: int | Sequence[int] | range | None) -> list[int]:
     if years is None:
         return []
@@ -461,6 +590,7 @@ def fetch(
     max_files: int | None = None,
     on_missing_column: str = "raise",
     allow_partial: bool = False,
+    max_bytes: int | None = DEFAULT_MAX_EAGER_BYTES,
     refresh: str | None = None,
     discover: bool = True,
     root: str | Path | None = None,
@@ -494,10 +624,11 @@ def fetch(
     system, series_name = parse_dataset(dataset, series)
     _reject_unknown_system(dataset, system)
     want_years = _as_years(years)
-    want_ufs = _as_list(uf)
-    want_months = (
-        [int(months)] if isinstance(months, int) else sorted(int(m) for m in (months or []))
-    )
+    # Validated HERE, at the boundary, so a typo is a message rather than an
+    # empty result that reads as "nothing was published".
+    want_ufs = _clean_ufs(uf)
+    want_months = _clean_months(months)
+    _check_choice("on_missing_column", on_missing_column, ("raise", "null_fill"))
 
     pipeline = Pipeline(resolved_settings)
     fetch_report = FetchReport(
@@ -539,6 +670,7 @@ def fetch(
             on_progress=on_progress,
             columns=columns,
             on_missing_column=on_missing_column,
+            max_bytes=max_bytes,
         )
         if table.num_rows == 0:
             raise NothingPublished(_nothing_message(fetch_report, want_ufs, want_years))
@@ -598,6 +730,23 @@ def fetch(
             derived=derived,
             strict=strict_labels,
         )
+        # NAMED, not masked. The source data is passed through unmodified and
+        # that is deliberate — this package does not silently alter what
+        # DATASUS published. But it makes these files far easier to retrieve
+        # and export, and a CPF column leaving without a word is not a neutral
+        # default. The ledger already classifies them; this is where a caller
+        # sees it.
+        fetch_report.sensitive_columns = _sensitive_columns(
+            pipeline.catalog, system, rendered.schema.names
+        )
+        if fetch_report.sensitive_columns:
+            named = ", ".join(
+                f"{k} ({v})" for k, v in sorted(fetch_report.sensitive_columns.items())
+            )
+            fetch_report.warnings.append(
+                f"direct personal identifiers in this result: {named}. Passed "
+                "through unmodified; handling obligations are the caller's."
+            )
         fetch_report.render = render_report
         fetch_report.rows = rendered.num_rows
         return (rendered, fetch_report) if report else rendered
@@ -887,6 +1036,7 @@ def _select_files(
     on_missing_column: str,
     municipalities: MunicipalityIndex,
     cache: DictionaryCache,
+    max_bytes: int | None = None,
 ) -> list[tuple[str, NormalizePlan, dict[str, Any]]]:
     """Decide WHICH files answer this request, and refuse the ones that cannot.
 
@@ -1081,6 +1231,7 @@ def _read_families(
     on_progress: Callable[[str, int, int], None] | None,
     columns: Sequence[str] | None = None,
     on_missing_column: str = "raise",
+    max_bytes: int | None = None,
 ) -> tuple[pa.Table, FetchReport]:
     """Download and normalise the matching files, entirely in memory.
 
@@ -1107,9 +1258,23 @@ def _read_families(
         on_missing_column=on_missing_column,
         municipalities=municipalities,
         cache=cache,
+        max_bytes=max_bytes,
     )
     report.files_matched = len(selected)
     report.sources_selected = len({str(item["path"]) for _f, _p, item in selected})
+    unique_paths = {str(item["path"]) for _f, _p, item in selected}
+    if unique_paths:
+        marks = ",".join("?" for _ in unique_paths)
+        sized = catalog.query(
+            f"SELECT COALESCE(SUM(size), 0) AS total FROM files WHERE path IN ({marks})",
+            tuple(unique_paths),
+        )
+        report.bytes_selected = int(sized[0]["total"] or 0) if sized else 0
+    if max_bytes and report.bytes_selected > max_bytes:
+        # BEFORE downloading, not after. The catalog already knows how big the
+        # selection is; failing here costs nothing and failing later costs the
+        # whole transfer.
+        raise RequestTooLarge(report.sources_selected, report.bytes_selected, max_bytes)
     if not selected:
         return pa.table({}), report
 
