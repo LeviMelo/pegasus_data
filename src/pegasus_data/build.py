@@ -35,7 +35,15 @@ from .sources import demas_api, ibge
 @dataclass(slots=True)
 class BuildStats:
     families: int = 0
+    #: Files the build OPENED. Not files that contributed rows: a family can
+    #: claim a file whose schema does not fit its plan, and that file is still
+    #: attempted. The distinction is the zero-row bug's signature, so the two
+    #: are counted apart rather than conflated under one hopeful name.
     files: int = 0
+    #: Files that matched the plan and whose rows reached a partition.
+    files_contributing: int = 0
+    #: Files opened and decoded whose schema did not fit the family's plan.
+    files_mismatched: int = 0
     rows: int = 0
     partitions: int = 0
     #: Partitions left alone because rebuilding them would reproduce the same
@@ -49,6 +57,11 @@ class BuildStats:
     def as_dict(self) -> dict[str, object]:
         return {
             "families": self.families,
+            "files_attempted": self.files,
+            "files_contributing": self.files_contributing,
+            "files_mismatched": self.files_mismatched,
+            # Kept under the old key too: it is what every existing caller and
+            # log line reads. It has always meant "attempted".
             "files": self.files,
             "rows": self.rows,
             "partitions": self.partitions,
@@ -180,7 +193,7 @@ class Builder:
                 selected = selected[:max_files_per_family]
             if not selected:
                 outcomes.append((
-                    run_id, family_id, family["system"], 0, 0, 0, 0,
+                    run_id, family_id, family["system"], 0, 0, 0, 0, 0,
                     f"no files matched the requested filters (uf={list(ufs or [])}, "
                     f"years={list(years or [])}) out of {len(members)} in the family",
                     utcnow(),
@@ -197,6 +210,10 @@ class Builder:
             digests = self.pipeline.fetcher.ensure([str(m["path"]) for m in selected])
             family_rows = 0
             family_parts = 0
+            # Decoded vs matched, apart. A mismatched file WAS decoded; folding
+            # it into one number is what let "files_decoded" read as evidence
+            # that a zero-row family had nothing to give.
+            family_decoded = 0
             family_files = 0
             undecoded = 0
             schema_mismatch = 0
@@ -240,13 +257,22 @@ class Builder:
                         for batch in normalize_table(table, plan, blob_sha256=digest):
                             batches.append(batch)
                             rows_here += batch.num_rows
+                    stats.files += 1
+                    family_decoded += 1
                     if not matched_here:
                         # The family claims this file but its schema does not fit
                         # the plan. This is the zero-row bug's signature, and it
                         # has to be counted rather than skipped past.
                         schema_mismatch += 1
+                        stats.files_mismatched += 1
+                        # NOT added to `sources`. That list becomes the
+                        # partition's recorded provenance, and a file that
+                        # contributed no rows did not provenance anything — it
+                        # made the partition look derived from evidence it does
+                        # not contain.
+                        continue
                     sources.append(path)
-                    stats.files += 1
+                    stats.files_contributing += 1
                     family_files += 1
                 if not batches:
                     continue
@@ -283,17 +309,19 @@ class Builder:
                 else:
                     reason = f"{len(selected)} files decoded and matched the plan but yielded no rows"
             outcomes.append((
-                run_id, family_id, family["system"], len(selected), family_files,
-                family_rows, family_parts, reason, utcnow(),
+                run_id, family_id, family["system"], len(selected), family_decoded,
+                family_files, family_rows, family_parts, reason, utcnow(),
             ))
 
         self.catalog.executemany(
             """
             INSERT INTO build_outcomes (run_id, family_id, system, files_selected, files_decoded,
-                                        rows_written, partitions, reason, recorded_at)
-            VALUES (?,?,?,?,?,?,?,?,?)
+                                        files_matched, rows_written, partitions, reason,
+                                        recorded_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(run_id, family_id) DO UPDATE SET
                 files_selected=excluded.files_selected, files_decoded=excluded.files_decoded,
+                files_matched=excluded.files_matched,
                 rows_written=excluded.rows_written, partitions=excluded.partitions,
                 reason=excluded.reason, recorded_at=excluded.recorded_at
             """,

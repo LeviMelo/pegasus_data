@@ -613,7 +613,8 @@ CREATE TABLE IF NOT EXISTS build_outcomes (
   family_id        TEXT NOT NULL,
   system           TEXT,
   files_selected   INTEGER NOT NULL DEFAULT 0,
-  files_decoded    INTEGER NOT NULL DEFAULT 0,
+  files_decoded    INTEGER NOT NULL DEFAULT 0,   -- opened and read
+  files_matched    INTEGER NOT NULL DEFAULT 0,   -- and fitted the family's plan
   rows_written     INTEGER NOT NULL DEFAULT 0,
   partitions       INTEGER NOT NULL DEFAULT 0,
   reason           TEXT,              -- NULL when rows_written > 0
