@@ -949,6 +949,77 @@ def check_ontology_exhaustive(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
+def check_every_dataset_says_what_a_row_is(catalog: Catalog, settings: Settings) -> Check:
+    """Every declared dataset states what one row IS and its unit of analysis.
+
+    Check 17 proves every file reaches a dataset. This proves every dataset
+    answers the first question anyone asks of it, which is not derivable from the
+    bytes and is where the expensive mistakes live: an AIH is a billing episode
+    and not a patient, an SDTA row is an outbreak and not a person, a DOFET row
+    is a fetal death that must never enter a mortality rate.
+
+    A dataset with a name and no row definition looks documented and is not. It
+    was 84 of 131 when a research group asked for exactly this and could not find
+    it, having been given a compendium that carried the field for the datasets
+    that had one and stayed silent about the rest.
+
+    Files that are not tables of rows — installers, record layouts, the BPA
+    importer — satisfy this by saying so explicitly. "Not a dataset" is an
+    answer; blank is not.
+    """
+    c = Check("every dataset says what one row is", 18)
+    try:
+        from .ontology import Ontology
+
+        onto = Ontology.load()
+    except Exception as exc:  # pragma: no cover - only if curation is unreadable
+        return _skip(c, f"the declared ontology could not be read: {exc}")
+
+    if not catalog.count("dataset_docs"):
+        return _skip(c, "no dataset documentation loaded: run `curate` first")
+
+    documented: dict[str, dict[str, str]] = {}
+    for row in catalog.query(
+        "SELECT system, series, what_one_row_is, unit_of_analysis FROM dataset_docs"
+    ):
+        found = onto.bind(str(row["system"] or ""), str(row["series"] or "")).dataset
+        if not found:
+            resolved = onto.resolve(f"{row['system']}.{row['series']}")
+            found = resolved[1].code if resolved and resolved[0] == "dataset" else None
+        if found:
+            documented[found] = {
+                "row": (row["what_one_row_is"] or "").strip(),
+                "unit": (row["unit_of_analysis"] or "").strip(),
+            }
+
+    missing = sorted(
+        code
+        for code in onto.datasets
+        if not (documented.get(code, {}).get("row") and documented.get(code, {}).get("unit"))
+    )
+    c.evidence = {
+        "datasets_declared": len(onto.datasets),
+        "documented": len(onto.datasets) - len(missing),
+        "missing": missing[:10],
+    }
+    if missing:
+        c.status = "fail"
+        c.detail = (
+            f"{len(missing)} of {len(onto.datasets)} declared datasets do not say "
+            f"what one row is: {', '.join(missing[:6])}"
+            f"{' …' if len(missing) > 6 else ''}. Add them to "
+            "curation/datasets/."
+        )
+        return c
+    units = sorted({d["unit"] for d in documented.values() if d["unit"]})
+    c.status = "pass"
+    c.detail = (
+        f"all {len(onto.datasets)} declared datasets state what one row is and "
+        f"its unit of analysis, across {len(units)} distinct units"
+    )
+    return c
+
+
 CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_blob_dedup,
     check_crawl_coverage,
@@ -967,6 +1038,7 @@ CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_stored_labels_agree,
     check_codes_are_codes,
     check_ontology_exhaustive,
+    check_every_dataset_says_what_a_row_is,
 )
 
 

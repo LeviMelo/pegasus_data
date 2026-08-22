@@ -88,7 +88,13 @@ def kit_validity(kit_path: str) -> tuple[str | None, str | None]:
     silently overwrite the earlier one or filling ``dictionary_conflicts`` with
     tens of thousands of false disagreements.
     """
-    match = _KIT_PERIOD.search(PurePosixPath(kit_path).name)
+    # The filename first, because it is the more specific claim, then the rest
+    # of the path. DATASUS puts the window in a DIRECTORY as often as in a name:
+    # /dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip carries a bare
+    # kit name inside a dated folder, and reading only the name dated those
+    # mappings "current" — the one thing they are certainly not.
+    name = PurePosixPath(kit_path).name
+    match = _KIT_PERIOD.search(name) or _KIT_PERIOD.search(str(kit_path))
     if not match:
         return None, None
     return match.group(1), match.group(2)

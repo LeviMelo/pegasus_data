@@ -602,3 +602,327 @@ datasets:
     gotchas:
       - Built outside SINAN in 2020 for volume reasons, so it does not share SINAN's structure.
       - Self-reported notifications are included, with a different reliability from laboratory-confirmed ones.
+
+  # ==================================================================== SIM
+  # The mortality variants. Every one of these is a SUBSET or a REPUBLICATION
+  # of the DO base, which is the trap: pooling any of them with SIM.DO counts
+  # the same death twice.
+  SIM.DOEXT:
+    system: SIM
+    series: DOEXT
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIM.DOEXT
+    what_one_row_is: one death certificate for a death from external causes
+    unit_of_analysis: death
+    known_biases: >
+      External-cause deaths are the ones most likely to reach medico-legal
+      investigation, so cause is better established here than in the base as a
+      whole. Intent, however, is not: deaths of undetermined intent absorb a
+      substantial share of what is elsewhere counted as suicide or homicide, and
+      that share varies by state.
+    gotchas:
+      - A subset of SIM.DO, not a separate collection. Pooling the two counts these deaths twice.
+      - Undetermined-intent codes are not a residual to ignore; where they are common, homicide and suicide are correspondingly understated.
+  SIM.DOFET:
+    system: SIM
+    series: DOFET
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIM.DOFET
+    what_one_row_is: one fetal death certificate
+    unit_of_analysis: fetal death
+    known_biases: >
+      Registration of fetal deaths is markedly less complete than of live births
+      or infant deaths, and completeness falls with gestational age. Early losses
+      are largely absent, so any denominator built from this file is a floor.
+    gotchas:
+      - A fetal death is NOT counted in mortality rates and must never be pooled with SIM.DO.
+      - Published as national files. There is no per-state file, so a state filter matches nothing; the state is a column inside the data.
+      - The boundary between a late fetal death and an early neonatal death is a certification judgement, and it moves the number between this file and DOINF.
+  SIM.DOINF:
+    system: SIM
+    series: DOINF
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIM.DOINF
+    what_one_row_is: one death certificate for a death under one year of age
+    unit_of_analysis: death
+    known_biases: >
+      The numerator of the infant mortality rate, and the more under-registered
+      half of it. Deaths in the first days of life are the most likely to go
+      unregistered, and that loss concentrates where the rate is highest.
+    gotchas:
+      - A subset of SIM.DO. Pooling the two counts these deaths twice.
+      - The denominator belongs to SINASC, not here. Mixing a SIM numerator with a census denominator gives a different rate.
+  SIM.DOMAT:
+    system: SIM
+    series: DOMAT
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIM.DOMAT
+    what_one_row_is: one death certificate for a death related to pregnancy, childbirth or the puerperium
+    unit_of_analysis: death
+    known_biases: >
+      Maternal deaths are systematically missed on the certificate alone, which
+      is why investigation committees exist. Counts here rise when investigation
+      improves, so a rising series can mean better ascertainment rather than
+      worse outcomes.
+    gotchas:
+      - A subset of SIM.DO. Pooling the two counts these deaths twice.
+      - The numerator of the maternal mortality ratio; the denominator is live births from SINASC.
+      - Investigation reclassifies deaths months after certification, so a recent year is not comparable with a settled one.
+  SIM.DOR:
+    system: SIM
+    series: DOR
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIM.DOR
+    what_one_row_is: one death certificate, from the corrected republication of the base
+    unit_of_analysis: death
+    known_biases: >
+      Later and more accurate than the original for the same deaths. The
+      corrections are not uniform: they concentrate on cause coding and on the
+      records investigation committees revisited.
+    gotchas:
+      - The same deaths as SIM.DO for the years it covers. Pooling the two counts every death twice.
+      - Prefer this over the original where both exist, and say which was used, because published figures differ depending on the choice.
+  SIM.DOREXT:
+    system: SIM
+    series: DOREXT
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIM.DOREXT
+    what_one_row_is: one external-cause death certificate, from the corrected republication
+    unit_of_analysis: death
+    gotchas:
+      - The corrected counterpart to DOEXT and a subset of DOR. Pooling any two of the three counts the same deaths repeatedly.
+  SIM.DORIG:
+    system: SIM
+    series: DORIG
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIM.DORIG
+    what_one_row_is: one death certificate, as first published, before correction
+    unit_of_analysis: death
+    gotchas:
+      - Kept beside the corrected version so the two can be compared. It is the wrong choice for analysis and the right one for auditing what changed.
+      - Never pool with SIM.DOR. They are the same deaths at two moments of the same pipeline.
+
+  # ================================================================= SINASC
+  SINASC.DNEX:
+    system: SINASC
+    series: DNEX
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SINASC.DNEX
+    what_one_row_is: one live birth registered outside the ordinary flow
+    unit_of_analysis: live birth
+    gotchas:
+      - Not a sample and not a correction. These are births the ordinary flow did not capture, so they are additional to DN rather than a subset of it.
+      - Published as national files. There is no per-state file, so a state filter matches nothing.
+  SINASC.DNR:
+    system: SINASC
+    series: DNR
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SINASC.DNR
+    what_one_row_is: one live birth, from the corrected republication of the base
+    unit_of_analysis: live birth
+    gotchas:
+      - The same births as SINASC.DN for the years it covers. Pooling the two counts every birth twice.
+      - This is the denominator most published infant and maternal rates use. Using DN instead changes the rate.
+  SINASC.DNRIG:
+    system: SINASC
+    series: DNRIG
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SINASC.DNRIG
+    what_one_row_is: one live birth, as first published, before correction
+    unit_of_analysis: live birth
+    gotchas:
+      - Kept beside the corrected version for comparison. Never pool with SINASC.DNR.
+
+  # ==================================================================== SIH
+  SIH.CH:
+    system: SIH
+    series: CH
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIH.CH
+    what_one_row_is: one hospital in the register that accompanied the older SIH generations
+    unit_of_analysis: establishment
+    gotchas:
+      - This is a dimension, not activity. Counting rows counts hospitals on file, not admissions.
+      - Superseded by CNES as the establishment register. For any period CNES covers, use CNES; this exists for the years before it.
+  SIH.MT:
+    system: SIH
+    series: MT
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIH.MT
+    what_one_row_is: one admission whose billed procedure changed during the stay
+    unit_of_analysis: admission
+    gotchas:
+      - A small subset of admissions, not a separate population. Pooling with SIH.RD counts these admissions twice.
+      - A procedure change is a billing event. It signals that the recorded procedure in RD is not the whole story for that AIH.
+  SIH.BASE_AIH1:
+    system: SIH
+    series: BASE_AIH1
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIH.BASE_AIH1
+    what_one_row_is: one AIH, from a consolidated base published outside the monthly competence cycle
+    unit_of_analysis: admission
+    gotchas:
+      - Not part of the regular monthly series. It overlaps SIH.RD for whatever period it consolidates, so pooling double-counts.
+      - Because it sits outside the competence cycle, it cannot be aligned to a month the way RD can.
+
+  # ================================================================= SISCAN
+  SISCAN.PACNT:
+    system: SISCAN
+    series: PACNT
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SISCAN.PACNT
+    what_one_row_is: one patient in the dimension published beside the exam datasets
+    unit_of_analysis: patient
+    known_biases: >
+      A dimension table, not activity. Everyone here appears because they had an
+      exam recorded in SISCAN, so this is the screened population and not the
+      eligible one.
+    gotchas:
+      - Counting rows counts patients on file, not exams. The exams are in the SISCAN exam datasets and join to this.
+      - Whether the patient identifier is stable across exports is NOT established here, so it must not be assumed to support longitudinal follow-up without being tested first.
+      - Published as national files. There is no per-state file, so a state filter matches nothing.
+
+  # =========================================================== not datasets
+  # These bind files that are not tables of rows. Leaving their unit blank made
+  # them read as undocumented; saying so explicitly is the accurate answer, and
+  # it keeps them out of any count of data a researcher could analyse.
+  DADOS_ABERTOS.APAC:
+    system: DADOS_ABERTOS
+    series: APAC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as DADOS_ABERTOS.APAC
+    what_one_row_is: not applicable — this is APAC record-layout documentation, not a table of records
+    unit_of_analysis: none (not a dataset)
+    gotchas:
+      - Describes the SIA APAC family's layout. The APAC data itself is under SIA.
+  SIASUS.IMPBORL:
+    system: SIASUS
+    series: IMPBORL
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as SIASUS.IMPBORL
+    what_one_row_is: not applicable — this is a BPA importer shipped beside the SIA production data
+    unit_of_analysis: none (not a dataset)
+    gotchas:
+      - Retained so that every file on the tree binds to something. It carries no health records.
+  TABDOS.APP:
+    system: TABDOS
+    series: APP
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as TABDOS.APP
+    what_one_row_is: not applicable — this is the DOS-era tabulator, an application
+    unit_of_analysis: none (not a dataset)
+  TABNET.APP:
+    system: TABNET
+    series: APP
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as TABNET.APP
+    what_one_row_is: not applicable — this is the TabNet server distribution, an application
+    unit_of_analysis: none (not a dataset)
+  TABWIN.APP:
+    system: TABWIN
+    series: APP
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as TABWIN.APP
+    what_one_row_is: not applicable — these are TabWin installers and helper executables
+    unit_of_analysis: none (not a dataset)
+
+  # =================================================================== IBGE
+  # Denominators. Every one of these exists to sit under a health numerator, and
+  # the commonest error with them is a mismatch of year, geography vintage or
+  # method between the two halves of a rate.
+  IBGE.POP:
+    system: IBGE
+    series: POP
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as IBGE.POP
+    what_one_row_is: the resident population of one municipality in one year
+    unit_of_analysis: municipality-year
+    known_biases: >
+      Census years are counts; the years between them are estimates produced by a
+      projection method that has itself changed more than once. A rate series
+      across a census boundary partly measures the change in method.
+    gotchas:
+      - The denominator for most rates computed against DATASUS health data. Match its year to the numerator's year, not to the year of publication.
+      - Municipality codes change as municipalities are created and merged. A join on code alone across decades silently loses or mismatches areas.
+  IBGE.PROJUF:
+    system: IBGE
+    series: PROJUF
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as IBGE.PROJUF
+    what_one_row_is: the projected population of one state in one year
+    unit_of_analysis: state-year
+    known_biases: >
+      A projection, not a count. Used where census figures are too old for the
+      period being analysed, which means it is least reliable exactly where it is
+      most needed — the years furthest from the last census.
+    gotchas:
+      - State-level only. It cannot serve as a denominator for a municipal rate.
+      - Published as national files. There is no per-state file, so a state filter matches nothing; the state is a column.
+      - Projections are revised. Two vintages of PROJUF disagree for the same year, so record which one a rate used.
+  IBGE.ALF:
+    system: IBGE
+    series: ALF
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as IBGE.ALF
+    what_one_row_is: literate and illiterate population counts for one area in one year
+    unit_of_analysis: area-year
+    gotchas:
+      - Literacy is self-declared at census, not tested.
+      - The area is whatever geography the table was published at; check it before joining to a municipal numerator.
+  IBGE.ESCA:
+    system: IBGE
+    series: ESCA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as IBGE.ESCA
+    what_one_row_is: population by years of schooling for one area in one year
+    unit_of_analysis: area-year
+    gotchas:
+      - ESCB is the second breakdown of the same population. Adding the two double-counts.
+      - Schooling bands are not constant across census rounds, so a series needs the bands reconciled before it is comparable.
+  IBGE.IDOSO:
+    system: IBGE
+    series: IDOSO
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as IBGE.IDOSO
+    what_one_row_is: the population aged 60 and over for one area in one year
+    unit_of_analysis: area-year
+    gotchas:
+      - A subset of IBGE.POP for the same area and year, published separately. Adding it to POP double-counts.
+  IBGE.RENDA:
+    system: IBGE
+    series: RENDA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: identity declared in curation/ontology.yml as IBGE.RENDA
+    what_one_row_is: population by income bracket for one area in one year
+    unit_of_analysis: area-year
+    known_biases: >
+      Income is self-reported and understated at both ends of the distribution.
+      Brackets are nominal reais at the time of collection, so comparing across
+      years without deflating compares different things.
+    gotchas:
+      - Brackets are not constant across census rounds; reconcile them before building a series.

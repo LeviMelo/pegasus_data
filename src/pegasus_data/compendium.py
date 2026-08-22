@@ -178,6 +178,29 @@ CREATE TABLE field_validity (
 );
 CREATE INDEX ix_validity_field ON field_validity(field);
 
+-- How many VINTAGES a codelist has, and over what windows.
+--
+-- The same MUNICBR code carries different labels in the 1992-1997 kit and the
+-- current one, because municipalities were created, merged and renamed in
+-- between. Decoding a 1998 extract against today's table is silently wrong, and
+-- the wrongness is invisible: every code still resolves, to the wrong name.
+--
+-- This is a SUMMARY and always present, because the full `codes` table is
+-- optional and large (425 MB bound). A consumer needs to know a codelist is
+-- versioned even when they have not asked for the codes themselves. NULL
+-- window bounds mean the current, open-ended kit — not an unknown one.
+CREATE TABLE codelist_vintages (
+  codelist   TEXT,
+  system     TEXT,
+  vintages   INTEGER,        -- distinct (valid_from, valid_to) windows
+  window_min TEXT,           -- earliest competence, YYYYMM; NULL if only current
+  window_max TEXT,
+  has_current INTEGER,       -- 1 when an open-ended (current) vintage exists
+  codes      INTEGER,        -- distinct codes across all vintages
+  PRIMARY KEY (codelist, system)
+);
+CREATE INDEX ix_vintages_n ON codelist_vintages(vintages DESC);
+
 -- What is NOT known, stated rather than filled in ---------------------------
 CREATE TABLE open_questions (
   key      TEXT PRIMARY KEY,
@@ -555,6 +578,37 @@ def _write_core(
     )
     report.rows["field_validity"] = db.execute(
         "SELECT COUNT(*) FROM field_validity"
+    ).fetchone()[0]
+
+    # --- codelist vintages ------------------------------------------------
+    vintage_rows = [
+        (
+            str(r["value_group"]), r["system"], int(r["vintages"] or 0),
+            r["window_min"], r["window_max"],
+            1 if int(r["open_ended"] or 0) else 0, int(r["codes"] or 0),
+        )
+        for r in store.query(
+            """
+            SELECT value_group, system,
+                   COUNT(DISTINCT COALESCE(valid_from, '') || '..' ||
+                                  COALESCE(valid_to, '')) AS vintages,
+                   MIN(valid_from) AS window_min,
+                   MAX(valid_to)   AS window_max,
+                   MAX(CASE WHEN valid_from IS NULL THEN 1 ELSE 0 END) AS open_ended,
+                   COUNT(DISTINCT value_raw) AS codes
+              FROM dictionary
+             WHERE value_group IS NOT NULL
+             GROUP BY value_group, system
+            """
+        )
+    ]
+    db.executemany(
+        "INSERT OR REPLACE INTO codelist_vintages (codelist, system, vintages,"
+        " window_min, window_max, has_current, codes) VALUES (?,?,?,?,?,?,?)",
+        vintage_rows,
+    )
+    report.rows["codelist_vintages"] = db.execute(
+        "SELECT COUNT(*) FROM codelist_vintages"
     ).fetchone()[0]
 
     # --- schema generations, with what each one changed -------------------

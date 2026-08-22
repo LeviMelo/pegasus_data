@@ -480,3 +480,254 @@ datasets:
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
 
 # 36 agravos named from the open-data tree.
+
+  # ------------------------------------------------------------------------
+  # The 22 agravos whose identity is declared in ontology.yml. They had names
+  # and no row definition, which left them looking documented in info() and
+  # silent about the only question that decides how a row may be counted.
+  #
+  # The unit follows from what SINAN IS — a compulsory-notification system — so
+  # it is a notification everywhere except where the form itself counts
+  # something else: SDTA counts outbreaks, HIVG counts pregnancies, and HIVE
+  # follows an exposed child rather than recording a case.
+  SINAN_AIDA:
+    system: SINAN
+    series: AIDA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.AIDA
+    what_one_row_is: one AIDS case notified in a patient aged 13 or over
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - AIDS in adults and in children are separate datasets with different case definitions. Pooling them silently mixes two definitions.
+      - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
+  SINAN_AIDC:
+    system: SINAN
+    series: AIDC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.AIDC
+    what_one_row_is: one AIDS case notified in a child under 13
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - The paediatric case definition differs from the adult one and the transmission route is usually vertical, so these rows are not interchangeable with AIDA.
+  SINAN_BOTU:
+    system: SINAN
+    series: BOTU
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.BOTU
+    what_one_row_is: one notified case of botulism
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Botulism is rare enough that one outbreak dominates a year. Rates over small denominators are unstable.
+  SINAN_COLE:
+    system: SINAN
+    series: COLE
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.COLE
+    what_one_row_is: one notified case of cholera
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Notifications concentrate in epidemic years, so the series is mostly zeroes punctuated by outbreaks rather than a trend.
+  SINAN_DCRJ:
+    system: SINAN
+    series: DCRJ
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.DCRJ
+    what_one_row_is: one notified case of Creutzfeldt-Jakob disease
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. Confirmation is frequently post-mortem, so the outcome settles long after the notification date.
+  SINAN_ESPO:
+    system: SINAN
+    series: ESPO
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.ESPO
+    what_one_row_is: one notified case of sporotrichosis
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Notifiable only in some states and only recently, so a national series understates it and the understatement varies by state.
+  SINAN_EXAN:
+    system: SINAN
+    series: EXAN
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.EXAN
+    what_one_row_is: one rash-and-fever case investigated for measles or rubella
+    unit_of_analysis: notification
+    gotchas:
+      - This is a surveillance channel, not a disease. Most rows are investigated and discarded, which is the system working as designed.
+      - Counting rows counts investigations. Confirmed measles is a subset identified by CLASSI_FIN.
+  SINAN_HANS:
+    system: SINAN
+    series: HANS
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.HANS
+    what_one_row_is: one notified case of leprosy
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - The operational classification sets the treatment regimen and its length, so a case and its outcome are separated by months to years.
+  SINAN_HIVA:
+    system: SINAN
+    series: HIVA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.HIVA
+    what_one_row_is: one HIV infection notified in an adult
+    unit_of_analysis: notification
+    gotchas:
+      - HIV became notifiable in its own right in 2014, separately from AIDS. A series spanning that boundary changes meaning at it.
+      - The same person may appear here and later in AIDA. Adding the two double-counts.
+  SINAN_HIVC:
+    system: SINAN
+    series: HIVC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.HIVC
+    what_one_row_is: one HIV infection notified in a child
+    unit_of_analysis: notification
+    gotchas:
+      - A child counted here may already appear in HIVE as an exposed child. Exposure and infection are different states.
+  SINAN_HIVE:
+    system: SINAN
+    series: HIVE
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.HIVE
+    what_one_row_is: one child born to a mother with HIV, followed until infection is confirmed or excluded
+    unit_of_analysis: exposed child
+    gotchas:
+      - An exposed child is not an infected child. Most are followed and found uninfected, which is the point of the register.
+      - Rows here are a denominator for vertical transmission, not a numerator. The numerator is in HIVC.
+  SINAN_HIVG:
+    system: SINAN
+    series: HIVG
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.HIVG
+    what_one_row_is: one pregnancy in a woman with HIV
+    unit_of_analysis: pregnancy
+    gotchas:
+      - The unit is a pregnancy, not a woman. Two pregnancies in the same woman are two rows.
+      - Pairs with HIVE, which follows the resulting child, but the link between them is not published.
+  SINAN_LER:
+    system: SINAN
+    series: LER
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.LER
+    what_one_row_is: one notified repetitive-strain or work-related musculoskeletal disorder
+    unit_of_analysis: notification
+    gotchas:
+      - This is the earlier code for what LERD later carries. A continuous series needs both, and the boundary is a renaming rather than a change in what is counted.
+      - Occupational notification depends on a workplace having an occupational health service, so coverage tracks formal employment rather than injury.
+  SINAN_MENT:
+    system: SINAN
+    series: MENT
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.MENT
+    what_one_row_is: one notified mental health disorder attributed to work
+    unit_of_analysis: notification
+    gotchas:
+      - Attribution to work is a judgement recorded on the form, not a finding, and it varies by notifying service.
+      - Occupational notification tracks formal employment, so informal workers are largely absent.
+  SINAN_NTRA:
+    system: SINAN
+    series: NTRA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.NTRA
+    what_one_row_is: one notified occupational accident
+    unit_of_analysis: notification
+    gotchas:
+      - Overlaps ACGR (severe accidents) and ACBI (biological exposure). Summing the three counts some accidents more than once.
+      - Occupational notification tracks formal employment, so informal workers are largely absent.
+  SINAN_SDTA:
+    system: SINAN
+    series: SDTA
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.SDTA
+    what_one_row_is: one foodborne outbreak, NOT one person affected
+    unit_of_analysis: outbreak
+    gotchas:
+      - The unit is the event. These rows must never be added to person-level counts from other agravos.
+      - The number of people involved is a field on the outbreak, not a count of rows.
+  SINAN_SIFC:
+    system: SINAN
+    series: SIFC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.SIFC
+    what_one_row_is: one case of syphilis transmitted in pregnancy
+    unit_of_analysis: notification
+    gotchas:
+      - Read as a sentinel indicator. A congenital case implies an antenatal failure, so counts here measure prenatal care as much as infection.
+      - Pairs with SIFG, which records the maternal case that should have prevented it.
+  SINAN_SIFG:
+    system: SINAN
+    series: SIFG
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.SIFG
+    what_one_row_is: one case of syphilis detected during pregnancy
+    unit_of_analysis: notification
+    gotchas:
+      - A rise here is ambiguous. It may mean more infection or more testing, and this file alone cannot separate them.
+      - Pairs with SIFC. The ratio between them is an outcome measure, but the two are not linked record to record.
+  SINAN_SRC:
+    system: SINAN
+    series: SRC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.SRC
+    what_one_row_is: one case of congenital rubella syndrome
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Counts are near zero after elimination of endemic rubella, so a single case is a surveillance event rather than a rate.
+  SINAN_TRAC:
+    system: SINAN
+    series: TRAC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.TRAC
+    what_one_row_is: one notified case of trachoma
+    unit_of_analysis: notification
+    gotchas:
+      - Cases are found through school screening surveys, so counts follow where surveys were run rather than where disease is.
+  SINAN_VARC:
+    system: SINAN
+    series: VARC
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.VARC
+    what_one_row_is: one notified case of varicella
+    unit_of_analysis: notification
+    gotchas:
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - Notification requirements changed once varicella vaccine entered the schedule, so the series is not comparable across that boundary.
+  SINAN_VIOL:
+    system: SINAN
+    series: VIOL
+    asserted_by: pegasus_data
+    source: manual
+    source_ref: SINAN is a compulsory-notification system; identity declared in curation/ontology.yml as SINAN.VIOL
+    what_one_row_is: one notification of interpersonal or self-inflicted violence
+    unit_of_analysis: notification
+    gotchas:
+      - One person subjected to repeated violence generates several notifications. Rows are events reported, not victims.
+      - Notifiable universally only from 2011. Growth across that boundary is largely the notification requirement arriving.
+      - Under-notification is the rule, and it is worst for exactly the forms of violence least likely to reach a health service.
