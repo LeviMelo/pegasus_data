@@ -30,9 +30,10 @@ df = fetch("SIH-RD", uf="AL", years=2023)       # give me it
 ## Contents
 
 - [Install](#install) · [Five minutes](#five-minutes)
-- [The data model](#the-data-model) — systems, datasets, schema generations
-- [The API](#the-api) — `info` · `explore` · `fetch` · `load` · `describe` ·
-  `translate` · `search` · `export` · `compendium` · `pack`
+- [The data model](#the-data-model) — systems, datasets, schema generations,
+  column validity, join keys
+- [The API](#the-api) — `info` · `explore` · `fetch` · `load` · `availability` ·
+  `describe` · `translate` · `search` · `export` · `compendium` · `pack`
 - [The command line](#the-command-line)
 - [How it works](#how-it-works) — the pipeline, and where things live
 - [Why you can trust it](#why-you-can-trust-it) — the rules that are not stylistic
@@ -200,6 +201,47 @@ each one added and dropped:
 "113 columns, 2014–2025" tells an analyst nothing. "+6, −1 at this boundary" is
 what decides whether years either side can be pooled.
 
+### Structural absence is not missingness
+
+`SIH-RD`'s nine secondary-diagnosis columns do not exist before 2014. Ask for
+`DIAGSEC4` in 2007 and you get nothing — not because nobody recorded a secondary
+diagnosis, but because there was nowhere to put one. Read as clinical
+missingness it quietly corrupts anything spanning the boundary.
+
+```python
+field_available("SIH-RD", "DIAGSEC4", 2007)   # "absent"  — the column did not exist
+field_available("SIH-RD", "DIAGSEC4", 2024)   # "present"
+field_available("SIH-RD", "DIAGSEC4", 2017)   # "unknown" — nothing decoded for that year
+```
+
+Three states, not two. `absent` is a **positive claim**: a decoded schema for
+that year exists and does not carry the column. `unknown` means the catalog is
+silent and no claim is being made — which a `valid_from`/`valid_to` interval
+cannot express without inventing one.
+
+`availability("SIH-RD").changed_at()` lists every year a column arrived or left:
+the boundaries a longitudinal study has to choose around.
+
+### Joins are declared, with their grain
+
+`SIH.RD` calls the admission key `N_AIH`; `SIH.SP` calls it `SP_NAIH`. `SIA.PA`
+calls the establishment code `PA_CODUNI`, and it is the CNES code. Knowing that
+is the difference between a join and an afternoon.
+
+The trap is not the column name, it is the **grain**. `SIH.RD` is one row per
+AIH and `SIH.SP` is many, so joining them and counting rows counts professional
+acts while looking like it counts admissions. Every member records which it is.
+
+`CNES` is marked `as_of: competence`: joining a 2015 admission to today's CNES
+answers *what is this hospital now*, not *what was it when the patient was
+treated*, and it answers silently.
+
+Joins that people want and that have **no key shown to work** are recorded too,
+because a join matching the wrong rows produces a cohort rather than an error.
+`CO_PACIENTE` exists only in `SISCAN.PACNT` — no exam dataset carries it — so
+following a patient across SISCAN exams is not possible from the published
+files, and saying so is more useful than a plausible guess.
+
 ---
 
 ## The API
@@ -281,6 +323,16 @@ produced is named** — as a warning, or as `LabelUnavailable` under
 
 External codes (CID, CBO, IBGE, CNES) keep the code beside the label, because
 those are join keys in their own right.
+
+### `availability(dataset)` — when each column existed
+
+```python
+availability("SIH-RD").changed_at()          # {2014: {"added": ["DIAGSEC1", ...]}}
+availability("SIH-RD")["DIAGSEC4"].span()    # "2014–2026 — nothing decoded for 2017"
+field_available("SIH-RD", "DIAGSEC4", 2007)  # "absent" | "present" | "unknown"
+```
+
+Also in the compendium as `field_validity`.
 
 ### `describe(system, series=None, *, field=None)` — what a column means
 
