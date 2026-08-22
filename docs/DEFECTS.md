@@ -1,5 +1,8 @@
 # Defect catalogue — 22 August 2026
 
+> **Status: every defect below is FIXED**, each with a regression test.
+> Measured on live DATASUS, not inferred. See the summary at the foot.
+
 Two sources, and they complement each other rather than overlap:
 
 - **REVIEW.md** — an external static review of `src/`. Thorough on control flow.
@@ -231,3 +234,41 @@ through ME-21. Several are strongly implied by what is confirmed here — HI-18
 (warm fetch still opens FTP) is consistent with the 8.4s warm number.
 
 They should be verified before being fixed, not assumed.
+
+
+---
+
+## Status
+
+All six P0s and all seven runtime defects are fixed, on `main`, with the full
+suite green (714 passing).
+
+| id | was | now |
+|---|---|---|
+| P0-1 | a failed refresh served yesterday's blob | `ensure()` returns only what this run resolved; `allow_stale=` is explicit and recorded |
+| P0-2 | one vintage and one binding for the whole result | rendered per `(family, year)`, row-level from the lake's own partition column |
+| P0-3 | whole generations dropped in silence | raises, as its docstring already promised |
+| P0-4 | `load(uf=)` on a national dataset returned a false empty | one axis policy, `retrieve.axis_refusal()`, used by both paths |
+| P0-5 | two dataset resolvers that disagreed | one, through the ontology |
+| P0-6 | the partition was deleted before its replacement existed | staged, validated, then swapped |
+| R-1 | label pack cost 1,309 MB and 9.2 s | 132 MB, sub-second, pushed into the Parquet scan |
+| R-2 | curation never loaded; `info()` had nothing | 4,298 variable docs and 132 dataset docs on first use |
+| R-3 | four of ten functions rejected `root=` | all ten accept `root=` and `settings=` |
+| R-5 | cold fetch 282 s / 1,408 MB for 12 files | **30 s / 287 MB** |
+| R-6 | `translate()` refused, citing a bundle you already have | uses the shipped pack |
+| R-7 | an unknown dataset took 18.3 s to be refused | **0.8 s**, with suggestions |
+
+Two things the fixes turned up that were worth more than the defects:
+
+**A curated refusal was never enforced.** `sihsus/_shared.yml` marks SEXO and
+COD_IDADE "DELIBERATELY UNBOUND" — SIH's own table maps `1→Masculino`,
+`2→Feminino` *and* `3→Feminino`. The refusal was prose, so once bindings were
+seeded the renderer labelled from exactly the contradictory table. It is now
+`code_system: none`, which the renderer honours.
+
+**Labelled counts went down, and that is the fix working.** CNES-ST reports 83
+labelled rather than 115 because the curated decisions finally apply.
+
+What the external review raised beyond these — HI-02 through HI-28 except
+HI-14, and ME-01 through ME-21 — is still open and still unverified. It should
+be verified before being fixed, not assumed.

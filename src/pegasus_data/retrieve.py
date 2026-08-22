@@ -245,6 +245,27 @@ def axis_refusal(
     return None, notes
 
 
+def _reject_unresolvable(system: str, series: str | None) -> None:
+    """Fail fast on a dataset the declaration has never heard of.
+
+    Only when the ontology loads AND knows the system: a system it cannot name
+    may still be real (the declaration is not the tree), so the slow path stays
+    open for that case.
+    """
+    if not series:
+        return
+    onto = _ontology()
+    if onto is None or not onto.system_of(system):
+        return
+    if onto.resolve(f"{system}.{series}"):
+        return
+    near = onto.suggest(f"{system}.{series}")
+    hint = f" Did you mean: {', '.join(near)}?" if near else ""
+    raise DatasetUnknown(
+        f"{system}.{series} is not a declared dataset.{hint}"
+    )
+
+
 def _check_axes(
     catalog: Catalog,
     spec: str,
@@ -362,6 +383,11 @@ def fetch(
     )
     try:
         # Before any work: is this dataset even split the way the caller asked?
+        # Refuse a name the ontology cannot resolve BEFORE any network work.
+        # fetch("CNES-ZZ") spent 18.3 seconds crawling before saying it does not
+        # exist, and no amount of crawling could have made it exist.
+        _reject_unresolvable(system, series_name)
+
         _check_axes(
             pipeline.catalog, dataset, system, series_name,
             uf=bool(want_ufs), years=bool(want_years), months=bool(want_months),

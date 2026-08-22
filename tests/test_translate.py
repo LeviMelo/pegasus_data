@@ -107,10 +107,17 @@ class TestItRefusesToGuess:
         with pytest.raises(TranslationImpossible, match="unpack"):
             translate(SAMPLE, system="SIHSUS", settings=settings)
 
-    def test_with_a_catalog_but_no_codelists_it_says_that_instead(self, settings):
+    def test_with_a_catalog_but_no_codelists_it_uses_the_shipped_pack(self, settings):
+        """It used to refuse and tell the caller to download a bundle.
+
+        That advice was wrong on any machine where `fetch(labels=True)` was
+        already labelling happily: the package ships a label pack, and
+        `read_reference_table` falls back to it. Refusing here meant translate()
+        was the one path that could not use what the wheel carries.
+        """
         Catalog(settings.catalog_path).close()
-        with pytest.raises(TranslationImpossible, match="no codelists"):
-            translate(SAMPLE, system="SIHSUS", settings=settings)
+        out = translate(SAMPLE, system="SIHSUS", settings=settings)
+        assert out.num_rows == SAMPLE.num_rows, "the table must survive intact"
 
     def test_something_that_is_not_a_table_is_refused_clearly(self, dictionary):
         with pytest.raises(TranslationImpossible, match="cannot turn"):

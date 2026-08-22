@@ -168,12 +168,27 @@ def translate(
         )
     store = Catalog(resolved.catalog_path, read_only=True)
     try:
+        # A local dictionary is no longer required: the package ships a label
+        # pack and read_reference_table falls back to it. This used to refuse
+        # outright and tell the caller to go and download a bundle they already
+        # have — on a root where fetch(labels=True) was labelling happily.
+        from .labelpack import seed_bindings
+
         if not store.count("dictionary"):
-            raise TranslationImpossible(
-                "the catalog holds no codelists, so nothing can be labelled. "
-                "`pegasus-data unpack <bundle>` fills it without a network."
-            )
-        _ensure_reference(store, resolved)
+            store_rw = Catalog(resolved.catalog_path)
+            try:
+                seed_bindings(store_rw)
+                if not store_rw.count("variable_docs"):
+                    from .ontology import CURATION
+                    from .semantics.curation import load_curation
+
+                    load_curation(store_rw, CURATION)
+            except Exception:  # noqa: BLE001 - degrade to whatever is present
+                pass
+            finally:
+                store_rw.close()
+        else:
+            _ensure_reference(store, resolved)
         family_id = _family_for(store, system, series, table.column_names)
         rendered, render_report = render_table(
             table,
