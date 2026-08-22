@@ -17,7 +17,6 @@ byte zero to read one column, and a Parquet file's footer is a map.
 from __future__ import annotations
 
 import json
-import os
 import re
 from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
@@ -28,6 +27,7 @@ import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 
 from ..catalog.store import Catalog, utcnow
+from .staging import staged_file
 
 _SAFE = re.compile(r"[^A-Za-z0-9_.=-]+")
 
@@ -123,16 +123,17 @@ class Lake:
         # catalog update failed left a file that `ds.dataset()` still globs and
         # reads, with no metadata behind it.
         #
-        # The staging name deliberately does not end in `.parquet`, so a reader
-        # scanning the directory mid-write cannot pick it up.
-        staged = directory / f".{target.name}.staging"
         # Streamed batch by batch rather than concatenated first. The whole
         # pipeline carries RecordBatch abstractions through decode and
         # normalisation and then materialised the entire state-year partition
         # here — at the storage boundary, which is exactly where streaming is
         # worth most.
+        #
+        # `staged_file` owns the durability rule, shared with the reference
+        # warehouse: nothing partial is ever visible at `target`, and a failure
+        # leaves the old partition intact and no debris behind.
         rows_written = 0
-        try:
+        with staged_file(target) as staged:
             writer = pq.ParquetWriter(
                 staged,
                 collected[0].schema,
@@ -147,16 +148,10 @@ class Lake:
                     rows_written += batch.num_rows
             finally:
                 writer.close()
-            if not staged.exists() or staged.stat().st_size == 0:
-                raise OSError(f"staged partition {staged} is empty after write")
             if replace:
+                # Only once the replacement is written and about to be swapped
+                # in. Clearing first is what could lose a partition outright.
                 self._clear_partition(system, family_id, schema_signature, uf, year)
-            os.replace(staged, target)
-        finally:
-            # A failed write must not leave debris behind for the next run to
-            # trip over; the old partition is still there and still valid.
-            if staged.exists():
-                staged.unlink()
         written = WrittenPartition(
             family_id=family_id,
             schema_signature=schema_signature,

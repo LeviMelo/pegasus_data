@@ -37,7 +37,6 @@ than pretending one string is the answer.
 from __future__ import annotations
 
 import re
-import shutil
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -50,6 +49,7 @@ import pyarrow.dataset as pads
 import pyarrow.parquet as pq
 
 from ..catalog.store import Catalog
+from .staging import staged_tree
 
 _SAFE = re.compile(r"[^A-Za-z0-9_.=-]+")
 
@@ -98,40 +98,22 @@ def is_hierarchical(catalog: Catalog, codelist: str) -> bool:
     return int(labels or 0) > LARGE_CODELIST_LABELS
 
 
-def write_reference_tables(
+def _materialise_reference_tables(
+    staging: Path,
     catalog: Catalog,
-    lake_root: str | Path,
     *,
-    compression: str = "zstd",
-    systems: Sequence[str] | None = None,
+    compression: str,
+    systems: Sequence[str] | None,
+    root: Path,
+    lake_root: Path,
 ) -> list[ReferenceTable]:
-    """Materialise every code table, scoped by **system** and by validity window.
+    """Write every reference table INTO `staging`. Knows nothing about swapping.
 
-    Scoping by system is not a refinement — it is the difference between a usable
-    lookup and a contradictory one. Thirteen systems ship a file called
-    ``SEXO.CNV`` and they do not agree: SIHSUS codes sex as 1/3, SINASC as 1/2,
-    SINAN as M/F. Keying the reference table on the codelist name alone merged
-    all thirteen into one table in which ``1`` meant Masculino *and* Feminino,
-    and any label drawn from it was a coin toss.
-
-    Measured on the full catalog: 311,844 (code, window) pairs carried more than
-    one label when systems were merged, across 264 codelists. Grouped by system
-    as well, that number is **zero** — every one of those tables is internally
-    consistent, and the contradiction was manufactured entirely here.
+    Separated so the durability rule lives in exactly one place
+    (:func:`~pegasus_data.persist.staging.staged_tree`) rather than being
+    hand-rolled here and again in the lake. This function only has to get the
+    content right; it cannot leave a half-built warehouse behind.
     """
-    root = Path(lake_root) / "reference"
-    # Derived output is replaced, not accumulated (§3). It also has to be, since
-    # the directory layout gained a level: a stale `window=` directory sitting
-    # beside a new `system=` one makes a hive dataset that will not open.
-    # Staged, then swapped. This used to rmtree(root) and rebuild in place, so a
-    # failure halfway left the reference warehouse partly absent — and because
-    # labelled reads can trigger this rebuild implicitly, an ordinary
-    # interactive request could degrade an otherwise working installation.
-    staging = root.with_name(root.name + ".__staging__")
-    if staging.exists():
-        shutil.rmtree(staging)
-    staging.mkdir(parents=True, exist_ok=True)
-    previous = root.with_name(root.name + ".__previous__")
 
     written: list[ReferenceTable] = []
 
@@ -228,26 +210,53 @@ def write_reference_tables(
             batch = []
         batch.append((row[3], row[4], row[5], row[6], row[7]))
     _flush()
+    return written
 
-    # Swap only once the new tree is complete. The old one stays readable until
-    # the rename, and is removed only after the new one is in place.
-    if previous.exists():
-        shutil.rmtree(previous)
-    if systems and root.exists():
-        # A SCOPED rebuild must not delete what it was not asked about. Merge
-        # the staged tables over the existing tree instead of swapping it out.
-        for staged_dir in staging.iterdir():
-            destination = root / staged_dir.name
-            if destination.exists():
-                shutil.rmtree(destination)
-            staged_dir.rename(destination)
-        shutil.rmtree(staging, ignore_errors=True)
-        return written
-    if root.exists():
-        root.rename(previous)
-    staging.rename(root)
-    if previous.exists():
-        shutil.rmtree(previous, ignore_errors=True)
+
+def write_reference_tables(
+    catalog: Catalog,
+    lake_root: str | Path,
+    *,
+    compression: str = "zstd",
+    systems: Sequence[str] | None = None,
+) -> list[ReferenceTable]:
+    """Materialise every code table, scoped by **system** and by validity window.
+
+    Scoping by system is not a refinement — it is the difference between a usable
+    lookup and a contradictory one. Thirteen systems ship a file called
+    ``SEXO.CNV`` and they do not agree: SIHSUS codes sex as 1/3, SINASC as 1/2,
+    SINAN as M/F. Keying the reference table on the codelist name alone merged
+    all thirteen into one table in which ``1`` meant Masculino *and* Feminino,
+    and any label drawn from it was a coin toss.
+
+    Measured on the full catalog: 311,844 (code, window) pairs carried more than
+    one label when systems were merged, across 264 codelists. Grouped by system
+    as well, that number is **zero** — every one of those tables is internally
+    consistent, and the contradiction was manufactured entirely here.
+    """
+    root = Path(lake_root) / "reference"
+    # Derived output is replaced, not accumulated (§3). It also has to be, since
+    # the directory layout gained a level: a stale `window=` directory sitting
+    # beside a new `system=` one makes a hive dataset that will not open.
+    # Staged, then swapped. This used to rmtree(root) and rebuild in place, so a
+    # failure halfway left the reference warehouse partly absent — and because
+    # labelled reads can trigger this rebuild implicitly, an ordinary
+    # interactive request could degrade an otherwise working installation.
+    # The same rule the lake uses, from the same place. `merge=` is the one
+    # genuine difference between the two artifacts: a scoped rebuild must not
+    # delete the tables it was not asked about, so it merges its subtrees over
+    # the existing tree instead of swapping the whole thing out.
+    with staged_tree(root, merge=bool(systems) and root.exists()) as staging:
+        written = _materialise_reference_tables(
+            staging,
+            catalog,
+            compression=compression,
+            systems=systems,
+            # Paths are recorded relative to where the tables will LIVE, not
+            # where they are being staged: the caller reads them after the swap.
+            root=root,
+            lake_root=Path(lake_root),
+        )
     return written
 
 
