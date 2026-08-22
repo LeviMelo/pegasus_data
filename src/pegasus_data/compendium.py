@@ -464,6 +464,122 @@ def _bindings(store: _Store, onto: Ontology, wanted: set[str]) -> _Binding:
     return out
 
 
+def _write_field_validity(
+    db: sqlite3.Connection,
+    store: _Store,
+    onto: Ontology,
+    wanted: set[str],
+    report: CompendiumReport,
+) -> None:
+    """When each column existed, one row per contiguous run (§14.7)."""
+    from .availability import _read as _read_availability
+
+    rows = []
+    for code in sorted(wanted):
+        try:
+            found = _read_availability(store.conn, onto, code)
+        except Exception:  # noqa: BLE001 - a dataset with nothing decoded yet
+            continue
+        for window in found.fields.values():
+            for lo, hi in window.intervals:
+                bridged = [y for y in window.bridged_years() if lo <= y <= hi]
+                rows.append(
+                    (
+                        code,
+                        window.field,
+                        lo,
+                        hi,
+                        1 if (window.current and hi == found.decoded_years[-1]) else 0,
+                        json.dumps(bridged) if bridged else None,
+                    )
+                )
+    db.executemany(
+        "INSERT OR REPLACE INTO field_validity (dataset, field, year_from, year_to,"
+        " current, bridged) VALUES (?,?,?,?,?,?)",
+        rows,
+    )
+    report.rows["field_validity"] = db.execute(
+        "SELECT COUNT(*) FROM field_validity"
+    ).fetchone()[0]
+
+
+def _write_codelist_vintages(
+    db: sqlite3.Connection, store: _Store, report: CompendiumReport
+) -> None:
+    """How many vintages each codelist has, and over what competence windows.
+
+    Always written, however large the optional `codes` table would be: a caller
+    needs to know a codelist is versioned even when they have not asked for the
+    codes themselves.
+    """
+    rows = [
+        (
+            str(r["value_group"]),
+            r["system"],
+            int(r["vintages"] or 0),
+            r["window_min"],
+            r["window_max"],
+            1 if int(r["open_ended"] or 0) else 0,
+            int(r["codes"] or 0),
+        )
+        for r in store.query(
+            """
+            SELECT value_group, system,
+                   COUNT(DISTINCT COALESCE(valid_from, '') || '..' ||
+                                  COALESCE(valid_to, '')) AS vintages,
+                   MIN(valid_from) AS window_min,
+                   MAX(valid_to)   AS window_max,
+                   MAX(CASE WHEN valid_from IS NULL THEN 1 ELSE 0 END) AS open_ended,
+                   COUNT(DISTINCT value_raw) AS codes
+              FROM dictionary
+             WHERE value_group IS NOT NULL
+             GROUP BY value_group, system
+            """
+        )
+    ]
+    db.executemany(
+        "INSERT OR REPLACE INTO codelist_vintages (codelist, system, vintages,"
+        " window_min, window_max, has_current, codes) VALUES (?,?,?,?,?,?,?)",
+        rows,
+    )
+    report.rows["codelist_vintages"] = db.execute(
+        "SELECT COUNT(*) FROM codelist_vintages"
+    ).fetchone()[0]
+
+
+def _write_join_keys(
+    db: sqlite3.Connection,
+    onto: Ontology,
+    wanted: set[str],
+    report: CompendiumReport,
+) -> None:
+    """Declared join keys, their members, and the joins known NOT to exist (§14.8)."""
+    db.executemany(
+        "INSERT OR REPLACE INTO join_keys (name, what, as_of, caveats) VALUES (?,?,?,?)",
+        [
+            (k.name, k.what, k.as_of, json.dumps(list(k.caveats)) if k.caveats else None)
+            for k in onto.keys.values()
+        ],
+    )
+    db.executemany(
+        "INSERT OR REPLACE INTO join_key_members (key, dataset, column_name,"
+        " rows_per_key, note) VALUES (?,?,?,?,?)",
+        [
+            (k.name, m.dataset, m.column, m.rows_per_key, m.note)
+            for k in onto.keys.values()
+            for m in k.members
+            if m.dataset in wanted
+        ],
+    )
+    db.executemany(
+        "INSERT INTO joins_not_established (want, proposed_key, finding) VALUES (?,?,?)",
+        [(u.want, u.proposed_key, u.finding) for u in onto.unestablished],
+    )
+    report.rows["join_key_members"] = db.execute(
+        "SELECT COUNT(*) FROM join_key_members"
+    ).fetchone()[0]
+
+
 def _write_core(
     db: sqlite3.Connection,
     store: _Store,
@@ -588,88 +704,9 @@ def _write_core(
         "SELECT COUNT(*) FROM dataset_variables"
     ).fetchone()[0]
 
-    # --- when each column existed ------------------------------------------
-    from .availability import _read as _read_availability
-
-    validity_rows = []
-    for code in sorted(wanted):
-        try:
-            found = _read_availability(store.conn, onto, code)
-        except Exception:  # noqa: BLE001 - a dataset with nothing decoded yet
-            continue
-        for window in found.fields.values():
-            for lo, hi in window.intervals:
-                bridged = [y for y in window.bridged_years() if lo <= y <= hi]
-                validity_rows.append(
-                    (code, window.field, lo, hi,
-                     1 if (window.current and hi == found.decoded_years[-1]) else 0,
-                     json.dumps(bridged) if bridged else None)
-                )
-    db.executemany(
-        "INSERT OR REPLACE INTO field_validity (dataset, field, year_from, year_to,"
-        " current, bridged) VALUES (?,?,?,?,?,?)",
-        validity_rows,
-    )
-    report.rows["field_validity"] = db.execute(
-        "SELECT COUNT(*) FROM field_validity"
-    ).fetchone()[0]
-
-    # --- codelist vintages ------------------------------------------------
-    vintage_rows = [
-        (
-            str(r["value_group"]), r["system"], int(r["vintages"] or 0),
-            r["window_min"], r["window_max"],
-            1 if int(r["open_ended"] or 0) else 0, int(r["codes"] or 0),
-        )
-        for r in store.query(
-            """
-            SELECT value_group, system,
-                   COUNT(DISTINCT COALESCE(valid_from, '') || '..' ||
-                                  COALESCE(valid_to, '')) AS vintages,
-                   MIN(valid_from) AS window_min,
-                   MAX(valid_to)   AS window_max,
-                   MAX(CASE WHEN valid_from IS NULL THEN 1 ELSE 0 END) AS open_ended,
-                   COUNT(DISTINCT value_raw) AS codes
-              FROM dictionary
-             WHERE value_group IS NOT NULL
-             GROUP BY value_group, system
-            """
-        )
-    ]
-    db.executemany(
-        "INSERT OR REPLACE INTO codelist_vintages (codelist, system, vintages,"
-        " window_min, window_max, has_current, codes) VALUES (?,?,?,?,?,?,?)",
-        vintage_rows,
-    )
-    report.rows["codelist_vintages"] = db.execute(
-        "SELECT COUNT(*) FROM codelist_vintages"
-    ).fetchone()[0]
-
-    # --- join keys ----------------------------------------------------------
-    db.executemany(
-        "INSERT OR REPLACE INTO join_keys (name, what, as_of, caveats) VALUES (?,?,?,?)",
-        [
-            (k.name, k.what, k.as_of, json.dumps(list(k.caveats)) if k.caveats else None)
-            for k in onto.keys.values()
-        ],
-    )
-    db.executemany(
-        "INSERT OR REPLACE INTO join_key_members (key, dataset, column_name,"
-        " rows_per_key, note) VALUES (?,?,?,?,?)",
-        [
-            (k.name, m.dataset, m.column, m.rows_per_key, m.note)
-            for k in onto.keys.values()
-            for m in k.members
-            if m.dataset in wanted
-        ],
-    )
-    db.executemany(
-        "INSERT INTO joins_not_established (want, proposed_key, finding) VALUES (?,?,?)",
-        [(u.want, u.proposed_key, u.finding) for u in onto.unestablished],
-    )
-    report.rows["join_key_members"] = db.execute(
-        "SELECT COUNT(*) FROM join_key_members"
-    ).fetchone()[0]
+    _write_field_validity(db, store, onto, wanted, report)
+    _write_codelist_vintages(db, store, report)
+    _write_join_keys(db, onto, wanted, report)
 
     # --- schema generations, with what each one changed -------------------
     gen_rows = _generations(store, onto, wanted, binding)
