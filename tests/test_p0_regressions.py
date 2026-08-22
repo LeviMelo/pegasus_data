@@ -13,7 +13,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from pegasus_data.acquire.fetcher import FetchResult, Fetcher
+from pegasus_data.acquire.fetcher import Fetcher, FetchResult
 from pegasus_data.api import _by_vintage, _merge_reports
 from pegasus_data.catalog.store import Catalog
 from pegasus_data.persist.lake import Lake

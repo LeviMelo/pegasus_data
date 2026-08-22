@@ -19,9 +19,9 @@ variable and what do its values mean", which DATASUS does not provide anywhere.
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
-import os
 from pathlib import Path
 from typing import Any
 
@@ -325,7 +325,7 @@ class Catalog:
         return duck
 
 
-def _by_vintage(table: "pa.Table", years: "Sequence[int] | None"):
+def _by_vintage(table: pa.Table, years: Sequence[int] | None):
     """Split a table into ``(chunk, year)`` so each is rendered at its own vintage.
 
     The lake stores ``year`` as a partition column, so it is present on every
@@ -924,6 +924,11 @@ def load_population(
     years: Sequence[int] | range | None = None,
     by: Sequence[str] = ("municipality", "year"),
     catalog: Catalog | None = None,
+    # Both of these were REFERENCED in the body and never declared, so every
+    # call without an explicit catalog raised NameError: name 'root' is not
+    # defined. Same family as export() forwarding root= nowhere.
+    root: str | Path | None = None,
+    settings: Settings | None = None,
 ) -> pa.Table:
     """Load a denominator series, refusing a stratification it cannot support.
 
@@ -968,6 +973,9 @@ def load_reference(
     valid_from: str | None = None,
     code_width: int | None = None,
     catalog: Catalog | None = None,
+    root: str | Path | None = None,
+    settings: Settings | None = None,
+    competencia: int | None = None,
 ) -> pa.Table:
     """Load a reference code table at the vintage that covers `year`.
 
@@ -984,7 +992,12 @@ def load_reference(
     cat = catalog or Catalog(root=root, settings=settings)
     try:
         return read_reference_table(
-            cat.settings.lake_dir, table, valid_from=valid_from, year=year, code_width=code_width
+            cat.settings.lake_dir,
+            table,
+            valid_from=valid_from,
+            year=year,
+            competencia=competencia,
+            code_width=code_width,
         )
     finally:
         if own:
@@ -1020,7 +1033,7 @@ class LakeScan:
     #: One scanner per schema generation. They are separate deliberately: two
     #: generations do not share a schema, and concatenating them is a decision
     #: (see `on_missing_column`) rather than something a scan should do quietly.
-    scanners: list[tuple[str, "ds.Scanner"]]
+    scanners: list[tuple[str, ds.Scanner]]
     system: str
     series: str | None = None
     families: list[str] = field(default_factory=list)
@@ -1045,12 +1058,12 @@ class LakeScan:
         """
         return sum(sc.count_rows() for _, sc in self.scanners)
 
-    def iter_batches(self) -> "Iterator[pa.RecordBatch]":
+    def iter_batches(self) -> Iterator[pa.RecordBatch]:
         """Yield batches across every generation, in family order."""
         for _fam, scanner in self.scanners:
             yield from scanner.to_batches()
 
-    def __iter__(self) -> "Iterator[pa.RecordBatch]":
+    def __iter__(self) -> Iterator[pa.RecordBatch]:
         return self.iter_batches()
 
     def to_table(self) -> pa.Table:
@@ -1071,7 +1084,7 @@ def scan(
     uf: str | Sequence[str] | None = None,
     years: int | Sequence[int] | range | None = None,
     columns: Sequence[str] | None = None,
-    where: "ds.Expression | None" = None,
+    where: ds.Expression | None = None,
     batch_size: int = 131_072,
     family_id: str | None = None,
     catalog: Catalog | None = None,
@@ -1293,7 +1306,7 @@ def export(
     return write_table(table, path, fmt)
 
 
-def _write_streaming(scan_result: "LakeScan", path: str | Path, fmt: str) -> Path:
+def _write_streaming(scan_result: LakeScan, path: str | Path, fmt: str) -> Path:
     """Write a scan batch by batch. Never holds more than one batch.
 
     Staged and renamed, like every other write in this package: an interrupted

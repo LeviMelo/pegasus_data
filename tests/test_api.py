@@ -2,23 +2,12 @@
 
 from __future__ import annotations
 
-import pyarrow as pa
 import pytest
 
 from pegasus_data.api import Catalog as PublicCatalog
 from pegasus_data.api import LabelUnavailable, describe, load
-from pegasus_data.catalog.store import Catalog
-from pegasus_data.config import Settings
-from pegasus_data.inventory.families import family_id_for, schema_signature
 from pegasus_data.normalize.engine import MissingColumnError
 from pegasus_data.persist.duck import DuckLake
-from pegasus_data.persist.lake import Lake
-from pegasus_data.semantics.dictionary import (
-    CodelistBinding,
-    DictionaryEntry,
-    persist_bindings,
-    persist_entries,
-)
 
 
 class TestCatalogSurface:

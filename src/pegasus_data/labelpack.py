@@ -275,6 +275,22 @@ def build_label_pack(
 
     sys_c, grp_c, lo_c, hi_c, lab_c, w_c = [], [], [], [], [], []
     per_table: dict[str, int] = {}
+
+    def _emit(system: str | None, group: str, lo: str, hi: str, label: str) -> None:
+        """Close one run into the column builders.
+
+        Written out because the six parallel appends were packed onto two
+        semicolon lines in two places, and two copies of a six-column append is
+        how one of them ends up writing the columns in a different order.
+        """
+        sys_c.append(system)
+        grp_c.append(group)
+        lo_c.append(lo)
+        hi_c.append(hi)
+        lab_c.append(label)
+        w_c.append(len(lo))
+        per_table[group] = per_table.get(group, 0) + 1
+
     for (system, group), pairs in buckets.items():
         pairs.sort()
         lo = hi = label = None
@@ -283,15 +299,11 @@ def build_label_pack(
                 hi = code
                 continue
             if label is not None:
-                sys_c.append(system); grp_c.append(group); lo_c.append(lo)
-                hi_c.append(hi); lab_c.append(label); w_c.append(len(lo))
-                per_table[group] = per_table.get(group, 0) + 1
+                _emit(system, group, lo, hi, label)
             lo = hi = code
             label = text
         if label is not None:
-            sys_c.append(system); grp_c.append(group); lo_c.append(lo)
-            hi_c.append(hi); lab_c.append(label); w_c.append(len(lo))
-            per_table[group] = per_table.get(group, 0) + 1
+            _emit(system, group, lo, hi, label)
 
     table = pa.table(
         {
@@ -395,7 +407,7 @@ def read_packed(
     *,
     system: str | None = None,
     code_width: int | None = None,
-) -> "Any":
+) -> Any:
     """One codelist from the shipped pack, shaped like a lake reference table.
 
     This is what makes ``fetch(labels=True)`` work on a fresh install. Without
@@ -408,7 +420,6 @@ def read_packed(
     borrowing across them is the one mistake this must not make.
     """
     import pyarrow as pa
-
     import pyarrow.compute as pc
 
     data = _dataset()
@@ -428,6 +439,7 @@ def read_packed(
             hit.column("code_hi").to_pylist(),
             hit.column("label").to_pylist(),
             hit.column("code_width").to_pylist(),
+            strict=True,
         )
     )
     wanted = (system or "").upper() or None

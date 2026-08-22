@@ -14,7 +14,7 @@ from pegasus_data.normalize.engine import FieldPlan, NormalizePlan, plan_fingerp
 
 
 def _plan(**kw) -> NormalizePlan:
-    base = dict(family_id="F1", system="SIHSUS", schema_signature="sig")
+    base = {"family_id": "F1", "system": "SIHSUS", "schema_signature": "sig"}
     base.update(kw)
     return NormalizePlan(**base)  # type: ignore[arg-type]
 
@@ -124,9 +124,10 @@ class TestPartitionIsCurrent:
             "relative_path, row_count, byte_size, build_fingerprint) "
             "VALUES ('F1','sig','AL',2023,'SIHSUS/F1/x/part-00000.parquet',1,1,'FP')"
         )
-        kw = dict(
-            system="SIHSUS", family_id="F1", schema_signature="sig", uf="AL", year=2023
-        )
+        kw = {
+            "system": "SIHSUS", "family_id": "F1", "schema_signature": "sig",
+            "uf": "AL", "year": 2023,
+        }
         assert not lake.partition_is_current(fingerprint="FP", **kw), (
             "the parquet the row names does not exist"
         )

@@ -33,6 +33,11 @@ number for somebody:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .config import Settings
+
 import json
 import re
 import sqlite3
@@ -969,7 +974,7 @@ def search(
     query: str,
     *,
     root: str | Path | None = None,
-    settings: "Settings | None" = None,
+    settings: Settings | None = None,
     path: str | Path | None = None,
     limit: int = 25,
     kind: str | None = None,

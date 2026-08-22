@@ -17,14 +17,13 @@ from __future__ import annotations
 import ftplib
 import hashlib
 import io
-import os
 import socket
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from pathlib import Path
 from datetime import UTC, datetime
+from pathlib import Path
 
 from .listing import ListingEntry, normalize_path, parse_list_lines, parse_nlst
 
@@ -424,7 +423,7 @@ class FtpClient:
     def retrieve_to_file(
         self,
         path: str,
-        dest: "Path",
+        dest: Path,
         *,
         progress: Callable[[int], None] | None = None,
         expected_size: int | None = None,

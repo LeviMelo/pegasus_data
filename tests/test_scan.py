@@ -10,14 +10,12 @@ from __future__ import annotations
 
 import csv
 
-import pyarrow as pa
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 import pytest
 
-from pegasus_data.api import Catalog as PublicCatalog
 from pegasus_data.api import LakeScan, export, load, scan
-from pegasus_data.retrieve import DatasetUnknown, FilterHasNoAxis
+from pegasus_data.retrieve import DatasetUnknown
 
 pytest_plugins = ()
 

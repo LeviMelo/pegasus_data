@@ -52,6 +52,7 @@ import json
 import sqlite3
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from datetime import UTC
 from pathlib import Path
 from typing import Any, Literal
 
@@ -1051,12 +1052,12 @@ def _write_files(
 
 
 def _write_meta(db: sqlite3.Connection, store: _Store, report: CompendiumReport) -> None:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     crawled = store.query("SELECT MAX(last_seen) AS t FROM files")
     meta = {
         "generator": "pegasus_data.compendium",
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "crawl_last_seen": (crawled[0]["t"] if crawled else None),
         "options": json.dumps(report.options),
         "rows": json.dumps(report.rows),

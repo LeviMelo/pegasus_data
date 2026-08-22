@@ -17,8 +17,8 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
 from pegasus_data._explore import explore, tree_snapshot
+from pegasus_data.catalog.store import Catalog
 
 
 def add_file(

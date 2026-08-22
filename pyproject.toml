@@ -98,3 +98,23 @@ ignore = ["E501", "B006", "B008", "SIM105", "SIM108", "SIM115", "C401"]
 python_version = "3.11"
 ignore_missing_imports = true
 warn_unused_ignores = false
+
+# pyarrow.compute builds its function namespace at import time from the Arrow
+# C++ registry, so `pc.utf8_trim_whitespace` and friends exist at runtime and
+# are invisible to a static checker. Left on, they were ~190 of ~197 findings
+# and buried the handful that were real (one of which was a genuine
+# type-shadowing bug in ontology.py). Suppressed at the module level, so a real
+# error elsewhere is legible.
+[[tool.mypy.overrides]]
+module = ["pyarrow.*"]
+follow_imports = "skip"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+  "pegasus_data.normalize.*",
+  "pegasus_data.profile.accumulators",
+  "pegasus_data.sources.ibge",
+  "pegasus_data.decode.dbf",
+]
+disable_error_code = ["attr-defined", "call-overload", "arg-type"]

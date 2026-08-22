@@ -16,9 +16,8 @@ byte zero to read one column, and a Parquet file's footer is a map.
 
 from __future__ import annotations
 
-import os
-
 import json
+import os
 import re
 from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass

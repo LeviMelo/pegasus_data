@@ -269,7 +269,7 @@ def _gzip_inner_name(path: str) -> str:
     return name[:-3] if name.lower().endswith(".gz") else name
 
 
-def safe_member_path(name: str, root: "Path") -> "Path | None":
+def safe_member_path(name: str, root: Path) -> Path | None:
     """Resolve an archive member under ``root``, or ``None`` if it escapes.
 
     DATASUS archives are REMOTE input, and RAR/7z extraction is handed to

@@ -45,9 +45,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 STOP = frozenset(
-    """a an the of for to in on and or is are was be been this that it its as by
-    with from at not no yes one row rows column columns field value values which
-    when whether where what who whom da de do das dos e em no na""".split()
+    ["a", "an", "the", "of", "for", "to", "in", "on", "and", "or", "is", "are", "was", "be", "been", "this", "that", "it", "its", "as", "by", "with", "from", "at", "not", "no", "yes", "one", "row", "rows", "column", "columns", "field", "value", "values", "which", "when", "whether", "where", "what", "who", "whom", "da", "de", "do", "das", "dos", "e", "em", "no", "na"]
 )
 
 HEDGE = re.compile(
@@ -98,7 +96,7 @@ _NAMES_AN_ARTEFACT = re.compile(r"\b[A-Z][A-Z0-9_]{3,}\b")
 
 
 def words(text: str) -> list[str]:
-    return [w for w in re.findall(r"[a-zà-ÿ0-9_]+", str(text).lower())]
+    return re.findall(r"[a-zà-ÿ0-9_]+", str(text).lower())
 
 
 def content(text: str) -> set[str]:

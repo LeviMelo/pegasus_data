@@ -164,7 +164,7 @@ def load_settings(**overrides: object) -> Settings:
     # Every knob that matters, not just the crawler's. Honouring
     # PEGASUS_CONNECTIONS alone let someone believe they had turned network
     # pressure down while fetch() carried on with eight workers.
-    for env_name, field, cast in (
+    for env_name, setting_name, cast in (
         ("PEGASUS_CONNECTIONS", "connections", int),
         ("PEGASUS_FETCH_CONCURRENCY", "fetch_concurrency", int),
         ("PEGASUS_ITEM_TIMEOUT", "item_timeout", float),
@@ -172,6 +172,6 @@ def load_settings(**overrides: object) -> Settings:
         ("PEGASUS_TIMEOUT", "timeout", float),
     ):
         if env_name in os.environ:
-            kwargs[field] = cast(os.environ[env_name])
+            kwargs[setting_name] = cast(os.environ[env_name])
     kwargs.update({k: v for k, v in overrides.items() if v is not None})
     return Settings(**kwargs)  # type: ignore[arg-type]

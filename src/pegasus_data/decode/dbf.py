@@ -119,7 +119,7 @@ def _string_array(block: np.ndarray, offset: int, width: int, encoding: str) -> 
 
 
 def _batch_from_block(
-    block: np.ndarray, header: "DbfHeader", offsets: list[int], encoding: str
+    block: np.ndarray, header: DbfHeader, offsets: list[int], encoding: str
 ) -> pa.RecordBatch:
     """One Arrow batch from one fixed-width record block."""
     # Byte 0 of a record is ' ' for live rows and '*' for deleted ones.

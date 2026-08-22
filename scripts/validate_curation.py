@@ -40,7 +40,9 @@ _DATEISH = ("date", "data ", "dt_", "when the", "day ", "timestamp")
 #: "encounter", which flagged eight correct descriptions on the polio form as
 #: contradicting their own codelist.
 _NUMERIC = ("count", "counts", "quantity", "amount", "amounts", "número de", "quantidade")
-_NUMERIC_RE = re.compile(r"\b(?:%s)\b|value in" % "|".join(_NUMERIC))
+_NUMERIC_RE = re.compile(
+    r"\b(?:" + "|".join(_NUMERIC) + r")\b|value in"
+)
 
 #: A description is for the reader of the data, not a review of DATASUS's
 #: paperwork. These phrases mean the writer has started describing the

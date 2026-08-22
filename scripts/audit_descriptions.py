@@ -42,9 +42,7 @@ import sys
 
 #: Words carrying no discriminating power when comparing two descriptions.
 STOP = frozenset(
-    """a an the of for to in on and or is are was be been this that it its as by
-    with from at not no yes one row rows column columns field value values which
-    when whether where what who whom""".split()
+    ["a", "an", "the", "of", "for", "to", "in", "on", "and", "or", "is", "are", "was", "be", "been", "this", "that", "it", "its", "as", "by", "with", "from", "at", "not", "no", "yes", "one", "row", "rows", "column", "columns", "field", "value", "values", "which", "when", "whether", "where", "what", "who", "whom"]
 )
 
 DESCRIBED = """
@@ -152,7 +150,7 @@ def main() -> None:
             for score, a, b in near[: args.limit]:
                 print(f"    {score:.2f}  {a}  ~  {b}")
         else:
-            print(f"  NEAR-DUPLICATE pairs: none")
+            print("  NEAR-DUPLICATE pairs: none")
 
     print("\n=== totals ===")
     print(f"  described           {grand['total']}")

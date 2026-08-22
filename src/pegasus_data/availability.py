@@ -42,7 +42,8 @@ read. Both matter and they are not the same, so they are never merged.
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import dataclass, field as _field
+from dataclasses import dataclass
+from dataclasses import field as _field
 from pathlib import Path
 from typing import Any, Literal
 
@@ -268,7 +269,7 @@ def _resolve(target: str, onto: Ontology) -> str:
 
 def _read(conn: sqlite3.Connection, onto: Ontology, code: str) -> Availability:
     node = onto.datasets[code]
-    crawled = sorted({s for s in (node.system, *_crawled_names(onto, code))})
+    crawled = sorted({node.system, *_crawled_names(onto, code)})
     marks = ",".join("?" for _ in crawled)
     series = sorted({node.short_code, *node.observed_as})
     smarks = ",".join("?" for _ in series)

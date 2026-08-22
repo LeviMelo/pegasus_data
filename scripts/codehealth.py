@@ -210,7 +210,17 @@ def scan(pkg: Path = PKG) -> Report:
             if name not in used and name != "annotations":
                 report.add("unused_import", module=module, line=line, name=name)
 
-        def walk(node: ast.AST, prefix: str = "") -> None:
+        # `module` and `lines` bound at definition rather than captured:
+        # walk() is defined inside the per-module loop, and the recursive
+        # calls below pick the defaults back up, so the values cannot drift
+        # to the last module in the loop.
+        def walk(
+            node: ast.AST,
+            prefix: str = "",
+            *,
+            module: str = module,
+            lines: list[str] = lines,
+        ) -> None:
             for child in ast.iter_child_nodes(node):
                 if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     qual = prefix + child.name

@@ -142,7 +142,7 @@ def main() -> None:
     print(f"\nwould write {len(buckets)} files across "
           f"{len({s for s, _ in buckets})} systems")
     by_system: collections.Counter = collections.Counter()
-    for (system, slug), items in sorted(buckets.items()):
+    for (system, _slug), items in sorted(buckets.items()):
         by_system[system] += len(items)
     for system, n in by_system.most_common():
         files = sorted(slug for s, slug in buckets if s == system)
@@ -189,7 +189,7 @@ def main() -> None:
             lines.append(f"asserted_by: {defaults['asserted_by']}")
         lines.append("")
         lines.append("variables:")
-        body_doc = {name: body for name, body in sorted(items)}
+        body_doc = dict(sorted(items))
         dumped = yaml.safe_dump(
             body_doc, allow_unicode=True, sort_keys=False, width=79, default_flow_style=False
         )

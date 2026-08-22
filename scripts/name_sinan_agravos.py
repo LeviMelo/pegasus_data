@@ -20,7 +20,6 @@ Idempotent: run it twice and the second run reports nothing to do.
 
 from __future__ import annotations
 
-import io
 import re
 import sys
 from pathlib import Path
@@ -83,7 +82,7 @@ _ROW = re.compile(r"^    what_one_row_is:\s*(.+?)\s*$")
 
 
 def main() -> int:
-    text = io.open(TARGET, encoding="utf-8").read()
+    text = open(TARGET, encoding="utf-8").read()
     lines = text.splitlines()
     out: list[str] = []
     current: str | None = None
@@ -115,7 +114,7 @@ def main() -> int:
         print("nothing to do")
         return 0
 
-    io.open(TARGET, "w", encoding="utf-8", newline="\n").write("\n".join(out) + "\n")
+    open(TARGET, "w", encoding="utf-8", newline="\n").write("\n".join(out) + "\n")
     print(f"named {added} agravos; corrected {renamed} untranslated row definitions")
     return 0
 

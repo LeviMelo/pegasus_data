@@ -202,7 +202,7 @@ class TestReadingTheShippedPack:
         """The table a size cap would have thrown away."""
         table = read_packed("CID10", system="SIHSUS", code_width=4)
         found = dict(
-            zip(table.column("code").to_pylist(), table.column("label").to_pylist())
+            zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True)
         )
         assert "I219" in found
         assert "infarto" in found["I219"].lower()

@@ -34,7 +34,7 @@ def _seed(catalog: Catalog) -> None:
         ]
     )
     for uf in ("AC", "AL"):
-        for yy, year, sig in (("22", 2022, sig_a), ("23", 2023, sig_b)):
+        for yy, year, sig in (("22", 2022, sig_a), ("23", 2023, sig_b)):  # noqa: B007
             catalog.execute(
                 "INSERT OR REPLACE INTO file_facts (path, system, series_prefix, geo_code,"
                 " year, role) VALUES (?,?,?,?,?,?)",
@@ -203,7 +203,7 @@ class TestRepublicationDoesNotDoubleCountColumns:
             [{"path": p, "directory": "/d", "filename": p.rsplit("/", 1)[1],
               "extension": ".dbc", "size": 10} for p in paths]
         )
-        for path, system in zip(paths, ("SIASUS", "DADOS_ABERTOS")):
+        for path, system in zip(paths, ("SIASUS", "DADOS_ABERTOS"), strict=True):
             catalog.execute(
                 "INSERT OR REPLACE INTO file_facts (path, system, series_prefix,"
                 " geo_code, year, role) VALUES (?,?,?,?,?,?)",

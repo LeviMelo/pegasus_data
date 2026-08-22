@@ -124,12 +124,18 @@ class Fetcher:
         # therefore skipped despite changed contents.
         then_size, then_mtime = row["then_size"], row["then_mtime"]
         if then_size is not None or then_mtime is not None:
-            if then_size is not None and listed_size is not None:
-                if int(then_size) != int(listed_size):
-                    return None
-            if then_mtime is not None and listed_mtime is not None:
-                if str(then_mtime) != str(listed_mtime):
-                    return None
+            if (
+                then_size is not None
+                and listed_size is not None
+                and int(then_size) != int(listed_size)
+            ):
+                return None
+            if (
+                then_mtime is not None
+                and listed_mtime is not None
+                and str(then_mtime) != str(listed_mtime)
+            ):
+                return None
             if then_mtime is None and listed_mtime is not None:
                 # The server started reporting a time we cannot compare against.
                 return None

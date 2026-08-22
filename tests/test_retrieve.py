@@ -21,11 +21,11 @@ implementation is a second set of labels to keep true.
 
 from __future__ import annotations
 
-import pyarrow as pa
 import hashlib
 import tempfile
 from pathlib import Path
 
+import pyarrow as pa
 import pytest
 
 from pegasus_data.catalog.store import Catalog

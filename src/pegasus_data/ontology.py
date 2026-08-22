@@ -38,9 +38,10 @@ from __future__ import annotations
 
 import re
 import sqlite3
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
 CURATION = Path(__file__).parent / "curation"
 
@@ -243,7 +244,7 @@ class DatasetAxes:
             self._month += n
 
     @classmethod
-    def measure(cls, dataset: str, rows: "Iterable[Mapping[str, Any]]") -> "DatasetAxes":
+    def measure(cls, dataset: str, rows: Iterable[Mapping[str, Any]]) -> DatasetAxes:
         """Tally axes from explore-shaped rows (``uf``, ``year``, ``yyyymm``)."""
         axes = cls(dataset=dataset)
         for row in rows:
@@ -327,7 +328,7 @@ class Reconciliation:
         }
 
 
-def _load_joins(root: Path) -> tuple[dict[str, "JoinKey"], list["UnestablishedJoin"]]:
+def _load_joins(root: Path) -> tuple[dict[str, JoinKey], list[UnestablishedJoin]]:
     """Read ``joins.yml``. Absent or unreadable, the ontology simply has no keys.
 
     A malformed join declaration must not stop the map of the server from
@@ -493,7 +494,7 @@ class Ontology:
         # SINAN agravos, declared in their own file.
         sinan_path = root / "datasets" / "sinan_agravos.yml"
         if sinan_path.exists():
-            for code, body in (_read_yaml(sinan_path).get("datasets") or {}).items():
+            for body in (_read_yaml(sinan_path).get("datasets") or {}).values():
                 body = body or {}
                 series = str(body.get("series") or "").upper()
                 if not series:
@@ -517,10 +518,13 @@ class Ontology:
         # Crawled system name -> declared system code. The tree says SIASUS; the
         # institution says SIA.
         self._system_alias: dict[str, str] = {}
-        for node in self.systems.values():
-            self._system_alias[node.code] = node.code
-            for alias in node.crawled_as:
-                self._system_alias[alias] = node.code
+        # `system` and `dataset`, not `node` twice: one name for two node types
+        # in one scope makes the second loop's type unreadable to a checker and
+        # to a reader.
+        for system in self.systems.values():
+            self._system_alias[system.code] = system.code
+            for alias in system.crawled_as:
+                self._system_alias[alias] = system.code
 
         # (declared system, series) -> dataset, and a series-only fallback for
         # republication trees, where the crawled system is Dados_Abertos but the
@@ -528,14 +532,14 @@ class Ontology:
         self._by_system_series: dict[tuple[str, str], str] = {}
         self._by_series: dict[str, str] = {}
         self._series_collisions: set[str] = set()
-        for node in self.datasets.values():
-            keys = set(node.observed_as) | {node.short_code}
+        for dataset in self.datasets.values():
+            keys = set(dataset.observed_as) | {dataset.short_code}
             for key in keys:
-                self._by_system_series[(node.system, key)] = node.code
-                if key in self._by_series and self._by_series[key] != node.code:
+                self._by_system_series[(dataset.system, key)] = dataset.code
+                if key in self._by_series and self._by_series[key] != dataset.code:
                     self._series_collisions.add(key)
                 else:
-                    self._by_series[key] = node.code
+                    self._by_series[key] = dataset.code
 
     # ------------------------------------------------------------- binding
 
@@ -672,7 +676,7 @@ class Ontology:
             return ("dataset", self.datasets[hit])
         return None
 
-    def axes(self, conn: sqlite3.Connection) -> dict[str, "DatasetAxes"]:
+    def axes(self, conn: sqlite3.Connection) -> dict[str, DatasetAxes]:
         """How each dataset is actually PARTITIONED on the server.
 
         The API had been assuming every dataset is split by state, year and

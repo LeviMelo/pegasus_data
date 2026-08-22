@@ -507,7 +507,9 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
         "(UPPER(system) = ? AND UPPER(series) = ?) LIMIT 1",
         (node.code, node.system, node.short_code),
     ):
-        doc = {k: r[k] for k in r.keys() if r[k] is not None}
+        # Suppressed on purpose: `r` is a sqlite3.Row, where iteration
+        # yields VALUES. `r.keys()` is the only way to ask for column names.
+        doc = {k: r[k] for k in r.keys() if r[k] is not None}  # noqa: SIM118
 
     questions = _open_questions_for(store, crawled_systems, signatures)
 
@@ -788,7 +790,8 @@ def _variable(store: _Store, onto: Ontology, target: str, field_name: str) -> In
         },
         evidence={
             "source": first["source"],
-            "reasoning": first["reasoning"] if "reasoning" in first.keys() else None,
+            # sqlite3.Row again: `in first` would test the values.
+            "reasoning": first["reasoning"] if "reasoning" in first.keys() else None,  # noqa: SIM118
             "scope": getattr(scope, "code", None),
         },
         children=[{"code": d, "translated_name": ""} for d in datasets],

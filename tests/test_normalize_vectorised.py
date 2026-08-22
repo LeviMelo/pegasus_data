@@ -117,7 +117,7 @@ class TestEpiWeekArray:
         ]
         dates = parse_date_array(pa.array([d.strftime("%Y%m%d") for d in days]))
         years, weeks = epi_week_array(dates)
-        assert list(zip(years.to_pylist(), weeks.to_pylist())) == [
+        assert list(zip(years.to_pylist(), weeks.to_pylist(), strict=True)) == [
             (epi_week(d).year, epi_week(d).week) for d in days
         ]
 
@@ -125,7 +125,7 @@ class TestEpiWeekArray:
         days = [date(1979, 1, 1) + timedelta(days=i * 97) for i in range(400)]
         dates = parse_date_array(pa.array([d.strftime("%Y%m%d") for d in days]))
         years, weeks = epi_week_array(dates)
-        assert list(zip(years.to_pylist(), weeks.to_pylist())) == [
+        assert list(zip(years.to_pylist(), weeks.to_pylist(), strict=True)) == [
             (epi_week(d).year, epi_week(d).week) for d in days
         ]
 

@@ -1161,9 +1161,9 @@ def check_bound_codelists_decode(catalog: Catalog, settings: Settings) -> Check:
     leaked: list[str] = []
     for system, pairs in dead_by_system.items():
         offered = working_bindings(catalog, system)
-        for field, codelist in pairs:
-            if codelist in offered.get(field, ()):
-                leaked.append(f"{system}.{field} -> {codelist}")
+        for field_name, codelist in pairs:
+            if codelist in offered.get(field_name, ()):
+                leaked.append(f"{system}.{field_name} -> {codelist}")
 
     all_dead_fields = catalog.scalar(
         "SELECT COUNT(*) FROM (SELECT system, field_name FROM field_codelists"

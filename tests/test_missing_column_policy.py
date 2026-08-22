@@ -14,12 +14,8 @@ recorded as structural.
 
 from __future__ import annotations
 
-import pyarrow as pa
-import pytest
-
 from pegasus_data.catalog.store import Catalog
 from pegasus_data.normalize.engine import MissingColumnError
-from pegasus_data.retrieve import fetch
 
 
 def _two_generations(catalog: Catalog) -> None:

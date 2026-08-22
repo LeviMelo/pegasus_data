@@ -35,11 +35,11 @@ is named. Returning a short table quietly is how a wrong number gets published.
 from __future__ import annotations
 
 import functools
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import threading
 import os
 import re
+import threading
 from collections.abc import Callable, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -53,7 +53,7 @@ from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
 from .ontology import Ontology
 from .pipeline import Pipeline
-from .progress import ItemTimeout, guarded, record_timeout, run_with_timeout
+from .progress import ItemTimeout, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
 from .view import RenderReport, render_table
 
@@ -874,9 +874,6 @@ def _read_families(
     # nullness without saying so.
     if absent_by_family:
         every = sorted({c for cols in absent_by_family.values() for c in cols})
-        detail = "; ".join(
-            f"{fam} lacks {', '.join(cols)}" for fam, cols in sorted(absent_by_family.items())
-        )
         carried = sorted(set(report.families) - set(absent_by_family))
         if on_missing_column == "null_fill":
             for col in every:
@@ -886,15 +883,16 @@ def _read_families(
                     "generations; those rows are null here STRUCTURALLY — the "
                     "field does not exist for them, it was not left blank"
                 )
-            report.columns_structurally_absent = {
-                fam: cols for fam, cols in sorted(absent_by_family.items())
-            }
+            report.columns_structurally_absent = dict(sorted(absent_by_family.items()))
         else:
             from .normalize.engine import MissingColumnError
 
             raise MissingColumnError(
                 every[0],
-                ", ".join(sorted(absent_by_family)),
+                "; ".join(
+                    f"{fam} lacks {', '.join(cols)}"
+                    for fam, cols in sorted(absent_by_family.items())
+                ),
                 carried,
                 also_absent=every[1:],
             )
@@ -1022,10 +1020,8 @@ def _read_families(
                 pool.submit(_decode_at, position, triple): position
                 for position, triple in enumerate(selected)
             }
-            finished = 0
-            for future in as_completed(futures):
+            for finished, future in enumerate(as_completed(futures), start=1):
                 outcomes.append(future.result())
-                finished += 1
                 if on_progress:
                     on_progress("decoding", finished, len(selected))
 

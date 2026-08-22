@@ -828,7 +828,11 @@ def _render_table(
                 name.upper(),
                 candidates,
                 seen,
-                lambda cl: _single_lookup(lake, cl, system, year, width_hint),
+                # width_hint bound at definition: the callback is invoked
+                # synchronously today, but a closure over a loop variable is one
+                # refactor away from every column being weighed at the last
+                # column's width.
+                lambda cl, w=width_hint: _single_lookup(lake, cl, system, year, w),
             )
             if picked and chosen_share < _TOO_WEAK:
                 if len(seen) <= 1:

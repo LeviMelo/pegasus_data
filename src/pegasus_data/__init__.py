@@ -72,15 +72,15 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     # Re-exported through __getattr__ at runtime; `__all__` is built from
     # _EXPORTS, which a linter cannot follow.
     # ruff: noqa: F401
+    from ._explore import Exploration, explore
     from ._info import Info, info
-    from .ontology import Ontology
+    from ._translate import TranslationImpossible, translate
     from .api import (
-        LakeScan,
-        scan,
         PROFILES,
         Catalog,
         FieldDescription,
         LabelUnavailable,
+        LakeScan,
         MissingColumnError,
         RenderReport,
         describe,
@@ -89,14 +89,18 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         load_population,
         load_reference,
         open_lake,
+        scan,
     )
     from .bundle import BundleError, pack, read_manifest, unpack
     from .compendium import CompendiumReport, compendium
-    from ._explore import Exploration, explore
+    from .ontology import Ontology
     from .retrieve import (
-        DatasetUnknown, FetchReport, FilterHasNoAxis, NothingPublished, fetch,
+        DatasetUnknown,
+        FetchReport,
+        FilterHasNoAxis,
+        NothingPublished,
+        fetch,
     )
-    from ._translate import TranslationImpossible, translate
 
 
 def __getattr__(name: str) -> Any:
