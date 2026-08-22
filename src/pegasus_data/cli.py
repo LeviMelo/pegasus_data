@@ -40,7 +40,14 @@ app = typer.Typer(
 )
 console = Console()
 
-RootOpt = Annotated[Path | None, typer.Option("--root", help="Data home (default $PEGASUS_DATA_HOME or ./pegasus_data_home)")]
+RootOpt = Annotated[
+    Path | None,
+    typer.Option(
+        "--root",
+        help="Data home for this command. Persist it with `pegasus-data config set --root`; "
+        "see `pegasus-data where` for what is in effect and why.",
+    ),
+]
 SystemsOpt = Annotated[list[str] | None, typer.Option("--system", "-s", help="Limit to these information systems")]
 JsonOpt = Annotated[bool, typer.Option("--json", help="Emit machine-readable JSON instead of a table")]
 
@@ -86,6 +93,164 @@ def _fmt(value: object) -> str:
 
 
 # ------------------------------------------------------------------- commands
+
+
+config_app = typer.Typer(
+    name="config",
+    help="Where the data goes. Show it, write it down, or clear it.",
+    no_args_is_help=True,
+)
+app.add_typer(config_app, rich_help_panel="SETUP")
+
+
+def _placement_rows(root: Path | None = None) -> list[dict[str, object]]:
+    from .locate import PLACEMENT_KEYS
+
+    settings = _settings(root)
+    places = settings.places()
+    rows: list[dict[str, object]] = []
+    for key, (env_name, what) in PLACEMENT_KEYS.items():
+        path = places.get(key)
+        rows.append(
+            {
+                "key": key,
+                "path": str(path) if path else "",
+                "decided by": settings.origins.get(key, "derived"),
+                "env": env_name,
+                "holds": what,
+                "exists": bool(path and Path(path).exists()),
+            }
+        )
+    return rows
+
+
+@app.command(name="where", rich_help_panel="SETUP")
+def where(root: RootOpt = None, as_json: JsonOpt = False) -> None:
+    """Where this installation reads and writes, and which layer decided each path.
+
+    The question behind every "my data disappeared": five layers can set a path
+    — an explicit --root, an environment variable, a project config file, the
+    per-user one, the built-in default — and working out which is winning by
+    elimination is miserable.
+    """
+    rows = _placement_rows(root)
+    if as_json:
+        _emit(rows, True, "where")
+        return
+    table = Table(title="where the data goes", box=None)
+    for column in ("key", "path", "decided by", "exists"):
+        table.add_column(column)
+    for row in rows:
+        mark = "[green]yes[/green]" if row["exists"] else "[dim]not yet[/dim]"
+        table.add_row(str(row["key"]), str(row["path"]), str(row["decided by"]), mark)
+    console.print(table)
+
+    from .locate import config_search_path
+
+    files = Table(title="config files, in precedence order", box=None)
+    for column in ("scope", "path", "read"):
+        files.add_column(column)
+    for scope, path, exists in config_search_path():
+        files.add_row(scope, str(path), "[green]yes[/green]" if exists else "[dim]absent[/dim]")
+    console.print(files)
+
+
+@config_app.command("show")
+def config_show(root: RootOpt = None, as_json: JsonOpt = False) -> None:
+    """What every placement key resolves to, and what each one holds."""
+    rows = _placement_rows(root)
+    if as_json:
+        _emit(rows, True, "config")
+        return
+    table = Table(box=None)
+    for column in ("key", "path", "decided by", "holds"):
+        table.add_column(column)
+    for row in rows:
+        table.add_row(str(row["key"]), str(row["path"]), str(row["decided by"]), str(row["holds"]))
+    console.print(table)
+
+
+@config_app.command("set")
+def config_set(
+    root: Annotated[Path | None, typer.Option("--root", help="Everything, unless overridden below")] = None,
+    blobs: Annotated[Path | None, typer.Option("--blobs", help="Download cache (large, rebuildable)")] = None,
+    lake: Annotated[Path | None, typer.Option("--lake", help="The Parquet lake you query")] = None,
+    work: Annotated[Path | None, typer.Option("--work", help="Scratch space for decoding")] = None,
+    catalog: Annotated[Path | None, typer.Option("--catalog", help="The SQLite catalog (small, wants to be fast)")] = None,
+    curation: Annotated[Path | None, typer.Option("--curation", help="Curated YAML; defaults to the packaged copy")] = None,
+    user: Annotated[bool, typer.Option("--user", help="Write the per-user file instead of a project one")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Write placement into a config file, so you say it once.
+
+    Project scope by default — a `pegasus-data.toml` beside you, which is what
+    you want when a dataset belongs to a project. `--user` writes the per-user
+    file instead, for "all my DATASUS data lives on D:".
+
+    Nothing is moved. Setting a path tells future commands where to look; if you
+    are relocating existing data, move it yourself first — this package will not
+    quietly relocate gigabytes on your behalf.
+    """
+    from .locate import CONFIG_FILENAMES, read_config_file, user_config_path, write_config_file
+
+    wanted = {
+        "root": root, "blobs": blobs, "lake": lake,
+        "work": work, "catalog": catalog, "curation": curation,
+    }
+    chosen = {k: str(Path(v).expanduser().resolve()) for k, v in wanted.items() if v is not None}
+    if not chosen:
+        raise typer.BadParameter("give at least one of --root/--blobs/--lake/--work/--catalog/--curation")
+
+    target = user_config_path() if user else Path.cwd() / CONFIG_FILENAMES[0]
+    merged = {**read_config_file(target), **chosen}
+    write_config_file(target, merged)
+    _emit({"wrote": str(target), **chosen}, as_json, "config set")
+    if not as_json:
+        console.print(
+            "[dim]Nothing was moved. Run `pegasus-data where` to confirm what is now in effect.[/dim]"
+        )
+
+
+@config_app.command("unset")
+def config_unset(
+    keys: Annotated[list[str], typer.Argument(help="Keys to remove, e.g. blobs lake")],
+    user: Annotated[bool, typer.Option("--user", help="Edit the per-user file")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Remove keys from a config file, falling back to the layer beneath."""
+    from .locate import (
+        CONFIG_FILENAMES,
+        PLACEMENT_KEYS,
+        find_project_config,
+        read_config_file,
+        user_config_path,
+        write_config_file,
+    )
+
+    unknown = [k for k in keys if k not in PLACEMENT_KEYS]
+    if unknown:
+        raise typer.BadParameter(f"unknown key(s): {', '.join(unknown)}")
+    target = user_config_path() if user else (find_project_config() or Path.cwd() / CONFIG_FILENAMES[0])
+    if not target.is_file():
+        raise typer.BadParameter(f"no config file at {target}")
+    values = read_config_file(target)
+    removed = [k for k in keys if k in values]
+    for key in removed:
+        values.pop(key)
+    write_config_file(target, values)
+    _emit({"file": str(target), "removed": removed or "nothing"}, as_json, "config unset")
+
+
+@config_app.command("path")
+def config_path(as_json: JsonOpt = False) -> None:
+    """Which config files are consulted, in precedence order."""
+    from .locate import config_search_path
+
+    rows = [
+        {"scope": scope, "path": str(path), "exists": exists}
+        for scope, path, exists in config_search_path()
+    ]
+    _emit(rows, as_json, "config path")
 
 
 @app.command(rich_help_panel="MONITOR")

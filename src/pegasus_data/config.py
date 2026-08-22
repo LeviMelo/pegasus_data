@@ -40,11 +40,22 @@ def _env_path(name: str, default: Path) -> Path:
 def default_root() -> Path:
     """Root of the local data lake and cache.
 
-    Overridable with ``PEGASUS_DATA_HOME``; defaults to ``./pegasus_data_home``
-    so a checkout stays self-contained and nothing is written outside the project
-    unless the user says so.
+    Resolved through :mod:`pegasus_data.locate`: an explicit argument, then
+    ``PEGASUS_DATA_HOME``, then the nearest project config file, then the
+    per-user one, then a default that WALKS UP for a data home already in use.
+
+    That last part is the fix for the oldest surprise here. This used to be
+    ``Path.cwd() / "pegasus_data_home"`` flat, so running a command from a
+    subdirectory of your own project silently addressed a different, empty root:
+    the catalog looked wiped and the blobs looked lost, and both were fine one
+    level up. Nothing is moved — a home is only adopted when it already holds a
+    catalog or a blob store.
     """
-    return _env_path("PEGASUS_DATA_HOME", Path.cwd() / "pegasus_data_home")
+    from .locate import resolve_placement
+
+    resolved = resolve_placement()["root"].value
+    assert resolved is not None  # root always resolves
+    return resolved
 
 
 @dataclass(slots=True)
@@ -77,6 +88,22 @@ class Settings:
     #: Override for where curated YAML lives; None means the packaged directory.
     curation_root: Path | None = None
 
+    #: Placement overrides. None means "under `root`", which is what almost
+    #: everyone wants. They exist because the three do not want the same disk:
+    #: the blob cache is large, rebuildable and write-heavy; the lake is what
+    #: gets queried; the catalog is small and wants to be fast. Forcing them
+    #: onto one volume is a real constraint on a machine with a small SSD and a
+    #: large spinning disk, and there was no way to split them.
+    blobs_root: Path | None = None
+    lake_root: Path | None = None
+    work_root: Path | None = None
+    catalog_root: Path | None = None
+
+    #: key -> which layer decided it, for `pegasus-data config show`. "Which of
+    #: the five is winning?" is the only question anyone asks when a path is not
+    #: what they expected, and answering it by elimination is miserable.
+    origins: dict[str, str] = field(default_factory=dict)
+
     #: No stage may hang silently (§A). A single work item that outlives
     #: `item_timeout` is abandoned and recorded; a stage that goes
     #: `stall_timeout` with nothing completing gives up on the batch. Both are
@@ -94,12 +121,20 @@ class Settings:
 
     def __post_init__(self) -> None:
         self.root = Path(self.root).expanduser()
+        for name in ("blobs_root", "lake_root", "work_root", "catalog_root"):
+            value = getattr(self, name)
+            if value is not None:
+                setattr(self, name, Path(value).expanduser())
 
     # ------------------------------------------------------------------ paths
 
     @property
+    def catalog_dir(self) -> Path:
+        return self.catalog_root or (self.root / "_catalog")
+
+    @property
     def catalog_path(self) -> Path:
-        return self.root / "_catalog" / "catalog.sqlite"
+        return self.catalog_dir / "catalog.sqlite"
 
     @property
     def curation_dir(self) -> Path:
@@ -123,11 +158,11 @@ class Settings:
 
     @property
     def blobs_dir(self) -> Path:
-        return self.root / "blobs"
+        return self.blobs_root or (self.root / "blobs")
 
     @property
     def lake_dir(self) -> Path:
-        return self.root / "lake"
+        return self.lake_root or (self.root / "lake")
 
     @property
     def population_dir(self) -> Path:
@@ -139,12 +174,23 @@ class Settings:
 
     @property
     def work_dir(self) -> Path:
-        return self.root / "work"
+        return self.work_root or (self.root / "work")
+
+    def places(self) -> dict[str, Path]:
+        """Every directory this installation writes to, by name."""
+        return {
+            "root": self.root,
+            "catalog": self.catalog_dir,
+            "blobs": self.blobs_dir,
+            "lake": self.lake_dir,
+            "work": self.work_dir,
+            "curation": self.curation_dir,
+        }
 
     def ensure_dirs(self) -> None:
         for p in (
             self.root,
-            self.root / "_catalog",
+            self.catalog_dir,
             self.blobs_dir,
             self.lake_dir,
             self.population_dir,
@@ -155,8 +201,37 @@ class Settings:
 
 
 def load_settings(**overrides: object) -> Settings:
-    """Build settings from defaults, environment, then explicit overrides."""
+    """Build settings from defaults, config files, environment, then overrides.
+
+    Five layers, highest first: an explicit argument, an environment variable,
+    the nearest project config file, the per-user config file, the built-in
+    default. Every layer can set every placement key, and each resolved path
+    remembers which layer decided it — see `pegasus-data config show`.
+    """
+    from .locate import PLACEMENT_KEYS, other_settings_from_files, resolve_placement
+
     kwargs: dict[str, object] = {}
+
+    # Non-placement settings a config file sets. Lowest precedence of the three
+    # written layers, so the environment and explicit arguments still win.
+    for key, value in other_settings_from_files().items():
+        if key in Settings.__dataclass_fields__:
+            kwargs[key] = value
+
+    placement = resolve_placement({"root": overrides.get("root")})
+    origins: dict[str, str] = {}
+    for key in PLACEMENT_KEYS:
+        decided = placement[key]
+        origins[key] = decided.describe()
+        if decided.value is None:
+            continue
+        field_name = "curation_root" if key == "curation" else (
+            "root" if key == "root" else f"{key}_root"
+        )
+        kwargs[field_name] = decided.value
+    kwargs["origins"] = origins
+    overrides = {k: v for k, v in overrides.items() if k != "root"}
+
     if "PEGASUS_FTP_HOST" in os.environ:
         kwargs["host"] = os.environ["PEGASUS_FTP_HOST"]
     if "PEGASUS_BASE_PATH" in os.environ:

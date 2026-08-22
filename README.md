@@ -53,7 +53,30 @@ pip install -e .[all]     # + PDF, Excel and RAR support
 pip install -e .[dev]     # + pytest, ruff
 ```
 
-Everything lands in `$PEGASUS_DATA_HOME` (default `./pegasus_data_home`).
+### Where the data goes
+
+```bash
+pegasus-data where                    # what is in effect, and which layer decided it
+pegasus-data config set --root D:/datasus
+```
+
+Five layers decide a path, highest first: `--root` on the command, an
+environment variable, the nearest `pegasus-data.toml` walking up from where you
+are, the per-user config file, then a default that adopts a data home already
+in use at or above the working directory. `pegasus-data where` prints the
+winner and the reason, because working that out by elimination is miserable.
+
+The cache and the lake do not have to share a disk — the blob store is large,
+rebuildable and write-heavy, while the catalog is small and wants to be fast:
+
+```bash
+pegasus-data config set --root D:/datasus --blobs E:/cache/blobs --catalog C:/fast/cat
+```
+
+`--user` writes the per-user file instead of a project one. Nothing is moved;
+setting a path tells future commands where to look, so relocate existing data
+yourself first.
+
 
 ---
 

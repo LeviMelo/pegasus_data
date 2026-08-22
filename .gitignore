@@ -32,3 +32,7 @@ scratch/
 # reproducible, and one of them (TAB_CNES.zip, 120 MB) exceeded GitHub's
 # 100 MB limit and blocked every push until it was removed from history.
 .cache_dl/
+
+# Project-local placement config: paths are machine-specific.
+pegasus-data.toml
+.pegasus-data.toml

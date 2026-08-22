@@ -34,6 +34,27 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
             item.add_marker(skip)
 
 
+@pytest.fixture(autouse=True)
+def _isolated_placement(tmp_path_factory, monkeypatch):
+    """No test may read the machine it runs on.
+
+    Placement resolves through config files now — a project one found by walking
+    up from the working directory, and a per-user one under %APPDATA% or
+    ~/.config. Both are real files on a real developer's machine, and a suite
+    that reads them passes or fails depending on whose laptop it is. Pointed at
+    an empty temp directory instead, and every placement environment variable
+    cleared, so the layers under test are the ones the test sets.
+    """
+    from pegasus_data.locate import PLACEMENT_KEYS
+
+    empty = tmp_path_factory.mktemp("no-config")
+    monkeypatch.setenv("PEGASUS_CONFIG", str(empty / "absent.toml"))
+    for env_name, _ in PLACEMENT_KEYS.values():
+        monkeypatch.delenv(env_name, raising=False)
+    monkeypatch.chdir(empty)
+    yield
+
+
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
     s = Settings(root=tmp_path / "home")

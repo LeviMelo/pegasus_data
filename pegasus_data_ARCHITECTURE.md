@@ -1147,7 +1147,16 @@ where DATASUS's copy is absent, ambiguous, or demonstrably a truncated mirror.
 
 Python 3.11+. `pyarrow`, `duckdb`, `typer`, `rich`, `httpx`, `pyyaml`;
 `openpyxl` optional for Excel export and refused with a clear message when
-absent rather than half-written. Data home from `$PEGASUS_DATA_HOME`.
+absent rather than half-written.
+
+Placement resolves through five layers, highest first: an explicit `root=` or
+`--root`, an environment variable, the nearest project `pegasus-data.toml`, the
+per-user config file, then a default that adopts a data home already in use at
+or above the working directory rather than following the working directory
+blindly. `root`, `blobs`, `lake`, `work`, `catalog` and `curation` are each
+separately placeable, because a rebuildable write-heavy cache and a queryable
+lake do not want the same disk. Every resolved path records the layer that
+decided it (`pegasus-data where`).
 
 ---
 
