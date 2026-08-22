@@ -657,13 +657,24 @@ def build_binding_pack(catalog: Catalog, out: str | Path) -> int:
 
 
 def seed_bindings(catalog: Catalog) -> int:
-    """Load the shipped bindings into an empty catalog. Returns rows added.
+    """Merge the shipped bindings into the catalog. Returns rows actually added.
 
-    Does nothing when the catalog already has bindings of its own — a local
-    ``semantics`` run is authoritative over what shipped in the wheel.
+    A local ``semantics`` run stays authoritative: ``field_codelists`` is keyed
+    on ``(system, family_id, field_name, codelist)`` and the insert below is
+    ``OR IGNORE``, so a row the catalog already holds is never overwritten.
+
+    It used to return early whenever the catalog held ANY binding, and that
+    all-or-nothing test is what this function got wrong. Curation writes ~900
+    bindings of its own, so a catalog curated before it was seeded had a
+    non-zero count and could never receive the other ~8,500 — permanently, with
+    no warning and no way back. Measured on two catalogs of the same data:
+    CNES-ST labelled 83 columns on one and 26 on the other, purely because of
+    the order two loaders had run in months earlier.
+
+    Ordering the callers so seeding goes first fixed new installs and left every
+    existing one degraded. Merging fixes both, and makes the order stop
+    mattering at all.
     """
-    if catalog.count("field_codelists"):
-        return 0
     from importlib.resources import files as _files
 
     try:
@@ -683,10 +694,14 @@ def seed_bindings(catalog: Catalog) -> int:
         )
         for r in table.to_pylist()
     ]
+    before = catalog.count("field_codelists")
     catalog.executemany(
         "INSERT OR IGNORE INTO field_codelists (system, family_id, field_name,"
         " codelist, source, source_ref, confidence, decodes_observed)"
         " VALUES (?,?,?,?,?,?,?,?)",
         payload,
     )
-    return len(payload)
+    # What was ADDED, not what was offered: on an already-seeded catalog every
+    # row collides and the honest answer is zero, which is what the caller
+    # reports to the user.
+    return catalog.count("field_codelists") - before

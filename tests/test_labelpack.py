@@ -172,6 +172,16 @@ class TestBindingsTravelWithTheLabels:
             store.close()
 
     def test_a_local_build_is_never_overwritten(self, settings) -> None:
+        """The guarantee is that the local ROW survives, which is not the same
+        as the whole seed being skipped.
+
+        This used to assert `seed_bindings(store) == 0` — the old
+        all-or-nothing behaviour — and that assertion was the bug wearing the
+        test's name. Curation writes ~900 bindings of its own, so any catalog
+        curated before it was seeded looked "non-empty" and could never receive
+        the other ~8,500. Same data, two catalogs, CNES-ST labelled 83 columns
+        on one and 26 on the other.
+        """
         store = Catalog(settings.catalog_path)
         try:
             store.execute(
@@ -179,8 +189,74 @@ class TestBindingsTravelWithTheLabels:
                 " source, source_ref, confidence)"
                 " VALUES ('SIHSUS','','SEXO','MINE','manual','me',1.0)"
             )
+            seed_bindings(store)
+            mine = store.query(
+                "SELECT source, source_ref, confidence FROM field_codelists"
+                " WHERE system='SIHSUS' AND family_id='' AND field_name='SEXO'"
+                "   AND codelist='MINE'"
+            )
+            assert len(mine) == 1, "the local binding was replaced or removed"
+            assert mine[0]["source"] == "manual"
+            assert mine[0]["source_ref"] == "me"
+            assert float(mine[0]["confidence"]) == 1.0
+        finally:
+            store.close()
+
+    def test_the_rest_of_the_pack_still_arrives(self, settings) -> None:
+        """One local row must not cost the catalog every packaged one."""
+        store = Catalog(settings.catalog_path)
+        try:
+            store.execute(
+                "INSERT INTO field_codelists (system, family_id, field_name, codelist,"
+                " source, source_ref, confidence)"
+                " VALUES ('SIHSUS','','SEXO','MINE','manual','me',1.0)"
+            )
+            added = seed_bindings(store)
+            assert added > 1000, (
+                f"only {added} bindings were merged into a catalog holding one "
+                "local row; the pack is being skipped again"
+            )
+        finally:
+            store.close()
+
+    def test_seeding_twice_adds_nothing_the_second_time(self, settings) -> None:
+        """Merging must be idempotent, and must SAY it added nothing rather
+        than reporting the size of what it offered."""
+        store = Catalog(settings.catalog_path)
+        try:
+            first = seed_bindings(store)
+            assert first > 0
+            total = store.count("field_codelists")
             assert seed_bindings(store) == 0
-            assert store.count("field_codelists") == 1
+            assert store.count("field_codelists") == total
+        finally:
+            store.close()
+
+    def test_a_partially_seeded_catalog_is_topped_up(self, settings) -> None:
+        """The real-world shape of the defect: a catalog that holds SOME of the
+        pack, from an interrupted or older run, has to be able to recover."""
+        store = Catalog(settings.catalog_path)
+        try:
+            full = seed_bindings(store)
+            rows = store.query(
+                "SELECT system, family_id, field_name, codelist FROM field_codelists LIMIT 400"
+            )
+            keep = {
+                (r["system"], r["family_id"], r["field_name"], r["codelist"]) for r in rows
+            }
+            store.execute("DELETE FROM field_codelists")
+            store.executemany(
+                "INSERT INTO field_codelists (system, family_id, field_name, codelist,"
+                " source, source_ref, confidence) VALUES (?,?,?,?,'def','partial',0.9)",
+                sorted(keep),
+            )
+            assert store.count("field_codelists") == len(keep)
+
+            seed_bindings(store)
+            assert store.count("field_codelists") == full, (
+                "a partially seeded catalog stayed partial — it can never "
+                "recover the labels it is missing"
+            )
         finally:
             store.close()
 
