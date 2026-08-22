@@ -705,6 +705,33 @@ def _select_codelists(
         return _Selection(codelists=[doc.codelist, *doc.codelists])  # type: ignore[attr-defined]
 
     if len(candidates) <= 1:
+        if not candidates:
+            return _Selection()
+        # A LONE binding is still measured for granularity. This returned
+        # immediately, so the roll-up guard only ever ran when several
+        # codelists competed — and the case it was written for is a single
+        # one: SINASC's CODMUNRES bound only to CIRAC, which decodes 100% of
+        # the municipality codes and answers with a health region. With one
+        # candidate there was nothing to compare it against and nothing said
+        # so.
+        seen = {
+            str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()
+        }
+        width_hint = None
+        if doc is not None and getattr(doc, "token_rule", None) and not getattr(doc, "multi_valued", False):
+            width_hint = doc.token_rule.get("width")
+        lookup = lookup_one(candidates[0], width_hint) if seen else None
+        if lookup:
+            hits = [lookup[v] for v in seen if v in lookup]
+            grain = (len(set(hits)) / len(hits)) if hits else 1.0
+            if hits and grain < _ROLLUP:
+                report.warnings.append(
+                    f"{name}: labelled from {candidates[0]!r}, which is a ROLLUP — it "
+                    f"maps the observed codes to {grain:.0%} as many distinct labels, "
+                    "so the label is broader than the code. It is the only table bound "
+                    "to this column."
+                )
+                report.rollup_used.append(name)
         return _Selection(codelists=candidates)
 
     # Several tables claim this column and nothing declared which is right. Ask
@@ -1087,6 +1114,20 @@ def _render_table(
             continue
 
         report.labelled.append(name)
+        if name in report.rollup_used:
+            # A ROLL-UP is not this column's identity. `CODMUNRES` bound only to
+            # `CIRAC` decodes 100% of its values and returns "Baixo Acre e
+            # Purus" for a municipality code — a region name wearing a
+            # municipality's name. Coverage cannot tell the two apart, so the
+            # broader answer is emitted as its own dimension beside the code
+            # rather than in place of it, and the code stays what it is.
+            columns.append(column)
+            names.append(name)
+            rollup_name = f"{name}_{selection.codelists[0].lower()}" if selection.codelists else f"{name}_rollup"
+            columns.append(labels)
+            names.append(rollup_name)
+            report.derived_added.append(rollup_name)
+            continue
         if mode == "label":
             columns.append(labels)
             names.append(name)
