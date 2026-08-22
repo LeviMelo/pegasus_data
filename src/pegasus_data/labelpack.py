@@ -540,20 +540,64 @@ def read_packed(
     for 1995 records and nothing said so. A pack built before this change still
     reads, and a historical request against one is RECORDED as unanswerable
     rather than silently answered with the current vintage.
+
+    Memoised. One SIH-RD render asks for 258 tables and most of them repeat —
+    `_choose_binding` weighs every bound candidate and `_contradictions` then
+    re-reads the winner — so the same codelist was decoded from Parquet several
+    times over. That was 10.7s of a 17.2s fetch. Misses are cached too: `CNES`
+    is bound to 31 `CADGER*` directories that the pack deliberately does not
+    ship, and rediscovering their absence cost as much as a hit.
+    """
+    table, note, missing = _read_packed(
+        codelist.upper(),
+        (system or "").upper() or None,
+        code_width,
+        year,
+        competencia,
+        historical_labels(),
+    )
+    # Re-recorded on every call, including cached ones: the WORK is cacheable,
+    # the decision is not — a caller that asked for 1995 and got today's labels
+    # has to be told so whether or not another caller asked first.
+    if note is not None:
+        note_pack_fallback(note[0], note[1], note[2], windowed=note[3])
+    if missing is not None:
+        raise FileNotFoundError(missing)
+    return table
+
+
+@lru_cache(maxsize=512)
+def _read_packed(
+    codelist: str,
+    system: str | None,
+    code_width: int | None,
+    year: int | None,
+    competencia: int | None,
+    policy: str,
+) -> tuple[Any, tuple[str, str, str, bool] | None, str | None]:
+    """The decoding behind :func:`read_packed`.
+
+    Returns ``(table, note, missing)``. ``note`` is the vintage substitution to
+    record, kept OUT of here so a cache hit still reports it. ``missing`` is the
+    message to raise, returned rather than raised so an absent table is cached
+    like any other answer.
+
+    ``policy`` is :func:`historical_labels` passed in, because it can change
+    between calls and would otherwise be baked into the first result.
     """
     import pyarrow as pa
     import pyarrow.compute as pc
 
+    note: tuple[str, str, str, bool] | None = None
+
     data = _dataset()
     if data is None:
-        raise FileNotFoundError("this build ships no label pack")
+        return None, None, "this build ships no label pack"
     # Pushed into the Parquet scan, not filtered afterwards: row-group
     # statistics skip every group that cannot contain this codelist.
-    hit = data.to_table(filter=pc.field("codelist") == codelist.upper())
+    hit = data.to_table(filter=pc.field("codelist") == codelist)
     if not hit.num_rows:
-        raise FileNotFoundError(
-            f"no reference table {codelist!r} in the shipped label pack"
-        )
+        return None, None, f"no reference table {codelist!r} in the shipped label pack"
     has_windows = "valid_from" in hit.schema.names
     runs = list(
         zip(
@@ -581,30 +625,26 @@ def read_packed(
         dated = [r for r in runs if covers(str(r[5] or ""), str(r[6] or ""), span_lo, span_hi)]
         if dated:
             runs = dated
-        elif (
-            not has_windows
-            and _is_historical(asked)
-            and historical_labels() == "refuse"
-        ):
+        elif not has_windows and _is_historical(asked) and policy == "refuse":
             # REFUSE, rather than answer 1995 with today's mapping. This pack
             # carries no validity windows, so it cannot choose the historically
             # correct labels even in principle — and the project's own rule is
             # that an unlabelled code is visibly unfinished while a confidently
             # wrong label is not. The caller gets the raw codes and a recorded
             # reason; the remedy is to rebuild the pack from a full catalog.
-            note_pack_fallback(codelist.upper(), str(asked), "unresolved", windowed=False)
+            note = (codelist, str(asked), "unresolved", False)
             runs = []
         else:
             current = [r for r in runs if not str(r[5] or "")]
-            note_pack_fallback(
-                codelist.upper(),
+            note = (
+                codelist,
                 str(asked),
                 "current" if current else "unresolved",
-                windowed=has_windows,
+                has_windows,
             )
             runs = current if current else runs
 
-    wanted = (system or "").upper() or None
+    wanted = system
     specific = [r for r in runs if r[0] and str(r[0]).upper() == wanted]
     shared = [r for r in runs if not r[0]]
     chosen = (specific + shared) if specific else shared or runs
@@ -625,15 +665,21 @@ def read_packed(
             labels.append(label)
             widths.append(width)
     if not codes:
-        raise FileNotFoundError(
-            f"reference table {codelist!r} has no rows at width {code_width}"
+        return (
+            None,
+            note,
+            f"reference table {codelist!r} has no rows at width {code_width}",
         )
-    return pa.table(
-        {
-            "code": pa.array(codes, pa.string()),
-            "label": pa.array(labels, pa.string()),
-            "code_width": pa.array(widths, pa.int32()),
-        }
+    return (
+        pa.table(
+            {
+                "code": pa.array(codes, pa.string()),
+                "label": pa.array(labels, pa.string()),
+                "code_width": pa.array(widths, pa.int32()),
+            }
+        ),
+        note,
+        None,
     )
 
 
