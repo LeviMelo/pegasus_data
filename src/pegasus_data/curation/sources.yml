@@ -1,0 +1,401 @@
+# What every `[TOKEN]` in a `source_ref` actually refers to.
+#
+# Curation entries cite their evidence as `[ESTRUTURA-SIM] "..."`. Until this
+# file existed the tokens resolved to nothing: 396 citations across 41 tokens,
+# and no way to tell which document any of them meant, or to check a quote
+# against the thing it was quoted from. An unverifiable citation is not much
+# better than no citation, and it silently decays into one.
+#
+# `local` points into `sources/`, which holds the documents themselves. That
+# directory is deliberately NOT committed — it is 1.3 GB of Ministry PDFs,
+# TabWin .DEF/.CNV packs and extracted evidence, all re-downloadable from the
+# DATASUS FTP tree and the SINAN portal. This manifest is committed instead, so
+# the trail survives in version control even when the bytes do not.
+#
+# `local: null` means the document is cited but no copy is vendored. Those are
+# listed under `open_questions` rather than quietly dropped.
+#
+# tests/test_source_manifest.py fails if a curation file cites a token that is
+# not declared here, which is what stops the trail dangling again.
+
+sources:
+  DIC-NOTIF-IND:
+    title: SINAN — Dicionário de Dados, Notificação Individual (ficha de notificação comum a todos os
+      agravos)
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 45
+    systems:
+    - sinan
+    local: null
+    local_note: not vendored and no URL captured in the citations — see open_questions
+  ESTRUTURA-SIM:
+    title: Estrutura do SIM — campos dos arquivos de mortalidade
+    publisher: Ministério da Saúde — SVS / DASNT / CGIAE
+    kind: layout_doc
+    citations: 43
+    systems:
+    - sim
+    local: sources/sim2025.txt
+  AIDS-AD:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Aids (adulto)
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 36
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/AidsAdulto/DIC_DADOS_Aids_adulto_v5.pdf
+    local: sources/pdfs/DIC_DADOS_Aids_adulto_v5.pdf
+  AIDS-CR:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Aids (criança)
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 36
+    systems:
+    - sinan
+    url: https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf
+    local: sources/pdfs/aids-crianca__DIC_DADOS_Aids_crianca_v5.pdf
+  ESTRUTURA-2019:
+    title: SINASC — Estrutura (layout do arquivo de nascidos vivos), revisão 2019
+    publisher: Ministério da Saúde — SVS
+    kind: layout_doc
+    citations: 34
+    systems:
+    - sinasc
+    local: null
+    local_note: not vendored and no URL captured in the citations — see open_questions
+  PCDAS:
+    title: PCDaS — Plataforma de Ciência de Dados aplicada à Saúde, dicionários de variáveis
+    publisher: Fiocruz / ICICT
+    kind: web
+    citations: 22
+    systems:
+    - cnes
+    local: null
+    local_note: not vendored and no URL captured in the citations — see open_questions
+  2008-2010:
+    title: CIH [2008-2010].DEF — TabWin definition shipped with the CIH auxiliary pack
+    publisher: DATASUS
+    kind: def
+    citations: 20
+    systems:
+    - cih
+    local: sources/tab_cih_extract/CIH [2008-2010].DEF
+  EVOL-1996-2019:
+    title: 'SINASC — Estrutura: tabela de evolução dos campos 1996–2019'
+    publisher: Ministério da Saúde — SVS
+    kind: layout_doc
+    citations: 15
+    systems:
+    - sinasc
+    url: https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+    local: null
+    local_note: not vendored under sources/; re-download from `url` to re-check a citation
+  MICRODATASUS:
+    title: microdatasus — R package value labels for DATASUS microdata
+    publisher: Raphael Saldanha (rfsaldanha/microdatasus)
+    kind: web
+    citations: 14
+    systems:
+    - cnes
+    local: null
+    local_note: not vendored and no URL captured in the citations — see open_questions
+  NASC.DEF-1995:
+    title: NASC.DEF — TabWin definition for SINASC, 1995 auxiliary pack
+    publisher: DATASUS
+    kind: def
+    citations: 14
+    systems:
+    - sinasc
+    local: null
+    local_note: not vendored and no URL captured in the citations — see open_questions
+  DIC-DN:
+    title: SINASC — dicionário de dados da Declaração de Nascido Vivo
+    publisher: Ministério da Saúde — SVS
+    kind: layout_doc
+    citations: 10
+    systems:
+    - sinasc
+    url: https://diaad.s3.sa-east-1.amazonaws.com/sinasc/SINASC+-+Estrutura.pdf
+    local: null
+    local_note: not vendored under sources/; re-download from `url` to re-check a citation
+  DIC-DRT-ATG:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — DRT Acidente de Trabalho Grave
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 10
+    systems:
+    - sinan
+    local: null
+    local_note: not vendored and no URL captured in the citations — see open_questions
+  DIFT:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Difteria
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 8
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+    local: sources/pdfs/difteria__DIC_DADOS_Difteria_v5.pdf
+  FMAC:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Febre Maculosa
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 7
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+    local: sources/pdfs/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.pdf
+  COQU:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Coqueluche
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 6
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf
+    local: sources/pdfs/coqueluche__DIC_DADOS_Coqueluche_v5.pdf
+  DEF:
+    title: TAB_SINANNET.zip — TabWin definitions and .CNV lookups for SINAN-NET
+    publisher: DATASUS
+    kind: def
+    citations: 6
+    systems:
+    - sinan
+    url: ftp://ftp.datasus.gov.br/dissemin/publicos/SINAN/AUXILIAR/TAB_SINANNET.zip
+    local: null
+    local_note: not vendored under sources/; re-download from `url` to re-check a citation
+  DEF-RD9297:
+    title: RD.DEF — TabWin definition for SIH-RD, 1992–1997 auxiliary pack
+    publisher: DATASUS
+    kind: def
+    citations: 6
+    systems:
+    - sihsus
+    local: sources/extracted_TAB_SIH_199201-199712/RD.DEF
+  ACBI:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — DRT Acidente de Trabalho com
+      Material Biológico
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 5
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/drtmb/DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+    local: sources/pdfs/drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+  CHAG:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Doença de Chagas
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 5
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+    local: sources/pdfs/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
+  COLE:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Cólera
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 5
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf
+    local: sources/pdfs/colera__DIC_DADOS_Colera_v5.pdf
+  DEF-RD2008:
+    title: RD2008.DEF — TabWin definition for SIH-RD from 2008
+    publisher: DATASUS
+    kind: def
+    citations: 5
+    systems:
+    - sihsus
+    local: sources/TAB_SIH_extracted/RD2008.DEF
+  ESTRUTURA-ANT:
+    title: Estrutura do SINASC anterior — layout dos arquivos pré-2011
+    publisher: Ministério da Saúde — SVS
+    kind: layout_doc
+    citations: 4
+    systems:
+    - sinasc
+    local: sources/Estrutura_SINASC_anterior.pdf
+  MENI:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Meningite
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 4
+    systems:
+    - sinan
+    url: https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+    local: sources/pdfs/meningite__DIC_DADOS_Meningite_v5.pdf
+  SRC:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Síndrome da Rubéola Congênita
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 4
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+    local: sources/pdfs/DIC_DADOS_SRC_v5.pdf
+  BOTU:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Botulismo
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 3
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf
+    local: sources/pdfs/botulismo__DIC_DADOS_Botulismo_v5.pdf
+  CANC:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — DRT Câncer relacionado ao trabalho
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 3
+    systems:
+    - sinan
+    url: http://www.portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf
+    local: sources/pdfs/drt-cancer-relacionado-ao-trabalho__DIC_DADOS_DRT_Cancer_v5.pdf
+  DEF-MOTERRO:
+    title: MOTERRO.dbf — motivo de erro/rejeição da AIH, SIH auxiliary pack
+    publisher: DATASUS
+    kind: def
+    citations: 3
+    systems:
+    - sihsus
+    local: sources/TAB_SIH_extracted/DBF/MOTERRO.dbf
+  GEOCOD-AIH:
+    title: GEOCOD_AIH — geocodificação e campos da AIH
+    publisher: DATASUS
+    kind: layout_doc
+    citations: 3
+    systems:
+    - sihsus
+    local: sources/GEOCOD_AIH.pdf
+  TETA:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Tétano Acidental
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 3
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/tetanoacidental/DIC_DADOS_Tetano_Acidental_v5.pdf
+    local: sources/pdfs/tetano-acidental__DIC_DADOS_Tetano_Acidental_v5.pdf
+  FTIF:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Febre Tifóide
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 2
+    systems:
+    - sinan
+    url: https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf
+    local: sources/pdfs/febre-tifoide__DIC_DADOS_Febre_Tifoide_v5.pdf
+  HANT:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Hantavirose
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 2
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf
+    local: sources/pdfs/hantavirose__DIC_DADOS_Hantavirose_v5.pdf
+  IEXO:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Intoxicação Exógena
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 2
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/iexog/DIC_DADOS_Intoxicacao_Exogena_v5.pdf
+    local: null
+    local_note: not vendored under sources/; re-download from `url` to re-check a citation
+  PNEU:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — DRT Pneumoconioses
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 2
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf
+    local: sources/pdfs/drt-pneumoconiose__DIC_DADOS_DRT_Pneumoconioses_v5.pdf
+  RAIV:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Raiva
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 2
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf
+    local: sources/pdfs/raiva-humana__DIC_DADOS_Raiva_v5.pdf
+  ACGR:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — DRT Acidente de Trabalho Grave
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 1
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20Acidente%20Trabalho%20Grave/DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf
+    local: sources/pdfs/drt-acidente-de-trabalho-grave__DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf
+  DEF-AIHMA:
+    title: AIH_MA.DEF — TabWin definition for the AIH movement file, 1992–1997 pack
+    publisher: DATASUS
+    kind: def
+    citations: 1
+    systems:
+    - sihsus
+    local: sources/extracted_TAB_SIH_199201-199712/AIH_MA.DEF
+  DEF-SP:
+    title: Servico Profissional SP.def — TabWin definition for SIH-SP, 2003–2007 pack
+    publisher: DATASUS
+    kind: def
+    citations: 1
+    systems:
+    - sihsus
+    local: null
+    local_note: not vendored and no URL captured in the citations — see open_questions
+  HEPA:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Hepatites Virais
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 1
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatite/DIC_DADOS_Hepatite_v5.pdf
+    local: sources/pdfs/hepatites-virais__DIC_DADOS_Hepatite_v5.pdf
+  LEIV:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Leishmaniose Visceral
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 1
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose%20Visceral/DIC_DADOS_LV_v5.pdf
+    local: sources/pdfs/leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+  PCDAS-SIM:
+    title: PCDaS — dicionário de variáveis do SIM
+    publisher: Fiocruz / ICICT
+    kind: web
+    citations: 1
+    systems:
+    - sim
+    local: sources/simcd.txt
+  SIFC:
+    title: SINAN agravo data dictionary (Dicionário de Dados), version 5 — Sífilis Congênita
+    publisher: Ministério da Saúde — Portal SINAN
+    kind: layout_doc
+    citations: 1
+    systems:
+    - sinan
+    url: http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf
+    local: sources/pdfs/sifilis-congenita__DIC_DADOS_Sifilis_Congenita_v5.pdf
+open_questions:
+  not_vendored:
+  - DEF
+  - DEF-SP
+  - DIC-DN
+  - DIC-DRT-ATG
+  - DIC-NOTIF-IND
+  - ESTRUTURA-2019
+  - EVOL-1996-2019
+  - IEXO
+  - MICRODATASUS
+  - NASC.DEF-1995
+  - PCDAS
+  unidentified: []

@@ -36,3 +36,10 @@ scratch/
 # Project-local placement config: paths are machine-specific.
 pegasus-data.toml
 .pegasus-data.toml
+
+# Reference material the curation cites: Ministry of Health record layouts,
+# .DEF/.CNV codelist definitions, extracted evidence files. Kept next to the
+# project so the evidence trail survives a temp-folder sweep, but not committed
+# (1.3 GB, and re-downloadable from the DATASUS FTP tree).
+# curation/sources.yml is the committed manifest that says what each one is.
+/sources/
