@@ -118,11 +118,17 @@ class ReaderRegistry:
     def __init__(self, *, row_limit: int | None = None, max_archive_depth: int = 3) -> None:
         self.row_limit = row_limit
         self.max_archive_depth = max_archive_depth
+        #: Members that could not be read during the current open_bytes() call.
+        #: Collected here because the archive handler cannot reach the outcome
+        #: it is contributing to, and drained into it when the call returns.
+        self._failed_members: list[tuple[str, str]] = []
 
     # ------------------------------------------------------------------ entry
 
     def open_bytes(self, data: bytes, *, path: str, depth: int = 0) -> DecodeOutcome:
         outcome = DecodeOutcome(path=path, container=detect_container(data))
+        if depth == 0:
+            self._failed_members = []
         if not data:
             outcome.attempts.append(DecodeAttempt("<empty>", False, "zero-length payload"))
             return outcome
@@ -157,8 +163,22 @@ class ReaderRegistry:
             outcome.tables.extend(tables)
             outcome.members.extend(members)
             if tables or members:
+                self._drain_member_failures(outcome)
                 return outcome
+        self._drain_member_failures(outcome)
         return outcome
+
+    def _drain_member_failures(self, outcome: DecodeOutcome) -> None:
+        """Name every archive member that could not be read.
+
+        These used to disappear on a bare `continue`: no attempt, no warning,
+        nothing in the outcome — while the package guarantees that anything it
+        could not read is named. A silently skipped member is indistinguishable
+        from an archive that never contained it.
+        """
+        for name, reason in self._failed_members:
+            outcome.attempts.append(DecodeAttempt(f"archive-member:{name}", False, reason))
+        self._failed_members = []
 
     def open_path(self, path: str | Path, *, logical_path: str | None = None) -> DecodeOutcome:
         p = Path(path)
@@ -214,14 +234,26 @@ class ReaderRegistry:
         return ([table], [])
 
     def _read_duckdb(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
-        # DuckDB needs a real file and keeps it open, so the staging directory
-        # must outlive the call. It is cleaned when the process exits.
-        staged = Path(tempfile.mkdtemp(prefix="pegasus_duck_")) / "db.duck"
-        staged.write_bytes(data)
-        tables = read_duckdb(staged, row_limit=self.row_limit)
-        for t in tables:
-            t.path = path
-        return (tables, [])
+        # DuckDB needs a real file and keeps it open for the duration of the
+        # read, so the directory has to outlive `read_duckdb` — but not the
+        # process. mkdtemp() registers no cleanup and nothing here retained an
+        # owner, so every `.duck` decoded leaked a directory holding a full copy
+        # of the database until the OS got around to it.
+        staging = tempfile.TemporaryDirectory(prefix="pegasus_duck_")
+        try:
+            staged = Path(staging.name) / "db.duck"
+            staged.write_bytes(data)
+            tables = read_duckdb(staged, row_limit=self.row_limit)
+            for t in tables:
+                t.path = path
+            # Materialised before the directory goes: read_duckdb returns tables
+            # already in memory, so the file is no longer needed.
+            return (tables, [])
+        finally:
+            try:
+                staging.cleanup()
+            except OSError:  # pragma: no cover - Windows may still hold a handle
+                pass
 
     def _read_semantic(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
         """`.DEF`/`.CNV` are dictionary sources, not tables — hand them on untouched."""
@@ -237,16 +269,32 @@ class ReaderRegistry:
         if depth >= self.max_archive_depth:
             raise DecodeError(f"archive nesting deeper than {self.max_archive_depth}: {path}")
         with Archive(data, path=path) as archive:
-            members = archive.members()
+            # Iterate a SNAPSHOT of the direct members and collect what recursion
+            # discovers separately. Extending the list while iterating it meant
+            # the loop re-entered synthetic nested names like "outer!inner" as
+            # though they were direct members of the outer archive, producing
+            # redundant failed reads and confusing traversal.
+            direct = list(archive.members())
+            discovered: list[ArchiveMember] = []
             tables: list[DecodedTable] = []
-            for member in members:
+            for member in direct:
                 if member.role in NON_TABULAR_ROLES:
                     continue
                 try:
                     payload = archive.read(member.name)
-                except Exception:
+                except Exception as exc:  # noqa: BLE001 - recorded, not swallowed
+                    # A member that cannot be read used to vanish with a bare
+                    # `continue`: no DecodeAttempt, no warning, nothing in the
+                    # outcome. That contradicts the package guarantee that every
+                    # file or member which could not be read is NAMED.
+                    self._failed_members.append(
+                        (f"{path}!{member.name}", f"{type(exc).__name__}: {exc}")
+                    )
                     continue
                 if not payload:
+                    self._failed_members.append(
+                        (f"{path}!{member.name}", "member is empty")
+                    )
                     continue
                 inner = self.open_bytes(payload, path=member.name, depth=depth + 1)
                 for table in inner.tables:
@@ -256,11 +304,11 @@ class ReaderRegistry:
                     )
                     table.container = archive.container or ""
                     tables.append(table)
-                members.extend(
+                discovered.extend(
                     ArchiveMember(f"{member.name}!{m.name}", m.size, m.container, m.role)
                     for m in inner.members
                 )
-            return (tables, members)
+            return (tables, direct + discovered)
 
 
 class _staged:

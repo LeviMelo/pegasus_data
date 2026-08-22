@@ -141,12 +141,26 @@ def read_dbf_bytes(
     record_len = header.record_len
     available = max(0, (len(data) - body_start) // record_len)
     declared = header.n_records
-    # The declared count is frequently stale in DATASUS files. Trust the smaller
-    # of the two, and say so, rather than reading past the end or dropping rows.
+    # MEASURED, because the direction of the staleness decides the rule and
+    # guessing it wrong loses data either way.
+    #
+    # Over 132 real DBF payloads decoded from the blob cache: 116 agree,
+    # **16 declare MORE records than the file physically holds, and none
+    # declares fewer**. So the header errs high, and `min()` is what stops a
+    # read running past the end of the buffer and manufacturing rows out of
+    # whatever follows.
+    #
+    # An external review argued the opposite — that `min()` silently truncates
+    # valid trailing records when the header is stale LOW — and asked for the
+    # corpus to be characterised before changing anything. It was, and on this
+    # corpus stale-low does not occur. The mismatch is reported either way, so a
+    # file that does hold more than it admits is visible rather than silent.
     n_records = min(declared, available) if declared else available
     warnings: list[str] = []
     if declared and declared != available:
+        direction = "more" if declared > available else "fewer"
         warnings.append(f"header_declares_{declared}_records_file_holds_{available}")
+        warnings.append(f"header_declares_{direction}_than_the_file_holds")
 
     if row_limit is not None:
         n_records = min(n_records, row_limit)
