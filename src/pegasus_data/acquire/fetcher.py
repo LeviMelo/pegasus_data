@@ -58,6 +58,25 @@ class FetchStats:
     errors: list[tuple[str, str]] = field(default_factory=list)
 
 
+def _record(stats: FetchStats, result: FetchResult) -> None:
+    """Fold one result into the batch's accounting. Caller holds the lock.
+
+    Three outcomes that must not be conflated: a failure names itself, a cache
+    hit moves bytes that never crossed the network, and only a real transfer
+    counts as fetched. Reporting a warm request as megabytes "downloaded" is
+    what HI-17 was.
+    """
+    if result.error:
+        stats.failed += 1
+        stats.errors.append((result.path, result.error))
+    elif result.skipped:
+        stats.skipped += 1
+        stats.bytes_from_cache += result.byte_size
+    else:
+        stats.fetched += 1
+        stats.bytes_fetched += result.byte_size
+
+
 class Fetcher:
     """Pulls a work-list of paths over N FTP connections into the blob store."""
 
@@ -162,6 +181,35 @@ class Fetcher:
 
     # ------------------------------------------------------------------- run
 
+    def _settle_from_cache(
+        self,
+        paths: Sequence[str],
+        *,
+        force: bool,
+        stats: FetchStats,
+        emit: Callable[[FetchResult], None],
+    ) -> list[str]:
+        """Answer everything already on disk, and return only what needs a socket.
+
+        Runs BEFORE any connection is opened. Every worker used to construct an
+        FtpClient and connect() before taking anything off the queue, so a
+        request whose bytes were already on the SSD still opened up to eight FTP
+        sessions that did no work — and failed outright when DATASUS was
+        unreachable. `_should_skip` reads the catalog, not the network, so it
+        can answer first.
+        """
+        pending: list[str] = []
+        for path in paths:
+            digest = None if force else self._should_skip(path)
+            if not digest:
+                pending.append(path)
+                continue
+            size = self.blobs.path_for(digest).stat().st_size
+            stats.skipped += 1
+            stats.bytes_from_cache += size
+            emit(FetchResult(path=path, sha256=digest, byte_size=size, skipped=True))
+        return pending
+
     def fetch_many(
         self,
         paths: Sequence[str],
@@ -200,16 +248,7 @@ class Fetcher:
         # failed outright when DATASUS was unreachable. `_should_skip` reads the
         # catalog, not the network, so it can answer first.
         # ------------------------------------------------------------------
-        pending: list[str] = []
-        for path in paths:
-            digest = None if force else self._should_skip(path)
-            if digest:
-                size = self.blobs.path_for(digest).stat().st_size
-                stats.skipped += 1
-                stats.bytes_from_cache += size
-                _emit(FetchResult(path=path, sha256=digest, byte_size=size, skipped=True))
-            else:
-                pending.append(path)
+        pending = self._settle_from_cache(paths, force=force, stats=stats, emit=_emit)
         if not pending:
             return stats
 
@@ -254,15 +293,7 @@ class Fetcher:
                             return
                         result = self._fetch_one(client, path, force=force)
                         with lock:
-                            if result.error:
-                                stats.failed += 1
-                                stats.errors.append((path, result.error))
-                            elif result.skipped:
-                                stats.skipped += 1
-                                stats.bytes_from_cache += result.byte_size
-                            else:
-                                stats.fetched += 1
-                                stats.bytes_fetched += result.byte_size
+                            _record(stats, result)
                         _emit(result)
                     finally:
                         work.task_done()
