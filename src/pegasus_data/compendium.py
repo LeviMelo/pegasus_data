@@ -156,6 +156,28 @@ CREATE TABLE dataset_variables (
 );
 CREATE INDEX ix_dsvar_name ON dataset_variables(system, name);
 
+-- When each column EXISTED, which is not when it was filled in.
+--
+-- SIH.RD's nine secondary-diagnosis fields do not appear before 2014, so a
+-- query for DIAGSEC4 in 2007 returns nothing for a STRUCTURAL reason. Read as
+-- clinical missingness it corrupts any estimate spanning the boundary, and
+-- schema_generations records the fact only implicitly.
+--
+-- `state` is deliberately three-valued. `absent` is a positive claim: a decoded
+-- schema for that year exists and does not carry the column. `unknown` means
+-- nothing has been decoded for that year and no claim is being made — which an
+-- interval of valid_from/valid_to cannot express without inventing one.
+CREATE TABLE field_validity (
+  dataset    TEXT REFERENCES datasets(code),
+  field      TEXT,
+  year_from  INTEGER,          -- one row per contiguous run
+  year_to    INTEGER,
+  current    INTEGER,          -- 1 when the run reaches the newest decoded year
+  bridged    TEXT,             -- JSON array of years inside the run with no data
+  PRIMARY KEY (dataset, field, year_from)
+);
+CREATE INDEX ix_validity_field ON field_validity(field);
+
 -- What is NOT known, stated rather than filled in ---------------------------
 CREATE TABLE open_questions (
   key      TEXT PRIMARY KEY,
@@ -507,6 +529,32 @@ def _write_core(
     # number.
     report.rows["dataset_variables"] = db.execute(
         "SELECT COUNT(*) FROM dataset_variables"
+    ).fetchone()[0]
+
+    # --- when each column existed ------------------------------------------
+    from .availability import _read as _read_availability
+
+    validity_rows = []
+    for code in sorted(wanted):
+        try:
+            found = _read_availability(store.conn, onto, code)
+        except Exception:  # noqa: BLE001 - a dataset with nothing decoded yet
+            continue
+        for window in found.fields.values():
+            for lo, hi in window.intervals:
+                bridged = [y for y in window.bridged_years() if lo <= y <= hi]
+                validity_rows.append(
+                    (code, window.field, lo, hi,
+                     1 if (window.current and hi == found.decoded_years[-1]) else 0,
+                     json.dumps(bridged) if bridged else None)
+                )
+    db.executemany(
+        "INSERT OR REPLACE INTO field_validity (dataset, field, year_from, year_to,"
+        " current, bridged) VALUES (?,?,?,?,?,?)",
+        validity_rows,
+    )
+    report.rows["field_validity"] = db.execute(
+        "SELECT COUNT(*) FROM field_validity"
     ).fetchone()[0]
 
     # --- schema generations, with what each one changed -------------------
