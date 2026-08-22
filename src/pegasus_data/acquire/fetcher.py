@@ -80,6 +80,10 @@ class Fetcher:
         #: finishing.
         self.stall_timeout = stall_timeout
         self.heartbeat_interval = heartbeat_interval
+        #: What the last :meth:`ensure` actually did. Kept so callers can report
+        #: cache hits, failures and stale fallbacks instead of inferring them.
+        self.last_stats: FetchStats | None = None
+        self.last_stale: list[str] = []
 
     # ------------------------------------------------------------------ policy
 
@@ -263,13 +267,45 @@ class Fetcher:
         finally:
             client.close()
 
-    def ensure(self, paths: Iterable[str]) -> dict[str, str]:
-        """Fetch what is missing; return ``{path: digest}`` for everything available."""
+    def ensure(
+        self, paths: Iterable[str], *, allow_stale: bool = False
+    ) -> dict[str, str]:
+        """Fetch what is missing; return ``{path: digest}`` for what this run resolved.
+
+        Driven by **this run's** decisions. It used to discard ``fetch_many``'s
+        results and then ask ``blobs.known_for(p)`` for every path — a purely
+        historical lookup that re-checks nothing. So a path whose freshness
+        check said "stale, re-fetch", whose refresh then failed, still resolved
+        to yesterday's blob and was decoded as though acquisition had succeeded.
+        The code was most willing to use stale data exactly when its own logic
+        said not to trust it.
+
+        A digest is returned only when this run either verified a cache hit or
+        completed a download. ``allow_stale=True`` restores the old behaviour
+        for a caller who would rather have old data than none — and the paths it
+        falls back on are recorded in :attr:`last_stale` so the decision can be
+        reported rather than hidden.
+        """
         wanted = list(dict.fromkeys(paths))
-        self.fetch_many(wanted)
-        out: dict[str, str] = {}
-        for p in wanted:
-            digest = self.blobs.known_for(p)
-            if digest:
-                out[p] = digest
-        return out
+        resolved: dict[str, str] = {}
+        failed: list[str] = []
+
+        def _record(result: FetchResult) -> None:
+            if result.sha256:
+                resolved[result.path] = result.sha256
+            else:
+                failed.append(result.path)
+
+        stats = self.fetch_many(wanted, on_result=_record)
+        self.last_stats = stats
+        self.last_stale = []
+
+        if allow_stale:
+            for path in wanted:
+                if path in resolved:
+                    continue
+                digest = self.blobs.known_for(path)
+                if digest:
+                    resolved[path] = digest
+                    self.last_stale.append(path)
+        return resolved

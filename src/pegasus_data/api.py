@@ -596,9 +596,24 @@ def load(
                 )
             families = narrowed
 
+        # The same guard fetch() has. Without it, load(uf="AC") on a national
+        # dataset filtered a Hive partition that does not exist and returned a
+        # false empty, which reads as "Acre has no records".
+        from .retrieve import FilterHasNoAxis, axis_refusal
+
+        refusal, axis_notes = axis_refusal(
+            store,
+            system,
+            series or (families[0]["series"] if families else None),
+            uf=bool(uf),
+            years=bool(years),
+            months=False,
+        )
+        if refusal:
+            raise FilterHasNoAxis(refusal)
+
         wanted: list[str] | None = list(columns) if columns else None
         tables: list[pa.Table] = []
-        errors: list[MissingColumnError] = []
         for family in families:
             projection = None
             if wanted:
@@ -622,8 +637,16 @@ def load(
                             for c in missing
                         )
                     ]
-                    errors.append(MissingColumnError(missing[0], family["family_id"], elsewhere))
-                    continue
+                    # RAISE, do not skip. This used to append to `errors` and
+                    # `continue`, and `errors` was only raised when NO family
+                    # produced a table — so if a later generation happened to
+                    # have the column, every earlier generation was dropped in
+                    # silence. A 1995-2025 request for a field added in 2006
+                    # returned 2006 onward and looked like a dataset that simply
+                    # starts in 2006. The docstring already promised this raises.
+                    raise MissingColumnError(
+                        missing[0], family["family_id"], elsewhere
+                    )
                 projection = list(wanted)
             # Companion columns the build materialised are still worth reading;
             # labels are no longer projected here, they are joined below.
@@ -642,8 +665,6 @@ def load(
             if table.num_rows:
                 tables.append(table)
         if not tables:
-            if errors:
-                raise errors[0]
             raise FileNotFoundError(
                 f"no lake data for system={system!r} series={series!r}; run `pegasus-data build` first"
             )
@@ -666,6 +687,8 @@ def load(
             year=year_hint,
             strict=strict_labels,
         )
+        for note in axis_notes:
+            render_report.warnings.append(note)
         return (rendered, render_report) if report else rendered
     finally:
         if own:

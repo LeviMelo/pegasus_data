@@ -16,6 +16,8 @@ byte zero to read one column, and a Parquet file's footer is a map.
 
 from __future__ import annotations
 
+import os
+
 import json
 import re
 from collections.abc import Iterable, Iterator, Sequence
@@ -111,19 +113,40 @@ class Lake:
         table = pa.Table.from_batches(collected)
         directory = self.partition_dir(system, family_id, schema_signature, uf, year)
         if replace:
-            self._clear_partition(system, family_id, schema_signature, uf, year)
             part = 0
         directory.mkdir(parents=True, exist_ok=True)
         target = directory / f"part-{part:05d}.parquet"
-        pq.write_table(
-            table,
-            target,
-            compression=self.compression,
-            use_dictionary=True,
-            write_statistics=True,
-            row_group_size=self.row_group_size,
-            version="2.6",
-        )
+
+        # Stage first, delete second. This used to clear the partition — the
+        # Parquet files AND their catalog rows — and only then start writing. A
+        # disk-full, an interrupt or an Arrow raise in between left the
+        # previously valid partition gone, and a write that succeeded while the
+        # catalog update failed left a file that `ds.dataset()` still globs and
+        # reads, with no metadata behind it.
+        #
+        # The staging name deliberately does not end in `.parquet`, so a reader
+        # scanning the directory mid-write cannot pick it up.
+        staged = directory / f".{target.name}.staging"
+        try:
+            pq.write_table(
+                table,
+                staged,
+                compression=self.compression,
+                use_dictionary=True,
+                write_statistics=True,
+                row_group_size=self.row_group_size,
+                version="2.6",
+            )
+            if not staged.exists() or staged.stat().st_size == 0:
+                raise OSError(f"staged partition {staged} is empty after write")
+            if replace:
+                self._clear_partition(system, family_id, schema_signature, uf, year)
+            os.replace(staged, target)
+        finally:
+            # A failed write must not leave debris behind for the next run to
+            # trip over; the old partition is still there and still valid.
+            if staged.exists():
+                staged.unlink()
         written = WrittenPartition(
             family_id=family_id,
             schema_signature=schema_signature,

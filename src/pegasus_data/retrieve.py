@@ -56,6 +56,7 @@ from .view import RenderReport, render_table
 
 __all__ = [
     "fetch", "FetchReport", "DatasetUnknown", "NothingPublished", "FilterHasNoAxis",
+    "axis_refusal",
 ]
 
 
@@ -186,6 +187,64 @@ _AXIS_AS_COLUMN = {
 }
 
 
+def axis_refusal(
+    catalog: Catalog,
+    system: str,
+    series: str | None,
+    *,
+    uf: bool,
+    years: bool,
+    months: bool,
+) -> tuple[str | None, list[str]]:
+    """Would filtering on these axes be answering a question the files cannot?
+
+    Returns ``(refusal_or_None, warnings)`` rather than raising, so both the
+    online and the lake-backed path can share one policy. `fetch()` raises
+    `FilterHasNoAxis`; `load()` needs the same guard and had none, which is how
+    `load(uf="AC")` on a national dataset filtered a Hive partition that does
+    not exist and returned a false empty — the exact failure `fetch()` was
+    written to prevent.
+
+    Filtering an axis a dataset does not have matches zero files and returns an
+    empty table, and empty is indistinguishable from a real "no records".
+    """
+    onto = _ontology()
+    if onto is None or not series:  # pragma: no cover - unreadable declaration
+        return None, []
+    found = onto.resolve(f"{system}.{series}")
+    if not found or found[0] != "dataset":
+        return None, []
+    code = found[1].code
+    try:
+        axes = onto.axes(catalog.conn).get(code)
+    except Exception:  # pragma: no cover - a locked or partial catalog
+        return None, []
+    if axes is None or not axes.files:
+        return None, []
+
+    absent = axes.missing(uf=uf, year=years, month=months)
+    if absent:
+        have = ", ".join(axes.names) or "none"
+        wants = ", ".join(absent)
+        hint = "; ".join(f"{name} lives in {_AXIS_AS_COLUMN[name]}" for name in absent)
+        return (
+            f"{code} is not split by {wants}. Its {axes.files} files are split by: "
+            f"{have}. Drop {wants}= and filter the loaded table instead — {hint}. "
+            f"Asking anyway would match no file and return an empty table, which "
+            f"reads like a real answer."
+        ), []
+
+    notes = []
+    for name, share in axes.partial():
+        if {"uf": uf, "year": years, "month": months}.get(name):
+            notes.append(
+                f"{code}: only {share:.0%} of files carry a {name}; filtering on it "
+                f"silently drops the remaining {1 - share:.0%} (national or "
+                f"consolidated files)."
+            )
+    return None, notes
+
+
 def _check_axes(
     catalog: Catalog,
     spec: str,
@@ -197,45 +256,13 @@ def _check_axes(
     months: bool,
     report: FetchReport,
 ) -> None:
-    """Refuse a filter the dataset's files are not split on; warn on a partial one.
-
-    This is the check that stops a wrong answer rather than a slow one. Filtering
-    an axis a dataset does not have matches zero files and returns an empty
-    table, and empty is indistinguishable from a real "no records" answer.
-    """
-    onto = _ontology()
-    if onto is None or not series:  # pragma: no cover - unreadable declaration
-        return
-    found = onto.resolve(f"{system}.{series}")
-    if not found or found[0] != "dataset":
-        return
-    code = found[1].code
-    try:
-        axes = onto.axes(catalog.conn).get(code)
-    except Exception:  # pragma: no cover - a locked or partial catalog
-        return
-    if axes is None or not axes.files:
-        return
-
-    absent = axes.missing(uf=uf, year=years, month=months)
-    if absent:
-        have = ", ".join(axes.names) or "none"
-        wants = ", ".join(absent)
-        hint = "; ".join(f"{name} lives in {_AXIS_AS_COLUMN[name]}" for name in absent)
-        raise FilterHasNoAxis(
-            f"{code} is not split by {wants}. Its {axes.files} files are split by: "
-            f"{have}. Drop {wants}= and filter the loaded table instead — {hint}. "
-            f"Asking anyway would match no file and return an empty table, which "
-            f"reads like a real answer."
-        )
-    for name, share in axes.partial():
-        asked = {"uf": uf, "year": years, "month": months}.get(name)
-        if asked:
-            report.warnings.append(
-                f"{code}: only {share:.0%} of files carry a {name}; filtering on it "
-                f"silently drops the remaining {1 - share:.0%} (national or "
-                f"consolidated files)."
-            )
+    """`fetch()`'s side of :func:`axis_refusal` — refuse loudly, warn quietly."""
+    refusal, notes = axis_refusal(
+        catalog, system, series, uf=uf, years=years, months=months
+    )
+    if refusal:
+        raise FilterHasNoAxis(refusal)
+    report.warnings.extend(notes)
 
 
 def _reject_unknown_system(spec: str, system: str) -> None:
