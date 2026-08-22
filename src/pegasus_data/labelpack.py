@@ -134,6 +134,17 @@ class LabelPackReport:
         }
 
 
+def _window_key(value: object) -> str:
+    """Normalise a dictionary validity bound to the ``AAAAMM`` the reader compares.
+
+    Empty string means "open at this end", which is what a current, undated
+    codelist has. Storing that as null would make the run key nullable for no
+    gain and complicate every comparison downstream.
+    """
+    text = str(value or "").strip()
+    return text if text.isdigit() else ""
+
+
 def _successor(code: str) -> str | None:
     """The code immediately after this one, when codes are numeric.
 
@@ -215,7 +226,8 @@ def build_label_pack(
     widths: dict[tuple[str, str], int | None] = {}
 
     for row in catalog.query(
-        "SELECT system, value_group, value_raw, value_label FROM dictionary"
+        "SELECT system, value_group, value_raw, value_label, valid_from, valid_to"
+        " FROM dictionary"
         " WHERE value_group IS NOT NULL AND value_label IS NOT NULL"
     ):
         group = str(row["value_group"]).upper()
@@ -247,13 +259,21 @@ def build_label_pack(
         if not _useful(code, label):
             report.dropped_useless += 1
             continue
-        per_code.setdefault((group, code), {})[str(row["system"] or "")] = label
+        # The VALIDITY WINDOW is part of a code's identity, not decoration.
+        # The pack used to drop it, so the fresh-install fallback could not
+        # answer `year=1995` at all: it returned whatever row happened to
+        # survive, which is the current vintage in practice. The same codelist
+        # genuinely changes meaning across eras — that is why the warehouse
+        # keeps windows apart — and a fallback that cannot express that cannot
+        # honour the same contract.
+        window = (_window_key(row["valid_from"]), _window_key(row["valid_to"]))
+        per_code.setdefault((group, code, window), {})[str(row["system"] or "")] = label
         carriers.setdefault(group, set()).add(str(row["system"] or ""))
         widths.setdefault((group, code), len(code) or None)
 
     # Collapse: a code every system agrees on becomes one row with system NULL.
-    flat: list[tuple[str | None, str, str, str]] = []
-    for (group, code), by_system in per_code.items():
+    flat: list[tuple[str | None, str, str, str, str, str]] = []
+    for (group, code, window), by_system in per_code.items():
         distinct = set(by_system.values())
         # `system = NULL` means EVERY system reads this code this way. That is
         # only true when every system carrying the codelist actually has the
@@ -263,20 +283,32 @@ def build_label_pack(
         unanimous = len(distinct) == 1 and set(by_system) >= carriers.get(group, set())
         if unanimous:
             report.shared_across_systems += len(by_system) - 1
-            flat.append((None, group, code, next(iter(distinct))))
+            flat.append((None, group, code, next(iter(distinct)), *window))
         else:
             for system, label in by_system.items():
-                flat.append((system or None, group, code, label))
+                flat.append((system or None, group, code, label, *window))
 
     # Merge consecutive numeric codes that share a label into one run.
-    buckets: dict[tuple[str | None, str], list[tuple[str, str]]] = {}
-    for system, group, code, label in flat:
-        buckets.setdefault((system, group), []).append((code, label))
+    # Keyed by window too: two vintages of one codelist are two run sets, and
+    # merging them would recreate the contradiction the warehouse avoids.
+    buckets: dict[tuple[str | None, str, str, str], list[tuple[str, str]]] = {}
+    for system, group, code, label, valid_from, valid_to in flat:
+        buckets.setdefault((system, group, valid_from, valid_to), []).append((code, label))
 
     sys_c, grp_c, lo_c, hi_c, lab_c, w_c = [], [], [], [], [], []
+    vf_c: list[str] = []
+    vt_c: list[str] = []
     per_table: dict[str, int] = {}
 
-    def _emit(system: str | None, group: str, lo: str, hi: str, label: str) -> None:
+    def _emit(
+        system: str | None,
+        group: str,
+        lo: str,
+        hi: str,
+        label: str,
+        valid_from: str = "",
+        valid_to: str = "",
+    ) -> None:
         """Close one run into the column builders.
 
         Written out because the six parallel appends were packed onto two
@@ -289,9 +321,11 @@ def build_label_pack(
         hi_c.append(hi)
         lab_c.append(label)
         w_c.append(len(lo))
+        vf_c.append(valid_from)
+        vt_c.append(valid_to)
         per_table[group] = per_table.get(group, 0) + 1
 
-    for (system, group), pairs in buckets.items():
+    for (system, group, valid_from, valid_to), pairs in buckets.items():
         pairs.sort()
         lo = hi = label = None
         for code, text in pairs:
@@ -299,11 +333,11 @@ def build_label_pack(
                 hi = code
                 continue
             if label is not None:
-                _emit(system, group, lo, hi, label)
+                _emit(system, group, lo, hi, label, valid_from, valid_to)
             lo = hi = code
             label = text
         if label is not None:
-            _emit(system, group, lo, hi, label)
+            _emit(system, group, lo, hi, label, valid_from, valid_to)
 
     table = pa.table(
         {
@@ -313,6 +347,11 @@ def build_label_pack(
             "code_hi": pa.array(hi_c, pa.string()),
             "label": pa.array(lab_c, pa.string()),
             "code_width": pa.array(w_c, pa.int32()),
+            # Empty string, not null: a window that is open at one end is a
+            # fact, and Parquet statistics on a dictionary-encoded string are
+            # what let the reader skip row groups by window.
+            "valid_from": pa.array(vf_c, pa.string()),
+            "valid_to": pa.array(vt_c, pa.string()),
         }
     )
     # Sorted by codelist so that a single-codelist read touches one or two row
@@ -402,11 +441,27 @@ def _expand(lo: str, hi: str) -> list[str]:
     return [str(n).zfill(width) for n in range(start, stop + 1)]
 
 
+def covers(valid_from: str, valid_to: str, span_lo: int, span_hi: int) -> bool:
+    """Does a packed run's window cover the requested period?
+
+    The same rule :func:`~pegasus_data.persist.reference.read_reference_table`
+    applies, so the fresh-install fallback and the materialised warehouse answer
+    a historical question identically instead of by different logic.
+    """
+    if not valid_from:
+        return False  # open-ended: the current vintage, handled separately
+    lo = int(valid_from)
+    hi = int(valid_to) if valid_to and valid_to.isdigit() else 999912
+    return lo <= span_hi and span_lo <= hi
+
+
 def read_packed(
     codelist: str,
     *,
     system: str | None = None,
     code_width: int | None = None,
+    year: int | None = None,
+    competencia: int | None = None,
 ) -> Any:
     """One codelist from the shipped pack, shaped like a lake reference table.
 
@@ -418,6 +473,14 @@ def read_packed(
     code all systems agree on is stored once. A system-specific row wins over it
     where both exist, because SIH codes sex 1/3 and SINASC codes it 1/2, and
     borrowing across them is the one mistake this must not make.
+
+    ``year``/``competencia`` select the validity window, exactly as
+    :func:`~pegasus_data.persist.reference.read_reference_table` does. The pack
+    used to carry no windows at all, so the fresh-install fallback could not
+    honour a historical request even in principle — it returned today's labels
+    for 1995 records and nothing said so. A pack built before this change still
+    reads, and a historical request against one is RECORDED as unanswerable
+    rather than silently answered with the current vintage.
     """
     import pyarrow as pa
     import pyarrow.compute as pc
@@ -432,6 +495,7 @@ def read_packed(
         raise FileNotFoundError(
             f"no reference table {codelist!r} in the shipped label pack"
         )
+    has_windows = "valid_from" in hit.schema.names
     runs = list(
         zip(
             hit.column("system").to_pylist(),
@@ -439,9 +503,37 @@ def read_packed(
             hit.column("code_hi").to_pylist(),
             hit.column("label").to_pylist(),
             hit.column("code_width").to_pylist(),
+            hit.column("valid_from").to_pylist() if has_windows else [""] * hit.num_rows,
+            hit.column("valid_to").to_pylist() if has_windows else [""] * hit.num_rows,
             strict=True,
         )
     )
+
+    # VINTAGE, before system scoping: a window that covers the request wins;
+    # otherwise the open-ended (current) rows stand in, and that substitution is
+    # recorded so a caller is not told 1995 and handed today.
+    asked = competencia if competencia is not None else year
+    if asked is not None:
+        span_lo, span_hi = (
+            (int(competencia), int(competencia))
+            if competencia is not None
+            else (int(year) * 100 + 1, int(year) * 100 + 12)  # type: ignore[arg-type]
+        )
+        dated = [r for r in runs if covers(str(r[5] or ""), str(r[6] or ""), span_lo, span_hi)]
+        if dated:
+            runs = dated
+        else:
+            current = [r for r in runs if not str(r[5] or "")]
+            from .persist.reference import note_pack_fallback
+
+            note_pack_fallback(
+                codelist.upper(),
+                str(asked),
+                "current" if current else "unresolved",
+                windowed=has_windows,
+            )
+            runs = current if current else runs
+
     wanted = (system or "").upper() or None
     specific = [r for r in runs if r[0] and str(r[0]).upper() == wanted]
     shared = [r for r in runs if not r[0]]
@@ -451,7 +543,7 @@ def read_packed(
     labels: list[str] = []
     widths: list[int] = []
     seen: set[str] = set()
-    for _sys, lo, hi, label, width in chosen:
+    for _sys, lo, hi, label, width, _vf, _vt in chosen:
         width = int(width or len(str(lo)))
         if code_width is not None and width != code_width:
             continue

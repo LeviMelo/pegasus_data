@@ -342,6 +342,21 @@ def _record(kind: str, item: tuple) -> None:
         box[kind].add(item)
 
 
+def note_pack_fallback(
+    table_id: str, asked: str, served: str, *, windowed: bool
+) -> None:
+    """Record that the SHIPPED PACK could not answer a vintage.
+
+    Separate from the warehouse's own fallback because the cause differs and
+    the remedy differs: a pack built before validity windows existed cannot
+    answer a historical question at all, and the fix is to rebuild the pack,
+    not to materialise a reference table.
+    """
+    reason = served if windowed else "unwindowed-pack"
+    _FALLBACK_VINTAGE.add((table_id, asked, reason))
+    _record("fallback", (table_id, asked, reason))
+
+
 def fallback_vintages() -> set[tuple[str, str, str]]:
     """Requests answered by a vintage other than the one asked for.
 
@@ -393,7 +408,16 @@ def read_reference_table(
         from ..labelpack import read_packed
 
         try:
-            return read_packed(table_id, system=system, code_width=code_width)
+            # The vintage travels with the request. Dropping it here is what
+            # made the fresh-install fallback answer a historical question with
+            # today's labels while the warehouse answered it correctly.
+            return read_packed(
+                table_id,
+                system=system,
+                code_width=code_width,
+                year=year,
+                competencia=competencia,
+            )
         except FileNotFoundError:
             raise FileNotFoundError(
                 f"no reference table {table_id!r} in the lake or the shipped "

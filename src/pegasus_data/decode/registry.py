@@ -197,11 +197,26 @@ class ReaderRegistry:
         p = Path(path)
         logical = logical_path or str(p)
         ladder = readers_ordered_by_suffix_hint(logical)
-        if ladder and ladder[0] in ("dbc", "dbf"):
+        if ladder and ladder[0] in ("dbc", "dbf", "duckdb", "parquet"):
             outcome = DecodeOutcome(path=logical, container=ladder[0])
             try:
                 if ladder[0] == "dbc":
                     table = read_dbc(p, logical_path=logical, row_limit=self.row_limit)
+                elif ladder[0] == "duckdb":
+                    # The tree carries a 12 GB SIHSUS/base_aih1.duck. Reading
+                    # that into a Python `bytes` and writing it back out to a
+                    # temporary file — which is what the bytes ladder does — is
+                    # not a viable way to open a database, and the blob IS
+                    # already a file.
+                    tables = read_duckdb(p, row_limit=self.row_limit)
+                    for produced in tables:
+                        produced.path = logical
+                    outcome.attempts.append(DecodeAttempt("duckdb", True))
+                    outcome.tables.extend(tables)
+                    return outcome
+                elif ladder[0] == "parquet":
+                    table = read_parquet(p, row_limit=self.row_limit)
+                    table.path = logical
                 else:
                     table = read_dbf_file(p, logical_path=logical, row_limit=self.row_limit)
             except Exception as exc:  # noqa: BLE001 - the bytes ladder gets its turn
@@ -276,14 +291,21 @@ class ReaderRegistry:
             tables = read_duckdb(staged, row_limit=self.row_limit)
             for t in tables:
                 t.path = path
-            # Materialised before the directory goes: read_duckdb returns tables
-            # already in memory, so the file is no longer needed.
+                # The directory must OUTLIVE this call. read_duckdb returns
+                # tables whose batches are lazy generators that connect to the
+                # database when first iterated — the previous comment here
+                # claimed they were already in memory, and on that basis the
+                # directory was deleted in a `finally`. Decoding then reported
+                # success and iterating raised "Cannot open file", so a `.duck`
+                # source decoded to nothing at the moment it was used.
+                t.retains = staging
             return (tables, [])
-        finally:
+        except BaseException:
             try:
                 staging.cleanup()
             except OSError:  # pragma: no cover - Windows may still hold a handle
                 pass
+            raise
 
     def _read_semantic(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
         """`.DEF`/`.CNV` are dictionary sources, not tables — hand them on untouched."""

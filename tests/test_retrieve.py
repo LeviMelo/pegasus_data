@@ -32,9 +32,9 @@ from pegasus_data.catalog.store import Catalog
 from pegasus_data.inventory.families import schema_signature
 from pegasus_data.normalize.engine import MissingColumnError
 from pegasus_data.retrieve import (
-    PartialFetchError,
     DatasetUnknown,
     NothingPublished,
+    PartialFetchError,
     _month_of,
     fetch,
     parse_dataset,
