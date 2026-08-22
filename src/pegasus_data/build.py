@@ -10,9 +10,10 @@ from __future__ import annotations
 import hashlib
 import json
 import uuid
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
+from typing import Any
 
 import pyarrow as pa
 
@@ -99,6 +100,23 @@ def partition_fingerprint(
     return h.hexdigest()
 
 
+@dataclass
+class _PartitionTally:
+    """What materialising one partition did, per level of the old nesting.
+
+    Separate fields because they count different things and used to be five
+    `+= 1`s at four nesting levels: a file can be decoded and not match, match
+    and contribute no rows, or be missing entirely.
+    """
+
+    rows: int = 0
+    partitions: int = 0
+    decoded: int = 0
+    contributing: int = 0
+    mismatched: int = 0
+    undecoded: int = 0
+
+
 class Builder:
     """Turns catalogued families into Parquet partitions."""
 
@@ -114,6 +132,93 @@ class Builder:
         )
 
     # ------------------------------------------------------------------ build
+
+    def _materialise_partition(
+        self,
+        *,
+        family: Mapping[str, Any],
+        family_id: str,
+        plan: NormalizePlan,
+        uf: str,
+        year: int,
+        group: Sequence[Mapping[str, Any]],
+        digests: Mapping[str, str],
+        registry: ReaderRegistry,
+        fingerprint: str,
+        stats: BuildStats,
+        on_file: Callable[[str, str], None] | None,
+    ) -> _PartitionTally:
+        """Decode one (uf, year) group and write it as one partition.
+
+        The materialisation step. It was the deepest nesting in the tree — over
+        groups, over members, over decoded tables, over batches, inside the
+        family loop — and every accounting defect this review found in the build
+        lived at that depth, where it is genuinely hard to see which counter
+        belongs to which level.
+        """
+        tally = _PartitionTally()
+        batches: list[pa.RecordBatch] = []
+        sources: list[str] = []
+        for m in group:
+            path = str(m["path"])
+            digest = digests.get(path)
+            if not digest:
+                stats.skipped.append(path)
+                tally.undecoded += 1
+                continue
+            if on_file:
+                on_file(family_id, path)
+            outcome = registry.open_path(
+                self.pipeline.blobs.path_for(digest), logical_path=path
+            )
+            wanted_member = str(m["member"] or "")
+            matched_here = False
+            for table in outcome.tables:
+                if wanted_member and table.member != wanted_member:
+                    continue
+                if not _matches_schema(table.field_names, plan):
+                    continue
+                matched_here = True
+                batches.extend(normalize_table(table, plan, blob_sha256=digest))
+            stats.files += 1
+            tally.decoded += 1
+            if not matched_here:
+                # The family claims this file but its schema does not fit the
+                # plan. This is the zero-row bug's signature, and it has to be
+                # counted rather than skipped past.
+                tally.mismatched += 1
+                stats.files_mismatched += 1
+                # NOT added to `sources`. That list becomes the partition's
+                # recorded provenance, and a file that contributed no rows did
+                # not provenance anything — it made the partition look derived
+                # from evidence it does not contain.
+                continue
+            sources.append(path)
+            stats.files_contributing += 1
+            tally.contributing += 1
+
+        if not batches:
+            return tally
+        # No part number: this build owns the whole partition, and write_batches
+        # replaces it. Numbering from the files already there is what let a
+        # rebuild land beside its own stale output.
+        written = self.lake.write_batches(
+            batches,
+            system=str(family["system"]),
+            family_id=family_id,
+            schema_signature=str(family["schema_signature"]),
+            uf=uf,
+            year=year,
+            source_paths=sources,
+            build_fingerprint=fingerprint,
+        )
+        if written:
+            stats.partitions += 1
+            stats.rows += written.row_count
+            stats.bytes_written += written.byte_size
+            tally.rows += written.row_count
+            tally.partitions += 1
+        return tally
 
     def build(
         self,
@@ -222,79 +327,34 @@ class Builder:
             for (uf, year), group in sorted(grouped.items()):
                 fingerprint = partition_fingerprint(plan_digest, group, digests)
                 if not rebuild and self.lake.partition_is_current(
-                    system=family["system"],
+                    system=str(family["system"]),
                     family_id=family_id,
-                    schema_signature=family["schema_signature"],
+                    schema_signature=str(family["schema_signature"]),
                     uf=uf,
                     year=year,
                     fingerprint=fingerprint,
                 ):
                     stats.partitions_reused += 1
                     continue
-                batches: list[pa.RecordBatch] = []
-                sources: list[str] = []
-                rows_here = 0
-                for m in group:
-                    path = str(m["path"])
-                    digest = digests.get(path)
-                    if not digest:
-                        stats.skipped.append(path)
-                        undecoded += 1
-                        continue
-                    if on_file:
-                        on_file(family_id, path)
-                    outcome = registry.open_path(
-                        self.pipeline.blobs.path_for(digest), logical_path=path
-                    )
-                    wanted_member = str(m["member"] or "")
-                    matched_here = False
-                    for table in outcome.tables:
-                        if wanted_member and table.member != wanted_member:
-                            continue
-                        if not _matches_schema(table.field_names, plan):
-                            continue
-                        matched_here = True
-                        for batch in normalize_table(table, plan, blob_sha256=digest):
-                            batches.append(batch)
-                            rows_here += batch.num_rows
-                    stats.files += 1
-                    family_decoded += 1
-                    if not matched_here:
-                        # The family claims this file but its schema does not fit
-                        # the plan. This is the zero-row bug's signature, and it
-                        # has to be counted rather than skipped past.
-                        schema_mismatch += 1
-                        stats.files_mismatched += 1
-                        # NOT added to `sources`. That list becomes the
-                        # partition's recorded provenance, and a file that
-                        # contributed no rows did not provenance anything — it
-                        # made the partition look derived from evidence it does
-                        # not contain.
-                        continue
-                    sources.append(path)
-                    stats.files_contributing += 1
-                    family_files += 1
-                if not batches:
-                    continue
-                # No part number: this build owns the whole partition, and
-                # write_batches replaces it. Numbering from the files already
-                # there is what let a rebuild land beside its own stale output.
-                written = self.lake.write_batches(
-                    batches,
-                    system=family["system"],
+                tally = self._materialise_partition(
+                    family=family,
                     family_id=family_id,
-                    schema_signature=family["schema_signature"],
+                    plan=plan,
                     uf=uf,
                     year=year,
-                    source_paths=sources,
-                    build_fingerprint=fingerprint,
+                    group=group,
+                    digests=digests,
+                    registry=registry,
+                    fingerprint=fingerprint,
+                    stats=stats,
+                    on_file=on_file,
                 )
-                if written:
-                    stats.partitions += 1
-                    stats.rows += written.row_count
-                    stats.bytes_written += written.byte_size
-                    family_rows += written.row_count
-                    family_parts += 1
+                undecoded += tally.undecoded
+                schema_mismatch += tally.mismatched
+                family_decoded += tally.decoded
+                family_files += tally.contributing
+                family_rows += tally.rows
+                family_parts += tally.partitions
 
             reason = None
             if family_rows == 0:
