@@ -392,6 +392,8 @@ def describe(
     *,
     field: str,
     catalog: Catalog | None = None,
+    root: str | Path | None = None,
+    settings: Settings | None = None,
 ) -> FieldDescription:
     """Ledger entry + dictionary coverage + top values **with labels** + provenance.
 
@@ -401,7 +403,7 @@ def describe(
     ``DIAG_SECUN`` against a 2020 file from quietly returning nothing useful.
     """
     own = catalog is None
-    cat = catalog or Catalog()
+    cat = catalog or Catalog(root=root, settings=settings)
     try:
         store = cat.store
         candidates = _resolve_family(store, system, series, field)
@@ -611,6 +613,8 @@ def load(
     labels: bool | None = None,
     family_id: str | None = None,
     catalog: Catalog | None = None,
+    root: str | Path | None = None,
+    settings: Settings | None = None,
     profile: str = "analysis",
     render: Mapping[str, str] | None = None,
     headers: str | None = None,
@@ -645,7 +649,7 @@ def load(
     if labels is True:
         strict_labels = strict_labels or False
     own = catalog is None
-    cat = catalog or Catalog()
+    cat = catalog or Catalog(root=root, settings=settings)
     try:
         store = cat.store
         families = _resolve_family(store, system, series, None)
@@ -798,7 +802,7 @@ def load_population(
     labelled age-standardised.
     """
     own = catalog is None
-    cat = catalog or Catalog()
+    cat = catalog or Catalog(root=root, settings=settings)
     try:
         spec = KNOWN_SERIES.get(series)
         if spec is None:
@@ -847,7 +851,7 @@ def load_reference(
         admissions.join(cid, keys="DIAG_PRINC", right_keys="code")
     """
     own = catalog is None
-    cat = catalog or Catalog()
+    cat = catalog or Catalog(root=root, settings=settings)
     try:
         return read_reference_table(
             cat.settings.lake_dir, table, valid_from=valid_from, year=year, code_width=code_width
@@ -885,6 +889,8 @@ def export(
     columns: Sequence[str] | None = None,
     family_id: str | None = None,
     catalog: Catalog | None = None,
+    root: str | Path | None = None,
+    settings: Settings | None = None,
     profile: str = "report",
     render: Mapping[str, str] | None = None,
     headers: str | None = None,

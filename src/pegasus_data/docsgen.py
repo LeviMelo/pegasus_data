@@ -965,6 +965,42 @@ def _store_families(conn: sqlite3.Connection, catalog: Catalog, system: str) -> 
     return len(rows)
 
 
+def search(
+    query: str,
+    *,
+    root: str | Path | None = None,
+    settings: "Settings | None" = None,
+    path: str | Path | None = None,
+    limit: int = 25,
+    kind: str | None = None,
+) -> list[dict[str, object]]:
+    """Search the dictionary, addressed the way the rest of the API is addressed.
+
+    The underlying :func:`search_docs` takes a *filesystem path* as its first
+    argument, which made this the one public entry point with a different
+    calling convention: every neighbour takes the thing you are asking about
+    first and ``root=`` to say where. A caller passing ``root=`` here got a
+    ``TypeError``.
+
+    ``path=`` still works for a dictionary sitting somewhere unusual.
+    """
+    if path is None:
+        base = Path(root) if root else None
+        if settings is not None:
+            base = settings.root
+        candidates = [
+            (base / "docs" / "dictionary.sqlite") if base else None,
+            Path("docs") / "dictionary.sqlite",
+        ]
+        path = next((c for c in candidates if c and Path(c).exists()), None)
+    if path is None or not Path(path).exists():
+        raise FileNotFoundError(
+            "no dictionary to search; run `pegasus-data dictionary` to build one, "
+            "or pass path= to point at an existing file"
+        )
+    return search_docs(path, query, limit=limit, kind=kind)
+
+
 def search_docs(
     path: str | Path, query: str, *, limit: int = 25, kind: str | None = None
 ) -> list[dict[str, object]]:
@@ -1031,6 +1067,7 @@ def read_page(path: str | Path, system: str, field: str) -> str | None:
         conn.close()
 
 
-#: Exported as `pegasus_data.search`. The module-internal name says what it
-#: searches; the public one says what the caller is doing.
-search = search_docs
+# `search` is defined above as a wrapper that takes (query, root=...), matching
+# every other public entry point. It used to be a bare alias for `search_docs`,
+# which takes a filesystem path first — the one function in the package with a
+# different calling convention, and a TypeError for anyone passing root=.
