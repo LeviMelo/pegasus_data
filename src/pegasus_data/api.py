@@ -50,7 +50,6 @@ from .view import (
     PROFILES,
     LabelUnavailable,
     RenderReport,
-    render_table,
 )
 
 __all__ = [
@@ -937,31 +936,27 @@ def load(
         #
         # `year` is a Hive partition column in the lake, so the scoping is
         # row-level rather than a hint about the request.
-        rendered_parts: list[pa.Table] = []
-        render_report = None
-        for family_id, table in tables:
-            for chunk, chunk_year in _by_vintage(table, years):
-                part, part_report = render_table(
-                    chunk,
-                    store=store,
-                    lake_root=cat.settings.lake_dir,
-                    system=system,
-                    family_id=family_id,
-                    profile=profile,
-                    render=render,
-                    headers=headers,
-                    values=values,
-                    companions=companions,
-                    derived=derived,
-                    year=chunk_year,
-                    strict=strict_labels,
-                )
-                rendered_parts.append(part)
-                render_report = _merge_reports(render_report, part_report)
-        rendered = (
-            rendered_parts[0]
-            if len(rendered_parts) == 1
-            else pa.concat_tables(rendered_parts, promote_options="permissive")
+        # The same operation fetch() uses. Two implementations of one rule is
+        # how fetch() kept the cross-vintage bug this fixed in load().
+        from .render_groups import render_groups, split_by_year_column
+
+        groups = [
+            group
+            for family_id, table in tables
+            for group in split_by_year_column(table, years, family_id)
+        ]
+        rendered, render_report = render_groups(
+            groups,
+            store=store,
+            lake_root=cat.settings.lake_dir,
+            system=system,
+            profile=profile,
+            render=render,
+            headers=headers,
+            values=values,
+            companions=companions,
+            derived=derived,
+            strict=strict_labels,
         )
         for note in axis_notes:
             render_report.warnings.append(note)
@@ -1147,6 +1142,7 @@ def scan(
     columns: Sequence[str] | None = None,
     where: ds.Expression | None = None,
     batch_size: int = 131_072,
+    on_missing_column: str = "raise",
     family_id: str | None = None,
     catalog: Catalog | None = None,
     root: str | Path | None = None,
@@ -1197,6 +1193,7 @@ def scan(
             raise FilterHasNoAxis(refusal)
 
         warnings_out: list[str] = list(axis_notes)
+        absent_by_family: dict[str, str] = {}
         scanners: list[tuple[str, ds.Scanner]] = []
         for family in families:
             try:
@@ -1217,10 +1214,32 @@ def scan(
             except FileNotFoundError:
                 continue
             except KeyError as exc:
-                # A generation that lacks a requested column. Named, not
-                # silently dropped — that was CR-03.
-                warnings_out.append(f"{family['family_id']}: {exc}")
-                continue
+                # A generation that lacks a requested column. Dropping it is
+                # the CR-03 defect under a new API name: if another generation
+                # HAS the column, the scan succeeds and quietly returns only
+                # that one, so a longitudinal question silently begins wherever
+                # the column was added. Worse through export(stream=True),
+                # which never surfaced this warning list at all.
+                if on_missing_column == "null_fill":
+                    absent_by_family[str(family["family_id"])] = str(exc)
+                    scanner = cat.lake.scanner(
+                        system=system,
+                        family_id=str(family["family_id"]),
+                        uf=uf,
+                        years=list(years) if years else None,
+                        columns=None,  # read what it has; the rest is null-filled
+                        where=where,
+                        batch_size=batch_size,
+                    )
+                    scanners.append((str(family["family_id"]), scanner))
+                    continue
+                from .normalize.engine import MissingColumnError
+
+                raise MissingColumnError(
+                    str(columns[0]) if columns else "?",
+                    str(family["family_id"]),
+                    [str(f["family_id"]) for f in families if f is not family],
+                ) from exc
             scanners.append((str(family["family_id"]), scanner))
         if not scanners:
             from .retrieve import NothingPublished
@@ -1229,6 +1248,11 @@ def scan(
                 f"no lake data for system={system!r} series={series!r}"
                 + (f"; {warnings_out[0]}" if warnings_out else "")
                 + "; run `pegasus-data build` first"
+            )
+        for fam, why in sorted(absent_by_family.items()):
+            warnings_out.append(
+                f"{fam}: {why} — those rows are null here STRUCTURALLY, the "
+                "field does not exist in that generation"
             )
         return LakeScan(
             scanners=scanners,
@@ -1281,6 +1305,7 @@ def export(
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
     stream: bool = False,
+    on_missing_column: str = "raise",
 ) -> Path:
     """Write a rendered extract to a file. ``load()`` plus a writer.
 
@@ -1336,10 +1361,18 @@ def export(
             years=years,
             columns=columns,
             family_id=family_id,
+            on_missing_column=on_missing_column,
             catalog=catalog,
             root=root,
             settings=settings,
         )
+        if scan_result.warnings:
+            # scan()'s warnings used to die here. A streaming export that
+            # null-filled a whole generation said so to nobody.
+            import warnings as _warnings
+
+            for note in scan_result.warnings:
+                _warnings.warn(note, UserWarning, stacklevel=2)
         return _write_streaming(scan_result, path, fmt)
 
     table = load(

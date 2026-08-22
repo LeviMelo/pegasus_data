@@ -125,3 +125,77 @@ class TestStagedTree:
             self._tree(staging, ["CID10"])
         assert sorted(p.name for p in root.iterdir()) == ["CID10"]
         assert not stale.exists()
+
+
+class TestMergeGranularity:
+    """The unit of replacement has to be the unit of scope.
+
+    The reference warehouse is `<codelist>/system=<sys>/window=<w>`, and a
+    rebuild scoped to one system stages `<codelist>/system=SIHSUS` only. Merging
+    at depth 1 replaces the whole `<codelist>` directory — deleting every OTHER
+    system's copy of that codelist, which is the exact loss merging exists to
+    prevent. The earlier test used a flat tree and could not see it.
+    """
+
+    def _warehouse(self, root, layout):
+        for codelist, systems in layout.items():
+            for system in systems:
+                d = root / codelist / f"system={system}" / "window=current"
+                d.mkdir(parents=True, exist_ok=True)
+                (d / "part-0.parquet").write_bytes(f"{codelist}/{system}".encode())
+
+    def _systems(self, root, codelist):
+        base = root / codelist
+        return sorted(p.name for p in base.iterdir()) if base.is_dir() else []
+
+    def test_a_system_scoped_rebuild_keeps_the_other_systems_copies(self, tmp_path):
+        root = tmp_path / "reference"
+        self._warehouse(root, {"SEXO": ["SIHSUS", "SINASC", "SIM"], "CID10": ["SIHSUS"]})
+
+        with staged_tree(root, merge_depth=2) as staging:
+            self._warehouse(staging, {"SEXO": ["SIHSUS"]})
+
+        assert self._systems(root, "SEXO") == ["system=SIHSUS", "system=SIM", "system=SINASC"], (
+            "a rebuild scoped to SIHSUS deleted SINASC's and SIM's SEXO tables"
+        )
+        assert self._systems(root, "CID10") == ["system=SIHSUS"]
+
+    def test_merging_at_depth_one_is_what_destroyed_them(self, tmp_path):
+        """Kept as the counter-example, so the reason for merge_depth is visible."""
+        root = tmp_path / "reference"
+        self._warehouse(root, {"SEXO": ["SIHSUS", "SINASC", "SIM"]})
+        with staged_tree(root, merge_depth=1) as staging:
+            self._warehouse(staging, {"SEXO": ["SIHSUS"]})
+        assert self._systems(root, "SEXO") == ["system=SIHSUS"]
+
+    def test_the_scoped_system_is_still_refreshed(self, tmp_path):
+        root = tmp_path / "reference"
+        self._warehouse(root, {"SEXO": ["SIHSUS", "SINASC"]})
+        stale = root / "SEXO" / "system=SIHSUS" / "window=old"
+        stale.mkdir(parents=True)
+        (stale / "part-0.parquet").write_bytes(b"stale")
+
+        with staged_tree(root, merge_depth=2) as staging:
+            self._warehouse(staging, {"SEXO": ["SIHSUS"]})
+
+        windows = sorted(p.name for p in (root / "SEXO" / "system=SIHSUS").iterdir())
+        assert windows == ["window=current"], "the stale window survived the rebuild"
+        assert (root / "SEXO" / "system=SINASC").is_dir()
+
+    def test_a_codelist_the_scope_did_not_touch_is_untouched(self, tmp_path):
+        root = tmp_path / "reference"
+        self._warehouse(root, {"SEXO": ["SIHSUS"], "MUNIC": ["SINASC"]})
+        with staged_tree(root, merge_depth=2) as staging:
+            self._warehouse(staging, {"SEXO": ["SIHSUS"]})
+        assert (root / "MUNIC" / "system=SINASC" / "window=current").is_dir()
+
+    def test_a_tree_flatter_than_the_merge_depth_still_contributes(self, tmp_path):
+        """Otherwise a staged unit shallower than the depth is silently dropped."""
+        root = tmp_path / "reference"
+        (root / "KEEP").mkdir(parents=True)
+        (root / "KEEP" / "x.parquet").write_bytes(b"keep")
+        with staged_tree(root, merge_depth=2) as staging:
+            (staging / "FLAT").mkdir()
+            (staging / "FLAT" / "y.parquet").write_bytes(b"flat")
+        assert (root / "FLAT" / "y.parquet").read_bytes() == b"flat"
+        assert (root / "KEEP" / "x.parquet").exists()

@@ -259,6 +259,15 @@ class Fetcher:
         #: instead of continuing to write blobs and catalog rows after
         #: `fetch_many` has returned and the caller has moved on.
         cancelled = threading.Event()
+        #: Paths from `pending` that reached a terminal state. Counted here and
+        #: nowhere else, because the completion test below compares against
+        #: `len(pending)` — the NETWORK MISSES — and `stats.skipped` already
+        #: holds every cache hit settled before a socket was opened. Adding
+        #: those to the numerator made a warm-heavy batch finish early: 7 hits
+        #: plus 1 real fetch satisfies `>= 5 pending`, and the other four misses
+        #: were abandoned with no error and no failure recorded, so the caller
+        #: got a short table that looked complete.
+        terminal = [0]
         _last_seen = [0]
         _last_moved = [time.monotonic()]
 
@@ -296,6 +305,13 @@ class Fetcher:
                             _record(stats, result)
                         _emit(result)
                     finally:
+                        # In `finally`, so a path taken off the queue counts
+                        # exactly once whatever happened to it. A path that
+                        # somehow escaped `_fetch_one`'s own handler would
+                        # otherwise leave the batch waiting for a completion
+                        # that can never arrive.
+                        with lock:
+                            terminal[0] += 1
                         work.task_done()
             finally:
                 client.close()
@@ -318,11 +334,10 @@ class Fetcher:
         with Heartbeat(progress, interval=self.heartbeat_interval):
             while True:
                 with lock:
-                    completed = stats.fetched + stats.skipped
-                    progress.completed = completed
+                    done = terminal[0]
                     progress.failed = stats.failed
+                    progress.completed = max(0, done - stats.failed)
                     lost = stats.workers_lost
-                done = progress.completed + progress.failed
                 if done >= len(pending):
                     break
                 if lost >= len(threads) or all(not t.is_alive() for t in threads):
@@ -339,7 +354,7 @@ class Fetcher:
 
         if deadline_hit:
             cancelled.set()
-            outstanding = len(pending) - (stats.fetched + stats.skipped + stats.failed)
+            outstanding = max(0, len(pending) - terminal[0])
             stats.stalled = outstanding
             message = (
                 f"fetch stalled: no path completed in {self.stall_timeout:.0f}s; "

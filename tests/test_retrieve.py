@@ -32,6 +32,7 @@ from pegasus_data.catalog.store import Catalog
 from pegasus_data.inventory.families import schema_signature
 from pegasus_data.normalize.engine import MissingColumnError
 from pegasus_data.retrieve import (
+    PartialFetchError,
     DatasetUnknown,
     NothingPublished,
     _month_of,
@@ -198,11 +199,27 @@ class TestItSaysWhatItCouldNotDo:
         with pytest.raises(NothingPublished, match=r"uf=\['RR'\]"):
             fetch("SIH-RD", uf="RR", settings=settings)
 
-    def test_a_file_that_could_not_be_fetched_is_named_not_skipped(self, settings, seeded):
+    def test_a_file_that_could_not_be_fetched_makes_the_answer_short_and_refused(
+        self, settings, seeded
+    ):
+        """The default is to refuse. One of two files missing is not a result."""
         seeded["fetcher"] = FakeFetcher(missing={"/p/RDAL2301.dbc"})
-        table, report = fetch("SIH-RD", uf="AL", settings=settings, report=True)
+        with pytest.raises(PartialFetchError) as excinfo:
+            fetch("SIH-RD", uf="AL", settings=settings)
+        assert excinfo.value.missing["undecoded"] == ["/p/RDAL2301.dbc"]
+        assert excinfo.value.report.files_read == 1
+
+    def test_the_short_answer_is_available_on_request_and_names_what_it_lost(
+        self, settings, seeded
+    ):
+        seeded["fetcher"] = FakeFetcher(missing={"/p/RDAL2301.dbc"})
+        table, report = fetch(
+            "SIH-RD", uf="AL", settings=settings, report=True, allow_partial=True
+        )
         assert report.undecoded == ["/p/RDAL2301.dbc"]
         assert report.files_read == 1 and table.num_rows == 2
+        assert not report.is_complete
+        assert report.excluded["undecoded"] == ["/p/RDAL2301.dbc"]
 
     def test_a_file_whose_schema_does_not_fit_its_family_is_counted(self, settings, seeded):
         """The zero-row signature: the family claims a file it cannot normalise."""
@@ -443,7 +460,12 @@ class TestItCannotHangSilently:
             )
 
         monkeypatch.setattr(retrieve, "_decode_one", slow_for_one)
-        table, report = fetch("SIH-RD", uf="AL", settings=settings, report=True)
+        # An abandoned file makes the answer short, so the default refuses it.
+        with pytest.raises(PartialFetchError):
+            fetch("SIH-RD", uf="AL", settings=settings)
+        table, report = fetch(
+            "SIH-RD", uf="AL", settings=settings, report=True, allow_partial=True
+        )
         assert "/p/RDAL2301.dbc" in report.undecoded
         assert any("gave up after" in w for w in report.warnings)
         assert table.num_rows == 2, "the other file still came back"

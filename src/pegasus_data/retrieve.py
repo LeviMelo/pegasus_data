@@ -55,16 +55,46 @@ from .ontology import Ontology
 from .pipeline import Pipeline
 from .progress import ItemTimeout, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
-from .view import RenderReport, render_table
+from .view import RenderReport
 
 __all__ = [
     "fetch", "FetchReport", "DatasetUnknown", "NothingPublished", "FilterHasNoAxis",
+    "PartialFetchError",
     "axis_refusal",
 ]
 
 
 class DatasetUnknown(KeyError):
     """The dataset name does not resolve to anything the catalog knows."""
+
+
+class PartialFetchError(RuntimeError):
+    """Selected sources did not contribute, so the answer is short.
+
+    Raised rather than returned, because this module's whole premise is that
+    quietly handing back a shorter table is how a wrong number gets published.
+    Eleven of twelve monthly files decoding looks exactly like a year with one
+    quiet month, and nothing in the returned table says which.
+
+    `allow_partial=True` opts into the short answer; the report then names
+    every excluded artifact, so the exclusion is a recorded decision rather
+    than an accident.
+    """
+
+    def __init__(self, report: FetchReport, missing: dict[str, list[str]]) -> None:
+        self.report = report
+        #: reason -> the source paths excluded for it.
+        self.missing = {k: v for k, v in missing.items() if v}
+        total = sum(len(v) for v in self.missing.values())
+        detail = "; ".join(
+            f"{reason}: {len(paths)} ({', '.join(paths[:3])}{'…' if len(paths) > 3 else ''})"
+            for reason, paths in sorted(self.missing.items())
+        )
+        super().__init__(
+            f"{total} of {report.files_matched} selected source(s) did not "
+            f"contribute — {detail}. The table would be short. Pass "
+            "allow_partial=True to accept it; report.excluded then names each one."
+        )
 
 
 class FilterHasNoAxis(ValueError):
@@ -99,6 +129,10 @@ class FetchReport:
     system: str = ""
     series: str | None = None
     families: list[str] = field(default_factory=list)
+    #: source path -> (family_id, year). What each contributing file IS, which
+    #: is what lets a fetched table be rendered against the classification
+    #: vintage of the records rather than one hint for the whole answer.
+    source_facts: dict[str, tuple[str | None, int | None]] = field(default_factory=dict)
     files_matched: int = 0
     files_read: int = 0
     rows: int = 0
@@ -132,6 +166,16 @@ class FetchReport:
     file_ufs_returned: list[str] = field(default_factory=list)
     undecoded: list[str] = field(default_factory=list)
     schema_mismatch: list[str] = field(default_factory=list)
+    #: (path, reason) for sources acquisition could not deliver. Structured,
+    #: because deciding whether an answer is complete should not require
+    #: matching a prose prefix in `warnings`.
+    acquisition_failures: list[tuple[str, str]] = field(default_factory=list)
+    #: Unique PHYSICAL source artifacts, as distinct from the logical
+    #: (file, member) records `files_matched` counts. A seven-member LHA
+    #: archive is one network file and seven members; reporting seven files
+    #: makes the retrieval look seven times heavier than it was.
+    sources_selected: int = 0
+    sources_read: int = 0
     render: RenderReport | None = None
     warnings: list[str] = field(default_factory=list)
 
@@ -149,6 +193,25 @@ class FetchReport:
         """Deprecated alias for :attr:`file_ufs_returned`."""
         return self.file_ufs_returned
 
+    @property
+    def excluded(self) -> dict[str, list[str]]:
+        """Selected sources that contributed nothing, by reason.
+
+        The three ways a selected artifact can fail to reach the table. Kept as
+        one derived view so `fetch()` and the caller agree on what "complete"
+        means instead of each assembling it from parts.
+        """
+        return {
+            "acquisition": [p for p, _why in self.acquisition_failures],
+            "undecoded": list(self.undecoded),
+            "schema_mismatch": list(self.schema_mismatch),
+        }
+
+    @property
+    def is_complete(self) -> bool:
+        """True when every selected source contributed."""
+        return not any(self.excluded.values())
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "system": self.system,
@@ -156,8 +219,21 @@ class FetchReport:
             "families": self.families,
             "files_matched": self.files_matched,
             "files_read": self.files_read,
+            "sources_selected": self.sources_selected,
+            "sources_read": self.sources_read,
             "rows": self.rows,
+            # Every acquisition counter, not just one derived megabyte figure.
+            # These are exactly the numbers needed to tell a warm request from
+            # a cold one, and they were being computed and then dropped at the
+            # reporting boundary.
+            "bytes_downloaded": self.bytes_downloaded,
+            "bytes_from_cache": self.bytes_from_cache,
+            "bytes_read": self.bytes_read,
+            "cache_hits": self.cache_hits,
+            "network_fetches": self.network_fetches,
             "megabytes_downloaded": round(self.bytes_downloaded / 2**20, 2),
+            "acquisition_failures": self.acquisition_failures[:10],
+            "excluded": {k: v[:10] for k, v in self.excluded.items()},
             "discovered": self.discovered,
             "files_truncated": self.files_truncated,
             "families_truncated_away": self.families_truncated_away,
@@ -384,6 +460,7 @@ def fetch(
     strict_labels: bool = False,
     max_files: int | None = None,
     on_missing_column: str = "raise",
+    allow_partial: bool = False,
     discover: bool = True,
     root: str | Path | None = None,
     settings: Settings | None = None,
@@ -461,6 +538,13 @@ def fetch(
         if table.num_rows == 0:
             raise NothingPublished(_nothing_message(fetch_report, want_ufs, want_years))
 
+        # A SHORT answer is refused by default. Raising only on zero rows meant
+        # eleven of twelve monthly files decoding returned eleven months that
+        # looked like a complete year, with the diagnosis visible only to a
+        # caller who had asked for report=True.
+        if not allow_partial and not fetch_report.is_complete:
+            raise PartialFetchError(fetch_report, fetch_report.excluded)
+
         if columns:
             missing = [c for c in columns if c not in table.column_names]
             if missing:
@@ -482,19 +566,31 @@ def fetch(
 
         if labels:
             _ensure_reference_tables(pipeline, fetch_report)
-        rendered, render_report = render_table(
-            table,
+        # Per (family, vintage), through the SAME operation load() uses.
+        # This used to render the whole concatenated answer once, with
+        # `year=min(requested)` and `family_id=None` whenever more than one
+        # generation contributed — so fetch("SIH-RD", years=[1995, 2024])
+        # labelled 2024 records with the 1995 vintage, and fetch("SIH-RD")
+        # labelled historical rows with today's tables. A fetched table has no
+        # `year` column, but every row carries `_source_path` and the selection
+        # knows each file's family and year.
+        from .render_groups import render_groups, split_by_source
+
+        rendered, render_report = render_groups(
+            split_by_source(
+                table,
+                fetch_report.source_facts,
+                fallback_year=min(want_years) if want_years else None,
+            ),
             store=pipeline.catalog,
             lake_root=resolved_settings.lake_dir,
             system=system,
-            family_id=fetch_report.families[0] if len(fetch_report.families) == 1 else None,
             profile="codes" if not labels else profile,
             render=render,
             headers=headers,
             values=values,
             companions=companions,
             derived=derived,
-            year=min(want_years) if want_years else None,
             strict=strict_labels,
         )
         fetch_report.render = render_report
@@ -833,6 +929,10 @@ def _select_files(
         report.families.append(family_id)
         for item in matched:
             selected.append((family_id, plan, item))
+            year = item.get("year")
+            report.source_facts[str(item["path"])] = (
+                family_id, int(year) if year is not None else None
+            )
 
     if wanted_columns and report.families:
         # ONE query for every selected generation, not one per family. The
@@ -950,6 +1050,11 @@ def _acquire(
         report.network_fetches = getattr(stats, "fetched", 0)
         for failed_path, reason in getattr(stats, "errors", ()):
             report.warnings.append(f"acquisition: {failed_path}: {reason}")
+            report.acquisition_failures.append((str(failed_path), str(reason)))
+        if getattr(stats, "stalled", 0):
+            report.acquisition_failures.append(
+                ("<stalled>", f"{stats.stalled} source(s) outstanding when the batch gave up")
+            )
     return digests
 
 
@@ -993,6 +1098,7 @@ def _read_families(
         cache=cache,
     )
     report.files_matched = len(selected)
+    report.sources_selected = len({str(item["path"]) for _f, _p, item in selected})
     if not selected:
         return pa.table({}), report
 
@@ -1001,6 +1107,9 @@ def _read_families(
     batches: list[pa.RecordBatch] = []
     seen_years: set[int] = set()
     seen_ufs: set[str] = set()
+    #: Unique physical artifacts that contributed, as opposed to (file, member)
+    #: records: one archive with seven members is one source.
+    read_sources: set[str] = set()
     # The same watchdog and heartbeat every pipeline stage runs under. This is a
     # user-facing entry point that decodes arbitrary files off a slow server, so
     # the project's own rule applies to it too: nothing may hang silently. A file
@@ -1099,6 +1208,7 @@ def _read_families(
         item = outcome["item"]
         if outcome["matched"]:
             report.files_read += 1
+            read_sources.add(path)
             if item["year"] is not None:  # type: ignore[index]
                 seen_years.add(int(item["year"]))  # type: ignore[index]
             if item["geo_code"]:  # type: ignore[index]
@@ -1106,6 +1216,7 @@ def _read_families(
         else:
             report.schema_mismatch.append(path)
 
+    report.sources_read = len(read_sources)
     report.file_years_returned = sorted(seen_years)
     report.file_ufs_returned = sorted(seen_ufs)
     if not batches:

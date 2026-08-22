@@ -246,7 +246,13 @@ def write_reference_tables(
     # genuine difference between the two artifacts: a scoped rebuild must not
     # delete the tables it was not asked about, so it merges its subtrees over
     # the existing tree instead of swapping the whole thing out.
-    with staged_tree(root, merge=bool(systems) and root.exists()) as staging:
+    # Depth 2, because the layout is `<codelist>/system=<sys>/window=<w>` and
+    # the scope is a SYSTEM. Merging at depth 1 replaces the whole `<codelist>`
+    # directory, which deletes every other system's copy of that codelist —
+    # the exact loss the merge path exists to prevent.
+    with staged_tree(
+        root, merge_depth=2 if (systems and root.exists()) else 0
+    ) as staging:
         written = _materialise_reference_tables(
             staging,
             catalog,

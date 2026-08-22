@@ -56,10 +56,30 @@ class TestScopedRebuild:
         before = _tables(root)
         assert before, "something was written to preserve"
 
+        # What each codelist held, PER SYSTEM. The earlier version of this test
+        # compared only the top-level codelist names, which survive either way:
+        # merging at the wrong depth replaces a codelist directory's CONTENTS,
+        # so SINASC's and SIM's copies vanish while the directory name remains.
+        def per_system(base):
+            return {
+                d.name: sorted(s.name for s in d.iterdir() if s.is_dir())
+                for d in sorted(base.iterdir())
+                if d.is_dir()
+            }
+
+        detailed_before = per_system(root)
         write_reference_tables(catalog, settings.lake_dir, systems=["SIHSUS"])
         assert _tables(root) == before, (
             "a rebuild scoped to SIHSUS deleted codelists belonging to other systems"
         )
+        detailed_after = per_system(root)
+        for codelist, systems_before in detailed_before.items():
+            kept = set(detailed_after.get(codelist, []))
+            lost = [s for s in systems_before if s != "system=SIHSUS" and s not in kept]
+            assert not lost, (
+                f"{codelist}: a rebuild scoped to SIHSUS deleted {lost} — the merge "
+                "replaced the whole codelist directory instead of one system's subtree"
+            )
 
     def test_a_scoped_rebuild_still_refreshes_what_it_was_asked_for(
         self, catalog, settings

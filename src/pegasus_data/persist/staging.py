@@ -66,8 +66,36 @@ def staged_file(target: Path, *, require_nonempty: bool = True) -> Iterator[Path
             staged.unlink()
 
 
+def _merge_units(staging: Path, depth: int) -> Iterator[Path]:
+    """Directories at ``depth`` below ``staging`` — the units a merge replaces.
+
+    A directory shallower than ``depth`` that has no subdirectories of its own
+    is yielded too. Otherwise a staged tree that happens to be flatter than the
+    merge depth would contribute nothing and its content would be dropped.
+    """
+
+    def walk(directory: Path, level: int) -> Iterator[Path]:
+        if level == depth:
+            yield directory
+            return
+        children = [c for c in sorted(directory.iterdir()) if c.is_dir()]
+        if not children:
+            yield directory
+            return
+        for child in children:
+            yield from walk(child, level + 1)
+
+    for entry in sorted(staging.iterdir()):
+        if entry.is_dir():
+            yield from walk(entry, 1)
+        else:
+            yield entry
+
+
 @contextmanager
-def staged_tree(target: Path, *, merge: bool = False) -> Iterator[Path]:
+def staged_tree(
+    target: Path, *, merge: bool = False, merge_depth: int | None = None
+) -> Iterator[Path]:
     """Yield a directory to fill; on clean exit it replaces ``target``.
 
     ``merge=False`` swaps the whole tree: the old one is renamed aside, the new
@@ -79,7 +107,18 @@ def staged_tree(target: Path, *, merge: bool = False) -> Iterator[Path]:
     their counterparts; everything else is left alone. Swapping here would
     silently drop every table outside the scope — which is the whole failure
     this distinction exists to prevent.
+
+    ``merge_depth`` says at WHICH level those subtrees live, and getting it
+    wrong is destructive in exactly the way merging was meant to avoid. The
+    reference warehouse is laid out ``<codelist>/system=<sys>/window=<w>``; a
+    rebuild scoped to one system stages ``<codelist>/system=SIHSUS`` only, so
+    merging at depth 1 replaces the whole ``<codelist>`` directory and deletes
+    every OTHER system's copy of that codelist. The unit of replacement has to
+    be the unit of scope. ``merge=True`` means depth 1; pass ``merge_depth``
+    when the scope is deeper.
     """
+    if merge_depth is None:
+        merge_depth = 1 if merge else 0
     target = Path(target)
     staging = target.with_name(target.name + ".__staging__")
     previous = target.with_name(target.name + ".__previous__")
@@ -94,12 +133,16 @@ def staged_tree(target: Path, *, merge: bool = False) -> Iterator[Path]:
 
     if previous.exists():
         shutil.rmtree(previous)
-    if merge and target.exists():
-        for staged_dir in staging.iterdir():
-            destination = target / staged_dir.name
+    if merge_depth and target.exists():
+        for unit in list(_merge_units(staging, merge_depth)):
+            destination = target / unit.relative_to(staging)
             if destination.exists():
-                shutil.rmtree(destination)
-            staged_dir.rename(destination)
+                if destination.is_dir():
+                    shutil.rmtree(destination)
+                else:
+                    destination.unlink()
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            unit.rename(destination)
         shutil.rmtree(staging, ignore_errors=True)
         return
     if target.exists():
