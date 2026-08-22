@@ -868,6 +868,51 @@ was deliberate: that field is thin exactly where curation is thin.
 
 ---
 
+### 14.7 `availability()` — when a column existed `[D]`
+
+`src/pegasus_data/availability.py`
+
+`SIH.RD` has 20 schema generations across 34 years, and its nine
+secondary-diagnosis columns `DIAGSEC1`–`DIAGSEC9` do not appear before 2014. A
+query for `DIAGSEC4` in 2007 returns nothing, and that nothing is **structural**:
+the column did not exist. Read as clinical missingness it corrupts any estimate
+spanning the boundary. Schema generations (§14.5) already record this, but only
+implicitly — the caller has to map signatures to years and reason about gaps.
+
+**Three states, not two.** The obvious model is `valid_from`/`valid_to` per
+field. It is one state short, and it fails the way the original problem fails:
+`DIAGSEC4` is carried by decoded files for 2014–2016 and 2018 onward, so an
+interval reading 2014–2026 quietly asserts something about 2017 — a year nothing
+has been decoded for.
+
+| state | meaning |
+|---|---|
+| `present` | a decoded schema for that year carries the field |
+| `absent` | a decoded schema exists and does **not** carry it — a positive claim |
+| `unknown` | nothing decoded for that year; no claim is made |
+
+`absent` is the load-bearing answer: it is what separates structural absence from
+missingness. `unknown` is what keeps the separation honest when the catalog is
+simply silent.
+
+Intervals still **bridge** undecoded years, because splitting `DIAGSEC4` into two
+runs would imply the column was removed and reinstated, which nobody has evidence
+for. Bridging is an inference about the *shape of a run* and never hardens into a
+claim about a year: `state()` checks `unknown` before the intervals, and `span()`
+names what it bridged.
+
+```python
+availability("SIH-RD").changed_at()            # every year a column arrived or left
+field_available("SIH-RD", "DIAGSEC4", 2007)    # "absent"
+field_available("SIH-RD", "DIAGSEC4", 2017)    # "unknown"
+```
+
+The distinction between what DATASUS **published** (`file_facts`, all years) and
+what this catalog has **decoded** (`strata`) is preserved throughout, because
+they are different facts and merging them is how a silence becomes a claim.
+
+Exported to the compendium as `field_validity`, one row per contiguous run.
+
 ## 14a. What ships, and what does not
 
 A package is not a data lake. The rule is: **ship what makes the module
