@@ -336,6 +336,9 @@ class TestItCannotHangSilently:
     ):
         import pegasus_data.retrieve as retrieve
 
+        # The THREAD watchdog is what these exercise; the killable-process
+        # path enforces its own deadline and is covered separately.
+        settings.decode_isolation = False
         settings.item_timeout = 0.25
         settings.heartbeat_interval = 0.05
 
@@ -351,6 +354,9 @@ class TestItCannotHangSilently:
     def test_the_abandoned_file_is_named_in_the_report(self, settings, seeded, monkeypatch):
         import pegasus_data.retrieve as retrieve
 
+        # The THREAD watchdog is what these exercise; the killable-process
+        # path enforces its own deadline and is covered separately.
+        settings.decode_isolation = False
         settings.item_timeout = 0.25
         real = retrieve._decode_one
 
@@ -381,6 +387,9 @@ class TestItCannotHangSilently:
         coverage_gaps already means."""
         import pegasus_data.retrieve as retrieve
 
+        # The THREAD watchdog is what these exercise; the killable-process
+        # path enforces its own deadline and is covered separately.
+        settings.decode_isolation = False
         settings.item_timeout = 0.25
 
         def hang(*_args, **_kwargs):

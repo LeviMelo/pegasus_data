@@ -1325,8 +1325,7 @@ def _read_families(
             return {"position": position, "path": path, "missing": True}
         member = str(item["member"] or "")
         try:
-            decoded_batches, matched_here, read_bytes = run_with_timeout(
-                functools.partial(
+            work = functools.partial(
                     _decode_one,
                     pipeline,
                     registry,
@@ -1337,9 +1336,11 @@ def _read_families(
                     decoded_cache=decoded_cache,
                     cache_lock=cache_lock,
                     keep_columns=keep_columns,
-                ),
-                seconds=settings.item_timeout,
-                label=path,
+            )
+            decoded_batches, matched_here, read_bytes = (
+                work()
+                if settings.decode_isolation
+                else run_with_timeout(work, seconds=settings.item_timeout, label=path)
             )
         except ItemTimeout:
             return {"position": position, "path": path, "timed_out": True}
@@ -1471,16 +1472,31 @@ def _decode_one(
         # reader ladder, which is the only thing the extension was needed for.
         blob_path = pipeline.blobs.path_for(digest)
         size = blob_path.stat().st_size
-        # A fresh registry per decode: ReaderRegistry accumulates per-call
-        # state (failed archive members), which threads must not share.
-        outcome = ReaderRegistry(row_limit=registry.row_limit).open_path(
-            blob_path,
-            logical_path=path,
-            # The projection reaches the READER, not just the accumulation.
-            # `keep_columns` already carries the request plus everything
-            # rendering and derivation depend on.
-            columns=keep_columns,
-        )
+        if pipeline.settings.decode_isolation:
+            # In a process the parent can KILL. The deadline is enforced here
+            # rather than by a thread watchdog, because a watchdog only stops
+            # the caller waiting — the decoder carries on burning a core and an
+            # inflated DBF for as long as it likes.
+            from .decode.isolation import decoder_pool
+
+            outcome = decoder_pool(
+                max(1, min(4, pipeline.settings.fetch_concurrency))
+            ).decode(
+                blob_path,
+                logical_path=path,
+                # The projection reaches the READER, not just the accumulation.
+                # `keep_columns` already carries the request plus everything
+                # rendering and derivation depend on.
+                columns=sorted(keep_columns) if keep_columns else None,
+                row_limit=registry.row_limit,
+                timeout=pipeline.settings.item_timeout,
+            )
+        else:
+            # A fresh registry per decode: ReaderRegistry accumulates per-call
+            # state (failed archive members), which threads must not share.
+            outcome = ReaderRegistry(row_limit=registry.row_limit).open_path(
+                blob_path, logical_path=path, columns=keep_columns
+            )
         if decoded_cache is not None:
             if cache_lock is not None:
                 with cache_lock:

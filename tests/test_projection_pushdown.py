@@ -82,6 +82,11 @@ class TestItReachesTheReaderThroughTheRegistry:
         assert len(names) < len(table.fields) or names == [f.name for f in table.fields]
 
     def test_the_projection_reaches_the_decoder(self, settings, seeded, monkeypatch):
+        # Observed IN PROCESS: a monkeypatch in this interpreter cannot
+        # reach a decoder running in another one. The isolated path is
+        # covered in test_decode_isolation.py, which asserts the same
+        # guarantee on what comes back across the pipe.
+        settings.decode_isolation = False
         """Observed at the decoder, not grepped from the source.
 
         A spelling assertion proves nothing about behaviour and dies the moment
@@ -111,6 +116,11 @@ class TestItReachesTheReaderThroughTheRegistry:
         assert "SEXO" in asked
 
     def test_unrequested_columns_are_never_materialised(self, settings, seeded, monkeypatch):
+        # Observed IN PROCESS: a monkeypatch in this interpreter cannot
+        # reach a decoder running in another one. The isolated path is
+        # covered in test_decode_isolation.py, which asserts the same
+        # guarantee on what comes back across the pipe.
+        settings.decode_isolation = False
         """The point of pushing the projection down, asserted on the batches."""
         from pegasus_data.retrieve import fetch
 

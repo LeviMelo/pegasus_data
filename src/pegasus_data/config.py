@@ -123,6 +123,15 @@ class Settings:
     #: (reproducibility over currency) that used to be implicit.
     refresh: str = "catalog"
 
+    #: Decode in a separate, killable process. `item_timeout` was never
+    #: cancellation without this: Python cannot kill a thread and DBC inflation
+    #: runs inside a native extension that never yields, so an "abandoned" file
+    #: went on holding a core and an inflated DBF after the API had moved on.
+    #: Measured at -5% against the in-process path on a real 208-column CNES-ST
+    #: payload, so it is on by default; turn it off where spawning a subprocess
+    #: is not possible.
+    decode_isolation: bool = True
+
     keep_raw: bool = False
     compression: str = "zstd"
     row_group_size: int = 256 * 1024
@@ -254,6 +263,7 @@ def load_settings(**overrides: object) -> Settings:
         ("PEGASUS_STALL_TIMEOUT", "stall_timeout", float),
         ("PEGASUS_TIMEOUT", "timeout", float),
         ("PEGASUS_REFRESH", "refresh", str),
+        ("PEGASUS_DECODE_ISOLATION", "decode_isolation", lambda v: v not in ("0", "false", "False")),
     ):
         if env_name in os.environ:
             kwargs[setting_name] = cast(os.environ[env_name])
