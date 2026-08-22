@@ -9,7 +9,9 @@ file-axis refusal — and hands back batches.
 from __future__ import annotations
 
 import csv
+from pathlib import Path
 
+import pyarrow as pa
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 import pytest
@@ -160,3 +162,103 @@ class TestStreamingExport:
                 profile="codes", stream=True,
                 root=settings.root, settings=settings,
             )
+
+
+class TestStreamingAcrossGenerations:
+    """The case a single-generation test cannot reach.
+
+    A file has one header, and the writer was being created from whichever
+    generation's batch arrived first — so the moment a second generation with a
+    different schema came through, the export died with "Table schema does not
+    match schema used to create file". The unit tests passed; a real two-
+    generation lake did not.
+    """
+
+    def test_it_writes_the_union_of_every_generations_columns(
+        self, built_lake, tmp_path
+    ):
+        settings, _catalog, _ = built_lake
+        sc = scan("SIHSUS", "RD", root=settings.root, settings=settings)
+        union = {n for s in sc.schemas.values() for n in s.names}
+
+        target = tmp_path / "all.parquet"
+        export(
+            "SIHSUS", "RD", path=target, format="parquet", profile="codes",
+            stream=True, root=settings.root, settings=settings,
+        )
+        written = pq.read_table(target)
+        assert set(written.schema.names) == union
+        assert written.num_rows == sc.count_rows(), "no generation was dropped"
+
+    @staticmethod
+    def _mixed_scan(tmp_path):
+        """Two generations that genuinely disagree about their columns.
+
+        Built directly, because the shared `built_lake` fixture's generations
+        happen to carry the same columns — which is exactly why the first
+        version of this test passed while a real CNES export died.
+        """
+        tmp_path = Path(tmp_path)
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        old = pa.table({"ID": ["1", "2"], "SEXO": ["1", "3"]})
+        new = pa.table({"ID": ["3"], "SEXO": ["2"], "IDADE": ["40"]})
+        scanners = []
+        for name, table in (("OLD", old), ("NEW", new)):
+            directory = tmp_path / name
+            directory.mkdir()
+            pq.write_table(table, directory / "part-0.parquet")
+            dataset = ds.dataset(directory, format="parquet")
+            scanners.append((name, dataset.scanner()))
+        return LakeScan(scanners=scanners, system="SIHSUS", series="RD",
+                        families=["OLD", "NEW"])
+
+    def test_a_generation_that_lacks_a_column_is_null_filled_not_dropped(
+        self, tmp_path
+    ):
+        from pegasus_data.api import _write_streaming
+
+        sc = self._mixed_scan(tmp_path / "lake")
+        target = tmp_path / "out.parquet"
+        _write_streaming(sc, target, "parquet")
+
+        written = pq.read_table(target)
+        assert written.num_rows == 3, "no generation was dropped"
+        assert set(written.schema.names) == {"ID", "SEXO", "IDADE"}
+        idade = written.column("IDADE").to_pylist()
+        assert idade.count(None) == 2, (
+            "the generation without IDADE contributes structural nulls, not "
+            "missing rows"
+        )
+        assert sorted(written.column("ID").to_pylist()) == ["1", "2", "3"]
+
+    def test_the_writer_is_not_built_from_whichever_batch_arrives_first(
+        self, tmp_path
+    ):
+        """The actual failure: 'Table schema does not match schema used to
+        create file' the moment the second generation came through."""
+        from pegasus_data.api import _write_streaming
+
+        sc = self._mixed_scan(tmp_path / "lake")
+        _write_streaming(sc, tmp_path / "out.csv", "csv")
+        rows = (tmp_path / "out.csv").read_text(encoding="utf-8").strip().splitlines()
+        assert len(rows) == 4, "one header and three rows across both generations"
+
+    def test_a_type_conflict_is_refused_rather_than_coerced(self):
+        """Silently widening an int32 to a string because one vintage stored it
+        differently is the kind of quiet change this package exists not to make."""
+        from pegasus_data.api import _unified_schema
+
+        with pytest.raises(ValueError, match="declare it as"):
+            _unified_schema([
+                pa.schema([pa.field("X", pa.int32())]),
+                pa.schema([pa.field("X", pa.string())]),
+            ])
+
+    def test_column_order_is_first_seen(self):
+        from pegasus_data.api import _unified_schema
+
+        merged = _unified_schema([
+            pa.schema([pa.field("A", pa.string()), pa.field("B", pa.string())]),
+            pa.schema([pa.field("B", pa.string()), pa.field("C", pa.string())]),
+        ])
+        assert merged.names == ["A", "B", "C"]

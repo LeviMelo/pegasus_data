@@ -1367,6 +1367,51 @@ def export(
     return write_table(table, path, fmt)
 
 
+def _unified_schema(schemas: Sequence[pa.Schema]) -> pa.Schema:
+    """One schema covering every generation, or a refusal naming the conflict.
+
+    A file has one header. Generations do not share a schema — that is why
+    `scan()` keeps them apart — so writing them into one file means deciding up
+    front what its columns are, in first-seen order, with each generation
+    null-filled for the columns it does not have. That is exactly what
+    `promote_options="permissive"` does for the eager path.
+
+    A column two generations declare with DIFFERENT TYPES is a genuine conflict
+    and is refused rather than coerced: silently widening an int32 to a string
+    because one vintage stored it differently is the kind of quiet change this
+    package exists not to make.
+    """
+    fields: dict[str, pa.Field] = {}
+    for schema in schemas:
+        for field_ in schema:
+            existing = fields.get(field_.name)
+            if existing is None:
+                fields[field_.name] = field_
+            elif existing.type != field_.type:
+                raise ValueError(
+                    f"cannot stream {field_.name!r} into one file: generations "
+                    f"declare it as {existing.type} and {field_.type}. Export "
+                    "each generation separately (family_id=), or use the eager "
+                    "path, which reports the promotion."
+                )
+    return pa.schema(list(fields.values()))
+
+
+def _conform(table: pa.Table, schema: pa.Schema) -> pa.Table:
+    """Give `table` exactly `schema`'s columns, null-filling what it lacks."""
+    if table.schema.names == schema.names:
+        return table
+    arrays = []
+    for field_ in schema:
+        if field_.name in table.schema.names:
+            arrays.append(table.column(field_.name))
+        else:
+            # STRUCTURAL absence: this generation has no such field. The eager
+            # path null-fills it the same way and says so in the report.
+            arrays.append(pa.nulls(table.num_rows, type=field_.type))
+    return pa.Table.from_arrays(arrays, schema=schema)
+
+
 def _write_streaming(scan_result: LakeScan, path: str | Path, fmt: str) -> Path:
     """Write a scan batch by batch. Never holds more than one batch.
 
@@ -1382,6 +1427,18 @@ def _write_streaming(scan_result: LakeScan, path: str | Path, fmt: str) -> Path:
         target.parent.mkdir(parents=True, exist_ok=True)
     staged = target.with_name(target.name + ".part")
 
+    # Decided BEFORE the first batch: a file has one header, and the writer
+    # cannot be created from whichever generation happened to come first.
+    # _flatten_lists can change a column's type (a list becomes a joined
+    # string), so the schema is taken from a flattened sample of each
+    # generation rather than from the raw scan schema.
+    schema = _unified_schema(
+        [
+            _flatten_lists(pa.Table.from_batches([], schema=s)).schema
+            for s in scan_result.schemas.values()
+        ]
+    )
+
     writer = None
     try:
         # The writer must be closed INSIDE this block: both Arrow writers finish
@@ -1396,12 +1453,14 @@ def _write_streaming(scan_result: LakeScan, path: str | Path, fmt: str) -> Path:
                 # field's *_codes companion has no CSV representation, and
                 # letting it through as a Python repr is how a column silently
                 # stops being parseable.
-                flat = _flatten_lists(pa.Table.from_batches([batch]))
+                flat = _conform(
+                    _flatten_lists(pa.Table.from_batches([batch])), schema
+                )
                 if writer is None:
                     writer = (
-                        pq.ParquetWriter(sink, flat.schema, compression="zstd")
+                        pq.ParquetWriter(sink, schema, compression="zstd")
                         if fmt == "parquet"
-                        else pacsv.CSVWriter(sink, flat.schema)
+                        else pacsv.CSVWriter(sink, schema)
                     )
                 writer.write_table(flat)
             if writer is not None:
