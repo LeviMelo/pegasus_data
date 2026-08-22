@@ -401,6 +401,11 @@ def _choose_binding(
             continue
         hits = [lookup[v] for v in observed if v in lookup]
         share = len(hits) / len(observed)
+        # `observed` is a SET, so this weighs a code appearing once the same as
+        # one appearing in 90% of rows. That is a deliberate semantic signal —
+        # a table that covers the variety of a column is the right table — but
+        # it is not the whole story, and the row-weighted figure is reported
+        # alongside it so a caller can see both.
         # How much of the column's own variety survives the translation.
         granularity = (len(set(hits)) / len(hits)) if hits else 0.0
         scored.append((codelist, share, granularity))
@@ -489,10 +494,29 @@ def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
     exact string comparison enforces this by construction, and
     :func:`_check_width` is what stops a future "helpful" pad from undoing it.
     """
-    values = column.to_pylist()
-    return pa.array(
-        [None if v is None else lookup.get(str(v).strip()) for v in values], type=pa.string()
+    # Resolved once per DISTINCT code, not once per row. A million-row
+    # categorical field with six distinct values was doing a million Python
+    # dictionary lookups to answer six questions; dictionary-encoding it turns
+    # that into six lookups and an index remap that stays inside Arrow.
+    if not len(column):
+        return pa.array([], type=pa.string())
+    try:
+        encoded = pc.dictionary_encode(column)
+    except (pa.ArrowInvalid, pa.ArrowNotImplementedError):  # pragma: no cover
+        values = column.to_pylist()
+        return pa.array(
+            [None if v is None else lookup.get(str(v).strip()) for v in values],
+            type=pa.string(),
+        )
+    if isinstance(encoded, pa.ChunkedArray):
+        encoded = encoded.combine_chunks()
+    uniques = encoded.dictionary.to_pylist()
+    mapped = pa.array(
+        [None if u is None else lookup.get(str(u).strip()) for u in uniques],
+        type=pa.string(),
     )
+    # take() carries the nulls through: a null index yields a null label.
+    return pc.take(mapped, encoded.indices)
 
 
 def _check_width(
@@ -661,17 +685,23 @@ def render_table(
 
     columns: list[pa.Array] = []
     names: list[str] = []
-    lookups: dict[str, dict[str, str]] = {}
+    lookups: dict[tuple, dict[str, str]] = {}
 
     def _lookup(field_name: str, codelists: Sequence[str]) -> dict[str, str] | None:
         """Merge every table bound to this field. Exact width keeps them apart."""
-        key = "|".join(codelists)
-        if key in lookups:
-            return lookups[key] or None
         doc = docs.get(field_name)
         width = None
         if doc and doc.token_rule and not doc.multi_valued:
             width = doc.token_rule.get("width")
+        # The key has to carry EVERYTHING the lookup below depends on. It was
+        # just the codelist names, but the result is filtered by the field's
+        # curated token width — so two fields sharing a codelist and needing
+        # different widths shared a map built for whichever ran first. That
+        # quietly undoes §6.2, the rule that keeps merged classifications of
+        # different widths apart.
+        key = (tuple(codelists), system, year, width)
+        if key in lookups:
+            return lookups[key] or None
         merged: dict[str, str] = {}
         missing: list[str] = []
         for codelist in codelists:
@@ -925,8 +955,17 @@ def render_table(
             "values='combined' produces a reading format: the result cannot be "
             "filtered, joined or aggregated on"
         )
-    for message in report.warnings:
-        warnings.warn(message, stacklevel=2)
+    # ONE warning, not one per finding. A wide dataset with many unresolved or
+    # ambiguous columns produced a wall of them — slow to emit and hostile in a
+    # notebook, and it trained people to filter the channel entirely. The
+    # structured report is the carrier; this is the pointer to it.
+    if report.warnings:
+        head = report.warnings[0]
+        rest = len(report.warnings) - 1
+        warnings.warn(
+            head + (f" (+{rest} more in RenderReport.warnings)" if rest else ""),
+            stacklevel=2,
+        )
     return rendered_table, report
 
 
