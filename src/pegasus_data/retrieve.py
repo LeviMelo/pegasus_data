@@ -767,8 +767,8 @@ def _keep_columns(
     return frozenset(keep)
 
 
-def _read_families(
-    pipeline: Pipeline,
+def _select_files(
+    catalog: Catalog,
     families: Sequence[Mapping[str, Any]],
     *,
     report: FetchReport,
@@ -776,23 +776,20 @@ def _read_families(
     years: Sequence[int],
     months: Sequence[int],
     max_files: int | None,
-    on_progress: Callable[[str, int, int], None] | None,
-    columns: Sequence[str] | None = None,
-    on_missing_column: str = "raise",
-) -> tuple[pa.Table, FetchReport]:
-    """Download and normalise the matching files, entirely in memory.
+    columns: Sequence[str] | None,
+    on_missing_column: str,
+    municipalities: MunicipalityIndex,
+    cache: DictionaryCache,
+) -> list[tuple[str, NormalizePlan, dict[str, Any]]]:
+    """Decide WHICH files answer this request, and refuse the ones that cannot.
 
-    This is :class:`~pegasus_data.build.Builder` without the lake: same plan,
-    same readers, same normalisation, but the batches are concatenated and
-    returned instead of written to Parquet. Sharing the *plan* is what matters —
-    a second normalisation path would be a second set of type coercions and
-    sentinel rules to keep in agreement with the first.
+    Everything before a byte is fetched: matching files to the requested axes,
+    building each generation's normalisation plan, applying the structural
+    missing-column policy, and the debugging truncation. Separated from
+    acquisition and decoding because it is the part that can say "no" — and
+    every one of its refusals is a policy decision the caller must be able to
+    see reasoned about on its own.
     """
-    catalog = pipeline.catalog
-    registry = ReaderRegistry()
-    cache = DictionaryCache(catalog)
-    municipalities = MunicipalityIndex.from_catalog(catalog)
-
     selected: list[tuple[str, NormalizePlan, dict[str, Any]]] = []
     # Built ONCE. These were rebuilt per row inside the comprehension below, so
     # a family with 5,000 files constructed 15,000 sets to answer the same three
@@ -920,10 +917,24 @@ def _read_families(
                     f"({', '.join(emptied[:6])}{'…' if len(emptied) > 6 else ''}); "
                     "they are named in report.families but contributed nothing"
                 )
-    report.files_matched = len(selected)
-    if not selected:
-        return pa.table({}), report
+    return selected
 
+
+def _acquire(
+    pipeline: Pipeline,
+    selected: Sequence[tuple[str, NormalizePlan, dict[str, Any]]],
+    *,
+    report: FetchReport,
+    on_progress: Callable[[str, int, int], None] | None,
+) -> dict[str, str]:
+    """Make sure every selected file is in the blob store. Returns path -> digest.
+
+    Acquisition scheduling, kept apart from decoding: the fetcher decides cache
+    hits, concurrency and retries, and the only thing the decode side needs back
+    is a digest per path. Paths are deduplicated first — one archive can carry
+    several selected members, and fetching it once per member is a request the
+    server should never see.
+    """
     paths = list(dict.fromkeys(str(item["path"]) for _, _, item in selected))
     if on_progress:
         on_progress("downloading", 0, len(paths))
@@ -939,6 +950,53 @@ def _read_families(
         report.network_fetches = getattr(stats, "fetched", 0)
         for failed_path, reason in getattr(stats, "errors", ()):
             report.warnings.append(f"acquisition: {failed_path}: {reason}")
+    return digests
+
+
+def _read_families(
+    pipeline: Pipeline,
+    families: Sequence[Mapping[str, Any]],
+    *,
+    report: FetchReport,
+    ufs: Sequence[str],
+    years: Sequence[int],
+    months: Sequence[int],
+    max_files: int | None,
+    on_progress: Callable[[str, int, int], None] | None,
+    columns: Sequence[str] | None = None,
+    on_missing_column: str = "raise",
+) -> tuple[pa.Table, FetchReport]:
+    """Download and normalise the matching files, entirely in memory.
+
+    This is :class:`~pegasus_data.build.Builder` without the lake: same plan,
+    same readers, same normalisation, but the batches are concatenated and
+    returned instead of written to Parquet. Sharing the *plan* is what matters —
+    a second normalisation path would be a second set of type coercions and
+    sentinel rules to keep in agreement with the first.
+    """
+    catalog = pipeline.catalog
+    registry = ReaderRegistry()
+    cache = DictionaryCache(catalog)
+    municipalities = MunicipalityIndex.from_catalog(catalog)
+
+    selected = _select_files(
+        catalog,
+        families,
+        report=report,
+        ufs=ufs,
+        years=years,
+        months=months,
+        max_files=max_files,
+        columns=columns,
+        on_missing_column=on_missing_column,
+        municipalities=municipalities,
+        cache=cache,
+    )
+    report.files_matched = len(selected)
+    if not selected:
+        return pa.table({}), report
+
+    digests = _acquire(pipeline, selected, report=report, on_progress=on_progress)
 
     batches: list[pa.RecordBatch] = []
     seen_years: set[int] = set()
