@@ -389,15 +389,17 @@ class TestSystemScoping:
     def test_the_other_systems_codes_do_not_leak_in(self, settings, catalog: Catalog):
         """SIHSUS has no '2', and must not borrow SINASC's meaning for it."""
         self._two_systems(settings, catalog)
-        with pytest.warns(UserWarning, match="matched none"):
-            out, report = render_table(
-                pa.table({"SEXO": pa.array(["2"])}),
-                store=catalog, lake_root=settings.lake_dir, system="SIHSUS",
-            )
+        out, report = render_table(
+            pa.table({"SEXO": pa.array(["2"])}),
+            store=catalog, lake_root=settings.lake_dir, system="SIHSUS",
+        )
         # The raw code survives — better unlabelled than mislabelled — and the
         # point is what it is NOT: SINASC's "Feminino" never reaches a SIH row.
         assert out.column("SEXO").to_pylist() == ["2"]
         assert "SEXO" in report.unlabelled
+        # A single-valued column that decodes to nothing is named as such, and
+        # stays in `unlabelled` so this guard cannot be weakened by that.
+        assert report.constant.get("SEXO") == "2"
 
     def test_a_borrowed_table_is_used_when_the_system_ships_none(
         self, settings, catalog: Catalog
@@ -446,7 +448,7 @@ class TestBindingChoiceIsDeterministic:
         from pegasus_data.view import _bindings
 
         self._bind(catalog, "RETENCAO", "ATJURC", "NATJURC", "ESFERAJUR", "NATJUR")
-        assert _bindings(catalog, "CNES", None)["NAT_JUR"] == ["NATJUR"]
+        assert _bindings(catalog, "CNES", None)["NAT_JUR"][0] == "NATJUR"
 
     def test_confidence_still_outranks_a_name_match(self, catalog: Catalog):
         """Affinity breaks ties; it does not overturn a better source."""
@@ -457,7 +459,7 @@ class TestBindingChoiceIsDeterministic:
             "INSERT INTO field_codelists (system, family_id, field_name, codelist, source, "
             "source_ref, confidence) VALUES ('CNES','','NAT_JUR','CURATED','manual','c',1.0)"
         )
-        assert _bindings(catalog, "CNES", None)["NAT_JUR"] == ["CURATED"]
+        assert _bindings(catalog, "CNES", None)["NAT_JUR"][0] == "CURATED"
 
 
 class TestReadingAReferenceTableThatFiltersToNothing:
@@ -554,18 +556,93 @@ class TestADeadBindingLosesToAWorkingOne:
         self._bind(catalog, "DT_INTER", "DTINTER", confidence=0.5, decodes=0.8)
         from pegasus_data.view import _bindings
 
-        assert _bindings(catalog, "SIHSUS", None)["DT_INTER"] == ["DTINTER"]
+        assert _bindings(catalog, "SIHSUS", None)["DT_INTER"][0] == "DTINTER"
 
     def test_a_dead_binding_is_still_offered_when_nothing_else_is(self, catalog: Catalog):
         """Excluding it would be a stronger claim than the measurement supports."""
         self._bind(catalog, "DT_INTER", "ANOMES", confidence=0.9, decodes=0.0)
         from pegasus_data.view import _bindings
 
-        assert _bindings(catalog, "SIHSUS", None)["DT_INTER"] == ["ANOMES"]
+        assert _bindings(catalog, "SIHSUS", None)["DT_INTER"][0] == "ANOMES"
 
     def test_an_unmeasured_binding_is_not_treated_as_dead(self, catalog: Catalog):
         self._bind(catalog, "SEXO", "SEXO", confidence=0.9, decodes=None)
         self._bind(catalog, "SEXO", "OTHER", confidence=0.4, decodes=0.9)
         from pegasus_data.view import _bindings
 
-        assert _bindings(catalog, "SIHSUS", None)["SEXO"] == ["SEXO"]
+        assert _bindings(catalog, "SIHSUS", None)["SEXO"][0] == "SEXO"
+
+
+class TestTheDataDecidesWhichTableIsRight:
+    """Ranking gives a deterministic pick, not a correct one.
+
+    `CNES` in SIH is bound by `.DEF` to 31 tables — TCNESBR, one per state, and
+    three federal-hospital lists — all at confidence 0.9, none whose name
+    resembles the field. Every tie-break fell through to alphabetical order, so
+    the renderer chose HOSFEDRJ: six rows, federal hospitals in Rio de Janeiro.
+    Acre's establishment codes matched none of them and the column came back
+    raw, while TCNESBR sat in the same lake with 7,189 rows including every code
+    in the file.
+
+    The column's own values settle it, and they are already in memory.
+    """
+
+    @staticmethod
+    def _load(tables):
+        return lambda codelist: tables.get(codelist)
+
+    def test_the_table_that_decodes_the_column_wins(self) -> None:
+        from pegasus_data.view import _choose_binding
+
+        tables = {
+            "HOSFEDRJ": {"2269384": "Hospital federal"},
+            "TCNESBR": {"2001578": "Hospital geral de Rio Branco"},
+        }
+        picked, share, _ = _choose_binding(
+            "CNES", ["HOSFEDRJ", "TCNESBR"], {"2001578"}, self._load(tables)
+        )
+        assert picked == "TCNESBR"
+        assert share == 1.0
+
+    def test_a_table_missing_from_the_lake_simply_loses(self) -> None:
+        """A candidate that cannot be read is not an error, it is a worse option."""
+        from pegasus_data.view import _choose_binding
+
+        tables = {"REAL": {"1": "Sim"}}
+        picked, share, _ = _choose_binding(
+            "X", ["ABSENT", "REAL"], {"1"}, self._load(tables)
+        )
+        assert (picked, share) == ("REAL", 1.0)
+
+    def test_it_stops_once_a_table_decodes_everything(self) -> None:
+        """114 tables are bound to DIAG_PRINC; reading them all costs more than it returns."""
+        from pegasus_data.view import _choose_binding
+
+        tables = {"GOOD": {"A": "a"}, "ALSO": {"A": "a"}}
+        _, _, tried = _choose_binding("X", ["GOOD", "ALSO"], {"A"}, self._load(tables))
+        assert tried == 1
+
+    def test_it_weighs_no_more_than_the_cap(self) -> None:
+        from pegasus_data.view import _MAX_CANDIDATES, _choose_binding
+
+        names = [f"T{i}" for i in range(40)]
+        _, _, tried = _choose_binding("X", names, {"zzz"}, lambda _cl: {"other": "x"})
+        assert tried == _MAX_CANDIDATES
+
+    def test_an_empty_column_does_not_drive_the_choice(self) -> None:
+        """With nothing observed there is no evidence, so ranking stands."""
+        from pegasus_data.view import _choose_binding
+
+        picked, share, tried = _choose_binding("X", ["FIRST", "SECOND"], set(), lambda _cl: {})
+        assert (picked, share, tried) == ("FIRST", 0.0, 0)
+
+    def test_the_best_of_a_bad_set_is_reported_not_hidden(self) -> None:
+        """PROC_REA: 12 tables bound, the best decodes 3%. That is a finding."""
+        from pegasus_data.view import _TOO_WEAK, _choose_binding
+
+        picked, share, _ = _choose_binding(
+            "PROC_REA", ["A"], {"1", "2", "3", "4"}, lambda _cl: {"1": "one"}
+        )
+        assert picked == "A"
+        assert share == 0.25
+        assert share < _TOO_WEAK

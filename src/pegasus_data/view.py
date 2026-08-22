@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import re
 import warnings
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Literal
@@ -102,6 +102,14 @@ class RenderReport:
 
     labelled: list[str] = field(default_factory=list)
     unlabelled: list[str] = field(default_factory=list)
+    #: Unlabelled columns holding one value in every row, with that value —
+    #: ``CID_MORTE`` is ``'0000'`` 59,835 times in SIH-RD/AC/2023. These are ALSO
+    #: in ``unlabelled``, so nothing a caller checks today is lost; this names
+    #: the subset that is dead data rather than a labelling defect, which is
+    #: what lets a reader subtract the noise instead of skimming past all of it.
+    #: It is a finding in its own right: the column carries nothing in this
+    #: slice, which is worth knowing before an analysis is built on it.
+    constant: dict[str, str] = field(default_factory=dict)
     derived_added: list[str] = field(default_factory=list)
     companions_dropped: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
@@ -111,6 +119,7 @@ class RenderReport:
         return {
             "labelled": self.labelled,
             "unlabelled": self.unlabelled,
+            "constant": self.constant,
             "derived_added": self.derived_added,
             "companions_dropped": self.companions_dropped,
             "warnings": self.warnings,
@@ -176,6 +185,26 @@ def _lookup_map(
         for c, lbl in zip(codes, labels, strict=True)
         if c is not None and lbl is not None and str(lbl).strip()
     }
+
+
+def _single_lookup(
+    lake_root: Path,
+    codelist: str,
+    system: str | None,
+    year: int | None,
+    code_width: int | None,
+) -> dict[str, str] | None:
+    """One codelist's ``code -> label``, or ``None`` if it is not materialised.
+
+    Separate from :func:`_lookup_map` only so a missing table is a *candidate
+    that loses* rather than an exception the chooser has to catch per call.
+    """
+    try:
+        return _lookup_map(
+            lake_root, codelist, system=system, year=year, code_width=code_width
+        )
+    except (FileNotFoundError, OSError):
+        return None
 
 
 def _contradictions(
@@ -285,12 +314,75 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, l
             codelist,
         )
 
+    # Every candidate is kept, best first. They must never be MERGED — that is
+    # what labels a municipality with the name of its health macro-region — but
+    # the caller can now test them against the column in hand and pick the one
+    # that actually decodes it, which ranking alone cannot do.
     out: dict[str, list[str]] = {}
     for r in sorted(rows, key=_rank):
-        # setdefault, not append: the first row per field is the best-authority
-        # binding, and the rest are alternatives this function must not merge.
-        out.setdefault(str(r["field_name"]).upper(), [str(r["codelist"])])
+        out.setdefault(str(r["field_name"]).upper(), []).append(str(r["codelist"]))
     return out
+
+
+#: How many candidates to weigh for one column. `.DEF` binds DIAG_PRINC to 114
+#: tables; reading them all to label one column costs more than it can return.
+#: The list is ranked, so the right table is near the front when it is present.
+_MAX_CANDIDATES = 12
+
+#: A candidate this good ends the search — nothing later can beat it.
+_GOOD_ENOUGH = 0.99
+
+#: Below this share, the best candidate is evidence that NONE of the bound
+#: tables is the right one. `PROC_REA` has 12 tables bound and the best decodes
+#: 3% of its codes — labelling from it would fill 3% of the column and leave 97%
+#: null, which reads as "these procedures are unknown" rather than "we bound the
+#: wrong table". Refusing is the honest answer and keeps the raw codes usable.
+_TOO_WEAK = 0.5
+
+
+def _choose_binding(
+    field_name: str,
+    candidates: Sequence[str],
+    observed: set[str],
+    load: Callable[[str], dict[str, str] | None],
+) -> tuple[str | None, float, int]:
+    """Pick the bound codelist that decodes the most of what the column holds.
+
+    Ranking got the caller a *deterministic* choice, not a *correct* one, and
+    the difference was doing real damage. `CNES` in SIH is bound by `.DEF` to 31
+    tables — `TCNESBR`, one per state, and three federal-hospital lists — all at
+    confidence 0.9, none whose name resembles the field. Every tie-break fell
+    through to alphabetical order, so the renderer chose `HOSFEDRJ`: six rows,
+    federal hospitals in Rio de Janeiro. Acre's establishment codes matched none
+    of them and the column came back raw, while `TCNESBR` sat in the same lake
+    with 7,189 rows including every code in the file.
+
+    The data is right there. Measuring against it turns an arbitrary pick into
+    an evidence-based one, and costs one parquet read per candidate — bounded by
+    ``_MAX_CANDIDATES`` and short-circuited as soon as a table decodes
+    essentially everything.
+
+    Returns ``(codelist, share_decoded, candidates_tried)``. A share of zero
+    means no bound table decodes this column, which is a real finding and is
+    reported rather than hidden.
+    """
+    if not observed:
+        return (candidates[0] if candidates else None), 0.0, 0
+    best: tuple[str | None, float] = (None, -1.0)
+    tried = 0
+    for codelist in list(candidates)[:_MAX_CANDIDATES]:
+        lookup = load(codelist)
+        tried += 1
+        if not lookup:
+            continue
+        share = sum(1 for v in observed if v in lookup) / len(observed)
+        if share > best[1]:
+            best = (codelist, share)
+        if share >= _GOOD_ENOUGH:
+            break
+    if best[0] is None:
+        return (candidates[0] if candidates else None), 0.0, tried
+    return best[0], max(best[1], 0.0), tried
 
 
 def _tokenize(value: str, rule: Mapping[str, Any]) -> list[str]:
@@ -597,12 +689,60 @@ def render_table(
             continue
 
         doc = docs.get(name.upper())
+        candidates = list(bindings.get(name.upper()) or [])
+        chosen_share: float | None = None
         if doc and doc.codelist:
             # A curated entry decides both the table and whether there are
             # several. Nothing else may widen it.
             codelists = [doc.codelist, *doc.codelists]
+        elif len(candidates) > 1:
+            # Several tables claim this column and nothing declared which is
+            # right. Ask the data.
+            width_hint = None
+            if doc and doc.token_rule and not doc.multi_valued:
+                width_hint = doc.token_rule.get("width")
+            seen = {
+                str(v).strip()
+                for v in column.to_pylist()
+                if v is not None and str(v).strip()
+            }
+            picked, chosen_share, tried = _choose_binding(
+                name.upper(),
+                candidates,
+                seen,
+                lambda cl: _single_lookup(lake, cl, system, year, width_hint),
+            )
+            if picked and chosen_share < _TOO_WEAK:
+                if len(seen) <= 1:
+                    # One value in every row and nothing decodes it. That is a
+                    # dead column, not a labelling failure. Recorded in both, so
+                    # a caller loses nothing and can still tell them apart.
+                    report.constant[name] = next(iter(seen), "")
+                    report.unlabelled.append(name)
+                    columns.append(column)
+                    names.append(name)
+                    continue
+                # None of them fits. Say which was closest, and how badly.
+                message = (
+                    f"{name}: {tried} codelists are bound and none decodes the "
+                    f"column — the best, {picked!r}, matches {chosen_share:.0%} of "
+                    f"observed codes. Left unlabelled rather than partly labelled."
+                )
+                if strict:
+                    raise LabelUnavailable(message)
+                report.warnings.append(message)
+                report.unlabelled.append(name)
+                columns.append(column)
+                names.append(name)
+                continue
+            codelists = [picked] if picked else []
+            if picked and picked != candidates[0]:
+                report.warnings.append(
+                    f"{name}: {tried} codelists are bound; chose {picked!r} "
+                    f"({chosen_share:.0%} of observed codes) over {candidates[0]!r}"
+                )
         else:
-            codelists = list(bindings.get(name.upper()) or [])
+            codelists = candidates
         codelist = codelists[0] if codelists else None
         code_system = (doc.code_system if doc else None) or ("internal" if codelist else "none")
         mode: RenderMode = overrides.get(name.upper()) or (
@@ -688,6 +828,13 @@ def render_table(
         labels = _labels_for(column, lookup)
         matched = int(pc.sum(pc.is_valid(labels)).as_py() or 0)
         if not matched:
+            if len(observed) <= 1:
+                # See above: one value throughout is a dead column, not a gap.
+                report.constant[name] = next(iter(observed), "")
+                report.unlabelled.append(name)
+                columns.append(column)
+                names.append(name)
+                continue
             message = f"{name}: reference table {codelist!r} matched none of the observed codes"
             if strict:
                 raise LabelUnavailable(message)
