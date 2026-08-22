@@ -27,7 +27,7 @@ variables:
     official_name: Unidade de medida da idade
     translated_name: Age unit
     description: The unit in which IDADE is expressed.
-    code_system: internal
+    code_system: none
     modifies: IDADE
     source: layout_doc
     notes: 'DELIBERATELY UNBOUND. Six distinct values are observed (0,1,2,3,4,5 — the
@@ -257,7 +257,7 @@ variables:
   SEXO:
     official_name: Sexo do paciente
     translated_name: Sex
-    code_system: internal
+    code_system: none
     source: layout_doc
     notes: 'DELIBERATELY UNBOUND. The kits ship contradictory mappings for the same
       code: the merged SEXO table contains both ''1 -> Masculino'' and ''1 -> Feminino'',
