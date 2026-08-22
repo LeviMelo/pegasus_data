@@ -157,8 +157,15 @@ def read_dbf_bytes(
     encoding: str | None = None,
     batch_rows: int = 65_536,
     row_limit: int | None = None,
+    columns: frozenset[str] | None = None,
 ) -> DecodedTable:
-    """Decode a whole DBF held in memory."""
+    """Decode a whole DBF held in memory.
+
+    ``columns`` restricts which fields are MATERIALISED, exactly as in
+    :func:`read_dbf_file`. This path is taken by every archive member and every
+    ladder fallback, so leaving it unprojected meant a narrow request still
+    built all 200 columns whenever the source was not a loose file.
+    """
     view = memoryview(data)
     header = DbfHeader(view)
     encoding = encoding or _sniff_encoding(data, header)
@@ -195,6 +202,13 @@ def read_dbf_bytes(
     if row_limit is not None:
         n_records = min(n_records, row_limit)
 
+    wanted_indices: list[int] | None = None
+    if columns:
+        upper = {c.upper() for c in columns}
+        wanted_indices = [i for i, f in enumerate(header.fields) if f.name.upper() in upper]
+        if not wanted_indices:
+            wanted_indices = None  # nothing matched; read everything, not nothing
+
     def _iter_batches() -> Iterator[pa.RecordBatch]:
         produced = 0
         while produced < n_records:
@@ -202,7 +216,9 @@ def read_dbf_bytes(
             start = body_start + produced * record_len
             block = np.frombuffer(data, dtype=np.uint8, count=take * record_len, offset=start)
             produced += take
-            yield _batch_from_block(block.reshape(take, record_len), header, offsets, encoding)
+            yield _batch_from_block(
+                block.reshape(take, record_len), header, offsets, encoding, wanted_indices
+            )
 
     return DecodedTable(
         path=path,

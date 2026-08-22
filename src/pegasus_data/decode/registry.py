@@ -122,13 +122,25 @@ class ReaderRegistry:
         #: Collected here because the archive handler cannot reach the outcome
         #: it is contributing to, and drained into it when the call returns.
         self._failed_members: list[tuple[str, str]] = []
+        #: The projection for the call in flight. Handlers have a fixed
+        #: signature set by the reader ladder, so the request reaches them
+        #: here rather than through an argument.
+        self._columns: frozenset[str] | None = None
 
     # ------------------------------------------------------------------ entry
 
-    def open_bytes(self, data: bytes, *, path: str, depth: int = 0) -> DecodeOutcome:
+    def open_bytes(
+        self,
+        data: bytes,
+        *,
+        path: str,
+        depth: int = 0,
+        columns: frozenset[str] | None = None,
+    ) -> DecodeOutcome:
         outcome = DecodeOutcome(path=path, container=detect_container(data))
         if depth == 0:
             self._failed_members = []
+            self._columns = columns
         if not data:
             outcome.attempts.append(DecodeAttempt("<empty>", False, "zero-length payload"))
             return outcome
@@ -237,7 +249,7 @@ class ReaderRegistry:
                 outcome.attempts.append(DecodeAttempt(ladder[0], True))
                 outcome.tables.append(table)
                 return outcome
-        return self.open_bytes(p.read_bytes(), path=logical)
+        return self.open_bytes(p.read_bytes(), path=logical, columns=columns)
 
     # --------------------------------------------------------------- handlers
 
@@ -257,10 +269,16 @@ class ReaderRegistry:
         }
 
     def _read_dbc(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
-        return ([read_dbc_bytes(data, path=path, row_limit=self.row_limit)], [])
+        return (
+            [read_dbc_bytes(data, path=path, row_limit=self.row_limit, columns=self._columns)],
+            [],
+        )
 
     def _read_dbf(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
-        return ([read_dbf_bytes(data, path=path, row_limit=self.row_limit)], [])
+        return (
+            [read_dbf_bytes(data, path=path, row_limit=self.row_limit, columns=self._columns)],
+            [],
+        )
 
     def _read_csv(self, data: bytes, path: str, depth: int) -> tuple[list[DecodedTable], list[ArchiveMember]] | None:
         return ([read_csv_bytes(data, path=path, row_limit=self.row_limit)], [])

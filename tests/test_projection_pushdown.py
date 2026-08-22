@@ -81,11 +81,53 @@ class TestItReachesTheReaderThroughTheRegistry:
         names = list(table.batches())[0].schema.names
         assert len(names) < len(table.fields) or names == [f.name for f in table.fields]
 
-    def test_the_decode_path_passes_keep_columns(self):
-        """fetch()'s projection has to reach the reader, not just the accumulation."""
-        import inspect
+    def test_the_projection_reaches_the_decoder(self, settings, seeded, monkeypatch):
+        """Observed at the decoder, not grepped from the source.
 
-        from pegasus_data import retrieve
+        A spelling assertion proves nothing about behaviour and dies the moment
+        the call moves — which it will, since the decode path is being replaced
+        by process isolation. What matters is that a narrow request never
+        materialises the columns it excluded.
+        """
+        from pegasus_data.decode.registry import ReaderRegistry
+        from pegasus_data.retrieve import fetch
 
-        source = inspect.getsource(retrieve._decode_one)
-        assert "columns=keep_columns" in source
+        seen: list[frozenset[str] | None] = []
+        real = ReaderRegistry.open_path
+
+        def watched(self, path, *, logical_path=None, columns=None):
+            seen.append(columns)
+            return real(self, path, logical_path=logical_path, columns=columns)
+
+        monkeypatch.setattr(ReaderRegistry, "open_path", watched)
+        fetch("SIH-RD", columns=["SEXO"], settings=settings)
+
+        assert seen, "no decode happened"
+        assert any(c for c in seen), (
+            "the decoder was handed no projection, so every physical column is "
+            "built and then thrown away"
+        )
+        asked = {name for c in seen if c for name in c}
+        assert "SEXO" in asked
+
+    def test_unrequested_columns_are_never_materialised(self, settings, seeded, monkeypatch):
+        """The point of pushing the projection down, asserted on the batches."""
+        from pegasus_data.retrieve import fetch
+
+        widths: list[int] = []
+        import pegasus_data.decode.dbf as dbf
+
+        real = dbf._batch_from_block
+
+        def watched(block, header, offsets, encoding, wanted=None):
+            batch = real(block, header, offsets, encoding, wanted)
+            widths.append(batch.num_columns)
+            return batch
+
+        monkeypatch.setattr(dbf, "_batch_from_block", watched)
+        fetch("SIH-RD", columns=["SEXO"], settings=settings)
+        assert widths, "no batch was built"
+        assert min(widths) < 3, (
+            f"every batch carried {min(widths)} columns; the fixture has 3 and "
+            "one was requested, so nothing was pushed down"
+        )

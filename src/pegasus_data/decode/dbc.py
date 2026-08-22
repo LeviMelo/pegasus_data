@@ -74,7 +74,14 @@ def read_dbc(
     return table
 
 
-def read_dbc_bytes(data: bytes, *, path: str, member: str = "", **kwargs: object) -> DecodedTable:
+def read_dbc_bytes(
+    data: bytes,
+    *,
+    path: str,
+    member: str = "",
+    columns: frozenset[str] | None = None,
+    **kwargs: object,
+) -> DecodedTable:
     """Decode a ``.dbc`` held in memory by staging it on disk for the decoder."""
     with tempfile.TemporaryDirectory(prefix="pegasus_dbc_") as tmp:
         staged = Path(tmp) / "payload.dbc"
@@ -84,4 +91,6 @@ def read_dbc_bytes(data: bytes, *, path: str, member: str = "", **kwargs: object
         inflated = target.read_bytes()
     if not inflated:
         raise DecodeError(f"dbc decompressed to an empty payload: {path}")
-    return read_dbf_bytes(inflated, path=path, member=member, reader="dbc", **kwargs)  # type: ignore[arg-type]
+    return read_dbf_bytes(
+        inflated, path=path, member=member, reader="dbc", columns=columns, **kwargs
+    )  # type: ignore[arg-type]
