@@ -59,6 +59,10 @@ class Settings:
     # the empirically safe starting point recorded in the architecture brief.
     connections: int = 8
     fetch_concurrency: int = 8
+    #: Reserved. Nothing reads this yet — decoding is bounded by
+    #: `fetch_concurrency` and by the file-level decode pool, not by a process
+    #: pool. Kept as a named intention rather than deleted, but it is NOT a
+    #: working control and tuning it changes nothing.
     process_workers: int = max(1, (os.cpu_count() or 4) - 1)
     timeout: int = 60
     max_retries: int = 4
@@ -80,6 +84,10 @@ class Settings:
     item_timeout: float = 1200.0
     stall_timeout: float = 1800.0
     heartbeat_interval: float = 30.0
+    #: NOT the effective default. Both fetch() and Builder.build() force
+    #: keep_raw=True unless the CLI passes a build option explicitly, so raw
+    #: payloads are retained whatever this says. Named here so the discrepancy
+    #: is visible rather than discovered while profiling disk use.
     keep_raw: bool = False
     compression: str = "zstd"
     row_group_size: int = 256 * 1024
@@ -153,7 +161,17 @@ def load_settings(**overrides: object) -> Settings:
         kwargs["host"] = os.environ["PEGASUS_FTP_HOST"]
     if "PEGASUS_BASE_PATH" in os.environ:
         kwargs["base_path"] = os.environ["PEGASUS_BASE_PATH"]
-    if "PEGASUS_CONNECTIONS" in os.environ:
-        kwargs["connections"] = int(os.environ["PEGASUS_CONNECTIONS"])
+    # Every knob that matters, not just the crawler's. Honouring
+    # PEGASUS_CONNECTIONS alone let someone believe they had turned network
+    # pressure down while fetch() carried on with eight workers.
+    for env_name, field, cast in (
+        ("PEGASUS_CONNECTIONS", "connections", int),
+        ("PEGASUS_FETCH_CONCURRENCY", "fetch_concurrency", int),
+        ("PEGASUS_ITEM_TIMEOUT", "item_timeout", float),
+        ("PEGASUS_STALL_TIMEOUT", "stall_timeout", float),
+        ("PEGASUS_TIMEOUT", "timeout", float),
+    ):
+        if env_name in os.environ:
+            kwargs[field] = cast(os.environ[env_name])
     kwargs.update({k: v for k, v in overrides.items() if v is not None})
     return Settings(**kwargs)  # type: ignore[arg-type]

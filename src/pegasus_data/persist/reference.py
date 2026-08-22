@@ -97,7 +97,11 @@ def is_hierarchical(catalog: Catalog, codelist: str) -> bool:
 
 
 def write_reference_tables(
-    catalog: Catalog, lake_root: str | Path, *, compression: str = "zstd"
+    catalog: Catalog,
+    lake_root: str | Path,
+    *,
+    compression: str = "zstd",
+    systems: Sequence[str] | None = None,
 ) -> list[ReferenceTable]:
     """Materialise every code table, scoped by **system** and by validity window.
 
@@ -132,14 +136,26 @@ def write_reference_tables(
     # One ordered scan, grouped as it streams. Querying per (table, window) meant
     # ~500 separate scans of a 3.4-million-row table, which is quadratic in the
     # number of codelists and dominated the stage.
+    # `systems` bounds the rebuild. Materialising EVERY code table for every
+    # system is a build-stage side effect, and it used to fire from inside an
+    # ordinary interactive fetch: a request for SIH sex and age rebuilt the
+    # codelists of all twenty systems first.
+    system_clause = ""
+    params: list[object] = []
+    if systems:
+        marks = ",".join("?" for _ in systems)
+        system_clause = f" AND system IN ({marks})"
+        params = [s.upper() for s in systems]
+
     cursor = catalog.execute(
-        """
+        f"""
         SELECT value_group, valid_from, valid_to, value_raw, value_label, source, source_ref,
                confidence, system
           FROM dictionary
-         WHERE value_group IS NOT NULL
+         WHERE value_group IS NOT NULL{system_clause}
          ORDER BY value_group, system, valid_from, value_raw
-        """
+        """,
+        params,
     )
 
     current_key: tuple[str, str, str | None, str | None] | None = None
@@ -215,6 +231,16 @@ def write_reference_tables(
     # the rename, and is removed only after the new one is in place.
     if previous.exists():
         shutil.rmtree(previous)
+    if systems and root.exists():
+        # A SCOPED rebuild must not delete what it was not asked about. Merge
+        # the staged tables over the existing tree instead of swapping it out.
+        for staged_dir in staging.iterdir():
+            destination = root / staged_dir.name
+            if destination.exists():
+                shutil.rmtree(destination)
+            staged_dir.rename(destination)
+        shutil.rmtree(staging, ignore_errors=True)
+        return written
     if root.exists():
         root.rename(previous)
     staging.rename(root)

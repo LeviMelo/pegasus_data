@@ -995,7 +995,20 @@ def _apply_derived(
             if requested is not None and column_name not in requested:
                 continue
             inputs = [str(c).upper() for c in (recipe.get("from") or [])]
-            if len(inputs) != 2 or any(c not in source.schema.names for c in inputs):
+            if len(inputs) != 2:
+                continue
+            absent = [c for c in inputs if c not in source.schema.names]
+            if absent:
+                # SAY SO. A caller who explicitly asked for this derived column
+                # and used a narrow columns= projection got no column and no
+                # explanation, because its inputs were never read. Silence here
+                # is indistinguishable from "this derivation does not exist".
+                if requested is not None and column_name in requested:
+                    report.warnings.append(
+                        f"{column_name}: cannot be derived because "
+                        f"{', '.join(absent)} was not loaded — add it to columns= "
+                        f"(it is dropped again unless you asked for it)"
+                    )
                 continue
             unit_column = inputs[1]
             bound = bindings.get(unit_column) or []

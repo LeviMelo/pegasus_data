@@ -512,10 +512,17 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
         # read_reference_table's fallback, so this is no longer fatal.
         return
     written = write_reference_tables(
-        pipeline.catalog, lake_root, compression=pipeline.settings.compression
+        pipeline.catalog,
+        lake_root,
+        compression=pipeline.settings.compression,
+        # Only this system's codelists. A request for SIH's sex and age columns
+        # used to rebuild the reference tables of all twenty systems first — a
+        # build-stage side effect hidden inside an interactive retrieval call.
+        systems=[report.system] if report.system else None,
     )
     report.warnings.append(
-        f"materialised {len(written)} reference tables on first use (no network needed)"
+        f"materialised {len(written)} reference tables for {report.system} on first "
+        "use (no network needed)"
     )
 
 
