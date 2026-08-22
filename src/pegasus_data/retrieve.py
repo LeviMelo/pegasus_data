@@ -1298,7 +1298,12 @@ def _decode_one(
         # A fresh registry per decode: ReaderRegistry accumulates per-call
         # state (failed archive members), which threads must not share.
         outcome = ReaderRegistry(row_limit=registry.row_limit).open_path(
-            blob_path, logical_path=path
+            blob_path,
+            logical_path=path,
+            # The projection reaches the READER, not just the accumulation.
+            # `keep_columns` already carries the request plus everything
+            # rendering and derivation depend on.
+            columns=keep_columns,
         )
         if decoded_cache is not None:
             if cache_lock is not None:

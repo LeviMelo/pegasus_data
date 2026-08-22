@@ -32,7 +32,12 @@ def _decompress(src: Path, dst: Path) -> None:
 
 
 def read_dbc(
-    path: str | Path, *, member: str = "", logical_path: str | None = None, **kwargs: object
+    path: str | Path,
+    *,
+    member: str = "",
+    logical_path: str | None = None,
+    columns: frozenset[str] | None = None,
+    **kwargs: object,
 ) -> DecodedTable:
     """Decompress a ``.dbc`` FILE and read the result without a RAM copy of either.
 
@@ -59,6 +64,7 @@ def read_dbc(
             logical_path=logical_path or str(source),
             member=member,
             reader="dbc",
+            columns=columns,
             **kwargs,  # type: ignore[arg-type]
         )
     except BaseException:

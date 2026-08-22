@@ -180,7 +180,13 @@ class ReaderRegistry:
             outcome.attempts.append(DecodeAttempt(f"archive-member:{name}", False, reason))
         self._failed_members = []
 
-    def open_path(self, path: str | Path, *, logical_path: str | None = None) -> DecodeOutcome:
+    def open_path(
+        self,
+        path: str | Path,
+        *,
+        logical_path: str | None = None,
+        columns: frozenset[str] | None = None,
+    ) -> DecodeOutcome:
         """Decode a file. For DBC and DBF this never reads it into memory.
 
         It used to be `open_bytes(p.read_bytes())` — a path-shaped door onto the
@@ -201,7 +207,9 @@ class ReaderRegistry:
             outcome = DecodeOutcome(path=logical, container=ladder[0])
             try:
                 if ladder[0] == "dbc":
-                    table = read_dbc(p, logical_path=logical, row_limit=self.row_limit)
+                    table = read_dbc(
+                        p, logical_path=logical, row_limit=self.row_limit, columns=columns
+                    )
                 elif ladder[0] == "duckdb":
                     # The tree carries a 12 GB SIHSUS/base_aih1.duck. Reading
                     # that into a Python `bytes` and writing it back out to a
@@ -218,7 +226,9 @@ class ReaderRegistry:
                     table = read_parquet(p, row_limit=self.row_limit)
                     table.path = logical
                 else:
-                    table = read_dbf_file(p, logical_path=logical, row_limit=self.row_limit)
+                    table = read_dbf_file(
+                        p, logical_path=logical, row_limit=self.row_limit, columns=columns
+                    )
             except Exception as exc:  # noqa: BLE001 - the bytes ladder gets its turn
                 outcome.attempts.append(
                     DecodeAttempt(ladder[0], False, f"{type(exc).__name__}: {exc}")
