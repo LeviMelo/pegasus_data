@@ -94,6 +94,9 @@ class Archive:
         self._tar: tarfile.TarFile | None = None
         self._tmp: tempfile.TemporaryDirectory[str] | None = None
         self._extracted: dict[str, Path] = {}
+        #: Members refused during extraction, so a skipped file is named rather
+        #: than silently absent.
+        self.warnings: list[str] = []
         self._open()
 
     # ------------------------------------------------------------------ setup
@@ -166,9 +169,23 @@ class Archive:
         return staged
 
     def _collect(self, root: Path) -> None:
+        # Re-checked against the resolved root, not trusted. RAR and 7z
+        # extraction is handed to external tools whose sanitising we neither
+        # control nor should assume, and DATASUS archives are remote input. A
+        # member that resolves outside the extraction directory — through
+        # ``..`` or a symlink the backend followed — is skipped and named.
+        anchor = root.resolve()
         for p in sorted(root.rglob("*")):
-            if p.is_file():
-                self._extracted[str(p.relative_to(root)).replace("\\", "/")] = p
+            if not p.is_file():
+                continue
+            try:
+                p.resolve().relative_to(anchor)
+            except ValueError:
+                self.warnings.append(
+                    f"refused an extracted member outside the extraction root: {p.name}"
+                )
+                continue
+            self._extracted[str(p.relative_to(root)).replace("\\", "/")] = p
 
     # ---------------------------------------------------------------- members
 
@@ -250,6 +267,28 @@ class Archive:
 def _gzip_inner_name(path: str) -> str:
     name = PurePosixPath(path).name
     return name[:-3] if name.lower().endswith(".gz") else name
+
+
+def safe_member_path(name: str, root: "Path") -> "Path | None":
+    """Resolve an archive member under ``root``, or ``None`` if it escapes.
+
+    DATASUS archives are REMOTE input, and RAR/7z extraction is handed to
+    external tools whose sanitising we do not control and should not assume. A
+    member named ``../../etc/x`` or ``C:/Windows/x`` must not be collected
+    whatever the backend did with it, so membership is re-checked here against
+    the resolved extraction root rather than trusted.
+    """
+    from pathlib import Path as _Path
+
+    candidate = _Path(name)
+    if candidate.is_absolute() or candidate.drive:
+        return None
+    resolved = (root / candidate).resolve()
+    try:
+        resolved.relative_to(root.resolve())
+    except ValueError:
+        return None
+    return resolved
 
 
 def _find_7z() -> str | None:

@@ -438,7 +438,11 @@ def describe(
         store = cat.store
         candidates = _resolve_family(store, system, series, field)
         if not candidates:
-            raise KeyError(f"no family found for system={system!r} series={series!r}")
+            from .retrieve import DatasetUnknown
+
+            raise DatasetUnknown(
+                f"no family found for system={system!r} series={series!r}"
+            )
         family = candidates[0]
         family_id = family["family_id"]
 
@@ -699,7 +703,11 @@ def load(
         store = cat.store
         families = _resolve_family(store, system, series, None)
         if not families:
-            raise KeyError(f"no family found for system={system!r} series={series!r}")
+            from .retrieve import DatasetUnknown
+
+            raise DatasetUnknown(
+                f"no family found for system={system!r} series={series!r}"
+            )
         if family_id:
             narrowed = [f for f in families if f["family_id"] == family_id]
             if not narrowed:
@@ -783,8 +791,15 @@ def load(
             if table.num_rows:
                 tables.append((family["family_id"], table))
         if not tables:
-            raise FileNotFoundError(
-                f"no lake data for system={system!r} series={series!r}; run `pegasus-data build` first"
+            # The same class fetch() raises for the same situation. load() used
+            # to raise a bare FileNotFoundError here and KeyError above, so
+            # robust downstream handling depended on which retrieval path the
+            # caller happened to use.
+            from .retrieve import NothingPublished
+
+            raise NothingPublished(
+                f"no lake data for system={system!r} series={series!r}; run "
+                "`pegasus-data build` first"
             )
 
         # Render each (family, year) with ITS OWN bindings and codelist vintage,

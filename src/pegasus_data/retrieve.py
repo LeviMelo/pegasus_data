@@ -114,8 +114,13 @@ class FetchReport:
     network_fetches: int = 0
     discovered: bool = False
     years_requested: list[int] = field(default_factory=list)
-    years_returned: list[int] = field(default_factory=list)
-    ufs_returned: list[str] = field(default_factory=list)
+    #: Years and UFs of the FILES that matched — a publication fact, not row
+    #: coverage. A national file contains every state internally, so
+    #: `file_ufs_returned` can be empty while the table holds all of them. The
+    #: old names, `years_returned`/`ufs_returned`, read as result coverage and
+    #: were used that way.
+    file_years_returned: list[int] = field(default_factory=list)
+    file_ufs_returned: list[str] = field(default_factory=list)
     undecoded: list[str] = field(default_factory=list)
     schema_mismatch: list[str] = field(default_factory=list)
     render: RenderReport | None = None
@@ -124,6 +129,16 @@ class FetchReport:
     @property
     def years_missing(self) -> list[int]:
         return sorted(set(self.years_requested) - set(self.years_returned))
+
+    @property
+    def years_returned(self) -> list[int]:
+        """Deprecated alias for :attr:`file_years_returned`."""
+        return self.file_years_returned
+
+    @property
+    def ufs_returned(self) -> list[str]:
+        """Deprecated alias for :attr:`file_ufs_returned`."""
+        return self.file_ufs_returned
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -135,9 +150,9 @@ class FetchReport:
             "rows": self.rows,
             "megabytes_downloaded": round(self.bytes_downloaded / 2**20, 2),
             "discovered": self.discovered,
-            "years_returned": self.years_returned,
+            "file_years_returned": self.file_years_returned,
             "years_missing": self.years_missing,
-            "ufs_returned": self.ufs_returned,
+            "file_ufs_returned": self.file_ufs_returned,
             "undecoded": self.undecoded[:10],
             "schema_mismatch": self.schema_mismatch[:10],
             "warnings": self.warnings,
@@ -922,8 +937,8 @@ def _read_families(
         else:
             report.schema_mismatch.append(path)
 
-    report.years_returned = sorted(seen_years)
-    report.ufs_returned = sorted(seen_ufs)
+    report.file_years_returned = sorted(seen_years)
+    report.file_ufs_returned = sorted(seen_ufs)
     if not batches:
         return pa.table({}), report
     combined = pa.Table.from_batches(batches) if len(
