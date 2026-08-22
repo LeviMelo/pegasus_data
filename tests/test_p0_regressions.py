@@ -229,3 +229,137 @@ class TestP0_6_ReplacementDoesNotDestroyBeforeItWrites:
         assert pq.read_table(tmp_path / second.relative_path).num_rows == 7
         parts = list((tmp_path / second.relative_path).parent.glob("*.parquet"))
         assert len(parts) == 1, "replace must not leave the old part beside the new"
+
+
+class TestHI01_AWarmRequestNeverTouchesTheNetwork:
+    """Every worker connected before it took a path off the queue.
+
+    So a request whose bytes were all on the SSD still opened up to eight FTP
+    sessions that did no work — and failed outright when DATASUS was
+    unreachable. `_should_skip()` reads the catalog, not the network, so it can
+    answer before any socket exists.
+    """
+
+    @staticmethod
+    def _fetcher(catalog, tmp_path, monkeypatch, *, hits: set[str]):
+        from pegasus_data.acquire.cache import BlobStore
+        from pegasus_data.acquire.fetcher import Fetcher
+
+        f = Fetcher(
+            catalog, BlobStore(tmp_path / "blobs"), host="unreachable.invalid",
+            concurrency=4, timeout=1, max_retries=1,
+            stall_timeout=10, heartbeat_interval=60,
+        )
+        monkeypatch.setattr(f, "_should_skip", lambda p: "digest" if p in hits else None)
+
+        class _Blobs:
+            def path_for(self, _digest):
+                target = tmp_path / "blob.bin"
+                target.write_bytes(b"x" * 7)
+                return target
+
+            def has(self, _digest):
+                return True
+
+            def known_for(self, _path):
+                return None
+
+        f.blobs = _Blobs()
+        return f
+
+    def test_an_all_hit_batch_opens_no_connection(self, catalog, tmp_path, monkeypatch) -> None:
+        opened: list[str] = []
+        import pegasus_data.acquire.fetcher as mod
+
+        class _Boom:
+            def __init__(self, *a, **k) -> None:
+                opened.append("connect")
+
+            def connect(self):
+                raise AssertionError("a fully warm request opened an FTP connection")
+
+            def close(self):
+                pass
+
+        monkeypatch.setattr(mod, "FtpClient", _Boom)
+        paths = ["/a/1.dbc", "/a/2.dbc", "/a/3.dbc"]
+        f = self._fetcher(catalog, tmp_path, monkeypatch, hits=set(paths))
+        stats = f.fetch_many(paths)
+        assert stats.skipped == 3
+        assert stats.bytes_from_cache == 21, "cache bytes are not download bytes"
+        assert stats.bytes_fetched == 0
+        assert opened == [], "no FTP client should even be constructed"
+
+    def test_a_partly_warm_batch_only_dials_for_the_misses(
+        self, catalog, tmp_path, monkeypatch
+    ) -> None:
+        f = self._fetcher(catalog, tmp_path, monkeypatch, hits={"/a/1.dbc"})
+        stats = f.fetch_many(["/a/1.dbc", "/a/2.dbc"])
+        assert stats.skipped == 1, "the hit was served without the network"
+        assert stats.requested == 2
+
+
+class TestHI03_FreshnessComparesThenWithNow:
+    """The policy claimed to compare the listing at fetch time with the listing
+    now. The table stored neither, so it compared today's listed size against
+    the stored blob's byte count and merely checked a modified time existed —
+    and a republication with an unchanged byte count was skipped."""
+
+    @staticmethod
+    def _catalog_with(catalog, *, then_size, then_mtime, now_size, now_mtime):
+        catalog.execute(
+            "INSERT INTO files (path, directory, filename, size, modified,"
+            " first_seen, last_seen) VALUES (?,?,?,?,?,?,?)",
+            ("/p/x.dbc", "/p", "x.dbc", now_size, now_mtime, "t", "t"),
+        )
+        catalog.execute(
+            "INSERT INTO blobs (sha256, byte_size, first_fetched_at, fetch_count)"
+            " VALUES ('d', 10, 't', 1)"
+        )
+        catalog.execute(
+            "INSERT INTO fetches (source_path, sha256, byte_size, fetched_at,"
+            " remote_size, remote_modified) VALUES (?,?,?,?,?,?)",
+            ("/p/x.dbc", "d", 10, "t", then_size, then_mtime),
+        )
+        return catalog
+
+    @staticmethod
+    def _fetcher(catalog, tmp_path):
+        from pegasus_data.acquire.cache import BlobStore
+        from pegasus_data.acquire.fetcher import Fetcher
+
+        f = Fetcher(catalog, BlobStore(tmp_path / "blobs"), host="h")
+
+        class _Blobs:
+            def has(self, _d):
+                return True
+
+        f.blobs = _Blobs()
+        return f
+
+    def test_a_changed_mtime_at_the_same_size_is_not_skipped(self, catalog, tmp_path) -> None:
+        """The exact case the old policy could not see."""
+        self._catalog_with(
+            catalog, then_size=10, then_mtime="2024-01-01", now_size=10, now_mtime="2025-06-01"
+        )
+        assert self._fetcher(catalog, tmp_path)._should_skip("/p/x.dbc") is None
+
+    def test_an_unchanged_listing_is_skipped(self, catalog, tmp_path) -> None:
+        self._catalog_with(
+            catalog, then_size=10, then_mtime="2024-01-01", now_size=10, now_mtime="2024-01-01"
+        )
+        assert self._fetcher(catalog, tmp_path)._should_skip("/p/x.dbc") == "d"
+
+    def test_a_changed_size_is_not_skipped(self, catalog, tmp_path) -> None:
+        self._catalog_with(
+            catalog, then_size=10, then_mtime="2024-01-01", now_size=99, now_mtime="2024-01-01"
+        )
+        assert self._fetcher(catalog, tmp_path)._should_skip("/p/x.dbc") is None
+
+    def test_a_blob_fetched_before_this_was_recorded_still_works(self, catalog, tmp_path) -> None:
+        """Old catalogs have no remote_size/remote_modified. Falling back beats
+        re-downloading the world."""
+        self._catalog_with(
+            catalog, then_size=None, then_mtime=None, now_size=10, now_mtime="2024-01-01"
+        )
+        assert self._fetcher(catalog, tmp_path)._should_skip("/p/x.dbc") == "d"

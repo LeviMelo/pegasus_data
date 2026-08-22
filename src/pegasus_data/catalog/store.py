@@ -458,6 +458,8 @@ class Catalog:
         byte_size: int,
         serving_method: str | None = None,
         elapsed_ms: float | None = None,
+        remote_size: int | None = None,
+        remote_modified: str | None = None,
     ) -> None:
         now = utcnow()
         with self.write() as conn:
@@ -471,10 +473,13 @@ class Catalog:
             )
             conn.execute(
                 """
-                INSERT INTO fetches (source_path, sha256, byte_size, fetched_at, serving_method, elapsed_ms)
-                VALUES (?,?,?,?,?,?)
+                INSERT INTO fetches (source_path, sha256, byte_size, fetched_at,
+                                     serving_method, elapsed_ms,
+                                     remote_size, remote_modified)
+                VALUES (?,?,?,?,?,?,?,?)
                 """,
-                (source_path, sha256, byte_size, now, serving_method, elapsed_ms),
+                (source_path, sha256, byte_size, now, serving_method, elapsed_ms,
+                 remote_size, remote_modified),
             )
 
     def latest_blob_for(self, source_path: str) -> str | None:

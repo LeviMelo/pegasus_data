@@ -43,6 +43,13 @@ class FetchStats:
     fetched: int = 0
     skipped: int = 0
     failed: int = 0
+    #: Bytes actually pulled over the network, and bytes served from the local
+    #: content-addressed store. Reporting one number for both let a fully warm
+    #: request claim megabytes "downloaded" with the network untouched.
+    bytes_from_cache: int = 0
+    #: Workers that could not establish a connection at all. Distinct from
+    #: `failed`, which counts PATHS.
+    workers_lost: int = 0
     #: Paths still outstanding when the batch was abandoned on a stall. Not
     #: failures — nothing was decided about them — and counted apart so a
     #: caller can retry exactly those.
@@ -92,7 +99,8 @@ class Fetcher:
         rows = self.catalog.query(
             """
             SELECT f.sha256 AS sha, f.byte_size AS bytes, fi.size AS listed_size,
-                   fi.modified AS listed_mtime, f.fetched_at AS fetched_at
+                   fi.modified AS listed_mtime, f.fetched_at AS fetched_at,
+                   f.remote_size AS then_size, f.remote_modified AS then_mtime
               FROM fetches f
               JOIN files fi ON fi.path = f.source_path
              WHERE f.source_path = ?
@@ -107,15 +115,44 @@ class Fetcher:
         if not digest or not self.blobs.has(digest):
             return None
         listed_size = row["listed_size"]
-        # Size is the cheap discriminator and IIS gives it for every file. If the
-        # listing size disagrees with the stored blob, the file changed.
+        listed_mtime = row["listed_mtime"]
+
+        # THEN versus NOW, which is what the policy always claimed to do. It
+        # used to compare the current listing's size against the stored blob's
+        # byte count — a different question — and merely check that a modified
+        # time existed. A republication whose byte count happens to match was
+        # therefore skipped despite changed contents.
+        then_size, then_mtime = row["then_size"], row["then_mtime"]
+        if then_size is not None or then_mtime is not None:
+            if then_size is not None and listed_size is not None:
+                if int(then_size) != int(listed_size):
+                    return None
+            if then_mtime is not None and listed_mtime is not None:
+                if str(then_mtime) != str(listed_mtime):
+                    return None
+            if then_mtime is None and listed_mtime is not None:
+                # The server started reporting a time we cannot compare against.
+                return None
+            return digest
+
+        # Fetched before this catalog recorded the listing it trusted. Fall back
+        # to the old, weaker comparison rather than re-downloading everything.
         if listed_size is not None and row["bytes"] is not None and int(listed_size) != int(row["bytes"]):
             return None
-        if listed_size is None and row["listed_mtime"] is None:
+        if listed_size is None and listed_mtime is None:
             # No change signal at all: content addressing is the only answer, so
             # re-fetch rather than trust an old copy.
             return None
         return digest
+
+    def _listing(self, path: str) -> tuple[int | None, str | None]:
+        """What the catalog's listing currently says about this path."""
+        rows = self.catalog.query(
+            "SELECT size, modified FROM files WHERE path = ?", (path,)
+        )
+        if not rows:
+            return None, None
+        return rows[0]["size"], rows[0]["modified"]
 
     # ------------------------------------------------------------------- run
 
@@ -130,10 +167,53 @@ class Fetcher:
         if not paths:
             return stats
 
-        work: queue.Queue[str | None] = queue.Queue()
-        for p in paths:
-            work.put(p)
         lock = threading.Lock()
+
+        def _emit(result: FetchResult) -> None:
+            """Hand a result to the caller without letting it kill the worker.
+
+            `on_result` used to be called bare inside the worker. A callback that
+            raised took the thread with it, the exception never reached the
+            caller, and the batch either limped on with fewer workers or reached
+            a stall that named nothing.
+            """
+            if on_result is None:
+                return
+            try:
+                on_result(result)
+            except Exception as exc:  # noqa: BLE001 - a caller's bug, not ours
+                with lock:
+                    stats.errors.append((result.path, f"on_result raised: {exc}"))
+
+        # ------------------------------------------------------------------
+        # Settle the cache BEFORE opening a socket.
+        #
+        # Every worker used to construct an FtpClient and connect() before it
+        # took anything off the queue, so a request whose bytes were already on
+        # the SSD still opened up to eight FTP sessions that did no work — and
+        # failed outright when DATASUS was unreachable. `_should_skip` reads the
+        # catalog, not the network, so it can answer first.
+        # ------------------------------------------------------------------
+        pending: list[str] = []
+        for path in paths:
+            digest = None if force else self._should_skip(path)
+            if digest:
+                size = self.blobs.path_for(digest).stat().st_size
+                stats.skipped += 1
+                stats.bytes_from_cache += size
+                _emit(FetchResult(path=path, sha256=digest, byte_size=size, skipped=True))
+            else:
+                pending.append(path)
+        if not pending:
+            return stats
+
+        work: queue.Queue[str | None] = queue.Queue()
+        for p in pending:
+            work.put(p)
+        #: Set when the batch is abandoned, so a worker stops taking new paths
+        #: instead of continuing to write blobs and catalog rows after
+        #: `fetch_many` has returned and the caller has moved on.
+        cancelled = threading.Event()
         _last_seen = [0]
         _last_moved = [time.monotonic()]
 
@@ -147,32 +227,22 @@ class Fetcher:
             try:
                 client.connect()
             except Exception as exc:
+                # Record and LEAVE. This used to drain the shared queue and mark
+                # every path it saw as failed, on the reasoning that `work.join()`
+                # would otherwise hang — but the scheduler below polls and never
+                # joins the queue. So one worker losing its connection could empty
+                # the queue and fail a batch that seven healthy workers were
+                # about to complete.
                 with lock:
-                    # The connect failure is recorded but NOT counted as a
-                    # failure: `failed` counts paths, and this worker has not
-                    # been handed one yet. Counting it here made three
-                    # unreachable paths report as five failures.
+                    stats.workers_lost += 1
                     stats.errors.append(("<connect>", str(exc)))
-                # Drain rather than return. `fetch_many` waits on `work.join()`,
-                # which counts task_done() calls — so a worker that leaves
-                # without consuming its share means the queue never reports
-                # finished and the whole stage hangs. If every worker failed to
-                # connect, returning here deadlocked the pipeline instead of
-                # reporting an unreachable server.
-                while True:
-                    try:
-                        item = work.get_nowait()
-                    except queue.Empty:
-                        return
-                    try:
-                        if item is not None:
-                            stats.failed += 1
-                            stats.errors.append((item, f"no connection: {exc}"))
-                    finally:
-                        work.task_done()
+                return
             try:
-                while True:
-                    path = work.get()
+                while not cancelled.is_set():
+                    try:
+                        path = work.get(timeout=0.25)
+                    except queue.Empty:
+                        continue
                     try:
                         if path is None:
                             return
@@ -183,17 +253,20 @@ class Fetcher:
                                 stats.errors.append((path, result.error))
                             elif result.skipped:
                                 stats.skipped += 1
+                                stats.bytes_from_cache += result.byte_size
                             else:
                                 stats.fetched += 1
                                 stats.bytes_fetched += result.byte_size
-                        if on_result is not None:
-                            on_result(result)
+                        _emit(result)
                     finally:
                         work.task_done()
             finally:
                 client.close()
 
-        threads = [threading.Thread(target=worker, daemon=True, name=f"fetch-{i}") for i in range(self.concurrency)]
+        threads = [
+            threading.Thread(target=worker, daemon=True, name=f"fetch-{i}")
+            for i in range(self.concurrency)
+        ]
         for t in threads:
             t.start()
 
@@ -203,15 +276,21 @@ class Fetcher:
         # said why. Poll instead, so the wait is bounded, a heartbeat can report
         # what is outstanding, and a stall ends the batch with the remaining
         # paths recorded rather than ending the run.
-        progress = StageProgress(stage="fetch", total=len(paths))
+        progress = StageProgress(stage="fetch", total=len(pending))
         deadline_hit = False
         with Heartbeat(progress, interval=self.heartbeat_interval):
             while True:
                 with lock:
-                    progress.completed = stats.fetched + stats.skipped
+                    completed = stats.fetched + stats.skipped
+                    progress.completed = completed
                     progress.failed = stats.failed
+                    lost = stats.workers_lost
                 done = progress.completed + progress.failed
-                if done >= len(paths) or all(not t.is_alive() for t in threads):
+                if done >= len(pending):
+                    break
+                if lost >= len(threads) or all(not t.is_alive() for t in threads):
+                    # Nothing is left to do the work. Waiting for the stall
+                    # timeout would only delay saying so.
                     break
                 if done > _last_seen[0]:
                     _last_seen[0] = done
@@ -222,19 +301,26 @@ class Fetcher:
                 time.sleep(0.25)
 
         if deadline_hit:
-            outstanding = len(paths) - (stats.fetched + stats.skipped + stats.failed)
+            cancelled.set()
+            outstanding = len(pending) - (stats.fetched + stats.skipped + stats.failed)
             stats.stalled = outstanding
             message = (
                 f"fetch stalled: no path completed in {self.stall_timeout:.0f}s; "
-                f"{outstanding} of {len(paths)} still outstanding"
+                f"{outstanding} of {len(pending)} still outstanding"
             )
             stats.errors.append(("<stall>", message))
             self.catalog.log_event("fetch", "batch abandoned on stall", level="error", detail=message)
 
+        cancelled.set()
         for _ in threads:
             work.put(None)
         for t in threads:
             t.join(timeout=5)
+        if any(t.is_alive() for t in threads):
+            # Say so rather than let a late blob write surprise the caller.
+            stats.errors.append(
+                ("<workers>", "some fetch workers did not stop within 5s of being cancelled")
+            )
         return stats
 
     def _fetch_one(self, client: FtpClient, path: str, *, force: bool) -> FetchResult:
@@ -251,8 +337,14 @@ class Fetcher:
             self.catalog.record_gap(path, kind="fetch", methods=("RETR",), error=error)
             return FetchResult(path=path, sha256=None, byte_size=0, error=error)
         elapsed = (time.perf_counter() - started) * 1000
+        remote_size, remote_modified = self._listing(path)
         digest = self.blobs.put_bytes(
-            data, source_path=path, serving_method="ftp:RETR", elapsed_ms=elapsed
+            data,
+            source_path=path,
+            serving_method="ftp:RETR",
+            elapsed_ms=elapsed,
+            remote_size=remote_size,
+            remote_modified=remote_modified,
         )
         self.catalog.resolve_gap(path)
         return FetchResult(path=path, sha256=digest, byte_size=len(data), elapsed_ms=elapsed)

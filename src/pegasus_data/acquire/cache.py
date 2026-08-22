@@ -65,6 +65,8 @@ class BlobStore:
         source_path: str,
         serving_method: str | None = None,
         elapsed_ms: float | None = None,
+        remote_size: int | None = None,
+        remote_modified: str | None = None,
     ) -> str:
         """Store `data`, return its digest. Idempotent: a re-put writes nothing."""
         digest = sha256_bytes(data)
@@ -93,6 +95,8 @@ class BlobStore:
                 byte_size=len(data),
                 serving_method=serving_method,
                 elapsed_ms=elapsed_ms,
+                remote_size=remote_size,
+                remote_modified=remote_modified,
             )
         return digest
 
@@ -101,7 +105,23 @@ class BlobStore:
         target = self.path_for(digest)
         if not target.is_file():
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, target)
+            # Staged and renamed, like put_bytes. A direct copy that is
+            # interrupted leaves a PARTIAL file at a path whose name asserts the
+            # complete SHA-256 of the source — the one thing a content-addressed
+            # store must never contain, because every later reader trusts the
+            # name instead of re-hashing.
+            fd, tmp = tempfile.mkstemp(dir=str(target.parent), suffix=".part")
+            os.close(fd)
+            try:
+                shutil.copy2(src, tmp)
+                os.replace(tmp, target)
+            except (PermissionError, FileExistsError):
+                Path(tmp).unlink(missing_ok=True)
+                if not target.is_file():
+                    raise
+            except BaseException:
+                Path(tmp).unlink(missing_ok=True)
+                raise
         if self.catalog is not None:
             self.catalog.record_fetch(
                 source_path=source_path,

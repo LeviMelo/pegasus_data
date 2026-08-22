@@ -246,7 +246,14 @@ CREATE TABLE IF NOT EXISTS fetches (         -- append-only fetch history
   byte_size       INTEGER,
   fetched_at      TEXT NOT NULL,
   serving_method  TEXT,
-  elapsed_ms      REAL
+  elapsed_ms      REAL,
+  -- What the LISTING said at the moment this blob was fetched. Without these
+  -- the freshness check could not implement its own documented policy: it
+  -- compared today's listed size against the stored blob's byte count and only
+  -- checked that a modified time exists, so a republished file whose byte count
+  -- happened to stay the same was skipped despite changed contents.
+  remote_size     INTEGER,
+  remote_modified TEXT
 );
 CREATE INDEX IF NOT EXISTS ix_fetches_path ON fetches (source_path);
 CREATE INDEX IF NOT EXISTS ix_fetches_sha ON fetches (sha256);

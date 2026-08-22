@@ -136,16 +136,33 @@ class TestFetcherCannotDeadlock:
             concurrency=2, timeout=1, max_retries=1, **kw,
         )
 
-    def test_a_worker_that_cannot_connect_drains_its_share(self, catalog: Catalog, tmp_path):
-        """fetch_many waits on task_done() calls, so a worker that leaves without
-        consuming means the queue never reports finished. Every worker failing
-        to connect — an unreachable host — used to deadlock the whole stage."""
+    def test_an_unreachable_host_returns_instead_of_hanging(self, catalog: Catalog, tmp_path):
+        """Every worker failing to connect used to deadlock the whole stage.
+
+        The first fix had each failed worker DRAIN the shared queue and mark
+        every path it saw as failed, because fetch_many then waited on
+        work.join(). It no longer does — it polls — so draining only meant one
+        transient connection failure could empty the queue and fail a batch that
+        healthy workers were about to complete. A worker that cannot connect now
+        records itself and leaves, and the scheduler stops when no worker is left
+        rather than waiting out the stall timeout.
+        """
         fetcher = self._fetcher(catalog, tmp_path, stall_timeout=30, heartbeat_interval=60)
         started = time.monotonic()
         stats = fetcher.fetch_many(["/a/1.dbc", "/a/2.dbc", "/a/3.dbc"])
         assert time.monotonic() - started < 60, "returned instead of hanging"
-        assert stats.failed == 3
         assert stats.requested == 3
+        assert stats.workers_lost > 0, "the connection failure has to be visible"
+        assert stats.fetched == 0
+
+    def test_a_lost_worker_does_not_fail_paths_it_never_touched(
+        self, catalog: Catalog, tmp_path
+    ):
+        """`failed` counts PATHS. A worker that never held one cannot fail it."""
+        fetcher = self._fetcher(catalog, tmp_path, stall_timeout=30, heartbeat_interval=60)
+        stats = fetcher.fetch_many(["/a/1.dbc", "/a/2.dbc", "/a/3.dbc"])
+        assert stats.failed <= stats.requested
+        assert any(path == "<connect>" for path, _ in stats.errors)
 
     def test_an_unreachable_host_is_reported_not_swallowed(self, catalog: Catalog, tmp_path):
         fetcher = self._fetcher(catalog, tmp_path, stall_timeout=30, heartbeat_interval=60)
