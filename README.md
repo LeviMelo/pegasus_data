@@ -333,6 +333,8 @@ pegasus-data compendium --out datasus.sqlite --codes internal
 | `schema_generations` | did the columns change under my study period |
 | `field_validity` | *when* each column existed — present, absent or unknown |
 | `codelist_vintages` | which codelists are versioned, and over what windows |
+| `join_keys`, `join_key_members` | how datasets connect, and which side fans out |
+| `joins_not_established` | joins people want that have no key — checked, not omitted |
 | `variables`, `dataset_variables` | what the columns are and mean |
 | `open_questions` | what is *not* known |
 | `codes`, `value_frequencies`, `files` | opt-in, and what makes a file large |
@@ -367,7 +369,7 @@ lake with one command:
 ```bash
 pegasus-data all      # crawl → … → build, resumable and idempotent
 pegasus-data report   # then read what you got
-pegasus-data verify   # 18 regression assertions, with their evidence
+pegasus-data verify   # 19 regression assertions, with their evidence
 ```
 
 Every stage writes to the catalog before returning, so interrupting `all` and
@@ -575,7 +577,7 @@ usually the decisive evidence and usually the thing not looked at.
 ```bash
 pytest                            # 601 tests, all offline
 ruff check src tests scripts
-pegasus-data verify               # 18 regression assertions
+pegasus-data verify               # 19 regression assertions
 ```
 
 See `CONTRIBUTING.md` for the full rules.

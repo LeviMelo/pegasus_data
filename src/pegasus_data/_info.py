@@ -48,6 +48,9 @@ class Info:
     children: list[dict[str, Any]] = field(default_factory=list)
     documentation: dict[str, Any] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
+    #: Declared join keys this node participates in, with each other member's
+    #: column and grain. ``rows_per_key == "many"`` is the fan-out warning.
+    joins: list[dict[str, Any]] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -60,6 +63,7 @@ class Info:
             "children": self.children,
             "documentation": self.documentation,
             "notes": self.notes,
+            "joins": self.joins,
         }
 
     def __repr__(self) -> str:  # pragma: no cover - presentation
@@ -149,6 +153,22 @@ class Info:
                     wrapped = _wrap(str(g), 70)
                     out.append(f"    - {wrapped[0]}")
                     out.extend("      " + line for line in wrapped[1:])
+
+        if self.joins:
+            out.append("")
+            out.append("  joins via:")
+            for join in self.joins:
+                asof = f" AS-OF {join['as_of']}" if join.get("as_of") else ""
+                grain = {
+                    "one": "one row per key",
+                    "many": "MANY rows per key",
+                }.get(join["rows_per_key"], "grain unmeasured")
+                out.append(f"    {join['key']} on {join['column']} — {grain}{asof}")
+                fans = [w for w in join["with"] if w["rows_per_key"] == "many"]
+                if fans:
+                    names = ", ".join(f"{w['dataset']}.{w['column']}" for w in fans[:4])
+                    more = f" +{len(fans) - 4}" if len(fans) > 4 else ""
+                    out.append(f"        fans out to: {names}{more}")
 
         if self.evidence.get("observed_as"):
             out.append(f"  seen as: {', '.join(self.evidence['observed_as'][:8])}")
@@ -503,6 +523,24 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
             "axes": axes.names if axes else [],
             "axes_detail": axes.as_dict() if axes else None,
         },
+        joins=[
+            {
+                "key": key.name,
+                "column": key.column_for(node.code),
+                "as_of": key.as_of,
+                "rows_per_key": next(
+                    (m.rows_per_key for m in key.members if m.dataset == node.code),
+                    "unmeasured",
+                ),
+                "with": [
+                    {"dataset": m.dataset, "column": m.column,
+                     "rows_per_key": m.rows_per_key}
+                    for m in key.members if m.dataset != node.code
+                ],
+                "caveats": list(key.caveats),
+            }
+            for key in onto.keys_of(node.code)
+        ],
         schemas=schemas,
         documentation={
             **doc,

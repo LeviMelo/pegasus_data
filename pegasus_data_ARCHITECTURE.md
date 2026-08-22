@@ -176,7 +176,7 @@ pegasus_data/
   bundle.py               portable semantic bundle
   docsgen.py              docs/dictionary/*.md
   progress.py             watchdog, heartbeat, per-item deadlines
-  verify.py               18 regression assertions
+  verify.py               19 regression assertions
   api.py cli.py config.py pipeline.py build.py
 ```
 
@@ -924,6 +924,49 @@ they are different facts and merging them is how a silence becomes a claim.
 
 Exported to the compendium as `field_validity`, one row per contiguous run.
 
+### 14.8 Join keys — how datasets connect `[D]`
+
+`src/pegasus_data/curation/joins.yml`
+
+This knowledge already existed, as prose inside gotchas: *"Joins to SIH.RD on
+the AIH number"*, *"Only meaningful joined to CNES.ST on the CNES code and
+competência"*. A human reading the docs could find it; nothing else could.
+
+Declared as **keys, not dataset pairs** — pairs explode (the CNES code alone
+would be sixty-odd) and what decides whether a join is correct is the key's
+identity and each side's grain, not the pair.
+
+Two fields carry the weight:
+
+`rows_per_key`
+: `SIH.RD` is one row per AIH; `SIH.SP` is many. Join them, count rows, and you
+  have counted professional acts while believing you counted admissions.
+  `unmeasured` is used where nobody has checked — a statement about our
+  evidence, not about the data.
+
+`as_of`
+: `CNES` is versioned by competence. Joining a 2015 admission to today's CNES
+  answers *what is this hospital now*, not *what was it when the patient was
+  treated* — and it answers silently.
+
+Three keys are declared: **AIH** (4 datasets), **CNES** (18, as-of competence),
+**APAC** (10). Every column was measured against `schema_presence`, and verify
+check 19 keeps it measured — 32 of 32 present.
+
+**What is not established is recorded too**, under `not_established`. A join
+that silently matches the wrong rows produces a cohort, not an error, so
+"we checked and there is no key" is the more useful answer:
+
+- A longitudinal patient across SISCAN exams. `CO_PACIENTE` exists **only** in
+  `SISCAN.PACNT`; no exam dataset carries it.
+- SIH deliveries linked to SINASC births. No shared key exists; any link is
+  probabilistic record linkage on quasi-identifiers, which is a
+  re-identification method rather than a join, and is out of scope (§18).
+- SISPRENATAL to SIH or SIA. Untested, and a CNS-based link would mean handling
+  direct personal identifiers.
+
+Exported as `join_keys`, `join_key_members` and `joins_not_established`.
+
 ## 14a. What ships, and what does not
 
 A package is not a data lake. The rule is: **ship what makes the module
@@ -1064,14 +1107,15 @@ absent rather than half-written. Data home from `$PEGASUS_DATA_HOME`.
 
 ## 17. Build order and regression assertions
 
-`verify` runs 18 assertions. They are checks, not opinions:
+`verify` runs 19 assertions. They are checks, not opinions:
 
 `check_blob_dedup`, `check_crawl_coverage`, `check_apac_recovered`,
 `check_sih_generations`, `check_format_collapse`, `check_dictionary_coverage`,
 `check_field_decoding`, `check_detectors`, `check_retired_column_flagged`,
 `check_lake`, `check_population`, `check_demas`, `check_describe`,
 `check_build_accounted`, `check_stored_labels_agree`, `check_codes_are_codes`,
-`check_ontology_exhaustive`, `check_every_dataset_says_what_a_row_is`.
+`check_ontology_exhaustive`, `check_every_dataset_says_what_a_row_is`,
+`check_join_keys_exist`.
 
 The last two are the ones the project is judged on, and they are deliberately a
 pair. Exhaustiveness without meaning is a file listing; meaning without
@@ -1085,6 +1129,11 @@ exhaustiveness is a sample.
   of analysis, across 38 distinct units. Files that are not tables of rows —
   installers, record layouts, the BPA importer — satisfy it by saying so.
   "Not a dataset" is an answer; blank is not.
+- **19** every column a declared join key names really exists in that dataset.
+  A wrong column here is worse than no column: a join that matches nothing
+  reads as "no overlap", and a join on a mistyped-but-real column returns the
+  wrong rows. Both look like results. It **skips rather than passes** when
+  nothing is decoded, so it cannot pass vacuously.
 
 A check that cannot run on the current catalog **skips with a reason**; it never
 passes vacuously.

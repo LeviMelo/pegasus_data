@@ -40,7 +40,7 @@ import re
 import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any, Iterable, Mapping, Sequence
 
 CURATION = Path(__file__).parent / "curation"
 
@@ -327,6 +327,104 @@ class Reconciliation:
         }
 
 
+def _load_joins(root: Path) -> tuple[dict[str, "JoinKey"], list["UnestablishedJoin"]]:
+    """Read ``joins.yml``. Absent or unreadable, the ontology simply has no keys.
+
+    A malformed join declaration must not stop the map of the server from
+    loading: knowing how datasets join is valuable, and knowing what exists is
+    the thing the rest of the API is built on.
+    """
+    path = root / "joins.yml"
+    if not path.exists():
+        return {}, []
+    data = _read_yaml(path)
+    keys: dict[str, JoinKey] = {}
+    for name, body in (data.get("keys") or {}).items():
+        body = body or {}
+        members = tuple(
+            KeyMember(
+                dataset=str(m.get("dataset", "")).upper(),
+                column=str(m.get("column", "")).upper(),
+                rows_per_key=str(m.get("rows_per_key", "unmeasured")),
+                note=_clean(m.get("note")),
+            )
+            for m in (body.get("members") or ())
+            if m and m.get("dataset")
+        )
+        keys[str(name).upper()] = JoinKey(
+            name=str(name).upper(),
+            what=_clean(body.get("what")),
+            as_of=body.get("as_of") or None,
+            caveats=tuple(_clean(c) or "" for c in (body.get("caveats") or ())),
+            members=members,
+        )
+    unestablished = [
+        UnestablishedJoin(
+            want=_clean(u.get("want")) or "",
+            proposed_key=_clean(u.get("proposed_key")),
+            finding=_clean(u.get("finding")),
+        )
+        for u in (data.get("not_established") or ())
+        if u
+    ]
+    return keys, unestablished
+
+
+@dataclass(slots=True)
+class KeyMember:
+    """One dataset's participation in a join key."""
+
+    dataset: str
+    column: str
+    rows_per_key: str = "unmeasured"
+    note: str | None = None
+
+
+@dataclass(slots=True)
+class JoinKey:
+    """A key several datasets share, and what joining on it means.
+
+    Modelled as a key rather than as dataset pairs because pairs explode — the
+    CNES code alone would be sixty-odd of them — and because what decides
+    whether a join is correct is the key's identity and each side's GRAIN, not
+    the pair.
+    """
+
+    name: str
+    what: str | None = None
+    #: ``"competence"`` when the key's target is versioned in time, so the join
+    #: must be made as-of the record's competence rather than against the
+    #: current version. Joining a 2015 admission to today's CNES answers a
+    #: different question, and answers it silently.
+    as_of: str | None = None
+    caveats: tuple[str, ...] = ()
+    members: tuple[KeyMember, ...] = ()
+
+    def column_for(self, dataset: str) -> str | None:
+        for member in self.members:
+            if member.dataset == dataset:
+                return member.column
+        return None
+
+    def fans_out(self) -> list[str]:
+        """Datasets with many rows per key — the ones that inflate a count."""
+        return [m.dataset for m in self.members if m.rows_per_key == "many"]
+
+
+@dataclass(slots=True)
+class UnestablishedJoin:
+    """A join people ask for that has no key shown to work.
+
+    Recorded rather than omitted. A join that silently matches the wrong rows
+    produces a cohort, not an error, so "we checked and there is no key" is a
+    more useful answer than silence.
+    """
+
+    want: str
+    proposed_key: str | None = None
+    finding: str | None = None
+
+
 # ------------------------------------------------------------------ ontology
 
 
@@ -337,10 +435,18 @@ class Ontology:
         self,
         systems: Mapping[str, SystemNode],
         datasets: Mapping[str, DatasetNode],
+        keys: Mapping[str, JoinKey] | None = None,
+        unestablished: Sequence[UnestablishedJoin] = (),
     ) -> None:
         self.systems = dict(systems)
         self.datasets = dict(datasets)
+        self.keys = dict(keys or {})
+        self.unestablished = tuple(unestablished)
         self._build_indexes()
+
+    def keys_of(self, dataset: str) -> list[JoinKey]:
+        """Every declared key a dataset participates in."""
+        return [k for k in self.keys.values() if k.column_for(dataset)]
 
     # ------------------------------------------------------------- loading
 
@@ -404,7 +510,8 @@ class Ontology:
                     observed_as=(series,),
                 )
 
-        return cls(systems, datasets)
+        keys, unestablished = _load_joins(root)
+        return cls(systems, datasets, keys, unestablished)
 
     def _build_indexes(self) -> None:
         # Crawled system name -> declared system code. The tree says SIASUS; the

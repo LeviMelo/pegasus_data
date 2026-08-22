@@ -201,6 +201,40 @@ CREATE TABLE codelist_vintages (
 );
 CREATE INDEX ix_vintages_n ON codelist_vintages(vintages DESC);
 
+-- How datasets join, as keys rather than pairs.
+--
+-- `rows_per_key` is the field that prevents the expensive mistake: SIH.RD is one
+-- row per AIH and SIH.SP is many, so joining them and counting rows counts
+-- professional acts while looking like it counts admissions.
+--
+-- `as_of` marks a key whose target is versioned in time. Joining a 2015
+-- admission to today's CNES answers "what is this hospital now", not "what was
+-- it when the patient was treated" — and it answers silently.
+CREATE TABLE join_keys (
+  name     TEXT PRIMARY KEY,
+  what     TEXT,
+  as_of    TEXT,              -- e.g. 'competence'; NULL when the key is stable
+  caveats  TEXT               -- JSON array
+);
+CREATE TABLE join_key_members (
+  key          TEXT REFERENCES join_keys(name),
+  dataset      TEXT REFERENCES datasets(code),
+  column_name  TEXT,
+  rows_per_key TEXT,          -- one | many | unmeasured
+  note         TEXT,
+  PRIMARY KEY (key, dataset)
+);
+CREATE INDEX ix_keymember_dataset ON join_key_members(dataset);
+
+-- Joins people ask for that have no key shown to work. Recorded rather than
+-- omitted: a join that silently matches the wrong rows produces a cohort, not
+-- an error, so "we checked and there is no key" is the more useful answer.
+CREATE TABLE joins_not_established (
+  want         TEXT,
+  proposed_key TEXT,
+  finding      TEXT
+);
+
 -- What is NOT known, stated rather than filled in ---------------------------
 CREATE TABLE open_questions (
   key      TEXT PRIMARY KEY,
@@ -609,6 +643,32 @@ def _write_core(
     )
     report.rows["codelist_vintages"] = db.execute(
         "SELECT COUNT(*) FROM codelist_vintages"
+    ).fetchone()[0]
+
+    # --- join keys ----------------------------------------------------------
+    db.executemany(
+        "INSERT OR REPLACE INTO join_keys (name, what, as_of, caveats) VALUES (?,?,?,?)",
+        [
+            (k.name, k.what, k.as_of, json.dumps(list(k.caveats)) if k.caveats else None)
+            for k in onto.keys.values()
+        ],
+    )
+    db.executemany(
+        "INSERT OR REPLACE INTO join_key_members (key, dataset, column_name,"
+        " rows_per_key, note) VALUES (?,?,?,?,?)",
+        [
+            (k.name, m.dataset, m.column, m.rows_per_key, m.note)
+            for k in onto.keys.values()
+            for m in k.members
+            if m.dataset in wanted
+        ],
+    )
+    db.executemany(
+        "INSERT INTO joins_not_established (want, proposed_key, finding) VALUES (?,?,?)",
+        [(u.want, u.proposed_key, u.finding) for u in onto.unestablished],
+    )
+    report.rows["join_key_members"] = db.execute(
+        "SELECT COUNT(*) FROM join_key_members"
     ).fetchone()[0]
 
     # --- schema generations, with what each one changed -------------------

@@ -1020,6 +1020,102 @@ def check_every_dataset_says_what_a_row_is(catalog: Catalog, settings: Settings)
     return c
 
 
+def check_join_keys_exist(catalog: Catalog, settings: Settings) -> Check:
+    """Every column a declared join key names is really in that dataset.
+
+    ``joins.yml`` is the one place the project asserts how datasets connect, and
+    a wrong column there is worse than no column at all: a join that matches
+    nothing returns an empty frame that reads as "no overlap", and a join on a
+    mistyped-but-real column returns rows that are simply the wrong rows. Both
+    look like results.
+
+    The declaration was measured against ``schema_presence`` when it was
+    written. This keeps it measured, so a DATASUS rename or a curation typo
+    fails here rather than in somebody's cohort.
+    """
+    c = Check("declared join keys exist as columns", 19)
+    try:
+        from .ontology import Ontology
+
+        onto = Ontology.load()
+    except Exception as exc:  # pragma: no cover - only if curation is unreadable
+        return _skip(c, f"the declared ontology could not be read: {exc}")
+
+    if not onto.keys:
+        return _skip(c, "no join keys are declared in curation/joins.yml")
+    if not catalog.count("schema_presence"):
+        return _skip(c, "no schema_presence rows: inventory first")
+
+    # Dataset -> the schema signatures its files were decoded under. Resolved
+    # through the ontology because `strata` is keyed on the crawled system and
+    # series, not on the declared dataset.
+    signatures: dict[str, set[str]] = {}
+    for row in catalog.query(
+        "SELECT DISTINCT system, series, schema_signature FROM strata "
+        "WHERE system IS NOT NULL AND series IS NOT NULL "
+        "AND schema_signature IS NOT NULL"
+    ):
+        code = onto.bind(str(row["system"]), str(row["series"])).dataset
+        if code:
+            signatures.setdefault(code, set()).add(str(row["schema_signature"]))
+
+    missing: list[str] = []
+    undecoded: list[str] = []
+    checked = 0
+    for key in onto.keys.values():
+        for member in key.members:
+            sigs = signatures.get(member.dataset) or set()
+            if not sigs:
+                # Nothing decoded for it yet. Check 17 owns whether the files
+                # exist; this must not silently count as verified.
+                undecoded.append(f"{key.name}: {member.dataset}")
+                continue
+            checked += 1
+            marks = ",".join("?" for _ in sigs)
+            found = catalog.scalar(
+                f"SELECT 1 FROM schema_presence WHERE field_name = ? "
+                f"AND schema_signature IN ({marks}) LIMIT 1",
+                (member.column, *sigs),
+            )
+            if not found:
+                missing.append(f"{key.name}: {member.dataset}.{member.column}")
+
+    members = sum(len(k.members) for k in onto.keys.values())
+    c.evidence = {
+        "keys": len(onto.keys),
+        "members_declared": members,
+        "members_checked": checked,
+        "members_not_decoded": len(undecoded),
+        "unestablished_recorded": len(onto.unestablished),
+        "missing": missing[:8],
+    }
+    if not checked:
+        return _skip(
+            c,
+            f"none of the {members} declared key columns could be checked: "
+            "no dataset in joins.yml has a decoded schema yet",
+        )
+    if missing:
+        c.status = "fail"
+        c.detail = (
+            f"{len(missing)} declared join column(s) do not exist in the dataset "
+            f"they are declared on: {', '.join(missing[:5])}"
+            f"{' …' if len(missing) > 5 else ''}"
+        )
+        return c
+    c.status = "pass"
+    fanning = sum(len(k.fans_out()) for k in onto.keys.values())
+    c.detail = (
+        f"{len(onto.keys)} join keys, {checked} of {members} declared columns "
+        f"verified present"
+        + (f" ({len(undecoded)} not decoded yet)" if undecoded else "")
+        + f"; {fanning} members fan out (many rows per key) and are flagged as "
+        f"such; {len(onto.unestablished)} sought-after joins recorded as NOT "
+        "established"
+    )
+    return c
+
+
 CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_blob_dedup,
     check_crawl_coverage,
@@ -1039,6 +1135,7 @@ CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_codes_are_codes,
     check_ontology_exhaustive,
     check_every_dataset_says_what_a_row_is,
+    check_join_keys_exist,
 )
 
 

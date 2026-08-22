@@ -1,0 +1,202 @@
+# How datasets join — as keys, not as pairs.
+#
+# This knowledge already existed, as prose inside gotchas: "Joins to SIH.RD on
+# the AIH number", "Only meaningful joined to CNES.ST on the CNES code and
+# competência". A human reading the docs could find it; nothing else could, and
+# a research group asked for join primitives because they could not.
+#
+# Modelled as KEYS rather than dataset pairs, because pairs explode — the CNES
+# code alone would be sixty-odd rows — and because the thing worth stating is
+# the key's identity and grain, which is what decides whether a join is correct.
+#
+# `rows_per_key` is the field that prevents the expensive mistake. SIH.RD is one
+# row per AIH and SIH.SP is many, so joining them and counting rows counts
+# professional acts while looking like it counts admissions. Where nobody has
+# measured the grain it says `unmeasured`, which is a statement about our
+# evidence and not about the data.
+#
+# `as_of` marks a key whose right-hand side is versioned in time. Joining a 2015
+# admission to today's CNES record answers "what is this hospital now", not
+# "what was it when the patient was treated" — and it answers silently.
+#
+# Column membership here was MEASURED against schema_presence, not recalled.
+keys:
+
+  AIH:
+    what: >
+      The AIH — Autorização de Internação Hospitalar — the authorisation number
+      that identifies one hospital admission episode for billing. It is the spine
+      of SIH: every SIH dataset is some view of an AIH.
+    as_of: null
+    caveats:
+      - An AIH is a billing episode, not a patient and not an illness. One patient readmitted three times has three AIH numbers, and there is no stable patient key to tie them together.
+      - An AIH may be re-presented after rejection, so the same episode can appear under more than one competence.
+    members:
+      - dataset: SIH.RD
+        column: N_AIH
+        rows_per_key: one
+        note: the admission itself, one row per AIH
+      - dataset: SIH.SP
+        column: SP_NAIH
+        rows_per_key: many
+        note: >
+          one row per professional act billed inside the admission. Joining SP to
+          RD and counting rows counts services, not admissions, and inflates the
+          count several-fold.
+      - dataset: SIH.RJ
+        column: N_AIH
+        rows_per_key: one
+        note: >
+          rejected claims. An AIH here generally did NOT become an RD row, so
+          this is not a subset of RD but its complement.
+      - dataset: SIH.MT
+        column: N_AIH
+        rows_per_key: one
+        note: admissions whose billed procedure changed during the stay; a subset of RD.
+
+  CNES:
+    what: >
+      The CNES establishment code, which identifies a health facility. It is the
+      join between activity (who was treated, where) and capability (what that
+      facility had at the time).
+    as_of: competence
+    caveats:
+      - CNES records are published per competence, so the join must be made as-of the competence of the care record. Joining to the current CNES answers what the facility is now, not what it was when the patient was treated, and it does so without any error.
+      - A CNES code is reused if an establishment changes hands. Across a change of ownership the code is stable and the establishment is not.
+    members:
+      - dataset: CNES.ST
+        column: CNES
+        rows_per_key: one
+        note: the establishment register itself, one row per establishment per competence — the hub every other member joins to.
+      - dataset: CNES.LT
+        column: CNES
+        rows_per_key: many
+        note: beds, by type
+      - dataset: CNES.EQ
+        column: CNES
+        rows_per_key: many
+        note: equipment
+      - dataset: CNES.PF
+        column: CNES
+        rows_per_key: many
+        note: professionals
+      - dataset: CNES.SR
+        column: CNES
+        rows_per_key: many
+        note: specialised services
+      - dataset: CNES.HB
+        column: CNES
+        rows_per_key: many
+      - dataset: CNES.IN
+        column: CNES
+        rows_per_key: many
+      - dataset: CNES.EP
+        column: CNES
+        rows_per_key: many
+      - dataset: CNES.EE
+        column: CNES
+        rows_per_key: many
+      - dataset: CNES.EF
+        column: CNES
+        rows_per_key: many
+      - dataset: CNES.RC
+        column: CNES
+        rows_per_key: many
+      - dataset: CNES.GM
+        column: CNES
+        rows_per_key: many
+      - dataset: CNES.DC
+        column: CNES
+        rows_per_key: many
+      - dataset: SIH.RD
+        column: CNES
+        rows_per_key: many
+        note: the establishment that billed the admission
+      - dataset: SIH.RJ
+        column: CNES
+        rows_per_key: many
+      - dataset: SIH.ER
+        column: CNES
+        rows_per_key: many
+      - dataset: SIH.CH
+        column: CNES
+        rows_per_key: many
+        note: the pre-CNES SIH hospital register; use CNES for any period CNES covers.
+      - dataset: SIA.PA
+        column: PA_CODUNI
+        rows_per_key: many
+        note: >
+          SIA names the same key differently. PA_CODUNI is the CNES code, which
+          is exactly the sort of thing this file exists to say.
+
+  APAC:
+    what: >
+      The APAC authorisation number — Autorização de Procedimento de Alta
+      Complexidade — which identifies one high-complexity treatment
+      authorisation. SIA publishes the APAC family as separate datasets by
+      procedure area, all keyed on the same number.
+    as_of: null
+    caveats:
+      - AP_APACANT is the PREVIOUS APAC in a continuing treatment, not this one. Joining on it walks backwards through the treatment history and is not the identity key.
+      - Continuing treatments are re-authorised, so one course of care spans several APAC numbers linked through AP_APACANT.
+    members:
+      - dataset: SIA.AQ
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+        note: chemotherapy
+      - dataset: SIA.AR
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+        note: radiotherapy
+      - dataset: SIA.AM
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+        note: medication
+      - dataset: SIA.AN
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+        note: nephrology
+      - dataset: SIA.AB
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+      - dataset: SIA.ABO
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+      - dataset: SIA.ACF
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+      - dataset: SIA.AD
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+      - dataset: SIA.AMP
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+      - dataset: SIA.ATD
+        column: AP_AUTORIZ
+        rows_per_key: unmeasured
+
+# Joins people ask for that are NOT declared here, and why.
+#
+# Each of these is a real analytical need. None has a key in the published files
+# that has been shown to work, and asserting one would be worse than saying so:
+# a join that silently matches the wrong rows produces a cohort, not an error.
+not_established:
+  - want: a longitudinal patient across SISCAN exams
+    proposed_key: CO_PACIENTE
+    finding: >
+      CO_PACIENTE exists only in SISCAN.PACNT. None of the exam datasets
+      (SISCAN.CC, MM, HC, CM, HM) carries it, so there is no published column to
+      join a patient's exams on. Whether the identifier is even stable across
+      exports is separately unestablished.
+  - want: SIH delivery admissions linked to SINASC births
+    proposed_key: none published
+    finding: >
+      There is no shared key. Any link is probabilistic record linkage on
+      quasi-identifiers, which is a re-identification method rather than a join,
+      and is out of scope for this project.
+  - want: SISPRENATAL linked to SIH or SIA
+    proposed_key: prenatal registration number / CNS
+    finding: >
+      Not tested. The prenatal number's presence and fill rate across systems has
+      not been measured here, and CNS-based linkage would require handling direct
+      personal identifiers.
