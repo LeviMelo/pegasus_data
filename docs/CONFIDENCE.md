@@ -105,19 +105,36 @@ scale.
 These are not uncertainties — they are defects with a cause, listed so they are
 not rediscovered.
 
-**Labels are refused on columns the dictionary can decode.** A real fetch of
-SIH-RD 2023 returned **36 of 142 columns unlabelled**, including `DIAG_PRINC`
-and every `DIAGSEC*`. DATASUS's own CID-10 table is present and correct — 2,039
-three-character codes and 12,214 four-character ones, `K808 → "K80.8 Outr
-colelitiases"` — and the data holds `K808`. The renderer still refused, because
-§6.2 matches code widths exactly and the codelist mixes widths 3 and 4. A rule
-written to prevent mislabelling is preventing labelling, on the most important
-column in the dataset.
+**~~Labels are refused on columns the dictionary can decode.~~** *Wrong, and
+worth recording as wrong.* I read a fetch report as "36 of 142 columns
+unlabelled, including `DIAG_PRINC`" and blamed the §6.2 width rule. Neither
+half held up: `DIAG_PRINC` **is** labelled — the label arrives in a companion
+column, `DIAG_PRINC_label` — and most of the rest are empty. `CID_MORTE` holds
+`'0000'` in 59,835 of 59,835 rows and `DIAGSEC3` is null throughout, so
+"matched none of the observed codes" was correct behaviour reported badly.
+Those columns are now named as `constant` rather than filed beside real gaps.
 
-**`fetch(labels=True)` cannot work on a fresh install.** The package ships
-`tree.parquet` and two schema files (~1.4 MB) and no dictionary. Labels require
-unpacking a bundle (~10 MB per system, ~153 MB for all), which nothing fetches
-automatically and the quickstart does not mention.
+The real defect on that path was different: `_bindings` picked one codelist per
+column and the last tie-break was alphabetical, so `CNES` got `HOSFEDRJ` — six
+federal hospitals in Rio — while `TCNESBR` sat in the same lake with 7,189 rows
+covering every code in the file. Fixed by measuring candidates against the
+column. After both changes: 41 labelled, 23 constant, 9 genuine gaps, and the 9
+are dates, identifiers and day-counts that `.DEF` should never have bound.
+
+**~~`fetch(labels=True)` cannot work on a fresh install.~~** *Closed.* The wheel
+now carries a 19.8 MB label pack and the bindings, and a clean-machine
+`fetch("SIM-DO", uf="AC", years=2022)` returns 56 labelled columns. See
+ARCHITECTURE §14.9. Along the way this turned up a crash on the same path:
+`_discover` unpacked `list_directory`'s `(entries, method)` tuple as a bare
+list, so *every* fresh install died before reaching the labelling question at
+all — which is what comes of never running the user's own first command.
+
+**A label can be broader than the column it decodes.** `.DEF` binds SINASC's
+`CODMUNRES` to `CIRAC`, a health-region table containing every municipality code
+mapped to the region that contains it. It decodes 100% of the column and reports
+Rio Branco as "Baixo Acre e Purus". Granularity now breaks the tie against such
+rollups, and where one is the only table bound it is used and named — but the
+underlying binding is still wrong and nobody has fixed it.
 
 **The catalog is ~200× larger than its information content.** `SIASUS.MUNICBR`
 holds 5,728 distinct labels — about Brazil's municipality count — as 280,004

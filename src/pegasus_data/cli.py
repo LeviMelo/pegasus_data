@@ -712,6 +712,38 @@ def ledger(root: RootOpt = None, system: SystemsOpt = None, as_json: JsonOpt = F
         pipeline.close()
 
 
+@app.command(name="labelpack", rich_help_panel="MAINTENANCE")
+def labelpack_cmd(
+    root: RootOpt = None,
+    out: Annotated[Path, typer.Option("--out", help="Where to write the pack")] = Path(
+        "src/pegasus_data/resources/labels.parquet"
+    ),
+    as_json: JsonOpt = False,
+) -> None:
+    """Rebuild the label pack the package ships.
+
+    A maintainer step, not a user one: it reads the local catalog's dictionary
+    and distils it into the file that lets `fetch(labels=True)` translate on a
+    fresh install with no network. Run it after `semantics`.
+    """
+    from .labelpack import build_binding_pack, build_label_pack
+
+    pipeline = _pipeline(root)
+    try:
+        report = build_label_pack(pipeline.catalog, out)
+        bindings = build_binding_pack(pipeline.catalog, out.with_name("bindings.parquet"))
+        counts = dict(report.counts)
+        counts["bindings"] = bindings
+        _emit(counts, as_json, "label pack")
+        if report.held_back and not as_json:
+            console.print(
+                f"[dim]held back {len(report.held_back)} entity registries; "
+                f"reach them with fetch(\"CNES-ST\") and the CNES join key[/dim]"
+            )
+    finally:
+        pipeline.close()
+
+
 @app.command(rich_help_panel="EXTRACT")
 def normalize(
     root: RootOpt = None,

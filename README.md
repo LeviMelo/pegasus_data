@@ -222,6 +222,29 @@ cannot express without inventing one.
 `availability("SIH-RD").changed_at()` lists every year a column arrived or left:
 the boundaries a longitudinal study has to choose around.
 
+### Labels come with the package
+
+`fetch(labels=True)` translates on a fresh `pip install`, with no crawl, no
+build and no network beyond the data itself:
+
+```
+CAUSABAS   I46.1 Morte subita cardiaca descrita desta forma
+CODMUNRES  120017 Capixaba
+PARTO      Vaginal
+RACACOR    Parda
+```
+
+The wheel carries a distilled label pack — 19.8 MB, down from 14.8M dictionary
+rows to 2.4M by storing code *ranges* rather than every code inside them. A
+local `semantics` build always outranks it.
+
+Two things it deliberately does **not** carry. Entity directories — 687,789
+health establishments — are reached with `fetch("CNES-ST")` and the declared
+CNES join key instead. And a label broader than the column it decodes is used
+but named: where the only bound table for a municipality column is a
+health-region rollup, the report says so rather than quietly reporting Rio
+Branco as *"Baixo Acre e Purus"*.
+
 ### Joins are declared, with their grain
 
 `SIH.RD` calls the admission key `N_AIH`; `SIH.SP` calls it `SP_NAIH`. `SIA.PA`

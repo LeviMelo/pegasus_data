@@ -967,6 +967,64 @@ that silently matches the wrong rows produces a cohort, not an error, so
 
 Exported as `join_keys`, `join_key_members` and `joins_not_established`.
 
+### 14.9 The label pack — meaning, small enough to ship `[D]`
+
+`src/pegasus_data/labelpack.py` · `curation/codelists.yml`
+
+`fetch("SIM-DO", uf="AC", years=2022)` on a clean machine returned 4,159 rows
+and labelled **nothing**. The labels lived only in a 14 GB catalog produced by
+an hour-long `semantics` run that no user has any reason to perform. Data came
+back; meaning did not.
+
+The pack is that layer distilled to **19.8 MB**, carried inside the wheel:
+
+| reduction | effect |
+|---|---|
+| runs, not enumerations | a `.CNV` says *this range is Brasília*; the ingest wrote out all 10,000 integers |
+| one copy across systems | stored once **only** when every system carrying the codelist agrees |
+| packed facts split | `CADGERBR` labels are a CNPJ *and* an establishment name in one string |
+| registries held back | 90 entity directories |
+
+14.8M dictionary rows → 2.4M runs, a 73% reduction, losing no fact.
+
+**The cross-system rule is narrower than it looks.** `system = NULL` means every
+system reads this code this way. That is only safe when every system *carrying
+the codelist* has the code — SIH codes sex 1/3 and SINASC codes it 1/2, so
+"the systems that happen to have this code agree" is a different and unsafe
+claim. Collapsing on it would hand SIH's `3 → Feminino` to a stray `3` in
+SINASC.
+
+**Roles are declared, not inferred** (`curation/codelists.yml`). Sorting by size
+is the obvious approach and it is wrong: a 50,000-row cap keeps 450 municipal
+rollups and throws away **CID10**, the most important codelist in the tree for
+clinical work. Structure cannot separate them either — CID10 has one label per
+code and so does an establishment directory. What differs is what the code
+*refers to*, which is an institutional fact and therefore declared.
+
+- `enumeration` — DATASUS's own closed sets. Irreplaceable; nowhere else.
+- `classification` — CID10, CBO, SIGTAP. Kept whole: DATASUS's copy is complete
+  for the data DATASUS publishes, and sending someone elsewhere to decode a
+  diagnosis defeats the package.
+- `geography` — municipalities and regions. Collapse well; essential as joins.
+- `registry` — **held back.** `CADGERBR` is 687,789 establishments. That is a
+  dimension table, and the project already publishes it as the `CNES.ST`
+  dataset with a declared join key (§14.8).
+- `crosswalk` — an identifier mapped to another identifier. A category of its
+  own, not a label.
+
+**The crosswalk survives the hold-back.** `CADGERBR`'s labels carry each
+establishment's CNPJ, and a CNES↔CNPJ mapping is how establishments are matched
+across systems that key on tax identity rather than CNES. 546,189 rows, shipped
+separately, because throwing it out with the prose would have been the expensive
+half of the decision.
+
+Bindings ship too (9,380 rows, 35 KB). Knowing `I219` is a heart attack is no
+help if nothing says `DIAG_PRINC` is coded in CID10.
+
+Rebuilt by `pegasus-data labelpack` after `semantics`. `read_reference_table`
+prefers a local lake and falls back to the pack, so a real build always outranks
+what shipped.
+
 ## 14a. What ships, and what does not
 
 A package is not a data lake. The rule is: **ship what makes the module
