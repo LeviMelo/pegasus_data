@@ -1173,6 +1173,19 @@ def check_bound_codelists_decode(catalog: Catalog, settings: Settings) -> Check:
 
     total_undecodable = [r for r in exact if (r["undecodable"] or 0) > 0.0001]
     wholly = [r for r in exact if (r["undecodable"] or 0) >= 0.999]
+
+    # The lever, not just the symptom. `field_codelists.decodes_observed` exists
+    # to record whether a binding actually decodes anything, and it is almost
+    # never populated — so nothing ranks a good binding above a bad one. And
+    # .DEF-derived bindings pool by (system, field_name) across every DEF in the
+    # system, which is how a single field ends up with hundreds of codelists
+    # bound to it, most of them describing some other column entirely.
+    unmeasured = catalog.count("field_codelists", "decodes_observed IS NULL")
+    bindings = catalog.count("field_codelists")
+    crowded = catalog.scalar(
+        "SELECT MAX(n) FROM (SELECT COUNT(*) AS n FROM field_codelists"
+        " GROUP BY system, field_name)"
+    )
     worst = sorted(total_undecodable, key=lambda r: -(r["undecodable"] or 0))[:6]
     c.evidence = {
         "bound_columns_profiled": len(rows),
@@ -1184,6 +1197,9 @@ def check_bound_codelists_decode(catalog: Catalog, settings: Settings) -> Check:
             f"{100 * (r['undecodable'] or 0):.1f}%"
             for r in worst
         ],
+        "bindings": bindings,
+        "bindings_never_measured": unmeasured,
+        "most_codelists_on_one_field": crowded,
     }
     if wholly:
         names = sorted({f"{r['system']}.{r['field_name']}" for r in wholly})
@@ -1192,7 +1208,11 @@ def check_bound_codelists_decode(catalog: Catalog, settings: Settings) -> Check:
             f"{len(wholly)} of {len(exact)} measurable bound columns decode NOTHING "
             f"— every observed value is undefined by every codelist bound to them, "
             f"which points at the binding rather than the data: "
-            f"{', '.join(names[:5])}{' …' if len(names) > 5 else ''}"
+            f"{', '.join(names[:5])}{' …' if len(names) > 5 else ''}. "
+            f"Cause: {unmeasured:,} of {bindings:,} bindings have never had "
+            f"decodes_observed measured, so nothing ranks a working binding above "
+            f"a broken one, and .DEF bindings pool by field name across a whole "
+            f"system — one field carries {crowded} codelists."
         )
         return c
     c.status = "pass"
