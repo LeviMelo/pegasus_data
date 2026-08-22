@@ -147,9 +147,21 @@ def _successor(code: str) -> str | None:
 
 
 def _useful(code: str, label: str) -> bool:
-    """Does this pair say anything a caller could not already see?"""
+    """Does this pair say anything a caller could not already see?
+
+    A code containing internal whitespace is not a code. TabNet match
+    expressions are a code, a range or a comma list and never contain spaces, so
+    one that does is the residue of a parse that went wrong — a title line read
+    as data, or a label that overran its column. Four of them survived a fixed
+    parser in a stale catalog and reached the shipped pack, where they are
+    visible to everyone who installs the package. The catalog is rebuildable and
+    this artefact is not, so it refuses them on the way in rather than trusting
+    whatever produced it.
+    """
     text = (label or "").strip()
     if not text:
+        return False
+    if " " in (code or "").strip():
         return False
     return text != (code or "").strip()
 
