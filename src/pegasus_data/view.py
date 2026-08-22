@@ -663,6 +663,168 @@ def resolve_profile(
     return replace(base, **changes) if changes else base
 
 
+@dataclass
+class _Selection:
+    """Which codelist(s) will decode a column, and whether any can.
+
+    ``unlabelled`` means selection already decided the answer is "none of them"
+    and has already recorded why — the caller emits the column as filed and
+    moves on.
+    """
+
+    codelists: list[str] = field(default_factory=list)
+    share: float | None = None
+    unlabelled: bool = False
+
+
+def _select_codelists(
+    name: str,
+    column: pa.ChunkedArray,
+    *,
+    doc: object,
+    candidates: list[str],
+    report: RenderReport,
+    strict: bool,
+    lookup_one: Callable[[str, int | None], dict[str, str] | None],
+) -> _Selection:
+    """Choose the codelist(s) for one column, or decide that none fits.
+
+    Kept apart from rendering because it is a different question. Rendering asks
+    "how should this column be shown"; this asks "what does this column MEAN",
+    and answering it involves weighing every bound table against the values the
+    column actually holds. Inline, the two were interleaved across 200 lines and
+    shared six mutable locals, which is where the width, rollup and
+    partial-match defects in this review lived.
+
+    It reports its own findings — the caller cannot reconstruct why a column was
+    left unlabelled without re-doing the weighing.
+    """
+    if doc is not None and getattr(doc, "codelist", None):
+        # A curated entry decides both the table and whether there are several.
+        # Nothing else may widen it.
+        return _Selection(codelists=[doc.codelist, *doc.codelists])  # type: ignore[attr-defined]
+
+    if len(candidates) <= 1:
+        return _Selection(codelists=candidates)
+
+    # Several tables claim this column and nothing declared which is right. Ask
+    # the data.
+    width_hint = None
+    if doc is not None and getattr(doc, "token_rule", None) and not getattr(doc, "multi_valued", False):
+        width_hint = doc.token_rule.get("width")  # type: ignore[attr-defined]
+    seen = {
+        str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()
+    }
+    picked, share, tried, grain = _choose_binding(
+        name.upper(),
+        candidates,
+        seen,
+        # width_hint bound at definition: the callback is invoked synchronously
+        # today, but a closure over a loop variable is one refactor away from
+        # every column being weighed at the last column's width.
+        lambda cl, w=width_hint: lookup_one(cl, w),
+    )
+
+    if picked and share < _TOO_WEAK:
+        if len(seen) <= 1:
+            # One value in every row and nothing decodes it. That is a dead
+            # column, not a labelling failure. Recorded in both, so a caller
+            # loses nothing and can still tell them apart.
+            report.constant[name] = next(iter(seen), "")
+            report.unlabelled.append(name)
+            return _Selection(unlabelled=True)
+        # None of them fits. Say which was closest, and how badly.
+        message = (
+            f"{name}: {tried} codelists are bound and none decodes the "
+            f"column — the best, {picked!r}, matches {share:.0%} of "
+            f"observed codes. Left unlabelled rather than partly labelled."
+        )
+        if strict:
+            raise LabelUnavailable(message)
+        report.warnings.append(message)
+        # The share as a NUMBER. A caller applying a threshold should not have
+        # to parse "matches 43% of observed codes" out of prose.
+        report.partial_codelist_match[name] = round(float(share), 4)
+        report.unlabelled.append(name)
+        return _Selection(unlabelled=True)
+
+    if picked and grain < _ROLLUP:
+        # The best available table answers a coarser question than the column
+        # asks — a municipality labelled with its health region.
+        report.warnings.append(
+            f"{name}: labelled from {picked!r}, which is a ROLLUP — it maps "
+            f"the observed codes to {grain:.0%} as many distinct labels, so "
+            f"the label is broader than the code. No finer table is bound."
+        )
+        report.rollup_used.append(name)
+    elif picked and picked != candidates[0]:
+        report.warnings.append(
+            f"{name}: {tried} codelists are bound; chose {picked!r} "
+            f"({share:.0%} of observed codes) over {candidates[0]!r}"
+        )
+    return _Selection(codelists=[picked] if picked else [], share=share)
+
+
+def _report_reference_decisions(
+    report: RenderReport,
+    collected: dict[str, set],
+    system: str,
+    *,
+    strict: bool,
+) -> None:
+    """Turn the reference layer's substitutions into report fields and warnings.
+
+    Both are cases of "you were answered, but not with what you asked for", and
+    both were invisible from the caller's side: a borrowed table produces
+    confident labels from the wrong system, and a fallback vintage produces a
+    label that may postdate the record. Neither shows up in the data.
+
+    Extracted from render_table because it is a distinct decision — reference
+    RESOLUTION, not column rendering — and because inline it was 40 lines in
+    the middle of a 350-line function that already had six other jobs.
+    """
+    # A codelist served from another system's copy is reported, not silently
+    # accepted. The contradiction check catches disagreement among overlapping
+    # codes; a foreign table whose codes happen not to overlap produces
+    # confident labels from the wrong system and nothing said so.
+    for table_id, for_system in sorted(collected["borrowed"]):
+        if for_system == (system or "").upper():
+            report.warnings.append(
+                f"{table_id}: no {for_system} copy of this codelist exists, so labels "
+                f"were borrowed from another system's table"
+            )
+            report.borrowed.append(table_id)
+
+    # Same treatment for the vintage. Asking for 1995 and being handed today's
+    # table is a defensible answer and an undisclosed one; strict mode rejects
+    # it, and everyone else at least gets told.
+    for table_id, asked, served in sorted(collected["fallback"]):
+        if served == "unresolved":
+            report.warnings.append(
+                f"{table_id}: no codelist window covers {asked} and there is no "
+                "open-ended table, so nothing was labelled from it — rather than "
+                "merging every historical window, which would contradict itself"
+            )
+        else:
+            report.warnings.append(
+                f"{table_id}: no codelist window covers {asked}, so the current "
+                "vintage was used; a label here may postdate the record"
+            )
+        report.fallback_vintage[table_id] = served
+        if strict:
+            # strict means "the label I asked for or an error". A label from a
+            # vintage the record predates is not the label that was asked for.
+            raise LabelUnavailable(
+                f"{table_id}: no codelist window covers {asked}"
+                + (
+                    "; nothing could be labelled from it"
+                    if served == "unresolved"
+                    else "; the current vintage would have been used, which may "
+                    "postdate the record"
+                )
+            )
+
+
 def render_table(
     table: pa.Table,
     *,
@@ -807,76 +969,22 @@ def _render_table(
             continue
 
         doc = docs.get(name.upper())
-        candidates = list(bindings.get(name.upper()) or [])
-        chosen_share: float | None = None
-        if doc and doc.codelist:
-            # A curated entry decides both the table and whether there are
-            # several. Nothing else may widen it.
-            codelists = [doc.codelist, *doc.codelists]
-        elif len(candidates) > 1:
-            # Several tables claim this column and nothing declared which is
-            # right. Ask the data.
-            width_hint = None
-            if doc and doc.token_rule and not doc.multi_valued:
-                width_hint = doc.token_rule.get("width")
-            seen = {
-                str(v).strip()
-                for v in column.to_pylist()
-                if v is not None and str(v).strip()
-            }
-            picked, chosen_share, tried, grain = _choose_binding(
-                name.upper(),
-                candidates,
-                seen,
-                # width_hint bound at definition: the callback is invoked
-                # synchronously today, but a closure over a loop variable is one
-                # refactor away from every column being weighed at the last
-                # column's width.
-                lambda cl, w=width_hint: _single_lookup(lake, cl, system, year, w),
-            )
-            if picked and chosen_share < _TOO_WEAK:
-                if len(seen) <= 1:
-                    # One value in every row and nothing decodes it. That is a
-                    # dead column, not a labelling failure. Recorded in both, so
-                    # a caller loses nothing and can still tell them apart.
-                    report.constant[name] = next(iter(seen), "")
-                    report.unlabelled.append(name)
-                    columns.append(column)
-                    names.append(name)
-                    continue
-                # None of them fits. Say which was closest, and how badly.
-                message = (
-                    f"{name}: {tried} codelists are bound and none decodes the "
-                    f"column — the best, {picked!r}, matches {chosen_share:.0%} of "
-                    f"observed codes. Left unlabelled rather than partly labelled."
-                )
-                if strict:
-                    raise LabelUnavailable(message)
-                report.warnings.append(message)
-                # The share as a NUMBER. A caller applying a threshold should
-                # not have to parse "matches 43% of observed codes" out of prose.
-                report.partial_codelist_match[name] = round(float(chosen_share), 4)
-                report.unlabelled.append(name)
-                columns.append(column)
-                names.append(name)
-                continue
-            codelists = [picked] if picked else []
-            if picked and grain < _ROLLUP:
-                # The best available table answers a coarser question than the
-                # column asks — a municipality labelled with its health region.
-                report.warnings.append(
-                    f"{name}: labelled from {picked!r}, which is a ROLLUP — it maps "
-                    f"the observed codes to {grain:.0%} as many distinct labels, so "
-                    f"the label is broader than the code. No finer table is bound."
-                )
-                report.rollup_used.append(name)
-            elif picked and picked != candidates[0]:
-                report.warnings.append(
-                    f"{name}: {tried} codelists are bound; chose {picked!r} "
-                    f"({chosen_share:.0%} of observed codes) over {candidates[0]!r}"
-                )
-        else:
-            codelists = candidates
+        selection = _select_codelists(
+            name,
+            column,
+            doc=doc,
+            candidates=list(bindings.get(name.upper()) or []),
+            report=report,
+            strict=strict,
+            lookup_one=lambda cl, w: _single_lookup(lake, cl, system, year, w),
+        )
+        if selection.unlabelled:
+            # Selection decided this column cannot be labelled and has already
+            # said why. Emit it as filed.
+            columns.append(column)
+            names.append(name)
+            continue
+        codelists = selection.codelists
         codelist = codelists[0] if codelists else None
         code_system = (doc.code_system if doc else None) or ("internal" if codelist else "none")
         mode: RenderMode = overrides.get(name.upper()) or (
@@ -991,46 +1099,7 @@ def _render_table(
             columns.append(labels)
             names.append(f"{name}{LABEL_SUFFIX}")
 
-    # A codelist served from another system's copy is reported, not silently
-    # accepted. The contradiction check catches disagreement among overlapping
-    # codes; a foreign table whose codes happen not to overlap produces
-    # confident labels from the wrong system and nothing said so.
-    for table_id, for_system in sorted(collected["borrowed"]):
-        if for_system == (system or "").upper():
-            report.warnings.append(
-                f"{table_id}: no {for_system} copy of this codelist exists, so labels "
-                f"were borrowed from another system's table"
-            )
-            report.borrowed.append(table_id)
-
-    # Same treatment for the vintage. Asking for 1995 and being handed today's
-    # table is a defensible answer and an undisclosed one; strict mode rejects
-    # it, and everyone else at least gets told.
-    for table_id, asked, served in sorted(collected["fallback"]):
-        if served == "unresolved":
-            report.warnings.append(
-                f"{table_id}: no codelist window covers {asked} and there is no "
-                "open-ended table, so nothing was labelled from it — rather than "
-                "merging every historical window, which would contradict itself"
-            )
-        else:
-            report.warnings.append(
-                f"{table_id}: no codelist window covers {asked}, so the current "
-                "vintage was used; a label here may postdate the record"
-            )
-        report.fallback_vintage[table_id] = served
-        if strict:
-            # strict means "the label I asked for or an error". A label from a
-            # vintage the record predates is not the label that was asked for.
-            raise LabelUnavailable(
-                f"{table_id}: no codelist window covers {asked}"
-                + (
-                    "; nothing could be labelled from it"
-                    if served == "unresolved"
-                    else "; the current vintage would have been used, which may "
-                    "postdate the record"
-                )
-            )
+    _report_reference_decisions(report, collected, system, strict=strict)
 
     rendered_table = pa.Table.from_arrays(columns, names=names)
 
