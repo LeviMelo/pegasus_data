@@ -1215,7 +1215,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 116
     codelists:
-    - SRV_AP01
+    - SERAP01P
   SERAP01T:
     official_name: Servico de apoio S.A.M.E. ou S.P.P. terceirizado
     translated_name: Medical-records service (SAME/SPP) outsourced
@@ -1240,7 +1240,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 118
     codelists:
-    - SRV_AP02
+    - SERAP02P
   SERAP02T:
     official_name: Servico de apoio Servico Social terceirizado
     translated_name: Social work service outsourced
@@ -1265,7 +1265,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 120
     codelists:
-    - SRV_AP03
+    - SERAP03P
   SERAP03T:
     official_name: Servico de apoio Farmacia terceirizado
     translated_name: Pharmacy outsourced
@@ -1290,7 +1290,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 122
     codelists:
-    - SRV_AP04
+    - SERAP04P
   SERAP04T:
     official_name: Servico de apoio Esterilizacao de Materiais terceirizado
     translated_name: Sterile-supply/CSSD service outsourced
@@ -1315,7 +1315,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 124
     codelists:
-    - SRV_AP05
+    - SERAP05P
   SERAP05T:
     official_name: Servico de apoio Nutricao/Dietetica (S.N.D.) terceirizado
     translated_name: Nutrition/dietetics service outsourced
@@ -1340,7 +1340,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 126
     codelists:
-    - SRV_AP06
+    - SERAP06P
   SERAP06T:
     official_name: Servico de apoio Lactario terceirizado
     translated_name: Milk-preparation room (lactario) outsourced
@@ -1365,7 +1365,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 128
     codelists:
-    - SRV_AP07
+    - SERAP07P
   SERAP07T:
     official_name: Servico de apoio Banco De Leite terceirizado
     translated_name: Human milk bank outsourced
@@ -1390,7 +1390,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 130
     codelists:
-    - SRV_AP08
+    - SERAP08P
   SERAP08T:
     official_name: Servico de apoio Lavanderia terceirizado
     translated_name: Laundry service outsourced
@@ -1415,7 +1415,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 132
     codelists:
-    - SRV_AP09
+    - SERAP09P
   SERAP09T:
     official_name: Servico de apoio Manutencao de Equipamento terceirizado
     translated_name: Equipment-maintenance service outsourced
@@ -1440,7 +1440,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 134
     codelists:
-    - SRV_AP10
+    - SERAP10P
   SERAP10T:
     official_name: Servico de apoio Ambulancia terceirizado
     translated_name: Ambulance service outsourced
@@ -1465,7 +1465,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 136
     codelists:
-    - SRV_AP11
+    - SERAP11P
   SERAP11T:
     official_name: Servico de apoio Necroterio terceirizado
     translated_name: Morgue (necroterio) outsourced

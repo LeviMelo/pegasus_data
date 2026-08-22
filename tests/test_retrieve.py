@@ -176,6 +176,47 @@ class TestDiscovery:
 
 class TestRendering:
     def test_labels_are_joined_through_the_shared_render_path(self, settings, seeded):
+        """Uses DIAG_PRINC, not SEXO.
+
+        SEXO was the vehicle here and it is the one column in this system that
+        must NOT be labelled: the shipped kits carry contradictory mappings for
+        the same code — '1' is Masculino in one table and Feminino in another —
+        so `curation/variables/sihsus/_shared.yml` marks it `code_system: none`
+        and DELIBERATELY UNBOUND. This test passed only because curation was
+        loaded once per catalog and never reloaded, so a binding inserted here
+        outranked that ruling. Once a changed curation reaches an existing
+        catalog, the ruling wins, which is the point of the ruling.
+        """
+        catalog = Catalog(settings.catalog_path)
+        catalog.execute(
+            "INSERT INTO dictionary (system, value_group, field_name, value_raw, "
+            "value_label, source, source_ref, confidence) "
+            "VALUES ('SIHSUS','CID10','DIAG_PRINC','I219',"
+            "'Infarto agudo do miocárdio','cnv','CID10.CNV',0.9)"
+        )
+        catalog.execute(
+            "INSERT INTO field_codelists (system, family_id, field_name, codelist, source, "
+            "source_ref, confidence) VALUES ('SIHSUS','','DIAG_PRINC','CID10','def','x',0.9)"
+        )
+        catalog.close()
+        table = fetch("SIH-RD", settings=settings)
+        # DIAG_PRINC is `code_system: external`, and the analysis profile renders
+        # those as "both": the CID-10 code is a join key and destroying it to
+        # show a name would cost more than it gives, so the label arrives beside
+        # it rather than over it.
+        assert "DIAG_PRINC_label" in table.schema.names
+        assert set(table.column("DIAG_PRINC").to_pylist()) == {"I219"}
+        assert set(table.column("DIAG_PRINC_label").to_pylist()) == {
+            "Infarto agudo do miocárdio"
+        }
+
+    def test_a_deliberately_unbound_column_stays_unbound(self, settings, seeded):
+        """A binding in the catalog must not defeat a curated refusal.
+
+        SEXO's codelist disagrees with itself across generations, so labelling
+        it would put the wrong sex on a large share of admissions while looking
+        entirely convincing.
+        """
         catalog = Catalog(settings.catalog_path)
         for code, label in (("1", "Masculino"), ("3", "Feminino")):
             catalog.execute(
@@ -188,13 +229,9 @@ class TestRendering:
             "INSERT INTO field_codelists (system, family_id, field_name, codelist, source, "
             "source_ref, confidence) VALUES ('SIHSUS','','SEXO','SEXO','def','x',0.9)"
         )
-        catalog.execute(
-            "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
-            "VALUES ('SIHSUS','DIAG_PRINC','external','CID10','manual')"
-        )
         catalog.close()
         table = fetch("SIH-RD", settings=settings)
-        assert set(table.column("SEXO").to_pylist()) == {"Masculino", "Feminino"}
+        assert set(table.column("SEXO").to_pylist()) == {"1", "3"}
 
     def test_labels_false_returns_the_codes_as_filed(self, settings, seeded):
         table = fetch("SIH-RD", labels=False, settings=settings)

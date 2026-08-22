@@ -18,7 +18,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 157
     codelists:
-    - ATPRES01
+    - AP01CV01
     notes: This same 7x6 grid (7 services x 6 payers) is also carried, field-for-field,
       on the Dados Complementares (DC) record and, from Apr/2007 onward, on the Equipes
       (EP) record - confirm which file an extract's AP0#CV0# column actually came from.
@@ -47,7 +47,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 161
     codelists:
-    - ATPRES1X
+    - AP01CV03
   AP01CV04:
     official_name: Atendimento prestado INTERNACAO/Convenio PLANO-SEGURO TERCEIRO
     translated_name: Inpatient admission (internacao) offered under a third party's
@@ -109,7 +109,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 163
     codelists:
-    - ATPRES02
+    - AP02CV01
   AP02CV02:
     official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PARTICULAR
     translated_name: Outpatient care (atendimento ambulatorial) offered under out-of-pocket/private
@@ -134,7 +134,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 167
     codelists:
-    - ATPRES2X
+    - AP02CV03
   AP02CV04:
     official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio PLANO-SEGURO
       TERCEIRO
@@ -199,7 +199,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 169
     codelists:
-    - ATPRES03
+    - AP03CV01
   AP03CV02:
     official_name: Atendimento prestado SADT/Convenio PARTICULAR
     translated_name: Diagnostic/therapy support services (SADT) offered under out-of-pocket/private
@@ -223,7 +223,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 173
     codelists:
-    - ATPRES3X
+    - AP03CV03
   AP03CV04:
     official_name: Atendimento prestado SADT/Convenio PLANO-SEGURO TERCEIRO
     translated_name: Diagnostic/therapy support services (SADT) offered under a third
@@ -283,7 +283,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 175
     codelists:
-    - ATPRES04
+    - AP04CV01
   AP04CV02:
     official_name: Atendimento prestado URGENCIA/Convenio PARTICULAR
     translated_name: Emergency/urgent care (urgencia) offered under out-of-pocket/private
@@ -307,7 +307,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 179
     codelists:
-    - ATPRES4X
+    - AP04CV03
   AP04CV04:
     official_name: Atendimento prestado URGENCIA/Convenio PLANO-SEGURO TERCEIRO
     translated_name: Emergency/urgent care (urgencia) offered under a third party's
@@ -366,7 +366,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 181
     codelists:
-    - ATPRES05
+    - AP05CV01
   AP05CV02:
     official_name: Atendimento prestado OUTROS/Convenio PARTICULAR
     translated_name: Other care (outros) offered under out-of-pocket/private pay (particular),
@@ -390,7 +390,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 185
     codelists:
-    - ATPRES5X
+    - AP05CV03
   AP05CV04:
     official_name: Atendimento prestado OUTROS/Convenio PLANO-SEGURO TERCEIRO
     translated_name: Other care (outros) offered under a third party's company health
@@ -451,7 +451,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 187
     codelists:
-    - ATPRES06
+    - AP06CV01
   AP06CV02:
     official_name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PARTICULAR
     translated_name: Health surveillance (vigilancia em saude) offered under out-of-pocket/private
@@ -475,7 +475,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 191
     codelists:
-    - ATPRES6X
+    - AP06CV03
   AP06CV04:
     official_name: Atendimento prestado VIGILANCIA EM SAUDE/Convenio PLANO-SEGURO TERCEIRO
     translated_name: Health surveillance (vigilancia em saude) offered under a third
@@ -538,7 +538,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 193
     codelists:
-    - ATPRES07
+    - AP07CV01
   AP07CV02:
     official_name: Atendimento prestado REGULACAO/Convenio PARTICULAR
     translated_name: Regulation/referral management (regulacao) offered under out-of-pocket/private
@@ -562,7 +562,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 197
     codelists:
-    - ATPRES7X
+    - AP07CV03
   AP07CV04:
     official_name: Atendimento prestado REGULACAO/Convenio PLANO-SEGURO TERCEIRO
     translated_name: Regulation/referral management (regulacao) offered under a third
@@ -895,7 +895,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 42
     codelists:
-    - GESPROG2
+    - GESPRG2E
     notes: Read alongside GESPRG2M (the other sphere for the same program) and the
       coarser NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
       tier exists at all, not how it is managed.
@@ -922,7 +922,7 @@ variables:
     source_ref: Estabelecimento.def line 'Internacao Estadual (ANTIGO), GESPRG3E' /
       'Internacao Municipal(ANTIGO), GESPRG3M', and CNV/GESPROG3.CNV, both from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip
     codelists:
-    - GESPROG3
+    - GESPRG3E
   GESPRG3M:
     official_name: Indicador se a gestao do programa cod. 03 e MUNICIPAL
     translated_name: Legacy municipal-level 'internacao' (general inpatient) management
@@ -946,7 +946,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 44
     codelists:
-    - GESPROG4
+    - GESPRG4E
     notes: Read alongside GESPRG4M (the other sphere for the same program) and the
       coarser NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
       tier exists at all, not how it is managed.
@@ -973,7 +973,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 49
     codelists:
-    - GESPROG5
+    - GESPRG5E
     notes: Read alongside GESPRG5M (the other sphere for the same program) and the
       coarser NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
       tier exists at all, not how it is managed.
@@ -1000,7 +1000,7 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 51
     codelists:
-    - GESPROG6
+    - GESPRG6E
     notes: Read alongside GESPRG6M (the other sphere for the same program) and the
       coarser NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
       tier exists at all, not how it is managed.

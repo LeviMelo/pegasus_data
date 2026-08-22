@@ -791,23 +791,38 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
             "(run `pegasus-data semantics` for the full local build)"
         )
 
-    if not pipeline.catalog.count("variable_docs"):
-        # load_curation, not pipeline.curate(): Pipeline has no such method, and
-        # the try/except below turned that AttributeError into a warning nobody
-        # reads. The effect was that variable_docs and dataset_docs stayed empty
-        # on every fresh install, so info() had no "what one row is" and
-        # describe() had nothing to describe — while the YAML sat in the wheel.
-        try:
-            from .ontology import CURATION
-            from .semantics.curation import load_curation
+    # load_curation, not pipeline.curate(): Pipeline has no such method, and the
+    # try/except below turned that AttributeError into a warning nobody reads.
+    # The effect was that variable_docs and dataset_docs stayed empty on every
+    # fresh install, so info() had no "what one row is" and describe() had
+    # nothing to describe — while the YAML sat in the wheel.
+    #
+    # The condition was `variable_docs is empty`, true exactly once in a
+    # catalog's life, so every LATER change to the shipped YAML never reached
+    # anyone who had run the package before. A corrected codelist is exactly
+    # that kind of change: 30 CNES columns were bound to a composite table that
+    # decodes none of their values, and the correction would have been invisible
+    # to every existing catalog. Comparing a fingerprint of the files reloads
+    # when the meaning changed and stays quiet when it did not.
+    try:
+        from .ontology import CURATION
+        from .semantics.curation import (
+            curation_is_current,
+            load_curation,
+            note_curation_loaded,
+        )
 
+        first_time = not pipeline.catalog.count("variable_docs")
+        if not curation_is_current(pipeline.catalog, CURATION):
             loaded = load_curation(pipeline.catalog, CURATION)
+            note_curation_loaded(pipeline.catalog, CURATION)
             report.warnings.append(
-                "loaded the shipped curation on first use: "
+                ("loaded the shipped curation on first use: " if first_time
+                 else "the shipped curation changed since this catalog was built; reloaded it: ")
                 + ", ".join(f"{k}={v}" for k, v in sorted(loaded.items())[:4])
             )
-        except Exception as exc:  # noqa: BLE001 - unreadable curation is not fatal
-            report.warnings.append(f"could not load the shipped curation: {exc}")
+    except Exception as exc:  # noqa: BLE001 - unreadable curation is not fatal
+        report.warnings.append(f"could not load the shipped curation: {exc}")
 
     lake_root = pipeline.settings.lake_dir
     # Does THIS SYSTEM have tables, not "are there any". The warehouse is built

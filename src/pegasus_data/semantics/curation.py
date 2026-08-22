@@ -25,9 +25,11 @@ requires the reasoning to be written out and refuses to load without it.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -309,6 +311,50 @@ def iter_curation_files(root: Path) -> Iterator[Path]:
 
 
 # -------------------------------------------------------------------- loading
+
+
+def curation_fingerprint(root: Path) -> str:
+    """A digest of the curation files, so a changed meaning can be noticed.
+
+    Content, not mtime: the YAML ships inside a wheel and its timestamps say
+    when it was unpacked, which is unrelated to whether anything was edited.
+    Cached per path because it is asked on every fetch and the answer cannot
+    change inside one process — the files are package data.
+    """
+    return _fingerprint(str(root))
+
+
+@lru_cache(maxsize=8)
+def _fingerprint(root: str) -> str:
+    digest = hashlib.blake2b(digest_size=16)
+    for path in sorted(Path(root).rglob("*.yml")):
+        digest.update(path.relative_to(root).as_posix().encode("utf-8"))
+        digest.update(path.read_bytes())
+    return digest.hexdigest()
+
+
+def curation_is_current(catalog: Catalog, root: Path) -> bool:
+    """Has THIS curation already been loaded into THIS catalog?
+
+    The check used to be ``variable_docs is empty``, which is true exactly once
+    in a catalog's life. Every later change to the shipped YAML — a new column,
+    a corrected codelist — then never reached anyone who had already run the
+    package once.
+    """
+    try:
+        rows = catalog.query("SELECT fingerprint FROM curation_state WHERE id = 1")
+    except Exception:  # noqa: BLE001 - a catalog older than the table
+        return False
+    return bool(rows) and str(rows[0]["fingerprint"]) == curation_fingerprint(root)
+
+
+def note_curation_loaded(catalog: Catalog, root: Path) -> None:
+    catalog.execute(
+        "INSERT INTO curation_state (id, fingerprint, applied_at) VALUES (1,?,?)"
+        " ON CONFLICT(id) DO UPDATE SET fingerprint = excluded.fingerprint,"
+        " applied_at = excluded.applied_at",
+        (curation_fingerprint(root), utcnow()),
+    )
 
 
 def load_curation(catalog: Catalog, root: Path) -> dict[str, object]:

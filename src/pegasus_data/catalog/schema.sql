@@ -694,3 +694,13 @@ CREATE TABLE IF NOT EXISTS events (            -- append-only run history
   noted_at   TEXT
 );
 CREATE INDEX IF NOT EXISTS ix_events_stage ON events (stage, level);
+
+-- Which shipped curation is loaded, so a package upgrade reaches an existing
+-- catalog. `variable_docs` was reloaded only when EMPTY, so a catalog seeded by
+-- an older wheel kept that wheel's meanings for ever -- including a codelist
+-- since corrected -- while the new YAML sat unread in the package.
+CREATE TABLE IF NOT EXISTS curation_state (
+  id           INTEGER PRIMARY KEY CHECK (id = 1),
+  fingerprint  TEXT NOT NULL,
+  applied_at   TEXT NOT NULL
+);
