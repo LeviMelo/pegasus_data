@@ -50,6 +50,7 @@ _EXPORTS: dict[str, str] = {
     "TranslationImpossible": "._translate",
     "availability": ".availability",
     "field_available": ".availability",
+    "field_coverage": ".availability",
     "Availability": ".availability",
     "FieldWindow": ".availability",
     "compendium": ".compendium",

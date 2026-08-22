@@ -51,7 +51,13 @@ from .catalog.store import Catalog as _Store
 from .config import Settings, load_settings
 from .ontology import Ontology
 
-__all__ = ["Availability", "FieldWindow", "availability", "field_available"]
+__all__ = [
+    "Availability",
+    "FieldWindow",
+    "availability",
+    "field_available",
+    "field_coverage",
+]
 
 State = Literal["present", "absent", "unknown"]
 
@@ -68,6 +74,12 @@ class FieldWindow:
     absent_years: list[int] = _field(default_factory=list)
     #: Years the catalog has decoded nothing for. Not evidence of absence.
     unknown_years: list[int] = _field(default_factory=list)
+    #: year -> how many of that year's decoded schema signatures carry the
+    #: field. A year where that is neither 0 nor all of them is PARTIAL: the
+    #: column exists in some of the year's publications and not others, which a
+    #: yearly present/absent cannot express. A field introduced in July is the
+    #: ordinary case, not a corner one.
+    carriers: dict[int, int] = _field(default_factory=dict)
     #: True when the field is present in the most recent decoded year, so the
     #: window is open rather than closed.
     current: bool = False
@@ -139,6 +151,9 @@ class Availability:
     decoded_years: list[int] = _field(default_factory=list)
     published_years: list[int] = _field(default_factory=list)
     fields: dict[str, FieldWindow] = _field(default_factory=dict)
+    #: year -> how many distinct schema signatures were decoded for it. The
+    #: denominator for `FieldWindow.carriers`.
+    signatures: dict[int, int] = _field(default_factory=dict)
 
     @property
     def undecoded_years(self) -> list[int]:
@@ -310,13 +325,21 @@ def _read(conn: sqlite3.Connection, onto: Ontology, code: str) -> Availability:
     )
 
     present: dict[str, list[int]] = {}
+    carriers: dict[str, dict[int, int]] = {}
     for year in decoded:
         for signature in by_year[year]:
             for name in fields_of.get(signature, ()):
                 present.setdefault(name, []).append(year)
+                counts = carriers.setdefault(name, {})
+                counts[year] = counts.get(year, 0) + 1
 
     known = set(decoded)
-    out = Availability(dataset=code, decoded_years=decoded, published_years=published)
+    out = Availability(
+        dataset=code,
+        decoded_years=decoded,
+        published_years=published,
+        signatures={y: len(by_year[y]) for y in decoded},
+    )
     for name, years in present.items():
         seen = sorted(set(years))
         window = FieldWindow(
@@ -326,6 +349,7 @@ def _read(conn: sqlite3.Connection, onto: Ontology, code: str) -> Availability:
             absent_years=[y for y in decoded if y not in set(seen)],
             unknown_years=[y for y in published if y not in known],
             current=bool(decoded) and decoded[-1] in set(seen),
+            carriers=dict(sorted(carriers.get(name, {}).items())),
         )
         out.fields[name] = window
     return out
@@ -357,6 +381,50 @@ def availability(
         store.close()
 
 
+def field_coverage(
+    dataset: str,
+    field: str,
+    year: int,
+    *,
+    root: str | Path | None = None,
+    settings: Settings | None = None,
+) -> dict[str, object]:
+    """How much of one year actually carries ``field``.
+
+    ``field_available`` answers per YEAR, which is the granularity most
+    questions are asked at and is not always the granularity of the truth. A
+    column introduced in July exists in some of that year's publications and
+    not others, and a yearly present/absent has to round that to one of two
+    wrong answers.
+
+    Returns the state alongside the evidence behind it: how many of the year's
+    decoded schema signatures carry the field, out of how many there are. A
+    ``partial`` state is a real finding — it means a count over that year mixes
+    artifacts that have the column with artifacts that never had it.
+    """
+    found = availability(dataset, root=root, settings=settings)
+    year = int(year)
+    total = int(found.signatures.get(year, 0))
+    window = found.fields.get(field.upper())
+    carrying = int((window.carriers if window else {}).get(year, 0))
+    if not total:
+        state: str = "unknown"
+    elif carrying == 0:
+        state = "absent"
+    elif carrying == total:
+        state = "present"
+    else:
+        state = "partial"
+    return {
+        "dataset": dataset,
+        "field": field.upper(),
+        "year": year,
+        "state": state,
+        "signatures_carrying": carrying,
+        "signatures_decoded": total,
+    }
+
+
 def field_available(
     dataset: str,
     field: str,
@@ -367,13 +435,30 @@ def field_available(
 ) -> State:
     """Did ``field`` exist in ``dataset`` in ``year``: present, absent or unknown.
 
-    ``absent`` is a positive claim — a decoded schema for that year does not
+    ``absent`` is a positive claim — a decoded schema FOR THAT YEAR does not
     carry the column — and it is the answer that keeps a structural zero from
     being read as a clinical one. ``unknown`` means this catalog has decoded
     nothing for that year and no claim is being made.
+
+    The distinction is only worth having if it is enforced: a year nothing has
+    been decoded for is ``unknown`` however much of the rest of the dataset has
+    been read.
+
+    Year granularity is itself a limit. A field introduced mid-year is present
+    in some of that year's publications and not others, and this returns
+    ``present`` for the whole year — see :func:`field_coverage` for the
+    per-signature detail that answers "in every artifact, or only some?".
     """
     found = availability(dataset, root=root, settings=settings)
+    year = int(year)
+    # EVIDENCE FOR THIS YEAR, not for the dataset. This returned "absent" for a
+    # field never seen whenever *any* year had been decoded — so a question
+    # about 1998, from a catalog that had only ever decoded 2023, was answered
+    # with a positive claim resting on nothing. That is precisely the
+    # absent/unknown distinction the docstring promises, inverted.
+    if year not in set(found.decoded_years or ()):
+        return "unknown"
     window = found.fields.get(field.upper())
     if window is None:
-        return "unknown" if not found.decoded_years else "absent"
-    return window.state(int(year))
+        return "absent"
+    return window.state(year)
