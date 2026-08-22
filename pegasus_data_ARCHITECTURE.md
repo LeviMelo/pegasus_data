@@ -176,7 +176,7 @@ pegasus_data/
   bundle.py               portable semantic bundle
   docsgen.py              docs/dictionary/*.md
   progress.py             watchdog, heartbeat, per-item deadlines
-  verify.py               19 regression assertions
+  verify.py               20 regression assertions
   api.py cli.py config.py pipeline.py build.py
 ```
 
@@ -1107,7 +1107,7 @@ absent rather than half-written. Data home from `$PEGASUS_DATA_HOME`.
 
 ## 17. Build order and regression assertions
 
-`verify` runs 19 assertions. They are checks, not opinions:
+`verify` runs 20 assertions. They are checks, not opinions:
 
 `check_blob_dedup`, `check_crawl_coverage`, `check_apac_recovered`,
 `check_sih_generations`, `check_format_collapse`, `check_dictionary_coverage`,
@@ -1115,7 +1115,8 @@ absent rather than half-written. Data home from `$PEGASUS_DATA_HOME`.
 `check_lake`, `check_population`, `check_demas`, `check_describe`,
 `check_build_accounted`, `check_stored_labels_agree`, `check_codes_are_codes`,
 `check_ontology_exhaustive`, `check_every_dataset_says_what_a_row_is`,
-`check_join_keys_exist`.
+`check_join_keys_exist`,
+`check_bound_codelists_decode`.
 
 The last two are the ones the project is judged on, and they are deliberately a
 pair. Exhaustiveness without meaning is a file listing; meaning without
@@ -1129,6 +1130,16 @@ exhaustiveness is a sample.
   of analysis, across 38 distinct units. Files that are not tables of rows —
   installers, record layouts, the BPA importer — satisfy it by saying so.
   "Not a dataset" is an answer; blank is not.
+- **20** a codelist bound to a column actually decodes the values in it.
+  Measured only where the value profile covers essentially every row, because on
+  a high-cardinality column the top 200 values can be 0.01% of rows and a rate
+  over them would be noise wearing the clothes of a measurement. **Currently
+  failing: 603 of 4,638 measurable bound columns decode nothing at all.** That
+  points at the binding, not the data — `IBGE.IDADE` holds four-digit detailed-age
+  codes while every codelist bound to it is three-digit, and `CID10` is bound to
+  it and defines nothing. Until these are fixed, `describe()` reports them as
+  columns DATASUS never labelled rather than columns we mislabelled the source of.
+
 - **19** every column a declared join key names really exists in that dataset.
   A wrong column here is worse than no column: a join that matches nothing
   reads as "no overlap", and a join on a mistyped-but-real column returns the

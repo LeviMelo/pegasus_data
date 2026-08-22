@@ -1116,6 +1116,94 @@ def check_join_keys_exist(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
+def check_bound_codelists_decode(catalog: Catalog, settings: Settings) -> Check:
+    """A codelist bound to a column actually decodes the values in it.
+
+    A binding that decodes nothing is the quietest failure in the project. The
+    column keeps its raw codes, ``describe()`` reports low coverage, and nothing
+    anywhere says the binding itself is wrong — so the field looks like data
+    DATASUS never labelled rather than data we mislabelled the source of.
+
+    Measured against the value profile, which holds the 200 commonest values per
+    field. Only fields whose top 200 account for essentially every row are
+    counted, because on a high-cardinality field like a municipality code the top
+    200 can be 0.01% of rows and a rate computed over them would be noise wearing
+    the clothes of a measurement.
+
+    "Undecodable" is deliberately not called "invalid". ``IBGE.IDADE`` holds
+    four-digit detailed-age codes while every codelist bound to it is
+    three-digit, and ``CID10`` is bound to it and defines nothing at all — the
+    values are fine and the binding is wrong. Either way the caller cannot label
+    the column, which is what they need to know.
+    """
+    c = Check("bound codelists decode the columns they are bound to", 20)
+    if not catalog.count("value_frequencies"):
+        return _skip(c, "no value profile: build first")
+    if not catalog.count("field_codelists"):
+        return _skip(c, "no codelist bindings: run semantics first")
+
+    rows = catalog.query(
+        """
+        SELECT f.system, f.series, vf.field_name,
+               SUM(vf.percent) AS covered,
+               SUM(CASE WHEN NOT EXISTS (
+                     SELECT 1 FROM field_codelists fc
+                       JOIN dictionary d ON d.value_group = fc.codelist
+                                        AND d.system = fc.system
+                      WHERE fc.system = f.system
+                        AND fc.field_name = vf.field_name
+                        AND d.value_raw = vf.value)
+                   THEN vf.percent ELSE 0 END) AS undecodable
+          FROM value_frequencies vf
+          JOIN families f ON f.family_id = vf.family_id
+         WHERE EXISTS (SELECT 1 FROM field_codelists fc
+                        WHERE fc.system = f.system AND fc.field_name = vf.field_name)
+         GROUP BY vf.family_id, vf.field_name
+        """
+    )
+    # Only where the profile accounts for essentially every row is the rate a
+    # measurement rather than an artefact of how much of the column was sampled.
+    exact = [r for r in rows if (r["covered"] or 0) >= 0.999]
+    if not exact:
+        return _skip(
+            c,
+            f"none of the {len(rows)} profiled bound columns is covered densely "
+            "enough for the rate to mean anything",
+        )
+
+    total_undecodable = [r for r in exact if (r["undecodable"] or 0) > 0.0001]
+    wholly = [r for r in exact if (r["undecodable"] or 0) >= 0.999]
+    worst = sorted(total_undecodable, key=lambda r: -(r["undecodable"] or 0))[:6]
+    c.evidence = {
+        "bound_columns_profiled": len(rows),
+        "measurable": len(exact),
+        "some_undecodable": len(total_undecodable),
+        "wholly_undecodable": len(wholly),
+        "worst": [
+            f"{r['system']}.{r['field_name']} "
+            f"{100 * (r['undecodable'] or 0):.1f}%"
+            for r in worst
+        ],
+    }
+    if wholly:
+        names = sorted({f"{r['system']}.{r['field_name']}" for r in wholly})
+        c.status = "fail"
+        c.detail = (
+            f"{len(wholly)} of {len(exact)} measurable bound columns decode NOTHING "
+            f"— every observed value is undefined by every codelist bound to them, "
+            f"which points at the binding rather than the data: "
+            f"{', '.join(names[:5])}{' …' if len(names) > 5 else ''}"
+        )
+        return c
+    c.status = "pass"
+    c.detail = (
+        f"{len(exact)} bound columns measured densely enough to judge; none is "
+        f"wholly undecodable, {len(total_undecodable)} carry some value no bound "
+        "codelist defines"
+    )
+    return c
+
+
 CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_blob_dedup,
     check_crawl_coverage,
@@ -1136,6 +1224,7 @@ CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
     check_ontology_exhaustive,
     check_every_dataset_says_what_a_row_is,
     check_join_keys_exist,
+    check_bound_codelists_decode,
 )
 
 

@@ -369,7 +369,7 @@ lake with one command:
 ```bash
 pegasus-data all      # crawl → … → build, resumable and idempotent
 pegasus-data report   # then read what you got
-pegasus-data verify   # 19 regression assertions, with their evidence
+pegasus-data verify   # 20 regression assertions, with their evidence
 ```
 
 Every stage writes to the catalog before returning, so interrupting `all` and
@@ -577,7 +577,7 @@ usually the decisive evidence and usually the thing not looked at.
 ```bash
 pytest                            # 601 tests, all offline
 ruff check src tests scripts
-pegasus-data verify               # 19 regression assertions
+pegasus-data verify               # 20 regression assertions
 ```
 
 See `CONTRIBUTING.md` for the full rules.
