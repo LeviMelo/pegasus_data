@@ -1117,109 +1117,79 @@ def check_join_keys_exist(catalog: Catalog, settings: Settings) -> Check:
 
 
 def check_bound_codelists_decode(catalog: Catalog, settings: Settings) -> Check:
-    """A codelist bound to a column actually decodes the values in it.
+    """No binding measured to decode nothing is still offered to a caller.
 
-    A binding that decodes nothing is the quietest failure in the project. The
-    column keeps its raw codes, ``describe()`` reports low coverage, and nothing
-    anywhere says the binding itself is wrong — so the field looks like data
-    DATASUS never labelled rather than data we mislabelled the source of.
+    ``.DEF`` claims a codelist explains a column, generously: it declares
+    tabulation axes alongside code systems and cannot tell them apart, so a date
+    gets bound to a year table and a birth weight in grams to weight ranges.
+    ``measure_bindings`` records, per binding, the share of observed values it
+    actually resolves, and ``working_bindings`` is the consumer that must not
+    hand back the dead ones.
 
-    Measured against the value profile, which holds the 200 commonest values per
-    field. Only fields whose top 200 account for essentially every row are
-    counted, because on a high-cardinality field like a municipality code the top
-    200 can be 0.01% of rows and a rate computed over them would be noise wearing
-    the clothes of a measurement.
+    This asserts the seam between them, which is where the bug would live and
+    would be invisible: a dead binding that still reaches a caller produces a
+    column reported as decodable and labelled by nothing.
 
-    "Undecodable" is deliberately not called "invalid". ``IBGE.IDADE`` holds
-    four-digit detailed-age codes while every codelist bound to it is
-    three-digit, and ``CID10`` is bound to it and defines nothing at all — the
-    values are fine and the binding is wrong. Either way the caller cannot label
-    the column, which is what they need to know.
+    It reads the stored measurement rather than recomputing it. Recomputing took
+    three minutes and duplicated logic that already exists — which is its own
+    kind of defect.
     """
-    c = Check("bound codelists decode the columns they are bound to", 20)
-    if not catalog.count("value_frequencies"):
-        return _skip(c, "no value profile: build first")
+    c = Check("no binding known to decode nothing is offered", 20)
     if not catalog.count("field_codelists"):
         return _skip(c, "no codelist bindings: run semantics first")
 
-    rows = catalog.query(
-        """
-        SELECT f.system, f.series, vf.field_name,
-               SUM(vf.percent) AS covered,
-               SUM(CASE WHEN NOT EXISTS (
-                     SELECT 1 FROM field_codelists fc
-                       JOIN dictionary d ON d.value_group = fc.codelist
-                                        AND d.system = fc.system
-                      WHERE fc.system = f.system
-                        AND fc.field_name = vf.field_name
-                        AND d.value_raw = vf.value)
-                   THEN vf.percent ELSE 0 END) AS undecodable
-          FROM value_frequencies vf
-          JOIN families f ON f.family_id = vf.family_id
-         WHERE EXISTS (SELECT 1 FROM field_codelists fc
-                        WHERE fc.system = f.system AND fc.field_name = vf.field_name)
-         GROUP BY vf.family_id, vf.field_name
-        """
-    )
-    # Only where the profile accounts for essentially every row is the rate a
-    # measurement rather than an artefact of how much of the column was sampled.
-    exact = [r for r in rows if (r["covered"] or 0) >= 0.999]
-    if not exact:
+    measured = catalog.count("field_codelists", "decodes_observed IS NOT NULL")
+    if not measured:
         return _skip(
             c,
-            f"none of the {len(rows)} profiled bound columns is covered densely "
-            "enough for the rate to mean anything",
+            f"no binding has been measured yet ({catalog.count('field_codelists'):,} "
+            "declared): run the measure-bindings stage, which needs value profiles",
         )
 
-    total_undecodable = [r for r in exact if (r["undecodable"] or 0) > 0.0001]
-    wholly = [r for r in exact if (r["undecodable"] or 0) >= 0.999]
-
-    # The lever, not just the symptom. `field_codelists.decodes_observed` exists
-    # to record whether a binding actually decodes anything, and it is almost
-    # never populated — so nothing ranks a good binding above a bad one. And
-    # .DEF-derived bindings pool by (system, field_name) across every DEF in the
-    # system, which is how a single field ends up with hundreds of codelists
-    # bound to it, most of them describing some other column entirely.
-    unmeasured = catalog.count("field_codelists", "decodes_observed IS NULL")
-    bindings = catalog.count("field_codelists")
-    crowded = catalog.scalar(
-        "SELECT MAX(n) FROM (SELECT COUNT(*) AS n FROM field_codelists"
-        " GROUP BY system, field_name)"
+    dead = catalog.query(
+        "SELECT system, field_name, codelist FROM field_codelists"
+        " WHERE decodes_observed = 0"
     )
-    worst = sorted(total_undecodable, key=lambda r: -(r["undecodable"] or 0))[:6]
+    dead_by_system: dict[str, set[tuple[str, str]]] = {}
+    for row in dead:
+        dead_by_system.setdefault(str(row["system"]), set()).add(
+            (str(row["field_name"]), str(row["codelist"]))
+        )
+
+    from .semantics.bindings import working_bindings
+
+    leaked: list[str] = []
+    for system, pairs in dead_by_system.items():
+        offered = working_bindings(catalog, system)
+        for field, codelist in pairs:
+            if codelist in offered.get(field, ()):
+                leaked.append(f"{system}.{field} -> {codelist}")
+
+    all_dead_fields = catalog.scalar(
+        "SELECT COUNT(*) FROM (SELECT system, field_name FROM field_codelists"
+        " WHERE decodes_observed IS NOT NULL GROUP BY system, field_name"
+        " HAVING MAX(decodes_observed) = 0)"
+    )
     c.evidence = {
-        "bound_columns_profiled": len(rows),
-        "measurable": len(exact),
-        "some_undecodable": len(total_undecodable),
-        "wholly_undecodable": len(wholly),
-        "worst": [
-            f"{r['system']}.{r['field_name']} "
-            f"{100 * (r['undecodable'] or 0):.1f}%"
-            for r in worst
-        ],
-        "bindings": bindings,
-        "bindings_never_measured": unmeasured,
-        "most_codelists_on_one_field": crowded,
+        "bindings": catalog.count("field_codelists"),
+        "measured": measured,
+        "measured_dead": len(dead),
+        "columns_with_no_working_binding": all_dead_fields,
+        "leaked": leaked[:8],
     }
-    if wholly:
-        names = sorted({f"{r['system']}.{r['field_name']}" for r in wholly})
+    if leaked:
         c.status = "fail"
         c.detail = (
-            f"{len(wholly)} of {len(exact)} measurable bound columns decode NOTHING "
-            f"— every observed value is undefined by every codelist bound to them, "
-            f"which points at the binding rather than the data: "
-            f"{', '.join(names[:5])}{' …' if len(names) > 5 else ''}. "
-            f"Cause: {unmeasured:,} of {bindings:,} bindings have never had "
-            f"decodes_observed measured, so nothing ranks a working binding above "
-            f"a broken one, and .DEF bindings pool by field name across a whole "
-            f"system — one field carries {crowded} codelists."
+            f"{len(leaked)} binding(s) measured to decode nothing are still being "
+            f"offered: {', '.join(leaked[:5])}{' …' if len(leaked) > 5 else ''}"
         )
         return c
     c.status = "pass"
     c.detail = (
-        f"{len(exact)} bound columns measured densely enough to judge; none is "
-        f"wholly undecodable, {len(total_undecodable)} carry some value no bound "
-        "codelist defines"
+        f"{measured:,} of {catalog.count('field_codelists'):,} bindings measured; "
+        f"{len(dead):,} decode nothing and none of them is offered; "
+        f"{all_dead_fields} column(s) have no working binding and are reported as "
+        "undecodable rather than mislabelled"
     )
     return c
 

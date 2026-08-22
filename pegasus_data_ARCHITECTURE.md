@@ -1130,15 +1130,15 @@ exhaustiveness is a sample.
   of analysis, across 38 distinct units. Files that are not tables of rows —
   installers, record layouts, the BPA importer — satisfy it by saying so.
   "Not a dataset" is an answer; blank is not.
-- **20** a codelist bound to a column actually decodes the values in it.
-  Measured only where the value profile covers essentially every row, because on
-  a high-cardinality column the top 200 values can be 0.01% of rows and a rate
-  over them would be noise wearing the clothes of a measurement. **Currently
-  failing: 603 of 4,638 measurable bound columns decode nothing at all.** That
-  points at the binding, not the data — `IBGE.IDADE` holds four-digit detailed-age
-  codes while every codelist bound to it is three-digit, and `CID10` is bound to
-  it and defines nothing. Until these are fixed, `describe()` reports them as
-  columns DATASUS never labelled rather than columns we mislabelled the source of.
+- **20** no binding measured to decode nothing is still offered to a caller.
+  `.DEF` claims a codelist explains a column generously — it cannot tell a
+  tabulation axis from a code system, so a date gets bound to a year table and a
+  birth weight in grams to weight ranges; 35.2% of checkable bindings decode
+  none of their column's observed values. `measure_bindings` records the share,
+  `working_bindings` withholds the dead ones, and this asserts the **seam**
+  between them, which is where a bug would be invisible: a dead binding that
+  still reaches a caller yields a column reported as decodable and labelled by
+  nothing. It reads the stored measurement rather than recomputing it.
 
 - **19** every column a declared join key names really exists in that dataset.
   A wrong column here is worse than no column: a join that matches nothing

@@ -712,37 +712,6 @@ def ledger(root: RootOpt = None, system: SystemsOpt = None, as_json: JsonOpt = F
         pipeline.close()
 
 
-@app.command(name="measure-bindings", rich_help_panel="AUDIT")
-def measure_bindings_cmd(
-    root: RootOpt = None,
-    system: SystemsOpt = None,
-    as_json: JsonOpt = False,
-) -> None:
-    """Measure whether each codelist binding actually decodes its column.
-
-    Populates `field_codelists.decodes_observed`, which the schema has always
-    had and nothing ever filled in — so a binding that resolves nothing ranked
-    the same as one that resolves everything.
-    """
-    from .semantics.bindings import measure_bindings
-
-    pipeline = _pipeline(root)
-    try:
-        report = measure_bindings(pipeline.catalog, systems=system)
-        _emit(report.counts, as_json, "codelist bindings measured")
-        if report.worst and not as_json:
-            _emit(
-                [
-                    {"system": w["system"], "field": w["field"], "codelist": w["codelist"]}
-                    for w in report.worst
-                ],
-                False,
-                "bindings that decode nothing",
-            )
-    finally:
-        pipeline.close()
-
-
 @app.command(rich_help_panel="EXTRACT")
 def normalize(
     root: RootOpt = None,
