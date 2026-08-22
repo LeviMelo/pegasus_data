@@ -43,6 +43,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pyarrow as pa
+import pyarrow.compute as pc
 import pyarrow.dataset as pads
 import pyarrow.parquet as pq
 
@@ -116,9 +117,15 @@ def write_reference_tables(
     # Derived output is replaced, not accumulated (§3). It also has to be, since
     # the directory layout gained a level: a stale `window=` directory sitting
     # beside a new `system=` one makes a hive dataset that will not open.
-    if root.exists():
-        shutil.rmtree(root)
-    root.mkdir(parents=True, exist_ok=True)
+    # Staged, then swapped. This used to rmtree(root) and rebuild in place, so a
+    # failure halfway left the reference warehouse partly absent — and because
+    # labelled reads can trigger this rebuild implicitly, an ordinary
+    # interactive request could degrade an otherwise working installation.
+    staging = root.with_name(root.name + ".__staging__")
+    if staging.exists():
+        shutil.rmtree(staging)
+    staging.mkdir(parents=True, exist_ok=True)
+    previous = root.with_name(root.name + ".__previous__")
 
     written: list[ReferenceTable] = []
 
@@ -139,7 +146,14 @@ def write_reference_tables(
     batch: list[tuple[object, ...]] = []
 
     def _flush() -> None:
-        if current_key is None or len(batch) < 2:
+        # Any non-empty group is written. This used to require two rows, so a
+        # codelist/system/window holding exactly ONE legitimate code was absent
+        # from the reference lake with no warning — and a one-code enumeration
+        # is a perfectly ordinary thing for DATASUS to publish (a single "not
+        # applicable" value, a flag with one meaningful state). A caller then
+        # saw "no reference table" and could not tell that from a table that
+        # exists and decodes nothing.
+        if current_key is None or not batch:
             return
         table_id, system, valid_from, valid_to = current_key
         table = pa.table(
@@ -163,7 +177,7 @@ def write_reference_tables(
         # name as a data column shadows it, and the string "current" would come
         # back where the real NULL belongs.
         directory = (
-            root
+            staging
             / _SAFE.sub("_", table_id)
             / f"system={_SAFE.sub('_', system)}"
             / f"window={_SAFE.sub('_', window)}"
@@ -178,7 +192,11 @@ def write_reference_tables(
                 valid_from=valid_from,
                 valid_to=valid_to,
                 rows=table.num_rows,
-                relative_path=str(target.relative_to(Path(lake_root))).replace("\\", "/"),
+                # Relative to where the table will LIVE, not where it is being
+                # staged: the caller records this and reads it after the swap.
+                relative_path=str(
+                    (root / target.relative_to(staging)).relative_to(Path(lake_root))
+                ).replace("\\", "/"),
                 source_ref=str(batch[0][3]),
                 code_widths=tuple(sorted({len(str(e[0])) for e in batch})),
             )
@@ -192,6 +210,16 @@ def write_reference_tables(
             batch = []
         batch.append((row[3], row[4], row[5], row[6], row[7]))
     _flush()
+
+    # Swap only once the new tree is complete. The old one stays readable until
+    # the rename, and is removed only after the new one is in place.
+    if previous.exists():
+        shutil.rmtree(previous)
+    if root.exists():
+        root.rename(previous)
+    staging.rename(root)
+    if previous.exists():
+        shutil.rmtree(previous, ignore_errors=True)
     return written
 
 
@@ -223,6 +251,17 @@ def flag_mixed_width_tables(catalog: Catalog, tables: Sequence[ReferenceTable]) 
             blocking=f"safe decoding of fields bound to {t.table_id}",
         )
     return flagged
+
+
+#: Codelists served from another system's copy because the requested system
+#: ships none. Read by the renderer so a borrowed label can be reported rather
+#: than passed off as native. Bounded: it only ever holds table/system pairs.
+_BORROWED: set[tuple[str, str]] = set()
+
+
+def borrowed_tables() -> set[tuple[str, str]]:
+    """``(table_id, requested_system)`` pairs served from a neighbour's copy."""
+    return set(_BORROWED)
 
 
 def read_reference_table(
@@ -263,7 +302,26 @@ def read_reference_table(
                 "label pack; run `pegasus-data reference` to materialise it"
             ) from None
     dataset = pads.dataset(base, format="parquet", partitioning="hive")
-    table = dataset.to_table()
+
+    # Push what we can into the scan. `system` is a hive partition key, so this
+    # skips whole directories rather than reading every system and window for a
+    # codelist and discarding almost all of it afterwards — which mattered
+    # because the renderer may weigh up to twelve candidate codelists for one
+    # ambiguous column, multiplying the cost each time.
+    scan_filter = None
+    if system:
+        wanted_dir = _SAFE.sub("_", system.upper())
+        if "system" in dataset.schema.names:
+            scan_filter = pc.field("system") == wanted_dir
+    if code_width is not None and "code_width" in dataset.schema.names:
+        width_filter = pc.field("code_width") == code_width
+        scan_filter = width_filter if scan_filter is None else (scan_filter & width_filter)
+
+    table = dataset.to_table(filter=scan_filter) if scan_filter is not None else dataset.to_table()
+    if scan_filter is not None and not table.num_rows:
+        # The narrowing emptied it. Fall back to the whole table so the
+        # borrowed-table path below can still answer, exactly as before.
+        table = dataset.to_table()
     if system and "system" in table.schema.names:
         wanted = _SAFE.sub("_", system.upper())
         scoped = table.filter(
@@ -277,6 +335,13 @@ def read_reference_table(
         # would turn a labelling gap into a silent blank column.
         if scoped.num_rows:
             table = scoped
+        else:
+            # Borrowing another system's table. Better than nothing, and the
+            # caller's contradiction check is the guard — but it is invisible
+            # from here, so `borrowed_for` records it for the renderer to
+            # report. Attaching it to the returned table instead would change
+            # the reference schema every caller relies on.
+            _BORROWED.add((_SAFE.sub("_", table_id), wanted))
     if code_width is not None and "code_width" in table.schema.names:
         table = table.filter(
             pa.array(

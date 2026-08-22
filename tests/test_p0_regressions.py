@@ -182,18 +182,20 @@ class TestP0_6_ReplacementDoesNotDestroyBeforeItWrites:
         original = tmp_path / first.relative_path
         assert pq.read_table(original).num_rows == 3
 
-        boom = pq.write_table
+        # Partitions stream through ParquetWriter now (HI-18), so that is where
+        # a mid-write failure is injected. The invariant is unchanged.
+        boom = pq.ParquetWriter
 
-        def explode(table, where, **kw):
+        def explode(*a, **kw):
             raise OSError("disk full")
 
-        monkeypatch.setattr(pq, "write_table", explode)
+        monkeypatch.setattr(pq, "ParquetWriter", explode)
         with pytest.raises(OSError):
             lake.write_batches(
                 [self._batch(9)], system="SIH", family_id="F1",
                 schema_signature="s", uf="AC", year=2023,
             )
-        monkeypatch.setattr(pq, "write_table", boom)
+        monkeypatch.setattr(pq, "ParquetWriter", boom)
 
         assert original.exists(), "the previous partition was destroyed"
         assert pq.read_table(original).num_rows == 3, "and it is still the old data"
@@ -204,14 +206,16 @@ class TestP0_6_ReplacementDoesNotDestroyBeforeItWrites:
             [self._batch(2)], system="SIH", family_id="F1",
             schema_signature="s", uf="AC", year=2023,
         )
-        good = pq.write_table
-        monkeypatch.setattr(pq, "write_table", lambda *a, **k: (_ for _ in ()).throw(OSError("x")))
+        good = pq.ParquetWriter
+        monkeypatch.setattr(
+            pq, "ParquetWriter", lambda *a, **k: (_ for _ in ()).throw(OSError("x"))
+        )
         with pytest.raises(OSError):
             lake.write_batches(
                 [self._batch(2)], system="SIH", family_id="F1",
                 schema_signature="s", uf="AC", year=2023,
             )
-        monkeypatch.setattr(pq, "write_table", good)
+        monkeypatch.setattr(pq, "ParquetWriter", good)
         leftovers = list(tmp_path.rglob("*.staging"))
         assert leftovers == [], f"staging files survived: {leftovers}"
 

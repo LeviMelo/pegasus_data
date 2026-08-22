@@ -102,6 +102,10 @@ class RenderReport:
 
     labelled: list[str] = field(default_factory=list)
     unlabelled: list[str] = field(default_factory=list)
+    #: Codelists whose labels came from another system's copy because the
+    #: requested system ships none. Machine-readable, so a strict analytical
+    #: profile can reject them rather than parsing prose.
+    borrowed: list[str] = field(default_factory=list)
     #: Unlabelled columns holding one value in every row, with that value —
     #: ``CID_MORTE`` is ``'0000'`` 59,835 times in SIH-RD/AC/2023. These are ALSO
     #: in ``unlabelled``, so nothing a caller checks today is lost; this names
@@ -120,6 +124,7 @@ class RenderReport:
             "labelled": self.labelled,
             "unlabelled": self.unlabelled,
             "constant": self.constant,
+            "borrowed": self.borrowed,
             "derived_added": self.derived_added,
             "companions_dropped": self.companions_dropped,
             "warnings": self.warnings,
@@ -890,6 +895,20 @@ def render_table(
             names.append(name)
             columns.append(labels)
             names.append(f"{name}{LABEL_SUFFIX}")
+
+    # A codelist served from another system's copy is reported, not silently
+    # accepted. The contradiction check catches disagreement among overlapping
+    # codes; a foreign table whose codes happen not to overlap produces
+    # confident labels from the wrong system and nothing said so.
+    from .persist.reference import borrowed_tables
+
+    for table_id, for_system in sorted(borrowed_tables()):
+        if for_system == (system or "").upper():
+            report.warnings.append(
+                f"{table_id}: no {for_system} copy of this codelist exists, so labels "
+                f"were borrowed from another system's table"
+            )
+            report.borrowed.append(table_id)
 
     rendered_table = pa.Table.from_arrays(columns, names=names)
 

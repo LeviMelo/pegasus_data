@@ -110,7 +110,6 @@ class Lake:
         collected = [b for b in batches if b.num_rows]
         if not collected:
             return None
-        table = pa.Table.from_batches(collected)
         directory = self.partition_dir(system, family_id, schema_signature, uf, year)
         if replace:
             part = 0
@@ -127,16 +126,27 @@ class Lake:
         # The staging name deliberately does not end in `.parquet`, so a reader
         # scanning the directory mid-write cannot pick it up.
         staged = directory / f".{target.name}.staging"
+        # Streamed batch by batch rather than concatenated first. The whole
+        # pipeline carries RecordBatch abstractions through decode and
+        # normalisation and then materialised the entire state-year partition
+        # here — at the storage boundary, which is exactly where streaming is
+        # worth most.
+        rows_written = 0
         try:
-            pq.write_table(
-                table,
+            writer = pq.ParquetWriter(
                 staged,
+                collected[0].schema,
                 compression=self.compression,
                 use_dictionary=True,
                 write_statistics=True,
-                row_group_size=self.row_group_size,
                 version="2.6",
             )
+            try:
+                for batch in collected:
+                    writer.write_batch(batch, row_group_size=self.row_group_size)
+                    rows_written += batch.num_rows
+            finally:
+                writer.close()
             if not staged.exists() or staged.stat().st_size == 0:
                 raise OSError(f"staged partition {staged} is empty after write")
             if replace:
@@ -153,7 +163,7 @@ class Lake:
             uf=uf,
             year=year,
             relative_path=str(target.relative_to(self.root)).replace("\\", "/"),
-            row_count=table.num_rows,
+            row_count=rows_written,
             byte_size=target.stat().st_size,
         )
         if self.catalog is not None:
