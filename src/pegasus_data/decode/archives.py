@@ -27,6 +27,20 @@ from pathlib import Path, PurePosixPath
 from .base import DecodeError, UnsupportedContainer
 from .lha import LhaArchive, LhaError, find_lha_offset
 
+#: Budgets an archive may not exceed. Not a hypothetical: a corrupt archive and
+#: a hostile one exhaust the same resources in the same way, and DATASUS
+#: archives are remote input that nobody here produced. Generous enough that no
+#: real DATASUS member comes close — the largest observed uncompressed member is
+#: a few hundred MB — and finite, which is the point.
+MAX_MEMBERS = 10_000
+MAX_UNCOMPRESSED_BYTES = 8 * 1024**3
+MAX_EXPANSION_RATIO = 200.0
+
+
+class ArchiveQuotaExceeded(DecodeError):
+    """An archive claims more than the decoder will spend on it."""
+
+
 #: Member roles that steer downstream handling. A kit member is not "data".
 ROLE_BY_SUFFIX: dict[str, str] = {
     ".dbc": "data", ".dbf": "lookup", ".csv": "data", ".txt": "data",
@@ -108,6 +122,8 @@ class Archive:
                 # ZipFile scans back from EOF for the central directory, so a
                 # prepended SFX stub is transparent to it.
                 self._zip = zipfile.ZipFile(io.BytesIO(self.data))
+                self._refuse_unsafe_names([i.filename for i in self._zip.infolist()])
+                self._check_quota([i.file_size for i in self._zip.infolist()])
             except zipfile.BadZipFile as exc:
                 raise DecodeError(f"zip open failed for {self.path}: {exc}") from exc
         elif kind in {"lha", "lha_sfx"}:
@@ -135,6 +151,16 @@ class Archive:
                 with rarfile.RarFile(str(staged)) as rf:
                     out = Path(self._tmpdir()) / "members"
                     out.mkdir(exist_ok=True)
+                    # BEFORE extraction, not after. Checking containment once
+                    # the files are on disk is too late: a hostile member path
+                    # has already been written outside the staging directory by
+                    # then, and rarfile/7z sanitising is not ours to assume.
+                    self._refuse_unsafe_names(
+                        [getattr(i, "filename", "") for i in rf.infolist()]
+                    )
+                    self._check_quota(
+                        [getattr(i, "file_size", 0) or 0 for i in rf.infolist()]
+                    )
                     rf.extractall(str(out))
                     self._collect(out)
                     return
@@ -148,6 +174,16 @@ class Archive:
         staged = self._stage(suffix)
         out = Path(self._tmpdir()) / "members"
         out.mkdir(exist_ok=True)
+        # LIST first, so an unsafe member name or an implausible expansion is
+        # refused before anything is written. `7z l -slt` names every member
+        # without extracting one.
+        listing = subprocess.run(
+            [exe, "l", "-slt", str(staged)], capture_output=True, timeout=300, check=False
+        )
+        if listing.returncode == 0:
+            names, sizes = _parse_7z_listing(listing.stdout.decode(errors="replace"))
+            self._refuse_unsafe_names(names)
+            self._check_quota(sizes)
         proc = subprocess.run(
             [exe, "x", "-y", f"-o{out}", str(staged)], capture_output=True, timeout=900, check=False
         )
@@ -156,6 +192,43 @@ class Archive:
                 f"7z failed on {self.path}: {proc.stderr.decode(errors='replace')[:400]}"
             )
         self._collect(out)
+
+    def _refuse_unsafe_names(self, names: list[str]) -> None:
+        """Reject a member path that would escape the extraction root.
+
+        `safe_member_path` is applied to what came OUT of extraction as well.
+        This is the half that has to happen first: by the time a file exists,
+        an absolute path or a `..` has already been honoured.
+        """
+        root = Path(self._tmpdir()).resolve()
+        for name in names:
+            if not name:
+                continue
+            if safe_member_path(name, root) is None:
+                raise DecodeError(
+                    f"{self.path}: archive member {name!r} would be written outside "
+                    "the extraction directory; refusing to extract this archive"
+                )
+
+    def _check_quota(self, sizes: list[int]) -> None:
+        """Refuse an archive that claims more than we will spend on it."""
+        if len(sizes) > MAX_MEMBERS:
+            raise ArchiveQuotaExceeded(
+                f"{self.path}: {len(sizes):,} members exceeds the {MAX_MEMBERS:,} limit"
+            )
+        total = sum(s for s in sizes if s and s > 0)
+        if total > MAX_UNCOMPRESSED_BYTES:
+            raise ArchiveQuotaExceeded(
+                f"{self.path}: members declare {total / 1024**3:.1f} GiB uncompressed, "
+                f"over the {MAX_UNCOMPRESSED_BYTES / 1024**3:.0f} GiB limit"
+            )
+        compressed = max(1, len(self.data))
+        if total and total / compressed > MAX_EXPANSION_RATIO:
+            raise ArchiveQuotaExceeded(
+                f"{self.path}: expands {total / compressed:.0f}x, over the "
+                f"{MAX_EXPANSION_RATIO:.0f}x limit; this is what a decompression "
+                "bomb looks like and also what a corrupt header looks like"
+            )
 
     def _tmpdir(self) -> str:
         if self._tmp is None:
@@ -289,6 +362,26 @@ def safe_member_path(name: str, root: Path) -> Path | None:
     except ValueError:
         return None
     return resolved
+
+
+def _parse_7z_listing(text: str) -> tuple[list[str], list[int]]:
+    """Member names and uncompressed sizes from ``7z l -slt`` output.
+
+    Parsed rather than trusted: the point is to know what an archive claims
+    before letting an external tool act on it.
+    """
+    names: list[str] = []
+    sizes: list[int] = []
+    for line in text.splitlines():
+        if line.startswith("Path = "):
+            names.append(line[7:].strip())
+        elif line.startswith("Size = "):
+            raw = line[7:].strip()
+            sizes.append(int(raw) if raw.isdigit() else 0)
+    # The first `Path =` is the archive itself in 7z's own output.
+    if len(names) > len(sizes):
+        names = names[1:]
+    return names, sizes
 
 
 def _find_7z() -> str | None:
