@@ -470,3 +470,54 @@ class TestItCannotHangSilently:
             assert catalog.count("coverage_gaps", "kind = 'timeout'") == 1
         finally:
             catalog.close()
+
+
+# --------------------------------------------------------------------- CR-03
+# fetch() and load() must answer the same question the same way. load() used to
+# drop whole generations lacking a requested column; fetch() null-filled them
+# through permissive concat, turning structural absence into ordinary
+# missingness with nothing said. One policy: raise by default, opt into
+# null_fill, and record the nullness as structural. Lives here because it needs
+# the `seeded` catalog fixture.
+
+
+class TestFetchAppliesThePolicy:
+    def test_the_default_is_to_raise(self, settings, seeded):
+        """Not a warning: a column silently absent is how an analysis loses a
+        variable and never notices."""
+        with pytest.raises(MissingColumnError) as excinfo:
+            fetch("SIH-RD", columns=["NO_SUCH_FIELD"], settings=settings)
+        assert "NO_SUCH_FIELD" in str(excinfo.value)
+
+    def test_null_fill_still_raises_when_no_generation_has_the_column(
+        self, settings, seeded
+    ):
+        """There is nothing to fill FROM. null_fill preserves rows from
+        generations that lack a column others have; it cannot invent a column
+        no generation ever carried, and returning it as all-null would assert
+        the field exists."""
+        with pytest.raises(MissingColumnError):
+            fetch(
+                "SIH-RD",
+                columns=["SEXO", "NO_SUCH_FIELD"],
+                on_missing_column="null_fill",
+                settings=settings,
+            )
+
+    def test_a_column_every_generation_has_is_unaffected(self, settings, seeded):
+        table = fetch("SIH-RD", columns=["SEXO"], settings=settings)
+        assert "SEXO" in table.column_names
+
+
+class TestMaxFilesTruncationIsDisclosed:
+    def test_it_says_how_many_files_it_dropped(self, settings, seeded):
+        _, report = fetch("SIH-RD", max_files=1, settings=settings, report=True)
+        if report.files_truncated:
+            assert any("debugging truncation" in w for w in report.warnings)
+            assert report.files_matched == 1
+
+    def test_a_family_emptied_by_truncation_is_named(self, settings, seeded):
+        """report.families names it and would otherwise imply it contributed."""
+        _, report = fetch("SIH-RD", max_files=1, settings=settings, report=True)
+        for family in report.families_truncated_away:
+            assert family in report.families

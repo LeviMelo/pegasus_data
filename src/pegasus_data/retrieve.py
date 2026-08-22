@@ -119,6 +119,15 @@ class FetchReport:
     #: `file_ufs_returned` can be empty while the table holds all of them. The
     #: old names, `years_returned`/`ufs_returned`, read as result coverage and
     #: were used that way.
+    #: Files dropped by `max_files`, and families it emptied entirely. A
+    #: truncation that silently changes which generations answered is how a
+    #: debugging flag becomes a wrong longitudinal result.
+    files_truncated: int = 0
+    families_truncated_away: list[str] = field(default_factory=list)
+    #: family_id -> requested columns that generation's schema does not have,
+    #: populated only under on_missing_column="null_fill". The nulls in those
+    #: rows are STRUCTURAL: the field does not exist there.
+    columns_structurally_absent: dict[str, list[str]] = field(default_factory=dict)
     file_years_returned: list[int] = field(default_factory=list)
     file_ufs_returned: list[str] = field(default_factory=list)
     undecoded: list[str] = field(default_factory=list)
@@ -150,6 +159,9 @@ class FetchReport:
             "rows": self.rows,
             "megabytes_downloaded": round(self.bytes_downloaded / 2**20, 2),
             "discovered": self.discovered,
+            "files_truncated": self.files_truncated,
+            "families_truncated_away": self.families_truncated_away,
+            "columns_structurally_absent": self.columns_structurally_absent,
             "file_years_returned": self.file_years_returned,
             "years_missing": self.years_missing,
             "file_ufs_returned": self.file_ufs_returned,
@@ -371,6 +383,7 @@ def fetch(
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
     max_files: int | None = None,
+    on_missing_column: str = "raise",
     discover: bool = True,
     root: str | Path | None = None,
     settings: Settings | None = None,
@@ -443,6 +456,7 @@ def fetch(
             max_files=max_files,
             on_progress=on_progress,
             columns=columns,
+            on_missing_column=on_missing_column,
         )
         if table.num_rows == 0:
             raise NothingPublished(_nothing_message(fetch_report, want_ufs, want_years))
@@ -764,6 +778,7 @@ def _read_families(
     max_files: int | None,
     on_progress: Callable[[str, int, int], None] | None,
     columns: Sequence[str] | None = None,
+    on_missing_column: str = "raise",
 ) -> tuple[pa.Table, FetchReport]:
     """Download and normalise the matching files, entirely in memory.
 
@@ -779,6 +794,15 @@ def _read_families(
     municipalities = MunicipalityIndex.from_catalog(catalog)
 
     selected: list[tuple[str, NormalizePlan, dict[str, Any]]] = []
+    # Built ONCE. These were rebuilt per row inside the comprehension below, so
+    # a family with 5,000 files constructed 15,000 sets to answer the same three
+    # questions. Small against DBC decoding, and free to remove.
+    uf_set = {str(u) for u in ufs} if ufs else None
+    year_set = {int(y) for y in years} if years else None
+    month_set = {int(m) for m in months} if months else None
+    #: family_id -> requested columns its normalisation plan does not carry.
+    absent_by_family: dict[str, list[str]] = {}
+    wanted_columns = {str(c).upper() for c in columns} if columns else set()
     for family in families:
         family_id = str(family["family_id"])
         rows = catalog.query(
@@ -794,9 +818,9 @@ def _read_families(
         matched = [
             dict(r)
             for r in rows
-            if (not ufs or (r["geo_code"] or "") in set(ufs))
-            and (not years or r["year"] in set(years))
-            and (not months or _month_of(r["normalized_date"]) in set(months))
+            if (uf_set is None or (r["geo_code"] or "") in uf_set)
+            and (year_set is None or r["year"] in year_set)
+            and (month_set is None or _month_of(r["normalized_date"]) in month_set)
         ]
         if not matched:
             continue
@@ -813,8 +837,91 @@ def _read_families(
         for item in matched:
             selected.append((family_id, plan, item))
 
+    if wanted_columns and report.families:
+        # ONE query for every selected generation, not one per family. The
+        # authority is `schema_presence` — the fields the generation's schema
+        # actually declares. `plan.fields` is the LEDGER's documented fields,
+        # which is a different set: an undocumented column still decodes.
+        marks = ",".join("?" for _ in report.families)
+        rows = catalog.query(
+            f"""
+            SELECT f.family_id AS fam, sp.field_name AS fld
+              FROM families f
+              JOIN schema_presence sp ON sp.schema_signature = f.schema_signature
+             WHERE f.family_id IN ({marks})
+            """,
+            tuple(report.families),
+        )
+        present_by_family: dict[str, set[str]] = {}
+        for row in rows:
+            present_by_family.setdefault(str(row["fam"]), set()).add(str(row["fld"]))
+        for family_id in report.families:
+            present = present_by_family.get(family_id)
+            if not present:
+                # No schema census for this generation. Absence of evidence is
+                # not evidence of absence, and refusing on it would fail a
+                # perfectly good request over a missing catalog row.
+                continue
+            absent = sorted(c for c in wanted_columns if c not in present)
+            if absent:
+                absent_by_family[family_id] = absent
+
+    # ONE policy for structural absence, shared with load(). A column missing
+    # from SOME selected generations used to be null-filled here (concat is
+    # permissive) and to make load() drop those generations entirely — the same
+    # logical request answering differently depending on which door it came
+    # through, and in fetch()'s case turning structural absence into ordinary
+    # nullness without saying so.
+    if absent_by_family:
+        every = sorted({c for cols in absent_by_family.values() for c in cols})
+        detail = "; ".join(
+            f"{fam} lacks {', '.join(cols)}" for fam, cols in sorted(absent_by_family.items())
+        )
+        carried = sorted(set(report.families) - set(absent_by_family))
+        if on_missing_column == "null_fill":
+            for col in every:
+                report.warnings.append(
+                    f"{col}: absent from the schema of "
+                    f"{len(absent_by_family)} of {len(report.families)} selected "
+                    "generations; those rows are null here STRUCTURALLY — the "
+                    "field does not exist for them, it was not left blank"
+                )
+            report.columns_structurally_absent = {
+                fam: cols for fam, cols in sorted(absent_by_family.items())
+            }
+        else:
+            from .normalize.engine import MissingColumnError
+
+            raise MissingColumnError(
+                every[0],
+                ", ".join(sorted(absent_by_family)),
+                carried,
+                also_absent=every[1:],
+            )
+
     if max_files:
+        # DEBUGGING TRUNCATION, and it is documented as such: the first N source
+        # artifacts in (year, path) order, not a sample. It preferentially keeps
+        # earlier families, so say which families it emptied — `report.families`
+        # names them and would otherwise imply they contributed.
+        dropped = selected[max_files:]
         selected = selected[:max_files]
+        if dropped:
+            kept_families = {fam for fam, _, _ in selected}
+            emptied = sorted({fam for fam, _, _ in dropped} - kept_families)
+            report.files_truncated = len(dropped)
+            report.warnings.append(
+                f"max_files={max_files} kept the first {len(selected)} of "
+                f"{len(selected) + len(dropped)} matched files in (year, path) order. "
+                "This is a debugging truncation, not a sample."
+            )
+            if emptied:
+                report.families_truncated_away = emptied
+                report.warnings.append(
+                    f"max_files removed every file of {len(emptied)} families "
+                    f"({', '.join(emptied[:6])}{'…' if len(emptied) > 6 else ''}); "
+                    "they are named in report.families but contributed nothing"
+                )
     report.files_matched = len(selected)
     if not selected:
         return pa.table({}), report
