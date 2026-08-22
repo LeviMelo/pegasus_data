@@ -35,6 +35,9 @@ is named. Returning a short table quietly is how a wrong number gets published.
 from __future__ import annotations
 
 import functools
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+import os
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -778,26 +781,23 @@ def _read_families(
     # that exceeds the deadline becomes a recorded timeout and a named entry in
     # the report, and the fetch continues.
     settings = pipeline.settings
-    index = 0
-    #: digest -> (DecodeOutcome, payload size). Lives for this call only.
+    #: digest -> (DecodeOutcome, payload size). Lives for this call only, and is
+    #: shared across decode workers, so it is guarded.
     decoded_cache: dict[str, tuple[object, int]] = {}
-    for (_family_id, plan, item), progress in guarded(
-        catalog,
-        "get",
-        selected,
-        label=lambda triple: str(triple[2]["path"]),
-        item_timeout=settings.item_timeout,
-        stall_timeout=settings.stall_timeout,
-        heartbeat=settings.heartbeat_interval,
-    ):
-        index += 1
+    cache_lock = threading.Lock()
+
+    def _decode_at(position: int, triple) -> dict[str, object]:
+        """Decode one selected file. Returns what the caller needs to fold in.
+
+        Pure with respect to `report`: the caller applies the outcome in the
+        original order, so a concurrent decode cannot reorder the result table
+        or interleave warnings.
+        """
+        _family_id, plan, item = triple
         path = str(item["path"])
         digest = digests.get(path)
         if not digest:
-            report.undecoded.append(path)
-            continue
-        if on_progress:
-            on_progress(path, index, len(selected))
+            return {"position": position, "path": path, "missing": True}
         member = str(item["member"] or "")
         try:
             decoded_batches, matched_here, read_bytes = run_with_timeout(
@@ -810,28 +810,71 @@ def _read_families(
                     digest=digest,
                     member=member,
                     decoded_cache=decoded_cache,
+                    cache_lock=cache_lock,
                 ),
                 seconds=settings.item_timeout,
                 label=path,
             )
         except ItemTimeout:
-            record_timeout(
-                catalog, stage="get", item=path, seconds=settings.item_timeout
-            )
-            progress.timed_out += 1
+            return {"position": position, "path": path, "timed_out": True}
+        return {
+            "position": position,
+            "path": path,
+            "batches": decoded_batches,
+            "matched": matched_here,
+            "read_bytes": read_bytes,
+            "item": item,
+        }
+
+    # Decode files CONCURRENTLY. decode/dbc.py has said "parallelise across
+    # files, never within one" from the beginning, and this loop nevertheless
+    # took them one at a time — twelve independent monthly DBCs decoded in
+    # series. run_with_timeout() creates a thread per call and joins it
+    # immediately; it is a watchdog, not a pool.
+    #
+    # Bounded deliberately low. Each decode transiently holds a whole
+    # decompressed DBF, so matching CPU count trades wall time for peak RSS on
+    # exactly the wide requests where memory is already the binding constraint.
+    workers = max(1, min(4, len(selected), (os.cpu_count() or 2)))
+    outcomes: list[dict[str, object]] = []
+    if workers == 1:
+        for position, triple in enumerate(selected):
+            if on_progress:
+                on_progress(str(triple[2]["path"]), position + 1, len(selected))
+            outcomes.append(_decode_at(position, triple))
+    else:
+        with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="decode") as pool:
+            futures = {
+                pool.submit(_decode_at, position, triple): position
+                for position, triple in enumerate(selected)
+            }
+            finished = 0
+            for future in as_completed(futures):
+                outcomes.append(future.result())
+                finished += 1
+                if on_progress:
+                    on_progress("decoding", finished, len(selected))
+
+    # Folded in ORIGINAL order, whatever order they finished in.
+    for outcome in sorted(outcomes, key=lambda o: o["position"]):
+        path = str(outcome["path"])
+        if outcome.get("missing"):
+            report.undecoded.append(path)
+            continue
+        if outcome.get("timed_out"):
+            record_timeout(catalog, stage="get", item=path, seconds=settings.item_timeout)
             report.undecoded.append(path)
             report.warnings.append(f"{path}: gave up after {settings.item_timeout:.0f}s")
             continue
-        # Bytes READ from the store, which is not the same as bytes pulled over
-        # the network. The network figure comes from the acquisition layer below.
-        report.bytes_read += read_bytes
-        batches.extend(decoded_batches)
-        if matched_here:
+        report.bytes_read += int(outcome["read_bytes"] or 0)
+        batches.extend(outcome["batches"])  # type: ignore[arg-type]
+        item = outcome["item"]
+        if outcome["matched"]:
             report.files_read += 1
-            if item["year"] is not None:
-                seen_years.add(int(item["year"]))
-            if item["geo_code"]:
-                seen_ufs.add(str(item["geo_code"]))
+            if item["year"] is not None:  # type: ignore[index]
+                seen_years.add(int(item["year"]))  # type: ignore[index]
+            if item["geo_code"]:  # type: ignore[index]
+                seen_ufs.add(str(item["geo_code"]))  # type: ignore[index]
         else:
             report.schema_mismatch.append(path)
 
@@ -856,6 +899,7 @@ def _decode_one(
     digest: str,
     member: str,
     decoded_cache: dict[str, tuple[object, int]] | None = None,
+    cache_lock: object | None = None,
 ) -> tuple[list[pa.RecordBatch], bool, int]:
     """Read one file and normalise it. Split out so it can be given a deadline.
 
@@ -865,13 +909,25 @@ def _decode_one(
     the decode loop iterates (family, path, member) records, so an APAC archive
     with seven DBF members was being fully decoded seven times.
     """
-    cached = decoded_cache.get(digest) if decoded_cache is not None else None
+    if decoded_cache is not None and cache_lock is not None:
+        with cache_lock:
+            cached = decoded_cache.get(digest)
+    else:
+        cached = decoded_cache.get(digest) if decoded_cache is not None else None
     if cached is None:
         payload = pipeline.blobs.read(digest)
-        outcome = registry.open_bytes(payload, path=path)
+        # A fresh registry per decode: ReaderRegistry accumulates per-call
+        # state (failed archive members), which threads must not share.
+        outcome = ReaderRegistry(row_limit=registry.row_limit).open_bytes(
+            payload, path=path
+        )
         size = len(payload)
         if decoded_cache is not None:
-            decoded_cache[digest] = (outcome, size)
+            if cache_lock is not None:
+                with cache_lock:
+                    decoded_cache.setdefault(digest, (outcome, size))
+            else:
+                decoded_cache[digest] = (outcome, size)
         # `payload` goes out of scope here; the cache holds the decoded tables,
         # which are what the remaining members need, not the compressed bytes.
     else:
