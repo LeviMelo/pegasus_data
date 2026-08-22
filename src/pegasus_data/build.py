@@ -168,7 +168,9 @@ class Builder:
                         continue
                     if on_file:
                         on_file(family_id, path)
-                    outcome = registry.open_bytes(self.pipeline.blobs.read(digest), path=path)
+                    outcome = registry.open_path(
+                        self.pipeline.blobs.path_for(digest), logical_path=path
+                    )
                     wanted_member = str(m["member"] or "")
                     matched_here = False
                     for table in outcome.tables:
@@ -275,7 +277,9 @@ class Builder:
                 digest = digests.get(path)
                 if not digest:
                     continue
-                outcome = registry.open_bytes(self.pipeline.blobs.read(digest), path=path)
+                outcome = registry.open_path(
+                    self.pipeline.blobs.path_for(digest), logical_path=path
+                )
                 for table in outcome.tables:
                     arrow = ibge.canonicalize(table.to_table())
                     arrow = ibge.coerce_numeric(arrow, ["year", "population", "age", "municipality"])

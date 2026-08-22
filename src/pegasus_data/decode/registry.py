@@ -25,8 +25,8 @@ from pathlib import Path, PurePosixPath
 
 from .archives import Archive, ArchiveMember, detect_container
 from .base import DecodedTable, DecodeError, UnsupportedContainer
-from .dbc import read_dbc_bytes
-from .dbf import read_dbf_bytes
+from .dbc import read_dbc, read_dbc_bytes
+from .dbf import read_dbf_bytes, read_dbf_file
 from .duckdb_ import DuckStorageVersionError, read_duckdb
 from .text_ import read_csv_bytes, read_json_bytes, read_parquet, read_xlsx, read_xml_bytes
 
@@ -181,8 +181,38 @@ class ReaderRegistry:
         self._failed_members = []
 
     def open_path(self, path: str | Path, *, logical_path: str | None = None) -> DecodeOutcome:
+        """Decode a file. For DBC and DBF this never reads it into memory.
+
+        It used to be `open_bytes(p.read_bytes())` — a path-shaped door onto the
+        in-memory road, which made `BlobStore.materialize()` pointless even
+        though it exists precisely to give path-only readers a free hardlink to
+        a cached blob.
+
+        Only the two formats whose readers genuinely work from a path take the
+        short cut, and only when the suffix says so. Everything else still goes
+        through the bytes ladder, which is where the probing logic lives; so
+        does a DBC/DBF that fails, because a file named `.dbf` that is really a
+        zip is a thing DATASUS does.
+        """
         p = Path(path)
-        return self.open_bytes(p.read_bytes(), path=logical_path or str(p))
+        logical = logical_path or str(p)
+        ladder = readers_ordered_by_suffix_hint(logical)
+        if ladder and ladder[0] in ("dbc", "dbf"):
+            outcome = DecodeOutcome(path=logical, container=ladder[0])
+            try:
+                if ladder[0] == "dbc":
+                    table = read_dbc(p, logical_path=logical, row_limit=self.row_limit)
+                else:
+                    table = read_dbf_file(p, logical_path=logical, row_limit=self.row_limit)
+            except Exception as exc:  # noqa: BLE001 - the bytes ladder gets its turn
+                outcome.attempts.append(
+                    DecodeAttempt(ladder[0], False, f"{type(exc).__name__}: {exc}")
+                )
+            else:
+                outcome.attempts.append(DecodeAttempt(ladder[0], True))
+                outcome.tables.append(table)
+                return outcome
+        return self.open_bytes(p.read_bytes(), path=logical)
 
     # --------------------------------------------------------------- handlers
 

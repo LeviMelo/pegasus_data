@@ -22,6 +22,10 @@ implementation is a second set of labels to keep true.
 from __future__ import annotations
 
 import pyarrow as pa
+import hashlib
+import tempfile
+from pathlib import Path
+
 import pytest
 
 from pegasus_data.catalog.store import Catalog
@@ -64,11 +68,28 @@ class FakeFetcher:
 
 
 class FakeBlobs:
+    """A content-addressed store, backed by real files like the real one.
+
+    It used to serve bytes only. The decode path now takes the blob's PATH —
+    the blob is already a file, and reading it into RAM to hand the bytes to a
+    decoder that writes them straight back out was three copies for nothing —
+    so a double that cannot produce a path is no longer a double of anything.
+    """
+
     def __init__(self, payload_for=None) -> None:
         self.payload_for = payload_for or (lambda _digest: one_file())
+        self._dir = tempfile.mkdtemp(prefix="pegasus_fakeblobs_")
 
     def read(self, digest: str) -> bytes:
         return self.payload_for(digest)
+
+    def path_for(self, digest: str) -> Path:
+        # The fixtures use readable stand-ins like "sha-/p/RDAL2301.dbc" for
+        # digests, so the name is hashed rather than used as a path.
+        target = Path(self._dir) / hashlib.sha256(digest.encode()).hexdigest()
+        if not target.is_file():
+            target.write_bytes(self.payload_for(digest))
+        return target
 
 
 @pytest.fixture

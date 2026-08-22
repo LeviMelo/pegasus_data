@@ -60,6 +60,12 @@ class DecodedTable:
     container: str = ""
     role: str = "data"
     warnings: list[str] = field(default_factory=list)
+    #: An object whose lifetime must cover this table's. A DBF read in blocks
+    #: from a temporary inflated file needs that file to still exist when the
+    #: batches are pulled, so the TemporaryDirectory is parked here and removed
+    #: when the table is dropped. Nothing reads it; holding the reference IS
+    #: the point.
+    retains: object | None = None
 
     @property
     def field_names(self) -> list[str]:

@@ -17,7 +17,7 @@ import tempfile
 from pathlib import Path
 
 from .base import DecodedTable, DecodeError, UnsupportedContainer
-from .dbf import read_dbf_bytes
+from .dbf import read_dbf_bytes, read_dbf_file
 
 
 def _decompress(src: Path, dst: Path) -> None:
@@ -31,15 +31,40 @@ def _decompress(src: Path, dst: Path) -> None:
         raise DecodeError(f"dbc decompression failed for {src.name}: {exc}") from exc
 
 
-def read_dbc(path: str | Path, *, member: str = "", **kwargs: object) -> DecodedTable:
+def read_dbc(
+    path: str | Path, *, member: str = "", logical_path: str | None = None, **kwargs: object
+) -> DecodedTable:
+    """Decompress a ``.dbc`` FILE and read the result without a RAM copy of either.
+
+    The cached path used to be: blob on disk -> whole compressed file into RAM
+    -> written back out to a temp file -> inflated to a temp DBF -> whole
+    inflated DBF into RAM. Four full copies of a file that never needed to
+    leave the filesystem, and the inflated one is several times the size of the
+    blob.
+
+    Here the caller hands over a path (a hardlink to the blob costs nothing),
+    the decompressor writes the DBF, and the DBF is read in blocks. The
+    temporary directory has to outlive this call because of that last part, so
+    it is attached to the table and removed when the table is dropped.
+    """
     source = Path(path)
-    with tempfile.TemporaryDirectory(prefix="pegasus_dbc_") as tmp:
-        target = Path(tmp) / (source.stem + ".dbf")
+    tmp = tempfile.TemporaryDirectory(prefix="pegasus_dbc_")
+    try:
+        target = Path(tmp.name) / (source.stem + ".dbf")
         _decompress(source, target)
-        data = target.read_bytes()
-    if not data:
-        raise DecodeError(f"dbc decompressed to an empty payload: {source}")
-    table = read_dbf_bytes(data, path=str(source), member=member, reader="dbc", **kwargs)  # type: ignore[arg-type]
+        if not target.exists() or target.stat().st_size == 0:
+            raise DecodeError(f"dbc decompressed to an empty payload: {source}")
+        table = read_dbf_file(
+            target,
+            logical_path=logical_path or str(source),
+            member=member,
+            reader="dbc",
+            **kwargs,  # type: ignore[arg-type]
+        )
+    except BaseException:
+        tmp.cleanup()
+        raise
+    table.retains = tmp
     return table
 
 

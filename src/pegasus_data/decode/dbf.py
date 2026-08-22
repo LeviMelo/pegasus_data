@@ -118,6 +118,23 @@ def _string_array(block: np.ndarray, offset: int, width: int, encoding: str) -> 
     return pc.if_else(pc.equal(arr, ""), pa.scalar(None, pa.string()), arr)
 
 
+def _batch_from_block(
+    block: np.ndarray, header: "DbfHeader", offsets: list[int], encoding: str
+) -> pa.RecordBatch:
+    """One Arrow batch from one fixed-width record block."""
+    # Byte 0 of a record is ' ' for live rows and '*' for deleted ones.
+    deleted = block[:, 0] == 0x2A
+    columns = [
+        _string_array(block, offsets[i], header.fields[i].width or 0, encoding)
+        for i in range(len(header.fields))
+    ]
+    batch = pa.RecordBatch.from_arrays(columns, names=[f.name for f in header.fields])
+    if deleted.any():
+        keep = pa.array(~deleted)
+        batch = pa.RecordBatch.from_struct_array(pc.filter(batch.to_struct_array(), keep))
+    return batch
+
+
 def read_dbf_bytes(
     data: bytes,
     *,
@@ -171,21 +188,8 @@ def read_dbf_bytes(
             take = min(batch_rows, n_records - produced)
             start = body_start + produced * record_len
             block = np.frombuffer(data, dtype=np.uint8, count=take * record_len, offset=start)
-            block = block.reshape(take, record_len)
-            # Byte 0 of a record is ' ' for live rows and '*' for deleted ones.
-            deleted = block[:, 0] == 0x2A
-            columns = [
-                _string_array(block, offsets[i], header.fields[i].width or 0, encoding)
-                for i in range(len(header.fields))
-            ]
-            batch = pa.RecordBatch.from_arrays(columns, names=[f.name for f in header.fields])
-            if deleted.any():
-                keep = pa.array(~deleted)
-                batch = pa.RecordBatch.from_struct_array(
-                    pc.filter(batch.to_struct_array(), keep)
-                )
             produced += take
-            yield batch
+            yield _batch_from_block(block.reshape(take, record_len), header, offsets, encoding)
 
     return DecodedTable(
         path=path,
@@ -198,6 +202,14 @@ def read_dbf_bytes(
     )
 
 
+def _encoding_from_sample(sample: bytes) -> str:
+    """The half of :func:`_sniff_encoding` that only needs the sample."""
+    if not sample or sample.isascii():
+        return "cp850"
+    _, encoding = best_effort_decode(sample, candidates=DEFAULT_ENCODINGS)
+    return encoding
+
+
 def _sniff_encoding(data: bytes, header: DbfHeader) -> str:
     """Pick the codepage whose decoding of a sample reads as Portuguese.
 
@@ -208,12 +220,90 @@ def _sniff_encoding(data: bytes, header: DbfHeader) -> str:
     ties between equally-scoring candidates.
     """
     sample = data[header.header_len : header.header_len + 512 * (header.record_len or 1)]
-    if not sample or sample.isascii():
-        return "cp850"
-    _, encoding = best_effort_decode(sample, candidates=DEFAULT_ENCODINGS)
-    return encoding
+    return _encoding_from_sample(bytes(sample))
 
 
 def read_dbf(path: str | Path, **kwargs: object) -> DecodedTable:
     p = Path(path)
     return read_dbf_bytes(p.read_bytes(), path=str(p), **kwargs)  # type: ignore[arg-type]
+
+
+def read_dbf_file(
+    path: str | Path,
+    *,
+    logical_path: str | None = None,
+    member: str = "",
+    reader: str = "dbf",
+    encoding: str | None = None,
+    batch_rows: int = 65_536,
+    row_limit: int | None = None,
+) -> DecodedTable:
+    """Decode a DBF that is already a file, without ever holding it in RAM.
+
+    `read_dbf_bytes` needs the whole payload resident because every batch is a
+    view into one buffer. Here each batch is `pread` straight from the file, so
+    peak memory is one block — 65,536 records — however large the file is. A
+    CNES establishment DBF inflates past 150 MB; decoding one used to cost that
+    much resident memory per worker, times the worker count.
+
+    The blocks are copied into their own buffers (`np.frombuffer` over the bytes
+    just read), so the Arrow arrays do NOT alias the file. That is what makes
+    this safe where an mmap would not be: nothing dangles once the handle is
+    closed, and the generator can be re-run.
+    """
+    src = Path(path)
+    logical = logical_path or str(src)
+    file_size = src.stat().st_size
+    with src.open("rb") as fh:
+        head = fh.read(min(file_size, 1 << 20))
+        header = DbfHeader(memoryview(head))
+        record_len = header.record_len
+        body_start = header.header_len
+        if encoding is None:
+            fh.seek(body_start)
+            encoding = _encoding_from_sample(fh.read(512 * (record_len or 1)))
+
+    offsets = header.field_offsets
+    names = _dedupe([f.name for f in header.fields])
+    for f, name in zip(header.fields, names, strict=True):
+        f.name = name
+
+    available = max(0, (file_size - body_start) // record_len) if record_len else 0
+    declared = header.n_records
+    # Same rule, same evidence as read_dbf_bytes: measured over 132 real
+    # payloads the header errs HIGH (16 declare more than the file holds, none
+    # fewer), so min() is what stops a read running past the end.
+    n_records = min(declared, available) if declared else available
+    warnings: list[str] = []
+    if declared and declared != available:
+        direction = "more" if declared > available else "fewer"
+        warnings.append(f"header_declares_{declared}_records_file_holds_{available}")
+        warnings.append(f"header_declares_{direction}_than_the_file_holds")
+    if row_limit is not None:
+        n_records = min(n_records, row_limit)
+
+    def _iter_batches() -> Iterator[pa.RecordBatch]:
+        produced = 0
+        with src.open("rb") as handle:
+            while produced < n_records:
+                take = min(batch_rows, n_records - produced)
+                handle.seek(body_start + produced * record_len)
+                raw = handle.read(take * record_len)
+                take = len(raw) // record_len
+                if take == 0:
+                    return
+                block = np.frombuffer(raw, dtype=np.uint8, count=take * record_len)
+                produced += take
+                yield _batch_from_block(
+                    block.reshape(take, record_len), header, offsets, encoding or "cp850"
+                )
+
+    return DecodedTable(
+        path=logical,
+        member=member,
+        reader=reader,
+        fields=header.fields,
+        batches=_iter_batches,
+        row_count=n_records,
+        warnings=warnings,
+    )

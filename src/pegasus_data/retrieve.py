@@ -997,13 +997,18 @@ def _decode_one(
     else:
         cached = decoded_cache.get(digest) if decoded_cache is not None else None
     if cached is None:
-        payload = pipeline.blobs.read(digest)
+        # The blob is ALREADY a file. Reading it into RAM only to hand the
+        # bytes to a decoder that writes them straight back out was three
+        # copies of a large file for nothing. open_path() takes the
+        # content-addressed path directly; the logical path still drives the
+        # reader ladder, which is the only thing the extension was needed for.
+        blob_path = pipeline.blobs.path_for(digest)
+        size = blob_path.stat().st_size
         # A fresh registry per decode: ReaderRegistry accumulates per-call
         # state (failed archive members), which threads must not share.
-        outcome = ReaderRegistry(row_limit=registry.row_limit).open_bytes(
-            payload, path=path
+        outcome = ReaderRegistry(row_limit=registry.row_limit).open_path(
+            blob_path, logical_path=path
         )
-        size = len(payload)
         if decoded_cache is not None:
             if cache_lock is not None:
                 with cache_lock:
