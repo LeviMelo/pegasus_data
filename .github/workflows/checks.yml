@@ -38,7 +38,7 @@ jobs:
 
       - name: Types
         # NOT blocking, and deliberately so rather than silently. mypy reports
-        # 96 findings on this tree, essentially all `dict[str, object]` values
+        # 98 findings on this tree, essentially all `dict[str, object]` values
         # that need a per-site annotation; none is a known defect. The number is
         # recorded in CONTRIBUTING.md so it can be ratcheted down rather than
         # rediscovered. Make this step blocking when it reaches zero.

@@ -299,6 +299,6 @@ recorded rather than the conclusion asserted:
   (including `load_reference()` raising `NameError` for every caller who did not
   pass a catalog), and nothing reproduced them. CI now does.
 
-State at closure: **832 tests passing**, ruff clean across `src/`, `tests/` and
-`scripts/`, mypy at 96 findings (from 197) recorded as a ratchet in
+State at closure: **837 tests passing**, ruff clean across `src/`, `tests/` and
+`scripts/`, mypy at 98 findings (from 197) recorded as a ratchet in
 `CONTRIBUTING.md`.
