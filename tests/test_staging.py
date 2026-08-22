@@ -9,6 +9,8 @@ entire reason it exists, are asserted here rather than assumed.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from pegasus_data.persist.staging import staged_file, staged_tree
@@ -118,13 +120,67 @@ class TestStagedTree:
         assert (root / "CID10" / "part-0.parquet").exists()
 
     def test_a_stale_staging_tree_does_not_block_the_next_rebuild(self, tmp_path):
+        """Transaction names are unique, so a leftover cannot be in the way."""
         root = tmp_path / "reference"
-        stale = tmp_path / "reference.__staging__"
+        stale = tmp_path / "reference.__staging__.dead-1234"
         self._tree(stale, ["LEFTOVER"])
         with staged_tree(root) as staging:
             self._tree(staging, ["CID10"])
         assert sorted(p.name for p in root.iterdir()) == ["CID10"]
+
+    def test_a_stale_staging_tree_can_be_reclaimed(self, tmp_path):
+        """Unique names mean a killed rebuild leaves debris nothing reuses."""
+        import os
+        import time
+
+        from pegasus_data.persist.staging import sweep_tree_staging
+
+        root = tmp_path / "reference"
+        self._tree(root, ["CID10"])
+        stale = tmp_path / "reference.__staging__.dead-1234"
+        self._tree(stale, ["LEFTOVER"])
+        os.utime(stale, (time.time() - 200_000, time.time() - 200_000))
+        fresh = tmp_path / "reference.__staging__.live-9999"
+        self._tree(fresh, ["INFLIGHT"])
+
+        assert sweep_tree_staging(root) == 1
         assert not stale.exists()
+        assert fresh.exists(), "a rebuild in progress must not be swept"
+        assert (root / "CID10").exists(), "the real tree is untouched"
+
+    def test_two_rebuilds_do_not_share_a_staging_directory(self, tmp_path):
+        """Deterministic names let one rebuild delete another's staged tree."""
+        root = tmp_path / "reference"
+        seen: list[str] = []
+        with staged_tree(root) as first:
+            seen.append(first.name)
+            with staged_tree(root) as second:
+                seen.append(second.name)
+                self._tree(second, ["B"])
+            self._tree(first, ["A"])
+        assert seen[0] != seen[1]
+
+    def test_a_failed_swap_puts_the_old_tree_back(self, tmp_path, monkeypatch):
+        """There was no restore at all: a failure between the two renames left
+        the target simply gone."""
+        root = tmp_path / "reference"
+        self._tree(root, ["CID10", "SEXO"])
+        real = Path.rename
+        calls = {"n": 0}
+
+        def flaky(self, target):
+            calls["n"] += 1
+            if calls["n"] == 2:  # the staging -> target install
+                raise OSError("disk went away")
+            return real(self, target)
+
+        monkeypatch.setattr(Path, "rename", flaky)
+        with pytest.raises(OSError), staged_tree(root) as staging:
+            self._tree(staging, ["CID10"])
+        monkeypatch.setattr(Path, "rename", real)
+        assert sorted(p.name for p in root.iterdir()) == ["CID10", "SEXO"], (
+            "the old tree was not restored after a failed install"
+        )
 
 
 class TestMergeGranularity:

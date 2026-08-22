@@ -49,7 +49,9 @@ someone emails you can be placed in time.
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
+import uuid
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import UTC
@@ -359,7 +361,13 @@ def compendium(
     codes_mode = _normalise_codes(codes)
     target = Path(out)
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.unlink(missing_ok=True)
+    # STAGED. Both of these unlinked the existing database and then built its
+    # replacement in place, so a failure anywhere in the build left the user
+    # with no artifact at all — the previous one deleted and the new one never
+    # finished. The rule every other derived artifact here follows: a file is
+    # replaced only by a file that already exists in full.
+    staged = target.with_name(f".{target.name}.staging.{uuid.uuid4().hex[:10]}")
+    staged.unlink(missing_ok=True)
 
     report = CompendiumReport(
         path=str(target),
@@ -376,7 +384,8 @@ def compendium(
         if not flag:
             report.skipped.append(name)
 
-    db = sqlite3.connect(target)
+    db = sqlite3.connect(staged)
+    installed = False
     try:
         db.executescript(SCHEMA)
         for name, enabled in (
@@ -399,9 +408,14 @@ def compendium(
         _write_meta(db, store, report)
         db.commit()
         db.executescript("ANALYZE; VACUUM;")
+        installed = True
     finally:
         db.close()
         store.close()
+        if not installed:
+            # Closed first: Windows refuses to unlink a file still open.
+            staged.unlink(missing_ok=True)
+    os.replace(staged, target)
 
     report.megabytes = round(target.stat().st_size / 2**20, 2)
     return report

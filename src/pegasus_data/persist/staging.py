@@ -29,11 +29,13 @@ from __future__ import annotations
 
 import os
 import shutil
+import time
+import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
-__all__ = ["staged_file", "staged_tree"]
+__all__ = ["staged_file", "staged_tree", "sweep_tree_staging"]
 
 
 @contextmanager
@@ -64,6 +66,31 @@ def staged_file(target: Path, *, require_nonempty: bool = True) -> Iterator[Path
         # still there and still valid.
         if staged.exists():
             staged.unlink()
+
+
+def sweep_tree_staging(target: Path, older_than_seconds: float = 86_400) -> int:
+    """Remove leftovers a killed rebuild left beside ``target``. Returns how many.
+
+    Unique transaction names stop two rebuilds colliding, at the cost that a
+    process killed mid-write leaves its staging directory with nothing to reuse
+    it — the deterministic name at least got overwritten by the next run. This
+    is the reclamation, and it is time-based because a directory being written
+    right now by another process must not be touched.
+    """
+    target = Path(target)
+    parent = target.parent
+    if not parent.is_dir():
+        return 0
+    cutoff = time.time() - older_than_seconds
+    removed = 0
+    for leftover in parent.glob(f"{target.name}.__*__.*"):
+        try:
+            if leftover.stat().st_mtime < cutoff:
+                shutil.rmtree(leftover, ignore_errors=True)
+                removed += 1
+        except OSError:  # pragma: no cover - raced with its owner
+            continue
+    return removed
 
 
 def _merge_units(staging: Path, depth: int) -> Iterator[Path]:
@@ -120,10 +147,13 @@ def staged_tree(
     if merge_depth is None:
         merge_depth = 1 if merge else 0
     target = Path(target)
-    staging = target.with_name(target.name + ".__staging__")
-    previous = target.with_name(target.name + ".__previous__")
-    if staging.exists():
-        shutil.rmtree(staging)
+    # UNIQUE per transaction. Deterministic names meant two rebuilds running at
+    # once shared one staging directory and one backup slot: the second would
+    # delete the first's staged tree mid-write, and both would try to move a
+    # backup that the other had already consumed.
+    token = f"{os.getpid()}-{uuid.uuid4().hex[:10]}"
+    staging = target.with_name(f"{target.name}.__staging__.{token}")
+    previous = target.with_name(f"{target.name}.__previous__.{token}")
     staging.mkdir(parents=True, exist_ok=True)
     try:
         yield staging
@@ -131,22 +161,49 @@ def staged_tree(
         shutil.rmtree(staging, ignore_errors=True)
         raise
 
-    if previous.exists():
-        shutil.rmtree(previous)
     if merge_depth and target.exists():
-        for unit in list(_merge_units(staging, merge_depth)):
-            destination = target / unit.relative_to(staging)
-            if destination.exists():
-                if destination.is_dir():
-                    shutil.rmtree(destination)
-                else:
-                    destination.unlink()
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            unit.rename(destination)
+        # Each replaced subtree is moved ASIDE, not deleted, so a failure part
+        # way through can put back what it took. Deleting first meant an error
+        # on the third of five subtrees left two gone and three stale, with
+        # nothing able to reconstruct either state.
+        moved: list[tuple[Path, Path | None]] = []
+        try:
+            for unit in list(_merge_units(staging, merge_depth)):
+                destination = target / unit.relative_to(staging)
+                backup: Path | None = None
+                if destination.exists():
+                    backup = destination.with_name(f"{destination.name}.__old__.{token}")
+                    destination.rename(backup)
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                unit.rename(destination)
+                moved.append((destination, backup))
+        except BaseException:
+            for destination, backup in reversed(moved):
+                if destination.exists():
+                    shutil.rmtree(destination, ignore_errors=True)
+                if backup is not None and backup.exists():
+                    backup.rename(destination)
+            shutil.rmtree(staging, ignore_errors=True)
+            raise
+        for _destination, backup in moved:
+            if backup is not None and backup.exists():
+                shutil.rmtree(backup, ignore_errors=True)
         shutil.rmtree(staging, ignore_errors=True)
         return
-    if target.exists():
+
+    # Whole-tree swap. The old tree is moved aside rather than removed, so if
+    # installing the replacement fails the previous one goes back — there was
+    # no restore here at all, and a failure between the two renames left the
+    # target simply gone.
+    had_target = target.exists()
+    if had_target:
         target.rename(previous)
-    staging.rename(target)
+    try:
+        staging.rename(target)
+    except BaseException:
+        if had_target and previous.exists() and not target.exists():
+            previous.rename(target)
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
     if previous.exists():
         shutil.rmtree(previous, ignore_errors=True)

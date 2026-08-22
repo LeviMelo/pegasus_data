@@ -39,8 +39,10 @@ if TYPE_CHECKING:
     from .config import Settings
 
 import json
+import os
 import re
 import sqlite3
+import uuid
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -714,7 +716,13 @@ def write_database(
     """
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.unlink(missing_ok=True)
+    # STAGED. Both of these unlinked the existing database and then built its
+    # replacement in place, so a failure anywhere in the build left the user
+    # with no artifact at all — the previous one deleted and the new one never
+    # finished. The rule every other derived artifact here follows: a file is
+    # replaced only by a file that already exists in full.
+    staged = target.with_name(f".{target.name}.staging.{uuid.uuid4().hex[:10]}")
+    staged.unlink(missing_ok=True)
 
     available = _documentable_systems(catalog)
     wanted = [s.upper() for s in systems] if systems else available
@@ -728,7 +736,8 @@ def write_database(
             str(row["codelist"]), []
         ).append(str(row["field_name"]))
 
-    conn = sqlite3.connect(target)
+    conn = sqlite3.connect(staged)
+    installed = False
     counts = {"systems": 0, "variables": 0, "codelists": 0, "codes": 0, "families": 0}
     try:
         conn.executescript(DOCS_SCHEMA)
@@ -791,8 +800,13 @@ def write_database(
         )
         conn.commit()
         conn.execute("VACUUM")
+        installed = True
     finally:
         conn.close()
+        if not installed:
+            # Closed first: Windows refuses to unlink a file still open.
+            staged.unlink(missing_ok=True)
+    os.replace(staged, target)
 
     return {
         "path": str(target),
