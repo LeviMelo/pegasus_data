@@ -189,6 +189,22 @@ def _split_packed(label: str) -> tuple[str, str | None]:
     return (name or label), (cnpj or None)
 
 
+#: A backslash sitting directly in front of a non-ASCII character. Somewhere
+#: upstream of the ``dictionary`` table an escape survived into the text, and
+#: the pack carried it to every reader: ``N\ão``, ``Domic\ílio``, ``Ces\áreo``,
+#: ``Suic\ídio``, and 125 more — including the commonest label in the whole
+#: pack. One state-year of SINASC came back with 70,586 cells like that.
+#:
+#: A backslash before ASCII is left alone: the establishment directories use it
+#: as a real separator, as in ``ILHA DE SANTANA \ ZONA RURAL I``.
+_ESCAPED_ACCENT = re.compile(r"\\(?=[^\x00-\x7f])")
+
+
+def _unescape_accents(label: str) -> str:
+    """Drop an escape that leaked into a label, keeping real separators."""
+    return _ESCAPED_ACCENT.sub("", label)
+
+
 def build_label_pack(
     catalog: Catalog,
     out: str | Path,
@@ -249,7 +265,7 @@ def build_label_pack(
                 crosswalk[(group, str(row["value_raw"]).strip())] = packed
             continue
         code = str(row["value_raw"]).strip()
-        label = str(row["value_label"]).strip()
+        label = _unescape_accents(str(row["value_label"]).strip())
         report.rows_in += 1
         if not _useful(code, label):
             report.dropped_useless += 1

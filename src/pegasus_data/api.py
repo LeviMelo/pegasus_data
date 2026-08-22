@@ -1357,13 +1357,45 @@ def open_lake(
     return duck
 
 
+_FORMATS = frozenset({"csv", "parquet", "xlsx"})
+_SUFFIX_FORMATS = {".csv": "csv", ".parquet": "parquet", ".pq": "parquet", ".xlsx": "xlsx"}
+
+
+def _format_for(path: Path | None, requested: str | None) -> str:
+    """What to write: the explicit format, else the destination's suffix.
+
+    ``format`` defaulted to ``"csv"``, so ``export(t, "x.parquet")`` wrote
+    comma-separated text into a file named .parquet and every reader downstream
+    failed on it. A suffix that names a format is a clear statement of intent
+    and is now honoured.
+
+    A contradiction between the two is refused rather than resolved: writing csv
+    into a file called .parquet is never what the caller meant, and picking a
+    winner silently is how the original bug read.
+    """
+    named = _SUFFIX_FORMATS.get(path.suffix.lower()) if path is not None else None
+    if requested is not None:
+        fmt = str(requested).lower().lstrip(".")
+        if fmt not in _FORMATS:
+            raise ValueError(
+                f"unknown export format {requested!r}; use csv, parquet or xlsx"
+            )
+        if named and named != fmt:
+            raise ValueError(
+                f"export(format={requested!r}) writes {fmt}, but the destination is "
+                f"named {path.name!r}. Give one or make them agree."  # type: ignore[union-attr]
+            )
+        return fmt
+    return named or "csv"
+
+
 def export(
-    system: str,
-    series: str | None = None,
+    system: str | pa.Table,
+    series: str | Path | None = None,
     *,
     path: str | Path | None = None,
     out: str | Path | None = None,
-    format: str = "csv",
+    format: str | None = None,
     uf: str | Sequence[str] | None = None,
     years: int | Sequence[int] | range | None = None,
     columns: Sequence[str] | None = None,
@@ -1400,7 +1432,38 @@ def export(
     weighs it against the values a column actually holds, which is a
     whole-column question, and answering it per batch would let two batches of
     one column disagree. xlsx has to build a workbook in memory regardless.
+
+    **A table already in hand is written directly**::
+
+        table = fetch("SINASC-DN", uf="AC", years=2022)
+        export(table, "births.parquet")
+
+    Without this there was no supported way to put a fetched table on disk:
+    export() only ever re-read from the lake, so the one flow the package
+    exists for — fetch, then save what you fetched — ran out of API at the last
+    step. Everything after the writer is skipped for that form; the table has
+    already been rendered by whatever produced it, and rendering it twice would
+    label labels.
+
+    ``format`` is taken from the destination's suffix when it is not given.
+    Defaulting it to csv meant ``export(t, "x.parquet")`` wrote a CSV into a
+    file named .parquet, which every reader downstream then failed to open.
     """
+    if isinstance(system, pa.Table):
+        destination = path if path is not None else out if out is not None else series
+        if destination is None:
+            raise ValueError(
+                "export(table, ...) needs somewhere to write: "
+                'export(table, "births.parquet") or export(table, path=...)'
+            )
+        if not isinstance(destination, (str, Path)):
+            raise TypeError(
+                f"export(table, {destination!r}) — the second argument is the "
+                "destination path when the first is a table"
+            )
+        target = Path(destination)
+        return write_table(system, target, _format_for(target, format))
+
     if path is not None and out is not None and Path(path) != Path(out):
         # Two different destinations in one call is a mistake, not a preference.
         # Letting one silently win writes the file somewhere the caller did not
@@ -1417,9 +1480,7 @@ def export(
         years = [years]
     if isinstance(uf, str):
         uf = [uf]
-    fmt = format.lower().lstrip(".")
-    if fmt not in {"csv", "parquet", "xlsx"}:
-        raise ValueError(f"unknown export format {format!r}; use csv, parquet or xlsx")
+    fmt = _format_for(Path(path) if path is not None else None, format)
 
     if path is None:
         parts = [system, series or "all"]

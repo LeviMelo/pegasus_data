@@ -290,3 +290,51 @@ class TestReadingTheShippedPack:
     def test_a_held_back_registry_is_absent(self) -> None:
         with pytest.raises(FileNotFoundError):
             read_packed("CADGERBR")
+
+
+class TestLabelsAreNotEscaped:
+    r"""An escape leaked into the text somewhere above the `dictionary` table.
+
+    The shipped pack carried `N\ão`, `Domic\ílio`, `Ces\áreo`, `Suic\ídio` and
+    125 more, and `Não` is the commonest label in the whole pack — so one
+    state-year of SINASC came back with 70,586 cells carrying a stray backslash.
+    The sources are clean UTF-8; this was added on the way in.
+    """
+
+    def test_an_escaped_accent_is_dropped(self) -> None:
+        from pegasus_data.labelpack import _unescape_accents
+
+        assert _unescape_accents(r"N\ão") == "Não"
+        assert _unescape_accents(r"Domic\ílio") == "Domicílio"
+        assert _unescape_accents(r"AIKAN\Ã-KWAS\Á") == "AIKANÃ-KWASÁ"
+
+    def test_a_separator_before_ascii_is_kept(self) -> None:
+        """The establishment directories use a backslash to join two names, and
+        216 labels in the pack depend on it surviving."""
+        from pegasus_data.labelpack import _unescape_accents
+
+        assert (
+            _unescape_accents(r"ILHA DE SANTANA \ ZONA RURAL I")
+            == r"ILHA DE SANTANA \ ZONA RURAL I"
+        )
+        assert _unescape_accents(r"NORBERTO\FRANCINO ANDRADE") == r"NORBERTO\FRANCINO ANDRADE"
+
+    def test_clean_text_is_untouched(self) -> None:
+        from pegasus_data.labelpack import _unescape_accents
+
+        for text in ("Hospital", "Indígena", "Espontâneo", "", "Cesáreo"):
+            assert _unescape_accents(text) == text
+
+    def test_the_shipped_pack_carries_none(self) -> None:
+        """The guard that matters: whatever the builder does, what SHIPS is clean."""
+        from importlib.resources import files
+        from pathlib import Path
+
+        import pyarrow.parquet as pq
+
+        from pegasus_data.labelpack import _ESCAPED_ACCENT
+
+        path = Path(str(files("pegasus_data.resources") / "labels.parquet"))
+        labels = pq.read_table(path, columns=["label"]).column("label").to_pylist()
+        bad = [x for x in labels if x and _ESCAPED_ACCENT.search(x)]
+        assert not bad, f"{len(bad)} shipped labels carry an escaped accent, e.g. {bad[:3]}"
