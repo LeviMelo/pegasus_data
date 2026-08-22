@@ -38,8 +38,10 @@ from __future__ import annotations
 
 import re
 import shutil
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
+from contextlib import contextmanager
+from contextvars import ContextVar
 from pathlib import Path
 
 import pyarrow as pa
@@ -290,6 +292,52 @@ def borrowed_tables() -> set[tuple[str, str]]:
     return set(_BORROWED)
 
 
+#: ``(table_id, requested_period, served)`` where `served` is "current" (no
+#: window covers the request, the open-ended table stood in) or "unresolved"
+#: (nothing covers it and there is no open-ended table either).
+_FALLBACK_VINTAGE: set[tuple[str, str, str]] = set()
+
+
+#: The collector for the render currently running on this thread/task, if any.
+#: The module-level sets above are process-lifetime and idempotent, so a caller
+#: cannot tell from them whether THIS render borrowed a table or whether some
+#: earlier one did — a set that already contains an entry does not change when
+#: the same decision is made again. Anything that reports per call needs its own
+#: box, and a ContextVar gives one per thread and per async task without
+#: threading an argument through every reference lookup.
+_COLLECTOR: ContextVar[dict[str, set] | None] = ContextVar(
+    "pegasus_reference_collector", default=None
+)
+
+
+@contextmanager
+def collecting() -> Iterator[dict[str, set]]:
+    """Collect the reference decisions made inside this block."""
+    box: dict[str, set] = {"borrowed": set(), "fallback": set()}
+    token = _COLLECTOR.set(box)
+    try:
+        yield box
+    finally:
+        _COLLECTOR.reset(token)
+
+
+def _record(kind: str, item: tuple) -> None:
+    box = _COLLECTOR.get()
+    if box is not None:
+        box[kind].add(item)
+
+
+def fallback_vintages() -> set[tuple[str, str, str]]:
+    """Requests answered by a vintage other than the one asked for.
+
+    A historical label rendered from today's table is not wrong the way a
+    borrowed system's table is wrong, but it is not what was asked for either,
+    and the caller could only detect it by reading `valid_from` off the result
+    and knowing what to compare it against.
+    """
+    return set(_FALLBACK_VINTAGE)
+
+
 def read_reference_table(
     lake_root: str | Path,
     table_id: str,
@@ -297,6 +345,7 @@ def read_reference_table(
     system: str | None = None,
     valid_from: str | None = None,
     year: int | None = None,
+    competencia: int | None = None,
     code_width: int | None = None,
 ) -> pa.Table:
     """Load one reference table, optionally the vintage covering a given year.
@@ -304,6 +353,14 @@ def read_reference_table(
     Asking for a ``year`` picks the window that contains it, which is the whole
     point of keeping the windows apart: a 1995 admission decodes against the
     1992–1997 table, not against today's.
+
+    ``competencia`` (``AAAAMM``) asks the same question a month at a time.
+    ``valid_from``/``valid_to`` are stored as ``AAAAMM``, so a codelist revised
+    in July is two windows inside one calendar year and ``year=`` cannot choose
+    between them — it matches any window overlapping the year, which for a
+    mid-year revision is both. Pass ``competencia`` where the source semantics
+    turn over mid-year; ``year`` remains the right question for the common case
+    of a table that changes at most once a year.
 
     Asking for a ``system`` picks that system's own copy of the codelist, which
     matters just as much. A field belonging to SIHSUS must decode against
@@ -368,6 +425,7 @@ def read_reference_table(
             # report. Attaching it to the returned table instead would change
             # the reference schema every caller relies on.
             _BORROWED.add((_SAFE.sub("_", table_id), wanted))
+            _record("borrowed", (_SAFE.sub("_", table_id), wanted))
     if code_width is not None and "code_width" in table.schema.names:
         table = table.filter(
             pa.array(
@@ -378,8 +436,14 @@ def read_reference_table(
     if valid_from is not None:
         mask = [v == valid_from for v in table.column("valid_from").to_pylist()]
         return table.filter(pa.array(mask, type=pa.bool_()))
-    if year is not None:
-        competencia = year * 100
+    if competencia is not None or year is not None:
+        # A competencia is one month; a year is any window overlapping it.
+        if competencia is not None:
+            span_lo = span_hi = int(competencia)
+            asked = str(int(competencia))
+        else:
+            span_lo, span_hi = year * 100 + 1, year * 100 + 12  # type: ignore[operator]
+            asked = str(year)
         dated: list[bool] = []
         current: list[bool] = []
         for start, end in zip(
@@ -391,15 +455,29 @@ def read_reference_table(
                 continue
             lo = int(start)
             hi = int(end) if end and str(end).isdigit() else 999912
-            dated.append(lo <= competencia + 12 and competencia <= hi)
+            dated.append(lo <= span_hi and span_lo <= hi)
             current.append(False)
-        # A window that explicitly covers the year wins; otherwise the current
-        # table stands in, and the caller can see which it got from `valid_from`.
+        # A window that explicitly covers the request wins.
         matched = table.filter(pa.array(dated, type=pa.bool_()))
         if matched.num_rows:
             return matched
+        # Otherwise the open-ended table stands in. That is a real answer, but
+        # it is not the vintage that was asked for, so it is RECORDED.
         fallback = table.filter(pa.array(current, type=pa.bool_()))
-        return fallback if fallback.num_rows else table
+        table_key = _SAFE.sub("_", table_id)
+        if fallback.num_rows:
+            _FALLBACK_VINTAGE.add((table_key, asked, "current"))
+            _record("fallback", (table_key, asked, "current"))
+            return fallback
+        # Nothing covers the request and there is no open-ended table either.
+        # This used to return the WHOLE table — every historical window at once
+        # — which is the one thing the no-year branch below exists to prevent:
+        # it merges windows that disagree and manufactures a contradiction out
+        # of ordinary editorial drift. An unresolved request is answered as
+        # unresolved.
+        _FALLBACK_VINTAGE.add((table_key, asked, "unresolved"))
+        _record("fallback", (table_key, asked, "unresolved"))
+        return table.slice(0, 0)
 
     # No year asked for: give the CURRENT vintage, not every vintage at once.
     # Merging windows is never what a caller wants and manufactures a

@@ -106,6 +106,20 @@ class RenderReport:
     #: requested system ships none. Machine-readable, so a strict analytical
     #: profile can reject them rather than parsing prose.
     borrowed: list[str] = field(default_factory=list)
+    #: ``table_id -> "current" | "unresolved"``. The requested vintage did not
+    #: exist, so either today's table stood in or nothing did. A historical
+    #: label rendered from today's table is not wrong the way a borrowed
+    #: system's is, but it is not what was asked for — and the caller could
+    #: previously only detect it by reading `valid_from` off the reference
+    #: table and knowing what to compare it against.
+    fallback_vintage: dict[str, str] = field(default_factory=dict)
+    #: ``column -> share`` where a bound codelist decoded only part of the
+    #: observed codes. Already in `warnings` as prose; here as a number, so a
+    #: threshold can be applied instead of a regex.
+    partial_codelist_match: dict[str, float] = field(default_factory=dict)
+    #: Columns labelled through a rolled-up parent codelist rather than an
+    #: exact-width match.
+    rollup_used: list[str] = field(default_factory=list)
     #: Unlabelled columns holding one value in every row, with that value —
     #: ``CID_MORTE`` is ``'0000'`` 59,835 times in SIH-RD/AC/2023. These are ALSO
     #: in ``unlabelled``, so nothing a caller checks today is lost; this names
@@ -125,6 +139,9 @@ class RenderReport:
             "unlabelled": self.unlabelled,
             "constant": self.constant,
             "borrowed": self.borrowed,
+            "fallback_vintage": self.fallback_vintage,
+            "partial_codelist_match": self.partial_codelist_match,
+            "rollup_used": self.rollup_used,
             "derived_added": self.derived_added,
             "companions_dropped": self.companions_dropped,
             "warnings": self.warnings,
@@ -669,10 +686,50 @@ def render_table(
     — what never happens is unlabelled data coming back silently from a request
     for labels.
     """
+    from .persist.reference import collecting
+
+    # Every reference decision made inside this block belongs to THIS render.
+    with collecting() as collected:
+        return _render_table(
+            table,
+            store=store,
+            lake_root=lake_root,
+            system=system,
+            family_id=family_id,
+            profile=profile,
+            render=render,
+            headers=headers,
+            values=values,
+            companions=companions,
+            derived=derived,
+            year=year,
+            strict=strict,
+            collected=collected,
+        )
+
+
+def _render_table(
+    table: pa.Table,
+    *,
+    store: Catalog,
+    lake_root: str | Path,
+    system: str,
+    family_id: str | None = None,
+    profile: str | RenderProfile = "analysis",
+    render: Mapping[str, RenderMode] | None = None,
+    headers: str | None = None,
+    values: str | None = None,
+    companions: bool | Sequence[str] | None = None,
+    derived: bool | Sequence[str] | None = None,
+    year: int | None = None,
+    strict: bool = False,
+    collected: dict[str, set] | None = None,
+) -> tuple[pa.Table, RenderReport]:
     settings_profile = resolve_profile(
         profile, headers=headers, values=values, companions=companions, derived=derived
     )
     report = RenderReport()
+    collected = collected if collected is not None else {"borrowed": set(), "fallback": set()}
     docs = load_variable_docs(store, system)
     bindings = _bindings(store, system, family_id)
     overrides = {k.upper(): v for k, v in (render or {}).items()}
@@ -792,6 +849,9 @@ def render_table(
                 if strict:
                     raise LabelUnavailable(message)
                 report.warnings.append(message)
+                # The share as a NUMBER. A caller applying a threshold should
+                # not have to parse "matches 43% of observed codes" out of prose.
+                report.partial_codelist_match[name] = round(float(chosen_share), 4)
                 report.unlabelled.append(name)
                 columns.append(column)
                 names.append(name)
@@ -805,6 +865,7 @@ def render_table(
                     f"the observed codes to {grain:.0%} as many distinct labels, so "
                     f"the label is broader than the code. No finer table is bound."
                 )
+                report.rollup_used.append(name)
             elif picked and picked != candidates[0]:
                 report.warnings.append(
                     f"{name}: {tried} codelists are bound; chose {picked!r} "
@@ -930,15 +991,42 @@ def render_table(
     # accepted. The contradiction check catches disagreement among overlapping
     # codes; a foreign table whose codes happen not to overlap produces
     # confident labels from the wrong system and nothing said so.
-    from .persist.reference import borrowed_tables
-
-    for table_id, for_system in sorted(borrowed_tables()):
+    for table_id, for_system in sorted(collected["borrowed"]):
         if for_system == (system or "").upper():
             report.warnings.append(
                 f"{table_id}: no {for_system} copy of this codelist exists, so labels "
                 f"were borrowed from another system's table"
             )
             report.borrowed.append(table_id)
+
+    # Same treatment for the vintage. Asking for 1995 and being handed today's
+    # table is a defensible answer and an undisclosed one; strict mode rejects
+    # it, and everyone else at least gets told.
+    for table_id, asked, served in sorted(collected["fallback"]):
+        if served == "unresolved":
+            report.warnings.append(
+                f"{table_id}: no codelist window covers {asked} and there is no "
+                "open-ended table, so nothing was labelled from it — rather than "
+                "merging every historical window, which would contradict itself"
+            )
+        else:
+            report.warnings.append(
+                f"{table_id}: no codelist window covers {asked}, so the current "
+                "vintage was used; a label here may postdate the record"
+            )
+        report.fallback_vintage[table_id] = served
+        if strict:
+            # strict means "the label I asked for or an error". A label from a
+            # vintage the record predates is not the label that was asked for.
+            raise LabelUnavailable(
+                f"{table_id}: no codelist window covers {asked}"
+                + (
+                    "; nothing could be labelled from it"
+                    if served == "unresolved"
+                    else "; the current vintage would have been used, which may "
+                    "postdate the record"
+                )
+            )
 
     rendered_table = pa.Table.from_arrays(columns, names=names)
 

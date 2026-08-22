@@ -357,13 +357,29 @@ class MissingColumnError(KeyError):
     names the generations that *do* carry the column.
     """
 
-    def __init__(self, field_name: str, family_id: str, available: Sequence[str]) -> None:
+    def __init__(
+        self,
+        field_name: str,
+        family_id: str,
+        available: Sequence[str],
+        *,
+        also_absent: Sequence[str] = (),
+    ) -> None:
         self.field_name = field_name
         self.family_id = family_id
         self.available = list(available)
+        #: Every requested column absent from this generation, `field_name`
+        #: included. Machine-readable: a caller fixing a column list needs all
+        #: of them, and naming one at a time turns one mistake into N attempts.
+        self.columns_absent = [field_name, *[c for c in also_absent if c != field_name]]
         hint = ", ".join(sorted(available)[:12]) or "no other generation carries it"
+        rest = (
+            f" (also absent: {', '.join(self.columns_absent[1:])})"
+            if len(self.columns_absent) > 1
+            else ""
+        )
         super().__init__(
-            f"column {field_name!r} is not present in family {family_id}; "
+            f"column {field_name!r} is not present in family {family_id}{rest}; "
             f"generations that do carry it: {hint}"
         )
 

@@ -452,9 +452,17 @@ def fetch(
             if missing:
                 # Not a warning. A column silently absent from the result is how
                 # an analysis quietly loses a variable and never notices.
+                #
+                # STRUCTURAL absence, and every one of them at once: concat uses
+                # promote_options="permissive", which null-fills any column that
+                # at least one generation has, so a column missing HERE is
+                # missing from every generation that answered. Naming one at a
+                # time turns one mistake into N round trips.
                 from .normalize.engine import MissingColumnError
 
-                raise MissingColumnError(missing[0], fetch_report.families[0], [])
+                raise MissingColumnError(
+                    missing[0], fetch_report.families[0], [], also_absent=missing[1:]
+                )
             keep = [c for c in table.column_names if c in set(columns)]
             table = table.select(keep)
 
