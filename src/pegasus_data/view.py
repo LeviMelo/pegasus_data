@@ -182,6 +182,7 @@ def _lookup_map(
     *,
     system: str | None,
     year: int | None,
+    competencia: int | None = None,
     code_width: int | None,
 ) -> dict[str, str]:
     """``code -> label`` for one codelist at one vintage.
@@ -192,7 +193,12 @@ def _lookup_map(
     joined here instead.
     """
     table = read_reference_table(
-        lake_root, codelist, system=system, year=year, code_width=code_width
+        lake_root,
+        codelist,
+        system=system,
+        year=year,
+        competencia=competencia,
+        code_width=code_width,
     )
     codes = table.column("code").to_pylist()
     labels = table.column("label").to_pylist()
@@ -215,6 +221,7 @@ def _single_lookup(
     system: str | None,
     year: int | None,
     code_width: int | None,
+    competencia: int | None = None,
 ) -> dict[str, str] | None:
     """One codelist's ``code -> label``, or ``None`` if it is not materialised.
 
@@ -223,7 +230,12 @@ def _single_lookup(
     """
     try:
         return _lookup_map(
-            lake_root, codelist, system=system, year=year, code_width=code_width
+            lake_root,
+            codelist,
+            system=system,
+            year=year,
+            competencia=competencia,
+            code_width=code_width,
         )
     except (FileNotFoundError, OSError):
         return None
@@ -235,6 +247,7 @@ def _contradictions(
     *,
     system: str | None,
     year: int | None,
+    competencia: int | None = None,
     code_width: int | None,
 ) -> dict[str, set[str]]:
     """Codes the table maps to more than one label.
@@ -248,7 +261,12 @@ def _contradictions(
     would show it.
     """
     table = read_reference_table(
-        lake_root, codelist, system=system, year=year, code_width=code_width
+        lake_root,
+        codelist,
+        system=system,
+        year=year,
+        competencia=competencia,
+        code_width=code_width,
     )
     seen: dict[str, set[str]] = {}
     for code, label in zip(
@@ -866,6 +884,7 @@ def render_table(
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     year: int | None = None,
+    competencia: int | None = None,
     strict: bool = False,
 ) -> tuple[pa.Table, RenderReport]:
     """Apply every presentation decision, at read time, from the reference tables.
@@ -892,6 +911,7 @@ def render_table(
             companions=companions,
             derived=derived,
             year=year,
+            competencia=competencia,
             strict=strict,
             collected=collected,
         )
@@ -911,6 +931,7 @@ def _render_table(
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     year: int | None = None,
+    competencia: int | None = None,
     strict: bool = False,
     collected: dict[str, set] | None = None,
 ) -> tuple[pa.Table, RenderReport]:
@@ -955,7 +976,12 @@ def _render_table(
                 # Later tables must not clobber a higher-authority one, so an
                 # existing key wins.
                 for code, label in _lookup_map(
-                    lake, codelist, system=system, year=year, code_width=width
+                    lake,
+                    codelist,
+                    system=system,
+                    year=year,
+                    competencia=competencia,
+                    code_width=width,
                 ).items():
                     merged.setdefault(code, label)
             except FileNotFoundError:
@@ -1003,7 +1029,7 @@ def _render_table(
             candidates=list(bindings.get(name.upper()) or []),
             report=report,
             strict=strict,
-            lookup_one=lambda cl, w: _single_lookup(lake, cl, system, year, w),
+            lookup_one=lambda cl, w: _single_lookup(lake, cl, system, year, w, competencia),
         )
         if selection.unlabelled:
             # Selection decided this column cannot be labelled and has already
@@ -1067,7 +1093,12 @@ def _render_table(
         observed = {str(v).strip() for v in column.to_pylist() if v is not None}
         try:
             disagreements = _contradictions(
-                lake, codelists[0], system=system, year=year, code_width=None
+                lake,
+                codelists[0],
+                system=system,
+                year=year,
+                competencia=competencia,
+                code_width=None,
             )
         except FileNotFoundError:
             # A codelist bound but never materialised. That is a labelling gap
@@ -1146,7 +1177,8 @@ def _render_table(
 
     if settings_profile.derived:
         rendered_table = _apply_derived(
-            rendered_table, table, docs, bindings, lake, year, derived, report, store, system
+            rendered_table, table, docs, bindings, lake, year, derived, report, store,
+            system, competencia,
         )
 
     if settings_profile.headers != "original":
@@ -1182,6 +1214,7 @@ def _apply_derived(
     report: RenderReport,
     store: Catalog,
     system: str,
+    competencia: int | None = None,
 ) -> pa.Table:
     """Add the columns that resolve multi-column semantics into one usable value.
 
@@ -1224,7 +1257,14 @@ def _apply_derived(
                 continue
             try:
                 divisors = _unit_divisors(
-                    _lookup_map(lake, codelist, system=system, year=year, code_width=None)
+                    _lookup_map(
+                        lake,
+                        codelist,
+                        system=system,
+                        year=year,
+                        competencia=competencia,
+                        code_width=None,
+                    )
                 )
             except FileNotFoundError:
                 report.warnings.append(

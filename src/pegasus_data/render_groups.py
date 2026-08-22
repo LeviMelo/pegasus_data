@@ -44,9 +44,12 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
 
 __all__ = ["Group", "merge_reports", "render_groups", "split_by_year_column", "split_by_source"]
 
-#: One renderable chunk: the rows, the generation they belong to, and the year
-#: whose classification vintage applies to them.
-Group = tuple[pa.Table, str | None, int | None]
+#: One renderable chunk: the rows, the generation they belong to, the year whose
+#: classification vintage applies, and the COMPETENCIA when the source is known
+#: at month granularity. valid_from/valid_to are stored as AAAAMM, so a codelist
+#: revised in July is two windows inside one calendar year and `year` alone
+#: cannot choose between them.
+Group = tuple[pa.Table, str | None, int | None, int | None]
 
 
 def merge_reports(into: RenderReport | None, addition: RenderReport) -> RenderReport:
@@ -85,23 +88,25 @@ def split_by_year_column(
     as the hint — the old behaviour, kept only for that case.
     """
     if "year" not in table.column_names:
-        return [(table, family_id, min(years) if years else None)]
+        return [(table, family_id, min(years) if years else None, None)]
     distinct = pc.unique(table.column("year")).to_pylist()
     usable = sorted(y for y in distinct if y not in (None, 0))
     if len(usable) <= 1:
         only = usable[0] if usable else (min(years) if years else None)
-        return [(table, family_id, only)]
+        return [(table, family_id, only, None)]
     out: list[Group] = []
     for year in usable:
         chunk = table.filter(pc.equal(table.column("year"), year))
         if chunk.num_rows:
-            out.append((chunk, family_id, year))
+            # The lake partitions by year, so month granularity is not
+            # available here; competencia stays None rather than being invented.
+            out.append((chunk, family_id, year, None))
     return out
 
 
 def split_by_source(
     table: pa.Table,
-    source_facts: Mapping[str, tuple[str | None, int | None]],
+    source_facts: Mapping[str, tuple[str | None, int | None, int | None]],
     *,
     fallback_year: int | None = None,
 ) -> list[Group]:
@@ -117,24 +122,24 @@ def split_by_source(
     than a missing one.
     """
     if "_source_path" not in table.column_names or not source_facts:
-        return [(table, None, fallback_year)]
+        return [(table, None, fallback_year, None)]
 
     column = table.column("_source_path")
-    keys: dict[tuple[str | None, int | None], list[str]] = {}
+    keys: dict[tuple[str | None, int | None, int | None], list[str]] = {}
     for path in pc.unique(column.combine_chunks()).to_pylist():
-        family, year = source_facts.get(str(path), (None, fallback_year))
-        keys.setdefault((family, year), []).append(str(path))
+        facts = source_facts.get(str(path), (None, fallback_year, None))
+        keys.setdefault(tuple(facts), []).append(str(path))  # type: ignore[arg-type]
     if len(keys) <= 1:
-        (family, year) = next(iter(keys), (None, fallback_year))
-        return [(table, family, year)]
+        only = next(iter(keys), (None, fallback_year, None))
+        return [(table, only[0], only[1], only[2])]
 
     out: list[Group] = []
-    for (family, year), paths in sorted(
-        keys.items(), key=lambda kv: (kv[0][1] or 0, kv[0][0] or "")
+    for (family, year, competencia), paths in sorted(
+        keys.items(), key=lambda kv: (kv[0][2] or 0, kv[0][1] or 0, kv[0][0] or "")
     ):
         chunk = table.filter(pc.is_in(column, value_set=pa.array(paths, pa.string())))
         if chunk.num_rows:
-            out.append((chunk, family, year))
+            out.append((chunk, family, year, competencia))
     return out
 
 
@@ -163,7 +168,7 @@ def render_groups(
 
     parts: list[pa.Table] = []
     report: RenderReport | None = None
-    for chunk, family_id, year in groups:
+    for chunk, family_id, year, competencia in groups:
         rendered, part_report = render_table(
             chunk,
             store=store,
@@ -177,6 +182,7 @@ def render_groups(
             companions=companions,
             derived=derived,
             year=year,
+            competencia=competencia,
             strict=strict,
         )
         parts.append(rendered)

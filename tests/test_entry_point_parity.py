@@ -136,8 +136,10 @@ class TestVintageRenderingIsOneOperation:
         """Without per-source facts there is nothing to split a fetched table on."""
         _table, report = fetch("SIH-RD", settings=settings, report=True)
         assert report.source_facts, "no (family, year) per source; the split cannot run"
+        # (family, year, competencia) — competencia may be None where the
+        # filename carries no month.
         assert all(
-            isinstance(v, tuple) and len(v) == 2 for v in report.source_facts.values()
+            isinstance(v, tuple) and len(v) == 3 for v in report.source_facts.values()
         )
 
 

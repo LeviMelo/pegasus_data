@@ -133,7 +133,9 @@ class FetchReport:
     #: source path -> (family_id, year). What each contributing file IS, which
     #: is what lets a fetched table be rendered against the classification
     #: vintage of the records rather than one hint for the whole answer.
-    source_facts: dict[str, tuple[str | None, int | None]] = field(default_factory=dict)
+    source_facts: dict[str, tuple[str | None, int | None, int | None]] = field(
+        default_factory=dict
+    )
     files_matched: int = 0
     files_read: int = 0
     rows: int = 0
@@ -1091,8 +1093,14 @@ def _select_files(
         for item in matched:
             selected.append((family_id, plan, item))
             year = item.get("year")
+            month = _month_of(item.get("normalized_date"))
+            competencia = (
+                int(year) * 100 + int(month) if year is not None and month else None
+            )
             report.source_facts[str(item["path"])] = (
-                family_id, int(year) if year is not None else None
+                family_id,
+                int(year) if year is not None else None,
+                competencia,
             )
 
     if wanted_columns and report.families:
