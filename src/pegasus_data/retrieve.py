@@ -427,6 +427,7 @@ def fetch(
             months=want_months,
             max_files=max_files,
             on_progress=on_progress,
+            columns=columns,
         )
         if table.num_rows == 0:
             raise NothingPublished(_nothing_message(fetch_report, want_ufs, want_years))
@@ -691,6 +692,44 @@ def _strata_for(
     return ids or None
 
 
+def _keep_columns(
+    catalog: Catalog, report: FetchReport, columns: Sequence[str] | None
+) -> frozenset[str] | None:
+    """The requested columns plus what is needed to render or derive them.
+
+    Returns ``None`` for "keep everything", which is the default. A projection
+    that dropped a column some derivation or unit conversion depends on would
+    turn an explicit request into a silently missing output — the same failure
+    HI-22 names on the lake side.
+    """
+    if not columns:
+        return None
+    keep = {str(c).upper() for c in columns}
+    try:
+        from .semantics.curation import load_variable_docs
+
+        docs = load_variable_docs(catalog, report.system or "")
+    except Exception:  # noqa: BLE001 - no docs is not a reason to lose columns
+        return frozenset(keep)
+    for name in list(keep):
+        doc = docs.get(name)
+        if doc is None:
+            continue
+        # Whatever this column's meaning depends on has to survive the prune.
+        for dependency in (doc.depends_on or []):
+            keep.add(str(dependency).upper())
+        for recipe in (doc.derived or []):
+            for source in (recipe.get("from") or []):
+                keep.add(str(source).upper())
+        if doc.modifies:
+            keep.add(str(doc.modifies).upper())
+    # And anything that MODIFIES a requested column (a unit beside a duration).
+    for name, doc in docs.items():
+        if doc.modifies and str(doc.modifies).upper() in keep:
+            keep.add(str(name).upper())
+    return frozenset(keep)
+
+
 def _read_families(
     pipeline: Pipeline,
     families: Sequence[Mapping[str, Any]],
@@ -701,6 +740,7 @@ def _read_families(
     months: Sequence[int],
     max_files: int | None,
     on_progress: Callable[[str, int, int], None] | None,
+    columns: Sequence[str] | None = None,
 ) -> tuple[pa.Table, FetchReport]:
     """Download and normalise the matching files, entirely in memory.
 
@@ -781,6 +821,9 @@ def _read_families(
     # that exceeds the deadline becomes a recorded timeout and a named entry in
     # the report, and the fetch continues.
     settings = pipeline.settings
+    #: What the caller asked for, plus what rendering needs to produce it. None
+    #: means "everything", which is the default and the common case.
+    keep_columns = _keep_columns(catalog, report, columns)
     #: digest -> (DecodeOutcome, payload size). Lives for this call only, and is
     #: shared across decode workers, so it is guarded.
     decoded_cache: dict[str, tuple[object, int]] = {}
@@ -811,6 +854,7 @@ def _read_families(
                     member=member,
                     decoded_cache=decoded_cache,
                     cache_lock=cache_lock,
+                    keep_columns=keep_columns,
                 ),
                 seconds=settings.item_timeout,
                 label=path,
@@ -890,6 +934,28 @@ def _read_families(
     return combined, report
 
 
+def _project(batch: pa.RecordBatch, keep: frozenset[str] | None) -> pa.RecordBatch:
+    """Drop columns the caller did not ask for, per batch.
+
+    `columns=` used to be applied with table.select() only AFTER every file had
+    been decoded, normalised, given provenance and concatenated — so a two-column
+    request out of SIH's 113 built, normalised and retained a hundred and eleven
+    Arrow columns before throwing them away. Pruning here keeps them out of the
+    accumulation entirely.
+
+    Provenance is always kept: it is four dictionary-encoded columns and it is
+    what makes a row traceable to the file it came from.
+    """
+    if keep is None:
+        return batch
+    wanted = [n for n in batch.schema.names if n in keep or n.startswith("_")]
+    if len(wanted) == len(batch.schema.names):
+        return batch
+    return pa.RecordBatch.from_arrays(
+        [batch.column(n) for n in wanted], names=wanted
+    )
+
+
 def _decode_one(
     pipeline: Pipeline,
     registry: ReaderRegistry,
@@ -900,6 +966,7 @@ def _decode_one(
     member: str,
     decoded_cache: dict[str, tuple[object, int]] | None = None,
     cache_lock: object | None = None,
+    keep_columns: frozenset[str] | None = None,
 ) -> tuple[list[pa.RecordBatch], bool, int]:
     """Read one file and normalise it. Split out so it can be given a deadline.
 
@@ -940,7 +1007,8 @@ def _decode_one(
         if not _fits(decoded.field_names, plan):
             continue
         matched = True
-        batches.extend(normalize_table(decoded, plan, blob_sha256=digest))
+        for batch in normalize_table(decoded, plan, blob_sha256=digest):
+            batches.append(_project(batch, keep_columns))
     # Bytes are counted once per SOURCE, not once per member reading it.
     return batches, matched, (size if cached is None else 0)
 
