@@ -978,7 +978,7 @@ def load_population(
     *,
     series: str = "POPSVS",
     uf: str | Sequence[str] | None = None,
-    years: Sequence[int] | range | None = None,
+    years: int | Sequence[int] | range | None = None,
     by: Sequence[str] = ("municipality", "year"),
     catalog: Catalog | None = None,
     # Both of these were REFERENCED in the body and never declared, so every
@@ -993,6 +993,10 @@ def load_population(
     raises rather than silently returning a coarser table that would then be
     labelled age-standardised.
     """
+    if isinstance(years, int):
+        years = [years]
+    if isinstance(uf, str):
+        uf = [uf]
     own = catalog is None
     cat = catalog or Catalog(root=root, settings=settings)
     try:
@@ -1029,6 +1033,7 @@ def load_reference(
     year: int | None = None,
     valid_from: str | None = None,
     code_width: int | None = None,
+    system: str | None = None,
     catalog: Catalog | None = None,
     root: str | Path | None = None,
     settings: Settings | None = None,
@@ -1055,6 +1060,10 @@ def load_reference(
             year=year,
             competencia=competencia,
             code_width=code_width,
+            # SEXO.CNV means 1/3 in SIHSUS and 1/2 in SINASC. The low-level
+            # reader has always taken `system` for that reason; the public one
+            # did not, so the safe way to ask was the private way.
+            system=system,
         )
     finally:
         if own:
@@ -1299,7 +1308,7 @@ def export(
     out: str | Path | None = None,
     format: str = "csv",
     uf: str | Sequence[str] | None = None,
-    years: Sequence[int] | range | None = None,
+    years: int | Sequence[int] | range | None = None,
     columns: Sequence[str] | None = None,
     family_id: str | None = None,
     catalog: Catalog | None = None,
@@ -1335,7 +1344,22 @@ def export(
     whole-column question, and answering it per batch would let two batches of
     one column disagree. xlsx has to build a workbook in memory regardless.
     """
+    if path is not None and out is not None and Path(path) != Path(out):
+        # Two different destinations in one call is a mistake, not a preference.
+        # Letting one silently win writes the file somewhere the caller did not
+        # ask for and reports success.
+        raise ValueError(
+            f"export() got both path={path!r} and out={out!r}. `out` is the old "
+            "name for `path`; give one."
+        )
     path = path if path is not None else out
+    # `fetch`, `load` and `scan` all take an int year; export reached list()
+    # and raised. Public functions that present themselves as parallel should
+    # accept the same filters.
+    if isinstance(years, int):
+        years = [years]
+    if isinstance(uf, str):
+        uf = [uf]
     fmt = format.lower().lstrip(".")
     if fmt not in {"csv", "parquet", "xlsx"}:
         raise ValueError(f"unknown export format {format!r}; use csv, parquet or xlsx")

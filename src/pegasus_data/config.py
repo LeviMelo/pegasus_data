@@ -115,6 +115,14 @@ class Settings:
     #: keep_raw=True unless the CLI passes a build option explicitly, so raw
     #: payloads are retained whatever this says. Named here so the discrepancy
     #: is visible rather than discovered while profiling disk use.
+    #: What "already have it" means for a warm fetch — see
+    #: pegasus_data.acquire.fetcher.REFRESH_POLICIES. "catalog" trusts the last
+    #: crawl and never dials for a stored file; "remote" asks the server before
+    #: reusing one; "never" prefers a stored copy even when the catalog knows
+    #: it is stale. Stated because the default is a real policy choice
+    #: (reproducibility over currency) that used to be implicit.
+    refresh: str = "catalog"
+
     keep_raw: bool = False
     compression: str = "zstd"
     row_group_size: int = 256 * 1024
@@ -245,6 +253,7 @@ def load_settings(**overrides: object) -> Settings:
         ("PEGASUS_ITEM_TIMEOUT", "item_timeout", float),
         ("PEGASUS_STALL_TIMEOUT", "stall_timeout", float),
         ("PEGASUS_TIMEOUT", "timeout", float),
+        ("PEGASUS_REFRESH", "refresh", str),
     ):
         if env_name in os.environ:
             kwargs[setting_name] = cast(os.environ[env_name])

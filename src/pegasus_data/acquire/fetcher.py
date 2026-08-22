@@ -77,6 +77,20 @@ def _record(stats: FetchStats, result: FetchResult) -> None:
         stats.bytes_fetched += result.byte_size
 
 
+#: What "already have it" means. The default was never wrong, only unstated:
+#: a warm fetch deliberately avoids the network, so "current" has always meant
+#: *current according to the last crawl*, not *current on DATASUS now*. That is
+#: a defensible offline/reproducibility policy and a surprising implicit one,
+#: because this project explicitly treats republication under the same pathname
+#: as a real possibility — so a same-path republication after your last crawl
+#: is reused indefinitely without a word.
+REFRESH_POLICIES: dict[str, str] = {
+    "catalog": "trust the last crawl; no network for a file already stored (default)",
+    "never": "use any stored copy, even one the catalog says is out of date",
+    "remote": "ask the server for SIZE/MDTM before reusing a stored copy",
+}
+
+
 class Fetcher:
     """Pulls a work-list of paths over N FTP connections into the blob store."""
 
@@ -92,9 +106,18 @@ class Fetcher:
         backoff_base: float = 1.5,
         stall_timeout: float = DEFAULT_STALL_TIMEOUT,
         heartbeat_interval: float = DEFAULT_HEARTBEAT,
+        refresh: str = "catalog",
     ) -> None:
         self.catalog = catalog
         self.blobs = blobs
+        if refresh not in REFRESH_POLICIES:
+            raise ValueError(
+                f"unknown refresh policy {refresh!r}; choose one of "
+                + ", ".join(f"{k!r} ({v})" for k, v in REFRESH_POLICIES.items())
+            )
+        #: See REFRESH_POLICIES. Stored rather than passed per call so every
+        #: door into this fetcher answers the freshness question the same way.
+        self.refresh = refresh
         self.host = host
         self.concurrency = max(1, concurrency)
         self.timeout = timeout
@@ -113,8 +136,11 @@ class Fetcher:
 
     # ------------------------------------------------------------------ policy
 
-    def _should_skip(self, path: str) -> str | None:
-        """Return an existing digest when the catalog proves the file is unchanged."""
+    def _should_skip(self, path: str, *, client: FtpClient | None = None) -> str | None:
+        """Return an existing digest when the file is judged unchanged.
+
+        Judged against what ``self.refresh`` names — see :data:`REFRESH_POLICIES`.
+        """
         rows = self.catalog.query(
             """
             SELECT f.sha256 AS sha, f.byte_size AS bytes, fi.size AS listed_size,
@@ -133,8 +159,23 @@ class Fetcher:
         digest = row["sha"]
         if not digest or not self.blobs.has(digest):
             return None
+        if self.refresh == "never":
+            # Reproducibility over currency, stated outright: whatever is
+            # stored answers, even when the catalog already knows it is stale.
+            return str(digest)
         listed_size = row["listed_size"]
         listed_mtime = row["listed_mtime"]
+        if self.refresh == "remote" and client is not None:
+            # ASK THE SERVER. Two commands per file, so it is opt-in, but it is
+            # the only policy under which "unchanged" is a claim about DATASUS
+            # rather than about our last crawl.
+            try:
+                live_size, live_mtime = client.stat(path)
+            except Exception:  # noqa: BLE001 - an unreachable server is not proof of change
+                live_size, live_mtime = None, None
+            if live_size is not None or live_mtime is not None:
+                listed_size = live_size if live_size is not None else listed_size
+                listed_mtime = live_mtime if live_mtime is not None else listed_mtime
 
         # THEN versus NOW, which is what the policy always claimed to do. It
         # used to compare the current listing's size against the stored blob's
@@ -191,13 +232,20 @@ class Fetcher:
     ) -> list[str]:
         """Answer everything already on disk, and return only what needs a socket.
 
-        Runs BEFORE any connection is opened. Every worker used to construct an
+        Runs BEFORE any connection is opened, which is exactly why
+        ``refresh="remote"`` cannot be settled here: asking the server requires
+        the socket this step exists to avoid. Under that policy nothing is
+        pre-settled, and each worker re-checks with its own client in hand.
+
+        Every worker used to construct an
         FtpClient and connect() before taking anything off the queue, so a
         request whose bytes were already on the SSD still opened up to eight FTP
         sessions that did no work — and failed outright when DATASUS was
         unreachable. `_should_skip` reads the catalog, not the network, so it
         can answer first.
         """
+        if self.refresh == "remote":
+            return list(paths)
         pending: list[str] = []
         for path in paths:
             digest = None if force else self._should_skip(path)
@@ -377,7 +425,7 @@ class Fetcher:
 
     def _fetch_one(self, client: FtpClient, path: str, *, force: bool) -> FetchResult:
         if not force:
-            existing = self._should_skip(path)
+            existing = self._should_skip(path, client=client)
             if existing:
                 size = self.blobs.path_for(existing).stat().st_size
                 return FetchResult(path=path, sha256=existing, byte_size=size, skipped=True)
@@ -414,6 +462,18 @@ class Fetcher:
     # ------------------------------------------------------------- convenience
 
     def fetch_one(self, path: str, *, force: bool = False) -> FetchResult:
+        """One file. Answers from the cache WITHOUT opening a connection.
+
+        fetch_many() learned this and fetch_one() did not, so the single-file
+        door still dialled DATASUS for a blob already on the SSD — and failed
+        outright when the server was unreachable, for a request that needed no
+        server at all.
+        """
+        if not force:
+            existing = self._should_skip(path)
+            if existing:
+                size = self.blobs.path_for(existing).stat().st_size
+                return FetchResult(path=path, sha256=existing, byte_size=size, skipped=True)
         client = FtpClient(self.host, timeout=self.timeout, max_retries=self.max_retries)
         try:
             client.connect()

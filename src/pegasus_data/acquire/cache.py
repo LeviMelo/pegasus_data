@@ -19,6 +19,8 @@ import hashlib
 import os
 import shutil
 import tempfile
+import time
+import uuid
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -107,11 +109,43 @@ class BlobStore:
         one filesystem, and a temp file on ``%TEMP%`` while the store sits on a
         data disk turns the final move into a copy — of exactly the large file
         we streamed to disk to avoid copying.
+
+        UNIQUE per acquisition, not derived from the source path. A name that is
+        a function of the source meant two Pegasus processes fetching the same
+        file shared one partial: each would resume from the other's offset,
+        append into the other's stream, and one would finalise bytes the other
+        had half-written. Worker locking cannot help — the other process is not
+        in this interpreter. The cost is that resume no longer spans separate
+        runs; within a run, where ``retrieve_to_file`` retries, it still does,
+        and that is where nearly all of the value was.
         """
         staging = self.root / "incoming"
         staging.mkdir(parents=True, exist_ok=True)
-        safe = hashlib.sha256(hint.encode("utf-8")).hexdigest()[:24]
-        return staging / f"{safe}.part"
+        safe = hashlib.sha256(hint.encode("utf-8")).hexdigest()[:16]
+        unique = uuid.uuid4().hex[:12]
+        return staging / f"{safe}-{unique}.part"
+
+    def sweep_staging(self, older_than_seconds: float = 86_400) -> int:
+        """Remove abandoned partials. Returns how many were dropped.
+
+        Unique staging names mean a killed process leaves its partial behind
+        with nothing to reclaim it — the deterministic name at least got reused.
+        This is the reclamation, and it is time-based because a `.part` being
+        written right now by another process must not be touched.
+        """
+        staging = self.root / "incoming"
+        if not staging.is_dir():
+            return 0
+        cutoff = time.time() - older_than_seconds
+        removed = 0
+        for partial in staging.glob("*.part"):
+            try:
+                if partial.stat().st_mtime < cutoff:
+                    partial.unlink()
+                    removed += 1
+            except OSError:  # pragma: no cover - raced with its owner
+                continue
+        return removed
 
     def adopt(
         self,
@@ -132,6 +166,18 @@ class BlobStore:
         trusted because the caller computed it over the same stream it wrote —
         it is not re-derived from the file, which would read it a second time.
         """
+        # Size is checked at the boundary. The digest is trusted because the
+        # caller computed it over the same stream it wrote — re-hashing would
+        # read the whole file a second time — but a staged file whose length
+        # disagrees with what the caller says it wrote never becomes a blob
+        # named for a complete SHA-256.
+        actual = staged.stat().st_size if staged.exists() else -1
+        if actual != byte_size:
+            staged.unlink(missing_ok=True)
+            raise OSError(
+                f"staged {staged.name} is {actual} bytes, caller reported {byte_size}; "
+                "refusing to adopt it under a digest it may not match"
+            )
         target = self.path_for(digest)
         if target.is_file():
             staged.unlink(missing_ok=True)

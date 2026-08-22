@@ -183,6 +183,7 @@ class Pipeline:
             backoff_base=settings.backoff_base,
             stall_timeout=settings.stall_timeout,
             heartbeat_interval=settings.heartbeat_interval,
+            refresh=settings.refresh,
         )
         self.seed_questions()
 

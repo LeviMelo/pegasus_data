@@ -40,7 +40,7 @@ import re
 import threading
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -461,6 +461,7 @@ def fetch(
     max_files: int | None = None,
     on_missing_column: str = "raise",
     allow_partial: bool = False,
+    refresh: str | None = None,
     discover: bool = True,
     root: str | Path | None = None,
     settings: Settings | None = None,
@@ -486,6 +487,10 @@ def fetch(
     report is where every file that could not be read is named.
     """
     resolved_settings = settings or load_settings(root=Path(root) if root else None)
+    if refresh is not None:
+        # Per call, because "is my cached copy current?" is a question about
+        # this request, not about the installation.
+        resolved_settings = replace(resolved_settings, refresh=refresh)
     system, series_name = parse_dataset(dataset, series)
     _reject_unknown_system(dataset, system)
     want_years = _as_years(years)
