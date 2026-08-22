@@ -152,15 +152,37 @@ class TestP0_4_OneAxisPolicyForBothPaths:
         finally:
             store.close()
 
-    def test_both_entry_points_import_the_same_policy(self) -> None:
-        """Two implementations of one rule is how they drifted apart."""
-        import inspect
+    def test_every_public_reader_consults_the_one_policy(
+        self, built_lake, monkeypatch
+    ) -> None:
+        """Two implementations of one rule is how they drifted apart.
 
-        from pegasus_data import api
-        from pegasus_data.retrieve import axis_refusal
+        Asserted by observing the CALL, not by grepping load()'s source for it.
+        The source check broke the moment resolution moved into a helper that
+        load() calls — it was testing where the code lived, which is not the
+        guarantee. The guarantee is that no public reader answers an
+        axis-filtered question without asking the shared policy first, because
+        the alternative is a false empty that reads as "Acre has no records".
+        """
+        import pegasus_data.retrieve as retrieve
+        from pegasus_data.api import load, scan
 
-        assert "axis_refusal" in inspect.getsource(api.load)
-        assert callable(axis_refusal)
+        settings, _catalog, _ = built_lake
+        calls: list[tuple] = []
+        real = retrieve.axis_refusal
+
+        def watched(store, system, series, **kw):
+            calls.append((system, series, tuple(sorted(kw.items()))))
+            return real(store, system, series, **kw)
+
+        monkeypatch.setattr(retrieve, "axis_refusal", watched)
+
+        load("SIHSUS", "RD", uf="AL", root=settings.root, settings=settings, labels=False)
+        assert calls, "load() answered a uf-filtered request without asking the policy"
+
+        calls.clear()
+        scan("SIHSUS", "RD", uf="AL", root=settings.root, settings=settings).count_rows()
+        assert calls, "scan() answered a uf-filtered request without asking the policy"
 
 
 class TestP0_6_ReplacementDoesNotDestroyBeforeItWrites:
