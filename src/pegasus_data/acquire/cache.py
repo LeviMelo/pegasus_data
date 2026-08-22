@@ -100,6 +100,63 @@ class BlobStore:
             )
         return digest
 
+    def staging_path(self, hint: str) -> Path:
+        """A scratch path on the store's own filesystem, for a streamed fetch.
+
+        Deliberately under the blob root: ``os.replace`` is only atomic within
+        one filesystem, and a temp file on ``%TEMP%`` while the store sits on a
+        data disk turns the final move into a copy — of exactly the large file
+        we streamed to disk to avoid copying.
+        """
+        staging = self.root / "incoming"
+        staging.mkdir(parents=True, exist_ok=True)
+        safe = hashlib.sha256(hint.encode("utf-8")).hexdigest()[:24]
+        return staging / f"{safe}.part"
+
+    def adopt(
+        self,
+        staged: Path,
+        digest: str,
+        byte_size: int,
+        *,
+        source_path: str,
+        serving_method: str | None = None,
+        elapsed_ms: float | None = None,
+        remote_size: int | None = None,
+        remote_modified: str | None = None,
+    ) -> str:
+        """Move an already-hashed staged file into the store under `digest`.
+
+        The counterpart to a streamed download: the bytes were hashed on their
+        way to disk, so there is nothing left to do but the rename. `digest` is
+        trusted because the caller computed it over the same stream it wrote —
+        it is not re-derived from the file, which would read it a second time.
+        """
+        target = self.path_for(digest)
+        if target.is_file():
+            staged.unlink(missing_ok=True)
+        else:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                os.replace(staged, target)
+            except (PermissionError, FileExistsError):
+                # Another worker stored identical bytes first. Content
+                # addressing means its file and ours are the same file.
+                staged.unlink(missing_ok=True)
+                if not target.is_file():
+                    raise
+        if self.catalog is not None:
+            self.catalog.record_fetch(
+                source_path=source_path,
+                sha256=digest,
+                byte_size=byte_size,
+                serving_method=serving_method,
+                elapsed_ms=elapsed_ms,
+                remote_size=remote_size,
+                remote_modified=remote_modified,
+            )
+        return digest
+
     def put_file(self, src: Path, *, source_path: str, serving_method: str | None = None) -> str:
         digest = sha256_file(src)
         target = self.path_for(digest)

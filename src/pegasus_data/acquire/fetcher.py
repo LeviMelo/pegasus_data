@@ -329,17 +329,27 @@ class Fetcher:
             if existing:
                 size = self.blobs.path_for(existing).stat().st_size
                 return FetchResult(path=path, sha256=existing, byte_size=size, skipped=True)
+        # Read the listing FIRST: it is a local catalog row, and knowing the
+        # expected size lets the transfer below reject a short or spliced file.
+        remote_size, remote_modified = self._listing(path)
         started = time.perf_counter()
+        staged = self.blobs.staging_path(path)
         try:
-            data = client.retrieve(path)
+            byte_size, digest = client.retrieve_to_file(
+                path, staged, expected_size=remote_size
+            )
         except Exception as exc:
+            # The partial stays only if a retry could still use it; a failure
+            # that got here has already exhausted the retries.
+            staged.unlink(missing_ok=True)
             error = f"{type(exc).__name__}: {exc}"
             self.catalog.record_gap(path, kind="fetch", methods=("RETR",), error=error)
             return FetchResult(path=path, sha256=None, byte_size=0, error=error)
         elapsed = (time.perf_counter() - started) * 1000
-        remote_size, remote_modified = self._listing(path)
-        digest = self.blobs.put_bytes(
-            data,
+        digest = self.blobs.adopt(
+            staged,
+            digest,
+            byte_size,
             source_path=path,
             serving_method="ftp:RETR",
             elapsed_ms=elapsed,
@@ -347,7 +357,7 @@ class Fetcher:
             remote_modified=remote_modified,
         )
         self.catalog.resolve_gap(path)
-        return FetchResult(path=path, sha256=digest, byte_size=len(data), elapsed_ms=elapsed)
+        return FetchResult(path=path, sha256=digest, byte_size=byte_size, elapsed_ms=elapsed)
 
     # ------------------------------------------------------------- convenience
 

@@ -15,12 +15,15 @@ Two rules drive this module:
 from __future__ import annotations
 
 import ftplib
+import hashlib
 import io
+import os
 import socket
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
+from pathlib import Path
 from datetime import UTC, datetime
 
 from .listing import ListingEntry, normalize_path, parse_list_lines, parse_nlst
@@ -393,8 +396,108 @@ class FtpClient:
             except Exception:  # noqa: BLE001 - the next call will reconnect
                 pass
 
+    def retrieve_to_file(
+        self,
+        path: str,
+        dest: "Path",
+        *,
+        progress: Callable[[int], None] | None = None,
+        expected_size: int | None = None,
+    ) -> tuple[int, str]:
+        """Stream one file to `dest`, resuming a broken transfer. Returns (size, sha256).
+
+        Two things this fixes at once.
+
+        **Nothing is held in RAM.** The old path read a whole file into a
+        ``BytesIO``, returned the bytes, hashed the bytes, then wrote the bytes
+        to disk — three full copies of a file that is on its way to disk
+        regardless. Peak memory was the size of the largest file times the
+        number of concurrent workers, which is how eight workers on CNES
+        establishment dumps become gigabytes of resident set for no reason.
+        Here the socket feeds the file and the hasher together, 64 KiB at a
+        time, and the digest is finished when the last chunk lands.
+
+        **Resume is real now.** ``retrieve`` documented "resuming where
+        supported" and never sent ``REST``: a transfer that died at 95% of a
+        400 MB file started again at byte zero, and on a link flaky enough to
+        break once, often never finished at all. ``dest`` survives between
+        attempts, so a retry asks the server to restart at the offset already
+        on disk.
+
+        Resume is *advisory* — a server may refuse ``REST`` (then we start
+        over) or, worse, accept it and ignore it. That is why ``expected_size``
+        is checked at the end when the listing gives us one: a file that
+        finishes at the wrong length is deleted and re-fetched from scratch
+        rather than stored under a digest of spliced bytes.
+        """
+        dest.parent.mkdir(parents=True, exist_ok=True)
+
+        def _once() -> tuple[int, str]:
+            resume_at = dest.stat().st_size if dest.exists() else 0
+            digest = hashlib.sha256()
+            conn = None
+            if resume_at:
+                try:
+                    conn = self.ftp.transfercmd(f"RETR {path}", rest=resume_at)
+                except (ftplib.error_perm, ftplib.error_temp):
+                    # REST refused. ftplib raises before sending RETR, so the
+                    # control channel is still in step; just start over.
+                    resume_at = 0
+                    conn = None
+            if conn is None:
+                conn = self.ftp.transfercmd(f"RETR {path}")
+
+            if resume_at:
+                # Re-hash what is already on disk. Costs one local read, and
+                # only on a retry, which is the rare path by construction.
+                with dest.open("rb") as fh:
+                    left = resume_at
+                    while left > 0:
+                        block = fh.read(min(1 << 20, left))
+                        if not block:
+                            break
+                        digest.update(block)
+                        left -= len(block)
+
+            total = resume_at
+            try:
+                conn.settimeout(self.timeout)
+                with dest.open("ab" if resume_at else "wb") as out:
+                    while True:
+                        chunk = conn.recv(1 << 16)
+                        if not chunk:
+                            break
+                        out.write(chunk)
+                        digest.update(chunk)
+                        total += len(chunk)
+                        if progress is not None:
+                            progress(len(chunk))
+            finally:
+                conn.close()
+            # The server still owes a completion reply; leaving it unread
+            # desynchronises the control channel for every later command.
+            self.ftp.voidresp()
+
+            if expected_size is not None and total != expected_size:
+                # Short read, or a server that took REST and sent from zero
+                # anyway. Either way these bytes are not the file.
+                dest.unlink(missing_ok=True)
+                raise OSError(
+                    f"RETR {path}: got {total} bytes, listing says {expected_size}"
+                )
+            return total, digest.hexdigest()
+
+        result = self._retrying(_once, what=f"RETR {path}")
+        assert isinstance(result, tuple)
+        return result
+
     def retrieve(self, path: str, *, progress: Callable[[int], None] | None = None) -> bytes:
-        """Download one file into memory, retrying and resuming where supported.
+        """Download one small file into memory, retrying on transient failure.
+
+        For anything that might be large, prefer :meth:`retrieve_to_file`. This
+        one holds the whole file in RAM and starts from byte zero on every
+        retry; it is kept for callers who genuinely want the bytes and know the
+        file is small.
 
         Deliberately *not* ``ftplib.retrbinary``. That method owns the data
         socket internally and never applies a read timeout to it, so a server
