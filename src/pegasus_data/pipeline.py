@@ -789,6 +789,7 @@ class Pipeline:
         systems: Sequence[str] | None = None,
         limit: int | None = None,
         only_missing: bool = True,
+        stratum_ids: Sequence[str] | None = None,
     ) -> StageResult:
         """Census every stratum's columns by reading headers, not payloads.
 
@@ -799,7 +800,10 @@ class Pipeline:
         """
         from .inventory.schemas import census_targets, run_census
 
-        targets = census_targets(self.catalog, systems=systems, only_missing=only_missing)
+        targets = census_targets(
+            self.catalog, systems=systems, only_missing=only_missing,
+            stratum_ids=stratum_ids,
+        )
         if limit:
             targets = targets[:limit]
         if not targets:

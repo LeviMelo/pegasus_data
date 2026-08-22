@@ -369,7 +369,10 @@ def fetch(
         )
         families = _families(pipeline.catalog, system, series_name)
         if not families and discover:
-            _discover(pipeline, system, fetch_report, on_progress)
+            _discover(
+                pipeline, system, fetch_report, on_progress,
+                series=series_name, years=want_years,
+            )
             families = _families(pipeline.catalog, system, series_name)
         if not families:
             raise DatasetUnknown(
@@ -445,6 +448,18 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     # column MEANS (curation, which ships as YAML), which table decodes it
     # (bindings), and the table itself. On a fresh install the catalog has none
     # of them, so `fetch(labels=True)` returned data and translated nothing.
+    # Order matters. Seeding runs FIRST: load_curation writes ~900 curated
+    # bindings, and seed_bindings skips a catalog that already has any — so
+    # curating first silently cost the 9,380 packaged bindings and dropped
+    # CNES-ST from 83 labelled columns to 26. Curation is applied afterwards so
+    # a human decision still outranks what shipped.
+    seeded = seed_bindings(pipeline.catalog)
+    if seeded:
+        report.warnings.append(
+            f"seeded {seeded:,} codelist bindings from the package "
+            "(run `pegasus-data semantics` for the full local build)"
+        )
+
     if not pipeline.catalog.count("variable_docs"):
         # load_curation, not pipeline.curate(): Pipeline has no such method, and
         # the try/except below turned that AttributeError into a warning nobody
@@ -462,12 +477,6 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
             )
         except Exception as exc:  # noqa: BLE001 - unreadable curation is not fatal
             report.warnings.append(f"could not load the shipped curation: {exc}")
-    seeded = seed_bindings(pipeline.catalog)
-    if seeded:
-        report.warnings.append(
-            f"seeded {seeded:,} codelist bindings from the package "
-            "(run `pegasus-data semantics` for the full local build)"
-        )
 
     lake_root = pipeline.settings.lake_dir
     if available_tables(lake_root):
@@ -543,6 +552,9 @@ def _discover(
     system: str,
     report: FetchReport,
     on_progress: Callable[[str, int, int], None] | None,
+    *,
+    series: str | None = None,
+    years: Sequence[int] | None = None,
 ) -> None:
     """Crawl one system's directory and derive its families from what is there.
 
@@ -584,9 +596,54 @@ def _discover(
         on_progress(f"crawling {root}", 0, 0)
     pipeline.crawl(prefixes=[root])
     pipeline.inventory(systems=[system])
-    pipeline.schemas(systems=[system])
+    # Census only the strata this request will actually read. Censusing the
+    # whole system meant a fresh `fetch("CNES-ST", uf="AC", years=2023)` read
+    # headers for 271 strata across thirteen CNES datasets — 282 seconds to
+    # serve twelve files. Falls back to the full census when the request cannot
+    # be narrowed, because a slow answer beats a wrong one.
+    pipeline.schemas(
+        systems=[system],
+        stratum_ids=_strata_for(pipeline, system, series, years),
+    )
     pipeline.families()
     report.discovered = True
+
+
+def _strata_for(
+    pipeline: Pipeline,
+    system: str,
+    series: str | None,
+    years: Sequence[int] | None,
+) -> list[str] | None:
+    """The strata belonging to one dataset, resolved through the ontology.
+
+    ``strata.series`` is filename-derived, so an exact match finds a fraction of
+    what a dataset owns — the same reason :func:`_families` binds rather than
+    compares. Returns ``None`` when nothing can be narrowed, which asks for the
+    full census.
+    """
+    if not series:
+        return None
+    onto = _ontology()
+    if onto is None:
+        return None
+    found = onto.resolve(f"{system}.{series}")
+    if not found or found[0] != "dataset":
+        return None
+    code = found[1].code
+    wanted_years = {int(y) for y in years} if years else None
+    ids: list[str] = []
+    for row in pipeline.catalog.query(
+        "SELECT stratum_id, system, series, year FROM strata WHERE system = ?",
+        [system],
+    ):
+        if onto.bind(str(row["system"]), str(row["series"] or "")).dataset != code:
+            continue
+        year = row["year"]
+        if wanted_years and year is not None and int(year) not in wanted_years:
+            continue
+        ids.append(str(row["stratum_id"]))
+    return ids or None
 
 
 def _read_families(

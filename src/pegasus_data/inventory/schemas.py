@@ -76,19 +76,32 @@ class SchemaCensus:
 
 
 def census_targets(
-    catalog: Catalog, *, systems: Sequence[str] | None = None, only_missing: bool = True
+    catalog: Catalog,
+    *,
+    systems: Sequence[str] | None = None,
+    only_missing: bool = True,
+    stratum_ids: Sequence[str] | None = None,
 ) -> list[dict[str, object]]:
     """One representative file per stratum, cheapest first.
 
     Cheapest by byte size, which for a header read is nearly irrelevant — but it
     costs nothing to prefer the small one and it keeps the choice aligned with
     how the profile stage samples.
+
+    ``stratum_ids`` narrows the census to a named set. Without it, answering
+    ``fetch("CNES-ST", uf="AC", years=2023)`` on a fresh catalog censused **271
+    strata across all thirteen CNES datasets** — hundreds of sequential requests
+    to a high-latency legacy server, to learn about twelve files. Byte volume is
+    tiny either way; wall time is not.
     """
     clauses = ["f.gone_at IS NULL", "ff.role = 'data'"]
     params: list[object] = []
     if systems:
         clauses.append(f"ff.system IN ({','.join('?' * len(systems))})")
         params.extend(s.upper() for s in systems)
+    if stratum_ids:
+        clauses.append(f"s.stratum_id IN ({','.join('?' * len(stratum_ids))})")
+        params.extend(stratum_ids)
     if only_missing:
         clauses.append("s.schema_signature IS NULL")
     where = " AND ".join(clauses)
