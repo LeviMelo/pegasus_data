@@ -114,7 +114,8 @@ class TestReplacementNeverLeavesNeitherPartition:
         crash there lost the partition outright — the failure staging exists to
         prevent."""
         lake = Lake(tmp_path / "lake")
-        kw = dict(system="SIHSUS", family_id="F1", schema_signature="sig", uf="AL", year=2023)
+        kw = {"system": "SIHSUS", "family_id": "F1", "schema_signature": "sig",
+              "uf": "AL", "year": 2023}
         first = lake.write_batches(iter([_batch(5, 0)]), **kw)
         assert first is not None
         target = lake.root / first.relative_path
@@ -134,7 +135,8 @@ class TestReplacementNeverLeavesNeitherPartition:
 
     def test_the_replacement_is_not_swept_away_by_its_own_clear(self, tmp_path):
         lake = Lake(tmp_path / "lake")
-        kw = dict(system="SIHSUS", family_id="F1", schema_signature="sig", uf="AL", year=2023)
+        kw = {"system": "SIHSUS", "family_id": "F1", "schema_signature": "sig",
+              "uf": "AL", "year": 2023}
         lake.write_batches(iter([_batch(5, 0)]), **kw)
         written = lake.write_batches(iter([_batch(9, 1)]), **kw)
         assert written is not None
@@ -145,7 +147,8 @@ class TestReplacementNeverLeavesNeitherPartition:
     def test_only_one_parquet_remains_after_a_rebuild(self, tmp_path):
         """A stale part beside a new one is read as a union and doubles rows."""
         lake = Lake(tmp_path / "lake")
-        kw = dict(system="SIHSUS", family_id="F1", schema_signature="sig", uf="AL", year=2023)
+        kw = {"system": "SIHSUS", "family_id": "F1", "schema_signature": "sig",
+              "uf": "AL", "year": 2023}
         lake.write_batches(iter([_batch(5, 0)]), **kw)
         written = lake.write_batches(iter([_batch(9, 1)]), **kw)
         directory = (lake.root / written.relative_path).parent
