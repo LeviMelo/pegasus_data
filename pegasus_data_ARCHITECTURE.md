@@ -176,7 +176,7 @@ pegasus_data/
   bundle.py               portable semantic bundle
   docsgen.py              docs/dictionary/*.md
   progress.py             watchdog, heartbeat, per-item deadlines
-  verify.py               15 regression assertions
+  verify.py               18 regression assertions
   api.py cli.py config.py pipeline.py build.py
 ```
 
@@ -851,6 +851,17 @@ with what one row IS, `coverage` by year and state, `schema_generations` with
 what each changed, `variables` with their meanings, and `open_questions` — and
 everything heavy is opt-in.
 
+Two of those answer questions that decide whether an analysis is valid at all,
+so they are core rather than optional however tempting the size saving:
+
+- **`field_validity`** (§14.7) — *when* each column existed. Without it a
+  structural zero reads as clinical missingness.
+- **`codelist_vintages`** — which codelists have more than one vintage, over
+  what competence windows, and how many codes. `SIASUS.MUNICBR` has four
+  vintages across 280,004 codes; decoding a 1998 extract against today's table
+  resolves every code, to the wrong municipality. The full `codes` table is
+  optional and runs to 425 MB, so the *hazard* has to be visible without it.
+
 The `codes` toggle is the design decision, and it is sized rather than named:
 
 | mode | SIH | why |
@@ -1053,13 +1064,27 @@ absent rather than half-written. Data home from `$PEGASUS_DATA_HOME`.
 
 ## 17. Build order and regression assertions
 
-`verify` runs 15 assertions. They are checks, not opinions:
+`verify` runs 18 assertions. They are checks, not opinions:
 
 `check_blob_dedup`, `check_crawl_coverage`, `check_apac_recovered`,
 `check_sih_generations`, `check_format_collapse`, `check_dictionary_coverage`,
 `check_field_decoding`, `check_detectors`, `check_retired_column_flagged`,
 `check_lake`, `check_population`, `check_demas`, `check_describe`,
-`check_build_accounted`, `check_stored_labels_agree`.
+`check_build_accounted`, `check_stored_labels_agree`, `check_codes_are_codes`,
+`check_ontology_exhaustive`, `check_every_dataset_says_what_a_row_is`.
+
+The last two are the ones the project is judged on, and they are deliberately a
+pair. Exhaustiveness without meaning is a file listing; meaning without
+exhaustiveness is a sample.
+
+- **16** no codelist stores prose where a code belongs.
+- **17** every one of 207,030 data files reaches a declared dataset — 100%,
+  with 221 support files (codelists, layouts, PDFs) counted separately rather
+  than buried in the same number.
+- **18** every one of 131 declared datasets states what one row IS and its unit
+  of analysis, across 38 distinct units. Files that are not tables of rows —
+  installers, record layouts, the BPA importer — satisfy it by saying so.
+  "Not a dataset" is an answer; blank is not.
 
 A check that cannot run on the current catalog **skips with a reason**; it never
 passes vacuously.
