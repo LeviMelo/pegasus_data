@@ -17,7 +17,7 @@ from __future__ import annotations
 import pytest
 
 from pegasus_data.acquire.cache import BlobStore
-from pegasus_data.acquire.fetcher import REFRESH_POLICIES, FetchResult, Fetcher
+from pegasus_data.acquire.fetcher import REFRESH_POLICIES, Fetcher, FetchResult
 from pegasus_data.catalog.store import Catalog
 
 
