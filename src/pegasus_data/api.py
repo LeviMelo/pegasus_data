@@ -291,18 +291,87 @@ class Catalog:
         return duck
 
 
+def _by_vintage(table: "pa.Table", years: "Sequence[int] | None"):
+    """Split a table into ``(chunk, year)`` so each is rendered at its own vintage.
+
+    The lake stores ``year`` as a partition column, so it is present on every
+    row and the split is exact. Without that column there is nothing to split
+    on and the whole table is rendered once, with the request's earliest year as
+    the hint — the old behaviour, kept only for that case.
+    """
+    import pyarrow.compute as pc
+
+    if "year" not in table.column_names:
+        return [(table, min(years) if years else None)]
+    distinct = pc.unique(table.column("year")).to_pylist()
+    usable = sorted(y for y in distinct if y not in (None, 0))
+    if len(usable) <= 1:
+        only = usable[0] if usable else (min(years) if years else None)
+        return [(table, only)]
+    out = []
+    for year in usable:
+        mask = pc.equal(table.column("year"), year)
+        chunk = table.filter(mask)
+        if chunk.num_rows:
+            out.append((chunk, int(year)))
+    # Rows whose year is null or 0 carry no vintage of their own.
+    rest = table.filter(pc.is_null(pc.if_else(pc.equal(table.column("year"), 0), None, table.column("year"))))
+    if rest.num_rows:
+        out.append((rest, min(years) if years else None))
+    return out
+
+
+def _merge_reports(into, addition):
+    """Fold one render report into another, keeping every field's information."""
+    if into is None:
+        return addition
+    for name in ("labelled", "unlabelled", "derived_added", "companions_dropped", "warnings"):
+        seen = set(getattr(into, name))
+        for item in getattr(addition, name, ()):
+            if item not in seen:
+                getattr(into, name).append(item)
+                seen.add(item)
+    into.constant.update(getattr(addition, "constant", {}) or {})
+    for key, value in (getattr(addition, "tokens_unmatched", {}) or {}).items():
+        into.tokens_unmatched[key] = into.tokens_unmatched.get(key, 0) + value
+    return into
+
+
 def _resolve_family(store: _Store, system: str, series: str | None, field_name: str | None) -> list[dict[str, Any]]:
-    clauses = ["system = ?"]
-    params: list[object] = [system]
-    if series:
-        clauses.append("series = ?")
-        params.append(series)
+    """Families of one logical dataset, resolved the way ``fetch()`` resolves it.
+
+    This used to match ``series = ?`` exactly, while ``retrieve._families()``
+    resolved through the ontology — two resolvers for the package's central
+    abstraction. ``series`` is derived from filenames, so one dataset is spread
+    across many spellings of itself: exact matching found 9 of SIA-PA's 736
+    families and **none** of SIA-AC's 7. That made ``fetch("SIA-AC")`` and
+    ``load("SIA", "AC")`` disagree about what the dataset even contains, and
+    ``describe()`` describe a subset of what ``fetch()`` returns.
+
+    The raw filename-derived series stays as provenance. It is not identity.
+    """
     rows = store.query(
-        f"SELECT family_id, system, series, schema_signature, field_count, time_min, time_max "
-        f"FROM families WHERE {' AND '.join(clauses)} ORDER BY COALESCE(time_max, 0) DESC",
-        params,
+        "SELECT family_id, system, series, schema_signature, field_count, time_min, time_max "
+        "FROM families WHERE system = ? ORDER BY COALESCE(time_max, 0) DESC",
+        [system],
     )
     families = [dict(r) for r in rows]
+    if series:
+        from .retrieve import _ontology
+
+        onto = _ontology()
+        target = onto.resolve(f"{system}.{series}") if onto else None
+        bound: list[dict[str, Any]] = []
+        if target and target[0] == "dataset":
+            code = target[1].code
+            bound = [
+                f
+                for f in families
+                if onto.bind(str(f["system"]), str(f["series"])).dataset == code
+            ]
+        # Fall back to the plain match when the ontology cannot name it: a
+        # narrower answer beats an exception.
+        families = bound or [f for f in families if str(f["series"]) == series]
     if field_name:
         with_field = [
             f
@@ -663,29 +732,48 @@ def load(
             except FileNotFoundError:
                 continue
             if table.num_rows:
-                tables.append(table)
+                tables.append((family["family_id"], table))
         if not tables:
             raise FileNotFoundError(
                 f"no lake data for system={system!r} series={series!r}; run `pegasus-data build` first"
             )
-        combined = tables[0] if len(tables) == 1 else pa.concat_tables(
-            tables, promote_options="permissive"
-        )
-        year_hint = min(years) if years else None
-        rendered, render_report = render_table(
-            combined,
-            store=store,
-            lake_root=cat.settings.lake_dir,
-            system=system,
-            family_id=families[0]["family_id"] if len(families) == 1 else None,
-            profile=profile,
-            render=render,
-            headers=headers,
-            values=values,
-            companions=companions,
-            derived=derived,
-            year=year_hint,
-            strict=strict_labels,
+
+        # Render each (family, year) with ITS OWN bindings and codelist vintage,
+        # then combine. This used to concatenate everything first and render the
+        # lot once with `min(years)` and `family_id=None`, which meant
+        # `load(years=range(1995, 2025))` labelled every row with the 1995
+        # vintage, `years=None` labelled historical rows with today's codelist,
+        # and any family-specific binding was discarded the moment two families
+        # were combined. A plausible wrong label is worse than a missing one,
+        # and classification vintages are exactly where that bites.
+        #
+        # `year` is a Hive partition column in the lake, so the scoping is
+        # row-level rather than a hint about the request.
+        rendered_parts: list[pa.Table] = []
+        render_report = None
+        for family_id, table in tables:
+            for chunk, chunk_year in _by_vintage(table, years):
+                part, part_report = render_table(
+                    chunk,
+                    store=store,
+                    lake_root=cat.settings.lake_dir,
+                    system=system,
+                    family_id=family_id,
+                    profile=profile,
+                    render=render,
+                    headers=headers,
+                    values=values,
+                    companions=companions,
+                    derived=derived,
+                    year=chunk_year,
+                    strict=strict_labels,
+                )
+                rendered_parts.append(part)
+                render_report = _merge_reports(render_report, part_report)
+        rendered = (
+            rendered_parts[0]
+            if len(rendered_parts) == 1
+            else pa.concat_tables(rendered_parts, promote_options="permissive")
         )
         for note in axis_notes:
             render_report.warnings.append(note)
