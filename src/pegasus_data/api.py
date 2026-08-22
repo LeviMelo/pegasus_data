@@ -19,12 +19,14 @@ variable and what do its values mean", which DATASUS does not provide anywhere.
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
+import os
 from pathlib import Path
 from typing import Any
 
 import pyarrow as pa
+import pyarrow.dataset as ds
 
 from .catalog.store import Catalog as _Store
 from .config import Settings, load_settings
@@ -58,6 +60,8 @@ __all__ = [
     "load_population",
     "load_reference",
     "open_lake",
+    "scan",
+    "LakeScan",
     "FieldDescription",
     "MissingColumnError",
     "export",
@@ -996,6 +1000,174 @@ def reference_tables(root: str | Path | None = None) -> list[dict[str, Any]]:
         cat.close()
 
 
+@dataclass
+class LakeScan:
+    """A lazy, bounded-memory read of one dataset. The missing middle primitive.
+
+    Between ``fetch()``/``load()``, which materialise a whole ``pa.Table``, and
+    a raw DuckDB connection, which knows nothing about generations, axes or
+    codelists, there was nothing. A national multi-year question therefore had
+    exactly one supported shape: build the entire answer in memory first.
+
+    A scan carries the same guards as ``load()`` — declared-dataset resolution,
+    the file-axis refusal, generation pruning — and then hands back batches.
+    Projection and the year/UF filters are pushed into the Parquet scan, so
+    unread columns and unmatched partitions are never read at all.
+
+    Iterating twice re-scans; nothing is cached, which is the point.
+    """
+
+    #: One scanner per schema generation. They are separate deliberately: two
+    #: generations do not share a schema, and concatenating them is a decision
+    #: (see `on_missing_column`) rather than something a scan should do quietly.
+    scanners: list[tuple[str, "ds.Scanner"]]
+    system: str
+    series: str | None = None
+    families: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+    @property
+    def schema(self) -> pa.Schema:
+        """The first generation's schema. Others may differ — that is the point
+        of keeping them apart, and `schemas` gives all of them."""
+        return self.scanners[0][1].dataset_schema if self.scanners else pa.schema([])
+
+    @property
+    def schemas(self) -> dict[str, pa.Schema]:
+        return {fam: sc.dataset_schema for fam, sc in self.scanners}
+
+    def count_rows(self) -> int:
+        """How many rows the request matches, WITHOUT reading them.
+
+        Parquet stores row counts in its footers, so this reads metadata rather
+        than data — which is what makes "is this question too big for memory?"
+        answerable before committing to it.
+        """
+        return sum(sc.count_rows() for _, sc in self.scanners)
+
+    def iter_batches(self) -> "Iterator[pa.RecordBatch]":
+        """Yield batches across every generation, in family order."""
+        for _fam, scanner in self.scanners:
+            yield from scanner.to_batches()
+
+    def __iter__(self) -> "Iterator[pa.RecordBatch]":
+        return self.iter_batches()
+
+    def to_table(self) -> pa.Table:
+        """Materialise it after all. The escape hatch, named as one."""
+        parts = [sc.to_table() for _, sc in self.scanners]
+        parts = [p for p in parts if p.num_rows]
+        if not parts:
+            return pa.table({})
+        if len({tuple(p.schema.names) for p in parts}) == 1:
+            return pa.concat_tables(parts)
+        return pa.concat_tables(parts, promote_options="permissive")
+
+
+def scan(
+    system: str,
+    series: str | None = None,
+    *,
+    uf: str | Sequence[str] | None = None,
+    years: int | Sequence[int] | range | None = None,
+    columns: Sequence[str] | None = None,
+    where: "ds.Expression | None" = None,
+    batch_size: int = 131_072,
+    family_id: str | None = None,
+    catalog: Catalog | None = None,
+    root: str | Path | None = None,
+    settings: Settings | None = None,
+) -> LakeScan:
+    """A lazy read of lake data: projection, predicates, bounded memory.
+
+    ``where`` is a ``pyarrow.dataset`` expression over the data columns, pushed
+    into the scan — ``scan("SIHSUS", "RD", where=ds.field("SEXO") == "1")``
+    reads only the row groups that can contain matches.
+
+    Labels are NOT applied. Rendering weighs codelists against the values a
+    column actually holds, which is a whole-column question, and answering it
+    per batch would let two batches of one column disagree. Call
+    :func:`load` when you want labels, or render a batch yourself.
+    """
+    own = catalog is None
+    cat = catalog or Catalog(root=root, settings=settings)
+    try:
+        store = cat.store
+        families = _resolve_family(store, system, series, None)
+        if not families:
+            from .retrieve import DatasetUnknown
+
+            raise DatasetUnknown(
+                f"no family found for system={system!r} series={series!r}"
+            )
+        if family_id:
+            families = [f for f in families if f["family_id"] == family_id]
+        if isinstance(years, int):
+            years = [years]
+        if isinstance(uf, str):
+            uf = [uf]
+
+        # The same refusal load() and fetch() apply. A filter on an axis this
+        # dataset does not have is a false answer, not a narrow one.
+        from .retrieve import FilterHasNoAxis, axis_refusal
+
+        refusal, axis_notes = axis_refusal(
+            store,
+            system,
+            series or (families[0]["series"] if families else None),
+            uf=bool(uf),
+            years=bool(years),
+            months=False,
+        )
+        if refusal:
+            raise FilterHasNoAxis(refusal)
+
+        warnings_out: list[str] = list(axis_notes)
+        scanners: list[tuple[str, ds.Scanner]] = []
+        for family in families:
+            try:
+                scanner = cat.lake.scanner(
+                    system=system,
+                    family_id=str(family["family_id"]),
+                    uf=uf,
+                    years=list(years) if years else None,
+                    columns=list(columns) if columns else None,
+                    optional_columns=[
+                        f"{c}{suffix}"
+                        for c in (columns or [])
+                        for suffix in COMPANION_SUFFIXES
+                    ],
+                    where=where,
+                    batch_size=batch_size,
+                )
+            except FileNotFoundError:
+                continue
+            except KeyError as exc:
+                # A generation that lacks a requested column. Named, not
+                # silently dropped — that was CR-03.
+                warnings_out.append(f"{family['family_id']}: {exc}")
+                continue
+            scanners.append((str(family["family_id"]), scanner))
+        if not scanners:
+            from .retrieve import NothingPublished
+
+            raise NothingPublished(
+                f"no lake data for system={system!r} series={series!r}"
+                + (f"; {warnings_out[0]}" if warnings_out else "")
+                + "; run `pegasus-data build` first"
+            )
+        return LakeScan(
+            scanners=scanners,
+            system=system,
+            series=series,
+            families=[fam for fam, _ in scanners],
+            warnings=warnings_out,
+        )
+    finally:
+        if own:
+            cat.close()
+
+
 def open_lake(
     root: str | Path | None = None, *, settings: Settings | None = None
 ) -> DuckLake:
@@ -1034,6 +1206,7 @@ def export(
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
+    stream: bool = False,
 ) -> Path:
     """Write a rendered extract to a file. ``load()`` plus a writer.
 
@@ -1046,11 +1219,54 @@ def export(
     ``format`` is ``csv``, ``parquet`` or ``xlsx``. Excel needs the optional
     ``openpyxl`` dependency and is refused with a clear message when absent
     rather than half-written.
+
+    ``stream=True`` writes batch by batch through :func:`scan` instead of
+    building the whole table first, which is what makes a national multi-year
+    export possible on an ordinary machine. It is only available WITHOUT
+    rendering (``profile="codes"``), and to csv or parquet: choosing a codelist
+    weighs it against the values a column actually holds, which is a
+    whole-column question, and answering it per batch would let two batches of
+    one column disagree. xlsx has to build a workbook in memory regardless.
     """
     path = path if path is not None else out
     fmt = format.lower().lstrip(".")
     if fmt not in {"csv", "parquet", "xlsx"}:
         raise ValueError(f"unknown export format {format!r}; use csv, parquet or xlsx")
+
+    if path is None:
+        parts = [system, series or "all"]
+        if uf:
+            parts.append(uf if isinstance(uf, str) else "-".join(uf))
+        if years:
+            ys = list(years)
+            parts.append(str(ys[0]) if len(ys) == 1 else f"{min(ys)}-{max(ys)}")
+        path = Path(f"{'_'.join(str(p) for p in parts)}.{fmt}")
+
+    if stream:
+        if profile != "codes":
+            raise ValueError(
+                f"stream=True cannot render (profile={profile!r}). Choosing a "
+                "codelist weighs it against the values a column holds, which is a "
+                'whole-column question; use profile="codes" to stream, or drop '
+                "stream= to render."
+            )
+        if fmt == "xlsx":
+            raise ValueError(
+                "stream=True is not available for xlsx: a workbook is built in "
+                "memory before it can be written. Use csv or parquet."
+            )
+        scan_result = scan(
+            system,
+            series,
+            uf=uf,
+            years=years,
+            columns=columns,
+            family_id=family_id,
+            catalog=catalog,
+            root=root,
+            settings=settings,
+        )
+        return _write_streaming(scan_result, path, fmt)
 
     table = load(
         system,
@@ -1074,16 +1290,57 @@ def export(
         strict_labels=strict_labels,
     )
     assert isinstance(table, pa.Table)
-
-    if path is None:
-        parts = [system, series or "all"]
-        if uf:
-            parts.append(uf if isinstance(uf, str) else "-".join(uf))
-        if years:
-            ys = list(years)
-            parts.append(str(ys[0]) if len(ys) == 1 else f"{min(ys)}-{max(ys)}")
-        path = Path(f"{'_'.join(str(p) for p in parts)}.{fmt}")
     return write_table(table, path, fmt)
+
+
+def _write_streaming(scan_result: "LakeScan", path: str | Path, fmt: str) -> Path:
+    """Write a scan batch by batch. Never holds more than one batch.
+
+    Staged and renamed, like every other write in this package: an interrupted
+    export otherwise leaves a truncated file at the name the caller will read
+    back, and a short CSV is indistinguishable from a small answer.
+    """
+    import pyarrow.csv as pacsv
+    import pyarrow.parquet as pq
+
+    target = Path(path)
+    if target.parent != Path():
+        target.parent.mkdir(parents=True, exist_ok=True)
+    staged = target.with_name(target.name + ".part")
+
+    writer = None
+    try:
+        # The writer must be closed INSIDE this block: both Arrow writers finish
+        # their output on close (parquet writes its footer), and closing after
+        # the handle is gone raises "write to closed file" and leaves a file
+        # with no footer — unreadable, at the name the caller will read back.
+        with staged.open("wb") as sink:
+            for batch in scan_result.iter_batches():
+                if not batch.num_rows:
+                    continue
+                # Same list-flattening rule as write_table: a multi-valued
+                # field's *_codes companion has no CSV representation, and
+                # letting it through as a Python repr is how a column silently
+                # stops being parseable.
+                flat = _flatten_lists(pa.Table.from_batches([batch]))
+                if writer is None:
+                    writer = (
+                        pq.ParquetWriter(sink, flat.schema, compression="zstd")
+                        if fmt == "parquet"
+                        else pacsv.CSVWriter(sink, flat.schema)
+                    )
+                writer.write_table(flat)
+            if writer is not None:
+                writer.close()
+    except BaseException:
+        staged.unlink(missing_ok=True)
+        raise
+    if writer is None:
+        # No rows at all. Write the header so the file is still readable.
+        staged.unlink(missing_ok=True)
+        return write_table(pa.table({}), target, fmt)
+    os.replace(staged, target)
+    return target
 
 
 def write_table(table: pa.Table, path: str | Path, format: str = "csv") -> Path:

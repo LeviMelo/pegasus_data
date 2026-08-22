@@ -300,6 +300,51 @@ class Lake:
             projection += [c for c in (optional_columns or []) if c in available]
         return dataset.to_table(columns=projection, filter=expression)
 
+    def scanner(
+        self,
+        *,
+        system: str,
+        family_id: str,
+        schema_signature: str | None = None,
+        uf: str | Sequence[str] | None = None,
+        years: Sequence[int] | range | None = None,
+        columns: Sequence[str] | None = None,
+        optional_columns: Sequence[str] | None = None,
+        where: ds.Expression | None = None,
+        batch_size: int = 131_072,
+    ) -> ds.Scanner:
+        """:meth:`read` without materialising the table.
+
+        Same projection and same partition filters, handed to a Scanner instead
+        of `to_table()`, so a caller can iterate batches under bounded memory.
+        `where` is an extra predicate on the data columns, pushed into the scan
+        rather than applied afterwards.
+        """
+        dataset = self.dataset(system, family_id, schema_signature)
+        expression = None
+        if uf is not None:
+            ufs = [uf] if isinstance(uf, str) else list(uf)
+            expression = ds.field("uf").isin(ufs)
+        if years is not None:
+            year_filter = ds.field("year").isin(list(years))
+            expression = year_filter if expression is None else (expression & year_filter)
+        if where is not None:
+            expression = where if expression is None else (expression & where)
+        available = set(dataset.schema.names)
+        projection = None
+        if columns:
+            missing = [c for c in columns if c not in available]
+            if missing:
+                raise KeyError(
+                    f"columns not present in the lake for {family_id}: {missing}. "
+                    "Check the schema generation with Catalog.coverage()."
+                )
+            projection = list(columns)
+            projection += [c for c in (optional_columns or []) if c in available]
+        return dataset.scanner(
+            columns=projection, filter=expression, batch_size=batch_size
+        )
+
     # ------------------------------------------------------------- accounting
 
     def partitions(self, family_id: str | None = None) -> list[dict[str, object]]:

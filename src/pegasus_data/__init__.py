@@ -30,6 +30,8 @@ _EXPORTS: dict[str, str] = {
     "Catalog": ".api",
     "describe": ".api",
     "load": ".api",
+    "scan": ".api",
+    "LakeScan": ".api",
     "load_population": ".api",
     "load_reference": ".api",
     "open_lake": ".api",
@@ -73,6 +75,8 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from ._info import Info, info
     from .ontology import Ontology
     from .api import (
+        LakeScan,
+        scan,
         PROFILES,
         Catalog,
         FieldDescription,
