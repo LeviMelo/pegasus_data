@@ -253,11 +253,26 @@ def add_provenance(
 ) -> pa.RecordBatch:
     n = batch.num_rows
     stamp = utcnow()
+
+    def _constant(value: str) -> pa.Array:
+        """One value repeated for every row, stored once.
+
+        These were built as `pa.array([value] * n)` — a full string buffer per
+        column per batch, four of them, every value identical. At millions of
+        rows that is hundreds of megabytes of transient Arrow buffers carrying
+        four distinct facts. A dictionary array stores the value once and an
+        index per row, and Parquet already round-trips it as dictionary-encoded.
+        """
+        return pa.DictionaryArray.from_arrays(
+            pa.array([0] * n, type=pa.int32()),
+            pa.array([value], type=pa.string()),
+        )
+
     extra = {
-        "_source_path": pa.array([source_path] * n, type=pa.string()),
-        "_blob_sha256": pa.array([blob_sha256] * n, type=pa.string()),
-        "_ingested_at": pa.array([stamp] * n, type=pa.string()),
-        "_schema_signature": pa.array([schema_signature] * n, type=pa.string()),
+        "_source_path": _constant(source_path),
+        "_blob_sha256": _constant(blob_sha256),
+        "_ingested_at": _constant(stamp),
+        "_schema_signature": _constant(schema_signature),
     }
     return pa.RecordBatch.from_arrays(
         list(batch.columns) + list(extra.values()),
