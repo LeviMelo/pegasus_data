@@ -200,9 +200,19 @@ class TestItSaysWhatItCouldNotDo:
         with pytest.raises(MissingColumnError):
             fetch("SIH-RD", columns=["IDADE"], settings=settings)
 
-    def test_the_report_counts_what_was_downloaded(self, settings, seeded):
+    def test_the_report_counts_bytes_read_apart_from_bytes_downloaded(
+        self, settings, seeded
+    ):
+        """They are different numbers and were reported as one.
+
+        `bytes_downloaded` counted every byte handed to the decoder, so a fully
+        warm request claimed megabytes "downloaded" with the network untouched.
+        It now means NETWORK bytes; `bytes_read` is what was decoded, whatever
+        its origin. This fixture serves from a fake store, so nothing was
+        downloaded and one file was read.
+        """
         _, report = fetch("SIH-RD", uf="SP", settings=settings, report=True)
-        assert report.bytes_downloaded == len(one_file())
+        assert report.bytes_read == len(one_file())
         assert report.ufs_returned == ["SP"]
 
 
@@ -402,12 +412,14 @@ class TestItCannotHangSilently:
         settings.item_timeout = 0.25
         real = retrieve._decode_one
 
-        def slow_for_one(pipeline, registry, plan, *, path, digest, member):
+        def slow_for_one(pipeline, registry, plan, *, path, digest, member, **kw):
             if path.endswith("RDAL2301.dbc"):
                 import time
 
                 time.sleep(30)
-            return real(pipeline, registry, plan, path=path, digest=digest, member=member)
+            return real(
+                pipeline, registry, plan, path=path, digest=digest, member=member, **kw
+            )
 
         monkeypatch.setattr(retrieve, "_decode_one", slow_for_one)
         table, report = fetch("SIH-RD", uf="AL", settings=settings, report=True)

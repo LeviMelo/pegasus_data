@@ -99,7 +99,16 @@ class FetchReport:
     files_matched: int = 0
     files_read: int = 0
     rows: int = 0
+    #: Bytes pulled over the NETWORK this call. Was previously every byte handed
+    #: to the decoder, so a warm request reported megabytes "downloaded" with the
+    #: network untouched.
     bytes_downloaded: int = 0
+    #: Bytes served from the local content-addressed store.
+    bytes_from_cache: int = 0
+    #: Bytes read from the store and decoded, whatever their origin.
+    bytes_read: int = 0
+    cache_hits: int = 0
+    network_fetches: int = 0
     discovered: bool = False
     years_requested: list[int] = field(default_factory=list)
     years_returned: list[int] = field(default_factory=list)
@@ -748,6 +757,17 @@ def _read_families(
     if on_progress:
         on_progress("downloading", 0, len(paths))
     digests = pipeline.fetcher.ensure(paths)
+    # Truthful acquisition accounting. `bytes_downloaded` counted every byte
+    # handed to the decoder, so a fully warm request reported megabytes
+    # "downloaded" with the network untouched.
+    stats = getattr(pipeline.fetcher, "last_stats", None)
+    if stats is not None:
+        report.bytes_downloaded = getattr(stats, "bytes_fetched", 0)
+        report.bytes_from_cache = getattr(stats, "bytes_from_cache", 0)
+        report.cache_hits = getattr(stats, "skipped", 0)
+        report.network_fetches = getattr(stats, "fetched", 0)
+        for failed_path, reason in getattr(stats, "errors", ()):
+            report.warnings.append(f"acquisition: {failed_path}: {reason}")
 
     batches: list[pa.RecordBatch] = []
     seen_years: set[int] = set()
@@ -759,6 +779,8 @@ def _read_families(
     # the report, and the fetch continues.
     settings = pipeline.settings
     index = 0
+    #: digest -> (DecodeOutcome, payload size). Lives for this call only.
+    decoded_cache: dict[str, tuple[object, int]] = {}
     for (_family_id, plan, item), progress in guarded(
         catalog,
         "get",
@@ -787,6 +809,7 @@ def _read_families(
                     path=path,
                     digest=digest,
                     member=member,
+                    decoded_cache=decoded_cache,
                 ),
                 seconds=settings.item_timeout,
                 label=path,
@@ -799,7 +822,9 @@ def _read_families(
             report.undecoded.append(path)
             report.warnings.append(f"{path}: gave up after {settings.item_timeout:.0f}s")
             continue
-        report.bytes_downloaded += read_bytes
+        # Bytes READ from the store, which is not the same as bytes pulled over
+        # the network. The network figure comes from the acquisition layer below.
+        report.bytes_read += read_bytes
         batches.extend(decoded_batches)
         if matched_here:
             report.files_read += 1
@@ -830,20 +855,38 @@ def _decode_one(
     path: str,
     digest: str,
     member: str,
+    decoded_cache: dict[str, tuple[object, int]] | None = None,
 ) -> tuple[list[pa.RecordBatch], bool, int]:
-    """Read one file and normalise it. Split out so it can be given a deadline."""
-    payload = pipeline.blobs.read(digest)
-    outcome = registry.open_bytes(payload, path=path)
+    """Read one file and normalise it. Split out so it can be given a deadline.
+
+    ``decoded_cache`` keys the DECODE by blob digest, so an archive holding
+    several selected members is opened, decompressed and parsed ONCE rather
+    than once per member. The acquisition layer already deduplicates by path;
+    the decode loop iterates (family, path, member) records, so an APAC archive
+    with seven DBF members was being fully decoded seven times.
+    """
+    cached = decoded_cache.get(digest) if decoded_cache is not None else None
+    if cached is None:
+        payload = pipeline.blobs.read(digest)
+        outcome = registry.open_bytes(payload, path=path)
+        size = len(payload)
+        if decoded_cache is not None:
+            decoded_cache[digest] = (outcome, size)
+        # `payload` goes out of scope here; the cache holds the decoded tables,
+        # which are what the remaining members need, not the compressed bytes.
+    else:
+        outcome, size = cached
     batches: list[pa.RecordBatch] = []
     matched = False
-    for decoded in outcome.tables:
+    for decoded in outcome.tables:  # type: ignore[union-attr]
         if member and decoded.member != member:
             continue
         if not _fits(decoded.field_names, plan):
             continue
         matched = True
         batches.extend(normalize_table(decoded, plan, blob_sha256=digest))
-    return batches, matched, len(payload)
+    # Bytes are counted once per SOURCE, not once per member reading it.
+    return batches, matched, (size if cached is None else 0)
 
 
 def _month_of(normalized_date: object) -> int | None:
