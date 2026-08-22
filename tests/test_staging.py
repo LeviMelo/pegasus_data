@@ -34,18 +34,16 @@ class TestStagedFile:
     def test_a_failed_write_leaves_the_old_artifact_intact(self, tmp_path):
         target = tmp_path / "part-00000.parquet"
         target.write_bytes(b"the good one")
-        with pytest.raises(RuntimeError):
-            with staged_file(target) as staged:
-                staged.write_bytes(b"the bad one")
-                raise RuntimeError("writer died")
+        with pytest.raises(RuntimeError), staged_file(target) as staged:
+            staged.write_bytes(b"the bad one")
+            raise RuntimeError("writer died")
         assert target.read_bytes() == b"the good one"
 
     def test_a_failed_write_leaves_no_debris(self, tmp_path):
         target = tmp_path / "part-00000.parquet"
-        with pytest.raises(RuntimeError):
-            with staged_file(target) as staged:
-                staged.write_bytes(b"junk")
-                raise RuntimeError("writer died")
+        with pytest.raises(RuntimeError), staged_file(target) as staged:
+            staged.write_bytes(b"junk")
+            raise RuntimeError("writer died")
         assert list(tmp_path.iterdir()) == [], "the next run must not trip over it"
 
     def test_an_empty_write_is_refused_rather_than_swapped_in(self, tmp_path):
@@ -53,9 +51,8 @@ class TestStagedFile:
         dataset rather than as a failure, which is worse than not writing."""
         target = tmp_path / "part-00000.parquet"
         target.write_bytes(b"the good one")
-        with pytest.raises(OSError, match="empty"):
-            with staged_file(target) as staged:
-                staged.write_bytes(b"")
+        with pytest.raises(OSError, match="empty"), staged_file(target) as staged:
+            staged.write_bytes(b"")
         assert target.read_bytes() == b"the good one"
 
     def test_a_stale_staging_file_does_not_block_the_next_write(self, tmp_path):
@@ -83,19 +80,17 @@ class TestStagedTree:
     def test_a_failed_rebuild_leaves_the_old_tree_whole(self, tmp_path):
         root = tmp_path / "reference"
         self._tree(root, ["CID10", "SEXO"])
-        with pytest.raises(RuntimeError):
-            with staged_tree(root) as staging:
-                self._tree(staging, ["CID10"])
-                raise RuntimeError("rebuild died")
+        with pytest.raises(RuntimeError), staged_tree(root) as staging:
+            self._tree(staging, ["CID10"])
+            raise RuntimeError("rebuild died")
         assert sorted(p.name for p in root.iterdir()) == ["CID10", "SEXO"]
 
     def test_a_failed_rebuild_leaves_no_staging_directory(self, tmp_path):
         root = tmp_path / "reference"
         self._tree(root, ["CID10"])
-        with pytest.raises(RuntimeError):
-            with staged_tree(root) as staging:
-                self._tree(staging, ["CID10"])
-                raise RuntimeError("rebuild died")
+        with pytest.raises(RuntimeError), staged_tree(root) as staging:
+            self._tree(staging, ["CID10"])
+            raise RuntimeError("rebuild died")
         assert [p.name for p in tmp_path.iterdir()] == ["reference"]
 
     def test_a_scoped_rebuild_does_not_delete_what_it_was_not_asked_about(
