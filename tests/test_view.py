@@ -598,7 +598,7 @@ class TestTheDataDecidesWhichTableIsRight:
             "HOSFEDRJ": {"2269384": "Hospital federal"},
             "TCNESBR": {"2001578": "Hospital geral de Rio Branco"},
         }
-        picked, share, _ = _choose_binding(
+        picked, share, _tried, _grain = _choose_binding(
             "CNES", ["HOSFEDRJ", "TCNESBR"], {"2001578"}, self._load(tables)
         )
         assert picked == "TCNESBR"
@@ -609,7 +609,7 @@ class TestTheDataDecidesWhichTableIsRight:
         from pegasus_data.view import _choose_binding
 
         tables = {"REAL": {"1": "Sim"}}
-        picked, share, _ = _choose_binding(
+        picked, share, _tried, _grain = _choose_binding(
             "X", ["ABSENT", "REAL"], {"1"}, self._load(tables)
         )
         assert (picked, share) == ("REAL", 1.0)
@@ -619,30 +619,97 @@ class TestTheDataDecidesWhichTableIsRight:
         from pegasus_data.view import _choose_binding
 
         tables = {"GOOD": {"A": "a"}, "ALSO": {"A": "a"}}
-        _, _, tried = _choose_binding("X", ["GOOD", "ALSO"], {"A"}, self._load(tables))
+        _, _, tried, _grain = _choose_binding("X", ["GOOD", "ALSO"], {"A"}, self._load(tables))
         assert tried == 1
 
     def test_it_weighs_no_more_than_the_cap(self) -> None:
         from pegasus_data.view import _MAX_CANDIDATES, _choose_binding
 
         names = [f"T{i}" for i in range(40)]
-        _, _, tried = _choose_binding("X", names, {"zzz"}, lambda _cl: {"other": "x"})
+        _, _, tried, _grain = _choose_binding("X", names, {"zzz"}, lambda _cl: {"other": "x"})
         assert tried == _MAX_CANDIDATES
 
     def test_an_empty_column_does_not_drive_the_choice(self) -> None:
         """With nothing observed there is no evidence, so ranking stands."""
         from pegasus_data.view import _choose_binding
 
-        picked, share, tried = _choose_binding("X", ["FIRST", "SECOND"], set(), lambda _cl: {})
+        picked, share, tried, _grain = _choose_binding("X", ["FIRST", "SECOND"], set(), lambda _cl: {})
         assert (picked, share, tried) == ("FIRST", 0.0, 0)
 
     def test_the_best_of_a_bad_set_is_reported_not_hidden(self) -> None:
         """PROC_REA: 12 tables bound, the best decodes 3%. That is a finding."""
         from pegasus_data.view import _TOO_WEAK, _choose_binding
 
-        picked, share, _ = _choose_binding(
+        picked, share, _tried, _grain = _choose_binding(
             "PROC_REA", ["A"], {"1", "2", "3", "4"}, lambda _cl: {"1": "one"}
         )
         assert picked == "A"
         assert share == 0.25
         assert share < _TOO_WEAK
+
+
+class TestARollupIsNotATranslation:
+    """SINASC's CODMUNRES holds municipality codes; CIRAC holds health regions.
+
+    CIRAC contains every one of those codes — mapped to the region that
+    contains them — so it decodes 100% and labels Rio Branco "Baixo Acre e
+    Purus". Not wrong so much as a different question, answered confidently.
+    Decode rate alone cannot see the difference; granularity can.
+    """
+
+    def test_the_finer_table_wins_a_tie(self) -> None:
+        from pegasus_data.view import _choose_binding
+
+        codes = {"120040", "120020", "120060"}
+        tables = {
+            # a health-region rollup: every code, three of them to one name
+            "CIRAC": dict.fromkeys(codes, "Baixo Acre e Purus"),
+            # the municipality table: every code, its own name
+            "MUNIC": {"120040": "Rio Branco", "120020": "Brasileia", "120060": "Xapuri"},
+        }
+        picked, share, _tried, grain = _choose_binding(
+            "CODMUNRES", ["CIRAC", "MUNIC"], codes, lambda cl: tables.get(cl)
+        )
+        assert picked == "MUNIC"
+        assert (share, grain) == (1.0, 1.0)
+
+    def test_a_rollup_is_still_used_when_it_is_all_there_is(self) -> None:
+        """Better a broad label than none — but the caller has to be told."""
+        from pegasus_data.view import _ROLLUP, _choose_binding
+
+        codes = {"120040", "120020", "120060"}
+        tables = {"CIRAC": dict.fromkeys(codes, "Baixo Acre e Purus")}
+        picked, share, _tried, grain = _choose_binding(
+            "CODMUNRES", ["CIRAC"], codes, lambda cl: tables.get(cl)
+        )
+        assert (picked, share) == ("CIRAC", 1.0)
+        assert grain < _ROLLUP, "one label for three codes is a rollup"
+
+    def test_within_the_tie_band_the_finer_table_wins(self) -> None:
+        """A point of coverage is worth less than the distinctions it costs."""
+        from pegasus_data.view import _choose_binding
+
+        codes = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                 "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"}
+        coarse = dict.fromkeys(codes, "Everything")               # 100%, 1 label
+        fine = {c: f"name-{c}" for c in codes if c != "20"}       # 95%, 19 labels
+        picked, _share, _tried, _grain = _choose_binding(
+            "X", ["COARSE", "FINE"], codes,
+            lambda cl: coarse if cl == "COARSE" else fine,
+        )
+        assert picked == "FINE"
+
+    def test_outside_it_coverage_still_wins(self) -> None:
+        """Granularity is a tie-break, not a licence to leave a quarter of the
+        rows unlabelled."""
+        from pegasus_data.view import _choose_binding
+
+        codes = {"1", "2", "3", "4"}
+        tables = {
+            "COARSE": dict.fromkeys(codes, "Everything"),          # 100%, 1 label
+            "FINE": {"1": "A", "2": "B", "3": "C"},                # 75%, 3 labels
+        }
+        picked, _share, _tried, _grain = _choose_binding(
+            "X", ["COARSE", "FINE"], codes, lambda cl: tables.get(cl)
+        )
+        assert picked == "COARSE"

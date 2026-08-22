@@ -340,12 +340,21 @@ _GOOD_ENOUGH = 0.99
 _TOO_WEAK = 0.5
 
 
+#: Two candidates whose decode rates are within this of each other are treated
+#: as equally good, and the tie goes to whichever preserves more distinctions.
+_SHARE_TIE = 0.05
+
+#: A table mapping observed codes to fewer distinct labels than this is a
+#: ROLLUP: it answers a coarser question than the column asks.
+_ROLLUP = 0.5
+
+
 def _choose_binding(
     field_name: str,
     candidates: Sequence[str],
     observed: set[str],
     load: Callable[[str], dict[str, str] | None],
-) -> tuple[str | None, float, int]:
+) -> tuple[str | None, float, int, float]:
     """Pick the bound codelist that decodes the most of what the column holds.
 
     Ranking got the caller a *deterministic* choice, not a *correct* one, and
@@ -362,27 +371,44 @@ def _choose_binding(
     ``_MAX_CANDIDATES`` and short-circuited as soon as a table decodes
     essentially everything.
 
-    Returns ``(codelist, share_decoded, candidates_tried)``. A share of zero
-    means no bound table decodes this column, which is a real finding and is
-    reported rather than hidden.
+    Decode rate alone is not enough, and the way it fails is subtle. SINASC's
+    CODMUNRES holds municipality codes like ``120040`` (Rio Branco), and the
+    health-REGION table ``CIRAC`` contains every one of those codes — mapped to
+    the region that contains them. It scores 100% and labels Rio Branco
+    "Baixo Acre e Purus", which is not wrong so much as a different question,
+    answered confidently.
+
+    So granularity breaks the tie: among candidates that decode about equally
+    well, the one preserving the most distinctions wins. A table collapsing 22
+    municipalities into 5 regions is a rollup, and the caller is told when the
+    best available table is one.
+
+    Returns ``(codelist, share_decoded, candidates_tried, granularity)``.
     """
     if not observed:
-        return (candidates[0] if candidates else None), 0.0, 0
-    best: tuple[str | None, float] = (None, -1.0)
+        return (candidates[0] if candidates else None), 0.0, 0, 1.0
+    scored: list[tuple[str, float, float]] = []
     tried = 0
     for codelist in list(candidates)[:_MAX_CANDIDATES]:
         lookup = load(codelist)
         tried += 1
         if not lookup:
             continue
-        share = sum(1 for v in observed if v in lookup) / len(observed)
-        if share > best[1]:
-            best = (codelist, share)
-        if share >= _GOOD_ENOUGH:
+        hits = [lookup[v] for v in observed if v in lookup]
+        share = len(hits) / len(observed)
+        # How much of the column's own variety survives the translation.
+        granularity = (len(set(hits)) / len(hits)) if hits else 0.0
+        scored.append((codelist, share, granularity))
+        if share >= _GOOD_ENOUGH and granularity >= _GOOD_ENOUGH:
             break
-    if best[0] is None:
-        return (candidates[0] if candidates else None), 0.0, tried
-    return best[0], max(best[1], 0.0), tried
+    if not scored:
+        return (candidates[0] if candidates else None), 0.0, tried, 1.0
+    best_share = max(s for _, s, _ in scored)
+    # 1e-9 because 1.0 - 0.95 is 0.050000000000000044, and a candidate should
+    # not fall out of the band on a rounding artefact.
+    contenders = [c for c in scored if best_share - c[1] <= _SHARE_TIE + 1e-9]
+    codelist, share, granularity = max(contenders, key=lambda c: (c[2], c[1]))
+    return codelist, max(share, 0.0), tried, granularity
 
 
 def _tokenize(value: str, rule: Mapping[str, Any]) -> list[str]:
@@ -706,7 +732,7 @@ def render_table(
                 for v in column.to_pylist()
                 if v is not None and str(v).strip()
             }
-            picked, chosen_share, tried = _choose_binding(
+            picked, chosen_share, tried, grain = _choose_binding(
                 name.upper(),
                 candidates,
                 seen,
@@ -736,7 +762,15 @@ def render_table(
                 names.append(name)
                 continue
             codelists = [picked] if picked else []
-            if picked and picked != candidates[0]:
+            if picked and grain < _ROLLUP:
+                # The best available table answers a coarser question than the
+                # column asks — a municipality labelled with its health region.
+                report.warnings.append(
+                    f"{name}: labelled from {picked!r}, which is a ROLLUP — it maps "
+                    f"the observed codes to {grain:.0%} as many distinct labels, so "
+                    f"the label is broader than the code. No finer table is bound."
+                )
+            elif picked and picked != candidates[0]:
                 report.warnings.append(
                     f"{name}: {tried} codelists are bound; chose {picked!r} "
                     f"({chosen_share:.0%} of observed codes) over {candidates[0]!r}"

@@ -249,9 +249,19 @@ def read_reference_table(
     """
     base = Path(lake_root) / "reference" / _SAFE.sub("_", table_id)
     if not base.exists():
-        raise FileNotFoundError(
-            f"no reference table {table_id!r} in the lake; run `pegasus-data reference`"
-        )
+        # Nothing in the lake. Fall back to the label pack the package ships,
+        # which is what lets `fetch(labels=True)` work on a fresh install: the
+        # lake is built from a 14 GB catalog no user has any reason to build,
+        # so without this, data came back and nothing was ever translated.
+        from ..labelpack import read_packed
+
+        try:
+            return read_packed(table_id, system=system, code_width=code_width)
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"no reference table {table_id!r} in the lake or the shipped "
+                "label pack; run `pegasus-data reference` to materialise it"
+            ) from None
     dataset = pads.dataset(base, format="parquet", partitioning="hive")
     table = dataset.to_table()
     if system and "system" in table.schema.names:

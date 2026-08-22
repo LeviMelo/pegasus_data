@@ -53,6 +53,16 @@ where = ["src"]
 # distinctive asset. Curation ships because it is the manual-authority rung of
 # the semantic layer -- without it a pip-installed package has no way for a
 # person's judgement to outrank an extraction, which was the whole point of §4.
+# The label pack (20 MB) and the bindings (35 KB) ship for the same reason. They
+# are what turns I219 into "Infarto agudo do miocardio" and 120017 into
+# "Capixaba", and before they shipped, `fetch(labels=True)` on a fresh install
+# returned data and translated NOTHING -- the labels existed only inside a 14 GB
+# catalog no user has any reason to build. Distilled from 14.8M rows to 2.3M by
+# storing code RANGES rather than every code in them, and by storing once what
+# every system agrees on. Entity directories (CADGER*, 687,789 establishments)
+# are held out and reached through fetch("CNES-ST") instead; the CNES<->CNPJ
+# crosswalk extracted from them ships, because that is a join key, not a label.
+#
 # What does NOT ship, and must not: the dictionary database (531 MB), the lake,
 # the blob cache, the catalog, and full semantic bundles (153 MB). All are
 # derived, all are reproducible, and all are downloads rather than wheel weight.

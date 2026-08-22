@@ -1,0 +1,91 @@
+# What KIND of thing a codelist is.
+#
+# Not everything DATASUS calls a lookup table is doing the same job, and the
+# difference decides where it belongs. Sorting them by SIZE was the obvious
+# thing to try and it is wrong: a 50,000-row cap keeps a table of 450 municipal
+# rollups and throws away CID10, which is the most important codelist in the
+# tree for anyone doing clinical work.
+#
+# So the role is declared, not inferred. Structure cannot separate these —
+# CID10 has one label per code and so does an establishment directory — because
+# the difference is what the code REFERS to, which is an institutional fact.
+#
+#   enumeration     a small closed set of DATASUS's own codes. SEXO, CAR_INT,
+#                   RACACOR. Meaningless outside DATASUS and available nowhere
+#                   else, which makes them the irreplaceable part of this
+#                   project.
+#
+#   classification  a published standard DATASUS republishes: CID10, CBO,
+#                   SIGTAP procedures, CNAE. Large, and kept anyway — DATASUS's
+#                   own copy is complete for the data DATASUS publishes, which
+#                   is a stronger guarantee than a general-purpose library
+#                   gives, and sending someone elsewhere to decode a diagnosis
+#                   defeats the point of the package.
+#
+#   geography       municipalities, regions, health districts. Essential as
+#                   denominators and as joins; they collapse well because they
+#                   are written as code ranges.
+#
+#   registry        a directory of ENTITIES — establishments, teams, units.
+#                   CADGERBR is 687,789 health establishments. This is not code
+#                   semantics: it is a dimension table, and the project already
+#                   publishes it properly as the CNES.ST dataset with a declared
+#                   join key. Carrying half a million establishment names inside
+#                   a Python package to save a `fetch` is the wrong trade.
+#
+#   crosswalk       an identifier mapped to another identifier, which is a
+#                   category of its own rather than a label. CADGERBR's own
+#                   labels pack a CNPJ in front of the establishment name, and
+#                   that CNPJ is how an establishment is matched across systems
+#                   that key on tax identity rather than on CNES. Extracted to
+#                   its own table rather than thrown away with the prose.
+#
+# Only `registry` is held out of the shipped pack. Everything else travels with
+# the package so that `fetch(labels=True)` works on a fresh install with no
+# network and no separate download.
+
+roles:
+  registry:
+    what: >
+      Directories of establishments, units and teams. Held out of the shipped
+      label pack because they are entity data, not code semantics — and because
+      the same information is published as a dataset with a declared join key,
+      which is the honest way to reach it.
+    reach_it_instead_by: >
+      fetch("CNES-ST") for establishments, then join on the CNES key declared in
+      joins.yml. The label pack still ships the CNES↔CNPJ crosswalk extracted
+      from these tables, because that is a join primitive rather than a label.
+    patterns:
+      - CADGER*        # Cadastro Geral — establishments, national and per state
+      - UNIDTOTAL      # every unit, all types
+      - UNIDBR
+      - UNIDSAUDE
+      - UNISAUDE
+      - INE_EQUIPE*    # primary-care team registry
+      - TCNES*         # CNES establishment tables, national and per state
+      - HUF_*          # federal university hospitals
+      - HOSFED*        # federal hospitals
+
+  # Declared for the record. These all ship; the entries exist so that a reader
+  # can see the judgement was made rather than defaulted into.
+  classification:
+    what: Published standards DATASUS republishes, kept whole.
+    patterns:
+      - CID10*
+      - CID9*
+      - CBO*
+      - CNAE*
+      - TPROC*
+      - PROC*
+      - SIGTAP*
+
+  geography:
+    what: Municipalities, regions and health districts.
+    patterns:
+      - MUNIC*
+      - BR_*
+      - MESO*
+      - MICRO*
+      - RSAUD*
+      - CSAUD*
+      - UF*

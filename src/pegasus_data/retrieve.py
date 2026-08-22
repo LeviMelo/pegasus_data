@@ -411,16 +411,31 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     ``.DEF`` long before this, and this only writes them down in the shape the
     join wants. It is a one-time cost, and skipped entirely once they exist.
     """
+    from .labelpack import seed_bindings
     from .persist.reference import available_tables, write_reference_tables
+
+    # Three things have to exist before a code can become a label: what the
+    # column MEANS (curation, which ships as YAML), which table decodes it
+    # (bindings), and the table itself. On a fresh install the catalog has none
+    # of them, so `fetch(labels=True)` returned data and translated nothing.
+    if not pipeline.catalog.count("variable_docs"):
+        try:
+            pipeline.curate()
+        except Exception as exc:  # noqa: BLE001 - unreadable curation is not fatal
+            report.warnings.append(f"could not load the shipped curation: {exc}")
+    seeded = seed_bindings(pipeline.catalog)
+    if seeded:
+        report.warnings.append(
+            f"seeded {seeded:,} codelist bindings from the package "
+            "(run `pegasus-data semantics` for the full local build)"
+        )
 
     lake_root = pipeline.settings.lake_dir
     if available_tables(lake_root):
         return
     if not pipeline.catalog.count("dictionary"):
-        report.warnings.append(
-            "no codelists in the catalog, so nothing can be labelled; "
-            "run `pegasus-data semantics`, or unpack a semantic bundle"
-        )
+        # No local dictionary. The shipped label pack answers instead, via
+        # read_reference_table's fallback, so this is no longer fatal.
         return
     written = write_reference_tables(
         pipeline.catalog, lake_root, compression=pipeline.settings.compression
@@ -512,7 +527,11 @@ def _discover(
     with FtpClient(
         host=pipeline.settings.host, timeout=pipeline.settings.timeout
     ).connect() as client:
-        entries = client.list_directory(base)
+        # list_directory returns (entries, method_that_worked). Unpacking it as
+        # a bare list made every on-demand discovery crash with
+        # "'list' object has no attribute 'is_dir'" — which is the path taken on
+        # any catalog that has not been crawled, i.e. every fresh install.
+        entries, _method = client.list_directory(base)
     directories = [e for e in entries if e.is_dir]
     candidates = [
         e.name for e in directories if e.name.upper().replace("-", "_") == system

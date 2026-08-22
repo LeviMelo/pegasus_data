@@ -268,12 +268,12 @@ class TestOffline:
         catalog.execute(
             "INSERT INTO dictionary (system, value_group, field_name, value_raw, value_label, "
             "source, source_ref, confidence) VALUES "
-            "('SIHSUS','SEXO','SEXO','1','Masculino','cnv','SEXO.CNV',0.9)"
+            "('SIHSUS','SEXO','SEXO','1','Homem','cnv','SEXO.CNV',0.9)"
         )
         catalog.execute(
             "INSERT INTO dictionary (system, value_group, field_name, value_raw, value_label, "
             "source, source_ref, confidence) VALUES "
-            "('SIHSUS','SEXO','SEXO','3','Feminino','cnv','SEXO.CNV',0.9)"
+            "('SIHSUS','SEXO','SEXO','3','Mulher','cnv','SEXO.CNV',0.9)"
         )
         catalog.execute(
             "INSERT INTO field_codelists (system, family_id, field_name, codelist, source, "
@@ -285,22 +285,37 @@ class TestOffline:
         )
         bundle = pack(catalog, tmp_path / "semantics.pgsb").path
 
-        # Here, with nothing: the codes come back as codes.
-        assert set(fetch("SIH-RD", settings=settings).column("SEXO").to_pylist()) == {"1", "3"}
+        # Here, with no local codelists at all, the labels still arrive: they
+        # come from the pack the package ships. That is the fresh-install
+        # guarantee, and it is what makes the next assertion meaningful.
+        first = fetch("SIH-RD", settings=settings).column("SEXO").to_pylist()
+        assert set(first) == {"Masculino", "Feminino"}
 
         # The bundle arrives on a memory stick. No network is touched.
         target = Catalog(settings.catalog_path)
         unpack(target, bundle)
         target.close()
 
+        # A local reading OVERRIDES the shipped one. The bundle words it
+        # differently on purpose: whoever built it looked at this data, and the
+        # wheel did not.
         table = fetch("SIH-RD", settings=settings)
-        assert set(table.column("SEXO").to_pylist()) == {"Masculino", "Feminino"}
+        assert set(table.column("SEXO").to_pylist()) == {"Homem", "Mulher"}
 
-    def test_with_no_codelists_at_all_it_says_so_rather_than_returning_codes_silently(
+    def test_the_shipped_pack_labels_with_no_local_codelists_at_all(
         self, settings, seeded
     ):
-        _, report = fetch("SIH-RD", settings=settings, report=True)
-        assert any("nothing can be labelled" in w for w in report.warnings)
+        """The fresh-install guarantee, which used to be a warning instead.
+
+        `pip install` carries the map, the curation and a distilled label pack.
+        Before it did, this call returned raw codes and a note saying to go run
+        an hour-long ingest — technically honest, and the wrong half of the
+        promise.
+        """
+        table, report = fetch("SIH-RD", settings=settings, report=True)
+        assert set(table.column("SEXO").to_pylist()) == {"Masculino", "Feminino"}
+        assert "SEXO" in report.render.labelled
+        assert not any("nothing can be labelled" in w for w in report.warnings)
 
 
 class TestMonthOfACompetence:
