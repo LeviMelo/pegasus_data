@@ -6,8 +6,10 @@ DEMAS API is marked ``network`` and skipped unless ``PEGASUS_TEST_NETWORK=1``.
 
 from __future__ import annotations
 
+import hashlib
 import os
 import struct
+import tempfile
 from pathlib import Path
 
 import pyarrow as pa
@@ -236,3 +238,104 @@ def built_lake(settings: Settings, catalog: Catalog) -> tuple[Settings, Catalog,
         schema_signature=sig_new, uf="AL", year=2020,
     )
     return settings, catalog, fam_new
+
+# The offline SIH-RD fixture. Here rather than in test_retrieve.py because
+# test_entry_point_parity.py drives fetch(), load(), scan() and export() over
+# ONE fixture on purpose: a guarantee tested only through the door that has it
+# is how this project's policies kept diverging.
+
+FIELDS = [("N_AIH", "C", 6, 0), ("SEXO", "C", 1, 0), ("DIAG_PRINC", "C", 4, 0)]
+NAMES = [f[0] for f in FIELDS]
+SIGNATURE = schema_signature(NAMES)
+
+
+def one_file(rows: int = 2) -> bytes:
+    return make_dbf(
+        FIELDS, [[f"A{n:05d}", "1" if n % 2 else "3", "I219"] for n in range(rows)]
+    )
+
+
+class FakeFetcher:
+    """Stands in for the FTP fetcher: every path resolves to the same bytes.
+
+    ``missing`` names paths that fail, which is how the undecoded-file reporting
+    is exercised without needing a broken file on a real server.
+    """
+
+    def __init__(self, missing: set[str] | None = None) -> None:
+        self.missing = missing or set()
+        self.asked: list[str] = []
+
+    def ensure(self, paths):
+        self.asked.extend(paths)
+        return {p: f"sha-{p}" for p in paths if p not in self.missing}
+
+
+class FakeBlobs:
+    """A content-addressed store, backed by real files like the real one.
+
+    It used to serve bytes only. The decode path now takes the blob's PATH —
+    the blob is already a file, and reading it into RAM to hand the bytes to a
+    decoder that writes them straight back out was three copies for nothing —
+    so a double that cannot produce a path is no longer a double of anything.
+    """
+
+    def __init__(self, payload_for=None) -> None:
+        self.payload_for = payload_for or (lambda _digest: one_file())
+        self._dir = tempfile.mkdtemp(prefix="pegasus_fakeblobs_")
+
+    def read(self, digest: str) -> bytes:
+        return self.payload_for(digest)
+
+    def path_for(self, digest: str) -> Path:
+        # The fixtures use readable stand-ins like "sha-/p/RDAL2301.dbc" for
+        # digests, so the name is hashed rather than used as a path.
+        target = Path(self._dir) / hashlib.sha256(digest.encode()).hexdigest()
+        if not target.is_file():
+            target.write_bytes(self.payload_for(digest))
+        return target
+
+
+@pytest.fixture
+def seeded(settings, monkeypatch):
+    """A catalog that already knows one SIH-RD family across two states/years."""
+    catalog = Catalog(settings.catalog_path)
+    catalog.execute(
+        "INSERT INTO families (family_id, system, series, schema_signature, field_count) "
+        "VALUES ('F1','SIHSUS','RD',?,3)",
+        (SIGNATURE,),
+    )
+    for path, uf, year, date in (
+        ("/p/RDAL2301.dbc", "AL", 2023, 202301),
+        ("/p/RDAL2302.dbc", "AL", 2023, 202302),
+        ("/p/RDSP2401.dbc", "SP", 2024, 202401),
+    ):
+        catalog.execute(
+            "INSERT INTO files (path, directory, filename, first_seen, last_seen) "
+            "VALUES (?,?,?,'2026-01-01T00:00:00Z','2026-01-01T00:00:00Z')",
+            (path, "/p", path.rsplit("/", 1)[-1]),
+        )
+        catalog.execute(
+            "INSERT INTO file_facts (path, system, series_prefix, geo_code, year, "
+            "normalized_date, role) VALUES (?,'SIHSUS','RD',?,?,?,'data')",
+            (path, uf, year, date),
+        )
+        catalog.execute(
+            "INSERT INTO family_files (family_id, path, member) VALUES ('F1', ?, '')", (path,)
+        )
+    catalog.close()
+
+    import pegasus_data.retrieve as retrieve
+
+    state: dict[str, object] = {"fetcher": FakeFetcher(), "blobs": FakeBlobs()}
+
+    real_pipeline = retrieve.Pipeline
+
+    def make(settings_arg, *args, **kwargs):
+        pipeline = real_pipeline(settings_arg, *args, **kwargs)
+        pipeline.fetcher = state["fetcher"]
+        pipeline.blobs = state["blobs"]
+        return pipeline
+
+    monkeypatch.setattr(retrieve, "Pipeline", make)
+    return state
