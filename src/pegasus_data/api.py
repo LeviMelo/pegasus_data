@@ -127,19 +127,49 @@ class FieldDescription:
     def __repr__(self) -> str:
         head = f"{self.system}.{self.series or ''}.{self.field_name}"
         name = f" — {self.official_name}" if self.official_name else ""
-        return (
-            f"<{head}{name} | {self.semantic_type} "
-            f"({self.semantic_confidence:.2f}) | coverage {self.dictionary_coverage:.1%} "
-            f"| {self.aggregation}>"
+        # semantic_confidence is Optional. Formatting None with :.2f raised
+        # TypeError, so an unresolved field could not even be displayed in a
+        # notebook — the one place a caller meets it.
+        confidence = (
+            f"({self.semantic_confidence:.2f})"
+            if self.semantic_confidence is not None
+            else "(confidence unknown)"
         )
+        coverage = (
+            f" | coverage {self.dictionary_coverage:.1%}"
+            if self.dictionary_coverage is not None
+            else ""
+        )
+        return f"<{head}{name} | {self.semantic_type} {confidence}{coverage} | {self.aggregation}>"
 
 
 class Catalog:
     """Read access to the shipped catalog, lake and dictionary."""
 
-    def __init__(self, root: str | Path | None = None, settings: Settings | None = None) -> None:
+    def __init__(
+        self,
+        root: str | Path | None = None,
+        settings: Settings | None = None,
+        *,
+        create: bool = False,
+    ) -> None:
+        """Read access to the catalog at ``root``.
+
+        ``create=False`` by default, because this is the INSPECTION door. It
+        used to open read-only when the file existed and create a writable one
+        when it did not — so a typo in ``root`` silently produced an empty
+        database and every question answered "nothing found" instead of "there
+        is no catalog here". Pipelines and builds pass ``create=True``.
+        """
         self.settings = settings or load_settings(root=Path(root) if root else None)
-        self.store = _Store(self.settings.catalog_path, read_only=self.settings.catalog_path.exists())
+        exists = self.settings.catalog_path.exists()
+        if not exists and not create:
+            raise FileNotFoundError(
+                f"no catalog at {self.settings.catalog_path}. Check `root`, or run "
+                "`pegasus-data crawl` to build one. Pass create=True to make an "
+                "empty catalog here on purpose."
+            )
+        self.store = _Store(self.settings.catalog_path, read_only=exists)
         self._lake: Lake | None = None
 
     def close(self) -> None:
@@ -608,7 +638,7 @@ def load(
     series: str | None = None,
     *,
     uf: str | Sequence[str] | None = None,
-    years: Sequence[int] | range | None = None,
+    years: int | Sequence[int] | range | None = None,
     columns: Sequence[str] | None = None,
     labels: bool | None = None,
     family_id: str | None = None,
@@ -644,10 +674,25 @@ def load(
     (:class:`MissingColumnError`) rather than returning empty — an empty result
     looks legitimate and is the easiest way to publish a wrong number (§13).
     """
-    if labels is False and profile == "analysis":
+    # One normalisation, stated once. `labels` and `profile` are two ways to
+    # say the same thing and the precedence was never defined: `labels=True`
+    # did not override `profile="codes"`, and the `labels is True` branch below
+    # was a literal no-op (`strict_labels or False` is `strict_labels`).
+    #
+    # `profile` is the richer control, so an explicit non-default profile wins.
+    # `labels` only decides between rendering and not.
+    # `fetch(years=2024)` works; `load(years=2024)` used to reach
+    # `list(years)` and raise. Public functions that present themselves as
+    # parallel should accept the same filters.
+    if isinstance(years, int):
+        years = [years]
+    if isinstance(uf, str):
+        uf = [uf]
+
+    if labels is False:
         profile = "codes"
-    if labels is True:
-        strict_labels = strict_labels or False
+    elif labels is True and profile == "codes":
+        profile = "analysis"
     own = catalog is None
     cat = catalog or Catalog(root=root, settings=settings)
     try:
@@ -870,11 +915,20 @@ def reference_tables(root: str | Path | None = None) -> list[dict[str, Any]]:
         cat.close()
 
 
-def open_lake(root: str | Path | None = None) -> DuckLake:
-    """A DuckDB connection with every family registered as a view."""
-    cat = Catalog(root)
+def open_lake(
+    root: str | Path | None = None, *, settings: Settings | None = None
+) -> DuckLake:
+    """A DuckDB connection with every family registered as a view.
+
+    The returned object owns the catalog it opened. It used to create a
+    `Catalog`, hand its store to `DuckLake` and return only the DuckLake — whose
+    close() closes DuckDB and nothing else. The catalog connection then had no
+    reachable owner, so `open_lake()` leaked one every call.
+    """
+    cat = Catalog(root, settings=settings)
     duck = DuckLake(cat.settings.lake_dir, cat.store)
     duck.register_all()
+    duck._owned_catalog = cat  # closed by DuckLake.close()
     return duck
 
 
@@ -1004,7 +1058,27 @@ def _flatten_lists(table: pa.Table) -> pa.Table:
     return pa.Table.from_arrays(columns, names=list(table.schema.names))
 
 
+#: Excel's hard limits. A workbook beyond either is not a large workbook, it is
+#: a file Excel opens truncated or refuses outright.
+XLSX_MAX_ROWS = 1_048_576
+XLSX_MAX_COLUMNS = 16_384
+
+
 def _write_xlsx(table: pa.Table, target: Path) -> None:
+    # Checked BEFORE writing. A large epidemiological extract silently exceeded
+    # these and produced a workbook Excel cannot faithfully represent — the
+    # rows past the limit simply are not there, and nothing said so.
+    if table.num_rows > XLSX_MAX_ROWS - 1:  # -1 for the header row
+        raise ValueError(
+            f"{table.num_rows:,} rows exceeds what Excel can hold "
+            f"({XLSX_MAX_ROWS:,} including the header). Export to csv or parquet, "
+            f"or narrow the request with uf=/years=/columns=."
+        )
+    if table.num_columns > XLSX_MAX_COLUMNS:
+        raise ValueError(
+            f"{table.num_columns:,} columns exceeds Excel's limit of "
+            f"{XLSX_MAX_COLUMNS:,}. Use columns= to choose what you need."
+        )
     try:
         from openpyxl import Workbook
     except ImportError as exc:

@@ -49,6 +49,13 @@ class DuckLake:
 
     def close(self) -> None:
         self.conn.close()
+        # `open_lake()` attaches the Catalog it opened here. Without this the
+        # DuckDB connection closed and the catalog connection did not, leaving
+        # it with no reachable owner — one leaked per open_lake() call.
+        owned = getattr(self, "_owned_catalog", None)
+        if owned is not None:
+            owned.close()
+            self._owned_catalog = None
 
     def __enter__(self) -> DuckLake:
         return self
