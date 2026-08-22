@@ -1,7 +1,17 @@
 """L6 — the normalisation engine.
 
 Every step is vectorised over Arrow arrays, never row by row, and every step is
-driven by the ledger rather than by a global rule:
+driven by the ledger rather than by a global rule.
+
+The one deliberate exception is the fallback in
+:func:`~pegasus_data.normalize.time.parse_date_array`: impossible calendar dates
+(``20150230`` is in the raw data) make Arrow's whole-column cast fail, and it
+re-parses element-wise so one bad row does not null a whole column. It runs only
+after that cast raises. Everything else — including the municipality expansion,
+the UF lookup and the epidemiological week, which used to run Python loops
+behind vectorised-sounding docstrings — is Arrow the whole way down.
+
+The steps:
 
 1. **Type canonicalisation** from the container's declared width and decimals.
 2. **Sentinel nulling**, per field, from ``ledger.sentinel_values`` — a ``9`` is

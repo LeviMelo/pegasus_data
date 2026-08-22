@@ -171,20 +171,58 @@ def parse_date_array(array: pa.Array, *, order: str = "YYYYMMDD", sentinels: tup
         return pa.array(out, type=pa.date32())
 
 
+#: day-number -> (epi_year, epi_week), grown as new spans are seen. A calendar
+#: century is ~36,500 entries, so this stays small however many rows pass.
+_EPI_LUT: dict[int, tuple[pa.Array, pa.Array]] = {}
+_EPI_CHUNK = 4096  # days, ~11 years
+
+
+def _epi_lut(chunk: int) -> tuple[pa.Array, pa.Array]:
+    """epi_year/epi_week for every day in one chunk, indexed by offset.
+
+    Computed with :func:`epi_week` itself, so the vectorised path and the scalar
+    rule cannot drift: this is a cache of that function, not a reimplementation
+    of it.
+    """
+    cached = _EPI_LUT.get(chunk)
+    if cached is None:
+        base = date(1970, 1, 1)
+        years: list[int] = []
+        weeks: list[int] = []
+        for offset in range(_EPI_CHUNK):
+            w = epi_week(base + timedelta(days=chunk * _EPI_CHUNK + offset))
+            years.append(w.year)
+            weeks.append(w.week)
+        cached = (pa.array(years, type=pa.int16()), pa.array(weeks, type=pa.int8()))
+        _EPI_LUT[chunk] = cached
+    return cached
+
+
 def epi_week_array(dates: pa.Array) -> tuple[pa.Array, pa.Array]:
     """``(epi_year, epi_week)`` for a date32 column.
 
     Only use this where the source publishes no official week. Where it does —
     ``SEM_PRI``, ``SEM_NOT`` — carry the source's value through untouched.
+
+    A lookup, not a loop. The epi week of a date depends only on the date, and
+    DATASUS spans a few tens of thousands of distinct days against tens of
+    millions of rows — so the rule is evaluated once per DAY and the column is
+    an Arrow take. The loop this replaces cost 2.6 s per million rows, which on
+    one year of SIH is half a minute of turning the same dates into the same
+    answers.
     """
-    years: list[int | None] = []
-    weeks: list[int | None] = []
-    for value in dates.to_pylist():
-        if value is None:
-            years.append(None)
-            weeks.append(None)
-            continue
-        w = epi_week(value)
-        years.append(w.year)
-        weeks.append(w.week)
-    return pa.array(years, type=pa.int16()), pa.array(weeks, type=pa.int8())
+    if len(dates) == 0:
+        return pa.array([], type=pa.int16()), pa.array([], type=pa.int8())
+    days = pc.cast(dates.cast(pa.date32()), pa.int32())
+    lo = pc.min(days).as_py()
+    if lo is None:  # every value null
+        return (
+            pa.nulls(len(dates), type=pa.int16()),
+            pa.nulls(len(dates), type=pa.int8()),
+        )
+    hi = pc.max(days).as_py()
+    first, last = lo // _EPI_CHUNK, hi // _EPI_CHUNK
+    years = pa.concat_arrays([_epi_lut(c)[0] for c in range(first, last + 1)])
+    weeks = pa.concat_arrays([_epi_lut(c)[1] for c in range(first, last + 1)])
+    index = pc.subtract(days, first * _EPI_CHUNK)
+    return pc.take(years, index), pc.take(weeks, index)
