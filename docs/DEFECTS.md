@@ -272,3 +272,33 @@ labelled rather than 115 because the curated decisions finally apply.
 What the external review raised beyond these — HI-02 through HI-28 except
 HI-14, and ME-01 through ME-21 — is still open and still unverified. It should
 be verified before being fixed, not assumed.
+
+---
+
+## REVIEW.md closure
+
+Every entry in `REVIEW.md` — CR-01..06, HI-01..28, ME-01..21, and the
+"Additional design inconsistencies" section — is addressed. The commit log
+carries each `HI-xx`/`ME-xx` identifier in its message; `CR-01..06` and `HI-14`
+landed earlier under this file's own `P0-*`/`R-*` labels, and
+`tests/test_review_closure.py` asserts their guarantees so the closure is
+checked on every run rather than taken on trust.
+
+Two entries were closed by *disagreeing* with the review, with the evidence
+recorded rather than the conclusion asserted:
+
+* **HI-23** — the review argued the DBF reader's `min(declared, available)`
+  silently truncates valid trailing records when a header is stale LOW. Measured
+  across 132 real DBF payloads: 116 headers agree, **16 declare more records
+  than the file holds, none declares fewer**. The header errs high, so `min()`
+  is what stops a read running past the end and manufacturing rows out of
+  whatever follows. Reverted to `min()`, with the measurement in the code.
+* **ME-17** — the archive that was reviewed carried `__pycache__` and
+  `.egg-info` and lacked packaging config. The canonical repo has none of those
+  problems. Running the configured checks, however, surfaced real defects
+  (including `load_reference()` raising `NameError` for every caller who did not
+  pass a catalog), and nothing reproduced them. CI now does.
+
+State at closure: **832 tests passing**, ruff clean across `src/`, `tests/` and
+`scripts/`, mypy at 96 findings (from 197) recorded as a ratchet in
+`CONTRIBUTING.md`.
