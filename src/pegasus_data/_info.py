@@ -66,11 +66,15 @@ class Info:
             "joins": self.joins,
         }
 
-    def __repr__(self) -> str:  # pragma: no cover - presentation
+    # Rendering is split by section rather than written as one pass. The
+    # sections are independent — a system has children and no schemas, a
+    # variable has neither — and finding one of them should not mean reading a
+    # hundred and forty lines to work out where it starts.
+
+    def _identity_lines(self) -> list[str]:
         out: list[str] = []
         name = self.identity.get("translated_name") or self.identity.get("official_name")
-        out.append(f"{self.kind}: {self.code}" + (f" — {name}" if name else ""))
-
+        out.append(f"{self.kind}: {self.code}" + (f" \u2014 {name}" if name else ""))
         official = self.identity.get("official_name")
         if official and official != name:
             out.append(f"  {official}")
@@ -78,131 +82,156 @@ class Info:
         if what:
             out.append("")
             out.extend("  " + line for line in _wrap(what, 76))
+        return out
 
-        if self.coverage:
+    def _coverage_lines(self) -> list[str]:
+        if not self.coverage:
+            return []
+        out = [""]
+        bits = []
+        if self.coverage.get("files"):
+            bits.append(f"{self.coverage['files']:,} files")
+        if self.coverage.get("span"):
+            bits.append(f"{self.coverage['span']}")
+        if self.coverage.get("schema_generations"):
+            bits.append(f"{self.coverage['schema_generations']} schema generations")
+        if self.coverage.get("ufs"):
+            bits.append(f"{self.coverage['ufs']} UFs")
+        if bits:
+            out.append("  coverage: " + " \u00b7 ".join(bits))
+
+        # How the FILES are split, which is not the same as what the rows hold.
+        axes = self.coverage.get("axes")
+        if axes is not None and self.kind == "dataset":
+            shown = ", ".join(axes) if axes else "nothing \u2014 the files are not split"
+            out.append(f"  filterable by: {shown}")
+            absent = [a for a in ("uf", "year", "month") if a not in axes]
+            if absent:
+                out.append(
+                    f"    NOT split by {', '.join(absent)}; filtering on "
+                    f"{'/'.join(absent)} matches no file and returns empty"
+                )
+        return out
+
+    def _documentation_lines(self) -> list[str]:
+        if not self.documentation:
+            return []
+        out: list[str] = []
+        described = self.documentation.get("columns_described")
+        total = self.documentation.get("columns_total")
+        if total:
+            pct = 100.0 * (described or 0) / total
+            out.append(f"  columns: {described or 0}/{total} described ({pct:.0f}%)")
+
+        row = self.documentation.get("what_one_row_is")
+        if row:
             out.append("")
-            bits = []
-            if self.coverage.get("files"):
-                bits.append(f"{self.coverage['files']:,} files")
-            span = self.coverage.get("span")
-            if span:
-                bits.append(f"{span}")
-            if self.coverage.get("schema_generations"):
-                bits.append(f"{self.coverage['schema_generations']} schema generations")
-            if self.coverage.get("ufs"):
-                bits.append(f"{self.coverage['ufs']} UFs")
-            if bits:
-                out.append("  coverage: " + " · ".join(bits))
+            out.append("  one row is:")
+            out.extend("    " + line for line in _wrap(str(row), 74))
+            unit = self.documentation.get("unit_of_analysis")
+            if unit:
+                out.append(f"    unit of analysis: {unit}")
 
-            axes = self.coverage.get("axes")
-            if axes is not None and self.kind == "dataset":
-                shown = ", ".join(axes) if axes else "nothing — the files are not split"
-                out.append(f"  filterable by: {shown}")
-                absent = [a for a in ("uf", "year", "month") if a not in axes]
-                if absent:
-                    out.append(
-                        f"    NOT split by {', '.join(absent)}; filtering on "
-                        f"{'/'.join(absent)} matches no file and returns empty"
-                    )
-
-        if self.documentation:
-            described = self.documentation.get("columns_described")
-            total = self.documentation.get("columns_total")
-            if total:
-                pct = 100.0 * (described or 0) / total
-                out.append(f"  columns: {described or 0}/{total} described ({pct:.0f}%)")
-
-            row = self.documentation.get("what_one_row_is")
-            if row:
-                out.append("")
-                out.append("  one row is:")
-                out.extend("    " + line for line in _wrap(str(row), 74))
-                unit = self.documentation.get("unit_of_analysis")
-                if unit:
-                    out.append(f"    unit of analysis: {unit}")
-
-            bias = self.documentation.get("known_biases")
-            if bias:
-                out.append("")
-                out.append("  known biases:")
-                out.extend("    " + line for line in _wrap(str(bias), 74))
-
-            questions = self.documentation.get("open_questions") or []
-            if questions:
-                out.append("")
-                out.append(f"  open questions ({len(questions)}) — unsettled, not guessed:")
-                for q in list(questions)[:4]:
-                    out.append(f"    {q.get('key', '')}")
-                    for line in _wrap(str(q.get("question") or ""), 68):
-                        out.append(f"        {line}")
-                if len(questions) > 4:
-                    out.append(f"    ... and {len(questions) - 4} more")
-
-            gotchas = self.documentation.get("gotchas")
-            if gotchas:
-                if isinstance(gotchas, str):
-                    try:
-                        import json as _json
-
-                        gotchas = _json.loads(gotchas)
-                    except Exception:
-                        gotchas = [gotchas]
-                out.append("")
-                out.append("  gotchas:")
-                for g in list(gotchas)[:8]:
-                    wrapped = _wrap(str(g), 70)
-                    out.append(f"    - {wrapped[0]}")
-                    out.extend("      " + line for line in wrapped[1:])
-
-        if self.joins:
+        bias = self.documentation.get("known_biases")
+        if bias:
             out.append("")
-            out.append("  joins via:")
-            for join in self.joins:
-                asof = f" AS-OF {join['as_of']}" if join.get("as_of") else ""
-                grain = {
-                    "one": "one row per key",
-                    "many": "MANY rows per key",
-                }.get(join["rows_per_key"], "grain unmeasured")
-                out.append(f"    {join['key']} on {join['column']} — {grain}{asof}")
-                fans = [w for w in join["with"] if w["rows_per_key"] == "many"]
-                if fans:
-                    names = ", ".join(f"{w['dataset']}.{w['column']}" for w in fans[:4])
-                    more = f" +{len(fans) - 4}" if len(fans) > 4 else ""
-                    out.append(f"        fans out to: {names}{more}")
+            out.append("  known biases:")
+            out.extend("    " + line for line in _wrap(str(bias), 74))
 
+        questions = self.documentation.get("open_questions") or []
+        if questions:
+            out.append("")
+            out.append(
+                f"  open questions ({len(questions)}) \u2014 unsettled, not guessed:"
+            )
+            for q in list(questions)[:4]:
+                out.append(f"    {q.get('key', '')}")
+                for line in _wrap(str(q.get("question") or ""), 68):
+                    out.append(f"        {line}")
+            if len(questions) > 4:
+                out.append(f"    ... and {len(questions) - 4} more")
+
+        out.extend(self._gotcha_lines())
+        return out
+
+    def _gotcha_lines(self) -> list[str]:
+        gotchas = self.documentation.get("gotchas")
+        if not gotchas:
+            return []
+        if isinstance(gotchas, str):
+            try:
+                import json as _json
+
+                gotchas = _json.loads(gotchas)
+            except Exception:  # noqa: BLE001 - a plain string is a single gotcha
+                gotchas = [gotchas]
+        out = ["", "  gotchas:"]
+        for g in list(gotchas)[:8]:
+            wrapped = _wrap(str(g), 70)
+            out.append(f"    - {wrapped[0]}")
+            out.extend("      " + line for line in wrapped[1:])
+        return out
+
+    def _join_lines(self) -> list[str]:
+        if not self.joins:
+            return []
+        out = ["", "  joins via:"]
+        for join in self.joins:
+            asof = f" AS-OF {join['as_of']}" if join.get("as_of") else ""
+            grain = {
+                "one": "one row per key",
+                "many": "MANY rows per key",
+            }.get(join["rows_per_key"], "grain unmeasured")
+            out.append(f"    {join['key']} on {join['column']} \u2014 {grain}{asof}")
+            fans = [w for w in join["with"] if w["rows_per_key"] == "many"]
+            if fans:
+                names = ", ".join(f"{w['dataset']}.{w['column']}" for w in fans[:4])
+                more = f" +{len(fans) - 4}" if len(fans) > 4 else ""
+                out.append(f"        fans out to: {names}{more}")
+        return out
+
+    def _schema_lines(self) -> list[str]:
+        if not self.schemas:
+            return []
+        out = ["", f"  schema generations ({len(self.schemas)}), oldest first:"]
+        for s in self.schemas[:12]:
+            out.append(
+                f"    {str(s.get('span', '')):<11} "
+                f"{str(s.get('field_count', '?')):>4} cols  "
+                f"{s.get('files', 0):>6,} files  "
+                f"{s.get('schema_signature', '')[:10]}"
+            )
+            delta = []
+            if s.get("added"):
+                delta.append(f"+{len(s['added'])} {' '.join(s['added'][:5])}")
+            if s.get("dropped"):
+                delta.append(f"-{len(s['dropped'])} {' '.join(s['dropped'][:5])}")
+            if delta:
+                out.append(f"        {'; '.join(delta)}")
+        if len(self.schemas) > 12:
+            out.append(f"    ... and {len(self.schemas) - 12} more")
+        return out
+
+    def _children_lines(self) -> list[str]:
+        if not self.children:
+            return []
+        out = ["", f"  contains ({len(self.children)}):"]
+        for c in self.children[:20]:
+            label = c.get("translated_name") or c.get("official_name") or ""
+            out.append(f"    {c['code']:<24} {label[:44]}")
+        if len(self.children) > 20:
+            out.append(f"    ... and {len(self.children) - 20} more")
+        return out
+
+    def __repr__(self) -> str:  # pragma: no cover - presentation
+        out = self._identity_lines()
+        out += self._coverage_lines()
+        out += self._documentation_lines()
+        out += self._join_lines()
         if self.evidence.get("observed_as"):
             out.append(f"  seen as: {', '.join(self.evidence['observed_as'][:8])}")
-
-        if self.schemas:
-            out.append("")
-            out.append(f"  schema generations ({len(self.schemas)}), oldest first:")
-            for s in self.schemas[:12]:
-                line = (
-                    f"    {str(s.get('span', '')):<11} "
-                    f"{str(s.get('field_count', '?')):>4} cols  "
-                    f"{s.get('files', 0):>6,} files  "
-                    f"{s.get('schema_signature', '')[:10]}"
-                )
-                out.append(line)
-                delta = []
-                if s.get("added"):
-                    delta.append(f"+{len(s['added'])} {' '.join(s['added'][:5])}")
-                if s.get("dropped"):
-                    delta.append(f"-{len(s['dropped'])} {' '.join(s['dropped'][:5])}")
-                if delta:
-                    out.append(f"        {'; '.join(delta)}")
-            if len(self.schemas) > 12:
-                out.append(f"    ... and {len(self.schemas) - 12} more")
-
-        if self.children:
-            out.append("")
-            out.append(f"  contains ({len(self.children)}):")
-            for c in self.children[:20]:
-                label = c.get("translated_name") or c.get("official_name") or ""
-                out.append(f"    {c['code']:<24} {label[:44]}")
-            if len(self.children) > 20:
-                out.append(f"    ... and {len(self.children) - 20} more")
-
+        out += self._schema_lines()
+        out += self._children_lines()
         for note in self.notes:
             out.append(f"  ! {note}")
         return "\n".join(out)
