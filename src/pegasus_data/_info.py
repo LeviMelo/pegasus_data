@@ -517,7 +517,7 @@ def _dataset(store: _Store, onto: Ontology, node: DatasetNode) -> Info:
     # SIM.DOFET has no per-state files, so uf= matches nothing and returns an
     # empty table that reads like "this state has no fetal deaths".
     try:
-        axes = onto.axes(store.conn).get(node.code)
+        axes = onto.axes_for(store.conn, node.code)
     except Exception:  # pragma: no cover - a locked or partial catalog
         axes = None
 

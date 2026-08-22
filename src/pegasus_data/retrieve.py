@@ -345,7 +345,7 @@ def axis_refusal(
         return None, []
     code = found[1].code
     try:
-        axes = onto.axes(catalog.conn).get(code)
+        axes = onto.axes_for(catalog.conn, code)
     except Exception:  # pragma: no cover - a locked or partial catalog
         return None, []
     if axes is None or not axes.files:

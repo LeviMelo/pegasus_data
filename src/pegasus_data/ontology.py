@@ -141,6 +141,15 @@ class DatasetNode:
         return self.code.split(".", 1)[-1]
 
 
+#: The axis measurement, shared so :meth:`Ontology.axes` and
+#: :meth:`Ontology.axes_for` cannot drift apart on what they count.
+_AXIS_SCAN = (
+    "SELECT system, series_prefix, geo_code, year, normalized_date,"
+    " date_format, COUNT(*) FROM file_facts"
+    " WHERE role = 'data' AND system IS NOT NULL"
+)
+
+
 @dataclass(frozen=True)
 class Binding:
     """One observed ``(system, series)`` pair resolved onto a declared node."""
@@ -529,6 +538,7 @@ class Ontology:
         # (declared system, series) -> dataset, and a series-only fallback for
         # republication trees, where the crawled system is Dados_Abertos but the
         # dataset belongs to SIA.
+        self._bind_cache: dict[tuple[str, str], Binding] = {}
         self._by_system_series: dict[tuple[str, str], str] = {}
         self._by_series: dict[str, str] = {}
         self._series_collisions: set[str] = set()
@@ -559,9 +569,19 @@ class Ontology:
         Declaration is consulted before pattern rules: if a dataset says it has
         been seen as ``APAC_AB``, that wins over anything the filename regex
         would infer. The rules are a fallback for what nobody has declared yet.
+
+        Memoised. The answer depends only on the pair and the declared indexes,
+        both fixed once :meth:`_build_indexes` has run, and the axis scan used
+        to resolve the same few hundred pairs tens of thousands of times.
+        ``Binding`` is frozen, so handing back the same instance is safe.
         """
-        observed_system = str(system or "").upper()
-        observed_series = str(series or "").upper()
+        key = (str(system or "").upper(), str(series or "").upper())
+        hit = self._bind_cache.get(key)
+        if hit is None:
+            hit = self._bind_cache[key] = self._bind(*key)
+        return hit
+
+    def _bind(self, observed_system: str, observed_series: str) -> Binding:
         declared_system = self._system_alias.get(observed_system)
 
         # 1. The raw series, exactly as declared.
@@ -696,13 +716,11 @@ class Ontology:
         available either.
         """
         out: dict[str, DatasetAxes] = {}
+        pairs = self._bound_pairs(conn)
         for system, series, geo, year, normalized, fmt, count in conn.execute(
-            "SELECT system, series_prefix, geo_code, year, normalized_date,"
-            " date_format, COUNT(*) FROM file_facts"
-            " WHERE role = 'data' AND system IS NOT NULL"
-            " GROUP BY 1, 2, 3, 4, 5, 6"
+            _AXIS_SCAN + " GROUP BY 1, 2, 3, 4, 5, 6"
         ):
-            code = self.bind(str(system), str(series or "")).dataset
+            code = pairs.get((system, series))
             if not code:
                 continue
             axes = out.setdefault(code, DatasetAxes(dataset=code))
@@ -713,6 +731,66 @@ class Ontology:
             if fmt:
                 axes.date_formats[str(fmt)] = axes.date_formats.get(str(fmt), 0) + n
         return out
+
+    def _bound_pairs(self, conn: sqlite3.Connection) -> dict[tuple[Any, Any], str]:
+        """Every distinct ``(system, series_prefix)`` on the tree, bound once.
+
+        The grouped scan yields tens of thousands of rows but holds only a few
+        hundred distinct pairs, so binding per row resolved the same pair over
+        and over again — 75% of a warm ``fetch()``, all of it Python holding the
+        GIL, which is also why concurrent callers made each other slower rather
+        than faster.
+
+        Keyed on the RAW column values rather than stringified ones, so a lookup
+        matches what the grouped query hands back for the very same row.
+        """
+        pairs: dict[tuple[Any, Any], str] = {}
+        for system, series in conn.execute(
+            "SELECT DISTINCT system, series_prefix FROM file_facts"
+            " WHERE role = 'data' AND system IS NOT NULL"
+        ):
+            code = self.bind(str(system), str(series or "")).dataset
+            if code:
+                pairs[(system, series)] = code
+        return pairs
+
+    def axes_for(self, conn: sqlite3.Connection, dataset: str) -> DatasetAxes | None:
+        """:meth:`axes` for ONE dataset, without measuring the other 130.
+
+        ``fetch()`` and ``describe()`` ask about a single dataset and then throw
+        the rest of the sweep away. Narrowing it in SQL is the same measurement
+        over the only rows that can contribute to the answer.
+        """
+        code = str(dataset or "").strip().upper()
+        wanted = {p for p, c in self._bound_pairs(conn).items() if c == code}
+        if not wanted:
+            return None
+
+        systems = sorted({p[0] for p in wanted})
+        clause = f" AND system IN ({','.join('?' * len(systems))})"
+        params: list[Any] = list(systems)
+        # Only narrow on the series when no pair carries a NULL one: `IN` never
+        # matches NULL and would drop those files from the measurement.
+        if all(p[1] is not None for p in wanted):
+            series = sorted({p[1] for p in wanted})
+            clause += f" AND series_prefix IN ({','.join('?' * len(series))})"
+            params.extend(series)
+
+        axes = DatasetAxes(dataset=code)
+        for system, prefix, geo, year, normalized, fmt, count in conn.execute(
+            _AXIS_SCAN + clause + " GROUP BY 1, 2, 3, 4, 5, 6", params
+        ):
+            if (system, prefix) not in wanted:
+                continue
+            n = int(count or 0)
+            axes.observe(
+                uf=geo, year=year, month=len(str(normalized or "")) >= 6, n=n
+            )
+            if fmt:
+                axes.date_formats[str(fmt)] = axes.date_formats.get(str(fmt), 0) + n
+        # `axes()` only creates an entry when a row exists; match that, so the
+        # two disagree nowhere.
+        return axes if axes.files else None
 
     def suggest(self, target: str, *, limit: int = 5) -> list[str]:
         """Near matches for something that did not resolve.
