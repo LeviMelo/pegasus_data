@@ -641,6 +641,12 @@ def describe(
             cat.close()
 
 
+#: Structural columns every lake partition carries, whatever the source schema
+#: held. Hive partition keys, written by the build rather than decoded from a
+#: file, so they never appear in `schema_presence`.
+LAKE_COLUMNS: frozenset[str] = frozenset({"year", "uf"})
+
+
 def _resolve_generations(
     store: _Store,
     system: str,
@@ -777,7 +783,11 @@ def _read_generations(
     for family in families:
         projection = None
         if wanted:
-            present = presence.get(str(family["schema_signature"]), set())
+            # Partition columns are columns of the LAKE, not fields of the
+            # source schema, so `schema_presence` does not list them. Asking
+            # for `year` or `uf` is legitimate and was being refused as a
+            # column no generation carries.
+            present = presence.get(str(family["schema_signature"]), set()) | LAKE_COLUMNS
             missing = [c for c in wanted if c not in present]
             if missing and on_missing_column == "null_fill":
                 # Keep the generation and read what it does have; concat
@@ -813,6 +823,15 @@ def _read_generations(
         # Companion columns the build materialised are still worth reading;
         # labels are no longer projected here, they are joined below.
         optional = [f"{c}{suffix}" for c in (wanted or []) for suffix in COMPANION_SUFFIXES]
+        # `year` is an internal SEMANTIC DEPENDENCY of rendering, not a column
+        # the caller asked for. Rendering splits the answer so 1995 records are
+        # translated with the 1995 codebook, and that split reads the `year`
+        # partition column. A projection dropped it, so a projected multi-year
+        # load silently fell back to translating everything at the earliest
+        # requested vintage — reintroducing the exact defect the split fixes.
+        # Requested as OPTIONAL so a generation without the column is not an
+        # error, and dropped again before the result is returned.
+        optional.append("year")
         try:
             table = cat.lake.read(
                 system=system,
@@ -959,6 +978,12 @@ def load(
             derived=derived,
             strict=strict_labels,
         )
+        if wanted is not None and "YEAR" not in {c.upper() for c in wanted} and (
+            "year" in rendered.schema.names
+        ):
+            # Carried for the vintage split, not requested. Dropped so a
+            # projection means what it says.
+            rendered = rendered.drop_columns(["year"])
         for note in axis_notes:
             render_report.warnings.append(note)
         if structurally_absent and render_report is not None:

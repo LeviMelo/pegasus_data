@@ -309,20 +309,53 @@ class Lake:
             year_list = list(years)
             year_filter = ds.field("year").isin(year_list)
             expression = year_filter if expression is None else (expression & year_filter)
-        available = set(dataset.schema.names)
-        projection = None
-        if columns:
-            missing = [c for c in columns if c not in available]
-            if missing:
-                raise KeyError(
-                    f"columns not present in the lake for {family_id}: {missing}. "
-                    "Check the schema generation with Catalog.coverage()."
-                )
-            projection = list(columns)
-            # Companion columns (`*_label`, `*_ibge7`) exist only where the
-            # dictionary covered the field, so they are requested, not required.
-            projection += [c for c in (optional_columns or []) if c in available]
+        # `None` means EVERYTHING; `[]` means NOTHING. Testing truthiness
+        # conflated them, so a generation where none of the requested fields
+        # physically exists asked for an empty projection and got every column
+        # instead — the opposite of what the caller wanted, and the shape that
+        # structural null-filling depends on.
+        projection = self._projection(dataset, family_id, columns, optional_columns)
         return dataset.to_table(columns=projection, filter=expression)
+
+    def _projection(
+        self,
+        dataset: ds.Dataset,
+        family_id: str,
+        columns: Sequence[str] | None,
+        optional_columns: Sequence[str] | None,
+    ) -> list[str] | None:
+        """The column list to read, or ``None`` for every column.
+
+        An EMPTY list is a real answer and must survive: it says this
+        generation carries none of the requested fields, which the caller
+        handles by null-filling rather than by reading the whole table.
+        """
+        if columns is None:
+            return None
+        available = set(dataset.schema.names)
+        missing = [c for c in columns if c not in available]
+        if missing:
+            raise KeyError(
+                f"columns not present in the lake for {family_id}: {missing}. "
+                "Check the schema generation with Catalog.coverage()."
+            )
+        # DEDUPED, order preserved. A column can arrive both because the caller
+        # asked for it and because rendering needs it — `year` is both — and
+        # Arrow raises `Field "year" exists 2 times in schema` rather than
+        # ignoring the repeat.
+        projection: list[str] = []
+        for name in [*columns, *[c for c in (optional_columns or []) if c in available]]:
+            if name not in projection:
+                projection.append(name)
+        if not projection:
+            # Nothing requested exists here. Read one partition column so the
+            # scan still yields the right NUMBER of rows — an empty projection
+            # returns an empty table, and those rows have to be null-filled,
+            # not dropped.
+            for anchor in ("year", "uf"):
+                if anchor in available:
+                    return [anchor]
+        return projection
 
     def scanner(
         self,
@@ -354,17 +387,7 @@ class Lake:
             expression = year_filter if expression is None else (expression & year_filter)
         if where is not None:
             expression = where if expression is None else (expression & where)
-        available = set(dataset.schema.names)
-        projection = None
-        if columns:
-            missing = [c for c in columns if c not in available]
-            if missing:
-                raise KeyError(
-                    f"columns not present in the lake for {family_id}: {missing}. "
-                    "Check the schema generation with Catalog.coverage()."
-                )
-            projection = list(columns)
-            projection += [c for c in (optional_columns or []) if c in available]
+        projection = self._projection(dataset, family_id, columns, optional_columns)
         return dataset.scanner(
             columns=projection, filter=expression, batch_size=batch_size
         )
