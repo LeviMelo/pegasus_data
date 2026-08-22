@@ -656,6 +656,7 @@ def load(
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
+    on_missing_column: str = "raise",
     report: bool = False,
 ) -> pa.Table | tuple[pa.Table, RenderReport]:
     """Read a family out of the lake, rendered for reading.
@@ -739,27 +740,81 @@ def load(
             raise FilterHasNoAxis(refusal)
 
         wanted: list[str] | None = list(columns) if columns else None
+
+        # PRUNE before touching the filesystem. load() used to try every family
+        # the ontology resolves and let a FileNotFoundError say no — one dataset
+        # open per generation per call, which on a fragmented system is most of
+        # the call. lake_partitions already knows exactly which (family, uf,
+        # year) exist.
+        family_ids = [str(f["family_id"]) for f in families]
+        if family_ids:
+            marks = ",".join("?" for _ in family_ids)
+            held: dict[str, set[tuple[str, int]]] = {}
+            for row in store.query(
+                f"SELECT family_id AS fam, uf, year FROM lake_partitions "
+                f"WHERE family_id IN ({marks})",
+                tuple(family_ids),
+            ):
+                held.setdefault(str(row["fam"]), set()).add(
+                    (str(row["uf"]), int(row["year"] or 0))
+                )
+            # Only prune on evidence. An empty lake_partitions means the catalog
+            # does not know what the lake holds, not that the lake is empty, and
+            # pruning on that would turn a stale catalog into "no data".
+            if held:
+                want_ufs = {str(u).upper() for u in (uf or [])}
+                want_years = {int(y) for y in (years or [])}
+
+                def _relevant(fid: str) -> bool:
+                    parts = held.get(fid)
+                    if parts is None:
+                        return True  # nothing recorded for it; let it try
+                    return any(
+                        (not want_ufs or p_uf.upper() in want_ufs)
+                        and (not want_years or p_year in want_years)
+                        for p_uf, p_year in parts
+                    )
+
+                narrowed = [f for f in families if _relevant(str(f["family_id"]))]
+                if narrowed:
+                    families = narrowed
+
+        # ONE presence query for every remaining generation. This was a query
+        # per family, and on the failure path a count() per (family x missing
+        # column) inside a loop over families — N+1 nested in N+1, on the path
+        # that is already about to raise.
+        presence: dict[str, set[str]] = {}
+        if wanted:
+            signatures = sorted({str(f["schema_signature"]) for f in families})
+            if signatures:
+                marks = ",".join("?" for _ in signatures)
+                for row in store.query(
+                    f"SELECT schema_signature AS sig, field_name AS fld "
+                    f"FROM schema_presence WHERE schema_signature IN ({marks})",
+                    tuple(signatures),
+                ):
+                    presence.setdefault(str(row["sig"]), set()).add(str(row["fld"]))
+
+        structurally_absent: dict[str, list[str]] = {}
         tables: list[pa.Table] = []
         for family in families:
             projection = None
             if wanted:
-                present = {
-                    r["field_name"]
-                    for r in store.query(
-                        "SELECT field_name FROM schema_presence WHERE schema_signature = ?",
-                        (family["schema_signature"],),
-                    )
-                }
+                present = presence.get(str(family["schema_signature"]), set())
                 missing = [c for c in wanted if c not in present]
+                if missing and on_missing_column == "null_fill":
+                    # Keep the generation and read what it does have; concat
+                    # null-fills the rest. Recorded, because those nulls are
+                    # STRUCTURAL — the field does not exist here.
+                    structurally_absent[str(family["family_id"])] = list(missing)
+                    projection = [c for c in wanted if c in present]
+                    missing = []
                 if missing:
                     elsewhere = [
-                        f["family_id"]
+                        str(f["family_id"])
                         for f in families
                         if all(
-                            store.count(
-                                "schema_presence", "schema_signature = ? AND field_name = ?",
-                                (f["schema_signature"], c),
-                            )
+                            c in presence.get(str(f["schema_signature"]), set())
                             for c in missing
                         )
                     ]
@@ -771,9 +826,13 @@ def load(
                     # returned 2006 onward and looked like a dataset that simply
                     # starts in 2006. The docstring already promised this raises.
                     raise MissingColumnError(
-                        missing[0], family["family_id"], elsewhere
+                        missing[0],
+                        family["family_id"],
+                        elsewhere,
+                        also_absent=missing[1:],
                     )
-                projection = list(wanted)
+                if projection is None:
+                    projection = list(wanted)
             # Companion columns the build materialised are still worth reading;
             # labels are no longer projected here, they are joined below.
             optional = [f"{c}{suffix}" for c in (wanted or []) for suffix in COMPANION_SUFFIXES]
@@ -841,6 +900,13 @@ def load(
         )
         for note in axis_notes:
             render_report.warnings.append(note)
+        if structurally_absent and render_report is not None:
+            for fam, cols in sorted(structurally_absent.items()):
+                render_report.warnings.append(
+                    f"{', '.join(cols)}: absent from the schema of generation {fam}; "
+                    "those rows are null here STRUCTURALLY — the field does not "
+                    "exist for them, it was not left blank"
+                )
         return (rendered, render_report) if report else rendered
     finally:
         if own:

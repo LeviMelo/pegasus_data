@@ -259,6 +259,34 @@ class TestLoad:
             public.close()
         assert "DIAG_SECUN" in str(excinfo.value)
 
+    def test_null_fill_keeps_the_generations_that_lack_the_column(self, built_lake):
+        """The opt-in half of the one policy fetch() and load() now share.
+
+        The default raises so a longitudinal request cannot silently begin
+        wherever the column was added. Opting in keeps every row, and the
+        nullness is reported as STRUCTURAL — the field does not exist in that
+        generation, it was not left blank.
+        """
+        settings, catalog, _ = built_lake
+        public = PublicCatalog(settings.root, settings=settings)
+        try:
+            with pytest.raises(MissingColumnError):
+                load("SIHSUS", "RD", columns=["DIAG_SECUN"], catalog=public)
+            table, rep = load(
+                "SIHSUS",
+                "RD",
+                columns=["DIAG_SECUN"],
+                on_missing_column="null_fill",
+                catalog=public,
+                report=True,
+            )
+        finally:
+            public.close()
+        assert table.num_rows > 0, "the rows the default refused to guess about"
+        assert any("STRUCTURALLY" in w for w in rep.warnings), (
+            "null-filled structural absence must be disclosed, not just permitted"
+        )
+
 
 class TestDuckLake:
     def test_views_are_registered_and_queryable(self, built_lake):
