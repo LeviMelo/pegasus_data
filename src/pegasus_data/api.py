@@ -883,6 +883,7 @@ def export(
     series: str | None = None,
     *,
     path: str | Path | None = None,
+    out: str | Path | None = None,
     format: str = "csv",
     uf: str | Sequence[str] | None = None,
     years: Sequence[int] | range | None = None,
@@ -911,6 +912,7 @@ def export(
     ``openpyxl`` dependency and is refused with a clear message when absent
     rather than half-written.
     """
+    path = path if path is not None else out
     fmt = format.lower().lstrip(".")
     if fmt not in {"csv", "parquet", "xlsx"}:
         raise ValueError(f"unknown export format {format!r}; use csv, parquet or xlsx")
@@ -923,6 +925,11 @@ def export(
         columns=columns,
         family_id=family_id,
         catalog=catalog,
+        # Forward where to look. export() grew root=/settings= but kept passing
+        # only `catalog`, so export(root=...) loaded from the DEFAULT root and
+        # failed with "no family found" while the requested root held the data.
+        root=root,
+        settings=settings,
         profile=profile,
         render=render,
         headers=headers,

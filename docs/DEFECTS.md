@@ -15,7 +15,7 @@ Every P0 below was **re-verified by reading the current source**, because severa
 commits post-date the review's snapshot and a finding could already be fixed.
 File:line references are to the code as it stands now.
 
-Nothing here is fixed yet. This is the worklist.
+Each entry states what it was. Every one is now fixed — see Status at the foot.
 
 ---
 
