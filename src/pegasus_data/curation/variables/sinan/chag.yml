@@ -682,24 +682,24 @@ variables:
     official_name: Município de residência anterior 1
     translated_name: Previous municipality of residence 1
     description: The municipality paired with ANT_UF_1 in the residence history.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code; the first residence-history municipality.
   MUN_2:
     official_name: Município de residência anterior 2
     translated_name: Previous municipality of residence 2
     description: The municipality paired with ANT_UF_2.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code; the second residence-history municipality.
   MUN_3:
     official_name: Município de residência anterior 3
     translated_name: Previous municipality of residence 3
     description: The municipality paired with ANT_UF_3.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code; the third residence-history municipality.
   ORAL:

@@ -616,8 +616,8 @@ variables:
       in a capital is frequently suffered elsewhere.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: 'C(6) IBGE municipality codes, bound to the per-state municipality codelists.
       MN_OCOR reads município de ocorrência.

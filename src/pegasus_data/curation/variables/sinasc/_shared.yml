@@ -166,7 +166,7 @@ variables:
       sits, not where the population is.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - CAPITAIS
     - CIRAC
@@ -174,6 +174,7 @@ variables:
     - CIRACN
     - CIRAL
     - CIRALC
+    code_system: external
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "Município da ocorrência (Código) | CODMUNNASC | Caracter
       7 | Números | Código do município de nascimento | Campo obrigatório"; [EVOL-1996-2019]
@@ -190,6 +191,7 @@ variables:
     translated_name: Mother's municipality of birth
     description: IBGE code of the municipality the MOTHER was born in, not the newborn. Compare
       with CODMUNRES to see internal migration.
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
@@ -200,6 +202,7 @@ variables:
     description: IBGE code of the mother's municipality of residence — the denominator geography
       for birth rates. Mandatory unless she is foreign, in which case CODPAISRES carries the
       country.
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
@@ -872,7 +875,7 @@ variables:
       MUNI_OCOR is not.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - BR_CAPITAL
     - AC_MUNICIP
@@ -880,6 +883,7 @@ variables:
     - AM_MUNICIP
     - AP_MUNICIP
     - BA_MUNICIP
+    code_system: external
     source: def
     source_ref: '[NASC.DEF-1995] declares MUNI_MAE with the residence-side municipality lookups
       ("Capital Resid" BR_CAPITAL.CNV, "Munic Resid-XX" MUNICxx.CNV) and a "Bairro Resid"
@@ -898,7 +902,7 @@ variables:
       maternity is, not where the mother lives (MUNI_MAE).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - BR_CAPITAL
     - AC_MUNICIP
@@ -906,6 +910,7 @@ variables:
     - AM_MUNICIP
     - AP_MUNICIP
     - BA_MUNICIP
+    code_system: external
     source: def
     source_ref: '[NASC.DEF-1995] declares MUNI_OCOR with the occurrence-side municipality
       lookups ("Capital Ocorr" BR_CAPITAL.CNV, "Munic Ocorr-XX" MUNICxx.CNV) and a "Bairro

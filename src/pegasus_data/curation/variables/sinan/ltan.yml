@@ -168,7 +168,8 @@ variables:
       (relevant given CON_IMPORT).
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     source: inferred
     reasoning: 'LTAN form; CON_ context prefix with MUNICI reading "município"; C12
       text width, wider than a plain IBGE numeric code, fits a name/context field.

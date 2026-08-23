@@ -50,6 +50,7 @@ variables:
       indicator tables (ALF, ESCA, RENDA series).
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
     reasoning: 'CO_ prefix = código naming grammar; bound to the MUNICBR codelist as

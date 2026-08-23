@@ -73,13 +73,12 @@ variables:
       Imunobiológicos.
 
       '
-    code_system: internal
+    codelist: IMUNO
     codelists:
-    - IMUNO
     - IMUNOC
     - COBIMUNO
     - COBIMUC
-    - IMUNOCOB
+    code_system: internal
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
     notes: 'Vaccines enter and leave the PNI calendar over time (e.g. monovalent Sarampo
@@ -96,6 +95,7 @@ variables:
       home municipality.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf

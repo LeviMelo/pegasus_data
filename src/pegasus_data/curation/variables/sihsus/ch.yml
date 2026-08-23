@@ -33,9 +33,10 @@ variables:
       dominate the values observed, i.e. this sample skews toward state-capital hospitals.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'Detector-matched to MUNICBR with high confidence; MUNIC_LOC ("localização")
       is standard DATASUS naming for an establishment''s own municipality, distinct

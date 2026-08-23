@@ -86,9 +86,10 @@ variables:
       reporting municipality, distinct from CODMUNRES (the mother''s municipality of residence).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: layout_doc
     source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
   CODMUNRES:
@@ -99,9 +100,10 @@ variables:
       place (see CODMUNNOT).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: layout_doc
     source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
   COMPRIMENT:
@@ -558,9 +560,10 @@ variables:
       expect for cross-system residence joins.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Its 7-character width matches the standard 6-digit IBGE municipality code

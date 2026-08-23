@@ -639,16 +639,20 @@ variables:
     official_name: Município do Estabelecimento
     translated_name: Municipality of the establishment
     description: IBGE municipality code of the hospital that billed the admission.
-    code_system: internal
-    codelist: MUNICBR
+    codelist: BR_MUNICIPALFA
+    codelists:
+    - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Same 6-character IBGE coding as MUNIC_RES; see that entry.
   MUNIC_RES:
     official_name: Município de Residência do Paciente
     translated_name: Municipality of residence
     description: IBGE municipality code of where the patient lives.
-    code_system: internal
-    codelist: MUNICBR
+    codelist: BR_MUNICIPALFA
+    codelists:
+    - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'The column holds 6-character IBGE codes. CADMUN as shipped in the kits parses
       to 5,579 four-character codes, so it is not the municipality table despite the name;
@@ -958,6 +962,7 @@ variables:
     translated_name: Managing authority
     description: State plus municipality code of the managing authority, or the state code
       followed by zeros where management is state-level.
+    codelist: BR_MUNICGESTOR
     code_system: external
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
@@ -974,6 +979,7 @@ variables:
     official_name: Município do Estabelecimento Executante
     translated_name: Establishment municipality
     description: IBGE code of the municipality where the executing establishment sits.
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
@@ -983,6 +989,7 @@ variables:
     translated_name: Patient municipality of residence
     description: IBGE code of the patient's municipality of residence. Compare with SP_M_HOSP
       to measure travel for care.
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
@@ -1220,6 +1227,7 @@ variables:
     description: IBGE code of the municipality that manages the establishment's contract,
       or the state code with trailing zeros where management is state-level. This is the MANAGER,
       not where the patient lives or where care happened.
+    codelist: BR_MUNICGESTOR
     code_system: external
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2

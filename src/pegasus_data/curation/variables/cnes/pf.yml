@@ -177,7 +177,8 @@ variables:
       is how staffing shortages in small municipalities become visible.
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     source: inferred
     reasoning: 'C(8) carrying a two-digit UF followed by a six-digit IBGE municipality
       code; UFMUNRES reads UF e município de residência.

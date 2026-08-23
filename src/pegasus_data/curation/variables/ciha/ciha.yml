@@ -72,13 +72,6 @@ variables:
 
       '
     code_system: external
-    codelist: CADGERAC
-    codelists:
-    - CADGERAL
-    - CADGERAM
-    - CADGERAP
-    - CADGERBA
-    - CADGERCE
     notes: 'The catalog binds CNES to per-state establishment cadastre tables (CADGER + UF
       suffix, e.g. CADGERBA for Bahia) rather than one national table - use the table matching
       the record''s state to resolve a CNES code to the establishment''s name and attributes.
@@ -245,13 +238,14 @@ variables:
       patient''s residence - that is MUNIC_RES.
 
       '
-    code_system: external
-    codelist: BR_MUNICIP
+    codelist: BR_MUNICIPALFA
     codelists:
+    - BR_MUNICIP
     - BR_REGIAO
     - BR_MACSAUD
     - BR_PNDR
     - BR_CAPITAL
+    code_system: external
     notes: 'The extra codelists are TabNet-derived geography (macro-region, health macro-region,
       PNDR regional-development typology, capital flag) computed from this same municipality
       code, not alternate codings of the field.
@@ -264,13 +258,14 @@ variables:
       the PATIENT lived, as declared at the visit. Not where care was given - that is MUNIC_MOV.
 
       '
-    code_system: external
-    codelist: BR_MUNICIP
+    codelist: BR_MUNICIPALFA
     codelists:
+    - BR_MUNICIP
     - BR_REGIAO
     - BR_MACSAUD
     - BR_PNDR
     - BR_CAPITAL
+    code_system: external
     notes: 'Same derived-axis caveat as MUNIC_MOV: the extra bound codelists are TabNet geography
       computed from this code, not alternate values it takes.
 

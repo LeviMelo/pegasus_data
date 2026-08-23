@@ -41,8 +41,8 @@ variables:
       living somewhere.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code; ANT_MUNI_C sits in the antecedent contact block.
   ANT_PRE_NA:
@@ -324,8 +324,8 @@ variables:
       part of why antenatal screening fails.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code; PRE_NA reads pré-natal.
   SIN_OUTR_E:

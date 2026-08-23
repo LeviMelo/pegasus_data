@@ -392,8 +392,8 @@ variables:
       the exam happened, not where the woman lives.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(7) bound to MUNICBR, the national municipality codelist.
   CO_SEQ_SISCAN_MAMOGRAFIA_RESID:

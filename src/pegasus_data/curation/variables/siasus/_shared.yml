@@ -377,9 +377,6 @@ variables:
       registry, not a DATASUS- only invention.
 
       '
-    codelists:
-    - CADGERAC
-    - CADGERAL (per-state CNES facility registries)
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -617,10 +614,10 @@ variables:
       is located.
 
       '
+    codelist: BR_MUNICIPALFA
     codelists:
     - AC_MUNICIP
     - AL_MUNICIP
-    - '..._MUNICIP (per-UF IBGE municipality lists)'
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -780,9 +777,7 @@ variables:
       episodes, so renewals are not mistaken for new starts.
 
       '
-    codelists:
-    - TPAPAC
-    - TP_APAC
+    codelist: TP_APAC
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -860,9 +855,9 @@ variables:
       the managing authority (AP_GESTAO).
 
       '
+    codelist: BR_MUNICIPALFA
     codelists:
     - AC_MUNICIP
-    - '..._MUNICIP (per-UF IBGE municipality lists)'
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -892,9 +887,6 @@ variables:
       for the authorized procedure.
 
       '
-    codelists:
-    - CADGERAC
-    - CADGERAL (per-state CNES facility registries)
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -1137,6 +1129,7 @@ variables:
     description: IBGE code of the municipality managing the establishment's contract, or the
       state where management is state-level. The MANAGER, which is not where care happened
       or where the patient lives.
+    codelist: BR_MUNICGESTOR
     code_system: external
     source: layout_doc
     source_ref: '[APAC-LAYOUT] SIA APAC layout, campo GESTAO, campo GESTAO'
@@ -1191,9 +1184,9 @@ variables:
       here is a true residence.
 
       '
+    codelist: BR_MUNICIPALFA
     codelists:
     - AC_MUNICIP
-    - '..._MUNICIP (per-UF IBGE municipality lists)'
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -1380,9 +1373,9 @@ variables:
       (MUNPAC).
 
       '
+    codelist: BR_MUNICIPALFA
     codelists:
     - AC_MUNICIP
-    - '..._MUNICIP (per-UF IBGE municipality lists)'
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,

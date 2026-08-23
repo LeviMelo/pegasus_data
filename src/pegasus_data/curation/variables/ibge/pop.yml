@@ -41,6 +41,7 @@ variables:
       rows.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm

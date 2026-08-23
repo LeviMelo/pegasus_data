@@ -184,6 +184,7 @@ variables:
       codes mark the managing municipality as unrecorded.
 
       '
+    codelist: BR_MUNICGESTOR
     code_system: external
     source: inferred
     asserted_by: pegasus_data
@@ -390,6 +391,7 @@ variables:
       in the paired APAC record.
 
       '
+    codelist: BR_MUNICGESTOR
     code_system: external
     source: inferred
     asserted_by: pegasus_data
@@ -564,9 +566,10 @@ variables:
       state rather than municipal management.
 
       '
-    code_system: external
+    codelist: BR_MUNICGESTOR
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'Bound to MUNICBR, and the observed value 129999 is the Acre state code
       with the 9999 suffix that DATASUS uses for state-level management.
@@ -777,16 +780,18 @@ variables:
     official_name: Município gestor, bloco OPC
     translated_name: Managing municipality, OPC block
     description: The managing municipality on the OPC block. See PAC_GESTAO.
+    codelist: BR_MUNICGESTOR
+    codelists:
+    - BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: The OPC_ block's copy of GESTAO, bound to MUNICBR.
   OPC_MUNPCN:
     official_name: Município do paciente, bloco OPC
     translated_name: Patient municipality, OPC block
     description: The patient's municipality on the OPC block. See PAC_MUNPCN.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: The OPC_ block's copy of MUNPCN, bound to MUNICBR.
   OPC_NASCPC:
@@ -1008,8 +1013,10 @@ variables:
       patient''s municipality, which PAC_MUNPCN carries.
 
       '
+    codelist: BR_MUNICGESTOR
+    codelists:
+    - BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: Bound to MUNICBR, the national municipality codelist.
   PAC_INDTRA:
@@ -1062,8 +1069,8 @@ variables:
       makes this registry re-identifiable. See FINDINGS.md 3j.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: Bound to MUNICBR; MUNPCN reads município do paciente.
   PAC_NASCPC:
@@ -1256,8 +1263,10 @@ variables:
     official_name: Município gestor, bloco PAF
     translated_name: Managing municipality, PAF block
     description: The managing municipality on the PAF block. See PAC_GESTAO.
+    codelist: BR_MUNICGESTOR
+    codelists:
+    - BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: The PAF_ block's copy of GESTAO, bound to MUNICBR.
   PAF_INDTRA:
@@ -1302,9 +1311,10 @@ variables:
       these files originate.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'Bound to MUNICBR in the catalog at 0.9 confidence; all 98 non-null
       values match the 6-digit IBGE code pattern with an Acre (12xxxx) prefix.
@@ -1423,9 +1433,10 @@ variables:
       Branco, Acre) on both rows here, matching FUNDHACRE''s home city.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'Bound to MUNICBR at 0.9 confidence; both non-null rows read 120040,
       the IBGE code for Rio Branco.
@@ -1438,9 +1449,10 @@ variables:
       both rows are null, matching UDI_APCGC2 and UDI_APRZ2''s empty slot 2.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 0 of 2 rows non-null, consistent with an unfilled slot 2 across the
       AP triple.
@@ -1541,9 +1553,10 @@ variables:
       rather than municipal management.
 
       '
-    code_system: external
+    codelist: BR_MUNICGESTOR
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'Same GESTAO stem as EXA_GESTAO; bound to MUNICBR; both rows read 129999.
 
@@ -1583,9 +1596,10 @@ variables:
       both rows.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 120040.
   UDI_HGMN2:
@@ -1596,9 +1610,10 @@ variables:
       rather than an outside hospital.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 120040.
   UDI_HGRZ1:
@@ -1647,9 +1662,10 @@ variables:
       Distrito Federal, on both rows, not a municipality in Acre at all.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 530010, the Distrito Federal
       code.
@@ -1757,9 +1773,10 @@ variables:
       on both rows, i.e. a locally contracted lab rather than an out-of-state one.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 120040.
   UDI_LAARZ:
@@ -1801,9 +1818,10 @@ variables:
       both rows, matching UDI_HTPMN.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 530010, matching UDI_HTPMN.
   UDI_LHCRZ:
@@ -1838,9 +1856,10 @@ variables:
       rows, an out-of-state commercial supplier rather than a local one.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 355030, the São Paulo city
       code.
@@ -1877,9 +1896,10 @@ variables:
       unit uses an out-of-state specialist maintenance vendor.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'Bound to MUNICBR; the two non-null values are 120040 and 411915, one
       local and one in Paraná.
@@ -1961,9 +1981,10 @@ variables:
       on both rows.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 120040.
   UDI_PCMN2:
@@ -1973,9 +1994,10 @@ variables:
       consistent with LACEN''s home city.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 120040.
   UDI_PCRZ1:
@@ -2123,9 +2145,10 @@ variables:
       Rio Branco, on both rows.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 120040.
   UDI_RDMN2:
@@ -2135,9 +2158,10 @@ variables:
       Rio Branco, filled for only one of the two Acre rows.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; the single non-null row reads 120040.
   UDI_RDRZ1:
@@ -2193,9 +2217,10 @@ variables:
       on both rows.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Bound to MUNICBR; both non-null rows read 120040.
   UDI_USMN2:
@@ -2205,9 +2230,10 @@ variables:
       either Acre unit, matching UDI_USCGC2''s empty slot.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 0 of 2 rows non-null, consistent with the unfilled slot 2 seen on UDI_USCGC2/USRZ2.
   UDI_USRZ1:

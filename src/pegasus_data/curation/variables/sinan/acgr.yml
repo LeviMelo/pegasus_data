@@ -128,8 +128,8 @@ variables:
       worker lives or was treated, which is why all three are recorded.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code in the accident-location block.
   MUN_ATENDE:
@@ -139,8 +139,8 @@ variables:
       to larger centres, so this clusters differently from MUN_ACID.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code in the treatment-location block.
   NU_TRAB:

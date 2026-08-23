@@ -350,7 +350,8 @@ variables:
       rather than mosquito-borne.
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     source: inferred
     reasoning: C7 matches a 7-digit IBGE municipality code; M_+TRANSFU reads município
       da transfusão, grouped with TRANSFU/DTTRANSFU.

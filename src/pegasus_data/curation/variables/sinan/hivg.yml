@@ -123,8 +123,8 @@ variables:
     official_name: Município do pré-natal
     translated_name: Municipality of antenatal care
     description: Where the antenatal care was given, by IBGE code.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code in the antenatal block.
   PRE_PRENAT:

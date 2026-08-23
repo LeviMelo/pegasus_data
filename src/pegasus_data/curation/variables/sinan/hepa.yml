@@ -181,24 +181,24 @@ variables:
     official_name: Município da segunda exposição
     translated_name: Municipality of second exposure
     description: Municipality of the second exposure location.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: The second slot of the exposure municipality series.
   CO_MUN_EX3:
     official_name: Município da terceira exposição
     translated_name: Municipality of third exposure
     description: Municipality of the third exposure location.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: The third slot of the exposure municipality series.
   CO_MUN_EXP:
     official_name: Município da exposição
     translated_name: Municipality of exposure
     description: Municipality where the exposure happened, the finer companion to CO_UF_EXP.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code bound to the municipality codelists.
   CO_UF_EX2:

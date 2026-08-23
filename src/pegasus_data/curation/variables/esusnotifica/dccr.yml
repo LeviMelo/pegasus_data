@@ -263,6 +263,7 @@ variables:
       service, the code companion to ANT_MUN.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     modifies: ANT_MUN
     notes: 'The data dictionary and the Nota Informativa give this column slightly
@@ -279,9 +280,10 @@ variables:
       which reflects where patients live decades after infection.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     modifies: COMUNINF
   CD_MN_RES0:
     official_name: COD IBGE – Município de transferência
@@ -290,6 +292,7 @@ variables:
       follow-up — the code companion to MN_RESI_TF.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
     reasoning: 'The Nota Informativa lists the export''s IBGE code columns and names
@@ -315,10 +318,11 @@ variables:
       (CD_MUN_UBS / CD_MUN_ESP) or probably infected (CD_COMUNIN).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
     - CAPITAL
+    code_system: external
     modifies: ID_MN_RESI
   CD_MUNICIP:
     official_name: COD IBGE - Município da Notificação
@@ -328,10 +332,11 @@ variables:
       reliably.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
     - CAPITAL
+    code_system: external
     modifies: ID_MUNICIP
     notes: 'Six digits, not seven — IBGE''s code without its check digit, the standard
       DATASUS form.
@@ -344,9 +349,10 @@ variables:
       service following the case, named in MUN_ESP.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     modifies: MUN_ESP
   CD_MUN_NAS:
     official_name: COD IBGE - Município de Nascimento do paciente
@@ -354,6 +360,7 @@ variables:
     description: 'Six-digit IBGE code for the municipality of birth named in MUN_NASC.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     modifies: MUN_NASC
     notes: 'Name truncated from the dictionary''s CD_MUN_NASC by the DBF ten-character
@@ -368,6 +375,7 @@ variables:
       to for follow-up — the code companion to MUN_NOV_AC.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
     reasoning: 'The Nota Informativa names this column CD_MUN_NOV_AC and defines it
@@ -389,9 +397,10 @@ variables:
       case, named in MUN_UBS_AC.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     modifies: MUN_UBS_AC
   CNES:
     official_name: CNES do estabelecimento notificante
@@ -439,7 +448,8 @@ variables:
       COUFINF.
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     depends_on:
     - CD_COMUNIN
   CONF_FAMIL:

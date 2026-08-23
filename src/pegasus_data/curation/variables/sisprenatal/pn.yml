@@ -80,8 +80,10 @@ variables:
       where she resides.
 
       '
+    codelist: BR_MUNICIPALFA
+    codelists:
+    - MUNICBR
     code_system: external
-    codelist: MUNICBR
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
       -> Gestantes.def, line "LMunicípio da UBS , CO_MUN_UBS ,1 ,MUNICBR.CNV"
@@ -573,7 +575,6 @@ variables:
 
       '
     code_system: internal
-    codelist: ST_GESTAC
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
       -> Gestantes.def, line "XStatus da Gestação, ST_GESTAC ,1 ,ST_GESTAC.CNV"

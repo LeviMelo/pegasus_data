@@ -340,7 +340,8 @@ variables:
       cases are transferred to a referral hospital.
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     source: inferred
     reasoning: 'HANT form; numeric width N7 matches the standard 7-digit IBGE municipality
       code rather than a 1-character clinical-sign flag, despite the CLI_ prefix shared
@@ -452,7 +453,8 @@ variables:
       - used to map the probable infection site.
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     source: inferred
     reasoning: 'CONF_ = confirmação, INF = infecção, M = município; N7 numeric width
       matches an IBGE municipality code, and infection-site municipality is a standard

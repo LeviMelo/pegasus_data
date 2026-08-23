@@ -329,7 +329,8 @@ variables:
       when the meal was eaten while travelling.
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     source: inferred
     reasoning: 'Declared as C6 (matching an IBGE six-digit municipality code) with
       BOTU series membership. "MUN_ING" decomposes to "município de ingestão", and

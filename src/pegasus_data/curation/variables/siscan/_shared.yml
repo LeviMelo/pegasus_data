@@ -52,9 +52,10 @@ variables:
       routinely differ.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Declared C(7) and bound to MUNICBR.
   CLABUF:
@@ -614,6 +615,7 @@ variables:
       performed the exam is located, distinct from the requesting unit''s municipality.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
@@ -626,6 +628,7 @@ variables:
       on the Cartão Nacional de Saúde, ordered by state code and then municipality.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Munic. de residência
@@ -636,6 +639,7 @@ variables:
       the exam is located, as registered on the patient''s Cartão SUS.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: 'Nota Tecnica 8 SISCAN - Mamografia, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica8_mamografia_atend.pdf
@@ -661,9 +665,10 @@ variables:
       and not where it was read, which is the laboratory''s (CLABIBGE).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Declared C(7) and bound to MUNICBR; seven digits is the IBGE code.
     notes: 'Screening is often collected away from home. Counting exams by the unit''s
@@ -974,8 +979,6 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - UNIDSAUDE
     source: inferred
     reasoning: 'Declared C(7) — the CNES establishment width — and bound to UNIDSAUDE
       plus a per-state family of unit tables.
@@ -988,9 +991,10 @@ variables:
       is where the exam happened rather than where the woman lives.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Declared C(7) and bound to MUNICBR.
   CO_US_UF:
@@ -1339,8 +1343,8 @@ variables:
       not be used as residence.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(7) bound to MUNICBR, the national municipality codelist.
   PRESTUF:

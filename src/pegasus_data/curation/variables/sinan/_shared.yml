@@ -235,6 +235,7 @@ variables:
     description: 'IBGE municipality of the prior blood transfusion described alongside ANTDTTRANS/ANTUFTRANS.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
     reasoning: 'C(6,0) bound to the MUNICBR-family codelists, same series/file-count group
@@ -1424,7 +1425,7 @@ variables:
       and probable infection (COMUNINF).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICAC
     - MUNICAL
@@ -1432,6 +1433,7 @@ variables:
     - MUNICAP
     - MUNICBA
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'ATE_ is short for atendimento (medical care), matching the confirmed MUN_ATENDE
       field on the occupational-accident dictionary ("Município do Atendimento ... Habilitar
@@ -2730,7 +2732,7 @@ variables:
       and only when COUFINF = Brasil.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICAC
     - MUNICAL
@@ -2738,6 +2740,7 @@ variables:
     - MUNICAP
     - MUNICBA
     - MUNICBR
+    code_system: external
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "37-Município (provável da fonte de infecção) | co_municipio_infeccao
       | varchar2(6) | Código do município onde o paciente foi provavelmente infectado | Campo
@@ -2966,6 +2969,7 @@ variables:
       what later became COMUNINF.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
     reasoning: 'CON_INF_MU/CON_INF_UF appear only in 2000-2006 records of CHAG, DENG, LEIV,
@@ -3525,9 +3529,8 @@ variables:
       agravo/CID-anchored table family as ID_AGRAVO.
 
       '
+    codelist: AGRAVONOTS
     code_system: external
-    codelists:
-    - AGRAVNET
     source: inferred
     reasoning: 'DIAG_ESP reads as diagnóstico específico; it is declared C(4), the same width
       as ID_AGRAVO''s CID-10-based code, and shares the AGRAVNET codelist binding with ID_AGRAVO.
@@ -3643,7 +3646,8 @@ variables:
       pattern as DS_MUN_1-3 and CO_UF_1-3 elsewhere in SINAN.
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     source: inferred
     reasoning: 'Declared width C6 matches the standard 6-digit IBGE municipality code, not
       free text; the 1/2/3 suffix mirrors other SINAN "up to three locations" field families.
@@ -3657,7 +3661,8 @@ variables:
       case.
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     source: inferred
     reasoning: Same evidence as DS_TRANS1; distinguished only by ordinal position.
   DS_TRANS3:
@@ -3668,7 +3673,8 @@ variables:
       case.
 
       '
-    code_system: none
+    codelist: BR_MUNICIPALFA
+    code_system: external
     source: inferred
     reasoning: Same evidence as DS_TRANS1; distinguished only by ordinal position.
   DTALTA:
@@ -4999,14 +5005,14 @@ variables:
       codelist) applies to the rest of the record.
 
       '
-    code_system: external
+    codelist: AGRAVONOTS
     codelists:
-    - AGRAVNET
     - AGRAVOSSURTO
     - AGRAVSURT
     - AGUDOSNET
     - COMPNAC
     - CRONICASNET
+    code_system: external
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "2. Agravo | co_cid | varchar2(4) | Nome e código do agravo
       notificado segundo CID-10 (Centro Colaborador da OMS para a Classificação de Doenças
@@ -5064,7 +5070,7 @@ variables:
       — not where they were treated (ID_MUNICIP) or probably infected (COMUNINF).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - CAPITAL
     - CLUSTERBR
@@ -5072,6 +5078,7 @@ variables:
     - MUNFRONT
     - MUNFRONT_1
     - MUNICAC
+    code_system: external
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "18. Município de residência | co_municipio_residencia |
       varchar2(6) | Código do município de residência do caso notificado | ID_MN_RESI"
@@ -5085,7 +5092,7 @@ variables:
       was probably infected (COMUNINF).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - CAPITAL
     - CLUSTERBR
@@ -5093,6 +5100,7 @@ variables:
     - MUNFRONT
     - MUNFRONT_1
     - MUNICAC
+    code_system: external
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "5. Município de Notificação | co_municipio_notificacao |
       varchar2(6) | Código do município onde está localizada a unidade de saúde (ou outra
@@ -5106,6 +5114,7 @@ variables:
       block common to SINAN notification forms.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: Dengue/Chikungunya ficha de investigação (portalsinan.saude.gov.br), campo
@@ -5717,6 +5726,7 @@ variables:
       live in a second, and be hospitalized in a third.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SINAN/Dengue/dic_dados_dengue.pdf
@@ -5734,6 +5744,7 @@ variables:
       block described under CO_UF_DES1.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
     reasoning: 'C(6,0) bound to the MUNICBR-family codelists, part of the same numbered block
@@ -5746,6 +5757,7 @@ variables:
     description: 'Second slot of the travel/exposure-history block described under CO_UF_DES1/MUN_DES1.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
     reasoning: 'Same reasoning as MUN_DES1, numbered slot 2.
@@ -5757,6 +5769,7 @@ variables:
     description: 'Third slot of the travel/exposure-history block described under CO_UF_DES1/MUN_DES1.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
     reasoning: 'Same reasoning as MUN_DES1, numbered slot 3.
@@ -5766,7 +5779,7 @@ variables:
     official_name: Município da Empresa Contratante
     translated_name: Municipality of the employer
     description: IBGE municipality code of the contracting employer.
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICAC
     - MUNICAL
@@ -5774,6 +5787,7 @@ variables:
     - MUNICAP
     - MUNICBA
     - MUNICBR
+    code_system: external
     source: layout_doc
     source_ref: '[DIC-DRT-ATG] "39. Município | co_municipio_empresa | varchar2(6) | Município
       da empresa Contratante | Código (IBGE) | Campo Essencial | MUN_EMP"
@@ -5792,7 +5806,7 @@ variables:
       block many agravo forms share.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICAC
     - MUNICAL
@@ -5800,6 +5814,7 @@ variables:
     - MUNICAP
     - MUNICBA
     - MUNICBR
+    code_system: external
     source: layout_doc
     source_ref: '[BOTU] http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf
       — "40. Município do Hospital | co_municipio_hospital | varchar(6) | Informe Nome do
@@ -5901,7 +5916,7 @@ variables:
       the "nome" (name) wording in the field label.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICAC
     - MUNICAL
@@ -5909,6 +5924,7 @@ variables:
     - MUNICAP
     - MUNICBA
     - MUNICBR
+    code_system: external
     source: layout_doc
     source_ref: '[COLE] http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf
       — "48. Município do hospital | co_municipio_hospital | varchar(6) | Nome completo do
@@ -6416,6 +6432,7 @@ variables:
       investigation form.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: DIC_DADOS_Gestante_Sifilis_v5.pdf, campo 33
@@ -7265,6 +7282,7 @@ variables:
       — separate from the residence municipality captured earlier on the form.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 45; DIC_DADOS_Hantavirose_v5.pdf, campo

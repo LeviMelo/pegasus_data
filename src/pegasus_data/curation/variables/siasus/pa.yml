@@ -285,9 +285,6 @@ variables:
       national facility registry as AP_CODUNI.
 
       '
-    codelists:
-    - CADGERAC
-    - CADGERAL (per-state CNES facility registries)
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -594,7 +591,6 @@ variables:
 
       '
     code_system: external
-    codelist: cid_o
     source: inferred
     reasoning: C(6) code bound to S_CIDM, the morphology codelist.
   PA_MOTSAI:
@@ -616,6 +612,7 @@ variables:
     translated_name: Municipality of attendance
     description: IBGE municipality code (UF+município, 6 digits) of where the patient was
       attended — the pre-2008 PA file's equivalent of the modern PA_UFMUN.
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
     source_ref: null
@@ -634,9 +631,9 @@ variables:
     description: Seven-character IBGE state-plus-municipality code of the patient's residence
       — or of the establishment instead, on rows whose source instrument does not identify
       a patient. Check PA_DOCORIG before treating it as patient geography.
+    codelist: BR_MUNICIPALFA
     codelists:
     - AC_MUNICIP
-    - '..._MUNICIP (per-UF IBGE municipality lists)'
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -917,9 +914,9 @@ variables:
       on the production file - the place of care, not the patient''s residence (PA_MUNPCN).
 
       '
+    codelist: BR_MUNICIPALFA
     codelists:
     - AC_MUNICIP
-    - '..._MUNICIP (per-UF IBGE municipality lists)'
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,

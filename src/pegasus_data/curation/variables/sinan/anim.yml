@@ -95,8 +95,8 @@ variables:
       was treated, since antivenom is held at designated centres.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code bound to the municipality codelists.
   ANT_TEMPO_:

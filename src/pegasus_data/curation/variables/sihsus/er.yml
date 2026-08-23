@@ -83,9 +83,10 @@ variables:
       ER record — the error file''s equivalent of MUNIC_MOV in RD (sihsus_rd.yml).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'No .DEF display name is bound, but the detector matches this column''s
       values to MUNICBR (six-character IBGE codes) with high confidence, the observed
@@ -103,9 +104,10 @@ variables:
       ER record — the error file''s equivalent of MUNIC_RES in RD (sihsus_rd.yml).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: inferred
     reasoning: Same basis as MUN_MOV — detector-matched to MUNICBR, and the name pairs
       with the documented MUNIC_RES concept.

@@ -431,32 +431,32 @@ variables:
     official_name: Município de residência anterior 1
     translated_name: Previous municipality of residence 1
     description: The municipality paired with CO_UF_R1 in the residence history.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code; the municipality half of the first slot.
   CO_MUN_R2:
     official_name: Município de residência anterior 2
     translated_name: Previous municipality of residence 2
     description: The municipality paired with CO_UF_R2.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code; the municipality half of the second slot.
   CO_MUN_R3:
     official_name: Município de residência anterior 3
     translated_name: Previous municipality of residence 3
     description: The municipality paired with CO_UF_R3.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code; the municipality half of the third slot.
   CO_MUN_R4:
     official_name: Município de residência anterior 4
     translated_name: Previous municipality of residence 4
     description: The municipality paired with CO_UF_R4.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code; the municipality half of the fourth slot.
   CO_UF_R1:

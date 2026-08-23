@@ -417,6 +417,7 @@ variables:
       patient later moves.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
@@ -431,6 +432,7 @@ variables:
       transfer between units.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: 'DICIONÁRIO DE DADOS - SINAN NET - VERSÃO 4.0 (nepas.ufsc.br), campo
@@ -461,6 +463,7 @@ variables:
       or a foreign nation.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: 'DICI_DADOS_NET_Tuberculose_23_07_2020.pdf (portalsinan.saude.gov.br),

@@ -104,6 +104,21 @@ names its own room type.
 70 words, one that discusses the document rather than the column, and three that
 open identically. Run it; it is not advisory.
 
+### The other failure mode: believing the test suite
+
+A municipality-decoding defect survived days of "fixed" claims because every
+layer's tests passed while the output said "Baixo Acre e Purus" where it should
+have said "Rio Branco". Two more defects — a doubled code
+(`120001 – 120001 Acrelândia, AC`) and a data dictionary with every description
+blank — were then found in minutes by opening a generated CSV. None of the three
+had a failing test, because nothing asserted on the rendered STRING a person
+opens; the suite measured column lists, coverage percentages and report objects,
+all of which are measurements of the *process* rather than the *answer*.
+
+**Before claiming any labelling or rendering work is done:** run a real `fetch`,
+write the file, open it, and read the values. `docs/FINDINGS.md` §3k is the full
+account.
+
 **Use Sonnet for describing.** Measured on identical work: Opus produced 0
 descriptions for 1.77M tokens (all agents died on a session limit); Sonnet
 produced 270 for 1.08M, and later 1,009 more. Opus earns its cost on adversarial
@@ -115,6 +130,16 @@ review and synthesis, not on reading evidence and writing YAML.
   none — `rmtree` plus a full scan. Correct but expensive; should be per-system.
 - **`scriptPath` on the Workflow tool** fails permission validation in this
   environment ("script contains control characters"). Send the script inline.
+- **Ranking can still pick the wrong table where the link is not declared.**
+  The municipality columns were fixed by *stating* the variable → decoder link in
+  curation (§3k), which takes ranking out of the question for them. The
+  mechanism that produced the defect is untouched and still applies to any other
+  column with many bindings: `.DEF` can bind 145 tables at one confidence,
+  `_rank` then breaks the tie **alphabetically**, and `_choose_binding` only
+  measures the first `_MAX_CANDIDATES` (12). A correct table ranked 13th or
+  later is never loaded and never weighed. `RenderReport.codelist_used` now
+  names the table actually used, which is what makes such a case visible at all
+  — worth auditing across systems for columns whose bound-table count is high.
 - **35.2% of measurable bindings decode nothing.** Recorded in
   `field_codelists.decodes_observed` and ranked last at render time, not deleted:
   `.DEF` really did declare them, and the measurement only covers values the

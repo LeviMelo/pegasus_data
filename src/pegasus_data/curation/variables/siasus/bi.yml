@@ -48,8 +48,6 @@ variables:
     description: CNES registry code of the health establishment that produced this
       BPA-I line.
     code_system: external
-    codelists:
-    - CNES
   MNDIF:
     official_name: Indica se o município de residência do paciente é diferente do município
       de localização do estabelecimento

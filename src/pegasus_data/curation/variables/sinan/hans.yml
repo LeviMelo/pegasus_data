@@ -199,6 +199,7 @@ variables:
       municipality and updated whenever care is transferred.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento, campo 2.
@@ -243,6 +244,7 @@ variables:
       if the patient later moves.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento, campo 7.

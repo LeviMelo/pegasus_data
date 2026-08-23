@@ -319,9 +319,10 @@ variables:
       of death or residence; it is where the paperwork was filed.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    code_system: external
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] pos. 102 "CODMUNCART | C 10 | Código do município do cartório
       | 2012 (C 10)"
@@ -332,6 +333,7 @@ variables:
     translated_name: Municipality of birth
     description: IBGE code of the municipality the deceased was born in. Distinct from where
       they lived (CODMUNRES) and where they died (CODMUNOCOR); migration makes all three differ.
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
@@ -339,8 +341,10 @@ variables:
   CODMUNOCOR:
     official_name: Município de ocorrência
     translated_name: Municipality of occurrence
-    code_system: internal
-    codelist: MUNICBR
+    codelist: BR_MUNICIPALFA
+    codelists:
+    - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose label
       column resolved to OBSERV, which is blank for 5,517 of its 5,579 rows, so it decodes
@@ -356,8 +360,10 @@ variables:
   CODMUNRES:
     official_name: Município de residência
     translated_name: Municipality of residence
-    code_system: internal
-    codelist: MUNICBR
+    codelist: BR_MUNICIPALFA
+    codelists:
+    - MUNICBR
+    code_system: external
     source: inferred
     reasoning: 'Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose label
       column resolved to OBSERV, which is blank for 5,517 of its 5,579 rows, so it decodes
@@ -370,6 +376,7 @@ variables:
     translated_name: SVO/IML municipality
     description: IBGE code of the municipality of the death-verification service or medico-legal
       institute, filled only where the certifier was one of those. Blank otherwise by design.
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
@@ -1261,7 +1268,7 @@ variables:
       layout — the predecessor of the modern CODMUNOCOR.
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - AC_MUNICIP
     - AL_MUNICIP
@@ -1269,6 +1276,7 @@ variables:
     - AP_MUNICIP
     - BA_MUNICIP
     - BAIRROS
+    code_system: external
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] pos. 13 "MUNIOCOR | C 8 | Municipio de ocorrencia do obito,
       conforme codificação do IBGE. | 1979 (C 8)"
@@ -1283,7 +1291,7 @@ variables:
       to carry over).
 
       '
-    code_system: external
+    codelist: BR_MUNICIPALFA
     codelists:
     - AC_MUNICIP
     - AL_MUNICIP
@@ -1291,6 +1299,7 @@ variables:
     - AP_MUNICIP
     - BA_MUNICIP
     - BR_AMAZLEGAL
+    code_system: external
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] pos. 14 "MUNIRES | C 7 | Municipio de residencia, em codificação
       identica a de MUNIOCOR. Os óbitos de residentes no exterior ou de residencia completamente

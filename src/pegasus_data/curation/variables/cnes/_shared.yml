@@ -705,15 +705,16 @@ variables:
       keyed on this code, not separate facts stored in the column itself.
 
       '
-    code_system: external
-    source: web
-    source_ref: '[PCDAS] "Código do município do estabelecimento: UF + MUNIC"'
+    codelist: BR_MUNICIPALFA
     codelists:
     - BR_AMAZLEGAL
     - BR_CAPITAL
     - BR_EXTRPOBREZ
     - BR_FRONTFAIXA
     - BR_FRONTZONA
+    code_system: external
+    source: web
+    source_ref: '[PCDAS] "Código do município do estabelecimento: UF + MUNIC"'
   COD_CEP:
     official_name: Código de Endereçamento Postal (CEP)
     translated_name: Postal code (CEP) of the establishment's address

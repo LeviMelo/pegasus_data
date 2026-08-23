@@ -408,6 +408,7 @@ variables:
       that is MUNIC_RES.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
@@ -427,6 +428,7 @@ variables:
       at admission - not where the hospital is located; that is MUNIC_MOV.
 
       '
+    codelist: BR_MUNICIPALFA
     code_system: external
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip

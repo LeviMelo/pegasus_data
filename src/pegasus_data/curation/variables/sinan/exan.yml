@@ -452,8 +452,8 @@ variables:
     official_name: Município de hospitalização
     translated_name: Municipality of hospitalisation
     description: Where the patient was admitted, by IBGE code.
+    codelist: BR_MUNICIPALFA
     code_system: external
-    codelist: ibge_municipio
     source: inferred
     reasoning: C(6) IBGE code bound to the municipality codelists.
   TPEXANTE:
