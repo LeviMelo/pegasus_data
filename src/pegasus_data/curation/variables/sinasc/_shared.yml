@@ -922,11 +922,10 @@ variables:
   NATURALMAE:
     official_name: Naturalidade da mãe
     translated_name: Mother's place of birth (country, when foreign)
-    description: 'Where the mother was born. The layout states that when the mother is foreign
-      this 3-digit field carries the DATASUS country code of her country of birth; a Brazilian
-      mother''s place of birth is expressed instead through CODUFNATU and CODMUNNATU.
-
-      '
+    description: 'Where the mother was born. NOT a plain country code: the observed values
+      are 811, 812, 813 and so on — an 8 followed by the two-digit UF for a Brazilian, with
+      country codes used only for a foreign mother. Binding it to the country table decodes
+      none of the Brazilian majority.'
     code_system: internal
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "Naturalidade da mãe | NATURALMAE | Caracter 3 | Números
@@ -937,11 +936,8 @@ variables:
     depends_on:
     - CODUFNATU
     - CODMUNNATU
-    notes: 'Nothing in the layouts says what this holds for a Brazilian-born mother, so do
-      not read a non-blank value as "foreign" without checking the codes against the DATASUS
-      país table. No codelist is bound to it in the catalog.
-
-      '
+    notes: 'Measured on SINASC-DN AC 2022: every observed value is in the 8xx range, so a
+      reader treating this as PAIS resolves nothing for Brazilian-born mothers.'
   NUMEROLOTE:
     official_name: Número do lote
     translated_name: Batch number
