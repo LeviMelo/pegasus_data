@@ -531,8 +531,13 @@ class Ontology:
         # in one scope makes the second loop's type unreadable to a checker and
         # to a reader.
         for system in self.systems.values():
-            self._system_alias[system.code] = system.code
-            for alias in system.crawled_as:
+            for alias in (system.code, *system.crawled_as):
+                prior = self._system_alias.get(alias)
+                if prior is not None and prior != system.code:
+                    raise ValueError(
+                        f"ontology system alias {alias!r} is claimed by both "
+                        f"{prior} and {system.code}"
+                    )
                 self._system_alias[alias] = system.code
 
         # (declared system, series) -> dataset, and a series-only fallback for
@@ -545,6 +550,12 @@ class Ontology:
         for dataset in self.datasets.values():
             keys = set(dataset.observed_as) | {dataset.short_code}
             for key in keys:
+                prior = self._by_system_series.get((dataset.system, key))
+                if prior is not None and prior != dataset.code:
+                    raise ValueError(
+                        f"ontology alias ({dataset.system}, {key}) is claimed by "
+                        f"both {prior} and {dataset.code}"
+                    )
                 self._by_system_series[(dataset.system, key)] = dataset.code
                 if key in self._by_series and self._by_series[key] != dataset.code:
                     self._series_collisions.add(key)

@@ -335,3 +335,27 @@ hazards. They were reproduced in the project environment and closed as follows:
 This closes software defects, not the substantive uncertainty deliberately kept
 in the semantic ledger. Inferred descriptions, genuinely sourceless fields and
 Ministry-only denominator questions remain evidence work rather than bugs.
+
+---
+
+## Next-architecture closure — 2026-08-23
+
+The architectural brief identified design gaps rather than isolated runtime
+exceptions. They are closed by these enforced invariants:
+
+| area | defect prevented | enforced resolution |
+|---|---|---|
+| storage | treating a 15 GB maintainer catalog as a runtime requirement | exact `dbstat` report plus versioned, budgeted compiled resources |
+| representations | decoding every mirror/expansion or dropping archive members | one shared logical-publication selector; conflicts are recorded and retained |
+| ontology | two datasets silently claiming one alias | duplicate system/dataset aliases raise during ontology construction |
+| relations | roll-ups and attributes emitted as identity labels | typed semantic relations; only `label_of` is automatic |
+| adjudication | candidate caps choosing meaning | stable evidence item, export/apply workflow, safe refusal |
+| time | monthly intent silently widened to annual publication | row-time exact filtering where proven; warning/adaptation or strict refusal otherwise |
+| geography | national files producing false empty UF results | physical axis or declared row filter, otherwise refusal |
+| schema evolution | absent generations disappearing from a projection | union schema, structural nulls, report and Arrow metadata |
+| crosswalk | identifier overwrite or accidental row multiplication | raw preservation, temporal windows, explicit statuses, opt-in explosion |
+| resources | hidden large downloads for optional enrichment | provider estimates and preflight; explicit bounded build lifecycle |
+
+The formal regression coverage lives in `test_query_api.py`,
+`test_crosswalk.py`, `test_representation_selection.py`,
+`test_semantic_relations.py` and `test_next_resources.py`.

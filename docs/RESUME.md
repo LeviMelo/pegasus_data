@@ -12,6 +12,14 @@ for what exists, and `scripts/evidence.py $CATALOG --plan` for the live position
 
 What this file is for: where to pick up, and what bites you when you do.
 
+The `PEGASUS_NEXT_ARCHITECTURE_BRIEF.md` upgrade is implemented and verified:
+the intent query planner, temporal crosswalks, representation selection, typed
+relations/adjudication, resource providers/lifecycle and storage audits are now
+the current architecture. The authoritative design and measured state are in
+architecture §§5.3, 9.3, 14.13 and 21; durable implementation findings are in
+`FINDINGS.md` §3m. Future work should extend those contracts rather than create
+a second fetch/query or relation system.
+
 Working catalog (not in the repo — it is data):
 
 ```

@@ -179,6 +179,8 @@ class FetchReport:
     #: makes the retrieval look seven times heavier than it was.
     sources_selected: int = 0
     sources_read: int = 0
+    representations_deduplicated: list[str] = field(default_factory=list)
+    representation_conflicts: list[str] = field(default_factory=list)
     #: Columns in the answer the ledger classifies as direct personal
     #: identifiers, as `{column: semantic_type}`. NOT masked, dropped or
     #: hashed — the source data is passed through unmodified and that is
@@ -233,6 +235,8 @@ class FetchReport:
             "files_read": self.files_read,
             "sources_selected": self.sources_selected,
             "sources_read": self.sources_read,
+            "representations_deduplicated": self.representations_deduplicated[:10],
+            "representation_conflicts": self.representation_conflicts[:10],
             "rows": self.rows,
             # Every acquisition counter, not just one derived megabyte figure.
             # These are exactly the numbers needed to tell a warm request from
@@ -1163,9 +1167,11 @@ def _select_files(
         family_id = str(family["family_id"])
         rows = catalog.query(
             """
-            SELECT ff.path, ff.member, fa.geo_code, fa.year, fa.normalized_date
+            SELECT ff.path, ff.member, fa.geo_code, fa.year, fa.normalized_date,
+                   fa.logical_id, fa.container_format, files.size
               FROM family_files ff
               LEFT JOIN file_facts fa ON fa.path = ff.path
+              LEFT JOIN files ON files.path = ff.path
              WHERE ff.family_id = ?
              ORDER BY fa.year, ff.path
             """,
@@ -1178,6 +1184,17 @@ def _select_files(
             and (year_set is None or r["year"] in year_set)
             and (month_set is None or _month_of(r["normalized_date"]) in month_set)
         ]
+        from .representations import choose_representations
+
+        choice = choose_representations(catalog, matched)
+        matched = list(choice.selected)
+        report.representations_deduplicated.extend(choice.dropped)
+        report.representation_conflicts.extend(choice.conflicts)
+        if choice.conflicts:
+            report.warnings.append(
+                f"{len(choice.conflicts)} logical publication(s) have unresolved "
+                "representation conflicts; alternatives were kept rather than silently collapsed"
+            )
         if not matched:
             continue
         try:

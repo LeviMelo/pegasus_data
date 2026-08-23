@@ -200,3 +200,56 @@ not_established:
       Not tested. The prenatal number's presence and fill rate across systems has
       not been measured here, and CNS-based linkage would require handling direct
       personal identifiers.
+
+# Typed semantic relations. These extend the join-key ontology: labels preserve
+# identity, dimensions intentionally change granularity, and crosswalks change
+# identifier namespace with explicit cardinality semantics.
+relations:
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: MUNIC_RES
+    relation: label_of
+    target_type: municipality
+    artifact: BR_MUNICIPALFA
+    evidence: curated variable declaration
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: MUNIC_RES
+    relation: rollup_to
+    target_type: health_region
+    target_name: health_region
+    artifact: CIRAC
+    evidence: DATASUS TabNet dimension, explicitly a roll-up
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: MUNIC_RES
+    relation: attribute_of
+    target_type: capital_status
+    target_name: is_capital
+    artifact: CAPITAL
+    evidence: DATASUS TabNet dimension, explicitly an attribute
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: DIAG_PRINC
+    relation: label_of
+    target_type: diagnosis
+    artifact: CID10
+    evidence: SIH record layout and curated variable declaration
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: DIAG_PRINC
+    relation: rollup_to
+    target_type: icd_chapter
+    target_name: chapter
+    artifact: CID10CAP
+    evidence: DATASUS TabNet dimension, explicitly a roll-up
+  - system: "*"
+    dataset: "*"
+    field: CNES
+    relation: crosswalk_to
+    target_type: legal_entity_identifier
+    target_name: CNPJ
+    artifact: labels_crosswalk.parquet
+    source_namespace: CNES
+    target_namespace: CNPJ
+    evidence: compiled CADGER registry relation

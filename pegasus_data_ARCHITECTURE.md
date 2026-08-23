@@ -123,7 +123,7 @@ Three layers are additions to the brief and are marked `[D]`; each is argued in
 ```
 pegasus_data/
   catalog/
-    schema.sql            45 tables (§4)
+    schema.sql            49 tables (§4)
     store.py              SQLite access, migration refusal, event log
   discovery/
     ftp_client.py         per-directory method selection; ranged prefix fetch
@@ -158,6 +158,7 @@ pegasus_data/
     bindings.py           field → codelist, and measuring whether one decodes
     defnames.py           display names off a .DEF, kept apart from descriptions
     curation.py           curation/*.yml → variable_docs; fingerprint refresh (§9.1)
+    relations.py          typed relations and reviewable adjudication (§9.3)
   curation/
     ontology.yml          the DECLARED ontology: systems and datasets (§5.4)
     datasets.yml          what one row IS, per dataset
@@ -178,8 +179,13 @@ pegasus_data/
   sources/
     demas_api.py ibge.py sigtap.py community.py
   ontology.py             declared systems/datasets; binds observations to them (§5.4)
+  representations.py      one shared logical-publication selector (§5.3)
   locate.py               five-layer placement resolution (§15)
   labelpack.py            the shipped label pack and bindings (§14.9)
+  crosswalk.py            temporal, cardinality-safe identifier enrichment (§14.13)
+  providers.py            resource requirement/provider contracts (§14.13)
+  _resources.py           versioned bundled and optional-resource lifecycle (§14.13)
+  _query.py               intent model, planner, executor and query report (§14.13)
   render_groups.py        ONE vintage-scoped render path, shared by fetch and load (§8.2)
   _availability.py        present / absent / unknown, per column per year (§14.7)
   textenc.py              encoding detection for the text readers
@@ -202,21 +208,22 @@ pegasus_data/
 
 ## 4. The catalog
 
-One SQLite database, 46 tables, shipped alongside the lake. It is the module's
+One SQLite database, 49 tables, shipped alongside the lake. It is the module's
 memory: everything discovered, decided, or left open lives here. Grouped by what
 they hold:
 
 - **Discovery** — `files`, `directories`, `file_moves`, `coverage_gaps`,
   `crawl_runs`, `prefix_systems`, `system_disagreements`
 - **Identity** — `file_facts`, `strata`, `stratum_members`, `schemas`,
-  `families`, `family_files`, `representations`
+  `families`, `family_files`, `representations`, `representation_conflicts`
 - **Acquisition** — `blobs`, `fetches`, `decode_attempts`, `archive_members`
 - **Evidence** — `variable_profiles`, `value_frequencies`, `schema_presence`,
   `schema_header_facts`, `schema_drift`, `field_renames`
 - **Meaning** — `dictionary`, `field_codelists`, `dictionary_rules`,
   `dictionary_conflicts`, `code_tables`, `tab_kits`, `def_variables`,
-  `def_datasets`, `field_documentation`, `ledger`
-- **Judgement** — `variable_docs`, `dataset_docs`, `open_questions`
+  `def_datasets`, `field_documentation`, `ledger`, `semantic_relations`
+- **Judgement** — `variable_docs`, `dataset_docs`, `open_questions`,
+  `adjudication_items`
 - **Output** — `build_outcomes`, `lake_partitions`, `lake_datasets`,
   `population_series`, `api_endpoints`, `api_ingests`
 - **Meta** — `schema_version`, `events`, `curation_state`
@@ -377,6 +384,20 @@ name the dataset: a narrower answer beats an exception.
 
 `SYSTEM_ALIASES` in `retrieve.py` is now **derived** from the declaration's
 `crawled_as` rather than hand-maintained a second time. One fact, one place.
+
+**Representation selection is a physical decision, shared by every consumer.**
+`representations.py` groups candidates by logical publication and archive
+member, then chooses the cheapest directly readable form (Parquet/DuckDB/CSV
+before compressed or archive decoding). Archive members remain separate datasets. If metadata
+cannot prove equivalence, the selector retains the candidates and records a
+`representation_conflicts` row instead of dropping one. Both `fetch()` and the
+lake builder call this selector; the choice can therefore affect cost but never
+change which logical publications or members the user receives.
+
+Measured on the recovered full catalog: **4,422** logical publications have
+alternative physical forms, covering 14,446 files. Preference avoids 10,024
+redundant physical reads. This is an inventory result, not a deduplication ratio
+assumed from suffixes.
 
 ---
 
@@ -695,6 +716,22 @@ TabWin `.DEF`/`.CNV` packs and extracted evidence, all re-downloadable. The
 manifest is committed in their place, so the trail survives in version control
 even when the bytes do not.
 
+### 9.3 Relations are typed, and uncertainty becomes work `[D]`
+
+One field can participate in several true relations. `MUNIC_RES` has an
+identity label, rolls up to a health region and has an attribute saying whether
+the municipality is a capital. These are not interchangeable mappings.
+`semantics/relations.py` therefore models `label_of`, `rollup_to`,
+`attribute_of` and `crosswalk_to` explicitly, seeded from `curation/joins.yml`
+and persisted in `semantic_relations`.
+
+The renderer and query layer only put an identity-level `*_label` beside a raw
+code. Roll-ups and attributes require an explicit dimension request. An
+overlarge unresolved candidate set creates a stable `adjudication_items` key;
+`pegasus-data adjudicate show|export|apply` packages its evidence and records a
+reviewed decision. This converts semantic uncertainty into a reproducible queue
+instead of a truncated ranking or a silent guess.
+
 ## 10. Offline — the semantic bundle `[D]`
 
 Everything the module can *say* about a value is derived from an FTP server that
@@ -876,15 +913,17 @@ order:
 | The question | The verb | What backs it |
 |---|---|---|
 | What is even there? | `explore()` | the shipped map of 207,251 files |
-| Give me some. | `fetch()` | crawl → decode → normalise → label |
+| Give me an analysis-ready slice. | `query()` · `plan()` | intent planner → lake or fetch → semantics |
+| Give me source-shaped rows. | `fetch()` · `load()` | direct retrieval mechanics |
 | What does this column mean? | `describe()` · `search()` | ledger, dictionary, curation |
 | I already have data — decode it. | `translate()` | the 19.9M-row dictionary |
 | What can't you tell me? | `gaps()` · `questions()` | `open_questions`, `coverage_gaps` |
 | Per capita? | `load_population()` | IBGE series |
 | It will not fit in memory. | `scan()` · `export(stream=True)` | the lake, batch by batch (§14.10) |
 
-Five verbs, one question each. `load()` and `export()` remain for the lake path,
-but they are no longer the front door.
+The intent-driven `query()` is the front door. `fetch()`, `load()` and
+`export()` remain public lower-level mechanics for callers that deliberately
+want source-shaped behavior.
 
 Beside them are the entry points that support those verbs rather than answering a
 question of their own, and they are public because a caller reaching them through
@@ -897,6 +936,7 @@ a private name is a caller the next refactor breaks:
 | `field_coverage()` | which columns a family carries, and in which years |
 | `open_lake()` | a DuckDB session with the lake registered |
 | `read_manifest()` · `unpack()` | the semantic bundle (§10) |
+| `resource_manager()` · `enrichment()` | resource lifecycle and explicit crosswalk requests (§14.13) |
 
 **The organising rule: every capability the module has internally should be
 reachable as a service, or it does not really exist.** Three were not, and each
@@ -1227,9 +1267,10 @@ code and so does an establishment directory. What differs is what the code
 
 **The crosswalk survives the hold-back.** `CADGERBR`'s labels carry each
 establishment's CNPJ, and a CNES↔CNPJ mapping is how establishments are matched
-across systems that key on tax identity rather than CNES. 546,189 rows, shipped
-separately, because throwing it out with the prose would have been the expensive
-half of the decision.
+across systems that key on tax identity rather than CNES. The rebuilt temporal
+artifact carries 1,774,993 evidence rows in 10.3 MB, shipped separately because
+throwing it out with the prose would have been the expensive half of the
+decision. Its cardinality audit is in §14.13.
 
 Bindings ship too (9,380 rows, 35 KB). Knowing `I219` is a heart attack is no
 help if nothing says `DIAG_PRINC` is coded in CID10.
@@ -1352,17 +1393,96 @@ the prefix when the label already opens with the code AND the next character is
 a boundary — the boundary check is what stops code `12` being swallowed by label
 `'120001 Acrelândia'`, where the match is a coincidence of digits.
 
+### 14.13 `query()` and `plan()` — intent before source mechanics `[D]`
+
+`query()` accepts one analytical specification: dataset, `Period`,
+`Geography`, selected fields, identity labels, typed dimensions, explicit
+enrichments, provenance and resource/time policies. `plan()` accepts the same
+arguments and returns an immutable `QuerySpec`/`QueryPlan` without executing it;
+`explain()` names physical publication resolution, lake-vs-fetch strategy,
+hidden dependencies, adaptations and required resources with local status and
+estimated source bytes.
+
+```python
+from pegasus_data import enrichment, plan, query
+
+kwargs = dict(
+    dataset="SIH-RD",
+    period=("2022-01", "2024-12"),
+    geography="AL",
+    select=["CNES", "MUNIC_RES", "DIAG_PRINC"],
+    dimensions=["MUNIC_RES.health_region", "DIAG_PRINC.chapter"],
+    enrich=[enrichment("CNPJ", from_field="CNES")],
+)
+print(plan(**kwargs).explain())
+table, report = query(**kwargs, return_report=True)
+```
+
+`QueryReport` records requested/effective time, source strategy, structural
+absence, semantic relations, crosswalk counts and warnings. The planner owns
+four safety rules:
+
+- A monthly request over annual files is exact when a declared row competence
+  or date exists: annual files are retrieved and rows are filtered by month. If
+  no trustworthy row axis exists, `time_policy="adapt"` widens explicitly and
+  raises `TimeResolutionWarning`; `"strict"` refuses.
+- A UF/municipality becomes a physical file filter when that axis exists and a
+  row filter only when a declared row geography field exists. Otherwise the
+  plan refuses rather than returning a false empty table.
+- Schema evolution is always a union. A selected field absent from one schema
+  generation is null-filled and listed in both `QueryReport.structural_absence`
+  and Arrow schema metadata; `StructuralSchemaWarning` makes partial structural
+  absence visible.
+- Raw codes survive. Identity labels are additive; a mapping typed as
+  `rollup_to` or `attribute_of` is only produced by `dimensions=`. A suspected
+  substitution raises `SemanticFallbackWarning` and the label is withheld.
+
+**Crosswalks are not labels or translations.** `crosswalk.py` implements the
+temporal CNES↔CNPJ relation through `EnrichmentRequest`/`enrichment()`. Raw CNPJ
+is never overwritten. Placeholder/invalid raw values may produce a unique
+`CNPJ_resolved`; agreeing observed values are confirmed; disagreement and
+multiple applicable targets become null with explicit status and
+`CrosswalkAmbiguityWarning`. Row count cannot change unless `explode=True` is
+requested. Reverse CNPJ→CNES uses the same rule and is explicitly one-to-many.
+
+The rebuilt artifact is **10,339,656 bytes and 1,774,993 evidence rows**, with
+273,514 CNES and 265,418 CNPJ identifiers. The audit found 951 ambiguous source
+windows, 1,218 CNES identifiers changing target over time and 12,619 reverse
+multi-source windows. Those are modeled cardinalities, not rows silently won by
+sort order.
+
+**Resources have identity and lifecycle.** `resources/manifest.json` records a
+resource schema version, content version, build/source identity, checksum, size,
+tier and growth budget for every shipped Parquet artifact.
+`resource_manager().status()`, `.ensure()` and `.build()` expose that state;
+`pegasus-data resources status|ensure|build` is the CLI equivalent. Tier A is
+bootstrap metadata, Tier B is the compact runtime semantic layer, and Tier D is
+an optional local registry. `providers.py` gives the planner one
+availability/authority/period/estimated-bytes contract. CNES→CNPJ needs only
+the bundled compact pack. CNES history (`CNES.ST`) and establishment names are
+separate optional resources, with the latter explicitly compiled as
+`cnes_registry.parquet`; a query reports a missing requirement before touching
+the fact dataset and never starts an unbounded build implicitly.
+
+`ResourceManager`, `ResourceStatus`, `QuerySpec`, `QueryPlan`, `QueryReport`,
+`Period`, `Geography`, `EnrichmentRequest` and the warning classes are public so
+callers can type, persist and test plans/reports without reaching into private
+modules.
+
 ## 14a. What ships, and what does not
 
 A package is not a data lake. The rule is: **ship what makes the module
 functional out of the box, and nothing that is derived, large and reproducible.**
 
-**Ships (~1.4 MB):**
+**Ships (41,705,449 bytes / 39.8 MiB of Parquet):**
 
 | | size | why it must |
 |---|---:|---|
 | `resources/tree.parquet` | 1.29 MB | `explore()` on a fresh install, offline. The module's most distinctive asset, and the reason it is worth 1 MB. |
 | `resources/families` + `schema_presence` | 0.05 MB | answers "does 2008 have `DIAG_SECUN`" without downloading a byte |
+| `resources/labels.parquet` | 29.97 MB | 3,654,320 versioned label runs; offline identity labels |
+| `resources/labels_crosswalk.parquet` | 10.34 MB | temporal CNES↔CNPJ evidence, without the full establishment directory |
+| `resources/bindings.parquet` | 0.04 MB | declares which codelist can decode each field |
 | `curation/**/*.yml` | 44 KB | the manual-authority rung. Without it, `SOURCE_AUTHORITY['manual']` is empty and no human judgement can outrank an extraction — the whole point of §9. |
 | `catalog/schema.sql` | 40 KB | the catalog cannot be created without it |
 
@@ -1376,6 +1496,7 @@ level outside it. Every pip install had an empty manual rung.
 |---|---:|---|
 | `docs/dictionary.sqlite` | 531 MB | `pegasus-data dictionary` |
 | semantic bundle | 153 MB (10 MB per system) | `pegasus-data pack`, or download |
+| optional CNES name/history resources | bounded by requested period | `pegasus-data resources build cnes_names` or `... build CNES` |
 | `lake/`, `blobs/`, `_catalog/` | up to 183 GiB | the pipeline |
 
 The test is whether the artifact is *derived from something else the user can
@@ -1627,7 +1748,19 @@ carry counts, because when they did they drifted. §21 read "1,572 described
 reader had no way to tell which was current. The test count is stated beside the
 numbers as the cheapest available clock.
 
-Counted on the shipped artifacts, not estimated. **As of 1,090 tests passing.**
+Counted on the shipped artifacts, not estimated. **As of 1,184 tests passing.**
+
+### Storage evidence
+
+`scripts/storage_report.py` uses SQLite `dbstat` and exact row counts; it is
+read-only and produces machine-readable JSON. On the recovered full catalog the
+14,995,771,392-byte file had no freelist: the size is live expansion and B-tree
+duplication, not stale SQLite pages. `code_tables` occupied 6.10 GB for 11.91M
+rows (512 bytes/row), `dictionary` 3.98 GB for 21.29M rows (187 bytes/row), and
+their primary/lookup indexes another 4.13 GB. The claim that “SQLite costs 15
+GB” is therefore rejected; the maintainer warehouse stores expanded evidence
+and repeated indexes. Runtime artifacts are compiled projections and total
+41,705,449 bytes under the 47,185,920-byte manifest budget.
 
 ### The tree
 
@@ -1660,7 +1793,7 @@ description waves never covered. Re-measure rather than trusting the number.
 | | |
 |---|---:|
 | label pack | 3,654,320 versioned runs · 2,238 codelists · 30.0 MB |
-| CNES↔CNPJ crosswalk | 546,189 rows |
+| CNES↔CNPJ crosswalk | 1,774,993 temporal evidence rows · 10.34 MB |
 | field→codelist bindings shipped | 9,796 |
 | bindings by rung | def 8,548 · manual 534 · community 315 · semantic_match 298 · layout_doc 101 |
 | columns curation declares as code-bearing | 2,157 |

@@ -1,5 +1,12 @@
 # Handoff — 23 August 2026
 
+> **Historical snapshot.** This file describes the tree at `f2afac7`. The
+> external review was subsequently closed in commit `1578b40`, and the next
+> architecture upgrade is documented in architecture §§5.3, 9.3, 14.13 and 21.
+> Its durable novel lessons were consolidated into `FINDINGS.md` §§3l–3m. Keep
+> this file for operational history; do not treat its “open” section or counts
+> as current project state.
+
 Written for whoever picks this up next, by the agent who worked the session
 ending at commit `f2afac7`. It covers what `REVIEW.md` cannot: the defects found
 by *running* the thing, the ones still open, the traps that have bitten more than

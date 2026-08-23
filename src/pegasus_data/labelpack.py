@@ -239,11 +239,12 @@ def build_label_pack(
     #: agrees" from "only one system has this code", which are not the same
     #: claim and only the first is safe to store as system-agnostic.
     carriers: dict[str, set[str]] = {}
-    crosswalk: dict[tuple[str, str], str] = {}
+    crosswalk: set[tuple[str, str, str, str, str, str, str, float]] = set()
     widths: dict[tuple[str, str], int | None] = {}
 
     for row in catalog.query(
-        "SELECT system, value_group, value_raw, value_label, valid_from, valid_to"
+        "SELECT system, value_group, value_raw, value_label, valid_from, valid_to,"
+        " source_ref, confidence"
         " FROM dictionary"
         " WHERE value_group IS NOT NULL AND value_label IS NOT NULL"
     ):
@@ -262,7 +263,7 @@ def build_label_pack(
             # decision.
             _, packed = _split_packed(str(row["value_label"]).strip())
             if packed:
-                crosswalk[(group, str(row["value_raw"]).strip())] = packed
+                crosswalk.add(_crosswalk_tuple(row, group, str(row["value_raw"]).strip(), packed))
             continue
         code = str(row["value_raw"]).strip()
         label = _unescape_accents(str(row["value_label"]).strip())
@@ -272,7 +273,7 @@ def build_label_pack(
             continue
         label, cnpj = _split_packed(label)
         if cnpj:
-            crosswalk[(group, code)] = cnpj
+            crosswalk.add(_crosswalk_tuple(row, group, code, cnpj))
         if not _useful(code, label):
             report.dropped_useless += 1
             continue
@@ -393,11 +394,24 @@ def build_label_pack(
     )
 
     if crosswalk:
+        cross_rows = sorted(crosswalk)
         cross = pa.table(
             {
-                "codelist": pa.array([k[0] for k in crosswalk], pa.string()),
-                "code": pa.array([k[1] for k in crosswalk], pa.string()),
-                "cnpj": pa.array(list(crosswalk.values()), pa.string()),
+                "source_namespace": pa.array(["CNES"] * len(cross_rows), pa.string()),
+                "source_code": pa.array([r[1] for r in cross_rows], pa.string()),
+                "target_namespace": pa.array(["CNPJ"] * len(cross_rows), pa.string()),
+                "target_code": pa.array([r[2] for r in cross_rows], pa.string()),
+                "valid_from": pa.array([r[4] for r in cross_rows], pa.string()),
+                "valid_to": pa.array([r[5] for r in cross_rows], pa.string()),
+                "source_system": pa.array([r[3] or None for r in cross_rows], pa.string()),
+                "source_ref": pa.array([r[6] for r in cross_rows], pa.string()),
+                "source_codelist": pa.array([r[0] for r in cross_rows], pa.string()),
+                "confidence": pa.array([r[7] for r in cross_rows], pa.float64()),
+                "status": pa.array(["active"] * len(cross_rows), pa.string()),
+                # Compatibility aliases for consumers of the first artifact.
+                "codelist": pa.array([r[0] for r in cross_rows], pa.string()),
+                "code": pa.array([r[1] for r in cross_rows], pa.string()),
+                "cnpj": pa.array([r[2] for r in cross_rows], pa.string()),
             }
         )
         pq.write_table(
@@ -414,6 +428,72 @@ def build_label_pack(
     report.bytes_out = target.stat().st_size
     report.largest = sorted(per_table.items(), key=lambda kv: -kv[1])[:10]
     return report
+
+
+def _crosswalk_tuple(row: Any, group: str, code: str, cnpj: str) -> tuple[str, str, str, str, str, str, str, float]:
+    return (
+        group,
+        code,
+        cnpj,
+        str(row["system"] or ""),
+        _window_key(row["valid_from"]),
+        _window_key(row["valid_to"]),
+        str(row["source_ref"] or ""),
+        float(row["confidence"] or 0.0),
+    )
+
+
+def build_crosswalk_pack(catalog: Catalog, out: str | Path) -> int:
+    """Compile the temporal CNES→CNPJ relation without rebuilding labels."""
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    roles = codelist_roles()
+    rows: set[tuple[str, str, str, str, str, str, str, float]] = set()
+    for row in catalog.query(
+        "SELECT system, value_group, value_raw, value_label, valid_from, valid_to,"
+        " source_ref, confidence FROM dictionary "
+        "WHERE value_group IS NOT NULL AND value_label IS NOT NULL"
+    ):
+        group = str(row["value_group"]).upper()
+        label = str(row["value_label"]).strip()
+        _name, cnpj = _split_packed(label)
+        if not cnpj:
+            continue
+        # Crosswalk material is currently discovered in registry codelists;
+        # keeping the check explicit prevents unrelated labels containing a
+        # CNPJ-shaped string from becoming identifier relations.
+        if _role_of(group, roles) != "registry":
+            continue
+        rows.add(_crosswalk_tuple(row, group, str(row["value_raw"]).strip(), cnpj))
+    ordered = sorted(rows)
+    if not ordered:
+        raise ValueError(
+            "no CNES registry-name evidence exists for the requested years; "
+            "run the semantic inventory or choose a covered period first"
+        )
+    table = pa.table(
+        {
+            "source_namespace": ["CNES"] * len(ordered),
+            "source_code": [r[1] for r in ordered],
+            "target_namespace": ["CNPJ"] * len(ordered),
+            "target_code": [r[2] for r in ordered],
+            "valid_from": [r[4] for r in ordered],
+            "valid_to": [r[5] for r in ordered],
+            "source_system": [r[3] or None for r in ordered],
+            "source_ref": [r[6] for r in ordered],
+            "source_codelist": [r[0] for r in ordered],
+            "confidence": pa.array([r[7] for r in ordered], pa.float64()),
+            "status": ["active"] * len(ordered),
+            "codelist": [r[0] for r in ordered],
+            "code": [r[1] for r in ordered],
+            "cnpj": [r[2] for r in ordered],
+        }
+    ).sort_by([("source_code", "ascending"), ("valid_from", "ascending")])
+    target = Path(out)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    pq.write_table(table, target, compression="zstd", compression_level=19, row_group_size=50_000)
+    return table.num_rows
 
 
 # --------------------------------------------------------------- reading it
@@ -740,6 +820,78 @@ def build_binding_pack(catalog: Catalog, out: str | Path) -> int:
     target.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(table, target, compression="zstd", compression_level=19)
     return table.num_rows
+
+
+def build_cnes_registry_pack(
+    catalog: Catalog, out: str | Path, *, years: list[int] | None = None
+) -> tuple[int, int]:
+    """Compile optional CNES establishment names as a temporal local resource.
+
+    Registry prose is intentionally excluded from the wheel's label pack. This
+    explicit builder recovers it from maintainer/user catalog evidence without
+    making ordinary CNES→CNPJ enrichment depend on a large directory.
+    """
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    roles = codelist_roles()
+    rows: set[tuple[str, str, str, str, str, str, str, float]] = set()
+    for row in catalog.query(
+        "SELECT system, value_group, value_raw, value_label, valid_from, valid_to, "
+        "source, source_ref, confidence FROM dictionary "
+        "WHERE value_group IS NOT NULL AND value_label IS NOT NULL"
+    ):
+        group = str(row["value_group"]).upper()
+        if _role_of(group, roles) != "registry":
+            continue
+        name, cnpj = _split_packed(_unescape_accents(str(row["value_label"]).strip()))
+        if not name:
+            continue
+        valid_from = _window_key(row["valid_from"])
+        valid_to = _window_key(row["valid_to"])
+        if years:
+            first, last = min(years) * 100 + 1, max(years) * 100 + 12
+            lo = int(valid_from) if valid_from else 0
+            hi = int(valid_to) if valid_to else 999912
+            if hi < first or lo > last:
+                continue
+        rows.add(
+            (
+                str(row["value_raw"]).strip(),
+                name,
+                cnpj or "",
+                valid_from,
+                valid_to,
+                group,
+                str(row["source_ref"] or row["source"] or ""),
+                float(row["confidence"] or 0.0),
+            )
+        )
+    ordered = sorted(rows)
+    table = pa.table(
+        {
+            "cnes": pa.array([item[0] for item in ordered], pa.string()),
+            "establishment_name": pa.array([item[1] for item in ordered], pa.string()),
+            "cnpj": pa.array([item[2] or None for item in ordered], pa.string()),
+            "valid_from": pa.array([item[3] for item in ordered], pa.string()),
+            "valid_to": pa.array([item[4] for item in ordered], pa.string()),
+            "source_codelist": pa.array([item[5] for item in ordered], pa.string()),
+            "source_ref": pa.array([item[6] for item in ordered], pa.string()),
+            "confidence": pa.array([item[7] for item in ordered], pa.float64()),
+        }
+    )
+    table = table.replace_schema_metadata(
+        {
+            **(table.schema.metadata or {}),
+            b"pegasus_resource_schema": b"1",
+            b"pegasus_period_start": str(min(years) * 100 + 1 if years else 0).encode(),
+            b"pegasus_period_end": str(max(years) * 100 + 12 if years else 999912).encode(),
+        }
+    )
+    target = Path(out)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    pq.write_table(table, target, compression="zstd", compression_level=19)
+    return table.num_rows, target.stat().st_size
 
 
 def seed_bindings(catalog: Catalog) -> int:

@@ -1283,6 +1283,52 @@ architecture; duplicating them here would create a second, drifting bookkeeper.
 
 ---
 
+## 3m. The next architecture is evidence compilation, not warehouse shipping (2026-08-23)
+
+Three read-only audits settled the design before implementation:
+
+1. `scripts/storage_report.py` measured the recovered 15.0 GB catalog with
+   SQLite `dbstat`. There were no free pages. `code_tables`, `dictionary` and
+   four repeated B-tree indexes explain nearly all of the file. SQLite is not
+   intrinsically the cost; expanded maintainer evidence and duplicated lookup
+   paths are. Runtime resources should remain compiled Parquet projections.
+2. `scripts/audit_representations.py` found 4,422 logical publications with
+   alternatives: 14,446 physical files, of which 10,024 can be avoided by a
+   deterministic decode-cost preference. The grouping key must retain archive
+   member identity; suffix similarity alone is not proof of equivalence.
+3. `scripts/audit_crosswalk.py` measured the rebuilt CNES↔CNPJ pack. Temporal
+   ambiguity and reverse one-to-many relations are real, not corner cases. A
+   dictionary overwrite or a default join would silently select an identifier
+   or multiply fact rows.
+
+The implementation follows those measurements:
+
+- `query()`/`plan()` separate analytical intent from physical lake/fetch
+  mechanics, expose requested versus effective time, and preserve structural
+  absence as report data and Arrow metadata.
+- Annual files may still answer an exact month when a declared row competence
+  exists. Without such a field the planner warns and widens, or refuses under a
+  strict policy.
+- `label_of`, `rollup_to`, `attribute_of` and `crosswalk_to` are distinct typed
+  relations. Only the first may become an automatic `*_label`; the middle two
+  require a dimension request.
+- CNES↔CNPJ is additive and temporal. It preserves observed identifiers,
+  returns safe nulls for conflicts/ambiguity, and changes row count only through
+  explicit `explode=True`.
+- The resource manifest carries schema/content versions, build identity,
+  checksums, sizes and budgets. Compact semantics ship; CNES history and names
+  are optional local resources whose requirement and estimated cost appear in
+  the plan before retrieval begins.
+- Semantic uncertainty above a cost cap creates a stable adjudication item.
+  Evidence can be exported and a reviewed typed relation applied; truncation is
+  never allowed to become truth.
+
+`HANDOFF.md` was rechecked during this pass. Its durable novel lessons had
+already been consolidated in §3l; the remaining text is operational history or
+duplicates the architecture, so no second copy was introduced.
+
+---
+
 ## 4. What remains open
 
 Run `pegasus-data questions` for the live list. As of the last full pass:

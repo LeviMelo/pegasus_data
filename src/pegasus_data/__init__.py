@@ -1,6 +1,11 @@
 """pegasus_data — a queryable, self-describing data lake over DATASUS.
 
-Three ways in, in order of how much you already have:
+The intent-driven front door chooses the source mechanics for you:
+
+    from pegasus_data import query
+    df = query("SIH-RD", period=2023, geography="AL")
+
+The lower-level source-specific services remain available:
 
     from pegasus_data import fetch
     df = fetch("SIH-RD", uf="AL", years=2023)      # nothing local; go and get it
@@ -63,6 +68,22 @@ _EXPORTS: dict[str, str] = {
     "search": ".docsgen",
     "fetch": ".retrieve",
     "FetchReport": ".retrieve",
+    "resource_manager": "._resources",
+    "ResourceManager": "._resources",
+    "ResourceStatus": "._resources",
+    "query": "._query",
+    "plan": "._query",
+    "QuerySpec": "._query",
+    "QueryPlan": "._query",
+    "QueryReport": "._query",
+    "Period": "._query",
+    "Geography": "._query",
+    "TimeResolutionWarning": "._query",
+    "StructuralSchemaWarning": "._query",
+    "SemanticFallbackWarning": "._query",
+    "CrosswalkAmbiguityWarning": "._query",
+    "enrichment": ".crosswalk",
+    "EnrichmentRequest": ".crosswalk",
     "DatasetUnknown": ".retrieve",
     "NothingPublished": ".retrieve",
     "FilterHasNoAxis": ".retrieve",
@@ -82,6 +103,20 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from ._dictionary import DataDictionary
     from ._explore import Exploration, explore
     from ._info import Info, info
+    from ._query import (
+        CrosswalkAmbiguityWarning,
+        Geography,
+        Period,
+        QueryPlan,
+        QueryReport,
+        QuerySpec,
+        SemanticFallbackWarning,
+        StructuralSchemaWarning,
+        TimeResolutionWarning,
+        plan,
+        query,
+    )
+    from ._resources import ResourceManager, ResourceStatus, resource_manager
     from ._translate import TranslationImpossible, translate
     from .api import (
         PROFILES,
@@ -100,6 +135,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         scan,
     )
     from .bundle import BundleError, pack, read_manifest, unpack
+    from .crosswalk import EnrichmentRequest, enrichment
     from .ontology import Ontology
     from .retrieve import (
         DatasetUnknown,

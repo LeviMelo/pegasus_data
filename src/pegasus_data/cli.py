@@ -102,6 +102,120 @@ config_app = typer.Typer(
 )
 app.add_typer(config_app, rich_help_panel="SETUP")
 
+resources_app = typer.Typer(
+    name="resources",
+    help="Inspect bundled semantic resources and optional local registries.",
+    no_args_is_help=True,
+)
+app.add_typer(resources_app, rich_help_panel="SETUP")
+
+
+@resources_app.command("status")
+def resources_status(root: RootOpt = None, as_json: JsonOpt = False) -> None:
+    """Show code-independent resource versions, checksums, sizes and availability."""
+    from ._resources import ResourceManager
+
+    _emit(ResourceManager(_settings(root)).status().as_dict(), as_json, "runtime resources")
+
+
+@resources_app.command("ensure")
+def resources_ensure(
+    name: Annotated[str, typer.Argument(help="Resource name, e.g. CNES")],
+    period: Annotated[str | None, typer.Option("--period")] = None,
+    policy: Annotated[str, typer.Option("--policy", help="local | auto | remote")] = "local",
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Require a resource locally; never start an unbounded download implicitly."""
+    from ._resources import ResourceManager
+
+    try:
+        record = ResourceManager(_settings(root)).ensure(name, period=period, policy=policy)
+    except FileNotFoundError as exc:
+        console.print(f"[yellow]{exc}[/yellow]")
+        raise typer.Exit(code=2) from exc
+    _emit({"resource": record.name, "path": record.path, "bytes": record.bytes}, as_json)
+
+
+@resources_app.command("build")
+def resources_build(
+    name: Annotated[str, typer.Argument(help="Optional registry name, currently CNES")],
+    years: Annotated[str | None, typer.Option("--years", help="Inclusive range, e.g. 2022-2024")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Explicitly build an optional local registry, bounded by the requested years."""
+    from ._resources import ResourceManager
+
+    result = ResourceManager(_settings(root)).build(name, years=_parse_years(years))
+    _emit(result, as_json, f"built {name}")
+
+
+adjudicate_app = typer.Typer(
+    name="adjudicate",
+    help="Inspect evidence for unresolved semantics and apply reviewed decisions.",
+    no_args_is_help=True,
+)
+app.add_typer(adjudicate_app, rich_help_panel="UNDERSTAND")
+
+
+@adjudicate_app.command("show")
+def adjudicate_show(
+    key: str, root: RootOpt = None, as_json: JsonOpt = False
+) -> None:
+    from .semantics.relations import adjudication_evidence
+
+    store = Catalog(_settings(root).catalog_path)
+    try:
+        _emit(adjudication_evidence(store, key), as_json, key)
+    finally:
+        store.close()
+
+
+@adjudicate_app.command("export")
+def adjudicate_export(key: str, out: Path, root: RootOpt = None) -> None:
+    """Write a compact JSON evidence package suitable for human/AI review."""
+    from .semantics.relations import adjudication_evidence
+
+    store = Catalog(_settings(root).catalog_path)
+    try:
+        payload = adjudication_evidence(store, key)
+        out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    finally:
+        store.close()
+    console.print(f"[green]wrote[/green] {out}")
+
+
+@adjudicate_app.command("apply")
+def adjudicate_apply(
+    key: str,
+    decision: Annotated[Path, typer.Option("--decision", help="Reviewed YAML decision")],
+    by: Annotated[str, typer.Option("--by", help="Reviewer identity")],
+    root: RootOpt = None,
+) -> None:
+    from .ontology import _read_yaml
+    from .semantics.relations import RelationType, SemanticRelation, adjudicate
+
+    body = _read_yaml(decision)
+    relation = SemanticRelation(
+        system=str(body["system"]).upper(),
+        dataset=str(body.get("dataset", "")).upper(),
+        field_name=str(body["field"]).upper(),
+        relation_type=RelationType(str(body["relation"])),
+        target_type=str(body["target_type"]),
+        target_name=str(body.get("target_name", "")),
+        artifact=str(body["artifact"]),
+        source_namespace=body.get("source_namespace"),
+        target_namespace=body.get("target_namespace"),
+        evidence=json.dumps(body.get("evidence", []), ensure_ascii=False),
+    )
+    store = Catalog(_settings(root).catalog_path)
+    try:
+        adjudicate(store, key, relation, by=by)
+    finally:
+        store.close()
+    console.print(f"[green]adjudicated[/green] {key}")
+
 
 def _placement_rows(root: Path | None = None) -> list[dict[str, object]]:
     from .locate import PLACEMENT_KEYS

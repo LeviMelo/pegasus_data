@@ -969,6 +969,7 @@ def load(
     allow_borrowed_labels: bool = False,
     on_missing_column: str = "raise",
     report: bool = False,
+    _preserve_internal: bool = False,
 ) -> pa.Table | tuple[pa.Table, RenderReport]:
     """Read a family out of the lake, rendered for reading.
 
@@ -1083,17 +1084,18 @@ def load(
                 derived=derived,
                 strict=strict_labels,
             )
-        if wanted is not None and "YEAR" not in {c.upper() for c in wanted} and (
+        if not _preserve_internal and wanted is not None and "YEAR" not in {c.upper() for c in wanted} and (
             "year" in rendered.schema.names
         ):
             # Carried for the vintage split, not requested. Dropped so a
             # projection means what it says.
             rendered = rendered.drop_columns(["year"])
-        if "_competencia" in rendered.column_names:
+        if not _preserve_internal and "_competencia" in rendered.column_names:
             rendered = rendered.drop_columns(["_competencia"])
         for note in axis_notes:
             render_report.warnings.append(note)
         if structurally_absent and render_report is not None:
+            render_report.structural_absence = dict(sorted(structurally_absent.items()))
             for fam, cols in sorted(structurally_absent.items()):
                 render_report.warnings.append(
                     f"{', '.join(cols)}: absent from the schema of generation {fam}; "

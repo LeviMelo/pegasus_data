@@ -144,6 +144,7 @@ class RenderReport:
     companions_dropped: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     tokens_unmatched: dict[str, int] = field(default_factory=dict)
+    structural_absence: dict[str, list[str]] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -159,6 +160,7 @@ class RenderReport:
             "companions_dropped": self.companions_dropped,
             "warnings": self.warnings,
             "tokens_unmatched": self.tokens_unmatched,
+            "structural_absence": self.structural_absence,
         }
 
 
@@ -734,6 +736,9 @@ def _select_codelists(
     report: RenderReport,
     strict: bool,
     lookup_one: Callable[[str, int | None], dict[str, str] | None],
+    store: Catalog | None = None,
+    system: str = "",
+    family_id: str = "",
 ) -> _Selection:
     """Choose the codelist(s) for one column, or decide that none fits.
 
@@ -751,6 +756,39 @@ def _select_codelists(
         # A curated entry decides both the table and whether there are several.
         # Nothing else may widen it.
         return _Selection(codelists=[doc.codelist, *doc.codelists])  # type: ignore[attr-defined]
+
+    # A reviewed adjudication is a semantic declaration too. It lives in the
+    # catalog until the next resource/curation build promotes it to YAML; if the
+    # runtime ignored it, `adjudicate apply` would close a queue item while the
+    # renderer continued making the same refusal.
+    if store is not None:
+        try:
+            declared = store.query(
+                "SELECT artifact, dataset FROM semantic_relations "
+                "WHERE relation_type='label_of' AND status='adjudicated' "
+                "AND field_name=? AND system IN ('*', ?)",
+                (name.upper(), system.upper()),
+            )
+            if family_id and declared:
+                family = store.query(
+                    "SELECT series FROM families WHERE family_id=?", (family_id,)
+                )
+                series = str(family[0]["series"] or "").upper() if family else ""
+                declared = [
+                    row
+                    for row in declared
+                    if str(row["dataset"] or "").upper() in {"", "*", series}
+                    or str(row["dataset"] or "").upper().endswith(f".{series}")
+                ]
+            elif declared:
+                declared = [
+                    row for row in declared if str(row["dataset"] or "").upper() in {"", "*"}
+                ]
+            artifacts = sorted({str(row["artifact"]) for row in declared})
+            if len(artifacts) == 1:
+                return _Selection(codelists=artifacts)
+        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behavior
+            pass
 
     if len(candidates) <= 1:
         if not candidates:
@@ -792,6 +830,22 @@ def _select_codelists(
             raise LabelUnavailable(message)
         report.warnings.append(message)
         report.unlabelled.append(name)
+        if store is not None:
+            try:
+                from .semantics.relations import ensure_adjudication_item
+
+                ensure_adjudication_item(
+                    store,
+                    kind="semantic_relation",
+                    system=system,
+                    family_id=family_id,
+                    field=name.upper(),
+                    candidates=candidates,
+                    reason=message,
+                    observed_summary={"distinct_sample": len(set(column.to_pylist()))},
+                )
+            except Exception:  # noqa: BLE001 - read-only catalogs still return safely
+                pass
         return _Selection(unlabelled=True)
 
     # Several tables claim this column and nothing declared which is right. Ask
@@ -1072,6 +1126,9 @@ def _render_table(
             report=report,
             strict=strict,
             lookup_one=lambda cl, w: _single_lookup(lake, cl, system, year, w, competencia),
+            store=store,
+            system=system,
+            family_id=family_id or "",
         )
         if selection.unlabelled:
             # Selection decided this column cannot be labelled and has already

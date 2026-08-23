@@ -704,3 +704,56 @@ CREATE TABLE IF NOT EXISTS curation_state (
   fingerprint  TEXT NOT NULL,
   applied_at   TEXT NOT NULL
 );
+
+-- Typed semantic edges compiled from reviewable curation. Flat field bindings
+-- remain evidence during migration; these rows say what KIND of operation a
+-- mapping performs, so a roll-up cannot compete with an identity label.
+CREATE TABLE IF NOT EXISTS semantic_relations (
+  system           TEXT NOT NULL,
+  dataset          TEXT NOT NULL DEFAULT '',
+  field_name       TEXT NOT NULL,
+  relation_type    TEXT NOT NULL,       -- label_of|rollup_to|attribute_of|crosswalk_to
+  target_type      TEXT NOT NULL,
+  target_name      TEXT NOT NULL DEFAULT '',
+  artifact         TEXT NOT NULL,
+  source_namespace TEXT,
+  target_namespace TEXT,
+  valid_from       TEXT,
+  valid_to         TEXT,
+  status           TEXT NOT NULL DEFAULT 'adjudicated',
+  evidence         TEXT,
+  PRIMARY KEY (system, dataset, field_name, relation_type, target_type, target_name)
+);
+
+CREATE TABLE IF NOT EXISTS adjudication_items (
+  key                  TEXT PRIMARY KEY,
+  kind                 TEXT NOT NULL,
+  system               TEXT,
+  dataset              TEXT,
+  family_id            TEXT,
+  field_name           TEXT,
+  candidates_json      TEXT NOT NULL,
+  reason_opened        TEXT NOT NULL,
+  priority             INTEGER NOT NULL DEFAULT 0,
+  observed_summary     TEXT,
+  measurement_snapshot TEXT,
+  source_references    TEXT,
+  status               TEXT NOT NULL DEFAULT 'open',
+  resolution           TEXT,
+  resolved_by          TEXT,
+  opened_at            TEXT NOT NULL,
+  resolved_at          TEXT,
+  curation_target      TEXT
+);
+
+-- Presumptive representation equivalence is safe only while the evidence
+-- agrees. An open conflict disables preferred-representation collapse for the
+-- affected publication so disagreement cannot silently discard a source.
+CREATE TABLE IF NOT EXISTS representation_conflicts (
+  logical_id      TEXT PRIMARY KEY,
+  representations TEXT NOT NULL,       -- JSON paths/formats compared
+  evidence        TEXT,
+  status          TEXT NOT NULL DEFAULT 'open', -- open|adjudicated|dismissed
+  noted_at        TEXT NOT NULL,
+  resolved_at     TEXT
+);

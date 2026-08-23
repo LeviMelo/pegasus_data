@@ -19,10 +19,10 @@ been able to document.
 > A number you cannot trace is worth less than no number.
 
 ```python
-from pegasus_data import fetch, info
+from pegasus_data import info, query
 
 info("SIH.RD")                                  # what is this dataset?
-df = fetch("SIH-RD", uf="AL", years=2023)       # give me it
+df = query("SIH-RD", period=2023, geography="AL")  # give me an analytical slice
 ```
 
 ---
@@ -32,7 +32,7 @@ df = fetch("SIH-RD", uf="AL", years=2023)       # give me it
 - [Install](#install) · [Five minutes](#five-minutes)
 - [The data model](#the-data-model) — systems, datasets, schema generations,
   column validity, join keys
-- [The API](#the-api) — `info` · `explore` · `fetch` · `load` · `availability` ·
+- [The API](#the-api) — `query` · `plan` · `info` · `explore` · `fetch` · `load` · `availability` ·
   `describe` · `translate` · `search` · `export` · `compendium` · `pack`
 - [The command line](#the-command-line)
 - [How it works](#how-it-works) — the pipeline, and where things live
@@ -133,6 +133,30 @@ info("dengue")      # → Did you mean: SINAN.DENG?
 ### Ask for data
 
 ```python
+from pegasus_data import enrichment, plan, query
+
+request = dict(
+    dataset="SIH-RD",
+    period=("2022-01", "2023-12"),
+    geography="AL",
+    select=["CNES", "MUNIC_RES", "DIAG_PRINC"],
+    dimensions=["MUNIC_RES.health_region", "DIAG_PRINC.chapter"],
+    enrich=[enrichment("CNPJ", from_field="CNES")],
+)
+print(plan(**request).explain())
+df, report = query(**request, return_report=True)
+```
+
+`query()` is the primary analytical interface. It chooses an existing lake or a
+bounded direct fetch, unions schema generations with structural nulls, preserves
+raw codes, adds only identity-level labels, and makes dimensions/crosswalks
+explicit. The report says when an annual physical publication was filtered by a
+row-level month, when a request had to be adapted, and which fields were absent
+from which generations.
+
+`fetch()` remains the direct source-shaped interface:
+
+```python
 from pegasus_data import fetch
 
 df = fetch("SIH-RD", uf="AL", years=2023)
@@ -155,6 +179,16 @@ df, report = fetch("SIH-RD", uf="AL", years=[2022, 2023], report=True)
 report.years_missing      # years DATASUS publishes nothing for
 report.undecoded          # files that would not open
 report.schema_mismatch    # files whose columns did not fit their family
+```
+
+CNES↔CNPJ uses the bundled temporal crosswalk and does not require the full CNES
+registry. Larger optional attributes are planned as explicit resources; inspect
+their cost before building them:
+
+```bash
+pegasus-data resources status --json
+pegasus-data resources ensure cnes_names --period 2022-01:2024-12
+pegasus-data resources build cnes_names --years 2022-2024
 ```
 
 ### Ask for it in your own language

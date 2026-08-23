@@ -55,6 +55,8 @@ class BuildStats:
     bytes_written: int = 0
     skipped: list[str] = field(default_factory=list)
     errors: list[tuple[str, str]] = field(default_factory=list)
+    representations_deduplicated: int = 0
+    representation_conflicts: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -71,6 +73,8 @@ class BuildStats:
             "bytes_written": self.bytes_written,
             "skipped": self.skipped[:20],
             "errors": self.errors[:20],
+            "representations_deduplicated": self.representations_deduplicated,
+            "representation_conflicts": self.representation_conflicts[:20],
         }
 
 
@@ -326,9 +330,11 @@ class Builder:
 
             members = self.catalog.query(
                 """
-                SELECT ff.path, ff.member, fa.geo_code, fa.year, fa.normalized_date
+                SELECT ff.path, ff.member, fa.geo_code, fa.year, fa.normalized_date,
+                       fa.logical_id, fa.container_format, files.size
                   FROM family_files ff
                   LEFT JOIN file_facts fa ON fa.path = ff.path
+                  LEFT JOIN files ON files.path = ff.path
                  WHERE ff.family_id = ?
                  ORDER BY fa.year, ff.path
                 """,
@@ -340,6 +346,12 @@ class Builder:
                 if (not ufs or (m["geo_code"] or "") in set(ufs))
                 and (not years or (m["year"] in set(years)))
             ]
+            from .representations import choose_representations
+
+            choice = choose_representations(self.catalog, selected)
+            selected = list(choice.selected)
+            stats.representations_deduplicated += len(choice.dropped)
+            stats.representation_conflicts.extend(choice.conflicts)
             if max_files_per_family:
                 selected = selected[:max_files_per_family]
             if not selected:
