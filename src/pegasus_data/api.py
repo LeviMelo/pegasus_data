@@ -101,6 +101,24 @@ class FieldDescription:
     provenance: list[str] = field(default_factory=list)
     open_questions: list[str] = field(default_factory=list)
     generations: list[dict[str, Any]] = field(default_factory=list)
+    #: What the curation layer says this column MEANS, and in English.
+    #:
+    #: describe() answers "what does this column mean" and had nowhere to put an
+    #: answer: it carried `official_name` and no prose, and read that name from
+    #: the ledger, `field_documentation` and `def_variables` while never
+    #: consulting `variable_docs` — so 4,534 curated descriptions, the whole
+    #: point of the curation layer and of §9, were invisible to the one verb
+    #: whose job is to show them. ARCHITECTURE §14 lists curation as backing
+    #: this function; now it does.
+    translated_name: str | None = None
+    description: str | None = None
+    code_system: str | None = None
+    #: The evidence rung behind `description` — `manual`, `layout_doc`, `def`,
+    #: `web` or `inferred` — and the document it cites. An inferred description
+    #: read as a documented one is the failure the rungs exist to prevent, so
+    #: the rung travels with the prose rather than being left in the YAML.
+    description_source: str | None = None
+    description_source_ref: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -109,6 +127,11 @@ class FieldDescription:
             "family_id": self.family_id,
             "field": self.field_name,
             "official_name": self.official_name,
+            "translated_name": self.translated_name,
+            "description": self.description,
+            "code_system": self.code_system,
+            "description_source": self.description_source,
+            "description_source_ref": self.description_source_ref,
             "semantic_type": self.semantic_type,
             "semantic_confidence": self.semantic_confidence,
             "semantic_evidence": self.semantic_evidence,
@@ -371,6 +394,27 @@ def _merge_reports(into, addition):
     return into
 
 
+def _system_spellings(system: str) -> list[str]:
+    """Every name the crawl might have filed this system under.
+
+    The declaration carries them: `SystemNode.crawled_as` is exactly the list of
+    directory names a system has appeared as. Asking for all of them makes the
+    institutional name and the crawled name interchangeable at the API, which is
+    what `info()` and `fetch()` already promise and `describe()`/`load()` did not
+    deliver.
+    """
+    asked = str(system or "").strip().upper()
+    if not asked:
+        return [asked]
+    from .retrieve import _ontology
+
+    onto = _ontology()
+    node = onto.system_of(asked) if onto is not None else None
+    if node is None:
+        return [asked]
+    return sorted({asked, str(node.code).upper(), *(str(a).upper() for a in node.crawled_as)})
+
+
 def _resolve_family(store: _Store, system: str, series: str | None, field_name: str | None) -> list[dict[str, Any]]:
     """Families of one logical dataset, resolved the way ``fetch()`` resolves it.
 
@@ -383,11 +427,21 @@ def _resolve_family(store: _Store, system: str, series: str | None, field_name: 
     ``describe()`` describe a subset of what ``fetch()`` returns.
 
     The raw filename-derived series stays as provenance. It is not identity.
+
+    The SYSTEM half of that fix was missed. `families.system` holds the CRAWLED
+    name — SIHSUS, SIASUS — while the API and the ontology speak the
+    institutional one, SIH and SIA, so filtering the table with the caller's
+    spelling returned nothing at all for exactly the names §14.5 promises
+    resolve: `describe("SIH", "RD")` raised DatasetUnknown while
+    `describe("SIHSUS", "RD")` worked, and `fetch("SIH-RD")` worked throughout.
+    Every spelling the declaration knows is asked for instead.
     """
+    spellings = _system_spellings(system)
     rows = store.query(
         "SELECT family_id, system, series, schema_signature, field_count, time_min, time_max "
-        "FROM families WHERE system = ? ORDER BY COALESCE(time_max, 0) DESC",
-        [system],
+        f"FROM families WHERE system IN ({','.join('?' * len(spellings))}) "
+        "ORDER BY COALESCE(time_max, 0) DESC",
+        spellings,
     )
     families = [dict(r) for r in rows]
     if series:
@@ -524,7 +578,21 @@ def describe(
                 "run `pegasus-data profile` to populate its statistics and dictionary coverage"
             )
 
-        official_name = led.get("official_name")
+        # CURATION FIRST. `manual` is source authority 0 — a person who read the
+        # form outranks any extraction — and this is the door §9 exists to open.
+        # It was never consulted here, so a curated column answered with a null
+        # name and no prose, which reads as "nothing is known about this" rather
+        # than "look in the layer built to answer exactly this".
+        from .semantics.curation import load_variable_docs
+
+        curated = load_variable_docs(store, system).get(field.upper())
+        translated_name = curated.translated_name if curated else None
+        description = curated.description if curated else None
+        code_system = curated.code_system if curated else None
+        description_source = curated.source if curated else None
+        description_source_ref = curated.source_ref if curated else None
+
+        official_name = (curated.official_name if curated else None) or led.get("official_name")
         if official_name is None:
             # The record layout names the column itself; check it before giving up.
             documented = store.query(
@@ -618,6 +686,11 @@ def describe(
             family_id=family_id,
             field_name=field,
             official_name=official_name,
+            translated_name=translated_name,
+            description=description,
+            code_system=code_system,
+            description_source=description_source,
+            description_source_ref=description_source_ref,
             semantic_type=led.get("semantic_type") or prof.get("semantic_type"),
             semantic_confidence=led.get("semantic_confidence") or prof.get("semantic_confidence"),
             semantic_evidence=evidence,

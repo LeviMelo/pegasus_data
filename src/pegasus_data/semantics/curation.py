@@ -667,12 +667,38 @@ def coverage_by_rung(catalog: Catalog) -> list[dict[str, object]]:
     return sorted(out, key=lambda r: -int(r["observed_fields"]))
 
 
+def system_spellings(system: str) -> list[str]:
+    """Every name this system may be filed under, from the declaration.
+
+    Curation files carry the CRAWLED name — `sihsus/_shared.yml` declares
+    `system: SIHSUS` — so `variable_docs` is keyed on SIHSUS while the API and
+    the ontology speak SIH. Matching one spelling against the other silently
+    returned no docs: `describe("SIH", "RD", field="ANO_CMPT")` answered with
+    every statistic and a null `official_name`, which reads as "nothing is known
+    about this column" rather than "you spelled the system the other way".
+    """
+    asked = str(system or "").strip().upper()
+    if not asked:
+        return []
+    from ..ontology import Ontology
+
+    try:
+        onto = Ontology.load()
+    except Exception:  # noqa: BLE001 - an unreadable declaration must not block a lookup
+        return [asked]
+    node = onto.system_of(asked)
+    if node is None:
+        return [asked]
+    return sorted({asked, str(node.code).upper(), *(str(a).upper() for a in node.crawled_as)})
+
+
 def load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str, VariableDoc]:
     """Curated docs keyed by field name, for the renderer and the doc generator."""
     clause, params = "", []
     if system:
-        clause = " WHERE system = ?"
-        params = [system.upper()]
+        names = system_spellings(system)
+        clause = f" WHERE system IN ({','.join('?' * len(names))})"
+        params = list(names)
     out: dict[str, VariableDoc] = {}
     for r in catalog.query(f"SELECT * FROM variable_docs{clause}", params):
         out[str(r["field_name"])] = VariableDoc(
