@@ -166,7 +166,7 @@ def check(catalog_path: str, file_path: Path) -> dict[str, object]:
                     "the column. Its silence is a reason to keep looking, not a finding "
                     "to publish — say what the column holds, or leave it out"
                 )
-    for opening, fields in openings.items():
+    for fields in openings.values():
         if len(fields) < 3:
             continue
         # A SHARED OPENING IS NOT THE DEFECT. Parallel columns should read in
