@@ -1,4 +1,4 @@
-"""Translate analytical intent into a retrieval and semantic plan."""
+"""Translate source-publication intent into a retrieval and semantic plan."""
 
 from __future__ import annotations
 
@@ -31,9 +31,7 @@ def plan(
     provenance: Literal[False, "all"] = False,
     resource_policy: Literal["local"] = "local",
     time_policy: Literal["adapt", "strict"] = "adapt",
-    time_by: str | None = None,
-    geography_by: str | None = None,
-    unresolved_time: Literal["exclude", "retain", "error"] = "exclude",
+    allow_unbounded: bool = False,
     root: str | Path | None = None,
     settings: Settings | None = None,
 ) -> QueryPlan:
@@ -42,20 +40,18 @@ def plan(
     spec = _spec(
         dataset, period=period, geography=geography, select=select, labels=labels,
         dimensions=dimensions, enrich=enrich, provenance=provenance,
-        resource_policy=resource_policy, time_policy=time_policy, time_by=time_by,
-        geography_by=geography_by, unresolved_time=unresolved_time,
+        resource_policy=resource_policy, time_policy=time_policy,
+        allow_unbounded=allow_unbounded,
     )
     resolved = settings or load_settings(root=Path(root) if root else None)
     system, series = parse_dataset(dataset)
     capabilities = _capabilities(
         resolved, system, series, years=spec.period.years if spec.period else (),
-        geography=spec.geography, time_by=spec.time_by, geography_by=spec.geography_by,
+        geography=spec.geography,
     )
     resolution = capabilities.resolution
     has_uf_axis = capabilities.physical_uf
     strategy = capabilities.source_strategy
-    row_geo_field = capabilities.row_geography
-    row_time_field = capabilities.row_time
     adaptations: list[Adaptation] = []
     years = spec.period.years if spec.period else ()
     months: tuple[int, ...] = ()
@@ -64,50 +60,34 @@ def plan(
             value == "year" for _, value in capabilities.year_resolutions
         )
         if annual_enclosure:
-            if row_time_field:
-                adaptations.append(
-                    Adaptation(
-                        "publication_enclosure_exact_filter",
-                        str(spec.period),
-                        str(spec.period),
-                        f"source publishes annual files; rows are filtered exactly by {row_time_field}",
-                    )
+            effective = f"{years[0]}" if len(years) == 1 else f"{years[0]}..{years[-1]}"
+            adaptation = Adaptation(
+                "time_resolution", str(spec.period), effective,
+                "source publishes annual data; the enclosing publication is returned "
+                "without row-level date filtering",
+            )
+            if time_policy == "strict":
+                raise ValueError(
+                    f"requested {spec.period}; source supports annual resolution only"
                 )
-            else:
-                effective = f"{years[0]}" if len(years) == 1 else f"{years[0]}..{years[-1]}"
-                adaptation = Adaptation(
-                    "time_resolution", str(spec.period), effective,
-                    "source publishes annual data and no reliable row-month capability is declared",
-                )
-                if time_policy == "strict":
-                    raise ValueError(
-                        f"requested {spec.period}; source supports annual resolution only"
-                    )
-                adaptations.append(adaptation)
+            adaptations.append(adaptation)
         else:
             months = tuple(range(1, 13)) if len(years) > 1 else tuple(
                 range(spec.period.start % 100, spec.period.end % 100 + 1)
             )
     physical_uf = spec.geography.uf if spec.geography and has_uf_axis else None
-    row_geo = None
     if spec.geography and spec.geography.municipality:
-        row_geo = row_geo_field
-        if row_geo is None:
-            raise ValueError(
-                "requested municipality cannot be represented by a reliable row geography field"
-            )
+        raise ValueError(
+            "geography selects source publications only; municipality is not a "
+            "declared publication coordinate for this dataset"
+        )
     elif spec.geography and spec.geography.uf and not has_uf_axis:
-        row_geo = row_geo_field
-        if row_geo is None:
-            raise ValueError(
-                "requested UF cannot be represented physically and no reliable row geography field is declared"
-            )
+        raise ValueError(
+            "requested UF is not a source/publication partition for this dataset; "
+            "Pegasus will not manufacture it by filtering a record field"
+        )
     hidden = {"_source_path", "year", "_competencia"}
     hidden.update(item.field for item in spec.dimensions)
-    if row_geo:
-        hidden.add(row_geo)
-    if row_time_field:
-        hidden.update(row_time_field.split("+"))
     for item in spec.enrichments:
         if item.target == "CNPJ":
             hidden.add((item.from_field or "CNES").upper())
@@ -140,10 +120,9 @@ def plan(
     return QueryPlan(
         spec,
         RetrievalPlan(
-            system, series, resolution, years, months, physical_uf, row_geo, row_time_field, strategy,
+            system, series, resolution, years, months, physical_uf, strategy,
             tuple(sorted(hidden)), tuple(adaptations), capabilities.lake_years,
             capabilities.fetch_years, capabilities.year_resolutions,
-            capabilities.time_axis, capabilities.geography_axis,
         ),
         SemanticPlan(labels, spec.dimensions, spec.enrichments, required, requirements),
     )

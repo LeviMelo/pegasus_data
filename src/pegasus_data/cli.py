@@ -144,7 +144,11 @@ def resources_build(
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Explicitly build an optional local registry, bounded by the requested years."""
+    """Explicitly build a local registry.
+
+    CNES history is a bounded acquisition/materialization operation. cnes_names
+    is currently a maintainer compilation from local documentary evidence.
+    """
     from ._resources import ResourceManager
 
     result = ResourceManager(_settings(root)).build(name, years=_parse_years(years))

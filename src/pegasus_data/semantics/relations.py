@@ -68,6 +68,7 @@ def relations_for(
     *,
     relation_type: RelationType | str | None = None,
     catalog: Catalog | None = None,
+    vintage: int | str | None = None,
 ) -> list[SemanticRelation]:
     """Resolve shipped declarations plus local reviewed overrides.
 
@@ -76,23 +77,15 @@ def relations_for(
     migration bridge to ``label_of``; heuristic/ranked bindings are not.
     """
     wanted = str(relation_type) if relation_type is not None else None
-    def identity(item: SemanticRelation) -> tuple[str, str, str, str, str]:
-        return (
-            item.system,
-            item.dataset.rpartition(".")[2],
-            item.field_name,
-            item.relation_type.value,
-            item.target_name,
-        )
-
-    effective = {identity(item): item for item in load_relations()}
+    candidates: list[tuple[int, SemanticRelation]] = [
+        (1, item) for item in load_relations()
+    ]
     if catalog is not None:
         try:
             for row in catalog.query(
                 "SELECT * FROM semantic_relations WHERE status='adjudicated'"
             ):
-                item = _relation_from_row(row)
-                effective[identity(item)] = item
+                candidates.append((2, _relation_from_row(row)))
             for row in catalog.query(
                 "SELECT system, field_name, codelist FROM variable_docs "
                 "WHERE codelist IS NOT NULL AND codelist<>'' "
@@ -108,21 +101,71 @@ def relations_for(
                     artifact=str(row["codelist"]),
                     evidence="explicit curated variable codelist (migration bridge)",
                 )
-                effective.setdefault(identity(item), item)
+                candidates.append((0, item))
         except Exception:  # pragma: no cover - old/read-only partial catalogs
             pass
-    return [
-        item
-        for item in effective.values()
+
+    requested_vintage = int(vintage) if vintage is not None else None
+
+    def applies(item: SemanticRelation) -> bool:
+        if requested_vintage is None:
+            return True
+        lower = int(item.valid_from) if item.valid_from else 0
+        upper = int(item.valid_to) if item.valid_to else 999912
+        return lower <= requested_vintage <= upper
+
+    matching = [
+        (origin, item)
+        for origin, item in candidates
         if item.system in {"*", system.upper()}
         and (
             item.dataset in {"*", dataset.upper()}
-            or item.dataset.rpartition(".")[2] == dataset.upper().rpartition(".")[2]
+            or item.dataset.rpartition(".")[2]
+            == dataset.upper().rpartition(".")[2]
         )
         and item.field_name == field.upper()
         and (wanted is None or item.relation_type.value == wanted)
         and item.status == "adjudicated"
+        and applies(item)
     ]
+
+    # One semantic target is one override slot. Origin precedence is evaluated
+    # after temporal applicability so a bounded local decision overrides shipped
+    # curation only inside the period it actually adjudicates.
+    grouped: dict[tuple[str, str], list[tuple[int, SemanticRelation]]] = {}
+    for origin, item in matching:
+        grouped.setdefault(
+            (item.relation_type.value, item.target_name), []
+        ).append((origin, item))
+
+    resolved: list[SemanticRelation] = []
+    for values in grouped.values():
+        max_origin = max(origin for origin, _item in values)
+        values = [value for value in values if value[0] == max_origin]
+        max_dataset = max(int(item.dataset != "*") for _origin, item in values)
+        values = [
+            value for value in values if int(value[1].dataset != "*") == max_dataset
+        ]
+        max_system = max(int(item.system != "*") for _origin, item in values)
+        values = [
+            value for value in values if int(value[1].system != "*") == max_system
+        ]
+        unique: dict[
+            tuple[str, str | None, str | None], SemanticRelation
+        ] = {}
+        for _origin, item in values:
+            unique[(item.artifact, item.valid_from, item.valid_to)] = item
+        resolved.extend(unique.values())
+    return sorted(
+        resolved,
+        key=lambda item: (
+            item.relation_type.value,
+            item.target_name,
+            item.valid_from or "",
+            item.valid_to or "",
+            item.artifact,
+        ),
+    )
 
 
 def _relation_from_row(row: Any) -> SemanticRelation:
@@ -228,7 +271,11 @@ def adjudicate(catalog: Catalog, key: str, decision: SemanticRelation, *, by: st
                status, evidence)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(system, dataset, field_name, relation_type, target_type, target_name)
-            DO UPDATE SET artifact=excluded.artifact, status='adjudicated', evidence=excluded.evidence
+            DO UPDATE SET artifact=excluded.artifact,
+              source_namespace=excluded.source_namespace,
+              target_namespace=excluded.target_namespace,
+              valid_from=excluded.valid_from, valid_to=excluded.valid_to,
+              status='adjudicated', evidence=excluded.evidence
             """,
             tuple(seed[name] for name in (
                 "system", "dataset", "field_name", "relation_type", "target_type", "target_name",

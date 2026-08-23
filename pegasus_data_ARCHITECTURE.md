@@ -394,13 +394,15 @@ name the dataset: a narrower answer beats an exception.
 `crawled_as` rather than hand-maintained a second time. One fact, one place.
 
 **Representation selection is a physical decision, shared by every consumer.**
-`representations.py` groups candidates by logical publication and archive
-member, then chooses the cheapest directly readable form (Parquet/DuckDB/CSV
-before compressed or archive decoding). Archive members remain separate datasets. If metadata
-cannot prove equivalence, the selector retains the candidates and records a
-`representation_conflicts` row instead of dropping one. Both `fetch()` and the
-lake builder call this selector; the choice can therefore affect cost but never
-change which logical publications or members the user receives.
+`representations.py` groups candidates globally by logical publication and
+archive member before family execution, then chooses the cheapest directly
+readable form (Parquet/DuckDB/CSV before compressed or archive decoding).
+Archive members remain separate datasets. If cheap metadata contradicts
+equivalence, the selector records a `representation_conflicts` row and normal
+runtime/build execution refuses; `on_conflict="all"` is an explicit diagnostic
+escape hatch. Both `fetch()` and the lake builder use the global result, so two
+schema families cannot each contribute one representation of the same logical
+publication.
 
 Measured on the recovered full catalog: **4,422** logical publications have
 alternative physical forms, covering 14,446 files. Preference avoids 10,024
@@ -1401,11 +1403,17 @@ the prefix when the label already opens with the code AND the next character is
 a boundary — the boundary check is what stops code `12` being swallowed by label
 `'120001 Acrelândia'`, where the match is a coincidence of digits.
 
-### 14.13 `query()` and `plan()` — intent before source mechanics `[D]`
+### 14.13 `query()` and `plan()` — source intent before source mechanics `[D]`
 
-`query()` accepts one analytical specification: dataset, `Period`,
+`query()` is a harmonized source-access and semantic-serving facade, not an
+epidemiological cohort engine. It accepts a dataset, source `Period`, source
 `Geography`, selected fields, identity labels, typed dimensions, explicit
-enrichments, declared `time_by`/`geography_by` axes, provenance and time policy.
+enrichments, provenance and publication-resolution policy. `period` and
+`geography` identify DATASUS publication coordinates. Ordinary fact variables
+such as `DT_INTER`, `DTOBITO`, `MUNIC_RES` and `MUNIC_MOV` never decide which
+observations the core API returns. Their meanings remain in `describe()` and the
+semantic ontology for researchers and analytical tools.
+
 Only the implemented `resource_policy="local"` is exposed; resource acquisition
 is an explicit operation. `plan()` accepts the same
 arguments and returns an immutable `QuerySpec`/`QueryPlan` without executing it;
@@ -1428,25 +1436,31 @@ print(plan(**kwargs).explain())
 table, report = query(**kwargs, return_report=True)
 ```
 
-`QueryReport` records requested/effective time, source strategy, structural
-absence, semantic relations, unresolved/excluded row-time counts, crosswalk
-counts and warnings. The planner owns these safety rules:
+`QueryReport` records requested/effective source time, source strategy,
+structural absence, semantic relations, crosswalk counts and warnings. The
+planner owns these safety rules:
 
-- A monthly request over annual files is exact when a declared row competence
-  or date exists: annual files are retrieved and rows are filtered by month. If
-  no trustworthy row axis exists, `time_policy="adapt"` widens explicitly and
-  raises `TimeResolutionWarning`; `"strict"` refuses.
-- Temporal and geographic meanings come from compiled reviewed capabilities,
-  not a field-name search. `time_by="admission"` and
-  `geography_by="facility"`, for example, deliberately select different axes
-  from competence and residence. A UF becomes a physical filter only when that
-  physical axis is explicitly declared and observed; otherwise the declared
-  row axis is used or the plan refuses.
+- A monthly request over annual files widens to the enclosing year under
+  `time_policy="adapt"` and raises `TimeResolutionWarning`; `"strict"` refuses.
+  It never inspects an event-date field to manufacture a monthly subset.
+- A UF is applied only when it is a declared and observed physical publication
+  axis. Municipality requests, or UFs for nationally published datasets, refuse
+  rather than becoming predicates on residence, occurrence or facility fields.
+- A fresh-install request that would acquire an unbounded source history refuses
+  before retrieval. `allow_unbounded=True` is the explicit expert opt-in; an
+  already-complete unbounded local read remains possible.
 - Coverage is compiled per selected logical publication and year. A lake year
-  is usable only when its recorded source identities cover every expected
-  publication. Complete and incomplete years may form a `hybrid` plan, but one
+  is usable only when its recorded `(family, logical publication, archive
+  member)` identities cover every expected source unit. New provenance stores
+  canonical `path!member` identifiers; legacy path-only provenance proves loose
+  files but cannot falsely prove a multi-member archive complete. Complete and
+  incomplete years may form a `hybrid` plan, but one
   partially-built year is never split between lake and fetch. Annual/monthly
   resolution is retained per year rather than collapsed with `any(monthly)`.
+- Representation reconciliation runs once across all selected families at
+  logical-publication scope. An existing conflict blocks even a singleton
+  family call; cheap schema/format evidence can open a conflict without scanning
+  fact contents.
 - Schema evolution is always a union. A selected field absent from one schema
   generation is null-filled and listed in both `QueryReport.structural_absence`
   and Arrow schema metadata; `StructuralSchemaWarning` makes partial structural
@@ -1454,9 +1468,27 @@ counts and warnings. The planner owns these safety rules:
 - Raw codes survive. A high-level label is admitted only by an effective
   `label_of` relation; reviewed catalog decisions override shipped curation and
   explicit legacy `variable_docs.codelist` entries are a migration bridge.
-  `rollup_to` and `attribute_of` are only produced by `dimensions=`, using each
-  row's competence/year for its semantic vintage. A suspected substitution
-  raises `SemanticFallbackWarning`, opens an adjudication item and is withheld.
+  `rollup_to` and `attribute_of` are only produced by `dimensions=`, using
+  immutable source competence/year for semantic validity. Relation-level
+  `valid_from`/`valid_to` windows select historical artifacts with deterministic
+  local-over-shipped-over-legacy and dataset/system specificity. If a temporal
+  mapping needs a vintage that provenance cannot supply, its derived value is
+  null unless the mapping is explicitly time-invariant; “current” is not a
+  silent fallback.
+
+`_competencia` is immutable source/publication provenance in this path. It may
+select a monthly lake publication and a historical semantic relation, but is
+never replaced with an admission, discharge, death or registration date.
+
+The execution boundary is explicit:
+
+- runtime planning may read catalog, inventory, schema, publication and resource
+  metadata, but not fact rows;
+- requested-slice ETL may decode/project/normalize the selected sources, union
+  schemas, label, derive requested dimensions and perform explicit enrichment;
+- optional resource builds may scan the bounded reference slice the user asked
+  to build;
+- maintainer build/audit/profiling may perform broad evidence scans.
 
 **Crosswalks are not labels or translations.** `crosswalk.py` implements the
 temporal CNES↔CNPJ relation through `EnrichmentRequest`/`enrichment()`. Raw CNPJ
@@ -1468,9 +1500,10 @@ requested. Reverse CNPJ→CNES uses the same rule and is explicitly one-to-many.
 
 The rebuilt artifact is **10,339,656 bytes and 1,774,993 evidence rows**, with
 273,514 CNES and 265,418 CNPJ identifiers. The audit found 951 ambiguous source
-windows but **1,816 overlapping ambiguous source intervals**, 1,218 CNES
+windows but **1,816 pairwise-overlapping source relation pairs**, 1,218 CNES
 identifiers changing target over time, 12,619 reverse multi-source windows and
-**13,923 overlapping reverse intervals**. Runtime lookup is a predicate-pushed
+**13,923 pairwise-overlapping reverse relation pairs**. These pair counts are
+not claimed to be canonical disjoint ambiguity segments. Runtime lookup is a predicate-pushed
 Parquet slice over requested identifiers and validity bounds, not a process-wide
 Python dictionary. Those are modeled cardinalities, not rows silently won by
 sort order.
@@ -1488,8 +1521,11 @@ the bundled compact pack. CNES history (`CNES.ST`) and establishment names are
 separate optional resources, with the latter explicitly compiled as
 `cnes_registry.parquet` from a maintainer evidence catalog. That compiler is not
 presented as fresh-install acquisition and refuses when documentary registry
-evidence is absent. Coverage metadata lists exact years rather than only a
-min/max range. A query reports a missing requirement before touching the fact
+evidence is absent. Its local manifest records schema/content identity, checksum
+and actual discovered covered years; all runtime opens pass through
+`ResourceManager.ensure()`. CNES registry enrichment is driven by the CNES codes
+and relevant validity period in selected rows, never restricted by the fact
+publication's UF. A query reports a missing requirement before touching the fact
 dataset and never starts an unbounded build implicitly.
 
 `ResourceManager`, `ResourceStatus`, `QuerySpec`, `QueryPlan`, `QueryReport`,
@@ -1511,7 +1547,7 @@ functional out of the box, and nothing that is derived, large and reproducible.*
 | `resources/labels.parquet` | 29.97 MB | 3,654,320 versioned label runs; offline identity labels |
 | `resources/labels_crosswalk.parquet` | 10.34 MB | temporal CNES↔CNPJ evidence, without the full establishment directory |
 | `resources/bindings.parquet` | 0.04 MB | declares which codelist can decode each field |
-| `resources/query_capabilities.json` | 0.003 MB | reviewed temporal/geographic axes and fresh-install publication capabilities |
+| `resources/query_capabilities.json` | 0.001 MB | compiled source publication resolution/geography capabilities; curation is authoritative |
 | `curation/**/*.yml` | 44 KB | the manual-authority rung. Without it, `SOURCE_AUTHORITY['manual']` is empty and no human judgement can outrank an extraction — the whole point of §9. |
 | `catalog/schema.sql` | 40 KB | the catalog cannot be created without it |
 

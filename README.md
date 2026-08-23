@@ -22,7 +22,7 @@ been able to document.
 from pegasus_data import info, query
 
 info("SIH.RD")                                  # what is this dataset?
-df = query("SIH-RD", period=2023, geography="AL")  # give me an analytical slice
+df = query("SIH-RD", period=2023, geography="AL")  # retrieve this publication slice
 ```
 
 ---
@@ -147,15 +147,18 @@ print(plan(**request).explain())
 df, report = query(**request, return_report=True)
 ```
 
-`query()` is the primary analytical interface. It chooses an existing lake or a
+`query()` is the primary harmonized source-access interface. It chooses an existing lake or a
 bounded direct fetch—or a non-overlapping year-level hybrid—only after checking
-that every expected logical publication is covered. It unions schema generations
+that every expected logical source unit (including archive member) is covered. It unions schema generations
 with structural nulls, preserves raw codes, admits only explicitly declared
-identity labels, and makes dimensions/crosswalks explicit. Use `time_by=` and
-`geography_by=` when the declared alternative (admission versus competence,
-facility versus residence) matters. The report says when an annual physical
-publication was filtered by a row-level month, when a request was adapted, how
-many rows lacked parseable time, and which fields were structurally absent.
+identity labels, and makes dimensions/crosswalks explicit. `period` and
+`geography` identify DATASUS publication coordinates; they never filter ordinary
+record variables such as `DT_INTER`, `DTOBITO`, `MUNIC_RES` or `MUNIC_MOV`.
+When a source is annual, a monthly request retrieves the enclosing annual
+publication with `TimeResolutionWarning` and does not remove rows by event date.
+Semantic options append information to the selected observations; use pandas,
+Polars or DuckDB when defining an analytical cohort. A query that would acquire
+an unbounded history is refused unless `allow_unbounded=True` is explicit.
 
 `fetch()` remains the direct source-shaped interface:
 
@@ -193,6 +196,12 @@ pegasus-data resources status --json
 pegasus-data resources ensure cnes_names --period 2022-01:2024-12
 pegasus-data resources build cnes_names --years 2022-2024
 ```
+
+`cnes_names` currently compiles a bounded artifact from a maintainer evidence
+catalog; it is not yet a fresh-install downloader. Ordinary users install a
+compatible precompiled resource. `resources build CNES --years ...` is the
+separate bounded acquisition/materialization path for CNES history. Neither runs
+implicitly during `query()`.
 
 ### Ask for it in your own language
 

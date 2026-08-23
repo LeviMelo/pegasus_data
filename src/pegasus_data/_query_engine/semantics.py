@@ -9,7 +9,6 @@ import pyarrow as pa
 
 from ..config import Settings
 from ..crosswalk import EnrichmentReport, EnrichmentRequest
-from .filters import _with_row_competence
 from .model import QueryPlan, QueryReport, SemanticFallbackWarning
 from .planner import CNES_ATTRIBUTE_FIELDS
 
@@ -18,7 +17,7 @@ def _apply_dimensions(
     table: pa.Table, query_plan: QueryPlan, report: QueryReport, settings: Settings
 ) -> pa.Table:
     from ..catalog.store import Catalog
-    from ..labelpack import read_packed
+    from ..labelpack import packed_mapping_is_time_invariant, read_packed
     from ..semantics.relations import RelationType, relations_for
 
     output = table
@@ -26,7 +25,7 @@ def _apply_dimensions(
     catalog = Catalog(settings.catalog_path, read_only=True) if settings.catalog_path.is_file() else None
     try:
         for request in query_plan.spec.dimensions:
-            relations = [
+            declared = [
                 *relations_for(
                     query_plan.retrieval.system, dataset_code, request.field,
                     relation_type=RelationType.ROLLUP_TO, catalog=catalog,
@@ -36,10 +35,9 @@ def _apply_dimensions(
                     relation_type=RelationType.ATTRIBUTE_OF, catalog=catalog,
                 ),
             ]
-            relations = [item for item in relations if item.target_name == request.name]
-            if len(relations) != 1:
-                raise KeyError(f"no unique declared dimension {request.field}.{request.name}")
-            relation = relations[0]
+            declared = [item for item in declared if item.target_name == request.name]
+            if not declared:
+                raise KeyError(f"no declared dimension {request.field}.{request.name}")
             if request.field not in output.column_names:
                 raise KeyError(f"{request.field}: required dimension source is absent")
             codes = output[request.field].to_pylist()
@@ -48,12 +46,56 @@ def _apply_dimensions(
                 if "_competencia" in output.column_names
                 else [None] * output.num_rows
             )
-            unknown_vintage = sum(value is None for value in competences)
             lookups: dict[tuple[str, int | None], dict[str, object]] = {}
             values: list[object] = []
+            artifacts: set[str] = set()
+            unresolved_relation = 0
             for code, competence in zip(codes, competences, strict=True):
                 number = int(competence) if competence is not None else None
                 is_month = number is not None and 1 <= number % 100 <= 12
+                if number is None:
+                    relations = [
+                        item
+                        for item in declared
+                        if not item.valid_from
+                        and not item.valid_to
+                        and packed_mapping_is_time_invariant(
+                            item.artifact, system=query_plan.retrieval.system
+                        )
+                    ]
+                else:
+                    relations = [
+                        *relations_for(
+                            query_plan.retrieval.system,
+                            dataset_code,
+                            request.field,
+                            relation_type=RelationType.ROLLUP_TO,
+                            catalog=catalog,
+                            vintage=number,
+                        ),
+                        *relations_for(
+                            query_plan.retrieval.system,
+                            dataset_code,
+                            request.field,
+                            relation_type=RelationType.ATTRIBUTE_OF,
+                            catalog=catalog,
+                            vintage=number,
+                        ),
+                    ]
+                    relations = [
+                        item for item in relations if item.target_name == request.name
+                    ]
+                if len(relations) > 1:
+                    raise KeyError(
+                        f"multiple effective relations for {request.field}.{request.name} "
+                        f"at source vintage {number}"
+                    )
+                if not relations:
+                    values.append(None)
+                    unresolved_relation += 1
+                    continue
+                relation = relations[0]
+                artifacts.add(relation.artifact)
                 key = (relation.artifact, number if is_month else -(number // 100) if number else None)
                 if key not in lookups:
                     reference = read_packed(
@@ -75,12 +117,18 @@ def _apply_dimensions(
             name = f"{request.field}_{request.name}"
             output = output.append_column(name, pa.array(values, pa.string()))
             report.dimensions.append(
-                {"request": f"{request.field}.{request.name}", "relation": relation.relation_type.value, "artifact": relation.artifact, "vintage": "row competence", "unresolved_vintage_rows": unknown_vintage}
+                {
+                    "request": f"{request.field}.{request.name}",
+                    "relation": "declared temporal relation",
+                    "artifacts": sorted(artifacts),
+                    "vintage": "source competence",
+                    "unresolved_vintage_rows": unresolved_relation,
+                }
             )
-            if unknown_vintage:
+            if unresolved_relation:
                 message = (
-                    f"{request.field}.{request.name}: {unknown_vintage} row(s) lack a "
-                    "semantic vintage; current/open-ended mapping was used"
+                    f"{request.field}.{request.name}: {unresolved_relation} row(s) lack "
+                    "an applicable semantic relation/vintage; derived values are null"
                 )
                 report.warnings.append(message)
                 warnings.warn(message, SemanticFallbackWarning, stacklevel=3)
@@ -164,6 +212,19 @@ def _append_or_replace(table: pa.Table, name: str, values: list[object]) -> pa.T
     return table.append_column(name, array)
 
 
+def _with_registry_competence(table: pa.Table, field: str | None) -> pa.Table:
+    """Attach the CNES relation's explicit validity clock to registry rows."""
+    if not field or field not in table.column_names:
+        return table
+    values: list[int | None] = []
+    for raw in table[field].to_pylist():
+        text = str(raw or "").strip()
+        digits = "".join(character for character in text if character.isdigit())
+        value = int(digits[:6]) if len(digits) >= 6 else 0
+        values.append(value if 190001 <= value <= 219912 and value % 100 else None)
+    return _append_or_replace(table, "_competencia", values)
+
+
 def _enrich_cnes_name(
     table: pa.Table, request: EnrichmentRequest, settings: Settings
 ) -> tuple[pa.Table, EnrichmentReport]:
@@ -172,7 +233,9 @@ def _enrich_cnes_name(
     source_field = (request.from_field or "CNES").upper()
     if source_field not in table.column_names:
         raise KeyError(f"{source_field}: required source field for CNES registry enrichment")
-    path = settings.root / "resources" / "cnes_registry.parquet"
+    from .._resources import ResourceManager
+
+    path = ResourceManager(settings).ensure("cnes_names").path
     source_codes = {str(value or "").strip() for value in table[source_field].to_pylist()}
     competences = (
         table["_competencia"].to_pylist()
@@ -221,9 +284,14 @@ def _enrich_cnes_name(
         applicable = {
             name
             for name, lo, hi in lookup.get(str(code or "").strip(), ())
-            if competence is None
-            or (not lo or int(lo) <= int(competence))
-            and (not hi or int(competence) <= int(hi))
+            if (
+                (competence is None and not lo and not hi)
+                or (
+                    competence is not None
+                    and (not lo or int(lo) <= int(competence))
+                    and (not hi or int(competence) <= int(hi))
+                )
+            )
         }
         if len(applicable) == 1:
             values.append(next(iter(applicable)))
@@ -262,23 +330,29 @@ def _enrich_cnes_attribute(
     source_codes = {
         str(value or "").strip() for value in table[source_field].to_pylist()
     }
+    from .._resources import ResourceManager
+
+    ResourceManager(settings).ensure(
+        "cnes_registry",
+        period=(
+            (query_plan.spec.period.start, query_plan.spec.period.end)
+            if query_plan.spec.period
+            else None
+        ),
+    )
     catalog = PublicCatalog(settings=settings)
     try:
         registry = scan(
             "CNES",
             "ST",
-            uf=(
-                [query_plan.spec.geography.uf]
-                if query_plan.spec.geography and query_plan.spec.geography.uf
-                else None
-            ),
+            uf=None,
             years=query_plan.retrieval.years or None,
             columns=["CNES", registry_field, "COMPETEN"],
             where=ds.field("CNES").isin(sorted(source_codes)),
             on_missing_column="null_fill",
             catalog=catalog,
         ).to_table()
-        registry = _with_row_competence(
+        registry = _with_registry_competence(
             registry, "COMPETEN" if "COMPETEN" in registry.column_names else None
         )
         if query_plan.spec.labels:

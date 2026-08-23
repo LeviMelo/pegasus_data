@@ -27,7 +27,7 @@ def audit(path: Path) -> dict[str, int]:
             "SELECT COUNT(*) FROM (SELECT source_code, valid_from, valid_to, "
             f"COUNT(DISTINCT target_code) n FROM {relation} GROUP BY 1,2,3 HAVING n > 1)"
         ),
-        "ambiguous_source_overlaps": (
+        "ambiguous_source_pairwise_overlaps": (
             "SELECT COUNT(*) FROM (SELECT DISTINCT a.source_code, "
             "GREATEST(a.lo,b.lo) overlap_from, LEAST(a.hi,b.hi) overlap_to "
             f"FROM {normalized} a JOIN {normalized} b "
@@ -42,7 +42,7 @@ def audit(path: Path) -> dict[str, int]:
             "SELECT COUNT(*) FROM (SELECT target_code, valid_from, valid_to, "
             f"COUNT(DISTINCT source_code) n FROM {relation} GROUP BY 1,2,3 HAVING n > 1)"
         ),
-        "reverse_multi_source_overlaps": (
+        "reverse_multi_source_pairwise_overlaps": (
             "SELECT COUNT(*) FROM (SELECT DISTINCT a.target_code, "
             "GREATEST(a.lo,b.lo) overlap_from, LEAST(a.hi,b.hi) overlap_to "
             f"FROM {normalized} a JOIN {normalized} b "

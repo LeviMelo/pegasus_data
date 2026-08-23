@@ -12,7 +12,6 @@ from .core import (
     SemanticFallbackWarning,
     StructuralSchemaWarning,
     TimeResolutionWarning,
-    UnresolvedTimeWarning,
     plan,
     query,
 )
@@ -20,6 +19,6 @@ from .core import (
 __all__ = [
     "Adaptation", "CrosswalkAmbiguityWarning", "DimensionRequest", "Geography",
     "Period", "QueryPlan", "QueryReport", "QuerySpec", "SemanticFallbackWarning",
-    "StructuralSchemaWarning", "TimeResolutionWarning", "UnresolvedTimeWarning",
+    "StructuralSchemaWarning", "TimeResolutionWarning",
     "plan", "query",
 ]

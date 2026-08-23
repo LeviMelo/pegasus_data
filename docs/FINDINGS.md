@@ -1300,17 +1300,18 @@ Three read-only audits settled the design before implementation:
    ambiguity and reverse one-to-many relations are real, not corner cases. A
    dictionary overwrite or a default join would silently select an identifier
    or multiply fact rows. Exact-window grouping understated both: 951 source
-   ambiguities become **1,816 overlapping intervals**, and 12,619 reverse
-   multi-source windows become **13,923 overlapping intervals**.
+   ambiguities become **1,816 pairwise-overlapping relation pairs**, and 12,619
+   reverse multi-source windows become **13,923 pairwise-overlapping relation
+   pairs**. These are pair counts, not canonical disjoint ambiguity segments.
 
 The implementation follows those measurements:
 
-- `query()`/`plan()` separate analytical intent from physical lake/fetch
+- `query()`/`plan()` separate source-publication intent from physical lake/fetch
   mechanics, expose requested versus effective time, and preserve structural
   absence as report data and Arrow metadata.
-- Annual files may still answer an exact month when a declared row competence
-  exists. Without such a field the planner warns and widens, or refuses under a
-  strict policy.
+- Annual files answer a subannual source request by retrieving the enclosing
+  annual publication with a warning, or refusing under a strict policy. Event
+  dates never manufacture a row-level month in the source API.
 - `label_of`, `rollup_to`, `attribute_of` and `crosswalk_to` are distinct typed
   relations. Only the first may become an automatic `*_label`; the middle two
   require a dimension request.
@@ -1344,11 +1345,10 @@ becomes the preferred representation.
 
 Three related lessons were established while closing that review:
 
-1. **Axes are semantic declarations.** `MUNIC_RES`, `MUNIC_MOV`, `DTOBITO` and
-   `DT_INTER` are not interchangeable just because they look geographic or
-   temporal. Reviewed capabilities now name defaults and alternatives, and are
-   compiled into a fresh-install resource checked against packaged schema/tree
-   summaries.
+1. **Semantic axes are descriptive knowledge, not retrieval predicates.**
+   `MUNIC_RES`, `MUNIC_MOV`, `DTOBITO` and `DT_INTER` remain documented because
+   their meanings matter, but source capabilities contain only publication
+   resolution and physical partition coordinates.
 2. **Semantic vintage belongs to the row.** A multi-year dimension lookup must
    select the packed relation for each row competence/year. Choosing one current
    table for the result silently rewrites historical categories.
@@ -1363,6 +1363,57 @@ same-format objects claiming one logical publication are evidence of a revision,
 collision or stale mirror—not a reason to prefer the smaller file. Expert
 inspection may explicitly retain all alternatives, but the default cannot emit
 duplicate facts.
+
+---
+
+## 3o. Source selection and analytical filtering are different products (2026-08-23)
+
+The replacement review adjudicated a scope ambiguity left by §3m–§3n:
+Pegasus-Data retrieves, decodes, harmonizes and semantically serves DATASUS
+publications; the researcher defines the analytical population afterward.
+
+The resulting rules are durable:
+
+1. **Publication coordinates may select observations; fact meanings may not.**
+   `period="2024-03"` selects the March publication when one exists. It does not
+   mean `DT_INTER`, `DTOBITO` or another event date falls in March. Likewise a
+   publication UF never becomes a `MUNIC_RES`/`MUNIC_MOV` predicate.
+2. **Source competence is immutable provenance.** `_competencia` may choose a
+   monthly lake slice or historical semantic relation, but no ordinary record
+   field may overwrite it. Annual source enclosure is represented as unknown
+   month and widened explicitly.
+3. **Completeness belongs to logical source units.** The required key is at
+   least `(family, logical publication, archive member)`. Path-only lake
+   provenance cannot prove a multi-member archive complete; alternate physical
+   representations remain equivalent when that complete key agrees.
+4. **Reconciliation precedes family execution.** A logical publication split
+   across two schema families is still one representation decision. An open
+   conflict blocks even when a later family sees only one candidate.
+5. **Unknown historical validity resolves to null, not “current”.** Temporal
+   relation windows and packed mappings require source vintage unless explicitly
+   time-invariant. Local adjudication then outranks shipped curation, which
+   outranks the legacy bridge, with dataset/system specificity deterministic.
+6. **Runtime resources have one gate.** Optional CNES artifacts carry local
+   manifest identity, checksum and exact covered years and are opened through
+   `ResourceManager`. Registry lookup follows the CNES identifiers and validity
+   period in the selected slice, not the fact publication's UF.
+7. **Planning is metadata-only.** Catalog/inventory/schema/resource metadata may
+   be scanned during planning; fact rows are opened only for requested-slice ETL
+   or an explicit bounded resource/maintainer operation.
+
+The old `time_by`, `geography_by` and `unresolved_time` query switches were
+removed. Their semantic knowledge remains under `semantic_axes` in curation for
+`describe()`, documentation and future opt-in analytical helpers. The compact
+`query_capabilities.json` is now compiled from separate `source_publication`
+curation and carries no record-field predicates.
+
+The closing real-resource audit re-read the shipped 1,774,993-row crosswalk and
+reproduced all published cardinalities, including 1,816 and 13,923 pairwise
+overlaps. The current 92.8 MB working catalog (not the historical recovered
+15 GB evidence warehouse measured in §3m) contained 3,716 logical publications
+with alternatives, 12,323 physical files in those groups and 8,607 avoidable
+decodes. A metadata-only `plan("SIH-RD", period="2023-01", geography="AL")`
+completed against that catalog without opening fact data.
 
 ---
 

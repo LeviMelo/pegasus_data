@@ -13,19 +13,13 @@ import pyarrow as pa
 
 from ..config import Settings, load_settings
 from ..crosswalk import EnrichmentRequest, enrich_cnes, enrich_cnpj
-from .filters import (
-    _filter_geography,
-    _filter_period,
-    _with_competence,
-    _with_row_competence,
-)
+from .filters import _filter_source_period, _with_competence
 from .model import (
     CrosswalkAmbiguityWarning,
     QueryReport,
     QuerySpec,
     StructuralSchemaWarning,
     TimeResolutionWarning,
-    UnresolvedTimeWarning,
 )
 from .planner import plan
 from .semantics import (
@@ -74,9 +68,7 @@ def query(
     provenance: Literal[False, "all"] = False,
     resource_policy: Literal["local"] = "local",
     time_policy: Literal["adapt", "strict"] = "adapt",
-    time_by: str | None = None,
-    geography_by: str | None = None,
-    unresolved_time: Literal["exclude", "retain", "error"] = "exclude",
+    allow_unbounded: bool = False,
     return_report: bool = False,
     root: str | Path | None = None,
     settings: Settings | None = None,
@@ -84,12 +76,20 @@ def query(
     query_plan = plan(
         dataset, period=period, geography=geography, select=select, labels=labels,
         dimensions=dimensions, enrich=enrich, provenance=provenance,
-        resource_policy=resource_policy, time_policy=time_policy, time_by=time_by,
-        geography_by=geography_by, unresolved_time=unresolved_time,
+        resource_policy=resource_policy, time_policy=time_policy,
+        allow_unbounded=allow_unbounded,
         root=root, settings=settings,
     )
     resolved = settings or load_settings(root=Path(root) if root else None)
     retrieval = query_plan.retrieval
+    if not query_plan.spec.period and (
+        retrieval.fetch_years
+        or (retrieval.source_strategy == "fetch" and not retrieval.years)
+    ) and not query_plan.spec.allow_unbounded:
+        raise ValueError(
+            "this query requires source acquisition but period is unbounded; provide "
+            "period=... or explicitly pass allow_unbounded=True after inspecting plan()"
+        )
     missing_resources = [
         item for item in query_plan.semantics.resource_requirements if not item.local
     ]
@@ -207,8 +207,8 @@ def query(
         message = "selected fields are structurally absent from some schema generations"
         report.warnings.append(message)
         warnings.warn(message, StructuralSchemaWarning, stacklevel=2)
-    coarsening = next(
-        (item for item in retrieval.adaptations if item.kind == "time_resolution"), None
+    coarsening = any(
+        item.kind == "time_resolution" for item in retrieval.adaptations
     )
     for adaptation in retrieval.adaptations:
         message = (
@@ -217,21 +217,8 @@ def query(
         )
         report.warnings.append(message)
         warnings.warn(message, TimeResolutionWarning, stacklevel=2)
-    table = _with_row_competence(table, retrieval.row_time_field)
-    table = _filter_period(
-        table, query_plan.spec.period, coarsening is not None,
-        unresolved_time=query_plan.spec.unresolved_time, report=report,
-    )
-    if report.rows_time_unresolved:
-        message = (
-            f"{report.rows_time_unresolved} row(s) had no parseable value for declared "
-            f"time axis {retrieval.time_axis!r}; policy={query_plan.spec.unresolved_time!r}"
-        )
-        report.warnings.append(message)
-        warnings.warn(message, UnresolvedTimeWarning, stacklevel=2)
-    table = _filter_geography(
-        table, query_plan.spec.geography, bool(retrieval.physical_geography),
-        retrieval.row_geography_field,
+    table = _filter_source_period(
+        table, query_plan.spec.period, retain_annual_enclosures=coarsening
     )
     table = _enforce_identity_labels(table, query_plan, source_report, report, resolved)
     table = _apply_dimensions(table, query_plan, report, resolved)

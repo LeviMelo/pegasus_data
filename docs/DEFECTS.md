@@ -350,8 +350,8 @@ exceptions. They are closed by these enforced invariants:
 | ontology | two datasets silently claiming one alias | duplicate system/dataset aliases raise during ontology construction |
 | relations | roll-ups and attributes emitted as identity labels | typed semantic relations; only `label_of` is automatic |
 | adjudication | candidate caps choosing meaning | stable evidence item, export/apply workflow, safe refusal |
-| time | monthly intent silently widened to annual publication | row-time exact filtering where proven; warning/adaptation or strict refusal otherwise |
-| geography | national files producing false empty UF results | physical axis or declared row filter, otherwise refusal |
+| time | monthly intent silently widened to annual publication | source-resolution warning/adaptation or strict refusal; event-date filtering is out of scope |
+| geography | national files producing false empty UF results | physical publication axis or refusal; record geography is never substituted |
 | schema evolution | absent generations disappearing from a projection | union schema, structural nulls, report and Arrow metadata |
 | crosswalk | identifier overwrite or accidental row multiplication | raw preservation, temporal windows, explicit statuses, opt-in explosion |
 | resources | hidden large downloads for optional enrichment | provider estimates and preflight; explicit bounded build lifecycle |
@@ -370,18 +370,43 @@ integration defects that the first closure tests did not exercise.
 | defect | resolution | regression evidence |
 |---|---|---|
 | one lake partition selected lake for every requested year | exact logical-publication coverage per year; non-overlapping hybrid plans | `test_partial_year_lake_coverage_routes_whole_year_to_fetch`, `test_complete_and_missing_years_form_a_hybrid_without_overlap` |
-| temporal/geographic fields chosen by spelling | compiled reviewed axes plus explicit `time_by`/`geography_by` | `test_declared_geography_axis_selects_facility_not_residence` |
+| fact fields were treated as retrieval axes | analytical switches removed; source capability resource contains publication coordinates only | `test_legacy_analytical_axes_are_not_in_the_public_contract` |
 | one current dimension table applied to longitudinal rows | packed relation selected per row competence/year | `test_dimension_uses_each_rows_semantic_vintage` |
 | representation conflicts could duplicate facts | conflicts and same-format collisions refuse analytical selection | `test_representation_selection.py` |
 | crosswalk/registry packs expanded wholesale into Python | predicate-pushed identifier/validity slices | `test_columnar_slice_filters_identifiers_and_validity_before_materialising` |
 | high-level labels used a denylist | only effective `label_of` relations are admitted; unknowns open adjudication | query and semantic-relation suites |
 | applied relations were invisible to dimensions/new connections | one committed adjudication transaction and unified resolver | `test_adjudicated_dimension_is_effective_immediately` |
 | mixed annual/monthly resolution collapsed to one boolean | per-year resolution retained in `RetrievalPlan` | query planner suite |
-| unresolved row time disappeared silently | explicit exclude/retain/error policy and report counts | `test_unresolved_row_time_policy_is_counted_and_never_silent` |
+| annual publication was filtered by event date | enclosing annual source is returned with warning; no fact-row date predicate exists | `test_annual_publication_adapts_without_filtering_event_dates` |
 | optional-resource coverage used one intersecting row/min-max | exact requested years and source identities; explicit covered-year metadata | `test_next_resources.py` |
 | overlap audit grouped only identical windows | interval-overlap metrics in both directions | `test_crosswalk_audit.py` |
 
 The review's `MUNIC_MOV` and numeric-UF examples were symptoms of the undeclared
-axis problem, not additional column aliases to add to another guess list. The
-fix therefore removes guessing from the high-level planner and filters the one
-declared field, including IBGE numeric municipality prefixes.
+source/analysis boundary, not additional column aliases to add to another guess
+list. Their meanings remain documented, but the high-level planner does not
+filter either field.
+
+---
+
+## Source-contract replacement review closure — 2026-08-23
+
+The continuously replaced review explicitly narrowed Pegasus-Data to source
+access and additive semantic serving. The prior row-axis implementation is
+superseded by these verified closures:
+
+| defect | resolution | regression evidence |
+|---|---|---|
+| `period`/`geography` filtered ordinary fact fields | removed `time_by`, `geography_by`, `unresolved_time` and all event/residence row predicates | `test_annual_publication_adapts_without_filtering_event_dates`, `test_municipality_is_not_fabricated_from_a_fact_column` |
+| `_competencia` could be overwritten by event dates | query path treats it only as immutable publication provenance | source-contract query tests |
+| archive path falsely proved every member complete | lake provenance records `path!member`; completeness key includes family/logical/member | `test_archive_member_is_part_of_local_completeness` |
+| representation decisions were family-local | fetch/build reconcile globally; singleton calls honor open conflicts | `test_cross_family_schema_contradiction_is_detected_globally`, `test_open_conflict_also_refuses_a_singleton_candidate` |
+| unknown semantic vintage used current mapping | temporal derivation is null unless explicitly time-invariant | `test_unknown_required_dimension_vintage_is_null` |
+| relation validity/specificity was non-temporal | `valid_from`/`valid_to` plus deterministic local/curated/legacy and dataset/system precedence | semantic relation adversarial tests |
+| all-years CNES name build claimed no years | actual evidence years are persisted; empty/undiscoverable coverage refuses | `test_all_years_name_build_persists_discovered_coverage` |
+| optional resources bypassed a common gate | local manifest schema/content/checksum/coverage validation through `ResourceManager` | resource lifecycle tests |
+| CNES lookup inherited fact UF | registry scan is driven by CNES identifiers and validity years only | `test_cnes_registry_enrichment_does_not_inherit_fact_geography` |
+| hand-maintained capability duplication | `source_publication` curation compiles the compact runtime JSON; semantic axes remain descriptive | `test_query_capabilities_are_compiled_from_curation` |
+| omitted period could launch historical acquisition | executor refuses non-local unbounded work without `allow_unbounded=True` | `test_unbounded_source_acquisition_requires_explicit_opt_in` |
+
+Planning remains metadata-only; requested-slice decoding and explicit bounded
+resource builds are the first operations allowed to inspect relevant rows.

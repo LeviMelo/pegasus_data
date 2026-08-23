@@ -133,8 +133,10 @@ def valid_cnpj(value: object) -> bool:
 
 
 def _covers(lo: str, hi: str, competence: int | None) -> bool:
-    if competence is None or not lo:
-        return True
+    if competence is None:
+        return not lo and not hi
+    if not lo:
+        return not hi or competence <= int(hi)
     return int(lo) <= competence <= (int(hi) if hi else 999912)
 
 
@@ -236,6 +238,11 @@ def enrich_cnes(
     raw_values = table[raw_field].to_pylist() if raw_field in table.column_names else [None] * table.num_rows
     if "_competencia" in table.column_names:
         competences = table["_competencia"].to_pylist()
+    elif "year" in table.column_names:
+        competences = [
+            int(year) * 100 + 12 if year else None
+            for year in table["year"].to_pylist()
+        ]
     else:
         competences = [None] * table.num_rows
     source_values = table[from_field].to_pylist()

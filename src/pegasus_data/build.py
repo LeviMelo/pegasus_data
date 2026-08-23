@@ -241,7 +241,9 @@ class Builder:
                     # did not provenance anything — it made the partition look
                     # derived from evidence it does not contain.
                     continue
-                sources.append(path)
+                from .decode.base import logical_source_id
+
+                sources.append(logical_source_id(path, wanted_member))
                 stats.files_contributing += 1
                 tally.contributing += 1
 
@@ -314,6 +316,45 @@ class Builder:
             f"SELECT family_id, system, series, schema_signature FROM families{where}", params
         )
 
+        selected_units: set[tuple[str, str, str]] = set()
+        selected_family_ids = [str(family["family_id"]) for family in families]
+        if selected_family_ids:
+            marks = ",".join("?" for _ in selected_family_ids)
+            rows = self.catalog.query(
+                f"""
+                SELECT ff.family_id, ff.path, ff.member, fa.geo_code, fa.year,
+                       fa.normalized_date, fa.logical_id, fa.container_format,
+                       files.size, families.schema_signature
+                  FROM family_files ff
+                  JOIN families ON families.family_id=ff.family_id
+                  LEFT JOIN file_facts fa ON fa.path=ff.path
+                  LEFT JOIN files ON files.path=ff.path
+                 WHERE ff.family_id IN ({marks})
+                """,
+                tuple(selected_family_ids),
+            )
+            uf_set = set(ufs or ())
+            year_set = set(years or ())
+            candidates = [
+                dict(row)
+                for row in rows
+                if (not uf_set or (row["geo_code"] or "") in uf_set)
+                and (not year_set or row["year"] in year_set)
+            ]
+            from .representations import choose_representations
+
+            choice = choose_representations(self.catalog, candidates)
+            selected_units = {
+                (
+                    str(row["family_id"]),
+                    str(row["path"]),
+                    str(row.get("member") or ""),
+                )
+                for row in choice.selected
+            }
+            stats.representations_deduplicated += len(choice.dropped)
+            stats.representation_conflicts.extend(choice.conflicts)
+
         for family in families:
             family_id = family["family_id"]
             try:
@@ -345,13 +386,12 @@ class Builder:
                 for m in members
                 if (not ufs or (m["geo_code"] or "") in set(ufs))
                 and (not years or (m["year"] in set(years)))
+                and (
+                    str(family_id),
+                    str(m["path"]),
+                    str(m["member"] or ""),
+                ) in selected_units
             ]
-            from .representations import choose_representations
-
-            choice = choose_representations(self.catalog, selected)
-            selected = list(choice.selected)
-            stats.representations_deduplicated += len(choice.dropped)
-            stats.representation_conflicts.extend(choice.conflicts)
             if max_files_per_family:
                 selected = selected[:max_files_per_family]
             if not selected:

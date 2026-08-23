@@ -26,10 +26,6 @@ class CrosswalkAmbiguityWarning(UserWarning):
     pass
 
 
-class UnresolvedTimeWarning(UserWarning):
-    pass
-
-
 @dataclass(frozen=True, slots=True)
 class Period:
     start: int
@@ -72,9 +68,7 @@ class QuerySpec:
     provenance: Literal[False, "all"] = False
     resource_policy: Literal["local"] = "local"
     time_policy: Literal["adapt", "strict"] = "adapt"
-    time_by: str | None = None
-    geography_by: str | None = None
-    unresolved_time: Literal["exclude", "retain", "error"] = "exclude"
+    allow_unbounded: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -93,16 +87,12 @@ class RetrievalPlan:
     years: tuple[int, ...]
     months: tuple[int, ...]
     physical_geography: str | None
-    row_geography_field: str | None
-    row_time_field: str | None
     source_strategy: str
     hidden_dependencies: tuple[str, ...]
     adaptations: tuple[Adaptation, ...] = ()
     lake_years: tuple[int, ...] = ()
     fetch_years: tuple[int, ...] = ()
     year_resolutions: tuple[tuple[int, str], ...] = ()
-    time_axis: str | None = None
-    geography_axis: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -131,10 +121,6 @@ class QueryPlan:
         ]
         if self.retrieval.physical_geography:
             lines.append(f"Physical geography filter: {self.retrieval.physical_geography}")
-        if self.retrieval.row_geography_field:
-            lines.append(f"Row geography filter: {self.retrieval.row_geography_field}")
-        if self.retrieval.row_time_field:
-            lines.append(f"Row time filter: {self.retrieval.row_time_field}")
         for adaptation in self.retrieval.adaptations:
             lines.append(
                 f"Adaptation: {adaptation.requested} -> {adaptation.effective} ({adaptation.reason})"
@@ -166,8 +152,6 @@ class QueryReport:
     enrichments: list[EnrichmentReport] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     source_report: Any = None
-    rows_time_unresolved: int = 0
-    rows_time_excluded: int = 0
 
     def as_dict(self) -> dict[str, Any]:
         if isinstance(self.source_report, (list, tuple)):
@@ -191,8 +175,6 @@ class QueryReport:
             "dimensions": self.dimensions,
             "enrichments": [item.as_dict() for item in self.enrichments],
             "warnings": self.warnings,
-            "rows_time_unresolved": self.rows_time_unresolved,
-            "rows_time_excluded": self.rows_time_excluded,
             "source_report": source_report,
         }
 
@@ -272,9 +254,7 @@ def _spec(
     provenance: Literal[False, "all"] = False,
     resource_policy: Literal["local"] = "local",
     time_policy: Literal["adapt", "strict"] = "adapt",
-    time_by: str | None = None,
-    geography_by: str | None = None,
-    unresolved_time: Literal["exclude", "retain", "error"] = "exclude",
+    allow_unbounded: bool = False,
 ) -> QuerySpec:
     if provenance not in {False, "all"}:
         raise ValueError("provenance must be False or 'all'")
@@ -283,8 +263,6 @@ def _spec(
             "resource_policy currently supports only 'local'; explicit resource builds "
             "are never hidden inside a query"
         )
-    if unresolved_time not in {"exclude", "retain", "error"}:
-        raise ValueError("unresolved_time must be 'exclude', 'retain', or 'error'")
     return QuerySpec(
         dataset=dataset,
         period=_period(period),
@@ -296,7 +274,5 @@ def _spec(
         provenance=provenance,
         resource_policy=resource_policy,
         time_policy=time_policy,
-        time_by=time_by,
-        geography_by=geography_by,
-        unresolved_time=unresolved_time,
+        allow_unbounded=bool(allow_unbounded),
     )

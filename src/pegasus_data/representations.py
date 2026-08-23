@@ -64,6 +64,15 @@ def choose_representations(
     dropped: list[str] = []
     conflicts: list[str] = []
     for (logical, _member), candidates in groups.items():
+        if logical in open_conflicts:
+            conflicts.append(logical)
+            if on_conflict == "all":
+                selected.extend(candidates)
+                continue
+            raise RepresentationConflictError(
+                f"logical publication {logical!r} has conflicting representations; "
+                "runtime execution refused to avoid duplicate observations"
+            )
         if len(candidates) == 1:
             selected.extend(candidates)
             continue
@@ -118,7 +127,7 @@ def choose_representations(
                 continue
             raise RepresentationConflictError(
                 f"logical publication {logical!r} has conflicting representations; "
-                "analytical execution refused to avoid duplicate observations"
+                "runtime execution refused to avoid duplicate observations"
             )
         winner = min(
             candidates,

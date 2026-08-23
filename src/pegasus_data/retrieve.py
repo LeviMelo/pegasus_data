@@ -1163,6 +1163,43 @@ def _select_files(
     #: family_id -> requested columns its normalisation plan does not carry.
     absent_by_family: dict[str, list[str]] = {}
     wanted_columns = {str(c).upper() for c in columns} if columns else set()
+    family_ids = [str(family["family_id"]) for family in families]
+    globally_selected: set[tuple[str, str, str]] = set()
+    if family_ids:
+        marks = ",".join("?" for _ in family_ids)
+        global_rows = catalog.query(
+            f"""
+            SELECT ff.family_id, ff.path, ff.member, fa.geo_code, fa.year,
+                   fa.normalized_date, fa.logical_id, fa.container_format,
+                   files.size, families.schema_signature
+              FROM family_files ff
+              JOIN families ON families.family_id=ff.family_id
+              LEFT JOIN file_facts fa ON fa.path=ff.path
+              LEFT JOIN files ON files.path=ff.path
+             WHERE ff.family_id IN ({marks})
+            """,
+            tuple(family_ids),
+        )
+        global_matched = [
+            dict(row)
+            for row in global_rows
+            if (uf_set is None or (row["geo_code"] or "") in uf_set)
+            and (year_set is None or row["year"] in year_set)
+            and (month_set is None or _month_of(row["normalized_date"]) in month_set)
+        ]
+        from .representations import choose_representations
+
+        choice = choose_representations(catalog, global_matched)
+        globally_selected = {
+            (
+                str(row["family_id"]),
+                str(row["path"]),
+                str(row.get("member") or ""),
+            )
+            for row in choice.selected
+        }
+        report.representations_deduplicated.extend(choice.dropped)
+        report.representation_conflicts.extend(choice.conflicts)
     for family in families:
         family_id = str(family["family_id"])
         rows = catalog.query(
@@ -1183,18 +1220,12 @@ def _select_files(
             if (uf_set is None or (r["geo_code"] or "") in uf_set)
             and (year_set is None or r["year"] in year_set)
             and (month_set is None or _month_of(r["normalized_date"]) in month_set)
+            and (
+                family_id,
+                str(r["path"]),
+                str(r["member"] or ""),
+            ) in globally_selected
         ]
-        from .representations import choose_representations
-
-        choice = choose_representations(catalog, matched)
-        matched = list(choice.selected)
-        report.representations_deduplicated.extend(choice.dropped)
-        report.representation_conflicts.extend(choice.conflicts)
-        if choice.conflicts:
-            report.warnings.append(
-                f"{len(choice.conflicts)} logical publication(s) have unresolved "
-                "representation conflicts; alternatives were kept rather than silently collapsed"
-            )
         if not matched:
             continue
         try:

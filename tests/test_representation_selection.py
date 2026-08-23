@@ -61,6 +61,26 @@ def test_open_conflict_refuses_analytical_execution(catalog) -> None:
     assert choice.conflicts == (logical,)
 
 
+def test_open_conflict_also_refuses_a_singleton_candidate(catalog) -> None:
+    logical = "SIH|RD|AL|2401"
+    catalog.execute(
+        "INSERT INTO representation_conflicts "
+        "(logical_id, representations, evidence, status, noted_at) VALUES (?,?,?,?,?)",
+        (logical, json.dumps(["x.dbc", "x.csv"]), "schema differs", "open", utcnow()),
+    )
+    with pytest.raises(RepresentationConflictError, match="runtime execution refused"):
+        choose_representations(catalog, [_row("x.dbc", logical, "dbc")])
+
+
+def test_cross_family_schema_contradiction_is_detected_globally(catalog) -> None:
+    first = _row("x.dbc", "SIH|RD|AL|2401", "dbc")
+    second = _row("x.parquet", "SIH|RD|AL|2401", "parquet")
+    first["family_id"], first["schema_signature"] = "F1", "schema-a"
+    second["family_id"], second["schema_signature"] = "F2", "schema-b"
+    with pytest.raises(RepresentationConflictError, match="runtime execution refused"):
+        choose_representations(catalog, [first, second])
+
+
 def test_same_format_collision_opens_conflict_and_refuses(catalog) -> None:
     first = _row("large.csv", "SIM|DO|BR|2020", "csv")
     second = _row("small.csv", "SIM|DO|BR|2020", "csv")

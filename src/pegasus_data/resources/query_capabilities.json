@@ -1,82 +1,55 @@
 {
-  "schema_version": 1,
-  "content_version": "2026-08-23",
+  "schema_version": 2,
   "datasets": {
     "SIH.RD": {
-      "observed_systems": ["SIH", "SIHSUS"],
-      "observed_series": ["RD"],
-      "physical_geography": "uf",
+      "observed_systems": [
+        "SIH",
+        "SIHSUS"
+      ],
+      "observed_series": [
+        "RD"
+      ],
       "publication_resolution": "month",
-      "default_time": "competence",
-      "time": {
-        "competence": {"fields": ["ANO_CMPT", "MES_CMPT"], "encoding": "year_month"},
-        "admission": {"fields": ["DT_INTER"], "encoding": "date"},
-        "discharge": {"fields": ["DT_SAIDA"], "encoding": "date"}
-      },
-      "default_geography": "residence",
-      "geography": {
-        "residence": {"fields": ["MUNIC_RES"], "code_system": "ibge_municipality"},
-        "facility": {"fields": ["MUNIC_MOV"], "code_system": "ibge_municipality"}
-      }
+      "physical_geography": "uf"
     },
     "SIM.DO": {
-      "observed_systems": ["SIM"],
-      "observed_series": ["DO"],
-      "publication_resolution": "year",
-      "default_time": "occurrence",
-      "time": {
-        "occurrence": {"fields": ["DTOBITO"], "encoding": "date"},
-        "registration": {"fields": ["DTCADASTRO"], "encoding": "date"}
-      },
-      "default_geography": "residence",
-      "geography": {
-        "residence": {"fields": ["CODMUNRES"], "code_system": "ibge_municipality"},
-        "occurrence": {"fields": ["CODMUNOCOR"], "code_system": "ibge_municipality"}
-      }
+      "observed_systems": [
+        "SIM"
+      ],
+      "observed_series": [
+        "DO"
+      ],
+      "publication_resolution": "year"
     },
     "SINASC.DN": {
-      "observed_systems": ["SINASC"],
-      "observed_series": ["DN"],
-      "publication_resolution": "year",
-      "default_time": "birth",
-      "time": {
-        "birth": {"fields": ["DTNASC"], "encoding": "date"},
-        "registration": {"fields": ["DTCADASTRO"], "encoding": "date"}
-      },
-      "default_geography": "residence",
-      "geography": {
-        "residence": {"fields": ["CODMUNRES"], "code_system": "ibge_municipality"},
-        "occurrence": {"fields": ["CODMUNNASC"], "code_system": "ibge_municipality"}
-      }
+      "observed_systems": [
+        "SINASC"
+      ],
+      "observed_series": [
+        "DN"
+      ],
+      "publication_resolution": "year"
     },
     "SIA.PA": {
-      "observed_systems": ["SIA", "SIASUS"],
-      "observed_series": ["PA"],
-      "physical_geography": "uf",
+      "observed_systems": [
+        "SIA",
+        "SIASUS"
+      ],
+      "observed_series": [
+        "PA"
+      ],
       "publication_resolution": "month",
-      "default_time": "competence",
-      "time": {
-        "competence": {"fields": ["PA_CMP"], "encoding": "yyyymm"}
-      },
-      "default_geography": "facility",
-      "geography": {
-        "facility": {"fields": ["PA_UFMUN"], "code_system": "ibge_municipality"},
-        "patient": {"fields": ["PA_MUNPCN"], "code_system": "ibge_municipality"}
-      }
+      "physical_geography": "uf"
     },
     "CNES.ST": {
-      "observed_systems": ["CNES"],
-      "observed_series": ["ST"],
-      "physical_geography": "uf",
+      "observed_systems": [
+        "CNES"
+      ],
+      "observed_series": [
+        "ST"
+      ],
       "publication_resolution": "month",
-      "default_time": "competence",
-      "time": {
-        "competence": {"fields": ["COMPETEN"], "encoding": "yyyymm"}
-      },
-      "default_geography": "facility",
-      "geography": {
-        "facility": {"fields": ["CODUFMUN"], "code_system": "ibge_municipality"}
-      }
+      "physical_geography": "uf"
     }
   }
 }

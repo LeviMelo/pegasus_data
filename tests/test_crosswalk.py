@@ -45,6 +45,19 @@ def test_competence_selects_historical_relation(monkeypatch) -> None:
     assert enriched["CNPJ_resolved"].to_pylist() == ["12345678000195", "11222333000181"]
 
 
+def test_unknown_crosswalk_vintage_does_not_use_a_bounded_mapping(monkeypatch) -> None:
+    monkeypatch.setattr(
+        crosswalk,
+        "_crosswalk_slice",
+        lambda *_args, **_kwargs: {
+            "1": [("12345678000195", "202001", "202012", "A")]
+        },
+    )
+    enriched, _report = crosswalk.enrich_cnpj(pa.table({"CNES": ["1"]}))
+    assert enriched["CNPJ_resolved"].to_pylist() == [None]
+    assert enriched["CNPJ_resolution_status"].to_pylist() == ["unresolved"]
+
+
 def test_explicit_explode_is_required_to_multiply_rows(monkeypatch) -> None:
     monkeypatch.setattr(
         crosswalk,

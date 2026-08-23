@@ -16,12 +16,9 @@ from ._query_engine.core import (
     SemanticFallbackWarning,
     StructuralSchemaWarning,
     TimeResolutionWarning,
-    UnresolvedTimeWarning,
     _apply_dimensions,
-    _filter_geography,
-    _filter_period,
+    _filter_source_period,
     _period,
-    _with_row_competence,
     plan,
     query,
 )  # compatibility re-exports are this module's purpose
@@ -29,7 +26,6 @@ from ._query_engine.core import (
 __all__ = [
     "Adaptation", "CrosswalkAmbiguityWarning", "DimensionRequest", "Geography",
     "Period", "QueryPlan", "QueryReport", "QuerySpec", "SemanticFallbackWarning",
-    "StructuralSchemaWarning", "TimeResolutionWarning", "UnresolvedTimeWarning",
-    "_apply_dimensions", "_filter_geography", "_filter_period", "_period",
-    "_with_row_competence", "plan", "query",
+    "StructuralSchemaWarning", "TimeResolutionWarning",
+    "_apply_dimensions", "_filter_source_period", "_period", "plan", "query",
 ]

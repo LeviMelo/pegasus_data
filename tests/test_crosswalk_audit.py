@@ -21,6 +21,6 @@ def test_audit_detects_overlaps_with_different_window_boundaries(tmp_path) -> No
     )
     result = audit(path)
     assert result["ambiguous_source_windows"] == 0
-    assert result["ambiguous_source_overlaps"] == 1
+    assert result["ambiguous_source_pairwise_overlaps"] == 1
     assert result["reverse_multi_source_windows"] == 0
-    assert result["reverse_multi_source_overlaps"] == 1
+    assert result["reverse_multi_source_pairwise_overlaps"] == 1

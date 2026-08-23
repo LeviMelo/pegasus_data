@@ -31,10 +31,10 @@ class CompactCnesCnpjProvider:
     def describe(self, settings: Settings, period: tuple[int, int] | None = None) -> ResourceRequirement:
         from ._resources import ResourceManager
 
-        record = next(
-            (item for item in ResourceManager(settings).status().resources if item.name == self.name),
-            None,
-        )
+        try:
+            record = ResourceManager(settings).ensure(self.name, period=period)
+        except FileNotFoundError:
+            record = None
         return ResourceRequirement(
             self.name, "Ministério da Saúde / DATASUS", period,
             bool(record and record.available), record.bytes if record else None,
@@ -49,6 +49,15 @@ class LocalCnesRegistryProvider:
         available = False
         estimate = None
         if settings.catalog_path.is_file():
+            from ._resources import ResourceManager
+
+            try:
+                ResourceManager(settings).ensure(self.name, period=period)
+            except FileNotFoundError:
+                return ResourceRequirement(
+                    self.name, "Ministério da Saúde / CNES", period, False, None,
+                    "monthly registry snapshot", "CNES",
+                )
             from .catalog.store import Catalog
 
             store = Catalog(settings.catalog_path, read_only=True)
@@ -62,11 +71,11 @@ class LocalCnesRegistryProvider:
                     if period else set()
                 )
                 held_years: set[int] = set()
-                covered_paths: set[str] = set()
+                covered_paths: set[tuple[str, str]] = set()
                 if family_ids:
                     marks = ",".join("?" for _ in family_ids)
                     for row in store.query(
-                        f"SELECT year, source_paths FROM lake_partitions "
+                        f"SELECT family_id, year, source_paths FROM lake_partitions "
                         f"WHERE family_id IN ({marks})",
                         tuple(family_ids),
                     ):
@@ -74,15 +83,20 @@ class LocalCnesRegistryProvider:
                         import json
 
                         try:
-                            covered_paths.update(json.loads(row["source_paths"] or "[]"))
+                            covered_paths.update(
+                                (str(row["family_id"]), str(value))
+                                for value in json.loads(row["source_paths"] or "[]")
+                            )
                         except (TypeError, json.JSONDecodeError):
                             pass
                     publication_rows = [
                         dict(row)
                         for row in store.query(
-                            f"SELECT ff.path, ff.member, fa.logical_id, fa.container_format, "
-                            f"files.size FROM family_files ff JOIN file_facts fa "
+                            f"SELECT ff.family_id, ff.path, ff.member, fa.logical_id, "
+                            f"fa.container_format, files.size, families.schema_signature "
+                            f"FROM family_files ff JOIN file_facts fa "
                             f"ON fa.path=ff.path LEFT JOIN files ON files.path=ff.path "
+                            f"JOIN families ON families.family_id=ff.family_id "
                             f"WHERE ff.family_id IN ({marks}) "
                             + ("AND fa.normalized_date BETWEEN ? AND ?" if period else ""),
                             (*family_ids, *period) if period else tuple(family_ids),
@@ -91,20 +105,30 @@ class LocalCnesRegistryProvider:
                     from .representations import choose_representations
 
                     expected = {
-                        str(row.get("logical_id") or row["path"])
+                        (
+                            str(row["family_id"]),
+                            str(row.get("logical_id") or row["path"]),
+                            str(row.get("member") or ""),
+                        )
                         for row in choose_representations(store, publication_rows).selected
                     }
-                    covered_identities: set[str] = set()
-                    if covered_paths:
-                        path_marks = ",".join("?" for _ in covered_paths)
-                        known_paths: set[str] = set()
-                        for row in store.query(
-                            f"SELECT path, logical_id FROM file_facts WHERE path IN ({path_marks})",
-                            tuple(sorted(covered_paths)),
+                    from .decode.base import logical_source_id
+
+                    covered_identities: set[tuple[str, str, str]] = set()
+                    for row in publication_rows:
+                        family = str(row["family_id"])
+                        path = str(row["path"])
+                        member = str(row.get("member") or "")
+                        if (family, logical_source_id(path, member)) in covered_paths or (
+                            not member and (family, path) in covered_paths
                         ):
-                            known_paths.add(str(row["path"]))
-                            covered_identities.add(str(row["logical_id"] or row["path"]))
-                        covered_identities.update(covered_paths - known_paths)
+                            covered_identities.add(
+                                (
+                                    family,
+                                    str(row.get("logical_id") or path),
+                                    member,
+                                )
+                            )
                     available = bool(held_years) and (
                         not requested_years or requested_years <= held_years
                     ) and bool(expected) and expected <= covered_identities
@@ -132,20 +156,21 @@ class LocalCnesNamesProvider:
     name = "cnes_names"
 
     def describe(self, settings: Settings, period: tuple[int, int] | None = None) -> ResourceRequirement:
-        path = settings.root / "resources" / "cnes_registry.parquet"
-        available = path.is_file()
-        estimate = path.stat().st_size if available else None
-        if available and period:
-            import pyarrow.parquet as pq
+        from ._resources import ResourceIntegrityError, ResourceManager
 
-            metadata = pq.ParquetFile(path).schema_arrow.metadata or {}
-            covered = {
-                int(value)
-                for value in metadata.get(b"pegasus_covered_years", b"").decode().split(",")
-                if value
-            }
-            requested = set(range(period[0] // 100, period[1] // 100 + 1))
-            available = bool(covered) and requested <= covered
+        path = settings.root / "resources" / "cnes_registry.parquet"
+        try:
+            record = ResourceManager(settings).ensure(self.name, period=period)
+            available = True
+            estimate = record.bytes
+        except FileNotFoundError:
+            available = False
+            estimate = path.stat().st_size if path.is_file() else None
+        except ResourceIntegrityError as exc:
+            if "coverage hole" not in str(exc):
+                raise
+            available = False
+            estimate = path.stat().st_size if path.is_file() else None
         if estimate is None and settings.catalog_path.is_file():
             from .catalog.store import Catalog
 

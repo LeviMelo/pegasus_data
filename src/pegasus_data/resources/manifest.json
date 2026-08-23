@@ -37,8 +37,8 @@
       "sha256": "5faa2dd625792b74b3bcc1ca9525395bbe427e078ed0ae6c64a754971b008313"
     },
     "query_capabilities": {
-      "file": "query_capabilities.json", "tier": "A", "bytes": 2885, "rows": 5,
-      "sha256": "33a03d48c099c73b88d99785033173eb307f4cc051ecc1ec43dbdfce1c1ec303"
+      "file": "query_capabilities.json", "tier": "A", "bytes": 1060, "rows": 5,
+      "sha256": "e18df346329e39acec73e36d0cc160d5fe0207be6f2a1cdd66444cbe1634c752"
     },
     "tree": {
       "file": "tree.parquet", "tier": "A", "bytes": 1294140, "rows": 207251,

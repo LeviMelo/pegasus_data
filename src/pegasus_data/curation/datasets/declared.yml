@@ -62,7 +62,13 @@ datasets:
     asserted_by: pegasus_data
     what_one_row_is: one health establishment, as registered in one monthly competência
     unit_of_analysis: establishment-month
-    query_axes:
+    source_publication:
+      dataset: CNES.ST
+      observed_systems: [CNES]
+      observed_series: [ST]
+      temporal_resolution: month
+      physical_geography: uf
+    semantic_axes:
       default_time: competence
       time:
         competence: {fields: [COMPETEN], encoding: yyyymm}

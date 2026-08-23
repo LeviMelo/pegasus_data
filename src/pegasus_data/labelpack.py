@@ -652,6 +652,36 @@ def read_packed(
 
 
 @lru_cache(maxsize=512)
+def packed_mapping_is_time_invariant(
+    codelist: str, *, system: str | None = None
+) -> bool:
+    """Whether a packed mapping is explicitly valid for every vintage.
+
+    Missing vintage metadata is not treated as proof of invariance. This helper
+    exists for semantic derivations where choosing a plausible current mapping
+    is less safe than returning an unresolved value.
+    """
+    import pyarrow.compute as pc
+
+    data = _dataset()
+    if data is None:
+        return False
+    hit = data.to_table(filter=pc.field("codelist") == codelist.upper())
+    if not hit.num_rows or not {"valid_from", "valid_to"} <= set(hit.column_names):
+        return False
+    systems = hit["system"].to_pylist()
+    wanted = (system or "").upper()
+    specific = [index for index, value in enumerate(systems) if value and str(value).upper() == wanted]
+    shared = [index for index, value in enumerate(systems) if not value]
+    indices = specific + shared if specific else shared or list(range(hit.num_rows))
+    return bool(indices) and all(
+        not str(hit["valid_from"][index].as_py() or "")
+        and not str(hit["valid_to"][index].as_py() or "")
+        for index in indices
+    )
+
+
+@lru_cache(maxsize=512)
 def _read_packed(
     codelist: str,
     system: str | None,
@@ -875,6 +905,29 @@ def build_cnes_registry_pack(
             "registry codelists; install a compiled cnes_registry.parquet resource "
             "instead of attempting to derive it from an empty runtime catalog"
         )
+    covered_years = set(years or ())
+    if years is None:
+        for item in ordered:
+            lo, hi, source_ref = item[3], item[4], item[6]
+            lo_year = int(lo[:4]) if len(lo) >= 4 and lo[:4].isdigit() else None
+            hi_year = int(hi[:4]) if len(hi) >= 4 and hi[:4].isdigit() else None
+            if lo_year is not None and hi_year is not None:
+                covered_years.update(range(lo_year, hi_year + 1))
+            else:
+                covered_years.update(
+                    year for year in (lo_year, hi_year) if year is not None
+                )
+            covered_years.update(
+                int(match.group(0)[:4])
+                for match in re.finditer(
+                    r"(?:19|20)\d{2}(?:0[1-9]|1[0-2])", source_ref
+                )
+            )
+    if not covered_years:
+        raise RuntimeError(
+            "CNES names evidence has no discoverable source years; pass years=... "
+            "explicitly rather than publishing an artifact that claims no coverage"
+        )
     table = pa.table(
         {
             "cnes": pa.array([item[0] for item in ordered], pa.string()),
@@ -891,9 +944,11 @@ def build_cnes_registry_pack(
         {
             **(table.schema.metadata or {}),
             b"pegasus_resource_schema": b"1",
-            b"pegasus_period_start": str(min(years) * 100 + 1 if years else 0).encode(),
-            b"pegasus_period_end": str(max(years) * 100 + 12 if years else 999912).encode(),
-            b"pegasus_covered_years": ",".join(str(year) for year in sorted(set(years or ()))).encode(),
+            b"pegasus_period_start": str(min(covered_years) * 100 + 1).encode(),
+            b"pegasus_period_end": str(max(covered_years) * 100 + 12).encode(),
+            b"pegasus_covered_years": ",".join(
+                str(year) for year in sorted(covered_years)
+            ).encode(),
         }
     )
     target = Path(out)
