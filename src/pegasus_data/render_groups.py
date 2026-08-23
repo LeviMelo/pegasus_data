@@ -99,6 +99,42 @@ def split_by_year_column(
     split on and the whole table is one group with the request's earliest year
     as the hint — the old behaviour, kept only for that case.
     """
+    if "_competencia" in table.column_names:
+        competence_column = table.column("_competencia")
+        competences = sorted(
+            int(value)
+            for value in pc.unique(competence_column).to_pylist()
+            if value not in (None, 0) and int(value) % 100
+        )
+        if competences:
+            out: list[Group] = []
+            for competencia in competences:
+                chunk = table.filter(pc.equal(competence_column, competencia))
+                if chunk.num_rows:
+                    out.append((chunk, family_id, competencia // 100, competencia))
+            # Annual/unknown rows coexist with monthly ones in some families;
+            # keep them and apply the year-level rule rather than dropping them.
+            remaining = table.filter(
+                pc.invert(
+                    pc.fill_null(
+                        pc.is_in(
+                            competence_column,
+                            value_set=pa.array(competences, type=pa.int32()),
+                        ),
+                        False,
+                    )
+                )
+            )
+            if remaining.num_rows:
+                out.extend(_split_annual_rows(remaining, years, family_id))
+            return out
+    return _split_annual_rows(table, years, family_id)
+
+
+def _split_annual_rows(
+    table: pa.Table, years: Sequence[int] | None, family_id: str | None
+) -> list[Group]:
+    """Apply year vintage semantics to rows without a monthly competence."""
     if "year" not in table.column_names:
         return [(table, family_id, min(years) if years else None, None)]
     distinct = pc.unique(table.column("year")).to_pylist()
@@ -110,8 +146,6 @@ def split_by_year_column(
     for year in usable:
         chunk = table.filter(pc.equal(table.column("year"), year))
         if chunk.num_rows:
-            # The lake partitions by year, so month granularity is not
-            # available here; competencia stays None rather than being invented.
             out.append((chunk, family_id, year, None))
     return out
 

@@ -25,8 +25,10 @@ from __future__ import annotations
 
 import json
 import queue
+import struct
 import subprocess
 import sys
+import tempfile
 import threading
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
@@ -34,6 +36,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from ._worker import read_frame, write_frame
+from .base import logical_source_id
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import pyarrow as pa
@@ -61,7 +64,7 @@ class _RemoteTable:
     row_count: int | None
     warnings: list[str] = field(default_factory=list)
     retains: object | None = None
-    _batches: list[pa.RecordBatch] = field(default_factory=list)
+    _spool_path: Path | None = None
 
     @property
     def field_names(self) -> list[str]:
@@ -69,10 +72,27 @@ class _RemoteTable:
 
     @property
     def source_id(self) -> str:
-        return f"{self.path}#{self.member}" if self.member else self.path
+        return logical_source_id(self.path, self.member)
 
     def batches(self) -> Iterator[pa.RecordBatch]:
-        yield from self._batches
+        if self._spool_path is None:
+            return
+        import pyarrow as pa
+
+        with self._spool_path.open("rb") as source:
+            while header := source.read(8):
+                if len(header) != 8:
+                    raise IsolatedDecodeError(
+                        f"{self.source_id}: truncated local decoder spool"
+                    )
+                (size,) = struct.unpack(">Q", header)
+                frame = source.read(size)
+                if len(frame) != size:
+                    raise IsolatedDecodeError(
+                        f"{self.source_id}: truncated local decoder spool frame"
+                    )
+                with pa.ipc.open_stream(pa.BufferReader(frame)) as stream:
+                    yield from stream
 
 
 @dataclass
@@ -83,6 +103,7 @@ class _RemoteOutcome:
     attempts: list[Any] = field(default_factory=list)
     members: list[Any] = field(default_factory=list)
     open_questions: list[tuple[str, str]] = field(default_factory=list)
+    retains: object | None = None
 
 
 class _Worker:
@@ -147,6 +168,7 @@ class DecoderPool:
         *,
         logical_path: str,
         columns: Sequence[str] | None = None,
+        members: Sequence[str] | None = None,
         row_limit: int | None = None,
         timeout: float | None = None,
     ) -> _RemoteOutcome:
@@ -158,7 +180,24 @@ class DecoderPool:
         worker = self._free.get()
         try:
             with worker.lock:
-                return self._run(worker, blob_path, logical_path, columns, row_limit, timeout)
+                try:
+                    return self._run(
+                        worker,
+                        blob_path,
+                        logical_path,
+                        columns,
+                        members,
+                        row_limit,
+                        timeout,
+                    )
+                except BaseException:
+                    # A failed or incomplete framed reply is not recoverable.
+                    # Even an ordinary error reply leaves protocol state whose
+                    # correctness should not be guessed at.  Discard the
+                    # process; this _Worker object will start a fresh one for
+                    # its next borrower.
+                    worker.kill()
+                    raise
         finally:
             self._free.put(worker)
 
@@ -168,6 +207,7 @@ class DecoderPool:
         blob_path: str | Path,
         logical_path: str,
         columns: Sequence[str] | None,
+        members: Sequence[str] | None,
         row_limit: int | None,
         timeout: float | None,
     ) -> _RemoteOutcome:
@@ -181,6 +221,7 @@ class DecoderPool:
                 "blob_path": str(blob_path),
                 "logical_path": logical_path,
                 "columns": sorted(columns) if columns else None,
+                "members": sorted(members) if members else None,
                 "row_limit": row_limit,
             }
         ).encode("utf-8")
@@ -211,8 +252,6 @@ class DecoderPool:
 
     @staticmethod
     def _read_reply(stdout: Any, field_meta: Any, logical_path: str) -> _RemoteOutcome:
-        import pyarrow as pa
-
         from .archives import ArchiveMember
         from .registry import DecodeAttempt
 
@@ -223,7 +262,10 @@ class DecoderPool:
         if not header.get("ok"):
             raise IsolatedDecodeError(f"{logical_path}: {header.get('error', 'decode failed')}")
 
-        outcome = _RemoteOutcome(path=logical_path, container=header.get("container") or "")
+        spool = tempfile.TemporaryDirectory(prefix="pegasus_decode_")
+        outcome = _RemoteOutcome(
+            path=logical_path, container=header.get("container") or "", retains=spool
+        )
         outcome.attempts = [
             DecodeAttempt(a["reader"], a["ok"], a.get("detail", ""))
             for a in header.get("attempts", [])
@@ -234,39 +276,53 @@ class DecoderPool:
         ]
         outcome.open_questions = [tuple(q) for q in header.get("open_questions", [])]
 
-        for meta in header.get("tables", []):
-            batches: list[pa.RecordBatch] = []
-            while True:
-                frame = read_frame(stdout)
-                if frame is None:
-                    raise IsolatedDecodeError(
-                        f"{logical_path}: decoder process ended mid-table"
+        try:
+            for index, meta in enumerate(header.get("tables", [])):
+                spool_path = Path(spool.name) / f"table-{index:04d}.frames"
+                with spool_path.open("wb") as sink:
+                    while True:
+                        frame = read_frame(stdout)
+                        if frame is None:
+                            raise IsolatedDecodeError(
+                                f"{logical_path}: decoder process ended mid-table"
+                            )
+                        if not frame:
+                            break
+                        # Keep at most one IPC batch frame in memory.  The
+                        # outcome can be iterated repeatedly (archive members
+                        # share it) without retaining a whole decoded source as
+                        # Python/Arrow objects in the parent.
+                        sink.write(struct.pack(">Q", len(frame)))
+                        sink.write(frame)
+                outcome.tables.append(
+                    _RemoteTable(
+                        path=meta["path"],
+                        member=meta.get("member", ""),
+                        reader=meta.get("reader", "dbf"),
+                        row_count=meta.get("row_count"),
+                        warnings=list(meta.get("warnings", [])),
+                        fields=[
+                            field_meta(
+                                name=f["name"],
+                                physical_type=f.get("physical_type"),
+                                width=f.get("width"),
+                                decimals=f.get("decimals"),
+                                order=f.get("order", i),
+                            )
+                            for i, f in enumerate(meta.get("fields", []))
+                        ],
+                        retains=spool,
+                        _spool_path=spool_path,
                     )
-                if not frame:
-                    break
-                with pa.ipc.open_stream(pa.BufferReader(frame)) as stream:
-                    batches.extend(stream)
-            outcome.tables.append(
-                _RemoteTable(
-                    path=meta["path"],
-                    member=meta.get("member", ""),
-                    reader=meta.get("reader", "dbf"),
-                    row_count=meta.get("row_count"),
-                    warnings=list(meta.get("warnings", [])),
-                    fields=[
-                        field_meta(
-                            name=f["name"],
-                            physical_type=f.get("physical_type"),
-                            width=f.get("width"),
-                            decimals=f.get("decimals"),
-                            order=f.get("order", i),
-                        )
-                        for i, f in enumerate(meta.get("fields", []))
-                    ],
-                    _batches=batches,
                 )
-            )
-        read_frame(stdout)  # the reply terminator
+            terminator = read_frame(stdout)
+            if terminator != b"":
+                raise IsolatedDecodeError(
+                    f"{logical_path}: malformed decoder reply terminator"
+                )
+        except BaseException:
+            spool.cleanup()
+            raise
         return outcome
 
 

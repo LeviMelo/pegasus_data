@@ -18,6 +18,8 @@ Two rules from §7.1:
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, field
 
 import pyarrow as pa
@@ -70,6 +72,20 @@ class MunicipalityIndex:
     @property
     def size(self) -> int:
         return len(self.six_to_seven)
+
+    @property
+    def fingerprint(self) -> str:
+        """Stable digest of the evidence that can change normalised output."""
+        payload = {
+            "six_to_seven": sorted(self.six_to_seven.items()),
+            "labels": sorted(self.labels.items()),
+            "provenance": self.provenance or "",
+            "check_digit_mismatches": sorted(self.check_digit_mismatches),
+        }
+        encoded = json.dumps(
+            payload, ensure_ascii=False, separators=(",", ":")
+        ).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
 
     @classmethod
     def from_catalog(cls, catalog: Catalog) -> MunicipalityIndex:

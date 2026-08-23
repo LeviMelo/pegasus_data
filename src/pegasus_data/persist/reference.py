@@ -350,9 +350,9 @@ def read_reference_table(
     Asking for a ``system`` picks that system's own copy of the codelist, which
     matters just as much. A field belonging to SIHSUS must decode against
     SIHSUS's ``SEXO.CNV`` (1 = Masculino, 3 = Feminino) and not against the union
-    of thirteen systems that disagree. Where the requested system ships no copy
-    the union is returned instead — a borrowed table is better than none — and
-    the caller's contradiction check remains the guard for that case.
+    of thirteen systems that disagree. Where the requested system ships no copy,
+    the lookup is refused by default. Foreign-system mappings are available only
+    inside an explicit ``borrowed_label_policy(True)`` scope.
     """
     base = Path(lake_root) / "reference" / _SAFE.sub("_", table_id)
     if not base.exists():
@@ -413,11 +413,13 @@ def read_reference_table(
         if scoped.num_rows:
             table = scoped
         else:
-            # Borrowing another system's table. Better than nothing, and the
-            # caller's contradiction check is the guard — but it is invisible
-            # from here, so `borrowed_for` records it for the renderer to
-            # report. Attaching it to the returned table instead would change
-            # the reference schema every caller relies on.
+            from .decisions import borrowed_labels_allowed
+
+            if not borrowed_labels_allowed():
+                raise FileNotFoundError(
+                    f"reference table {table_id!r} has no {wanted} mapping; "
+                    "cross-system labels are disabled"
+                )
             note_borrowed(_SAFE.sub("_", table_id), wanted)
     if code_width is not None and "code_width" in table.schema.names:
         table = table.filter(

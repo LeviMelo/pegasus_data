@@ -651,7 +651,16 @@ class Pipeline:
             )
             counts["failed"] += 1
             return
-        outcome = registry.open_bytes(self.blobs.read(digest), path=path)
+        from .decode.service import decode_source
+
+        claimed_member = str(row.get("sampled_member") or "")
+        outcome = decode_source(
+            self.blobs.path_for(digest),
+            logical_path=path,
+            settings=self.settings,
+            members=[claimed_member] if claimed_member else None,
+            row_limit=row_limit,
+        )
         record_decode_attempts(
             self.catalog, path, [(a.reader, a.ok, a.error) for a in outcome.attempts]
         )
@@ -678,7 +687,6 @@ class Pipeline:
         # seven new member strata from each existing one, which multiplies on
         # every run instead of converging.
         tables = outcome.tables
-        claimed_member = str(row.get("sampled_member") or "")
         if claimed_member:
             tables = [t for t in tables if t.member == claimed_member] or tables[:1]
         for index, table in enumerate(tables):

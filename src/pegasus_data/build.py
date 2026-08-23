@@ -28,6 +28,7 @@ from .normalize.engine import (
 )
 from .normalize.geo import MunicipalityIndex
 from .persist.lake import Lake
+from .persist.staging import staged_tree
 from .pipeline import Pipeline, StageResult
 from .semantics.dictionary import DictionaryCache
 from .sources import demas_api, ibge
@@ -158,6 +159,14 @@ class Builder:
         """
         tally = _PartitionTally()
         sources: list[str] = []
+        members_by_digest: dict[str, set[str]] = {}
+        for item in group:
+            digest = digests.get(str(item["path"]))
+            if digest:
+                members_by_digest.setdefault(digest, set()).add(
+                    str(item["member"] or "")
+                )
+        decoded_outcomes: dict[str, object] = {}
 
         def _normalised() -> Iterator[pa.RecordBatch]:
             """Decode and normalise one member at a time, YIELDING as we go.
@@ -178,10 +187,22 @@ class Builder:
                     continue
                 if on_file:
                     on_file(family_id, path)
-                outcome = registry.open_path(
-                    self.pipeline.blobs.path_for(digest), logical_path=path
-                )
                 wanted_member = str(m["member"] or "")
+                from .decode.service import decode_source
+
+                outcome = decoded_outcomes.get(digest)
+                if outcome is None:
+                    selected_members = members_by_digest[digest]
+                    outcome = decode_source(
+                        self.pipeline.blobs.path_for(digest),
+                        logical_path=path,
+                        settings=self.settings,
+                        members=(
+                            None if "" in selected_members else sorted(selected_members)
+                        ),
+                        row_limit=registry.row_limit,
+                    )
+                    decoded_outcomes[digest] = outcome
                 matched_here = False
                 for table in outcome.tables:
                     if wanted_member and table.member != wanted_member:
@@ -189,7 +210,20 @@ class Builder:
                     if not _matches_schema(table.field_names, plan):
                         continue
                     matched_here = True
-                    yield from normalize_table(table, plan, blob_sha256=digest)
+                    normalized_date = m.get("normalized_date")
+                    competencia = (
+                        int(normalized_date)
+                        if normalized_date is not None
+                        and int(normalized_date) % 100
+                        else None
+                    )
+                    for batch in normalize_table(table, plan, blob_sha256=digest):
+                        # Internal semantic provenance: a codelist can change
+                        # in July, which a year-only partition cannot recover.
+                        yield batch.append_column(
+                            "_competencia",
+                            pa.array([competencia] * batch.num_rows, type=pa.int32()),
+                        )
                 stats.files += 1
                 tally.decoded += 1
                 if not matched_here:
@@ -292,7 +326,7 @@ class Builder:
 
             members = self.catalog.query(
                 """
-                SELECT ff.path, ff.member, fa.geo_code, fa.year
+                SELECT ff.path, ff.member, fa.geo_code, fa.year, fa.normalized_date
                   FROM family_files ff
                   LEFT JOIN file_facts fa ON fa.path = ff.path
                  WHERE ff.family_id = ?
@@ -428,45 +462,67 @@ class Builder:
                 continue
             digests = self.pipeline.fetcher.ensure(paths)
             target = self.settings.population_dir / name
-            target.mkdir(parents=True, exist_ok=True)
             written_rows = 0
             written_files = 0
             observed_years: set[int] = set()
-            for path in paths:
-                digest = digests.get(path)
-                if not digest:
-                    continue
-                outcome = registry.open_path(
-                    self.pipeline.blobs.path_for(digest), logical_path=path
-                )
-                for table in outcome.tables:
-                    arrow = ibge.canonicalize(table.to_table())
-                    arrow = ibge.coerce_numeric(arrow, ["year", "population", "age", "municipality"])
-                    if "year" not in arrow.schema.names:
-                        year = _year_from_path(self.catalog, path)
-                        if year is not None:
-                            arrow = arrow.append_column(
-                                "year", pa.array([year] * arrow.num_rows, type=pa.int64())
-                            )
-                    if "year" in arrow.schema.names:
-                        observed_years.update(
-                            int(v) for v in arrow.column("year").to_pylist() if v is not None
-                        )
-                    arrow = arrow.append_column(
-                        "_source_path", pa.array([path] * arrow.num_rows, type=pa.string())
-                    )
-                    import pyarrow.parquet as pq
+            try:
+                with staged_tree(target) as staged_target:
+                    for path in paths:
+                        digest = digests.get(path)
+                        if not digest:
+                            raise RuntimeError(f"source was not acquired: {path}")
+                        from .decode.service import decode_source
 
-                    stem = PurePosixPath(path).stem
-                    member = f"_{PurePosixPath(table.member).stem}" if table.member else ""
-                    pq.write_table(
-                        arrow,
-                        target / f"{stem}{member}.parquet",
-                        compression=self.settings.compression,
-                        use_dictionary=True,
-                    )
-                    written_rows += arrow.num_rows
-                    written_files += 1
+                        outcome = decode_source(
+                            self.pipeline.blobs.path_for(digest),
+                            logical_path=path,
+                            settings=self.settings,
+                            row_limit=registry.row_limit,
+                        )
+                        for table in outcome.tables:
+                            arrow = ibge.canonicalize(table.to_table())
+                            arrow = ibge.coerce_numeric(
+                                arrow, ["year", "population", "age", "municipality"]
+                            )
+                            if "year" not in arrow.schema.names:
+                                year = _year_from_path(self.catalog, path)
+                                if year is not None:
+                                    arrow = arrow.append_column(
+                                        "year",
+                                        pa.array([year] * arrow.num_rows, type=pa.int64()),
+                                    )
+                            if "year" in arrow.schema.names:
+                                observed_years.update(
+                                    int(v)
+                                    for v in arrow.column("year").to_pylist()
+                                    if v is not None
+                                )
+                            arrow = arrow.append_column(
+                                "_source_path",
+                                pa.array([path] * arrow.num_rows, type=pa.string()),
+                            )
+                            import pyarrow.parquet as pq
+
+                            stem = PurePosixPath(path).stem
+                            member = (
+                                f"_{PurePosixPath(table.member).stem}"
+                                if table.member
+                                else ""
+                            )
+                            pq.write_table(
+                                arrow,
+                                staged_target
+                                / f"{stem}{member}-{digest[:12]}.parquet",
+                                compression=self.settings.compression,
+                                use_dictionary=True,
+                            )
+                            written_rows += arrow.num_rows
+                            written_files += 1
+                    if not written_files:
+                        raise RuntimeError("selected sources decoded to no population tables")
+            except Exception as exc:  # keep the previous complete series intact
+                notes.append(f"{name}: rebuild not published ({exc})")
+                continue
             spec.file_count = len(paths)
             if observed_years:
                 spec.year_min = min(observed_years)
@@ -549,6 +605,9 @@ class Builder:
                     str(p.get("name")) for p in endpoint.parameters if p.get("name")
                 ]
                 rows: list[dict[str, object]] = []
+                ingest_params = json.dumps(
+                    {"limit": page_size, "max_pages": max_pages}
+                )
                 try:
                     for page_index, page in enumerate(
                         demas_api.fetch_all(client, endpoint, page_size=page_size, max_pages=max_pages)
@@ -558,18 +617,28 @@ class Builder:
                             break
                 except Exception as exc:
                     notes.append(f"{endpoint.path}: fetch failed ({exc})")
+                    self.catalog.executemany(
+                        "DELETE FROM api_ingests WHERE path=? AND params=?",
+                        [(endpoint.path, ingest_params)],
+                    )
                     continue
                 if not rows:
                     notes.append(f"{endpoint.path}: returned no rows")
+                    self.catalog.executemany(
+                        "DELETE FROM api_ingests WHERE path=? AND params=?",
+                        [(endpoint.path, ingest_params)],
+                    )
                     continue
                 table = demas_api.rows_to_table(rows)
                 target = self.settings.demas_dir / _slug(endpoint.path)
-                target.mkdir(parents=True, exist_ok=True)
                 import pyarrow.parquet as pq
 
-                pq.write_table(
-                    table, target / "part-00000.parquet", compression=self.settings.compression
-                )
+                with staged_tree(target) as staged_target:
+                    pq.write_table(
+                        table,
+                        staged_target / "part-00000.parquet",
+                        compression=self.settings.compression,
+                    )
                 self.catalog.executemany(
                     """
                     INSERT INTO api_ingests (path, params, rows, lake_path, fetched_at)
@@ -579,7 +648,7 @@ class Builder:
                     [
                         (
                             endpoint.path,
-                            json.dumps({"limit": page_size, "max_pages": max_pages}),
+                            ingest_params,
                             table.num_rows,
                             str(target),
                         )

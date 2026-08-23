@@ -55,6 +55,11 @@ class FetchStats:
     #: caller can retry exactly those.
     stalled: int = 0
     bytes_fetched: int = 0
+    #: Batch/worker observations that are not failed requested paths. Keeping
+    #: them out of ``errors`` prevents a lost redundant worker from turning a
+    #: fully acquired request into a false partial result.
+    diagnostics: list[tuple[str, str]] = field(default_factory=list)
+    #: Terminal failures for concrete requested paths only.
     errors: list[tuple[str, str]] = field(default_factory=list)
 
 
@@ -296,7 +301,9 @@ class Fetcher:
                 on_result(result)
             except Exception as exc:  # noqa: BLE001 - a caller's bug, not ours
                 with lock:
-                    stats.errors.append((result.path, f"on_result raised: {exc}"))
+                    stats.diagnostics.append(
+                        (result.path, f"on_result callback raised: {exc}")
+                    )
 
         # ------------------------------------------------------------------
         # Settle the cache BEFORE opening a socket.
@@ -348,7 +355,7 @@ class Fetcher:
                 # about to complete.
                 with lock:
                     stats.workers_lost += 1
-                    stats.errors.append(("<connect>", str(exc)))
+                    stats.diagnostics.append(("<connect>", str(exc)))
                 return
             try:
                 while not cancelled.is_set():
@@ -419,7 +426,7 @@ class Fetcher:
                 f"fetch stalled: no path completed in {self.stall_timeout:.0f}s; "
                 f"{outstanding} of {len(pending)} still outstanding"
             )
-            stats.errors.append(("<stall>", message))
+            stats.diagnostics.append(("<stall>", message))
             self.catalog.log_event("fetch", "batch abandoned on stall", level="error", detail=message)
 
         cancelled.set()
@@ -429,7 +436,7 @@ class Fetcher:
             t.join(timeout=5)
         if any(t.is_alive() for t in threads):
             # Say so rather than let a late blob write surprise the caller.
-            stats.errors.append(
+            stats.diagnostics.append(
                 ("<workers>", "some fetch workers did not stop within 5s of being cancelled")
             )
         return stats

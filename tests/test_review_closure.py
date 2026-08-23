@@ -131,7 +131,7 @@ class TestCR06_PartitionReplacementIsNotDestructiveFirst:
     def test_the_lake_uses_that_rule(self):
         from pegasus_data.persist import lake
 
-        assert "staged_file" in inspect.getsource(lake.Lake.write_batches)
+        assert "staged_tree" in inspect.getsource(lake.Lake.write_batches)
 
 
 class TestHI14_ColdFetchCensusIsScoped:
@@ -152,3 +152,11 @@ class TestHI14_ColdFetchCensusIsScoped:
             "None means 'nothing could be narrowed', which asks for the full "
             "census — the fallback must stay explicit"
         )
+
+
+class TestDerivedWritersUseDurableTrees:
+    def test_population_and_demas_publish_complete_directories(self):
+        from pegasus_data.build import Builder
+
+        assert "staged_tree" in inspect.getsource(Builder.population)
+        assert "staged_tree" in inspect.getsource(Builder.demas)

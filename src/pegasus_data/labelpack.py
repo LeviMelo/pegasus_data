@@ -548,19 +548,24 @@ def read_packed(
     is bound to 31 `CADGER*` directories that the pack deliberately does not
     ship, and rediscovering their absence cost as much as a hit.
     """
-    table, note, missing = _read_packed(
+    from .persist.decisions import borrowed_labels_allowed, note_borrowed
+
+    table, note, missing, borrowed = _read_packed(
         codelist.upper(),
         (system or "").upper() or None,
         code_width,
         year,
         competencia,
         historical_labels(),
+        borrowed_labels_allowed(),
     )
     # Re-recorded on every call, including cached ones: the WORK is cacheable,
     # the decision is not — a caller that asked for 1995 and got today's labels
     # has to be told so whether or not another caller asked first.
     if note is not None:
         note_pack_fallback(note[0], note[1], note[2], windowed=note[3])
+    if borrowed:
+        note_borrowed(codelist.upper(), (system or "").upper())
     if missing is not None:
         raise FileNotFoundError(missing)
     return table
@@ -574,10 +579,11 @@ def _read_packed(
     year: int | None,
     competencia: int | None,
     policy: str,
-) -> tuple[Any, tuple[str, str, str, bool] | None, str | None]:
+    allow_borrowed: bool,
+) -> tuple[Any, tuple[str, str, str, bool] | None, str | None, bool]:
     """The decoding behind :func:`read_packed`.
 
-    Returns ``(table, note, missing)``. ``note`` is the vintage substitution to
+    Returns ``(table, note, missing, borrowed)``. ``note`` is the vintage substitution to
     record, kept OUT of here so a cache hit still reports it. ``missing`` is the
     message to raise, returned rather than raised so an absent table is cached
     like any other answer.
@@ -592,12 +598,17 @@ def _read_packed(
 
     data = _dataset()
     if data is None:
-        return None, None, "this build ships no label pack"
+        return None, None, "this build ships no label pack", False
     # Pushed into the Parquet scan, not filtered afterwards: row-group
     # statistics skip every group that cannot contain this codelist.
     hit = data.to_table(filter=pc.field("codelist") == codelist)
     if not hit.num_rows:
-        return None, None, f"no reference table {codelist!r} in the shipped label pack"
+        return (
+            None,
+            None,
+            f"no reference table {codelist!r} in the shipped label pack",
+            False,
+        )
     has_windows = "valid_from" in hit.schema.names
     runs = list(
         zip(
@@ -647,6 +658,17 @@ def _read_packed(
     wanted = system
     specific = [r for r in runs if r[0] and str(r[0]).upper() == wanted]
     shared = [r for r in runs if not r[0]]
+    borrowed = False
+    if wanted and not specific and not shared:
+        if not allow_borrowed:
+            return (
+                None,
+                note,
+                f"reference table {codelist!r} has no {wanted} mapping; "
+                "cross-system labels are disabled",
+                False,
+            )
+        borrowed = True
     chosen = (specific + shared) if specific else shared or runs
 
     codes: list[str] = []
@@ -669,6 +691,7 @@ def _read_packed(
             None,
             note,
             f"reference table {codelist!r} has no rows at width {code_width}",
+            borrowed,
         )
     return (
         pa.table(
@@ -680,6 +703,7 @@ def _read_packed(
         ),
         note,
         None,
+        borrowed,
     )
 
 

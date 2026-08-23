@@ -19,7 +19,6 @@ variable and what do its values mean", which DATASUS does not provide anywhere.
 from __future__ import annotations
 
 import json
-import os
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -930,6 +929,7 @@ def _read_generations(
         # Requested as OPTIONAL so a generation without the column is not an
         # error, and dropped again before the result is returned.
         optional.append("year")
+        optional.append("_competencia")
         try:
             table = cat.lake.read(
                 system=system,
@@ -965,6 +965,8 @@ def load(
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
+    historical_labels: str = "current",
+    allow_borrowed_labels: bool = False,
     on_missing_column: str = "raise",
     report: bool = False,
 ) -> pa.Table | tuple[pa.Table, RenderReport]:
@@ -1056,6 +1058,7 @@ def load(
         # row-level rather than a hint about the request.
         # The same operation fetch() uses. Two implementations of one rule is
         # how fetch() kept the cross-vintage bug this fixed in load().
+        from .persist.decisions import borrowed_label_policy, historical_label_policy
         from .render_groups import render_groups, split_by_year_column
 
         groups = [
@@ -1063,25 +1066,31 @@ def load(
             for family_id, table in tables
             for group in split_by_year_column(table, years, family_id)
         ]
-        rendered, render_report = render_groups(
-            groups,
-            store=store,
-            lake_root=cat.settings.lake_dir,
-            system=system,
-            profile=profile,
-            render=render,
-            headers=headers,
-            values=values,
-            companions=companions,
-            derived=derived,
-            strict=strict_labels,
-        )
+        with (
+            historical_label_policy(historical_labels),
+            borrowed_label_policy(allow_borrowed_labels),
+        ):
+            rendered, render_report = render_groups(
+                groups,
+                store=store,
+                lake_root=cat.settings.lake_dir,
+                system=system,
+                profile=profile,
+                render=render,
+                headers=headers,
+                values=values,
+                companions=companions,
+                derived=derived,
+                strict=strict_labels,
+            )
         if wanted is not None and "YEAR" not in {c.upper() for c in wanted} and (
             "year" in rendered.schema.names
         ):
             # Carried for the vintage split, not requested. Dropped so a
             # projection means what it says.
             rendered = rendered.drop_columns(["year"])
+        if "_competencia" in rendered.column_names:
+            rendered = rendered.drop_columns(["_competencia"])
         for note in axis_notes:
             render_report.warnings.append(note)
         if structurally_absent and render_report is not None:
@@ -1161,6 +1170,7 @@ def load_reference(
     root: str | Path | None = None,
     settings: Settings | None = None,
     competencia: int | None = None,
+    allow_borrowed_labels: bool = False,
 ) -> pa.Table:
     """Load a reference code table at the vintage that covers `year`.
 
@@ -1176,18 +1186,19 @@ def load_reference(
     own = catalog is None
     cat = catalog or Catalog(root=root, settings=settings)
     try:
-        return read_reference_table(
-            cat.settings.lake_dir,
-            table,
-            valid_from=valid_from,
-            year=year,
-            competencia=competencia,
-            code_width=code_width,
-            # SEXO.CNV means 1/3 in SIHSUS and 1/2 in SINASC. The low-level
-            # reader has always taken `system` for that reason; the public one
-            # did not, so the safe way to ask was the private way.
-            system=system,
-        )
+        from .persist.decisions import borrowed_label_policy
+
+        with borrowed_label_policy(allow_borrowed_labels):
+            return read_reference_table(
+                cat.settings.lake_dir,
+                table,
+                valid_from=valid_from,
+                year=year,
+                competencia=competencia,
+                code_width=code_width,
+                # SEXO.CNV means 1/3 in SIHSUS and 1/2 in SINASC.
+                system=system,
+            )
     finally:
         if own:
             cat.close()
@@ -1234,6 +1245,10 @@ class LakeScan:
     series: str | None = None
     families: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    #: When set, every yielded batch is conformed to this public schema.
+    #: Physical scanners may carry an anchor partition column solely to retain
+    #: row counts for a generation that lacks every requested data column.
+    output_schema: pa.Schema | None = None
 
     @property
     def schema(self) -> pa.Schema:
@@ -1246,10 +1261,14 @@ class LakeScan:
         request produced a file with every physical column, null-filled, and
         could fail on a type conflict in a column nobody asked for.
         """
+        if self.output_schema is not None:
+            return self.output_schema
         return self.scanners[0][1].projected_schema if self.scanners else pa.schema([])
 
     @property
     def schemas(self) -> dict[str, pa.Schema]:
+        if self.output_schema is not None:
+            return {fam: self.output_schema for fam, _sc in self.scanners}
         return {fam: sc.projected_schema for fam, sc in self.scanners}
 
     def count_rows(self) -> int:
@@ -1264,17 +1283,24 @@ class LakeScan:
     def iter_batches(self) -> Iterator[pa.RecordBatch]:
         """Yield batches across every generation, in family order."""
         for _fam, scanner in self.scanners:
-            yield from scanner.to_batches()
+            for batch in scanner.to_batches():
+                yield (
+                    _conform_batch(batch, self.output_schema)
+                    if self.output_schema is not None
+                    else batch
+                )
 
     def __iter__(self) -> Iterator[pa.RecordBatch]:
         return self.iter_batches()
 
     def to_table(self) -> pa.Table:
         """Materialise it after all. The escape hatch, named as one."""
-        parts = [sc.to_table() for _, sc in self.scanners]
-        parts = [p for p in parts if p.num_rows]
-        if not parts:
-            return pa.table({})
+        batches = list(self.iter_batches())
+        if not batches:
+            return pa.Table.from_batches([], schema=self.schema)
+        if self.output_schema is not None:
+            return pa.Table.from_batches(batches, schema=self.output_schema)
+        parts = [pa.Table.from_batches([batch]) for batch in batches]
         if len({tuple(p.schema.names) for p in parts}) == 1:
             return pa.concat_tables(parts)
         return pa.concat_tables(parts, promote_options="permissive")
@@ -1340,54 +1366,86 @@ def scan(
             raise FilterHasNoAxis(refusal)
 
         warnings_out: list[str] = list(axis_notes)
-        absent_by_family: dict[str, str] = {}
+        absent_by_family: dict[str, list[str]] = {}
         scanners: list[tuple[str, ds.Scanner]] = []
+        requested = list(dict.fromkeys(str(c) for c in columns)) if columns else None
+        requested_fields: dict[str, pa.Field] = {}
+        declared_requested: set[str] = set()
+        if requested:
+            signatures = [str(f["schema_signature"]) for f in families]
+            marks = ",".join("?" for _ in signatures)
+            if marks:
+                declared_requested = {
+                    str(row["field_name"])
+                    for row in store.query(
+                        f"SELECT DISTINCT field_name FROM schema_presence "
+                        f"WHERE schema_signature IN ({marks})",
+                        tuple(signatures),
+                    )
+                    if str(row["field_name"]) in requested
+                }
         for family in families:
+            family_name = str(family["family_id"])
+            try:
+                physical = cat.lake.dataset(system, family_name)
+            except FileNotFoundError:
+                continue
+
+            available = {field_.name: field_ for field_ in physical.schema}
+            projection = requested
+            if requested is None:
+                # Month competence is retained solely to choose reference
+                # vintages in load(); it is not a public data column.
+                projection = [
+                    name for name in physical.schema.names if name != "_competencia"
+                ]
+            if requested is not None:
+                missing = [name for name in requested if name not in available]
+                for name in requested:
+                    field_ = available.get(name)
+                    if field_ is None:
+                        continue
+                    prior = requested_fields.get(name)
+                    if prior is not None and prior.type != field_.type:
+                        raise ValueError(
+                            f"cannot scan {name!r} as one column: generations "
+                            f"declare it as {prior.type} and {field_.type}"
+                        )
+                    requested_fields.setdefault(name, field_)
+                if missing:
+                    if on_missing_column != "null_fill":
+                        from .normalize.engine import MissingColumnError
+
+                        raise MissingColumnError(
+                            missing[0],
+                            family_name,
+                            [
+                                str(f["family_id"])
+                                for f in families
+                                if f is not family
+                            ],
+                            also_absent=missing[1:],
+                        )
+                    absent_by_family[family_name] = missing
+                    # Read only requested fields that physically exist. Lake's
+                    # projection helper adds one partition anchor when this is
+                    # empty so rows survive to be conformed into all-null
+                    # requested batches.
+                    projection = [name for name in requested if name in available]
+
             try:
                 scanner = cat.lake.scanner(
                     system=system,
-                    family_id=str(family["family_id"]),
+                    family_id=family_name,
                     uf=uf,
                     years=list(years) if years else None,
-                    columns=list(columns) if columns else None,
-                    optional_columns=[
-                        f"{c}{suffix}"
-                        for c in (columns or [])
-                        for suffix in COMPANION_SUFFIXES
-                    ],
+                    columns=projection,
                     where=where,
                     batch_size=batch_size,
                 )
             except FileNotFoundError:
                 continue
-            except KeyError as exc:
-                # A generation that lacks a requested column. Dropping it is
-                # the CR-03 defect under a new API name: if another generation
-                # HAS the column, the scan succeeds and quietly returns only
-                # that one, so a longitudinal question silently begins wherever
-                # the column was added. Worse through export(stream=True),
-                # which never surfaced this warning list at all.
-                if on_missing_column == "null_fill":
-                    absent_by_family[str(family["family_id"])] = str(exc)
-                    scanner = cat.lake.scanner(
-                        system=system,
-                        family_id=str(family["family_id"]),
-                        uf=uf,
-                        years=list(years) if years else None,
-                        columns=None,  # read what it has; the rest is null-filled
-                        where=where,
-                        batch_size=batch_size,
-                    )
-                    scanners.append((str(family["family_id"]), scanner))
-                    continue
-                from .normalize.engine import MissingColumnError
-
-                raise MissingColumnError(
-                    str(columns[0]) if columns else "?",
-                    str(family["family_id"]),
-                    [str(f["family_id"]) for f in families if f is not family],
-                ) from exc
-            scanners.append((str(family["family_id"]), scanner))
+            scanners.append((family_name, scanner))
         if not scanners:
             from .retrieve import NothingPublished
 
@@ -1396,9 +1454,34 @@ def scan(
                 + (f"; {warnings_out[0]}" if warnings_out else "")
                 + "; run `pegasus-data build` first"
             )
-        for fam, why in sorted(absent_by_family.items()):
+        if requested is not None:
+            missing_everywhere = [name for name in requested if name not in requested_fields]
+            # A declared generation may have no built partition in this lake.
+            # It is still evidence that the requested field exists somewhere
+            # in the dataset, while every selected row can legitimately be a
+            # structural null.  With no physical Arrow type available the
+            # honest output type is `null`, not an invented string.
+            for name in list(missing_everywhere):
+                if name in declared_requested:
+                    requested_fields[name] = pa.field(name, pa.null())
+                    missing_everywhere.remove(name)
+            if missing_everywhere:
+                from .normalize.engine import MissingColumnError
+
+                raise MissingColumnError(
+                    missing_everywhere[0],
+                    "; ".join(fam for fam, _scanner in scanners),
+                    [],
+                    also_absent=missing_everywhere[1:],
+                )
+            output_schema = pa.schema([requested_fields[name] for name in requested])
+        else:
+            output_schema = None
+
+        for fam, missing in sorted(absent_by_family.items()):
             warnings_out.append(
-                f"{fam}: {why} — those rows are null here STRUCTURALLY, the "
+                f"{fam}: {', '.join(missing)} absent — those rows are null here "
+                "STRUCTURALLY, the "
                 "field does not exist in that generation"
             )
         return LakeScan(
@@ -1407,6 +1490,7 @@ def scan(
             series=series,
             families=[fam for fam, _ in scanners],
             warnings=warnings_out,
+            output_schema=output_schema,
         )
     finally:
         if own:
@@ -1483,6 +1567,8 @@ def export(
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
+    historical_labels: str = "current",
+    allow_borrowed_labels: bool = False,
     stream: bool = False,
     on_missing_column: str = "raise",
 ) -> Path:
@@ -1618,6 +1704,8 @@ def export(
         companions=companions,
         derived=derived,
         strict_labels=strict_labels,
+        historical_labels=historical_labels,
+        allow_borrowed_labels=allow_borrowed_labels,
     )
     assert isinstance(table, pa.Table)
     return write_table(table, path, fmt)
@@ -1668,6 +1756,20 @@ def _conform(table: pa.Table, schema: pa.Schema) -> pa.Table:
     return pa.Table.from_arrays(arrays, schema=schema)
 
 
+def _conform_batch(batch: pa.RecordBatch, schema: pa.Schema) -> pa.RecordBatch:
+    """Give one lazy batch exactly ``schema``, including structural nulls."""
+    if batch.schema == schema:
+        return batch
+    arrays = []
+    available = set(batch.schema.names)
+    for field_ in schema:
+        if field_.name in available:
+            arrays.append(batch.column(field_.name))
+        else:
+            arrays.append(pa.nulls(batch.num_rows, type=field_.type))
+    return pa.RecordBatch.from_arrays(arrays, schema=schema)
+
+
 def _write_streaming(scan_result: LakeScan, path: str | Path, fmt: str) -> Path:
     """Write a scan batch by batch. Never holds more than one batch.
 
@@ -1681,8 +1783,6 @@ def _write_streaming(scan_result: LakeScan, path: str | Path, fmt: str) -> Path:
     target = Path(path)
     if target.parent != Path():
         target.parent.mkdir(parents=True, exist_ok=True)
-    staged = target.with_name(target.name + ".part")
-
     # Decided BEFORE the first batch: a file has one header, and the writer
     # cannot be created from whichever generation happened to come first.
     # _flatten_lists can change a column's type (a list becomes a joined
@@ -1696,7 +1796,10 @@ def _write_streaming(scan_result: LakeScan, path: str | Path, fmt: str) -> Path:
     )
 
     writer = None
-    try:
+    # The same unique, target-directory staging primitive as eager exports and
+    # lake parts.  `<target>.part` let simultaneous exports overwrite one
+    # another's work and made the first finisher publish the second's bytes.
+    with staged_file(target, require_nonempty=False) as staged:
         # The writer must be closed INSIDE this block: both Arrow writers finish
         # their output on close (parquet writes its footer), and closing after
         # the handle is gone raises "write to closed file" and leaves a file
@@ -1721,14 +1824,13 @@ def _write_streaming(scan_result: LakeScan, path: str | Path, fmt: str) -> Path:
                 writer.write_table(flat)
             if writer is not None:
                 writer.close()
-    except BaseException:
-        staged.unlink(missing_ok=True)
-        raise
-    if writer is None:
-        # No rows at all. Write the header so the file is still readable.
-        staged.unlink(missing_ok=True)
-        return write_table(pa.table({}), target, fmt)
-    os.replace(staged, target)
+        if writer is None:
+            # No rows at all. Write an empty but readable artifact at the
+            # staged path; the context publishes it atomically on exit.
+            if fmt == "parquet":
+                pq.write_table(pa.Table.from_batches([], schema=schema), staged)
+            else:
+                pacsv.write_csv(pa.Table.from_batches([], schema=schema), staged)
     return target
 
 

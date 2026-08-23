@@ -26,6 +26,7 @@ from pegasus_data.catalog.store import (
     _declared_columns,
     _declared_constraints,
     _missing_columns,
+    _structural_mismatches,
 )
 
 
@@ -55,6 +56,10 @@ class TestTheParserReadsTableLevelConstraints:
             "  UNIQUE (a, b)\n);"
         )
         assert _declared_constraints(schema)["t"]["unique"] == [["a", "b"]]
+
+    def test_an_inline_unique_constraint_is_read(self):
+        schema = "CREATE TABLE IF NOT EXISTS t (\n  a TEXT UNIQUE,\n  b TEXT\n);"
+        assert _declared_constraints(schema)["t"]["unique"] == [["a"]]
 
     def test_a_foreign_key_is_read_without_swallowing_the_reference(self):
         """`FOREIGN KEY (path) REFERENCES files (path)` has two groups, and
@@ -123,6 +128,30 @@ class TestConstrainedColumnsAreNotQuietlyWeakened:
     def test_a_primary_key_column_is_not_added(self, db):
         schema = "CREATE TABLE IF NOT EXISTS t (\n  a TEXT,\n  b TEXT PRIMARY KEY\n);"
         assert [m[1] for m in _missing_columns(db, schema)] == []
+
+
+class TestConstraintComparisonIsSymmetric:
+    @pytest.fixture
+    def db(self, tmp_path):
+        conn = sqlite3.connect(tmp_path / "extra.sqlite")
+        yield conn
+        conn.close()
+
+    def test_an_extra_installed_primary_key_is_a_mismatch(self, db):
+        db.execute("CREATE TABLE t (a TEXT PRIMARY KEY, b TEXT)")
+        schema = "CREATE TABLE IF NOT EXISTS t (\n  a TEXT,\n  b TEXT\n);"
+        assert any("primary key" in p for p in _structural_mismatches(db, schema))
+
+    def test_an_extra_installed_unique_is_a_mismatch(self, db):
+        db.execute("CREATE TABLE t (a TEXT UNIQUE, b TEXT)")
+        schema = "CREATE TABLE IF NOT EXISTS t (\n  a TEXT,\n  b TEXT\n);"
+        assert any("UNIQUE" in p for p in _structural_mismatches(db, schema))
+
+    def test_an_extra_installed_foreign_key_is_a_mismatch(self, db):
+        db.execute("CREATE TABLE parent (id TEXT PRIMARY KEY)")
+        db.execute("CREATE TABLE t (a TEXT REFERENCES parent(id), b TEXT)")
+        schema = "CREATE TABLE IF NOT EXISTS t (\n  a TEXT,\n  b TEXT\n);"
+        assert any("foreign keys" in p for p in _structural_mismatches(db, schema))
 
 
 class TestTheVersionRow:

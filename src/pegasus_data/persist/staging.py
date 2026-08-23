@@ -53,9 +53,13 @@ def staged_file(target: Path, *, require_nonempty: bool = True) -> Iterator[Path
     """
     target = Path(target)
     target.parent.mkdir(parents=True, exist_ok=True)
-    staged = target.parent / f".{target.name}.staging"
-    if staged.exists():
-        staged.unlink()
+    token = f"{os.getpid()}-{uuid.uuid4().hex[:10]}"
+    staged = target.parent / f".{target.name}.__staging__.{token}"
+    # Reclaim the deterministic name used by older releases.  Current writers
+    # never share a path, so an in-flight writer cannot be mistaken for stale.
+    legacy = target.parent / f".{target.name}.staging"
+    if legacy.exists():
+        legacy.unlink()
     try:
         yield staged
         if require_nonempty and (not staged.exists() or staged.stat().st_size == 0):
@@ -174,9 +178,12 @@ def staged_tree(
                 if destination.exists():
                     backup = destination.with_name(f"{destination.name}.__old__.{token}")
                     destination.rename(backup)
+                # Record the move BEFORE installing the replacement.  If the
+                # install rename fails, the old subtree is already absent from
+                # its canonical path and must be restored by rollback.
+                moved.append((destination, backup))
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 unit.rename(destination)
-                moved.append((destination, backup))
         except BaseException:
             for destination, backup in reversed(moved):
                 if destination.exists():

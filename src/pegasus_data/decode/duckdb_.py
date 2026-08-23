@@ -86,14 +86,26 @@ def list_tables(path: str | Path) -> list[tuple[str, str]]:
 
 
 def read_duckdb(
-    path: str | Path, *, row_limit: int | None = None, batch_rows: int = 65_536
+    path: str | Path,
+    *,
+    row_limit: int | None = None,
+    batch_rows: int = 65_536,
+    columns: frozenset[str] | None = None,
+    members: frozenset[str] | None = None,
 ) -> list[DecodedTable]:
-    """One DecodedTable per table in the database."""
+    """One :class:`DecodedTable` per selected database table.
+
+    ``fields`` continues to describe the complete physical table so schema
+    matching is stable, while the lazy query materialises only ``columns``.
+    """
     import duckdb
 
     tables = list_tables(path)
     out: list[DecodedTable] = []
     for schema_name, table_name in tables:
+        member = f"{schema_name}.{table_name}" if schema_name != "main" else table_name
+        if members is not None and member not in members:
+            continue
         qualified = f'"{schema_name}"."{table_name}"'
         conn = duckdb.connect(str(path), read_only=True)
         try:
@@ -105,17 +117,28 @@ def read_duckdb(
             FieldMeta(name=str(r[0]).upper(), physical_type=f"duckdb:{r[1]}", order=i)
             for i, r in enumerate(described)
         ]
-        member = f"{schema_name}.{table_name}" if schema_name != "main" else table_name
+        physical_names = [str(row[0]) for row in described]
+        selected_names = [
+            name for name in physical_names if columns is None or name.upper() in columns
+        ]
+        # Match the DBF projection contract: if nothing matches, read the full
+        # table so a misspelled projection cannot masquerade as an empty source.
+        if not selected_names:
+            selected_names = physical_names
+        select_list = ", ".join(f'"{name.replace(chr(34), chr(34) * 2)}"' for name in selected_names)
+        output_names = [name.upper() for name in selected_names]
 
         # `fields` and `qualified` are bound as defaults: without that, every
         # generator built in this loop would close over the *last* table's names
         # and silently mislabel columns when finally iterated.
         def _make_iter(
-            q: str = qualified, names: list[str] = [f.name for f in fields]
+            q: str = qualified,
+            selection: str = select_list,
+            names: list[str] = output_names,
         ) -> Iterator[pa.RecordBatch]:
             conn2 = duckdb.connect(str(path), read_only=True)
             try:
-                sql = f"SELECT * FROM {q}"
+                sql = f"SELECT {selection} FROM {q}"
                 if row_limit is not None:
                     sql += f" LIMIT {int(row_limit)}"
                 reader = conn2.execute(sql).fetch_record_batch(batch_rows)
@@ -141,6 +164,6 @@ def read_duckdb(
                 container="duckdb",
             )
         )
-    if not out:
+    if not out and members is None:
         raise DecodeError(f"duckdb database holds no tables: {path}")
     return out

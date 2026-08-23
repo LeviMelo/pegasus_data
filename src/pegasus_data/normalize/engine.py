@@ -121,9 +121,12 @@ def plan_fingerprint(plan: NormalizePlan) -> str:
     h.update(f"\0{plan.family_id}\0{plan.system}\0{plan.schema_signature}\0".encode())
     h.update(f"keep_raw={plan.keep_raw}\0emit_labels={plan.emit_labels}\0".encode())
     muni = plan.municipalities
-    # The municipality index is derived from the dictionary; its size moves when
-    # that evidence changes, which is exactly when re-normalising is warranted.
-    h.update(f"municipalities={muni.size if muni is not None else 0}\0".encode())
+    # Content, not cardinality: correcting one municipality mapping commonly
+    # leaves the entry count unchanged while changing every rebuilt value for
+    # that code.
+    h.update(
+        f"municipalities={muni.fingerprint if muni is not None else 'none'}\0".encode()
+    )
     for name in sorted(plan.fields):
         fp = plan.fields[name]
         h.update(name.encode())

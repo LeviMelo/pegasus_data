@@ -67,6 +67,17 @@ class TestLooseDatabasesDecodeFromTheirPath:
             "the database was slurped into memory rather than opened in place"
         )
 
+    def test_member_and_column_selection_reach_duckdb(self, database):
+        outcome = ReaderRegistry().open_path(
+            database,
+            logical_path="/x/sample.duck",
+            members=frozenset({"aih"}),
+            columns=frozenset({"ID"}),
+        )
+        assert [table.member for table in outcome.tables] == ["aih"]
+        batches = list(outcome.tables[0].batches())
+        assert batches and batches[0].schema.names == ["ID"]
+
 
 class TestStagedDatabasesKeepTheirFile:
     """A .duck inside an archive has no blob path of its own, so it is staged —

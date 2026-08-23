@@ -302,3 +302,36 @@ recorded rather than the conclusion asserted:
 State at closure: **837 tests passing**, ruff clean across `src/`, `tests/` and
 `scripts/`, mypy at 98 findings (from 197) recorded as a ratchet in
 `CONTRIBUTING.md`.
+
+---
+
+## Second external review closure — 2026-08-23
+
+`REVIEW.md` found a newer set of release blockers and durability/semantic
+hazards. They were reproduced in the project environment and closed as follows:
+
+| finding | resolution |
+|---|---|
+| projected fetch lost source context | hidden provenance survives projection until per-source rendering |
+| logical source identities disagreed | one canonical `path!member` identity on local and isolated paths |
+| lazy null-fill read whole schemas | each batch is projected and conformed to the exact requested schema |
+| shipped label pack had no windows | rebuilt from the recovered full catalog: 3,654,320 versioned runs |
+| isolated workers survived bad replies | any failed/incomplete protocol reply retires the worker process |
+| parent IPC accumulated every batch | framed Arrow batches spool to disk and remain re-iterable |
+| archive/DuckDB selection was late | member and column projection now reaches the physical reader |
+| duplicate concurrent physical decode | digest-keyed `Future` provides single-flight decoding |
+| profile/build used divergent decoders | fetch, profile, build and derived ingestion share `decode.service` |
+| deterministic staging collided | every file/tree transaction has a unique target-local staging name |
+| partition replacement exposed stale siblings | the complete partition directory is staged and swapped as one unit |
+| schema constraints compared one way | primary, UNIQUE and foreign-key sets are compared symmetrically |
+| weak municipality invalidation | the plan hashes the full municipality mapping, not its row count |
+| direct population/DEMAS writes | both publish complete staged trees; failed refreshes do not publish partial output |
+| ZIP-only resource quotas | ZIP, LHA, TAR, gzip, RAR and 7z share member/size/ratio ceilings |
+| worker diagnostics looked like missing data | diagnostics and concrete failed requested paths are separate ledgers |
+| cross-system labels were optimistic | borrowing is off by default and requires `allow_borrowed_labels=True` |
+| lake lost month vintage | internal `_competencia` survives build and drives month-exact rendering |
+| ranking cap chose truth | uncurated candidate sets above the cap are refused, never truncated into a choice |
+
+This closes software defects, not the substantive uncertainty deliberately kept
+in the semantic ledger. Inferred descriptions, genuinely sourceless fields and
+Ministry-only denominator questions remain evidence work rather than bugs.

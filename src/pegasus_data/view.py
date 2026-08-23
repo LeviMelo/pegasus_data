@@ -782,6 +782,18 @@ def _select_codelists(
                 report.rollup_used.append(name)
         return _Selection(codelists=candidates)
 
+    if len(candidates) > _MAX_CANDIDATES:
+        message = (
+            f"{name}: {len(candidates)} codelists are bound without an explicit "
+            "semantic declaration. Refused to choose from an arbitrarily capped "
+            f"subset of {_MAX_CANDIDATES}; curate this field before labelling it."
+        )
+        if strict:
+            raise LabelUnavailable(message)
+        report.warnings.append(message)
+        report.unlabelled.append(name)
+        return _Selection(unlabelled=True)
+
     # Several tables claim this column and nothing declared which is right. Ask
     # the data.
     width_hint = None

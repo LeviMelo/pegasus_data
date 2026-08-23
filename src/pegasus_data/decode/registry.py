@@ -126,6 +126,8 @@ class ReaderRegistry:
         #: signature set by the reader ladder, so the request reaches them
         #: here rather than through an argument.
         self._columns: frozenset[str] | None = None
+        self._members: frozenset[str] | None = None
+        self._member_prefixes: dict[int, str] = {}
 
     # ------------------------------------------------------------------ entry
 
@@ -136,11 +138,14 @@ class ReaderRegistry:
         path: str,
         depth: int = 0,
         columns: frozenset[str] | None = None,
+        members: frozenset[str] | None = None,
     ) -> DecodeOutcome:
         outcome = DecodeOutcome(path=path, container=detect_container(data))
         if depth == 0:
             self._failed_members = []
             self._columns = columns
+            self._members = members
+            self._member_prefixes = {0: ""}
         if not data:
             outcome.attempts.append(DecodeAttempt("<empty>", False, "zero-length payload"))
             return outcome
@@ -198,6 +203,7 @@ class ReaderRegistry:
         *,
         logical_path: str | None = None,
         columns: frozenset[str] | None = None,
+        members: frozenset[str] | None = None,
     ) -> DecodeOutcome:
         """Decode a file. For DBC and DBF this never reads it into memory.
 
@@ -228,7 +234,12 @@ class ReaderRegistry:
                     # temporary file — which is what the bytes ladder does — is
                     # not a viable way to open a database, and the blob IS
                     # already a file.
-                    tables = read_duckdb(p, row_limit=self.row_limit)
+                    tables = read_duckdb(
+                        p,
+                        row_limit=self.row_limit,
+                        columns=columns,
+                        members=members,
+                    )
                     for produced in tables:
                         produced.path = logical
                     outcome.attempts.append(DecodeAttempt("duckdb", True))
@@ -249,7 +260,9 @@ class ReaderRegistry:
                 outcome.attempts.append(DecodeAttempt(ladder[0], True))
                 outcome.tables.append(table)
                 return outcome
-        return self.open_bytes(p.read_bytes(), path=logical, columns=columns)
+        return self.open_bytes(
+            p.read_bytes(), path=logical, columns=columns, members=members
+        )
 
     # --------------------------------------------------------------- handlers
 
@@ -316,7 +329,12 @@ class ReaderRegistry:
         try:
             staged = Path(staging.name) / "db.duck"
             staged.write_bytes(data)
-            tables = read_duckdb(staged, row_limit=self.row_limit)
+            tables = read_duckdb(
+                staged,
+                row_limit=self.row_limit,
+                columns=self._columns,
+                members=self._members_below(depth),
+            )
             for t in tables:
                 t.path = path
                 # The directory must OUTLIVE this call. read_duckdb returns
@@ -357,7 +375,14 @@ class ReaderRegistry:
             direct = list(archive.members())
             discovered: list[ArchiveMember] = []
             tables: list[DecodedTable] = []
+            prefix = self._member_prefixes.get(depth, "")
             for member in direct:
+                full_member = f"{prefix}{member.name}"
+                if self._members is not None and not any(
+                    wanted == full_member or wanted.startswith(f"{full_member}!")
+                    for wanted in self._members
+                ):
+                    continue
                 if member.role in NON_TABULAR_ROLES:
                     continue
                 try:
@@ -376,6 +401,7 @@ class ReaderRegistry:
                         (f"{path}!{member.name}", "member is empty")
                     )
                     continue
+                self._member_prefixes[depth + 1] = f"{full_member}!"
                 inner = self.open_bytes(payload, path=member.name, depth=depth + 1)
                 for table in inner.tables:
                     table.path = path
@@ -389,6 +415,17 @@ class ReaderRegistry:
                     for m in inner.members
                 )
             return (tables, direct + discovered)
+
+    def _members_below(self, depth: int) -> frozenset[str] | None:
+        """Return selected member names relative to a nested container."""
+        if self._members is None:
+            return None
+        prefix = self._member_prefixes.get(depth, "")
+        return frozenset(
+            wanted[len(prefix) :]
+            for wanted in self._members
+            if wanted.startswith(prefix) and wanted[len(prefix) :]
+        )
 
 
 class _staged:

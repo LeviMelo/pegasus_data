@@ -35,6 +35,10 @@ from typing import BinaryIO
 _LEN = struct.Struct(">I")
 
 
+class _ReplyAborted(RuntimeError):
+    """A success reply started and then failed; the worker must exit."""
+
+
 def write_frame(stream: BinaryIO, payload: bytes) -> None:
     stream.write(_LEN.pack(len(payload)))
     if payload:
@@ -77,11 +81,13 @@ def _run_job(job: dict[str, object], out: BinaryIO) -> None:
     from .registry import ReaderRegistry
 
     columns = job.get("columns")
+    members = job.get("members")
     registry = ReaderRegistry(row_limit=job.get("row_limit"))
     outcome = registry.open_path(
         str(job["blob_path"]),
         logical_path=str(job.get("logical_path") or job["blob_path"]),
         columns=frozenset(columns) if columns else None,
+        members=frozenset(members) if members else None,
     )
 
     header = {
@@ -110,16 +116,22 @@ def _run_job(job: dict[str, object], out: BinaryIO) -> None:
     }
     write_frame(out, json.dumps(header).encode("utf-8"))
 
-    for table in outcome.tables:
-        for batch in table.batches():
-            if not batch.num_rows:
-                continue
-            sink = pa.BufferOutputStream()
-            with pa.ipc.new_stream(sink, batch.schema) as writer:
-                writer.write_batch(batch)
-            write_frame(out, sink.getvalue().to_pybytes())
-        write_frame(out, b"")  # end of this table's batches
-    write_frame(out, b"")  # end of reply
+    try:
+        for table in outcome.tables:
+            for batch in table.batches():
+                if not batch.num_rows:
+                    continue
+                sink = pa.BufferOutputStream()
+                with pa.ipc.new_stream(sink, batch.schema) as writer:
+                    writer.write_batch(batch)
+                write_frame(out, sink.getvalue().to_pybytes())
+            write_frame(out, b"")  # end of this table's batches
+        write_frame(out, b"")  # end of reply
+    except BaseException as exc:  # noqa: BLE001 - the process is disposable
+        # Never inject an error JSON frame into a stream the parent is parsing
+        # as Arrow IPC.  EOF makes the incomplete reply unambiguous, and the
+        # parent replaces this worker before another job can use it.
+        raise _ReplyAborted from exc
 
 
 def main() -> int:
@@ -139,6 +151,8 @@ def main() -> int:
             continue
         try:
             _run_job(job, stdout)
+        except _ReplyAborted:
+            return 1
         except BaseException as exc:  # noqa: BLE001 - reported, not raised across the pipe
             write_frame(
                 stdout,

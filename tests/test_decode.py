@@ -151,6 +151,16 @@ class TestRegistry:
         outcome = ReaderRegistry().open_bytes(buf.getvalue(), path="/x/kit.zip")
         assert {t.member for t in outcome.tables} == {"A.DBF", "B.DBF"}
 
+    def test_archive_reads_only_selected_data_members(self, sample_dbf: bytes):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            z.writestr("A.DBF", sample_dbf)
+            z.writestr("B.DBF", make_dbf([("Z", "C", 2, 0)], [["zz"]]))
+        outcome = ReaderRegistry().open_bytes(
+            buf.getvalue(), path="/x/kit.zip", members=frozenset({"B.DBF"})
+        )
+        assert [table.member for table in outcome.tables] == ["B.DBF"]
+
     def test_undecodable_payload_records_every_attempt(self):
         outcome = ReaderRegistry().open_bytes(b"\x00\x01\x02\x03", path="/x/thing.dbc")
         assert not outcome.decoded

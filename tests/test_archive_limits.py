@@ -8,7 +8,9 @@ too late: a member path that escapes has already been written by then.
 
 from __future__ import annotations
 
+import gzip
 import io
+import tarfile
 import zipfile
 
 import pytest
@@ -59,6 +61,43 @@ class TestQuotas:
             _zip({"big.dbf": bytes(range(256)) * 4000}), path="/x/real.zip"
         )
         assert archive.members()
+
+    def test_gzip_is_bounded_before_and_during_inflation(self, monkeypatch):
+        import pegasus_data.decode.archives as archives
+
+        monkeypatch.setattr(archives, "MAX_EXPANSION_RATIO", 2.0)
+        payload = gzip.compress(b"x" * 10_000)
+        with pytest.raises(ArchiveQuotaExceeded, match="expands"):
+            Archive(payload, path="/x/bomb.dbf.gz")
+
+    def test_tar_member_count_uses_the_same_quota(self, monkeypatch):
+        import pegasus_data.decode.archives as archives
+
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode="w") as tf:
+            for name in ("a.dbf", "b.dbf"):
+                info = tarfile.TarInfo(name)
+                info.size = 1
+                tf.addfile(info, io.BytesIO(b"x"))
+        monkeypatch.setattr(archives, "MAX_MEMBERS", 1)
+        with pytest.raises(ArchiveQuotaExceeded, match="members exceeds"):
+            Archive(buffer.getvalue(), path="/x/many.tar")
+
+    def test_lha_declared_sizes_use_the_same_quota(self, monkeypatch):
+        import pegasus_data.decode.archives as archives
+
+        payload = b"x" * 100
+        name = b"TEST.DBF"
+        header = bytearray([0, 0])
+        header += b"-lh0-"
+        header += len(payload).to_bytes(4, "little") * 2
+        header += (0).to_bytes(4, "little")
+        header += bytes([0x20, 0x00, len(name)]) + name + (0).to_bytes(2, "little")
+        header[0] = len(header) - 2
+        sfx = b"MZ" + b"\0" * 200 + b"LHA's SFX 2.13S" + bytes(header) + payload + b"\0"
+        monkeypatch.setattr(archives, "MAX_UNCOMPRESSED_BYTES", 10)
+        with pytest.raises(ArchiveQuotaExceeded, match="uncompressed"):
+            Archive(sfx, path="/x/big.exe")
 
 
 class TestContainmentIsCheckedBeforeExtraction:

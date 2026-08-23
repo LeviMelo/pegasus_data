@@ -22,6 +22,18 @@ from typing import Any
 import pyarrow as pa
 
 
+def logical_source_id(path: str, member: str | None = None) -> str:
+    """Return the one canonical identity for a logical table source.
+
+    A physical archive can contain several datasets.  The archive path alone
+    therefore is not provenance, while letting each decode path invent its own
+    separator makes otherwise identical provenance impossible to join.  Empty
+    members deliberately collapse to the physical path for ordinary files.
+    """
+    clean_member = str(member or "")
+    return f"{path}!{clean_member}" if clean_member else str(path)
+
+
 @dataclass(slots=True)
 class FieldMeta:
     """What the container itself declares about a column."""
@@ -73,7 +85,7 @@ class DecodedTable:
 
     @property
     def source_id(self) -> str:
-        return f"{self.path}!{self.member}" if self.member else self.path
+        return logical_source_id(self.path, self.member)
 
     def schema(self) -> pa.Schema:
         for batch in self.batches():

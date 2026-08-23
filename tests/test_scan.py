@@ -231,6 +231,53 @@ class TestStreamingAcrossGenerations:
         )
         assert sorted(written.column("ID").to_pylist()) == ["1", "2", "3"]
 
+    def test_public_null_fill_yields_one_exact_requested_schema_per_batch(
+        self, built_lake
+    ):
+        """Lazy batches, not only a materialised union, are the API contract."""
+        from pegasus_data.persist.lake import Lake
+
+        settings, catalog, _new_family = built_lake
+        old = catalog.query(
+            "SELECT family_id, schema_signature FROM families "
+            "WHERE system='SIHSUS' AND series='RD' ORDER BY time_min"
+        )[0]
+        old_table = pa.table(
+            {
+                "MUNIC_RES": ["270430", "271070"],
+                "SEXO": ["1", "2"],
+                "DIAG_SECUN": ["0000", "0000"],
+                "VAL_TOT": [1.0, 2.0],
+            }
+        )
+        Lake(settings.lake_dir, catalog).write_batches(
+            old_table.to_batches(),
+            system="SIHSUS",
+            family_id=str(old["family_id"]),
+            schema_signature=str(old["schema_signature"]),
+            uf="AL",
+            year=2010,
+        )
+
+        lazy = scan(
+            "SIHSUS",
+            "RD",
+            columns=["SEXO", "DIAGSEC1"],
+            on_missing_column="null_fill",
+            root=settings.root,
+            settings=settings,
+        )
+        batches = list(lazy.iter_batches())
+        assert batches
+        assert all(batch.schema.names == ["SEXO", "DIAGSEC1"] for batch in batches)
+        assert all(batch.schema == lazy.schema for batch in batches)
+        combined = pa.Table.from_batches(batches, schema=lazy.schema)
+        assert combined.num_rows == 5
+        assert combined.column("DIAGSEC1").null_count >= 2
+        assert set(combined.schema.names) == {"SEXO", "DIAGSEC1"}, (
+            "an absent requested field must not make unrequested physical columns reappear"
+        )
+
     def test_the_writer_is_not_built_from_whichever_batch_arrives_first(
         self, tmp_path
     ):

@@ -404,17 +404,40 @@ class TestSystemScoping:
     def test_a_borrowed_table_is_used_when_the_system_ships_none(
         self, settings, catalog: Catalog
     ):
-        """A gap is worse than a neighbour's table; the guard still applies."""
+        """Borrowing remains available, but only through an explicit policy."""
+        from pegasus_data.persist.decisions import borrowed_label_policy
+
+        self._two_systems(settings, catalog)
+        catalog.execute(
+            "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
+            "VALUES ('CIHA','SEXO','internal','SEXO','manual')"
+        )
+        with borrowed_label_policy(True):
+            out, report = render_table(
+                pa.table({"SEXO": pa.array(["3"])}),
+                store=catalog,
+                lake_root=settings.lake_dir,
+                system="CIHA",
+            )
+        assert out.num_rows == 1
+        assert "SEXO" in report.borrowed
+
+    def test_a_foreign_system_table_is_refused_by_default(
+        self, settings, catalog: Catalog
+    ):
         self._two_systems(settings, catalog)
         catalog.execute(
             "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
             "VALUES ('CIHA','SEXO','internal','SEXO','manual')"
         )
         out, report = render_table(
-            pa.table({"SEXO": pa.array(["3"])}),
-            store=catalog, lake_root=settings.lake_dir, system="CIHA",
+            pa.table({"SEXO": pa.array(["3", "1"])}),
+            store=catalog,
+            lake_root=settings.lake_dir,
+            system="CIHA",
         )
-        assert out.num_rows == 1
+        assert out.column("SEXO").to_pylist() == ["3", "1"]
+        assert "SEXO" in report.unlabelled
 
 
 class TestBindingChoiceIsDeterministic:
@@ -435,6 +458,24 @@ class TestBindingChoiceIsDeterministic:
                 "source, source_ref, confidence) VALUES ('CNES','','NAT_JUR',?,'def','d',0.9)",
                 (codelist,),
             )
+
+    def test_more_candidates_than_can_be_weighed_are_refused_not_truncated(self):
+        import pegasus_data.view as view
+
+        loaded = []
+        report = view.RenderReport()
+        selection = view._select_codelists(
+            "AMBIGUOUS",
+            pa.chunked_array([["1", "2"]]),
+            doc=None,
+            candidates=[f"C{i}" for i in range(view._MAX_CANDIDATES + 1)],
+            report=report,
+            strict=False,
+            lookup_one=lambda name, _width: loaded.append(name) or {"1": "x"},
+        )
+        assert selection.unlabelled
+        assert loaded == [], "an arbitrary first subset became an epistemic choice"
+        assert any("curate" in warning for warning in report.warnings)
 
     def test_the_same_catalog_always_yields_the_same_binding(self, catalog: Catalog):
         from pegasus_data.view import _bindings

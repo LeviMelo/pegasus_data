@@ -175,6 +175,37 @@ class TestDiscovery:
 
 
 class TestRendering:
+    def test_projected_multi_vintage_fetch_keeps_hidden_source_provenance(
+        self, settings, seeded, monkeypatch
+    ):
+        """Projection must happen after the renderer has recovered each row's era."""
+        import pegasus_data.render_groups as grouping
+        from pegasus_data.view import RenderReport
+
+        seen = []
+
+        def record(groups, **_kwargs):
+            parts = list(groups)
+            seen.extend((family, year, competence) for _t, family, year, competence in parts)
+            tables = [table for table, _family, _year, _competence in parts]
+            return pa.concat_tables(tables), RenderReport()
+
+        monkeypatch.setattr(grouping, "render_groups", record)
+        table = fetch(
+            "SIH-RD",
+            years=[2023, 2024],
+            columns=["SEXO"],
+            labels=False,
+            settings=settings,
+        )
+
+        assert table.column_names == ["SEXO"]
+        assert seen == [
+            ("F1", 2023, 202301),
+            ("F1", 2023, 202302),
+            ("F1", 2024, 202401),
+        ]
+
     def test_labels_are_joined_through_the_shared_render_path(self, settings, seeded):
         """Uses DIAG_PRINC, not SEXO.
 
@@ -353,9 +384,95 @@ class TestTheReportIsSerialisable:
         assert payload["system"] == "SIHSUS" and payload["rows"] == 4
 
 
+class TestAcquisitionDiagnosticsAreNotSourceFailures:
+    def test_a_lost_redundant_worker_does_not_make_a_complete_fetch_partial(self):
+        from types import SimpleNamespace
+
+        from pegasus_data.retrieve import FetchReport, _acquire
+
+        stats = SimpleNamespace(
+            bytes_fetched=10,
+            bytes_from_cache=0,
+            skipped=0,
+            fetched=1,
+            errors=[],
+            diagnostics=[("<connect>", "one redundant worker could not connect")],
+        )
+        fetcher = SimpleNamespace(
+            ensure=lambda paths: {paths[0]: "digest"}, last_stats=stats
+        )
+        report = FetchReport()
+        digests = _acquire(
+            SimpleNamespace(fetcher=fetcher),
+            [("F1", SimpleNamespace(), {"path": "/x/a.dbc"})],
+            report=report,
+            on_progress=None,
+        )
+        assert digests == {"/x/a.dbc": "digest"}
+        assert report.acquisition_failures == []
+        assert report.is_complete
+        assert any("diagnostic" in warning for warning in report.warnings)
+
+
 class TestArrowOutput:
     def test_the_result_is_an_arrow_table(self, settings, seeded):
         assert isinstance(fetch("SIH-RD", settings=settings), pa.Table)
+
+
+class TestPhysicalDecodeIsSingleFlight:
+    def test_concurrent_archive_members_share_the_in_flight_decode(self, monkeypatch):
+        import threading
+        import time
+        from concurrent.futures import ThreadPoolExecutor
+        from types import SimpleNamespace
+
+        import pegasus_data.retrieve as retrieve
+        from pegasus_data.decode.registry import ReaderRegistry
+
+        opened = 0
+        opened_lock = threading.Lock()
+        outcome = SimpleNamespace(
+            tables=[
+                SimpleNamespace(member="A.DBF", field_names=["X"]),
+                SimpleNamespace(member="B.DBF", field_names=["X"]),
+            ]
+        )
+
+        def open_once(*_args, **_kwargs):
+            nonlocal opened
+            with opened_lock:
+                opened += 1
+            time.sleep(0.1)  # let the other member observe the pending Future
+            return outcome, 123
+
+        monkeypatch.setattr(retrieve, "_open_decoded_source", open_once)
+        monkeypatch.setattr(retrieve, "_fits", lambda *_args: True)
+        monkeypatch.setattr(
+            retrieve,
+            "normalize_table",
+            lambda *_args, **_kwargs: [pa.record_batch({"X": ["ok"]})],
+        )
+        cache = {}
+        cache_lock = threading.Lock()
+
+        def read(member):
+            return retrieve._decode_one(
+                SimpleNamespace(),
+                ReaderRegistry(),
+                SimpleNamespace(),
+                path="/x/archive.zip",
+                digest="abc",
+                member=member,
+                decoded_cache=cache,
+                cache_lock=cache_lock,
+                decode_members=frozenset({"A.DBF", "B.DBF"}),
+            )
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(read, ["A.DBF", "B.DBF"]))
+
+        assert opened == 1
+        assert sum(result[2] for result in results) == 123
 
 
 class TestItCannotHangSilently:

@@ -23,6 +23,8 @@ from contextvars import ContextVar
 
 __all__ = [
     "HISTORICAL_LABEL_POLICIES",
+    "borrowed_label_policy",
+    "borrowed_labels_allowed",
     "borrowed_tables",
     "historical_label_policy",
     "historical_labels",
@@ -134,6 +136,24 @@ HISTORICAL_LABEL_POLICIES: dict[str, str] = {
 }
 
 _HISTORICAL: ContextVar[str] = ContextVar("pegasus_historical_labels", default="current")
+_ALLOW_BORROWED: ContextVar[bool] = ContextVar(
+    "pegasus_allow_borrowed_labels", default=False
+)
+
+
+@contextmanager
+def borrowed_label_policy(allow: bool) -> Iterator[None]:
+    """Allow foreign-system codelists only within an explicit caller scope."""
+    token = _ALLOW_BORROWED.set(bool(allow))
+    try:
+        yield
+    finally:
+        _ALLOW_BORROWED.reset(token)
+
+
+def borrowed_labels_allowed() -> bool:
+    """Whether the current public operation explicitly opted into borrowing."""
+    return _ALLOW_BORROWED.get()
 
 
 @contextmanager

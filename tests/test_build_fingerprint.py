@@ -11,6 +11,7 @@ import pytest
 
 from pegasus_data.build import partition_fingerprint
 from pegasus_data.normalize.engine import FieldPlan, NormalizePlan, plan_fingerprint
+from pegasus_data.normalize.geo import MunicipalityIndex
 
 
 def _plan(**kw) -> NormalizePlan:
@@ -109,6 +110,14 @@ class TestTransformFingerprint:
             assert plan_fingerprint(_plan()) != before
         finally:
             engine.TRANSFORM_VERSION = original
+
+    def test_a_mapping_correction_with_the_same_size_invalidates_the_plan(self):
+        old = MunicipalityIndex(six_to_seven={"355030": "3550308"})
+        corrected = MunicipalityIndex(six_to_seven={"355030": "3550309"})
+        assert old.size == corrected.size
+        assert plan_fingerprint(_plan(municipalities=old)) != plan_fingerprint(
+            _plan(municipalities=corrected)
+        )
 
 
 class TestPartitionIsCurrent:

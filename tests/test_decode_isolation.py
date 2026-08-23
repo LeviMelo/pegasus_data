@@ -19,7 +19,7 @@ import time
 import pyarrow as pa
 import pytest
 
-from pegasus_data.decode.isolation import DecoderPool
+from pegasus_data.decode.isolation import DecoderPool, IsolatedDecodeError
 from pegasus_data.decode.registry import ReaderRegistry
 from pegasus_data.progress import ItemTimeout
 
@@ -81,6 +81,41 @@ class TestItDecodesSomewhereElse:
             "interpreter startup is the one real cost of this design and it was "
             "being paid per file"
         )
+
+    def test_a_failed_reply_discards_the_worker_before_the_next_job(
+        self, dbf_file, tmp_path
+    ):
+        missing = tmp_path / "does-not-exist.dbf"
+        with DecoderPool(1) as pool:
+            with pytest.raises(IsolatedDecodeError):
+                pool.decode(missing, logical_path="/x/missing.dbf", timeout=120)
+            worker = pool._workers[0]
+            assert worker.proc is None, "the protocol-failed process was returned to the pool"
+
+            outcome = pool.decode(dbf_file, logical_path="/x/good.dbf", timeout=120)
+            assert outcome.tables and list(outcome.tables[0].batches())
+            assert worker.proc is not None and worker.proc.poll() is None
+
+    def test_parent_spools_batches_instead_of_retaining_the_whole_table(
+        self, pool, dbf_file
+    ):
+        outcome = pool.decode(dbf_file, logical_path="/x/sample.dbf", timeout=120)
+        remote = outcome.tables[0]
+        assert remote._spool_path is not None and remote._spool_path.is_file()
+        first = pa.Table.from_batches(list(remote.batches())).to_pydict()
+        second = pa.Table.from_batches(list(remote.batches())).to_pydict()
+        assert first == second, "a shared physical decode must be reusable by archive members"
+
+    def test_archive_member_identity_is_the_same_on_both_decode_paths(self):
+        from pegasus_data.decode.base import DecodedTable, logical_source_id
+        from pegasus_data.decode.isolation import _RemoteTable
+
+        expected = logical_source_id("/x/apac.exe", "ACAC0202.DBF")
+        local = DecodedTable(
+            "/x/apac.exe", "dbf", [], lambda: iter(()), member="ACAC0202.DBF"
+        )
+        remote = _RemoteTable("/x/apac.exe", "ACAC0202.DBF", "dbf", [], None)
+        assert local.source_id == remote.source_id == expected
 
     def test_an_undecodable_source_comes_back_empty_rather_than_hanging(
         self, pool, tmp_path

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import inspect
 
+import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
@@ -141,6 +142,41 @@ class TestVintageRenderingIsOneOperation:
         assert all(
             isinstance(v, tuple) and len(v) == 3 for v in report.source_facts.values()
         )
+
+    def test_lake_rows_split_at_month_precision_when_competence_is_present(self):
+        from pegasus_data.render_groups import split_by_year_column
+
+        table = pa.table(
+            {
+                "year": pa.array([2015, 2015, 2015], pa.int32()),
+                "_competencia": pa.array([201503, 201503, 201509], pa.int32()),
+                "code": ["1", "2", "1"],
+            }
+        )
+        groups = split_by_year_column(table, [2015], "F1")
+        assert [(group[2], group[3], group[0].num_rows) for group in groups] == [
+            (2015, 201503, 2),
+            (2015, 201509, 1),
+        ]
+
+    def test_monthly_split_retains_rows_with_unknown_competence(self):
+        from pegasus_data.render_groups import split_by_year_column
+
+        table = pa.table(
+            {
+                "value": [1, 2, 3],
+                "year": pa.array([2015, 2015, 2016], pa.int32()),
+                "_competencia": pa.array([201503, None, 0], pa.int32()),
+            }
+        )
+        groups = split_by_year_column(table, [2015, 2016], "F1")
+
+        assert [(group[2], group[3], group[0].num_rows) for group in groups] == [
+            (2015, 201503, 1),
+            (2015, None, 1),
+            (2016, None, 1),
+        ]
+        assert sum(group[0].num_rows for group in groups) == table.num_rows
 
 
 class TestOutputDurabilityIsOneRule:

@@ -64,6 +64,19 @@ class TestStagedFile:
             staged.write_bytes(b"fresh")
         assert target.read_bytes() == b"fresh"
 
+    def test_two_writers_never_share_a_staging_file(self, tmp_path):
+        target = tmp_path / "part-00000.parquet"
+        seen = []
+        with staged_file(target) as first:
+            seen.append(first)
+            first.write_bytes(b"FIRST")
+            with staged_file(target) as second:
+                seen.append(second)
+                second.write_bytes(b"SECOND")
+            first.write_bytes(b"FIRST-FINAL")
+        assert seen[0] != seen[1]
+        assert target.read_bytes() == b"FIRST-FINAL"
+
 
 class TestStagedTree:
     def _tree(self, root, names):
@@ -181,6 +194,26 @@ class TestStagedTree:
         assert sorted(p.name for p in root.iterdir()) == ["CID10", "SEXO"], (
             "the old tree was not restored after a failed install"
         )
+
+    def test_a_failed_scoped_install_restores_the_subtree_already_moved_aside(
+        self, tmp_path, monkeypatch
+    ):
+        root = tmp_path / "reference"
+        self._tree(root, ["CID10"])
+        original = (root / "CID10" / "part-0.parquet").read_bytes()
+        real = Path.rename
+
+        def flaky(self, target):
+            if "__staging__" in str(self) and Path(target).name == "CID10":
+                raise OSError("install failed after backup")
+            return real(self, target)
+
+        monkeypatch.setattr(Path, "rename", flaky)
+        with pytest.raises(OSError), staged_tree(root, merge=True) as staging:
+            self._tree(staging, ["CID10"])
+        monkeypatch.setattr(Path, "rename", real)
+        assert (root / "CID10" / "part-0.parquet").read_bytes() == original
+        assert not list(root.glob("*.__old__.*"))
 
 
 class TestMergeGranularity:

@@ -126,20 +126,15 @@ review and synthesis, not on reading evidence and writing YAML.
 
 ## Known open items
 
-- **`fetch()` rebuilds every reference table on first use** when the lake has
-  none — `rmtree` plus a full scan. Correct but expensive; should be per-system.
+- **~~`fetch()` rebuilt every reference table on first use.~~ Closed.** It now
+  materialises only the requested system and merges that scope transactionally.
 - **`scriptPath` on the Workflow tool** fails permission validation in this
   environment ("script contains control characters"). Send the script inline.
-- **Ranking can still pick the wrong table where the link is not declared.**
-  The municipality columns were fixed by *stating* the variable → decoder link in
-  curation (§3k), which takes ranking out of the question for them. The
-  mechanism that produced the defect is untouched and still applies to any other
-  column with many bindings: `.DEF` can bind 145 tables at one confidence,
-  `_rank` then breaks the tie **alphabetically**, and `_choose_binding` only
-  measures the first `_MAX_CANDIDATES` (12). A correct table ranked 13th or
-  later is never loaded and never weighed. `RenderReport.codelist_used` now
-  names the table actually used, which is what makes such a case visible at all
-  — worth auditing across systems for columns whose bound-table count is high.
+- **~~Ranking could still pick from an arbitrary first 12 tables.~~ Closed by
+  refusal.** Curated variable → decoder links still bypass ranking. For an
+  uncurated field with more than `_MAX_CANDIDATES` bindings, rendering now leaves
+  the raw codes unlabelled (or raises in strict mode) and asks for curation; the
+  cost cap no longer becomes an epistemic decision.
 - **35.2% of measurable bindings decode nothing.** Recorded in
   `field_codelists.decodes_observed` and ranked last at render time, not deleted:
   `.DEF` really did declare them, and the measurement only covers values the

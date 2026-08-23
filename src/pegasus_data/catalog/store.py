@@ -78,6 +78,8 @@ def _declared_constraints(schema: str) -> dict[str, dict[str, object]]:
                 name = parts[0].strip('"')
                 if name.isidentifier() and "primary key" in lowered:
                     pk = [name]
+                if name.isidentifier() and re.search(r"\bunique\b", lowered):
+                    unique.append([name])
         out[table] = {"pk": pk, "unique": sorted(unique), "fk": sorted(fks)}
     return out
 
@@ -193,16 +195,16 @@ def _structural_mismatches(conn: sqlite3.Connection, schema: str) -> list[str]:
         want_pk = list(want.get("pk") or []) or [
             name for name, decl in columns.items() if "PRIMARY KEY" in decl.upper()
         ]
-        if want_pk and have["pk"] and want_pk != have["pk"]:
+        if want_pk != have["pk"]:
             problems.append(
                 f"{table}: primary key is {have['pk']}, shipped schema declares {want_pk}"
             )
-        if want.get("unique") and have["unique"] != want["unique"]:
+        if list(want.get("unique") or []) != have["unique"]:
             problems.append(
                 f"{table}: UNIQUE constraints are {have['unique']}, shipped schema "
                 f"declares {want['unique']}"
             )
-        if want.get("fk") and have["fk"] != want["fk"]:
+        if list(want.get("fk") or []) != have["fk"]:
             problems.append(
                 f"{table}: foreign keys are {have['fk']}, shipped schema declares "
                 f"{want['fk']}"

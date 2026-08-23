@@ -27,7 +27,7 @@ import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 
 from ..catalog.store import Catalog, utcnow
-from .staging import staged_file
+from .staging import staged_file, staged_tree
 
 _SAFE = re.compile(r"[^A-Za-z0-9_.=-]+")
 
@@ -123,7 +123,6 @@ class Lake:
         directory = self.partition_dir(system, family_id, schema_signature, uf, year)
         if replace:
             part = 0
-        directory.mkdir(parents=True, exist_ok=True)
         target = directory / f"part-{part:05d}.parquet"
 
         # Stage first, delete second. This used to clear the partition — the
@@ -143,7 +142,9 @@ class Lake:
         # warehouse: nothing partial is ever visible at `target`, and a failure
         # leaves the old partition intact and no debris behind.
         rows_written = 0
-        with staged_file(target) as staged:
+
+        def write_parquet(staged: Path) -> None:
+            nonlocal rows_written
             writer = pq.ParquetWriter(
                 staged,
                 first.schema,
@@ -162,15 +163,19 @@ class Lake:
                     rows_written += batch.num_rows
             finally:
                 writer.close()
+
         if replace:
-            # AFTER the swap, not before it. Clearing inside the staging context
-            # left an interval with the old partition deleted and the new one
-            # not yet renamed into place: a crash there lost the partition
-            # outright, which is the failure staging exists to prevent. The file
-            # that just landed is excluded from the sweep.
-            self._clear_partition(
-                system, family_id, schema_signature, uf, year, keep=target
-            )
+            # The partition DIRECTORY is the replacement unit. Publishing a
+            # new file and then sweeping its siblings exposed a moment where a
+            # concurrent dataset scan saw both generations. A whole-tree rename
+            # exposes either the complete old directory or the complete new
+            # directory, never their union.
+            with staged_tree(directory) as staged_directory:
+                write_parquet(staged_directory / target.name)
+        else:
+            directory.mkdir(parents=True, exist_ok=True)
+            with staged_file(target) as staged:
+                write_parquet(staged)
         written = WrittenPartition(
             family_id=family_id,
             schema_signature=schema_signature,
@@ -181,8 +186,15 @@ class Lake:
             byte_size=target.stat().st_size,
         )
         if self.catalog is not None:
-            self.catalog.executemany(
-                """
+            with self.catalog.write() as conn:
+                if replace:
+                    conn.execute(
+                        "DELETE FROM lake_partitions WHERE family_id=? "
+                        "AND schema_signature=? AND uf=? AND year=?",
+                        (family_id, schema_signature, uf, year),
+                    )
+                conn.execute(
+                    """
                 INSERT INTO lake_partitions (family_id, schema_signature, uf, year, relative_path,
                                              row_count, byte_size, source_paths, written_at,
                                              build_fingerprint)
@@ -191,15 +203,13 @@ class Lake:
                     row_count=excluded.row_count, byte_size=excluded.byte_size,
                     source_paths=excluded.source_paths, written_at=excluded.written_at,
                     build_fingerprint=excluded.build_fingerprint
-                """,
-                [
+                    """,
                     (
                         family_id, schema_signature, uf, year, written.relative_path,
                         written.row_count, written.byte_size, json.dumps(list(source_paths)), utcnow(),
                         build_fingerprint,
-                    )
-                ],
-            )
+                    ),
+                )
         return written
 
     def partition_is_current(

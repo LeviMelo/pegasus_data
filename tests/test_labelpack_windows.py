@@ -1,7 +1,7 @@
 """The shipped pack must be able to answer a historical vintage.
 
 The pack is what makes `fetch(labels=True)` work on a fresh install — the
-labels otherwise live only in a catalog nobody has a reason to build. It carried
+labels otherwise live only in a catalog nobody has a reason to build. Older packs carried
 `(system, codelist, code, label, width)` and no validity window, so the
 fallback could not honour `year=1995` even in principle: it returned whatever
 row survived, which in practice is the current vintage, and nothing said so.
@@ -46,6 +46,15 @@ def _seed(catalog):
 
 
 class TestTheWindowSurvivesTheBuild:
+    def test_the_shipped_pack_itself_carries_windows(self):
+        from importlib.resources import files
+        from pathlib import Path
+
+        path = Path(str(files("pegasus_data.resources") / "labels.parquet"))
+        parquet = pq.ParquetFile(path)
+        assert {"valid_from", "valid_to"}.issubset(parquet.schema_arrow.names)
+        assert parquet.metadata.num_rows > 3_000_000
+
     def test_the_pack_carries_valid_from_and_valid_to(self, catalog, tmp_path):
         _seed(catalog)
         out = tmp_path / "labels.parquet"
@@ -104,16 +113,41 @@ class TestReadingAtAVintage:
 
 
 class TestBackwardsCompatibility:
-    def test_a_pack_without_windows_still_reads(self):
-        """The artifact currently shipped has no window columns."""
-        from pegasus_data.labelpack import read_packed
+    @pytest.fixture
+    def unwindowed(self, monkeypatch):
+        """Stand in for artifacts produced by releases before window support."""
+        import pyarrow as pa
+        import pyarrow.dataset as ds
+
+        import pegasus_data.labelpack as lp
+
+        old = pa.table(
+            {
+                "system": pa.array([None], pa.string()),
+                "codelist": ["CID10"],
+                "code_lo": ["A00"],
+                "code_hi": ["A00"],
+                "label": ["Cólera"],
+                "code_width": pa.array([3], pa.int32()),
+            }
+        )
+        monkeypatch.setattr(lp, "_dataset", lambda: ds.dataset(old))
+        lp._read_packed.cache_clear()
+        yield lp
+        lp._read_packed.cache_clear()
+
+    def test_a_pack_without_windows_still_reads(self, unwindowed):
+        """Old artifacts remain readable after the shipped pack gained windows."""
+        read_packed = unwindowed.read_packed
 
         table = read_packed("CID10")
         assert table.num_rows > 0
 
-    def test_a_historical_request_against_it_is_recorded_not_silently_answered(self):
+    def test_a_historical_request_against_it_is_recorded_not_silently_answered(
+        self, unwindowed
+    ):
         """Answering 1995 with today's labels and saying nothing is the defect."""
-        from pegasus_data.labelpack import read_packed
+        read_packed = unwindowed.read_packed
 
         with collecting() as collected:
             read_packed("CID10", year=1995)
@@ -123,18 +157,21 @@ class TestBackwardsCompatibility:
             "(rebuild the pack) is visible rather than the answer being trusted"
         )
 
-    def test_the_default_still_labels_because_refusing_would_empty_the_pack(self):
+    def test_the_default_still_labels_because_refusing_would_empty_the_pack(
+        self, unwindowed
+    ):
         """DATASUS publishes with a lag, so essentially all real data is
         historical. Blanket refusal leaves every column unlabelled on a fresh
         install, which defeats the pack's entire purpose."""
-        from pegasus_data.labelpack import read_packed
+        read_packed = unwindowed.read_packed
 
         assert read_packed("CID10", year=1995).num_rows > 0
 
-    def test_refuse_is_available_for_callers_who_want_it(self):
+    def test_refuse_is_available_for_callers_who_want_it(self, unwindowed):
         """No label beats an unversioned one, for anyone who says so."""
-        from pegasus_data.labelpack import read_packed
         from pegasus_data.persist.decisions import historical_label_policy
+
+        read_packed = unwindowed.read_packed
 
         with historical_label_policy("refuse"), pytest.raises(FileNotFoundError):
             read_packed("CID10", year=1995)
@@ -147,6 +184,16 @@ class TestBackwardsCompatibility:
 
 
 class TestTheWindowRule:
+    def test_load_exposes_the_same_policy_as_fetch(self):
+        import inspect
+
+        from pegasus_data import fetch, load
+
+        assert inspect.signature(fetch).parameters["historical_labels"].default == "current"
+        assert inspect.signature(load).parameters["historical_labels"].default == "current"
+        assert inspect.signature(fetch).parameters["allow_borrowed_labels"].default is False
+        assert inspect.signature(load).parameters["allow_borrowed_labels"].default is False
+
     @pytest.mark.parametrize(
         "valid_from,valid_to,lo,hi,expected",
         [

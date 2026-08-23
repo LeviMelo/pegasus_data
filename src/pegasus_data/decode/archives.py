@@ -129,14 +129,24 @@ class Archive:
         elif kind in {"lha", "lha_sfx"}:
             try:
                 self._lha = LhaArchive(self.data)
+                members = [m for m in self._lha.members if not m.is_directory]
+                self._refuse_unsafe_names([m.name for m in members])
+                self._check_quota([m.original_size for m in members])
             except LhaError as exc:
                 raise DecodeError(f"lha open failed for {self.path}: {exc}") from exc
         elif kind == "tar":
             self._tar = tarfile.open(fileobj=io.BytesIO(self.data))
+            members = [m for m in self._tar.getmembers() if m.isfile()]
+            self._refuse_unsafe_names([m.name for m in members])
+            self._check_quota([m.size for m in members])
         elif kind in {"rar", "7z"}:
             self._extract_external()
         elif kind == "gzip":
-            pass
+            # RFC 1952 stores the uncompressed size modulo 2**32 in ISIZE.
+            # It is enough to reject ordinary bombs before inflation; the
+            # bounded streaming reader below also covers wraparound and lies.
+            claimed = int.from_bytes(self.data[-4:], "little") if len(self.data) >= 4 else 0
+            self._check_quota([claimed])
         else:
             raise DecodeError(f"unsupported container {kind} for {self.path}")
 
@@ -307,7 +317,21 @@ class Archive:
             return self._extracted[name].read_bytes()
         if self.container == "gzip":
             try:
-                return gzip.decompress(self.data)
+                source = io.BytesIO(self.data)
+                chunks: list[bytes] = []
+                total = 0
+                ratio_limit = max(1, int(len(self.data) * MAX_EXPANSION_RATIO))
+                ceiling = min(MAX_UNCOMPRESSED_BYTES, ratio_limit)
+                with gzip.GzipFile(fileobj=source) as stream:
+                    while chunk := stream.read(1024 * 1024):
+                        total += len(chunk)
+                        if total > ceiling:
+                            raise ArchiveQuotaExceeded(
+                                f"{self.path}: gzip expansion exceeded the configured "
+                                f"{MAX_EXPANSION_RATIO:.0f}x/{MAX_UNCOMPRESSED_BYTES / 1024**3:.0f} GiB limits"
+                            )
+                        chunks.append(chunk)
+                return b"".join(chunks)
             except OSError as exc:
                 raise DecodeError(f"gzip decompression failed for {self.path}: {exc}") from exc
         raise KeyError(name)

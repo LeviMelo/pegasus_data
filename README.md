@@ -299,9 +299,10 @@ PARTO      Vaginal
 RACACOR    Parda
 ```
 
-The wheel carries a distilled label pack — 19.8 MB, down from 14.8M dictionary
-rows to 2.4M by storing code *ranges* rather than every code inside them. A
-local `semantics` build always outranks it.
+The wheel carries a distilled, versioned label pack — 28.6 MiB and 3.65M runs,
+with `valid_from`/`valid_to` retained while code ranges are compacted. A local
+`semantics` build always outranks it. Foreign-system codelists are refused by
+default; `allow_borrowed_labels=True` is an explicit, reported opt-in.
 
 Two things it deliberately does **not** carry. Entity directories — 687,789
 health establishments — are reached with `fetch("CNES-ST")` and the declared
@@ -654,8 +655,10 @@ Measured, not estimated. `pegasus-data report` prints the current figures.
 | open questions, recorded not guessed | 1,340 |
 | tests | 601, all offline |
 
-The module is functionally complete: crawl, decode, profile, translate, build,
-query, and the public API above. Description coverage reached 100% — and the
+The software workflow is complete: crawl, decode, profile, translate, build,
+query, and the public API above. Substantive semantic review remains ongoing,
+especially for inferred descriptions and genuinely sourceless fields.
+Description coverage reached 100% — and the
 number to be careful with is that one, because it briefly read *96%* until an
 audit found that 1,079 columns were "described" only by a `.DEF` display name.
 A name is not a description; those columns were returned to the queue and the

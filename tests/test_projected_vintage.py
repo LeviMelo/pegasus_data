@@ -74,6 +74,9 @@ class TestYearSurvivesProjectionButNotTheResult:
             "a projected read did not ask for `year`, so the vintage split has "
             "nothing to split on and falls back to one codebook for every year"
         )
+        assert any("_competencia" in call for call in asked), (
+            "a projected read did not carry month competence into vintage rendering"
+        )
 
     def test_an_unprojected_load_is_unaffected(self, built_lake):
         settings, _catalog, _ = built_lake

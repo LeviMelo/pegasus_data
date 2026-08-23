@@ -39,7 +39,7 @@ import os
 import re
 import threading
 from collections.abc import Callable, Mapping, Sequence
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -592,6 +592,7 @@ def fetch(
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
+    allow_borrowed_labels: bool = False,
     max_files: int | None = None,
     on_missing_column: str = "raise",
     allow_partial: bool = False,
@@ -722,7 +723,18 @@ def fetch(
                 raise MissingColumnError(
                     missing[0], fetch_report.families[0], [], also_absent=missing[1:]
                 )
-            keep = [c for c in table.column_names if c in set(columns)]
+            requested = set(columns)
+            # `_source_path` is a hidden semantic dependency: rendering needs
+            # it to recover each row's family and competence.  Provenance=True
+            # promises all four provenance columns even under projection; with
+            # provenance off, `_source_path` is retained only until rendering
+            # and is removed by the existing return-shape step below.
+            from .normalize.engine import PROVENANCE_COLUMNS
+
+            internal = set(PROVENANCE_COLUMNS) if provenance else {"_source_path"}
+            keep = [
+                c for c in table.column_names if c in requested or c in internal
+            ]
             table = table.select(keep)
 
         if labels:
@@ -735,10 +747,13 @@ def fetch(
         # labelled historical rows with today's tables. A fetched table has no
         # `year` column, but every row carries `_source_path` and the selection
         # knows each file's family and year.
-        from .persist.decisions import historical_label_policy
+        from .persist.decisions import borrowed_label_policy, historical_label_policy
         from .render_groups import render_groups, split_by_source
 
-        with historical_label_policy(historical_labels):
+        with (
+            historical_label_policy(historical_labels),
+            borrowed_label_policy(allow_borrowed_labels),
+        ):
             rendered, render_report = render_groups(
                 split_by_source(
                     table,
@@ -1182,7 +1197,11 @@ def _select_files(
             competencia = (
                 int(year) * 100 + int(month) if year is not None and month else None
             )
-            report.source_facts[str(item["path"])] = (
+            from .decode.base import logical_source_id
+
+            report.source_facts[
+                logical_source_id(str(item["path"]), str(item.get("member") or ""))
+            ] = (
                 family_id,
                 int(year) if year is not None else None,
                 competencia,
@@ -1305,9 +1324,13 @@ def _acquire(
         for failed_path, reason in getattr(stats, "errors", ()):
             report.warnings.append(f"acquisition: {failed_path}: {reason}")
             report.acquisition_failures.append((str(failed_path), str(reason)))
-        if getattr(stats, "stalled", 0):
+        for marker, reason in getattr(stats, "diagnostics", ()):
+            report.warnings.append(f"acquisition diagnostic: {marker}: {reason}")
+    failed_names = {path for path, _reason in report.acquisition_failures}
+    for path in paths:
+        if path not in digests and path not in failed_names:
             report.acquisition_failures.append(
-                ("<stalled>", f"{stats.stalled} source(s) outstanding when the batch gave up")
+                (path, "selected source was not acquired before the batch ended")
             )
     return digests
 
@@ -1372,6 +1395,18 @@ def _read_families(
         return pa.table({}), report
 
     digests = _acquire(pipeline, selected, report=report, on_progress=on_progress)
+    selected_members: dict[str, set[str]] = {}
+    for _family_id, _plan, item in selected:
+        digest = digests.get(str(item["path"]))
+        if digest:
+            selected_members.setdefault(digest, set()).add(str(item["member"] or ""))
+    # One physical artifact is decoded once with the union of members selected
+    # from it.  An empty member denotes the loose payload itself and disables
+    # member filtering for that digest.
+    members_by_digest: dict[str, frozenset[str] | None] = {
+        digest: (None if "" in members else frozenset(members))
+        for digest, members in selected_members.items()
+    }
 
     batches: list[pa.RecordBatch] = []
     seen_years: set[int] = set()
@@ -1390,7 +1425,7 @@ def _read_families(
     keep_columns = _keep_columns(catalog, report, columns)
     #: digest -> (DecodeOutcome, payload size). Lives for this call only, and is
     #: shared across decode workers, so it is guarded.
-    decoded_cache: dict[str, tuple[object, int]] = {}
+    decoded_cache: dict[str, Future[tuple[object, int]]] = {}
     cache_lock = threading.Lock()
 
     def _decode_at(position: int, triple) -> dict[str, object]:
@@ -1418,6 +1453,7 @@ def _read_families(
                     decoded_cache=decoded_cache,
                     cache_lock=cache_lock,
                     keep_columns=keep_columns,
+                    decode_members=members_by_digest.get(digest),
             )
             decoded_batches, matched_here, read_bytes = (
                 work()
@@ -1529,9 +1565,10 @@ def _decode_one(
     path: str,
     digest: str,
     member: str,
-    decoded_cache: dict[str, tuple[object, int]] | None = None,
+    decoded_cache: dict[str, Future[tuple[object, int]]] | None = None,
     cache_lock: object | None = None,
     keep_columns: frozenset[str] | None = None,
+    decode_members: frozenset[str] | None = None,
 ) -> tuple[list[pa.RecordBatch], bool, int]:
     """Read one file and normalise it. Split out so it can be given a deadline.
 
@@ -1541,54 +1578,53 @@ def _decode_one(
     the decode loop iterates (family, path, member) records, so an APAC archive
     with seven DBF members was being fully decoded seven times.
     """
-    if decoded_cache is not None and cache_lock is not None:
-        with cache_lock:
-            cached = decoded_cache.get(digest)
-    else:
-        cached = decoded_cache.get(digest) if decoded_cache is not None else None
-    if cached is None:
-        # The blob is ALREADY a file. Reading it into RAM only to hand the
-        # bytes to a decoder that writes them straight back out was three
-        # copies of a large file for nothing. open_path() takes the
-        # content-addressed path directly; the logical path still drives the
-        # reader ladder, which is the only thing the extension was needed for.
-        blob_path = pipeline.blobs.path_for(digest)
-        size = blob_path.stat().st_size
-        if pipeline.settings.decode_isolation:
-            # In a process the parent can KILL. The deadline is enforced here
-            # rather than by a thread watchdog, because a watchdog only stops
-            # the caller waiting — the decoder carries on burning a core and an
-            # inflated DBF for as long as it likes.
-            from .decode.isolation import decoder_pool
-
-            outcome = decoder_pool(
-                max(1, min(4, pipeline.settings.fetch_concurrency))
-            ).decode(
-                blob_path,
-                logical_path=path,
-                # The projection reaches the READER, not just the accumulation.
-                # `keep_columns` already carries the request plus everything
-                # rendering and derivation depend on.
-                columns=sorted(keep_columns) if keep_columns else None,
-                row_limit=registry.row_limit,
-                timeout=pipeline.settings.item_timeout,
-            )
+    owner = True
+    pending: Future[tuple[object, int]] | None = None
+    if decoded_cache is not None:
+        if cache_lock is not None:
+            with cache_lock:
+                pending = decoded_cache.get(digest)
+                if pending is None:
+                    pending = Future()
+                    decoded_cache[digest] = pending
+                else:
+                    owner = False
         else:
-            # A fresh registry per decode: ReaderRegistry accumulates per-call
-            # state (failed archive members), which threads must not share.
-            outcome = ReaderRegistry(row_limit=registry.row_limit).open_path(
-                blob_path, logical_path=path, columns=keep_columns
-            )
-        if decoded_cache is not None:
-            if cache_lock is not None:
-                with cache_lock:
-                    decoded_cache.setdefault(digest, (outcome, size))
+            pending = decoded_cache.get(digest)
+            if pending is None:
+                pending = Future()
+                decoded_cache[digest] = pending
             else:
-                decoded_cache[digest] = (outcome, size)
+                owner = False
+    if owner:
+        try:
+            outcome, size = _open_decoded_source(
+                pipeline,
+                registry,
+                path=path,
+                digest=digest,
+                keep_columns=keep_columns,
+                decode_members=decode_members,
+            )
+        except BaseException as exc:
+            if pending is not None:
+                pending.set_exception(exc)
+                if decoded_cache is not None:
+                    if cache_lock is not None:
+                        with cache_lock:
+                            if decoded_cache.get(digest) is pending:
+                                decoded_cache.pop(digest, None)
+                    elif decoded_cache.get(digest) is pending:
+                        decoded_cache.pop(digest, None)
+            raise
+        else:
+            if pending is not None:
+                pending.set_result((outcome, size))
         # `payload` goes out of scope here; the cache holds the decoded tables,
         # which are what the remaining members need, not the compressed bytes.
     else:
-        outcome, size = cached
+        assert pending is not None
+        outcome, size = pending.result()
     batches: list[pa.RecordBatch] = []
     matched = False
     for decoded in outcome.tables:  # type: ignore[union-attr]
@@ -1600,7 +1636,34 @@ def _decode_one(
         for batch in normalize_table(decoded, plan, blob_sha256=digest):
             batches.append(_project(batch, keep_columns))
     # Bytes are counted once per SOURCE, not once per member reading it.
-    return batches, matched, (size if cached is None else 0)
+    return batches, matched, (size if owner else 0)
+
+
+def _open_decoded_source(
+    pipeline: Pipeline,
+    registry: ReaderRegistry,
+    *,
+    path: str,
+    digest: str,
+    keep_columns: frozenset[str] | None,
+    decode_members: frozenset[str] | None,
+) -> tuple[object, int]:
+    """Open one physical blob with the common projection and kill deadline."""
+    # The blob is ALREADY a file. Reading it into RAM only to hand the bytes to
+    # a decoder that writes it straight back out makes several large copies.
+    blob_path = pipeline.blobs.path_for(digest)
+    size = blob_path.stat().st_size
+    from .decode.service import decode_source
+
+    outcome = decode_source(
+        blob_path,
+        logical_path=path,
+        settings=pipeline.settings,
+        columns=keep_columns,
+        members=decode_members,
+        row_limit=registry.row_limit,
+    )
+    return outcome, size
 
 
 def _month_of(normalized_date: object) -> int | None:

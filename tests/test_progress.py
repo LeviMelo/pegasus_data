@@ -162,12 +162,13 @@ class TestFetcherCannotDeadlock:
         fetcher = self._fetcher(catalog, tmp_path, stall_timeout=30, heartbeat_interval=60)
         stats = fetcher.fetch_many(["/a/1.dbc", "/a/2.dbc", "/a/3.dbc"])
         assert stats.failed <= stats.requested
-        assert any(path == "<connect>" for path, _ in stats.errors)
+        assert not stats.errors, "a worker that held no path failed no path"
+        assert any(path == "<connect>" for path, _ in stats.diagnostics)
 
     def test_an_unreachable_host_is_reported_not_swallowed(self, catalog: Catalog, tmp_path):
         fetcher = self._fetcher(catalog, tmp_path, stall_timeout=30, heartbeat_interval=60)
         stats = fetcher.fetch_many(["/a/1.dbc"])
-        assert stats.errors, "the reason has to survive"
+        assert stats.diagnostics, "the worker diagnostic has to survive"
 
     def test_an_empty_batch_is_not_a_stall(self, catalog: Catalog, tmp_path):
         assert self._fetcher(catalog, tmp_path).fetch_many([]).requested == 0

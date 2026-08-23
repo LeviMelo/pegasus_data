@@ -130,6 +130,7 @@ def translate(
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict: bool = False,
+    allow_borrowed_labels: bool = False,
     root: str | Path | None = None,
     settings: Settings | None = None,
     report: bool = False,
@@ -190,21 +191,24 @@ def translate(
         else:
             _ensure_reference(store, resolved)
         family_id = _family_for(store, system, series, table.column_names)
-        rendered, render_report = render_table(
-            table,
-            store=store,
-            lake_root=resolved.lake_dir,
-            system=str(system).upper(),
-            family_id=family_id,
-            profile=profile,
-            render=render,
-            headers=headers,
-            values=values,
-            companions=companions,
-            derived=derived,
-            year=year,
-            strict=strict,
-        )
+        from .persist.decisions import borrowed_label_policy
+
+        with borrowed_label_policy(allow_borrowed_labels):
+            rendered, render_report = render_table(
+                table,
+                store=store,
+                lake_root=resolved.lake_dir,
+                system=str(system).upper(),
+                family_id=family_id,
+                profile=profile,
+                render=render,
+                headers=headers,
+                values=values,
+                companions=companions,
+                derived=derived,
+                year=year,
+                strict=strict,
+            )
         return (rendered, render_report) if report else rendered
     finally:
         store.close()

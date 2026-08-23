@@ -146,6 +146,7 @@ pegasus_data/
     base.py               DecodedTable/DecodeOutcome, the shape every reader returns
     dbc.py dbf.py text_.py duckdb_.py archives.py lha.py
     header.py             schema from a file prefix
+    service.py            shared projection and killable-decode policy for every stage
     isolation.py          a pool of KILLABLE decoder processes (§12.1)
     _worker.py            the other side of that boundary; `python -m` entry point
   profile/
@@ -601,12 +602,19 @@ render and returned on the report — `borrowed`, `fallback_vintage`,
 rather than only as prose in `warnings`, so a strict pipeline can refuse them
 with a threshold instead of a regex over English.
 
+Cross-system borrowing is **off by default**. A null-system row in the shipped
+pack is explicitly system-independent and remains usable everywhere; an actual
+foreign-system table is used only under `allow_borrowed_labels=True`, and that
+choice is recorded in `RenderReport.borrowed`.
+
 `historical_labels` is the policy attached to the same problem: `"current"`
 (default) answers a historical request from today's table and records the
 substitution; `"refuse"` returns the raw codes instead. The default is not
 neutral and was chosen by measurement — a blanket refusal was tried and took a
 fresh-install SINASC 2022 fetch from 15 labelled columns to 0, because the
-shipped pack carries no validity windows at all.
+older shipped pack carried no validity windows. The current pack carries the
+windows recovered from the full catalog; fallback still applies where no window
+covers the requested period.
 
 ### 8.2 One render path, and why it is a module `[D]`
 
@@ -620,7 +628,8 @@ The shared unit is a GROUP — `(rows, family, year, competência)` — because
 rendering correctly is per-vintage-per-family, not per-result: a request spanning
 1995 to 2025 must render each generation against the codelist of its own era, and
 a single call cannot. `fetch` and `load` differ only in how they SPLIT their rows
-into groups: the lake has a `year` partition column, and a fetch has provenance
+into groups: the lake has a `year` partition column plus internal
+`_competencia` provenance for month-exact boundaries, and a fetch has provenance
 in `_source_path`. Everything after the split is one implementation.
 
 ## 9. L5.5 — The curation layer `[D]`
@@ -1178,7 +1187,7 @@ and labelled **nothing**. The labels lived only in a 14 GB catalog produced by
 an hour-long `semantics` run that no user has any reason to perform. Data came
 back; meaning did not.
 
-The pack is that layer distilled to **19.8 MB**, carried inside the wheel:
+The pack is that layer distilled to **28.6 MB**, carried inside the wheel:
 
 | reduction | effect |
 |---|---|
@@ -1187,7 +1196,9 @@ The pack is that layer distilled to **19.8 MB**, carried inside the wheel:
 | packed facts split | `CADGERBR` labels are a CNPJ *and* an establishment name in one string |
 | registries held back | 90 entity directories |
 
-14.8M dictionary rows → 2.4M runs, a 73% reduction, losing no fact.
+The current artifact contains 3,654,320 versioned runs across 2,238 codelists;
+1,840,269 rows carry an explicit historical boundary. Runs compact 9.1M bound
+input rows by 59.8%, without collapsing distinct validity windows.
 
 **The cross-system rule is narrower than it looks.** `system = NULL` means every
 system reads this code this way. That is only safe when every system *carrying
@@ -1648,7 +1659,7 @@ description waves never covered. Re-measure rather than trusting the number.
 
 | | |
 |---|---:|
-| label pack | 2,419,002 rows · 2,348 codelists · 26.6 MB |
+| label pack | 3,654,320 versioned runs · 2,238 codelists · 30.0 MB |
 | CNES↔CNPJ crosswalk | 546,189 rows |
 | field→codelist bindings shipped | 9,796 |
 | bindings by rung | def 8,548 · manual 534 · community 315 · semantic_match 298 · layout_doc 101 |
@@ -1866,7 +1877,7 @@ column. After both changes: 41 labelled, 23 constant, 9 genuine gaps, and the 9
 are dates, identifiers and day-counts that `.DEF` should never have bound.
 
 **~~`fetch(labels=True)` cannot work on a fresh install.~~** *Closed.* The wheel
-now carries a 19.8 MB label pack and the bindings, and a clean-machine
+now carries a 28.6 MB windowed label pack and the bindings, and a clean-machine
 `fetch("SIM-DO", uf="AC", years=2022)` returns 56 labelled columns. See
 ARCHITECTURE §14.9. Along the way this turned up a crash on the same path:
 `_discover` unpacked `list_directory`'s `(entries, method)` tuple as a bare
@@ -1885,12 +1896,14 @@ Four correct mechanisms composed into a wrong result:
    No table is named `CODMUNRES`, so with 145 candidates tied the tie-break that
    actually decided the answer was alphabetical order.
 2. `CIRAC` sorts 3rd. `BR_MUNICIPALFA` sorts **118th**.
-3. `_choose_binding` measures only the first `_MAX_CANDIDATES` (12) candidates —
-   a cost bound, since `.DEF` binds `DIAG_PRINC` to 114 tables.
+3. `_choose_binding` historically measured only the first `_MAX_CANDIDATES`
+   (12) candidates — a cost bound, since `.DEF` binds `DIAG_PRINC` to 114 tables.
 4. So the correct table was bound, never loaded, never measured. `CIRAC`
    decodes 100% of municipality codes and won.
 
-The granularity tie-break (§22.7, `CNES → HOSFEDRJ`) was the fix for exactly
+The runtime now refuses any uncurated candidate set larger than that bound;
+the cap can no longer silently become the choice. The granularity tie-break
+(§22.7, `CNES → HOSFEDRJ`) was the fix for exactly
 this shape and could not fire, because it only ranks candidates that were
 *measured*. The rollup guard did fire, and named the problem in a warning —
 which is not the same as not doing it. A caller who did not read warnings got a
