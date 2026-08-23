@@ -33,35 +33,31 @@ it.
 **What would settle it:** a domain reviewer sampling ~100 `inferred` entries
 against the paper forms and layout documents, and reporting an error rate.
 
-## 1b. 143 code-bearing columns still have no working table
+## 1b. The columns that still do not decode need sources, not effort
 
 **Claim made:** the module decodes DATASUS's codes.
 
-**What is actually behind it:** 2,014 of 2,157 columns that curation declares as
-holding a code (93.4%) reach a codelist that ships. 128 have no binding and 15
-are bound to a table the pack does not carry.
+**What is actually behind it:** most of them. The count is in ARCHITECTURE §21;
+what belongs here is why the remainder is hard rather than merely undone.
 
-**Why the remainder is hard rather than merely undone:**
+- **RESP** — no laboratory-result table ships for RESP anywhere in the tree.
+- **SINAN** — the remaining columns are agravo-specific code spaces. One column
+  name genuinely means different things in different forms: `TIPO_ACID` is
+  `1 típico / 2 trajeto` in the work-accident dictionary and `01 administração
+  de medicação endovenosa …` in the biological-exposure one. 21 columns were
+  refused outright during the dictionary harvest for exactly that reason,
+  because a merged table would label a typical accident as an IV administration
+  — confidently, with no error anywhere.
+- **SISCAN** — cytology-pattern columns where several plausible tables ship and
+  the column name does not say which. Choosing would be the guess §18 prohibits.
+- **PCE · ESUSNOTIFICA · CNES** — per-state or non-DATASUS code spaces: health
+  districts are defined by each state, DRS is a São Paulo structure, and
+  Febraban bank codes are not DATASUS's to publish.
 
-| system | left | why |
-|---|---:|---|
-| SINAN | 53 | agravo-specific codes whose dictionary either has no value table or contradicts another agravo's reading of the same column name |
-| SISCAN | 29 | cytology-pattern columns where several plausible tables ship and the name does not say which |
-| SIA | 17 | APAC sub-forms |
-| RESP | 12 | **no laboratory-result table ships for RESP at all** |
-| SIH · PCE · CNES · ESUSNOTIFICA | 12 | per-state or non-DATASUS code spaces (health districts, Febraban bank codes) |
-
-21 columns were refused outright during the SINAN harvest because two
-dictionaries read the same code differently — TIPO_ACID is `1 típico` in the
-work-accident forms and `01 administração de medicação endovenosa` in the
-biological-exposure one. Those are recorded rather than merged; a merged table
-would label a typical accident as an intravenous administration.
-
-**What would settle it:** the agravo-specific SINAN tables need
-`TAB_SINANNET.zip`'s .CNV set parsed per agravo rather than per system, so a
-column can carry a different table in each form. SISCAN needs INCA's own
-requisition forms to disambiguate the cytology patterns. RESP needs a source
-that does not currently exist in the tree.
+**What would settle it:** `TAB_SINANNET.zip`'s `.CNV` set parsed PER AGRAVO
+rather than per system, so a column can carry a different table in each form;
+INCA's own requisition forms for SISCAN; and for RESP, a source that does not
+currently exist on the tree.
 
 ## 2. SINAN wave-1 descriptions were never checked for correctness
 

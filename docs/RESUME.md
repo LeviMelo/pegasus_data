@@ -5,34 +5,12 @@ session. Everything below is checked against the catalog, not recalled.
 
 ## State
 
-| | |
-|---|---:|
-| columns catalogued | 4,528 |
-| columns described | 4,528 (**100%**) |
+**Counts live in `pegasus_data_ARCHITECTURE.md` §21 and only there.** This file
+used to carry its own State table; it disagreed with §21 by a factor of three
+and nobody could tell which was current, so it no longer holds numbers. Read §21
+for what exists, and `scripts/evidence.py $CATALOG --plan` for the live position.
 
-**Read "catalogued" carefully.** The denominator is the columns the CENSUS knows
-about, and it grows. This table read 100% while SIH-RD had 15 of its 117 columns
-described: the census had since reached families the description waves never
-covered, so the same claim was true of the old denominator and false of the new
-one. It is 100% of 4,528 again as of 1,057 tests, and it will drift again the
-next time the census widens — `scripts/evidence.py $CATALOG --plan` is the
-current position, not this line.
-
-| data files bound to a declared dataset | 207,030 (**100%**) |
-| systems · datasets declared | 20 · 131 |
-| families | 1,633 |
-| datasets with `what_one_row_is` | 85 |
-| bindings measured to decode nothing | 658 of 1,871 (35.2%) |
-| open questions, recorded not guessed | 1,340 |
-| tests | 601 passing |
-
-**The description backlog is closed.** Read the coverage number carefully
-though: it briefly read 96% while 1,079 columns were "described" only by a
-`.DEF` display name. A name is not a description, and counting it as one also
-hid those columns from the work queue, so no worker was ever handed them. Real
-coverage at that moment was 72%. `scripts/doc_queue.py` no longer counts the
-`defnames` template, and `scripts/audit_vagueness.py` exists to catch the
-next version of that mistake.
+What this file is for: where to pick up, and what bites you when you do.
 
 Working catalog (not in the repo — it is data):
 
@@ -71,21 +49,26 @@ The canonical location is `src/pegasus_data/curation/` — inside the package,
 because it ships. The repo-root `curation/` only exists because agents are told
 a path relative to the repo; consolidating is a step, not an accident.
 
-## The work that remains, largest first
+## The work that remains
 
-**Closed as of 1,057 tests** — every catalogued column has a description. The
-last gaps were SIH (131 columns, the flagship dataset and the worst covered),
-SIM (60), SINASC (26), CIHA (8), SIA (6), CNES (4) and Painel Oncologia (1), all
-sourced from the Ministry's own layout documents rather than inferred. The table
-below is the position BEFORE that work and is kept because the shape of it —
-which systems run dry first — is what to expect the next time the census widens.
+Every catalogued column now has a description, so the description backlog is
+closed. What is left is not more of the same work:
 
-| system | columns left (historical) |
-|---|---:|
-| SINAN | 1,978 |
-| SISCAN | 487 |
-| SIASUS | 290 |
-| CNES | 105 |
+1. **The columns that do not decode.** Counts in ARCHITECTURE §21; WHY they are
+   hard, and what would settle each, in `docs/CONFIDENCE.md` §1b. Short version:
+   RESP has no laboratory-result table anywhere on the tree, SINAN needs
+   `TAB_SINANNET.zip` parsed per agravo rather than per system, and SISCAN needs
+   INCA's requisition forms. None of these is unblocked by effort alone.
+
+2. **Prose quality in the older curation.** `scripts/validate_curation.py` flags
+   descriptions over 70 words, ones that discuss the source document rather than
+   the column, and runs of three that open identically. The newer files are
+   clean; SINAN, SISCAN and SIASUS carry the backlog. Run the validator over
+   `src/pegasus_data/curation/variables/*/*.yml` for the live list.
+
+3. **The inferred entries have never had an independent review.** This is the
+   top-ranked doubt in `docs/CONFIDENCE.md` §1 and it needs a domain reader with
+   the paper forms, not another pass from the same author.
 
 To see the current position at any time:
 

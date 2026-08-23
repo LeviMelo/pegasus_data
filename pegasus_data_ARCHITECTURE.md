@@ -1292,39 +1292,74 @@ much of what it distributes, and it is the work that continues.
 
 ## 21. Measured state
 
-Counted on the shipped catalog, not estimated.
+**This table is the project's bookkeeper.** Every count about what exists lives
+here and nowhere else. `docs/RESUME.md` says what to do next, `docs/FINDINGS.md`
+what measurement contradicted, `docs/CONFIDENCE.md` what is claimed on thin
+evidence, `docs/DEFECTS.md` what was broken and is now fixed — none of them
+carry counts, because when they did they drifted. §21 read "1,572 described
+(34.7%)" beside 538 tests while RESUME read "4,528 (100%)" beside 601, and a
+reader had no way to tell which was current. The test count is stated beside the
+numbers as the cheapest available clock.
+
+Counted on the shipped artifacts, not estimated. **As of 1,070 tests passing.**
+
+### The tree
 
 | | |
 |---|---:|
 | files crawled | 207,251 |
 | files the prior scan found | 124,810 |
-| strata | 4,418 |
-| strata with a known schema | 3,688 |
+| data files bound to a declared dataset | 207,030 (100%) |
+| systems · datasets declared | 20 · 131 |
+| strata · with a known schema | 4,418 · 3,688 |
 | distinct schemas | 273 |
-| families (system x series x schema) | 1,633 |
+| families (system × series × schema) | 1,633 |
+
+### Meaning — what a column IS
+
+| | |
+|---|---:|
 | distinct columns catalogued | 4,528 |
-| columns described | 4,528 (100%) |
-| dictionary rows | 19,905,196 |
-| codelists | 10,748 |
-| field→codelist bindings | 9,304 |
-| systems documented | 18 |
-| columns with a binding that decodes | 2,588 |
-| open questions | 1,339 |
-| full semantic bundle | 153 MB |
-| per-system bundle | ~10 MB |
+| **columns described** | **4,528 (100%)** |
+| curation entries · files | 4,534 · 108 |
+| datasets with `what_one_row_is` | 131 (100%) |
+
+`catalogued` is a MOVING denominator — it is the columns the census knows about,
+and the census grows. That is not pedantry: this line read 100% while SIH-RD had
+15 of its 117 columns described, because the census had reached families the
+description waves never covered. Re-measure rather than trusting the number.
+
+### Meaning — what a VALUE decodes to
+
+| | |
+|---|---:|
+| label pack | 2,418,601 rows · 2,331 codelists · 26.6 MB |
+| CNES↔CNPJ crosswalk | 546,189 rows |
+| field→codelist bindings shipped | 9,699 |
+| bindings by rung | def 8,496 · manual 534 · community 315 · semantic_match 253 · layout_doc 101 |
+| columns curation declares as code-bearing | 2,157 |
+| **… reaching a codelist that ships** | **2,014 (93.4%)** |
+| … bound to a table the pack lacks | 15 |
+| … with no binding at all | 128 |
+
+The 143 that do not decode are not merely undone; the reasons are in
+`docs/CONFIDENCE.md` §1b. `semantic_match` bindings are CANDIDATES at
+confidence ≤0.6 with `decodes_observed` NULL — the renderer weighs each against
+the column's real values and discards what explains nothing, so a wrong one
+costs a measurement rather than producing a wrong label.
+
+### Elsewhere
+
+| | |
+|---|---:|
+| dictionary rows (full catalog, not shipped) | 19,905,196 |
+| open questions, recorded not guessed | 1,339 |
+| full semantic bundle · per system | 153 MB · ~10 MB |
 | dictionary database | 531 MB, 7.47M codes |
-| bindings measured to decode nothing | 658 of 1,871 (35.2%) |
-| tests | 1,057 passing |
+| vendored source documents (`sources/`, gitignored) | 3,133 files |
 
-**These numbers go stale, and this table has been stale before.** It read
-"1,572 described (34.7%)" beside "538 tests" while `docs/RESUME.md` read
-"4,528 (100%)" beside 601 — two documents disagreeing by a factor of three
-because one was written later and neither said when. A reader had no way to
-tell which was current. Every count here is now stated with the test count
-beside it, which is the cheapest available clock.
-
-The headline is the first two rows. The mechanism behind the 82,441-file
-difference is stated plainly in `docs/FINDINGS.md` §0.
+The headline is the first two rows of the tree table. The mechanism behind the
+82,441-file difference is stated plainly in `docs/FINDINGS.md` §0.
 
 `docs/FINDINGS.md` records what we measured that contradicted an assumption.
 **`docs/CONFIDENCE.md` records the opposite** — claims this project makes that
