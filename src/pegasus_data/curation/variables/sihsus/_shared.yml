@@ -1,28 +1,132 @@
-# SIHSUS — columns carried by more than one dataset.
+# SIHSUS — columns shared across the SIH datasets
 #
-# The notification header and other cross-dataset fields. Described once
-# against the system, because that is the scope on which they are the
-# same column.
+# Descriptions sourced from IT_SIHSUS_1603.pdf, DATASUS's Informe Técnico for
+# the 2016-03 processing, which carries the official layout of RD*.dbf and
+# SP*.dbf with each field's name, type and meaning. `Zerado` fields are
+# written out as such rather than paraphrased: they exist in the record and
+# are always zero from Jan/2008, which an analyst summing them needs to know.
 system: SIHSUS
 asserted_by: pegasus_data
-
 variables:
+  ANO_CMPT:
+    official_name: Ano de processamento da AIH
+    translated_name: Processing year
+    description: Four-digit year of the competência — the month DATASUS processed and paid
+      this AIH, which is not the year of admission. An admission in December can be processed
+      in January.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 2'
+  AUD_JUST:
+    official_name: Justificativa do auditor
+    translated_name: Auditor justification
+    description: Free text in which the auditor justified accepting the AIH without the patient's
+      national health card number. Free text, so it is not codeable and may carry identifying
+      detail.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 88'
+  CAR_INT:
+    official_name: Caráter da internação
+    translated_name: Admission character
+    description: Whether the admission was elective, urgent, an accident at work, or another
+      circumstance. The usual field for separating planned from unplanned care.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 56'
+  CBOR:
+    official_name: Ocupação do paciente (CBO)
+    translated_name: Patient occupation (CBO)
+    description: Patient's occupation under the Brazilian Occupation Classification. Three
+      characters here, against the six-character CBO-2002 codes elsewhere, so it decodes against
+      the CBO-1994 vintage.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 68'
   CEP:
     official_name: CEP do paciente
     translated_name: Postal code
     description: Brazilian postal code (CEP) of the patient's address, 8 digits.
     code_system: none
     source: layout_doc
-    notes: 'There is no CEP table anywhere on the FTP tree, and there is no reason
-      to expect one: CEP is Correios'' property, not the Ministry''s. It is a postal
-      code, not a health classification, and it stays unlabelled.
+    notes: 'There is no CEP table anywhere on the FTP tree, and there is no reason to expect
+      one: CEP is Correios'' property, not the Ministry''s. It is a postal code, not a health
+      classification, and it stays unlabelled.
 
       '
+  CGC_HOSP:
+    official_name: CNPJ do Estabelecimento
+    translated_name: Establishment tax number (CNPJ)
+    description: Brazilian tax identifier of the establishment that billed the admission.
+      Joins to CNES via the CNES↔CNPJ crosswalk; CNES is the surer key where both exist.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 5'
+  CID_ASSO:
+    official_name: CID causa associada
+    translated_name: Associated cause ICD code
+    description: ICD-10 code of an associated condition contributing to the admission, distinct
+      from the principal diagnosis and from the cause of death.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 78'
+  CID_MORTE:
+    official_name: CID da morte
+    translated_name: Cause of death ICD code
+    description: ICD-10 code of the cause of death where the patient died. Zeros where the
+      patient survived, so it is constant in most extracts.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 79'
+  CID_NOTIF:
+    official_name: CID de Notificação
+    translated_name: Notifiable-condition ICD code
+    description: ICD-10 code of a notifiable condition identified during the admission, which
+      triggers a parallel SINAN notification.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 62'
+  CNAER:
+    official_name: Código de acidente de trabalho
+    translated_name: Work-accident code
+    description: Code identifying the admission as arising from an accident at work, used
+      with CAR_INT to study occupational injury.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 69'
   CNES:
     official_name: Código CNES do estabelecimento
     translated_name: Establishment CNES code
     code_system: internal
     source: layout_doc
+  CNPJ_MANT:
+    official_name: CNPJ da mantenedora
+    translated_name: Maintaining body tax number
+    description: Tax number of the body that maintains the establishment — often a municipality
+      or a foundation — which differs from CGC_HOSP where the hospital is run by a larger
+      entity.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 76'
+  COBRANCA:
+    official_name: Motivo de Saída/Permanência
+    translated_name: Discharge or stay reason
+    description: How the admission ended — discharge, transfer, death, or continued stay.
+      The codes distinguishing death from discharge live here, and MORTE is derived from them.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 43'
   COD_IDADE:
     official_name: Unidade de medida da idade
     translated_name: Age unit
@@ -30,22 +134,146 @@ variables:
     code_system: none
     modifies: IDADE
     source: layout_doc
-    notes: 'DELIBERATELY UNBOUND. Six distinct values are observed (0,1,2,3,4,5 — the
-      instruction expected five), and no codelist of time units exists in the 4.0M
-      dictionary rows ingested so far. The .DEF files bind this column to IDADEPUB,
-      IDADEBAS, IDADEDET and IDADE18, all of which are TabNet age-BAND axes with 3-character
-      codes labelled ''< 1 ano'' — they decode a tabulation axis, not this column.
-      Guessing the unit mapping is the one error with clinical consequence here, so
-      it is recorded as the open question semantics.cod_idade_units instead. IDADE_anos
-      will not be produced until it is closed, which is the correct failure: no derived
-      age is better than a wrong one.
+    notes: 'DELIBERATELY UNBOUND. Six distinct values are observed (0,1,2,3,4,5 — the instruction
+      expected five), and no codelist of time units exists in the 4.0M dictionary rows ingested
+      so far. The .DEF files bind this column to IDADEPUB, IDADEBAS, IDADEDET and IDADE18,
+      all of which are TabNet age-BAND axes with 3-character codes labelled ''< 1 ano'' —
+      they decode a tabulation axis, not this column. Guessing the unit mapping is the one
+      error with clinical consequence here, so it is recorded as the open question semantics.cod_idade_units
+      instead. IDADE_anos will not be produced until it is closed, which is the correct failure:
+      no derived age is better than a wrong one.
 
       '
+  COMPLEX:
+    official_name: Complexidade
+    translated_name: Care complexity
+    description: Complexity tier of the care — basic, medium or high — which governs both
+      the funding stream and which establishments may bill it.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 80'
+  CONTRACEP1:
+    official_name: Tipo de contraceptivo utilizado
+    translated_name: Contraceptive method 1
+    description: First contraceptive method recorded, collected on obstetric admissions.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 63'
+  CONTRACEP2:
+    official_name: Segundo tipo de contraceptivo
+    translated_name: Contraceptive method 2
+    description: Second contraceptive method, where two were recorded.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 64'
+  CPF_AUT:
+    official_name: CPF do autorizador
+    translated_name: Authoriser tax ID
+    description: CPF of the person who authorised the AIH. Zeroed from Jan/2008 onward, so
+      it measures the file rather than the care. GESTOR_CPF is where an authoriser is now
+      identified.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 58'
+  DIAGSEC1:
+    official_name: Diagnóstico secundário 1
+    translated_name: Secondary diagnosis 1
+    description: ICD-10 code of secondary diagnosis 1. These nine columns replace the single
+      DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
+      comorbidity appearing suddenly — a change in the record, not in the patients.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 96'
+  DIAGSEC2:
+    official_name: Diagnóstico secundário 2
+    translated_name: Secondary diagnosis 2
+    description: ICD-10 code of secondary diagnosis 2. These nine columns replace the single
+      DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
+      comorbidity appearing suddenly — a change in the record, not in the patients.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 97'
+  DIAGSEC3:
+    official_name: Diagnóstico secundário 3
+    translated_name: Secondary diagnosis 3
+    description: ICD-10 code of secondary diagnosis 3. These nine columns replace the single
+      DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
+      comorbidity appearing suddenly — a change in the record, not in the patients.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 98'
+  DIAGSEC4:
+    official_name: Diagnóstico secundário 4
+    translated_name: Secondary diagnosis 4
+    description: ICD-10 code of secondary diagnosis 4. These nine columns replace the single
+      DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
+      comorbidity appearing suddenly — a change in the record, not in the patients.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 99'
+  DIAGSEC5:
+    official_name: Diagnóstico secundário 5
+    translated_name: Secondary diagnosis 5
+    description: ICD-10 code of secondary diagnosis 5. These nine columns replace the single
+      DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
+      comorbidity appearing suddenly — a change in the record, not in the patients.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 100'
+  DIAGSEC6:
+    official_name: Diagnóstico secundário 6
+    translated_name: Secondary diagnosis 6
+    description: ICD-10 code of secondary diagnosis 6. These nine columns replace the single
+      DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
+      comorbidity appearing suddenly — a change in the record, not in the patients.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 101'
+  DIAGSEC7:
+    official_name: Diagnóstico secundário 7
+    translated_name: Secondary diagnosis 7
+    description: ICD-10 code of secondary diagnosis 7. These nine columns replace the single
+      DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
+      comorbidity appearing suddenly — a change in the record, not in the patients.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 102'
+  DIAGSEC8:
+    official_name: Diagnóstico secundário 8
+    translated_name: Secondary diagnosis 8
+    description: ICD-10 code of secondary diagnosis 8. These nine columns replace the single
+      DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
+      comorbidity appearing suddenly — a change in the record, not in the patients.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 103'
+  DIAGSEC9:
+    official_name: Diagnóstico secundário 9
+    translated_name: Secondary diagnosis 9
+    description: ICD-10 code of secondary diagnosis 9. These nine columns replace the single
+      DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
+      comorbidity appearing suddenly — a change in the record, not in the patients.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 104'
   DIAG_PRINC:
     official_name: Código do diagnóstico principal
     translated_name: Principal diagnosis
-    description: 'CID-10 code for the condition that motivated the admission. Stored
-      without the dot: J18.9 is written J189. Older records carry CID-9 instead.
+    description: 'CID-10 code for the condition that motivated the admission. Stored without
+      the dot: J18.9 is written J189. Older records carry CID-9 instead.
 
       '
     code_system: external
@@ -68,23 +296,23 @@ variables:
     - CID9_15
     - CID9_16
     - CID9_17
-    vintage_note: 'SIH spans the CID-9/CID-10 changeover and the older era is still
-      in the data: 426 of the 1,590 distinct values observed for this column are 6-digit
-      numeric CID-9 codes, not malformed CID-10. They decode already — 065099 is "650
-      - Parto normal" — but the kit ships CID-9 as seventeen CHAPTER files rather than
-      one table, so all seventeen are bound alongside CID10. Safe: the seventeen chapters
-      share zero contradicting labels across 7,681 codes, and the CID-9 and CID-10
-      code spaces overlap in exactly zero codes, so exact matching picks the right
-      classification per row without anything needing to know the row''s vintage.
+    vintage_note: 'SIH spans the CID-9/CID-10 changeover and the older era is still in the
+      data: 426 of the 1,590 distinct values observed for this column are 6-digit numeric
+      CID-9 codes, not malformed CID-10. They decode already — 065099 is "650 - Parto normal"
+      — but the kit ships CID-9 as seventeen CHAPTER files rather than one table, so all seventeen
+      are bound alongside CID10. Safe: the seventeen chapters share zero contradicting labels
+      across 7,681 codes, and the CID-9 and CID-10 code spaces overlap in exactly zero codes,
+      so exact matching picks the right classification per row without anything needing to
+      know the row''s vintage.
 
       '
     multi_valued: false
     token_rule:
       width: 4
     source: layout_doc
-    notes: 'The admission is billed for the reason it was authorised, which for chronic
-      disease is usually the acute consequence rather than the underlying disease.
-      Counting DIAG_PRINC counts episodes of care, not people and not prevalence.
+    notes: 'The admission is billed for the reason it was authorised, which for chronic disease
+      is usually the acute consequence rather than the underlying disease. Counting DIAG_PRINC
+      counts episodes of care, not people and not prevalence.
 
       '
   DIAG_SECUN:
@@ -111,17 +339,35 @@ variables:
     - CID9_15
     - CID9_16
     - CID9_17
-    vintage_note: 'Same CID-9/CID-10 span as DIAG_PRINC; both classifications are bound
-      and exact matching selects per row. See that entry for the measurement.
+    vintage_note: 'Same CID-9/CID-10 span as DIAG_PRINC; both classifications are bound and
+      exact matching selects per row. See that entry for the measurement.
 
       '
     source: layout_doc
-    notes: 'Present but dead from the 113-column generation onward: the column is still
-      emitted and is filled with the literal ''0000'' rather than being dropped. A
-      query that treats it as missing-when-absent will silently read zeros as a diagnosis.
-      The DIAGSEC1..DIAGSEC9 columns carry the real secondary diagnoses in that generation.
+    notes: 'Present but dead from the 113-column generation onward: the column is still emitted
+      and is filled with the literal ''0000'' rather than being dropped. A query that treats
+      it as missing-when-absent will silently read zeros as a diagnosis. The DIAGSEC1..DIAGSEC9
+      columns carry the real secondary diagnoses in that generation.
 
       '
+  DIAR_ACOM:
+    official_name: Quantidade de diárias de acompanhante
+    translated_name: Companion days
+    description: Days billed for a companion staying with the patient, which the SUS funds
+      for children, older patients and some other cases. Not patient bed-days.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 21'
+  DIAS_PERM:
+    official_name: Dias de Permanência
+    translated_name: Length of stay in days
+    description: 'Recorded length of stay. Compare with QT_DIARIAS and with DT_SAIDA minus
+      DI_INTER: the three can disagree, and same-day admissions record zero.'
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 52'
   DT_INTER:
     official_name: Data de internação
     translated_name: Admission date
@@ -134,50 +380,138 @@ variables:
     description: Date of discharge, stored as AAAAMMDD.
     code_system: none
     source: layout_doc
+  ESPEC:
+    official_name: Especialidade do Leito
+    translated_name: Bed speciality
+    description: Speciality of the bed the patient occupied (clinical, surgical, obstetric,
+      paediatric, psychiatric and so on). A property of the BED, not of the diagnosis or of
+      the treating professional.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 4'
+  ETNIA:
+    official_name: Etnia do paciente
+    translated_name: Indigenous ethnicity
+    description: Indigenous ethnic group, recorded only where RACA_COR is indígena. Blank
+      elsewhere by design, not missing.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 85'
+  FAEC_TP:
+    official_name: Subtipo de financiamento FAEC
+    translated_name: FAEC funding subtype
+    description: Which FAEC strategic-action programme paid, where FINANC says FAEC. Identifies
+      the specific policy — transplants, oncology, cardiac surgery.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 82'
+  FINANC:
+    official_name: Tipo de financiamento
+    translated_name: Funding type
+    description: 'Which funding stream paid: the general ceiling, FAEC for strategic procedures,
+      or another. Decides whether the spend falls inside a state''s ordinary ceiling or outside
+      it.'
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 81'
   FONTE_ORC:
     official_name: Fonte Orçamentária
     translated_name: Budget source code
-    description: 'DATASUS code for which budget line funded this admission''s payment.
-      Every value observed in this batch is ''00'', so this batch alone gives no information
-      about what the other codes mean.
+    description: 'DATASUS code for which budget line funded this admission''s payment. Every
+      value observed in this batch is ''00'', so this batch alone gives no information about
+      what the other codes mean.
 
       '
     code_system: internal
     codelists:
     - FONTEREM
     source: def
-    source_ref: '[DEF-RD2008] display_name "Fonte Orçamentária" for FONTE_ORC, lookup
-      FONTEREM.CNV.'
+    source_ref: '[DEF-RD2008] display_name "Fonte Orçamentária" for FONTE_ORC, lookup FONTEREM.CNV.'
     notes: 'No label was observed for the value seen (''00'' is unlabelled in the dictionary
-      rows collected so far) — do not assume ''00'' means "no source"; it may simply
-      be the modal funding source with no captured label.
+      rows collected so far) — do not assume ''00'' means "no source"; it may simply be the
+      modal funding source with no captured label.
 
       '
   GESTAO:
     official_name: Gestão
     translated_name: Type of health-system management
     description: 'Which sphere of government held "gestão plena" (full management authority)
-      over the SUS network that processed this AIH at the time of billing: 0 Estadual,
-      1 Municipal plena, 2 Estadual plena. Describes the administrative arrangement
-      the payer operated under, not the hospital''s own ownership.
+      over the SUS network that processed this AIH at the time of billing: 0 Estadual, 1 Municipal
+      plena, 2 Estadual plena. Describes the administrative arrangement the payer operated
+      under, not the hospital''s own ownership.
 
       '
     code_system: internal
     codelists:
     - GESTAO
     source: web
-    source_ref: '[GEOCOD-AIH] p.7: "GESTÃO - Indica o tipo de gestão do hospital: 0
-      = Gestão estadual; 1 = Gestão plena municipal; 2 = Gestão plena estadual" — matches
-      the catalog''s own GESTAO codelist labels exactly (''2'' Estadual plena, ''0''
-      Estadual, ''1'' Municipal plena assist).
+    source_ref: '[GEOCOD-AIH] p.7: "GESTÃO - Indica o tipo de gestão do hospital: 0 = Gestão
+      estadual; 1 = Gestão plena municipal; 2 = Gestão plena estadual" — matches the catalog''s
+      own GESTAO codelist labels exactly (''2'' Estadual plena, ''0'' Estadual, ''1'' Municipal
+      plena assist).
 
       '
-    notes: 'SEMIPLEN (below) carries this same concept for 1995–1997 records under
-      the older "gestão semi-plena" era name; the two are not automatically the same
-      code space across that boundary even though SEMIPLEN is bound to the GESTAO codelist
-      too.
+    notes: 'SEMIPLEN (below) carries this same concept for 1995–1997 records under the older
+      "gestão semi-plena" era name; the two are not automatically the same code space across
+      that boundary even though SEMIPLEN is bound to the GESTAO codelist too.
 
       '
+  GESTOR_COD:
+    official_name: Motivo de autorização da AIH pelo Gestor
+    translated_name: Manager authorisation reason
+    description: Why the manager authorised the AIH, used where authorisation needed a stated
+      justification.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 71'
+  GESTOR_CPF:
+    official_name: Número do CPF do Gestor
+    translated_name: Manager tax ID (CPF)
+    description: CPF of the manager who authorised the AIH. A direct personal identifier of
+      a named official; it passes through unchanged.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 73'
+  GESTOR_DT:
+    official_name: Data da autorização dada pelo Gestor
+    translated_name: Manager authorisation date
+    description: Date the manager authorised the AIH, as AAAAMMDD text.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 74'
+  GESTOR_TP:
+    official_name: Tipo de gestor
+    translated_name: Manager type
+    description: Whether the authorising manager is state or municipal.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 72'
+  GESTRISCO:
+    official_name: Indicador se é gestante de risco
+    translated_name: High-risk pregnancy indicator
+    description: Whether the patient was classified as a high-risk pregnancy.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 65'
+  HOMONIMO:
+    official_name: Indicador de homônimo
+    translated_name: Homonym indicator
+    description: Flags that this patient shares a name with the patient on another AIH. Set
+      so that a name match is not mistaken for the same person — a warning against naive record
+      linkage.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 59'
   IDADE:
     official_name: Idade
     translated_name: Age
@@ -192,18 +526,91 @@ variables:
       - COD_IDADE
       rule: convert to years using COD_IDADE as the unit
     source: layout_doc
-    notes: 'NOT interpretable alone. IDADE=030 with COD_IDADE meaning months is thirty
-      months, not thirty years. Averaging this column across a population mixes units
-      and produces a number that is not an age.
+    notes: 'NOT interpretable alone. IDADE=030 with COD_IDADE meaning months is thirty months,
+      not thirty years. Averaging this column across a population mixes units and produces
+      a number that is not an age.
 
       '
+  IDENT:
+    official_name: Identificação do tipo da AIH
+    translated_name: AIH type
+    description: Whether this is an ordinary AIH or a continuation of a long stay. Long-stay
+      continuations repeat the patient across several AIH records, so counting AIHs overcounts
+      admissions unless this is filtered.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 7'
+  IND_VDRL:
+    official_name: Indica exame VDRL
+    translated_name: VDRL test indicator
+    description: Whether a VDRL test — the syphilis screen offered in antenatal care — was
+      performed during the admission.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 48'
+  INFEHOSP:
+    official_name: Status de infecção hospitalar
+    translated_name: Hospital-acquired infection status
+    description: Whether a hospital-acquired infection was recorded. Very sparsely filled;
+      absence is not evidence of no infection.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 77'
+  INSC_PN:
+    official_name: Número da gestante no pré-natal
+    translated_name: Antenatal registration number
+    description: The pregnant patient's antenatal programme registration number. A direct
+      personal identifier; it passes through unchanged.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 66'
+  INSTRU:
+    official_name: Grau de instrução do paciente
+    translated_name: Education level
+    description: Patient's schooling level. Sparsely and inconsistently filled, and the categories
+      changed over the series.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 61'
+  IN_TP_VAL:
+    official_name: Tipo de valor
+    translated_name: Value type
+    description: 'Whether this row carries a professional-services value or a hospital-services
+      one: 1 is SP, 2 is SH. Add SP_VALATO without splitting on it and two different things
+      are added together.'
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 29'
+  MARCA_UCI:
+    official_name: Tipo de UCI utilizada pelo paciente
+    translated_name: Intermediate care unit type
+    description: Which kind of intermediate care unit the patient used. Zero means none.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 95'
+  MARCA_UTI:
+    official_name: Tipo de UTI utilizada
+    translated_name: ICU type
+    description: Which kind of intensive care unit the patient used (adult, paediatric, neonatal,
+      burns, coronary). Zero means no ICU on this AIH.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 16'
   MES_CMPT:
     official_name: Mês processamento
     translated_name: Processing month (competência)
-    description: 'Two-digit month (01–12) of the "competência" — the billing/processing
-      period this AIH was settled under. For a stay that crosses a month boundary it
-      reflects the hospital''s payment cycle, not necessarily the calendar month the
-      patient was actually admitted or discharged.
+    description: 'Two-digit month (01–12) of the "competência" — the billing/processing period
+      this AIH was settled under. For a stay that crosses a month boundary it reflects the
+      hospital''s payment cycle, not necessarily the calendar month the patient was actually
+      admitted or discharged.
 
       '
     code_system: none
@@ -214,11 +621,20 @@ variables:
       labelled with the twelve month names via MESES.CNV.
 
       '
-    notes: 'A time series built from MES_CMPT counts billing/payment activity, not
-      admission activity — use the admission-date column (DT_INTER, documented in sihsus_rd.yml)
-      for the latter.
+    notes: 'A time series built from MES_CMPT counts billing/payment activity, not admission
+      activity — use the admission-date column (DT_INTER, documented in sihsus_rd.yml) for
+      the latter.
 
       '
+  MORTE:
+    official_name: Indica Óbito
+    translated_name: Death indicator
+    description: Whether the patient died during this admission. Derived from COBRANCA, so
+      it agrees with the discharge reason by construction and is not independent evidence.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 53'
   MUNIC_MOV:
     official_name: Município do Estabelecimento
     translated_name: Municipality of the establishment
@@ -234,47 +650,840 @@ variables:
     code_system: internal
     codelist: MUNICBR
     source: inferred
-    reasoning: 'The column holds 6-character IBGE codes. CADMUN as shipped in the kits
-      parses to 5,579 four-character codes, so it is not the municipality table despite
-      the name; MUNICBR holds 280,002 six-character codes labelled ''120001 Acrelandia''.
-      Bound by measured width and label shape.
+    reasoning: 'The column holds 6-character IBGE codes. CADMUN as shipped in the kits parses
+      to 5,579 four-character codes, so it is not the municipality table despite the name;
+      MUNICBR holds 280,002 six-character codes labelled ''120001 Acrelandia''. Bound by measured
+      width and label shape.
 
       '
     notes: 'MUNIC_RES and MUNIC_MOV answer different questions and are routinely confused.
-      Rates per population must use MUNIC_RES, because the denominator is residents;
-      describing hospital activity must use MUNIC_MOV.
+      Rates per population must use MUNIC_RES, because the denominator is residents; describing
+      hospital activity must use MUNIC_MOV.
 
       '
+  NACIONAL:
+    official_name: Código da nacionalidade do paciente
+    translated_name: Patient nationality
+    description: Nationality of the patient. Sparsely filled outside border regions and specialist
+      centres.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 54'
+  NASC:
+    official_name: Data de nascimento do paciente
+    translated_name: Patient date of birth
+    description: Patient's date of birth as AAAAMMDD text. Stored as characters, not a date
+      type, and unparsed dates such as all-zeros occur.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 10'
+  NATUREZA:
+    official_name: Natureza jurídica do hospital
+    translated_name: Establishment legal nature (legacy)
+    description: Legal nature of the establishment under the older Regime-and-Nature classification.
+      Carries content only up to May/2012; NAT_JUR replaces it with the CONCLA scheme.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 44'
+  NAT_JUR:
+    official_name: Natureza jurídica do Estabelecimento
+    translated_name: Establishment legal nature (CONCLA)
+    description: Legal nature of the establishment under CONCLA, the national classification
+      commission's scheme — public, private, philanthropic and their subdivisions. Replaces
+      NATUREZA from mid-2012.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 45'
+  NUM_FILHOS:
+    official_name: Número de filhos do paciente
+    translated_name: Number of children
+    description: How many children the patient has. Collected on obstetric admissions; zero
+      elsewhere generally means not asked rather than none. A .DEF binds it to the NUMFILH
+      band table, which groups the value into ranges — the column itself is the raw number.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 60'
+  NUM_PROC:
+    official_name: Número do processo
+    translated_name: Process number
+    description: Administrative process number attached to the authorisation. Zeroed from
+      Jan/2008 onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 55'
   N_AIH:
     official_name: Número da AIH
     translated_name: Hospital admission authorisation number
-    description: 'Identifier of the AIH (Autorização de Internação Hospitalar) — the
-      billing authorisation, which is what a row of this dataset is.
+    description: 'Identifier of the AIH (Autorização de Internação Hospitalar) — the billing
+      authorisation, which is what a row of this dataset is.
 
       '
     code_system: none
     source: layout_doc
+  PROC_REA:
+    official_name: Procedimento realizado
+    translated_name: Procedure performed
+    description: SIGTAP code of the main procedure actually performed, and the field that
+      determines payment. Use this, not PROC_SOLIC, to describe what was done.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 24'
+  PROC_SOLIC:
+    official_name: Procedimento solicitado
+    translated_name: Procedure requested
+    description: SIGTAP code of the procedure originally requested when the AIH was authorised.
+      Differs from PROC_REA whenever the plan changed after admission.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 23'
+  QT_DIARIAS:
+    official_name: Quantidade de diárias
+    translated_name: Bed-days billed
+    description: 'Number of bed-days billed on this AIH. Compare against DIAS_PERM: billed
+      days and elapsed days between admission and discharge need not agree.'
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 22'
+  RACA_COR:
+    official_name: Raça/Cor do paciente
+    translated_name: Race/colour
+    description: Patient's race or colour as self-declared under the IBGE categories. Codes
+      differ between SIH and SINASC — Parda is 03 here and 4 in SINASC — so never pool them
+      without recoding.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 84'
+  REGCT:
+    official_name: Regra contratual
+    translated_name: Contract rule
+    description: Contract rule under which the establishment billed, identifying the agreement
+      governing this admission.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 83'
+  REMESSA:
+    official_name: Número da remessa
+    translated_name: Transmission batch identifier
+    description: Identifier of the batch in which the establishment transmitted this record
+      to DATASUS. Useful for tracing a reprocessing, not for analysis.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 87'
+  RUBRICA:
+    official_name: Rubrica
+    translated_name: Budget line
+    description: Budget line the spend was booked against. Zeroed from Jan/2008 onward, so
+      it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 47'
+  SEQUENCIA:
+    official_name: Sequencial da AIH na remessa
+    translated_name: Sequence within transmission batch
+    description: Position of this record in the batch that transmitted it. An artefact of
+      transmission, carrying no clinical meaning, and not stable across reprocessing.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 86'
+  SEQ_AIH5:
+    official_name: Sequencial de longa permanência
+    translated_name: Long-stay sequence number
+    description: Position of this AIH within a chain of type-5 long-stay continuations. Non-zero
+      means the record continues an earlier one, so counting rows overcounts admissions.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 67'
+  SERV_CLA:
+    official_name: Serviço/Classificação
+    translated_name: Service and classification
+    description: Service and classification code of the act, identifying the specialised service
+      that delivered it.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 32'
   SEXO:
     official_name: Sexo do paciente
     translated_name: Sex
     code_system: none
     source: layout_doc
-    notes: 'DELIBERATELY UNBOUND. The kits ship contradictory mappings for the same
-      code: the merged SEXO table contains both ''1 -> Masculino'' and ''1 -> Feminino'',
-      and both ''3 -> Feminino'' and ''3 -> Ignorado'', because different systems encoded
-      sex differently over time. Choosing between them without a per-generation source
-      would label a large share of admissions with the wrong sex and show nothing in
-      the output. The renderer refuses to label a column whose codelist disagrees with
-      itself; see the open question semantics.sexo_contradictory_coding.
+    notes: 'DELIBERATELY UNBOUND. The kits ship contradictory mappings for the same code:
+      the merged SEXO table contains both ''1 -> Masculino'' and ''1 -> Feminino'', and both
+      ''3 -> Feminino'' and ''3 -> Ignorado'', because different systems encoded sex differently
+      over time. Choosing between them without a per-generation source would label a large
+      share of admissions with the wrong sex and show nothing in the output. The renderer
+      refuses to label a column whose codelist disagrees with itself; see the open question
+      semantics.sexo_contradictory_coding.
 
       '
+  SIS_JUST:
+    official_name: Justificativa do estabelecimento
+    translated_name: Establishment justification
+    description: Free text in which the establishment justified accepting the AIH without
+      the national health card number.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 89'
+  SP_AA:
+    official_name: Ano da internação
+    translated_name: Admission year
+    description: Four-digit year of the admission this professional act belongs to.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 3'
+  SP_ATOPROF:
+    official_name: Procedimento referente ao ato profissional
+    translated_name: Professional act procedure
+    description: SIGTAP code of this specific professional act. Eight characters in the older
+      era and ten in the newer, so it decodes against two tables and pooling them needs both.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 13'
+  SP_CIDPRI:
+    official_name: CID Principal
+    translated_name: Principal ICD code
+    description: ICD-10 principal diagnosis carried on the act row, repeated from the parent
+      AIH.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 33'
+  SP_CIDSEC:
+    official_name: CID Secundário
+    translated_name: Secondary ICD code
+    description: ICD-10 secondary diagnosis carried on the act row.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 34'
+  SP_CNES:
+    official_name: Código do CNES do Estabelecimento executante
+    translated_name: Executing establishment (CNES)
+    description: CNES code of the establishment that performed the act. Joins to CNES.ST as
+      of the competência, not as of today.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 5'
+  SP_COMPLEX:
+    official_name: Complexidade do ato profissional
+    translated_name: Act complexity
+    description: Complexity tier of this act, which may differ from the AIH's overall COMPLEX.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 23'
+  SP_CO_FAEC:
+    official_name: Tipo e subtipo de financiamento FAEC
+    translated_name: Act FAEC funding code
+    description: 'Funding type and FAEC subtype for this act packed into one field: the first
+      characters give the type, the rest the strategic-action subtype.'
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 25'
+  SP_CPFCGC:
+    official_name: CNES, CPF ou CNPJ do prestador
+    translated_name: Provider identifier
+    description: Identifier of whoever provided the act — a CNES code, a CPF or a CNPJ, distinguished
+      only by length. A CPF here is a direct personal identifier and passes through unchanged.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 12'
+  SP_DES_HOS:
+    official_name: Indica UF de residência diferente
+    translated_name: Cross-state establishment flag
+    description: Flags an admission where the patient travelled in from another state, recorded
+      from the establishment's side. Pairs with SP_DES_PAC, which records the same fact from
+      the patient's side; the two are populated independently and can disagree.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 21'
+  SP_DES_PAC:
+    official_name: Indica UF de residência diferente
+    translated_name: Cross-state patient flag
+    description: Flags an admission where the patient travelled in from another state, recorded
+      from the patient's side. Pairs with SP_DES_HOS; compare SP_M_PAC against SP_M_HOSP to
+      measure the travel directly rather than trusting either flag.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 22'
+  SP_DTINTER:
+    official_name: Data da internação
+    translated_name: Admission date
+    description: Admission date of the parent AIH, as AAAAMMDD text.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 8'
+  SP_DTSAIDA:
+    official_name: Data de saída
+    translated_name: Discharge date
+    description: Discharge date of the parent AIH, as AAAAMMDD text.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 9'
+  SP_FINANC:
+    official_name: Tipo de financiamento do ato profissional
+    translated_name: Act funding type
+    description: Which funding stream paid for this act, which may differ from the AIH's FINANC.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 24'
+  SP_GESTOR:
+    official_name: Gestor do estabelecimento
+    translated_name: Managing authority
+    description: State plus municipality code of the managing authority, or the state code
+      followed by zeros where management is state-level.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 1'
+  SP_MM:
+    official_name: Mês da internação
+    translated_name: Admission month
+    description: Two-digit month of the admission this professional act belongs to.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 4'
+  SP_M_HOSP:
+    official_name: Município do Estabelecimento Executante
+    translated_name: Establishment municipality
+    description: IBGE code of the municipality where the executing establishment sits.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 19'
+  SP_M_PAC:
+    official_name: Município de residência do paciente
+    translated_name: Patient municipality of residence
+    description: IBGE code of the patient's municipality of residence. Compare with SP_M_HOSP
+      to measure travel for care.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 20'
+  SP_NAIH:
+    official_name: Número da AIH
+    translated_name: AIH number
+    description: The AIH this professional act belongs to. The join key back to SIH.RD, which
+      holds one row per AIH while this file holds many.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 6'
+  SP_NF:
+    official_name: Nota fiscal do material empregado
+    translated_name: Invoice number or act date
+    description: Invoice number for the material used when the act involved an orthosis or
+      prosthesis; OTHERWISE this field carries the DATE of the act. Two different meanings
+      in one column, decided by the act.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 17'
+  SP_NUM_PR:
+    official_name: Número do processo
+    translated_name: Process number
+    description: Administrative process number for the act. Zeroed from Jan/2008 onward, so
+      it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 10'
+  SP_PF_DOC:
+    official_name: Documento de pessoa jurídica
+    translated_name: Legal-person document
+    description: Document identifying a party to the act. Despite the PF in its name it holds
+      the legal-person document, and SP_PJ_DOC holds the natural-person one — the two are
+      transposed, so check the value width before assuming which is which.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 27'
+  SP_PJ_DOC:
+    official_name: Documento de pessoa física
+    translated_name: Natural-person document
+    description: Document identifying a party to the act, holding the natural-person document
+      despite the PJ in its name. A direct personal identifier, and it passes through unchanged.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 28'
+  SP_PROCREA:
+    official_name: Procedimento principal realizado na AIH
+    translated_name: Main procedure of the AIH
+    description: SIGTAP code of the AIH's main procedure, repeated on every act row of that
+      AIH. Group by SP_NAIH or filter SP_U_AIH before treating it as one-per-admission.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 7'
+  SP_PTSP:
+    official_name: Quantidade de pontos
+    translated_name: Points
+    description: Point value of the act under the older points-based remuneration scheme.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 16'
+  SP_QTD_ATO:
+    official_name: Quantidade de atos profissionais
+    translated_name: Number of acts
+    description: How many times this act was performed on the AIH. The quantity to sum when
+      counting procedures — the row count counts distinct act types instead.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 15'
+  SP_QT_PROC:
+    official_name: Quantidade de procedimentos realizados
+    translated_name: Procedures performed
+    description: Number of procedures performed under this act row.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 35'
+  SP_TIPO:
+    official_name: Tipo
+    translated_name: Type
+    description: Type marker distinguishing categories of professional act. Zeroed from Jan/2008
+      onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 11'
+  SP_TP_ATO:
+    official_name: Tipo do ato
+    translated_name: Act type
+    description: Classification of the professional act. Zeroed from Jan/2008 onward, so it
+      measures the file rather than the care. SP_ATOPROF carries the SIGTAP code that identifies
+      it now.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 14'
+  SP_UF:
+    official_name: Unidade da Federação
+    translated_name: State
+    description: Two-digit IBGE code of the state where the executing establishment sits.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 2'
+  SP_U_AIH:
+    official_name: Indicador único da AIH
+    translated_name: Unique-AIH marker
+    description: Marks exactly one row per AIH. Filter on it to reach admissions from a file
+      whose rows are professional acts — without it every AIH appears once per act performed
+      on it.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 36'
+  SP_VALATO:
+    official_name: Valor do ato profissional
+    translated_name: Act value
+    description: Amount paid for this professional act. Summing across an AIH gives its professional-services
+      component.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      Layout dos arquivos SP*.dbf, SEQ 18'
+  TOT_PT_SP:
+    official_name: Total de pontos SP
+    translated_name: Total professional points
+    description: Total points under the old points-based professional remuneration. Zeroed
+      from Jan/2008 onward, so it measures the file rather than the care. SP_PTSP keeps the
+      per-act points.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 57'
+  TPDISEC1:
+    official_name: Tipo de diagnóstico secundário 1
+    translated_name: Secondary diagnosis 1 type
+    description: Whether secondary diagnosis 1 was present on admission or arose during the
+      stay. The distinction that separates comorbidity from complication, and it is meaningless
+      without DIAGSEC1.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 105'
+  TPDISEC2:
+    official_name: Tipo de diagnóstico secundário 2
+    translated_name: Secondary diagnosis 2 type
+    description: Whether secondary diagnosis 2 was present on admission or arose during the
+      stay. The distinction that separates comorbidity from complication, and it is meaningless
+      without DIAGSEC2.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 106'
+  TPDISEC3:
+    official_name: Tipo de diagnóstico secundário 3
+    translated_name: Secondary diagnosis 3 type
+    description: Whether secondary diagnosis 3 was present on admission or arose during the
+      stay. The distinction that separates comorbidity from complication, and it is meaningless
+      without DIAGSEC3.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 107'
+  TPDISEC4:
+    official_name: Tipo de diagnóstico secundário 4
+    translated_name: Secondary diagnosis 4 type
+    description: Whether secondary diagnosis 4 was present on admission or arose during the
+      stay. The distinction that separates comorbidity from complication, and it is meaningless
+      without DIAGSEC4.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 108'
+  TPDISEC5:
+    official_name: Tipo de diagnóstico secundário 5
+    translated_name: Secondary diagnosis 5 type
+    description: Whether secondary diagnosis 5 was present on admission or arose during the
+      stay. The distinction that separates comorbidity from complication, and it is meaningless
+      without DIAGSEC5.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 109'
+  TPDISEC6:
+    official_name: Tipo de diagnóstico secundário 6
+    translated_name: Secondary diagnosis 6 type
+    description: Whether secondary diagnosis 6 was present on admission or arose during the
+      stay. The distinction that separates comorbidity from complication, and it is meaningless
+      without DIAGSEC6.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 110'
+  TPDISEC7:
+    official_name: Tipo de diagnóstico secundário 7
+    translated_name: Secondary diagnosis 7 type
+    description: Whether secondary diagnosis 7 was present on admission or arose during the
+      stay. The distinction that separates comorbidity from complication, and it is meaningless
+      without DIAGSEC7.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 111'
+  TPDISEC8:
+    official_name: Tipo de diagnóstico secundário 8
+    translated_name: Secondary diagnosis 8 type
+    description: Whether secondary diagnosis 8 was present on admission or arose during the
+      stay. The distinction that separates comorbidity from complication, and it is meaningless
+      without DIAGSEC8.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 112'
+  TPDISEC9:
+    official_name: Tipo de diagnóstico secundário 9
+    translated_name: Secondary diagnosis 9 type
+    description: Whether secondary diagnosis 9 was present on admission or arose during the
+      stay. The distinction that separates comorbidity from complication, and it is meaningless
+      without DIAGSEC9.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 113'
+  UF_ZI:
+    official_name: Município Gestor
+    translated_name: Managing municipality
+    description: IBGE code of the municipality that manages the establishment's contract,
+      or the state code with trailing zeros where management is state-level. This is the MANAGER,
+      not where the patient lives or where care happened.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 1'
+  US_TOT:
+    official_name: Valor total, em dólar
+    translated_name: Total value in US dollars
+    description: Total AIH value converted to US dollars at the rate of the competência. Present
+      so figures are comparable across years without deflating; the cruzeiro-to-real changes
+      make the local series discontinuous.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 38'
+  UTI_INT_AL:
+    official_name: UTI intermediária - alta
+    translated_name: Intermediate-care days, discharge
+    description: Intermediate-care days falling in the discharge competência. Zeroed from
+      Jan/2008 onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 19'
+  UTI_INT_AN:
+    official_name: UTI intermediária - anterior
+    translated_name: Intermediate-care days, previous
+    description: Intermediate-care days attributed to the preceding competência. Zeroed from
+      Jan/2008 onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 18'
+  UTI_INT_IN:
+    official_name: UTI intermediária - início
+    translated_name: Intermediate-care days, opening
+    description: Intermediate-care days carried in at the start of the competência. Zeroed
+      from Jan/2008 onward, so it measures the file rather than the care. UTI_INT_TO holds
+      the usable total.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 17'
+  UTI_INT_TO:
+    official_name: Quantidade de diárias em unidade intermediária
+    translated_name: Intermediate-care days
+    description: Number of days billed in an intermediate care unit — a step-down level between
+      ward and ICU. Distinct from UTI_MES_TO and not a subset of it.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 20'
+  UTI_MES_AL:
+    official_name: UTI mês - alta
+    translated_name: ICU days in month, discharge
+    description: Intensive-care days falling in the competência the patient was discharged
+      in. Zeroed from Jan/2008 onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 14'
+  UTI_MES_AN:
+    official_name: UTI mês - anterior
+    translated_name: ICU days in month, previous
+    description: Intensive-care days attributed to the preceding competência. Zeroed from
+      Jan/2008 onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 13'
+  UTI_MES_IN:
+    official_name: UTI mês - início
+    translated_name: ICU days in month, opening
+    description: Intensive-care days carried in at the start of the competência. Zeroed from
+      Jan/2008 onward, so it measures the file rather than the care. The month's usable ICU
+      total is UTI_MES_TO.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 12'
+  UTI_MES_TO:
+    official_name: Quantidade de dias de UTI no mês
+    translated_name: ICU days in the month
+    description: How many intensive-care days were billed on this AIH within the competência;
+      the IN/AN/AL companions are zeroed, so this is the usable one. A .DEF binds it to the
+      DIARIASUTI band table, which buckets the value — the column itself is the raw number
+      of days.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 15'
+  VAL_ACOMP:
+    official_name: Valor acompanhante
+    translated_name: Companion value
+    description: Payment for a companion staying with the patient. Zeroed from Jan/2008 onward,
+      so it measures the file rather than the care. DIAR_ACOM still records the days.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 29'
+  VAL_OBSANG:
+    official_name: Valor observação sangue
+    translated_name: Blood observation value
+    description: Payment for the observation period following a transfusion. Zeroed from Jan/2008
+      onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 34'
+  VAL_ORTP:
+    official_name: Valor órtese/prótese
+    translated_name: Orthosis/prosthesis value
+    description: Payment for orthoses, prostheses and the materials fitted with them. Zeroed
+      from Jan/2008 onward, so it measures the file rather than the care. SP_NF carries the
+      invoice for those materials.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 30'
+  VAL_PED1AC:
+    official_name: Valor pediátrico 1º acompanhante
+    translated_name: Paediatric first-companion value
+    description: Payment for the first companion of a paediatric patient. Zeroed from Jan/2008
+      onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 35'
+  VAL_RN:
+    official_name: Valor recém-nato
+    translated_name: Newborn value
+    description: Payment for the newborn's share of a delivery admission. Zeroed from Jan/2008
+      onward, so it measures the file rather than the care. A liveborn infant now gets its
+      own AIH.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 28'
+  VAL_SADT:
+    official_name: Valor SADT
+    translated_name: Diagnostic services value
+    description: Payment for diagnostic and therapeutic support — imaging, pathology, physiotherapy.
+      Zeroed from Jan/2008 onward, so it measures the file rather than the care. Those acts
+      are itemised in the SP file instead.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 27'
+  VAL_SADTSR:
+    official_name: Valor SADT sem registro
+    translated_name: Unregistered diagnostic services value
+    description: Payment for diagnostic support given without an individual act record. Zeroed
+      from Jan/2008 onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 32'
+  VAL_SANGUE:
+    official_name: Valor sangue
+    translated_name: Blood value
+    description: Payment for blood and blood products transfused during the stay. Zeroed from
+      Jan/2008 onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 31'
+  VAL_SH:
+    official_name: Valor de serviços hospitalares
+    translated_name: Hospital services value
+    description: 'Amount paid for hospital services — the facility component: bed, nursing,
+      materials. Currency of the day, never inflation-adjusted; add VAL_SP for the professional
+      component.'
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 25'
+  VAL_SH_FED:
+    official_name: Valor do complemento federal de serviços hospitalares
+    translated_name: Federal hospital-services top-up
+    description: Federal top-up to the hospital-services payment. ALREADY INCLUDED in VAL_TOT
+      — adding it again double-counts.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 90'
+  VAL_SH_GES:
+    official_name: Valor do complemento do gestor de serviços hospitalares
+    translated_name: Manager hospital-services top-up
+    description: State or municipal top-up to the hospital-services payment. Already included
+      in VAL_TOT.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 92'
+  VAL_SP:
+    official_name: Valor de serviços profissionais
+    translated_name: Professional services value
+    description: Amount paid for professional services — the clinicians' component, itemised
+      act by act in the SP file. VAL_SH plus VAL_SP is the substance of VAL_TOT; the federal
+      and manager top-ups are already inside it.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 26'
+  VAL_SP_FED:
+    official_name: Valor do complemento federal de serviços profissionais
+    translated_name: Federal professional-services top-up
+    description: Federal top-up to the professional-services payment. Already included in
+      VAL_TOT.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 91'
+  VAL_SP_GES:
+    official_name: Valor do complemento do gestor de serviços profissionais
+    translated_name: Manager professional-services top-up
+    description: State or municipal top-up to the professional-services payment. Already included
+      in VAL_TOT.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 93'
   VAL_TOT:
     official_name: Valor total da AIH
     translated_name: Total value
     description: Total amount billed for the admission, in Brazilian reais.
     code_system: none
     source: layout_doc
-    notes: 'Nominal reais at the time of billing, never deflated. Summing across years
-      adds together currency of different value.
+    notes: 'Nominal reais at the time of billing, never deflated. Summing across years adds
+      together currency of different value.
 
       '
+  VAL_TRANSP:
+    official_name: Valor transporte
+    translated_name: Transport value
+    description: Payment for transporting the patient between establishments. Zeroed from
+      Jan/2008 onward, so it measures the file rather than the care.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 33'
+  VAL_UCI:
+    official_name: Valor de UCI
+    translated_name: Intermediate care unit value
+    description: Amount paid for care in an intermediate care unit (UCI), distinct from the
+      ICU value in VAL_UTI.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 94'
+  VAL_UTI:
+    official_name: Valor de UTI
+    translated_name: ICU value
+    description: Amount paid for intensive care on this AIH. Included in VAL_TOT, so adding
+      the two double-counts.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 37'
+  VINCPREV:
+    official_name: Vínculo com a Previdência
+    translated_name: Social-security status
+    description: The patient's relationship to social security — employed, self-employed,
+      retired and so on.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 70'
