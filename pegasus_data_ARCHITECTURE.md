@@ -186,6 +186,7 @@ pegasus_data/
   _compendium.py          compendium(): a portable map of DATASUS (§14.6)
   _explore.py             explore(): the shipped map of the tree (§14.1)
   _unknowns.py            gaps(), questions(): what the module cannot tell you (§14.11)
+  _dictionary.py          the dictionary for one fetched table (§14.12)
   _translate.py           translate(): the dictionary as a service (§14.2)
   view.py                 read-time labelling and render profiles
   retrieve.py             fetch(): one call, DATASUS to a table
@@ -1269,6 +1270,77 @@ row of SIH, and an alphabetical list hides that. `questions()` returns the
 recorded `[V]` list — and an empty answer means the catalog recorded none, not
 that nothing is uncertain.
 
+### 14.12 `fetch()`'s three shape switches `[D]`
+
+`_dictionary.py`
+
+Three parameters that change what the answer LOOKS like and never which rows
+come back. Each existed as a capability the module already had and could not
+deliver onto the table it was about.
+
+**`provenance: bool = False`.** `_source_path`, `_blob_sha256`, `_ingested_at`
+and `_schema_signature` were attached to every row of every result. They are
+constant per source file, so they paid width in every row to repeat what the
+report states once, and the default is now off. They are dropped FIRST in the
+return path — before the dictionary is built and before renaming — so they can
+never be renamed or described as data. `split_by_source()` still needs
+`_source_path` and still has it: the drop happens after rendering.
+
+**`names: "original" | "described"`.** `CODMUNRES` becomes `Municipality of
+residence`. A column with no curated English name keeps the name DATASUS gave
+it, because inventing one makes a column harder to trace back to the layout, not
+easier. Collisions are real — two SINAN columns genuinely are both "Municipality
+of residence", one current and one historical — so the original name is appended
+in parentheses rather than allowing two identically-named columns, which Arrow
+permits and no caller wants.
+
+**`dictionary: bool = False`.** One row per column: the English name, the
+Portuguese official name, the prose, the reference table that decoded it, and
+the evidence rung behind that (§6.3). It reads curation in ONE query rather than
+calling `describe()` per column, which at 74 columns is 74 round trips to answer
+one question. Label companions and derived columns (`_codes`, `_unmatched`,
+`_ibge7`, …) get rows too: a column absent from the dictionary reads as a column
+nobody has documented, which is the complaint the dictionary answers.
+
+The switches compose, and the return is a tuple in a fixed order — `(table)`,
+`(table, report)`, `(table, dictionary)`, `(table, report, dictionary)`. Order
+in the RETURN PATH is load-bearing and is the reverse of what reads naturally:
+provenance is dropped, then the dictionary is built against the ORIGINAL names,
+then renaming uses that dictionary. Built the other way round, the dictionary
+would describe columns under names it had itself invented and lose the only
+mapping back.
+
+`RenderReport.codelist_used` was added for this. `labelled` says THAT a column
+was decoded; only the table name says whether it was decoded *correctly*, and
+`CODMUNRES` sat in `labelled` for the entire period it was being named with
+health regions (§22.7). A caller could not see the defect because nothing
+reported which table produced the label.
+
+`RenderReport.renamed_headers` was added for the same reason and closes a defect
+of its own. The `report` profile translates headers *during* rendering and is
+the CLI's default, so the dictionary — built from the rendered table — was
+looking up "Mother's age" in a curation layer keyed on `IDADEMAE`, finding
+nothing, and emitting a heading with no prose under it. The map is `rendered ->
+DATASUS`, and `original_column` on every dictionary row is always the DATASUS
+name however many times the column was renamed on the way out.
+
+**Both were found by reading a produced CSV, not by a test.** So was the
+`_combine` defect below, and that is the recurring lesson: the suite asserted on
+columns and reports and never on the rendered STRING a person opens.
+
+#### A combined value must not repeat a code the label already carries
+
+`--profile report` joins `code – label`, and many DATASUS `.CNV` tables write
+the code into the label itself: `BR_MUNICIPALFA` maps `120001` to
+`'120001 Acrelândia, AC'`. Combining blindly produced
+
+    120001 – 120001 Acrelândia, AC
+
+in every municipality cell of every report-profile export. `_combine` now skips
+the prefix when the label already opens with the code AND the next character is
+a boundary — the boundary check is what stops code `12` being swallowed by label
+`'120001 Acrelândia'`, where the match is a coincidence of digits.
+
 ## 14a. What ships, and what does not
 
 A package is not a data lake. The rule is: **ship what makes the module
@@ -1801,12 +1873,57 @@ ARCHITECTURE §14.9. Along the way this turned up a crash on the same path:
 list, so *every* fresh install died before reaching the labelling question at
 all — which is what comes of never running the user's own first command.
 
-**A label can be broader than the column it decodes.** `.DEF` binds SINASC's
-`CODMUNRES` to `CIRAC`, a health-region table containing every municipality code
-mapped to the region that contains it. It decodes 100% of the column and reports
-Rio Branco as "Baixo Acre e Purus". Granularity now breaks the tie against such
-rollups, and where one is the only table bound it is used and named — but the
-underlying binding is still wrong and nobody has fixed it.
+**~~A label can be broader than the column it decodes.~~** *Closed, and the
+diagnosis is worth keeping because every layer behaved as designed while
+producing a wrong answer.* `.DEF` binds SINASC's `CODMUNRES` to **145 tables**,
+all at confidence 0.9, one of which is `CIRAC` — a 24-row health-region table
+containing every municipality code mapped to the region that contains it.
+
+Four correct mechanisms composed into a wrong result:
+
+1. `_rank` breaks a confidence tie on name affinity, then **alphabetically**.
+   No table is named `CODMUNRES`, so with 145 candidates tied the tie-break that
+   actually decided the answer was alphabetical order.
+2. `CIRAC` sorts 3rd. `BR_MUNICIPALFA` sorts **118th**.
+3. `_choose_binding` measures only the first `_MAX_CANDIDATES` (12) candidates —
+   a cost bound, since `.DEF` binds `DIAG_PRINC` to 114 tables.
+4. So the correct table was bound, never loaded, never measured. `CIRAC`
+   decodes 100% of municipality codes and won.
+
+The granularity tie-break (§22.7, `CNES → HOSFEDRJ`) was the fix for exactly
+this shape and could not fire, because it only ranks candidates that were
+*measured*. The rollup guard did fire, and named the problem in a warning —
+which is not the same as not doing it. A caller who did not read warnings got a
+region where they asked for a city.
+
+**The fix is that the link is stated, not inferred.** The variable → decoder
+link is a static build object, so a municipality column names its table in
+curation and ranking never decides the answer. 167 corrections across 36
+curation files: 128 columns onto `BR_MUNICIPALFA` and 12 onto `BR_MUNICGESTOR`.
+
+Two further defects surfaced in the same sweep, both of which silently produced
+an *empty* label column rather than a wrong one:
+
+* **56 curated references named a codelist that does not ship** — `ibge_municipio`
+  on 30 columns, and the prose placeholder `'..._MUNICIP (per-UF IBGE
+  municipality lists)'` on 6. A curated list bypasses measurement by design
+  (§14.12), so a misspelled table does not fall back to a bound one; it decodes
+  nothing, with no error.
+* **Per-UF lists on national columns.** `SIM.MUNIRES` named `AC_MUNICIP` —
+  Acre's 32 municipalities — and `SINASC.MUNI_MAE` named `BR_CAPITAL`, a list of
+  capitals. Not rollups; simply the wrong 0.6% of the country.
+
+`BR_MUNICIPALFA` is the municipality table: 5,642 exact keys at 0.992
+granularity, accented, and UF-suffixed so the ~250 city names shared across
+states stay distinct. `BR_MUNICGESTOR` is the same list plus the "UF0000 —
+gestão estadual" sentinels, which is why the `*_GESTAO` columns use it.
+`MUNICBR` remains bound as a secondary: 41% of its rows are ranges, but it alone
+carries the 62 pre-1988 Goiás codes transferred to Tocantins.
+
+Verified on real data, not on a fixture: `fetch("SINASC-DN", uf="AC",
+years=2022)` returns `120040 → 'Rio Branco, AC'` across 5,353 rows, with zero
+unlabelled municipality cells and zero rollup warnings.
+`tests/test_municipality_never_labels_a_region.py` holds it.
 
 **The catalog is ~200× larger than its information content.** `SIASUS.MUNICBR`
 holds 5,728 distinct labels — about Brazil's municipality count — as 280,004

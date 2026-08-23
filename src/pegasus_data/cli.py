@@ -1135,6 +1135,30 @@ def get(
     columns: Annotated[list[str] | None, typer.Option("--column", "-c")] = None,
     profile: Annotated[str, typer.Option("--profile", help="analysis | codes | audit | report")] = "report",
     no_labels: Annotated[bool, typer.Option("--no-labels", help="Return codes as filed")] = False,
+    described_names: Annotated[
+        bool,
+        typer.Option(
+            "--described-names",
+            help="Rename columns to their English names: CODMUNRES -> Municipality of "
+            "residence. A column with no curated name keeps the DATASUS one.",
+        ),
+    ] = False,
+    provenance: Annotated[
+        bool,
+        typer.Option(
+            "--provenance",
+            help="Keep _source_path, _blob_sha256, _ingested_at and _schema_signature. "
+            "Off by default: constant per source file, so they cost width in every row.",
+        ),
+    ] = False,
+    dictionary_out: Annotated[
+        Path | None,
+        typer.Option(
+            "--dictionary",
+            help="Also write the data dictionary here (.md, .csv, .json or .parquet): "
+            "one row per column, what it means and which table decoded it.",
+        ),
+    ] = None,
     max_files: Annotated[int | None, typer.Option("--max-files", help="Stop after this many files")] = None,
     no_discover: Annotated[
         bool, typer.Option("--no-discover", help="Refuse rather than crawl an unknown system")
@@ -1155,18 +1179,21 @@ def get(
     settings = _settings(root)
     try:
         with console.status(f"fetching {dataset}…"):
-            table, result = fetch_dataset(
+            table, result, book = fetch_dataset(
                 dataset,
                 uf=uf,
                 years=_parse_years(years),
                 months=month_list,
                 columns=columns,
                 labels=not no_labels,
+                names="described" if described_names else "original",
+                provenance=provenance,
                 profile=profile,
                 max_files=max_files,
                 discover=not no_discover,
                 settings=settings,
                 report=True,
+                dictionary=True,
             )
     except (DatasetUnknown, NothingPublished) as exc:
         console.print(f"[red]{exc}[/red]")
@@ -1177,6 +1204,11 @@ def get(
 
         write_table(table, out, fmt)
         console.print(f"[green]wrote[/green] {out}  ({table.num_rows:,} rows)")
+    if dictionary_out:
+        book.write(dictionary_out)
+        console.print(
+            f"[green]wrote[/green] {dictionary_out}  ({len(book)} columns described)"
+        )
     _emit(result.as_dict(), as_json, f"get {dataset}")
     for warning in result.warnings:
         console.print(f"[yellow]{warning}[/yellow]")

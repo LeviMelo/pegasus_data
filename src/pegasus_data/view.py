@@ -120,6 +120,18 @@ class RenderReport:
     #: Columns labelled through a rolled-up parent codelist rather than an
     #: exact-width match.
     rollup_used: list[str] = field(default_factory=list)
+    #: ``column -> codelist`` — which reference table actually produced the
+    #: labels. `labelled` says THAT a column was decoded and this says BY WHAT,
+    #: which is a different question and the one that catches a wrong answer:
+    #: CODMUNRES was in `labelled` for months while CIRAC was quietly naming
+    #: health regions where municipalities were asked for. Only a caller who
+    #: could see the table name could see the defect.
+    codelist_used: dict[str, str] = field(default_factory=dict)
+    #: ``rendered name -> DATASUS name``, when a profile translated the headers.
+    #: The `report` profile does, and it is the CLI's default, so anything built
+    #: from the rendered table afterwards — the data dictionary — would look up
+    #: "Mother's age" in curation, find nothing, and describe nothing.
+    renamed_headers: dict[str, str] = field(default_factory=dict)
     #: Unlabelled columns holding one value in every row, with that value —
     #: ``CID_MORTE`` is ``'0000'`` 59,835 times in SIH-RD/AC/2023. These are ALSO
     #: in ``unlabelled``, so nothing a caller checks today is lost; this names
@@ -142,6 +154,7 @@ class RenderReport:
             "fallback_vintage": self.fallback_vintage,
             "partial_codelist_match": self.partial_codelist_match,
             "rollup_used": self.rollup_used,
+            "codelist_used": self.codelist_used,
             "derived_added": self.derived_added,
             "companions_dropped": self.companions_dropped,
             "warnings": self.warnings,
@@ -580,6 +593,18 @@ def _check_width(
 
 
 def _combine(codes: pa.Array, labels: pa.Array) -> pa.Array:
+    """``code – label``, unless the label already opens with the code.
+
+    Many DATASUS `.CNV` tables write the code into the label — BR_MUNICIPALFA
+    maps ``120001`` to ``'120001 Acrelândia, AC'`` — and combining blindly
+    produced ``'120001 – 120001 Acrelândia, AC'`` in the report profile's
+    output. The code is not missing from those cells, it is doubled, so the fix
+    is to not add what is already there.
+
+    The boundary check is what keeps this from over-firing: code ``12`` against
+    label ``'120001 Acrelândia'`` starts-with, but ``0`` is not a boundary, so
+    the code is still prefixed.
+    """
     out: list[str | None] = []
     for code, label in zip(codes.to_pylist(), labels.to_pylist(), strict=True):
         if code is None and label is None:
@@ -589,7 +614,12 @@ def _combine(codes: pa.Array, labels: pa.Array) -> pa.Array:
         elif code is None:
             out.append(str(label))
         else:
-            out.append(f"{code}{COMBINED_SEP}{label}")
+            text, key = str(label), str(code)
+            rest = text[len(key):]
+            if text.startswith(key) and (not rest or not rest[0].isalnum()):
+                out.append(text)
+            else:
+                out.append(f"{key}{COMBINED_SEP}{text}")
     return pa.array(out, type=pa.string())
 
 
@@ -1081,6 +1111,7 @@ def _render_table(
             if total_missing:
                 report.tokens_unmatched[name] = total_missing
             report.labelled.append(name)
+            report.codelist_used[name] = "+".join(codelists)
             continue
 
         width_warning = _check_width(name, "+".join(codelists), column, lookup)
@@ -1145,6 +1176,7 @@ def _render_table(
             continue
 
         report.labelled.append(name)
+        report.codelist_used[name] = "+".join(codelists)
         if name in report.rollup_used:
             # A ROLL-UP is not this column's identity. `CODMUNRES` bound only to
             # `CIRAC` decodes 100% of its values and returns "Baixo Acre e
@@ -1182,7 +1214,12 @@ def _render_table(
         )
 
     if settings_profile.headers != "original":
+        before_headers = list(rendered_table.schema.names)
         rendered_table = _apply_headers(rendered_table, docs, settings_profile.headers)
+        report.renamed_headers.update(
+            {new: old for old, new in zip(before_headers, rendered_table.schema.names, strict=True)
+             if new != old}
+        )
 
     if settings_profile.values == "combined" and settings_profile.name == "report":
         report.warnings.append(

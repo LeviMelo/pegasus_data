@@ -57,6 +57,7 @@ _EXPORTS: dict[str, str] = {
     "questions": "._unknowns",
     "Gaps": "._unknowns",
     "OpenQuestions": "._unknowns",
+    "DataDictionary": "._dictionary",
     "compendium": "._compendium",
     "CompendiumReport": "._compendium",
     "search": ".docsgen",
@@ -78,6 +79,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     # _EXPORTS, which a linter cannot follow.
     # ruff: noqa: F401
     from ._compendium import CompendiumReport, compendium
+    from ._dictionary import DataDictionary
     from ._explore import Exploration, explore
     from ._info import Info, info
     from ._translate import TranslationImpossible, translate

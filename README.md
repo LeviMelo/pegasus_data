@@ -157,6 +157,48 @@ report.undecoded          # files that would not open
 report.schema_mismatch    # files whose columns did not fit their family
 ```
 
+### Ask for it in your own language
+
+`CODMUNRES` is not a column name anyone can read, and the English name was in
+the package the whole time with no way to get it onto the table:
+
+```python
+df = fetch("SINASC-DN", uf="AC", years=2022, names="described")
+# 'Municipality of residence' instead of 'CODMUNRES'
+```
+
+A column with no curated name keeps the name DATASUS gave it — inventing one
+would make it harder to trace back to the layout, not easier.
+
+### Ask what every column in *this* table means
+
+```python
+df, dictionary = fetch("SINASC-DN", uf="AC", years=2022, dictionary=True)
+
+dictionary.write("sinasc_dictionary.md")   # or .csv, .json, .parquet
+```
+
+One row per column of the table you actually got: the English name, the
+Portuguese official name, the prose, **which reference table decoded it**, and
+the evidence rung behind that. The reference table matters more than it sounds —
+`labelled: yes` says a column was decoded, and only the table name says whether
+it was decoded *correctly*.
+
+```bash
+pegasus-data get SINASC-DN --uf AC --years 2022 \
+  --out births.parquet --dictionary births_dictionary.md
+```
+
+### Provenance is off by default
+
+`_source_path`, `_blob_sha256`, `_ingested_at` and `_schema_signature` are
+constant per source file, so carrying them on every row costs width to repeat
+what the report says once. Ask when you want byte-level traceability:
+
+```python
+df = fetch("SINASC-DN", uf="AC", years=2022, provenance=True)
+```
+
 ### Ask what a column means
 
 ```python
@@ -330,7 +372,7 @@ explore("SIA-PA")                  # coverage: which years, which states
 explore("SIA-PA", uf="AC", year=2023)   # the actual files
 ```
 
-### `fetch(dataset, *, uf, years, months, columns, labels, profile, …)` — get data
+### `fetch(dataset, *, uf, years, months, columns, labels, names, provenance, dictionary, profile, …)` — get data
 
 One call, DATASUS to a table. Three deliberate differences from R's
 **microdatasus**, which this borrows its shape from:
@@ -345,6 +387,24 @@ An unknown *system* fails immediately with suggestions, rather than spending a
 crawl on a directory that never existed. An unknown *series* proceeds on purpose:
 DATASUS adds datasets, and discovery finding one ahead of the declaration is the
 feature working.
+
+Three switches change what the answer *looks like* and never which rows come
+back. They compose, and each one you turn on appends to the returned tuple, in
+this order:
+
+| switch | default | effect |
+|---|---|---|
+| `names="described"` | `"original"` | rename columns to their English names |
+| `provenance=True` | `False` | keep `_source_path`, `_blob_sha256`, `_ingested_at`, `_schema_signature` |
+| `dictionary=True` | `False` | also return a `DataDictionary` for this table |
+| `report=True` | `False` | also return a `FetchReport` |
+
+```python
+table                        = fetch(...)
+table, report                = fetch(..., report=True)
+table, dictionary            = fetch(..., dictionary=True)
+table, report, dictionary    = fetch(..., report=True, dictionary=True)
+```
 
 ### `load(system, series, *, uf, years, columns, profile, render, …)` — read the lake
 
@@ -624,7 +684,9 @@ rather than merely convenient.
   the measured state.
 - **[`docs/FINDINGS.md`](docs/FINDINGS.md)** — what we learned about DATASUS
   itself. §0 is the headline: why a correct crawl finds 82,441 more files than
-  the previous one. §3j is the personal-identifier finding.
+  the previous one. §3j is the personal-identifier finding. §3k is the six
+  municipality tables DATASUS ships, why they are not interchangeable, and how a
+  city came to be labelled with the name of its health region.
 - **[`docs/RESUME.md`](docs/RESUME.md)** — operational state: what is left, and
   how to resume an interrupted run.
 - The data dictionary is a **database**, not files. `pegasus-data dictionary`

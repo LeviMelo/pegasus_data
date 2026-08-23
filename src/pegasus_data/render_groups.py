@@ -73,6 +73,18 @@ def merge_reports(into: RenderReport | None, addition: RenderReport) -> RenderRe
     into.constant.update(getattr(addition, "constant", {}) or {})
     into.fallback_vintage.update(getattr(addition, "fallback_vintage", {}) or {})
     into.partial_codelist_match.update(getattr(addition, "partial_codelist_match", {}) or {})
+    into.renamed_headers.update(getattr(addition, "renamed_headers", {}) or {})
+    # Two vintages of one column can be decoded by two different tables — that
+    # is what vintage scoping is FOR — so disagreement is recorded rather than
+    # overwritten. A silent last-group-wins here would report one table for a
+    # column that was actually labelled from two.
+    for key, value in (getattr(addition, "codelist_used", {}) or {}).items():
+        prior = into.codelist_used.get(key)
+        if prior and prior != value:
+            parts = dict.fromkeys(prior.split(", ") + [value])
+            into.codelist_used[key] = ", ".join(parts)
+        else:
+            into.codelist_used[key] = value
     for key, value in (getattr(addition, "tokens_unmatched", {}) or {}).items():
         into.tokens_unmatched[key] = into.tokens_unmatched.get(key, 0) + value
     return into
