@@ -689,6 +689,11 @@ rather than merely convenient.
   city came to be labelled with the name of its health region.
 - **[`docs/RESUME.md`](docs/RESUME.md)** — operational state: what is left, and
   how to resume an interrupted run.
+- **[`docs/HANDOFF.md`](docs/HANDOFF.md)** — for anyone taking the work over:
+  every defect found by running it, what is still open, the traps that have bitten
+  more than once, and an honest account of how the work went wrong.
+- **[`REVIEW.md`](REVIEW.md)** — the second external static audit. Its findings
+  are **unverified** — the reviewer could not execute the suite.
 - The data dictionary is a **database**, not files. `pegasus-data dictionary`
   builds `docs/dictionary.sqlite`; `search` and `page` read it, or open it with
   anything that speaks SQL:
