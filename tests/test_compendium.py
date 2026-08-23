@@ -17,8 +17,8 @@ import sqlite3
 
 import pytest
 
+from pegasus_data._compendium import compendium
 from pegasus_data.catalog.store import Catalog
-from pegasus_data.compendium import compendium
 from pegasus_data.config import Settings
 
 

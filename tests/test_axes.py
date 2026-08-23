@@ -150,7 +150,7 @@ class TestTheCompendiumCarriesIt:
         import json
         import sqlite3
 
-        from pegasus_data.compendium import compendium
+        from pegasus_data._compendium import compendium
 
         out = tmp_path / "c.sqlite"
         compendium(out, settings=national)

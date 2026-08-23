@@ -48,13 +48,17 @@ _EXPORTS: dict[str, str] = {
     "Exploration": "._explore",
     "translate": "._translate",
     "TranslationImpossible": "._translate",
-    "availability": ".availability",
-    "field_available": ".availability",
-    "field_coverage": ".availability",
-    "Availability": ".availability",
-    "FieldWindow": ".availability",
-    "compendium": ".compendium",
-    "CompendiumReport": ".compendium",
+    "availability": "._availability",
+    "field_available": "._availability",
+    "field_coverage": "._availability",
+    "Availability": "._availability",
+    "FieldWindow": "._availability",
+    "gaps": "._unknowns",
+    "questions": "._unknowns",
+    "Gaps": "._unknowns",
+    "OpenQuestions": "._unknowns",
+    "compendium": "._compendium",
+    "CompendiumReport": "._compendium",
     "search": ".docsgen",
     "fetch": ".retrieve",
     "FetchReport": ".retrieve",
@@ -73,6 +77,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     # Re-exported through __getattr__ at runtime; `__all__` is built from
     # _EXPORTS, which a linter cannot follow.
     # ruff: noqa: F401
+    from ._compendium import CompendiumReport, compendium
     from ._explore import Exploration, explore
     from ._info import Info, info
     from ._translate import TranslationImpossible, translate
@@ -93,7 +98,6 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         scan,
     )
     from .bundle import BundleError, pack, read_manifest, unpack
-    from .compendium import CompendiumReport, compendium
     from .ontology import Ontology
     from .retrieve import (
         DatasetUnknown,

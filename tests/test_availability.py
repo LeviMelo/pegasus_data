@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.availability import FieldWindow, availability, field_available
+from pegasus_data._availability import FieldWindow, availability, field_available
 from pegasus_data.catalog.store import Catalog
 from pegasus_data.config import Settings
 

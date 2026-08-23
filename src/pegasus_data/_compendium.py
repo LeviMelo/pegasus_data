@@ -487,7 +487,7 @@ def _write_field_validity(
     report: CompendiumReport,
 ) -> None:
     """When each column existed, one row per contiguous run (§14.7)."""
-    from .availability import _read as _read_availability
+    from ._availability import _read as _read_availability
 
     rows = []
     for code in sorted(wanted):

@@ -417,7 +417,7 @@ def compendium_cmd(
     mean. Code meanings and value frequencies are opt-in because they are what
     makes such a file large.
     """
-    from .compendium import compendium as _compendium
+    from ._compendium import compendium as _compendium
 
     report = _compendium(
         out, systems=system, codes=codes, max_codes=max_codes,

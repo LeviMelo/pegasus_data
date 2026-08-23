@@ -13,7 +13,7 @@ round that to one of two wrong answers. field_coverage() reports the evidence.
 
 from __future__ import annotations
 
-from pegasus_data.availability import Availability, FieldWindow, field_coverage
+from pegasus_data._availability import Availability, FieldWindow, field_coverage
 
 
 def _seed(catalog, rows):
@@ -34,25 +34,25 @@ def _seed(catalog, rows):
 class TestAbsentNeedsEvidenceForThatYear:
     def test_a_year_nothing_was_decoded_for_is_unknown(self, catalog, settings):
         """Even though another year was decoded."""
-        from pegasus_data.availability import field_available
+        from pegasus_data._availability import field_available
 
         _seed(catalog, [(2023, "sigA", ["ID", "SEXO"])])
         assert field_available("SIH.RD", "SEXO", 1998, settings=settings) == "unknown"
 
     def test_a_decoded_year_without_the_field_is_absent(self, catalog, settings):
-        from pegasus_data.availability import field_available
+        from pegasus_data._availability import field_available
 
         _seed(catalog, [(2023, "sigA", ["ID"])])
         assert field_available("SIH.RD", "SEXO", 2023, settings=settings) == "absent"
 
     def test_a_decoded_year_with_the_field_is_present(self, catalog, settings):
-        from pegasus_data.availability import field_available
+        from pegasus_data._availability import field_available
 
         _seed(catalog, [(2023, "sigA", ["ID", "SEXO"])])
         assert field_available("SIH.RD", "SEXO", 2023, settings=settings) == "present"
 
     def test_an_entirely_empty_catalog_says_unknown(self, catalog, settings):
-        from pegasus_data.availability import field_available
+        from pegasus_data._availability import field_available
 
         assert field_available("SIH.RD", "SEXO", 2023, settings=settings) == "unknown"
 
@@ -83,7 +83,7 @@ class TestWithinYearCoverage:
 
     def test_the_yearly_answer_rounds_partial_to_present(self, catalog, settings):
         """Documented, not hidden: this is why field_coverage exists."""
-        from pegasus_data.availability import field_available
+        from pegasus_data._availability import field_available
 
         _seed(catalog, [(2015, "sigA", ["ID"]), (2015, "sigB", ["ID", "SEXO"])])
         assert field_available("SIH.RD", "SEXO", 2015, settings=settings) == "present"

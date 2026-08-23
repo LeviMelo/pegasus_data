@@ -180,11 +180,12 @@ pegasus_data/
   locate.py               five-layer placement resolution (§15)
   labelpack.py            the shipped label pack and bindings (§14.9)
   render_groups.py        ONE vintage-scoped render path, shared by fetch and load (§8.2)
-  availability.py         present / absent / unknown, per column per year (§14.7)
+  _availability.py        present / absent / unknown, per column per year (§14.7)
   textenc.py              encoding detection for the text readers
   _info.py                info(): what a system, dataset or variable IS (§14.5)
-  compendium.py           compendium(): a portable map of DATASUS (§14.6)
+  _compendium.py          compendium(): a portable map of DATASUS (§14.6)
   _explore.py             explore(): the shipped map of the tree (§14.1)
+  _unknowns.py            gaps(), questions(): what the module cannot tell you (§14.11)
   _translate.py           translate(): the dictionary as a service (§14.2)
   view.py                 read-time labelling and render profiles
   retrieve.py             fetch(): one call, DATASUS to a table
@@ -960,13 +961,24 @@ when the caller wanted `Settings`.
 
 ### 14.5 `info()` — the ontology is askable `[D]`
 
-**A note on module names.** `explore`, `translate` and `info` are functions
-whose implementation modules are private — `_explore.py`, `_translate.py`,
-`_info.py`. A module named `explore.py` exporting a function named `explore`
-collide as attributes of the package: importing the submodule binds it over the
-function, and `from pegasus_data import explore` then returns a module, so
-calling it raises `'module' object is not callable`. The underscore removes the
-ambiguity rather than arbitrating it.
+**A note on module names.** `explore`, `translate`, `info`, `availability` and
+`compendium` are functions whose implementation modules are private —
+`_explore.py`, `_translate.py`, `_info.py`, `_availability.py`,
+`_compendium.py`. A module named `explore.py` exporting a function named
+`explore` collide as attributes of the package: importing the submodule binds it
+over the function, and `from pegasus_data import explore` then returns a module,
+so calling it raises `'module' object is not callable`. The underscore removes
+the ambiguity rather than arbitrating it.
+
+`availability.py` and `compendium.py` were left un-prefixed and had the defect,
+which is worse than it sounds because it is ORDER-DEPENDENT and therefore does
+not fail for whoever wrote the code. Touching any sibling name — `field_available`
+lives in the same module — imports the submodule and shadows the function, so
+
+    pg.field_available(...)   # fine, and imports .availability
+    pg.availability(...)      # TypeError: 'module' object is not callable
+
+is a program that breaks because of the order its lines are in.
 
 `explore()` answers *what is out there to fetch*. `describe()` answers *what does
 this column mean*. `info()` sits between them and answers **what IS this thing**,
@@ -1239,6 +1251,25 @@ Two constraints, both deliberate:
   already looked successful.
 
 
+
+### 14.11 `gaps()` and `questions()` — what the module cannot tell you `[D]`
+
+`_unknowns.py`
+
+Both were listed in §14's table and reachable only from the CLI. §14's own
+organising rule is that every capability the module has internally should be
+reachable as a service or it does not really exist, and these were the last two
+that were not: a caller in a notebook could read a coverage percentage but not
+the list of what was missing from it, which is the half that decides whether an
+analysis is possible at all.
+
+`gaps()` ranks undecoded columns by observed ROW MASS rather than by count,
+because a column absent from every file matters less than one present in every
+row of SIH, and an alphabetical list hides that. `questions()` returns the
+recorded `[V]` list — and an empty answer means the catalog recorded none, not
+that nothing is uncertain.
+
+## 14a. What ships, and what does not
 
 A package is not a data lake. The rule is: **ship what makes the module
 functional out of the box, and nothing that is derived, large and reproducible.**
