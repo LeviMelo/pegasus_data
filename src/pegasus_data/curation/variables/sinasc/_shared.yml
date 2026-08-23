@@ -304,10 +304,9 @@ variables:
   CONTADOR:
     official_name: Número identificador do registro
     translated_name: Record counter
-    description: A sequential counter stamped on the records of a published file. Observed
-      values are small integers running from 1 upward within a file, so it orders rows inside
-      one file and nothing more — it is not the DN number (NUMERODN), it does not identify
-      a birth, and it repeats across every file in the tree.
+    description: A sequential counter stamped on the records of one published file. Values
+      run from 1 upward within a file, so it orders rows inside that file and carries no meaning
+      beyond it — it repeats across every file in the tree.
     code_system: none
     source: web
     source_ref: '[EVOL-1996-2019] row 1: "CONTADOR C 8 — Número identificador do registro
@@ -315,9 +314,8 @@ variables:
 
       '
     notes: 'Using it as a key, a join column or a de-duplication id will silently collide:
-      the value 1 exists once per file, in 1621 files.
-
-      '
+      the value 1 exists once per file, in 1621 files. Not the DN number: NUMERODN is the
+      birth''s identifier. CONTADOR cannot be used to join, deduplicate or identify a birth.'
   CRITICA:
     official_name: Crítica
     translated_name: Internal edit/QA flag

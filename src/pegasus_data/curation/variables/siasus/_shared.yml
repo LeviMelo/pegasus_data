@@ -358,17 +358,17 @@ variables:
   AP_CODEMI:
     official_name: Codigo do Orgao emissor
     translated_name: Issuing-body code
-    description: 'Code of the body that emitted/authorized the APAC. The layout gives only
-      the label; no codelist is bound in this catalog, so which registry the code numbers
-      refer to cannot be confirmed from the evidence available here.
-
-      '
+    description: Code of the body that emitted and authorised the APAC. No codelist is bound,
+      so which registry the numbers belong to is unconfirmed and the values are returned as
+      filed.
     code_system: none
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
+    notes: The layout gives the field's label and nothing further; the emitting-body registry
+      it draws on is not named there.
   AP_CODUNI:
     official_name: Codigo do Estabelecimento no CNES
     translated_name: Executing establishment's CNES code

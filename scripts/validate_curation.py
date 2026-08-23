@@ -55,7 +55,7 @@ _NUMERIC_RE = re.compile(
 #: a finding to publish.
 _AUDITING = re.compile(
     r"this (pdf|document|layout)\b|the source layout|not reproduced|is not asserted|"
-    r"no .{0,40} is asserted (here|in this)|does not identify|the layout (does not|gives)|"
+    r"no .{0,40} is asserted (here|in this)|(layout|document|pdf|dictionary) does not identify|the layout (does not|gives)|"
     r"not stated in (this|the) (pdf|document)|the document does not|no field-specific|"
     r"not carried in (this|the)",
     re.I,
@@ -65,6 +65,22 @@ _AUDITING = re.compile(
 #: that reads well: median 27 words, 90th percentile 45. The batch that went
 #: wrong had a median of 97.
 _TOO_LONG = 70
+
+#: An enumerated value — `1 Domicílio`, `2- Trabalho`, `01 Sim`. These do not
+#: count toward the word budget.
+#:
+#: The cap is there to catch PROSE that has become an essay, and a description
+#: that spends its length listing the codes it decodes is doing the opposite of
+#: rambling. SINAN's CS_LOCAL was flagged at 84 words while being 9 words of
+#: prose and 9 enumerated locations; trimming it would have deleted the codes
+#: and left the flag standing. Counting only prose measures the thing the rule
+#: is actually about.
+_ENUMERATED = re.compile(r"\d{1,3}\s*[-–—.:)]?\s*[A-Za-zÀ-ÿ][^,;0-9]{0,40}")
+
+
+def _prose_words(text: str) -> int:
+    """Words that are not part of an enumerated code list."""
+    return len(_ENUMERATED.sub(" ", text).split())
 
 
 def _evidence(conn: sqlite3.Connection, system: str) -> dict[str, dict[str, object]]:
@@ -130,17 +146,19 @@ def check(catalog_path: str, file_path: Path) -> dict[str, object]:
     prose: list[str] = []
     lengths: list[int] = []
     openings: dict[str, list[str]] = {}
+    _by_name: dict[str, str] = {}
     for doc in docs:
         text_desc = " ".join(str(doc.description or "").split())
         if text_desc:
+            _by_name[doc.field_name] = text_desc
             lengths.append(len(text_desc.split()))
             openings.setdefault(" ".join(text_desc.split()[:12]).lower(), []).append(
                 doc.field_name
             )
-            if len(text_desc.split()) > _TOO_LONG:
+            if _prose_words(text_desc) > _TOO_LONG:
                 prose.append(
-                    f"{doc.field_name}: {len(text_desc.split())} words — a description, "
-                    "not an essay"
+                    f"{doc.field_name}: {_prose_words(text_desc)} words of prose — a "
+                    "description, not an essay"
                 )
             if _AUDITING.search(text_desc):
                 prose.append(
@@ -148,12 +166,36 @@ def check(catalog_path: str, file_path: Path) -> dict[str, object]:
                     "the column. Its silence is a reason to keep looking, not a finding "
                     "to publish — say what the column holds, or leave it out"
                 )
-    for fields in openings.values():
-        if len(fields) >= 3:
+    for opening, fields in openings.items():
+        if len(fields) < 3:
+            continue
+        # A SHARED OPENING IS NOT THE DEFECT. Parallel columns should read in
+        # parallel: CNES has thirty-seven installation flags that all begin
+        # "Flag (1-sim, 0-nao) for whether the establishment has a ..." and then
+        # each names its own — surgical centre, neonatal unit, obstetric centre.
+        # That is what a described set of parallel columns looks like, and
+        # forcing artificial variation onto it would make it worse.
+        #
+        # The defect is descriptions that do not DISTINGUISH themselves. So
+        # compare what is left after the shared opening: if the remainders are
+        # near-identical too, nothing has been said about the individual column.
+        # Only EXACT repetition is the defect, and the threshold has to be exact
+        # because near-identical is how a correctly described parallel set reads.
+        # CNES's dialysis flags differ by two words — "water softener", "sand
+        # filter", "deionizer" — and those two words are the entire content;
+        # any similarity threshold loose enough to spare them would also spare
+        # descriptions that say nothing. Text that differs at all differs for a
+        # reason; text that does not differ has not described the column.
+        groups: dict[str, list[str]] = {}
+        for name in fields:
+            key = " ".join(_by_name[name].lower().split())
+            groups.setdefault(key, []).append(name)
+        same = max(groups.values(), key=len)
+        if len(same) >= 3:
             prose.append(
-                f"{len(fields)} descriptions open identically ({', '.join(fields[:4])}…): "
-                "if they really are the same thing, say what distinguishes them; if they "
-                "are not, they have not been described"
+                f"{len(same)} descriptions are effectively identical "
+                f"({', '.join(same[:4])}…): they share an opening AND say the same thing "
+                "after it, so nothing distinguishes the columns"
             )
     for doc in docs:
         seen = evidence.get(doc.field_name)

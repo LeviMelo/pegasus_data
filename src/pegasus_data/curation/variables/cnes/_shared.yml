@@ -1132,14 +1132,9 @@ variables:
   QT_EXIST:
     official_name: Quantidade existente
     translated_name: Existing-quantity count
-    description: 'A generic numeric count of how many of the thing this record is about currently
-      exist at the establishment. The same column name is reused across file series with different
-      referents: in the LT (leitos/beds) series it counts existing beds of the row''s type,
-      and in the EQ (equipamentos) series it counts existing units of the row''s equipment
-      type. Always read it together with whatever row-identifying code sits alongside it in
-      that series — the column itself does not say what is being counted.
-
-      '
+    description: How many of the row's subject currently exist at the establishment. The referent
+      comes from the row, not from this column — read it with whatever type code sits beside
+      it, or it counts nothing in particular.
     code_system: none
     source: inferred
     reasoning: 'QT_ is DATASUS''s quantity-field prefix, declared N(4,0) numeric; [PDFCOFFEE]
@@ -1149,6 +1144,9 @@ variables:
       combining the two.
 
       '
+    notes: 'Reused across series with different referents: in LT (leitos) it counts existing
+      beds of the row''s type; in EQ (equipamentos) it counts existing units of the row''s
+      equipment type.'
   REGISTRO:
     official_name: Número do registro no conselho de classe
     translated_name: Professional council registration

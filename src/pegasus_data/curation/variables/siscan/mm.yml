@@ -4,24 +4,22 @@
 # One mammogram, with its BI-RADS classification.
 system: SISCAN
 asserted_by: pegasus_data
-
 variables:
   CANMEXAPR:
     official_name: Mamografia anterior
     translated_name: Prior mammogram flag
-    description: 'Sim/Não/Não sabe flag for whether the patient reports having had
-      a mammogram before, from the requisition anamnesis. Nota Técnica 7 uses this
-      to compute Periodicidade (years since the previous mammogram) and to classify
-      screening-type mammograms.
+    description: 'Sim/Não/Não sabe flag for whether the patient reports having had a mammogram
+      before, from the requisition anamnesis. Nota Técnica 7 uses this to compute Periodicidade
+      (years since the previous mammogram) and to classify screening-type mammograms.
 
       '
     code_system: internal
     source: inferred
-    reasoning: 'Sits alongside CANMMAMOGR (same CANM prefix, same MM series, same C(1,0)
-      width) and "EXAPR" decomposes as "EXAme PRévio" (prior exam). Nota Técnica 7
-      names exactly this concept as "Mamog. Anterior — refere-se à informação dada
-      pelo(a) paciente de já haver realizado alguma mamografia anteriormente", which
-      is the only anamnesis item in the document this field could be.
+    reasoning: 'Sits alongside CANMMAMOGR (same CANM prefix, same MM series, same C(1,0) width)
+      and "EXAPR" decomposes as "EXAme PRévio" (prior exam). Nota Técnica 7 names exactly
+      this concept as "Mamog. Anterior — refere-se à informação dada pelo(a) paciente de já
+      haver realizado alguma mamografia anteriormente", which is the only anamnesis item in
+      the document this field could be.
 
       '
     asserted_by: pegasus_data
@@ -30,32 +28,29 @@ variables:
   CANMMAMOGR:
     official_name: Risco elevado para cancer de mama
     translated_name: Elevated breast-cancer risk flag
-    description: 'Flag for ''Apresenta risco elevado* para cancer de mama?'' on the
-      request forms - elevated risk being defined (verbatim on both the citology-mama
-      form and the SISMAMA informe) as a first-degree relative diagnosed before 50,
-      bilateral breast or any-age ovarian cancer in a first-degree relative, a male
-      relative with breast cancer, or a personal history of proliferative lesion with
-      atypia / lobular neoplasia in situ. This flag drives the recommended screening
-      interval - annual rather than biennial mammography, per Quadro 1 of the informe.
-
-      '
+    description: Flag on the request form for whether the woman is at elevated risk of breast
+      cancer. It drives the recommended screening interval — annual rather than biennial mammography.
     codelists:
     - RISCOELEVADO
     code_system: internal
     source: web
     source_ref: 'https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf,
-      INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle
-      do cancer de mama no Brasil (2010)'
+      INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle do
+      cancer de mama no Brasil (2010)'
+    notes: 'Elevated risk is defined verbatim on the citologia-mama form and the SISMAMA informe
+      as: a first-degree relative diagnosed before 50; bilateral breast or any-age ovarian
+      cancer in a first-degree relative; a male relative with breast cancer; or a personal
+      history of proliferative lesion with atypia or lobular neoplasia in situ. The interval
+      rule is Quadro 1 of the informe.'
   CATBIRADS:
     official_name: Categoria BI-RADS
     translated_name: BI-RADS category
-    description: 'The mammography report''s BI-RADS category (0 through 6), the American
-      College of Radiology''s standardised reporting scale that SISMAMA/INCA adopted
-      for every mammogram. Category 0 = inconclusive (needs further imaging); 1 = no
-      findings; 2 = benign findings; 3 = probably benign; 4(A/B/C) = suspicious; 5
-      = highly suggestive of malignancy; 6 = biopsy-proven malignancy, with escalating
-      recommended follow-up from routine screening through biopsy at each step. Bound
-      to codelist CATBIRADS.
+    description: 'The mammography report''s BI-RADS category (0 through 6), the American College
+      of Radiology''s standardised reporting scale that SISMAMA/INCA adopted for every mammogram.
+      Category 0 = inconclusive (needs further imaging); 1 = no findings; 2 = benign findings;
+      3 = probably benign; 4(A/B/C) = suspicious; 5 = highly suggestive of malignancy; 6 =
+      biopsy-proven malignancy, with escalating recommended follow-up from routine screening
+      through biopsy at each step. Bound to codelist CATBIRADS.
 
       '
     codelists:
@@ -63,8 +58,8 @@ variables:
     code_system: internal
     source: web
     source_ref: 'https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/informe_sismama_2010.pdf,
-      INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle
-      do cancer de mama no Brasil (2010)'
+      INCA/Ministerio da Saude, SISMAMA: Informacao para o avanco das acoes de controle do
+      cancer de mama no Brasil (2010)'
     reasoning: 'Tabela 1 of the SISMAMA informe (''Categoria BI-RADS no laudo mamografico
       e recomendacoes de conduta'') gives the category scale and interpretation verbatim.
 
@@ -72,9 +67,9 @@ variables:
   CCALCASPBD:
     official_name: Calcificações de aspecto benigno, mama direita
     translated_name: Benign-appearing calcifications, right breast
-    description: 'Number of reports finding calcifications of benign appearance in
-      the right breast. Their morphology is what separates them from the suspicious
-      microcalcifications that prompt biopsy.
+    description: 'Number of reports finding calcifications of benign appearance in the right
+      breast. Their morphology is what separates them from the suspicious microcalcifications
+      that prompt biopsy.
 
       '
     code_system: none
@@ -92,9 +87,9 @@ variables:
   CCALCVASCD:
     official_name: Calcificações vasculares, mama direita
     translated_name: Vascular calcifications, right breast
-    description: 'Calcifications following the line of a blood vessel in the right
-      breast. Recorded apart from other benign calcifications because their cause is
-      arterial rather than glandular.
+    description: 'Calcifications following the line of a blood vessel in the right breast.
+      Recorded apart from other benign calcifications because their cause is arterial rather
+      than glandular.
 
       '
     code_system: none
@@ -112,37 +107,35 @@ variables:
   CCONRECOM:
     official_name: Conduta recomendada
     translated_name: Recommended follow-up
-    description: 'What the radiologist recommends next — ultrasound, routine mammography
-      in one or two years, radiological control at six months, or cytology. The action
-      the exam produces, and what the screening programme is judged on.
+    description: 'What the radiologist recommends next — ultrasound, routine mammography in
+      one or two years, radiological control at six months, or cytology. The action the exam
+      produces, and what the screening programme is judged on.
 
       '
     code_system: internal
     source: def
     source_ref: CCONRECOM.CNV
-    reasoning: 'Bound to CCONRECOM, whose values enumerate the follow-up options from
-      ultrasound through repeat imaging intervals.
+    reasoning: 'Bound to CCONRECOM, whose values enumerate the follow-up options from ultrasound
+      through repeat imaging intervals.
 
       '
   CCONRECOMD:
     official_name: Conduta recomendada, mama direita
     translated_name: Recommended management, right breast
-    description: 'What the radiologist recommends next for the right breast — routine
-      recall, short-interval follow-up, further imaging or biopsy. The actionable end
-      of the report.
+    description: 'What the radiologist recommends next for the right breast — routine recall,
+      short-interval follow-up, further imaging or biopsy. The actionable end of the report.
 
       '
     code_system: internal
     source: inferred
-    reasoning: 'CON RECOM is conduta recomendada; unlike the findings around it this
-      is C(1), a single coded decision rather than a count.
+    reasoning: 'CON RECOM is conduta recomendada; unlike the findings around it this is C(1),
+      a single coded decision rather than a count.
 
       '
   CCONRECOME:
     official_name: Conduta recomendada, mama esquerda
     translated_name: Recommended management, left breast
-    description: 'The recommendation for the left breast, which can differ from the
-      right.
+    description: 'The recommendation for the left breast, which can differ from the right.
 
       '
     code_system: internal
@@ -151,14 +144,14 @@ variables:
   CDISARQCID:
     official_name: Distorção arquitetural, mama direita
     translated_name: Architectural distortion, right breast
-    description: 'Distortion of the breast''s normal architecture on the right, with
-      no discrete mass — a subtle finding that can be the only sign of a malignancy.
+    description: 'Distortion of the breast''s normal architecture on the right, with no discrete
+      mass — a subtle finding that can be the only sign of a malignancy.
 
       '
     code_system: none
     source: inferred
-    reasoning: 'DIS ARQ reads distorção arquitetural; the trailing D is the laterality
-      suffix used by every field in this block. C(8) count.
+    reasoning: 'DIS ARQ reads distorção arquitetural; the trailing D is the laterality suffix
+      used by every field in this block. C(8) count.
 
       '
   CDISARQCIE:
@@ -173,8 +166,8 @@ variables:
   CIMPINTEGD:
     official_name: Implante íntegro, mama direita
     translated_name: Implant intact, right breast
-    description: 'Whether a breast implant on the right appears intact. Present because
-      an implant changes both how the mammogram is taken and how it is read.
+    description: 'Whether a breast implant on the right appears intact. Present because an
+      implant changes both how the mammogram is taken and how it is read.
 
       '
     code_system: none
@@ -192,14 +185,14 @@ variables:
   CIMPSINRUD:
     official_name: Implante com sinais de rotura, mama direita
     translated_name: Implant with signs of rupture, right breast
-    description: 'Signs of rupture in a right-side implant — the finding CIMPINTEGD
-      exists to be contrasted with.
+    description: 'Signs of rupture in a right-side implant — the finding CIMPINTEGD exists
+      to be contrasted with.
 
       '
     code_system: none
     source: inferred
-    reasoning: 'IMP SIN RU reads implante sinais de rotura, the negative counterpart
-      of the IMPINTEG stem. C(8).
+    reasoning: 'IMP SIN RU reads implante sinais de rotura, the negative counterpart of the
+      IMPINTEG stem. C(8).
 
       '
   CIMPSINRUE:
@@ -214,8 +207,8 @@ variables:
   CIRURGANTD:
     official_name: Cirurgia anterior, mama direita
     translated_name: Previous surgery, right breast
-    description: 'Whether the right breast had previous surgery. Scar tissue mimics
-      malignancy on a mammogram, so knowing about it prevents a false alarm.
+    description: 'Whether the right breast had previous surgery. Scar tissue mimics malignancy
+      on a mammogram, so knowing about it prevents a false alarm.
 
       '
     code_system: none
@@ -244,8 +237,8 @@ variables:
   CLINFAUXDI:
     official_name: Linfonodos axilares direita, detalhe
     translated_name: Axillary nodes, right, detail
-    description: 'A further right-side nodal item carried in another generation of
-      the form, beside the coded CLINFAUXD.
+    description: 'A further right-side nodal item carried in another generation of the form,
+      beside the coded CLINFAUXD.
 
       '
     code_system: none
@@ -269,8 +262,8 @@ variables:
   CLINFINTRD:
     official_name: Linfonodo intramamário, mama direita
     translated_name: Intramammary lymph node, right breast
-    description: 'An intramammary lymph node seen on the right. Normally an incidental
-      and benign finding, recorded so that it is not mistaken for a mass.
+    description: 'An intramammary lymph node seen on the right. Normally an incidental and
+      benign finding, recorded so that it is not mistaken for a mass.
 
       '
     code_system: none
@@ -288,22 +281,22 @@ variables:
   CNODCALD:
     official_name: Nódulo calcificado, mama direita
     translated_name: Calcified nodule, right breast
-    description: 'Number of reports finding a calcified nodule in the right breast.
-      Calcification within a nodule is generally the reassuring finding, as against
-      the dense nodules recorded separately.
+    description: 'Number of reports finding a calcified nodule in the right breast. Calcification
+      within a nodule is generally the reassuring finding, as against the dense nodules recorded
+      separately.
 
       '
     code_system: none
     source: inferred
-    reasoning: 'NOD is nódulo and CAL calcificado, with the D suffix that marks direita
-      throughout this block; C(8), a count like every finding field here.
+    reasoning: 'NOD is nódulo and CAL calcificado, with the D suffix that marks direita throughout
+      this block; C(8), a count like every finding field here.
 
       '
   CNODCALE:
     official_name: Nódulo calcificado, mama esquerda
     translated_name: Calcified nodule, left breast
-    description: 'The same calcified-nodule count for the left breast. Paired with
-      CNODCALD because a mammogram reports the two sides separately.
+    description: 'The same calcified-nodule count for the left breast. Paired with CNODCALD
+      because a mammogram reports the two sides separately.
 
       '
     code_system: none
@@ -312,8 +305,8 @@ variables:
   CNODDEND:
     official_name: Nódulo denso, mama direita
     translated_name: Dense nodule, right breast
-    description: 'Number of reports finding a dense nodule in the right breast — the
-      finding that ordinarily prompts further investigation rather than routine recall.
+    description: 'Number of reports finding a dense nodule in the right breast — the finding
+      that ordinarily prompts further investigation rather than routine recall.
 
       '
     code_system: none
@@ -331,15 +324,14 @@ variables:
   CNODDENHED:
     official_name: Nódulo denso heterogêneo, mama direita
     translated_name: Heterogeneous dense nodule, right breast
-    description: 'Dense nodules of heterogeneous appearance in the right breast — a
-      subdivision of the dense-nodule finding, heterogeneity being the feature that
-      raises concern.
+    description: 'Dense nodules of heterogeneous appearance in the right breast — a subdivision
+      of the dense-nodule finding, heterogeneity being the feature that raises concern.
 
       '
     code_system: none
     source: inferred
-    reasoning: 'HE extends the NODDEN stem with heterogêneo before the D laterality
-      suffix; C(8) count.
+    reasoning: 'HE extends the NODDEN stem with heterogêneo before the D laterality suffix;
+      C(8) count.
 
       '
   CNODDENHEE:
@@ -354,8 +346,8 @@ variables:
   CNODTAMD:
     official_name: Tamanho do nódulo, mama direita
     translated_name: Nodule size, right breast
-    description: 'Size of the right-side nodule, banded up to 10 mm, 11 to 20, 21 to
-      50 and over 50. Banded, so it will not give a measured distribution.
+    description: 'Size of the right-side nodule, banded up to 10 mm, 11 to 20, 21 to 50 and
+      over 50. Banded, so it will not give a measured distribution.
 
       '
     code_system: internal
@@ -373,16 +365,16 @@ variables:
   CO_BIRADS:
     official_name: Categoria BI-RADS
     translated_name: BI-RADS category
-    description: 'The BI-RADS assessment, 0 to 6. The single most important field on
-      the mammography form: 0 means incomplete, 1 and 2 are normal, 3 is probably benign,
-      4 and 5 indicate biopsy, and 6 is known cancer.
+    description: 'The BI-RADS assessment, 0 to 6. The single most important field on the mammography
+      form: 0 means incomplete, 1 and 2 are normal, 3 is probably benign, 4 and 5 indicate
+      biopsy, and 6 is known cancer.
 
       '
     code_system: internal
     source: def
     source_ref: CBIRARDS.CNV
-    reasoning: 'Bound to CBIRARDS, whose values are the seven BI-RADS categories. The
-      codelist name is misspelled in DATASUS''s own file.
+    reasoning: 'Bound to CBIRARDS, whose values are the seven BI-RADS categories. The codelist
+      name is misspelled in DATASUS''s own file.
 
       '
   CO_CLI_DIA:
@@ -396,8 +388,8 @@ variables:
   CO_IBGE:
     official_name: Município do prestador
     translated_name: Provider municipality
-    description: 'IBGE code of the municipality of the service that performed the exam.
-      Where the exam happened, not where the woman lives.
+    description: 'IBGE code of the municipality of the service that performed the exam. Where
+      the exam happened, not where the woman lives.
 
       '
     code_system: external
@@ -411,30 +403,30 @@ variables:
       table, distinct from the _PACNT patient-dimension sequence.
     code_system: none
     source: inferred
-    reasoning: Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID
-      in siscan_fill_02.yml.
+    reasoning: Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID in
+      siscan_fill_02.yml.
   CO_TAMANHO_NOD_DIR:
     official_name: Tamanho do nódulo, mama direita
     translated_name: Nodule size, right breast (mm)
-    description: Measured size of the largest/reported nodule found in the right breast
-      on this mammogram.
+    description: Measured size of the largest/reported nodule found in the right breast on
+      this mammogram.
     code_system: none
     source: inferred
     reasoning: TAMANHO_NOD is tamanho do nódulo; DIR is direita, paired with CO_TAMANHO_NOD_ESQ.
   CO_TAMANHO_NOD_ESQ:
     official_name: Tamanho do nódulo, mama esquerda
     translated_name: Nodule size, left breast (mm)
-    description: Measured size of the largest/reported nodule found in the left breast
-      — the counterpart of CO_TAMANHO_NOD_DIR.
+    description: Measured size of the largest/reported nodule found in the left breast — the
+      counterpart of CO_TAMANHO_NOD_DIR.
     code_system: none
     source: inferred
     reasoning: Same TAMANHO_NOD stem; ESQ is esquerda.
   CRADCOMPCD:
     official_name: Composição do parênquima, mama direita
     translated_name: Parenchyma composition, right breast
-    description: 'Breast density on the right — dense, fatty, or predominantly one
-      of them. Dense tissue hides tumours, so density is a direct measure of how much
-      the mammogram can be trusted.
+    description: 'Breast density on the right — dense, fatty, or predominantly one of them.
+      Dense tissue hides tumours, so density is a direct measure of how much the mammogram
+      can be trusted.
 
       '
     code_system: internal
@@ -456,8 +448,7 @@ variables:
     official_name: Pele, mama direita
     translated_name: Skin, right breast
     description: 'Whether the skin of the right breast is normal, thickened or retracted.
-      Skin change is a late sign, so an abnormality here rarely accompanies an early
-      lesion.
+      Skin change is a late sign, so an abnormality here rarely accompanies an early lesion.
 
       '
     code_system: internal
@@ -477,9 +468,8 @@ variables:
   DINTSOLICT:
     official_name: Intervalo entre solicitação e coleta
     translated_name: Interval, request to examination
-    description: 'How long the woman waited, banded 0 to 10 days, 11 to 20, 21 to 30
-      and over 30. A measure of access, banded rather than exact, so it will not give
-      a mean wait.
+    description: 'How long the woman waited, banded 0 to 10 days, 11 to 20, 21 to 30 and over
+      30. A measure of access, banded rather than exact, so it will not give a mean wait.
 
       '
     code_system: internal
@@ -489,9 +479,9 @@ variables:
   INDICLINIC:
     official_name: Indicação clínica da mamografia
     translated_name: Clinical indication
-    description: 'Whether the mammogram was for screening or for diagnosis. Diagnostic
-      mammograms are done because something was already found, so their abnormality
-      rate is far higher; mixing the two ruins any screening indicator.
+    description: 'Whether the mammogram was for screening or for diagnosis. Diagnostic mammograms
+      are done because something was already found, so their abnormality rate is far higher;
+      mixing the two ruins any screening indicator.
 
       '
     code_system: internal
@@ -504,8 +494,8 @@ variables:
   MICRODIR:
     official_name: Microcalcificações, mama direita
     translated_name: Microcalcifications, right breast
-    description: 'Whether microcalcifications were seen on the right. Frequently the
-      only mammographic sign of ductal carcinoma in situ.
+    description: 'Whether microcalcifications were seen on the right. Frequently the only
+      mammographic sign of ductal carcinoma in situ.
 
       '
     code_system: none
@@ -521,9 +511,8 @@ variables:
   NAOFZCIANT:
     official_name: Não fez mamografia anterior
     translated_name: No previous mammogram
-    description: 'Whether this is the woman''s first mammogram. First rounds find more
-      disease than subsequent ones, so pooling them understates what routine screening
-      detects.
+    description: 'Whether this is the woman''s first mammogram. First rounds find more disease
+      than subsequent ones, so pooling them understates what routine screening detects.
 
       '
     code_system: none
@@ -550,14 +539,14 @@ variables:
     official_name: Calcificação tipicamente benigna, mama direita
     translated_name: Count of typically-benign calcifications, right breast
     description: 'Count of right-breast findings classified as "calcificações tipicamente
-      benignas" — the standard BI-RADS lexicon category for calcifications that need
-      no further work-up.
+      benignas" — the standard BI-RADS lexicon category for calcifications that need no further
+      work-up.
 
       '
     code_system: none
     source: inferred
-    reasoning: CALC_TIPICA_BENIG abbreviates calcificação tipicamente benigna; MD is
-      mama direita.
+    reasoning: CALC_TIPICA_BENIG abbreviates calcificação tipicamente benigna; MD is mama
+      direita.
   NU_CALC_TIPICA_BENIG_ME:
     official_name: Calcificação tipicamente benigna, mama esquerda
     translated_name: Count of typically-benign calcifications, left breast
@@ -568,15 +557,14 @@ variables:
   NU_CALC_VASCULARES_MD:
     official_name: Calcificações vasculares, mama direita
     translated_name: Count of vascular calcifications, right breast
-    description: 'Count of right-breast findings of vascular calcification — calcified
-      vessel walls, a classic benign calcification type distinct from the typically-benign
-      category above.
+    description: 'Count of right-breast findings of vascular calcification — calcified vessel
+      walls, a classic benign calcification type distinct from the typically-benign category
+      above.
 
       '
     code_system: none
     source: inferred
-    reasoning: CALC_VASCULARES is calcificações vasculares, unabbreviated; MD is mama
-      direita.
+    reasoning: CALC_VASCULARES is calcificações vasculares, unabbreviated; MD is mama direita.
   NU_CALC_VASCULARES_ME:
     official_name: Calcificações vasculares, mama esquerda
     translated_name: Count of vascular calcifications, left breast
@@ -587,8 +575,8 @@ variables:
   NU_CISTO_OLEOSO_MD:
     official_name: Cisto oleoso, mama direita
     translated_name: Count of oil cysts, right breast
-    description: Count of right-breast findings of oil cyst (cisto oleoso) — a benign
-      fat-necrosis finding, often post-traumatic or post-surgical.
+    description: Count of right-breast findings of oil cyst (cisto oleoso) — a benign fat-necrosis
+      finding, often post-traumatic or post-surgical.
     code_system: none
     source: inferred
     reasoning: CISTO_OLEOSO is cisto oleoso, unabbreviated; MD is mama direita.
@@ -602,52 +590,51 @@ variables:
   NU_CONTROLE_CATEGORIA3:
     official_name: Controle, categoria 3
     translated_name: Count of BI-RADS category-3 follow-up exams
-    description: 'Count of mammograms classified BI-RADS category 3 (probably benign)
-      and returned for short-interval follow-up ("controle") rather than biopsy.
+    description: 'Count of mammograms classified BI-RADS category 3 (probably benign) and
+      returned for short-interval follow-up ("controle") rather than biopsy.
 
       '
     code_system: none
     source: inferred
-    reasoning: CONTROLE_CATEGORIA3 is controle categoria 3, unabbreviated — literal
-      BI-RADS category-3 terminology.
+    reasoning: CONTROLE_CATEGORIA3 is controle categoria 3, unabbreviated — literal BI-RADS
+      category-3 terminology.
   NU_DIAG_ACHADOS:
     official_name: Diagnóstico, achados
     translated_name: Count of diagnostic exams performed for clinical/imaging findings
     description: 'Count of exams performed as a diagnostic mammogram (not routine screening)
-      because of a clinical or prior-imaging finding — as opposed to NU_DIAG_AVAL_QT''s
-      treatment-response reason.
+      because of a clinical or prior-imaging finding — as opposed to NU_DIAG_AVAL_QT''s treatment-response
+      reason.
 
       '
     code_system: none
     source: inferred
-    reasoning: 'DIAG_ACHADOS is diagnóstico [por] achados; SISCAN mammography splits
-      exams into rastreamento (screening) and diagnóstico, with diagnóstico further
-      split by reason.
+    reasoning: 'DIAG_ACHADOS is diagnóstico [por] achados; SISCAN mammography splits exams
+      into rastreamento (screening) and diagnóstico, with diagnóstico further split by reason.
 
       '
   NU_DIAG_AVAL_QT:
     official_name: Diagnóstico, avaliação de quimioterapia
     translated_name: Count of diagnostic exams performed to evaluate chemotherapy response
-    description: 'Count of exams performed as a diagnostic mammogram specifically to
-      assess response to chemotherapy — the treatment-monitoring counterpart of NU_DIAG_ACHADOS.
+    description: 'Count of exams performed as a diagnostic mammogram specifically to assess
+      response to chemotherapy — the treatment-monitoring counterpart of NU_DIAG_ACHADOS.
 
       '
     code_system: none
     source: inferred
-    reasoning: DIAG_AVAL_QT abbreviates diagnóstico avaliação de quimioterapia (QT
-      is the standard Brazilian abbreviation for chemotherapy).
+    reasoning: DIAG_AVAL_QT abbreviates diagnóstico avaliação de quimioterapia (QT is the
+      standard Brazilian abbreviation for chemotherapy).
   NU_DIS_ARQ_POR_CIR_MD:
     official_name: Distorção de arquitetura por cirurgia, mama direita
     translated_name: Count of surgery-related architectural distortion, right breast
-    description: 'Count of right-breast mammograms showing architectural distortion
-      attributed to a prior surgical scar, rather than the concerning distortion tracked
-      in ST_DISTORCAO_FOCAL (siscan_fill_04.yml).
+    description: 'Count of right-breast mammograms showing architectural distortion attributed
+      to a prior surgical scar, rather than the concerning distortion tracked in ST_DISTORCAO_FOCAL
+      (siscan_fill_04.yml).
 
       '
     code_system: none
     source: inferred
-    reasoning: DIS_ARQ_POR_CIR abbreviates distorção de arquitetura por cirurgia; MD
-      is mama direita.
+    reasoning: DIS_ARQ_POR_CIR abbreviates distorção de arquitetura por cirurgia; MD is mama
+      direita.
   NU_DIS_ARQ_POR_CIR_ME:
     official_name: Distorção de arquitetura por cirurgia, mama esquerda
     translated_name: Count of surgery-related architectural distortion, left breast
@@ -658,8 +645,8 @@ variables:
   NU_ECTASIA_DUCTAL_MD:
     official_name: Ectasia ductal, mama direita
     translated_name: Count of duct ectasia findings, right breast
-    description: Count of right-breast findings of duct ectasia (ectasia ductal) —
-      benign dilation of the milk ducts.
+    description: Count of right-breast findings of duct ectasia (ectasia ductal) — benign
+      dilation of the milk ducts.
     code_system: none
     source: inferred
     reasoning: ECTASIA_DUCTAL is ectasia ductal, unabbreviated; MD is mama direita.
@@ -673,9 +660,9 @@ variables:
   NU_FEZ_CIRURGIA_DIR:
     official_name: Fez cirurgia, mama direita
     translated_name: Count of patients with prior right-breast surgery
-    description: 'Count of mammograms where the patient reported prior surgery on the
-      right breast — relevant clinical history for reading the exam. Uses DIR/ESQ rather
-      than this batch''s usual MD/ME laterality suffix.
+    description: 'Count of mammograms where the patient reported prior surgery on the right
+      breast — relevant clinical history for reading the exam. Uses DIR/ESQ rather than this
+      batch''s usual MD/ME laterality suffix.
 
       '
     code_system: none
@@ -691,8 +678,8 @@ variables:
   NU_GINECOMASTIA_MD:
     official_name: Ginecomastia, mama direita
     translated_name: Count of gynecomastia findings, right breast
-    description: 'Count of right-breast findings of gynecomastia — benign glandular
-      enlargement, relevant because SISCAN mammography also covers male patients.
+    description: 'Count of right-breast findings of gynecomastia — benign glandular enlargement,
+      relevant because SISCAN mammography also covers male patients.
 
       '
     code_system: none
@@ -708,14 +695,14 @@ variables:
   NU_IMPLANT_SEM_SIN_RUPTU_MD:
     official_name: Implante sem sinais de ruptura, mama direita
     translated_name: Count of intact-implant findings, right breast
-    description: 'Count of right-breast mammograms reporting a breast implant with
-      no signs of rupture — paired with NU_IMP_COM_SIN_RUPTU_MD for the ruptured case.
+    description: 'Count of right-breast mammograms reporting a breast implant with no signs
+      of rupture — paired with NU_IMP_COM_SIN_RUPTU_MD for the ruptured case.
 
       '
     code_system: none
     source: inferred
-    reasoning: IMPLANT_SEM_SIN_RUPTU abbreviates implante sem sinais de ruptura; MD
-      is mama direita.
+    reasoning: IMPLANT_SEM_SIN_RUPTU abbreviates implante sem sinais de ruptura; MD is mama
+      direita.
   NU_IMPLANT_SEM_SIN_RUPTU_ME:
     official_name: Implante sem sinais de ruptura, mama esquerda
     translated_name: Count of intact-implant findings, left breast
@@ -726,14 +713,13 @@ variables:
   NU_IMP_COM_SIN_RUPTU_MD:
     official_name: Implante com sinais de ruptura, mama direita
     translated_name: Count of ruptured-implant findings, right breast
-    description: 'Count of right-breast mammograms reporting a breast implant with
-      signs of rupture — the counterpart of NU_IMPLANT_SEM_SIN_RUPTU_MD.
+    description: 'Count of right-breast mammograms reporting a breast implant with signs of
+      rupture — the counterpart of NU_IMPLANT_SEM_SIN_RUPTU_MD.
 
       '
     code_system: none
     source: inferred
-    reasoning: IMP_COM_SIN_RUPTU abbreviates implante com sinais de ruptura; MD is
-      mama direita.
+    reasoning: IMP_COM_SIN_RUPTU abbreviates implante com sinais de ruptura; MD is mama direita.
   NU_IMP_COM_SIN_RUPTU_ME:
     official_name: Implante com sinais de ruptura, mama esquerda
     translated_name: Count of ruptured-implant findings, left breast
@@ -744,15 +730,14 @@ variables:
   NU_LES_BIOSPIA_PAAF:
     official_name: Lesão — biópsia/PAAF
     translated_name: Count of lesions recommended for biopsy or fine-needle aspiration
-    description: 'Count of lesions whose BI-RADS management recommendation was tissue
-      sampling — either core biopsy or PAAF (punção aspirativa por agulha fina, fine-needle
-      aspiration).
+    description: 'Count of lesions whose BI-RADS management recommendation was tissue sampling
+      — either core biopsy or PAAF (punção aspirativa por agulha fina, fine-needle aspiration).
 
       '
     code_system: none
     source: inferred
-    reasoning: LES_BIOSPIA_PAAF is lesão, biópsia/PAAF; PAAF is the standard Brazilian
-      abbreviation for fine-needle aspiration.
+    reasoning: LES_BIOSPIA_PAAF is lesão, biópsia/PAAF; PAAF is the standard Brazilian abbreviation
+      for fine-needle aspiration.
   NU_LES_DIAG_CANCER:
     official_name: Lesão — diagnóstico de câncer
     translated_name: Count of lesions with a cancer diagnosis
@@ -764,9 +749,8 @@ variables:
   NU_LINFON_INTRAMAM_MD:
     official_name: Linfonodo intramamário, mama direita
     translated_name: Count of intramammary lymph node findings, right breast
-    description: 'Count of right-breast findings of an intramammary lymph node — a
-      normal structure that can mimic a nodule and is recorded to explain a benign
-      round opacity.
+    description: 'Count of right-breast findings of an intramammary lymph node — a normal
+      structure that can mimic a nodule and is recorded to explain a benign round opacity.
 
       '
     code_system: none
@@ -782,9 +766,8 @@ variables:
   NU_NAO_FEZ_CIRURGIAS:
     official_name: Não fez cirurgias
     translated_name: Count of patients with no prior breast surgery
-    description: 'Count of mammograms where the patient reported no prior breast surgery
-      in either breast — the complement of NU_FEZ_CIRURGIA_DIR/ESQ, not itself split
-      by laterality.
+    description: 'Count of mammograms where the patient reported no prior breast surgery in
+      either breast — the complement of NU_FEZ_CIRURGIA_DIR/ESQ, not itself split by laterality.
 
       '
     code_system: none
@@ -803,8 +786,8 @@ variables:
   NU_NODULO_CALCIFIC_ME:
     official_name: Nódulo calcificado, mama esquerda
     translated_name: Count of calcified nodules, left breast
-    description: The left-breast counterpart of NU_NODULO_CALCIFIC_MD — the same finding
-      as siscan_findings.yml's CNODCALE.
+    description: The left-breast counterpart of NU_NODULO_CALCIFIC_MD — the same finding as
+      siscan_findings.yml's CNODCALE.
     code_system: none
     source: inferred
     reasoning: Same NODULO_CALCIFIC stem; ME is mama esquerda.
@@ -817,8 +800,8 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: NODULO_DENS_GORD is nódulo [com] densidade [de] gordura, a standard
-      BI-RADS lexicon descriptor; MD is mama direita.
+    reasoning: NODULO_DENS_GORD is nódulo [com] densidade [de] gordura, a standard BI-RADS
+      lexicon descriptor; MD is mama direita.
   NU_NODULO_DENS_GORD_ME:
     official_name: Nódulo com densidade de gordura, mama esquerda
     translated_name: Count of fat-density nodules, left breast
@@ -829,8 +812,8 @@ variables:
   NU_NODULO_DEN_HETEROG_MD:
     official_name: Nódulo denso heterogêneo, mama direita
     translated_name: Count of heterogeneous dense nodules, right breast
-    description: 'Count of dense nodules of heterogeneous appearance in the right breast
-      — the same finding as siscan_findings.yml''s CNODDENHED, on this later table.
+    description: 'Count of dense nodules of heterogeneous appearance in the right breast —
+      the same finding as siscan_findings.yml''s CNODDENHED, on this later table.
 
       '
     code_system: none
@@ -846,9 +829,8 @@ variables:
   NU_REV_MAMOGRAFIA:
     official_name: Revisão de mamografia
     translated_name: Count of mammograms undergoing a quality-control review read
-    description: 'Count of mammograms that received a second, review read — a routine
-      quality-control step in screening mammography programmes, distinct from the original
-      report.
+    description: 'Count of mammograms that received a second, review read — a routine quality-control
+      step in screening mammography programmes, distinct from the original report.
 
       '
     code_system: none
@@ -857,31 +839,29 @@ variables:
   PRESNOD:
     official_name: Presença de Nódulo (inferido)
     translated_name: Nodule reported
-    description: 'Whether the mammography requisition reported a palpable or noticed
-      breast nodule, for the right breast, left breast, or both, as stated by the patient
-      or referring clinician before the exam.
+    description: 'Whether the mammography requisition reported a palpable or noticed breast
+      nodule, for the right breast, left breast, or both, as stated by the patient or referring
+      clinician before the exam.
 
       '
     code_system: internal
     source: inferred
-    reasoning: 'Name abbreviates "presença de nódulo"; matches the requisition-stage
-      Nódulo_requis concept Nota Tecnica 8 defines, and the 1-character declared width
-      fits a short presence flag rather than free text.
+    reasoning: 'Name abbreviates "presença de nódulo"; matches the requisition-stage Nódulo_requis
+      concept Nota Tecnica 8 defines, and the 1-character declared width fits a short presence
+      flag rather than free text.
 
       '
     source_ref: naming grammar + Nota Tecnica 8 SISCAN - Mamografia, campo Nódulo_requis
   SEMACHADOS:
     official_name: Sem Achados
     translated_name: Without findings
-    description: 'Flags a mammogram whose radiology report recorded no abnormal findings
-      at all, separating a fully clear result from exams with any benign or suspicious
-      finding.
+    description: 'Flags a mammogram whose radiology report recorded no abnormal findings at
+      all, separating a fully clear result from exams with any benign or suspicious finding.
 
       '
     code_system: internal
     source: layout_doc
-    source_ref: 'TAB_SISMAMA.zip!MMAMA4.def (DATASUS TabWin definition), campo Sem
-      Achados
+    source_ref: 'TAB_SISMAMA.zip!MMAMA4.def (DATASUS TabWin definition), campo Sem Achados
 
       '
   ST_ACHADO_BENIGNO:
@@ -891,14 +871,13 @@ variables:
       category 2).
     code_system: internal
     source: inferred
-    reasoning: Achado benigno reads literally as "benign finding"; ST_ status-flag
-      prefix.
+    reasoning: Achado benigno reads literally as "benign finding"; ST_ status-flag prefix.
     notes: No observed values or codelist were captured.
   ST_AREA_DENSA:
     official_name: Área densa
     translated_name: Dense-area flag
-    description: Whether this mammogram reported a focal dense area distinct from a
-      discrete nodule.
+    description: Whether this mammogram reported a focal dense area distinct from a discrete
+      nodule.
     code_system: internal
     source: inferred
     reasoning: Área densa reads literally; ST_ status-flag prefix.
@@ -906,15 +885,15 @@ variables:
   ST_ASSIMETRIA_DIFUSA:
     official_name: Assimetria difusa
     translated_name: Diffuse-asymmetry flag
-    description: 'Whether this mammogram reported diffuse asymmetry — a standard BI-
-      RADS lexicon finding spanning a large portion of the breast, as opposed to the
-      focal form below.
+    description: 'Whether this mammogram reported diffuse asymmetry — a standard BI- RADS
+      lexicon finding spanning a large portion of the breast, as opposed to the focal form
+      below.
 
       '
     code_system: internal
     source: inferred
-    reasoning: Assimetria difusa reads literally, a standard BI-RADS descriptor; ST_
-      status-flag prefix.
+    reasoning: Assimetria difusa reads literally, a standard BI-RADS descriptor; ST_ status-flag
+      prefix.
     notes: No observed values or codelist were captured.
   ST_ASSIMETRIA_FOCAL:
     official_name: Assimetria focal
@@ -928,21 +907,21 @@ variables:
   ST_DISTORCAO_FOCAL:
     official_name: Distorção focal
     translated_name: Focal architectural-distortion flag
-    description: 'Whether this mammogram reported focal architectural distortion —
-      a BI-RADS lexicon finding that, unlike a discrete mass, warps the surrounding
-      tissue architecture and often prompts biopsy.
+    description: 'Whether this mammogram reported focal architectural distortion — a BI-RADS
+      lexicon finding that, unlike a discrete mass, warps the surrounding tissue architecture
+      and often prompts biopsy.
 
       '
     code_system: internal
     source: inferred
-    reasoning: Distorção focal reads literally as a standard BI-RADS descriptor; ST_
-      status-flag prefix.
+    reasoning: Distorção focal reads literally as a standard BI-RADS descriptor; ST_ status-flag
+      prefix.
     notes: No observed values or codelist were captured.
   ST_TEM_MICROCALCIFICACAO:
     official_name: Tem microcalcificação
     translated_name: Microcalcification-present flag
-    description: Whether this mammogram reported microcalcifications — a finding tracked
-      separately from the nodule findings above.
+    description: Whether this mammogram reported microcalcifications — a finding tracked separately
+      from the nodule findings above.
     code_system: internal
     source: inferred
     reasoning: Tem microcalcificação reads literally; same ST_ status-flag prefix.
@@ -950,29 +929,28 @@ variables:
   ST_TEM_NODULO:
     official_name: Tem nódulo
     translated_name: Any-nodule-present flag
-    description: 'Whether this mammogram reported any nodule at all, in either breast
-      — a general flag distinct from the specific nodule-subtype counts (calcified,
-      fat-density, heterogeneous dense) above.
+    description: 'Whether this mammogram reported any nodule at all, in either breast — a
+      general flag distinct from the specific nodule-subtype counts (calcified, fat-density,
+      heterogeneous dense) above.
 
       '
     code_system: internal
     source: inferred
-    reasoning: Tem nódulo reads literally as "has a nodule"; ST_ status-flag prefix
-      used throughout this batch.
+    reasoning: Tem nódulo reads literally as "has a nodule"; ST_ status-flag prefix used throughout
+      this batch.
     notes: No observed values or codelist were captured.
   TEMPOMAMOG:
     official_name: Tempo Mamog Ant (truncated from TEMPOMAMOGANT)
     translated_name: Time since previous mammogram
-    description: 'How long since the patient''s last mammogram, as a coded time band
-      (never, under 1 year, 1-2 years, etc.), self-reported on the requisition before
-      the current exam.
+    description: 'How long since the patient''s last mammogram, as a coded time band (never,
+      under 1 year, 1-2 years, etc.), self-reported on the requisition before the current
+      exam.
 
       '
     code_system: internal
     source: inferred
-    reasoning: 'DBF field names truncate at 10 characters; TEMPOMAMOGANT truncates
-      to TEMPOMAMOG, and MMAMA4.def names that field "Tempo Mamog Ant" bound to a tempomamogant.cnv
-      lookup.
+    reasoning: 'DBF field names truncate at 10 characters; TEMPOMAMOGANT truncates to TEMPOMAMOG,
+      and MMAMA4.def names that field "Tempo Mamog Ant" bound to a tempomamogant.cnv lookup.
 
       '
     source_ref: TAB_SISMAMA.zip!MMAMA4.def, campo Tempo Mamog Ant (field TEMPOMAMOGANT)
@@ -980,13 +958,13 @@ variables:
     official_name: Tipo Mamog Diagn
     translated_name: Type of diagnostic mammogram
     description: 'Why a diagnostic (non-screening) mammogram was ordered: prior symptoms,
-      a BI-RADS 3 follow-up, known cancer before treatment, a post-chemo response check,
-      outside-report review, or post-biopsy follow-up.
+      a BI-RADS 3 follow-up, known cancer before treatment, a post-chemo response check, outside-report
+      review, or post-biopsy follow-up.
 
       '
     code_system: internal
     source: layout_doc
-    source_ref: 'TAB_SISMAMA.zip!MMAMA4.def, campo Tipo Mamog Diagn (TIPMAMDIAG.cnv);
-      categories per Nota Tecnica 8 SISCAN - Mamografia
+    source_ref: 'TAB_SISMAMA.zip!MMAMA4.def, campo Tipo Mamog Diagn (TIPMAMDIAG.cnv); categories
+      per Nota Tecnica 8 SISCAN - Mamografia
 
       '
