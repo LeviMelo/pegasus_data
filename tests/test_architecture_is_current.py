@@ -111,10 +111,11 @@ class TestEverySourceRungIsInTheLadder:
 
 
 class TestCountsLiveInOnePlace:
-    """RESUME.md and CONFIDENCE.md carried their own state tables, disagreed
-    with §21, and there was no way to tell which was current."""
+    """RESUME.md carried its own state table, disagreed with §21, and there was
+    no way to tell which was current. CONFIDENCE.md did the same and has since
+    been folded into §22, which is why only one companion file is checked."""
 
-    @pytest.mark.parametrize("doc", ["docs/RESUME.md", "docs/CONFIDENCE.md"])
+    @pytest.mark.parametrize("doc", ["docs/RESUME.md"])
     def test_no_second_state_table(self, doc) -> None:
         text = (ROOT / doc).read_text(encoding="utf-8")
         # a state table is a markdown table whose rows are `| label | 1,234 |`
@@ -122,6 +123,15 @@ class TestCountsLiveInOnePlace:
         assert not rows, (
             f"{doc} has started keeping counts again ({len(rows)} rows); they belong "
             f"in ARCHITECTURE §21 so they cannot disagree: {rows[:3]}"
+        )
+
+    def test_the_doubts_live_in_the_same_document(self, arch) -> None:
+        """§22 was `docs/CONFIDENCE.md`. Splitting the honest half out is how
+        decode coverage came to be filed as a doubt and disagree with §21."""
+        assert "## 22. What we are least sure of" in arch
+        assert not (ROOT / "docs" / "CONFIDENCE.md").exists(), (
+            "CONFIDENCE.md is back; its contents belong in §22 so the claims and "
+            "the doubts about them cannot drift apart"
         )
 
     def test_architecture_still_states_it_owns_them(self, arch) -> None:

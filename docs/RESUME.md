@@ -55,7 +55,7 @@ Every catalogued column now has a description, so the description backlog is
 closed. What is left is not more of the same work:
 
 1. **The columns that do not decode.** Counts in ARCHITECTURE §21; WHY they are
-   hard, and what would settle each, in `docs/CONFIDENCE.md` §1b. Short version:
+   hard, and what would settle each, in `pegasus_data_ARCHITECTURE.md` §22.1b. Short version:
    RESP has no laboratory-result table anywhere on the tree, SINAN needs
    `TAB_SINANNET.zip` parsed per agravo rather than per system, and SISCAN needs
    INCA's requisition forms. None of these is unblocked by effort alone.
@@ -67,7 +67,7 @@ closed. What is left is not more of the same work:
    `src/pegasus_data/curation/variables/*/*.yml` for the live list.
 
 3. **The inferred entries have never had an independent review.** This is the
-   top-ranked doubt in `docs/CONFIDENCE.md` §1 and it needs a domain reader with
+   top-ranked doubt in `pegasus_data_ARCHITECTURE.md` §22.1 and it needs a domain reader with
    the paper forms, not another pass from the same author.
 
 To see the current position at any time:
