@@ -1547,21 +1547,27 @@ description waves never covered. Re-measure rather than trusting the number.
 |---|---:|
 | label pack | 2,419,002 rows · 2,348 codelists · 26.6 MB |
 | CNES↔CNPJ crosswalk | 546,189 rows |
-| field→codelist bindings shipped | 9,751 |
-| bindings by rung | def 8,548 · manual 534 · community 315 · semantic_match 253 · layout_doc 101 |
+| field→codelist bindings shipped | 9,796 |
+| bindings by rung | def 8,548 · manual 534 · community 315 · semantic_match 298 · layout_doc 101 |
 | columns curation declares as code-bearing | 2,157 |
-| **… reaching a codelist that ships** | **2,064 (95.7%)** |
-| … bound to a registry the pack holds back BY DESIGN | 15 |
-| … with no binding at all | 78 |
+| **… reaching a codelist that ships** | **2,070 (96.0%)** |
+| … bound to a registry the pack holds back BY DESIGN | 19 |
+| … with no binding at all | 68 |
 
-The 15 are not a gap. They are CNES establishment and team registries —
-`CADGER*`, `TCNESBR`, `INE_EQUIPE*`, `HOSFEDRJ` — which §14.9 holds out of the
-pack deliberately and which are reached through `fetch("CNES-ST")` and the join
-key declared in `joins.yml`. Counting them as decode failures overstated the gap
-by 15 for as long as the measurement conflated "no table ships" with "no table
-should ship".
+The 19 are not a gap, and saying so is what `curation/codelists.yml`'s ROLES
+are for. They are CNES establishment and team registries — `CADGER*`, `TCNESBR`,
+`INE_EQUIPE*`, `HOSFEDRJ` — plus two CNPJ columns that reach CNES through the
+shipped crosswalk rather than through a label table. §14.9 holds all of those out
+of the pack deliberately; they are reached through `fetch("CNES-ST")` and the key
+declared in `joins.yml`. Each is bound to the directory it belongs to anyway,
+because naming WHICH registry is the useful half of the answer even when the
+table is deliberately absent — and at confidence 0.35, so it can never outrank a
+table that does ship.
 
-The 78 that genuinely do not decode are not merely undone; the reasons are in
+Reporting these as undecodable was conflating "no table ships" with "no table
+should ship", which is the distinction the roles exist to draw.
+
+The 68 that genuinely do not decode are not merely undone; the reasons are in
 §22.1b. `semantic_match` bindings are CANDIDATES at
 confidence ≤0.6 with `decodes_observed` NULL — the renderer weighs each against
 the column's real values and discards what explains nothing, so a wrong one
