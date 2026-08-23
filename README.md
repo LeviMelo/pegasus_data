@@ -148,11 +148,14 @@ df, report = query(**request, return_report=True)
 ```
 
 `query()` is the primary analytical interface. It chooses an existing lake or a
-bounded direct fetch, unions schema generations with structural nulls, preserves
-raw codes, adds only identity-level labels, and makes dimensions/crosswalks
-explicit. The report says when an annual physical publication was filtered by a
-row-level month, when a request had to be adapted, and which fields were absent
-from which generations.
+bounded direct fetch—or a non-overlapping year-level hybrid—only after checking
+that every expected logical publication is covered. It unions schema generations
+with structural nulls, preserves raw codes, admits only explicitly declared
+identity labels, and makes dimensions/crosswalks explicit. Use `time_by=` and
+`geography_by=` when the declared alternative (admission versus competence,
+facility versus residence) matters. The report says when an annual physical
+publication was filtered by a row-level month, when a request was adapted, how
+many rows lacked parseable time, and which fields were structurally absent.
 
 `fetch()` remains the direct source-shaped interface:
 

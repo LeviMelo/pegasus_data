@@ -36,6 +36,10 @@
       "file": "schema_presence.parquet", "tier": "A", "bytes": 44232, "rows": 17189,
       "sha256": "5faa2dd625792b74b3bcc1ca9525395bbe427e078ed0ae6c64a754971b008313"
     },
+    "query_capabilities": {
+      "file": "query_capabilities.json", "tier": "A", "bytes": 2885, "rows": 5,
+      "sha256": "33a03d48c099c73b88d99785033173eb307f4cc051ecc1ec43dbdfce1c1ec303"
+    },
     "tree": {
       "file": "tree.parquet", "tier": "A", "bytes": 1294140, "rows": 207251,
       "sha256": "06e27369c6ba868e34e7855516ded07e2e4fb865e34a80cb871152c798c38b81"

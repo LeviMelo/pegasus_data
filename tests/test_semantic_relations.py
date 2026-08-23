@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pyarrow as pa
 
+import pegasus_data as pg
 from pegasus_data.persist.reference import register_reference_tables, write_reference_tables
 from pegasus_data.semantics.dictionary import (
     CodelistBinding,
@@ -108,3 +109,61 @@ def test_applied_adjudication_changes_the_actual_rendered_value(settings, catalo
     )
     assert rendered["CODMUNRES_label"].to_pylist() == ["Rio Branco"]
     assert adjudication_evidence(catalog, key)["status"] == "adjudicated"
+
+
+def test_dimension_uses_each_rows_semantic_vintage(settings, monkeypatch) -> None:
+    import pegasus_data.labelpack as labelpack
+    from pegasus_data._query import QueryReport, _apply_dimensions
+
+    calls = []
+
+    def fake_read(codelist, *, system=None, year=None, competencia=None, **_kwargs):
+        calls.append((codelist, year, competencia))
+        label = "Old region" if competencia == 202001 else "New region"
+        return pa.table({"code": ["270430"], "label": [label]})
+
+    monkeypatch.setattr(labelpack, "read_packed", fake_read)
+    query_plan = pg.plan(
+        "SIH-RD", period=(2020, 2021), dimensions=["MUNIC_RES.health_region"],
+        settings=settings,
+    )
+    table = pa.table(
+        {"MUNIC_RES": ["270430", "270430"], "_competencia": [202001, 202101]}
+    )
+    result = _apply_dimensions(table, query_plan, QueryReport(), settings)
+    assert result["MUNIC_RES_health_region"].to_pylist() == ["Old region", "New region"]
+    assert {item[2] for item in calls} == {202001, 202101}
+
+
+def test_adjudicated_dimension_is_effective_immediately(settings, catalog, monkeypatch) -> None:
+    import pegasus_data.labelpack as labelpack
+    from pegasus_data._query import QueryReport, _apply_dimensions
+
+    key = ensure_adjudication_item(
+        catalog, kind="semantic_relation", system="SIHSUS", dataset="SIHSUS.RD",
+        field="MUNIC_RES", candidates=["CUSTOM_REGION"], reason="test ambiguity",
+    )
+    adjudicate(
+        catalog,
+        key,
+        SemanticRelation(
+            system="SIHSUS", dataset="SIHSUS.RD", field_name="MUNIC_RES",
+            relation_type=RelationType.ROLLUP_TO, target_type="region",
+            target_name="custom_region", artifact="CUSTOM_REGION",
+            evidence="reviewed test evidence",
+        ),
+        by="test-reviewer",
+    )
+    monkeypatch.setattr(
+        labelpack,
+        "read_packed",
+        lambda *_args, **_kwargs: pa.table({"code": ["270430"], "label": ["Reviewed"]}),
+    )
+    query_plan = pg.plan(
+        "SIH-RD", period=2020, dimensions=["MUNIC_RES.custom_region"], settings=settings
+    )
+    result = _apply_dimensions(
+        pa.table({"MUNIC_RES": ["270430"], "_competencia": [202001]}),
+        query_plan, QueryReport(), settings,
+    )
+    assert result["MUNIC_RES_custom_region"].to_pylist() == ["Reviewed"]

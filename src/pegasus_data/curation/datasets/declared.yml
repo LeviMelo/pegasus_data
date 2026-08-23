@@ -62,6 +62,13 @@ datasets:
     asserted_by: pegasus_data
     what_one_row_is: one health establishment, as registered in one monthly competência
     unit_of_analysis: establishment-month
+    query_axes:
+      default_time: competence
+      time:
+        competence: {fields: [COMPETEN], encoding: yyyymm}
+      default_geography: facility
+      geography:
+        facility: {fields: [CODUFMUN], code_system: ibge_municipality}
     known_biases: >
       A register, not a census of activity. An establishment stays registered
       whether or not it is treating anyone, and registration is a condition of

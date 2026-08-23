@@ -359,3 +359,29 @@ exceptions. They are closed by these enforced invariants:
 The formal regression coverage lives in `test_query_api.py`,
 `test_crosswalk.py`, `test_representation_selection.py`,
 `test_semantic_relations.py` and `test_next_resources.py`.
+
+---
+
+## Follow-up architecture review closure — 2026-08-23
+
+The second review of the architecture patch found completeness and semantic
+integration defects that the first closure tests did not exercise.
+
+| defect | resolution | regression evidence |
+|---|---|---|
+| one lake partition selected lake for every requested year | exact logical-publication coverage per year; non-overlapping hybrid plans | `test_partial_year_lake_coverage_routes_whole_year_to_fetch`, `test_complete_and_missing_years_form_a_hybrid_without_overlap` |
+| temporal/geographic fields chosen by spelling | compiled reviewed axes plus explicit `time_by`/`geography_by` | `test_declared_geography_axis_selects_facility_not_residence` |
+| one current dimension table applied to longitudinal rows | packed relation selected per row competence/year | `test_dimension_uses_each_rows_semantic_vintage` |
+| representation conflicts could duplicate facts | conflicts and same-format collisions refuse analytical selection | `test_representation_selection.py` |
+| crosswalk/registry packs expanded wholesale into Python | predicate-pushed identifier/validity slices | `test_columnar_slice_filters_identifiers_and_validity_before_materialising` |
+| high-level labels used a denylist | only effective `label_of` relations are admitted; unknowns open adjudication | query and semantic-relation suites |
+| applied relations were invisible to dimensions/new connections | one committed adjudication transaction and unified resolver | `test_adjudicated_dimension_is_effective_immediately` |
+| mixed annual/monthly resolution collapsed to one boolean | per-year resolution retained in `RetrievalPlan` | query planner suite |
+| unresolved row time disappeared silently | explicit exclude/retain/error policy and report counts | `test_unresolved_row_time_policy_is_counted_and_never_silent` |
+| optional-resource coverage used one intersecting row/min-max | exact requested years and source identities; explicit covered-year metadata | `test_next_resources.py` |
+| overlap audit grouped only identical windows | interval-overlap metrics in both directions | `test_crosswalk_audit.py` |
+
+The review's `MUNIC_MOV` and numeric-UF examples were symptoms of the undeclared
+axis problem, not additional column aliases to add to another guess list. The
+fix therefore removes guessing from the high-level planner and filters the one
+declared field, including IBGE numeric municipality prefixes.

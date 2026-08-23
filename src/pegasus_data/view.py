@@ -763,28 +763,27 @@ def _select_codelists(
     # renderer continued making the same refusal.
     if store is not None:
         try:
-            declared = store.query(
-                "SELECT artifact, dataset FROM semantic_relations "
-                "WHERE relation_type='label_of' AND status='adjudicated' "
-                "AND field_name=? AND system IN ('*', ?)",
-                (name.upper(), system.upper()),
-            )
-            if family_id and declared:
+            dataset = "*"
+            if family_id:
                 family = store.query(
                     "SELECT series FROM families WHERE family_id=?", (family_id,)
                 )
                 series = str(family[0]["series"] or "").upper() if family else ""
-                declared = [
-                    row
-                    for row in declared
-                    if str(row["dataset"] or "").upper() in {"", "*", series}
-                    or str(row["dataset"] or "").upper().endswith(f".{series}")
-                ]
-            elif declared:
-                declared = [
-                    row for row in declared if str(row["dataset"] or "").upper() in {"", "*"}
-                ]
-            artifacts = sorted({str(row["artifact"]) for row in declared})
+                dataset = f"{system}.{series}"
+            from .semantics.relations import RelationType, relations_for
+
+            artifacts = sorted(
+                {
+                    item.artifact
+                    for item in relations_for(
+                        system,
+                        dataset,
+                        name,
+                        relation_type=RelationType.LABEL_OF,
+                        catalog=store,
+                    )
+                }
+            )
             if len(artifacts) == 1:
                 return _Selection(codelists=artifacts)
         except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behavior

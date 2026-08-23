@@ -6,7 +6,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from .catalog.store import Catalog
+from .catalog.store import Catalog, utcnow
 from .inventory.families import DECODE_COST_RANK
 
 
@@ -17,16 +17,26 @@ class RepresentationSelection:
     conflicts: tuple[str, ...] = ()
 
 
+class RepresentationConflictError(RuntimeError):
+    """A logical publication has contradictory physical candidates."""
+
+
 def choose_representations(
-    catalog: Catalog, rows: Sequence[Mapping[str, Any]]
+    catalog: Catalog,
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    on_conflict: str = "error",
 ) -> RepresentationSelection:
     """Collapse publisher-declared format alternatives, never datasets/members.
 
     The grouping key is the catalog's logical publication identity plus archive
     member. A multi-member archive therefore contributes every selected member,
     while loose ``.dbc``/``.csv``/Parquet alternatives for one publication
-    contribute once. An open conflict keeps every candidate visible.
+    contribute once. A conflict blocks analytical execution unless an expert
+    explicitly requests ``on_conflict="all"`` for inspection.
     """
+    if on_conflict not in {"error", "all"}:
+        raise ValueError("on_conflict must be 'error' or 'all'")
     groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
     for raw in rows:
         row = dict(raw)
@@ -57,15 +67,63 @@ def choose_representations(
         if len(candidates) == 1:
             selected.extend(candidates)
             continue
+        formats = [str(row.get("container_format") or "unknown") for row in candidates]
+        contradictions: list[str] = []
+        if len(formats) != len(set(formats)):
+            contradictions.append("multiple objects of the same format")
+        row_counts = {int(row["row_count"]) for row in candidates if row.get("row_count") is not None}
+        if len(row_counts) > 1:
+            contradictions.append(f"contradictory row counts {sorted(row_counts)}")
+        signatures = {
+            str(row["schema_signature"])
+            for row in candidates
+            if row.get("schema_signature")
+        }
+        if len(signatures) > 1:
+            contradictions.append("contradictory schema signatures")
+        if contradictions and logical not in open_conflicts:
+            import json
+
+            try:
+                with catalog.write() as conn:
+                    conn.execute(
+                        "INSERT INTO representation_conflicts "
+                        "(logical_id, representations, evidence, status, noted_at) "
+                        "VALUES (?,?,?,?,?) ON CONFLICT(logical_id) DO NOTHING",
+                        (
+                            logical,
+                            json.dumps(
+                                [
+                                    {
+                                        "path": row.get("path"),
+                                        "format": row.get("container_format"),
+                                        "size": row.get("size"),
+                                    }
+                                    for row in candidates
+                                ],
+                                sort_keys=True,
+                            ),
+                            "; ".join(contradictions) + " claim one logical publication",
+                            "open",
+                            utcnow(),
+                        ),
+                    )
+            except Exception:  # pragma: no cover - read-only catalogs still refuse
+                pass
+            open_conflicts.add(logical)
         if logical in open_conflicts:
-            selected.extend(candidates)
             conflicts.append(logical)
-            continue
+            if on_conflict == "all":
+                selected.extend(candidates)
+                continue
+            raise RepresentationConflictError(
+                f"logical publication {logical!r} has conflicting representations; "
+                "analytical execution refused to avoid duplicate observations"
+            )
         winner = min(
             candidates,
             key=lambda row: (
                 DECODE_COST_RANK.get(str(row.get("container_format") or "unknown"), 99),
-                int(row.get("size") or 0),
                 str(row.get("path") or ""),
             ),
         )

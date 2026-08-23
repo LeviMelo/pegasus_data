@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass
-from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
@@ -55,26 +54,63 @@ def _pack_path() -> Path:
     )
 
 
-def _crosswalk_rows() -> dict[str, list[tuple[str, str, str, str]]]:
-    return _crosswalk_rows_at(str(_pack_path()))
+def _crosswalk_slice(
+    codes: set[str],
+    competences: list[int | None],
+    *,
+    reverse: bool = False,
+    resource_path: str | Path | None = None,
+) -> dict[str, list[tuple[str, str, str, str]]]:
+    """Scan only requested identifiers and overlapping validity row groups."""
+    import pyarrow.dataset as ds
 
-
-@lru_cache(maxsize=4)
-def _crosswalk_rows_at(path: str) -> dict[str, list[tuple[str, str, str, str]]]:
-    import pyarrow.parquet as pq
-
-    table = pq.read_table(path)
-    names = set(table.column_names)
+    if not codes:
+        return {}
+    path = str(resource_path or _pack_path())
+    dataset = ds.dataset(path, format="parquet")
+    names = set(dataset.schema.names)
     source = "source_code" if "source_code" in names else "code"
     target = "target_code" if "target_code" in names else "cnpj"
+    key_field, value_field = (target, source) if reverse else (source, target)
+    columns = [key_field, value_field]
+    for optional in ("valid_from", "valid_to", "source_codelist", "codelist"):
+        if optional in names and optional not in columns:
+            columns.append(optional)
+    expression = ds.field(key_field).isin(sorted(codes))
+    known = [int(value) for value in competences if value]
+    if known and "valid_from" in names:
+        lower, upper = str(min(known)), str(max(known))
+        expression &= (
+            ds.field("valid_from").is_null()
+            | (ds.field("valid_from") == "")
+            | (ds.field("valid_from") <= upper)
+        )
+        expression &= (
+            ds.field("valid_to").is_null()
+            | (ds.field("valid_to") == "")
+            | (ds.field("valid_to") >= lower)
+        )
+    table = dataset.to_table(columns=columns, filter=expression)
     valid_from = table["valid_from"].to_pylist() if "valid_from" in names else [""] * table.num_rows
     valid_to = table["valid_to"].to_pylist() if "valid_to" in names else [""] * table.num_rows
-    codelists = table["source_codelist"].to_pylist() if "source_codelist" in names else table["codelist"].to_pylist()
+    codelist_name = "source_codelist" if "source_codelist" in names else "codelist"
+    codelists = (
+        table[codelist_name].to_pylist()
+        if codelist_name in table.column_names
+        else [""] * table.num_rows
+    )
     out: dict[str, list[tuple[str, str, str, str]]] = {}
-    for code, cnpj, lo, hi, codelist in zip(
-        table[source].to_pylist(), table[target].to_pylist(), valid_from, valid_to, codelists, strict=True
+    for key, value, lo, hi, codelist in zip(
+        table[key_field].to_pylist(),
+        table[value_field].to_pylist(),
+        valid_from,
+        valid_to,
+        codelists,
+        strict=True,
     ):
-        out.setdefault(str(code).strip(), []).append((str(cnpj), str(lo or ""), str(hi or ""), str(codelist)))
+        out.setdefault(str(key).strip(), []).append(
+            (str(value), str(lo or ""), str(hi or ""), str(codelist))
+        )
     return out
 
 
@@ -114,7 +150,6 @@ def enrich_cnpj(
     """Resolve CNPJ additively from CNES without changing fact-row count."""
     if from_field not in table.column_names:
         raise KeyError(f"{from_field}: required source field for CNES→CNPJ enrichment")
-    rows = _crosswalk_rows_at(str(resource_path)) if resource_path is not None else _crosswalk_rows()
     source_values = table[from_field].to_pylist()
     raw_values = table[raw_field].to_pylist() if raw_field in table.column_names else [None] * table.num_rows
     if "_competencia" in table.column_names:
@@ -123,6 +158,11 @@ def enrich_cnpj(
         competences = [int(year) * 100 + 12 if year else None for year in table["year"].to_pylist()]
     else:
         competences = [None] * table.num_rows
+    rows = _crosswalk_slice(
+        {str(value or "").strip() for value in source_values},
+        competences,
+        resource_path=resource_path,
+    )
     report = EnrichmentReport("CNPJ", from_field, f"{from_field}→CNPJ", rows_before=table.num_rows)
     resolved: list[str | None] = []
     statuses: list[str] = []
@@ -193,16 +233,18 @@ def enrich_cnes(
     """Reverse CNPJ→CNES lookup; one-to-many is explicit and safe by default."""
     if from_field not in table.column_names:
         raise KeyError(f"{from_field}: required source field for CNPJ→CNES enrichment")
-    reverse: dict[str, list[tuple[str, str, str, str]]] = {}
-    rows = _crosswalk_rows_at(str(resource_path)) if resource_path is not None else _crosswalk_rows()
-    for cnes, relations in rows.items():
-        for cnpj, lo, hi, source in relations:
-            reverse.setdefault(cnpj, []).append((cnes, lo, hi, source))
     raw_values = table[raw_field].to_pylist() if raw_field in table.column_names else [None] * table.num_rows
     if "_competencia" in table.column_names:
         competences = table["_competencia"].to_pylist()
     else:
         competences = [None] * table.num_rows
+    source_values = table[from_field].to_pylist()
+    reverse = _crosswalk_slice(
+        {_digits(value) for value in source_values},
+        competences,
+        reverse=True,
+        resource_path=resource_path,
+    )
     report = EnrichmentReport(
         "CNES", from_field, f"{from_field}→CNES", cardinality="one-to-many per validity window",
         rows_before=table.num_rows,
@@ -211,7 +253,7 @@ def enrich_cnes(
     resolved: list[str | None] = []
     statuses: list[str] = []
     for index, (cnpj, raw, competence) in enumerate(
-        zip(table[from_field].to_pylist(), raw_values, competences, strict=True)
+        zip(source_values, raw_values, competences, strict=True)
     ):
         candidates = {
             cnes for cnes, lo, hi, _source in reverse.get(_digits(cnpj), ())

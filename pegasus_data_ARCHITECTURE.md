@@ -185,7 +185,15 @@ pegasus_data/
   crosswalk.py            temporal, cardinality-safe identifier enrichment (§14.13)
   providers.py            resource requirement/provider contracts (§14.13)
   _resources.py           versioned bundled and optional-resource lifecycle (§14.13)
-  _query.py               intent model, planner, executor and query report (§14.13)
+  _query.py               compatibility facade for query internals (§14.13)
+  _query_engine/
+    model.py              immutable intent, plans, reports and input parsing
+    capabilities.py       compiled/local publication and axis capabilities
+    planner.py            analytical intent → retrieval/resource plan
+    executor.py           lake/fetch/hybrid execution and report assembly
+    filters.py            declared temporal/geographic row filtering
+    semantics.py          label policy, vintage dimensions and enrichments
+    core.py               compatibility exports for the split engine (§14.13)
   render_groups.py        ONE vintage-scoped render path, shared by fetch and load (§8.2)
   _availability.py        present / absent / unknown, per column per year (§14.7)
   textenc.py              encoding detection for the text readers
@@ -1397,7 +1405,9 @@ a boundary — the boundary check is what stops code `12` being swallowed by lab
 
 `query()` accepts one analytical specification: dataset, `Period`,
 `Geography`, selected fields, identity labels, typed dimensions, explicit
-enrichments, provenance and resource/time policies. `plan()` accepts the same
+enrichments, declared `time_by`/`geography_by` axes, provenance and time policy.
+Only the implemented `resource_policy="local"` is exposed; resource acquisition
+is an explicit operation. `plan()` accepts the same
 arguments and returns an immutable `QuerySpec`/`QueryPlan` without executing it;
 `explain()` names physical publication resolution, lake-vs-fetch strategy,
 hidden dependencies, adaptations and required resources with local status and
@@ -1419,23 +1429,34 @@ table, report = query(**kwargs, return_report=True)
 ```
 
 `QueryReport` records requested/effective time, source strategy, structural
-absence, semantic relations, crosswalk counts and warnings. The planner owns
-four safety rules:
+absence, semantic relations, unresolved/excluded row-time counts, crosswalk
+counts and warnings. The planner owns these safety rules:
 
 - A monthly request over annual files is exact when a declared row competence
   or date exists: annual files are retrieved and rows are filtered by month. If
   no trustworthy row axis exists, `time_policy="adapt"` widens explicitly and
   raises `TimeResolutionWarning`; `"strict"` refuses.
-- A UF/municipality becomes a physical file filter when that axis exists and a
-  row filter only when a declared row geography field exists. Otherwise the
-  plan refuses rather than returning a false empty table.
+- Temporal and geographic meanings come from compiled reviewed capabilities,
+  not a field-name search. `time_by="admission"` and
+  `geography_by="facility"`, for example, deliberately select different axes
+  from competence and residence. A UF becomes a physical filter only when that
+  physical axis is explicitly declared and observed; otherwise the declared
+  row axis is used or the plan refuses.
+- Coverage is compiled per selected logical publication and year. A lake year
+  is usable only when its recorded source identities cover every expected
+  publication. Complete and incomplete years may form a `hybrid` plan, but one
+  partially-built year is never split between lake and fetch. Annual/monthly
+  resolution is retained per year rather than collapsed with `any(monthly)`.
 - Schema evolution is always a union. A selected field absent from one schema
   generation is null-filled and listed in both `QueryReport.structural_absence`
   and Arrow schema metadata; `StructuralSchemaWarning` makes partial structural
   absence visible.
-- Raw codes survive. Identity labels are additive; a mapping typed as
-  `rollup_to` or `attribute_of` is only produced by `dimensions=`. A suspected
-  substitution raises `SemanticFallbackWarning` and the label is withheld.
+- Raw codes survive. A high-level label is admitted only by an effective
+  `label_of` relation; reviewed catalog decisions override shipped curation and
+  explicit legacy `variable_docs.codelist` entries are a migration bridge.
+  `rollup_to` and `attribute_of` are only produced by `dimensions=`, using each
+  row's competence/year for its semantic vintage. A suspected substitution
+  raises `SemanticFallbackWarning`, opens an adjudication item and is withheld.
 
 **Crosswalks are not labels or translations.** `crosswalk.py` implements the
 temporal CNES↔CNPJ relation through `EnrichmentRequest`/`enrichment()`. Raw CNPJ
@@ -1447,13 +1468,17 @@ requested. Reverse CNPJ→CNES uses the same rule and is explicitly one-to-many.
 
 The rebuilt artifact is **10,339,656 bytes and 1,774,993 evidence rows**, with
 273,514 CNES and 265,418 CNPJ identifiers. The audit found 951 ambiguous source
-windows, 1,218 CNES identifiers changing target over time and 12,619 reverse
-multi-source windows. Those are modeled cardinalities, not rows silently won by
+windows but **1,816 overlapping ambiguous source intervals**, 1,218 CNES
+identifiers changing target over time, 12,619 reverse multi-source windows and
+**13,923 overlapping reverse intervals**. Runtime lookup is a predicate-pushed
+Parquet slice over requested identifiers and validity bounds, not a process-wide
+Python dictionary. Those are modeled cardinalities, not rows silently won by
 sort order.
 
 **Resources have identity and lifecycle.** `resources/manifest.json` records a
 resource schema version, content version, build/source identity, checksum, size,
-tier and growth budget for every shipped Parquet artifact.
+tier and growth budget for every shipped runtime artifact, including compiled
+query capabilities.
 `resource_manager().status()`, `.ensure()` and `.build()` expose that state;
 `pegasus-data resources status|ensure|build` is the CLI equivalent. Tier A is
 bootstrap metadata, Tier B is the compact runtime semantic layer, and Tier D is
@@ -1461,8 +1486,11 @@ an optional local registry. `providers.py` gives the planner one
 availability/authority/period/estimated-bytes contract. CNES→CNPJ needs only
 the bundled compact pack. CNES history (`CNES.ST`) and establishment names are
 separate optional resources, with the latter explicitly compiled as
-`cnes_registry.parquet`; a query reports a missing requirement before touching
-the fact dataset and never starts an unbounded build implicitly.
+`cnes_registry.parquet` from a maintainer evidence catalog. That compiler is not
+presented as fresh-install acquisition and refuses when documentary registry
+evidence is absent. Coverage metadata lists exact years rather than only a
+min/max range. A query reports a missing requirement before touching the fact
+dataset and never starts an unbounded build implicitly.
 
 `ResourceManager`, `ResourceStatus`, `QuerySpec`, `QueryPlan`, `QueryReport`,
 `Period`, `Geography`, `EnrichmentRequest` and the warning classes are public so
@@ -1483,6 +1511,7 @@ functional out of the box, and nothing that is derived, large and reproducible.*
 | `resources/labels.parquet` | 29.97 MB | 3,654,320 versioned label runs; offline identity labels |
 | `resources/labels_crosswalk.parquet` | 10.34 MB | temporal CNES↔CNPJ evidence, without the full establishment directory |
 | `resources/bindings.parquet` | 0.04 MB | declares which codelist can decode each field |
+| `resources/query_capabilities.json` | 0.003 MB | reviewed temporal/geographic axes and fresh-install publication capabilities |
 | `curation/**/*.yml` | 44 KB | the manual-authority rung. Without it, `SOURCE_AUTHORITY['manual']` is empty and no human judgement can outrank an extraction — the whole point of §9. |
 | `catalog/schema.sql` | 40 KB | the catalog cannot be created without it |
 

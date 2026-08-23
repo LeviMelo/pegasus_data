@@ -1,10 +1,6 @@
-"""Compatibility facade for the intent-driven query API.
+"""Internal query planning and execution package."""
 
-Implementation lives under :mod:`pegasus_data._query_engine`; the explicit private
-exports below preserve existing diagnostics and regression imports.
-"""
-
-from ._query_engine.core import (
+from .core import (
     Adaptation,
     CrosswalkAmbiguityWarning,
     DimensionRequest,
@@ -17,19 +13,13 @@ from ._query_engine.core import (
     StructuralSchemaWarning,
     TimeResolutionWarning,
     UnresolvedTimeWarning,
-    _apply_dimensions,
-    _filter_geography,
-    _filter_period,
-    _period,
-    _with_row_competence,
     plan,
     query,
-)  # compatibility re-exports are this module's purpose
+)
 
 __all__ = [
     "Adaptation", "CrosswalkAmbiguityWarning", "DimensionRequest", "Geography",
     "Period", "QueryPlan", "QueryReport", "QuerySpec", "SemanticFallbackWarning",
     "StructuralSchemaWarning", "TimeResolutionWarning", "UnresolvedTimeWarning",
-    "_apply_dimensions", "_filter_geography", "_filter_period", "_period",
-    "_with_row_competence", "plan", "query",
+    "plan", "query",
 ]

@@ -7,6 +7,16 @@ datasets:
     asserted_by: pegasus_data
     what_one_row_is: one billing episode (AIH), NOT one patient
     unit_of_analysis: admission
+    query_axes:
+      default_time: competence
+      time:
+        competence: {fields: [ANO_CMPT, MES_CMPT], encoding: year_month}
+        admission: {fields: [DT_INTER], encoding: date}
+        discharge: {fields: [DT_SAIDA], encoding: date}
+      default_geography: residence
+      geography:
+        residence: {fields: [MUNIC_RES], code_system: ibge_municipality}
+        facility: {fields: [MUNIC_MOV], code_system: ibge_municipality}
     known_biases: >
       Fields that affect payment are filled carefully; fields that do not are
       frequently empty. Only SUS-funded admissions appear, so private and
@@ -25,6 +35,15 @@ datasets:
     asserted_by: pegasus_data
     what_one_row_is: one death certificate
     unit_of_analysis: death
+    query_axes:
+      default_time: occurrence
+      time:
+        occurrence: {fields: [DTOBITO], encoding: date}
+        registration: {fields: [DTCADASTRO], encoding: date}
+      default_geography: residence
+      geography:
+        residence: {fields: [CODMUNRES], code_system: ibge_municipality}
+        occurrence: {fields: [CODMUNOCOR], code_system: ibge_municipality}
     known_biases: >
       Coverage is high nationally but not uniform: under-registration persists in
       the North and Northeast, and ill-defined causes (CID-10 chapter XVIII, R00-R99)
@@ -43,6 +62,15 @@ datasets:
     asserted_by: pegasus_data
     what_one_row_is: one live birth declaration
     unit_of_analysis: live birth
+    query_axes:
+      default_time: birth
+      time:
+        birth: {fields: [DTNASC], encoding: date}
+        registration: {fields: [DTCADASTRO], encoding: date}
+      default_geography: residence
+      geography:
+        residence: {fields: [CODMUNRES], code_system: ibge_municipality}
+        occurrence: {fields: [CODMUNNASC], code_system: ibge_municipality}
     known_biases: >
       Live births only — stillbirths are in SIM as foetal deaths, so perinatal
       analysis needs both systems joined and neither alone is a denominator for
@@ -57,6 +85,14 @@ datasets:
     asserted_by: pegasus_data
     what_one_row_is: one line of outpatient production, usually already aggregated
     unit_of_analysis: procedure-month
+    query_axes:
+      default_time: competence
+      time:
+        competence: {fields: [PA_CMP], encoding: yyyymm}
+      default_geography: facility
+      geography:
+        facility: {fields: [PA_UFMUN], code_system: ibge_municipality}
+        patient: {fields: [PA_MUNPCN], code_system: ibge_municipality}
     known_biases: >
       PA is production reporting, not a patient record. Most rows are counts of a
       procedure performed by an establishment in a month, so the file cannot

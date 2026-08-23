@@ -44,6 +44,10 @@ class ResourceStatus:
         }
 
 
+class ResourceIntegrityError(RuntimeError):
+    """A runtime artifact does not match its declared schema/content identity."""
+
+
 class ResourceManager:
     """Inspect bundled semantic artifacts and optional user-local registries."""
 
@@ -115,16 +119,16 @@ class ResourceManager:
     def ensure(self, name: str, *, period: object = None, policy: str = "local") -> ResourceRecord:
         """Return an available resource or name the smallest missing requirement.
 
-        Network acquisition is intentionally not implicit yet. ``auto`` and
-        ``remote`` are accepted planner policies, but a provider must implement
-        an estimate and bounded acquisition before either may download data.
+        Network acquisition is intentionally not implicit. Only the implemented
+        ``local`` policy is exposed; callers build/install a bounded slice explicitly.
         """
-        if policy not in {"auto", "local", "remote"}:
-            raise ValueError("policy must be 'auto', 'local', or 'remote'")
+        if policy != "local":
+            raise ValueError("policy currently supports only 'local'")
         wanted = str(name).upper()
         for item in self.status().resources:
             if item.name.upper() == wanted:
                 if item.available:
+                    self._validate(item)
                     return item
                 break
         suffix = f" for period {period}" if period is not None else ""
@@ -133,8 +137,52 @@ class ResourceManager:
             "build or install the required bounded slice first"
         )
 
+    def _validate(self, record: ResourceRecord) -> None:
+        """Validate bundled digests or a local bundle's compatibility manifest."""
+        if record.name == "cnes_registry":
+            return  # lake integrity is owned by lake verification/fingerprints
+        if record.name == "cnes_names":
+            import pyarrow.parquet as pq
+
+            metadata = pq.ParquetFile(record.path).schema_arrow.metadata or {}
+            if metadata.get(b"pegasus_resource_schema") != b"1":
+                raise ResourceIntegrityError(
+                    "cnes_names resource has no compatible pegasus_resource_schema=1"
+                )
+            return
+        bundled_manifest = json.loads(
+            (self.bundled_dir / "manifest.json").read_text(encoding="utf-8")
+        )
+        if record.bundled:
+            expected = (bundled_manifest.get("resources") or {}).get(record.name) or {}
+            if expected.get("sha256") and record.sha256 != expected["sha256"]:
+                raise ResourceIntegrityError(
+                    f"bundled resource {record.name!r} failed its manifest checksum"
+                )
+            return
+        local_manifest_path = self.local_dir / "manifest.json"
+        if not local_manifest_path.is_file():
+            raise ResourceIntegrityError(
+                f"local override {record.name!r} has no resources/manifest.json compatibility record"
+            )
+        local_manifest = json.loads(local_manifest_path.read_text(encoding="utf-8"))
+        if int(local_manifest.get("resource_schema_version", -1)) != RESOURCE_SCHEMA_VERSION:
+            raise ResourceIntegrityError(
+                f"local resource schema {local_manifest.get('resource_schema_version')!r} "
+                f"is incompatible with required {RESOURCE_SCHEMA_VERSION}"
+            )
+        expected = (local_manifest.get("resources") or {}).get(record.name) or {}
+        if not expected or expected.get("sha256") != record.sha256:
+            raise ResourceIntegrityError(
+                f"local resource {record.name!r} is absent from its manifest or failed checksum"
+            )
+
     def build(self, name: str, *, years: list[int] | None = None) -> dict[str, Any]:
-        """Explicitly materialise a bounded optional registry slice."""
+        """Compile a bounded optional slice from local maintainer evidence.
+
+        This is not remote acquisition. The CNES names compiler refuses clearly
+        when the local catalog lacks the documentary registry evidence.
+        """
         wanted = str(name).upper().replace("-", "_")
         if wanted in {"CNES_NAMES", "CNES_NAME"}:
             from .catalog.store import Catalog

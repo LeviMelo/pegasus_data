@@ -5,19 +5,25 @@ from pathlib import Path
 
 import pytest
 
-from pegasus_data._resources import RESOURCE_SCHEMA_VERSION, ResourceManager
+from pegasus_data._resources import (
+    RESOURCE_SCHEMA_VERSION,
+    ResourceIntegrityError,
+    ResourceManager,
+)
 from pegasus_data.config import Settings
 from pegasus_data.ontology import DatasetNode, Ontology, SystemNode
 from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
 
 
-def test_resource_manifest_accounts_for_every_packaged_parquet(tmp_path: Path) -> None:
+def test_resource_manifest_accounts_for_every_packaged_runtime_artifact(tmp_path: Path) -> None:
     status = ResourceManager(Settings(root=tmp_path)).status()
     resources = Path(__file__).parents[1] / "src" / "pegasus_data" / "resources"
     assert status.schema_version == RESOURCE_SCHEMA_VERSION
-    assert {Path(item.path).name for item in status.resources} == {
-        path.name for path in resources.glob("*.parquet")
-    } | {"system=CNES", "cnes_registry.parquet"}
+    packaged = {path.name for path in resources.glob("*.parquet")}
+    packaged.add("query_capabilities.json")
+    assert {Path(item.path).name for item in status.resources} == packaged | {
+        "system=CNES", "cnes_registry.parquet"
+    }
     assert all(item.available and item.sha256 for item in status.resources if item.bundled)
     assert next(item for item in status.resources if item.name == "cnes_registry").tier == "D"
 
@@ -70,3 +76,36 @@ def test_optional_cnes_name_registry_builds_from_catalog_evidence(settings) -> N
     assert ResourceManager(settings).ensure("cnes_names").available
     assert provider("cnes_names").describe(settings, (202401, 202412)).local
     assert not provider("cnes_names").describe(settings, (202301, 202312)).local
+
+
+def test_optional_name_coverage_does_not_fill_holes_between_built_years(settings) -> None:
+    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.providers import provider
+
+    store = Catalog(settings.catalog_path)
+    try:
+        persist_entries(
+            store,
+            [
+                DictionaryEntry(
+                    system="CNES", value_raw="2001578",
+                    value_label="CNPJ 12.345.678/0001-95-HOSPITAL TESTE",
+                    value_group="CADGERBR", source="dbf_lookup",
+                    source_ref="TAB_CNES.zip!CADGERBR.DBF", confidence=0.95,
+                )
+            ],
+        )
+    finally:
+        store.close()
+    ResourceManager(settings).build("cnes_names", years=[2022, 2024])
+    assert provider("cnes_names").describe(settings, (202201, 202212)).local
+    assert not provider("cnes_names").describe(settings, (202301, 202312)).local
+    assert provider("cnes_names").describe(settings, (202401, 202412)).local
+
+
+def test_unmanifested_local_override_is_not_trusted(settings) -> None:
+    resources = settings.root / "resources"
+    resources.mkdir(parents=True)
+    (resources / "labels_crosswalk.parquet").write_bytes(b"not the declared artifact")
+    with pytest.raises(ResourceIntegrityError, match="no resources/manifest"):
+        ResourceManager(settings).ensure("cnes_cnpj")

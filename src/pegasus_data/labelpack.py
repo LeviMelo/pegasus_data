@@ -828,8 +828,9 @@ def build_cnes_registry_pack(
     """Compile optional CNES establishment names as a temporal local resource.
 
     Registry prose is intentionally excluded from the wheel's label pack. This
-    explicit builder recovers it from maintainer/user catalog evidence without
-    making ordinary CNES→CNPJ enrichment depend on a large directory.
+    compiler recovers it from a maintainer evidence catalog. It is deliberately
+    not described as runtime acquisition: a fresh runtime catalog does not contain
+    the documentary registry codelists needed to build this artifact.
     """
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -868,6 +869,12 @@ def build_cnes_registry_pack(
             )
         )
     ordered = sorted(rows)
+    if not ordered:
+        raise RuntimeError(
+            "CNES names compilation requires a maintainer evidence catalog containing "
+            "registry codelists; install a compiled cnes_registry.parquet resource "
+            "instead of attempting to derive it from an empty runtime catalog"
+        )
     table = pa.table(
         {
             "cnes": pa.array([item[0] for item in ordered], pa.string()),
@@ -886,6 +893,7 @@ def build_cnes_registry_pack(
             b"pegasus_resource_schema": b"1",
             b"pegasus_period_start": str(min(years) * 100 + 1 if years else 0).encode(),
             b"pegasus_period_end": str(max(years) * 100 + 12 if years else 999912).encode(),
+            b"pegasus_covered_years": ",".join(str(year) for year in sorted(set(years or ()))).encode(),
         }
     )
     target = Path(out)

@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from pegasus_data.catalog.store import utcnow
-from pegasus_data.representations import choose_representations
+from pegasus_data.representations import RepresentationConflictError, choose_representations
 
 
 def _row(path: str, logical: str, fmt: str, member: str = "") -> dict[str, object]:
@@ -38,25 +40,41 @@ def test_archive_members_remain_distinct(catalog) -> None:
     assert len(choose_representations(catalog, rows).selected) == 2
 
 
-def test_open_conflict_prevents_silent_collapse(catalog) -> None:
+def test_open_conflict_refuses_analytical_execution(catalog) -> None:
     logical = "SIH|RD|AL|2401"
     catalog.execute(
         "INSERT INTO representation_conflicts "
         "(logical_id, representations, evidence, status, noted_at) VALUES (?,?,?,?,?)",
         (logical, json.dumps(["x.dbc", "x.csv"]), "row counts differ", "open", utcnow()),
     )
+    with pytest.raises(RepresentationConflictError, match="duplicate observations"):
+        choose_representations(
+            catalog,
+            [_row("x.dbc", logical, "dbc"), _row("x.csv", logical, "csv")],
+        )
     choice = choose_representations(
         catalog,
         [_row("x.dbc", logical, "dbc"), _row("x.csv", logical, "csv")],
+        on_conflict="all",
     )
     assert len(choice.selected) == 2
     assert choice.conflicts == (logical,)
 
 
-def test_same_format_tie_prefers_the_smaller_physical_payload(catalog) -> None:
+def test_same_format_collision_opens_conflict_and_refuses(catalog) -> None:
     first = _row("large.csv", "SIM|DO|BR|2020", "csv")
     second = _row("small.csv", "SIM|DO|BR|2020", "csv")
     first["size"] = 1_000
     second["size"] = 100
-    choice = choose_representations(catalog, [first, second])
-    assert [row["path"] for row in choice.selected] == ["small.csv"]
+    with pytest.raises(RepresentationConflictError):
+        choose_representations(catalog, [first, second])
+    assert catalog.count("representation_conflicts", "status='open'") == 1
+
+
+def test_cheap_row_count_contradiction_refuses_alternate_formats(catalog) -> None:
+    first = _row("x.dbc", "SIH|RD|AL|2401", "dbc")
+    second = _row("x.parquet", "SIH|RD|AL|2401", "parquet")
+    first["row_count"] = 100
+    second["row_count"] = 99
+    with pytest.raises(RepresentationConflictError):
+        choose_representations(catalog, [first, second])

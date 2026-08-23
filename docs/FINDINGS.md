@@ -1299,7 +1299,9 @@ Three read-only audits settled the design before implementation:
 3. `scripts/audit_crosswalk.py` measured the rebuilt CNES↔CNPJ pack. Temporal
    ambiguity and reverse one-to-many relations are real, not corner cases. A
    dictionary overwrite or a default join would silently select an identifier
-   or multiply fact rows.
+   or multiply fact rows. Exact-window grouping understated both: 951 source
+   ambiguities become **1,816 overlapping intervals**, and 12,619 reverse
+   multi-source windows become **13,923 overlapping intervals**.
 
 The implementation follows those measurements:
 
@@ -1326,6 +1328,41 @@ The implementation follows those measurements:
 `HANDOFF.md` was rechecked during this pass. Its durable novel lessons had
 already been consolidated in §3l; the remaining text is operational history or
 duplicates the architecture, so no second copy was introduced.
+
+---
+
+## 3n. Query completeness is a publication-set property (2026-08-23)
+
+The external follow-up review correctly identified that “some lake partition
+exists” cannot choose the source for an entire query. Completeness is now
+evaluated for each requested year against the selected logical publications and
+the `source_paths` recorded in lake partitions. A partially built year routes as
+one unit to fetch; complete and incomplete years can form a non-overlapping
+hybrid. Comparing logical publication identity, rather than the current physical
+suffix, also means a lake built from DBC remains complete if Parquet later
+becomes the preferred representation.
+
+Three related lessons were established while closing that review:
+
+1. **Axes are semantic declarations.** `MUNIC_RES`, `MUNIC_MOV`, `DTOBITO` and
+   `DT_INTER` are not interchangeable just because they look geographic or
+   temporal. Reviewed capabilities now name defaults and alternatives, and are
+   compiled into a fresh-install resource checked against packaged schema/tree
+   summaries.
+2. **Semantic vintage belongs to the row.** A multi-year dimension lookup must
+   select the packed relation for each row competence/year. Choosing one current
+   table for the result silently rewrites historical categories.
+3. **A committed adjudication must be visible across connections.** The apply
+   path previously issued two uncommitted `execute()` calls, so the writer saw
+   its decision while a query opened immediately afterward did not. Applying a
+   relation and closing its work item is now one committed transaction; the
+   ordinary renderer and dimension resolver share the effective relation view.
+
+Representation conflicts now block analytical execution. In particular, two
+same-format objects claiming one logical publication are evidence of a revision,
+collision or stale mirror—not a reason to prefer the smaller file. Expert
+inspection may explicitly retain all alternatives, but the default cannot emit
+duplicate facts.
 
 ---
 
