@@ -33,31 +33,48 @@ it.
 **What would settle it:** a domain reviewer sampling ~100 `inferred` entries
 against the paper forms and layout documents, and reporting an error rate.
 
-## 1b. The columns that still do not decode need sources, not effort
+## 1b. The columns that still do not decode
 
 **Claim made:** the module decodes DATASUS's codes.
 
-**What is actually behind it:** most of them. The count is in ARCHITECTURE §21;
-what belongs here is why the remainder is hard rather than merely undone.
+**What is actually behind it:** most of them; the count is in ARCHITECTURE §21.
+What belongs here is why the remainder is hard.
 
-- **RESP** — no laboratory-result table ships for RESP anywhere in the tree.
-- **SINAN** — the remaining columns are agravo-specific code spaces. One column
-  name genuinely means different things in different forms: `TIPO_ACID` is
-  `1 típico / 2 trajeto` in the work-accident dictionary and `01 administração
-  de medicação endovenosa …` in the biological-exposure one. 21 columns were
-  refused outright during the dictionary harvest for exactly that reason,
-  because a merged table would label a typical accident as an IV administration
-  — confidently, with no error anywhere.
-- **SISCAN** — cytology-pattern columns where several plausible tables ship and
-  the column name does not say which. Choosing would be the guess §18 prohibits.
-- **PCE · ESUSNOTIFICA · CNES** — per-state or non-DATASUS code spaces: health
-  districts are defined by each state, DRS is a São Paulo structure, and
-  Febraban bank codes are not DATASUS's to publish.
+Two things were fixed after this entry first claimed they were blocked, and both
+are worth recording because the claim was wrong in the same way:
 
-**What would settle it:** `TAB_SINANNET.zip`'s `.CNV` set parsed PER AGRAVO
-rather than per system, so a column can carry a different table in each form;
-INCA's own requisition forms for SISCAN; and for RESP, a source that does not
-currently exist on the tree.
+- I recorded SINAN as needing `TAB_SINANNET.zip` parsed per agravo and treated
+  that as unavailable. It was not unavailable, it was **undownloaded** — 44 MB on
+  the same FTP tree this package crawls, carrying 626 `.CNV` tables and 60 `.DEF`
+  files, where a `.DEF` is exactly the per-agravo field-to-table statement said
+  to be missing.
+- Half of what those kits declare was then invisible anyway, because the `.DEF`
+  parser matched only upper-case usage markers and TabWin writes them in either
+  case. 881 of 22,675 variable lines were being discarded as "unrecognised
+  marker", and with them the bindings they declared.
+
+**What is genuinely left:**
+
+- **RESP** — no laboratory-result table exists anywhere on the tree for it.
+- **SINAN** — the remainder are agravo-specific spaces where one column name
+  means different things on different forms. `TIPO_ACID` is `1 típico /
+  2 trajeto` on the work-accident dictionary and `01 administração de medicação
+  endovenosa …` on the biological-exposure one. 21 columns were refused outright
+  during the harvest for exactly that, because a merged table would label a
+  typical accident as an IV administration.
+- **SISCAN** — the cytology-pattern columns, where several plausible pattern
+  tables ship and the column name does not settle which. `TAB_SISCAN.rar` is
+  RAR5 and no extractor is available in this environment; the SISCOLO4/SISMAMA
+  kits that ARE readable have been mined.
+- **PCE · ESUSNOTIFICA · SIA** — per-state or non-DATASUS spaces: health
+  districts are defined by each state, DRS is a São Paulo structure, Febraban
+  bank codes are not DATASUS's to publish.
+
+**What would settle it:** a RAR5 extractor for `TAB_SISCAN.rar`; INCA's own
+requisition forms for the cytology patterns; per-agravo (family-scoped) bindings
+for the SINAN columns whose meaning genuinely varies, which `field_codelists`
+can already express through `family_id` and nothing yet populates; and for RESP,
+a source that does not currently exist.
 
 ## 2. SINAN wave-1 descriptions were never checked for correctness
 

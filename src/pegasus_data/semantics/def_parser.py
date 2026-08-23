@@ -54,12 +54,16 @@ ADDITIVE_USAGE = "I"
 
 @dataclass(slots=True)
 class DefVariable:
-    usage: str            # 'L' | 'C' | 'S' | 'X' | 'I'
+    usage: str            # 'L' | 'C' | 'S' | 'X' | 'I', normalised to upper case
     display_name: str     # the official Portuguese label
     field_name: str       # the physical column
     category_arg: str | None = None   # '1', 'RAZAO', a width, …
     lookup_ref: str | None = None     # CNV or DBF that decodes it
     line_no: int = 0
+    #: False when the .DEF wrote the marker in lower case, which in TabWin
+    #: means the axis exists but is not offered by default. It is still a
+    #: binding statement, and treating it as one is the point of carrying this.
+    shown_by_default: bool = True
 
     @property
     def is_measure(self) -> bool:
@@ -133,6 +137,16 @@ def parse_def_bytes(data: bytes, *, name: str, source_ref: str) -> DefFile:
             continue
         marker = line[0]
         body = line[1:]
+        #: TabWin writes the usage marker in EITHER case, and the case is a
+        #: display preference — lower means the axis exists but is not offered
+        #: by default — not a different kind of statement. Matching only upper
+        #: case dropped 881 of the 22,675 variable lines in the shipped kits as
+        #: "unrecognised marker", and with them every binding they declared:
+        #: AGRAVDROGA to SIM_NAO, ELISA1 to reagente, TP_SISTEMA to
+        #: TIPOSISTEMA. Those columns then read as having no codelist at all.
+        shown_by_default = not marker.islower()
+        if marker.upper() in USAGE_LABELS:
+            marker = marker.upper()
         if marker == ";":
             if out.title is None and body.strip():
                 out.title = body.strip()
@@ -162,6 +176,7 @@ def parse_def_bytes(data: bytes, *, name: str, source_ref: str) -> DefFile:
         out.variables.append(
             DefVariable(
                 usage=marker,
+                shown_by_default=shown_by_default,
                 display_name=display_name,
                 field_name=field_name,
                 category_arg=category_arg,

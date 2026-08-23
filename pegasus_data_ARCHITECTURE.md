@@ -1514,7 +1514,7 @@ carry counts, because when they did they drifted. §21 read "1,572 described
 reader had no way to tell which was current. The test count is stated beside the
 numbers as the cheapest available clock.
 
-Counted on the shipped artifacts, not estimated. **As of 1,070 tests passing.**
+Counted on the shipped artifacts, not estimated. **As of 1,090 tests passing.**
 
 ### The tree
 
@@ -1546,16 +1546,23 @@ description waves never covered. Re-measure rather than trusting the number.
 
 | | |
 |---|---:|
-| label pack | 2,418,601 rows · 2,331 codelists · 26.6 MB |
+| label pack | 2,418,950 rows · 2,339 codelists · 26.6 MB |
 | CNES↔CNPJ crosswalk | 546,189 rows |
-| field→codelist bindings shipped | 9,699 |
-| bindings by rung | def 8,496 · manual 534 · community 315 · semantic_match 253 · layout_doc 101 |
+| field→codelist bindings shipped | 9,741 |
+| bindings by rung | def 8,538 · manual 534 · community 315 · semantic_match 253 · layout_doc 101 |
 | columns curation declares as code-bearing | 2,157 |
-| **… reaching a codelist that ships** | **2,014 (93.4%)** |
-| … bound to a table the pack lacks | 15 |
-| … with no binding at all | 128 |
+| **… reaching a codelist that ships** | **2,054 (95.2%)** |
+| … bound to a registry the pack holds back BY DESIGN | 15 |
+| … with no binding at all | 88 |
 
-The 143 that do not decode are not merely undone; the reasons are in
+The 15 are not a gap. They are CNES establishment and team registries —
+`CADGER*`, `TCNESBR`, `INE_EQUIPE*`, `HOSFEDRJ` — which §14.9 holds out of the
+pack deliberately and which are reached through `fetch("CNES-ST")` and the join
+key declared in `joins.yml`. Counting them as decode failures overstated the gap
+by 15 for as long as the measurement conflated "no table ships" with "no table
+should ship".
+
+The 88 that genuinely do not decode are not merely undone; the reasons are in
 `docs/CONFIDENCE.md` §1b. `semantic_match` bindings are CANDIDATES at
 confidence ≤0.6 with `decodes_observed` NULL — the renderer weighs each against
 the column's real values and discards what explains nothing, so a wrong one
@@ -1569,7 +1576,7 @@ costs a measurement rather than producing a wrong label.
 | open questions, recorded not guessed | 1,339 |
 | full semantic bundle · per system | 153 MB · ~10 MB |
 | dictionary database | 531 MB, 7.47M codes |
-| vendored source documents (`sources/`, gitignored) | 3,133 files |
+| vendored source documents (`sources/`, gitignored) | 3,910 files, incl. 2,460 `.CNV` |
 
 The headline is the first two rows of the tree table. The mechanism behind the
 82,441-file difference is stated plainly in `docs/FINDINGS.md` §0.
