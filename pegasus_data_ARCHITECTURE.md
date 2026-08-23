@@ -143,30 +143,45 @@ pegasus_data/
     fetcher.py            bounded concurrency, retry, deadlock-free drain
   decode/
     registry.py           probe-ordered dispatch
+    base.py               DecodedTable/DecodeOutcome, the shape every reader returns
     dbc.py dbf.py text_.py duckdb_.py archives.py lha.py
     header.py             schema from a file prefix
+    isolation.py          a pool of KILLABLE decoder processes (§12.1)
+    _worker.py            the other side of that boundary; `python -m` entry point
   profile/
     accumulators.py detectors.py drift.py runner.py
   semantics/
     cnv_parser.py def_parser.py tabkit.py
     dictionary.py         merge, source authority, confidence, provenance
     reference.py icd.py gaps.py ledger.py pdf_harvest.py
-    curation.py           curation/*.yml → variable_docs
+    bindings.py           field → codelist, and measuring whether one decodes
+    defnames.py           display names off a .DEF, kept apart from descriptions
+    curation.py           curation/*.yml → variable_docs; fingerprint refresh (§9.1)
   curation/
     ontology.yml          the DECLARED ontology: systems and datasets (§5.4)
     datasets.yml          what one row IS, per dataset
     datasets_sinan.yml    one entry per SINAN agravo
     systems.yml           prefix → system overrides
+    codelists.yml         what KIND of thing a codelist is (§14.9)
+    joins.yml             declared join keys and their grain (§14.8)
+    sources.yml           what every [TOKEN] in a source_ref refers to (§9.2)
     variables/*.yml       per-dataset variable documentation
   normalize/
     engine.py types.py geo.py time.py
   persist/
     lake.py               Parquet layout and partitioning
     reference.py          system- and vintage-scoped code tables
+    staging.py            write-then-swap durability for files and trees (§7.5)
+    decisions.py          the decision collector: borrowed labels, vintage fallbacks (§8.1)
     duck.py               DuckDB view registration
   sources/
     demas_api.py ibge.py sigtap.py community.py
   ontology.py             declared systems/datasets; binds observations to them (§5.4)
+  locate.py               five-layer placement resolution (§15)
+  labelpack.py            the shipped label pack and bindings (§14.9)
+  render_groups.py        ONE vintage-scoped render path, shared by fetch and load (§8.2)
+  availability.py         present / absent / unknown, per column per year (§14.7)
+  textenc.py              encoding detection for the text readers
   _info.py                info(): what a system, dataset or variable IS (§14.5)
   compendium.py           compendium(): a portable map of DATASUS (§14.6)
   _explore.py             explore(): the shipped map of the tree (§14.1)
@@ -184,7 +199,7 @@ pegasus_data/
 
 ## 4. The catalog
 
-One SQLite database, 45 tables, shipped alongside the lake. It is the module's
+One SQLite database, 46 tables, shipped alongside the lake. It is the module's
 memory: everything discovered, decided, or left open lives here. Grouped by what
 they hold:
 
@@ -201,7 +216,12 @@ they hold:
 - **Judgement** — `variable_docs`, `dataset_docs`, `open_questions`
 - **Output** — `build_outcomes`, `lake_partitions`, `lake_datasets`,
   `population_series`, `api_endpoints`, `api_ingests`
-- **Meta** — `schema_version`, `events`
+- **Meta** — `schema_version`, `events`, `curation_state`
+
+`curation_state` holds a fingerprint of the shipped `curation/` files. It exists
+because curation used to be loaded only into an EMPTY catalog, so every later
+correction to the YAML — a new column, a codelist fixed — reached nobody who had
+run the package once. See §9.1.
 
 Two rules the store enforces rather than documents:
 
@@ -382,9 +402,24 @@ its source, its source reference, a confidence and a validity window.
 Claims are merged by **source authority**, lowest number wins:
 
 ```
-manual(0) → cnv(1) → def(2) → sigtap(3) → dbf_lookup(4)
-          → demas_api(5) → pdf(6) → community(7) → inferred(8)
+manual(0) → cnv(1) → layout_doc(1) → def(2) → sigtap(3) → dbf_lookup(4)
+          → demas_api(5) → pdf(6) → community(7) → semantic_match(7)
+          → inferred(8)
 ```
+
+`layout_doc` sits beside `cnv`: a published record layout is a primary statement
+by the publisher, the same standing as a `.CNV` and above anything extracted.
+
+`semantic_match` is the weakest rung that still points at real evidence, and it
+is deliberately a CANDIDATE rather than a claim. It says "this column looks like
+it holds the thing that table decodes" — a municipality column against the
+municipality table, `SP_COMPLEX` against the complexity table its unprefixed
+sibling uses — and it ships at confidence ≤0.6 with `decodes_observed` NULL so
+the renderer weighs it against the column's real values and discards it if it
+explains nothing (§8). A wrong `semantic_match` therefore costs a measurement,
+not a wrong label. One was caught that way: `NATURALMAE` was bound to the country
+table on the strength of its description and decoded none of the observed 8xx
+values, which are Brazil's UF encoding, so the binding was refused and removed.
 
 `manual` is 0 because a person who has read the form outranks any extraction.
 `community` sits below every primary source but above inference: the R package
@@ -409,6 +444,21 @@ answer:
 - **Exact-width matching, always.** Codes are never padded and never truncated
   to make a join succeed. A codelist that mixes widths warns and labels only
   what matches exactly.
+
+### 6.6 Projection is pushed into the reader `[D]`
+
+Decompressing a DBC's row stream is unavoidable. Building Arrow arrays for 208
+columns when three were asked for is not, and projection used to happen after
+the whole table had been constructed. Measured on a real CNES-ST payload, column
+construction was **74% of the decode**, and pushing the projection down made a
+narrow read **4.1x faster**.
+
+The header still reports EVERY field either way. It is what the family's schema
+signature is matched against, so narrowing it would make a projected read look
+like a different generation and drop the file.
+
+A projection naming nothing that exists reads everything rather than returning
+an empty batch — otherwise a typo becomes a silent empty result.
 
 ### 6.5 The header census `[D]`
 
@@ -483,6 +533,28 @@ silently aggregating to something else.
 
 ---
 
+### 7.5 Durability: replace only with something that exists `[D]`
+
+`persist/staging.py`
+
+Every stage that re-derives clears its own output first (§4), and that rule has
+a failure mode: between the clear and the write there is a window in which the
+artifact does not exist. Disk full, an interrupt or an Arrow raise inside it
+leaves nothing where the data was — and for a partition that took a full build
+to produce, that is not a retryable inconvenience.
+
+So a replacement is staged beside the target under a unique transaction token
+(`{pid}-{uuid}`), written in full, and only then swapped in. The swap is a
+rename, which is atomic on both filesystems this runs on, and the previous
+artifact is renamed aside rather than unlinked so a failure mid-swap can be
+rolled back rather than mourned.
+
+Trees are staged the same way, with `merge_depth` controlling how much of the
+existing tree survives the swap. That parameter is load-bearing: the reference
+warehouse is laid out `<codelist>/system=<sys>/window=<w>`, and merging at the
+wrong depth deleted SIBLING SYSTEMS' tables while replacing one system's. The
+test that missed it compared only top-level names.
+
 ## 8. L10 — The view layer `[D]`
 
 Labels are produced **at read time**, by joining the vintage-scoped reference
@@ -511,6 +583,44 @@ runs.
 
 ---
 
+### 8.1 Decisions the renderer makes are collected, not narrated `[D]`
+
+`persist/decisions.py`
+
+Labelling is full of substitutions that are defensible individually and
+misleading in aggregate if nobody is told: a code labelled from another system's
+table because the requested system ships none; a 1995 request answered from the
+current vintage because the pack carries no window that old; a codelist that
+decodes only part of the column.
+
+Each of those is recorded in a `ContextVar` collector for the duration of a
+render and returned on the report — `borrowed`, `fallback_vintage`,
+`partial_codelist_match`, `rollup_used`, `constant` — as machine-readable values
+rather than only as prose in `warnings`, so a strict pipeline can refuse them
+with a threshold instead of a regex over English.
+
+`historical_labels` is the policy attached to the same problem: `"current"`
+(default) answers a historical request from today's table and records the
+substitution; `"refuse"` returns the raw codes instead. The default is not
+neutral and was chosen by measurement — a blanket refusal was tried and took a
+fresh-install SINASC 2022 fetch from 15 labelled columns to 0, because the
+shipped pack carries no validity windows at all.
+
+### 8.2 One render path, and why it is a module `[D]`
+
+`render_groups.py`
+
+`fetch()` and `load()` both render, and they rendered separately. That is how the
+vintage bug in §D-P0-2 could be fixed on one path and remain on the other, and
+how an option came to mean one thing in a notebook and another in a file.
+
+The shared unit is a GROUP — `(rows, family, year, competência)` — because
+rendering correctly is per-vintage-per-family, not per-result: a request spanning
+1995 to 2025 must render each generation against the codelist of its own era, and
+a single call cannot. `fetch` and `load` differ only in how they SPLIT their rows
+into groups: the lake has a `year` partition column, and a fetch has provenance
+in `_source_path`. Everything after the split is one implementation.
+
 ## 9. L5.5 — The curation layer `[D]`
 
 Three times the design created a slot for human judgement and left no way to
@@ -538,6 +648,41 @@ one is selected for a row* — the ICD-9/ICD-10 boundary is per system, read fro
 the dictionary rather than hardcoded to 1996.
 
 ---
+
+### 9.1 A corrected meaning has to reach an existing catalog `[D]`
+
+Curation was loaded when `variable_docs` was EMPTY, which is true exactly once in
+a catalog's life. Everything the shipped YAML gained or corrected afterwards was
+therefore invisible to anyone who had run the package before — the wheel carried
+the right answer and the catalog kept serving the old one, with nothing saying so.
+
+The catalog now records a content fingerprint of `curation/` in `curation_state`
+and compares it on each use: reload when the meaning changed, stay quiet when it
+did not. Content, not mtime, because the YAML ships inside a wheel and its
+timestamps say when it was unpacked.
+
+The same shape of bug existed for the shipped bindings, which were skipped
+whenever the catalog held ANY binding of its own — and curation writes ~900, so a
+catalog curated before it was seeded could never receive the other ~8,500. Both
+now merge: `field_codelists` is keyed on `(system, family_id, field_name,
+codelist)` and the insert is `OR IGNORE`, so a local `semantics` run still
+outranks the wheel without costing the rest of it.
+
+### 9.2 A citation has to resolve `[D]`
+
+`curation/sources.yml`
+
+Curated entries cite their evidence as `[ESTRUTURA-SIM] "..."`. Nothing in the
+repository said what those tokens meant, so 396 citations across 41 tokens could
+not be checked against the documents they came from — and an unverifiable
+citation decays into decoration.
+
+`sources.yml` maps every token to a title, publisher, evidence rung and, where one
+is vendored, a local path. The documents themselves live in `sources/`, which is
+deliberately NOT committed: it is over a gigabyte of Ministry record layouts,
+TabWin `.DEF`/`.CNV` packs and extracted evidence, all re-downloadable. The
+manifest is committed in their place, so the trail survives in version control
+even when the bytes do not.
 
 ## 10. Offline — the semantic bundle `[D]`
 
@@ -657,6 +802,37 @@ connect.
 
 ---
 
+### 12.1 A timeout has to end the work, not just stop waiting `[D]`
+
+`decode/isolation.py` · `decode/_worker.py`
+
+The per-item deadline above was never cancellation. `run_with_timeout` starts a
+daemon thread and joins it with a deadline; on expiry it stops WAITING, which is
+all Python can do, because a thread cannot be killed and DBC inflation runs
+inside a native extension that never yields. So a file recorded as "abandoned
+after 1200s" went on holding a core, an inflated DBF and temporary disk while the
+API moved on — and several of those accumulate.
+
+A process can be killed. Decoding runs in a small pool of persistent worker
+processes; on expiry the parent kills the worker and starts a fresh one, so
+"abandoned" means the work stopped.
+
+Three decisions worth stating:
+
+- **The unit of work is one PHYSICAL SOURCE, not one logical member**, so an
+  archive holding seven selected members is opened and inflated once. Killability
+  did not cost the optimisation that made archives affordable.
+- **Workers are persistent.** Interpreter startup is the one real cost of the
+  design, and paying it per file would swamp the decode it protects.
+- **Batches are framed individually** across the pipe, so neither side ever holds
+  a whole decoded table — the streaming property the in-process path has.
+
+Measured cost of the boundary on a real 208-column payload: Arrow IPC serialise
+plus deserialise is **1% of decode**. It runs as `python -m
+pegasus_data.decode._worker` rather than through `multiprocessing`, because a
+library imported from a notebook, a REPL or a frozen application cannot rely on
+the caller having a guarded `__main__`.
+
 ## 13. Command surface
 
 Grouped by intent rather than by pipeline order, because the pipeline order is
@@ -694,9 +870,22 @@ order:
 | I already have data — decode it. | `translate()` | the 19.9M-row dictionary |
 | What can't you tell me? | `gaps()` · `questions()` | `open_questions`, `coverage_gaps` |
 | Per capita? | `load_population()` | IBGE series |
+| It will not fit in memory. | `scan()` · `export(stream=True)` | the lake, batch by batch (§14.10) |
 
 Five verbs, one question each. `load()` and `export()` remain for the lake path,
 but they are no longer the front door.
+
+Beside them are the entry points that support those verbs rather than answering a
+question of their own, and they are public because a caller reaching them through
+a private name is a caller the next refactor breaks:
+
+| | |
+|---|---|
+| `load_settings()` · `Settings` | where things live, resolved through §15 |
+| `load_reference()` | one codelist as a table, system- and vintage-scoped |
+| `field_coverage()` | which columns a family carries, and in which years |
+| `open_lake()` | a DuckDB session with the lake registered |
+| `read_manifest()` · `unpack()` | the semantic bundle (§10) |
 
 **The organising rule: every capability the module has internally should be
 reachable as a service, or it does not really exist.** Three were not, and each
@@ -1025,7 +1214,31 @@ Rebuilt by `pegasus-data labelpack` after `semantics`. `read_reference_table`
 prefers a local lake and falls back to the pack, so a real build always outranks
 what shipped.
 
-## 14a. What ships, and what does not
+### 14.10 `scan()` — when the answer does not fit in memory `[D]`
+
+`load()` builds the whole table before returning it, which is right for the
+question most callers ask and wrong for the one that ends the session: an
+unfiltered national multi-year extract does not fit in memory, and finding that
+out costs the whole read.
+
+`scan()` returns a `LakeScan` — a projected schema and an iterator of record
+batches — so an export can be written batch by batch. Measured on a real
+multi-generation read: **+4.6 MB peak against +27.9 MB** for the eager path.
+
+Two constraints, both deliberate:
+
+- **It does not render.** Choosing a codelist weighs it against the values a
+  column actually holds (§8), which is a whole-column question; answering it per
+  batch would let two batches of one column disagree. `stream=True` is therefore
+  available only with `profile="codes"`, and says so rather than silently
+  rendering the first batch's choice across the rest.
+- **One file has one header**, so generations that do not share a schema are
+  unified up front — first-seen column order, each generation null-filled for what
+  it lacks — rather than discovered mid-write. Building the writer from the first
+  batch's schema is what made a second generation fail halfway through a file that
+  already looked successful.
+
+
 
 A package is not a data lake. The rule is: **ship what makes the module
 functional out of the box, and nothing that is derived, large and reproducible.**
