@@ -1,53 +1,79 @@
-# SIM — columns carried by more than one dataset.
+# SIM — columns shared across the mortality datasets
 #
-# The notification header and other cross-dataset fields. Described once
-# against the system, because that is the scope on which they are the
-# same column.
+# Sourced from sources/sim2025.txt, "Estrutura do SIM" (CGIAE / DASNT / SVS,
+# updated 07/2025), which gives each field's valid values and meaning.
+#
+# SIM dates are DDMMAAAA — day first — where SIH and CNES are AAAAMMDD.
+# Parsing one with the other's order silently reorders every date.
 system: SIM
 asserted_by: pegasus_data
-
 variables:
+  ACIDTRAB:
+    official_name: Acidente do trabalho
+    translated_name: Work-related accident
+    description: Whether the event that caused the death was related to the deceased's work.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ACIDTRAB'
   ALTCAUSA:
     official_name: Alteração da causa
     translated_name: Cause of death altered after investigation
-    description: 'Whether the recorded cause of death was corrected or changed as a
-      result of a formal death investigation: 1 Sim, 2 Não. Introduced 2014, part of
-      SIM''s investigation workflow.
+    description: 'Whether the recorded cause of death was corrected or changed as a result
+      of a formal death investigation: 1 Sim, 2 Não. Introduced 2014, part of SIM''s investigation
+      workflow.
 
       '
     code_system: internal
     codelists:
     - SIMNAO1
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 132 "ALTCAUSA | C 8 | Indica se houve correção
-      ou alteração da causa do óbito após investigação. (1- Sim; 2 – Não) | 2014 (C
-      8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 132 "ALTCAUSA | C 8 | Indica se houve correção ou alteração
+      da causa do óbito após investigação. (1- Sim; 2 – Não) | 2014 (C 8)"
 
       '
   AREARES:
     official_name: Área de residência
     translated_name: Residence sub-area code
-    description: 'A locally-assigned code for a residence area/district finer than
-      the municipality, carried only in the 1979–1995-vintage files. Positioned immediately
-      next to BAIRES (neighborhood of residence) in the record layout and almost certainly
-      shares its caveat — assigned independently by each state/municipality, with no
-      national lookup.
+    description: 'A locally-assigned code for a residence area/district finer than the municipality,
+      carried only in the 1979–1995-vintage files. Positioned immediately next to BAIRES (neighborhood
+      of residence) in the record layout and almost certainly shares its caveat — assigned
+      independently by each state/municipality, with no national lookup.
 
       '
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists AREARES at position 16 with a blank description
-      (1979, C 7), but it sits immediately after BAIRES (position 15), which IS documented:
-      "Bairro de residencia. Este codigo e atribuido por cada estado e/ou municipio,
-      nao fazendo parte da base nacional." The area/bairro name pairing and adjacent
-      layout position are the basis for treating this the same way.
+    reasoning: '[ESTRUTURA-SIM] lists AREARES at position 16 with a blank description (1979,
+      C 7), but it sits immediately after BAIRES (position 15), which IS documented: "Bairro
+      de residencia. Este codigo e atribuido por cada estado e/ou municipio, nao fazendo parte
+      da base nacional." The area/bairro name pairing and adjacent layout position are the
+      basis for treating this the same way.
 
       '
-    notes: 'No codelist survives for this column in the catalog; treat any code value
-      as uninterpretable outside the municipality that assigned it.
+    notes: 'No codelist survives for this column in the catalog; treat any code value as uninterpretable
+      outside the municipality that assigned it.
 
       '
+  ASSISTMED:
+    official_name: Recebeu assistência médica
+    translated_name: Received medical assistance
+    description: Whether the deceased received continued medical care during the illness that
+      caused the death. A death without assistance is one the certifier had less evidence
+      about.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ASSISTMED'
+  ATESTADO:
+    official_name: CIDs informados no atestado
+    translated_name: Certificate ICD codes
+    description: The ICD codes as written on the certificate, in one 70-character string.
+      Raw text; CAUSABAS holds the selected underlying cause.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ATESTADO'
   ATESTANTE:
     official_name: Condição do médico atestante
     translated_name: Certifying physician's relationship
@@ -65,71 +91,69 @@ variables:
     official_name: Bairro de residência
     translated_name: Neighbourhood of residence (locally coded)
     description: 'Neighbourhood/district of the deceased''s residence, in the 1979–1995-vintage
-      layout. The code is assigned independently by each state or municipality — it
-      is not a national code and has no single national lookup table. Superseded from
-      1996 by CODBAIRES under a different (also locally-assigned) numbering.
+      layout. The code is assigned independently by each state or municipality — it is not
+      a national code and has no single national lookup table. Superseded from 1996 by CODBAIRES
+      under a different (also locally-assigned) numbering.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 15 "BAIRES | C 6 | Bairro de residencia. Este
-      codigo e atribuido por cada estado e/ou municipio, nao fazendo parte da base
-      nacional | 1979 (C 6)"
+    source_ref: '[ESTRUTURA-SIM] pos. 15 "BAIRES | C 6 | Bairro de residencia. Este codigo
+      e atribuido por cada estado e/ou municipio, nao fazendo parte da base nacional | 1979
+      (C 6)"
 
       '
-    vintage_note: '1979–1995-vintage legacy field. Renamed/re-coded as CODBAIRES from
-      1996.
+    vintage_note: '1979–1995-vintage legacy field. Renamed/re-coded as CODBAIRES from 1996.
 
       '
   CARTORIO:
     official_name: Cartório
     translated_name: Civil registry office code
-    description: 'Code of the cartório (civil registry office) where the death was
-      formally registered, in the 1979–1995-vintage layout. An identifier into a local
-      registry, not a decodable category.
+    description: 'Code of the cartório (civil registry office) where the death was formally
+      registered, in the 1979–1995-vintage layout. An identifier into a local registry, not
+      a decodable category.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 2 "CARTORIO | C 8 | Código do cartório onde o
-      óbito foi registrado | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 2 "CARTORIO | C 8 | Código do cartório onde o óbito
+      foi registrado | 1979 (C 8)"
 
       '
-    vintage_note: '1979–1995-vintage legacy field. The 2012+ layout carries the same
-      concept as CODCART, alongside a fuller cartório-registration cluster (CODMUNCART,
-      DTREGCART, NUMREGCART).
+    vintage_note: '1979–1995-vintage legacy field. The 2012+ layout carries the same concept
+      as CODCART, alongside a fuller cartório-registration cluster (CODMUNCART, DTREGCART,
+      NUMREGCART).
 
       '
   CAUSABAS:
     official_name: Causa básica do óbito
     translated_name: Underlying cause of death
-    description: 'The underlying cause, as a CID-10 code without the dot. This is the
-      code selected by the coder from the certificate''s causal chain — it is the cause
-      mortality statistics are built on.
+    description: 'The underlying cause, as a CID-10 code without the dot. This is the code
+      selected by the coder from the certificate''s causal chain — it is the cause mortality
+      statistics are built on.
 
       '
     code_system: external
     codelists:
     - CID10
     - CID9WHO
-    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
-      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they
-      OVERLAP for 1996-1998 and a year threshold would mis-assign three years of deaths.
-      Both classifications are bound instead. That is safe because their code spaces
-      are disjoint — measured: 9,740 CID-9 codes and 14,198 CID-10 codes for SIM share
-      exactly ZERO codes, CID-9 being numeric and CID-10 letter-prefixed — so exact
-      matching selects the right classification per row without anything having to
-      know the row''s vintage.
+    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
+      both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
+      and a year threshold would mis-assign three years of deaths. Both classifications are
+      bound instead. That is safe because their code spaces are disjoint — measured: 9,740
+      CID-9 codes and 14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right classification per
+      row without anything having to know the row''s vintage.
 
       '
     multi_valued: false
     token_rule:
       width: 4
     source: layout_doc
-    notes: 'One death has exactly one underlying cause by construction. The LINHAA-D
-      fields hold what the physician wrote; CAUSABAS holds what was selected from it,
-      and the two disagree often enough that using LINHAA as a cause of death is a
-      different analysis, not a more detailed one.
+    notes: 'One death has exactly one underlying cause by construction. The LINHAA-D fields
+      hold what the physician wrote; CAUSABAS holds what was selected from it, and the two
+      disagree often enough that using LINHAA as a cause of death is a different analysis,
+      not a more detailed one.
 
       '
   CAUSABAS_O:
@@ -143,23 +167,60 @@ variables:
     codelists:
     - CID10
     - CID9WHO
-    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
-      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they
-      OVERLAP for 1996-1998 and a year threshold would mis-assign three years of deaths.
-      Both classifications are bound instead. That is safe because their code spaces
-      are disjoint — measured: 9,740 CID-9 codes and 14,198 CID-10 codes for SIM share
-      exactly ZERO codes, CID-9 being numeric and CID-10 letter-prefixed — so exact
-      matching selects the right classification per row without anything having to
-      know the row''s vintage.
+    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
+      both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
+      and a year threshold would mis-assign three years of deaths. Both classifications are
+      bound instead. That is safe because their code spaces are disjoint — measured: 9,740
+      CID-9 codes and 14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right classification per
+      row without anything having to know the row''s vintage.
 
       '
     source: layout_doc
+  CAUSAMAT:
+    official_name: Causa externa associada a causa materna
+    translated_name: Associated maternal external cause
+    description: ICD-10 code of an external cause associated with a maternal death, which
+      is how a maternal death from violence or accident is distinguished from an obstetric
+      one.
+    code_system: external
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo CAUSAMAT'
+  CB_PRE:
+    official_name: Causa básica pré-investigação
+    translated_name: Underlying cause before investigation
+    description: ICD-10 underlying cause held before the death was investigated. Compare with
+      CAUSABAS to see what the investigation changed.
+    code_system: external
+    source: inferred
+    reasoning: Named in SIM extracts alongside CAUSABAS_O and the post-investigation fields,
+      and not listed in the 07/2025 Estrutura do SIM. The CB prefix and its position beside
+      the investigation fields identify it as the pre-investigation underlying cause; the
+      reading is not confirmed by a published layout.
+    asserted_by: pegasus_data
+  CIRCOBITO:
+    official_name: Tipo de morte violenta
+    translated_name: Manner of violent death
+    description: For non-natural deaths, whether the manner was accident, suicide, homicide,
+      or other. The field that separates the three, and 'other' includes deaths under investigation.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo CIRCOBITO'
+  CIRURGIA:
+    official_name: Realização de cirurgia
+    translated_name: Surgery performed
+    description: Whether surgery was performed before the death.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo CIRURGIA'
   CODBAIOCOR:
     official_name: Código do bairro de ocorrência
     translated_name: Neighbourhood-of-occurrence code
-    description: 'Neighbourhood/district code of where the death occurred (as opposed
-      to CODBAIRES, which is the deceased''s residence). Same locally-assigned, non-national
-      numbering pattern.
+    description: 'Neighbourhood/district code of where the death occurred (as opposed to CODBAIRES,
+      which is the deceased''s residence). Same locally-assigned, non-national numbering pattern.
 
       '
     code_system: none
@@ -168,16 +229,16 @@ variables:
       | 2006 (C 10)"
 
       '
-    notes: 'The catalog''s TPROC10 binding here is the same false-positive semantic
-      match seen on CODBAIRES — see spurious_bindings.
+    notes: 'The catalog''s TPROC10 binding here is the same false-positive semantic match
+      seen on CODBAIRES — see spurious_bindings.
 
       '
   CODBAIRES:
     official_name: Código do bairro de residência
     translated_name: Neighbourhood-of-residence code
-    description: 'Neighbourhood/district code of the deceased''s residence, in the
-      1996–2010-vintage layout — the successor to BAIRES under the post-1996 field-naming
-      scheme. Still a locally-assigned code without a single national lookup.
+    description: 'Neighbourhood/district code of the deceased''s residence, in the 1996–2010-vintage
+      layout — the successor to BAIRES under the post-1996 field-naming scheme. Still a locally-assigned
+      code without a single national lookup.
 
       '
     code_system: none
@@ -186,32 +247,32 @@ variables:
       | 1996 (C 9)"
 
       '
-    vintage_note: 'Present 1996–2010 (per the observed series range); BAIRES carries
-      the same concept for 1979–1995. The two do not share a coding scheme, so do not
-      coalesce codes across the boundary without a crosswalk.
+    vintage_note: 'Present 1996–2010 (per the observed series range); BAIRES carries the same
+      concept for 1979–1995. The two do not share a coding scheme, so do not coalesce codes
+      across the boundary without a crosswalk.
 
       '
-    notes: 'The catalog''s TPROC10 (procedure-type table) binding on this column is
-      unrelated — a semantic-match false positive; see spurious_bindings.
+    notes: 'The catalog''s TPROC10 (procedure-type table) binding on this column is unrelated
+      — a semantic-match false positive; see spurious_bindings.
 
       '
   CODCART:
     official_name: Código do cartório
     translated_name: Civil registry office code
-    description: 'Code of the cartório (civil registry office) where the death was
-      registered, in the 2012+ cartório-detail cluster (alongside CODMUNCART, DTREGCART,
-      NUMREGCART) — the modern counterpart of the legacy CARTORIO field.
+    description: 'Code of the cartório (civil registry office) where the death was registered,
+      in the 2012+ cartório-detail cluster (alongside CODMUNCART, DTREGCART, NUMREGCART) —
+      the modern counterpart of the legacy CARTORIO field.
 
       '
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists CODCART at position 103 with a blank description
-      (2012, C 7), but it appears alongside three fully-documented siblings introduced
-      the same year — CODMUNCART ("Código do município do cartório"), DTREGCART ("Data
-      do registro do cartório") and NUMREGCART ("Número do registro do cartório") —
-      all naming the same cartório-registration event, plus the pre-existing 1979-vintage
-      CARTORIO field documents the identical concept under an earlier name.
+    reasoning: '[ESTRUTURA-SIM] lists CODCART at position 103 with a blank description (2012,
+      C 7), but it appears alongside three fully-documented siblings introduced the same year
+      — CODMUNCART ("Código do município do cartório"), DTREGCART ("Data do registro do cartório")
+      and NUMREGCART ("Número do registro do cartório") — all naming the same cartório-registration
+      event, plus the pre-existing 1979-vintage CARTORIO field documents the identical concept
+      under an earlier name.
 
       '
   CODESTAB:
@@ -220,59 +281,76 @@ variables:
     description: CNES code of the establishment where the death occurred.
     code_system: internal
     source: layout_doc
+  CODIFICADO:
+    official_name: Informa se formulário foi codificado
+    translated_name: Coded flag
+    description: Whether the form was coded — S or N, not a numeric flag.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo CODIFICADO'
   CODIGO:
     official_name: Código do estabelecimento de ocorrência
     translated_name: Facility code where the death occurred (locally coded)
-    description: 'Code of the health establishment where the death occurred, filled
-      only when the death happened at a health facility (place-of-occurrence = hospital/other
-      health establishment). Locally assigned by each state/municipality in this 1979–1995
-      layout, not a national registry code.
+    description: 'Code of the health establishment where the death occurred, filled only when
+      the death happened at a health facility (place-of-occurrence = hospital/other health
+      establishment). Locally assigned by each state/municipality in this 1979–1995 layout,
+      not a national registry code.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 12 "CODIGO | C 6→7 | Codigo do estabelecimento
-      onde ocorreu o obito, se LOCOCOR = 1. Este codigo e atribuido por cada estado
-      e/ou municipio, nao fazendo parte da base nacional | 1979 (C 6), 1995 (C 7)"
+    source_ref: '[ESTRUTURA-SIM] pos. 12 "CODIGO | C 6→7 | Codigo do estabelecimento onde
+      ocorreu o obito, se LOCOCOR = 1. Este codigo e atribuido por cada estado e/ou municipio,
+      nao fazendo parte da base nacional | 1979 (C 6), 1995 (C 7)"
 
       '
-    notes: 'Because it is a locally-assigned identifier rather than a national registry
-      code, the catalog''s TCNESBR (CNES facility registry) binding on this column
-      is a false-positive semantic match, not a real relationship — see spurious_bindings.
-      From 2001 the DO layout instead carries CODESTAB, which IS a real CNES code.
+    notes: 'Because it is a locally-assigned identifier rather than a national registry code,
+      the catalog''s TCNESBR (CNES facility registry) binding on this column is a false-positive
+      semantic match, not a real relationship — see spurious_bindings. From 2001 the DO layout
+      instead carries CODESTAB, which IS a real CNES code.
 
       '
   CODMUNCART:
     official_name: Código do município do cartório
     translated_name: Municipality code of the registry office
-    description: 'IBGE municipality code of the cartório (civil registry office) that
-      recorded the death — part of the 2012+ cartório-detail cluster. Not necessarily
-      the municipality of death or residence; it is where the paperwork was filed.
+    description: 'IBGE municipality code of the cartório (civil registry office) that recorded
+      the death — part of the 2012+ cartório-detail cluster. Not necessarily the municipality
+      of death or residence; it is where the paperwork was filed.
 
       '
     code_system: external
     codelists:
     - MUNICBR
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 102 "CODMUNCART | C 10 | Código do município
-      do cartório | 2012 (C 10)"
+    source_ref: '[ESTRUTURA-SIM] pos. 102 "CODMUNCART | C 10 | Código do município do cartório
+      | 2012 (C 10)"
 
       '
+  CODMUNNATU:
+    official_name: Código do município de naturalidade
+    translated_name: Municipality of birth
+    description: IBGE code of the municipality the deceased was born in. Distinct from where
+      they lived (CODMUNRES) and where they died (CODMUNOCOR); migration makes all three differ.
+    code_system: external
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo CODMUNNATU'
   CODMUNOCOR:
     official_name: Município de ocorrência
     translated_name: Municipality of occurrence
     code_system: internal
     codelist: MUNICBR
     source: inferred
-    reasoning: 'Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose
-      label column resolved to OBSERV, which is blank for 5,517 of its 5,579 rows,
-      so it decodes no municipality at all. MUNICBR holds 25,733 six-character IBGE
-      codes labelled ''120001 Acrelandia''.
+    reasoning: 'Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose label
+      column resolved to OBSERV, which is blank for 5,517 of its 5,579 rows, so it decodes
+      no municipality at all. MUNICBR holds 25,733 six-character IBGE codes labelled ''120001
+      Acrelandia''.
 
       '
     notes: 'Residence and occurrence differ systematically for deaths in referral hospitals,
-      which concentrate in capitals. Mapping deaths by CODMUNOCOR draws a map of where
-      hospitals are.
+      which concentrate in capitals. Mapping deaths by CODMUNOCOR draws a map of where hospitals
+      are.
 
       '
   CODMUNRES:
@@ -281,78 +359,84 @@ variables:
     code_system: internal
     codelist: MUNICBR
     source: inferred
-    reasoning: 'Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose
-      label column resolved to OBSERV, which is blank for 5,517 of its 5,579 rows,
-      so it decodes no municipality at all. MUNICBR holds 25,733 six-character IBGE
-      codes labelled ''120001 Acrelandia''.
+    reasoning: 'Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose label
+      column resolved to OBSERV, which is blank for 5,517 of its 5,579 rows, so it decodes
+      no municipality at all. MUNICBR holds 25,733 six-character IBGE codes labelled ''120001
+      Acrelandia''.
 
       '
+  COMUNSVOIM:
+    official_name: Município do SVO ou IML
+    translated_name: SVO/IML municipality
+    description: IBGE code of the municipality of the death-verification service or medico-legal
+      institute, filled only where the certifier was one of those. Blank otherwise by design.
+    code_system: external
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo COMUNSVOIM'
   CONTADOR:
     official_name: Contador
     translated_name: Record counter
-    description: 'A sequential counter DATASUS attaches to each row of a SIM extract.
-      It is the first field in the record layout and carries no epidemiological content
-      — it exists to give every row a position within its own file, not to identify
-      a death across files or over time.
+    description: 'A sequential counter DATASUS attaches to each row of a SIM extract. It is
+      the first field in the record layout and carries no epidemiological content — it exists
+      to give every row a position within its own file, not to identify a death across files
+      or over time.
 
       '
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists CONTADOR at position 1 of the DO layout with
-      no description text at all (1979, C 8) — the only field in the whole layout with
-      a completely blank description. Two structurally similar undocumented fields
-      sitting a few positions away, CRITICA and NUMEXPORT, are both explicitly described
-      there as "Dado para controle interno" (data for internal control), which is the
-      same category position-1-blank-name pattern points to. It is also the single
-      most common field in this batch (1,524 of the files carrying any of these 66
-      columns), consistent with a boilerplate technical column DATASUS stamps onto
-      essentially every extract rather than a substantive DO field.
+    reasoning: '[ESTRUTURA-SIM] lists CONTADOR at position 1 of the DO layout with no description
+      text at all (1979, C 8) — the only field in the whole layout with a completely blank
+      description. Two structurally similar undocumented fields sitting a few positions away,
+      CRITICA and NUMEXPORT, are both explicitly described there as "Dado para controle interno"
+      (data for internal control), which is the same category position-1-blank-name pattern
+      points to. It is also the single most common field in this batch (1,524 of the files
+      carrying any of these 66 columns), consistent with a boilerplate technical column DATASUS
+      stamps onto essentially every extract rather than a substantive DO field.
 
       '
-    notes: 'Do not use this as a cross-file or cross-vintage identifier for a specific
-      death — nothing in the layout or the observed values (small integers that reset
-      in range from file to file) supports that. The catalog''s MUNICBR binding on
-      this column is a semantic-match false positive, not a real relationship — see
-      spurious_bindings.
+    notes: 'Do not use this as a cross-file or cross-vintage identifier for a specific death
+      — nothing in the layout or the observed values (small integers that reset in range from
+      file to file) supports that. The catalog''s MUNICBR binding on this column is a semantic-match
+      false positive, not a real relationship — see spurious_bindings.
 
       '
   CRITICA:
     official_name: Crítica
     translated_name: Internal edit/QA flag
-    description: 'An internal data-quality control code from the 1979–1995 legacy layout
-      — DATASUS''s own documentation gives it no further meaning than "data for internal
-      control." Present only in DOR-era files (1979–1995/1998 depending on series).
+    description: 'An internal data-quality control code from the 1979–1995 legacy layout —
+      DATASUS''s own documentation gives it no further meaning than "data for internal control."
+      Present only in DOR-era files (1979–1995/1998 depending on series).
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 44 "CRITICA | C 7 | Dado para controle interno
-      | 1979 (C 7)"
+    source_ref: '[ESTRUTURA-SIM] pos. 44 "CRITICA | C 7 | Dado para controle interno | 1979
+      (C 7)"
 
       '
-    notes: 'DATASUS never documents what the individual codes mean, so do not attempt
-      to decode specific values (e.g. "001", "002") — the source itself treats this
-      as opaque.
+    notes: 'DATASUS never documents what the individual codes mean, so do not attempt to decode
+      specific values (e.g. "001", "002") — the source itself treats this as opaque.
 
       '
   CRM:
     official_name: CRM do médico atestante
     translated_name: Certifying physician's medical license number
-    description: 'Registration number of the certifying physician at their regional
-      medical council (Conselho Regional de Medicina), introduced 2014. This identifies
-      the doctor who signed the death certificate, not the deceased.
+    description: 'Registration number of the certifying physician at their regional medical
+      council (Conselho Regional de Medicina), introduced 2014. This identifies the doctor
+      who signed the death certificate, not the deceased.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 119 "CRM | C 15 | Número de inscrição do Médico
-      atestante no Conselho Regional de Medicina | 2014 (C 8→9→15)"
+    source_ref: '[ESTRUTURA-SIM] pos. 119 "CRM | C 15 | Número de inscrição do Médico atestante
+      no Conselho Regional de Medicina | 2014 (C 8→9→15)"
 
       '
     notes: 'This is a personal identifier for the certifying physician — a real, traceable
-      professional license number, not an internal DATASUS code. Present in only 160
-      files in this batch (2014–2018), so coverage is far from universal.
+      professional license number, not an internal DATASUS code. Present in only 160 files
+      in this batch (2014–2018), so coverage is far from universal.
 
       '
   CRSOCOR:
@@ -366,50 +450,50 @@ variables:
     code_system: none
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] pos. 46 "CRSOCOR | C 7 | Regional de Saude de ocorrencia.
-      Este codigo e atribuido por cada estado e/ou municipio, nao fazendo parte da
-      base nacional | 1979 (C 7)"
+      Este codigo e atribuido por cada estado e/ou municipio, nao fazendo parte da base nacional
+      | 1979 (C 7)"
 
       '
   CRSRES:
     official_name: CRS de residência
     translated_name: Health-region code of residence (locally coded)
-    description: 'Code of the health region (Regional de Saúde) of the deceased''s
-      residence, in the 1979–1995-vintage layout. Assigned independently by each state/municipality,
+    description: 'Code of the health region (Regional de Saúde) of the deceased''s residence,
+      in the 1979–1995-vintage layout. Assigned independently by each state/municipality,
       not standardized nationally.
 
       '
     code_system: none
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] pos. 47 "CRSRES | C 6 | Regional de Saude de residencia.
-      Este codigo e atribuido por cada estado e/ou municipio, nao fazendo parte da
-      base nacional | 1979 (C 6)"
+      Este codigo e atribuido por cada estado e/ou municipio, nao fazendo parte da base nacional
+      | 1979 (C 6)"
 
       '
   DATANASC:
     official_name: Data de nascimento
     translated_name: Deceased's date of birth
-    description: 'Birth date of the deceased, ddmmaaaa, in the 1979–1995-vintage layout.
-      For a fetal death the layout instructs that this equal the date of death (DATAOBITO),
-      since a stillbirth''s "birth" and "death" are the same event.
+    description: 'Birth date of the deceased, ddmmaaaa, in the 1979–1995-vintage layout. For
+      a fetal death the layout instructs that this equal the date of death (DATAOBITO), since
+      a stillbirth''s "birth" and "death" are the same event.
 
       '
     code_system: none
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] pos. 9 "DATANASC | C 8 | Data do nascimento do falecido.
-      Em caso de óbito fetal as datas de óbito e nascimento deverão ser iguais.(Data
-      no padrão ddmmaaaa) | 1979 (C 8)"
+      Em caso de óbito fetal as datas de óbito e nascimento deverão ser iguais.(Data no padrão
+      ddmmaaaa) | 1979 (C 8)"
 
       '
-    notes: '"00000000" is the observed sentinel for unknown, and a nontrivial share
-      of records (e.g. "1995") carry only a 4-digit year rather than a full date —
-      treat those as partial, not as January-something dates.
+    notes: '"00000000" is the observed sentinel for unknown, and a nontrivial share of records
+      (e.g. "1995") carry only a 4-digit year rather than a full date — treat those as partial,
+      not as January-something dates.
 
       '
   DATAOBITO:
     official_name: Data do óbito
     translated_name: Date of death
-    description: 'Date the death occurred, in the 1979–1995-vintage layout. From 1996
-      the same concept is carried by DTOBITO.
+    description: 'Date the death occurred, in the 1979–1995-vintage layout. From 1996 the
+      same concept is carried by DTOBITO.
 
       '
     code_system: none
@@ -418,37 +502,103 @@ variables:
       no padrão ddmmaaaa) | 1979 (C 9)"
 
       '
-    notes: 'The doc''s stated format is 8-digit ddmmaaaa, but the observed values in
-      this batch are 6 characters and end in "00" (e.g. "790300", "790100" — read as
-      YY, MM, and a fixed "00"), and the catalog binds this column to ANO7995/MESES/ANO
-      — year/month tabulation axes rather than a codelist, mirroring the well-known
-      "date bound to a year-and-month grouping table" pattern (see spurious_bindings).
-      Day-level date arithmetic on this field for pre-1996 records is likely unsafe;
-      treat it as month/year-resolution for that vintage rather than a full calendar
-      date.
+    notes: 'The doc''s stated format is 8-digit ddmmaaaa, but the observed values in this
+      batch are 6 characters and end in "00" (e.g. "790300", "790100" — read as YY, MM, and
+      a fixed "00"), and the catalog binds this column to ANO7995/MESES/ANO — year/month tabulation
+      axes rather than a codelist, mirroring the well-known "date bound to a year-and-month
+      grouping table" pattern (see spurious_bindings). Day-level date arithmetic on this field
+      for pre-1996 records is likely unsafe; treat it as month/year-resolution for that vintage
+      rather than a full calendar date.
 
       '
   DATAREG:
     official_name: Data de registro
     translated_name: Registration receipt date
-    description: 'Date DATASUS/the health department received this death record, in
-      the 1979–1995-vintage layout ddmmaaaa format. The successor concept from 1996
-      is DTRECEBIM/DTRECORIG.
+    description: 'Date DATASUS/the health department received this death record, in the 1979–1995-vintage
+      layout ddmmaaaa format. The successor concept from 1996 is DTRECEBIM/DTRECORIG.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 4 "DATAREG | C 7 | Data do recebimento. (Data
-      no padrão ddmmaaaa) | 1979 (C 7)"
+    source_ref: '[ESTRUTURA-SIM] pos. 4 "DATAREG | C 7 | Data do recebimento. (Data no padrão
+      ddmmaaaa) | 1979 (C 7)"
 
       '
-    notes: 'The declared width is 7 and the doc claims ddmmaaaa (8-digit) format, but
-      observed values in this batch are inconsistent in length — some are a bare 2-digit
-      year (e.g. "95") and others are 6 digits (e.g. "950417"). Do not assume every
-      value carries a full date; a nontrivial share of DOR-era records appear to have
-      only year, or year+month.
+    notes: 'The declared width is 7 and the doc claims ddmmaaaa (8-digit) format, but observed
+      values in this batch are inconsistent in length — some are a bare 2-digit year (e.g.
+      "95") and others are 6 digits (e.g. "950417"). Do not assume every value carries a full
+      date; a nontrivial share of DOR-era records appear to have only year, or year+month.
 
       '
+  DIFDATA:
+    official_name: Diferença entre data do óbito e recebimento
+    translated_name: Death-to-receipt days
+    description: Days between the death and the original receipt of the certificate, computed
+      by DATASUS. The standard measure of reporting timeliness.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo DIFDATA'
+  DTATESTADO:
+    official_name: Data do atestado
+    translated_name: Certificate date
+    description: Date the certificate was signed, as DDMMAAAA text. Note the day-first order
+      — SIH and CNES use AAAAMMDD, and mixing them silently reorders the date.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo DTATESTADO'
+  DTCADASTRO:
+    official_name: Data do cadastro
+    translated_name: Registration date
+    description: Date the death was entered into SIM, as DDMMAAAA text. Later than the death,
+      and the gap is the reporting delay.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo DTCADASTRO'
+  DTCADINF:
+    official_name: Data do cadastro da investigação de óbito infantil
+    translated_name: Infant investigation date
+    description: When filled, indicates the infant-death investigation was carried out, as
+      DDMMAAAA text. Blank means no such investigation.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo DTCADINF'
+  DTCADINV:
+    official_name: Data do cadastro de investigação
+    translated_name: Investigation registration date
+    description: Date the investigation record was created, as DDMMAAAA text.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo DTCADINV'
+  DTCONCASO:
+    official_name: Data de conclusão do caso
+    translated_name: Case conclusion date
+    description: Date the case was closed, as DDMMAAAA text.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo DTCONCASO'
+  DTCONINV:
+    official_name: Data da conclusão da investigação
+    translated_name: Investigation conclusion date
+    description: Date the investigation concluded, as DDMMAAAA text. With DTINVESTIG it bounds
+      how long the investigation took.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo DTCONINV'
+  DTINVESTIG:
+    official_name: Data da investigação
+    translated_name: Investigation date
+    description: Date the death investigation was carried out, as DDMMAAAA text.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo DTINVESTIG'
   DTNASC:
     official_name: Data de nascimento
     translated_name: Date of birth
@@ -460,16 +610,24 @@ variables:
     description: Date of death, stored as DDMMAAAA.
     code_system: none
     source: layout_doc
-    notes: 'DDMMAAAA here, not the AAAAMMDD used by SIH. Reading one convention as
-      the other silently produces valid-looking wrong dates for every day <= 12.
+    notes: 'DDMMAAAA here, not the AAAAMMDD used by SIH. Reading one convention as the other
+      silently produces valid-looking wrong dates for every day <= 12.
 
       '
+  DTRECEBIM:
+    official_name: Data do recebimento
+    translated_name: Receipt date
+    description: Date the record was received centrally, as DDMMAAAA text.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo DTRECEBIM'
   DTRECORIG:
     official_name: Data do recebimento original
     translated_name: Original receipt date
     description: 'Date DATASUS first received this DO, before any later correction/reprocessing
-      — introduced in 2011 as the field that anchors reporting-timeliness measures
-      (compare against DATAOBITO/DTOBITO to see reporting lag).
+      — introduced in 2011 as the field that anchors reporting-timeliness measures (compare
+      against DATAOBITO/DTOBITO to see reporting lag).
 
       '
     code_system: none
@@ -485,24 +643,23 @@ variables:
   DTRECORIGA:
     official_name: Data do recebimento original (tratada)
     translated_name: Original receipt date (processing-cleaned copy)
-    description: 'A cleaned/derived copy of DTRECORIG created during DATASUS''s own
-      data treatment pipeline, same ddmmaaaa date. Use DTRECORIG for the as-received
-      value and this one only if the raw field is missing or malformed for a given
-      record.
+    description: 'A cleaned/derived copy of DTRECORIG created during DATASUS''s own data treatment
+      pipeline, same ddmmaaaa date. Use DTRECORIG for the as-received value and this one only
+      if the raw field is missing or malformed for a given record.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 96 "DTRECORIGA | C 10 | Campo Criado no Tratamento
-      para Data do recebimento original. (Data no padrão ddmmaaaa) | 2011 (C 10)"
+    source_ref: '[ESTRUTURA-SIM] pos. 96 "DTRECORIGA | C 10 | Campo Criado no Tratamento para
+      Data do recebimento original. (Data no padrão ddmmaaaa) | 2011 (C 10)"
 
       '
   DTREGCART:
     official_name: Data do registro do cartório
     translated_name: Civil registry filing date
-    description: 'Date the death was registered at the cartório (civil registry office),
-      ddmmaaaa — part of the 2012+ cartório-detail cluster. This is the civil-registration
-      date, and can lag the date of death.
+    description: 'Date the death was registered at the cartório (civil registry office), ddmmaaaa
+      — part of the 2012+ cartório-detail cluster. This is the civil-registration date, and
+      can lag the date of death.
 
       '
     code_system: none
@@ -511,55 +668,102 @@ variables:
       (Data no padrão ddmmaaaa) | 2012 (C 9)"
 
       '
+  ESC:
+    official_name: Escolaridade em anos
+    translated_name: Education in years (legacy bands)
+    description: Schooling in year bands — none, 1–3, 4–7, 8–11, 12 or more. The pre-2010
+      form; ESC2010 and ESCFALAGR1 carry the later schemes and the three are not interchangeable.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ESC'
+  ESC2010:
+    official_name: Escolaridade 2010 - nível
+    translated_name: Education level (2010 form)
+    description: Highest schooling level completed by the deceased on the 2010 form, from
+      no schooling through completed higher education. Replaces the year-band ESC.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ESC2010'
   ESCFALAGR1:
     official_name: Escolaridade do falecido agregada
     translated_name: Deceased's education level (aggregated, 2010+ form)
-    description: 'Highest school level completed by the deceased, under the aggregated
-      categories used on the DO form from 2010 onward: 00 Sem Escolaridade, 01 Fundamental
-      I Incompleto, 02 Fundamental I Completo, 03 Fundamental II Incompleto, 04 Fundamental
-      II Completo, 05 Ensino Médio Incompleto, 06 Ensino Médio Completo, 07 Superior
-      Incompleto, 08 Superior Completo, 09 Ignorado, 10 Fundamental I Incompleto ou
-      Inespecífico, 11 Fundamental II Incompleto ou Inespecífico, 12 Ensino Médio Incompleto
-      ou Inespecífico.
-
-      '
+    description: Highest school level the deceased completed, on the aggregated categories
+      used from 2010. Complete and incomplete stages are separate codes, and three further
+      codes cover a stage recorded only as unspecified — so collapsing to 'fundamental' needs
+      those three handled or they are lost.
     code_system: internal
     codelists:
     - ESCAGR1
     - ESCAGR2
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 108 "ESCFALAGR1 | C 10 | Escolaridade do falecido
-      agregada (formulário a partir de 2010). (00 – Sem Escolaridade; 01 – Fundamental
-      I Incompleto; 02 – Fundamental I Completo; 03 – Fundamental II Incompleto; 04
-      – Fundamental II Completo; 05 – Ensino Médio Incompleto; 06 – Ensino Médio Completo;
-      07 – Superior Incompleto; 08 – Superior Completo; 09 – Ignorado; 10 – Fundamental
-      I Incompleto ou Inespecífico; 11 – Fundamental II Incompleto ou Inespecífico;
-      12 – Ensino Médio Incompleto ou Inespecífico) | 2012 (C 10)"
+    source_ref: '[ESTRUTURA-SIM] pos. 108 "ESCFALAGR1 | C 10 | Escolaridade do falecido agregada
+      (formulário a partir de 2010). (00 – Sem Escolaridade; 01 – Fundamental I Incompleto;
+      02 – Fundamental I Completo; 03 – Fundamental II Incompleto; 04 – Fundamental II Completo;
+      05 – Ensino Médio Incompleto; 06 – Ensino Médio Completo; 07 – Superior Incompleto;
+      08 – Superior Completo; 09 – Ignorado; 10 – Fundamental I Incompleto ou Inespecífico;
+      11 – Fundamental II Incompleto ou Inespecífico; 12 – Ensino Médio Incompleto ou Inespecífico)
+      | 2012 (C 10)"
 
       '
-    notes: 'Codes 10–12 are "incomplete-or-unspecified" catch-alls added alongside
-      the clean complete/incomplete pairs (01–08) — a record coded 10 could be either
-      "incomplete" or simply "level unspecified," so 10–12 are not directly comparable
-      to the matching 01/03/05 "incomplete" codes as a clean ordinal scale.
+    notes: 'Codes 10–12 are "incomplete-or-unspecified" catch-alls added alongside the clean
+      complete/incomplete pairs (01–08) — a record coded 10 could be either "incomplete" or
+      simply "level unspecified," so 10–12 are not directly comparable to the matching 01/03/05
+      "incomplete" codes as a clean ordinal scale.
 
       '
+  ESCMAE:
+    official_name: Escolaridade da mãe em anos
+    translated_name: Mother's education in years (legacy bands)
+    description: The mother's schooling in year bands, on the pre-2010 form.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ESCMAE'
+  ESCMAE2010:
+    official_name: Escolaridade da mãe 2010 - nível
+    translated_name: Mother's education level (2010 form)
+    description: The mother's highest schooling level on the 2010 form.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ESCMAE2010'
+  ESCMAEAGR1:
+    official_name: Escolaridade da mãe agregada
+    translated_name: Mother's education, aggregated
+    description: The mother's schooling on the form used from 2010, with complete and incomplete
+      stages separated and three extra codes for stages recorded only as unspecified.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ESCMAEAGR1'
   ESTABDESCR:
     official_name: Descrição do estabelecimento
     translated_name: Health facility name (free text)
-    description: 'Free-text name of the health establishment associated with the death
-      (e.g. "HOSPITAL DAS CLINICAS DA FMUSP"), introduced 2014. A textual fallback/supplement
-      alongside the coded CODESTAB field, useful when no CNES match was available.
+    description: 'Free-text name of the health establishment associated with the death (e.g.
+      "HOSPITAL DAS CLINICAS DA FMUSP"), introduced 2014. A textual fallback/supplement alongside
+      the coded CODESTAB field, useful when no CNES match was available.
 
       '
     code_system: none
     source: inferred
     asserted_by: pegasus_data
     reasoning: '[ESTRUTURA-SIM] lists ESTABDESCR at position 118 with a blank description
-      (2014, widths 10→19→40), but the name decomposes plainly as ESTAB(elecimento)
-      + DESCR(ição), and every observed value in the evidence is a plausible free-text
-      hospital/facility name.
+      (2014, widths 10→19→40), but the name decomposes plainly as ESTAB(elecimento) + DESCR(ição),
+      and every observed value in the evidence is a plausible free-text hospital/facility
+      name.
 
       '
+  ESTCIV:
+    official_name: Situação conjugal
+    translated_name: Marital status
+    description: 'Marital status of the deceased as reported by relatives: single, married,
+      widowed, judicially separated, stable union, or ignored.'
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ESTCIV'
   ESTCIVIL:
     official_name: Estado civil
     translated_name: Deceased's marital status
@@ -572,106 +776,108 @@ variables:
     codelists:
     - ESTCIV
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 7 "ESTCIVIL | C 8 | Estado civil, conforme a
-      tabela: 1: Solteiro 2: Casado 3: Viúvo 4: Separado judicialmente 5: União consensual
-      (versões anteriores) 9: Ignorado | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 7 "ESTCIVIL | C 8 | Estado civil, conforme a tabela:
+      1: Solteiro 2: Casado 3: Viúvo 4: Separado judicialmente 5: União consensual (versões
+      anteriores) 9: Ignorado | 1979 (C 8)"
 
       '
-    vintage_note: '1979-vintage legacy field. Renamed ESTCIV from 1996 with a revised
-      category set (adds "União estável", merges separado/divorciado).
+    vintage_note: '1979-vintage legacy field. Renamed ESTCIV from 1996 with a revised category
+      set (adds "União estável", merges separado/divorciado).
 
       '
   ETNIA:
     official_name: Etnia
     translated_name: Ethnicity (likely Indigenous ethnicity)
-    description: 'A short numeric code under the field name "etnia" (ethnicity), present
-      only in 1995–1998 files. By the naming convention DATASUS uses elsewhere (e.g.
-      SINASC''s own ETNIA field), this almost certainly records Indigenous ethnic group,
-      filled when RACACOR/race-colour = Indígena.
+    description: 'A short numeric code under the field name "etnia" (ethnicity), present only
+      in 1995–1998 files. By the naming convention DATASUS uses elsewhere (e.g. SINASC''s
+      own ETNIA field), this almost certainly records Indigenous ethnic group, filled when
+      RACACOR/race-colour = Indígena.
 
       '
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists ETNIA at position 50 with a blank description
-      (1995, C 5), and no codelist for it survives in the catalog, so the specific
-      coding table cannot be confirmed here — hence code_system ''none'' rather than
-      a claimed internal/external classification. The field name and its co-introduction
-      with RACACOR (also 1995) are the basis for the ethnicity reading.
+    reasoning: '[ESTRUTURA-SIM] lists ETNIA at position 50 with a blank description (1995,
+      C 5), and no codelist for it survives in the catalog, so the specific coding table cannot
+      be confirmed here — hence code_system ''none'' rather than a claimed internal/external
+      classification. The field name and its co-introduction with RACACOR (also 1995) are
+      the basis for the ethnicity reading.
 
       '
-    notes: 'Extremely sparse in this batch (2 distinct values observed, single digits
-      of records) — do not treat as a usable indicator at this vintage.
+    notes: 'Extremely sparse in this batch (2 distinct values observed, single digits of records)
+      — do not treat as a usable indicator at this vintage.
 
       '
+  EXAME:
+    official_name: Realização de exame
+    translated_name: Examination performed
+    description: Whether a complementary examination was carried out to establish the cause
+      of death.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo EXAME'
   EXPDIFDATA:
     official_name: Diferença de datas (exportação)
     translated_name: Death-to-receipt lag in days (export copy)
-    description: 'A day-count field carrying the same concept as DATASUS''s documented
-      sibling field DIFDATA''s: the gap, in days, between a person''s death and DATASUS
-      first receiving the DO, appearing only in a 2012 export. A larger value means
-      the record took longer to reach DATASUS.
+    description: 'A day-count field carrying the same concept as DATASUS''s documented sibling
+      field DIFDATA''s: the gap, in days, between a person''s death and DATASUS first receiving
+      the DO, appearing only in a 2012 export. A larger value means the record took longer
+      to reach DATASUS.
 
       '
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'No entry for EXPDIFDATA exists in [ESTRUTURA-SIM] (blank description,
-      2012, C 10), but the immediately neighbouring field DIFDATA (position 113) is
-      documented as "Diferença entre a data de óbito e data do recebimento original
-      da DO ([DTOBITO] – [DTRECORIG]). (Números)" — the same 2012 vintage and the "EXP"
-      (export) prefix on an otherwise identical name is the basis for treating this
-      as a copy of that same lag measure. Observed values (small positive integers,
-      12–32 in the top values) are consistent with a day-count.
+    reasoning: 'No entry for EXPDIFDATA exists in [ESTRUTURA-SIM] (blank description, 2012,
+      C 10), but the immediately neighbouring field DIFDATA (position 113) is documented as
+      "Diferença entre a data de óbito e data do recebimento original da DO ([DTOBITO] – [DTRECORIG]).
+      (Números)" — the same 2012 vintage and the "EXP" (export) prefix on an otherwise identical
+      name is the basis for treating this as a copy of that same lag measure. Observed values
+      (small positive integers, 12–32 in the top values) are consistent with a day-count.
 
       '
-    notes: 'Only carried by 2012-dated records in this batch; do not expect it in other
-      years.
+    notes: 'Only carried by 2012-dated records in this batch; do not expect it in other years.
 
       '
   FILHMORT:
     official_name: Filhos mortos
     translated_name: Mother's number of children who have died
-    description: 'Number of the mother''s children who have died, not counting the
-      deceased if the deceased is themself the child this DO reports, in the 1979–1995-vintage
-      layout. Shares FILHVIVOS''s coding quirk — 0/"00" reads as unknown, and "no dead
-      children" is coded as the literal "XX." The 1996+ layout replaces this with QTDFILMORT
-      (plain numbers, 9 = ignorado, no XX sentinel).
+    description: 'Number of the mother''s children who have died, not counting the deceased
+      if the deceased is themself the child this DO reports, in the 1979–1995-vintage layout.
+      Shares FILHVIVOS''s coding quirk — 0/"00" reads as unknown, and "no dead children" is
+      coded as the literal "XX." The 1996+ layout replaces this with QTDFILMORT (plain numbers,
+      9 = ignorado, no XX sentinel).
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 26 "FILHMORT | C 8 | Numero de filhos morto[s]
-      ... O valor zero corresponde a Nenhum filho morto e está codificado como XX.
-      | 1979 (C 8)" (the doc''s own phrasing here is compressed/ambiguous about which
-      value is which; read together with the mirror-image FILHVIVOS entry and QTDFILMORT
-      pos. 61 — "Número de filhos mortos. Não incluir a criança cujo óbito se notifica
-      na respectiva DO." — the exclusion rule is confirmed even though the exact zero-vs-XX
-      wording for this field alone is not fully clean.
+    source_ref: '[ESTRUTURA-SIM] pos. 26 "FILHMORT | C 8 | Numero de filhos morto[s] ... O
+      valor zero corresponde a Nenhum filho morto e está codificado como XX. | 1979 (C 8)"
+      (the doc''s own phrasing here is compressed/ambiguous about which value is which; read
+      together with the mirror-image FILHVIVOS entry and QTDFILMORT pos. 61 — "Número de filhos
+      mortos. Não incluir a criança cujo óbito se notifica na respectiva DO." — the exclusion
+      rule is confirmed even though the exact zero-vs-XX wording for this field alone is not
+      fully clean.
 
       '
-    notes: 'Treat 0/"00" as "unknown" and "XX" as the real zero, mirroring FILHVIVOS,
-      rather than trusting a literal reading of this field''s own garbled doc line
-      in isolation.
+    notes: 'Treat 0/"00" as "unknown" and "XX" as the real zero, mirroring FILHVIVOS, rather
+      than trusting a literal reading of this field''s own garbled doc line in isolation.
 
       '
   FILHVIVOS:
     official_name: Filhos vivos
     translated_name: Mother's number of living children
-    description: 'Number of the mother''s living children, not counting the deceased
-      if the deceased is themself the child this DO reports, in the 1979–1995-vintage
-      layout. Coded with a quirk: 0 (or "00") means unknown/ignorado, and "no living
-      children" is instead coded as the literal string "XX" — a naive numeric cast
-      will misread 0 as a real zero-child count. The 1996+ layout replaces this with
-      QTDFILVIVO, which uses plain numbers with 9 = ignorado and no XX sentinel.
-
-      '
+    description: 'The mother''s living children on the 1979-1995 layout, excluding the deceased
+      where the deceased is her child. Coded with a trap: 0 means ignored, and no living children
+      is the literal string XX, so a numeric cast reads XX as null and 0 as a true zero. QTDFILVIVO
+      replaces it from 1996.'
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 25 "FILHVIVOS | C 9 | Numero de filhos vivos.
-      O valor zero corresponde a ignorado. Nenhum filho vivo esta codificado como XX.
-      | 1979 (C 9)"; QTDFILVIVO pos. 60 clarifies the exclusion: "Número de filhos
-      vivos. (Número; 9 - igonorado)" 1996 (C 10).
+    source_ref: '[ESTRUTURA-SIM] pos. 25 "FILHVIVOS | C 9 | Numero de filhos vivos. O valor
+      zero corresponde a ignorado. Nenhum filho vivo esta codificado como XX. | 1979 (C 9)";
+      QTDFILVIVO pos. 60 clarifies the exclusion: "Número de filhos vivos. (Número; 9 - igonorado)"
+      1996 (C 10).
 
       '
   FONTE:
@@ -687,48 +893,66 @@ variables:
     - FONTINFO
     - FONTE
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 75 "FONTE | C 5 | fonte de informação utilizada
-      para o preenchimento dos campos 48 e 49. (1 – ocorrência policial; 2 – hospital;
-      3 – família; 4 – outra; 9 – ignorado) | 1996 (C 5)"
+    source_ref: '[ESTRUTURA-SIM] pos. 75 "FONTE | C 5 | fonte de informação utilizada para
+      o preenchimento dos campos 48 e 49. (1 – ocorrência policial; 2 – hospital; 3 – família;
+      4 – outra; 9 – ignorado) | 1996 (C 5)"
 
       '
-    notes: '"Campos 48 e 49" refers to the paper DO form''s own field numbers, not
-      this table''s column layout — do not confuse with UFINFORM or any other position-48/49
-      column here.
+    notes: '"Campos 48 e 49" refers to the paper DO form''s own field numbers, not this table''s
+      column layout — do not confuse with UFINFORM or any other position-48/49 column here.
 
       '
+  FONTEINV:
+    official_name: Fonte de investigação
+    translated_name: Investigation source
+    description: Which source the death investigation drew on — a maternal or infant mortality
+      committee, a home visit, a health record, database linkage, the SVO or the IML, or several.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo FONTEINV'
+  FONTES:
+    official_name: Fontes consultadas
+    translated_name: Sources consulted
+    description: Six positions, one per source (interview, outpatient, record, SVO, IML, professional),
+      each S where that source was used and X where it was not. Read positionally, not as
+      a code.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo FONTES'
   FONTESINF:
     official_name: Fontes de investigação (combinado)
     translated_name: Combined investigation-source flags
     description: 'A fixed-width string of S/X flags, one per investigation-source sub-field
-      (interview, ambulatory record, hospital chart, SVO, IML, professional record,
-      etc.) — "S" if that source was used, "X" if it was left blank. Introduced 2014.
+      (interview, ambulatory record, hospital chart, SVO, IML, professional record, etc.)
+      — "S" if that source was used, "X" if it was left blank. Introduced 2014.
 
       '
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists FONTESINF at position 131 with a blank description
-      (2014, C 9), but its documented sibling FONTES (position 127, same 2014 vintage)
-      is described exactly this way: "Combinado de caracteres conforme o preenchimento
-      dos campos de fontes (FONTENTREV, FONTEAMBUL, FONTEPRONT, FONTESVO, FONTEIML,
-      FONTEPROF): se preenchido caractere ''S'', se o campo estiver vazio caractere
-      ''X''." Observed FONTESINF values in this batch are 7-character strings built
-      entirely from S and X (e.g. "XXXXXXX", "SXSSXXX"), the same construction FONTES
-      describes, just one character longer than FONTES''s documented 6.
+    reasoning: '[ESTRUTURA-SIM] lists FONTESINF at position 131 with a blank description (2014,
+      C 9), but its documented sibling FONTES (position 127, same 2014 vintage) is described
+      exactly this way: "Combinado de caracteres conforme o preenchimento dos campos de fontes
+      (FONTENTREV, FONTEAMBUL, FONTEPRONT, FONTESVO, FONTEIML, FONTEPROF): se preenchido caractere
+      ''S'', se o campo estiver vazio caractere ''X''." Observed FONTESINF values in this
+      batch are 7-character strings built entirely from S and X (e.g. "XXXXXXX", "SXSSXXX"),
+      the same construction FONTES describes, just one character longer than FONTES''s documented
+      6.
 
       '
-    notes: 'Which seventh source the extra character represents is not confirmed here
-      — treat the string positionally rather than assuming it maps one-for-one onto
-      the six sources named for FONTES.
+    notes: 'Which seventh source the extra character represents is not confirmed here — treat
+      the string positionally rather than assuming it maps one-for-one onto the six sources
+      named for FONTES.
 
       '
   FONTINFO:
     official_name: Fonte de informação
     translated_name: Information source (legacy field name)
     description: 'The pre-1996 name for the same "where did the accident/violence-circumstance
-      information come from" concept later renamed FONTE: 0/9 Ignorado, 1 Boletim de
-      Ocorrência, 2 Hospital, 3 Família, 4 Outro.
+      information come from" concept later renamed FONTE: 0/9 Ignorado, 1 Boletim de Ocorrência,
+      2 Hospital, 3 Família, 4 Outro.
 
       '
     code_system: internal
@@ -736,65 +960,102 @@ variables:
     - FONTINFO
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists FONTINFO at position 41 with a blank description
-      (1979, C 8), one field before FONTE''s fully documented 1996 entry ("fonte de
-      informação utilizada para o preenchimento dos campos 48 e 49"). The catalog''s
-      own FONTINFO codelist (0.9 confidence, sourced from the .def files) carries exactly
-      the same code set and labels DATASUS shows for FONTE (1/2/3/4/9, Boletim de Ocorrência/Hospital/Família/Outro/Ignorado),
-      which is the basis for reading FONTINFO as FONTE''s earlier name rather than
-      a different concept.
+    reasoning: '[ESTRUTURA-SIM] lists FONTINFO at position 41 with a blank description (1979,
+      C 8), one field before FONTE''s fully documented 1996 entry ("fonte de informação utilizada
+      para o preenchimento dos campos 48 e 49"). The catalog''s own FONTINFO codelist (0.9
+      confidence, sourced from the .def files) carries exactly the same code set and labels
+      DATASUS shows for FONTE (1/2/3/4/9, Boletim de Ocorrência/Hospital/Família/Outro/Ignorado),
+      which is the basis for reading FONTINFO as FONTE''s earlier name rather than a different
+      concept.
 
       '
+  GESTACAO:
+    official_name: Semanas de gestação (formulário antigo)
+    translated_name: Gestation weeks (banded)
+    description: 'Gestational age recorded as one of six ranges rather than a number: under
+      22 weeks, 22-27, 28-31, 32-36, 37-41, and 42 or more. The older form''s version; SEMAGESTAC
+      carries the week itself where both are present.'
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo GESTACAO'
+  GRAVIDEZ:
+    official_name: Tipo de gravidez
+    translated_name: Pregnancy type
+    description: Whether the pregnancy was single, twin, or triplet-and-above. Multiple pregnancy
+      is a risk factor for fetal and infant death, which is why it is on the death certificate.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo GRAVIDEZ'
+  HORAOBITO:
+    official_name: Hora do óbito
+    translated_name: Time of death
+    description: Clock time of death on a 24-hour clock. Often blank or a round hour, so it
+      carries less precision than its four digits suggest.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo HORAOBITO'
   IDADE:
     official_name: Idade
     translated_name: Age
-    description: 'Age at death, encoded with its unit in the leading digit rather than
-      in a separate column.
+    description: 'Age at death, encoded with its unit in the leading digit rather than in
+      a separate column.
 
       '
     code_system: internal
     source: layout_doc
-    notes: 'SIM packs the unit into the value itself, unlike SIH which uses a separate
-      COD_IDADE column. The two systems'' IDADE columns are not comparable without
-      decoding each by its own rule.
+    notes: 'SIM packs the unit into the value itself, unlike SIH which uses a separate COD_IDADE
+      column. The two systems'' IDADE columns are not comparable without decoding each by
+      its own rule.
 
       '
+  IDADEMAE:
+    official_name: Idade da mãe
+    translated_name: Mother's age
+    description: Age of the MOTHER of the deceased, collected where the death is fetal or
+      of a child. Not the age of the deceased, which is IDADE.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo IDADEMAE'
   INSTRMAE:
     official_name: Instrução da mãe
     translated_name: Mother's education level
-    description: 'Educational attainment of the deceased''s mother, coded on the same
-      0–4 scale as INSTRUCAO. Relevant chiefly for fetal/infant deaths, where the mother''s
-      own record is part of the DO.
+    description: 'Educational attainment of the deceased''s mother, coded on the same 0–4
+      scale as INSTRUCAO. Relevant chiefly for fetal/infant deaths, where the mother''s own
+      record is part of the DO.
 
       '
     code_system: internal
     codelists:
     - INSTRUC
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 24 "INSTRMAE | C 8 | Instrução da mae, conforme
-      codificação de INSTRUCAO | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 24 "INSTRMAE | C 8 | Instrução da mae, conforme codificação
+      de INSTRUCAO | 1979 (C 8)"
 
       '
   INSTRPAI:
     official_name: Instrução do pai
     translated_name: Father's education level
-    description: 'Educational attainment of the deceased''s father, coded on the same
-      0–4 scale as INSTRUCAO. Relevant chiefly for fetal/infant deaths.
+    description: 'Educational attainment of the deceased''s father, coded on the same 0–4
+      scale as INSTRUCAO. Relevant chiefly for fetal/infant deaths.
 
       '
     code_system: internal
     codelists:
     - INSTRUC
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 21 "INSTRPAI | C 8 | Instrução do pai, conforme
-      codificação de INSTRUCAO | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 21 "INSTRPAI | C 8 | Instrução do pai, conforme codificação
+      de INSTRUCAO | 1979 (C 8)"
 
       '
   INSTRUCAO:
     official_name: Instrução
     translated_name: Deceased's education level
-    description: 'Educational attainment of the deceased, in the 1979–1995-vintage
-      layout: 0 Ignorado, 1 Nenhuma, 2 Primeiro grau, 3 Segundo grau, 4 Superior.
+    description: 'Educational attainment of the deceased, in the 1979–1995-vintage layout:
+      0 Ignorado, 1 Nenhuma, 2 Primeiro grau, 3 Segundo grau, 4 Superior.
 
       '
     code_system: internal
@@ -802,33 +1063,31 @@ variables:
     - INSTRUC
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] pos. 19 "INSTRUCAO | C 9 | Instrução, conforme a tabela:
-      0: Ignorado 1: Nenhuma 2: Primeiro grau 3: Segundo grau 4: Superior | 1979 (C
-      9)"
+      0: Ignorado 1: Nenhuma 2: Primeiro grau 3: Segundo grau 4: Superior | 1979 (C 9)"
 
       '
-    vintage_note: '1979-vintage legacy field, renamed ESC from 1996 (finer-grained
-      years-of-schooling bands) and further refined into ESC2010/ESCFALAGR1 from 2011–2012.
+    vintage_note: '1979-vintage legacy field, renamed ESC from 1996 (finer-grained years-of-schooling
+      bands) and further refined into ESC2010/ESCFALAGR1 from 2011–2012.
 
       '
   LINHAA:
     official_name: Linha A da declaração de óbito
     translated_name: Certificate line A
-    description: 'The immediate cause of death, as written by the certifying physician.
-      Several CID-10 codes may appear in one cell.
+    description: 'The immediate cause of death, as written by the certifying physician. Several
+      CID-10 codes may appear in one cell.
 
       '
     code_system: external
     codelists:
     - CID10
     - CID9WHO
-    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
-      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they
-      OVERLAP for 1996-1998 and a year threshold would mis-assign three years of deaths.
-      Both classifications are bound instead. That is safe because their code spaces
-      are disjoint — measured: 9,740 CID-9 codes and 14,198 CID-10 codes for SIM share
-      exactly ZERO codes, CID-9 being numeric and CID-10 letter-prefixed — so exact
-      matching selects the right classification per row without anything having to
-      know the row''s vintage.
+    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
+      both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
+      and a year threshold would mis-assign three years of deaths. Both classifications are
+      bound instead. That is safe because their code spaces are disjoint — measured: 9,740
+      CID-9 codes and 14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right classification per
+      row without anything having to know the row''s vintage.
 
       '
     multi_valued: true
@@ -837,17 +1096,17 @@ variables:
       width: 4
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'The record layout gives the field a width of 20 and does not state
-      the packing. Measured over 7,823 distinct observed values of LINHAA-D: values
-      are ''*''-prefixed and ''*''-separated, and 10,196 of ~12,000 inter-''*'' segments
-      are exactly 4 characters, matching CID-10 without the dot. Examples: ''*I10X*I429*I219'',
-      ''*R092*I509*I10X''. Width 20 therefore holds up to four codes. The delimiter
-      is the primary rule and the width is the corroborating check.
+    reasoning: 'The record layout gives the field a width of 20 and does not state the packing.
+      Measured over 7,823 distinct observed values of LINHAA-D: values are ''*''-prefixed
+      and ''*''-separated, and 10,196 of ~12,000 inter-''*'' segments are exactly 4 characters,
+      matching CID-10 without the dot. Examples: ''*I10X*I429*I219'', ''*R092*I509*I10X''.
+      Width 20 therefore holds up to four codes. The delimiter is the primary rule and the
+      width is the corroborating check.
 
       '
-    notes: 'Order is meaningful — it is the causal sequence as the physician wrote
-      it, running from the immediate cause (A) to the underlying one (D). Preserve
-      it when rendering, and do not sort or deduplicate the tokens.
+    notes: 'Order is meaningful — it is the causal sequence as the physician wrote it, running
+      from the immediate cause (A) to the underlying one (D). Preserve it when rendering,
+      and do not sort or deduplicate the tokens.
 
       '
   LINHAB:
@@ -858,14 +1117,13 @@ variables:
     codelists:
     - CID10
     - CID9WHO
-    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
-      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they
-      OVERLAP for 1996-1998 and a year threshold would mis-assign three years of deaths.
-      Both classifications are bound instead. That is safe because their code spaces
-      are disjoint — measured: 9,740 CID-9 codes and 14,198 CID-10 codes for SIM share
-      exactly ZERO codes, CID-9 being numeric and CID-10 letter-prefixed — so exact
-      matching selects the right classification per row without anything having to
-      know the row''s vintage.
+    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
+      both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
+      and a year threshold would mis-assign three years of deaths. Both classifications are
+      bound instead. That is safe because their code spaces are disjoint — measured: 9,740
+      CID-9 codes and 14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right classification per
+      row without anything having to know the row''s vintage.
 
       '
     multi_valued: true
@@ -884,14 +1142,13 @@ variables:
     codelists:
     - CID10
     - CID9WHO
-    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
-      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they
-      OVERLAP for 1996-1998 and a year threshold would mis-assign three years of deaths.
-      Both classifications are bound instead. That is safe because their code spaces
-      are disjoint — measured: 9,740 CID-9 codes and 14,198 CID-10 codes for SIM share
-      exactly ZERO codes, CID-9 being numeric and CID-10 letter-prefixed — so exact
-      matching selects the right classification per row without anything having to
-      know the row''s vintage.
+    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
+      both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
+      and a year threshold would mis-assign three years of deaths. Both classifications are
+      bound instead. That is safe because their code spaces are disjoint — measured: 9,740
+      CID-9 codes and 14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right classification per
+      row without anything having to know the row''s vintage.
 
       '
     multi_valued: true
@@ -910,14 +1167,13 @@ variables:
     codelists:
     - CID10
     - CID9WHO
-    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
-      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they
-      OVERLAP for 1996-1998 and a year threshold would mis-assign three years of deaths.
-      Both classifications are bound instead. That is safe because their code spaces
-      are disjoint — measured: 9,740 CID-9 codes and 14,198 CID-10 codes for SIM share
-      exactly ZERO codes, CID-9 being numeric and CID-10 letter-prefixed — so exact
-      matching selects the right classification per row without anything having to
-      know the row''s vintage.
+    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
+      both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
+      and a year threshold would mis-assign three years of deaths. Both classifications are
+      bound instead. That is safe because their code spaces are disjoint — measured: 9,740
+      CID-9 codes and 14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right classification per
+      row without anything having to know the row''s vintage.
 
       '
     multi_valued: true
@@ -927,30 +1183,29 @@ variables:
     source: inferred
     asserted_by: pegasus_data
     reasoning: Same packing as LINHAA, measured over the same 7,823 values.
-    notes: 'This is the physician''s stated underlying cause, which is NOT the same
-      as CAUSABAS — CAUSABAS is what the coder selected after applying the ICD selection
-      rules. They differ routinely.
+    notes: 'This is the physician''s stated underlying cause, which is NOT the same as CAUSABAS
+      — CAUSABAS is what the coder selected after applying the ICD selection rules. They differ
+      routinely.
 
       '
   LINHAII:
     official_name: Linha II da declaração de óbito
     translated_name: Certificate part II
-    description: 'Other significant conditions contributing to death but not in the
-      causal chain of part I.
+    description: 'Other significant conditions contributing to death but not in the causal
+      chain of part I.
 
       '
     code_system: external
     codelists:
     - CID10
     - CID9WHO
-    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still
-      carries both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they
-      OVERLAP for 1996-1998 and a year threshold would mis-assign three years of deaths.
-      Both classifications are bound instead. That is safe because their code spaces
-      are disjoint — measured: 9,740 CID-9 codes and 14,198 CID-10 codes for SIM share
-      exactly ZERO codes, CID-9 being numeric and CID-10 letter-prefixed — so exact
-      matching selects the right classification per row without anything having to
-      know the row''s vintage.
+    vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
+      both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
+      and a year threshold would mis-assign three years of deaths. Both classifications are
+      bound instead. That is safe because their code spaces are disjoint — measured: 9,740
+      CID-9 codes and 14,198 CID-10 codes for SIM share exactly ZERO codes, CID-9 being numeric
+      and CID-10 letter-prefixed — so exact matching selects the right classification per
+      row without anything having to know the row''s vintage.
 
       '
     multi_valued: true
@@ -959,28 +1214,46 @@ variables:
       width: 4
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Same ''*''-delimited 4-character packing as LINHAA-D, measured over
-      the same value set. Declared width is 30 rather than 20, so it holds up to six
-      codes.
+    reasoning: 'Same ''*''-delimited 4-character packing as LINHAA-D, measured over the same
+      value set. Declared width is 30 rather than 20, so it holds up to six codes.
 
       '
     notes: Part II conditions are contributory, not causal. Order is not a chain.
   LOCACID:
     official_name: Local do acidente
     translated_name: Place of the accident/violent event
-    description: 'Where an accident occurred, when applicable, in the 1979–1995-vintage
-      layout: 0 Ignorado, 1 Via Pública, 2 Domicílio, 3 Outro, 4 Local de trabalho.
+    description: 'Where an accident occurred, when applicable, in the 1979–1995-vintage layout:
+      0 Ignorado, 1 Via Pública, 2 Domicílio, 3 Outro, 4 Local de trabalho.
 
       '
     code_system: internal
     codelists:
     - LOCACID
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 43 "LOCACID | C 7 | Indica o local do acidente,
-      se cabivel, conforme a tabela: 0: Ignorado 1: Via Publica 2: Domicilio 3: Outro
-      4: Local de trabalho | 1979 (C 7)"
+    source_ref: '[ESTRUTURA-SIM] pos. 43 "LOCACID | C 7 | Indica o local do acidente, se cabivel,
+      conforme a tabela: 0: Ignorado 1: Via Publica 2: Domicilio 3: Outro 4: Local de trabalho
+      | 1979 (C 7)"
 
       '
+  LOCOCOR:
+    official_name: Local de ocorrência do óbito
+    translated_name: Place of death
+    description: 'Where the death happened: hospital, another health establishment, home,
+      public street, indigenous village, or other. The field that separates institutional
+      from community deaths.'
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo LOCOCOR'
+  MORTEPARTO:
+    official_name: Morte em relação ao parto após investigação
+    translated_name: Death relative to delivery, post-investigation
+    description: The same before/during/after judgement as OBITOPARTO, but recorded after
+      the death was investigated. Where the two disagree the investigation is the later evidence.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo MORTEPARTO'
   MUNIOCOR:
     official_name: Município de ocorrência
     translated_name: Municipality where the death occurred
@@ -997,17 +1270,17 @@ variables:
     - BA_MUNICIP
     - BAIRROS
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 13 "MUNIOCOR | C 8 | Municipio de ocorrencia
-      do obito, conforme codificação do IBGE. | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 13 "MUNIOCOR | C 8 | Municipio de ocorrencia do obito,
+      conforme codificação do IBGE. | 1979 (C 8)"
 
       '
   MUNIRES:
     official_name: Município de residência
     translated_name: Municipality of residence
     description: 'IBGE code of the deceased''s municipality of residence, in the 1979–1995-vintage
-      layout — the predecessor of the modern CODMUNRES. For a fetal death, residence
-      is the mother''s, per the layout''s own convention (documented on the modern
-      field, and presumed to carry over).
+      layout — the predecessor of the modern CODMUNRES. For a fetal death, residence is the
+      mother''s, per the layout''s own convention (documented on the modern field, and presumed
+      to carry over).
 
       '
     code_system: external
@@ -1019,18 +1292,25 @@ variables:
     - BA_MUNICIP
     - BR_AMAZLEGAL
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 14 "MUNIRES | C 7 | Municipio de residencia,
-      em codificação identica a de MUNIOCOR. Os óbitos de residentes no exterior ou
-      de residencia completamente ignorada foram desprezados nos anos de 1979 a 1992
-      | 1979 (C 7)"
+    source_ref: '[ESTRUTURA-SIM] pos. 14 "MUNIRES | C 7 | Municipio de residencia, em codificação
+      identica a de MUNIOCOR. Os óbitos de residentes no exterior ou de residencia completamente
+      ignorada foram desprezados nos anos de 1979 a 1992 | 1979 (C 7)"
 
       '
-    notes: 'For 1979–1992, deaths of people who lived abroad or whose residence was
-      entirely unknown were dropped from the file rather than coded — a real undercount,
-      not a data-entry gap, for cross-border or unknown-residence mortality in that
-      period.
+    notes: 'For 1979–1992, deaths of people who lived abroad or whose residence was entirely
+      unknown were dropped from the file rather than coded — a real undercount, not a data-entry
+      gap, for cross-border or unknown-residence mortality in that period.
 
       '
+  NATURAL:
+    official_name: Naturalidade
+    translated_name: Place of birth
+    description: Where the deceased was born, as a code for the state or, for a foreigner,
+      the country. Three characters, so it is coarser than CODMUNNATU beside it.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo NATURAL'
   NECROPSIA:
     official_name: Necrópsia
     translated_name: Autopsy performed
@@ -1038,66 +1318,90 @@ variables:
     source: layout_doc
   NUDIASINF:
     translated_name: Day-count field, 2014 investigation-outcome block
-    description: 'A "número de dias" field DATASUS added in 2014 alongside NUDIASOBCO
-      (death-to-investigation-conclusion days) and FONTESINF, in the same investigation-outcome
-      block of the DO record. Observed values are three-digit day counts. Which two
-      dates it differences is not established.
+    description: 'A "número de dias" field DATASUS added in 2014 alongside NUDIASOBCO (death-to-investigation-conclusion
+      days) and FONTESINF, in the same investigation-outcome block of the DO record. Observed
+      values are three-digit day counts. Which two dates it differences is not established.
 
       '
     code_system: none
     source: inferred
-    reasoning: '[ESTRUTURA-SIM] lists NUDIASINF at position 130 (2014, C9) with a blank
-      description cell — unlike its documented neighbour NUDIASOBCO at position 126.
-      "NU"+"DIAS" is this system''s day-count-field convention, and observed values
-      (e.g. "0119", "0107") match a day-count''s shape, not a code or identifier.
+    reasoning: '[ESTRUTURA-SIM] lists NUDIASINF at position 130 (2014, C9) with a blank description
+      cell — unlike its documented neighbour NUDIASOBCO at position 126. "NU"+"DIAS" is this
+      system''s day-count-field convention, and observed values (e.g. "0119", "0107") match
+      a day-count''s shape, not a code or identifier.
 
       '
-    notes: 'DELIBERATELY UNDER-SPECIFIED. Present across all current DO-family series
-      (DO, DOEXT, DOFET, DOINF, DOMAT, DOREXT) because those series share one record
-      layout — that is not itself evidence the field is semantically meaningful in
-      every one of them.
+    notes: 'DELIBERATELY UNDER-SPECIFIED. Present across all current DO-family series (DO,
+      DOEXT, DOFET, DOINF, DOMAT, DOREXT) because those series share one record layout — that
+      is not itself evidence the field is semantically meaningful in every one of them.
 
       '
+  NUDIASOBCO:
+    official_name: Dias entre óbito e conclusão da investigação
+    translated_name: Death-to-conclusion days
+    description: Days between the death and the conclusion of its investigation. Zero or blank
+      where the death was never investigated.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo NUDIASOBCO'
   NUDIASOBIN:
     official_name: Número de dias óbito-investigação
     translated_name: Days from death to investigation opening
-    description: 'A day-count field in SIM''s investigation-timeliness family, alongside
-      the documented NUDIASOBCO ("Diferença entre a data óbito e a data conclusão da
-      investigação, em dias"). By the parallel naming (…OBIN vs …OBCO), this measures
-      days between the date of death and when the investigation began, rather than
-      when it concluded. Introduced 2012.
+    description: 'A day-count field in SIM''s investigation-timeliness family, alongside the
+      documented NUDIASOBCO ("Diferença entre a data óbito e a data conclusão da investigação,
+      em dias"). By the parallel naming (…OBIN vs …OBCO), this measures days between the date
+      of death and when the investigation began, rather than when it concluded. Introduced
+      2012.
 
       '
     code_system: none
     source: inferred
     asserted_by: pegasus_data
     reasoning: '[ESTRUTURA-SIM] lists NUDIASOBIN at position 116 with a blank description
-      (2012, C 10), but its documented sibling NUDIASOBCO (position 126, same 2012
-      vintage) is described as the death-to-investigation-conclusion day count, and
-      the catalog''s bound codelist DIASINVEST1 labels values around 110–120 as "Até
-      120 dias (invest oportuna)" — "up to 120 days = timely investigation" — which
-      fits a days-to-investigation measure and matches the observed value range (097–120
-      dominating the top values) closely.
+      (2012, C 10), but its documented sibling NUDIASOBCO (position 126, same 2012 vintage)
+      is described as the death-to-investigation-conclusion day count, and the catalog''s
+      bound codelist DIASINVEST1 labels values around 110–120 as "Até 120 dias (invest oportuna)"
+      — "up to 120 days = timely investigation" — which fits a days-to-investigation measure
+      and matches the observed value range (097–120 dominating the top values) closely.
 
       '
-    notes: 'The DIASINVEST1 binding is a timeliness banding derived from this day count
-      for tabulation, not an independent code system — see spurious_bindings; keep
-      the number.
+    notes: 'The DIASINVEST1 binding is a timeliness banding derived from this day count for
+      tabulation, not an independent code system — see spurious_bindings; keep the number.
 
       '
+  NUMERODN:
+    official_name: Número da Declaração de Nascido Vivo
+    translated_name: Live-birth certificate number
+    description: Number of the SINASC live-birth certificate for the deceased, where one exists.
+      It is the identifier that would link an infant death to its own birth record.
+    code_system: none
+    source: inferred
+    reasoning: Not in the 07/2025 Estrutura do SIM. The name is DN, SINASC's live-birth declaration,
+      and it appears on infant and fetal death records; read as the DN number carried onto
+      the death certificate. Whether it is populated reliably enough to link on is unmeasured.
+    asserted_by: pegasus_data
+  NUMEROLOTE:
+    official_name: Número do lote
+    translated_name: Batch number
+    description: Number of the batch the record was transmitted in. An artefact of transmission,
+      carrying no epidemiological meaning.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo NUMEROLOTE'
   NUMEXPORT:
     official_name: Número de exportação
     translated_name: Export batch control number
-    description: 'Another internal-control field from the 1979–1995 legacy layout,
-      alongside CRITICA — DATASUS''s own documentation describes it only as "data for
-      internal control," most likely an export/batch marker from whatever process produced
-      the historical file.
+    description: 'Another internal-control field from the 1979–1995 legacy layout, alongside
+      CRITICA — DATASUS''s own documentation describes it only as "data for internal control,"
+      most likely an export/batch marker from whatever process produced the historical file.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 45 "NUMEXPORT | C 9 | Dado para controle interno
-      | 1979 (C 9)"
+    source_ref: '[ESTRUTURA-SIM] pos. 45 "NUMEXPORT | C 9 | Dado para controle interno | 1979
+      (C 9)"
 
       '
     notes: 'As with CRITICA, no table of value meanings is documented anywhere consulted;
@@ -1107,58 +1411,95 @@ variables:
   NUMREGCART:
     official_name: Número do registro do cartório
     translated_name: Civil registry entry number
-    description: 'The cartório''s own registration/entry number for this death, part
-      of the 2012+ cartório-detail cluster. An identifier, not a category.
+    description: 'The cartório''s own registration/entry number for this death, part of the
+      2012+ cartório-detail cluster. An identifier, not a category.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 104 "NUMREGCART | C 10 | Número do registro do
-      cartório | 2012 (C 10)"
+    source_ref: '[ESTRUTURA-SIM] pos. 104 "NUMREGCART | C 10 | Número do registro do cartório
+      | 2012 (C 10)"
 
       '
   OBITOFE1:
     official_name: Óbito e gravidez (no momento)
     translated_name: Pregnant at time of death (women of fertile age)
-    description: 'For a female decedent of fertile age, whether she was pregnant at
-      the moment of death: 0 Ignorado, 1 Sim, 2 Não. In the 1979–1995-vintage layout;
-      part of the same maternal death concept the 1996+ layout splits across OBITOGRAV/OBITOPARTO/OBITOPUERP.
+    description: 'For a female decedent of fertile age, whether she was pregnant at the moment
+      of death: 0 Ignorado, 1 Sim, 2 Não. In the 1979–1995-vintage layout; part of the same
+      maternal death concept the 1996+ layout splits across OBITOGRAV/OBITOPARTO/OBITOPUERP.
 
       '
     code_system: internal
     codelists:
     - OBITOFE1
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 36 "OBITOFE1 | C 8 | Para óbitos femininos em
-      idade fertil, indica se estava gravida no momento da morte, conforme a tabela:
-      0: Ignorado 1: Sim 2: Não | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 36 "OBITOFE1 | C 8 | Para óbitos femininos em idade
+      fertil, indica se estava gravida no momento da morte, conforme a tabela: 0: Ignorado
+      1: Sim 2: Não | 1979 (C 8)"
 
       '
   OBITOFE2:
     official_name: Óbito e gravidez (12 meses antes)
     translated_name: Pregnant within 12 months before death (women of fertile age)
-    description: 'For a female decedent of fertile age, whether she had been pregnant
-      at any point in the 12 months before death: 0 Ignorado, 1 Sim, 2 Não. In the
-      1979–1995-vintage layout — the companion field to OBITOFE1, capturing maternal
-      deaths up to a year post-partum rather than only deaths during pregnancy itself.
+    description: 'For a female decedent of fertile age, whether she had been pregnant at any
+      point in the 12 months before death: 0 Ignorado, 1 Sim, 2 Não. In the 1979–1995-vintage
+      layout — the companion field to OBITOFE1, capturing maternal deaths up to a year post-partum
+      rather than only deaths during pregnancy itself.
 
       '
     code_system: internal
     codelists:
     - OBITOFE2
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 37 "OBITOFE2 | C 8 | Para óbitos femininos em
-      idade fertil, indica se esteve gravida nos 12 meses anteriores a morte, conforme
-      a tabela: 0: Ignorado 1: Sim 2: Não | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 37 "OBITOFE2 | C 8 | Para óbitos femininos em idade
+      fertil, indica se esteve gravida nos 12 meses anteriores a morte, conforme a tabela:
+      0: Ignorado 1: Sim 2: Não | 1979 (C 8)"
 
       '
+  OBITOGRAV:
+    official_name: Óbito na gravidez
+    translated_name: Death during pregnancy
+    description: Whether the woman was pregnant at the time of death — one of the fields that
+      identifies a maternal death.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo OBITOGRAV'
+  OBITOPARTO:
+    official_name: Morte em relação ao parto
+    translated_name: Death relative to delivery
+    description: Whether the death occurred before, during, or after delivery — the distinction
+      between antepartum, intrapartum and neonatal loss.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo OBITOPARTO'
+  OBITOPUERP:
+    official_name: Óbito no puerpério
+    translated_name: Death in the puerperium
+    description: Whether the death occurred within 42 days of delivery, or between 43 days
+      and a year. The 42-day boundary is what separates a maternal death from a late maternal
+      death.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo OBITOPUERP'
+  OCUP:
+    official_name: Ocupação habitual
+    translated_name: Usual occupation (CBO)
+    description: Work the deceased did for most of their productive life, coded to CBO 2002.
+      Filled only where age is 5 years or more, so blank in child deaths is structural.
+    code_system: external
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo OCUP'
   OCUPACAO:
     official_name: Ocupação
     translated_name: Deceased's occupation (CBO)
-    description: 'Occupation of the deceased under the Classificação Brasileira de
-      Ocupações (CBO), in the 1979–1995-vintage layout. Observed codes are 3-digit
-      CBO family groups from the pre-2002 classification, not the 6-digit CBO-2002
-      codes used by the later OCUP field.
+    description: 'Occupation of the deceased under the Classificação Brasileira de Ocupações
+      (CBO), in the 1979–1995-vintage layout. Observed codes are 3-digit CBO family groups
+      from the pre-2002 classification, not the 6-digit CBO-2002 codes used by the later OCUP
+      field.
 
       '
     code_system: external
@@ -1171,16 +1512,25 @@ variables:
       Brasileira de Ocupações (CBO) | 1979 (C 8)"
 
       '
-    vintage_note: '1979-vintage legacy field, using an older 3-digit CBO scheme. From
-      1996 the OCUP field carries occupation under CBO-2002 (6-digit); the two are
-      not directly comparable without a CBO crosswalk.
+    vintage_note: '1979-vintage legacy field, using an older 3-digit CBO scheme. From 1996
+      the OCUP field carries occupation under CBO-2002 (6-digit); the two are not directly
+      comparable without a CBO crosswalk.
 
       '
+  OCUPMAE:
+    official_name: Ocupação habitual da mãe
+    translated_name: Mother's usual occupation (CBO)
+    description: The mother's usual work, coded to CBO 2002. Where the mother is retired the
+      record carries her previous occupation, not her retirement.
+    code_system: external
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo OCUPMAE'
   OCUPPAI:
     official_name: Ocupação do pai
     translated_name: Father's occupation (CBO)
-    description: 'Father''s occupation, coded per the same (pre-2002, 3-digit) CBO
-      scheme as OCUPACAO.
+    description: 'Father''s occupation, coded per the same (pre-2002, 3-digit) CBO scheme
+      as OCUPACAO.
 
       '
     code_system: external
@@ -1189,31 +1539,76 @@ variables:
     - GRUPOCUP
     - SGRPOCUP
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 20 "OCUPPAI | C 7 | Ocupação do pai, conforme
-      codificação de OCUPACAO | 1979 (C 7)"
+    source_ref: '[ESTRUTURA-SIM] pos. 20 "OCUPPAI | C 7 | Ocupação do pai, conforme codificação
+      de OCUPACAO | 1979 (C 7)"
 
       '
+  ORIGEM:
+    official_name: Origem do registro
+    translated_name: Record origin
+    description: 'Which system the record came through: the national Oracle database, a state
+      database sent by FTP, or SEADE for São Paulo.'
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo ORIGEM'
+  PARTO:
+    official_name: Tipo de parto
+    translated_name: Delivery type
+    description: Whether the delivery was vaginal or caesarean, for fetal and infant deaths.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo PARTO'
+  PESO:
+    official_name: Peso ao nascer
+    translated_name: Birth weight
+    description: Birth weight in grams, for fetal and infant deaths. Four digits, so values
+      under 1000 are left-padded rather than truncated.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo PESO'
   PESONASC:
     official_name: Peso ao nascer
     translated_name: Deceased's birth weight (grams)
     description: 'Birth weight of the deceased in grams, in the 1979–1995-vintage layout.
-      Meaningful for fetal/infant deaths, where the deceased''s own birth weight is
-      recorded on the DO. The 1996+ layout carries the same concept as PESO.
+      Meaningful for fetal/infant deaths, where the deceased''s own birth weight is recorded
+      on the DO. The 1996+ layout carries the same concept as PESO.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 30 "PESONASC | C 8 | Peso ao nascer, em gramas
-      | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 30 "PESONASC | C 8 | Peso ao nascer, em gramas | 1979
+      (C 8)"
 
       '
-    notes: '"0000"/all-zero is the observed sentinel for unknown — it is not a real
-      birth weight. The catalog''s PESO codelist binding here is a weight-band lookup
-      (e.g. "1kg a 1,4kg") derived from this number for tabulation, not an independent
-      code system — see spurious_bindings; keep the raw gram value rather than substituting
-      the band label.
+    notes: '"0000"/all-zero is the observed sentinel for unknown — it is not a real birth
+      weight. The catalog''s PESO codelist binding here is a weight-band lookup (e.g. "1kg
+      a 1,4kg") derived from this number for tabulation, not an independent code system —
+      see spurious_bindings; keep the raw gram value rather than substituting the band label.
 
       '
+  QTDFILMORT:
+    official_name: Número de perdas fetais/abortos
+    translated_name: Fetal losses
+    description: How many fetal losses or abortions the mother had. It EXCLUDES the death
+      certified on this record, so one must be added to reach all losses. A .DEF binds it
+      to the NUMFILH band table; the column itself is the raw number.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo QTDFILMORT'
+  QTDFILVIVO:
+    official_name: Número de filhos vivos
+    translated_name: Live-born children
+    description: How many live-born children the mother had, with 9 meaning ignored. A .DEF
+      binds it to the NUMFILH band table, which groups the value into ranges — the column
+      itself is the raw number.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo QTDFILVIVO'
   RACACOR:
     official_name: Raça Cor
     translated_name: Race/colour
@@ -1222,26 +1617,34 @@ variables:
   REGISTRO:
     official_name: Registro
     translated_name: Death registration number
-    description: 'The death''s own registration number, in the 1979–1995-vintage layout
-      — distinct from CARTORIO (which identifies the registry office itself). An identifier,
+    description: 'The death''s own registration number, in the 1979–1995-vintage layout —
+      distinct from CARTORIO (which identifies the registry office itself). An identifier,
       not a category.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 3 "REGISTRO | C 8 | Numero de registro do óbito
-      | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 3 "REGISTRO | C 8 | Numero de registro do óbito | 1979
+      (C 8)"
 
       '
+  SEMAGESTAC:
+    official_name: Nº de semanas de gestação
+    translated_name: Gestation weeks
+    description: Gestational age in completed weeks as a number, with 9 meaning ignored. Prefer
+      this over the banded GESTACAO where both are present.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo SEMAGESTAC'
   SEMANGEST:
     official_name: Semanas de gestação
     translated_name: Gestational age at birth (banded)
-    description: 'Banded gestational age of the deceased at their own birth, in the
-      1979–1995-vintage layout — meaningful for fetal/infant deaths. The band definitions
-      changed in 1995: for 1979–1994, 0 Ignorado/1 <20 semanas/2 20–27/3 28+ semanas;
-      from 1995, 0 Ignorado/ 4 <21 semanas/5 22–27/6 28–36/7 37–41/8 42+ semanas. The
-      1996+ layout carries the same concept as GESTACAO with its own (similar but not
-      identical) bands.
+    description: 'Banded gestational age of the deceased at their own birth, in the 1979–1995-vintage
+      layout — meaningful for fetal/infant deaths. The band definitions changed in 1995: for
+      1979–1994, 0 Ignorado/1 <20 semanas/2 20–27/3 28+ semanas; from 1995, 0 Ignorado/ 4
+      <21 semanas/5 22–27/6 28–36/7 37–41/8 42+ semanas. The 1996+ layout carries the same
+      concept as GESTACAO with its own (similar but not identical) bands.
 
       '
     code_system: internal
@@ -1249,53 +1652,88 @@ variables:
     - SEMANAS
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] pos. 27 "SEMANGEST | C 9 | Semanas de gestação, conforme
-      as tabelas: Para os anos de 1979 a 1994: 0 Ignorado, 1 Menos de 20 semanas, 2
-      20 a 27 semanas, 3 28 e mais semanas. Para os anos a partir de 1995: 0 Ignorado,
-      4 Menos de 21 semanas, 5 22 a 27 semanas, 6 28 a 36 semanas, 7 37 a 41 semanas,
-      8 42 semanas e mais | 1979 (C 9)"
+      as tabelas: Para os anos de 1979 a 1994: 0 Ignorado, 1 Menos de 20 semanas, 2 20 a 27
+      semanas, 3 28 e mais semanas. Para os anos a partir de 1995: 0 Ignorado, 4 Menos de
+      21 semanas, 5 22 a 27 semanas, 6 28 a 36 semanas, 7 37 a 41 semanas, 8 42 semanas e
+      mais | 1979 (C 9)"
 
       '
-    vintage_note: 'The same numeric codes (e.g. "3") mean different bands before and
-      after 1995 — do not pool codes across that boundary without applying the correct
-      year''s table.
+    vintage_note: 'The same numeric codes (e.g. "3") mean different bands before and after
+      1995 — do not pool codes across that boundary without applying the correct year''s table.
 
       '
   SERIESCFAL:
     official_name: Série escolar do falecido
     translated_name: Deceased's last completed school grade/series
-    description: 'Last school grade ("série") the deceased completed, as a single digit
-      1–8, collected from 2012 alongside ESCFALAGR1. DATASUS''s own layout does not
-      spell out what each of 1–8 corresponds to (e.g. which grade "5" is) beyond "número
-      de 1 a 8" — treat it as an ordinal position within schooling, not a decoded label.
+    description: 'Last school grade ("série") the deceased completed, as a single digit 1–8,
+      collected from 2012 alongside ESCFALAGR1. DATASUS''s own layout does not spell out what
+      each of 1–8 corresponds to (e.g. which grade "5" is) beyond "número de 1 a 8" — treat
+      it as an ordinal position within schooling, not a decoded label.
 
       '
     code_system: none
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 106 "SERIESCFAL | C 10 | Última série escolar
-      concluída pelo falecido. (Números de 1 a 8) | 2012 (C 10)"; corroborated by [PCDAS-SIM]:
-      "Série escolar do falecido. Valores de 1 a 8."
+    source_ref: '[ESTRUTURA-SIM] pos. 106 "SERIESCFAL | C 10 | Última série escolar concluída
+      pelo falecido. (Números de 1 a 8) | 2012 (C 10)"; corroborated by [PCDAS-SIM]: "Série
+      escolar do falecido. Valores de 1 a 8."
 
       '
+  SERIESCMAE:
+    official_name: Série escolar da mãe
+    translated_name: Mother's last school year
+    description: The last school year the mother completed, 1 to 8. Filled only where her
+      education level is fundamental or secondary, so blank elsewhere is structural.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo SERIESCMAE'
   SEXO:
     official_name: Sexo
     translated_name: Sex
     code_system: internal
     source: layout_doc
+  STCODIFICA:
+    official_name: Status de instalação codificadora
+    translated_name: Coding installation status
+    description: Whether the installation that entered the record is a coding installation
+      — S or N.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo STCODIFICA'
+  STDOEPIDEM:
+    official_name: Status de DO epidemiológica
+    translated_name: Epidemiological certificate flag
+    description: Whether this is an epidemiological death certificate — one subject to mandatory
+      investigation, such as a maternal, infant or ill-defined death.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo STDOEPIDEM'
+  STDONOVA:
+    official_name: Status de DO nova
+    translated_name: New-form certificate flag
+    description: Whether the record came in on the newer certificate form. It marks which
+      set of education and gestation fields to expect.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo STDONOVA'
   TIPOACID:
     official_name: Tipo de acidente
     translated_name: Type of accident
-    description: 'Kind of accident, when applicable, in the 1979–1995-vintage layout:
-      0 Ignorado, 1 Atropelamento, 2 Demais acidentes de trânsito, 3 Queda, 4 Afogamento,
-      5 Outros tipos de acidente.
+    description: 'Kind of accident, when applicable, in the 1979–1995-vintage layout: 0 Ignorado,
+      1 Atropelamento, 2 Demais acidentes de trânsito, 3 Queda, 4 Afogamento, 5 Outros tipos
+      de acidente.
 
       '
     code_system: internal
     codelists:
     - TIPOACID
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 40 "TIPOACID | C 8 | Indica o tipo de acidente,
-      se cabivel: 0: Ignorado 1: Atropelamento 2: Demais acidentes de transito 3: Queda
-      4: Afogamento 5: Outros tipos de acidente | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 40 "TIPOACID | C 8 | Indica o tipo de acidente, se cabivel:
+      0: Ignorado 1: Atropelamento 2: Demais acidentes de transito 3: Queda 4: Afogamento
+      5: Outros tipos de acidente | 1979 (C 8)"
 
       '
   TIPOBITO:
@@ -1308,34 +1746,33 @@ variables:
     official_name: Tipo de gravidez
     translated_name: Type of pregnancy (deceased's own birth)
     description: 'Whether the pregnancy that produced the deceased was single or multiple,
-      in the 1979–1995-vintage layout: 0 Ignorado, 1 Única, 2 Dupla, 3 Tríplice, 4
-      Mais de 3. Meaningful for fetal/infant deaths. The 1996+ layout carries the same
-      concept as GRAVIDEZ.
+      in the 1979–1995-vintage layout: 0 Ignorado, 1 Única, 2 Dupla, 3 Tríplice, 4 Mais de
+      3. Meaningful for fetal/infant deaths. The 1996+ layout carries the same concept as
+      GRAVIDEZ.
 
       '
     code_system: internal
     codelists:
     - GRAVIDEZ
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 28 "TIPOGRAV | C 8 | Tipo de gravidez, conforme
-      a tabela: 0: Ignorado 1: Unica 2: Dupla 3: Triplice 4: Mais de 3 | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 28 "TIPOGRAV | C 8 | Tipo de gravidez, conforme a tabela:
+      0: Ignorado 1: Unica 2: Dupla 3: Triplice 4: Mais de 3 | 1979 (C 8)"
 
       '
   TIPOPARTO:
     official_name: Tipo de parto
     translated_name: Type of delivery (deceased's own birth)
-    description: 'How the deceased was delivered, in the 1979–1995-vintage layout:
-      0 Ignorado, 1 Espontâneo, 2 Operatório, 3 Fórceps, 4 Outro. Meaningful for fetal/infant
-      deaths. The 1996+ layout carries the same concept as PARTO (collapsed to vaginal/cesáreo/ignorado).
+    description: 'How the deceased was delivered, in the 1979–1995-vintage layout: 0 Ignorado,
+      1 Espontâneo, 2 Operatório, 3 Fórceps, 4 Outro. Meaningful for fetal/infant deaths.
+      The 1996+ layout carries the same concept as PARTO (collapsed to vaginal/cesáreo/ignorado).
 
       '
     code_system: internal
     codelists:
     - PARTO
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 29 "TIPOPARTO | C 9 | Tipo de parto, conforme
-      a tabela: 0: Ignorado 1: Espontaneo 2: Operatorio 3: Forceps 4: Outro | 1979
-      (C 9)"
+    source_ref: '[ESTRUTURA-SIM] pos. 29 "TIPOPARTO | C 9 | Tipo de parto, conforme a tabela:
+      0: Ignorado 1: Espontaneo 2: Operatorio 3: Forceps 4: Outro | 1979 (C 9)"
 
       '
   TIPOVIOL:
@@ -1349,40 +1786,85 @@ variables:
     codelists:
     - TIPOVIOL
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 39 "TIPOVIOL | C 8 | Indica o tipo de violencia,
-      se cabivel, conforme a tabela: 0: Ignorado 1: Homicidio 2: Suicidio 3: Acidente
-      4: Outros tipos de violencia | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 39 "TIPOVIOL | C 8 | Indica o tipo de violencia, se
+      cabivel, conforme a tabela: 0: Ignorado 1: Homicidio 2: Suicidio 3: Acidente 4: Outros
+      tipos de violencia | 1979 (C 8)"
 
       '
   TPASSINA:
     official_name: Tipo de assinatura
     translated_name: Signature type on the death-certificate attestation
-    description: 'A flag introduced in 2006 alongside DTATESTADO (date of the atestado),
-      almost certainly recording the type or method of signature on the death certificate''s
-      medical attestation. Which values it takes is not documented anywhere consulted.
+    description: 'A flag introduced in 2006 alongside DTATESTADO (date of the atestado), almost
+      certainly recording the type or method of signature on the death certificate''s medical
+      attestation. Which values it takes is not documented anywhere consulted.
 
       '
     code_system: none
     source: inferred
     reasoning: '"TP" is DATASUS''s standard tipo prefix and "ASSINA" abbreviates assinatura
-      (signature); [ESTRUTURA-SIM] lists TPASSINA at position 79, introduced the same
-      year (2006) as DTATESTADO at position 80, with its description cell blank rather
-      than absent.
+      (signature); [ESTRUTURA-SIM] lists TPASSINA at position 79, introduced the same year
+      (2006) as DTATESTADO at position 80, with its description cell blank rather than absent.
 
       '
-    notes: 'DELIBERATELY UNDER-SPECIFIED — distinct from the older ATESTANTE field
-      (position 32, 1979 vintage, "condição do médico atestante"); no coded values
-      were captured for TPASSINA itself.
+    notes: 'DELIBERATELY UNDER-SPECIFIED — distinct from the older ATESTANTE field (position
+      32, 1979 vintage, "condição do médico atestante"); no coded values were captured for
+      TPASSINA itself.
 
       '
+  TPMORTEOCO:
+    official_name: A morte ocorreu
+    translated_name: Gestational moment of death
+    description: The gestational or post-gestational moment of death — in pregnancy, in delivery,
+      in abortion, within 42 days, or 43 days to a year. Filled for deaths of women of fertile
+      age.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo TPMORTEOCO'
+  TPNIVELINV:
+    official_name: Tipo de nível investigador
+    translated_name: Investigating level
+    description: 'Which level of government carried out the investigation: state, regional
+      or municipal.'
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo TPNIVELINV'
+  TPOBITOCOR:
+    official_name: Momento do óbito após investigação
+    translated_name: Moment of death, post-investigation
+    description: The gestational moment of death as established by investigation, with finer
+      categories than TPMORTEOCO and an explicit code for an investigation that could not
+      establish it. Blank means not investigated.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo TPOBITOCOR'
+  TPPOS:
+    official_name: Óbito investigado
+    translated_name: Death investigated
+    description: Whether this death went through the investigation process. The gate on every
+      DTCADINV, DTCONINV and post-investigation field.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo TPPOS'
+  TPRESGINFO:
+    official_name: Tipo de resgate de informação
+    translated_name: Investigation outcome
+    description: Whether the investigation added nothing, recovered new causes, or corrected
+      causes originally reported. The measure of what investigation is worth on this record.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo TPRESGINFO'
   UFINFORM:
     official_name: UF informante
     translated_name: Reporting state (UF) code
-    description: 'IBGE/UF code of the state health department that transmitted this
-      record to DATASUS. This is the *reporting* jurisdiction, which is administrative
-      and does not have to match the state where the death occurred or where the deceased
-      lived — a record can be reprocessed and resubmitted by a UF other than either
-      of those.
+    description: 'IBGE/UF code of the state health department that transmitted this record
+      to DATASUS. This is the *reporting* jurisdiction, which is administrative and does not
+      have to match the state where the death occurred or where the deceased lived — a record
+      can be reprocessed and resubmitted by a UF other than either of those.
 
       '
     code_system: external
@@ -1391,7 +1873,25 @@ variables:
     - BR_UF
     - UFC
     source: layout_doc
-    source_ref: '[ESTRUTURA-SIM] pos. 48 "UFINFORM | C 8 | Código da UF que informou
-      o registro. | 1979 (C 8)"
+    source_ref: '[ESTRUTURA-SIM] pos. 48 "UFINFORM | C 8 | Código da UF que informou o registro.
+      | 1979 (C 8)"
 
       '
+  VERSAOSCB:
+    official_name: Versão do seletor de causa básica
+    translated_name: Cause-selector version
+    description: Version of the underlying-cause selector that chose CAUSABAS. Two records
+      with the same certificate can differ here, and therefore in the selected cause.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo VERSAOSCB'
+  VERSAOSIST:
+    official_name: Versão do sistema
+    translated_name: System version
+    description: Version of the SIM software that produced the record. Useful for explaining
+      why a field changed shape between files.
+    code_system: none
+    source: layout_doc
+    source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
+      07/2025), campo VERSAOSIST'

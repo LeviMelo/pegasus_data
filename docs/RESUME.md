@@ -9,6 +9,15 @@ session. Everything below is checked against the catalog, not recalled.
 |---|---:|
 | columns catalogued | 4,528 |
 | columns described | 4,528 (**100%**) |
+
+**Read "catalogued" carefully.** The denominator is the columns the CENSUS knows
+about, and it grows. This table read 100% while SIH-RD had 15 of its 117 columns
+described: the census had since reached families the description waves never
+covered, so the same claim was true of the old denominator and false of the new
+one. It is 100% of 4,528 again as of 1,057 tests, and it will drift again the
+next time the census widens — `scripts/evidence.py $CATALOG --plan` is the
+current position, not this line.
+
 | data files bound to a declared dataset | 207,030 (**100%**) |
 | systems · datasets declared | 20 · 131 |
 | families | 1,633 |
@@ -64,7 +73,14 @@ a path relative to the repo; consolidating is a step, not an accident.
 
 ## The work that remains, largest first
 
-| system | columns left |
+**Closed as of 1,057 tests** — every catalogued column has a description. The
+last gaps were SIH (131 columns, the flagship dataset and the worst covered),
+SIM (60), SINASC (26), CIHA (8), SIA (6), CNES (4) and Painel Oncologia (1), all
+sourced from the Ministry's own layout documents rather than inferred. The table
+below is the position BEFORE that work and is kept because the shape of it —
+which systems run dry first — is what to expect the next time the census widens.
+
+| system | columns left (historical) |
 |---|---:|
 | SINAN | 1,978 |
 | SISCAN | 487 |

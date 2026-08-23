@@ -1302,8 +1302,8 @@ Counted on the shipped catalog, not estimated.
 | strata with a known schema | 3,688 |
 | distinct schemas | 273 |
 | families (system x series x schema) | 1,633 |
-| distinct columns catalogued | 4,354 |
-| columns described | 1,572 (34.7%) |
+| distinct columns catalogued | 4,528 |
+| columns described | 4,528 (100%) |
 | dictionary rows | 19,905,196 |
 | codelists | 10,748 |
 | field→codelist bindings | 9,304 |
@@ -1314,7 +1314,14 @@ Counted on the shipped catalog, not estimated.
 | per-system bundle | ~10 MB |
 | dictionary database | 531 MB, 7.47M codes |
 | bindings measured to decode nothing | 658 of 1,871 (35.2%) |
-| tests | 538 passing |
+| tests | 1,057 passing |
+
+**These numbers go stale, and this table has been stale before.** It read
+"1,572 described (34.7%)" beside "538 tests" while `docs/RESUME.md` read
+"4,528 (100%)" beside 601 — two documents disagreeing by a factor of three
+because one was written later and neither said when. A reader had no way to
+tell which was current. Every count here is now stated with the test count
+beside it, which is the cheapest available clock.
 
 The headline is the first two rows. The mechanism behind the 82,441-file
 difference is stated plainly in `docs/FINDINGS.md` §0.

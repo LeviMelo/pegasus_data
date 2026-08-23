@@ -5,27 +5,26 @@
 # same column.
 system: SIASUS
 asserted_by: pegasus_data
-
 variables:
   AB_ANOACOM:
     official_name: Ano do acompanhamento
     translated_name: Follow-up year
-    description: 'Year of the post-operative follow-up this record reports. Bariatric
-      surgery is authorised with follow-up attached, so a patient generates several
-      of these after one operation.
+    description: 'Year of the post-operative follow-up this record reports. Bariatric surgery
+      is authorised with follow-up attached, so a patient generates several of these after
+      one operation.
 
       '
     code_system: none
     source: inferred
-    reasoning: 'C(4) with ANO in the name; ACOM is acompanhamento, which is what the
-      bariatric APAC exists to record.
+    reasoning: 'C(4) with ANO in the name; ACOM is acompanhamento, which is what the bariatric
+      APAC exists to record.
 
       '
   AB_DTCIRG2:
     official_name: Data da segunda cirurgia
     translated_name: Date of second surgery
-    description: 'Date of a second operation, whether a revision or a reconstructive
-      procedure after weight loss.
+    description: 'Date of a second operation, whether a revision or a reconstructive procedure
+      after weight loss.
 
       '
     code_system: internal
@@ -46,21 +45,21 @@ variables:
   AB_IMC:
     official_name: Índice de massa corporal
     translated_name: Body mass index
-    description: 'Patient''s BMI, which is the criterion bariatric surgery is authorised
-      against — the thresholds in the Ministry''s own protocol are stated in it.
+    description: 'Patient''s BMI, which is the criterion bariatric surgery is authorised against
+      — the thresholds in the Ministry''s own protocol are stated in it.
 
       '
     code_system: none
     source: inferred
-    reasoning: 'IMC is the Portuguese initialism for body mass index; C(3) fits a value
-      in whole units, which is how the authorisation thresholds are written.
+    reasoning: 'IMC is the Portuguese initialism for body mass index; C(3) fits a value in
+      whole units, which is how the authorisation thresholds are written.
 
       '
   AB_MESACOM:
     official_name: Mês do acompanhamento
     translated_name: Follow-up month
-    description: 'Month of the follow-up, paired with AB_ANOACOM. Together they place
-      the visit relative to the date of surgery.
+    description: 'Month of the follow-up, paired with AB_ANOACOM. Together they place the
+      visit relative to the date of surgery.
 
       '
     code_system: none
@@ -69,19 +68,19 @@ variables:
   AB_NUMAIH:
     official_name: Número da AIH
     translated_name: Hospital admission authorisation number
-    description: 'AIH number of the hospital admission the bariatric procedure was
-      performed under. This is the join back to SIH: the outpatient follow-up recorded
-      here and the operation itself are two different systems'' records of one episode.
+    description: 'AIH number of the hospital admission the bariatric procedure was performed
+      under. This is the join back to SIH: the outpatient follow-up recorded here and the
+      operation itself are two different systems'' records of one episode.
 
       '
     code_system: none
     source: inferred
-    reasoning: 'Declared C(13), which is exactly the AIH number width in SIHSUS, and
-      NUMAIH names it.
+    reasoning: 'Declared C(13), which is exactly the AIH number width in SIHSUS, and NUMAIH
+      names it.
 
       '
-    notes: 'A real key into SIHSUS, and one of the few explicit cross-system links
-      DATASUS publishes. Worth using rather than matching on patient attributes.
+    notes: 'A real key into SIHSUS, and one of the few explicit cross-system links DATASUS
+      publishes. Worth using rather than matching on patient attributes.
 
       '
   AB_NUMAIH2:
@@ -93,32 +92,32 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Same C(13) AIH width as AB_NUMAIH, with the numeric suffix DATASUS
-      uses for a repeated field.
+    reasoning: 'Same C(13) AIH width as AB_NUMAIH, with the numeric suffix DATASUS uses for
+      a repeated field.
 
       '
   AB_PONTBAR:
     official_name: Pontuação de Barros
     translated_name: Barros score
-    description: 'Single-digit Barros score entered on the bariatric-surgery follow-up
-      authorisation, from a scale used in Brazilian bariatric practice to grade a patient''s
-      post-operative weight-loss outcome against expectation.
+    description: 'Single-digit Barros score entered on the bariatric-surgery follow-up authorisation,
+      from a scale used in Brazilian bariatric practice to grade a patient''s post-operative
+      weight-loss outcome against expectation.
 
       '
     code_system: none
     source: web
-    reasoning: 'The same 2014 DATASUS layout documents APA_PONTBARR, one character,
-      as "Pontuacao de Barros" in the pre-2013 post-bariatric-surgery follow-up block,
-      next to a companion "Tabela de Barros" field. AB_PONTBAR is one character under
-      the bariatric AB_ prefix, matching that field; it is flagged shared because both
-      the pre- and post-op bariatric tables carry it.
+    reasoning: 'The same 2014 DATASUS layout documents APA_PONTBARR, one character, as "Pontuacao
+      de Barros" in the pre-2013 post-bariatric-surgery follow-up block, next to a companion
+      "Tabela de Barros" field. AB_PONTBAR is one character under the bariatric AB_ prefix,
+      matching that field; it is flagged shared because both the pre- and post-op bariatric
+      tables carry it.
 
       '
   AB_PRCAIH2:
     official_name: Segundo procedimento da AIH
     translated_name: AIH procedure 2
-    description: 'A second hospital procedure on the same admission. The numbered slots
-      exist because a bariatric admission often carries several billed procedures.
+    description: 'A second hospital procedure on the same admission. The numbered slots exist
+      because a bariatric admission often carries several billed procedures.
 
       '
     code_system: internal
@@ -137,8 +136,8 @@ variables:
     official_name: Procedimento principal da AIH
     translated_name: Principal AIH procedure
     description: 'The hospital procedure code for the bariatric operation itself, carried
-      on the outpatient authorisation so the surgery and its follow-up can be joined
-      across SIH and SIA.
+      on the outpatient authorisation so the surgery and its follow-up can be joined across
+      SIH and SIA.
 
       '
     code_system: internal
@@ -148,25 +147,25 @@ variables:
   AB_TABBARR:
     official_name: Classificação BAROS
     translated_name: BAROS outcome score
-    description: 'The BAROS outcome band — insufficient, acceptable, good, very good
-      or excellent. A composite of weight loss, comorbidity resolution and quality
-      of life, and the standard way bariatric surgery is judged to have worked.
+    description: 'The BAROS outcome band — insufficient, acceptable, good, very good or excellent.
+      A composite of weight loss, comorbidity resolution and quality of life, and the standard
+      way bariatric surgery is judged to have worked.
 
       '
     code_system: internal
     source: def
     source_ref: TAB_BAROS.CNV
-    reasoning: 'Bound to TAB_BAROS, whose values are insuficiente, aceitável, bom,
-      muito bom and excelente — the BAROS bands.
+    reasoning: 'Bound to TAB_BAROS, whose values are insuficiente, aceitável, bom, muito bom
+      and excelente — the BAROS bands.
 
       '
   AP_ALTA:
     official_name: Indicador de Alta
     translated_name: Discharge indicator
-    description: 'Flags whether the APAC episode ended in the patient''s discharge
-      from the treatment programme (e.g. finishing a chemo/radiotherapy or dialysis
-      course). Bound to the ALTA codelist; the column itself is the flag, not the discharge
-      date - AP_DTOCOR carries when it happened.
+    description: 'Flags whether the APAC episode ended in the patient''s discharge from the
+      treatment programme (e.g. finishing a chemo/radiotherapy or dialysis course). Bound
+      to the ALTA codelist; the column itself is the flag, not the discharge date - AP_DTOCOR
+      carries when it happened.
 
       '
     codelists:
@@ -180,9 +179,9 @@ variables:
   AP_APACANT:
     official_name: Numero APAC Anterior
     translated_name: Previous APAC number
-    description: 'The AP_AUTORIZ number of the prior APAC this one continues, letting
-      an analyst chain successive renewals (AP_TPAPAC=2) of one long-running treatment
-      episode into a single patient history.
+    description: 'The AP_AUTORIZ number of the prior APAC this one continues, letting an analyst
+      chain successive renewals (AP_TPAPAC=2) of one long-running treatment episode into a
+      single patient history.
 
       '
     code_system: none
@@ -194,11 +193,11 @@ variables:
   AP_AUTORIZ:
     official_name: Numero da APAC
     translated_name: APAC authorization number
-    description: 'The authorization number DATASUS assigns to the APAC record itself,
-      built as UF+AA+T+sequential+check digit (e.g. state, year, laudo type, a sequence,
-      a check digit) per the layout''s own formation rule. It identifies one authorization,
-      not one procedure line - an APAC with several procedures repeats this number
-      across the corresponding PA-file rows (see PA_AUTORIZ).
+    description: 'The authorization number DATASUS assigns to the APAC record itself, built
+      as UF+AA+T+sequential+check digit (e.g. state, year, laudo type, a sequence, a check
+      digit) per the layout''s own formation rule. It identifies one authorization, not one
+      procedure line - an APAC with several procedures repeats this number across the corresponding
+      PA-file rows (see PA_AUTORIZ).
 
       '
     code_system: none
@@ -210,9 +209,9 @@ variables:
   AP_CATEND:
     official_name: Carater do Atendimento
     translated_name: Type of care episode
-    description: 'Codes the legal/administrative character of the care episode behind
-      the APAC (e.g. elective vs urgent vs follow-up), drawn from the CARAT_AT codelist
-      shared with the production file''s PA_CATEND/CATEND.
+    description: 'Codes the legal/administrative character of the care episode behind the
+      APAC (e.g. elective vs urgent vs follow-up), drawn from the CARAT_AT codelist shared
+      with the production file''s PA_CATEND/CATEND.
 
       '
     codelists:
@@ -227,9 +226,8 @@ variables:
     official_name: CEP do endereco do paciente
     translated_name: Patient's postal code (CEP)
     description: 'The 8-digit Brazilian postal code of the patient''s address as recorded
-      on the APAC. In dense urban CEPs this can resolve to a single street or building,
-      so it is a fine-grained locator even though it carries no lookup label of its
-      own.
+      on the APAC. In dense urban CEPs this can resolve to a single street or building, so
+      it is a fine-grained locator even though it carries no lookup label of its own.
 
       '
     code_system: none
@@ -238,16 +236,16 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'Combined with age/sex/CNS this narrows re-identification risk considerably;
-      handle with the same care as a direct identifier even though it is not one.
+    notes: 'Combined with age/sex/CNS this narrows re-identification risk considerably; handle
+      with the same care as a direct identifier even though it is not one.
 
       '
   AP_CIDCAS:
     official_name: CID Causas Associadas
     translated_name: Associated-cause ICD-10 code
-    description: 'ICD-10 code for a condition associated with (but not the primary
-      reason for) the APAC, drawn from the S_CID codelist. Distinct from AP_CIDPRI
-      (primary) and AP_CIDSEC (secondary).
+    description: 'ICD-10 code for a condition associated with (but not the primary reason
+      for) the APAC, drawn from the S_CID codelist. Distinct from AP_CIDPRI (primary) and
+      AP_CIDSEC (secondary).
 
       '
     codelists:
@@ -261,8 +259,7 @@ variables:
   AP_CIDPRI:
     official_name: CID Principal
     translated_name: Primary ICD-10 code
-    description: 'ICD-10 code for the main diagnosis justifying the APAC, from the
-      S_CID codelist.
+    description: 'ICD-10 code for the main diagnosis justifying the APAC, from the S_CID codelist.
 
       '
     codelists:
@@ -276,8 +273,8 @@ variables:
   AP_CIDSEC:
     official_name: CID Secundario
     translated_name: Secondary ICD-10 code
-    description: 'ICD-10 code for a secondary diagnosis on the APAC, alongside AP_CIDPRI
-      (primary) and AP_CIDCAS (associated cause).
+    description: 'ICD-10 code for a secondary diagnosis on the APAC, alongside AP_CIDPRI (primary)
+      and AP_CIDCAS (associated cause).
 
       '
     codelists:
@@ -291,10 +288,10 @@ variables:
   AP_CMP:
     official_name: Data de Atendimento ao paciente / Competencia
     translated_name: Care competence month
-    description: 'The AAAAMM competence (year-month) the APAC''s care refers to, as
-      opposed to AP_MVM which is when DATASUS processed the batch. The two can diverge
-      by weeks or months when a unit submits late or a record is reprocessed, so aggregating
-      by AP_CMP reflects when care happened while AP_MVM reflects when it was recorded.
+    description: 'The AAAAMM competence (year-month) the APAC''s care refers to, as opposed
+      to AP_MVM which is when DATASUS processed the batch. The two can diverge by weeks or
+      months when a unit submits late or a record is reprocessed, so aggregating by AP_CMP
+      reflects when care happened while AP_MVM reflects when it was recorded.
 
       '
     code_system: none
@@ -303,19 +300,18 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'SPURIOUS-BINDING: the catalog binds ANOMES2008/ANO_2008/SEME2008 to this
-      column. Those are TabNet''s auto-derived Ano/Ano-mes/Semester tabulation axes
-      for a date field, not a coded vocabulary of AP_CMP''s own values - the binding
-      belongs to the catalog''s axis-detection, not to this column.
+    notes: 'SPURIOUS-BINDING: the catalog binds ANOMES2008/ANO_2008/SEME2008 to this column.
+      Those are TabNet''s auto-derived Ano/Ano-mes/Semester tabulation axes for a date field,
+      not a coded vocabulary of AP_CMP''s own values - the binding belongs to the catalog''s
+      axis-detection, not to this column.
 
       '
   AP_CNPJCPF:
     official_name: CNPJ do Estabelecimento executante
     translated_name: Executing establishment's CNPJ/CPF
-    description: 'Tax ID of the establishment that executed the APAC procedure. The
-      field name (CNPJ**CPF**) signals that when the executant is an individual professional
-      rather than a legal entity, this can hold a personal CPF instead of a company
-      CNPJ.
+    description: 'Tax ID of the establishment that executed the APAC procedure. The field
+      name (CNPJ**CPF**) signals that when the executant is an individual professional rather
+      than a legal entity, this can hold a personal CPF instead of a company CNPJ.
 
       '
     code_system: none
@@ -324,16 +320,16 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'May hold a personal CPF rather than an establishment CNPJ - treat as a
-      personal identifier when 11 digits (CPF length) rather than 14 (CNPJ length).
+    notes: 'May hold a personal CPF rather than an establishment CNPJ - treat as a personal
+      identifier when 11 digits (CPF length) rather than 14 (CNPJ length).
 
       '
   AP_CNPJMNT:
     official_name: CNPJ da Mantenedora do estabelecimento
     translated_name: Establishment's parent-organization CNPJ
     description: 'CNPJ of the legal entity that maintains/owns the executing establishment
-      (its "mantenedora"), or all zeros when the establishment has none (i.e. it is
-      not part of a maintained network).
+      (its "mantenedora"), or all zeros when the establishment has none (i.e. it is not part
+      of a maintained network).
 
       '
     code_system: none
@@ -345,8 +341,8 @@ variables:
   AP_CNSPCN:
     official_name: Numero do CNS do paciente
     translated_name: Patient's CNS (national health card) number
-    description: 'The patient''s Cartao Nacional de Saude number - Brazil''s unique
-      per-person health-system identifier.
+    description: 'The patient''s Cartao Nacional de Saude number - Brazil''s unique per-person
+      health-system identifier.
 
       '
     code_system: none
@@ -355,16 +351,16 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'Direct personal identifier (CNS). Passed through unmodified per project
-      policy; propose no masking, but treat it as sensitive.
+    notes: 'Direct personal identifier (CNS). Passed through unmodified per project policy;
+      propose no masking, but treat it as sensitive.
 
       '
   AP_CODEMI:
     official_name: Codigo do Orgao emissor
     translated_name: Issuing-body code
-    description: 'Code of the body that emitted/authorized the APAC. The layout gives
-      only the label; no codelist is bound in this catalog, so which registry the code
-      numbers refer to cannot be confirmed from the evidence available here.
+    description: 'Code of the body that emitted/authorized the APAC. The layout gives only
+      the label; no codelist is bound in this catalog, so which registry the code numbers
+      refer to cannot be confirmed from the evidence available here.
 
       '
     code_system: none
@@ -376,9 +372,9 @@ variables:
   AP_CODUNI:
     official_name: Codigo do Estabelecimento no CNES
     translated_name: Executing establishment's CNES code
-    description: 'The 7-digit CNES (Cadastro Nacional de Estabelecimentos de Saude)
-      code of the facility that executed the APAC - a real, independently-maintained
-      national facility registry, not a DATASUS- only invention.
+    description: 'The 7-digit CNES (Cadastro Nacional de Estabelecimentos de Saude) code of
+      the facility that executed the APAC - a real, independently-maintained national facility
+      registry, not a DATASUS- only invention.
 
       '
     codelists:
@@ -393,8 +389,8 @@ variables:
   AP_COIDADE:
     official_name: Codigo da Idade do paciente
     translated_name: Patient age-unit code
-    description: 'Codes which unit AP_NUIDADE is expressed in (years vs. months vs.
-      days for very young patients) rather than the age value itself.
+    description: 'Codes which unit AP_NUIDADE is expressed in (years vs. months vs. days for
+      very young patients) rather than the age value itself.
 
       '
     codelists:
@@ -410,8 +406,8 @@ variables:
     official_name: Sigla do Tipo de Gestao
     translated_name: Management-type code
     description: 'Marks the SUS management arrangement (state-managed vs. municipality-managed,
-      full vs. partial) under which the establishment or municipality is accredited
-      for this APAC.
+      full vs. partial) under which the establishment or municipality is accredited for this
+      APAC.
 
       '
     codelists:
@@ -436,8 +432,8 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 (TabNet''s auto
-      date axes), not a real value codelist for this column.
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 (TabNet''s auto date axes),
+      not a real value codelist for this column.
 
       '
   AP_DTFIM:
@@ -453,15 +449,15 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists,
-      not a real vocabulary for this field.
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists, not
+      a real vocabulary for this field.
 
       '
   AP_DTINIC:
     official_name: Data de INICIO validade
     translated_name: Validity start date
-    description: 'AAAAMMDD date the APAC''s authorization period begins - the start
-      of the window during which the procedures it authorizes may be billed.
+    description: 'AAAAMMDD date the APAC''s authorization period begins - the start of the
+      window during which the procedures it authorizes may be billed.
 
       '
     code_system: none
@@ -470,15 +466,15 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists,
-      not a real vocabulary for this field.
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists, not
+      a real vocabulary for this field.
 
       '
   AP_DTOCOR:
     official_name: Data de Ocorrencia
     translated_name: Occurrence date (overrides validity end)
-    description: 'AAAAMMDD date an early-closing event (discharge, transfer, death)
-      happened; when populated it replaces AP_DTFIM as the episode''s real end date.
+    description: 'AAAAMMDD date an early-closing event (discharge, transfer, death) happened;
+      when populated it replaces AP_DTFIM as the episode''s real end date.
 
       '
     code_system: none
@@ -487,15 +483,15 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists
-      rather than a real vocabulary for this field.
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists rather
+      than a real vocabulary for this field.
 
       '
   AP_DTSOLIC:
     official_name: Data da Solicitacao
     translated_name: Request date
-    description: 'AAAAMMDD date the requesting unit (AP_UNISOL) asked for the APAC,
-      upstream of AP_DTAUT (authorization) and AP_DTINIC (validity start).
+    description: 'AAAAMMDD date the requesting unit (AP_UNISOL) asked for the APAC, upstream
+      of AP_DTAUT (authorization) and AP_DTINIC (validity start).
 
       '
     code_system: none
@@ -504,15 +500,15 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists,
-      not a real vocabulary for this field.
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists, not
+      a real vocabulary for this field.
 
       '
   AP_ENCERR:
     official_name: Indicador de Encerramento
     translated_name: Closure indicator
-    description: 'Flags that the APAC episode was formally closed/terminated (as opposed
-      to remaining open under AP_PERMAN or ending in AP_ALTA/AP_OBITO/AP_TRANSF).
+    description: 'Flags that the APAC episode was formally closed/terminated (as opposed to
+      remaining open under AP_PERMAN or ending in AP_ALTA/AP_OBITO/AP_TRANSF).
 
       '
     codelists:
@@ -526,9 +522,9 @@ variables:
   AP_ETNIA:
     official_name: Etnia do paciente
     translated_name: Patient's indigenous ethnicity
-    description: 'Code for the patient''s specific indigenous ethnicity (e.g. Guarani,
-      Kaingang), drawn from the DATASUS/FUNAI ethnicity table. Only meaningful, and
-      normally only filled, when AP_RACACOR = 05 (Indigena).
+    description: 'Code for the patient''s specific indigenous ethnicity (e.g. Guarani, Kaingang),
+      drawn from the DATASUS/FUNAI ethnicity table. Only meaningful, and normally only filled,
+      when AP_RACACOR = 05 (Indigena).
 
       '
     code_system: external
@@ -537,17 +533,17 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'Populated only when AP_RACACOR is 05-Indigena; blank/zero for every other
-      race/color value is expected, not missingness.
+    notes: 'Populated only when AP_RACACOR is 05-Indigena; blank/zero for every other race/color
+      value is expected, not missingness.
 
       '
   AP_GESTAO:
     official_name: Codigo da UF+Municipio de Gestao
     translated_name: Managing UF+municipality IBGE code
-    description: '7-char IBGE UF+municipality code of the manager (gestor) responsible
-      for the establishment, or UF0000 when management sits with the state rather than
-      a municipality. This is the payer/regulator location, not where care happened
-      (AP_UFMUN) or where the patient lives (AP_MUNPCN).
+    description: '7-char IBGE UF+municipality code of the manager (gestor) responsible for
+      the establishment, or UF0000 when management sits with the state rather than a municipality.
+      This is the payer/regulator location, not where care happened (AP_UFMUN) or where the
+      patient lives (AP_MUNPCN).
 
       '
     codelists:
@@ -562,9 +558,9 @@ variables:
   AP_MNDIF:
     official_name: Municipio de residencia diferente do estabelecimento
     translated_name: Patient-vs-establishment municipality mismatch flag
-    description: 'Derived flag for whether the patient''s home municipality (AP_MUNPCN)
-      differs from the establishment''s municipality (AP_UFMUN) - i.e. whether the
-      patient left their home municipality for this care.
+    description: 'Derived flag for whether the patient''s home municipality (AP_MUNPCN) differs
+      from the establishment''s municipality (AP_UFMUN) - i.e. whether the patient left their
+      home municipality for this care.
 
       '
     codelists:
@@ -577,16 +573,16 @@ variables:
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
     notes: 'Value encoding is not consistent across APAC sub-layouts in the same document:
-      0/1 (same/different) in the Laudos Diversos (AD) layout, but N/S (nao/sim) in
-      Nefrologia (AN), Quimioterapia (AQ), Radioterapia (AR) and other laudo types.
-      Declared width also drifts between C(1) and C(2) across sub-layouts.
+      0/1 (same/different) in the Laudos Diversos (AD) layout, but N/S (nao/sim) in Nefrologia
+      (AN), Quimioterapia (AQ), Radioterapia (AR) and other laudo types. Declared width also
+      drifts between C(1) and C(2) across sub-layouts.
 
       '
   AP_MN_IND:
     official_name: Estabelecimento Mantido / Individual
     translated_name: Maintained-vs-individual establishment flag
-    description: 'Marks whether the executing establishment operates under a parent
-      "mantenedora" organization or stands alone.
+    description: 'Marks whether the executing establishment operates under a parent "mantenedora"
+      organization or stands alone.
 
       '
     codelists:
@@ -600,9 +596,9 @@ variables:
   AP_MOTSAI:
     official_name: Motivo de Saida e Permanencia
     translated_name: Exit/continuation reason code
-    description: 'Codes why the patient''s APAC episode ended or continued in this
-      competence (discharge, transfer, death, ongoing treatment, etc.), shared with
-      the AB/AN/AQ/AR chronic-care laudo files.
+    description: 'Codes why the patient''s APAC episode ended or continued in this competence
+      (discharge, transfer, death, ongoing treatment, etc.), shared with the AB/AN/AQ/AR chronic-care
+      laudo files.
 
       '
     codelists:
@@ -617,8 +613,8 @@ variables:
     official_name: UF+Municipio de Residencia do paciente
     translated_name: Patient's home municipality IBGE code
     description: '7-char IBGE UF+municipality code of where the patient lives, as declared
-      on the APAC - not where the establishment (AP_UFMUN) or the managing authority
-      (AP_GESTAO) is located.
+      on the APAC - not where the establishment (AP_UFMUN) or the managing authority (AP_GESTAO)
+      is located.
 
       '
     codelists:
@@ -634,10 +630,10 @@ variables:
   AP_MVM:
     official_name: Data de Processamento / Movimento
     translated_name: Processing (movimento) month
-    description: 'AAAAMM competence in which DATASUS processed this record - the file''s
-      own "movimento" batch month. Lags AP_CMP (the actual care month) whenever a unit
-      submits late or a record is corrected/reprocessed in a later batch; aggregating
-      by AP_MVM reflects processing timing, not when care occurred.
+    description: 'AAAAMM competence in which DATASUS processed this record - the file''s own
+      "movimento" batch month. Lags AP_CMP (the actual care month) whenever a unit submits
+      late or a record is corrected/reprocessed in a later batch; aggregating by AP_MVM reflects
+      processing timing, not when care occurred.
 
       '
     code_system: none
@@ -646,18 +642,17 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists
-      rather than a real vocabulary of AP_MVM values.
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists rather
+      than a real vocabulary of AP_MVM values.
 
       '
   AP_NATJUR:
     official_name: Codigo da Natureza Juridica
     translated_name: Legal-nature code
-    description: 'The establishment''s legal-nature (natureza juridica) code, sourced
-      by CNES from the establishment''s CNPJ registration at Receita Federal - a real,
-      externally-governed classification (grouped into public administration, for-profit
-      entities, non-profits, individuals, and extraterritorial bodies), not a code
-      DATASUS invented for SIASUS.
+    description: 'The establishment''s legal-nature (natureza juridica) code, sourced by CNES
+      from the establishment''s CNPJ registration at Receita Federal - a real, externally-governed
+      classification (grouped into public administration, for-profit entities, non-profits,
+      individuals, and extraterritorial bodies), not a code DATASUS invented for SIASUS.
 
       '
     codelists:
@@ -672,8 +667,8 @@ variables:
   AP_NUIDADE:
     official_name: Numero da Idade
     translated_name: Patient age (number)
-    description: 'The patient''s age as a plain number, in the unit given by AP_COIDADE
-      (years, months or days) - the two fields together form one age value.
+    description: 'The patient''s age as a plain number, in the unit given by AP_COIDADE (years,
+      months or days) - the two fields together form one age value.
 
       '
     code_system: none
@@ -699,9 +694,8 @@ variables:
   AP_PERMAN:
     official_name: Indicador de Permanencia
     translated_name: Continuation (still-in-treatment) indicator
-    description: 'Flags that the patient remains in the treatment programme at the
-      end of this competence, i.e. the APAC episode is still open rather than closed
-      by AP_ALTA/AP_OBITO/AP_TRANSF/AP_ENCERR.
+    description: 'Flags that the patient remains in the treatment programme at the end of
+      this competence, i.e. the APAC episode is still open rather than closed by AP_ALTA/AP_OBITO/AP_TRANSF/AP_ENCERR.
 
       '
     codelists:
@@ -716,9 +710,8 @@ variables:
     official_name: Procedimento Principal da APAC
     translated_name: APAC's main procedure code
     description: 'The 10-digit SIGTAP procedure code that is the main/authorized procedure
-      of this APAC (SIGTAP is the SUS''s national unified procedures, medicines and
-      OPM/materials table - a real classification maintained outside DATASUS''s own
-      invention).
+      of this APAC (SIGTAP is the SUS''s national unified procedures, medicines and OPM/materials
+      table - a real classification maintained outside DATASUS''s own invention).
 
       '
     codelists:
@@ -733,9 +726,9 @@ variables:
     official_name: Raca/Cor do paciente
     translated_name: Patient's race/color
     description: 'Self-declared race/color per the standard Brazilian categories: 01-Branca
-      (White), 02-Preta (Black), 03-Parda (Mixed), 04-Amarela (East Asian-descent),
-      05-Indigena (Indigenous), 99-Sem informacao (Not informed). Value meanings come
-      directly from the layout table, not inferred.
+      (White), 02-Preta (Black), 03-Parda (Mixed), 04-Amarela (East Asian-descent), 05-Indigena
+      (Indigenous), 99-Sem informacao (Not informed). Value meanings come directly from the
+      layout table, not inferred.
 
       '
     codelists:
@@ -749,8 +742,8 @@ variables:
   AP_SEXO:
     official_name: Sexo do paciente
     translated_name: Patient's sex
-    description: 'The patient''s sex as recorded for the APAC, coded per the shared
-      SEXO codelist used throughout SIASUS/SIA files.
+    description: 'The patient''s sex as recorded for the APAC, coded per the shared SEXO codelist
+      used throughout SIASUS/SIA files.
 
       '
     codelists:
@@ -781,10 +774,10 @@ variables:
   AP_TPAPAC:
     official_name: Tipo de APAC
     translated_name: APAC episode-stage type
-    description: 'Marks whether this APAC is 1-inicial (first authorization for this
-      episode), 2-continuidade (a renewal continuing prior treatment) or 3-unica (a
-      one-off, non-renewable authorization). Distinguishing these matters when tallying
-      new vs. ongoing treatment episodes, so renewals are not mistaken for new starts.
+    description: 'Marks whether this APAC is 1-inicial (first authorization for this episode),
+      2-continuidade (a renewal continuing prior treatment) or 3-unica (a one-off, non-renewable
+      authorization). Distinguishing these matters when tallying new vs. ongoing treatment
+      episodes, so renewals are not mistaken for new starts.
 
       '
     codelists:
@@ -828,8 +821,7 @@ variables:
   AP_TRANSF:
     official_name: Indicador de Transferencia
     translated_name: Transfer indicator
-    description: 'Flags that the patient''s APAC episode ended in a transfer to another
-      establishment.
+    description: 'Flags that the patient''s APAC episode ended in a transfer to another establishment.
 
       '
     codelists:
@@ -843,8 +835,8 @@ variables:
   AP_UFDIF:
     official_name: UF de residencia diferente da UF do estabelecimento
     translated_name: Patient-vs-establishment UF (state) mismatch flag
-    description: 'Derived flag for whether the patient''s home state (from AP_MUNPCN)
-      differs from the establishment''s state (from AP_UFMUN) - i.e. cross-state care-seeking.
+    description: 'Derived flag for whether the patient''s home state (from AP_MUNPCN) differs
+      from the establishment''s state (from AP_UFMUN) - i.e. cross-state care-seeking.
 
       '
     codelists:
@@ -855,17 +847,17 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'Same encoding inconsistency as AP_MNDIF: 0/1 in the Laudos Diversos (AD)
-      layout, N/S in several other laudo sub-layouts, and declared width drifts between
-      C(1) and C(2) across them.
+    notes: 'Same encoding inconsistency as AP_MNDIF: 0/1 in the Laudos Diversos (AD) layout,
+      N/S in several other laudo sub-layouts, and declared width drifts between C(1) and C(2)
+      across them.
 
       '
   AP_UFMUN:
     official_name: UF+Municipio do Estabelecimento
     translated_name: Establishment's municipality IBGE code
-    description: '7-char IBGE UF+municipality code of where the executing establishment
-      is physically located - the place of care, not the patient''s residence (AP_MUNPCN)
-      or the managing authority (AP_GESTAO).
+    description: '7-char IBGE UF+municipality code of where the executing establishment is
+      physically located - the place of care, not the patient''s residence (AP_MUNPCN) or
+      the managing authority (AP_GESTAO).
 
       '
     codelists:
@@ -880,8 +872,8 @@ variables:
   AP_UFNACIO:
     official_name: Codigo da Nacionalidade do paciente
     translated_name: Patient's nationality code
-    description: 'Codes the patient''s declared nationality per DATASUS''s own UFNACIO
-      table (Brazilian vs. specific foreign nationalities).
+    description: 'Codes the patient''s declared nationality per DATASUS''s own UFNACIO table
+      (Brazilian vs. specific foreign nationalities).
 
       '
     codelists:
@@ -895,9 +887,9 @@ variables:
   AP_UNISOL:
     official_name: Codigo CNES do Estabelecimento Solicitante
     translated_name: Requesting establishment's CNES code
-    description: 'CNES code of the facility that requested/originated the APAC, which
-      can differ from the executing facility (AP_CODUNI) when a patient is referred
-      elsewhere for the authorized procedure.
+    description: 'CNES code of the facility that requested/originated the APAC, which can
+      differ from the executing facility (AP_CODUNI) when a patient is referred elsewhere
+      for the authorized procedure.
 
       '
     codelists:
@@ -912,10 +904,10 @@ variables:
   AP_VL_AP:
     official_name: Valor Total da APAC Aprovado
     translated_name: APAC's total approved value (BRL)
-    description: 'Total approved monetary value of the whole APAC (all its procedure
-      lines combined), in reais. The narrative text of the layout is explicit that
-      this is a per-APAC total, not a per-procedure- line value - summing it across
-      the several PA rows one APAC generates would overcount.
+    description: 'Total approved monetary value of the whole APAC (all its procedure lines
+      combined), in reais. The narrative text of the layout is explicit that this is a per-APAC
+      total, not a per-procedure- line value - summing it across the several PA rows one APAC
+      generates would overcount.
 
       '
     code_system: none
@@ -924,17 +916,17 @@ variables:
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
       field block repeated across all APAC sub-layouts (AM/AN/AQ/AR/AB/ACF/ATD), sections
       3.4.2-3.4.8'
-    notes: 'Per-APAC total, not per procedure line. An APAC that produced several rows
-      in the production (PA) file repeats this same total value on each of them; do
-      not sum across those rows.
+    notes: 'Per-APAC total, not per procedure line. An APAC that produced several rows in
+      the production (PA) file repeats this same total value on each of them; do not sum across
+      those rows.
 
       '
   CATEND:
     official_name: Carater de Atendimento
     translated_name: Type of care episode
-    description: 'Same CARAT_AT-coded care-character field as AP_CATEND/PA_CATEND,
-      but on the unprefixed BPA-I (and RAAS SAD/PS) layouts, which share this exact
-      field name and definition in the source document.
+    description: 'Same CARAT_AT-coded care-character field as AP_CATEND/PA_CATEND, but on
+      the unprefixed BPA-I (and RAAS SAD/PS) layouts, which share this exact field name and
+      definition in the source document.
 
       '
     codelists:
@@ -942,8 +934,8 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   CIDASSOC:
     official_name: CID Causas Associadas
     translated_name: Associated-cause CID
@@ -963,14 +955,14 @@ variables:
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   CNES_ESF:
-    official_name: Código do SCNES do Estabelecimento de Saúde Unidade da Saúde da
-      Família da região
+    official_name: Código do SCNES do Estabelecimento de Saúde Unidade da Saúde da Família
+      da região
     translated_name: CNES code of the area's Family Health unit
-    description: CNES code of the Estratégia Saúde da Família (ESF) unit that covers
-      the patient's home area, recorded on RAAS home-care and psychosocial-care lines.
+    description: CNES code of the Estratégia Saúde da Família (ESF) unit that covers the patient's
+      home area, recorded on RAAS home-care and psychosocial-care lines.
     code_system: external
   CNES_EXEC:
     official_name: Código do SCNES do Estabelecimento de Saúde
@@ -980,57 +972,63 @@ variables:
   CNPJCPF:
     official_name: CNPJ do Estabelecimento executante
     translated_name: Executing establishment's CNPJ/CPF
-    description: 'Tax ID of the executing establishment on the unprefixed BPA-I/RAAS
-      layouts; same CNPJ-or-CPF ambiguity as AP_CNPJCPF when the executant is an individual
-      professional.
+    description: 'Tax ID of the executing establishment on the unprefixed BPA-I/RAAS layouts;
+      same CNPJ-or-CPF ambiguity as AP_CNPJCPF when the executant is an individual professional.
 
       '
     code_system: none
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
-    notes: 'May hold a personal CPF (11 digits) instead of an establishment CNPJ (14
-      digits) - treat short values as a personal identifier.
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+    notes: 'May hold a personal CPF (11 digits) instead of an establishment CNPJ (14 digits)
+      - treat short values as a personal identifier.
 
       '
   CNPJMNT:
     official_name: CNPJ da Mantenedora
     translated_name: Establishment's parent-organization CNPJ
-    description: 'CNPJ of the establishment''s maintaining organization, or zeros if
-      it has none, on the unprefixed BPA-I/RAAS layouts.
+    description: 'CNPJ of the establishment''s maintaining organization, or zeros if it has
+      none, on the unprefixed BPA-I/RAAS layouts.
 
       '
     code_system: none
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   CNS_PAC:
     official_name: Numero do CNS do paciente
     translated_name: Patient's CNS number
-    description: 'The patient''s Cartao Nacional de Saude number on the BPA-I/RAAS
-      layouts.
+    description: 'The patient''s Cartao Nacional de Saude number on the BPA-I/RAAS layouts.
 
       '
     code_system: none
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
-    notes: 'Direct personal identifier (CNS). Passed through unmodified per project
-      policy; propose no masking, but treat it as sensitive.
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+    notes: 'Direct personal identifier (CNS). Passed through unmodified per project policy;
+      propose no masking, but treat it as sensitive.
 
       '
   COB_ESF:
     official_name: Indica se a região de atendimento do paciente tem cobertura de Estratégia
       Saúde da Família
     translated_name: ESF coverage indicator
-    description: Whether the patient's home area is covered by an Estratégia Saúde
-      da Família team, as recorded on the RAAS line.
+    description: Whether the patient's home area is covered by an Estratégia Saúde da Família
+      team, as recorded on the RAAS line.
     code_system: internal
     codelists:
     - COBERTURA
+  COMPLEX:
+    official_name: Complexidade
+    translated_name: Care complexity
+    description: Complexity tier of the procedure — basic, medium or high — which governs
+      the funding stream and which establishments may perform it.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[APAC-LAYOUT] SIA APAC layout, campo COMPLEX, campo COMPLEX'
   CONDIC:
     official_name: Sigla do Tipo de Gestao
     translated_name: Management-type code
@@ -1044,105 +1042,129 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   DESTINOPAC:
     official_name: Destino do paciente
     translated_name: Patient destination
-    description: DATASUS code for where the patient was routed at the end of this RAAS
-      episode (e.g. discharged, referred onward, remained in the same service).
+    description: DATASUS code for where the patient was routed at the end of this RAAS episode
+      (e.g. discharged, referred onward, remained in the same service).
     code_system: internal
     codelists:
     - DESTINO
     - DEST_PSI
-    notes: The RAAS home-care (AD) layout prints this field as DESTINO_PAC in the PDF
-      table, but 11 characters exceeds the classic DBF field-name limit; the catalogued
-      header, matching the RAAS-Psychosocial layout, is DESTINOPAC.
+    notes: The RAAS home-care (AD) layout prints this field as DESTINO_PAC in the PDF table,
+      but 11 characters exceeds the classic DBF field-name limit; the catalogued header, matching
+      the RAAS-Psychosocial layout, is DESTINOPAC.
+  DTNASC:
+    official_name: Data de nascimento
+    translated_name: Patient date of birth
+    description: Patient's date of birth as text. Combined with the procedure date it gives
+      age at treatment, which SIA does not carry directly.
+    code_system: none
+    source: layout_doc
+    source_ref: '[APAC-LAYOUT] SIA APAC layout, campo DTNASC, campo DTNASC'
   DT_ATEND:
     official_name: Ano e mes do Atendimento
     translated_name: Care month (competence)
-    description: 'AAAAMM month the care was delivered, on the BPA-I/RAAS layouts -
-      the equivalent of AP_CMP/PA_CMP for these instruments.
+    description: 'AAAAMM month the care was delivered, on the BPA-I/RAAS layouts - the equivalent
+      of AP_CMP/PA_CMP for these instruments.
 
       '
     code_system: none
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
-    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists
-      rather than a real vocabulary for this field.
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists rather
+      than a real vocabulary for this field.
 
       '
   DT_FIM:
     official_name: Data de Fim
     translated_name: Record end date
-    description: End of the validity/reference period this RAAS record covers, AAAAMMDD
-      — the record's own period, not the date of a specific attendance (which is FIM,
-      when present).
+    description: End of the validity/reference period this RAAS record covers, AAAAMMDD —
+      the record's own period, not the date of a specific attendance (which is FIM, when present).
     code_system: none
   DT_INICIO:
     official_name: Data de Início
     translated_name: Record start date
     description: Start of the validity/reference period this RAAS record covers, AAAAMMDD
-      — the record's own period, not the date of a specific attendance (which is INICIO,
-      when present).
+      — the record's own period, not the date of a specific attendance (which is INICIO, when
+      present).
     code_system: none
   DT_MOTCOB:
     official_name: Data da ocorrência no caso de alta, transferência ou óbito
     translated_name: Date of discharge/transfer/death
-    description: Date, AAAAMMDD, the event named in MOT_COB (discharge, transfer, or
-      death) actually occurred.
+    description: Date, AAAAMMDD, the event named in MOT_COB (discharge, transfer, or death)
+      actually occurred.
     code_system: none
   DT_PROCESS:
     official_name: Ano e mes de Processamento
     translated_name: Processing month
-    description: 'AAAAMM month DATASUS processed this record - the BPA-I/RAAS equivalent
-      of AP_MVM/PA_MVM. Can lag DT_ATEND when submission or reprocessing is late.
+    description: 'AAAAMM month DATASUS processed this record - the BPA-I/RAAS equivalent of
+      AP_MVM/PA_MVM. Can lag DT_ATEND when submission or reprocessing is late.
 
       '
     code_system: none
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
-    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists
-      rather than a real vocabulary for this field.
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+    notes: 'SPURIOUS-BINDING: bound to ANOMES2008/ANO_2008/SEME2008 date-axis codelists rather
+      than a real vocabulary for this field.
 
       '
+  ETNIA:
+    official_name: Etnia
+    translated_name: Indigenous ethnicity
+    description: Indigenous ethnic group, recorded only where race/colour is indígena. Blank
+      elsewhere by design rather than missing.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[APAC-LAYOUT] SIA APAC layout, campo ETNIA, campo ETNIA'
   FIM:
     official_name: Data de Fim do Atendimento (DDMMAAAA)
     translated_name: Attendance end date
     description: End date of one specific attendance recorded on this RAAS line — distinct
       from DT_FIM, the whole record's reference-period end.
     code_system: none
-    notes: Documented in DDMMAAAA order (day-month-year), unlike the AAAAMMDD order
-      almost every other SIASUS date field uses — sort or parse it accordingly.
+    notes: Documented in DDMMAAAA order (day-month-year), unlike the AAAAMMDD order almost
+      every other SIASUS date field uses — sort or parse it accordingly.
+  GESTAO:
+    official_name: Gestão
+    translated_name: Managing authority
+    description: IBGE code of the municipality managing the establishment's contract, or the
+      state where management is state-level. The MANAGER, which is not where care happened
+      or where the patient lives.
+    code_system: external
+    source: layout_doc
+    source_ref: '[APAC-LAYOUT] SIA APAC layout, campo GESTAO, campo GESTAO'
   IDADEPAC:
     official_name: Idade do Paciente
     translated_name: Patient's age
-    description: 'Patient''s age as a plain number, in the unit given by TPIDADEPAC
-      (years, months or days).
+    description: 'Patient''s age as a plain number, in the unit given by TPIDADEPAC (years,
+      months or days).
 
       '
     code_system: none
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   INICIO:
     official_name: Data de Início do Atendimento (DDMMAAAA)
     translated_name: Attendance start date
-    description: Start date of one specific attendance recorded on this RAAS line —
-      distinct from DT_INICIO, the whole record's reference-period start.
+    description: Start date of one specific attendance recorded on this RAAS line — distinct
+      from DT_INICIO, the whole record's reference-period start.
     code_system: none
-    notes: Documented in DDMMAAAA order (day-month-year), unlike the AAAAMMDD order
-      almost every other SIASUS date field uses — sort or parse it accordingly.
+    notes: Documented in DDMMAAAA order (day-month-year), unlike the AAAAMMDD order almost
+      every other SIASUS date field uses — sort or parse it accordingly.
   MN_IND:
     official_name: Estabelecimento Mantido / Individual
     translated_name: Maintained-vs-individual establishment flag
-    description: 'Same maintained-vs-standalone establishment flag as AP_MN_IND, on
-      the unprefixed BPA-I/RAAS layouts.
+    description: 'Same maintained-vs-standalone establishment flag as AP_MN_IND, on the unprefixed
+      BPA-I/RAAS layouts.
 
       '
     codelists:
@@ -1150,23 +1172,23 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   MOT_COB:
     official_name: Motivo de Saída/Permanência
     translated_name: Reason for discharge/continuation
-    description: DATASUS code for why the patient left or remained in the RAAS program
-      (e.g. discharge, transfer, death, continued care).
+    description: DATASUS code for why the patient left or remained in the RAAS program (e.g.
+      discharge, transfer, death, continued care).
     code_system: internal
     codelists:
     - MOTSAIPE
   MUNPAC:
     official_name: UF+Municipio de residencia do paciente
     translated_name: Patient's home municipality IBGE code
-    description: '7-char IBGE UF+municipality code of the patient''s residence - or,
-      per the layout''s own note, of the establishment instead whenever the instrument
-      does not capture patient identity (as happens on BPA-Consolidado-sourced rows).
-      Do not assume every value here is a true residence.
+    description: '7-char IBGE UF+municipality code of the patient''s residence - or, per the
+      layout''s own note, of the establishment instead whenever the instrument does not capture
+      patient identity (as happens on BPA-Consolidado-sourced rows). Do not assume every value
+      here is a true residence.
 
       '
     codelists:
@@ -1175,11 +1197,11 @@ variables:
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
     notes: 'Falls back to the establishment''s own municipality when the source instrument
-      (e.g. BPA-C) does not identify the patient - check the originating instrument
-      before treating this as residence.
+      (e.g. BPA-C) does not identify the patient - check the originating instrument before
+      treating this as residence.
 
       '
   NACION_PAC:
@@ -1189,11 +1211,19 @@ variables:
     code_system: internal
     codelists:
     - UFNACIO
+  NAT_JUR:
+    official_name: Natureza jurídica
+    translated_name: Establishment legal nature (CONCLA)
+    description: Legal nature of the executing establishment under CONCLA, carried onto the
+      production record so the payer mix can be read without joining CNES.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[APAC-LAYOUT] SIA APAC layout, campo NAT_JUR, campo NAT_JUR'
   ORIGEM_PAC:
     official_name: Origem do paciente
     translated_name: Patient origin
-    description: DATASUS code for where the patient came from into this RAAS episode
-      (e.g. spontaneous demand, referral from another service).
+    description: DATASUS code for where the patient came from into this RAAS episode (e.g.
+      spontaneous demand, referral from another service).
     code_system: internal
     codelists:
     - ORIGEM
@@ -1201,19 +1231,18 @@ variables:
   PA_CLASS_S:
     official_name: Classificação do Serviço
     translated_name: Service classification
-    description: CNES classification code that refines PA_SRV, the specialised-service
-      code on the same RAAS line — the pair (service, classification) together identifies
-      the exact CNES service offered.
+    description: CNES classification code that refines PA_SRV, the specialised-service code
+      on the same RAAS line — the pair (service, classification) together identifies the exact
+      CNES service offered.
     code_system: external
-    notes: The layout document prints this field as PA_CLAS_S (one S); the catalogued
-      header is PA_CLASS_S (two), 10 characters, matching the classic DBF field-name
-      limit — almost certainly the same field.
+    notes: The layout document prints this field as PA_CLAS_S (one S); the catalogued header
+      is PA_CLASS_S (two), 10 characters, matching the classic DBF field-name limit — almost
+      certainly the same field.
   PA_PROC_ID:
     official_name: Codigo do Procedimento Ambulatorial
     translated_name: Outpatient procedure code (SIGTAP)
-    description: '10-digit SIGTAP procedure code identifying what was done, with catalog
-      evidence showing it also resolves against SIGTAP''s group/subgroup/form hierarchy
-      tables.
+    description: '10-digit SIGTAP procedure code identifying what was done, with catalog evidence
+      showing it also resolves against SIGTAP''s group/subgroup/form hierarchy tables.
 
       '
     codelists:
@@ -1228,10 +1257,10 @@ variables:
   PA_QTDAPR:
     official_name: Quantidade Aprovada
     translated_name: Approved quantity
-    description: 'Quantity of the procedure actually approved after auditing, which
-      can be lower than PA_QTDPRO (submitted quantity) when part of the claim is rejected.
-      Production/volume statistics should normally use PA_QTDAPR, not PA_QTDPRO, to
-      avoid counting work that was billed but not paid for.
+    description: 'Quantity of the procedure actually approved after auditing, which can be
+      lower than PA_QTDPRO (submitted quantity) when part of the claim is rejected. Production/volume
+      statistics should normally use PA_QTDAPR, not PA_QTDPRO, to avoid counting work that
+      was billed but not paid for.
 
       '
     code_system: none
@@ -1241,33 +1270,32 @@ variables:
   PA_QTDPRO:
     official_name: Quantidade Produzida (APRESENTADA)
     translated_name: Submitted (presented) quantity
-    description: 'Quantity of the procedure as originally submitted/claimed by the
-      provider, before auditing. See PA_QTDAPR for the quantity actually approved.
+    description: 'Quantity of the procedure as originally submitted/claimed by the provider,
+      before auditing. See PA_QTDAPR for the quantity actually approved.
 
       '
     code_system: none
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
-    notes: 'This is the pre-audit submitted volume, not the paid volume; PA_QTDAPR
-      is usually the right column for production statistics.
+    notes: 'This is the pre-audit submitted volume, not the paid volume; PA_QTDAPR is usually
+      the right column for production statistics.
 
       '
   PA_SRV:
     official_name: Serviço Especializado
     translated_name: Specialised service
-    description: CNES specialised-service code identifying the kind of service (e.g.
-      a specific outpatient clinic type) that produced this RAAS record; paired with
-      PA_CLASS_S for the full CNES service/classification code.
+    description: CNES specialised-service code identifying the kind of service (e.g. a specific
+      outpatient clinic type) that produced this RAAS record; paired with PA_CLASS_S for the
+      full CNES service/classification code.
     code_system: external
     codelists:
     - S_CLASSEN
   PERMANEN:
     official_name: Permanência em Atendimento
     translated_name: Time in attendance
-    description: Length of time the patient remained under this RAAS service (unit
-      set by the reporting instrument, not spelled out in the layout excerpt covering
-      this batch).
+    description: Length of time the patient remained under this RAAS service (unit set by
+      the reporting instrument, not spelled out in the layout excerpt covering this batch).
     code_system: none
   QTDATE:
     official_name: Quantidade de Atendimentos
@@ -1277,14 +1305,22 @@ variables:
   QTDPCN:
     official_name: Quantidade de pacientes
     translated_name: Number of patients
-    description: Count of distinct patients this RAAS record aggregates (relevant for
-      group/collective activities).
+    description: Count of distinct patients this RAAS record aggregates (relevant for group/collective
+      activities).
     code_system: none
+  RACACOR:
+    official_name: Raça/Cor
+    translated_name: Race/colour
+    description: Patient's self-declared colour or race on the IBGE categories. SIA, SIH and
+      SINASC each code these differently, so never pool without recoding.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[APAC-LAYOUT] SIA APAC layout, campo RACACOR, campo RACACOR'
   SEXOPAC:
     official_name: Sexo do paciente
     translated_name: Patient's sex
-    description: 'Patient''s sex on the BPA-I/RAAS layouts, coded per the same SEXO
-      codelist used across SIASUS.
+    description: 'Patient''s sex on the BPA-I/RAAS layouts, coded per the same SEXO codelist
+      used across SIASUS.
 
       '
     codelists:
@@ -1292,26 +1328,26 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   TIPPRE:
     official_name: Tipo de Prestador
     translated_name: Provider-type code
-    description: 'Same provider-type concept as AP_TIPPRE/PA_TIPPRE, on the unprefixed
-      BPA-I/ RAAS-Psicossocial layouts. No codelist is bound to this exact unprefixed
-      field name in this catalog build, unlike its AP_/PA_-prefixed siblings.
+    description: 'Same provider-type concept as AP_TIPPRE/PA_TIPPRE, on the unprefixed BPA-I/
+      RAAS-Psicossocial layouts. No codelist is bound to this exact unprefixed field name
+      in this catalog build, unlike its AP_/PA_-prefixed siblings.
 
       '
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   TPIDADEPAC:
     official_name: Tipo da Idade do paciente
     translated_name: Age-unit code
-    description: 'Codes whether IDADEPAC is expressed in years, months or days, computed
-      from the patient''s date of birth - the BPA-I/RAAS analogue of AP_COIDADE.
+    description: 'Codes whether IDADEPAC is expressed in years, months or days, computed from
+      the patient''s date of birth - the BPA-I/RAAS analogue of AP_COIDADE.
 
       '
     codelists:
@@ -1320,13 +1356,13 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   TPUPS:
     official_name: Tipo de Estabelecimento
     translated_name: Establishment type code
-    description: 'Same CNES establishment-type code as AP_TPUPS, on the unprefixed
-      BPA-I/RAAS layouts.
+    description: 'Same CNES establishment-type code as AP_TPUPS, on the unprefixed BPA-I/RAAS
+      layouts.
 
       '
     codelists:
@@ -1334,14 +1370,14 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
   UFMUN:
     official_name: UF+Municipio do estabelecimento
     translated_name: Establishment's municipality IBGE code
     description: '7-char IBGE UF+municipality code of where the establishment is located,
-      on the unprefixed BPA-I/RAAS layouts - the place of care, not the patient''s
-      residence (MUNPAC).
+      on the unprefixed BPA-I/RAAS layouts - the place of care, not the patient''s residence
+      (MUNPAC).
 
       '
     codelists:
@@ -1350,5 +1386,5 @@ variables:
     code_system: external
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
-      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field
-      names/definitions appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions
+      appear in section 4.1 SAD*.DBF and 4.2 PS*.DBF'

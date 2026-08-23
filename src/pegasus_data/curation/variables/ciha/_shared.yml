@@ -1,0 +1,85 @@
+system: CIHA
+variables:
+  ANO_CMPT:
+    official_name: Ano de processamento
+    translated_name: Processing year
+    description: Four-digit year of the competência in which the record was processed, not
+      the year of admission. CIHA records care NOT funded by SUS, reported so the Ministry
+      sees the whole picture; the column carries SIH's meaning on a population SIH does not
+      cover.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, campo ANO_CMPT'
+  COD_IDADE:
+    official_name: Unidade de medida da idade
+    translated_name: Age unit
+    description: Which unit the IDADE field is in — minutes, hours, days, months or years.
+      IDADE is meaningless without it, and no codelist for the unit exists in any source,
+      so the pair is carried raw. CIHA records care NOT funded by SUS, reported so the Ministry
+      sees the whole picture; the column carries SIH's meaning on a population SIH does not
+      cover.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, campo COD_IDADE'
+  DIAG_PRINC:
+    official_name: Código do diagnóstico principal
+    translated_name: Principal diagnosis
+    description: ICD-10 code of the condition that motivated the admission, stored without
+      the dot. CIHA records care NOT funded by SUS, reported so the Ministry sees the whole
+      picture; the column carries SIH's meaning on a population SIH does not cover.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, campo DIAG_PRINC'
+  DT_SAIDA:
+    official_name: Data de saída
+    translated_name: Discharge date
+    description: Date the patient left, as AAAAMMDD text. CIHA records care NOT funded by
+      SUS, reported so the Ministry sees the whole picture; the column carries SIH's meaning
+      on a population SIH does not cover.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, campo DT_SAIDA'
+  MES_CMPT:
+    official_name: Mês de processamento
+    translated_name: Processing month
+    description: Two-digit month of the competência the record was processed in. CIHA records
+      care NOT funded by SUS, reported so the Ministry sees the whole picture; the column
+      carries SIH's meaning on a population SIH does not cover.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, campo MES_CMPT'
+  PROC_REA:
+    official_name: Procedimento realizado
+    translated_name: Procedure performed
+    description: SIGTAP code of the procedure performed. CIHA records care NOT funded by SUS,
+      reported so the Ministry sees the whole picture; the column carries SIH's meaning on
+      a population SIH does not cover.
+    code_system: external
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, campo PROC_REA'
+  UTI_INT_TO:
+    official_name: Quantidade de diárias em unidade intermediária
+    translated_name: Intermediate-care days
+    description: Days in an intermediate care unit, a step-down level between ward and ICU.
+      CIHA records care NOT funded by SUS, reported so the Ministry sees the whole picture;
+      the column carries SIH's meaning on a population SIH does not cover.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, campo UTI_INT_TO'
+  UTI_MES_TO:
+    official_name: Quantidade de dias de UTI no mês
+    translated_name: ICU days in the month
+    description: Intensive-care days recorded on the record within the competência. CIHA records
+      care NOT funded by SUS, reported so the Ministry sees the whole picture; the column
+      carries SIH's meaning on a population SIH does not cover.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, campo UTI_MES_TO'

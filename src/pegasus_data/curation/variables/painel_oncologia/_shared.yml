@@ -1,0 +1,10 @@
+system: PAINEL_ONCOLOGIA
+variables:
+  SEXO:
+    official_name: Sexo do paciente
+    translated_name: Patient sex
+    description: Sex of the patient on the oncology panel record. Each DATASUS system codes
+      sex on its own scheme, so check the values before pooling with SIH or SINASC.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[PAINEL-ONCO] Painel de Oncologia layout, campo SEXO, campo SEXO'
