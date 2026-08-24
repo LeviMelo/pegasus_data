@@ -93,6 +93,7 @@ class RetrievalPlan:
     lake_years: tuple[int, ...] = ()
     fetch_years: tuple[int, ...] = ()
     year_resolutions: tuple[tuple[int, str], ...] = ()
+    year_months: tuple[tuple[int, tuple[int, ...]], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

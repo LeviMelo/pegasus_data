@@ -682,6 +682,52 @@ def packed_mapping_is_time_invariant(
 
 
 @lru_cache(maxsize=512)
+def packed_mapping_covers_interval(
+    codelist: str, *, system: str | None = None, start: int, end: int
+) -> bool:
+    """Whether the pack has authoritative rows throughout a source interval.
+
+    This is intentionally stricter than ``read_packed``: that reader may report
+    and fall back to a current mapping for presentation, while a derived semantic
+    value must not turn such a fallback into historical truth.
+    """
+    import pyarrow.compute as pc
+
+    data = _dataset()
+    if data is None:
+        return False
+    hit = data.to_table(filter=pc.field("codelist") == codelist.upper())
+    if not hit.num_rows or not {"valid_from", "valid_to"} <= set(hit.column_names):
+        return False
+    systems = hit["system"].to_pylist()
+    wanted = (system or "").upper()
+    specific = [
+        index
+        for index, value in enumerate(systems)
+        if value and str(value).upper() == wanted
+    ]
+    shared = [index for index, value in enumerate(systems) if not value]
+    indices = specific + shared if specific else shared or list(range(hit.num_rows))
+    windows = [
+        (
+            str(hit["valid_from"][index].as_py() or ""),
+            str(hit["valid_to"][index].as_py() or ""),
+        )
+        for index in indices
+    ]
+    cursor = start
+    while cursor <= end:
+        if not any(
+            (not lo and not hi) or covers(lo, hi, cursor, cursor)
+            for lo, hi in windows
+        ):
+            return False
+        year, month = divmod(cursor, 100)
+        cursor = (year + 1) * 100 + 1 if month == 12 else year * 100 + month + 1
+    return True
+
+
+@lru_cache(maxsize=512)
 def _read_packed(
     codelist: str,
     system: str | None,
@@ -862,6 +908,12 @@ def build_cnes_registry_pack(
     not described as runtime acquisition: a fresh runtime catalog does not contain
     the documentary registry codelists needed to build this artifact.
     """
+    if not years:
+        raise RuntimeError(
+            "CNES names coverage cannot be inferred from individual dictionary "
+            "validity windows; pass years=... from verified complete source snapshots"
+        )
+
     import pyarrow as pa
     import pyarrow.parquet as pq
 
@@ -905,29 +957,7 @@ def build_cnes_registry_pack(
             "registry codelists; install a compiled cnes_registry.parquet resource "
             "instead of attempting to derive it from an empty runtime catalog"
         )
-    covered_years = set(years or ())
-    if years is None:
-        for item in ordered:
-            lo, hi, source_ref = item[3], item[4], item[6]
-            lo_year = int(lo[:4]) if len(lo) >= 4 and lo[:4].isdigit() else None
-            hi_year = int(hi[:4]) if len(hi) >= 4 and hi[:4].isdigit() else None
-            if lo_year is not None and hi_year is not None:
-                covered_years.update(range(lo_year, hi_year + 1))
-            else:
-                covered_years.update(
-                    year for year in (lo_year, hi_year) if year is not None
-                )
-            covered_years.update(
-                int(match.group(0)[:4])
-                for match in re.finditer(
-                    r"(?:19|20)\d{2}(?:0[1-9]|1[0-2])", source_ref
-                )
-            )
-    if not covered_years:
-        raise RuntimeError(
-            "CNES names evidence has no discoverable source years; pass years=... "
-            "explicitly rather than publishing an artifact that claims no coverage"
-        )
+    covered_years = set(years)
     table = pa.table(
         {
             "cnes": pa.array([item[0] for item in ordered], pa.string()),

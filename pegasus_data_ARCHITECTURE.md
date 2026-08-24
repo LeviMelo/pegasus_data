@@ -183,15 +183,16 @@ pegasus_data/
   locate.py               five-layer placement resolution (§15)
   labelpack.py            the shipped label pack and bindings (§14.9)
   crosswalk.py            temporal, cardinality-safe identifier enrichment (§14.13)
+  _vintage.py             exact/coarse/unknown source-vintage intervals (§14.13)
   providers.py            resource requirement/provider contracts (§14.13)
   _resources.py           versioned bundled and optional-resource lifecycle (§14.13)
   _query.py               compatibility facade for query internals (§14.13)
   _query_engine/
     model.py              immutable intent, plans, reports and input parsing
-    capabilities.py       compiled/local publication and axis capabilities
-    planner.py            analytical intent → retrieval/resource plan
+    capabilities.py       compiled/local source-publication capabilities
+    planner.py            source intent → retrieval/resource plan
     executor.py           lake/fetch/hybrid execution and report assembly
-    filters.py            declared temporal/geographic row filtering
+    filters.py            immutable publication competence and source-period selection
     semantics.py          label policy, vintage dimensions and enrichments
     core.py               compatibility exports for the split engine (§14.13)
   render_groups.py        ONE vintage-scoped render path, shared by fetch and load (§8.2)
@@ -734,6 +735,12 @@ the municipality is a capital. These are not interchangeable mappings.
 `semantics/relations.py` therefore models `label_of`, `rollup_to`,
 `attribute_of` and `crosswalk_to` explicitly, seeded from `curation/joins.yml`
 and persisted in `semantic_relations`.
+
+Each persisted row is a temporal assertion with a stable `relation_id`; its
+validity window is part of that identity. Adjacent historical decisions can
+therefore coexist, while overlapping assertions in the same authority and
+semantic slot are rejected. A lossless schema migration preserves legacy rows
+and assigns their deterministic identities.
 
 The renderer and query layer only put an identity-level `*_label` beside a raw
 code. Roll-ups and attributes require an explicit dimension request. An
@@ -1469,7 +1476,11 @@ planner owns these safety rules:
   `label_of` relation; reviewed catalog decisions override shipped curation and
   explicit legacy `variable_docs.codelist` entries are a migration bridge.
   `rollup_to` and `attribute_of` are only produced by `dimensions=`, using
-  immutable source competence/year for semantic validity. Relation-level
+  immutable source-vintage intervals for semantic validity. An exact monthly
+  publication supplies `[YYYYMM, YYYYMM]`; an annual publication supplies
+  `[YYYY01, YYYY12]`; genuinely unknown provenance remains unknown. A coarse
+  interval is resolved only when one effective relation and mapping remains
+  valid throughout it. Relation-level
   `valid_from`/`valid_to` windows select historical artifacts with deterministic
   local-over-shipped-over-legacy and dataset/system specificity. If a temporal
   mapping needs a vintage that provenance cannot supply, its derived value is
@@ -1479,6 +1490,8 @@ planner owns these safety rules:
 `_competencia` is immutable source/publication provenance in this path. It may
 select a monthly lake publication and a historical semantic relation, but is
 never replaced with an admission, discharge, death or registration date.
+`_source_resolution` distinguishes a deliberate annual enclosure from missing
+monthly provenance. Mixed-resolution plans retain month pushdown per year.
 
 The execution boundary is explicit:
 
@@ -1496,7 +1509,9 @@ is never overwritten. Placeholder/invalid raw values may produce a unique
 `CNPJ_resolved`; agreeing observed values are confirmed; disagreement and
 multiple applicable targets become null with explicit status and
 `CrosswalkAmbiguityWarning`. Row count cannot change unless `explode=True` is
-requested. Reverse CNPJ→CNES uses the same rule and is explicitly one-to-many.
+requested. A direct primitive supplied only `year=2020` evaluates the complete
+`[202001, 202012]` interval; it never substitutes January or December. Reverse
+CNPJ→CNES uses the same rule and is explicitly one-to-many.
 
 The rebuilt artifact is **10,339,656 bytes and 1,774,993 evidence rows**, with
 273,514 CNES and 265,418 CNPJ identifiers. The audit found 951 ambiguous source
@@ -1521,9 +1536,13 @@ the bundled compact pack. CNES history (`CNES.ST`) and establishment names are
 separate optional resources, with the latter explicitly compiled as
 `cnes_registry.parquet` from a maintainer evidence catalog. That compiler is not
 presented as fresh-install acquisition and refuses when documentary registry
-evidence is absent. Its local manifest records schema/content identity, checksum
-and actual discovered covered years; all runtime opens pass through
-`ResourceManager.ensure()`. CNES registry enrichment is driven by the CNES codes
+evidence is absent. Its local manifest records schema ABI, independently
+updatable content identity, checksum and explicitly asserted covered years from
+verified complete source snapshots; record validity windows never manufacture a
+completeness claim. All runtime opens pass through the resource-resolution
+interface, `ResourceManager.ensure()`. Lake-backed resources such as CNES history
+delegate integrity and completeness to lake catalogs/fingerprints rather than to
+the static-pack validator. CNES registry enrichment is driven by the CNES codes
 and relevant validity period in selected rows, never restricted by the fact
 publication's UF. A query reports a missing requirement before touching the fact
 dataset and never starts an unbounded build implicitly.

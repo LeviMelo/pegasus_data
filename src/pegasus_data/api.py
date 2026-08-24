@@ -930,6 +930,7 @@ def _read_generations(
         # error, and dropped again before the result is returned.
         optional.append("year")
         optional.append("_competencia")
+        optional.append("_source_resolution")
         try:
             table = cat.lake.read(
                 system=system,
@@ -1092,6 +1093,8 @@ def load(
             rendered = rendered.drop_columns(["year"])
         if not _preserve_internal and "_competencia" in rendered.column_names:
             rendered = rendered.drop_columns(["_competencia"])
+        if not _preserve_internal and "_source_resolution" in rendered.column_names:
+            rendered = rendered.drop_columns(["_source_resolution"])
         for note in axis_notes:
             render_report.warnings.append(note)
         if structurally_absent and render_report is not None:
@@ -1399,7 +1402,9 @@ def scan(
                 # Month competence is retained solely to choose reference
                 # vintages in load(); it is not a public data column.
                 projection = [
-                    name for name in physical.schema.names if name != "_competencia"
+                    name
+                    for name in physical.schema.names
+                    if name not in {"_competencia", "_source_resolution"}
                 ]
             if requested is not None:
                 missing = [name for name in requested if name not in available]

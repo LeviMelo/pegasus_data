@@ -221,17 +221,11 @@ class ResourceManager:
                 f"local resource schema {local_manifest.get('resource_schema_version')!r} "
                 f"is incompatible with required {RESOURCE_SCHEMA_VERSION}"
             )
-        bundled_manifest = json.loads(
-            (self.bundled_dir / "manifest.json").read_text(encoding="utf-8")
-        )
-        required_content = str(bundled_manifest.get("resource_content_version", ""))
-        if str(local_manifest.get("resource_content_version", "")) != required_content:
-            raise ResourceIntegrityError(
-                f"local resource content version "
-                f"{local_manifest.get('resource_content_version')!r} is incompatible "
-                f"with required {required_content!r}"
-            )
         expected = (local_manifest.get("resources") or {}).get(record.name) or {}
+        if expected.get("file") and expected["file"] != Path(record.path).name:
+            raise ResourceIntegrityError(
+                f"local resource {record.name!r} does not match its manifest identity"
+            )
         if not expected or expected.get("sha256") != record.sha256:
             raise ResourceIntegrityError(
                 f"local resource {record.name!r} is absent from its manifest or failed checksum"
@@ -245,7 +239,7 @@ class ResourceManager:
         """
         wanted = str(name).upper().replace("-", "_")
         if wanted in {"CNES_NAMES", "CNES_NAME"}:
-            from .catalog.store import Catalog
+            from .catalog.store import Catalog, utcnow
             from .labelpack import build_cnes_registry_pack
 
             store = Catalog(self.settings.catalog_path)
@@ -268,8 +262,9 @@ class ResourceManager:
             local_manifest.update(
                 {
                     "resource_schema_version": RESOURCE_SCHEMA_VERSION,
-                    "resource_content_version": bundled_manifest.get(
-                        "resource_content_version"
+                    "resource_content_version": local_manifest.get(
+                        "resource_content_version",
+                        bundled_manifest.get("resource_content_version"),
                     ),
                 }
             )
@@ -277,6 +272,7 @@ class ResourceManager:
                 "file": path.name,
                 "bytes": bytes_out,
                 "sha256": _digest(path),
+                "content_version": utcnow(),
             }
             local_manifest_path.write_text(
                 json.dumps(local_manifest, indent=2, sort_keys=True) + "\n",

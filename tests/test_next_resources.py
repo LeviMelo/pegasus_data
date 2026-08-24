@@ -123,9 +123,7 @@ def test_optional_name_coverage_does_not_fill_holes_between_built_years(settings
         ResourceManager(settings).ensure("cnes_names", period=(202301, 202312))
 
 
-def test_all_years_name_build_persists_discovered_coverage(settings) -> None:
-    import pyarrow.parquet as pq
-
+def test_name_build_refuses_to_infer_coverage_from_record_windows(settings) -> None:
     from pegasus_data.catalog.store import Catalog
     from pegasus_data.providers import provider
 
@@ -145,14 +143,12 @@ def test_all_years_name_build_persists_discovered_coverage(settings) -> None:
         )
     finally:
         store.close()
-    ResourceManager(settings).build("cnes_names")
-    path = settings.root / "resources" / "cnes_registry.parquet"
-    metadata = pq.ParquetFile(path).schema_arrow.metadata or {}
-    assert metadata[b"pegasus_covered_years"] == b"2022,2023"
-    assert provider("cnes_names").describe(settings, (202201, 202312)).local
+    with pytest.raises(RuntimeError, match="cannot be inferred"):
+        ResourceManager(settings).build("cnes_names")
+    assert not provider("cnes_names").describe(settings, (202201, 202312)).local
 
 
-def test_optional_resource_rejects_incompatible_content_version(settings) -> None:
+def test_optional_resource_accepts_independently_newer_content_version(settings) -> None:
     from pegasus_data.catalog.store import Catalog
 
     store = Catalog(settings.catalog_path)
@@ -174,10 +170,36 @@ def test_optional_resource_rejects_incompatible_content_version(settings) -> Non
     ResourceManager(settings).build("cnes_names", years=[2024])
     manifest_path = settings.root / "resources" / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest["resource_content_version"] = "incompatible"
+    manifest["resource_content_version"] = "2026-09-15"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    with pytest.raises(ResourceIntegrityError, match="content version"):
-        ResourceManager(settings).ensure("cnes_names", period=(202401, 202412))
+    assert ResourceManager(settings).ensure(
+        "cnes_names", period=(202401, 202412)
+    ).available
+
+
+def test_capability_compiler_rejects_duplicate_source_declarations(
+    tmp_path, monkeypatch
+) -> None:
+    import pegasus_data.ontology as ontology
+    from pegasus_data._query_engine.capabilities import compile_capability_payload
+
+    curation = tmp_path / "curation"
+    datasets = curation / "datasets"
+    datasets.mkdir(parents=True)
+    body = (
+        "datasets:\n"
+        "  one:\n"
+        "    source_publication:\n"
+        "      dataset: SIH.RD\n"
+        "      observed_systems: [SIHSUS]\n"
+        "      observed_series: [RD]\n"
+        "      temporal_resolution: month\n"
+    )
+    (datasets / "a.yml").write_text(body, encoding="utf-8")
+    (datasets / "b.yml").write_text(body.replace("one:", "two:"), encoding="utf-8")
+    monkeypatch.setattr(ontology, "CURATION", curation)
+    with pytest.raises(ValueError, match="duplicate source-publication"):
+        compile_capability_payload()
 
 
 def test_optional_name_resource_rejects_wrong_schema(settings) -> None:

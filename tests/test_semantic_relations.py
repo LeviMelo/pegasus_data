@@ -161,6 +161,7 @@ def test_adjudicated_dimension_is_effective_immediately(settings, catalog, monke
         "read_packed",
         lambda *_args, **_kwargs: pa.table({"code": ["270430"], "label": ["Reviewed"]}),
     )
+    monkeypatch.setattr(labelpack, "packed_mapping_covers_interval", lambda *_a, **_k: True)
     query_plan = pg.plan(
         "SIH-RD", period=2020, dimensions=["MUNIC_RES.custom_region"], settings=settings
     )
@@ -195,6 +196,86 @@ def test_relation_validity_selects_historical_artifact(monkeypatch) -> None:
     )[0].artifact == "CID_NEW"
 
 
+def test_adjudicated_temporal_history_survives_catalog_reopen(tmp_path) -> None:
+    from pegasus_data.catalog.store import Catalog
+
+    path = tmp_path / "temporal.sqlite"
+    store = Catalog(path)
+    old = SemanticRelation(
+        "SIHSUS", "SIH.RD", "DIAG_PRINC", RelationType.ROLLUP_TO,
+        "chapter", "chapter", "CID_OLD", valid_to="201012",
+    )
+    new = SemanticRelation(
+        "SIHSUS", "SIH.RD", "DIAG_PRINC", RelationType.ROLLUP_TO,
+        "chapter", "chapter", "CID_NEW", valid_from="201101",
+    )
+    adjudicate(store, "old", old, by="test")
+    adjudicate(store, "new", new, by="test")
+    assert store.count("semantic_relations") == 2
+    store.close()
+
+    reopened = Catalog(path)
+    try:
+        assert relations_for(
+            "SIHSUS", "SIH.RD", "DIAG_PRINC",
+            relation_type=RelationType.ROLLUP_TO, catalog=reopened, vintage=201006,
+        )[0].artifact == "CID_OLD"
+        assert relations_for(
+            "SIHSUS", "SIH.RD", "DIAG_PRINC",
+            relation_type=RelationType.ROLLUP_TO, catalog=reopened, vintage=201106,
+        )[0].artifact == "CID_NEW"
+    finally:
+        reopened.close()
+
+
+def test_curated_temporal_history_seeds_as_two_assertions(catalog, tmp_path) -> None:
+    (tmp_path / "joins.yml").write_text(
+        """
+relations:
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: DIAG_PRINC
+    relation: rollup_to
+    target_type: chapter
+    target_name: chapter
+    artifact: CID_OLD
+    valid_to: '201012'
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: DIAG_PRINC
+    relation: rollup_to
+    target_type: chapter
+    target_name: chapter
+    artifact: CID_NEW
+    valid_from: '201101'
+""".lstrip(),
+        encoding="utf-8",
+    )
+    assert seed_relations(catalog, tmp_path) == 2
+    rows = catalog.query(
+        "SELECT artifact, valid_from, valid_to FROM semantic_relations "
+        "WHERE field_name='DIAG_PRINC' ORDER BY valid_from"
+    )
+    assert [(row["artifact"], row["valid_from"], row["valid_to"]) for row in rows] == [
+        ("CID_OLD", None, "201012"),
+        ("CID_NEW", "201101", None),
+    ]
+
+
+def test_overlapping_local_temporal_assertions_are_rejected(catalog) -> None:
+    first = SemanticRelation(
+        "SIHSUS", "SIH.RD", "FIELD", RelationType.ROLLUP_TO,
+        "region", "region", "A", valid_from="202001", valid_to="202012",
+    )
+    second = SemanticRelation(
+        "SIHSUS", "SIH.RD", "FIELD", RelationType.ROLLUP_TO,
+        "region", "region", "B", valid_from="202006", valid_to="202105",
+    )
+    adjudicate(catalog, "first", first, by="test")
+    with pytest.raises(ValueError, match="overlapping temporal relation"):
+        adjudicate(catalog, "second", second, by="test")
+
+
 def test_longitudinal_dimension_uses_relation_artifact_per_source_vintage(
     settings, monkeypatch
 ) -> None:
@@ -220,6 +301,7 @@ def test_longitudinal_dimension_uses_relation_artifact_per_source_vintage(
             {"code": ["A00"], "label": ["old" if artifact == "CID_OLD" else "new"]}
         ),
     )
+    monkeypatch.setattr(labelpack, "packed_mapping_covers_interval", lambda *_a, **_k: True)
     query_plan = pg.plan(
         "SIH-RD", period=(2010, 2011), dimensions=["DIAG_PRINC.chapter"],
         settings=settings,
@@ -259,10 +341,14 @@ def test_local_reviewed_relation_dominates_shipped_relation(catalog, monkeypatch
         "region", "region", "SHIPPED",
     )
     monkeypatch.setattr(relation_module, "load_relations", lambda *_args: (shipped,))
-    catalog.execute(
-        "INSERT INTO semantic_relations (system, dataset, field_name, relation_type, "
-        "target_type, target_name, artifact, status) VALUES (?,?,?,?,?,?,?,'adjudicated')",
-        ("SIHSUS", "SIH.RD", "FIELD", "rollup_to", "region", "region", "LOCAL"),
+    adjudicate(
+        catalog,
+        "local",
+        SemanticRelation(
+            "SIHSUS", "SIH.RD", "FIELD", RelationType.ROLLUP_TO,
+            "region", "region", "LOCAL",
+        ),
+        by="test",
     )
     effective = relations_for(
         "SIHSUS", "SIH.RD", "FIELD",
@@ -291,4 +377,64 @@ def test_unknown_required_dimension_vintage_is_null(settings, monkeypatch) -> No
         query_plan, report, settings,
     )
     assert result["MUNIC_RES_health_region"].to_pylist() == [None]
+    assert report.dimensions[0]["unresolved_vintage_rows"] == 1
+
+
+def test_annual_dimension_uses_mapping_only_when_safe_for_the_whole_year(
+    settings, monkeypatch
+) -> None:
+    import pegasus_data.labelpack as labelpack
+    from pegasus_data._query import QueryReport, _apply_dimensions
+
+    calls: list[int] = []
+
+    def stable_mapping(_artifact, *, competencia=None, **_kwargs):
+        calls.append(int(competencia))
+        return pa.table({"code": ["270430"], "label": ["Stable region"]})
+
+    monkeypatch.setattr(labelpack, "read_packed", stable_mapping)
+    query_plan = pg.plan(
+        "SIH-RD", period=2020, dimensions=["MUNIC_RES.health_region"],
+        settings=settings,
+    )
+    result = _apply_dimensions(
+        pa.table({"MUNIC_RES": ["270430"], "year": [2020], "_competencia": [None]}),
+        query_plan, QueryReport(), settings,
+    )
+    assert result["MUNIC_RES_health_region"].to_pylist() == ["Stable region"]
+    assert calls == list(range(202001, 202013))
+
+
+def test_annual_dimension_is_null_when_relation_changes_midyear(
+    settings, monkeypatch
+) -> None:
+    import pegasus_data.labelpack as labelpack
+    import pegasus_data.semantics.relations as relation_module
+    from pegasus_data._query import QueryReport, _apply_dimensions
+
+    relations = (
+        SemanticRelation(
+            "SIHSUS", "SIH.RD", "FIELD", RelationType.ROLLUP_TO,
+            "region", "region", "OLD", valid_to="202006",
+        ),
+        SemanticRelation(
+            "SIHSUS", "SIH.RD", "FIELD", RelationType.ROLLUP_TO,
+            "region", "region", "NEW", valid_from="202007",
+        ),
+    )
+    monkeypatch.setattr(relation_module, "load_relations", lambda *_args: relations)
+    monkeypatch.setattr(
+        labelpack,
+        "read_packed",
+        lambda *_a, **_k: pytest.fail("a changing annual relation must not be read"),
+    )
+    query_plan = pg.plan(
+        "SIH-RD", period=2020, dimensions=["FIELD.region"], settings=settings
+    )
+    report = QueryReport()
+    result = _apply_dimensions(
+        pa.table({"FIELD": ["x"], "year": [2020], "_competencia": [None]}),
+        query_plan, report, settings,
+    )
+    assert result["FIELD_region"].to_pylist() == [None]
     assert report.dimensions[0]["unresolved_vintage_rows"] == 1

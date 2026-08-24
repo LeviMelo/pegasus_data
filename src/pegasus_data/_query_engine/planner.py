@@ -55,7 +55,15 @@ def plan(
     adaptations: list[Adaptation] = []
     years = spec.period.years if spec.period else ()
     months: tuple[int, ...] = ()
+    year_months: list[tuple[int, tuple[int, ...]]] = []
     if spec.period and spec.period.precision == "month":
+        resolutions = dict(capabilities.year_resolutions)
+        for year in years:
+            lo = spec.period.start % 100 if year == spec.period.start // 100 else 1
+            hi = spec.period.end % 100 if year == spec.period.end // 100 else 12
+            pushed = tuple(range(lo, hi + 1)) if resolutions.get(year) == "month" else ()
+            year_months.append((year, pushed))
+        months = tuple(sorted({month for _year, values in year_months for month in values}))
         annual_enclosure = resolution in {"year", "mixed"} or any(
             value == "year" for _, value in capabilities.year_resolutions
         )
@@ -71,10 +79,6 @@ def plan(
                     f"requested {spec.period}; source supports annual resolution only"
                 )
             adaptations.append(adaptation)
-        else:
-            months = tuple(range(1, 13)) if len(years) > 1 else tuple(
-                range(spec.period.start % 100, spec.period.end % 100 + 1)
-            )
     physical_uf = spec.geography.uf if spec.geography and has_uf_axis else None
     if spec.geography and spec.geography.municipality:
         raise ValueError(
@@ -86,7 +90,7 @@ def plan(
             "requested UF is not a source/publication partition for this dataset; "
             "Pegasus will not manufacture it by filtering a record field"
         )
-    hidden = {"_source_path", "year", "_competencia"}
+    hidden = {"_source_path", "year", "_competencia", "_source_resolution"}
     hidden.update(item.field for item in spec.dimensions)
     for item in spec.enrichments:
         if item.target == "CNPJ":
@@ -123,6 +127,7 @@ def plan(
             system, series, resolution, years, months, physical_uf, strategy,
             tuple(sorted(hidden)), tuple(adaptations), capabilities.lake_years,
             capabilities.fetch_years, capabilities.year_resolutions,
+            tuple(year_months),
         ),
         SemanticPlan(labels, spec.dimensions, spec.enrichments, required, requirements),
     )

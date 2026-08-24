@@ -402,11 +402,15 @@ superseded by these verified closures:
 | representation decisions were family-local | fetch/build reconcile globally; singleton calls honor open conflicts | `test_cross_family_schema_contradiction_is_detected_globally`, `test_open_conflict_also_refuses_a_singleton_candidate` |
 | unknown semantic vintage used current mapping | temporal derivation is null unless explicitly time-invariant | `test_unknown_required_dimension_vintage_is_null` |
 | relation validity/specificity was non-temporal | `valid_from`/`valid_to` plus deterministic local/curated/legacy and dataset/system precedence | semantic relation adversarial tests |
-| all-years CNES name build claimed no years | actual evidence years are persisted; empty/undiscoverable coverage refuses | `test_all_years_name_build_persists_discovered_coverage` |
-| optional resources bypassed a common gate | local manifest schema/content/checksum/coverage validation through `ResourceManager` | resource lifecycle tests |
+| CNES-name row windows were mistaken for source completeness | compiler requires explicit covered years from verified complete source snapshots | `test_name_build_refuses_to_infer_coverage_from_record_windows` |
+| resource freshness was required to equal the wheel snapshot | schema ABI, manifest identity and checksum remain strict while compatible newer content is accepted | `test_optional_resource_accepts_independently_newer_content_version` |
 | CNES lookup inherited fact UF | registry scan is driven by CNES identifiers and validity years only | `test_cnes_registry_enrichment_does_not_inherit_fact_geography` |
 | hand-maintained capability duplication | `source_publication` curation compiles the compact runtime JSON; semantic axes remain descriptive | `test_query_capabilities_are_compiled_from_curation` |
 | omitted period could launch historical acquisition | executor refuses non-local unbounded work without `allow_unbounded=True` | `test_unbounded_source_acquisition_requires_explicit_opt_in` |
+| catalog key overwrote historical adjudications in one semantic slot | stable temporal `relation_id`, local/curated authority and lossless migration retain adjacent assertions; overlaps fail | temporal persistence and migration tests |
+| annual vintage collapsed to unknown or direct enrichment chose December | source-vintage intervals require one relation/mapping across the full year | annual dimension and year-only crosswalk tests |
+| mixed annual/monthly execution retained arbitrary null competence | per-source resolution distinguishes annual enclosure from broken monthly provenance; month pushdown stays per year | mixed-resolution query tests |
+| duplicate source capability declarations silently used the last file | capability compilation fails on duplicate dataset declarations | `test_capability_compiler_rejects_duplicate_source_declarations` |
 
 Planning remains metadata-only; requested-slice decoding and explicit bounded
 resource builds are the first operations allowed to inspect relevant rows.

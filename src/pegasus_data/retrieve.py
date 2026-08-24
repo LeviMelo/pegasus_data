@@ -136,6 +136,9 @@ class FetchReport:
     source_facts: dict[str, tuple[str | None, int | None, int | None]] = field(
         default_factory=dict
     )
+    #: source path -> explicit publication precision. This keeps an annual
+    #: enclosure distinct from a monthly source whose competence is missing.
+    source_resolutions: dict[str, str] = field(default_factory=dict)
     files_matched: int = 0
     files_read: int = 0
     rows: int = 0
@@ -1247,12 +1250,19 @@ def _select_files(
             )
             from .decode.base import logical_source_id
 
-            report.source_facts[
-                logical_source_id(str(item["path"]), str(item.get("member") or ""))
-            ] = (
+            source_id = logical_source_id(
+                str(item["path"]), str(item.get("member") or "")
+            )
+            report.source_facts[source_id] = (
                 family_id,
                 int(year) if year is not None else None,
                 competencia,
+            )
+            normalized = int(item.get("normalized_date") or 0)
+            report.source_resolutions[source_id] = (
+                "month" if month else
+                "year" if year is not None and normalized == int(year) * 100 else
+                "unknown"
             )
 
     if wanted_columns and report.families:

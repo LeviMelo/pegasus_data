@@ -6,6 +6,7 @@ that any command can be interrupted and resumed from whatever the catalog knows.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import sqlite3
@@ -17,7 +18,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 def utcnow() -> str:
@@ -27,6 +28,69 @@ def utcnow() -> str:
 
 def _schema_sql() -> str:
     return resources.files("pegasus_data.catalog").joinpath("schema.sql").read_text(encoding="utf-8")
+
+
+def _semantic_relation_id(row: Any) -> str:
+    """Stable identity for one semantic assertion and its validity window."""
+    keys = set(row.keys()) if hasattr(row, "keys") else set(row)
+
+    def value(name: str) -> str:
+        if name == "authority" and name not in keys:
+            return "local"
+        return str(row[name] or "")
+
+    identity = [
+        value(name)
+        for name in (
+            "authority", "system", "dataset", "field_name", "relation_type",
+            "target_type", "target_name", "valid_from", "valid_to",
+        )
+    ]
+    payload = json.dumps(identity, ensure_ascii=True, separators=(",", ":"))
+    return "rel_" + hashlib.sha256(payload.encode()).hexdigest()[:24]
+
+
+def _migrate_semantic_relation_identity(
+    conn: sqlite3.Connection, schema: str
+) -> None:
+    """Losslessly give legacy semantic relations temporal assertion identities.
+
+    This is deliberately narrower than the generic table rebuild command: the
+    old table has exactly one row per semantic slot, every column is preserved,
+    and the new key is deterministically derived from those preserved values.
+    """
+    columns = [str(row[1]) for row in conn.execute("PRAGMA table_info(semantic_relations)")]
+    if not columns or "relation_id" in columns:
+        return
+    match = next(
+        (item for item in _CREATE_TABLE.finditer(schema) if item.group(1) == "semantic_relations"),
+        None,
+    )
+    if match is None:  # pragma: no cover - the shipped schema is tested separately
+        raise CatalogSchemaError("no shipped semantic_relations declaration")
+    rows = list(conn.execute("SELECT * FROM semantic_relations"))
+    names = (
+        "system", "dataset", "field_name", "relation_type", "target_type",
+        "target_name", "artifact", "source_namespace", "target_namespace",
+        "valid_from", "valid_to", "status", "evidence",
+    )
+    conn.commit()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        conn.execute(
+            "ALTER TABLE semantic_relations RENAME TO semantic_relations__legacy_identity"
+        )
+        conn.execute(match.group(0).rstrip(";"))
+        conn.executemany(
+            "INSERT INTO semantic_relations (relation_id, " + ", ".join(names) + ") "
+            "VALUES (" + ",".join("?" for _ in range(len(names) + 1)) + ")",
+            [(_semantic_relation_id(row), *(row[name] for name in names)) for row in rows],
+        )
+        conn.execute("DROP TABLE semantic_relations__legacy_identity")
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
 
 
 _CREATE_TABLE = re.compile(
@@ -286,9 +350,10 @@ class Catalog:
         and is meant to be re-crawled into over years, so upgrading it in place is
         a requirement, not a convenience.
 
-        Only additive changes are applied automatically — new nullable columns —
-        which is what a schema that only ever gains fields needs. Anything
-        destructive would need a real migration and is deliberately not done here.
+        Additive changes are applied automatically. The one structural exception
+        is the explicitly versioned, lossless semantic-relation identity migration:
+        every old row and column is retained while a deterministic temporal key is
+        added. Other structural changes still require an explicit rebuild.
 
         What is *not* left silent is the case additive migration cannot reach: a
         changed type, a changed primary key, a dropped column. Those are refused,
@@ -303,6 +368,7 @@ class Catalog:
         """
         with self._lock:
             schema = _schema_sql()
+            _migrate_semantic_relation_identity(self.conn, schema)
             # Columns first: the script also creates indexes over them, and an
             # index on a column the old table lacks fails before anything else
             # in the script has had a chance to run.

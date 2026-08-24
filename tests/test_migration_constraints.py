@@ -199,3 +199,42 @@ class TestTheVersionRow:
 
         with pytest.raises(CatalogSchemaError, match="understands"):
             Catalog(path)
+
+
+def test_legacy_semantic_relation_key_is_migrated_losslessly(tmp_path) -> None:
+    path = tmp_path / "relations.sqlite"
+    Catalog(path).close()
+    raw = sqlite3.connect(path)
+    raw.execute("DROP TABLE semantic_relations")
+    raw.execute(
+        """
+        CREATE TABLE semantic_relations (
+          system TEXT NOT NULL, dataset TEXT NOT NULL DEFAULT '', field_name TEXT NOT NULL,
+          relation_type TEXT NOT NULL, target_type TEXT NOT NULL,
+          target_name TEXT NOT NULL DEFAULT '', artifact TEXT NOT NULL,
+          source_namespace TEXT, target_namespace TEXT, valid_from TEXT, valid_to TEXT,
+          status TEXT NOT NULL DEFAULT 'adjudicated', evidence TEXT,
+          PRIMARY KEY (system, dataset, field_name, relation_type, target_type, target_name)
+        )
+        """
+    )
+    raw.execute(
+        "INSERT INTO semantic_relations (system,dataset,field_name,relation_type,"
+        "target_type,target_name,artifact,valid_to) VALUES "
+        "('SIHSUS','SIH.RD','DIAG_PRINC','rollup_to','chapter','chapter','CID_OLD','201012')"
+    )
+    raw.commit()
+    raw.close()
+
+    migrated = Catalog(path)
+    try:
+        rows = migrated.query(
+            "SELECT relation_id, authority, artifact, valid_to FROM semantic_relations"
+        )
+        assert len(rows) == 1
+        assert str(rows[0]["relation_id"]).startswith("rel_")
+        assert rows[0]["authority"] == "local"
+        assert rows[0]["artifact"] == "CID_OLD"
+        assert rows[0]["valid_to"] == "201012"
+    finally:
+        migrated.close()

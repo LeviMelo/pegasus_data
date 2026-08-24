@@ -58,6 +58,37 @@ def test_unknown_crosswalk_vintage_does_not_use_a_bounded_mapping(monkeypatch) -
     assert enriched["CNPJ_resolution_status"].to_pylist() == ["unresolved"]
 
 
+def test_year_does_not_choose_the_december_crosswalk(monkeypatch) -> None:
+    monkeypatch.setattr(
+        crosswalk,
+        "_crosswalk_slice",
+        lambda *_args, **_kwargs: {
+            "1": [
+                ("12345678000195", "202001", "202006", "A"),
+                ("11222333000181", "202007", "202012", "A"),
+            ]
+        },
+    )
+    enriched, report = crosswalk.enrich_cnpj(pa.table({"CNES": ["1"], "year": [2020]}))
+    assert enriched["CNPJ_resolved"].to_pylist() == [None]
+    assert enriched["CNPJ_resolution_status"].to_pylist() == ["coarse_vintage"]
+    assert report.ambiguous == 1
+
+
+def test_year_accepts_crosswalk_that_covers_the_whole_interval(monkeypatch) -> None:
+    monkeypatch.setattr(
+        crosswalk,
+        "_crosswalk_slice",
+        lambda *_args, **_kwargs: {
+            "1": [("12345678000195", "201901", "202112", "A")]
+        },
+    )
+    enriched, _report = crosswalk.enrich_cnpj(
+        pa.table({"CNES": ["1"], "year": [2020]})
+    )
+    assert enriched["CNPJ_resolved"].to_pylist() == ["12345678000195"]
+
+
 def test_explicit_explode_is_required_to_multiply_rows(monkeypatch) -> None:
     monkeypatch.setattr(
         crosswalk,

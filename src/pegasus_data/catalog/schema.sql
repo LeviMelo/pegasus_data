@@ -709,6 +709,8 @@ CREATE TABLE IF NOT EXISTS curation_state (
 -- remain evidence during migration; these rows say what KIND of operation a
 -- mapping performs, so a roll-up cannot compete with an identity label.
 CREATE TABLE IF NOT EXISTS semantic_relations (
+  relation_id      TEXT PRIMARY KEY,          -- stable identity of this temporal assertion
+  authority        TEXT NOT NULL DEFAULT 'local', -- local|curated
   system           TEXT NOT NULL,
   dataset          TEXT NOT NULL DEFAULT '',
   field_name       TEXT NOT NULL,
@@ -721,8 +723,10 @@ CREATE TABLE IF NOT EXISTS semantic_relations (
   valid_from       TEXT,
   valid_to         TEXT,
   status           TEXT NOT NULL DEFAULT 'adjudicated',
-  evidence         TEXT,
-  PRIMARY KEY (system, dataset, field_name, relation_type, target_type, target_name)
+  evidence         TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_semantic_relation_slot ON semantic_relations (
+  system, dataset, field_name, relation_type, target_type, target_name
 );
 
 CREATE TABLE IF NOT EXISTS adjudication_items (

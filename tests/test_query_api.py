@@ -165,7 +165,9 @@ def test_annual_publication_adapts_without_filtering_event_dates(settings) -> No
     table = pa.table(
         {
             "DTOBITO": ["01022020", "01032020", "2020-04-01", None],
+            "year": [2020, 2020, 2020, 2020],
             "_competencia": [None, None, None, None],
+            "_source_resolution": ["year", "year", "year", "year"],
             "VALUE": [1, 2, 3, 4],
         }
     )
@@ -173,6 +175,35 @@ def test_annual_publication_adapts_without_filtering_event_dates(settings) -> No
         table, query_plan.spec.period, retain_annual_enclosures=True
     )
     assert returned["VALUE"].to_pylist() == [1, 2, 3, 4]
+
+
+def test_annual_enclosure_does_not_hide_missing_monthly_provenance() -> None:
+    from pegasus_data._query import _filter_source_period, _period
+
+    table = pa.table(
+        {
+            "_competencia": [None],
+            "_source_resolution": ["month"],
+            "VALUE": [1],
+        }
+    )
+    with pytest.raises(ValueError, match="not an explicit annual enclosure"):
+        _filter_source_period(
+            table, _period(("2020-03", "2020-04")),
+            retain_annual_enclosures=True,
+        )
+
+
+def test_legacy_annual_lake_rows_gain_only_coarse_resolution() -> None:
+    from pegasus_data._query_engine.filters import _with_source_resolution
+
+    table = pa.table(
+        {"year": [2020, 2021], "_competencia": [None, None], "VALUE": [1, 2]}
+    )
+    result = _with_source_resolution(
+        table, ((2020, "year"), (2021, "month"))
+    )
+    assert result["_source_resolution"].to_pylist() == ["year", "unknown"]
 
 
 def test_optional_registry_requirement_is_planned_and_refused_before_retrieval(settings) -> None:
@@ -239,6 +270,23 @@ def test_complete_and_missing_years_form_a_hybrid_without_overlap(settings) -> N
     assert query_plan.retrieval.source_strategy == "hybrid"
     assert query_plan.retrieval.lake_years == (2023,)
     assert query_plan.retrieval.fetch_years == (2024,)
+
+
+def test_mixed_resolution_plan_retains_month_pushdown_per_year(settings) -> None:
+    publications = [
+        ("/p/RDAL20.dbc", 2020, 202000),
+        ("/p/RDAL2101.dbc", 2021, 202101),
+        ("/p/RDAL2102.dbc", 2021, 202102),
+    ]
+    _catalogue_publications(settings, publications)
+    query_plan = pg.plan(
+        "SIH-RD", period=("2020-12", "2021-02"), geography="AL", settings=settings
+    )
+    assert query_plan.retrieval.year_resolutions == (
+        (2020, "year"),
+        (2021, "month"),
+    )
+    assert query_plan.retrieval.year_months == ((2020, ()), (2021, (1, 2)))
 
 
 def test_equivalent_representation_keeps_local_completeness(settings) -> None:

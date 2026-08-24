@@ -140,14 +140,21 @@ def resources_ensure(
 @resources_app.command("build")
 def resources_build(
     name: Annotated[str, typer.Argument(help="Optional registry name, currently CNES")],
-    years: Annotated[str | None, typer.Option("--years", help="Inclusive range, e.g. 2022-2024")] = None,
+    years: Annotated[
+        str | None,
+        typer.Option(
+            "--years",
+            help="Verified complete source years (required for cnes_names), e.g. 2022-2024",
+        ),
+    ] = None,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
     """Explicitly build a local registry.
 
     CNES history is a bounded acquisition/materialization operation. cnes_names
-    is currently a maintainer compilation from local documentary evidence.
+    is currently a maintainer compilation from local documentary evidence and
+    requires explicit verified-complete source years.
     """
     from ._resources import ResourceManager
 

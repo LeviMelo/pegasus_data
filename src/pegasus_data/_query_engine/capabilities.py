@@ -44,6 +44,11 @@ def compile_capability_payload() -> dict[str, Any]:
                 compiled["physical_geography"] = str(
                     publication["physical_geography"]
                 )
+            if code in datasets:
+                raise ValueError(
+                    f"duplicate source-publication capability declaration for {code} "
+                    f"(encountered again in {path.name})"
+                )
             datasets[code] = compiled
     return {"schema_version": 2, "datasets": datasets}
 

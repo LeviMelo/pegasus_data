@@ -221,12 +221,22 @@ class Builder:
                         and int(normalized_date) % 100
                         else None
                     )
+                    source_resolution = (
+                        "month" if competencia is not None else
+                        "year" if normalized_date is not None
+                        and int(normalized_date) % 100 == 0 else
+                        "unknown"
+                    )
                     for batch in normalize_table(table, plan, blob_sha256=digest):
                         # Internal semantic provenance: a codelist can change
                         # in July, which a year-only partition cannot recover.
-                        yield batch.append_column(
+                        enriched = batch.append_column(
                             "_competencia",
                             pa.array([competencia] * batch.num_rows, type=pa.int32()),
+                        )
+                        yield enriched.append_column(
+                            "_source_resolution",
+                            pa.array([source_resolution] * batch.num_rows, type=pa.string()),
                         )
                 stats.files += 1
                 tally.decoded += 1

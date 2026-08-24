@@ -1380,8 +1380,8 @@ The resulting rules are durable:
    publication UF never becomes a `MUNIC_RES`/`MUNIC_MOV` predicate.
 2. **Source competence is immutable provenance.** `_competencia` may choose a
    monthly lake slice or historical semantic relation, but no ordinary record
-   field may overwrite it. Annual source enclosure is represented as unknown
-   month and widened explicitly.
+   field may overwrite it. Annual source enclosure has no invented month; its
+   safe semantic vintage is the coarse January–December interval.
 3. **Completeness belongs to logical source units.** The required key is at
    least `(family, logical publication, archive member)`. Path-only lake
    provenance cannot prove a multi-member archive complete; alternate physical
@@ -1393,10 +1393,12 @@ The resulting rules are durable:
    relation windows and packed mappings require source vintage unless explicitly
    time-invariant. Local adjudication then outranks shipped curation, which
    outranks the legacy bridge, with dataset/system specificity deterministic.
-6. **Runtime resources have one gate.** Optional CNES artifacts carry local
-   manifest identity, checksum and exact covered years and are opened through
-   `ResourceManager`. Registry lookup follows the CNES identifiers and validity
-   period in the selected slice, not the fact publication's UF.
+6. **Runtime resources have one resolution interface.** Optional CNES artifacts
+   carry local manifest identity, checksum and exact covered years and are opened
+   through `ResourceManager`. Static packs validate there; lake-backed resources
+   delegate integrity/completeness to lake catalogs and fingerprints. Registry
+   lookup follows the CNES identifiers and validity period in the selected slice,
+   not the fact publication's UF.
 7. **Planning is metadata-only.** Catalog/inventory/schema/resource metadata may
    be scanned during planning; fact rows are opened only for requested-slice ETL
    or an explicit bounded resource/maintainer operation.
@@ -1414,6 +1416,30 @@ overlaps. The current 92.8 MB working catalog (not the historical recovered
 with alternatives, 12,323 physical files in those groups and 8,607 avoidable
 decodes. A metadata-only `plan("SIH-RD", period="2023-01", geography="AL")`
 completed against that catalog without opening fact data.
+
+---
+
+## 3p. Temporal truth has extent, identity and authority (2026-08-23)
+
+The hardening review exposed three variants of the same false-precision bug.
+A source vintage is an interval: a monthly publication is one month, an annual
+publication spans January through December, and missing provenance is unknown.
+Semantic dimensions and CNES↔CNPJ enrichment may resolve a coarse interval only
+when one effective assertion and mapping covers all of it; a bare year is never
+silently converted to December.
+
+Catalog relations likewise identify temporal assertions, not only semantic
+slots. Stable `relation_id` values include validity boundaries and authority, so
+adjacent historical adjudications persist together. Overlaps within one
+authority/slot fail explicitly, and the legacy primary-key shape migrates
+losslessly.
+
+Resource compatibility is separate from resource freshness. The schema/ABI,
+manifest identity and checksum are strict, while a newer compatible content
+epoch is accepted without reinstalling Pegasus. CNES-name coverage is an
+explicit source-snapshot build claim; individual record windows cannot prove a
+directory complete. Lake-backed resources use the same resolution interface but
+delegate physical completeness to the lake catalog and fingerprints.
 
 ---
 

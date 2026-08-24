@@ -13,7 +13,7 @@ import pyarrow as pa
 
 from ..config import Settings, load_settings
 from ..crosswalk import EnrichmentRequest, enrich_cnes, enrich_cnpj
-from .filters import _filter_source_period, _with_competence
+from .filters import _filter_source_period, _with_competence, _with_source_resolution
 from .model import (
     CrosswalkAmbiguityWarning,
     QueryReport,
@@ -142,7 +142,7 @@ def query(
                 companions=False, derived=False, on_missing_column="null_fill",
                 report=True, catalog=cat, _preserve_internal=True,
             )
-            tables.append(local_table)
+            tables.append(_with_competence(local_table, local_report))
             source_reports.append(local_report)
         finally:
             cat.close()
@@ -152,18 +152,9 @@ def query(
     if fetch_years:
         from ..retrieve import fetch
 
-        resolutions = dict(retrieval.year_resolutions)
+        months_by_year = dict(retrieval.year_months)
         for fetch_year in fetch_years:
-            fetch_months: tuple[int, ...] | None = None
-            if (
-                fetch_year is not None
-                and query_plan.spec.period
-                and query_plan.spec.period.precision == "month"
-                and resolutions.get(fetch_year) == "month"
-            ):
-                lo = query_plan.spec.period.start % 100 if fetch_year == query_plan.spec.period.start // 100 else 1
-                hi = query_plan.spec.period.end % 100 if fetch_year == query_plan.spec.period.end // 100 else 12
-                fetch_months = tuple(range(lo, hi + 1))
+            fetch_months = months_by_year.get(fetch_year) or None
             fetched_table, fetched_report = fetch(
                 dataset,
                 uf=retrieval.physical_geography,
@@ -185,6 +176,7 @@ def query(
     if not tables:
         raise FileNotFoundError("the retrieval plan found neither complete local coverage nor fetchable years")
     table = tables[0] if len(tables) == 1 else pa.concat_tables(tables, promote_options="default")
+    table = _with_source_resolution(table, retrieval.year_resolutions)
     source_report: Any = source_reports[0] if len(source_reports) == 1 else source_reports
     report.source_report = source_report
     raw_absence: dict[str, list[str]] = {}

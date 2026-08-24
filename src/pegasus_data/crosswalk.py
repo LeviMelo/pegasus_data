@@ -10,6 +10,8 @@ from typing import Any
 
 import pyarrow as pa
 
+from ._vintage import SourceVintage, source_vintages, window_covers, window_overlaps
+
 
 @dataclass(frozen=True, slots=True)
 class EnrichmentRequest:
@@ -56,7 +58,7 @@ def _pack_path() -> Path:
 
 def _crosswalk_slice(
     codes: set[str],
-    competences: list[int | None],
+    vintages: list[int | SourceVintage | None],
     *,
     reverse: bool = False,
     resource_path: str | Path | None = None,
@@ -77,7 +79,12 @@ def _crosswalk_slice(
         if optional in names and optional not in columns:
             columns.append(optional)
     expression = ds.field(key_field).isin(sorted(codes))
-    known = [int(value) for value in competences if value]
+    known: list[int] = []
+    for value in vintages:
+        if isinstance(value, SourceVintage):
+            known.extend((value.start, value.end))
+        elif value:
+            known.append(int(value))
     if known and "valid_from" in names:
         lower, upper = str(min(known)), str(max(known))
         expression &= (
@@ -132,14 +139,6 @@ def valid_cnpj(value: object) -> bool:
     return True
 
 
-def _covers(lo: str, hi: str, competence: int | None) -> bool:
-    if competence is None:
-        return not lo and not hi
-    if not lo:
-        return not hi or competence <= int(hi)
-    return int(lo) <= competence <= (int(hi) if hi else 999912)
-
-
 def enrich_cnpj(
     table: pa.Table,
     *,
@@ -154,28 +153,30 @@ def enrich_cnpj(
         raise KeyError(f"{from_field}: required source field for CNES→CNPJ enrichment")
     source_values = table[from_field].to_pylist()
     raw_values = table[raw_field].to_pylist() if raw_field in table.column_names else [None] * table.num_rows
-    if "_competencia" in table.column_names:
-        competences = table["_competencia"].to_pylist()
-    elif "year" in table.column_names:
-        competences = [int(year) * 100 + 12 if year else None for year in table["year"].to_pylist()]
-    else:
-        competences = [None] * table.num_rows
+    vintages = source_vintages(table)
     rows = _crosswalk_slice(
         {str(value or "").strip() for value in source_values},
-        competences,
+        vintages,
         resource_path=resource_path,
     )
     report = EnrichmentReport("CNPJ", from_field, f"{from_field}→CNPJ", rows_before=table.num_rows)
     resolved: list[str | None] = []
     statuses: list[str] = []
     take_indices: list[int] = []
-    for row_index, (source, raw, competence) in enumerate(
-        zip(source_values, raw_values, competences, strict=True)
+    for row_index, (source, raw, vintage) in enumerate(
+        zip(source_values, raw_values, vintages, strict=True)
     ):
+        available = rows.get(str(source or "").strip(), ())
         candidates = {
-            cnpj for cnpj, lo, hi, _source in rows.get(str(source or "").strip(), ())
-            if _covers(lo, hi, int(competence) if competence else None)
+            cnpj for cnpj, lo, hi, _source in available
+            if window_covers(lo, hi, vintage)
         }
+        coarse_ambiguity = bool(
+            vintage is not None
+            and not vintage.exact
+            and any(window_overlaps(lo, hi, vintage) for _value, lo, hi, _source in available)
+            and not candidates
+        )
         raw_digits = _digits(raw)
         raw_valid = valid_cnpj(raw_digits)
         if len(candidates) > 1 and explode:
@@ -205,6 +206,9 @@ def enrich_cnpj(
         elif raw_valid:
             value, status = raw_digits, "observed"
             report.unmatched += 1
+        elif coarse_ambiguity:
+            value, status = None, "coarse_vintage"
+            report.ambiguous += 1
         else:
             value, status = None, "unresolved"
             report.unmatched += 1
@@ -236,19 +240,11 @@ def enrich_cnes(
     if from_field not in table.column_names:
         raise KeyError(f"{from_field}: required source field for CNPJ→CNES enrichment")
     raw_values = table[raw_field].to_pylist() if raw_field in table.column_names else [None] * table.num_rows
-    if "_competencia" in table.column_names:
-        competences = table["_competencia"].to_pylist()
-    elif "year" in table.column_names:
-        competences = [
-            int(year) * 100 + 12 if year else None
-            for year in table["year"].to_pylist()
-        ]
-    else:
-        competences = [None] * table.num_rows
+    vintages = source_vintages(table)
     source_values = table[from_field].to_pylist()
     reverse = _crosswalk_slice(
         {_digits(value) for value in source_values},
-        competences,
+        vintages,
         reverse=True,
         resource_path=resource_path,
     )
@@ -259,13 +255,20 @@ def enrich_cnes(
     indices: list[int] = []
     resolved: list[str | None] = []
     statuses: list[str] = []
-    for index, (cnpj, raw, competence) in enumerate(
-        zip(source_values, raw_values, competences, strict=True)
+    for index, (cnpj, raw, vintage) in enumerate(
+        zip(source_values, raw_values, vintages, strict=True)
     ):
+        available = reverse.get(_digits(cnpj), ())
         candidates = {
-            cnes for cnes, lo, hi, _source in reverse.get(_digits(cnpj), ())
-            if _covers(lo, hi, int(competence) if competence else None)
+            cnes for cnes, lo, hi, _source in available
+            if window_covers(lo, hi, vintage)
         }
+        coarse_ambiguity = bool(
+            vintage is not None
+            and not vintage.exact
+            and any(window_overlaps(lo, hi, vintage) for _value, lo, hi, _source in available)
+            and not candidates
+        )
         if len(candidates) > 1 and explode:
             for candidate in sorted(candidates):
                 indices.append(index)
@@ -293,6 +296,9 @@ def enrich_cnes(
         elif raw_code:
             value, status = raw_code, "observed"
             report.unmatched += 1
+        elif coarse_ambiguity:
+            value, status = None, "coarse_vintage"
+            report.ambiguous += 1
         else:
             value, status = None, "unresolved"
             report.unmatched += 1

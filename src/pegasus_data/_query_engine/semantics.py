@@ -7,6 +7,7 @@ from typing import Any
 
 import pyarrow as pa
 
+from .._vintage import months_in, source_vintages
 from ..config import Settings
 from ..crosswalk import EnrichmentReport, EnrichmentRequest
 from .model import QueryPlan, QueryReport, SemanticFallbackWarning
@@ -17,7 +18,11 @@ def _apply_dimensions(
     table: pa.Table, query_plan: QueryPlan, report: QueryReport, settings: Settings
 ) -> pa.Table:
     from ..catalog.store import Catalog
-    from ..labelpack import packed_mapping_is_time_invariant, read_packed
+    from ..labelpack import (
+        packed_mapping_covers_interval,
+        packed_mapping_is_time_invariant,
+        read_packed,
+    )
     from ..semantics.relations import RelationType, relations_for
 
     output = table
@@ -41,19 +46,13 @@ def _apply_dimensions(
             if request.field not in output.column_names:
                 raise KeyError(f"{request.field}: required dimension source is absent")
             codes = output[request.field].to_pylist()
-            competences = (
-                output["_competencia"].to_pylist()
-                if "_competencia" in output.column_names
-                else [None] * output.num_rows
-            )
-            lookups: dict[tuple[str, int | None], dict[str, object]] = {}
+            vintages = source_vintages(output)
+            lookups: dict[tuple[str, int | None, int | None], dict[str, object]] = {}
             values: list[object] = []
             artifacts: set[str] = set()
             unresolved_relation = 0
-            for code, competence in zip(codes, competences, strict=True):
-                number = int(competence) if competence is not None else None
-                is_month = number is not None and 1 <= number % 100 <= 12
-                if number is None:
+            for code, vintage in zip(codes, vintages, strict=True):
+                if vintage is None:
                     relations = [
                         item
                         for item in declared
@@ -64,53 +63,92 @@ def _apply_dimensions(
                         )
                     ]
                 else:
-                    relations = [
-                        *relations_for(
-                            query_plan.retrieval.system,
-                            dataset_code,
-                            request.field,
-                            relation_type=RelationType.ROLLUP_TO,
-                            catalog=catalog,
-                            vintage=number,
-                        ),
-                        *relations_for(
-                            query_plan.retrieval.system,
-                            dataset_code,
-                            request.field,
-                            relation_type=RelationType.ATTRIBUTE_OF,
-                            catalog=catalog,
-                            vintage=number,
-                        ),
-                    ]
-                    relations = [
-                        item for item in relations if item.target_name == request.name
-                    ]
+                    monthly_relations = []
+                    for month in months_in(vintage):
+                        effective = [
+                            *relations_for(
+                                query_plan.retrieval.system,
+                                dataset_code,
+                                request.field,
+                                relation_type=RelationType.ROLLUP_TO,
+                                catalog=catalog,
+                                vintage=month,
+                            ),
+                            *relations_for(
+                                query_plan.retrieval.system,
+                                dataset_code,
+                                request.field,
+                                relation_type=RelationType.ATTRIBUTE_OF,
+                                catalog=catalog,
+                                vintage=month,
+                            ),
+                        ]
+                        monthly_relations.append(
+                            tuple(
+                                item
+                                for item in effective
+                                if item.target_name == request.name
+                            )
+                        )
+                    relations = list(monthly_relations[0]) if monthly_relations else []
+                    if any(value != monthly_relations[0] for value in monthly_relations[1:]):
+                        relations = []
                 if len(relations) > 1:
                     raise KeyError(
                         f"multiple effective relations for {request.field}.{request.name} "
-                        f"at source vintage {number}"
+                        f"across source vintage {vintage}"
                     )
                 if not relations:
                     values.append(None)
                     unresolved_relation += 1
                     continue
                 relation = relations[0]
+                if vintage is not None and not packed_mapping_covers_interval(
+                    relation.artifact,
+                    system=query_plan.retrieval.system,
+                    start=vintage.start,
+                    end=vintage.end,
+                ):
+                    values.append(None)
+                    unresolved_relation += 1
+                    continue
                 artifacts.add(relation.artifact)
-                key = (relation.artifact, number if is_month else -(number // 100) if number else None)
+                key = (
+                    relation.artifact,
+                    vintage.start if vintage is not None else None,
+                    vintage.end if vintage is not None else None,
+                )
                 if key not in lookups:
-                    reference = read_packed(
-                        relation.artifact,
-                        system=query_plan.retrieval.system,
-                        competencia=number if is_month else None,
-                        year=number // 100 if number and not is_month else None,
-                    )
-                    lookups[key] = dict(
-                        zip(
-                            reference["code"].to_pylist(),
-                            reference["label"].to_pylist(),
-                            strict=True,
+                    months = months_in(vintage) if vintage is not None else ()
+                    references = [
+                        read_packed(
+                            relation.artifact,
+                            system=query_plan.retrieval.system,
+                            competencia=month,
                         )
-                    )
+                        for month in months
+                    ] or [
+                        read_packed(
+                            relation.artifact,
+                            system=query_plan.retrieval.system,
+                        )
+                    ]
+                    mappings = [
+                        dict(
+                            zip(
+                                reference["code"].to_pylist(),
+                                reference["label"].to_pylist(),
+                                strict=True,
+                            )
+                        )
+                        for reference in references
+                    ]
+                    first = mappings[0]
+                    lookups[key] = {
+                        source_code: label
+                        for source_code, label in first.items()
+                        if all(mapping.get(source_code) == label for mapping in mappings[1:])
+                    }
                 values.append(
                     lookups[key].get(str(code).strip()) if code is not None else None
                 )
@@ -121,7 +159,7 @@ def _apply_dimensions(
                     "request": f"{request.field}.{request.name}",
                     "relation": "declared temporal relation",
                     "artifacts": sorted(artifacts),
-                    "vintage": "source competence",
+                    "vintage": "source vintage interval",
                     "unresolved_vintage_rows": unresolved_relation,
                 }
             )

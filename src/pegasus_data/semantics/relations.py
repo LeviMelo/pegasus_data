@@ -9,7 +9,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import Catalog, _semantic_relation_id, utcnow
 from ..ontology import CURATION, _read_yaml
 
 
@@ -35,6 +35,7 @@ class SemanticRelation:
     valid_to: str | None = None
     status: str = "adjudicated"
     evidence: str | None = None
+    authority: str = "curated"
 
 
 def load_relations(root: Path | None = None) -> tuple[SemanticRelation, ...]:
@@ -85,7 +86,8 @@ def relations_for(
             for row in catalog.query(
                 "SELECT * FROM semantic_relations WHERE status='adjudicated'"
             ):
-                candidates.append((2, _relation_from_row(row)))
+                item = _relation_from_row(row)
+                candidates.append((2 if item.authority == "local" else 1, item))
             for row in catalog.query(
                 "SELECT system, field_name, codelist FROM variable_docs "
                 "WHERE codelist IS NOT NULL AND codelist<>'' "
@@ -183,32 +185,89 @@ def _relation_from_row(row: Any) -> SemanticRelation:
         valid_to=row["valid_to"],
         status=str(row["status"]),
         evidence=row["evidence"],
+        authority=str(row["authority"] or "local"),
+    )
+
+
+def _relation_identity(item: SemanticRelation, authority: str) -> str:
+    values = asdict(item)
+    values["relation_type"] = item.relation_type.value
+    values["authority"] = authority
+    return _semantic_relation_id(values)
+
+
+def _window(item: SemanticRelation) -> tuple[int, int]:
+    def boundary(value: str | None, default: int) -> int:
+        if value is None or value == "":
+            return default
+        text = str(value)
+        if len(text) != 6 or not text.isdigit() or not 1 <= int(text[-2:]) <= 12:
+            raise ValueError(f"invalid semantic relation validity boundary {value!r}")
+        return int(text)
+
+    lo = boundary(item.valid_from, 0)
+    hi = boundary(item.valid_to, 999912)
+    if lo > hi:
+        raise ValueError(
+            f"semantic relation validity starts after it ends: {item.valid_from}..{item.valid_to}"
+        )
+    return lo, hi
+
+
+def _validate_no_overlap(conn: Any, item: SemanticRelation, authority: str) -> None:
+    """Reject competing assertions in one authority/semantic/temporal slot."""
+    relation_id = _relation_identity(item, authority)
+    lo, hi = _window(item)
+    rows = conn.execute(
+        "SELECT * FROM semantic_relations WHERE authority=? AND system=? AND dataset=? "
+        "AND field_name=? AND relation_type=? AND target_type=? AND target_name=? "
+        "AND relation_id<>?",
+        (
+            authority, item.system, item.dataset, item.field_name,
+            item.relation_type.value, item.target_type, item.target_name, relation_id,
+        ),
+    )
+    for row in rows:
+        other = _relation_from_row(row)
+        other_lo, other_hi = _window(other)
+        if lo <= other_hi and other_lo <= hi:
+            raise ValueError(
+                "overlapping temporal relation assertions for "
+                f"{item.system}.{item.dataset}.{item.field_name} "
+                f"{item.relation_type.value}:{item.target_name}: "
+                f"{other.valid_from or '*'}..{other.valid_to or '*'} overlaps "
+                f"{item.valid_from or '*'}..{item.valid_to or '*'}"
+            )
+
+
+def _store_relation(conn: Any, item: SemanticRelation, *, authority: str) -> None:
+    _validate_no_overlap(conn, item, authority)
+    conn.execute(
+        """
+        INSERT INTO semantic_relations
+          (relation_id, authority, system, dataset, field_name, relation_type,
+           target_type, target_name, artifact, source_namespace, target_namespace,
+           valid_from, valid_to, status, evidence)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(relation_id) DO UPDATE SET artifact=excluded.artifact,
+          source_namespace=excluded.source_namespace,
+          target_namespace=excluded.target_namespace, status=excluded.status,
+          evidence=excluded.evidence
+        """,
+        (
+            _relation_identity(item, authority), authority, item.system, item.dataset,
+            item.field_name, item.relation_type.value, item.target_type, item.target_name,
+            item.artifact, item.source_namespace, item.target_namespace, item.valid_from,
+            item.valid_to, item.status, item.evidence,
+        ),
     )
 
 
 def seed_relations(catalog: Catalog, root: Path | None = None) -> int:
     relations = load_relations(root)
-    catalog.executemany(
-        """
-        INSERT INTO semantic_relations
-          (system, dataset, field_name, relation_type, target_type, target_name,
-           artifact, source_namespace, target_namespace, valid_from, valid_to,
-           status, evidence)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-        ON CONFLICT(system, dataset, field_name, relation_type, target_type, target_name)
-        DO UPDATE SET artifact=excluded.artifact, source_namespace=excluded.source_namespace,
-          target_namespace=excluded.target_namespace, valid_from=excluded.valid_from,
-          valid_to=excluded.valid_to, status=excluded.status, evidence=excluded.evidence
-        """,
-        [
-            (
-                r.system, r.dataset, r.field_name, r.relation_type.value, r.target_type,
-                r.target_name, r.artifact, r.source_namespace, r.target_namespace,
-                r.valid_from, r.valid_to, r.status, r.evidence,
-            )
-            for r in relations
-        ],
-    )
+    with catalog.write() as conn:
+        for relation in relations:
+            _store_relation(conn, relation, authority="curated")
     return len(relations)
 
 
@@ -262,26 +321,9 @@ def adjudication_evidence(catalog: Catalog, key: str) -> dict[str, Any]:
 def adjudicate(catalog: Catalog, key: str, decision: SemanticRelation, *, by: str) -> None:
     seed = asdict(decision)
     seed["relation_type"] = decision.relation_type.value
+    seed["authority"] = "local"
     with catalog.write() as conn:
-        conn.execute(
-            """
-            INSERT INTO semantic_relations
-              (system, dataset, field_name, relation_type, target_type, target_name,
-               artifact, source_namespace, target_namespace, valid_from, valid_to,
-               status, evidence)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-            ON CONFLICT(system, dataset, field_name, relation_type, target_type, target_name)
-            DO UPDATE SET artifact=excluded.artifact,
-              source_namespace=excluded.source_namespace,
-              target_namespace=excluded.target_namespace,
-              valid_from=excluded.valid_from, valid_to=excluded.valid_to,
-              status='adjudicated', evidence=excluded.evidence
-            """,
-            tuple(seed[name] for name in (
-                "system", "dataset", "field_name", "relation_type", "target_type", "target_name",
-                "artifact", "source_namespace", "target_namespace", "valid_from", "valid_to", "status", "evidence",
-            )),
-        )
+        _store_relation(conn, decision, authority="local")
         conn.execute(
             "UPDATE adjudication_items SET status='adjudicated', resolution=?, resolved_by=?, "
             "resolved_at=? WHERE key=?",

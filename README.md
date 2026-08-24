@@ -156,6 +156,9 @@ identity labels, and makes dimensions/crosswalks explicit. `period` and
 record variables such as `DT_INTER`, `DTOBITO`, `MUNIC_RES` or `MUNIC_MOV`.
 When a source is annual, a monthly request retrieves the enclosing annual
 publication with `TimeResolutionWarning` and does not remove rows by event date.
+For semantic validity that source carries the coarse interval January–December;
+a dimension or crosswalk resolves only when one mapping is safe for the entire
+year. Pegasus never manufactures a December competence from a bare `year`.
 Semantic options append information to the selected observations; use pandas,
 Polars or DuckDB when defining an analytical cohort. A query that would acquire
 an unbounded history is refused unless `allow_unbounded=True` is explicit.
@@ -201,7 +204,11 @@ pegasus-data resources build cnes_names --years 2022-2024
 catalog; it is not yet a fresh-install downloader. Ordinary users install a
 compatible precompiled resource. `resources build CNES --years ...` is the
 separate bounded acquisition/materialization path for CNES history. Neither runs
-implicitly during `query()`.
+implicitly during `query()`. The `--years` scope is also the explicit completeness
+claim for a names pack; record validity windows are not treated as proof that a
+directory snapshot is complete. Compatible resource packs may carry newer
+content than the installed wheel—the schema ABI, manifest identity and checksum,
+not an equal content timestamp, determine reader compatibility.
 
 ### Ask for it in your own language
 
