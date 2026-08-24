@@ -739,8 +739,12 @@ and persisted in `semantic_relations`.
 Each persisted row is a temporal assertion with a stable `relation_id`; its
 validity window is part of that identity. Adjacent historical decisions can
 therefore coexist, while overlapping assertions in the same authority and
-semantic slot are rejected. A lossless schema migration preserves legacy rows
-and assigns their deterministic identities.
+semantic slot are rejected. A lossless schema migration preserves legacy rows,
+classifying only rows matched by resolved `adjudication_items` decision JSON as
+local; other legacy rows are curated compiler output. Reseeding transactionally
+replaces the complete curated snapshot and never mutates local assertions.
+Schema v4 also repairs catalogs already opened by the faulty v3 all-local
+migration using the same evidence rule.
 
 The renderer and query layer only put an identity-level `*_label` beside a raw
 code. Roll-ups and attributes require an explicit dimension request. An

@@ -1431,8 +1431,12 @@ silently converted to December.
 Catalog relations likewise identify temporal assertions, not only semantic
 slots. Stable `relation_id` values include validity boundaries and authority, so
 adjacent historical adjudications persist together. Overlaps within one
-authority/slot fail explicitly, and the legacy primary-key shape migrates
-losslessly.
+authority/slot fail explicitly. During legacy migration, a row is local only
+when its complete content is recoverable from resolved adjudication decision
+JSON; otherwise it is classified as curated. Curated rows are synchronized as a
+transactional compiler snapshot on every seed, while local decisions persist.
+The v4 migration reapplies this classification to catalogs already opened by
+the short-lived v3 all-local migration.
 
 Resource compatibility is separate from resource freshness. The schema/ABI,
 manifest identity and checksum are strict, while a newer compatible content

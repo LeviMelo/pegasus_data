@@ -18,7 +18,13 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
+
+_LEGACY_RELATION_FIELDS = (
+    "system", "dataset", "field_name", "relation_type", "target_type",
+    "target_name", "artifact", "source_namespace", "target_namespace",
+    "valid_from", "valid_to", "status", "evidence",
+)
 
 
 def utcnow() -> str:
@@ -36,7 +42,7 @@ def _semantic_relation_id(row: Any) -> str:
 
     def value(name: str) -> str:
         if name == "authority" and name not in keys:
-            return "local"
+            return "curated"
         return str(row[name] or "")
 
     identity = [
@@ -48,6 +54,34 @@ def _semantic_relation_id(row: Any) -> str:
     ]
     payload = json.dumps(identity, ensure_ascii=True, separators=(",", ":"))
     return "rel_" + hashlib.sha256(payload.encode()).hexdigest()[:24]
+
+
+def _legacy_relation_signature(row: Any) -> tuple[str, ...]:
+    """Content identity shared by old relation rows and adjudication JSON."""
+    return tuple(str(row.get(name) or "") for name in _LEGACY_RELATION_FIELDS)
+
+
+def _legacy_local_relation_signatures(conn: sqlite3.Connection) -> set[tuple[str, ...]]:
+    """Relations proven local by a resolved adjudication item's decision JSON."""
+    exists = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='adjudication_items'"
+    ).fetchone()
+    if exists is None:
+        return set()
+    signatures: set[tuple[str, ...]] = set()
+    for row in conn.execute(
+        "SELECT resolution FROM adjudication_items "
+        "WHERE status='adjudicated' AND resolution IS NOT NULL"
+    ):
+        try:
+            decision = json.loads(str(row[0]))
+        except (TypeError, json.JSONDecodeError):
+            continue
+        if isinstance(decision, dict) and all(
+            name in decision for name in _LEGACY_RELATION_FIELDS
+        ):
+            signatures.add(_legacy_relation_signature(decision))
+    return signatures
 
 
 def _migrate_semantic_relation_identity(
@@ -69,11 +103,22 @@ def _migrate_semantic_relation_identity(
     if match is None:  # pragma: no cover - the shipped schema is tested separately
         raise CatalogSchemaError("no shipped semantic_relations declaration")
     rows = list(conn.execute("SELECT * FROM semantic_relations"))
-    names = (
-        "system", "dataset", "field_name", "relation_type", "target_type",
-        "target_name", "artifact", "source_namespace", "target_namespace",
-        "valid_from", "valid_to", "status", "evidence",
-    )
+    local_signatures = _legacy_local_relation_signatures(conn)
+    classified = []
+    for row in rows:
+        authority = (
+            "local"
+            if _legacy_relation_signature(dict(row)) in local_signatures
+            else "curated"
+        )
+        identity = {**dict(row), "authority": authority}
+        classified.append(
+            (
+                _semantic_relation_id(identity),
+                authority,
+                *(row[name] for name in _LEGACY_RELATION_FIELDS),
+            )
+        )
     conn.commit()
     try:
         conn.execute("BEGIN IMMEDIATE")
@@ -82,11 +127,64 @@ def _migrate_semantic_relation_identity(
         )
         conn.execute(match.group(0).rstrip(";"))
         conn.executemany(
-            "INSERT INTO semantic_relations (relation_id, " + ", ".join(names) + ") "
-            "VALUES (" + ",".join("?" for _ in range(len(names) + 1)) + ")",
-            [(_semantic_relation_id(row), *(row[name] for name in names)) for row in rows],
+            "INSERT INTO semantic_relations (relation_id, authority, "
+            + ", ".join(_LEGACY_RELATION_FIELDS)
+            + ") VALUES ("
+            + ",".join("?" for _ in range(len(_LEGACY_RELATION_FIELDS) + 2))
+            + ")",
+            classified,
         )
         conn.execute("DROP TABLE semantic_relations__legacy_identity")
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+
+
+def _repair_v3_semantic_relation_authority(conn: sqlite3.Connection) -> None:
+    """Repair catalogs already opened by the v3 all-local migration.
+
+    Existing curated rows are trustworthy because only the v3 seeder could have
+    written them. A v3 local row is durable only when adjudication evidence proves
+    it; otherwise it is the legacy curated output that v3 misclassified.
+    """
+    columns = [str(row[1]) for row in conn.execute("PRAGMA table_info(semantic_relations)")]
+    if "relation_id" not in columns or "authority" not in columns:
+        return
+    local_signatures = _legacy_local_relation_signatures(conn)
+    rewritten: dict[str, tuple[Any, ...]] = {}
+    changed = False
+    for row in conn.execute("SELECT * FROM semantic_relations"):
+        values = dict(row)
+        authority = str(values.get("authority") or "local")
+        if authority != "curated":
+            authority = (
+                "local"
+                if _legacy_relation_signature(values) in local_signatures
+                else "curated"
+            )
+        identity = {**values, "authority": authority}
+        relation_id = _semantic_relation_id(identity)
+        changed |= relation_id != row["relation_id"] or authority != row["authority"]
+        rewritten[relation_id] = (
+            relation_id,
+            authority,
+            *(row[name] for name in _LEGACY_RELATION_FIELDS),
+        )
+    if not changed:
+        return
+    conn.commit()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        conn.execute("DELETE FROM semantic_relations")
+        conn.executemany(
+            "INSERT INTO semantic_relations (relation_id, authority, "
+            + ", ".join(_LEGACY_RELATION_FIELDS)
+            + ") VALUES ("
+            + ",".join("?" for _ in range(len(_LEGACY_RELATION_FIELDS) + 2))
+            + ")",
+            rewritten.values(),
+        )
         conn.commit()
     except Exception:
         conn.rollback()
@@ -368,7 +466,22 @@ class Catalog:
         """
         with self._lock:
             schema = _schema_sql()
+            version_table = self.conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_version'"
+            ).fetchone()
+            installed_version = None
+            if version_table is not None:
+                installed_row = self.conn.execute(
+                    "SELECT MAX(version) AS v FROM schema_version"
+                ).fetchone()
+                installed_version = (
+                    None
+                    if installed_row is None or installed_row["v"] is None
+                    else int(installed_row["v"])
+                )
             _migrate_semantic_relation_identity(self.conn, schema)
+            if installed_version is not None and installed_version < 4:
+                _repair_v3_semantic_relation_authority(self.conn)
             # Columns first: the script also creates indexes over them, and an
             # index on a column the old table lacks fails before anything else
             # in the script has had a chance to run.

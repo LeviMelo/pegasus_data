@@ -14,6 +14,7 @@ catalog upgraded from version 1 reported version 1 forever.
 
 from __future__ import annotations
 
+import json
 import sqlite3
 
 import pytest
@@ -201,7 +202,9 @@ class TestTheVersionRow:
             Catalog(path)
 
 
-def test_legacy_semantic_relation_key_is_migrated_losslessly(tmp_path) -> None:
+def test_legacy_relation_migration_recovers_authority_and_local_precedence(
+    tmp_path, monkeypatch
+) -> None:
     path = tmp_path / "relations.sqlite"
     Catalog(path).close()
     raw = sqlite3.connect(path)
@@ -218,10 +221,41 @@ def test_legacy_semantic_relation_key_is_migrated_losslessly(tmp_path) -> None:
         )
         """
     )
-    raw.execute(
+    raw.executemany(
         "INSERT INTO semantic_relations (system,dataset,field_name,relation_type,"
-        "target_type,target_name,artifact,valid_to) VALUES "
-        "('SIHSUS','SIH.RD','DIAG_PRINC','rollup_to','chapter','chapter','CID_OLD','201012')"
+        "target_type,target_name,artifact,valid_to,status,evidence) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?)",
+        [
+            (
+                "SIHSUS", "SIH.RD", "DIAG_PRINC", "rollup_to", "chapter",
+                "chapter", "CID_SEEDED", "201012", "adjudicated", "shipped",
+            ),
+            (
+                "SIHSUS", "SIH.RD", "FIELD", "rollup_to", "region",
+                "region", "LOCAL", None, "adjudicated", "reviewed",
+            ),
+        ],
+    )
+    decision = {
+        "system": "SIHSUS",
+        "dataset": "SIH.RD",
+        "field_name": "FIELD",
+        "relation_type": "rollup_to",
+        "target_type": "region",
+        "target_name": "region",
+        "artifact": "LOCAL",
+        "source_namespace": None,
+        "target_namespace": None,
+        "valid_from": None,
+        "valid_to": None,
+        "status": "adjudicated",
+        "evidence": "reviewed",
+    }
+    raw.execute(
+        "INSERT INTO adjudication_items "
+        "(key,kind,candidates_json,reason_opened,status,resolution,opened_at) "
+        "VALUES ('legacy-local','semantic_relation','[]','reviewed','adjudicated',?, '2020')",
+        (json.dumps(decision),),
     )
     raw.commit()
     raw.close()
@@ -229,12 +263,68 @@ def test_legacy_semantic_relation_key_is_migrated_losslessly(tmp_path) -> None:
     migrated = Catalog(path)
     try:
         rows = migrated.query(
-            "SELECT relation_id, authority, artifact, valid_to FROM semantic_relations"
+            "SELECT relation_id, authority, artifact, valid_to FROM semantic_relations "
+            "ORDER BY artifact"
         )
-        assert len(rows) == 1
-        assert str(rows[0]["relation_id"]).startswith("rel_")
-        assert rows[0]["authority"] == "local"
-        assert rows[0]["artifact"] == "CID_OLD"
-        assert rows[0]["valid_to"] == "201012"
+        assert len(rows) == 2
+        assert all(str(row["relation_id"]).startswith("rel_") for row in rows)
+        assert {row["artifact"]: row["authority"] for row in rows} == {
+            "CID_SEEDED": "curated",
+            "LOCAL": "local",
+        }
+
+        import pegasus_data.semantics.relations as relation_module
+        from pegasus_data.semantics.relations import (
+            RelationType,
+            SemanticRelation,
+            relations_for,
+        )
+
+        monkeypatch.setattr(
+            relation_module,
+            "load_relations",
+            lambda *_args: (
+                SemanticRelation(
+                    "SIHSUS", "SIH.RD", "FIELD", RelationType.ROLLUP_TO,
+                    "region", "region", "SHIPPED_CURRENT",
+                ),
+            ),
+        )
+        assert relations_for(
+            "SIHSUS", "SIH.RD", "FIELD",
+            relation_type=RelationType.ROLLUP_TO, catalog=migrated,
+        )[0].artifact == "LOCAL"
     finally:
         migrated.close()
+
+
+def test_v3_all_local_migration_is_repaired_on_upgrade(tmp_path) -> None:
+    path = tmp_path / "v3-relations.sqlite"
+    catalog = Catalog(path)
+    catalog.execute(
+        "INSERT INTO semantic_relations "
+        "(relation_id,authority,system,dataset,field_name,relation_type,target_type,"
+        "target_name,artifact,status) VALUES "
+        "('wrong-v3-id','local','SIHSUS','SIH.RD','FIELD','rollup_to','region',"
+        "'region','LEGACY_SEEDED','adjudicated')"
+    )
+    catalog.close()
+    raw = sqlite3.connect(path)
+    raw.execute("DELETE FROM schema_version")
+    raw.execute(
+        "INSERT INTO schema_version (version, applied_at) VALUES (3, '2026-08-23')"
+    )
+    raw.commit()
+    raw.close()
+
+    repaired = Catalog(path)
+    try:
+        row = repaired.query(
+            "SELECT relation_id, authority FROM semantic_relations "
+            "WHERE artifact='LEGACY_SEEDED'"
+        )[0]
+        assert row["authority"] == "curated"
+        assert str(row["relation_id"]).startswith("rel_")
+        assert row["relation_id"] != "wrong-v3-id"
+    finally:
+        repaired.close()

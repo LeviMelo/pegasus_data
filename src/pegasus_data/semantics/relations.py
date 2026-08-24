@@ -264,8 +264,14 @@ def _store_relation(conn: Any, item: SemanticRelation, *, authority: str) -> Non
 
 
 def seed_relations(catalog: Catalog, root: Path | None = None) -> int:
+    """Synchronize refreshable curated compiler output, preserving local truth."""
     relations = load_relations(root)
     with catalog.write() as conn:
+        # Curated rows are a compiled snapshot, not durable user decisions. A
+        # boundary or artifact change must replace the prior snapshot rather
+        # than overlap it forever. The surrounding transaction restores the old
+        # snapshot if the replacement is internally contradictory.
+        conn.execute("DELETE FROM semantic_relations WHERE authority='curated'")
         for relation in relations:
             _store_relation(conn, relation, authority="curated")
     return len(relations)

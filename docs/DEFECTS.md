@@ -407,7 +407,7 @@ superseded by these verified closures:
 | CNES lookup inherited fact UF | registry scan is driven by CNES identifiers and validity years only | `test_cnes_registry_enrichment_does_not_inherit_fact_geography` |
 | hand-maintained capability duplication | `source_publication` curation compiles the compact runtime JSON; semantic axes remain descriptive | `test_query_capabilities_are_compiled_from_curation` |
 | omitted period could launch historical acquisition | executor refuses non-local unbounded work without `allow_unbounded=True` | `test_unbounded_source_acquisition_requires_explicit_opt_in` |
-| catalog key overwrote historical adjudications in one semantic slot | stable temporal `relation_id`, local/curated authority and lossless migration retain adjacent assertions; overlaps fail | temporal persistence and migration tests |
+| catalog key overwrote historical adjudications and legacy migration conflated curated/local lifecycle | stable temporal `relation_id`; resolved decision JSON recovers local authority; transactional seeding replaces only curated snapshots | temporal persistence, migration-authority and reseeding tests |
 | annual vintage collapsed to unknown or direct enrichment chose December | source-vintage intervals require one relation/mapping across the full year | annual dimension and year-only crosswalk tests |
 | mixed annual/monthly execution retained arbitrary null competence | per-source resolution distinguishes annual enclosure from broken monthly provenance; month pushdown stays per year | mixed-resolution query tests |
 | duplicate source capability declarations silently used the last file | capability compilation fails on duplicate dataset declarations | `test_capability_compiler_rejects_duplicate_source_declarations` |

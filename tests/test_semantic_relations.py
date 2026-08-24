@@ -262,6 +262,57 @@ relations:
     ]
 
 
+def test_reseeding_replaces_curated_snapshot_and_preserves_local_assertions(
+    catalog, tmp_path
+) -> None:
+    def write_curated(artifact: str, valid_to: str) -> None:
+        (tmp_path / "joins.yml").write_text(
+            f"""
+relations:
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: FIELD
+    relation: rollup_to
+    target_type: region
+    target_name: region
+    artifact: {artifact}
+    valid_from: '202001'
+    valid_to: '{valid_to}'
+""".lstrip(),
+            encoding="utf-8",
+        )
+
+    write_curated("CURATED_OLD", "202012")
+    seed_relations(catalog, tmp_path)
+    adjudicate(
+        catalog,
+        "local-window",
+        SemanticRelation(
+            "SIHSUS", "SIH.RD", "FIELD", RelationType.ROLLUP_TO,
+            "region", "region", "LOCAL", valid_from="202006", valid_to="202006",
+        ),
+        by="test",
+    )
+
+    write_curated("CURATED_NEW", "202112")
+    seed_relations(catalog, tmp_path)
+    rows = catalog.query(
+        "SELECT authority, artifact FROM semantic_relations ORDER BY authority, artifact"
+    )
+    assert [(row["authority"], row["artifact"]) for row in rows] == [
+        ("curated", "CURATED_NEW"),
+        ("local", "LOCAL"),
+    ]
+    assert relations_for(
+        "SIHSUS", "SIH.RD", "FIELD",
+        relation_type=RelationType.ROLLUP_TO, catalog=catalog, vintage=202006,
+    )[0].artifact == "LOCAL"
+    assert relations_for(
+        "SIHSUS", "SIH.RD", "FIELD",
+        relation_type=RelationType.ROLLUP_TO, catalog=catalog, vintage=202101,
+    )[0].artifact == "CURATED_NEW"
+
+
 def test_overlapping_local_temporal_assertions_are_rejected(catalog) -> None:
     first = SemanticRelation(
         "SIHSUS", "SIH.RD", "FIELD", RelationType.ROLLUP_TO,
