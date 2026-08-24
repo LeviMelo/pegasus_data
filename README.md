@@ -47,11 +47,25 @@ df = query("SIH-RD", period=2023, geography="AL")  # retrieve this publication s
 
 Python 3.11 or newer.
 
+For a published release:
+
 ```bash
-pip install -e .          # core
-pip install -e .[all]     # + PDF, Excel and RAR support
-pip install -e .[dev]     # + pytest, ruff
+pip install pegasus-data          # library and CLI
+pip install "pegasus-data[all]"   # + PDF, Excel, RAR and Polars support
 ```
+
+Maintainers working from a clone use an editable installation instead:
+
+```bash
+pip install -e .                  # core
+pip install -e ".[all,dev]"       # all readers plus tests and quality tools
+```
+
+The wheel includes the reviewed ontology, curation, source map, query
+capabilities and compiled semantic packs. It does not include downloaded fact
+data, a local catalog, or a data lake. See the
+[release procedure](https://github.com/pegasus-sus/pegasus-data/blob/main/docs/RELEASING.md)
+for the artifact and clean-install checks run before publication.
 
 ### Where the data goes
 

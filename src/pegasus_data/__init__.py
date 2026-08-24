@@ -23,11 +23,18 @@ imports this package on every invocation.
 
 from __future__ import annotations
 
+from importlib.metadata import PackageNotFoundError, version
 from typing import TYPE_CHECKING, Any
 
 from .config import Settings, load_settings
 
-__version__ = "0.1.0"
+try:
+    # The installed distribution metadata is the release authority. Keeping a
+    # second literal here made it possible for the wheel filename, PyPI and the
+    # runtime API to report different versions after an otherwise valid build.
+    __version__ = version("pegasus-data")
+except PackageNotFoundError:  # pragma: no cover - direct, uninstalled source checkout
+    __version__ = "0+unknown"
 
 #: Public name -> the module it lives in. Kept as data so ``__all__``, the lazy
 #: loader and ``dir()`` cannot disagree about what the package exports.

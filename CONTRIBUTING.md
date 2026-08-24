@@ -20,8 +20,8 @@ That is a contribution. Describing 40 of 100 columns honestly is worth more than
 ## Getting set up
 
 ```bash
-pip install -e ".[dev]"
-pytest -q                      # 1025 tests, all offline
+pip install -e ".[all,dev]"
+pytest -q                      # 1227 tests, all offline
 ruff check src/ tests/ scripts/
 ```
 
