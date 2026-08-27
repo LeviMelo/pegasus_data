@@ -24,6 +24,10 @@
       "file": "families.parquet", "tier": "A", "bytes": 20217, "rows": 1633,
       "sha256": "e6dcb9723cd3b3b1e8ee196e52c2512073c5c6e25173ae9ee0197cbad5872d14"
     },
+    "geography": {
+      "file": "geography.parquet", "tier": "A", "bytes": 143296, "rows": 98584,
+      "sha256": "f6496cfabe4a6e187d4852294b871f0c3d1d377be40b6632b933ccd62540c4e8"
+    },
     "labels": {
       "file": "labels.parquet", "tier": "B", "bytes": 29968316, "rows": 3654320,
       "sha256": "5cbc2f09c4b35dca743d853d68fc4e444037dbea3f6645e1fc28ce2cdac50a6c"

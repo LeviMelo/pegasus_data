@@ -70,6 +70,9 @@ _EXPORTS: dict[str, str] = {
     "Gaps": "._unknowns",
     "OpenQuestions": "._unknowns",
     "DataDictionary": "._dictionary",
+    "memberships": ".geography",
+    "MembershipSet": ".geography",
+    "Membership": ".geography",
     "compendium": "._compendium",
     "CompendiumReport": "._compendium",
     "search": ".docsgen",
@@ -143,6 +146,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     )
     from .bundle import BundleError, pack, read_manifest, unpack
     from .crosswalk import EnrichmentRequest, enrichment
+    from .geography import Membership, MembershipSet, memberships
     from .ontology import Ontology
     from .retrieve import (
         DatasetUnknown,

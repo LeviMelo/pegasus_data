@@ -183,6 +183,7 @@ pegasus_data/
   locate.py               five-layer placement resolution (§15)
   labelpack.py            the shipped label pack and bindings (§14.9)
   crosswalk.py            temporal, cardinality-safe identifier enrichment (§14.13)
+  geography.py            supramunicipal memberships, compiled (§14.14)
   _vintage.py             exact/coarse/unknown source-vintage intervals (§14.13)
   providers.py            resource requirement/provider contracts (§14.13)
   _resources.py           versioned bundled and optional-resource lifecycle (§14.13)
@@ -1555,6 +1556,58 @@ dataset and never starts an unbounded build implicitly.
 `Period`, `Geography`, `EnrichmentRequest` and the warning classes are public so
 callers can type, persist and test plans/reports without reaching into private
 modules.
+
+### 14.14 `memberships()` — which region a municipality is in `[M]`
+
+`geography.py`
+
+`normalize/geo.py` canonicalises a municipality — six digits to seven, the check
+digit, the UF prefix — and stops there. "Which health region is this in" had no
+answer, and it is the question nearly every roll-up asks.
+
+It needed no new acquisition. DATASUS publishes each supramunicipal
+classification as an ordinary `.CNV` codelist keyed on the six-digit
+municipality code, and 139 national ones already ship in the label pack.
+`CIRBRN` maps 5,680 municipalities to 478 health regions — and `CIRAC`, the
+24-row Acre table that labelled Rio Branco "Baixo Acre e Purus" (§22.7), is one
+state's slice of it. So this **compiles**, and the compile is 98,584 rows in
+140 KB.
+
+`curation/geography.yml` carries the only irreducible fact — which codelist is
+which classification — with the measurement behind each entry. Nine are
+compiled: health region, IBGE meso/microregion, colegiado de gestão,
+metropolitan region, PNDR region, citizenship territory, agglomeration, capital.
+
+**The compile is deterministic only when scoped by publishing system.** Grouped
+by municipality alone, `CIRBRN` looks self-contradictory on 295 municipalities
+and `RSAUDBR` on 2,612; adding the validity window changes nothing and adding
+the *system* takes every one of them to zero. That is §3e's lesson again — most
+of the contradiction was manufactured by the comparison.
+
+What survives is real and splits in two. On `CIRBRN` only **46** of the 295 have
+a differently-*named* region; the rest are the same region at a different code
+width (`420005 → SIM:42008 | SINASC:4208`, both "SC Meio Oeste"). On `RSAUDBR`
+1,944 are genuine, and they are not a disagreement about geography but **two
+regionalisations published under one codelist name** — CIH and SINASC on the
+older DIRES scheme, SIA and SIH on the named-region scheme.
+
+Three consequences, all of which the API states rather than hides:
+
+* **A roll-up is not system-neutral.** The pack is keyed
+  `(municipality, classification, system, window)`. An aggregate over SIH must
+  roll up through SIH's regionalisation or its totals will not reconcile with
+  DATASUS's own TabNet output. `MembershipSet.conflicts` names any
+  classification whose systems disagree instead of averaging them away.
+* **Health macroregion is not shipped.** `BR_MACSAUD` conflicts on 66% of
+  municipalities and `MSAUDBR` on 4%; neither is usable, and the exclusion is
+  recorded with its measurement. Picking one system's answer for two-thirds of
+  Brazil would be worse than the gap.
+* **Sentinels are members.** `999999 → Ignorado/Exterior`,
+  `120000 → Município ignorado - AC`. Folding them into a real municipality is
+  the §22.7 error; dropping them biases every count that uses the geography.
+
+This is the first piece of the aggregate layer (`docs/AGGREGATE_DESIGN.md`),
+because a safe geographic roll-up is what the frontend contract rests on.
 
 ## 14a. What ships, and what does not
 

@@ -759,6 +759,10 @@ rather than merely convenient.
   city came to be labelled with the name of its health region.
 - **[`docs/RESUME.md`](docs/RESUME.md)** — operational state: what is left, and
   how to resume an interrupted run.
+- **[`docs/AGGREGATE_DESIGN.md`](docs/AGGREGATE_DESIGN.md)** — the aggregate
+  layer: why a frontend must not aggregate microdata (measured: 130 s and 50×
+  compression for one small state-year), what already exists to build on, and
+  the phased plan. Phase 0 — supramunicipal geography — is built.
 - **[`docs/HANDOFF.md`](docs/HANDOFF.md)** — for anyone taking the work over:
   every defect found by running it, what is still open, the traps that have bitten
   more than once, and an honest account of how the work went wrong.

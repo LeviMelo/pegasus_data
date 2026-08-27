@@ -1,0 +1,144 @@
+# Which shipped codelist carries which supramunicipal classification.
+#
+# This file exists because that fact is irreducible: nothing in a `.CNV` says
+# "CIRBRN is the health-region classification". Everything else about geography
+# — the memberships themselves, the member names, the validity windows — is
+# already in the label pack and is COMPILED from it, never restated here.
+#
+# `verified` is not decoration. Each entry was measured against the shipped pack
+# on 2026-08-23 by this rule: group municipality rows by
+# (municipality, validity window, publishing system), resolve `system IS NULL`
+# rows by the label pack's existing precedence, then count municipalities whose
+# member NAME still differs between named systems (accent- and case-insensitive,
+# so that `Xanxerê`/`Xanxere` is not counted as disagreement).
+#
+# That distinction matters. Grouping by municipality alone makes RSAUDBR look
+# like it contradicts itself 2,612 times; almost all of that is manufactured by
+# ignoring the system and the window, exactly as in FINDINGS 3e. What survives
+# the scoping is real, and only that is reported here.
+
+classifications:
+
+  health_region:
+    codelist: CIRBRN
+    what: >
+      Região de Saúde (CIR) — the health region a municipality is assigned to
+      under the Ministry's regionalisation. The unit most PegaSUS analysis rolls
+      municipalities up to.
+    authority: DATASUS TabNet
+    verified:
+      municipalities: 5680
+      members: 478
+      name_conflicts: 46
+      note: >
+        0.8% of municipalities are assigned to differently-NAMED regions by
+        different publishing systems. A further 249 differ only in the width of
+        the member code — SIM writes 42008 where SINASC writes 4208 for the same
+        "SC Meio Oeste" — which is an encoding difference and not a disagreement.
+
+  ibge_mesoregion:
+    codelist: MESOBR
+    what: IBGE mesoregion, the statistical grouping between UF and microregion.
+    authority: IBGE, as republished in the TAB kits
+    verified: {municipalities: 28018, members: 165, name_conflicts: 50}
+
+  ibge_microregion:
+    codelist: MICROBR
+    what: IBGE microregion.
+    authority: IBGE, as republished in the TAB kits
+    verified: {municipalities: 28379, members: 586, name_conflicts: 69}
+
+  metropolitan_region:
+    codelist: BR_REGMETR
+    what: >
+      Metropolitan region and integrated development region. Partial coverage by
+      construction — most municipalities belong to none, and absence here means
+      "not in a metropolitan region", not "unknown".
+    authority: DATASUS TabNet
+    verified: {municipalities: 1325, members: 95, name_conflicts: 13}
+    partial_coverage: true
+
+  health_colegiado:
+    codelist: CSAUDBR
+    what: Colegiado de gestão regional, the management tier between region and state.
+    authority: DATASUS TabNet
+    verified: {municipalities: 27044, members: 303, name_conflicts: 292}
+
+  citizenship_territory:
+    codelist: BR_TERRCID
+    what: Território da Cidadania — a federal development programme grouping.
+    authority: DATASUS TabNet
+    verified: {municipalities: 1854, members: 120, name_conflicts: 0}
+    partial_coverage: true
+
+  pndr_region:
+    codelist: BR_PNDR
+    what: >
+      Política Nacional de Desenvolvimento Regional mesoregion — the priority
+      areas of the national regional-development policy.
+    authority: DATASUS TabNet
+    verified: {municipalities: 1126, members: 14, name_conflicts: 0}
+    partial_coverage: true
+
+  agglomeration:
+    codelist: AGLBR
+    what: Aglomeração urbana.
+    authority: DATASUS TabNet
+    verified: {municipalities: 2375, members: 56, name_conflicts: 0}
+    partial_coverage: true
+
+  capital:
+    codelist: BR_CAPITAL
+    what: >
+      Whether the municipality is a state capital. An ATTRIBUTE rather than a
+      containment, kept here because it is the same kind of lookup and the same
+      compile; a roll-up to "capital" is not a partition of Brazil.
+    authority: DATASUS TabNet
+    verified: {municipalities: 30, members: 26, name_conflicts: 0}
+    partial_coverage: true
+    attribute: true
+
+# Classifications that exist on the tree and are NOT compiled, with the measured
+# reason. Excluding them is a statement about the evidence, not about the
+# geography: a municipality does belong to a health macroregion, and DATASUS
+# publishes no table that says which one without contradicting itself.
+excluded:
+
+  BR_MACSAUD:
+    wanted_as: health_macroregion
+    measured: {municipalities: 5580, name_conflicts: 3656, unparseable_rows: 220}
+    reason: >
+      66% of municipalities are assigned differently-named macroregions by
+      different systems, and 220 rows carry no member code at all. Compiling this
+      would mean picking one system's answer for two-thirds of Brazil.
+
+  MSAUDBR:
+    wanted_as: health_macroregion
+    measured: {municipalities: 27653, name_conflicts: 1080}
+    reason: >
+      The other candidate for the same classification, and it conflicts on 4%.
+      Neither macroregion table is usable, so PEGASUS SHIPS NO HEALTH-MACROREGION
+      MAPPING. This is an open gap, not an oversight.
+
+  RSAUDBR:
+    wanted_as: regional_de_saude
+    measured: {municipalities: 28393, name_conflicts: 2137}
+    reason: >
+      Not one classification. Two incompatible regionalisations are published
+      under this single codelist name — CIH and SINASC carry the older DIRES
+      scheme while SIA and SIH carry the named-region scheme:
+      municipality 130002 is "DIRES 6" (code 1306) to one pair and "Triângulo"
+      (code 1302) to the other. Collapsing them would invent a regionalisation
+      nobody publishes.
+
+  BR_DIVADM:
+    wanted_as: administrative_division
+    measured: {municipalities: 5613, name_conflicts: 2979}
+    reason: 53% conflict between systems.
+
+  RMETRBR:
+    wanted_as: metropolitan_region
+    measured: {municipalities: 2921, name_conflicts: 484}
+    reason: >
+      17% conflict. BR_REGMETR carries the same classification at 1% and is
+      compiled instead.

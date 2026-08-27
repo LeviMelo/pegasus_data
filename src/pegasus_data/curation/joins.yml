@@ -218,8 +218,14 @@ relations:
     relation: rollup_to
     target_type: health_region
     target_name: health_region
-    artifact: CIRAC
-    evidence: DATASUS TabNet dimension, explicitly a roll-up
+    # CIRBRN, not CIRAC. CIRAC is ACRE's 24-row slice of this classification and
+    # was declared here as the national roll-up, so
+    # `dimensions=["MUNIC_RES.health_region"]` resolved nothing outside Acre —
+    # Sao Paulo, Rio, Fortaleza and Belo Horizonte all came back unresolved.
+    # Same per-UF-table-applied-nationally defect as FINDINGS 3k, in relation
+    # form. CIRBRN carries 25,490 codes against CIRAC's 24.
+    artifact: CIRBRN
+    evidence: DATASUS TabNet dimension, explicitly a roll-up; national table
   - system: SIHSUS
     dataset: SIH.RD
     field: MUNIC_RES
