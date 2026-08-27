@@ -12,6 +12,12 @@ artifact**.
 
 ---
 
+> **The mathematics behind this document is in
+> [`AGGREGATE_ALGEBRA.md`](AGGREGATE_ALGEBRA.md)** — why an aggregate is a map
+> into a commutative monoid, why roll-up is pushforward along a map of key
+> spaces, and why every failure mode is one of those two structures breaking.
+> Read it first if you want the rules to be derivable rather than memorised.
+
 ## 1. The premise, measured
 
 `REQUEST.md` asserts the frontend must not aggregate microdata at request time.
