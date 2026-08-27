@@ -1,744 +1,551 @@
-No. The codebase is **substantially better than the previous snapshot, and many of the old defects were genuinely repaired**, but I cannot certify the current tree as sound in all regards. More importantly, this is not because I found a handful of cosmetic or maintainability issues. I found several **current correctness defects capable of producing semantically wrong output**, along with serious reliability and I/O problems that the current tests do not exercise adequately.
+This is the first corrective pass in this sequence that I would call **fundamentally successful**. `7bbd076` actually restores the source-oriented contract we adjudicated, preserves the good architecture from the previous work, and closes almost all of the defects we explicitly handed Codex. 
 
-I treated `pegasus_data_source.zip` as authoritative and re-audited the current implementation rather than carrying old findings forward. The historical `DEFECTS` document says its earlier defect catalogue was closed after live-DATASUS verification, and the current source confirms that many of those fixes really did survive.  At the same time, the newer project notes themselves contain an important warning: municipality labels, doubled labels, and completely blank data dictionaries all survived apparently green test suites and were found only when somebody inspected the actual rendered output.  That warning remains directly relevant to what I found.
+I would keep this commit. I would **not** reopen the query architecture again.
 
-## What I could independently validate
+There are, however, a few real remaining issues. One is fairly important because the new temporal-relation resolver is now more capable than the SQLite schema that stores adjudicated relations.
 
-The current repository is materially more complete than earlier snapshots. It contains the packaging configuration, about 35,000 lines of package Python, a large test suite, packaged resources, the architecture document and dedicated regression tests for projected vintages, process-isolated decoding, migration constraints, entry-point parity, freshness, staging and other previously problematic areas.
+# Overall verdict
 
-All Python under `src/`, `tests/` and `scripts/` compiles successfully with `compileall`. I also ran the repository's own code-health analyzer and performed targeted pure-Python fault injection against transaction and migration code.
+The intended architecture is now finally recognizable in the code:
 
-I could not execute the complete pytest suite because this execution environment lacks PyArrow, DuckDB, `datasus-dbc` and `dbfread`. Therefore I cannot independently reproduce whatever current “1,000+ passing” result was obtained in the Pegasus environment. That limitation matters, but several of the defects below are direct control-flow failures requiring no inference about runtime behavior; two of the durability failures I reproduced directly.
-
-## A large amount really has been fixed
-
-The earlier code should not be judged by the previous review anymore.
-
-Warm cache hits are now settled before opening FTP connections. `fetch_one()` received the same repair. Freshness metadata is persisted, `refresh="remote"` exists, interrupted downloads are resumable, stale fallback is explicit rather than accidental, and the partially-warm scheduler now has a separate terminal counter instead of counting pre-resolved hits against network misses.
-
-DBC decoding is path based, and requested-column projection is pushed into DBF construction rather than applied only after building all Arrow columns. Large eager `fetch()` calls have a preflight limit. Default `fetch()` refuses partial answers. `FetchReport` has considerably better network/cache accounting.
-
-`load()` now preserves the partition `year` as an internal semantic dependency when projected columns are requested, renders separately by family and vintage, and removes the hidden year afterward. That repairs the previous projected-`load()` vintage bug. `render_groups.py` is also a real improvement: some semantic policy is finally shared rather than duplicated.
-
-The lake writer no longer collects an entire partition before opening `ParquetWriter`. Scanner schemas now use projected schemas. Eager exports use staging. Reference tables are system-scoped, scoped rebuilding occurs at `codelist/system` depth rather than deleting sibling systems, and `load_reference()` exposes `system=`.
-
-Decoder timeout handling has moved in the correct architectural direction: interactive retrieval can use persistent decoder subprocesses rather than pretending an abandoned Python thread has been cancelled. The huge `.duck` file is no longer loaded into a Python `bytes` object merely to stage another copy.
-
-Catalog migration now understands table-level composite primary keys, UNIQUE constraints and foreign keys rather than only columns. Whole-tree staging has unique transaction names and rollback. Public API consistency around `root=`, `settings=`, integer years, `path` versus `out`, and several exception classes has improved considerably.
-
-The semantic work has improved too. The latest project measurements report actual live fetches for SINASC, SIM, SIH, SIA and SINAN in which municipality values were inspected and corrected rather than merely counted as “labelled”; the project records 128 municipality columns explicitly bound to `BR_MUNICIPALFA`, 12 to `BR_MUNICGESTOR`, and none left on known roll-ups/per-UF lists. 
-
-So this is not a failed remediation effort. A great deal of the old engineering debt has been removed.
-
-## Release blocker: projected `fetch()` has reintroduced the historical-vintage bug
-
-This is the clearest current P0.
-
-`_read_families()` correctly retains `_source_path` because `fetch()` needs it to know which physical source, family, year and competence produced each row.
-
-But later, in `retrieve.fetch()`, the user projection is applied **before semantic grouping**:
-
-```python
-if columns:
-    ...
-    keep = [c for c in table.column_names if c in set(columns)]
-    table = table.select(keep)
+```text
+SOURCE METADATA
+    ↓
+publication planning
+    ↓
+lake / fetch / hybrid
+    ↓
+requested-slice ETL
+    ↓
+labels / dimensions / explicit enrichment
+    ↓
+researcher does analysis
 ```
 
-Unless the caller explicitly asked for `_source_path`, that deletes it.
+The previous row-level analytical behavior is genuinely gone. `time_by`, `geography_by`, and `unresolved_time` were removed; municipality requests no longer become `MUNIC_RES`/`MUNIC_MOV` predicates; annual SIM requests no longer inspect `DTOBITO`; and the documentation explicitly says `period`/`geography` are publication coordinates. 
 
-Immediately afterward `fetch()` calls:
+Codex also reports **1,213 passed / 1 skipped**, clean Ruff, compile checks, manifest checksum, and clean staged diff. I cannot independently execute that repository here, but nothing in the supplied patch contradicts that report.
 
-```python
-split_by_source(
-    table,
-    fetch_report.source_facts,
-    fallback_year=min(want_years) if want_years else None,
+## What is now properly fixed
+
+**The source-vs-analysis boundary is fixed.** This was the main architectural redirection. The tests now explicitly assert that heterogeneous `MUNIC_RES` values survive an AL publication request and that legacy analytical-axis arguments are rejected.  
+
+**Annual source adaptation is conceptually correct.** A March–April request against annual SIM becomes an enclosing 2020 source request with a warning, not a `DTOBITO` filter. 
+
+**Planning is metadata-only.** Codex added a regression explicitly preventing `plan()` from touching lake fact data. 
+
+**Archive-member completeness is substantially fixed.** New lake provenance stores `logical_source_id(path, member)`, and completeness uses `(family, logical publication, member)` rather than merely the enclosing path.  The new test correctly makes an archive with A/B members and records only A as locally built; the planner then refuses to regard the year as complete. 
+
+**Representation reconciliation is now genuinely global.** Builder and retrieval gather candidates across selected families, choose representations once, then execute only selected `(family,path,member)` units.   Existing open conflicts now block even singleton candidate calls. 
+
+**Capability duplication was fixed correctly.** Curation now separates `source_publication` from `semantic_axes`, and `query_capabilities.json` is compiled from the former rather than manually duplicating analytical variable metadata.  The runtime capability resource no longer contains record-level geography/time axes. 
+
+**Unknown dimension vintage no longer silently becomes “current.”** The dimension engine returns null when it cannot establish a safe temporal relation, except when an unbounded mapping is explicitly proven time-invariant. 
+
+**Relation resolution now understands time and precedence.** It filters by `valid_from`/`valid_to`, then applies local > shipped > legacy and dataset/system specificity. 
+
+**CNES resource handling is much better.** The registry path bug was fixed, CNES attribute lookup is by requested CNES IDs rather than inheriting fact geography, and optional resources increasingly pass through `ResourceManager`. 
+
+**The crosswalk audit wording is now epistemically correct.** The 1,816 and 13,923 values are described as pairwise overlaps rather than canonical ambiguity intervals. That is the right correction. 
+
+So the large previous review is essentially closed.
+
+---
+
+# Remaining issue 1 — the temporal relation resolver can express history, but the catalog cannot
+
+This is the most concrete remaining architectural defect.
+
+Codex upgraded `relations_for()` so that the same semantic target can have:
+
+```text
+artifact A, valid through 2010
+artifact B, valid from 2011
+```
+
+and the resolver correctly chooses A or B by vintage. The new tests demonstrate exactly that. 
+
+But the existing SQLite table has this primary key:
+
+```sql
+PRIMARY KEY (
+    system,
+    dataset,
+    field_name,
+    relation_type,
+    target_type,
+    target_name
 )
 ```
 
-And `split_by_source()` explicitly does:
+It does **not** include `valid_from` or `valid_to`. 
 
-```python
-if "_source_path" not in table.column_names or not source_facts:
-    return [(table, None, fallback_year, None)]
-```
+And `adjudicate()` still performs:
 
-Therefore a very ordinary request such as:
-
-```python
-fetch(
-    "SIH-RD",
-    years=[1995, 2024],
-    columns=["DIAG_PRINC"],
+```sql
+ON CONFLICT(
+    system,
+    dataset,
+    field_name,
+    relation_type,
+    target_type,
+    target_name
 )
+DO UPDATE ...
+    valid_from = excluded.valid_from,
+    valid_to   = excluded.valid_to
 ```
 
-loses the information needed to distinguish 1995 rows from 2024 rows **before labels are rendered**.
 
-It then falls back to the earliest requested year and `family_id=None`.
 
-That is effectively the old P0 vintage defect again, but only through the projected `fetch()` path.
-
-The new projected-vintage regression tests cover `load()`. They do not cover projected multi-vintage `fetch()`.
-
-This is exactly the kind of entry-point divergence the shared rendering work was supposed to eliminate.
-
-The repair is straightforward conceptually: `_source_path` must be treated like `load()` treats `year`—a hidden internal dependency retained through rendering and removed only after semantic resolution if the user did not request provenance.
-
-Until that is fixed, I would not trust a multi-year projected `fetch(labels=True)`.
-
-## Release blocker: archive provenance does not use one identity
-
-There are currently **three incompatible ideas of what identifies an archive source**.
-
-Normal `DecodedTable.source_id` uses:
-
-```python
-physical_path!member
-```
-
-The process-isolated `_RemoteTable.source_id` uses:
-
-```python
-physical_path#member
-```
-
-But `_select_files()` stores semantic facts under only:
-
-```python
-physical_path
-```
-
-with no member at all.
-
-Normalization writes:
-
-```python
-_source_path = table.source_id
-```
-
-Therefore an archive-member row can carry something like:
+Therefore the local/manual adjudication system cannot actually store:
 
 ```text
-/dissemin/.../acac0202.exe!ACAC0202.DBF
+DIAG_PRINC.chapter:
+    CID_OLD  through 2010
+    CID_NEW  from 2011
 ```
 
-while `FetchReport.source_facts` contains only:
+as two decisions.
+
+Applying the second decision overwrites the first.
+
+The same problem exists in `seed_relations()`: multiple curated temporal relations occupying the same semantic target slot overwrite each other when seeded into `semantic_relations`. 
+
+The tests miss this because the temporal-history tests monkeypatch `load_relations()` with two in-memory relations rather than storing two adjudicated relations in SQLite.
+
+### What to change
+
+The relation's database identity must represent a **temporal assertion**, not merely a semantic target.
+
+I would prefer a stable `relation_id` primary key, plus a non-unique semantic slot:
 
 ```text
-/dissemin/.../acac0202.exe
-```
-
-`split_by_source()` cannot find the row's facts.
-
-That loses the member's family/year/competence semantic context and causes fallback rendering.
-
-This is particularly serious because the project correctly went to considerable effort to establish that one APAC LHA SFX archive can contain **seven different logical datasets and seven schemas**. Archive member identity is supposed to be first-class, not decorative.
-
-There needs to be one function—something like `logical_source_id(path, member)`—used by selection, normalization, isolated decoding, ordinary decoding, reporting, catalog provenance and render grouping.
-
-Until then, archive-backed data do not have reliable semantic provenance through `fetch()`.
-
-## Release blocker: `scan(..., on_missing_column="null_fill")` is not actually null-filling the lazy stream
-
-This is another old invariant that is correctly implemented for eager `load()` but incompletely implemented by the newer lazy API.
-
-When one generation lacks a requested column, current `scan()` handles `"null_fill"` by doing:
-
-```python
-scanner = cat.lake.scanner(
-    ...
-    columns=None,
-)
-```
-
-That means:
-
-> read every physical column from the generation.
-
-It does not mean:
-
-> emit the caller's requested schema with the missing field represented by nulls.
-
-`LakeScan.iter_batches()` then simply does:
-
-```python
-yield from scanner.to_batches()
-```
-
-without conforming those batches to the requested schema.
-
-Consequently a lazy scan across schema generations can yield radically different schemas. A generation possessing the requested field can produce the narrow projected schema, while a generation lacking it produces its **entire physical schema** and still does not contain the requested null column.
-
-`LakeScan.to_table()` partly disguises this because permissive concatenation can reconcile schemas after materialization. But the point of `scan()` is that callers consume individual batches.
-
-It also contaminates:
-
-```python
-export(..., stream=True)
-```
-
-because streaming export builds its union schema from `scan_result.schemas`. A two-column request can therefore expand toward an entire physical schema simply because one generation did not have one of the requested fields.
-
-The current parity test checks row counts. It doesn't assert identical schemas or null values.
-
-This needs an explicit requested-output schema and per-batch conformance. Missing fields must be generated as Arrow null arrays; unrequested physical fields must never reappear.
-
-## Release blocker: the shipped label pack is still not vintage-capable
-
-The **code that builds new label packs has now been corrected** to incorporate validity windows.
-
-The **actual `labels.parquet` shipped in this ZIP has not been rebuilt**.
-
-The repository's own test says explicitly:
-
-> “The artifact currently shipped has no window columns.”
-
-I independently inspected the packaged Parquet metadata strings as far as this environment permits; `codelist` and `code_lo` are present, while `valid_from`/`valid_to` are absent.
-
-The fallback logic knows this. But the chosen default is:
-
-```text
-historical_labels = "current"
-```
-
-because refusing every unwindowed mapping would leave much of a fresh installation unlabelled.
-
-Thus on a fresh install, a historical request can still receive current/unversioned labels. The decision is recorded internally as `unwindowed-pack`, but ordinary:
-
-```python
-fetch(...)
-load(...)
-```
-
-returns a table, not the rendering report. Unless the caller explicitly requests a report or strict semantics, that warning is not materially visible.
-
-This is not merely theoretical. The project's own measurements establish why codelist windows exist: the same codelist can legitimately contain different mappings or wording in different eras. 
-
-The appropriate final fix is not more fallback logic. **Regenerate the distributed `labels.parquet` using the current builder and full semantic catalog before release.**
-
-Until that happens, the fresh-install path does not satisfy the package's central vintage-correctness promise.
-
-There is also an API inconsistency: `fetch()` exposes `historical_labels=`, but `load()` does not.
-
-## Decoder process isolation fixes one problem but introduces a protocol-recovery defect
-
-Moving decoding into killable subprocesses was the correct solution to the old fake-timeout problem.
-
-The current worker protocol is not robust after errors.
-
-`DecoderPool.decode()` borrows a worker and always returns it to `_free` in `finally`.
-
-`_read_reply()` reads the first frame. If it says:
-
-```json
-{"ok": false, ...}
-```
-
-it immediately raises `IsolatedDecodeError`.
-
-But the worker protocol sends a zero-length reply terminator after that error frame.
-
-Because the parent raised before consuming it, that terminator remains unread in the worker pipe.
-
-The same worker is returned to the pool.
-
-Its next job can therefore read the previous job's terminator as the new response header.
-
-A failed decode can poison a persistent worker for the next request.
-
-There is a second protocol problem. `_worker._run_job()` sends the `"ok": true` header **before it iterates lazy batches**. If iteration subsequently throws, the outer worker loop sends an `"ok": false` JSON frame into a stream the parent is currently interpreting as Arrow IPC data.
-
-This protocol needs the rule:
-
-> Any exception or malformed/incomplete response makes that worker disposable.
-
-Kill it and replace it instead of returning it to the pool.
-
-A regression test needs to exercise **error → same-pool next successful decode**, not merely successful-worker reuse.
-
-## Process isolation is also much less streaming than its documentation says
-
-The worker documentation says:
-
-> neither side ever holds the whole decoded table.
-
-The parent does:
-
-```python
-batches: list[pa.RecordBatch] = []
+relation_id
+system
+dataset
+field
+relation_type
+target_type
+target_name
+artifact
+valid_from
+valid_to
 ...
-batches.extend(stream)
 ```
 
-for every table and returns `_RemoteOutcome` only after the whole reply has been received.
+with explicit overlap/conflict validation.
 
-So the entire decoded source can be resident in the parent process.
+Alternatively, include the temporal boundaries in a uniqueness constraint, although nullable bounds make that more awkward.
 
-The wire protocol is batch-framed, but the API above it materializes the frames.
-
-That is an implementation/documentation mismatch and a potentially important memory problem for large sources.
-
-## DuckDB remains a serious I/O hotspot
-
-The earlier catastrophic:
+Then add the important test:
 
 ```text
-12 GB file → read_bytes() → temporary 12 GB copy
+adjudicate A valid through 2010
+adjudicate B valid from 2011
+
+new connection:
+relations_for(... vintage=201006) → A
+relations_for(... vintage=201106) → B
+
+both rows remain stored
 ```
 
-path is fixed.
+I regard this as the main remaining defect because the whole AI/manual adjudication backdoor is supposed to be a first-class source of historical semantic truth.
 
-But `read_duckdb()` still does more work than the API asks for.
+---
 
-It first enumerates every table in the database. It DESCRIBEs and COUNTs each one. Then every table's iterator executes:
+# Remaining issue 2 — Pegasus now needs a proper concept of a **coarse source vintage**
 
-```sql
-SELECT * FROM schema.table
-```
-
-No requested `member` is passed into `read_duckdb()`. No requested columns are projected into the SQL.
-
-Through process isolation, the worker therefore opens the physical DuckDB source and can stream **every table and every column** over IPC.
-
-Only later, back in the parent, `_decode_one()` decides:
-
-> this was not the requested logical member; discard it.
-
-For a source that the project itself documents as approximately 12 GB, this is potentially orders of magnitude too much I/O.
-
-The worker job must contain the desired member/table and projected columns, and `read_duckdb()` needs to issue something equivalent to:
-
-```sql
-SELECT requested_columns
-FROM requested_schema.requested_table
-```
-
-The exact same principle applies to multi-member archives.
-
-## Physical-source decoding is not single-flight
-
-The current fetch decode cache is keyed by digest, which is sensible, but it is not a true single-flight cache.
-
-Threads acquire the lock to ask whether a digest has already been decoded, release the lock while performing the expensive decode, and then `setdefault()` the result afterward.
-
-If several logical records point to the same physical archive, several workers can simultaneously see “not cached” and all decode the same physical source.
-
-The eventual cache is deduplicated.
-
-The **work isn't**.
-
-The appropriate structure is:
+The query architecture is correctly refusing to invent a month from `DTOBITO`, but there is now an important distinction:
 
 ```text
-digest → Future[DecodeOutcome]
+month known       = 2020-06
+year known only   = 2020, month unknown
+time wholly unknown
 ```
 
-rather than:
+The current semantic machinery tends to collapse the last two.
 
-```text
-digest → DecodeOutcome
-```
+For annual source files, the builder already deliberately writes `_competencia=None`: it only assigns competence when `normalized_date % 100` contains a real month.  Fetch provenance similarly stores month competence only when a month exists. 
 
-so the first requester owns the decode and every concurrent requester waits on the same future.
+That's good for preventing false precision.
 
-This is especially valuable now that one archive or DuckDB file can represent many logical dataset members.
-
-## Decoder cancellation is not uniformly applied across the pipeline
-
-Interactive `fetch()` now has process isolation.
-
-`profile()` does not.
-
-`Pipeline._profile_one_inner()` still performs:
+But `_apply_dimensions()` sees:
 
 ```python
-self.blobs.read(digest)
+competence is None
 ```
 
-followed by:
+and treats the vintage as completely unknown. It only allows an entirely unbounded, globally time-invariant mapping. 
+
+Yet for SIM 2020 we know:
+
+```text
+vintage ∈ [202001, 202012]
+```
+
+We do **not** know nothing.
+
+This means Pegasus may unnecessarily return null for an annual dataset even when one relation/artifact is demonstrably valid throughout all of 2020.
+
+The correct abstraction is an interval:
+
+```text
+monthly source:
+    source_vintage = [202006, 202006]
+
+annual source:
+    source_vintage = [202001, 202012]
+
+unknown:
+    source_vintage = unbounded/unknown
+```
+
+Then a semantic derivation is safe if a single effective relation/mapping applies over the **entire interval**.
+
+This would preserve the safety principle while avoiding unnecessary nulls.
+
+---
+
+# Remaining issue 3 — direct crosswalk enrichment still converts a year into December
+
+This is related but more dangerous.
+
+The patch adds/follows this behavior when `_competencia` is absent but a `year` column exists:
 
 ```python
-registry.open_bytes(...)
+int(year) * 100 + 12
 ```
 
-inside the old `run_with_timeout()` thread watchdog.
+i.e. 2020 becomes **202012**. 
 
-That recreates two old problems: the entire physical source is copied into Python memory, and a timed-out decoder thread continues executing because Python cannot kill it.
+That is not a neutral transformation.
 
-`Builder._materialise_partition()` also directly invokes `registry.open_path()` without process isolation or an equivalent killable deadline.
+Suppose:
 
-Therefore “decoders are isolated and cancellable” is not yet a pipeline invariant. It is an interactive-fetch feature.
+```text
+CNES X → CNPJ A through June 2020
+CNES X → CNPJ B from July 2020
+```
 
-A shared decoding service should serve fetch, profile and build.
+and the caller supplies:
 
-## I reproduced a real scoped transaction rollback failure
+```text
+year = 2020
+```
 
-`staged_tree()` is considerably better than before, and whole-tree replacement has proper rollback.
+Picking December means Pegasus can resolve B even though the temporal information only establishes “somewhere in 2020.”
 
-The scoped merge has one precise failure boundary that still violates its own guarantee.
+For core `query()` this is less likely because `_competencia` is deliberately carried internally, including null for annual publications.
 
-It does:
+But `enrich_cnpj()` / `enrich_cnes()` are useful primitives in their own right and should remain semantically safe.
+
+Again, use the coarse interval:
+
+```text
+2020 → [202001, 202012]
+```
+
+and resolve only if exactly one target applies throughout the whole interval.
+
+Otherwise:
+
+```text
+resolved = NULL
+status = temporally_ambiguous/coarse_vintage
+```
+
+Do not choose January or December arbitrarily.
+
+---
+
+# Remaining issue 4 — exact resource **content-version equality** undermines independent resource updates
+
+This is an architectural regression against something we explicitly designed earlier.
+
+`ResourceManager` now requires:
 
 ```python
-if destination.exists():
-    destination.rename(backup)
-
-unit.rename(destination)
-moved.append((destination, backup))
+local_manifest["resource_content_version"]
+==
+bundled_manifest["resource_content_version"]
 ```
 
-Suppose moving the old destination to the backup succeeds, but installing `unit` as the destination fails.
+or rejects the local resource as incompatible. 
 
-The `(destination, backup)` pair has **not yet been appended to `moved`**.
-
-The exception handler therefore knows nothing about the subtree it just moved away.
-
-I fault-injected exactly that failure using the current implementation.
-
-Result:
+That is fine for detecting a random stale file today, but it conflates:
 
 ```text
-destination exists: False
-backup exists:      True
+resource format compatibility
 ```
 
-The old subtree had disappeared from its canonical location and was stranded under `.__old__...`.
-
-That directly contradicts the staging module's stated guarantee that the old artifact remains intact after failure.
-
-The fix is small: once the old destination has been moved, the rollback record must exist **before** installation is attempted, or that individual install must have its own try/restore block.
-
-## I also reproduced a concurrent `staged_file()` collision
-
-`staged_tree()` now gets a unique transaction token.
-
-`staged_file()` still always creates:
+with:
 
 ```text
-.<target>.staging
+resource data freshness/version
 ```
 
-Two simultaneous writers to one target therefore receive the same temporary path.
+We explicitly wanted Pegasus code releases and semantic-resource releases to be decoupled.
 
-I reproduced this with nested writers.
+For example:
 
-Both contexts got the same staging file. The second writer wrote `SECOND`. The first writer subsequently published those bytes under the target name. When the second context exited, its staging file was already gone and it raised an error.
+```text
+pegasus-data 1.4
+bundled semantic content = 2026-08-23
 
-So `staged_file()` is not cross-process or even cross-context safe.
+user downloads compatible semantic pack = 2026-09-15
+```
 
-This primitive backs lake partition writes and ordinary exports.
+That newer pack should generally be usable if its **resource schema/ABI** is compatible.
 
-It needs the same per-transaction uniqueness already introduced for `staged_tree()`, with staging kept in the target directory so final `os.replace()` remains atomic.
+The current exact equality rule rejects it.
 
-`_write_streaming()` independently uses another deterministic `<target>.part` filename and has the same collision class.
+You need separate concepts:
 
-## Lake partition replacement is much safer, but still not an atomic partition transaction
+```text
+resource_schema_version
+    reader compatibility — strict
 
-The catastrophic old “delete partition then write new file” defect is gone.
+resource_content_version / data_epoch
+    which evidence snapshot this pack contains — may be newer
 
-There remains a smaller but real consistency window.
+minimum_reader_version / compatibility range
+    if needed
+```
 
-The new file is staged and replaces `part-00000.parquet`. Then stale sibling parts are removed and old catalog records are deleted. Then the new catalog record is inserted.
+So validate:
 
-Because `pyarrow.dataset` discovers files from the filesystem rather than the catalog, there are moments in which the new part and stale old parts can coexist and be read together.
+```text
+schema/ABI compatible?
+checksum correct?
+manifest identity correct?
+```
 
-There is also a crash window after catalog rows are removed but before the new one is inserted.
+but do not require the local content timestamp/version to equal the wheel's bundled snapshot.
 
-A true partition transaction should stage an entire partition directory/manifest and swap the partition boundary, then reconcile catalog metadata transactionally.
+This matters directly to the intended:
 
-This is no longer the most urgent defect, but I would not describe current partition replacement as fully atomic.
+```text
+huge maintainer semantic build
+        ↓
+new compact runtime resource pack
+        ↓
+users update resources without reinstalling Pegasus
+```
 
-## Catalog migration constraint checking is still asymmetric, and I reproduced it
+architecture.
 
-The new migration parser is a real improvement.
+---
 
-But `_structural_mismatches()` effectively says:
+# Remaining issue 5 — `cnes_names` “covered years” is still inferred too optimistically
+
+Codex fixed the obvious bug where an all-years build stored no covered years.
+
+But the new algorithm determines coverage by unioning years found in individual rows' `valid_from`, `valid_to`, and `source_ref`. 
+
+The regression test even uses one dictionary entry valid 2022–2023 and concludes:
+
+```text
+resource coverage = 2022, 2023
+```
+
+
+
+That proves **a relation exists across those years**.
+
+It does not necessarily prove:
+
+> the local CNES-name directory is complete for every establishment in both years.
+
+Resource completeness is a property of the **source snapshot/build**, not the union of individual record validity windows.
+
+This distinction matters because otherwise:
+
+```text
+CNES lookup fails
+```
+
+is ambiguous between:
+
+```text
+establishment genuinely unresolved
+```
+
+and:
+
+```text
+resource incomplete for that period
+```
+
+The safe long-term solution is to derive `covered_years` from source-level evidence:
+
+```text
+which complete CNES/reference snapshots/codelists were ingested?
+```
+
+rather than from row temporal ranges.
+
+This isn't likely to generate a false name—it generates missing names—but it can overstate the authority/completeness of the resource.
+
+I would classify this P1 rather than P0.
+
+---
+
+# Remaining issue 6 — mixed annual/monthly requests are safe-ish but still structurally crude
+
+The planner retains `year_resolutions`, which is good. But for a subannual request, if **any** requested year is annual:
 
 ```python
-if want_pk and have_pk and want_pk != have_pk:
-    problem
-
-if want_unique and have_unique != want_unique:
-    problem
-
-if want_fk and have_fk != want_fk:
-    problem
+annual_enclosure = ...
 ```
 
-That catches a constraint the shipped schema wants but the installed catalog has differently.
+it creates one global `time_resolution` adaptation and leaves `months=()` for the whole request. 
 
-It does **not** catch an installed constraint that the shipped schema no longer declares.
-
-I created small SQLite databases and tested the current comparator.
-
-An extra actual UNIQUE constraint: accepted.
-
-An extra actual foreign key: accepted.
-
-An extra actual primary key: accepted.
-
-Thus “installed schema equals shipped schema” is still not what the migration checker proves.
-
-The comparison needs to be symmetric after normalizing SQLite's implicit/index artifacts.
-
-## Incremental-build invalidation has a weak point around municipality data
-
-`plan_fingerprint()` includes:
+The executor then has one global:
 
 ```python
-municipalities=<index size>
+coarsening = any(time_resolution adaptation)
 ```
 
-not a digest of the municipality mapping.
+and passes that to `_filter_source_period()`. 
 
-That means a correction that changes municipality mappings while preserving the number of entries leaves the fingerprint unchanged.
-
-The build system can then decide an old normalized partition is still current even though rebuilding it would produce different municipality-derived values.
-
-This matters precisely because municipality semantics have undergone extensive corrections recently.
-
-`TRANSFORM_VERSION = "1"` can compensate only if a developer remembers to bump it whenever transformation semantics change.
-
-A deterministic digest of the actual `MunicipalityIndex` content should be included in the plan fingerprint.
-
-## Not all derived-data writers use the improved durability model
-
-`Builder.population()` still writes final Parquet filenames directly.
-
-`Builder.demas()` still writes:
+This is correct enough if:
 
 ```text
-part-00000.parquet
+annual rows → _competencia NULL
+monthly rows → _competencia exact
 ```
 
-directly.
+because monthly rows still get filtered while annual nulls are retained.
 
-An interrupted population rebuild can therefore leave a mixture of prior and current files. A failed or empty DEMAS refresh can leave the previous dataset in place looking current.
+But it has two weaknesses.
 
-This is exactly the category of problem `staged_tree()` and `staged_file()` were introduced to eliminate.
+First, monthly fetch years may be over-fetched because the planner does not retain month pushdown once one annual year appears.
 
-The policy has not reached every writer.
+Second, with `retain_annual_enclosures=True`, **any null source competence gets retained**, even if that null actually represents broken provenance on a supposedly monthly source. 
 
-## Archive quotas are only partially enforced
+A safer representation would explicitly distinguish:
 
-The archive subsystem now has explicit limits on member count, total uncompressed size and expansion ratio.
+```text
+annual enclosure
+vs
+missing provenance
+```
 
-Good.
+instead of using null for both.
 
-Those checks are applied to ZIP and external RAR/7z handling.
+This is not currently evidence of widespread wrong output, so I would not hold the whole architecture on it. But the existing per-year resolution information should eventually drive per-year source selection/adaptation rather than collapsing back to one global boolean during execution.
 
-LHA, TAR and gzip do not go through equivalent quota checks before expansion.
+---
 
-For gzip in particular:
+# Remaining issue 7 — capability compilation should reject duplicate source declarations
+
+The new compilation design is correct:
 
 ```python
-gzip.decompress(self.data)
+source_publication curation
+→ query_capabilities.json
 ```
 
-can still create a very large allocation.
-
-For LHA, original member sizes are available and should be checked before decoding.
-
-This is a resource-safety gap rather than an epidemiological-correctness bug, but there is no reason to leave the policy container-specific.
-
-## Acquisition diagnostics can be mistaken for source failures
-
-`FetchStats.errors` mixes fundamentally different things:
-
-```text
-actual path fetch failure
-<connect> worker connection diagnostic
-<stall> batch diagnostic
-<workers> shutdown diagnostic
-```
-
-`retrieve._acquire()` then copies **every one** into `report.acquisition_failures`.
-
-`FetchReport.is_complete` treats any acquisition failure as an incomplete answer.
-
-Therefore one worker can fail to establish an FTP connection, other workers can successfully fetch every requested source, yet the completed request is subsequently treated as partial because `<connect>` exists in `errors`.
-
-This is a safe false negative—it raises rather than returning wrong data—but it is a reliability defect.
-
-Worker/batch diagnostics need to be separated from unresolved requested paths.
-
-## Cross-system codelist borrowing remains too permissive
-
-`read_reference_table(..., system=...)` first tries the requested system, which correctly fixed the earlier catastrophic cross-system merge.
-
-If that system has no copy, however, the code intentionally falls back to another system's table:
-
-> “a borrowed table is better than none.”
-
-It records the borrowing in `RenderReport`.
-
-`strict_labels=True` rejects vintage fallback, but it does not reject this borrowed-system case.
-
-And ordinary fetch/load calls do not expose the report unless requested.
-
-Given that one of the project's earlier measured defects was precisely that thirteen systems' `SEXO.CNV` tables can disagree, this default is too optimistic.
-
-A foreign-system mapping should be used only if the codelist has been explicitly established as system-independent, or behind something like:
+But:
 
 ```python
-allow_borrowed_labels=True
+datasets[code] = compiled
 ```
 
-An unlabelled code is much easier to detect than a plausible label imported from the wrong information system.
+silently makes the last declaration win if two curation files accidentally define the same `source_publication.dataset`. 
 
-## Month-level semantic vintages still cannot be represented by the lake
+Given how strongly this project treats semantic conflict, this should hard-fail:
 
-The reference layer supports `competencia=AAAAMM`, which is correct: a classification can change in July rather than January.
+```text
+duplicate source-publication capability declaration for SIH.RD
+```
 
-Raw `fetch()` computes competence from source-file dates.
+rather than depend on sorted file order.
 
-The built lake partitions by year. `split_by_year_column()` explicitly says month-level competence is unavailable there and passes `None`.
+Small change, worthwhile invariant.
 
-Therefore `load()` cannot in general reproduce month-exact semantic rendering if a codelist has two validity windows within the same year.
+---
 
-If month-level validity is part of the semantic contract, competence must survive into the lake as an internal column or partition key.
+# Resource centralization is improved, but not literally “one gate” yet
 
-## The generic codelist-selection problem remains open
+Codex's docs now say all runtime opens pass through `ResourceManager`.
 
-The municipality catastrophe was fixed primarily through **explicit curation**, not by making the generic ranking algorithm infallible.
+Mostly true.
 
-That distinction is important.
-
-Current `view.py` still uses:
+But `cnes_registry` is a special case:
 
 ```python
-_MAX_CANDIDATES = 12
+if record.name == "cnes_registry":
+    return
 ```
 
-A `.DEF` can bind a field to more than a hundred tables. `_choose_binding()` only loads and measures the first twelve after the preliminary ranking.
+in `_validate()`, because lake integrity is delegated elsewhere. 
 
-The project's own postmortem measured municipality examples where the correct `BR_MUNICIPALFA` table ranked 118th or 123rd. It was never even considered. The specific municipality fields are now curated around this problem, but the mechanism remains for other ambiguous fields. 
+Then `LocalCnesRegistryProvider` performs its own publication/year completeness calculation.
 
-`RESUME` explicitly acknowledges this as still open: a correct table ranked thirteenth or later is never loaded or weighed. 
+This is defensible—the CNES registry is a lake dataset, not a static pack—but the architecture should say:
 
-This is more than an optimization problem because the output can be a plausible label from the wrong aggregation.
+> one **resource resolution interface**, with lake-backed resources delegating integrity/completeness to the lake catalog.
 
-For fields with large ambiguous binding sets, the safe behavior should be to require an explicit semantic declaration or refuse to choose if the correct candidate cannot be established—not to let an arbitrary cost cap become an epistemic decision.
+rather than implying one uniform validation implementation.
 
-## The substantive semantic layer is still not “finished,” by the project's own account
+I wouldn't call this a bug; it's documentation/abstraction precision.
 
-This is distinct from software defects.
+---
 
-The current handoff explicitly says that every catalogued column has a description, but that unresolved work remains around columns that do not decode, prose-quality debt in older curation, and—most importantly—independent review of inferred descriptions. 
+# A few things I specifically do **not** think need more work now
 
-I counted the current curation files directly. They contain **4,534 entries, of which 1,801 are marked `source: inferred`**.
+I would **not** revisit the source-oriented `query()` decision. That is settled.
 
-That means roughly 40% of this particular curation corpus is explicitly inferential rather than first-party documented.
+I would not bring back `time_by` or `geography_by`.
 
-There are also still unresolved substantive questions such as the Ministry denominator series, genuinely ambiguous filename dates, range rules without a known universe, categorical fields without mappings, and fields for which TabNet names only aggregation axes rather than the raw variable. 
+I would not add row filtering “just for convenience.”
 
-That is not a failure of the architecture. Recording uncertainty rather than guessing is one of the project's strongest decisions. But it means “all semantics resolved” would be an inaccurate release claim.
+I would not redesign CNES↔CNPJ again. The predicate-pushed, additive, ambiguity-aware model remains correct.
 
-## Test quality is improved but still insufficient for the guarantees the package claims
+I would not replace SQLite because of the previous storage incident.
 
-This may be the most important process lesson from this audit.
+I would not require byte-by-byte representation equivalence.
 
-Some current regression tests are genuinely behavioral.
+I would not collapse the query engine modules again.
 
-Others still inspect source text.
+I would not try to make the optional `cnes_names` maintainer compiler masquerade as a fresh-install downloader. Codex now documents that boundary accurately.
 
-`test_review_closure.py`, for example, contains assertions that helper names such as `_by_vintage`, `_merge_reports`, or `axis_refusal` appear in source. `_by_vintage` and `_merge_reports` are now unreferenced private functions according to the repository's own `codehealth.py`, while the live code uses `render_groups`.
+---
 
-A token existing in a module therefore demonstrably no longer proves that the public API uses the corresponding policy.
+# Severity summary
 
-The current missed bugs reflect that weakness. There is a projected-vintage test for `load()` but not `fetch()`. The scan null-fill parity test measures rows, not schema/value equivalence. Decoder isolation tests cover successful worker reuse but not error → worker reuse. Staging tests cover whole-tree swap failure but not the exact scoped-subtree failure I reproduced. Migration tests cover changed declared constraints but not constraints that exist only in the installed database.
+| Area                                      | Verdict                                          |
+| ----------------------------------------- | ------------------------------------------------ |
+| Source-vs-analysis boundary               | **Fixed**                                        |
+| Metadata-only planning                    | **Fixed**                                        |
+| Lake/fetch/hybrid completeness            | **Fixed substantially**                          |
+| Archive-member identity                   | **Fixed**                                        |
+| Global representation reconciliation      | **Fixed**                                        |
+| Singleton conflict refusal                | **Fixed**                                        |
+| Capability source of truth                | **Fixed**                                        |
+| Unbounded acquisition guard               | **Fixed**                                        |
+| Historical relation resolver              | **Good implementation**                          |
+| Historical relation persistence in SQLite | **Still broken for >1 temporal local assertion** |
+| Unknown-vintage safety                    | **Much better**                                  |
+| Coarse annual vintage semantics           | **Needs refinement**                             |
+| Crosswalk with only `year`                | **Potentially unsafe December assumption**       |
+| Resource integrity                        | **Good**                                         |
+| Independent resource-pack updates         | **Blocked by exact content-version equality**    |
+| `cnes_names` coverage authority           | **Still too optimistic**                         |
+| Crosswalk overlap audit                   | **Fixed/precisely documented**                   |
+| Query architecture maintainability        | **Good**                                         |
 
-The project itself reached the same conclusion after its municipality work: six output defects were invisible to the suite and visible in the first CSV because the tests were measuring process metadata rather than the string the researcher actually receives. 
+## Acceptance judgment
 
-The correct acceptance suite should drive one controlled fixture all the way through:
+I would call `7bbd076`:
 
-```text
-fetch → rendered Arrow
-load  → rendered Arrow
-scan  → batches
-export eager → file read back
-export stream → file read back
-```
+> **Accepted as the architectural baseline, with one important semantic-storage defect and several bounded hardening items remaining.**
 
-and compare actual values, schemas, vintages and row coverage.
+This is materially different from my reviews of the earlier patches. I no longer see a reason to distrust the basic source-selection model.
 
-## There is still significant structural complexity
+The one thing I would fix **before declaring the semantic/adjudication subsystem closed** is the `semantic_relations` primary-key problem. Right now the runtime can reason about historical relations that the manual/AI adjudication database itself cannot faithfully retain. That is a real contradiction in the architecture.
 
-Running `scripts/codehealth.py` on the current snapshot reports one import cycle:
-
-```text
-_dictionary → api → retrieve → _dictionary
-```
-
-and four unused private helpers, including the obsolete `_by_vintage` and `_merge_reports`.
-
-It reports nine modules over approximately 1,000 lines. `api.py` is 1,828 lines, `retrieve.py` 1,646, `cli.py` 1,819 and `view.py` 1,348.
-
-`view._render_table()` has a measured branch complexity of 69 over 291 lines.
-
-The public `fetch()` currently has **28 parameters**, `export()` 21 and `load()` 19.
-
-This isn't merely an aesthetic complaint. The current defects map directly onto policy duplication:
-
-```text
-load preserves hidden year
-fetch drops hidden source path
-
-load null-fill is coherent
-scan null-fill diverges
-
-staged_tree gets unique transaction IDs
-staged_file does not
-
-fetch gets process isolation
-profile/build do not
-```
-
-The next architectural step should therefore not be another pile of local fixes. There should be a shared retrieval plan carrying axes, generations, hidden semantic dependencies, projection and missing-column policy, and a shared decoding service carrying member selection, projection, deadlines and single-flight physical-source caching.
-
-`render_groups.py` is a good beginning; the consolidation simply has not gone far enough yet.
-
-## Documentation/artifact state is also drifting
-
-The current repository simultaneously says:
-
-```text
-README:          601 tests
-CONTRIBUTING:   1025 tests
-Architecture:   1090 tests
-latest FINDINGS: 1131 tests
-```
-
-Parametrization can explain differences between static test-function counts and pytest cases, but not four maintained prose claims.
-
-This is especially ironic because `RESUME` explicitly says counts were removed from that file after duplicated state tables disagreed and that counts should have one canonical home. 
-
-There is similar semantic-artifact drift. Current source curation contains 4,534 entries, while the bundled `datasus.sqlite` has 4,528 variables. The architecture's confidence prose also still refers to 4,298 curation entries and 1,799 inferred entries, while the current source contains 4,534 and 1,801 respectively.
-
-These are not runtime defects, but for a project built around provenance and truthful state reporting, they should be cleaned up.
-
-## Performance verdict
-
-The main `fetch()` path is dramatically healthier than it was. I no longer expect a normal DBC-based, warm-cache, narrow state-year request to suffer the absurd unnecessary work of the first snapshot.
-
-The remaining serious performance risks are concentrated elsewhere: multi-member physical sources, DuckDB, process IPC materialization, duplicated concurrent decoding, profile's full-blob reads, and build/profile decoder cancellation.
-
-Rendering still has some whole-column Pythonization—for example `_check_width()` calls `to_pylist()` over the column, `_combine()` loops through pairs in Python, and multi-valued rendering is row-wise—but these are secondary compared with the physical-source issues above.
-
-So the answer is no longer “`fetch()` is fundamentally a snail.” It is closer to:
-
-> DBC-oriented `fetch()` has received a serious performance pass; the abstraction becomes inefficient again when one physical source contains multiple logical tables or when execution leaves the optimized interactive path.
-
-## My acceptance verdict
-
-I would **not merge a “defects closed / codebase sound” declaration yet**.
-
-I count at least four current correctness/release blockers: projected `fetch()` loses vintage/family provenance; archive-member provenance cannot match `source_facts`; `scan(null_fill)` does not preserve the requested lazy schema; and the distributed label artifact cannot yet express historical windows while the default still labels from it.
-
-Immediately behind those are several high-severity engineering defects: poisoned decoder workers after error frames, non-streaming parent IPC accumulation, duplicate concurrent decoding of one physical source, pathological DuckDB table/member projection, old unkillable/full-blob decoding still used by profiling, two independently reproducible staging failures, asymmetric migration constraint validation, incomplete incremental fingerprints, non-transactional population/DEMAS writers, incomplete archive quotas, acquisition diagnostics contaminating completeness, permissive cross-system codelist borrowing, and loss of month-level semantic vintage in the lake.
-
-None of this erases the progress. The current codebase is **considerably more coherent, safer and faster** than either prior snapshot. Several difficult problems have been solved correctly rather than superficially. But the current state is best described as **advanced and substantially repaired, not closed**.
-
-The next acceptance gate should be narrow and adversarial rather than another broad feature wave: repair the four correctness blockers; repair process/staging failure recovery; push member/column selection into physical decoders; make decode isolation shared across retrieval/build/profile; regenerate the packaged label data; then run the real Pegasus environment against at least a projected multi-vintage DBC fetch, an equivalent built-lake load, a null-filled multi-generation scan and streaming export, an APAC multi-member LHA source, and a `.duck` source while asserting the actual returned values rather than report counters. Only after those same slices agree at the output boundary would I regard “sound” as a defensible claim.
+After that, I would address the annual/coarse-vintage model and resource-version compatibility. The rest can be handled as hardening rather than another architectural correction.
