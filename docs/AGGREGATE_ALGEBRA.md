@@ -426,6 +426,71 @@ rewriting to accommodate it.
 
 ---
 
+## 10a. The SIDRA-shaped end product `[wish, not committed]`
+
+Recorded because it sharpens the Phase 3 acceptance test. **Not a settled plan.**
+
+The target the project owner describes: a flat geography × time grid where each
+dimension can be set to specific categories *or* to **Total** — race as
+{branca, preta, parda, amarela, indígena} or aggregated; sex as {M, F} or Total.
+That is SIDRA's model, and the design above already produces it without
+additions.
+
+**"Total" is `φ : K → 1`** — the pushforward to a one-point space. The same
+operation as municipality → health region, with a smaller target. If `⊕` is a
+commutative monoid, marginalising an axis is free and already correct. SIDRA's
+flexibility is not a feature set; it is a consequence of storing monoid elements
+instead of numbers.
+
+Every dimension is then a **chain of levels** with Total at the top, and they
+are all the same structure:
+
+```
+municipality -> health_region -> UF -> Brazil
+month        -> year
+ICD code     -> group -> chapter
+single year  -> age band -> broad group
+M / F / Ign  -> Total
+```
+
+`joins.yml`'s `rollup_to` relations are already the edges of these chains. One
+choice of level per dimension is a **cuboid**; the set of all such choices is the
+**cube lattice**; the artifact is the **base cuboid** and every other view is
+derived by pushforward. A SIDRA-like UI is a lattice navigator.
+
+### What DATASUS makes harder than IBGE, measured
+
+* **Categories are labels, not codes.** SINASC `SEXO` has **12 codes mapping to
+  3 labels** — 3 through 9 all mean "Ignorado". `RACACOR` has 11 codes including
+  a junk `'0' -> Zero`; SIH `RACA` carries `'L' -> 1`, a `.CNV` artifact. An axis
+  built from codes shows seven "Ignorado" rows and a category called "Zero".
+* **Total must include the sentinel, or Total != sum of parts.** Showing
+  {Masculino, Feminino, Total} while dropping Ignorado makes the Total exceed the
+  sum and read as a bug. There are two legitimate denominators — all records, and
+  records with a known value — and both must be NAMED rather than silently
+  chosen. Proposed: `total` and `total_known` as explicit categories.
+* **Some axes have no valid Total at all.** Multi-valued dimensions (§4.2),
+  semi-additive measures over time (§3), partial geographies (§4.1).
+* **The same concept differs across datasets.** SINASC `RACACOR` and SIH `RACA`
+  are both race/colour with different codelists and category sets. Scope
+  classifications per dataset, as SIDRA scopes them per table.
+
+### The invariant this imposes
+
+**Every cuboid must derive from ONE base cuboid.** Computing `sex=Total` and
+`sex=M,F,Ign` independently lets them disagree — different source vintages,
+different retrieval moments. Deriving all views by pushforward from one
+materialised base makes internal consistency structural rather than hoped for.
+
+It also answers which cuboids to precompute: with 50x compression measured,
+**base-only, derive on demand, cache the hot ones**.
+
+### What it adds to Phase 3's acceptance
+
+> Can `aggregate()` produce a SIDRA-shaped table with Total on any axis, and
+> refuse the axes where Total is meaningless — naming which of §1's two
+> structures broke?
+
 ## 11. What I would refuse to build
 
 * **A universal cube.** §8. Dimensionality destroys the compression that is the
