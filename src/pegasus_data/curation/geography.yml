@@ -1,4 +1,8 @@
-# Which shipped codelist carries which supramunicipal classification.
+# Which supramunicipal classification comes from where, and on whose authority.
+#
+# TWO AUTHORITIES, and the split was measured rather than preferred. IBGE defines
+# territorial identity; DATASUS defines the health-service geography it invented
+# and IBGE has no equivalent for. `docs/IBGE_LOCALIDADES.md` is the audit.
 #
 # This file exists because that fact is irreducible: nothing in a `.CNV` says
 # "CIRBRN is the health-region classification". Everything else about geography
@@ -35,18 +39,6 @@ classifications:
         different publishing systems. A further 249 differ only in the width of
         the member code — SIM writes 42008 where SINASC writes 4208 for the same
         "SC Meio Oeste" — which is an encoding difference and not a disagreement.
-
-  ibge_mesoregion:
-    codelist: MESOBR
-    what: IBGE mesoregion, the statistical grouping between UF and microregion.
-    authority: IBGE, as republished in the TAB kits
-    verified: {municipalities: 28018, members: 165, name_conflicts: 50}
-
-  ibge_microregion:
-    codelist: MICROBR
-    what: IBGE microregion.
-    authority: IBGE, as republished in the TAB kits
-    verified: {municipalities: 28379, members: 586, name_conflicts: 69}
 
   metropolitan_region:
     codelist: BR_REGMETR
@@ -98,6 +90,71 @@ classifications:
     partial_coverage: true
     attribute: true
 
+# Classifications sourced from IBGE rather than from the label pack. IBGE
+# DEFINES these, so it is the authority for them; DATASUS republishes them and
+# truncates the names to fit a .CNV column.
+#
+# The decision to prefer IBGE was measured, not assumed. Comparing PARTITIONS —
+# which municipalities group together, rather than what the groups are called:
+#
+#   MICROBR vs IBGE microrregiao : 558 groups vs 558, ZERO assigned differently.
+#   MESOBR  vs IBGE mesorregiao  : 139 vs 137. No DATASUS group is split by
+#                                  IBGE; two IBGE groups are split by DATASUS,
+#                                  and both splits are DATASUS filing three
+#                                  municipalities (431936, 432146, 510619) under
+#                                  "Ignorado" where IBGE knows the answer.
+#
+# Comparing the LABELS instead suggested 14% agreement on mesoregions. That
+# number was an artifact of `.CNV` truncation -- "Leste RO" for "Leste
+# Rondoniense" -- and is exactly the manufactured contradiction of FINDINGS 3e.
+# The classifications agree; only the names were shortened.
+#
+# IBGE also publishes two classifications DATASUS does not carry at all: it
+# retired mesorregioes and microrregioes in 2017 and replaced them with Regioes
+# Geograficas Imediatas (510) and Intermediarias (133). Neither appears in any
+# of the 2,348 codelists the label pack ships.
+ibge_classifications:
+
+  uf:
+    source: IBGE/localidades
+    what: Unidade da Federacao, with IBGE's own code and name.
+    status: current
+
+  ibge_macroregion:
+    source: IBGE/localidades
+    what: One of the five great regions - Norte, Nordeste, Sudeste, Sul, Centro-Oeste.
+    status: current
+
+  ibge_intermediate_region:
+    source: IBGE/localidades
+    what: >
+      Regiao Geografica Intermediaria - the CURRENT grouping IBGE introduced in
+      2017 to replace the mesorregiao. 133 members. DATASUS publishes none.
+    status: current
+
+  ibge_immediate_region:
+    source: IBGE/localidades
+    what: >
+      Regiao Geografica Imediata - the CURRENT grouping replacing the
+      microrregiao. 510 members. DATASUS publishes none.
+    status: current
+
+  ibge_mesoregion:
+    source: IBGE/localidades
+    what: >
+      Mesorregiao. Retired by IBGE in 2017 and kept because thirty years of
+      health data is tabulated against it. Sourced from IBGE rather than MESOBR
+      because the partitions are the same and IBGE carries the full names and
+      resolves the three municipalities MESOBR files as "Ignorado".
+    status: legacy
+
+  ibge_microregion:
+    source: IBGE/localidades
+    what: >
+      Microrregiao. Retired by IBGE in 2017, kept for the same reason. Measured
+      identical to MICROBR: 558 groups against 558, none assigned differently.
+    status: legacy
+
 # Classifications that exist on the tree and are NOT compiled, with the measured
 # reason. Excluding them is a statement about the evidence, not about the
 # geography: a municipality does belong to a health macroregion, and DATASUS
@@ -135,6 +192,23 @@ excluded:
     wanted_as: administrative_division
     measured: {municipalities: 5613, name_conflicts: 2979}
     reason: 53% conflict between systems.
+
+  MESOBR:
+    wanted_as: ibge_mesoregion
+    measured: {municipalities: 5632, groups: 139, groups_split_by_ibge: 0}
+    reason: >
+      Superseded by IBGE, not wrong. The partition is IBGE's own -- no DATASUS
+      group is split by IBGE -- but the .CNV labels are truncated ("Leste RO"
+      for "Leste Rondoniense") and three municipalities are filed under
+      "Ignorado" where IBGE knows the answer. Sourced from IBGE instead.
+
+  MICROBR:
+    wanted_as: ibge_microregion
+    measured: {municipalities: 5697, groups: 558, groups_split_by_ibge: 0}
+    reason: >
+      Superseded by IBGE. Measured IDENTICAL as a partition -- 558 groups
+      against 558, not one municipality assigned differently -- so the only
+      difference is that IBGE spells the names in full.
 
   RMETRBR:
     wanted_as: metropolitan_region

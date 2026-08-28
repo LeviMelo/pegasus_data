@@ -79,6 +79,12 @@ _FIELDS = (
     "source_codelist",
     "valid_from",
     "valid_to",
+    #: Who says so. `datasus` for the .CNV tables TabNet tabulates against,
+    #: `ibge` for the authority that defines territorial identity. Kept per row
+    #: because the two answer different halves: health regions are a Ministry
+    #: construct IBGE has none of, and the current 2017 hierarchy is one DATASUS
+    #: does not publish at all.
+    "authority",
 )
 
 
@@ -93,6 +99,7 @@ class Membership:
     source_codelist: str = ""
     valid_from: str = ""
     valid_to: str = ""
+    authority: str = "datasus"
     #: The publishing systems disagree about this membership and no system was
     #: named, so the value is one of several defensible answers rather than the
     #: answer. Set on 46 of 5,680 municipalities for `health_region`.
@@ -149,12 +156,29 @@ def _curation_root(root: Path | None = None) -> Path:
     return CURATION
 
 
-def classifications(root: Path | None = None) -> dict[str, dict[str, Any]]:
-    """What `curation/geography.yml` declares, and what it excludes and why."""
+def classifications(root: Path | None = None, *, authority: str | None = None
+                    ) -> dict[str, dict[str, Any]]:
+    """Every declared classification, from either authority.
+
+    `authority="datasus"` gives the ones compiled out of the label pack —
+    health region, metropolitan region and the rest of the health-service
+    geography, which is DATASUS's to define and which IBGE does not publish.
+    `authority="ibge"` gives territorial identity, which is IBGE's to define.
+    Without an argument, both, because a caller asking "what can I group by"
+    wants the whole vocabulary.
+    """
     from .ontology import _read_yaml
 
     data = _read_yaml(_curation_root(root) / "geography.yml") or {}
-    return dict(data.get("classifications") or {})
+    datasus = {k: {**v, "authority": "datasus"}
+               for k, v in (data.get("classifications") or {}).items()}
+    ibge = {k: {**v, "authority": "ibge"}
+            for k, v in (data.get("ibge_classifications") or {}).items()}
+    if authority == "datasus":
+        return datasus
+    if authority == "ibge":
+        return ibge
+    return {**datasus, **ibge}
 
 
 def excluded(root: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -168,11 +192,32 @@ def excluded(root: Path | None = None) -> dict[str, dict[str, Any]]:
 # ------------------------------------------------------------------- compile
 
 
+def _ibge_rows(municipalities) -> tuple[list[tuple[str, ...]], dict[str, int]]:
+    """IBGE memberships in the pack's own shape.
+
+    System-neutral by construction: IBGE publishes one territorial division for
+    the country, so there is no per-system disagreement to scope away. That is
+    itself the argument for sourcing identity here rather than from thirty
+    `.CNV` variants.
+    """
+    import collections
+
+    rows: list[tuple[str, ...]] = []
+    counted: dict[str, set[str]] = collections.defaultdict(set)
+    for item in municipalities:
+        for classification, member_code, member_label in item.memberships():
+            rows.append((item.code6, classification, "", member_code, member_label,
+                         "IBGE/localidades", "", "", "ibge"))
+            counted[classification].add(item.code6)
+    return rows, {k: len(v) for k, v in counted.items()}
+
+
 def build_geography_pack(
     out_path: str | Path,
     *,
     labels_path: str | Path | None = None,
     root: Path | None = None,
+    ibge: Any = None,
 ) -> dict[str, Any]:
     """Compile the membership pack out of the shipped label pack.
 
@@ -190,8 +235,9 @@ def build_geography_pack(
     column = {name: table.column(name).to_pylist() for name in table.schema.names}
     has_windows = "valid_from" in table.schema.names
 
-    declared = classifications(root)
-    wanted = {str(body["codelist"]).upper(): name for name, body in declared.items()}
+    declared = classifications(root, authority="datasus")
+    wanted = {str(body["codelist"]).upper(): name for name, body in declared.items()
+              if body.get("codelist")}
 
     # (municipality, window, codelist) -> {system: (code, label)}
     seen: dict[tuple[str, str, str, str], dict[str, tuple[str, str]]] = {}
@@ -237,12 +283,19 @@ def build_geography_pack(
             contested_set[name].add(municipality)
         for system, (member_code, member_label) in sorted(effective.items()):
             rows.append((municipality, name, system, member_code, member_label,
-                         codelist, valid_from, valid_to))
+                         codelist, valid_from, valid_to, "datasus"))
             stat["rows"] += 1
 
     for name, stat in report.items():
         stat["municipalities"] = len(distinct[name])
         stat["contested"] = len(contested_set[name])
+
+    if ibge:
+        added, seen_classes = _ibge_rows(ibge)
+        rows.extend(added)
+        for name, count in seen_classes.items():
+            report[name] = {"municipalities": count, "rows": count, "contested": 0,
+                            "authority": "ibge"}
 
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -317,6 +370,7 @@ def memberships(
         grouped.setdefault(col["classification"][i], {})[col["system"][i]] = (
             col["member_code"][i], col["member_label"][i],
             col["source_codelist"][i], col["valid_from"][i], col["valid_to"][i],
+            col["authority"][i] if "authority" in col else "datasus",
         )
 
     out: list[Membership] = []
@@ -337,12 +391,12 @@ def memberships(
             # systems agree the pick cannot be wrong, so the flag is the whole
             # of the difference.
             chosen_system = "" if "" in by_system else sorted(by_system)[0]
-        member_code, member_label, codelist, valid_from, valid_to = by_system[chosen_system]
+        member_code, member_label, codelist, valid_from, valid_to, authority =             by_system[chosen_system]
         out.append(Membership(
             classification=classification, member_code=member_code,
             member_label=member_label, system=chosen_system,
             source_codelist=codelist, valid_from=valid_from, valid_to=valid_to,
-            contested=is_contested,
+            contested=is_contested, authority=authority,
         ))
     return MembershipSet(municipality=six, memberships=tuple(out), conflicts=tuple(contested))
 

@@ -184,6 +184,7 @@ pegasus_data/
   labelpack.py            the shipped label pack and bindings (§14.9)
   crosswalk.py            temporal, cardinality-safe identifier enrichment (§14.13)
   geography.py            supramunicipal memberships, compiled (§14.14)
+  sources/ibge_localidades.py  IBGE's territorial ontology (§14.14)
   measures.py             the aggregation algebra and its refusals (§14.15)
   _aggregate.py           aggregate(): persistent analytical cells (§14.15)
   _vintage.py             exact/coarse/unknown source-vintage intervals (§14.13)
@@ -1607,6 +1608,32 @@ Three consequences, all of which the API states rather than hides:
 * **Sentinels are members.** `999999 → Ignorado/Exterior`,
   `120000 → Município ignorado - AC`. Folding them into a real municipality is
   the §22.7 error; dropping them biases every count that uses the geography.
+
+**Two authorities, and every membership says which.** IBGE defines territorial
+identity; DATASUS defines the health-service geography it invented. Audited in
+`docs/IBGE_LOCALIDADES.md`, and the measurement decided the split rather than a
+preference:
+
+* `MICROBR` compared to IBGE's microrregião as a PARTITION is **identical** —
+  558 groups against 558, not one municipality assigned differently. Comparing
+  the LABELS suggested 74%, and 14% for mesoregions, because `.CNV` truncates
+  (`Leste RO` for `Leste Rondoniense`). That is §3e's manufactured contradiction
+  for the third time, and the rule it yields is: compare structure before
+  strings.
+* `MESOBR` differs only in filing three municipalities under "Ignorado" where
+  IBGE knows the answer. So both are **superseded, not wrong**, and
+  `curation/geography.yml` records that distinction explicitly.
+* **IBGE retired meso/micro in 2017** and replaced them with Regiões Geográficas
+  Imediatas (510) and Intermediárias (133). Neither appears in any of the 2,348
+  shipped codelists, so every DATASUS roll-up above the municipality was on a
+  nine-year-deprecated classification. Both now ship alongside the legacy pair,
+  which stays because thirty years of health data is tabulated against it.
+* **IBGE has no health regions.** The CIR, the colegiado and the macroregion are
+  Ministry constructs with no IBGE equivalent. That is why this is a supplement
+  and not a replacement.
+
+The raw IBGE payload does **not** ship: 2.5 MB of JSON against a 152 KB compiled
+pack, re-fetchable in a second, so §14a makes it build-time state.
 
 This is the first piece of the aggregate layer (`docs/AGGREGATE_DESIGN.md`),
 because a safe geographic roll-up is what the frontend contract rests on.

@@ -251,6 +251,8 @@ reports the unmapped ~76%; a semi-additive measure refuses `sum` over time.
 | 2 — spec and build | **done** — `_aggregate.py`, `curation/aggregates/`, `pegasus-data aggregate-build`, `tests/test_aggregate_build.py` (16) |
 | 3 — serve | **done** — `aggregate()`, `pegasus-data aggregate`, `tests/test_aggregate_serve.py` (25) |
 | 4 — break it on CNES | **done** — `curation/aggregates/cnes_st_municipality_month.yml` |
+| 5 — geography from IBGE | **done** — `sources/ibge_localidades.py`, `docs/IBGE_LOCALIDADES.md`, `tests/test_ibge_localidades.py` (20) |
+| 6 — `semantic_axes` by family | **done** — 5 → **90 of 132** datasets, `tests/test_semantic_axes.py` (278) |
 
 Verified on live SIH-RD/AC/2022: 49,547 admissions → 2,417 cells in 199 s;
 the artifact reproduces a direct `GROUP BY` with **zero disagreeing cells**;
@@ -275,6 +277,38 @@ of 49,547 unmapped instead of returning 70 as a national figure.
   safe half, and the right half to ship first.
 * **`query(select=...)`.** The build works around a live defect
   (`FINDINGS` §3o) rather than fixing the query engine mid-build.
+
+---
+
+## 7b. Phases 5–6 — geography authority and axis coverage
+
+**Phase 5 — IBGE.** `docs/IBGE_LOCALIDADES.md` is the audit. DATASUS's
+microregion table is IBGE's classification *exactly* (558 groups against 558,
+none assigned differently) and its mesoregion table differs only by filing three
+municipalities under "Ignorado"; the 14% "disagreement" was `.CNV` label
+truncation, FINDINGS §3e for the third time. But DATASUS publishes **neither** of
+the classifications IBGE has used since 2017, and IBGE publishes **no** health
+regions. So: IBGE for territorial identity, DATASUS for health-service geography,
+an `authority` column on every membership, and a test refusing to let one
+classification be claimed by both.
+
+**Phase 6 — axes by family.** From **5 datasets to 90 of 132**, in two edits.
+Datasets inside a system are not independent — 58 SINAN agravos share the
+notification block — so axes inherit from `shared:` (file) and
+`shared_by_system:` (system), with a dataset's own declaration winning.
+
+**Grain does NOT inherit**, and that is load-bearing: CNES's 13 datasets share
+`CODUFMUN` and have different grains, so inheriting it would make `COUNT(*)` mean
+one thing across establishment-month and professional-establishment-month —
+exactly what §14.15 refuses.
+
+`tests/test_semantic_axes.py` checks **every declared field exists in curation**,
+because a field that does not produces an aggregate with no rows and no error —
+the phantom-codelist failure of §3k in another costume. It immediately caught one:
+`DTREGISTRO` invented for SIM where the column is `DATAREG`.
+
+Remaining without axes: 42, mostly SIA/SISCAN/IBGE datasets whose geography role
+is genuinely ambiguous, plus the non-dataset entries.
 
 ---
 

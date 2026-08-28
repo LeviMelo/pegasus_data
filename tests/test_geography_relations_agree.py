@@ -39,7 +39,8 @@ def test_a_rollup_naming_a_declared_classification_uses_its_codelist() -> None:
     question from different data.
     """
     declared = {name: str(body["codelist"]).upper()
-                for name, body in classifications().items()}
+                for name, body in classifications(authority="datasus").items()
+                if body.get("codelist")}
     disagreements = [
         f"{r.system}.{r.dataset}.{r.field_name} -> {r.target_name}: "
         f"joins.yml says {r.artifact}, geography.yml says {declared[r.target_name]}"

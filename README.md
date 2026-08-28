@@ -792,6 +792,10 @@ rather than merely convenient.
   layer: why a frontend must not aggregate microdata (measured: 130 s and 50×
   compression for one small state-year), what already exists to build on, and
   the phased plan. Phase 0 — supramunicipal geography — is built.
+- **[`docs/IBGE_LOCALIDADES.md`](docs/IBGE_LOCALIDADES.md)** — the geography
+  audit: which IBGE API is current, what DATASUS gets right (the microregion
+  partition is IBGE's exactly), what it deprecates (meso/micro, retired 2017),
+  and why the outcome is a supplement rather than a replacement.
 - **[`docs/AGGREGATE_PLAN.md`](docs/AGGREGATE_PLAN.md)** — the single source of
   truth for what the aggregate layer builds, how, and where each change lands.
 - **[`docs/AGGREGATE_ALGEBRA.md`](docs/AGGREGATE_ALGEBRA.md)** — the mathematics

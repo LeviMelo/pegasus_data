@@ -108,13 +108,35 @@ def test_members_lists_a_classification_for_a_frontend_control() -> None:
 class TestTheCurationIsHonestAboutWhatItExcludes:
     """Excluding a classification is a claim about evidence and is checkable."""
 
-    def test_every_declared_classification_names_a_codelist_and_its_evidence(self) -> None:
+    def test_every_declared_classification_names_where_it_comes_from(self) -> None:
+        """Either a shipped codelist, or the IBGE endpoint that defines it."""
         declared = classifications()
         assert declared, "curation/geography.yml declares nothing"
         for name, body in declared.items():
-            assert body.get("codelist"), f"{name} names no codelist"
+            assert body.get("codelist") or body.get("source"), (
+                f"{name} names neither a codelist nor an IBGE source")
             assert body.get("what"), f"{name} says nothing about what it is"
+
+    def test_every_datasus_classification_carries_its_measurement(self) -> None:
+        """A DATASUS table was chosen over alternatives, so the evidence stays."""
+        for name, body in classifications(authority="datasus").items():
+            assert body.get("codelist"), f"{name} names no codelist"
             assert body.get("verified"), f"{name} carries no measurement"
+
+    def test_the_two_authorities_do_not_claim_the_same_classification(self) -> None:
+        """A classification has ONE authority, or a caller cannot know whose
+        answer they got. IBGE owns territorial identity; DATASUS owns the
+        health-service geography it invented."""
+        overlap = set(classifications(authority="datasus")) & set(
+            classifications(authority="ibge"))
+        assert not overlap, f"claimed by both authorities: {sorted(overlap)}"
+
+    def test_ibge_supplies_the_current_hierarchy_datasus_does_not_publish(self) -> None:
+        """IBGE retired meso/micro in 2017; DATASUS still ships only those."""
+        ibge = classifications(authority="ibge")
+        assert "ibge_immediate_region" in ibge
+        assert "ibge_intermediate_region" in ibge
+        assert members("ibge_intermediate_region"), "no intermediate regions compiled"
 
     def test_health_macroregion_is_absent_and_says_why(self) -> None:
         """The honest gap.

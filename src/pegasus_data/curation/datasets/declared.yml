@@ -8,6 +8,115 @@
 # the things that are true about a row and are NOT recoverable from the bytes:
 # what the row counts, what it silently excludes, and which mistake people make
 # with it first. Every gotcha here is a mistake that has actually been made.
+# Semantic axes, declared per SYSTEM rather than per dataset.
+#
+# Datasets inside a system are not independent: every SIH dataset is a view of
+# an AIH and every CIHA row carries the same MUNIC_RES/MUNIC_MOV pair. Restating
+# the axes per dataset is the duplication that lets one file drift and answer
+# differently from its siblings -- the same failure that put a per-UF codelist on
+# a national roll-up (FINDINGS 3n).
+#
+# GRAIN IS NOT INHERITED and must not be. CNES shares CODUFMUN across all 13 of
+# its datasets while their grains differ -- establishment-month,
+# professional-establishment-month, establishment-bed type-month -- and treating
+# COUNT(*) as one thing across them is precisely what the aggregate algebra
+# refuses.
+#
+# The geography names are analytical facts, not derivable: nothing in the bytes
+# says MUNIC_RES is where the patient LIVES and MUNIC_MOV is where they were
+# TREATED. The municipality columns themselves are already identifiable from
+# their curated codelist binding; only the ROLE needs stating.
+#
+# Every field named here is checked to exist by
+# tests/test_semantic_axes.py, so a typo is a failure rather than a silently
+# empty aggregate.
+shared_by_system:
+
+  CIH:
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [MUNIC_RES], code_system: ibge_municipality}
+        facility: {fields: [MUNIC_MOV], code_system: ibge_municipality}
+      default_time: admission
+      time:
+        admission: {fields: [DT_INTER], encoding: date}
+        discharge: {fields: [DT_SAIDA], encoding: date}
+
+  CIHA:
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [MUNIC_RES], code_system: ibge_municipality}
+        facility: {fields: [MUNIC_MOV], code_system: ibge_municipality}
+      default_time: attendance
+      time:
+        attendance: {fields: [DT_ATEND], encoding: date}
+        discharge: {fields: [DT_SAIDA], encoding: date}
+
+  SIM:
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CODMUNRES], code_system: ibge_municipality}
+        occurrence: {fields: [CODMUNOCOR], code_system: ibge_municipality}
+      default_time: occurrence
+      time:
+        occurrence: {fields: [DTOBITO], encoding: date}
+        registration: {fields: [DATAREG], encoding: date}
+
+  SINASC:
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CODMUNRES], code_system: ibge_municipality}
+        occurrence: {fields: [CODMUNNASC], code_system: ibge_municipality}
+      default_time: birth
+      time:
+        birth: {fields: [DTNASC], encoding: date}
+        registration: {fields: [DTCADASTRO], encoding: date}
+
+  CNES:
+    semantic_axes:
+      default_geography: facility
+      geography:
+        facility: {fields: [CODUFMUN], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [COMPETEN], encoding: year_month}
+
+  RESP:
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CODMUNRES], code_system: ibge_municipality}
+        notification: {fields: [CODMUNNOT], code_system: ibge_municipality}
+      default_time: notification
+      time:
+        notification: {fields: [DT_NOTIFIC], encoding: date}
+
+  ESUSNOTIFICA:
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CD_MN_RESI], code_system: ibge_municipality}
+        notification: {fields: [CD_MUNICIP], code_system: ibge_municipality}
+      default_time: notification
+      time:
+        notification: {fields: [DT_NOTIFIC], encoding: date}
+
+  PAINEL_ONCOLOGIA:
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [MUN_RESID], code_system: ibge_municipality}
+        diagnosis: {fields: [MUN_DIAG], code_system: ibge_municipality}
+        treatment: {fields: [MUN_TRATAM], code_system: ibge_municipality}
+      default_time: diagnosis
+      time:
+        diagnosis: {fields: [DT_DIAG], encoding: date}
+        treatment: {fields: [DT_TRAT], encoding: date}
+
 datasets:
 
   # ------------------------------------------------------------------ SIH

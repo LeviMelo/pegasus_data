@@ -825,21 +825,50 @@ class DatasetSemantics:
 
 @lru_cache(maxsize=8)
 def _dataset_semantics(root: str) -> dict[str, DatasetSemantics]:
+    """Read grain and axes for every curated dataset, honouring inheritance.
+
+    Axes are inherited because DATASUS datasets are not independent: SINAN's 58
+    agravos all carry the same notification block, so `ID_MN_RESI` is the
+    municipality of residence in every one of them. Restating that 58 times is
+    the duplication this project keeps being bitten by — one edit that misses
+    one file is a dataset that silently answers differently.
+
+    Three levels, most specific first:
+
+    * the dataset's own ``semantic_axes``;
+    * ``shared_by_system:`` in the same file, keyed by system — `declared.yml`
+      holds SIA, CNES, SIM, SIH and more, and they do NOT share axes;
+    * ``shared:`` in the same file, for a file that is one system's agravos.
+
+    Grain is never inherited. CNES's datasets share a geography column and have
+    different grains — establishment-month, professional-establishment-month,
+    establishment-bed type-month — and inheriting that would be exactly the
+    "COUNT(*) means one thing everywhere" assumption the algebra refuses.
+    """
     yaml = _require_yaml()
     out: dict[str, DatasetSemantics] = {}
     for path in iter_curation_files(Path(root)):
         data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
         if not isinstance(data, dict) or "datasets" not in data:
             continue
+        file_shared = dict((data.get("shared") or {}).get("semantic_axes") or {})
+        by_system = {
+            str(name).upper(): dict((body or {}).get("semantic_axes") or {})
+            for name, body in (data.get("shared_by_system") or {}).items()
+        }
         for dataset_id, body in (data.get("datasets") or {}).items():
             if not isinstance(body, dict):
                 continue
+            system = body.get("system")
+            axes = dict(body.get("semantic_axes") or {})
+            if not axes:
+                axes = dict(by_system.get(str(system or "").upper()) or file_shared)
             out[str(dataset_id)] = DatasetSemantics(
                 dataset_id=str(dataset_id),
-                system=body.get("system"),
+                system=system,
                 series=body.get("series"),
                 grain=parse_grain(body.get("unit_of_analysis"), body.get("grain")),
-                axes=dict(body.get("semantic_axes") or {}),
+                axes=axes,
             )
     return out
 

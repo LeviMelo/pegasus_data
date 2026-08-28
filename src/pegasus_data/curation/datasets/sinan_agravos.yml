@@ -9,6 +9,34 @@
 # so a row is a NOTIFICATION, not a case and not a person. Someone notified
 # twice is two rows, and a notification later discarded on investigation stays
 # in the file with its classification changed.
+# Every agravo carries SINAN's notification block, so these axes hold for all 58
+# datasets in this file. Declared once: restating them per agravo is the
+# duplication that lets one file drift and answer differently from the rest.
+#
+# The gotcha on every dataset below already says this in prose -- "Counting by
+# DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They
+# differ by weeks." This is the machine-readable form of that same statement,
+# and the reason an aggregate must be told WHICH question it is answering.
+shared:
+  semantic_axes:
+    default_geography: residence
+    geography:
+      residence:
+        fields: [ID_MN_RESI]
+        code_system: ibge_municipality
+      notification:
+        fields: [ID_MUNICIP]
+        code_system: ibge_municipality
+    # Notification is the default because it is the one date SINAN guarantees:
+    # a notification exists by definition, and DT_SIN_PRI is filled from the
+    # patient's account of when symptoms began, so it is later-arriving and
+    # more often absent.
+    default_time: notification
+    time:
+      notification: {fields: [DT_NOTIFIC], encoding: date}
+      onset: {fields: [DT_SIN_PRI], encoding: date}
+      diagnosis: {fields: [DT_DIAG], encoding: date}
+
 datasets:
   SINAN_ACBI:
     system: SINAN
