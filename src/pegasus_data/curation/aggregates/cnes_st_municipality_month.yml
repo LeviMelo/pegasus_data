@@ -1,0 +1,57 @@
+# The structural counterweight to the SIH artifact.
+#
+# SIH.RD is one row per admission: an EVENT, and every measure over it is a flow
+# that accumulates freely over time. CNES.ST is one row per establishment per
+# month — a STOCK observed repeatedly — and it exists here to prove the
+# aggregate layer does not quietly assume the first shape.
+#
+# Two things differ, and both are refusals rather than conventions:
+#
+#   COUNT(*) here counts establishment-MONTHS. Over a quarter that is roughly
+#   three times the number of establishments, and calling it "establishments"
+#   is the classic OLAP mistake. `check_measure` refuses a count whose declared
+#   unit is `establishment` against this grain, so the measure below is named
+#   for what it actually counts.
+#
+#   The QTINST* columns are installed capacity at a moment. Summing them across
+#   municipalities in one month is a real total; summing them across months is
+#   "room-months" and means nothing. So they are declared additive over
+#   geography and dimensions but NOT over time, with the reducer that would be
+#   correct named beside them.
+#
+# See docs/AGGREGATE_ALGEBRA.md §3 (flow vs stock) and §5 (the grain types the
+# measure).
+
+name: cnes_st_municipality_month
+dataset: CNES-ST
+description: >
+  Health establishments and their installed capacity, by municipality of the
+  facility and competence month. A stock series: capacity does not accumulate
+  over time, and the measures say so.
+
+geography_binding: facility       # semantic_axes.geography.facility -> CODUFMUN
+time_binding: competence
+time_grain: month
+
+dimensions: []
+
+measures:
+  establishment_months:
+    kind: count
+    # NOT `establishment`. One row is an establishment-month and the name has to
+    # say so, or a quarterly figure reads as three times the estate.
+    unit: establishment-month
+
+  consulting_rooms:
+    kind: sum
+    field: QTINST07
+    unit: room
+    additive_over: [geography, dimensions]
+    time_reducer: mean          # a stock: rooms in a quarter is not rooms x 3
+
+  beds_total:
+    kind: sum
+    field: QTINST08
+    unit: bed
+    additive_over: [geography, dimensions]
+    time_reducer: mean

@@ -1002,6 +1002,70 @@ def ledger(root: RootOpt = None, system: SystemsOpt = None, as_json: JsonOpt = F
         pipeline.close()
 
 
+@app.command(name="aggregate-build", rich_help_panel="MAINTENANCE")
+def aggregate_build_cmd(
+    name: Annotated[str, typer.Argument(help="Aggregate name, e.g. sih_rd_municipality_month")],
+    root: RootOpt = None,
+    years: Annotated[str | None, typer.Option("--years", help="e.g. 2022 or 2020-2023")] = None,
+    uf: Annotated[list[str] | None, typer.Option("--uf", help="Limit the build to these states")] = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Materialise an aggregate's base cuboid. A maintainer step, not a user one.
+
+    Rows come from the ordinary retrieval path, so this costs what a fetch of
+    the same span costs — once. Everything served from the artifact afterwards
+    is arithmetic on a few thousand rows.
+    """
+    from ._aggregate import build_aggregate
+
+    settings = _settings(root)
+    wanted = _parse_years(years)
+    if not wanted:
+        console.print("[red]--years is required; an unbounded build would "
+                      "download the whole publication history[/red]")
+        raise typer.Exit(code=1)
+    with console.status(f"building {name}…"):
+        report = build_aggregate(name, years=wanted, uf=uf, settings=settings)
+    _emit(report.as_dict(), as_json, f"aggregate-build {name}")
+    for warning in report.warnings:
+        console.print(f"[yellow]{warning}[/yellow]")
+
+
+@app.command(name="aggregate", rich_help_panel="EXTRACT")
+def aggregate_cmd(
+    name: Annotated[str, typer.Argument(help="Aggregate name")],
+    root: RootOpt = None,
+    by: Annotated[list[str] | None, typer.Option("--by", help="Level per axis, e.g. --by health_region --by year")] = None,
+    measure: Annotated[list[str] | None, typer.Option("--measure", "-m")] = None,
+    year: Annotated[str | None, typer.Option("--year")] = None,
+    uf: Annotated[str | None, typer.Option("--uf")] = None,
+    system: Annotated[str | None, typer.Option("--system", help="Whose regionalisation to roll up through")] = None,
+    out: Annotated[Path | None, typer.Option("--out")] = None,
+    fmt: Annotated[str, typer.Option("--format")] = "csv",
+    as_json: JsonOpt = False,
+) -> None:
+    """Serve cells from a built aggregate. An axis you do not name is totalled."""
+    from ._aggregate import aggregate as _aggregate
+
+    where: dict[str, object] = {}
+    if year:
+        where["year"] = [y.strip() for y in year.split(",") if y.strip()]
+    if uf:
+        where["uf"] = uf
+    table, report = _aggregate(
+        name, measures=measure or None, by=by or None, where=where or None,
+        system=system, settings=_settings(root), return_report=True,
+    )
+    if out:
+        from .api import write_table
+
+        write_table(table, out, fmt)
+        console.print(f"[green]wrote[/green] {out}  ({table.num_rows:,} cells)")
+    _emit(report.as_dict(), as_json, f"aggregate {name}")
+    for warning in report.warnings:
+        console.print(f"[yellow]{warning}[/yellow]")
+
+
 @app.command(name="labelpack", rich_help_panel="MAINTENANCE")
 def labelpack_cmd(
     root: RootOpt = None,

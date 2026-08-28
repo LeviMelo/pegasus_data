@@ -723,3 +723,149 @@ def load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str,
             reasoning=r["reasoning"],
         )
     return out
+
+
+# ------------------------------------------------- dataset semantics (§14.15)
+#
+# `semantic_axes` and `unit_of_analysis` have lived in `curation/datasets/*.yml`
+# with no code consumer since the query switches that used them were removed;
+# FINDINGS §3l records that they were kept "for future opt-in analytical
+# helpers". The aggregate layer is that helper, and this is the one reader — it
+# reuses `iter_curation_files`, so nothing here re-discovers curation files.
+
+#: A grain component naming a period rather than an entity. `establishment-month`
+#: is establishment-months, so COUNT(*) over a quarter counts three per
+#: establishment and calling that "establishments" is the mistake.
+_PERIOD_WORDS = frozenset({"month", "year", "period", "mes", "mês", "ano", "competence"})
+
+#: Grain prose that names no analysable unit, so nothing is derived from it.
+_NOT_A_GRAIN = ("none (not a dataset)", "varies by block")
+
+
+@dataclass(frozen=True, slots=True)
+class Grain:
+    """What one row of a dataset IS, in machine-readable form.
+
+    Derived from the `unit_of_analysis` prose rather than restated, because the
+    prose already names the components: `establishment-bed type-month` is
+    literally `[establishment, bed type, month]`. Of 39 distinct grains across
+    132 datasets, splitting on the hyphen is correct for all but a handful, and
+    those carry an explicit `grain:` block instead.
+    """
+
+    prose: str
+    components: tuple[str, ...] = ()
+    period_component: str | None = None
+    declared: bool = False
+
+    @property
+    def is_period_bearing(self) -> bool:
+        """True when a row is an entity-PERIOD, so COUNT(*) counts those."""
+        return self.period_component is not None
+
+    @property
+    def entity_components(self) -> tuple[str, ...]:
+        return tuple(c for c in self.components if c != self.period_component)
+
+    @property
+    def analysable(self) -> bool:
+        return bool(self.components)
+
+    def counts(self) -> str:
+        """What COUNT(*) counts, named honestly."""
+        return "-".join(self.components) if self.components else "row"
+
+
+def parse_grain(unit_of_analysis: str | None, declared: Mapping[str, Any] | None = None) -> Grain:
+    """Structure a dataset's grain, preferring an explicit declaration."""
+    prose = str(unit_of_analysis or "").strip()
+    if declared:
+        components = tuple(str(c).strip() for c in (declared.get("components") or ()) if str(c).strip())
+        period = declared.get("period_component")
+        return Grain(
+            prose=prose or "-".join(components),
+            components=components,
+            period_component=str(period) if period else None,
+            declared=True,
+        )
+    if not prose or any(prose.lower().startswith(x) for x in _NOT_A_GRAIN):
+        return Grain(prose=prose)
+    parts = tuple(p.strip() for p in prose.replace("–", "-").split("-") if p.strip())
+    period = next((p for p in parts if p.lower() in _PERIOD_WORDS), None)
+    return Grain(prose=prose, components=parts, period_component=period)
+
+
+@dataclass(frozen=True, slots=True)
+class DatasetSemantics:
+    """The analytical facts curation states about one dataset.
+
+    `axes` is `semantic_axes` unchanged: named geography and time bindings with
+    their fields and declared defaults. The aggregate layer reads bindings from
+    here rather than introducing a vocabulary of its own.
+    """
+
+    dataset_id: str
+    system: str | None
+    series: str | None
+    grain: Grain
+    axes: dict[str, Any] = field(default_factory=dict)
+
+    def geography_bindings(self) -> dict[str, Any]:
+        return dict(self.axes.get("geography") or {})
+
+    def time_bindings(self) -> dict[str, Any]:
+        return dict(self.axes.get("time") or {})
+
+    def default_geography(self) -> str | None:
+        return self.axes.get("default_geography")
+
+    def default_time(self) -> str | None:
+        return self.axes.get("default_time")
+
+
+@lru_cache(maxsize=8)
+def _dataset_semantics(root: str) -> dict[str, DatasetSemantics]:
+    yaml = _require_yaml()
+    out: dict[str, DatasetSemantics] = {}
+    for path in iter_curation_files(Path(root)):
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        if not isinstance(data, dict) or "datasets" not in data:
+            continue
+        for dataset_id, body in (data.get("datasets") or {}).items():
+            if not isinstance(body, dict):
+                continue
+            out[str(dataset_id)] = DatasetSemantics(
+                dataset_id=str(dataset_id),
+                system=body.get("system"),
+                series=body.get("series"),
+                grain=parse_grain(body.get("unit_of_analysis"), body.get("grain")),
+                axes=dict(body.get("semantic_axes") or {}),
+            )
+    return out
+
+
+def dataset_semantics(root: Path | None = None) -> dict[str, DatasetSemantics]:
+    """Grain and semantic axes for every curated dataset, keyed by dataset_id."""
+    from ..ontology import CURATION
+
+    return dict(_dataset_semantics(str(root or CURATION)))
+
+
+def semantics_for(dataset: str, root: Path | None = None) -> DatasetSemantics | None:
+    """Resolve `SIH-RD`, `SIH.RD` or `SIHSUS_RD` to its curated semantics."""
+    table = dataset_semantics(root)
+    wanted = str(dataset).upper().replace("-", "_").replace(".", "_")
+    for key, value in table.items():
+        if key.upper() == wanted:
+            return value
+    # `SIH-RD` is the ontology spelling; curation keys on the crawled system
+    # name, so `SIHSUS_RD` and `SIH_RD` are the same dataset.
+    tail = wanted.rsplit("_", 1)[-1]
+    head = wanted.rsplit("_", 1)[0] if "_" in wanted else ""
+    for value in table.values():
+        if str(value.series or "").upper() != tail:
+            continue
+        system = str(value.system or "").upper()
+        if system == head or system.startswith(head) or head.startswith(system):
+            return value
+    return None

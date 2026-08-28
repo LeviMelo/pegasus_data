@@ -184,6 +184,8 @@ pegasus_data/
   labelpack.py            the shipped label pack and bindings (§14.9)
   crosswalk.py            temporal, cardinality-safe identifier enrichment (§14.13)
   geography.py            supramunicipal memberships, compiled (§14.14)
+  measures.py             the aggregation algebra and its refusals (§14.15)
+  _aggregate.py           aggregate(): persistent analytical cells (§14.15)
   _vintage.py             exact/coarse/unknown source-vintage intervals (§14.13)
   providers.py            resource requirement/provider contracts (§14.13)
   _resources.py           versioned bundled and optional-resource lifecycle (§14.13)
@@ -1608,6 +1610,80 @@ Three consequences, all of which the API states rather than hides:
 
 This is the first piece of the aggregate layer (`docs/AGGREGATE_DESIGN.md`),
 because a safe geographic roll-up is what the frontend contract rests on.
+
+### 14.15 `aggregate()` — analytical cells, built once `[M]`
+
+`measures.py`, `_aggregate.py`, `curation/aggregates/*.yml`
+
+The dominant PegaSUS workload is geography × time → measures, and answering it
+from microdata is not viable at request time. Measured: `fetch("SIH-RD",
+uf="AC", years=2022)` takes **130 s** for 49,547 admissions; the same rows at
+municipality × month × sex × race are **2,417 cells**. Acre is 0.4% of national
+SIH volume.
+
+So the artifact is built once and served cheaply. Two surfaces, kept apart:
+`build_aggregate()` is a maintainer step whose **only** source of rows is the
+ordinary retrieval path; `aggregate()` is filter → pushforward → merge →
+finalize over the built cells and touches no microdata.
+
+**What is stored is accumulator state, never a number.** `los_n` and `los_sum`,
+not a mean. Writing down a mean destroys the state, and the state is the only
+thing that can be merged. `docs/AGGREGATE_ALGEBRA.md` derives this; the short
+form is that roll-up is *pushforward along a map of key spaces*, valid exactly
+when the measure is a commutative monoid and the map is a total single-valued
+function. Every refusal below is one of those two failing.
+
+**Marginalising an axis is not a special case.** "Total" is the pushforward to a
+one-point space — the same operation as municipality → health region with a
+smaller target. An axis the caller does not name is totalled, which is what makes
+the SIDRA-shaped output fall out rather than needing to be built.
+
+**One base cuboid.** Every view derives from the single materialised finest
+table. Computing "sex = Total" independently would let it disagree with the sum
+over sex — different retrieval moments, different vintages — and a table whose
+total is not the sum of its parts discredits everything else on it. Verified on
+live data: Total = 49,547 = the sum of its sex categories exactly.
+
+**It consumes what already exists.** `semantic_axes` supplies the geography and
+time bindings — a spec names `residence`, not `MUNIC_RES`, because which
+municipality column a dataset means is a question about the analysis and curation
+already answers it (§3l kept those axes for exactly this). `field_available()`
+supplies the support mask. `geography.memberships()` supplies the spatial
+pushforward. `_resources.py` supplies the fingerprint pattern.
+`persist/staging.py` supplies the atomic swap. Nothing here re-implements any of
+them.
+
+**Identity includes semantics.** The fingerprint covers the spec, the source
+blob digests, the curation fingerprint, the engine version **and the
+`geography.parquet` checksum** — because changing that changes every
+health-region roll-up derived from the artifact, and one that does not notice is
+stale in a way nobody can see.
+
+The refusals are the product:
+
+| situation | behaviour |
+|---|---|
+| measure not additive along a requested axis | refused, naming the axis and the reducer that would work |
+| `count(entity)` on an entity-period grain | refused, naming both honest alternatives |
+| median or percentile | refused — no finite-state associative merge exists |
+| partial classification | served, with the unmapped mass **reported** |
+| contested municipality, no system named | served, flagged; naming a system clears it |
+| multi-valued dimension under a grain count | refused, offering `count(mentions)` |
+
+**It is not event-centric, and that was tested rather than asserted.** CNES.ST
+is one row per establishment per month — a stock observed repeatedly, where
+SIH.RD is an event stream. Extending to it needed a spec and no code: both
+differences were already refusals. `COUNT(*)` there counts establishment-months,
+so a measure declaring `unit: establishment` is refused against the grain; and
+`QTINST*` is capacity at an instant, declared additive over geography and
+dimensions but not over time, so summing rooms across months is refused rather
+than returning "room-months".
+
+Correctness was checked against a direct `GROUP BY` on live SIH-RD/AC/2022:
+2,417 cells, identical key sets, **zero disagreeing cells**, and totals
+reconciling to the microdata row count. Rolling up to `metropolitan_region`
+reported 49,477 of 49,547 unmapped rather than returning 70 admissions as if
+they were a national figure.
 
 ## 14a. What ships, and what does not
 

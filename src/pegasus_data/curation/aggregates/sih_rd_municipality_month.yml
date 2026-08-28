@@ -1,0 +1,48 @@
+# The first aggregate: hospital admissions by municipality and month.
+#
+# This is the dominant PegaSUS shape — geography x time -> measures — and the
+# vertical slice that proves the machinery. Measured on real data: SIH-RD for
+# Acre in 2022 is 49,547 admissions and 130 s to fetch; the same rows at
+# municipality x month x sex are 989 cells. The artifact exists because of that
+# ratio, and the ratio is also why the dimension list is short: DIAG_PRINC has
+# ~14,000 ICD codes and would multiply the cells by roughly a thousand, at which
+# point the artifact stops being smaller than the microdata it replaces.
+#
+# `geography_binding` and `time_binding` are keys of `semantic_axes` in
+# curation/datasets/core.yml. They are NOT field names: SIH declares residence
+# (MUNIC_RES) and facility (MUNIC_MOV), and which one you mean is a question
+# about the analysis, not about the file.
+
+name: sih_rd_municipality_month
+dataset: SIH-RD
+description: >
+  SUS hospital admissions by municipality of residence and competence month,
+  with sex and race/colour retained. Accumulator state only: length of stay is
+  stored as (n, sum) so a mean can be derived at any level, never as a mean.
+
+geography_binding: residence      # semantic_axes.geography.residence -> MUNIC_RES
+time_binding: competence          # semantic_axes.time.competence -> ANO_CMPT, MES_CMPT
+time_grain: month
+
+# Kept deliberately few. Each additional dimension multiplies the cell count and
+# spends the compression that justifies the artifact.
+dimensions:
+  - SEXO
+  - RACA_COR
+
+measures:
+  admissions:
+    kind: count
+    unit: admission          # checked against the declared grain, which is `admission`
+  deaths:
+    kind: sum
+    field: MORTE             # 0/1 in the raw codes, so summing counts deaths
+    unit: death
+  los:
+    kind: mean
+    field: DIAS_PERM
+    unit: day                # stored as (n, sum); the mean is derived on read
+  cost:
+    kind: sum
+    field: VAL_TOT
+    unit: brl                # nominal reais at billing time, never deflated

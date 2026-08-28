@@ -21,6 +21,26 @@ municipalities and `RSAUDBR` on 2,612. Add the validity window and the system
 and every one of those collapses to zero. Almost all of the apparent
 contradiction is manufactured by the comparison, exactly as in FINDINGS §3e —
 and what survives is real and is recorded rather than resolved by picking.
+
+WHAT THIS MODULE IS NOT
+-----------------------
+It is a **compiled reference view**: cheap lookup for one municipality, and the
+member list a UI needs to offer "group by health region". It is deliberately not
+a second resolver.
+
+Row-level dimension derivation stays with
+``_query_engine.semantics._apply_dimensions``, which is vintage-EXACT — it
+re-resolves the relation per competência, refuses when the effective relation
+differs across the months of an interval, and checks
+``packed_mapping_covers_interval`` before using a table. This module's window
+check is coarser and must never be used where that one applies.
+
+The two agree because ``curation/geography.yml`` is the single authority for
+which codelist carries which classification, and
+``tests/test_geography_relations_agree.py`` fails if a ``rollup_to`` relation in
+``joins.yml`` drifts from it. That guard exists because the duplication is what
+let ``artifact: CIRAC`` — Acre's 24 rows — stand as the national health-region
+roll-up unnoticed.
 """
 
 from __future__ import annotations

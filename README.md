@@ -266,6 +266,35 @@ what the report says once. Ask when you want byte-level traceability:
 df = fetch("SINASC-DN", uf="AC", years=2022, provenance=True)
 ```
 
+### Ask for analytical cells instead of rows
+
+A frontend should not aggregate microdata: one small state-year of SIH is 130 s
+and 49,547 rows. The same rows as municipality x month x sex x race are 2,417
+cells, so the aggregate is built once and served cheaply.
+
+```bash
+pegasus-data aggregate-build sih_rd_municipality_month --years 2022 --uf AC
+```
+
+```python
+from pegasus_data import aggregate
+
+aggregate("sih_rd_municipality_month",
+          by=["health_region", "year"],
+          measures=["admissions", "los"])
+```
+
+An axis you do **not** name is totalled — that is all "Total" is, and it means
+the total and the sum of its parts cannot disagree, because both derive from one
+stored table. What is stored is accumulator state, never a finished number, so a
+mean is correct at every level rather than an average of averages.
+
+It refuses what is not arithmetically valid: summing a stock across time,
+counting establishments on an establishment-month dataset, a median. And where a
+roll-up loses rows — `metropolitan_region` covers 1,325 of ~5,570 municipalities
+— it reports the unmapped mass rather than returning a subset as if it were a
+national figure.
+
 ### Ask what a column means
 
 ```python
@@ -763,6 +792,8 @@ rather than merely convenient.
   layer: why a frontend must not aggregate microdata (measured: 130 s and 50×
   compression for one small state-year), what already exists to build on, and
   the phased plan. Phase 0 — supramunicipal geography — is built.
+- **[`docs/AGGREGATE_PLAN.md`](docs/AGGREGATE_PLAN.md)** — the single source of
+  truth for what the aggregate layer builds, how, and where each change lands.
 - **[`docs/AGGREGATE_ALGEBRA.md`](docs/AGGREGATE_ALGEBRA.md)** — the mathematics
   under it: aggregates as maps into a commutative monoid, roll-up as pushforward,
   and the four ways that structure breaks on real DATASUS (partial maps,

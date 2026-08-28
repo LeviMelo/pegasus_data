@@ -70,6 +70,10 @@ _EXPORTS: dict[str, str] = {
     "Gaps": "._unknowns",
     "OpenQuestions": "._unknowns",
     "DataDictionary": "._dictionary",
+    "aggregate": "._aggregate",
+    "build_aggregate": "._aggregate",
+    "AggregateSpec": "._aggregate",
+    "AggregateReport": "._aggregate",
     "memberships": ".geography",
     "MembershipSet": ".geography",
     "Membership": ".geography",
@@ -109,6 +113,12 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     # Re-exported through __getattr__ at runtime; `__all__` is built from
     # _EXPORTS, which a linter cannot follow.
     # ruff: noqa: F401
+    from ._aggregate import (
+        AggregateReport,
+        AggregateSpec,
+        aggregate,
+        build_aggregate,
+    )
     from ._compendium import CompendiumReport, compendium
     from ._dictionary import DataDictionary
     from ._explore import Exploration, explore
