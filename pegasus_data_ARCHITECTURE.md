@@ -1706,6 +1706,25 @@ so a measure declaring `unit: establishment` is refused against the grain; and
 dimensions but not over time, so summing rooms across months is refused rather
 than returning "room-months".
 
+**Both the build and the read merge with Arrow's grouped aggregation, and that
+is the algebra rather than an optimisation.** Every accumulator is a commutative
+monoid whose merge IS a column aggregate — `count`/`sum` sum one column, `mean`
+sums `(n, sum)`, `ratio` sums `(num, den)`, `min`/`max` take MIN/MAX — so the
+whole vocabulary maps onto `group_by().aggregate()` with no special cases. The
+per-row loops this replaced cost 2.6 s to serve one roll-up of a national year
+and ~70 s to build one state-year (§3q); a layer that exists to make something
+fast has to be measured at the size it is for.
+
+**The time axis is a record column, and the build says when that leaves edges
+short.** DATASUS publishes by a coordinate that is not the record date: the SIH
+file published under 2022 for Acre holds 3,687 admissions (7.44%) that happened
+in 2021, because a December admission is billed in January. A `competence` axis
+is safe — the competence IS the publication coordinate — but a `date` axis is
+not, so `AggregateReport.partial_periods` and the manifest name the years the
+build cannot have filled. It does not silently widen the fetch: saying which
+edges are short is honest and cheap, and widening is a cost decision for
+whoever runs the build.
+
 Correctness was checked against a direct `GROUP BY` on live SIH-RD/AC/2022:
 2,417 cells, identical key sets, **zero disagreeing cells**, and totals
 reconciling to the microdata row count. Rolling up to `metropolitan_region`

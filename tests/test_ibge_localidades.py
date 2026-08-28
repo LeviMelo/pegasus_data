@@ -17,7 +17,6 @@ from pegasus_data.geography import classifications, excluded, members, membershi
 from pegasus_data.sources.ibge_localidades import (
     BASE_URL,
     IBGE_CLASSIFICATIONS,
-    Municipality,
     _parse,
 )
 
@@ -65,7 +64,7 @@ class TestParsingTheEndpoint:
     def test_one_record_carries_the_whole_hierarchy(self) -> None:
         """Which is why the client makes one request and joins nothing."""
         m = _parse(RECORD)
-        got = dict((c, label) for c, _code, label in m.memberships())
+        got = {c: label for c, _code, label in m.memberships()}
         assert got["uf"] == "RO Rondônia"
         assert got["ibge_macroregion"] == "Norte"
         assert got["ibge_mesoregion"] == "Leste Rondoniense"
@@ -94,7 +93,8 @@ class TestParsingTheEndpoint:
         m = _parse(thin)
         assert m is not None and m.uf_sigla == "DF"
         assert m.mesoregion_id is None
-        assert dict((c, l) for c, _k, l in m.memberships())["ibge_immediate_region"] == "Brasília"
+        got = {c: label for c, _k, label in m.memberships()}
+        assert got["ibge_immediate_region"] == "Brasília"
 
 
 class TestWhatEachAuthorityOwns:

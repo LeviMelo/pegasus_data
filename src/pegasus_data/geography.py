@@ -317,6 +317,34 @@ def _pack(path: str) -> Any:
     return pq.read_table(path)
 
 
+@lru_cache(maxsize=4)
+def _index(path: str) -> dict[str, tuple[tuple[str, ...], ...]]:
+    """`municipality -> rows`, built once.
+
+    The obvious implementation reads the columns to Python lists inside
+    ``memberships()`` and scans them. That is O(pack) per lookup, and the pack
+    is 75,000 rows: measured at **665 ms per municipality**, so resolving a
+    national roll-up spent 62 MINUTES on geography alone. The artifact it serves
+    is meant to answer in seconds.
+
+    Indexing once makes it O(1), and the pack is small enough to hold whole.
+    """
+    table = _pack(path)
+    names = list(table.schema.names)
+    columns = [table.column(n).to_pylist() for n in names]
+    out: dict[str, list[tuple[str, ...]]] = {}
+    for i in range(table.num_rows):
+        row = tuple("" if columns[c][i] is None else str(columns[c][i])
+                    for c in range(len(names)))
+        out.setdefault(row[0], []).append(row)
+    return {k: tuple(v) for k, v in out.items()}
+
+
+@lru_cache(maxsize=4)
+def _fields(path: str) -> dict[str, int]:
+    return {name: i for i, name in enumerate(_pack(path).schema.names)}
+
+
 def _pack_path(pack_path: str | Path | None) -> Path | None:
     if pack_path is not None:
         return Path(pack_path)
@@ -352,8 +380,7 @@ def memberships(
     path = _pack_path(pack_path)
     if path is None:
         return MembershipSet(municipality=str(code))
-    table = _pack(str(path))
-    col = {name: table.column(name).to_pylist() for name in table.schema.names}
+    index, at = _index(str(path)), _fields(str(path))
 
     six = str(code).strip()
     if len(six) == 7:
@@ -361,16 +388,14 @@ def memberships(
     six = six.zfill(6) if six.isdigit() else six
 
     stamp = _stamp(vintage)
-    grouped: dict[str, dict[str, tuple[str, str, str, str, str]]] = {}
-    for i, municipality in enumerate(col["municipality"]):
-        if municipality != six:
+    grouped: dict[str, dict[str, tuple[str, str, str, str, str, str]]] = {}
+    for row in index.get(six, ()):
+        if not _covers(row[at["valid_from"]], row[at["valid_to"]], stamp):
             continue
-        if not _covers(col["valid_from"][i], col["valid_to"][i], stamp):
-            continue
-        grouped.setdefault(col["classification"][i], {})[col["system"][i]] = (
-            col["member_code"][i], col["member_label"][i],
-            col["source_codelist"][i], col["valid_from"][i], col["valid_to"][i],
-            col["authority"][i] if "authority" in col else "datasus",
+        grouped.setdefault(row[at["classification"]], {})[row[at["system"]]] = (
+            row[at["member_code"]], row[at["member_label"]],
+            row[at["source_codelist"]], row[at["valid_from"]], row[at["valid_to"]],
+            row[at["authority"]] if "authority" in at else "datasus",
         )
 
     out: list[Membership] = []

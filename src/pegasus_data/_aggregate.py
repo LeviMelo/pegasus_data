@@ -34,6 +34,7 @@ import hashlib
 import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -194,6 +195,11 @@ class AggregateReport:
     #: Mass lost rolling up through a partial classification, per measure.
     unmapped: dict[str, float] = field(default_factory=dict)
     contested: tuple[str, ...] = ()
+    #: Periods whose cells are known to be SHORT, because the time axis is a
+    #: record date and the publication years fetched do not fully contain it.
+    #: A December admission is billed in January, so a series by admission date
+    #: built from one publication year is missing its own edges.
+    partial_periods: tuple[str, ...] = ()
     warnings: list[str] = field(default_factory=list)
     fingerprint: str = ""
 
@@ -202,6 +208,7 @@ class AggregateReport:
             "name": self.name, "cells": self.cells, "rows_read": self.rows_read,
             "years": list(self.years), "support": self.support,
             "unmapped": self.unmapped, "contested": list(self.contested),
+            "partial_periods": list(self.partial_periods),
             "warnings": self.warnings, "fingerprint": self.fingerprint,
         }
 
@@ -340,13 +347,10 @@ def build_aggregate(
                 f"{year}: {missing} absent from this generation; year skipped")
             continue
 
-        columns = {c: table.column(c).to_pylist() for c in names & {
-            geography_field, *time_fields, *spec.dimensions,
-            *(m.source_field for m in spec.measures if m.source_field), "_blob_sha256",
-        }}
-        for digest in set(columns.get("_blob_sha256") or ()):
-            if digest:
-                blob_digests.add(str(digest))
+        if "_blob_sha256" in names:
+            for digest in set(table.column("_blob_sha256").to_pylist()):
+                if digest:
+                    blob_digests.add(str(digest))
 
         # The support mask, from the existing availability verb rather than
         # from schema logic re-derived here.
@@ -355,21 +359,26 @@ def build_aggregate(
             for dimension in spec.dimensions
         }
 
-        present_dimensions = [d for d in spec.dimensions if d in names]
-        for index in range(table.num_rows):
-            row = {c: values[index] for c, values in columns.items()}
-            municipality = str(row.get(geography_field) or "").strip()
-            competencia = _competencia(row, time_fields)
-            if not municipality or not competencia:
-                continue
-            key = (municipality, competencia, *(
-                str(row.get(d) or "").strip() if d in present_dimensions else ""
-                for d in spec.dimensions
-            ))
+        # lift + merge, columnar. Each accumulator's lift is a column
+        # expression and its merge is a sum, so the whole build is one
+        # group_by. The row loop this replaced ran at about 1.4 ms per
+        # admission -- fine for one state-year, and roughly five hours for a
+        # national one, which is not a build anybody would run.
+        keyed = _key_columns(table, geography_field, time_fields, spec.dimensions, names)
+        if keyed is None:
+            report.warnings.append(f"{year}: no usable geography/time values; skipped")
+            continue
+        lifted, state_names = _lift_columns(table, spec.measures)
+        grouped = pa.table({**keyed, **lifted}).group_by(list(keyed)).aggregate(
+            [(name, "sum") for name in state_names])
+        got = {n: grouped.column(n).to_pylist() for n in grouped.schema.names}
+        key_order = list(keyed)
+        for i in range(grouped.num_rows):
+            key = tuple(str(got[k][i]) for k in key_order)
             bucket = cells.setdefault(key, {})
             for measure in spec.measures:
-                state = measure.kind.lift(
-                    row.get(measure.source_field) if measure.source_field else None)
+                state = tuple(float(got[f"{c}_sum"][i] or 0.0)
+                              for c in measure.state_columns())
                 prior = bucket.get(measure.name)
                 bucket[measure.name] = (
                     state if prior is None else measure.kind.merge(prior, state))
@@ -400,6 +409,7 @@ def build_aggregate(
         **{c: pa.array(data[c], pa.float64()) for c in spec.state_columns()},
     })
     report.cells = arrow.num_rows
+    _flag_partial_periods(spec, semantics, report, wanted_years, data[TIME_KEY])
     report.fingerprint = _fingerprint(spec, blob_digests, resolved)
 
     target = artifact_dir(name, resolved)
@@ -416,12 +426,177 @@ def build_aggregate(
             "rows_read": report.rows_read,
             "years": list(report.years),
             "support": report.support,
+            "partial_periods": list(report.partial_periods),
             "key_columns": list(key_names),
             "warnings": report.warnings,
         }, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
     return report
+
+
+
+
+#: DATASUS writes numbers as fixed-width text, and a blank is ABSENT rather than
+#: zero. Arrow's cast raises on `''` and on anything else unparseable, so
+#: non-numeric cells are nulled first: a null contributes nothing to a sum and
+#: nothing to a mean's denominator, which is what "we did not observe this"
+#: should do. Casting them to zero instead would drag every mean down invisibly.
+_NUMERIC = r"^[+-]?\d+([.,]\d+)?$"
+
+
+def _to_number(column: Any, rows: int) -> Any:
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    text = pc.utf8_trim_whitespace(pc.cast(column, pa.string()))
+    looks_numeric = pc.fill_null(pc.match_substring_regex(text, _NUMERIC), False)
+    cleaned = pc.if_else(looks_numeric, text, pa.nulls(rows, pa.string()))
+    # A decimal comma is how some DATASUS layouts write money.
+    cleaned = pc.replace_substring(cleaned, ",", ".")
+    return pc.cast(cleaned, pa.float64(), safe=False)
+
+
+def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
+                 dimensions: Sequence[str], names: set[str]) -> dict[str, Any] | None:
+    """The cell key, as columns: municipality, competencia, then dimensions.
+
+    Rows with no municipality or no resolvable period are dropped here rather
+    than being bucketed under an empty key, which would silently invent a cell
+    that means "we could not tell".
+    """
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    municipality = pc.utf8_trim_whitespace(
+        pc.cast(table.column(geography_field), pa.string()))
+    period = _competencia_column(table, time_fields)
+    if period is None:
+        return None
+    keep = pc.and_(pc.not_equal(municipality, ""), pc.is_valid(period))
+    keep = pc.fill_null(keep, False)
+    out: dict[str, Any] = {
+        GEOGRAPHY_KEY: pc.filter(municipality, keep),
+        TIME_KEY: pc.filter(period, keep),
+    }
+    for dimension in dimensions:
+        if dimension in names:
+            column = pc.utf8_trim_whitespace(pc.cast(table.column(dimension), pa.string()))
+            out[dimension] = pc.filter(pc.fill_null(column, ""), keep)
+        else:
+            # Structurally absent in this generation. An empty category is not
+            # "unknown" -- the support mask is what says the column did not
+            # exist -- but the cell still has to exist so its measures are not
+            # silently lost.
+            out[dimension] = pa.array([""] * pc.sum(pc.cast(keep, pa.int64())).as_py(),
+                                      pa.string())
+    return out
+
+
+def _competencia_column(table: Any, time_fields: Sequence[str]) -> Any | None:
+    """AAAAMM from the declared time fields, as a column.
+
+    Two fields means year and month held apart (`ANO_CMPT`, `MES_CMPT`); one
+    field means a date or a competence already packed together, of which the
+    first six characters are the year and month.
+    """
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    present = [f for f in time_fields if f in table.schema.names]
+    if not present:
+        return None
+    if len(present) >= 2:
+        year = pc.utf8_trim_whitespace(pc.cast(table.column(present[0]), pa.string()))
+        month = pc.utf8_trim_whitespace(pc.cast(table.column(present[1]), pa.string()))
+        month = pc.utf8_lpad(month, 2, padding="0")
+        joined = pc.binary_join_element_wise(year, month, "")
+    else:
+        joined = pc.utf8_trim_whitespace(pc.cast(table.column(present[0]), pa.string()))
+    sliced = pc.utf8_slice_codeunits(joined, 0, 6)
+    return pc.if_else(pc.equal(pc.utf8_length(sliced), 6), sliced, pa.nulls(len(sliced), pa.string()))
+
+
+def _lift_columns(table: Any, measures: Sequence[Measure]) -> tuple[dict[str, Any], list[str]]:
+    """Every measure's `lift`, as columns rather than per-row calls.
+
+    The mapping is exact, not an approximation of the algebra:
+
+    * ``count``  -> a column of ones, so its sum is the row count;
+    * ``sum``    -> the numeric column with nulls as zero, which contributes
+      nothing, unlike a null that would poison the sum;
+    * ``mean``   -> (1 where the value parses, else 0) and (the value, else 0),
+      so a blank stay is an unknown length rather than a stay of no days;
+    * ``ratio``  -> the value and a validity indicator.
+    """
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    out: dict[str, Any] = {}
+    order: list[str] = []
+    rows = table.num_rows
+    for measure in measures:
+        columns = measure.state_columns()
+        if measure.source_field and measure.source_field in table.schema.names:
+            numeric = _to_number(table.column(measure.source_field), rows)
+        else:
+            numeric = pa.nulls(rows, pa.float64())
+        valid = pc.cast(pc.is_valid(numeric), pa.float64())
+        filled = pc.fill_null(numeric, 0.0)
+        if measure.kind.name == "count":
+            out[columns[0]] = pa.array([1.0] * rows, pa.float64())
+        elif measure.kind.name == "sum":
+            out[columns[0]] = filled
+        elif measure.kind.name in ("mean", "ratio"):
+            first, second = columns
+            if measure.kind.name == "mean":
+                out[first], out[second] = valid, filled
+            else:
+                out[first], out[second] = filled, valid
+        else:
+            out[columns[0]] = filled
+        order.extend(columns)
+    return out, order
+
+
+
+def _flag_partial_periods(spec: AggregateSpec, semantics: Any, report: AggregateReport,
+                          wanted_years: Sequence[int], periods: Sequence[str]) -> None:
+    """Name the periods this build cannot have filled completely.
+
+    DATASUS publishes by a coordinate that is NOT the record date. Measured on
+    SIH: the file published under 2022 for Acre holds 3,687 admissions (7.44%)
+    that happened in 2021, the earliest in February — because a December
+    admission is billed in January. So when the time axis is a record date, the
+    publication years fetched do not contain their own edges.
+
+    A `competence` axis has no such problem: the competence IS the publication
+    coordinate, so every period inside the fetched years is whole.
+
+    This does not silently widen the fetch. It says which periods are short, in
+    the report and in the manifest, so a series is not read as a fall in
+    admissions when it is a fall in coverage.
+    """
+    bindings = semantics.time_bindings()
+    encoding = str((bindings.get(spec.time_binding) or {}).get("encoding") or "")
+    if encoding != "date":
+        return
+    fetched = {int(y) for y in wanted_years}
+    seen = sorted({str(p)[:4] for p in periods if p})
+    partial = [
+        year for year in seen
+        if int(year) not in fetched            # a fragment from a neighbour
+        or (int(year) + 1) not in fetched      # its own tail is billed next year
+    ]
+    if not partial:
+        return
+    report.partial_periods = tuple(sorted(set(partial)))
+    report.warnings.append(
+        f"the time axis {spec.time_binding!r} is a record date, so these years "
+        f"are NOT complete in this build: {report.partial_periods}. A record "
+        "dated December is published in the following year's files; build the "
+        "next publication year too, or read these edges as short."
+    )
 
 
 def _fingerprint(spec: AggregateSpec, blob_digests: set[str], settings: Settings) -> str:
@@ -545,7 +720,15 @@ def aggregate(
         name=name, support=dict(manifest.get("support") or {}),
         fingerprint=str(manifest.get("fingerprint") or ""),
         years=tuple(int(y) for y in (manifest.get("years") or ())),
+        partial_periods=tuple(str(x) for x in (manifest.get("partial_periods") or ())),
     )
+    if report.partial_periods:
+        report.warnings.append(
+            f"{len(report.partial_periods)} period(s) in this artifact are known "
+            "to be short because its time axis is a record date and the "
+            "publication years built do not fully contain them: "
+            f"{list(report.partial_periods[:6])}"
+        )
 
     wanted = tuple(measures or [m.name for m in spec.measures])
     chosen = [spec.measure_named(m) for m in wanted]
@@ -595,53 +778,90 @@ def aggregate(
     time_map = _time_pushforward(time_level, columns[TIME_KEY]) if time_level else None
 
     filters = dict(where or {})
-    unmapped_mass: dict[str, float] = {m.name: 0.0 for m in chosen}
-    grouped: dict[tuple[str, ...], dict[str, tuple[float, ...]]] = {}
-    kept = 0
+    keep = _mask(filters, spec, columns, total_rows)
 
-    for index in range(total_rows):
-        municipality = columns[GEOGRAPHY_KEY][index]
-        competencia = columns[TIME_KEY][index]
-        if not _passes(filters, spec, columns, index, municipality, competencia):
-            continue
-        geography_value = geo_map.get(municipality) if geo_map is not None else None
-        if geo_map is not None and geography_value is None:
-            # A partial classification: metropolitan_region covers 1,325 of
-            # ~5,570 municipalities, so the pushforward is not total and the
-            # lost mass is REPORTED rather than silently dropped.
-            for measure in chosen:
-                state = tuple(columns[c][index] for c in measure.state_columns())
-                unmapped_mass[measure.name] += float(state[0])
-            continue
-        key: list[str] = []
-        if geography_level:
-            key.append(str(geography_value))
-        if time_level:
-            key.append(str(time_map.get(competencia)))
-        for dimension in dimension_levels:
-            key.append(str(columns[dimension][index]))
-        bucket = grouped.setdefault(tuple(key), {})
-        for measure in chosen:
-            state = tuple(float(columns[c][index]) for c in measure.state_columns())
-            prior = bucket.get(measure.name)
-            bucket[measure.name] = (
-                state if prior is None else measure.kind.merge(prior, state))
-        kept += 1
-
+    # The merge is Arrow's grouped aggregation, not a Python loop over cells.
+    # That is a property of the design rather than an optimisation: every
+    # accumulator here is a commutative monoid whose merge IS a column
+    # aggregate. `count` and `sum` merge by summing one column, `mean` by
+    # summing (n, sum), `ratio` by summing (num, den), `min`/`max` by MIN/MAX.
+    # The whole algebra maps onto group_by().aggregate() with no special cases.
+    #
+    # The loop this replaced cost about 13 s on a realistic national year, which
+    # is not an answer a frontend can wait for.
     key_names = (
-        *( [geography_level] if geography_level else [] ),
-        *( [time_level] if time_level else [] ),
+        *([geography_level] if geography_level else ()),
+        *([time_level] if time_level else ()),
         *dimension_levels,
     )
-    ordered = sorted(grouped)
+    # Grouping columns get internal names. `by=["municipality"]` and
+    # `by=["month"]` would otherwise collide with the artifact's own key columns
+    # -- Arrow raises "Multiple matches for FieldRef" -- and renaming at the end
+    # is simpler than special-casing the identity pushforward.
+    GEO_TMP, TIME_TMP = "__geo__", "__time__"
+    group_by = (
+        *([GEO_TMP] if geography_level else ()),
+        *([TIME_TMP] if time_level else ()),
+        *dimension_levels,
+    )
+    emit_as = dict(zip(group_by, key_names, strict=True))
+    mapped_geo = (
+        [geo_map.get(v) for v in columns[GEOGRAPHY_KEY]] if geo_map is not None else None
+    )
+    mapped_time = (
+        [time_map.get(v) for v in columns[TIME_KEY]] if time_map is not None else None
+    )
+
+    unmapped_mass: dict[str, float] = {}
+    if mapped_geo is not None:
+        # A partial classification -- `metropolitan_region` covers 1,325 of
+        # ~5,570 municipalities -- makes the pushforward non-total. The lost mass
+        # is REPORTED, never silently dropped: a subset total that reads as a
+        # national one is the failure this layer exists to prevent.
+        lost = [i for i in range(total_rows) if keep[i] and mapped_geo[i] is None]
+        for measure in chosen:
+            column = columns[measure.state_columns()[0]]
+            total = sum(float(column[i]) for i in lost)
+            if total:
+                unmapped_mass[measure.name] = total
+        for i in lost:
+            keep[i] = False
+
+    indices = [i for i in range(total_rows) if keep[i]]
+    report.rows_read = len(indices)
+    working = table.take(indices) if len(indices) != total_rows else table
+    if mapped_geo is not None and geography_level:
+        working = working.append_column(
+            GEO_TMP, pa.array([mapped_geo[i] for i in indices], pa.string()))
+    if mapped_time is not None and time_level:
+        working = working.append_column(
+            TIME_TMP, pa.array([mapped_time[i] for i in indices], pa.string()))
+
+    state_columns = [c for m in chosen for c in m.state_columns()]
     out: dict[str, list[Any]] = {n: [] for n in key_names}
     for measure in chosen:
         out[measure.name] = []
-    for key in ordered:
-        for position, column in enumerate(key_names):
-            out[column].append(key[position])
+
+    if key_names:
+        aggregated = working.group_by(list(group_by)).aggregate(
+            [(c, _ARROW_MERGE[_kind_of(chosen, c).name]) for c in state_columns])
+        suffixed = {c: f"{c}_{_ARROW_MERGE[_kind_of(chosen, c).name]}"
+                    for c in state_columns}
+        got = {n: aggregated.column(n).to_pylist() for n in aggregated.schema.names}
+        order = sorted(range(aggregated.num_rows),
+                       key=lambda i: tuple(str(got[n][i]) for n in group_by))
+        for i in order:
+            for name in group_by:
+                out[emit_as[name]].append(str(got[name][i]))
+            for measure in chosen:
+                state = tuple(float(got[suffixed[c]][i] or 0.0)
+                              for c in measure.state_columns())
+                out[measure.name].append(_finalize(measure, state))
+    else:
+        # No axis named at all: one cell, everything totalled.
         for measure in chosen:
-            state = grouped[key].get(measure.name) or measure.kind.identity()
+            state = tuple(_merge_column(measure, working.column(c))
+                          for c in measure.state_columns())
             out[measure.name].append(_finalize(measure, state))
 
     result = pa.table({
@@ -649,7 +869,6 @@ def aggregate(
         **{m.name: pa.array(out[m.name], pa.float64()) for m in chosen},
     })
     report.cells = result.num_rows
-    report.rows_read = kept
     report.unmapped = {k: v for k, v in unmapped_mass.items() if v}
     if report.unmapped:
         report.warnings.append(
@@ -661,12 +880,72 @@ def aggregate(
     return (result, report) if return_report else result
 
 
+
+#: How each monoid's merge is spelled as a column aggregate. The mapping is
+#: total because every kind here is a commutative monoid over numbers, which is
+#: exactly why the serve path needs no per-row arithmetic.
+_ARROW_MERGE = {"count": "sum", "sum": "sum", "mean": "sum", "ratio": "sum",
+                "min": "min", "max": "max"}
+
+
+def _kind_of(measures: Sequence[Measure], state_column: str) -> Any:
+    for measure in measures:
+        if state_column in measure.state_columns():
+            return measure.kind
+    raise AggregationRefused(f"no measure owns state column {state_column!r}")
+
+
+def _merge_column(measure: Measure, column: Any) -> float:
+    """Reduce one state column to a scalar, the monoid's way."""
+    import pyarrow.compute as pc
+
+    if measure.kind.name == "min":
+        value = pc.min(column).as_py()
+        return float("inf") if value is None else float(value)
+    if measure.kind.name == "max":
+        value = pc.max(column).as_py()
+        return float("-inf") if value is None else float(value)
+    value = pc.sum(column).as_py()
+    return 0.0 if value is None else float(value)
+
+
+def _mask(filters: Mapping[str, Any], spec: AggregateSpec,
+          columns: Mapping[str, list[Any]], total_rows: int) -> list[bool]:
+    """Row filter, evaluated once per column rather than once per row."""
+    keep = [True] * total_rows
+    for key, value in filters.items():
+        wanted = {str(v) for v in
+                  (value if isinstance(value, (list, tuple, set)) else [value])}
+        if key in ("period", TIME_KEY, "month"):
+            source = [str(v) for v in columns[TIME_KEY]]
+        elif key == "year":
+            source = [str(v)[:4] for v in columns[TIME_KEY]]
+        elif key == _UF_LEVEL:
+            from .normalize.geo import uf_from_code
+
+            source = [str(uf_from_code(str(v)) or "") for v in columns[GEOGRAPHY_KEY]]
+        elif key in (_BASE_LEVEL, GEOGRAPHY_KEY):
+            source = [str(v) for v in columns[GEOGRAPHY_KEY]]
+        elif key in spec.dimensions:
+            source = [str(v) for v in columns[key]]
+        else:
+            raise AggregationRefused(
+                f"cannot filter on {key!r}; this artifact has "
+                f"{[_BASE_LEVEL, _UF_LEVEL, 'year', 'period', *spec.dimensions]}"
+            )
+        for i in range(total_rows):
+            if keep[i] and source[i] not in wanted:
+                keep[i] = False
+    return keep
+
+
 def _is_classification(level: str) -> bool:
     from .geography import classifications
 
     return level in classifications()
 
 
+@lru_cache(maxsize=256)
 def _is_multi_valued(dataset: str, field_name: str) -> bool:
     """`CODANOMAL` holds up to five ICD codes; a row lands in several cells."""
     from .catalog.store import Catalog
@@ -688,35 +967,3 @@ def _is_multi_valued(dataset: str, field_name: str) -> bool:
         return False
 
 
-def _passes(filters: Mapping[str, Any], spec: AggregateSpec,
-            columns: Mapping[str, list[Any]], index: int,
-            municipality: str, competencia: str) -> bool:
-    for key, value in filters.items():
-        wanted = {str(v) for v in (value if isinstance(value, (list, tuple, set)) else [value])}
-        if key in ("period", TIME_KEY, "month"):
-            if competencia not in wanted:
-                return False
-        elif key == "year":
-            if competencia[:4] not in wanted:
-                return False
-        elif key == _UF_LEVEL:
-            if municipality[:2] not in {w[:2] for w in wanted} and not _uf_matches(municipality, wanted):
-                return False
-        elif key in (_BASE_LEVEL, GEOGRAPHY_KEY):
-            if municipality not in wanted:
-                return False
-        elif key in spec.dimensions:
-            if str(columns[key][index]) not in wanted:
-                return False
-        else:
-            raise AggregationRefused(
-                f"cannot filter on {key!r}; this artifact has "
-                f"{[_BASE_LEVEL, _UF_LEVEL, 'year', 'period', *spec.dimensions]}"
-            )
-    return True
-
-
-def _uf_matches(municipality: str, wanted: set[str]) -> bool:
-    from .normalize.geo import uf_from_code
-
-    return uf_from_code(municipality) in wanted

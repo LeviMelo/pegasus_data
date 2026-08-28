@@ -253,6 +253,7 @@ reports the unmapped ~76%; a semi-additive measure refuses `sum` over time.
 | 4 — break it on CNES | **done** — `curation/aggregates/cnes_st_municipality_month.yml` |
 | 5 — geography from IBGE | **done** — `sources/ibge_localidades.py`, `docs/IBGE_LOCALIDADES.md`, `tests/test_ibge_localidades.py` (20) |
 | 6 — `semantic_axes` by family | **done** — 5 → **90 of 132** datasets, `tests/test_semantic_axes.py` (278) |
+| 7 — self-review and remediation | **done** — see §7c |
 
 Verified on live SIH-RD/AC/2022: 49,547 admissions → 2,417 cells in 199 s;
 the artifact reproduces a direct `GROUP BY` with **zero disagreeing cells**;
@@ -275,8 +276,41 @@ of 49,547 unmapped instead of returning 70 as a national figure.
   enforced as a *refusal*; applying `mean`/`last`/`max` over time is not yet
   implemented, so a stock is refused rather than silently reduced. That is the
   safe half, and the right half to ship first.
-* **`query(select=...)`.** The build works around a live defect
-  (`FINDINGS` §3o) rather than fixing the query engine mid-build.
+* **Widening a record-date build.** A record-date artifact now NAMES the periods
+  it cannot have filled (§3q) rather than fetching the neighbouring publication
+  year itself. Saying which edges are short is honest and cheap; widening the
+  fetch is a policy decision about cost that belongs with whoever runs the build.
+* ~~**`query(select=...)`.**~~ **Fixed** (§3q). A source projection now excludes
+  the columns synthesised after retrieval. The build still projects afterwards
+  rather than narrowing the fetch, which is a separate optimisation.
+
+---
+
+## 7c. Phase 7 — reviewing what was built
+
+Measured rather than re-read, and it found three defects of my own plus one in
+the query engine. `FINDINGS` §3q has the numbers; the shape of them is the
+lesson.
+
+**Everything passed throughout.** None of these were correctness bugs. They were
+found by asking what the code costs at the scale it is *for*.
+
+| defect | before | after |
+|---|---:|---:|
+| `memberships()` scanned the pack per call | 665 ms each; **62 min** for a national roll-up | 168 µs; **0.96 s** |
+| `aggregate()` merged cell by cell | 2.6 s on 133,680 cells | 1.1 s |
+| `build_aggregate()` lifted row by row | 199 s end to end | 113 s (its aggregation ~70 s → ~3 s) |
+
+Both merges are now Arrow grouped aggregation, and that is a **property of the
+algebra**: every accumulator is a commutative monoid whose merge IS a column
+aggregate, so the whole vocabulary maps onto `group_by().aggregate()` with no
+special cases. Every figure on the rebuilt artifact is identical to the loop's.
+
+Also fixed: **the time rule is now enforced** rather than merely stated. A
+record-date artifact names the periods it cannot have filled, because a December
+admission is billed in January and a series built from one publication year is
+missing its own edges. And **`query(select=[...])` works** — it was passing
+downstream-synthesised columns to the source projection.
 
 ---
 

@@ -307,3 +307,33 @@ class TestADeclaredRollupMustBeNational:
                 f"{declared[0].artifact!r}; a national roll-up that misses a "
                 "state capital is a per-UF table wearing a national name"
             )
+
+
+def test_lookup_is_indexed_not_scanned() -> None:
+    """A national roll-up resolves ~5,600 municipalities, one call each.
+
+    The first implementation read every column of the 75,000-row pack to Python
+    lists inside each call. Measured at 665 ms per municipality, which is 62
+    MINUTES to resolve the geography of one national query — for an artifact
+    whose whole purpose is answering in seconds. Indexing once makes it O(1).
+
+    The threshold is deliberately loose. This is not a benchmark; it fails only
+    if someone reintroduces a per-call scan, which is two orders of magnitude
+    away from the number below.
+    """
+    import time
+
+    from pegasus_data.geography import iter_pack
+
+    codes = sorted({r["municipality"] for r in iter_pack()})
+    assert len(codes) > 5_000, "pack looks empty; this test would prove nothing"
+    memberships(codes[0])                      # pay the index build once
+    start = time.perf_counter()
+    for code in codes[:500]:
+        memberships(code)
+    per_lookup = (time.perf_counter() - start) / 500
+    assert per_lookup < 0.01, (
+        f"{per_lookup * 1000:.1f} ms per lookup — resolving every municipality "
+        f"would take {per_lookup * len(codes):.0f}s. A per-call scan of the pack "
+        "has been reintroduced."
+    )

@@ -30,6 +30,10 @@ from .semantics import (
     _enrichment_output_name,
 )
 
+#: Added after retrieval, never read from a source file. Keeping them out of a
+#: source projection is what lets `select=` work at all.
+SYNTHESISED_COLUMNS = frozenset({"_competencia", "year", "_source_resolution"})
+
 
 def _final_projection(table: pa.Table, spec: QuerySpec) -> pa.Table:
     if spec.select is None:
@@ -124,7 +128,22 @@ def query(
         publication_resolution=retrieval.publication_resolution,
         adaptations=[asdict(item) for item in retrieval.adaptations],
     )
-    columns = set(query_plan.spec.select or ()) | set(retrieval.hidden_dependencies)
+    # `_competencia`, `year` and `_source_resolution` are DERIVED downstream by
+    # `_with_competence` out of `_source_path` and the source report. They are
+    # not columns of any DATASUS family, so asking a source for them makes the
+    # read refuse:
+    #
+    #   query("SIH-RD", period="2022-01", geography="AC", select=[...])
+    #   -> MissingColumnError: column '_competencia' is not present in family
+    #      SIHSUS_RD_e2f7244ae5 (also absent: _source_resolution, year)
+    #
+    # It only bit when `select=` was given, because without it nothing is
+    # projected and everything arrives anyway. `_source_path` stays in the
+    # projection: it IS a real column, supplied by `provenance=True` on the
+    # fetch path and present in the lake.
+    columns = (
+        set(query_plan.spec.select or ()) | set(retrieval.hidden_dependencies)
+    ) - SYNTHESISED_COLUMNS
     requested_columns = sorted(columns) if query_plan.spec.select is not None else None
     tables: list[pa.Table] = []
     source_reports: list[Any] = []

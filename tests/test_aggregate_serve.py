@@ -263,3 +263,74 @@ class TestTheReport:
         _, report = aggregate(N, measures=["admissions"], settings=settings,
                               return_report=True)
         assert report.fingerprint == "test"
+
+
+class TestItAnswersFastEnoughToServe:
+    """The artifact exists so a frontend does not wait. That has to hold at
+    national scale, not only on a five-row fixture.
+
+    The first implementation merged cell by cell in Python. Measured on a
+    synthetic national year (133,680 cells) it took 2.6 s for one roll-up, and a
+    realistic artifact is five times larger — about 13 s per question, which is
+    not an answer anybody waits for. The merge is now Arrow's grouped
+    aggregation, which the algebra permits because every accumulator is a
+    commutative monoid whose merge IS a column aggregate.
+
+    Thresholds are loose on purpose. This is not a benchmark; it fails only if
+    per-row merging comes back, which is an order of magnitude away.
+    """
+
+    @staticmethod
+    def _national(tmp_path):
+        import json
+        import random
+
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        from pegasus_data._aggregate import artifact_dir
+        from pegasus_data.config import load_settings
+
+        settings = load_settings(root=tmp_path)
+        target = artifact_dir("sih_rd_municipality_month", settings)
+        target.mkdir(parents=True, exist_ok=True)
+        random.seed(11)
+        municipalities = [f"{random.randint(11, 53):02d}{random.randint(1000, 9999):04d}"
+                          for _ in range(5570)]
+        rows = [(m, f"2022{month:02d}", sexo, "01", 3.0, 0.0, 3.0, 9.0, 300.0)
+                for m in municipalities for month in range(1, 13) for sexo in ("1", "3")]
+        table = pa.table({
+            **{n: pa.array([r[i] for r in rows], pa.string()) for i, n in enumerate(KEYS)},
+            **{n: pa.array([r[len(KEYS) + i] for r in rows], pa.float64())
+               for i, n in enumerate(STATES)},
+        })
+        pq.write_table(table, target / "cells.parquet")
+        (target / "manifest.json").write_text(json.dumps({
+            "name": "sih_rd_municipality_month", "fingerprint": "scale",
+            "cells": len(rows), "years": [2022], "support": {},
+            "key_columns": list(KEYS)}), encoding="utf-8")
+        return settings, len(rows)
+
+    def test_a_national_rollup_answers_in_seconds(self, tmp_path) -> None:
+        import time
+
+        settings, cells = self._national(tmp_path)
+        assert cells > 100_000, cells
+        for by in (["uf", "year"], ["health_region", "year"], ["municipality", "month"]):
+            start = time.perf_counter()
+            result = aggregate(N, by=by, measures=["admissions", "los"], settings=settings)
+            elapsed = time.perf_counter() - start
+            assert result.num_rows > 0
+            assert elapsed < 20, (
+                f"by={by} took {elapsed:.1f}s on {cells:,} cells; per-row merging "
+                "has been reintroduced"
+            )
+
+    def test_totalling_everything_is_also_fast(self, tmp_path) -> None:
+        import time
+
+        settings, _ = self._national(tmp_path)
+        start = time.perf_counter()
+        result = aggregate(N, measures=["admissions"], settings=settings)
+        assert result.num_rows == 1
+        assert time.perf_counter() - start < 20

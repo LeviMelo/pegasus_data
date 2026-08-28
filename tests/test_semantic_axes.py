@@ -14,11 +14,10 @@ something the data cannot honour.
 
 from __future__ import annotations
 
-import pytest
-
-yaml = pytest.importorskip("yaml")
-
 from pathlib import Path
+
+import pytest
+import yaml
 
 from pegasus_data.semantics.curation import dataset_semantics, parse_grain, semantics_for
 

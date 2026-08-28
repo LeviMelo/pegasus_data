@@ -276,3 +276,79 @@ class TestTheAbstractionSurvivesAStockDataset:
         assert not admissions.is_semi_additive
         for axis in AXES:
             check_rollup(admissions, axis)
+
+
+class TestARecordDateAxisHasIncompleteEdges:
+    """Publication year is not record year, and the gap is 7.44%.
+
+    Measured on live SIH: the file published under 2022 for Acre holds 3,687
+    admissions that happened in 2021, the earliest in February — because a
+    December admission is billed in January. So a series keyed on a RECORD date
+    is missing its own edges unless the neighbouring publication year is built
+    too.
+
+    A `competence` axis has no such problem: the competence IS the publication
+    coordinate. The build must know the difference, and say so rather than
+    letting a coverage gap read as a fall in admissions.
+    """
+
+    @staticmethod
+    def _spec(binding):
+        from pegasus_data.measures import measure_from_declaration
+
+        return AggregateSpec(
+            name="edges", dataset="SIH-RD", geography_binding="residence",
+            time_binding=binding, time_grain="month", dimensions=(),
+            measures=(measure_from_declaration("n", {"kind": "count", "unit": "admission"}),),
+        )
+
+    def _build(self, monkeypatch, tmp_path, binding, rows):
+        from pegasus_data import _aggregate
+        from pegasus_data.config import load_settings
+
+        columns = ("MUNIC_RES", "ANO_CMPT", "MES_CMPT", "DT_INTER")
+        table = pa.table({c: pa.array([r[i] for r in rows], pa.string())
+                          for i, c in enumerate(columns)})
+        monkeypatch.setattr("pegasus_data.retrieve.fetch",
+                            lambda dataset, **kw: (table, type("R", (), {"warnings": []})()))
+        monkeypatch.setattr("pegasus_data._availability.field_available",
+                            lambda *a, **k: "present")
+        monkeypatch.setattr(_aggregate, "spec_named",
+                            lambda name, root=None: self._spec(binding))
+        return build_aggregate("edges", years=[2022], settings=load_settings(root=tmp_path))
+
+    ROWS = [
+        ("120040", "2022", "01", "20211215"),   # admitted Dec 2021, billed Jan 2022
+        ("120040", "2022", "03", "20220301"),
+        ("120040", "2022", "12", "20221220"),   # its own tail bills in 2023
+    ]
+
+    def test_a_record_date_axis_flags_the_years_it_cannot_have_filled(
+        self, monkeypatch, tmp_path
+    ) -> None:
+        report = self._build(monkeypatch, tmp_path, "admission", self.ROWS)
+        assert report.partial_periods, "no period flagged, yet 2021 is a fragment"
+        assert "2021" in report.partial_periods
+        assert "2022" in report.partial_periods, (
+            "2022's December admissions are billed in 2023, so it is short too"
+        )
+        assert any("record date" in w for w in report.warnings)
+
+    def test_a_competence_axis_flags_nothing(self, monkeypatch, tmp_path) -> None:
+        """The competence IS the publication coordinate, so nothing is short."""
+        report = self._build(monkeypatch, tmp_path, "competence", self.ROWS)
+        assert report.partial_periods == ()
+        assert not any("record date" in w for w in report.warnings)
+
+    def test_the_flag_survives_into_the_manifest_and_back_out(
+        self, monkeypatch, tmp_path
+    ) -> None:
+        """A caller reading the artifact months later must still be told."""
+        from pegasus_data._aggregate import aggregate as serve
+
+        self._build(monkeypatch, tmp_path, "admission", self.ROWS)
+        from pegasus_data.config import load_settings
+
+        _, report = serve("edges", settings=load_settings(root=tmp_path), return_report=True)
+        assert "2021" in report.partial_periods
+        assert any("short" in w for w in report.warnings)
