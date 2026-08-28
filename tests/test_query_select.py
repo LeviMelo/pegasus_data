@@ -25,7 +25,7 @@ from pegasus_data._query_engine.planner import plan
 def test_the_planner_still_declares_them_as_dependencies() -> None:
     """They ARE needed — the fix is where they are asked for, not whether."""
     hidden = set(plan("SIH-RD", period="2022-01", geography="AC").retrieval.hidden_dependencies)
-    assert SYNTHESISED_COLUMNS <= hidden, (
+    assert hidden >= SYNTHESISED_COLUMNS, (
         "the semantic layer still needs these; only the SOURCE projection must "
         "not ask for them"
     )
@@ -39,7 +39,7 @@ def test_source_path_is_not_treated_as_synthesised() -> None:
 
 
 def test_exactly_the_derived_columns_are_excluded() -> None:
-    assert SYNTHESISED_COLUMNS == {"_competencia", "year", "_source_resolution"}
+    assert {"_competencia", "year", "_source_resolution"} == SYNTHESISED_COLUMNS
 
 
 def test_a_select_projection_excludes_them() -> None:

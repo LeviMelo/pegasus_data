@@ -252,7 +252,7 @@ reports the unmapped ~76%; a semi-additive measure refuses `sum` over time.
 | 3 — serve | **done** — `aggregate()`, `pegasus-data aggregate`, `tests/test_aggregate_serve.py` (25) |
 | 4 — break it on CNES | **done** — `curation/aggregates/cnes_st_municipality_month.yml` |
 | 5 — geography from IBGE | **done** — `sources/ibge_localidades.py`, `docs/IBGE_LOCALIDADES.md`, `tests/test_ibge_localidades.py` (20) |
-| 6 — `semantic_axes` by family | **done** — 5 → **90 of 132** datasets, `tests/test_semantic_axes.py` (278) |
+| 6 — `semantic_axes` by family | **done** — 5 → **125 of 132** datasets |
 | 7 — self-review and remediation | **done** — see §7c |
 
 Verified on live SIH-RD/AC/2022: 49,547 admissions → 2,417 cells in 199 s;
@@ -341,8 +341,21 @@ because a field that does not produces an aggregate with no rows and no error �
 the phantom-codelist failure of §3k in another costume. It immediately caught one:
 `DTREGISTRO` invented for SIM where the column is `DATAREG`.
 
-Remaining without axes: 42, mostly SIA/SISCAN/IBGE datasets whose geography role
-is genuinely ambiguous, plus the non-dataset entries.
+**125 of 132 now carry both axes, and the seven that do not are deliberate:**
+
+| left out | why |
+|---|---|
+| `TABWIN.APP`, `TABNET.APP`, `TABDOS.APP`, `DADOS_ABERTOS.APAC`, `SIASUS.IMPBORL` | not datasets — TABWIN is a Windows application |
+| `IBGE.PROJUF` | projected by **state**, so it declares `semantic_axes: {}` — an explicit opt-out |
+| `PCE.PCE` | a 12-character composite geocode no municipality table decodes whole |
+
+Two mechanisms came out of finishing this. Inheritance now tests for the KEY's
+presence rather than its truthiness, so `semantic_axes: {}` says "this dataset
+genuinely has none" — a different claim from silence, and the difference matters
+because silence would have given PROJUF its family's `MUNCOD` and keyed its
+cells on something no municipality table resolves. And `build_aggregate()` now
+refuses a geography binding whose `code_system` is not `ibge_municipality`, at
+the spec rather than in the output.
 
 ---
 

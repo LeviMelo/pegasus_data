@@ -1751,9 +1751,17 @@ aggregate layer look general and was not.
 The leverage is that DATASUS datasets are not independent. All **58 SINAN
 agravos** carry the same notification block, so `ID_MN_RESI` is the municipality
 of residence in every one; SIH's datasets are all views of an AIH; CIHA's rows
-all carry the same `MUNIC_RES`/`MUNIC_MOV` pair. Two declarations — one file-level
-`shared:` for SINAN and one `shared_by_system:` covering CIH, CIHA, SIM, SINASC,
-CNES, RESP, e-SUS and Painel Oncologia — took coverage to **90 of 132**.
+all carry the same `MUNIC_RES`/`MUNIC_MOV` pair. A file-level `shared:` for SINAN plus a
+`shared_by_system:` block covering fourteen systems took coverage to **125 of
+132**, and the seven left out are each left out for a stated reason: five are
+not datasets (TABWIN is a Windows application), `IBGE.PROJUF` is projected by
+state, and `PCE.PCE` uses a 12-character composite geocode.
+
+**Saying "none" is a different claim from saying nothing.** `IBGE.PROJUF` shares
+a system with five municipality-keyed files. Staying silent would have given it
+their `MUNCOD` and keyed its cells on something no municipality table resolves —
+every roll-up unmapped, every total a subset. So inheritance tests for the key's
+PRESENCE, and `semantic_axes: {}` is an explicit opt-out.
 
 **Grain must NOT inherit, and that is the load-bearing part.** CNES's 13 datasets
 share `CODUFMUN` and have *different* grains — establishment-month,

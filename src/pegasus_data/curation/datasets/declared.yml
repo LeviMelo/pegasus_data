@@ -32,6 +32,72 @@
 # empty aggregate.
 shared_by_system:
 
+  IBGE:
+    # The area-year indicator files share MUNCOD and ANO from ibge/_shared.
+    # POP and PROJUF override below: POP keys on MUNIC_RES, and PROJUF is
+    # projected by STATE, so it must not inherit a municipality axis at all.
+    semantic_axes:
+      default_geography: area
+      geography:
+        area: {fields: [MUNCOD], code_system: ibge_municipality}
+      default_time: reference
+      time:
+        reference: {fields: [ANO], encoding: year}
+
+  SIA:
+    # The APAC family. `AP_*` is the shared APAC header block, carried by every
+    # authorisation sub-layout (AM/AN/AQ/AR/AB/ACF/ATD/...). SIA.PA is the
+    # production file and uses `PA_*` instead, so it declares its own in
+    # core.yml rather than inheriting this.
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [AP_MUNPCN], code_system: ibge_municipality}
+        facility: {fields: [AP_UFMUN], code_system: ibge_municipality}
+        manager: {fields: [AP_GESTAO], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [AP_CMP], encoding: year_month}
+        processing: {fields: [AP_MVM], encoding: year_month}
+  SISCAN:
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [CO_MUN_RESIDENCIA], code_system: ibge_municipality}
+        facility: {fields: [CO_MUN_UNIDADE_SAUDE], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        # A YEAR, not a month: SISCAN's shared header carries only ANO_COMP.
+        # Declaring a month here would invent a precision the file lacks.
+        competence: {fields: [ANO_COMP], encoding: year}
+  PNI:
+    semantic_axes:
+      default_geography: application
+      geography:
+        application: {fields: [MUNIC], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [ANO], encoding: year}
+  SIH:
+    # Every SIH dataset is a view of an AIH and shares the header block. SIH.RD
+    # declares its own in core.yml; the rest inherit this.
+    semantic_axes:
+      default_geography: residence
+      geography:
+        residence: {fields: [MUNIC_RES], code_system: ibge_municipality}
+        facility: {fields: [MUNIC_MOV], code_system: ibge_municipality}
+      default_time: competence
+      time:
+        competence: {fields: [ANO_CMPT, MES_CMPT], encoding: year_month}
+  SISPRENATAL:
+    semantic_axes:
+      default_geography: facility
+      geography:
+        facility: {fields: [CO_MUN_UBS], code_system: ibge_municipality}
+      default_time: enrolment
+      time:
+        enrolment: {fields: [DT_INC], encoding: date}
+
   CIH:
     semantic_axes:
       default_geography: residence
@@ -974,6 +1040,14 @@ datasets:
   IBGE.POP:
     system: IBGE
     series: POP
+    # Overrides the IBGE family block: the population file keys on MUNIC_RES.
+    semantic_axes:
+      default_geography: area
+      geography:
+        area: {fields: [MUNIC_RES], code_system: ibge_municipality}
+      default_time: reference
+      time:
+        reference: {fields: [ANO], encoding: year}
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as IBGE.POP
@@ -989,6 +1063,11 @@ datasets:
   IBGE.PROJUF:
     system: IBGE
     series: PROJUF
+    # Projected by STATE, not by municipality. An EXPLICIT empty block, which
+    # is a statement that this dataset has no municipality axis -- different
+    # from saying nothing, which would inherit the family's MUNCOD and key the
+    # cells on something no municipality table can resolve.
+    semantic_axes: {}
     asserted_by: pegasus_data
     source: manual
     source_ref: identity declared in curation/ontology.yml as IBGE.PROJUF

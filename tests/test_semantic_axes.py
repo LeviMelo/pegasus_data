@@ -163,3 +163,44 @@ class TestGrainStaysDerived:
             if s.grain.declared and parse_grain(s.grain.prose).components == s.grain.components
         ]
         assert not redundant, f"these declare a grain derivation already gets: {redundant}"
+
+
+class TestExplicitOptOut:
+    """Saying "this dataset has none" is a different claim from saying nothing.
+
+    `IBGE.PROJUF` is population projected by STATE. If it merely stayed silent it
+    would inherit the IBGE family's `MUNCOD` and produce cells keyed on
+    something no municipality table resolves — every roll-up unmapped, every
+    total a subset. So inheritance tests for the KEY's presence, not its
+    truthiness, and an explicit empty block opts out.
+    """
+
+    def test_projuf_opts_out_rather_than_inheriting_a_municipality_axis(self) -> None:
+        projuf = DECLARED["IBGE.PROJUF"]
+        assert projuf.axes == {}
+        assert projuf.grain.counts() == "state-year"
+
+    def test_its_siblings_still_inherit(self) -> None:
+        for name in ("IBGE.ALF", "IBGE.RENDA"):
+            assert DECLARED[name].geography_bindings(), name
+
+    def test_a_dataset_may_override_the_family_with_a_different_column(self) -> None:
+        """`IBGE.POP` keys on MUNIC_RES where its family uses MUNCOD."""
+        fields = DECLARED["IBGE.POP"].geography_bindings()["area"]["fields"]
+        assert fields == ["MUNIC_RES"]
+
+
+class TestCoverageIsCompleteWhereItCanBe:
+    def test_every_dataset_that_can_have_axes_has_them(self) -> None:
+        """What is left must be left for a stated reason, not by omission."""
+        missing = sorted(
+            d for d, s in DECLARED.items()
+            if s.grain.analysable and not (s.geography_bindings() and s.time_bindings())
+        )
+        assert missing == ["IBGE.PROJUF", "PCE.PCE"], missing
+
+    def test_the_things_that_are_not_datasets_have_no_axes(self) -> None:
+        """TABWIN is a Windows application, not a dataset."""
+        for name in ("TABWIN.APP", "TABNET.APP", "TABDOS.APP"):
+            assert not DECLARED[name].axes, name
+            assert not DECLARED[name].grain.analysable, name

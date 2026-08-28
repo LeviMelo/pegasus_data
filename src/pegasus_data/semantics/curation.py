@@ -860,8 +860,14 @@ def _dataset_semantics(root: str) -> dict[str, DatasetSemantics]:
             if not isinstance(body, dict):
                 continue
             system = body.get("system")
-            axes = dict(body.get("semantic_axes") or {})
-            if not axes:
+            # PRESENCE, not truthiness. `semantic_axes: {}` on a dataset is an
+            # explicit statement that it has none -- IBGE.PROJUF is keyed on a
+            # state, not a municipality, and must not inherit its family's
+            # municipality axis -- which is a different claim from saying
+            # nothing at all.
+            if "semantic_axes" in body:
+                axes = dict(body.get("semantic_axes") or {})
+            else:
                 axes = dict(by_system.get(str(system or "").upper()) or file_shared)
             out[str(dataset_id)] = DatasetSemantics(
                 dataset_id=str(dataset_id),

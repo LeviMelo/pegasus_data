@@ -352,3 +352,35 @@ class TestARecordDateAxisHasIncompleteEdges:
         _, report = serve("edges", settings=load_settings(root=tmp_path), return_report=True)
         assert "2021" in report.partial_periods
         assert any("short" in w for w in report.warnings)
+
+
+def test_a_non_municipality_geography_binding_is_refused(monkeypatch, tmp_path) -> None:
+    """An aggregate's base cuboid is keyed on a municipality.
+
+    `IBGE.PROJUF` is projected by state. Building it through this spec would key
+    cells on 27 two-digit codes no municipality table resolves — every roll-up
+    unmapped, every total a subset — so it is refused at the spec rather than
+    discovered in the output.
+    """
+    from pegasus_data import _aggregate
+    from pegasus_data.config import load_settings
+    from pegasus_data.measures import measure_from_declaration
+    from pegasus_data.semantics.curation import DatasetSemantics, parse_grain
+
+    spec = AggregateSpec(
+        name="by_state", dataset="IBGE-PROJUF", geography_binding="state",
+        time_binding="reference", time_grain="year", dimensions=(),
+        measures=(measure_from_declaration("n", {"kind": "count"}),),
+    )
+    fake = DatasetSemantics(
+        dataset_id="IBGE.PROJUF", system="IBGE", series="PROJUF",
+        grain=parse_grain("state-year"),
+        axes={"geography": {"state": {"fields": ["UFCOD"], "code_system": "ibge_uf"}},
+              "default_geography": "state",
+              "time": {"reference": {"fields": ["ANO"], "encoding": "year"}},
+              "default_time": "reference"},
+    )
+    monkeypatch.setattr(_aggregate, "spec_named", lambda name, root=None: spec)
+    monkeypatch.setattr(_aggregate, "_resolve_semantics", lambda _spec: fake)
+    with pytest.raises(AggregationRefused, match="keyed on a municipality"):
+        build_aggregate("by_state", years=[2022], settings=load_settings(root=tmp_path))

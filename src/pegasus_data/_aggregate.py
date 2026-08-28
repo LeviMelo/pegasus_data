@@ -249,6 +249,27 @@ def _resolve_semantics(spec: AggregateSpec):
     return semantics
 
 
+
+def _require_municipality_geography(semantics: Any, spec: AggregateSpec) -> None:
+    """The base cuboid is keyed on a municipality, so the binding must be one.
+
+    `IBGE.PROJUF` is population projected by STATE and its geography axis is
+    `UFCOD`. Building it as if the key were a municipality would produce cells
+    keyed on 27 two-digit codes that no municipality table can resolve — every
+    roll-up unmapped, every total a subset — so it is refused at the spec rather
+    than discovered in the output.
+    """
+    body = semantics.geography_bindings().get(spec.geography_binding) or {}
+    code_system = str(body.get("code_system") or "")
+    if code_system and code_system != "ibge_municipality":
+        raise AggregationRefused(
+            f"{spec.dataset} binding {spec.geography_binding!r} is keyed on "
+            f"{code_system!r}, and an aggregate's base cuboid is keyed on a "
+            "municipality. A different spatial grain needs its own artifact, "
+            "not this one with a different column in the same slot."
+        )
+
+
 def _binding_fields(bindings: Mapping[str, Any], chosen: str, kind: str,
                     dataset: str) -> tuple[str, ...]:
     if not bindings:
@@ -316,6 +337,7 @@ def build_aggregate(
 
     geography_fields = _binding_fields(
         semantics.geography_bindings(), spec.geography_binding, "geography", spec.dataset)
+    _require_municipality_geography(semantics, spec)
     time_fields = _binding_fields(
         semantics.time_bindings(), spec.time_binding, "time", spec.dataset)
     geography_field = geography_fields[0]
