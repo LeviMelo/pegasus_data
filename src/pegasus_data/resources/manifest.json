@@ -28,6 +28,10 @@
       "file": "geography.parquet", "tier": "A", "bytes": 155254, "rows": 74973,
       "sha256": "4c6b4f2ce58382dba24771e8e165aaa2a1aa9221cfbd807d4c5256765ba89b6d"
     },
+    "municipalities": {
+      "file": "municipalities.parquet", "tier": "A", "bytes": 91300, "rows": 5571,
+      "sha256": "75405d1b977b25da925adbc0cc1b3c95fd21916d935342464a064c8a11adfb00"
+    },
     "labels": {
       "file": "labels.parquet", "tier": "B", "bytes": 29968316, "rows": 3654320,
       "sha256": "5cbc2f09c4b35dca743d853d68fc4e444037dbea3f6645e1fc28ce2cdac50a6c"

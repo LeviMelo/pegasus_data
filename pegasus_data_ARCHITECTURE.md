@@ -187,6 +187,10 @@ pegasus_data/
   sources/ibge_localidades.py  IBGE's territorial ontology (§14.14)
   measures.py             the aggregation algebra and its refusals (§14.15)
   _aggregate.py           aggregate(): persistent analytical cells (§14.15)
+  capabilities.py         what a client may legitimately do, PROJECTED (§14.16)
+  serve/__init__.py       HTTP transport over the library, no logic (§14.16)
+  serve/__main__.py       `python -m pegasus_data.serve`
+  serve/_payload.py       wire shaping: code7, codelists, columnar (§14.16)
   _vintage.py             exact/coarse/unknown source-vintage intervals (§14.13)
   providers.py            resource requirement/provider contracts (§14.13)
   _resources.py           versioned bundled and optional-resource lifecycle (§14.13)
@@ -1851,6 +1855,73 @@ stale table, the stale table is what that row *means*. An external source is
 authoritative about the classification and not about the encoding, so it ranks
 **beside** `cnv`/`def` for vintage selection rather than above them, and is used
 where DATASUS's copy is absent, ambiguous, or demonstrably a truncated mirror.
+
+### 14.16 `capabilities()` and `serve/` — the frontend contract `[M]`
+
+`capabilities.py`, `serve/__init__.py`, `serve/_payload.py`
+
+`pegasus_view` (sibling repository) generates its entire interface from one
+descriptor. The rule it rests on is **if the backend does not declare it, the UI
+does not draw it** — a control that is present and inert is worse than an absent
+one, because the user believes the filter applied. That makes an *omission* here
+a user-visible defect.
+
+**`capabilities.py` is a projection, not an authority.** Every fact it reports is
+read from the module that already owns it: `Grain` from curation, bindings from
+`semantic_axes`, additivity from `measures.Kind`, roll-up targets from
+`geography.classifications()`, and the support mask and partial periods from the
+built manifest. It decides nothing. An authored descriptor would drift the moment
+a spec changed; a derived one cannot.
+
+**Components and a formula, not finished values.** Every measure is already a
+commutative monoid with `state_fields` and a `finalize`. The descriptor projects
+both onto the wire: `components: [los_n, los_sum]` and `formula: "los_sum /
+los_n"`. `Kind.formula()` lives beside the `finalize` it must agree with, and
+`test_capabilities` evaluates one against the other for every kind — which is
+what stops them drifting when a kind is added.
+
+The client is a *generic evaluator* over that string. It has no branch per
+measure kind, so a new kind needs no frontend change. `aggregate(finalize=False)`
+serves the state, because finalising before the client has finished aggregating
+is exactly how a mean of means happens.
+
+**Three things the transport does, and the algebra must not.**
+
+1. The geography column is renamed `geo` at every grain. A client that must know
+   the column is `municipality` here and `health_region` there grows a branch per
+   grain in every view.
+2. Municipality codes are widened to **7 digits**. DATASUS writes six; every IBGE
+   product including the polygon meshes keys on seven, and the seventh is a check
+   digit no client can compute. `geography.municipalities()` carries the bridge in
+   a 91 KB shipped pack built from IBGE localidades. Measured against the built
+   meshes: of 5,570 polygons, **0** lack an identity row.
+3. Codes and labels travel separately — `data` carries codes, `codelists` carries
+   `code → label`. Repeating a label per row is most of the payload, and it lets
+   two rows disagree about what one code means.
+
+**`denominator_compatible` is a rule over roles, not a table over datasets.**
+Geography bindings are a controlled vocabulary of ten names across all 125 curated
+datasets. Population is counted where people live, so `residence`, `patient` and
+`area` carry a compatible denominator and the rest do not. Counting admissions at
+the *hospital* and dividing by that municipality's population produces a number
+that looks like a rate and is not one: a small town with a regional hospital shows
+several times its own population's risk. Curation may override per binding with
+`denominator:`; the general rule covers everything else.
+
+**Microdata is off by default.** `/api/v1/records` exists because the client has an
+individual-record view, and it returns **403** unless the server was started with
+`--allow-records`. Personal identifiers pass through unmodified — no masking, no
+hashing, no dropping, and the detector and its ledger question stay on. What the
+flag governs is not *retention* but *exposure*: putting identifiable rows on a
+network is a different decision from keeping them in a local lake, and only the
+operator can make it.
+
+**Geometry is not served from here by default.** Polygons are public, immutable
+and ~4 MB; they ship as a static asset built by `app/tools/build-geo.mjs` from
+IBGE `/api/v3/malhas`. `/api/v1/geo/mesh/{grain}` remains for deployments that
+want the hop. The one trap worth recording: **that API returns gzip without
+declaring it** — no `Content-Encoding`, body starts `1f 8b` — so any client must
+sniff the magic bytes.
 
 ---
 

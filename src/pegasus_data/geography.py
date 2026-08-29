@@ -65,6 +65,37 @@ __all__ = [
 
 GEOGRAPHY_PACK_NAME = "geography.parquet"
 
+#: Municipality identity: `code6 -> (code7, name, uf_code, uf_sigla, uf_name,
+#: macroregion)`. Separate from the membership pack because it is an IDENTITY,
+#: not a containment: 5,571 rows against the membership pack's 75,000, and it
+#: answers "what is this place called and what is its IBGE code" rather than
+#: "what is it inside of".
+MUNICIPALITY_PACK_NAME = "municipalities.parquet"
+
+_MUNICIPALITY_FIELDS = (
+    "code6", "code7", "name", "uf_code", "uf_sigla", "uf_name", "macroregion",
+)
+
+#: Which geography roles carry a compatible population denominator.
+#:
+#: A rate needs its numerator and denominator counted over the SAME population.
+#: Population is counted where people live, so only a residence-like binding
+#: yields a true rate. Counting admissions by the municipality of the HOSPITAL
+#: and dividing by that municipality's population produces a number that looks
+#: like a rate and is not one -- a small town with a regional hospital shows a
+#: rate several times its own population's risk, because the numerator is drawn
+#: from a catchment the denominator does not cover.
+#:
+#: The binding names are a controlled vocabulary of ten roles across all 125
+#: curated datasets, so this is a rule over roles rather than a table over
+#: datasets. Curation may override per binding with `denominator: true|false`
+#: where a dataset genuinely differs.
+DENOMINATOR_COMPATIBLE_ROLES = frozenset({
+    "residence",   # MUNIC_RES, ID_MN_RESI, CODMUNRES -- the intended case
+    "patient",     # SIA's PA_MUNPCN is the patient's municipality of residence
+    "area",        # IBGE's own population geography
+})
+
 #: A member label as DATASUS writes it: the member code, a space, then the name.
 #: `'11001 RO Ariquemes'` -> `('11001', 'RO Ariquemes')`.
 _MEMBER = re.compile(r"^(\d{3,7})\s+(\S.*)$")
@@ -311,6 +342,105 @@ def build_geography_pack(
 
 
 @lru_cache(maxsize=4)
+def build_municipality_pack(
+    out_path: str | Path, *, ibge: Any = None, cache: str | Path | None = None
+) -> dict[str, Any]:
+    """Compile municipality identity from IBGE localidades.
+
+    `ibge` is a sequence of `sources.ibge_localidades.Municipality`. When it is
+    None the cached download is read; there is no live fetch here, because a
+    build that silently reaches the network produces a pack whose contents
+    depend on when it ran.
+    """
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    if ibge is None:
+        from .sources.ibge_localidades import load_cached
+
+        if cache is None:
+            raise ValueError(
+                "build_municipality_pack needs `ibge` or `cache`; refusing to "
+                "guess where the IBGE download lives"
+            )
+        ibge = load_cached(Path(cache))
+
+    rows = sorted(
+        (m.code6, m.code7, m.name, m.uf_code, m.uf_sigla, m.uf_name, m.macroregion)
+        for m in ibge
+    )
+    if len(rows) < 5_000:
+        # The same floor `fetch_municipalities` uses. A partial answer here
+        # would leave whole states unmappable and look like missing data.
+        raise ValueError(
+            f"only {len(rows)} municipalities; Brazil has ~5,570 and a short "
+            "pack would silently unmap whole states"
+        )
+    table = pa.table({
+        name: pa.array([r[i] for r in rows], pa.string())
+        for i, name in enumerate(_MUNICIPALITY_FIELDS)
+    })
+    out = Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pq.write_table(table, str(out), compression="zstd")
+    return {"municipalities": len(rows), "path": str(out),
+            "bytes": out.stat().st_size}
+
+
+def _municipality_pack_path(pack_path: str | Path | None) -> Path | None:
+    if pack_path is not None:
+        return Path(pack_path)
+    from importlib.resources import files
+
+    try:
+        candidate = Path(str(files("pegasus_data.resources") / MUNICIPALITY_PACK_NAME))
+    except (ModuleNotFoundError, FileNotFoundError):  # pragma: no cover
+        return None
+    return candidate if candidate.exists() else None
+
+
+@lru_cache(maxsize=2)
+def _municipality_index(path: str) -> dict[str, dict[str, str]]:
+    """`code6 -> row`, built once.
+
+    Cached for the same reason `_index` is: a national roll-up asks 5,570 times,
+    and reading the parquet per question cost 62 minutes the last time this
+    module answered a question by rescanning (FINDINGS 3q).
+    """
+    import pyarrow.parquet as pq
+
+    table = pq.read_table(path)
+    columns = {name: table.column(name).to_pylist() for name in table.schema.names}
+    out: dict[str, dict[str, str]] = {}
+    for i in range(table.num_rows):
+        row = {name: str(columns[name][i] or "") for name in table.schema.names}
+        out[row["code6"]] = row
+    return out
+
+
+def municipalities(pack_path: str | Path | None = None) -> dict[str, dict[str, str]]:
+    """`code6 -> {code7, name, uf_code, uf_sigla, uf_name, macroregion}`."""
+    resolved = _municipality_pack_path(pack_path)
+    if resolved is None:
+        return {}
+    return _municipality_index(str(resolved))
+
+
+def to_code7(code: str, pack_path: str | Path | None = None) -> str | None:
+    """The IBGE 7-digit code for a 6-digit DATASUS municipality, or None.
+
+    Accepts a 7-digit code and returns it unchanged, so a caller need not know
+    which width it holds. Returns None rather than guessing: the check digit is
+    not derivable, and a wrong seventh digit joins to the WRONG municipality
+    rather than to nothing, which is the more dangerous failure.
+    """
+    text = str(code or "").strip()
+    if len(text) == 7:
+        return text
+    row = municipalities(pack_path).get(text)
+    return row["code7"] if row else None
+
+
 def _pack(path: str) -> Any:
     import pyarrow.parquet as pq
 

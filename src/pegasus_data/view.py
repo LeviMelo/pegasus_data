@@ -230,6 +230,61 @@ def _lookup_map(
     }
 
 
+def codelist_levels(
+    field: str,
+    *,
+    store: Catalog,
+    lake_root: str | Path,
+    system: str,
+    family_id: str | None = None,
+    year: int | None = None,
+    competencia: int | None = None,
+    codes: Sequence[str] | None = None,
+) -> dict[str, str]:
+    """``code -> label`` for one field, without a table to apply it to.
+
+    The capability descriptor has to tell a client that ``SEXO`` takes ``1`` and
+    ``3`` and what those mean, so the client can draw a control. Everything
+    needed already lives in this module: :func:`_bindings` chooses which
+    codelists are bound to the field, and :func:`_lookup_map` reads the
+    version-scoped reference table for each. This composes them and adds
+    nothing, so a level rendered in a control and the same level rendered in a
+    cell cannot disagree.
+
+    ``codes`` narrows the result to values actually present. That matters more
+    than it saves: ``DIAG_PRINC`` binds a table of ~14,000 ICD codes, and a
+    control offering 14,000 levels for an artifact that contains 40 of them is a
+    lie about the data. Passing the observed codes makes the descriptor describe
+    THIS artifact rather than the classification in the abstract.
+
+    Higher authority wins on collision, matching :func:`_bindings`' own ordering.
+    """
+    bindings = _bindings(store, system, family_id)
+    codelists = bindings.get(field) or []
+    if not codelists:
+        return {}
+    docs = load_variable_docs(store, system)
+    doc = docs.get(field)
+    width = None
+    if doc and doc.token_rule and not doc.multi_valued:
+        width = doc.token_rule.get("width")
+    merged: dict[str, str] = {}
+    for codelist in codelists:
+        try:
+            mapping = _lookup_map(
+                Path(lake_root), codelist, system=system, year=year,
+                competencia=competencia, code_width=width,
+            )
+        except FileNotFoundError:
+            continue
+        for code, label in mapping.items():
+            merged.setdefault(code, label)
+    if codes is None:
+        return merged
+    wanted = {str(c).strip() for c in codes}
+    return {c: lbl for c, lbl in merged.items() if c in wanted}
+
+
 def _single_lookup(
     lake_root: Path,
     codelist: str,

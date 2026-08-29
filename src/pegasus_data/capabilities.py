@@ -1,0 +1,495 @@
+"""What a client may legitimately do with an artifact, projected from curation.
+
+**This module is a projection, not an authority.** Every fact it reports is read
+from somewhere that already owns it:
+
+===========================  =========================================
+fact                         owner
+===========================  =========================================
+what a row is                ``semantics.curation`` -> ``Grain``
+which field carries space    ``semantic_axes.geography``
+which field carries time     ``semantic_axes.time``
+which levels exist           the built artifact + ``view.codelist_levels``
+what a measure combines to   ``measures.Kind`` -> ``state_fields``/``formula``
+where it can roll up to      ``geography.classifications``
+what it cannot answer        ``AggregateReport`` -> ``support``/``partial_periods``
+===========================  =========================================
+
+Nothing here decides anything. If a capability looks wrong, the fix belongs in
+the module that owns the fact, and this one will follow.
+
+The rule the whole client rests on: **if this descriptor does not declare it,
+the interface does not draw it.** A control that is present and inert is worse
+than one that is absent, because the user believes the filter applied. That
+makes an *omission* here a user-visible defect, which is why the descriptor is
+derived rather than authored -- an authored one drifts the moment a spec changes.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import UTC
+from pathlib import Path
+from typing import Any
+
+from .config import Settings
+
+#: Cardinality decides the control. This lives here rather than in the client so
+#: there is no threshold table to keep in sync across a network boundary, and so
+#: a dimension that grows past a threshold changes its control on its own.
+_CONTROL_THRESHOLDS: tuple[tuple[int, str], ...] = (
+    (4, "segmented"),
+    (12, "chips"),
+    (30, "bars"),
+)
+_CONTROL_FALLBACK = "combobox"
+
+#: Which visual encodings a measure kind can bear. A count can be stacked; a
+#: mean cannot, because stacking asserts the parts sum to the whole and the mean
+#: of two groups is not the sum of their means.
+_ENCODINGS: dict[str, tuple[str, ...]] = {
+    "count": ("choropleth", "line", "ranked_bar", "proportional_symbol", "scatter", "stack"),
+    "sum": ("choropleth", "line", "ranked_bar", "proportional_symbol", "scatter", "stack"),
+    "mean": ("choropleth", "line", "ranked_bar", "scatter"),
+    "ratio": ("choropleth", "line", "ranked_bar", "scatter"),
+    "min": ("choropleth", "line", "ranked_bar"),
+    "max": ("choropleth", "line", "ranked_bar"),
+}
+
+#: Operations that are wrong for a kind, stated so the client can refuse them
+#: rather than having to know why.
+_FORBIDDEN: dict[str, tuple[str, ...]] = {
+    "count": (),
+    "sum": (),
+    "mean": ("sum", "stack"),
+    "ratio": ("sum", "stack"),
+    "min": ("sum", "stack"),
+    "max": ("sum", "stack"),
+}
+
+#: Display precision by unit. A count of admissions has no decimals; a mean
+#: length of stay has one; money has two.
+_DECIMALS: dict[str, int] = {
+    "brl": 2, "day": 1, "year": 1, "percent": 1, "rate": 1,
+}
+
+
+@dataclass(frozen=True, slots=True)
+class Level:
+    """One value a dimension takes, as it appears in THIS artifact."""
+
+    code: str
+    label: str
+
+
+@dataclass(frozen=True, slots=True)
+class Dimension:
+    id: str
+    label: str
+    kind: str
+    levels: tuple[Level, ...]
+    cardinality: int
+    control: str
+    #: Per year, ``present`` | ``absent`` | ``unknown``. A dimension absent from
+    #: a schema generation produces cells meaning "we could not have known",
+    #: which is not the same as "it happened zero times".
+    support: dict[str, str] = field(default_factory=dict)
+    note: str = ""
+
+
+@dataclass(frozen=True, slots=True)
+class MeasureCapability:
+    id: str
+    label: str
+    kind: str
+    #: The additive state columns the payload actually carries.
+    components: tuple[str, ...]
+    #: An expression over `components`, evaluated by the client after it has
+    #: finished aggregating. The artifact never carries a rate or a mean.
+    formula: str
+    unit: str
+    decimals: int
+    additive_over: tuple[str, ...]
+    forbidden: tuple[str, ...]
+    encodings: tuple[str, ...]
+    #: Set when the measure only means something under one geography binding --
+    #: a rate needs its denominator drawn from the same population.
+    requires_binding: str | None = None
+    time_reducer: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Binding:
+    id: str
+    label: str
+    fields: tuple[str, ...]
+    active: bool
+    #: Only a residence-like geography carries a compatible population
+    #: denominator. Geography bindings only.
+    denominator_compatible: bool | None = None
+    #: `date` | `year_month` | `year` | `yyyymm`. Time bindings only. A record
+    #: date does not align with the publication coordinate, which is what makes
+    #: `partial_periods` non-empty.
+    encoding: str | None = None
+    note: str = ""
+
+
+@dataclass(frozen=True, slots=True)
+class Capability:
+    """Everything a client needs to build its own interface for one artifact."""
+
+    id: str
+    dataset: str
+    system: str | None
+    series: str | None
+    label: str
+    description: str
+    observation_unit: str
+    #: The grain split into its parts. `establishment-bed type-month` is three
+    #: components, and a client that counts rows is counting THOSE, not
+    #: establishments -- which is why the descriptor carries them rather than
+    #: only the prose.
+    grain_components: tuple[str, ...]
+    #: True when a row is an entity-PERIOD, so a count over months counts
+    #: entity-months and summing it across time is a category error.
+    period_bearing: bool
+    vintage: str
+    fingerprint: str
+    period: dict[str, Any]
+    spatial: dict[str, Any]
+    temporal: dict[str, Any]
+    completeness: dict[str, Any]
+    dimensions: tuple[Dimension, ...]
+    measures: tuple[MeasureCapability, ...]
+    provenance: dict[str, Any]
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+# ------------------------------------------------------------------ helpers
+
+
+def _control_for(cardinality: int) -> str:
+    for limit, control in _CONTROL_THRESHOLDS:
+        if cardinality <= limit:
+            return control
+    return _CONTROL_FALLBACK
+
+
+def _decimals_for(kind: str, unit: str) -> int:
+    if unit in _DECIMALS:
+        return _DECIMALS[unit]
+    return 0 if kind in ("count", "sum") else 1
+
+
+def _humanise(text: str) -> str:
+    """`RACA_COR` -> `Raça cor` is wrong; leave a code alone unless we have better.
+
+    Deliberately does almost nothing. A field whose curated label is unavailable
+    is shown as its own name, which is honest, rather than as a prettified guess
+    that reads like a translation nobody made.
+    """
+    return text
+
+
+# --------------------------------------------------------------- projection
+
+
+def capabilities(
+    name: str,
+    *,
+    settings: Settings | None = None,
+    root: str | Path | None = None,
+) -> Capability:
+    """Project one built artifact into the descriptor a client draws from.
+
+    Raises :class:`ArtifactMissing` when the artifact has not been built. That
+    is deliberate: a capability describes what *exists*, and describing an
+    unbuilt artifact would advertise controls for data that cannot be served.
+    """
+    from ._aggregate import ArtifactMissing, artifact_dir, spec_named
+    from .catalog.store import Catalog
+    from .config import load_settings
+    from .geography import DENOMINATOR_COMPATIBLE_ROLES, classifications
+    from .semantics.curation import semantics_for
+    from .view import codelist_levels
+
+    resolved = settings or load_settings(root=Path(root) if root else None)
+    spec = spec_named(name)
+    semantics = semantics_for(spec.dataset)
+    if semantics is None:  # pragma: no cover - build_aggregate refuses first
+        raise ArtifactMissing(f"no curated semantics for {spec.dataset!r}")
+
+    directory = artifact_dir(name, resolved)
+    manifest_path = directory / "manifest.json"
+    cells_path = directory / "cells.parquet"
+    if not manifest_path.exists() or not cells_path.exists():
+        raise ArtifactMissing(
+            f"{name!r} has no built artifact under {directory}; "
+            f"run `build_aggregate({name!r}, years=[...])` first"
+        )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    # --- what is actually IN this artifact ------------------------------
+    # The descriptor describes THIS build, not the classification in the
+    # abstract. DIAG_PRINC binds ~14,000 ICD codes; an artifact holding 40 of
+    # them must not offer a control with 14,000 levels.
+    import pyarrow.compute as pc
+    import pyarrow.parquet as pq
+
+    cells = pq.read_table(str(cells_path))
+    observed: dict[str, list[str]] = {}
+    for dimension in spec.dimensions:
+        if dimension in cells.schema.names:
+            values = pc.unique(cells.column(dimension)).to_pylist()
+            observed[dimension] = sorted(str(v) for v in values if v is not None)
+
+    periods = sorted({str(p) for p in cells.column("competencia").to_pylist() if p})
+
+    # --- dimensions -----------------------------------------------------
+    support = dict(manifest.get("support") or {})
+    dimensions: list[Dimension] = []
+    with Catalog(resolved.catalog_path) as store:
+        docs_system = (semantics.system or "").upper()
+        for dimension in spec.dimensions:
+            codes = observed.get(dimension, [])
+            try:
+                mapping = codelist_levels(
+                    dimension, store=store, lake_root=resolved.lake_dir,
+                    system=docs_system, codes=codes,
+                )
+            except Exception:  # pragma: no cover - a missing reference table
+                mapping = {}
+            levels = tuple(
+                Level(code=code, label=mapping.get(code) or code) for code in codes
+            )
+            per_year = {
+                year: str((flags or {}).get(dimension) or "unknown")
+                for year, flags in support.items()
+            }
+            unlabelled = sum(1 for lv in levels if lv.label == lv.code)
+            note = ""
+            if unlabelled and levels:
+                note = (
+                    f"{unlabelled} of {len(levels)} levels have no label in the "
+                    "reference tables and are shown as their own code"
+                )
+            dimensions.append(Dimension(
+                id=dimension,
+                label=_humanise(dimension),
+                kind="nominal",
+                levels=levels,
+                cardinality=len(levels),
+                control=_control_for(len(levels)),
+                support=per_year,
+                note=note,
+            ))
+
+    # --- measures -------------------------------------------------------
+    geography_bindings = semantics.geography_bindings()
+    active_geography = geography_bindings.get(spec.geography_binding) or {}
+    denominator_ok = _denominator_compatible(
+        spec.geography_binding, active_geography, DENOMINATOR_COMPATIBLE_ROLES)
+
+    measures = tuple(
+        MeasureCapability(
+            id=m.name,
+            label=_humanise(m.name),
+            kind=m.kind.name,
+            components=m.state_columns(),
+            formula=m.formula(),
+            unit=m.unit,
+            decimals=_decimals_for(m.kind.name, m.unit),
+            additive_over=tuple(sorted(m.additive_over)),
+            forbidden=_FORBIDDEN.get(m.kind.name, ()),
+            encodings=_ENCODINGS.get(m.kind.name, ("line",)),
+            requires_binding=None,
+            time_reducer=m.time_reducer,
+        )
+        for m in spec.measures
+    )
+
+    # --- geography ------------------------------------------------------
+    declared = classifications(Path(root) if root else None)
+    # `uf` is BOTH a base grain and an IBGE classification, so the two lists
+    # overlap. Deduplicated with order kept: the first three are the grains
+    # every artifact has, and the rest are what geography.yml declares.
+    from ._aggregate import _BASE_LEVEL, _NATIONAL_LEVEL, _UF_LEVEL
+
+    grains = [_BASE_LEVEL, _UF_LEVEL, _NATIONAL_LEVEL]
+    hierarchies: dict[str, list[dict[str, Any]]] = {"political": [], "health": []}
+    for key, body in declared.items():
+        if body.get("attribute"):
+            # `capital` is an attribute, not a containment. Rolling up to it is
+            # not a partition of Brazil, so it is not a grain.
+            continue
+        if key not in grains:
+            grains.append(key)
+        authority = str(body.get("authority") or "datasus")
+        tree = "political" if authority == "ibge" else "health"
+        hierarchies[tree].append({
+            "id": key,
+            "authority": authority,
+            "partial_coverage": bool(body.get("partial_coverage")),
+            "what": str(body.get("what") or "").strip(),
+        })
+
+    spatial = {
+        "bindings": [
+            asdict(_binding(
+                key, body, active=(key == spec.geography_binding),
+                denominator=_denominator_compatible(
+                    key, body, DENOMINATOR_COMPATIBLE_ROLES),
+            ))
+            for key, body in geography_bindings.items()
+        ],
+        "active_binding": spec.geography_binding,
+        "grains": grains,
+        "default_grain": _BASE_LEVEL,
+        "hierarchies": [
+            {"id": "political", "label": "Político-administrativa",
+             "authority": "ibge", "levels": hierarchies["political"]},
+            {"id": "health", "label": "Saúde",
+             "authority": "datasus", "levels": hierarchies["health"]},
+        ],
+        "default_hierarchy": "political",
+        "code_system": "ibge_municipality",
+        "join_key": "code7",
+        "denominator_compatible": denominator_ok,
+    }
+
+    # --- time -----------------------------------------------------------
+    time_bindings = semantics.time_bindings()
+    active_time = time_bindings.get(spec.time_binding) or {}
+    encoding = str(active_time.get("encoding") or "")
+    temporal = {
+        "bindings": [
+            asdict(_binding(key, body, active=(key == spec.time_binding)))
+            for key, body in time_bindings.items()
+        ],
+        "active_binding": spec.time_binding,
+        "grains": ["month", "year"] if spec.time_grain == "month" else ["year"],
+        "default_grain": spec.time_grain,
+        "encoding": encoding,
+    }
+
+    partial = [str(p) for p in (manifest.get("partial_periods") or ())]
+    completeness = {
+        # `competence` IS the publication coordinate, so every period inside a
+        # fetched year is whole. A record date is not, and the artifact says
+        # which periods it therefore cannot have filled -- measured during the
+        # build, never assumed from a file name.
+        "kind": "competence" if encoding in ("year_month", "year", "yyyymm") else "record_date",
+        "partial_periods": partial,
+        "support": support,
+        "warnings": list(manifest.get("warnings") or ()),
+    }
+
+    return Capability(
+        id=name,
+        dataset=spec.dataset,
+        system=semantics.system,
+        series=semantics.series,
+        label=spec.dataset,
+        description=(spec.description or "").strip(),
+        observation_unit=str(getattr(semantics.grain, "prose", "") or ""),
+        grain_components=tuple(getattr(semantics.grain, "components", ()) or ()),
+        period_bearing=bool(getattr(semantics.grain, "is_period_bearing", False)),
+        vintage=_vintage(manifest_path),
+        fingerprint=str(manifest.get("fingerprint") or ""),
+        period={
+            "from": _as_period(periods[0]) if periods else None,
+            "to": _as_period(periods[-1]) if periods else None,
+            "grain": spec.time_grain,
+            "years": [int(y) for y in (manifest.get("years") or ())],
+        },
+        spatial=spatial,
+        temporal=temporal,
+        completeness=completeness,
+        dimensions=tuple(dimensions),
+        measures=measures,
+        provenance={
+            "engine_version": str(manifest.get("engine_version") or ""),
+            "cells": int(manifest.get("cells") or 0),
+            "rows_read": int(manifest.get("rows_read") or 0),
+            "built_from": spec.dataset,
+        },
+    )
+
+
+def _denominator_compatible(
+    key: str, body: dict[str, Any], roles: frozenset[str]
+) -> bool:
+    """Curation may override the role rule; otherwise the role decides."""
+    declared = body.get("denominator")
+    if declared is not None:
+        return bool(declared)
+    return key in roles
+
+
+def _binding(
+    key: str, body: dict[str, Any], *, active: bool,
+    denominator: bool | None = None,
+) -> Binding:
+    return Binding(
+        id=key,
+        label=_humanise(key),
+        fields=tuple(str(f) for f in (body.get("fields") or ())),
+        active=active,
+        denominator_compatible=denominator,
+        encoding=str(body.get("encoding")) if body.get("encoding") else None,
+        note=str(body.get("note") or ""),
+    )
+
+
+def _as_period(raw: str) -> str:
+    """`202203` -> `2022-03`; `2022` stays `2022`."""
+    text = str(raw)
+    return f"{text[:4]}-{text[4:6]}" if len(text) == 6 else text
+
+
+def _vintage(manifest_path: Path) -> str:
+    from datetime import datetime
+
+    stamp = manifest_path.stat().st_mtime
+    return datetime.fromtimestamp(stamp, tz=UTC).isoformat(timespec="seconds")
+
+
+def catalogue(
+    *, settings: Settings | None = None, root: str | Path | None = None
+) -> list[dict[str, Any]]:
+    """Every spec, and whether it has been built.
+
+    Unbuilt specs are listed with ``built: false`` rather than hidden, so an
+    operator can see what the deployment is missing instead of wondering why a
+    dataset never appears.
+    """
+    from ._aggregate import artifact_dir, load_specs
+    from .config import load_settings
+
+    resolved = settings or load_settings(root=Path(root) if root else None)
+    out: list[dict[str, Any]] = []
+    for name, spec in sorted(load_specs(Path(root) if root else None).items()):
+        directory = artifact_dir(name, resolved)
+        manifest_path = directory / "manifest.json"
+        built = manifest_path.exists() and (directory / "cells.parquet").exists()
+        entry: dict[str, Any] = {
+            "id": name,
+            "dataset": spec.dataset,
+            "label": spec.dataset,
+            "description": (spec.description or "").strip(),
+            "dimensions": list(spec.dimensions),
+            "measures": [m.name for m in spec.measures],
+            "time_grain": spec.time_grain,
+            "built": built,
+        }
+        if built:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            entry["years"] = [int(y) for y in (manifest.get("years") or ())]
+            entry["cells"] = int(manifest.get("cells") or 0)
+            entry["fingerprint"] = str(manifest.get("fingerprint") or "")
+            entry["vintage"] = _vintage(manifest_path)
+        out.append(entry)
+    return out

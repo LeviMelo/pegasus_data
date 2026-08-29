@@ -719,8 +719,9 @@ def aggregate(
     settings: Settings | None = None,
     root: str | Path | None = None,
     return_report: bool = False,
+    finalize: bool = True,
 ) -> pa.Table | tuple[pa.Table, AggregateReport]:
-    """Serve cells from a built artifact: filter, roll up, finalize.
+    """Serve cells from a built artifact: filter, roll up, and optionally finalize.
 
     ``by`` names a level per axis — ``["health_region", "year", "SEXO"]``. An
     axis you do not name is **marginalised**, which is what "Total" is: the
@@ -729,6 +730,13 @@ def aggregate(
 
     No microdata is read. Every result derives from the one materialised base
     cuboid, so a total and the sum of its parts cannot disagree.
+
+    ``finalize=False`` returns the accumulator STATE -- `los_n` and `los_sum`
+    rather than `los` -- which is what a caller that intends to keep aggregating
+    needs. `finalize` is a projection out of the monoid, not part of it: a mean
+    finalised at municipality level and then averaged across municipalities is a
+    mean of means, which is not the mean. Anything crossing a process boundary
+    with more aggregation ahead of it should ask for state.
     """
     import pyarrow as pa
 
@@ -860,9 +868,15 @@ def aggregate(
             TIME_TMP, pa.array([mapped_time[i] for i in indices], pa.string()))
 
     state_columns = [c for m in chosen for c in m.state_columns()]
+    # What the result carries: one finished value per measure, or the state
+    # columns that produced it.
+    value_columns = (
+        [m.name for m in chosen] if finalize
+        else [c for m in chosen for c in m.state_columns()]
+    )
     out: dict[str, list[Any]] = {n: [] for n in key_names}
-    for measure in chosen:
-        out[measure.name] = []
+    for column in value_columns:
+        out[column] = []
 
     if key_names:
         aggregated = working.group_by(list(group_by)).aggregate(
@@ -878,17 +892,25 @@ def aggregate(
             for measure in chosen:
                 state = tuple(float(got[suffixed[c]][i] or 0.0)
                               for c in measure.state_columns())
-                out[measure.name].append(_finalize(measure, state))
+                if finalize:
+                    out[measure.name].append(_finalize(measure, state))
+                else:
+                    for column, value in zip(measure.state_columns(), state, strict=True):
+                        out[column].append(value)
     else:
         # No axis named at all: one cell, everything totalled.
         for measure in chosen:
             state = tuple(_merge_column(measure, working.column(c))
                           for c in measure.state_columns())
-            out[measure.name].append(_finalize(measure, state))
+            if finalize:
+                out[measure.name].append(_finalize(measure, state))
+            else:
+                for column, value in zip(measure.state_columns(), state, strict=True):
+                    out[column].append(value)
 
     result = pa.table({
         **{n: pa.array(out[n], pa.string()) for n in key_names},
-        **{m.name: pa.array(out[m.name], pa.float64()) for m in chosen},
+        **{c: pa.array(out[c], pa.float64()) for c in value_columns},
     })
     report.cells = result.num_rows
     report.unmapped = {k: v for k, v in unmapped_mass.items() if v}

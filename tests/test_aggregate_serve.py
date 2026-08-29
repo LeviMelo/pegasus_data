@@ -20,46 +20,19 @@ import json
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
+from conftest import AGGREGATE_KEYS as KEYS
+from conftest import AGGREGATE_STATES as STATES
+from conftest import write_aggregate
 
 from pegasus_data._aggregate import aggregate, artifact_dir, spec_named
 from pegasus_data.measures import AggregationRefused
 
 pytestmark = pytest.mark.filterwarnings("ignore")
 
-#: Two Acre municipalities in one health region, one São Paulo, two months.
-CELLS = [
-    # municipality, competencia, SEXO, RACA_COR, adm, deaths, los_n, los_sum, cost
-    ("120040", "202201", "1", "01", 10.0, 1.0, 10.0, 40.0, 1000.0),
-    ("120040", "202201", "3", "01", 6.0, 0.0, 6.0, 12.0, 600.0),
-    ("120040", "202202", "1", "02", 4.0, 1.0, 4.0, 8.0, 400.0),
-    ("120020", "202201", "1", "01", 5.0, 0.0, 5.0, 25.0, 500.0),
-    ("355030", "202202", "3", "01", 2.0, 0.0, 0.0, 0.0, 200.0),
-]
-KEYS = ("municipality", "competencia", "SEXO", "RACA_COR")
-STATES = ("admissions_n", "deaths_sum", "los_n", "los_sum", "cost_sum")
-
 
 @pytest.fixture
 def settings(tmp_path):
-    from pegasus_data.config import load_settings
-
-    resolved = load_settings(root=tmp_path)
-    target = artifact_dir("sih_rd_municipality_month", resolved)
-    target.mkdir(parents=True, exist_ok=True)
-    table = pa.table({
-        **{name: pa.array([r[i] for r in CELLS], pa.string())
-           for i, name in enumerate(KEYS)},
-        **{name: pa.array([r[len(KEYS) + i] for r in CELLS], pa.float64())
-           for i, name in enumerate(STATES)},
-    })
-    pq.write_table(table, target / "cells.parquet")
-    (target / "manifest.json").write_text(json.dumps({
-        "name": "sih_rd_municipality_month", "fingerprint": "test",
-        "cells": len(CELLS), "years": [2022],
-        "support": {"2022": {"SEXO": "present", "RACA_COR": "present"}},
-        "key_columns": list(KEYS),
-    }), encoding="utf-8")
-    return resolved
+    return write_aggregate(tmp_path)
 
 
 N = "sih_rd_municipality_month"
@@ -282,13 +255,8 @@ class TestItAnswersFastEnoughToServe:
 
     @staticmethod
     def _national(tmp_path):
-        import json
         import random
 
-        import pyarrow as pa
-        import pyarrow.parquet as pq
-
-        from pegasus_data._aggregate import artifact_dir
         from pegasus_data.config import load_settings
 
         settings = load_settings(root=tmp_path)

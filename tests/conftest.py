@@ -339,3 +339,54 @@ def seeded(settings, monkeypatch):
 
     monkeypatch.setattr(retrieve, "Pipeline", make)
     return state
+
+
+#: A hand-built base cuboid: two Acre municipalities in one health region, one
+#: Sao Paulo, two months. Shared by every test that needs an artifact to serve
+#: from, because building one by fetching would put DATASUS in the test loop.
+AGGREGATE_CELLS = [
+    # municipality, competencia, SEXO, RACA_COR, adm, deaths, los_n, los_sum, cost
+    ("120040", "202201", "1", "01", 10.0, 1.0, 10.0, 40.0, 1000.0),
+    ("120040", "202201", "3", "01", 6.0, 0.0, 6.0, 12.0, 600.0),
+    ("120040", "202202", "1", "02", 4.0, 1.0, 4.0, 8.0, 400.0),
+    ("120020", "202201", "1", "01", 5.0, 0.0, 5.0, 25.0, 500.0),
+    ("355030", "202202", "3", "01", 2.0, 0.0, 0.0, 0.0, 200.0),
+]
+AGGREGATE_KEYS = ("municipality", "competencia", "SEXO", "RACA_COR")
+AGGREGATE_STATES = ("admissions_n", "deaths_sum", "los_n", "los_sum", "cost_sum")
+AGGREGATE_NAME = "sih_rd_municipality_month"
+
+
+def write_aggregate(root) -> Settings:
+    """Materialise AGGREGATE_CELLS as a built artifact under `root`."""
+    import json as _json
+
+    import pyarrow as _pa
+    import pyarrow.parquet as _pq
+
+    from pegasus_data._aggregate import artifact_dir
+    from pegasus_data.config import load_settings as _load
+
+    resolved = _load(root=root)
+    target = artifact_dir(AGGREGATE_NAME, resolved)
+    target.mkdir(parents=True, exist_ok=True)
+    table = _pa.table({
+        **{name: _pa.array([r[i] for r in AGGREGATE_CELLS], _pa.string())
+           for i, name in enumerate(AGGREGATE_KEYS)},
+        **{name: _pa.array([r[len(AGGREGATE_KEYS) + i] for r in AGGREGATE_CELLS], _pa.float64())
+           for i, name in enumerate(AGGREGATE_STATES)},
+    })
+    _pq.write_table(table, target / "cells.parquet")
+    (target / "manifest.json").write_text(_json.dumps({
+        "name": AGGREGATE_NAME, "fingerprint": "test",
+        "cells": len(AGGREGATE_CELLS), "years": [2022],
+        "support": {"2022": {"SEXO": "present", "RACA_COR": "present"}},
+        "key_columns": list(AGGREGATE_KEYS),
+    }), encoding="utf-8")
+    return resolved
+
+
+@pytest.fixture
+def aggregate_lake(tmp_path):
+    """Settings whose lake holds one built artifact."""
+    return write_aggregate(tmp_path)

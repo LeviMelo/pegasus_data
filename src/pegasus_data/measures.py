@@ -104,6 +104,21 @@ class Kind:
     def finalize(self, state: State) -> float | None:
         raise NotImplementedError
 
+    def formula(self, measure: str) -> str:
+        """An expression over this measure's state columns, equal to `finalize`.
+
+        A client that receives state columns over HTTP cannot call `finalize`,
+        so the wire carries this string and the client evaluates it generically.
+        The default is the single state column; a kind with more than one
+        overrides. `test_formula_matches_finalize` checks the two agree for
+        every kind, which is what stops them drifting.
+
+        The expression is deliberately restricted to names, `/`, `*` and
+        numbers: it is data on a wire, and anything a client would have to
+        `eval` unsafely does not belong here.
+        """
+        return f"{measure}_{self.state_fields[0]}"
+
 
 def _number(value: Any) -> float | None:
     """DATASUS writes numbers as fixed-width text; blank is absent, not zero."""
@@ -171,6 +186,9 @@ class _Mean(Kind):
         # nought; that is a claim nobody made.
         return None if state[0] == 0 else state[1] / state[0]
 
+    def formula(self, measure: str) -> str:
+        return f"{measure}_sum / {measure}_n"
+
 
 @dataclass(frozen=True, slots=True)
 class _Ratio(Kind):
@@ -192,6 +210,9 @@ class _Ratio(Kind):
 
     def finalize(self, state: State) -> float | None:
         return None if state[1] == 0 else state[0] / state[1]
+
+    def formula(self, measure: str) -> str:
+        return f"{measure}_num / {measure}_den"
 
 
 @dataclass(frozen=True, slots=True)
@@ -274,6 +295,10 @@ class Measure:
     def state_columns(self) -> tuple[str, ...]:
         """Physical column names this measure occupies in the artifact."""
         return tuple(f"{self.name}_{suffix}" for suffix in self.kind.state_fields)
+
+    def formula(self) -> str:
+        """The expression over `state_columns()` that a client evaluates."""
+        return self.kind.formula(self.name)
 
 
 def measure_from_declaration(name: str, body: Mapping[str, Any]) -> Measure:
