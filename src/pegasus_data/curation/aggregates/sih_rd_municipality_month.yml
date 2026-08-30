@@ -36,6 +36,8 @@ dimensions:
   - RACA_COR
   - CAR_INT
   - MORTE
+  - ESPEC
+  - COMPLEX
 
 # Age is DERIVED, not read: no raw column holds years. SIH keeps the unit in
 # COD_IDADE beside the value (2=days, 3=months, 4=years, 5=100+); anything
@@ -52,6 +54,8 @@ dimension_labels:
   RACA_COR: Raça/cor
   CAR_INT: Caráter da internação
   MORTE: Óbito na internação
+  ESPEC: Especialidade do leito
+  COMPLEX: Complexidade
 
 level_labels:
   # MORTE is a 0/1 flag the reference tables do not bind; the words are the

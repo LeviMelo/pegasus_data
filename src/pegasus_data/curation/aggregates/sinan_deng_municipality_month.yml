@@ -43,14 +43,16 @@ time_binding: notification        # semantic_axes.time.notification -> DT_NOTIFI
 time_grain: month
 
 # CLASSI_FIN is the honesty dimension (see above). CS_SEXO is kept because the
-# sex split is the first question asked of any arbovirus series and it only
-# triples the cells, and age arrives as the derived band dimension below.
-# CS_GESTANT, EVOLUCAO and the clinical block are deliberately absent — each
-# multiplies the cells for a question this artifact is not built to answer,
-# and the design's answer to a narrower question is a second artifact.
+# sex split is the first question asked of any arbovirus series; age arrives
+# as the derived band below; EVOLUCAO is the outcome (cure/death) and CRITERIO
+# whether confirmation was laboratorial or clínico-epidemiológico — the pair
+# that separates severity from surveillance practice. CS_GESTANT and the
+# clinical block stay out: narrower questions, second artifact.
 dimensions:
   - CLASSI_FIN
   - CS_SEXO
+  - EVOLUCAO
+  - CRITERIO
 
 # SINAN packs age like SIM does, one digit wider: NU_IDADE_N is 4yyy for yyy
 # years, sub-year units land in the under-1 band, anything else keeps its own
@@ -62,6 +64,8 @@ age_dimension:
 dimension_labels:
   CLASSI_FIN: Classificação final
   CS_SEXO: Sexo
+  EVOLUCAO: Evolução
+  CRITERIO: Critério de confirmação
 
 # No level_labels yet, on purpose. The ladder says spec labels outrank the
 # reference tables, which makes a spec label an assertion strong enough to be

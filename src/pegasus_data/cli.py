@@ -495,6 +495,52 @@ def dictionary(
         store.close()
 
 
+@app.command("aggregate-suggest", rich_help_panel="UNDERSTAND")
+def aggregate_suggest(
+    dataset: Annotated[str, typer.Argument(help="e.g. SIH-RD, SIM-DO, SINAN-DENG")],
+    uf: Annotated[str | None, typer.Option("--uf", help="State to measure; omit --uf for one-file-a-year datasets")] = "PE",
+    year: Annotated[int, typer.Option("--year")] = 2022,
+    max_levels: Annotated[int, typer.Option("--max-levels")] = 40,
+    root: RootOpt = None,
+) -> None:
+    """Rank a dataset's fields as dimension candidates, with the cost measured.
+
+    Cardinality is MEASURED on one real state-year, meaning comes from
+    curation, and the cost column counts the distinct key combinations each
+    dimension would add. The output is evidence for writing a spec, not a
+    spec: a dimension stays an analytical claim.
+    """
+    from .suggest import suggest
+
+    with console.status("measuring…"):
+        result = suggest(
+            dataset, uf=uf or None, years=year, max_levels=max_levels,
+        )
+    console.print(
+        f"[bold]{result.dataset}[/bold] · {result.rows:,} rows measured · "
+        f"base municipality×month = {result.base_cells:,} cells"
+    )
+    from rich.table import Table as _Table
+
+    table = _Table(show_edge=False)
+    for column in ("field", "levels", "nulls", "coded", "cells if added", "meaning"):
+        table.add_column(column)
+    for c in result.candidates:
+        table.add_row(
+            c.field_name,
+            str(c.distinct),
+            f"{c.null_share:.0%}",
+            c.code_system or "—",
+            f"{c.cumulative_cells:,}",
+            (c.translated_name or c.description or "")[:46],
+        )
+    console.print(table)
+    console.print(
+        f"[dim]{len(result.skipped)} fields skipped "
+        "(axes, identifiers, constants, or too many levels — band those)[/dim]"
+    )
+
+
 @app.command(rich_help_panel="UNDERSTAND")
 def search(
     query: Annotated[str, typer.Argument(help="Words to look for, e.g. 'raça' or 'Parda'")],

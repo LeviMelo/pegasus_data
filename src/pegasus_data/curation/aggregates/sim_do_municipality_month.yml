@@ -38,6 +38,8 @@ dimensions:
   - SEXO
   - RACACOR
   - LOCOCOR
+  - CIRCOBITO
+  - ASSISTMED
 
 # The mortality pyramid's missing axis. SIM packs the unit into IDADE's
 # leading digit (4xx = xx years, 5xx = 100+xx; 1xx/2xx/3xx are sub-year units
@@ -52,6 +54,8 @@ dimension_labels:
   SEXO: Sexo
   RACACOR: Raça/cor
   LOCOCOR: Local do óbito
+  CIRCOBITO: Circunstância (morte violenta)
+  ASSISTMED: Assistência médica
 
 # What this artifact's codes mean, where the reference tables fall short.
 #

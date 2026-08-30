@@ -112,6 +112,23 @@ def _artifact_identity(settings: Any, artifact: str) -> tuple[int, int]:
         return (0, 0)
 
 
+@lru_cache(maxsize=6)
+def _records_table(
+    lake_dir: str, dataset: str, period: str, geography: str, select: tuple[str, ...]
+):
+    """One scope's microdata, assembled once and paged from memory.
+
+    The assembly decodes a territory's source files -- tens of seconds cold --
+    and the pager was doing it PER PAGE. Bounded small: each entry is one
+    territory-period of rows, and six covers a browsing session.
+    """
+    from .. import query as _query
+
+    return _query(
+        dataset, period=period, geography=geography, select=list(select) or None,
+    )
+
+
 def _error(status: int, message: str, **extra: Any):
     from fastapi.responses import JSONResponse
 
@@ -413,13 +430,21 @@ def create_app(
                 "microdata is disabled on this server; start it with "
                 "--allow-records to enable /api/v1/records",
             )
-        from .. import query as _query
-
         columns = [c.strip() for c in select.split(",") if c.strip()]
+        if not geography:
+            # A national page decodes every state's files for two hundred
+            # rows. The client scopes; an unscoped ask is refused with the
+            # reason rather than answered minutes later.
+            return _error(
+                422,
+                "records need a geography (a UF sigla or municipality code); "
+                "a national page would decode every state's files for one "
+                "screen of rows",
+            )
         try:
-            table = _query(
-                dataset, period=period, geography=geography,
-                select=columns or None, settings=settings,
+            table = _records_table(
+                str(settings.lake_dir), dataset, period, geography,
+                tuple(columns),
             )
         except Exception as exc:  # noqa: BLE001 - surfaced to the caller as 400
             return _error(400, f"{type(exc).__name__}: {exc}")

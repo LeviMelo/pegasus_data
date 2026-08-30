@@ -26,9 +26,22 @@ geography_binding: residence      # semantic_axes.geography.residence -> CODMUNR
 time_binding: birth               # semantic_axes.time.birth -> DTNASC (a DATE)
 time_grain: month
 
+# Measured on PE/2023 with `pegasus-data aggregate-suggest SINASC-DN`: the
+# full set below lands near one cell per row at state scale and well under it
+# nationally. Each is a question public health actually asks: CONSULTAS and
+# KOTELCHUCK are the prenatal-care indicators (the latter precomputed by
+# DATASUS itself), GRAVIDEZ separates twins, LOCNASC hospital from home,
+# ESCMAE and RACACORMAE carry the social gradient every birth outcome runs
+# along.
 dimensions:
   - SEXO
   - PARTO
+  - GRAVIDEZ
+  - CONSULTAS
+  - KOTELCHUCK
+  - LOCNASC
+  - ESCMAE
+  - RACACORMAE
 
 # The mother's age, banded on the reproductive-health cut points rather than
 # the decade grid: under-15 and 15-19 are the adolescent-pregnancy indicators,
@@ -50,6 +63,12 @@ band_dimensions:
 dimension_labels:
   SEXO: Sexo
   PARTO: Tipo de parto
+  GRAVIDEZ: Tipo de gravidez
+  CONSULTAS: Consultas de pré-natal
+  KOTELCHUCK: Adequação do pré-natal (Kotelchuck)
+  LOCNASC: Local do nascimento
+  ESCMAE: Escolaridade da mãe
+  RACACORMAE: Raça/cor da mãe
 
 # No level_labels for SEXO/PARTO yet: verify-then-declare, the order SIM
 # taught. The reference tables answer first; gaps get declared after the
