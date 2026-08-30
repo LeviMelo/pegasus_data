@@ -348,16 +348,17 @@ def seeded(settings, monkeypatch):
 # widening the spec means widening this, or every capability/serve test runs
 # against an artifact the spec no longer describes.
 AGGREGATE_CELLS = [
-    # municipality, competencia, SEXO, RACA_COR, CAR_INT, MORTE, FAIXA_ETARIA,
-    #   adm, deaths, los_n, los_sum, cost, uti
-    ("120040", "202201", "1", "01", "01", "0", "025", 10.0, 1.0, 10.0, 40.0, 1000.0, 3.0),
-    ("120040", "202201", "3", "01", "02", "0", "040", 6.0, 0.0, 6.0, 12.0, 600.0, 0.0),
-    ("120040", "202202", "1", "02", "01", "1", "080", 4.0, 1.0, 4.0, 8.0, 400.0, 12.0),
-    ("120020", "202201", "1", "01", "02", "0", "000", 5.0, 0.0, 5.0, 25.0, 500.0, 0.0),
-    ("355030", "202202", "3", "01", "01", "0", "ZIG", 2.0, 0.0, 0.0, 0.0, 200.0, 1.0),
+    # municipality, competencia, SEXO, RACA_COR, CAR_INT, MORTE, ESPEC, COMPLEX,
+    #   FAIXA_ETARIA, adm, deaths, los_n, los_sum, cost, uti
+    ("120040", "202201", "1", "01", "01", "0", "01", "2", "025", 10.0, 1.0, 10.0, 40.0, 1000.0, 3.0),
+    ("120040", "202201", "3", "01", "02", "0", "03", "2", "040", 6.0, 0.0, 6.0, 12.0, 600.0, 0.0),
+    ("120040", "202202", "1", "02", "01", "1", "01", "3", "080", 4.0, 1.0, 4.0, 8.0, 400.0, 12.0),
+    ("120020", "202201", "1", "01", "02", "0", "02", "2", "000", 5.0, 0.0, 5.0, 25.0, 500.0, 0.0),
+    ("355030", "202202", "3", "01", "01", "0", "01", "2", "ZIG", 2.0, 0.0, 0.0, 0.0, 200.0, 1.0),
 ]
 AGGREGATE_KEYS = (
-    "municipality", "competencia", "SEXO", "RACA_COR", "CAR_INT", "MORTE", "FAIXA_ETARIA",
+    "municipality", "competencia", "SEXO", "RACA_COR", "CAR_INT", "MORTE",
+    "ESPEC", "COMPLEX", "FAIXA_ETARIA",
 )
 AGGREGATE_STATES = (
     "admissions_n", "deaths_sum", "los_n", "los_sum", "cost_sum", "uti_days_sum",
@@ -390,7 +391,8 @@ def write_aggregate(root) -> Settings:
         "cells": len(AGGREGATE_CELLS), "years": [2022],
         "support": {"2022": {
             "SEXO": "present", "RACA_COR": "present", "CAR_INT": "present",
-            "MORTE": "present", "FAIXA_ETARIA": "present",
+            "MORTE": "present", "ESPEC": "present", "COMPLEX": "present",
+            "FAIXA_ETARIA": "present",
         }},
         "key_columns": list(AGGREGATE_KEYS),
     }), encoding="utf-8")

@@ -187,6 +187,7 @@ pegasus_data/
   sources/ibge_localidades.py  IBGE's territorial ontology (§14.14)
   measures.py             the aggregation algebra and its refusals (§14.15)
   _age.py                 age decoded per system, banded per spec
+  suggest.py              recipe evidence: measured cardinality, curated meaning, priced cells
   _aggregate.py           aggregate(): persistent analytical cells (§14.15)
   capabilities.py         what a client may legitimately do, PROJECTED (§14.16)
   serve/__init__.py       HTTP transport over the library, no logic (§14.16)
