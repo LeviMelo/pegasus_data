@@ -97,6 +97,12 @@ class Dimension:
     #: which is not the same as "it happened zero times".
     support: dict[str, str] = field(default_factory=dict)
     note: str = ""
+    #: ``"age_band"`` / ``"band"`` when the dimension was DERIVED by the build
+    #: (banded from a numeric source) rather than read from a raw column.
+    #: A client that wants an age-specific rate needs to know which axis is
+    #: the banded age, and guessing from labels is exactly the kind of
+    #: inference the descriptor exists to make unnecessary.
+    derived: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -412,6 +418,11 @@ def _capabilities_uncached(
                     f"{unlabelled} de {len(levels)} níveis não têm rótulo nas "
                     "tabelas de referência e aparecem como o próprio código"
                 )
+            derived = None
+            if spec.age is not None and dimension == spec.age.name:
+                derived = "age_band"
+            elif any(dimension == b.name for b in spec.band_dims):
+                derived = "band"
             dimensions.append(Dimension(
                 id=dimension,
                 label=_label_for(dimension, spec.dimension_labels, docs),
@@ -421,6 +432,7 @@ def _capabilities_uncached(
                 control=_control_for(len(levels)),
                 support=per_year,
                 note=note,
+                derived=derived,
             ))
 
     # --- measures -------------------------------------------------------

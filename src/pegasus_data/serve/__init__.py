@@ -46,6 +46,7 @@ def _population_payload(
     by: tuple[str, ...],
     years: tuple[int, ...],
     dir_mtime_ns: int,
+    bands: tuple[int, ...] = (),
 ) -> dict[str, Any]:
     """One grouped denominator, cached per (request shape, series version).
 
@@ -72,6 +73,14 @@ def _population_payload(
             columns["uf"] = pc.take(values, pc.index_in(code, value_set=keys))
     if "year" in by:
         columns["year"] = pc.cast(table.column("year"), pa.string())
+    if "age_band" in by:
+        # Banded with the SAME machinery the artifacts use, so the codes match
+        # a derived age dimension's cell values exactly when the edges do.
+        from .._age import NumericBandDimension
+
+        band = NumericBandDimension(
+            name="age_band", field_name="age", bands=bands, label="age band")
+        columns["age_band"] = band.column(table)
     pop = pc.cast(table.column("population"), pa.float64())
     total = float(pc.sum(pop).as_py() or 0.0)
     if not columns:
@@ -297,8 +306,9 @@ def create_app(
     @app.get(f"{API}/population")
     def population(
         series: str = Query("POPSVS"),
-        by: str = Query("municipality,year", description="comma-separated: municipality, uf, year"),
+        by: str = Query("municipality,year", description="comma-separated: municipality, uf, year, age_band"),
         years: str = Query("", description="comma-separated years; empty means all"),
+        bands: str = Query("", description="age band edges for by=age_band, e.g. 0,1,5,10"),
     ):
         """A denominator, served at the grain a rate needs.
 
@@ -313,10 +323,22 @@ def create_app(
         if spec_ is None:
             return _error(422, f"unknown population series {series!r}", known=sorted(KNOWN_SERIES))
         wanted = tuple(dict.fromkeys(p.strip() for p in by.split(",") if p.strip()))
-        allowed = {"municipality", "uf", "year"}
+        allowed = {"municipality", "uf", "year", "age_band"}
         if bad := [w for w in wanted if w not in allowed]:
             return _error(422, f"cannot serve population by {bad}", allowed=sorted(allowed))
-        supported, missing = spec_.supports([w for w in wanted if w != "uf"])
+        try:
+            band_edges = tuple(int(b) for b in bands.split(",") if b.strip())
+        except ValueError:
+            return _error(422, f"bands must be integers, got {bands!r}")
+        if "age_band" in wanted and not band_edges:
+            return _error(
+                422,
+                "by=age_band needs the band edges (bands=0,1,5,...) — the bands "
+                "are the caller's analytical claim, and serving a default would "
+                "let two artifacts silently disagree about what 'menos de 1' means",
+            )
+        supported, missing = spec_.supports(
+            ["age" if w == "age_band" else w for w in wanted if w != "uf"])
         if not supported:
             return _error(
                 422,
@@ -338,7 +360,7 @@ def create_app(
         try:
             payload = _population_payload(
                 str(settings.lake_dir), series, wanted, year_tuple,
-                directory.stat().st_mtime_ns,
+                directory.stat().st_mtime_ns, band_edges,
             )
         except Exception as exc:  # noqa: BLE001 - refusal with reason, not a bare 500
             return _error(422, f"{type(exc).__name__}: {exc}", series=series)
