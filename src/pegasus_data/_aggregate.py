@@ -846,17 +846,34 @@ def _fingerprint(spec: AggregateSpec, blob_digests: set[str], settings: Settings
 # --------------------------------------------------------------------- read
 
 
-def _load_artifact(name: str, settings: Settings):
+@lru_cache(maxsize=8)
+def _read_artifact(cells_path: str, cells_mtime_ns: int,
+                   manifest_path: str, manifest_mtime_ns: int):
+    """The parquet and manifest, read once per on-disk version.
+
+    Keyed on mtime rather than content: a rebuild writes new files, the key
+    changes, the stale entry ages out of the LRU. Without this every request
+    re-read a multi-megabyte parquet to answer a question about it.
+    """
     import pyarrow.parquet as pq
 
+    del cells_mtime_ns, manifest_mtime_ns  # cache key only
+    manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+    return pq.read_table(cells_path), manifest
+
+
+def _load_artifact(name: str, settings: Settings):
     path = artifact_dir(name, settings) / "cells.parquet"
     if not path.exists():
         raise ArtifactMissing(
             f"{name!r} has not been built; run "
             f"`pegasus-data aggregate-build {name} --years ...` first"
         )
-    manifest = json.loads(_manifest_path(name, settings).read_text(encoding="utf-8"))
-    return pq.read_table(path), manifest
+    manifest_path = _manifest_path(name, settings)
+    return _read_artifact(
+        str(path), path.stat().st_mtime_ns,
+        str(manifest_path), manifest_path.stat().st_mtime_ns,
+    )
 
 
 def _geography_pushforward(level: str, codes: Sequence[str], system: str | None,
@@ -866,23 +883,16 @@ def _geography_pushforward(level: str, codes: Sequence[str], system: str | None,
     Uses the compiled geography rather than a hierarchy of its own. `uf` comes
     from `normalize.geo.uf_from_code`, which already owns that rule.
     """
-    from .geography import memberships
     from .normalize.geo import uf_from_code
 
-    distinct = sorted({c for c in codes if c})
+    distinct = sorted({str(c) for c in codes if c})
     if level == _BASE_LEVEL:
         return {c: c for c in distinct}
     if level == _NATIONAL_LEVEL:
         return dict.fromkeys(distinct, "BR")
     if level == _UF_LEVEL:
         return {c: uf_from_code(c) for c in distinct}
-    mapping: dict[str, str | None] = {}
-    contested: list[str] = []
-    for code in distinct:
-        found = memberships(code, system=system).get(level)
-        mapping[code] = found.member_label if found else None
-        if found is not None and found.contested:
-            contested.append(code)
+    mapping, contested = _classification_map(level, system, tuple(distinct))
     if contested:
         report.contested = tuple(sorted({*report.contested, *contested}))
         report.warnings.append(
@@ -891,6 +901,30 @@ def _geography_pushforward(level: str, codes: Sequence[str], system: str | None,
             "was used. Name a system to resolve it."
         )
     return mapping
+
+
+@lru_cache(maxsize=64)
+def _classification_map(
+    level: str, system: str | None, codes: tuple[str, ...]
+) -> tuple[dict[str, str | None], tuple[str, ...]]:
+    """`code -> member label` for one classification, resolved once.
+
+    5,570 `memberships()` lookups cost ~0.9 s, and the answer depends only on
+    the level, the system and the code set -- none of which change between two
+    requests for the same artifact. Hashing the 5,570-tuple key costs a
+    fraction of a millisecond; recomputing the mapping cost a visible share of
+    every classification roll-up.
+    """
+    from .geography import memberships
+
+    mapping: dict[str, str | None] = {}
+    contested: list[str] = []
+    for code in codes:
+        found = memberships(code, system=system).get(level)
+        mapping[code] = found.member_label if found else None
+        if found is not None and found.contested:
+            contested.append(code)
+    return mapping, tuple(contested)
 
 
 def _time_pushforward(level: str, values: Sequence[str]) -> dict[str, str | None]:
@@ -966,9 +1000,6 @@ def aggregate(
     chosen = [spec.measure_named(m) for m in wanted]
     levels = tuple(by or ())
 
-    columns = {c: table.column(c).to_pylist() for c in table.schema.names}
-    total_rows = table.num_rows
-
     # --- which level applies to which axis, and what gets marginalised -------
     geography_level = next(
         (level for level in levels
@@ -1003,14 +1034,34 @@ def aggregate(
                 check_dimension(measure, _is_multi_valued(spec.dataset, dimension))
 
     # --- pushforward maps ---------------------------------------------------
+    # The RULE for each level is decided in Python over the DISTINCT codes --
+    # a few thousand lookups, where the ownership of `uf_from_code` and
+    # `memberships` lives. Applying it to 400k rows is `index_in` + `take`,
+    # with an unmapped code flowing through as a null.
+    import pyarrow.compute as pc
+
+    geo_column = table.column(GEOGRAPHY_KEY)
+    time_column = table.column(TIME_KEY)
+
+    def _apply(mapping: dict[str, str | None], column: Any) -> Any:
+        keys = pa.array(list(mapping.keys()), pa.string())
+        values = pa.array(list(mapping.values()), pa.string())
+        return pc.take(values, pc.index_in(column, value_set=keys))
+
     geo_map = (
-        _geography_pushforward(geography_level, columns[GEOGRAPHY_KEY], system, report)
+        _geography_pushforward(
+            geography_level, pc.unique(geo_column).to_pylist(), system, report)
         if geography_level else None
     )
-    time_map = _time_pushforward(time_level, columns[TIME_KEY]) if time_level else None
+    time_map = (
+        _time_pushforward(time_level, pc.unique(time_column).to_pylist())
+        if time_level else None
+    )
+    mapped_geo = _apply(geo_map, geo_column) if geo_map is not None else None
+    mapped_time = _apply(time_map, time_column) if time_map is not None else None
 
     filters = dict(where or {})
-    keep = _mask(filters, spec, columns, total_rows)
+    keep = _mask(filters, spec, table, geo_column, time_column)
 
     # The merge is Arrow's grouped aggregation, not a Python loop over cells.
     # That is a property of the design rather than an optimisation: every
@@ -1037,12 +1088,6 @@ def aggregate(
         *dimension_levels,
     )
     emit_as = dict(zip(group_by, key_names, strict=True))
-    mapped_geo = (
-        [geo_map.get(v) for v in columns[GEOGRAPHY_KEY]] if geo_map is not None else None
-    )
-    mapped_time = (
-        [time_map.get(v) for v in columns[TIME_KEY]] if time_map is not None else None
-    )
 
     unmapped_mass: dict[str, float] = {}
     if mapped_geo is not None:
@@ -1050,24 +1095,22 @@ def aggregate(
         # ~5,570 municipalities -- makes the pushforward non-total. The lost mass
         # is REPORTED, never silently dropped: a subset total that reads as a
         # national one is the failure this layer exists to prevent.
-        lost = [i for i in range(total_rows) if keep[i] and mapped_geo[i] is None]
-        for measure in chosen:
-            column = columns[measure.state_columns()[0]]
-            total = sum(float(column[i]) for i in lost)
-            if total:
-                unmapped_mass[measure.name] = total
-        for i in lost:
-            keep[i] = False
+        lost = pc.and_(keep, pc.is_null(mapped_geo))
+        if pc.any(lost).as_py():
+            for measure in chosen:
+                column = table.column(measure.state_columns()[0])
+                total = pc.sum(pc.filter(column, lost)).as_py() or 0.0
+                if total:
+                    unmapped_mass[measure.name] = float(total)
+        keep = pc.and_(keep, pc.is_valid(mapped_geo))
 
-    indices = [i for i in range(total_rows) if keep[i]]
-    report.rows_read = len(indices)
-    working = table.take(indices) if len(indices) != total_rows else table
+    keep = pc.fill_null(keep, False)
+    working = table.filter(keep)
+    report.rows_read = working.num_rows
     if mapped_geo is not None and geography_level:
-        working = working.append_column(
-            GEO_TMP, pa.array([mapped_geo[i] for i in indices], pa.string()))
+        working = working.append_column(GEO_TMP, pc.filter(mapped_geo, keep))
     if mapped_time is not None and time_level:
-        working = working.append_column(
-            TIME_TMP, pa.array([mapped_time[i] for i in indices], pa.string()))
+        working = working.append_column(TIME_TMP, pc.filter(mapped_time, keep))
 
     state_columns = [c for m in chosen for c in m.state_columns()]
     # What the result carries: one finished value per measure, or the state
@@ -1076,44 +1119,42 @@ def aggregate(
         [m.name for m in chosen] if finalize
         else [c for m in chosen for c in m.state_columns()]
     )
-    out: dict[str, list[Any]] = {n: [] for n in key_names}
-    for column in value_columns:
-        out[column] = []
-
     if key_names:
         aggregated = working.group_by(list(group_by)).aggregate(
             [(c, _ARROW_MERGE[_kind_of(chosen, c).name]) for c in state_columns])
         suffixed = {c: f"{c}_{_ARROW_MERGE[_kind_of(chosen, c).name]}"
                     for c in state_columns}
-        got = {n: aggregated.column(n).to_pylist() for n in aggregated.schema.names}
-        order = sorted(range(aggregated.num_rows),
-                       key=lambda i: tuple(str(got[n][i]) for n in group_by))
-        for i in order:
-            for name in group_by:
-                out[emit_as[name]].append(str(got[name][i]))
-            for measure in chosen:
-                state = tuple(float(got[suffixed[c]][i] or 0.0)
-                              for c in measure.state_columns())
-                if finalize:
-                    out[measure.name].append(_finalize(measure, state))
-                else:
-                    for column, value in zip(measure.state_columns(), state, strict=True):
-                        out[column].append(value)
+        aggregated = aggregated.sort_by([(n, "ascending") for n in group_by])
+
+        arrays: dict[str, Any] = {}
+        for name in group_by:
+            arrays[emit_as[name]] = pc.cast(aggregated.column(name), pa.string())
+        for measure in chosen:
+            state = tuple(
+                pc.fill_null(
+                    pc.cast(aggregated.column(suffixed[c]), pa.float64()), 0.0)
+                for c in measure.state_columns()
+            )
+            if finalize:
+                arrays[measure.name] = _finalize_column(measure, state)
+            else:
+                for column, values in zip(
+                        measure.state_columns(), state, strict=True):
+                    arrays[column] = values
+        result = pa.table(arrays)
     else:
         # No axis named at all: one cell, everything totalled.
+        out: dict[str, list[Any]] = {}
         for measure in chosen:
             state = tuple(_merge_column(measure, working.column(c))
                           for c in measure.state_columns())
             if finalize:
-                out[measure.name].append(_finalize(measure, state))
+                out[measure.name] = [_finalize(measure, state)]
             else:
                 for column, value in zip(measure.state_columns(), state, strict=True):
-                    out[column].append(value)
-
-    result = pa.table({
-        **{n: pa.array(out[n], pa.string()) for n in key_names},
-        **{c: pa.array(out[c], pa.float64()) for c in value_columns},
-    })
+                    out[column] = [value]
+        result = pa.table(
+            {c: pa.array(out[c], pa.float64()) for c in value_columns})
     report.cells = result.num_rows
     report.unmapped = {k: v for k, v in unmapped_mass.items() if v}
     if report.unmapped:
@@ -1132,6 +1173,30 @@ def aggregate(
 #: exactly why the serve path needs no per-row arithmetic.
 _ARROW_MERGE = {"count": "sum", "sum": "sum", "mean": "sum", "ratio": "sum",
                 "min": "min", "max": "max"}
+
+
+def _finalize_column(measure: Measure, state: tuple[Any, ...]) -> Any:
+    """`Kind.finalize`, one column at a time instead of one cell at a time.
+
+    The semantics are the scalar ones exactly -- 0/0 is a null, not a zero,
+    because an empty cell displaying a mean of nought is a claim nobody made --
+    and `test_formula_matches_finalize` is what ties all three spellings of
+    this projection (scalar, columnar, the wire formula) together.
+    """
+    import pyarrow.compute as pc
+
+    kind = measure.kind.name
+    if kind in ("count", "sum", "min", "max"):
+        return state[0]
+    if kind == "mean":
+        n, total = state
+        return pc.if_else(pc.equal(n, 0.0), None, pc.divide(total, pc.if_else(
+            pc.equal(n, 0.0), 1.0, n)))
+    if kind == "ratio":
+        num, den = state
+        return pc.if_else(pc.equal(den, 0.0), None, pc.divide(num, pc.if_else(
+            pc.equal(den, 0.0), 1.0, den)))
+    raise AggregationRefused(f"no columnar finalize for kind {kind!r}")
 
 
 def _kind_of(measures: Sequence[Measure], state_column: str) -> Any:
@@ -1155,33 +1220,45 @@ def _merge_column(measure: Measure, column: Any) -> float:
     return 0.0 if value is None else float(value)
 
 
-def _mask(filters: Mapping[str, Any], spec: AggregateSpec,
-          columns: Mapping[str, list[Any]], total_rows: int) -> list[bool]:
-    """Row filter, evaluated once per column rather than once per row."""
-    keep = [True] * total_rows
+def _mask(filters: Mapping[str, Any], spec: AggregateSpec, table: Any,
+          geo_column: Any, time_column: Any) -> Any:
+    """The row filter as an Arrow boolean column: `is_in` per filter, ANDed.
+
+    The Python predecessor walked every row per filter, which at 422k cells was
+    a visible share of every request's latency. The one rule that still runs in
+    Python is `uf_from_code`, over the DISTINCT municipality codes only.
+    """
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    keep = pa.array([True] * table.num_rows, pa.bool_())
     for key, value in filters.items():
-        wanted = {str(v) for v in
-                  (value if isinstance(value, (list, tuple, set)) else [value])}
+        wanted = pa.array(
+            sorted({str(v) for v in
+                    (value if isinstance(value, (list, tuple, set)) else [value])}),
+            pa.string())
         if key in ("period", TIME_KEY, "month"):
-            source = [str(v) for v in columns[TIME_KEY]]
+            source = time_column
         elif key == "year":
-            source = [str(v)[:4] for v in columns[TIME_KEY]]
+            source = pc.utf8_slice_codeunits(time_column, 0, 4)
         elif key == _UF_LEVEL:
             from .normalize.geo import uf_from_code
 
-            source = [str(uf_from_code(str(v)) or "") for v in columns[GEOGRAPHY_KEY]]
+            distinct = pc.unique(geo_column).to_pylist()
+            mapping = {str(c): str(uf_from_code(str(c)) or "") for c in distinct if c}
+            keys = pa.array(list(mapping.keys()), pa.string())
+            values = pa.array(list(mapping.values()), pa.string())
+            source = pc.take(values, pc.index_in(geo_column, value_set=keys))
         elif key in (_BASE_LEVEL, GEOGRAPHY_KEY):
-            source = [str(v) for v in columns[GEOGRAPHY_KEY]]
+            source = geo_column
         elif key in spec.dimensions:
-            source = [str(v) for v in columns[key]]
+            source = table.column(key)
         else:
             raise AggregationRefused(
                 f"cannot filter on {key!r}; this artifact has "
                 f"{[_BASE_LEVEL, _UF_LEVEL, 'year', 'period', *spec.dimensions]}"
             )
-        for i in range(total_rows):
-            if keep[i] and source[i] not in wanted:
-                keep[i] = False
+        keep = pc.and_(keep, pc.fill_null(pc.is_in(source, value_set=wanted), False))
     return keep
 
 

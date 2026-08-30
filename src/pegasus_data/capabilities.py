@@ -226,7 +226,44 @@ def capabilities(
     Raises :class:`ArtifactMissing` when the artifact has not been built. That
     is deliberate: a capability describes what *exists*, and describing an
     unbuilt artifact would advertise controls for data that cannot be served.
+
+    Cached on the artifact's on-disk identity. The projection reads the cells,
+    the catalog and the reference tables, which measured at ~1.2 s on a
+    national artifact -- and the serve handler consults the descriptor on EVERY
+    cell request, so an uncached projection put a constant floor under every
+    answer the API gave. A rebuild changes the mtime and the stale entry ages
+    out.
     """
+    from ._aggregate import artifact_dir
+    from .config import load_settings as _load
+
+    resolved_early = settings or _load(root=Path(root) if root else None)
+    cells_path = artifact_dir(name, resolved_early) / "cells.parquet"
+    if not cells_path.exists():
+        return _capabilities_uncached(name, settings=resolved_early)
+    # A plain dict rather than lru_cache: Settings is unhashable, and the key
+    # that actually identifies the answer is (artifact, lake, on-disk version).
+    key = (name, str(resolved_early.lake_dir), cells_path.stat().st_mtime_ns)
+    hit = _CAPABILITY_CACHE.get(key)
+    if hit is not None:
+        return hit
+    built = _capabilities_uncached(name, settings=resolved_early)
+    if len(_CAPABILITY_CACHE) >= 16:
+        _CAPABILITY_CACHE.clear()
+    _CAPABILITY_CACHE[key] = built
+    return built
+
+
+_CAPABILITY_CACHE: dict[tuple[str, str, int], Capability] = {}
+
+
+def _capabilities_uncached(
+    name: str,
+    *,
+    settings: Settings | None = None,
+    root: str | Path | None = None,
+) -> Capability:
+    """The projection itself; `capabilities` is the cached front door."""
     from ._aggregate import ArtifactMissing, artifact_dir, spec_named
     from .catalog.store import Catalog
     from .config import load_settings
@@ -255,9 +292,10 @@ def capabilities(
     # abstract. DIAG_PRINC binds ~14,000 ICD codes; an artifact holding 40 of
     # them must not offer a control with 14,000 levels.
     import pyarrow.compute as pc
-    import pyarrow.parquet as pq
 
-    cells = pq.read_table(str(cells_path))
+    from ._aggregate import _load_artifact
+
+    cells, _ = _load_artifact(name, resolved)
     observed: dict[str, list[str]] = {}
     for dimension in spec.dimensions:
         if dimension in cells.schema.names:

@@ -59,7 +59,7 @@ def create_app(
     """
     from fastapi import FastAPI, Query, Request
     from fastapi.middleware.cors import CORSMiddleware
-    from fastapi.responses import FileResponse, JSONResponse
+    from fastapi.responses import FileResponse, JSONResponse, ORJSONResponse
 
     from .. import __version__
     from .._aggregate import AggregationRefused, ArtifactMissing, aggregate, spec_named
@@ -78,6 +78,9 @@ def create_app(
                     "say what may legitimately be done with them.",
         docs_url=f"{API}/docs",
         openapi_url=f"{API}/openapi.json",
+        # The municipality-month payload is megabytes of JSON; stdlib
+        # json.dumps was a visible share of serving it.
+        default_response_class=ORJSONResponse,
     )
     app.add_middleware(
         CORSMiddleware,
