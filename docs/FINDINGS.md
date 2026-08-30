@@ -1874,6 +1874,152 @@ fast should be measured at size before it is called done.**
 
 ---
 
+## 3r. An artifact knows its scope and was throwing it away (2026-08-29)
+
+**Found by a user looking at a map**, which is the part worth recording: every
+test passed, every number was correct, and the screen said something false.
+
+### What was seen
+
+The frontend's ranking put **Rio Branco, AC** first for hospital admissions, and
+the map coloured Acre while 5,452 municipalities sat pale grey. Acre has ~900,000
+people; São Paulo has 46 million. The reaction — "I don't understand how Acre is
+leading admissions" — was exactly right.
+
+### What was true
+
+Nothing was wrong with the data. `build_aggregate(..., uf="AC")` had been run, so
+the artifact held 49,547 admissions from **Acre's SIH files only**: 2,417 cells
+over 118 municipalities, 1,897 of them with UF prefix `12`. The other twenty
+prefixes are residents of other states admitted in Acre's hospitals — the
+geography binding is *residence*, so a patient from Manaus treated in Rio Branco
+lands under `13`.
+
+So the artifact was a correct answer to "admissions in Acre's hospitals in 2022,
+by the patient's municipality of residence". The interface presented it as
+Brazil.
+
+### Why nothing caught it
+
+`build_aggregate` **took `uf` and did not record it.** The manifest carried
+`years`, `support`, `partial_periods`, `warnings` and a fingerprint — every
+qualifier about time and about dimensions, and none about space. `aggregate()`
+then served a total that was a subset total, with nothing to say so.
+
+This is the SAME distinction the layer already makes twice elsewhere, missing on
+the one axis nobody applied it to:
+
+| axis | the distinction | where it was already made |
+|---|---|---|
+| dimensions | `absent` is "could not have known", not "zero" | the support mask |
+| time | a record-date build cannot fill its own edges | `partial_periods` |
+| **space** | **a municipality outside the fetch was never in view** | **nowhere** |
+
+A partial classification already produced a warning when a roll-up left mass
+unmapped. A partial *fetch* produced none, because from inside the cells it is
+invisible: 118 municipalities with data and 5,452 without looks precisely like a
+national build of something rare.
+
+### The fix
+
+`AggregateReport.uf` is recorded at build time, written to the manifest, and
+carried back on read as a warning. `capabilities()` projects it as
+`spatial.coverage` with three fields that mean different things:
+
+- `declared_ufs` — what the build FETCHED. Authoritative when present.
+- `observed_ufs` — the prefixes present in the cells. A measurement, and **not a
+  substitute**: a national build of a rare condition also touches few states, so
+  inferring scope from the cells would be a guess dressed as a fact. Artifacts
+  built before this change report `kind: "unknown"` and say so.
+- `municipalities` — how many the artifact actually holds.
+
+The interface then restricts the map to what the build could have seen, names the
+real scope in the state bar and in every ranking, and carries a banner saying a
+municipality with no cell was *not observed*.
+
+### The rule this generalises to
+
+**Every qualifier a build applies to its input is part of what the output means,
+and belongs in the manifest.** `uf` was the one that got away because it reads
+like a performance knob — "fetch less" — rather than like a claim. It is a claim:
+it decides what the totals are totals OF.
+
+Worth re-checking on the same grounds: `years` is recorded (good), but a build
+restricted by any future predicate must record that too, or the same failure
+recurs in a new shape.
+
+---
+
+## 3s. DATASUS does not use one date format (2026-08-29)
+
+Found by building the SECOND artifact. SIH had worked for weeks, and it worked
+because its time axis happens to be a competence held in two columns.
+
+### What came out
+
+`build_aggregate("sim_do_municipality_month", years=[2022])` produced **62,040
+cells from 75,707 rows** — nearly one cell per row, which is the opposite of
+what an aggregate is for. Its periods were named `0101`, `0102` … `3112`.
+
+Those are day-and-month, not months.
+
+### Why
+
+`_competencia_column` took the **first six characters** of a single packed time
+field. That is correct for a competence — `AP_CMP` is `202201` — and wrong for a
+record date, because DATASUS writes dates **day-first**:
+
+| dataset | column | value | layout |
+|---|---|---|---|
+| SIH-RD | `DT_INTER` | `20211227` | `AAAAMMDD` |
+| SIM-DO | `DTOBITO` | `07052022` | `DDMMAAAA` |
+| SINASC-DN | `DTNASC` | `16041976` | `DDMMAAAA` |
+
+**The format is not uniform across systems.** SIH is year-first; SIM and SINASC
+are day-first. `07052022` sliced to six characters gives `070520`, whose first
+four characters are `0705` — hence 366 "months".
+
+### Why nothing caught it
+
+Nineteen `(system, field)` pairs declare a `date` encoding and **none of them
+had ever been built**. Both existing specs use a competence, so every test,
+every measured figure and the whole SIH verification exercised the one path
+where the assumption happens to hold. The defect was not hiding — it had never
+been asked a question.
+
+### The fix, and why it is a measurement
+
+A table of nineteen declared formats is nineteen things to maintain and to get
+wrong, and it grows with every new binding. The layout is **decidable from the
+column**:
+
+* year-first requires `text[0:4]` to be a plausible year and `text[4:6]` ≤ 12;
+* day-first requires `text[4:8]` to be a plausible year and `text[2:4]` ≤ 12.
+
+These are **disjoint for every real date after 1900**: if `text[4:8]` is a year
+then `text[4:6]` is `19` or `20`, which is not a month, so year-first cannot
+also hold. There is no ambiguous eight-digit date. A sample of a few thousand
+values settles it exactly, and the confidence threshold is a guard against junk
+rather than a tie-break.
+
+`_date_layout()` scores both hypotheses and **returns None when neither
+dominates**, which the build reports as a skipped year naming the fields — a
+column it cannot read is refused rather than bucketed under a period that means
+nothing.
+
+### The rule this generalises to
+
+**A format assumption that holds for the dataset in front of you is not a
+format fact.** The tell was structural rather than statistical: 62,040 cells
+from 75,707 rows is a compression ratio of 1.2, and an artifact whose whole
+purpose is compression should have been challenged by that number alone.
+
+Worth applying the same suspicion to: fixed-width numeric fields (SIH bills in
+centavos in some eras and reais in others), and any column whose meaning is
+inferred from position rather than declared.
+
+---
+
 ## 4. What remains open
 
 Run `pegasus-data questions` for the live list. As of the last full pass:

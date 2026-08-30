@@ -15,6 +15,7 @@
 
 name: sih_rd_municipality_month
 dataset: SIH-RD
+label: Internações hospitalares
 description: >
   SUS hospital admissions by municipality of residence and competence month,
   with sex and race/colour retained. Accumulator state only: length of stay is
@@ -30,19 +31,30 @@ dimensions:
   - SEXO
   - RACA_COR
 
+# What the interface calls these. A column name is not a label, and curation's
+# translated names are English while the interface is Portuguese -- so the
+# artifact's own spec, where an analyst says what this artifact IS, names them.
+dimension_labels:
+  SEXO: Sexo
+  RACA_COR: Raça/cor
+
 measures:
   admissions:
     kind: count
+    label: Internações
     unit: admission          # checked against the declared grain, which is `admission`
   deaths:
     kind: sum
+    label: Óbitos hospitalares
     field: MORTE             # 0/1 in the raw codes, so summing counts deaths
     unit: death
   los:
     kind: mean
+    label: Permanência média
     field: DIAS_PERM
     unit: day                # stored as (n, sum); the mean is derived on read
   cost:
     kind: sum
+    label: Valor total
     field: VAL_TOT
     unit: brl                # nominal reais at billing time, never deflated

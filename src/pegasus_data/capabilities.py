@@ -28,6 +28,7 @@ derived rather than authored -- an authored one drifts the moment a spec changes
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
 from datetime import UTC
 from pathlib import Path
@@ -185,13 +186,30 @@ def _decimals_for(kind: str, unit: str) -> int:
 
 
 def _humanise(text: str) -> str:
-    """`RACA_COR` -> `Raça cor` is wrong; leave a code alone unless we have better.
+    """The last resort: show the identifier itself.
 
-    Deliberately does almost nothing. A field whose curated label is unavailable
-    is shown as its own name, which is honest, rather than as a prettified guess
-    that reads like a translation nobody made.
+    `RACA_COR` -> `Raça cor` would be a prettified guess that reads like a
+    translation nobody made. Showing the column name is honest. The real labels
+    come from the spec, then from curation -- see `_label_for`.
     """
     return text
+
+
+def _label_for(
+    key: str, declared: Mapping[str, str], docs: Mapping[str, Any]
+) -> str:
+    """Three sources, most specific first.
+
+    1. The artifact's own spec, where an analyst says what THIS artifact's
+       columns are, in the interface's language.
+    2. Curation's `translated_name` -- a real human name, in English.
+    3. The identifier.
+    """
+    if declared.get(key):
+        return declared[key]
+    doc = docs.get(key)
+    name = getattr(doc, "translated_name", None) if doc else None
+    return str(name) if name else _humanise(key)
 
 
 # --------------------------------------------------------------- projection
@@ -253,6 +271,12 @@ def capabilities(
     dimensions: list[Dimension] = []
     with Catalog(resolved.catalog_path) as store:
         docs_system = (semantics.system or "").upper()
+        try:
+            from .semantics.curation import load_variable_docs
+
+            docs = load_variable_docs(store, docs_system)
+        except Exception:  # pragma: no cover - a catalog without variable docs
+            docs = {}
         for dimension in spec.dimensions:
             codes = observed.get(dimension, [])
             try:
@@ -270,15 +294,16 @@ def capabilities(
                 for year, flags in support.items()
             }
             unlabelled = sum(1 for lv in levels if lv.label == lv.code)
-            note = ""
+            doc = docs.get(dimension)
+            note = str(getattr(doc, "description", "") or "") if doc else ""
             if unlabelled and levels:
                 note = (
-                    f"{unlabelled} of {len(levels)} levels have no label in the "
-                    "reference tables and are shown as their own code"
+                    f"{unlabelled} de {len(levels)} níveis não têm rótulo nas "
+                    "tabelas de referência e aparecem como o próprio código"
                 )
             dimensions.append(Dimension(
                 id=dimension,
-                label=_humanise(dimension),
+                label=_label_for(dimension, spec.dimension_labels, docs),
                 kind="nominal",
                 levels=levels,
                 cardinality=len(levels),
@@ -296,7 +321,7 @@ def capabilities(
     measures = tuple(
         MeasureCapability(
             id=m.name,
-            label=_humanise(m.name),
+            label=m.label or _humanise(m.name),
             kind=m.kind.name,
             components=m.state_columns(),
             formula=m.formula(),
@@ -312,6 +337,30 @@ def capabilities(
     )
 
     # --- geography ------------------------------------------------------
+    # What this build could have SEEN. Distinct from what it found: a
+    # municipality outside the fetched UFs was never in view, and reading its
+    # absence as a zero turns one state into a country.
+    observed = sorted({str(code)[:2] for code in cells.column("municipality").to_pylist() if code})
+    declared_uf = [str(u).upper() for u in (manifest.get("uf") or ())]
+    coverage = {
+        "kind": "partial" if declared_uf else "unknown",
+        # The UFs the build FETCHED. Empty means it was not recorded -- older
+        # artifacts predate this, and guessing from the cells would be wrong:
+        # a national build of a rare condition also touches few states.
+        "declared_ufs": declared_uf,
+        # The UF prefixes actually present, which is a measurement either way.
+        "observed_ufs": observed,
+        "municipalities": len({str(c) for c in cells.column("municipality").to_pylist() if c}),
+        "note": (
+            f"Construído apenas a partir de {', '.join(declared_uf)}. "
+            "Um município sem célula NÃO foi observado — não é zero — e "
+            "qualquer total aqui é o total desse subconjunto."
+            if declared_uf else ""
+        ),
+    }
+    if not declared_uf:
+        coverage["kind"] = "national" if len(observed) >= 25 else "unknown"
+
     declared = classifications(Path(root) if root else None)
     # `uf` is BOTH a base grain and an IBGE classification, so the two lists
     # overlap. Deduplicated with order kept: the first three are the grains
@@ -358,6 +407,7 @@ def capabilities(
         "code_system": "ibge_municipality",
         "join_key": "code7",
         "denominator_compatible": denominator_ok,
+        "coverage": coverage,
     }
 
     # --- time -----------------------------------------------------------
@@ -392,7 +442,7 @@ def capabilities(
         dataset=spec.dataset,
         system=semantics.system,
         series=semantics.series,
-        label=spec.dataset,
+        label=spec.label or spec.dataset,
         description=(spec.description or "").strip(),
         observation_unit=str(getattr(semantics.grain, "prose", "") or ""),
         grain_components=tuple(getattr(semantics.grain, "components", ()) or ()),
@@ -478,7 +528,7 @@ def catalogue(
         entry: dict[str, Any] = {
             "id": name,
             "dataset": spec.dataset,
-            "label": spec.dataset,
+            "label": spec.label or spec.dataset,
             "description": (spec.description or "").strip(),
             "dimensions": list(spec.dimensions),
             "measures": [m.name for m in spec.measures],

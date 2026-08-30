@@ -287,6 +287,9 @@ class Measure:
     #: Set when the source column holds several values per row, which makes
     #: counts of the grain non-additive along any dimension built from it.
     multi_valued: bool = False
+    #: What to call this on screen. Empty means the interface falls back to the
+    #: name, which is honest but is a column identifier rather than a label.
+    label: str = ""
 
     @property
     def is_semi_additive(self) -> bool:
@@ -332,6 +335,7 @@ def measure_from_declaration(name: str, body: Mapping[str, Any]) -> Measure:
         kind=kind,
         source_field=str(source) if source else None,
         unit=str(body.get("unit") or ""),
+        label=str(body.get("label") or ""),
         additive_over=additive,
         time_reducer=str(reducer) if reducer else None,
         multi_valued=bool(body.get("multi_valued", False)),

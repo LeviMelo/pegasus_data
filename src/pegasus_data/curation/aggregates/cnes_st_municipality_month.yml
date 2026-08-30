@@ -24,6 +24,7 @@
 
 name: cnes_st_municipality_month
 dataset: CNES-ST
+label: Estabelecimentos e capacidade instalada
 description: >
   Health establishments and their installed capacity, by municipality of the
   facility and competence month. A stock series: capacity does not accumulate
@@ -38,12 +39,14 @@ dimensions: []
 measures:
   establishment_months:
     kind: count
+    label: Estabelecimento-meses
     # NOT `establishment`. One row is an establishment-month and the name has to
     # say so, or a quarterly figure reads as three times the estate.
     unit: establishment-month
 
   consulting_rooms:
     kind: sum
+    label: Consultórios
     field: QTINST07
     unit: room
     additive_over: [geography, dimensions]
@@ -51,6 +54,7 @@ measures:
 
   beds_total:
     kind: sum
+    label: Leitos
     field: QTINST08
     unit: bed
     additive_over: [geography, dimensions]

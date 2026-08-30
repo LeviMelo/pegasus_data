@@ -384,3 +384,67 @@ def test_a_non_municipality_geography_binding_is_refused(monkeypatch, tmp_path) 
     monkeypatch.setattr(_aggregate, "_resolve_semantics", lambda _spec: fake)
     with pytest.raises(AggregationRefused, match="keyed on a municipality"):
         build_aggregate("by_state", years=[2022], settings=load_settings(root=tmp_path))
+
+
+class TestDateLayoutIsMeasured:
+    """DATASUS does not use one date format, and the builder used to assume it did.
+
+    Nineteen (system, field) pairs declare a `date` encoding and none had been
+    built: both existing specs use a competence, so every test exercised the one
+    path where "the first six characters are the period" happens to hold.
+    """
+
+    def test_the_two_layouts_are_told_apart(self) -> None:
+        from pegasus_data._aggregate import _date_layout
+
+        # Measured on live 2022 files.
+        assert _date_layout(["20211227", "20211226", "20220113"]) == "ymd"  # SIH
+        assert _date_layout(["07052022", "14052022", "28052022"]) == "dmy"  # SIM
+        assert _date_layout(["16041976", "13021959", "03042021"]) == "dmy"  # SINASC
+
+    def test_they_are_disjoint_for_every_real_date(self) -> None:
+        """No eight-digit date after 1900 reads both ways.
+
+        If `text[4:8]` is a plausible year then `text[4:6]` is 19 or 20, which is
+        not a month -- so year-first cannot also hold. This is why a small sample
+        settles it exactly rather than probabilistically.
+        """
+        from pegasus_data._aggregate import _date_layout
+
+        for year in (1900, 1999, 2000, 2022, 2100):
+            for month in (1, 6, 12):
+                for day in (1, 15, 28):
+                    ymd = f"{year:04d}{month:02d}{day:02d}"
+                    dmy = f"{day:02d}{month:02d}{year:04d}"
+                    assert _date_layout([ymd]) == "ymd", ymd
+                    assert _date_layout([dmy]) == "dmy", dmy
+
+    def test_an_unreadable_column_is_refused_rather_than_guessed(self) -> None:
+        """A period that means nothing is worse than no period at all."""
+        from pegasus_data._aggregate import _date_layout
+
+        assert _date_layout([]) is None
+        assert _date_layout(["", "   ", None]) is None
+        assert _date_layout(["abcdefgh", "1234"]) is None
+        # Mostly junk with a couple of readable values does not clear the bar.
+        assert _date_layout(["99999999"] * 20 + ["20220101"]) is None
+
+    def test_a_day_first_column_becomes_the_right_period(self) -> None:
+        import pyarrow as pa
+
+        from pegasus_data._aggregate import _competencia_column
+
+        table = pa.table({"DTOBITO": pa.array(["07052022", "31122022", "01012022"])})
+        periods = _competencia_column(table, ["DTOBITO"], "date").to_pylist()
+        assert periods == ["202205", "202212", "202201"]
+
+    def test_a_competence_is_left_alone(self) -> None:
+        """The first six characters ARE the period when it is already year-first."""
+        import pyarrow as pa
+
+        from pegasus_data._aggregate import _competencia_column
+
+        table = pa.table({"AP_CMP": pa.array(["202201", "202212"])})
+        assert _competencia_column(table, ["AP_CMP"], "year_month").to_pylist() == [
+            "202201", "202212",
+        ]

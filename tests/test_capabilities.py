@@ -242,3 +242,78 @@ class TestLabelsComeFromTheCatalog:
             codes=["1"])
         assert len(narrowed) == 1
         assert len(everything) >= len(narrowed)
+
+
+class TestCoverageIsRecordedNotInferred:
+    """A build that fetched one state is not a national build with zeroes.
+
+    This is the axis the layer was missing. The support mask says a dimension
+    was unobservable; `partial_periods` says a period could not be filled;
+    nothing said a MUNICIPALITY was never in view. From inside the cells that is
+    invisible -- 118 municipalities with data and 5,452 without looks exactly
+    like a national build of something rare.
+    """
+
+    def test_the_build_records_the_uf_it_fetched(self, tmp_path) -> None:
+        from pegasus_data._aggregate import AggregateReport
+
+        report = AggregateReport(name="x")
+        assert report.uf == ()
+        assert report.as_dict()["uf"] == []
+
+    def test_a_declared_scope_is_authoritative(self, aggregate_lake) -> None:
+        """`declared_ufs` is what the build asked for, and it wins."""
+        import json
+
+        from pegasus_data._aggregate import artifact_dir
+
+        target = artifact_dir("sih_rd_municipality_month", aggregate_lake)
+        manifest = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
+        manifest["uf"] = ["AC"]
+        (target / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+        coverage = capabilities(
+            "sih_rd_municipality_month", settings=aggregate_lake
+        ).spatial["coverage"]
+        assert coverage["kind"] == "partial"
+        assert coverage["declared_ufs"] == ["AC"]
+        assert "AC" in coverage["note"]
+        assert coverage["note"].startswith("Constru")
+
+    def test_an_unrecorded_scope_says_unknown_rather_than_guessing(
+        self, aggregate_lake
+    ) -> None:
+        """Inferring scope from the cells would be a guess dressed as a fact.
+
+        A national build of a rare condition also touches few states, so
+        `observed_ufs` cannot stand in for `declared_ufs`. An artifact built
+        before this was recorded reports `unknown` and says so.
+        """
+        coverage = capabilities(
+            "sih_rd_municipality_month", settings=aggregate_lake
+        ).spatial["coverage"]
+        assert coverage["kind"] == "unknown"
+        assert coverage["declared_ufs"] == []
+        # The measurement is still offered, because it IS a measurement.
+        assert coverage["observed_ufs"] == ["12", "35"]
+        assert coverage["municipalities"] == 3
+        assert coverage["note"] == ""
+
+    def test_reading_a_partial_artifact_warns(self, aggregate_lake) -> None:
+        """The warning survives into a read months later, like partial_periods."""
+        import json
+
+        from pegasus_data import aggregate
+        from pegasus_data._aggregate import artifact_dir
+
+        target = artifact_dir("sih_rd_municipality_month", aggregate_lake)
+        manifest = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
+        manifest["uf"] = ["AC"]
+        (target / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+        _, report = aggregate(
+            "sih_rd_municipality_month", by=["uf"], settings=aggregate_lake,
+            return_report=True,
+        )
+        assert report.uf == ("AC",)
+        assert any("NOT OBSERVED" in w for w in report.warnings)

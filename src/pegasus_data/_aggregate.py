@@ -98,6 +98,11 @@ class AggregateSpec:
     dimensions: tuple[str, ...]
     measures: tuple[Measure, ...]
     description: str = ""
+    #: `dimension -> display name`, for the interface. Optional: an absent entry
+    #: falls back to curation's translated name and then to the column itself.
+    dimension_labels: Mapping[str, str] = field(default_factory=dict)
+    #: What to call this artifact on screen.
+    label: str = ""
 
     def measure_named(self, name: str) -> Measure:
         for item in self.measures:
@@ -164,6 +169,10 @@ def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
             dimensions=tuple(str(d) for d in (data.get("dimensions") or ())),
             measures=measures,
             description=str(data.get("description") or ""),
+            dimension_labels={
+                str(k): str(v) for k, v in (data.get("dimension_labels") or {}).items()
+            },
+            label=str(data.get("label") or ""),
         )
     return out
 
@@ -195,6 +204,13 @@ class AggregateReport:
     #: Mass lost rolling up through a partial classification, per measure.
     unmapped: dict[str, float] = field(default_factory=dict)
     contested: tuple[str, ...] = ()
+    #: The UFs this build FETCHED, or empty for a national build. An artifact
+    #: built from one state's files is not a national artifact with a lot of
+    #: zeroes -- it is a partial observation, and a municipality with no cell
+    #: was never in view. Without this the interface presents a state as a
+    #: country, which is the same class of error as reading a structural
+    #: absence as a clinical zero.
+    uf: tuple[str, ...] = ()
     #: Periods whose cells are known to be SHORT, because the time axis is a
     #: record date and the publication years fetched do not fully contain it.
     #: A December admission is billed in January, so a series by admission date
@@ -208,6 +224,7 @@ class AggregateReport:
             "name": self.name, "cells": self.cells, "rows_read": self.rows_read,
             "years": list(self.years), "support": self.support,
             "unmapped": self.unmapped, "contested": list(self.contested),
+            "uf": list(self.uf),
             "partial_periods": list(self.partial_periods),
             "warnings": self.warnings, "fingerprint": self.fingerprint,
         }
@@ -340,9 +357,18 @@ def build_aggregate(
     _require_municipality_geography(semantics, spec)
     time_fields = _binding_fields(
         semantics.time_bindings(), spec.time_binding, "time", spec.dataset)
+    time_encoding = str(
+        (semantics.time_bindings().get(spec.time_binding) or {}).get("encoding") or "")
     geography_field = geography_fields[0]
 
     report = AggregateReport(name=name)
+    # Normalised the same way `fetch` reads it, so the manifest says what was
+    # actually asked for rather than what the caller happened to type.
+    report.uf = (
+        (str(uf).upper(),) if isinstance(uf, str)
+        else tuple(str(u).upper() for u in uf) if uf
+        else ()
+    )
     wanted_years = tuple(int(y) for y in (years or ()))
     if not wanted_years:
         raise AggregationRefused(
@@ -386,9 +412,16 @@ def build_aggregate(
         # group_by. The row loop this replaced ran at about 1.4 ms per
         # admission -- fine for one state-year, and roughly five hours for a
         # national one, which is not a build anybody would run.
-        keyed = _key_columns(table, geography_field, time_fields, spec.dimensions, names)
+        keyed = _key_columns(
+            table, geography_field, time_fields, spec.dimensions, names,
+            encoding=time_encoding)
         if keyed is None:
-            report.warnings.append(f"{year}: no usable geography/time values; skipped")
+            report.warnings.append(
+                f"{year}: no usable geography/time values; skipped. If the time "
+                f"axis is a date, {list(time_fields)} may hold a layout neither "
+                "AAAAMMDD nor DDMMAAAA explains -- which is refused rather than "
+                "bucketed under a period that means nothing."
+            )
             continue
         lifted, state_names = _lift_columns(table, spec.measures)
         grouped = pa.table({**keyed, **lifted}).group_by(list(keyed)).aggregate(
@@ -447,6 +480,7 @@ def build_aggregate(
             "cells": report.cells,
             "rows_read": report.rows_read,
             "years": list(report.years),
+            "uf": list(report.uf),
             "support": report.support,
             "partial_periods": list(report.partial_periods),
             "key_columns": list(key_names),
@@ -480,7 +514,8 @@ def _to_number(column: Any, rows: int) -> Any:
 
 
 def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
-                 dimensions: Sequence[str], names: set[str]) -> dict[str, Any] | None:
+                 dimensions: Sequence[str], names: set[str],
+                 encoding: str = "") -> dict[str, Any] | None:
     """The cell key, as columns: municipality, competencia, then dimensions.
 
     Rows with no municipality or no resolvable period are dropped here rather
@@ -492,7 +527,7 @@ def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
 
     municipality = pc.utf8_trim_whitespace(
         pc.cast(table.column(geography_field), pa.string()))
-    period = _competencia_column(table, time_fields)
+    period = _competencia_column(table, time_fields, encoding)
     if period is None:
         return None
     keep = pc.and_(pc.not_equal(municipality, ""), pc.is_valid(period))
@@ -515,12 +550,73 @@ def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
     return out
 
 
-def _competencia_column(table: Any, time_fields: Sequence[str]) -> Any | None:
+#: How many values to look at when deciding a date column's layout. The two
+#: hypotheses separate on the first handful of real rows; this is generous.
+_LAYOUT_SAMPLE = 4_000
+#: The winner must explain at least this share of the values it was shown.
+_LAYOUT_CONFIDENCE = 0.9
+
+
+def _date_layout(values: Sequence[Any]) -> str | None:
+    """``"ymd"``, ``"dmy"`` or None, decided by measurement.
+
+    DATASUS does not use one date format. Measured on live 2022 files:
+
+    ==========  ==========  ==========  ==================
+    dataset     column      example     layout
+    ==========  ==========  ==========  ==================
+    SIH-RD      DT_INTER    20211227    AAAAMMDD (ymd)
+    SIM-DO      DTOBITO     07052022    DDMMAAAA (dmy)
+    SINASC-DN   DTNASC      16041976    DDMMAAAA (dmy)
+    ==========  ==========  ==========  ==================
+
+    Nineteen (system, field) pairs declare a `date` encoding, so a table of
+    declared formats is nineteen things to maintain and to get wrong. The two
+    layouts are separable by inspection instead: `20211227` cannot be day-first
+    because `12` is a plausible month but `1227` is not a year, and `07052022`
+    cannot be year-first because `0705` is not a year.
+
+    The two readings are in fact DISJOINT for any real date: if `text[4:8]` is a
+    plausible year (19xx/20xx) then `text[4:6]` is 19 or 20, which is not a
+    month, so year-first cannot also hold. There is no genuinely ambiguous
+    eight-digit date after 1900 -- which is why a sample of a few rows settles
+    it and why the confidence threshold is a guard against junk rather than a
+    tie-break.
+
+    Returns None when neither hypothesis dominates. That is deliberate -- a
+    column this cannot read is refused upstream rather than bucketed under a
+    period that means nothing, which is how `0101` through `3112` became months.
+    """
+    ymd = dmy = seen = 0
+    for value in values:
+        text = str(value or "").strip()
+        if len(text) != 8 or not text.isdigit():
+            continue
+        seen += 1
+        # year-first: YYYYMMDD
+        if 1900 <= int(text[0:4]) <= 2100 and 1 <= int(text[4:6]) <= 12:
+            ymd += 1
+        # day-first: DDMMYYYY
+        if 1900 <= int(text[4:8]) <= 2100 and 1 <= int(text[2:4]) <= 12:
+            dmy += 1
+    if not seen:
+        return None
+    if ymd >= _LAYOUT_CONFIDENCE * seen and ymd > dmy:
+        return "ymd"
+    if dmy >= _LAYOUT_CONFIDENCE * seen and dmy > ymd:
+        return "dmy"
+    return None
+
+
+def _competencia_column(
+    table: Any, time_fields: Sequence[str], encoding: str = ""
+) -> Any | None:
     """AAAAMM from the declared time fields, as a column.
 
-    Two fields means year and month held apart (`ANO_CMPT`, `MES_CMPT`); one
-    field means a date or a competence already packed together, of which the
-    first six characters are the year and month.
+    Two fields means year and month held apart (`ANO_CMPT`, `MES_CMPT`). One
+    field is either a competence already packed year-first -- of which the first
+    six characters ARE the period -- or a record date, whose layout is measured
+    rather than assumed (:func:`_date_layout`).
     """
     import pyarrow as pa
     import pyarrow.compute as pc
@@ -535,6 +631,17 @@ def _competencia_column(table: Any, time_fields: Sequence[str]) -> Any | None:
         joined = pc.binary_join_element_wise(year, month, "")
     else:
         joined = pc.utf8_trim_whitespace(pc.cast(table.column(present[0]), pa.string()))
+        if encoding == "date":
+            layout = _date_layout(
+                joined.slice(0, min(_LAYOUT_SAMPLE, len(joined))).to_pylist())
+            if layout is None:
+                return None
+            if layout == "dmy":
+                # DDMMAAAA -> AAAAMM. Built by concatenation rather than by a
+                # regex so it stays inside Arrow at national volume.
+                year = pc.utf8_slice_codeunits(joined, 4, 8)
+                month = pc.utf8_slice_codeunits(joined, 2, 4)
+                joined = pc.binary_join_element_wise(year, month, "")
     sliced = pc.utf8_slice_codeunits(joined, 0, 6)
     return pc.if_else(pc.equal(pc.utf8_length(sliced), 6), sliced, pa.nulls(len(sliced), pa.string()))
 
@@ -750,8 +857,15 @@ def aggregate(
         name=name, support=dict(manifest.get("support") or {}),
         fingerprint=str(manifest.get("fingerprint") or ""),
         years=tuple(int(y) for y in (manifest.get("years") or ())),
+        uf=tuple(str(u) for u in (manifest.get("uf") or ())),
         partial_periods=tuple(str(x) for x in (manifest.get("partial_periods") or ())),
     )
+    if report.uf:
+        report.warnings.append(
+            f"this artifact was built from {list(report.uf)} only; a municipality "
+            "with no cell was NOT OBSERVED, not observed as zero, and any total "
+            "here is that subset's total rather than a national one"
+        )
     if report.partial_periods:
         report.warnings.append(
             f"{len(report.partial_periods)} period(s) in this artifact are known "

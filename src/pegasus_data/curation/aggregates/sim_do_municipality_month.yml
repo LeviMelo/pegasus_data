@@ -1,0 +1,51 @@
+# Deaths by municipality of residence and month of death.
+#
+# This is the SECOND artifact, and its job is to test the claim the whole
+# frontend rests on: that no view is dataset-specific. If drawing SIM requires
+# touching a component, the capability descriptor failed.
+#
+# It is deliberately DIFFERENT from SIH in every way that matters:
+#
+#   * the grain is a `death`, not an `admission` — so `count` means something
+#     else and the unit check has to agree;
+#   * the time axis is a RECORD DATE (`DTOBITO`), not a billing competence, so
+#     `partial_periods` is exercised for the first time on a real build: a
+#     death in December of the last fetched year is registered in the following
+#     year's file, and the artifact says which periods it therefore cannot have
+#     filled;
+#   * `SEXO` uses DIFFERENT CODES from SIH — 1/2 here against 1/3 there. The
+#     codelist is scoped by system precisely so these cannot be merged, and the
+#     interface reads whichever the descriptor gives it;
+#   * `LOCOCOR` is a place-of-death dimension SIH has no analogue for, so the
+#     sidebar has to grow a control it was never told about.
+
+name: sim_do_municipality_month
+dataset: SIM-DO
+label: Óbitos
+description: >
+  Deaths by the deceased's municipality of residence and month of occurrence,
+  with sex, race/colour and place of death retained. Accumulator state only.
+
+geography_binding: residence      # semantic_axes.geography.residence -> CODMUNRES
+time_binding: occurrence          # semantic_axes.time.occurrence -> DTOBITO (a DATE)
+time_grain: month
+
+# Kept few for the same reason SIH's list is short: each dimension multiplies
+# the cells and spends the compression that justifies the artifact. CAUSABAS is
+# deliberately absent — ~14,000 ICD codes would multiply the cell count by
+# roughly a thousand.
+dimensions:
+  - SEXO
+  - RACACOR
+  - LOCOCOR
+
+dimension_labels:
+  SEXO: Sexo
+  RACACOR: Raça/cor
+  LOCOCOR: Local do óbito
+
+measures:
+  deaths:
+    kind: count
+    label: Óbitos
+    unit: death        # checked against the declared grain, which is `death`
