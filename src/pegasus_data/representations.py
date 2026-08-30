@@ -79,7 +79,20 @@ def choose_representations(
         formats = [str(row.get("container_format") or "unknown") for row in candidates]
         contradictions: list[str] = []
         if len(formats) != len(set(formats)):
-            contradictions.append("multiple objects of the same format")
+            # Same format twice is only a contradiction when the objects can
+            # actually DIFFER. DATASUS mirrors a year into two directories
+            # during a tree transition -- SINASC 2022 sits byte-for-byte
+            # identical under both 1996_/ and NOV/ -- and refusing a mirror
+            # made every dataset in transition unbuildable. Identical size per
+            # format is the mirror test available before any byte is fetched;
+            # a size that differs is a real conflict and still refuses.
+            by_format: dict[str, set[Any]] = {}
+            for row in candidates:
+                by_format.setdefault(
+                    str(row.get("container_format") or "unknown"), set()
+                ).add(row.get("size"))
+            if any(len(sizes) > 1 for sizes in by_format.values()):
+                contradictions.append("multiple objects of the same format")
         row_counts = {int(row["row_count"]) for row in candidates if row.get("row_count") is not None}
         if len(row_counts) > 1:
             contradictions.append(f"contradictory row counts {sorted(row_counts)}")

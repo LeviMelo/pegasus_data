@@ -115,6 +115,10 @@ class AggregateSpec:
     #: column participates in `dimensions` like any other -- serve, filters
     #: and the descriptor need never know it was derived.
     age: Any = None
+    #: Banded NUMERIC dimensions (birth weight, gestation weeks): the same
+    #: derivation as age minus the unit decoding. Tuple of
+    #: `_age.NumericBandDimension`.
+    band_dims: tuple[Any, ...] = ()
 
     def measure_named(self, name: str) -> Measure:
         for item in self.measures:
@@ -136,6 +140,10 @@ class AggregateSpec:
             "time_binding": self.time_binding,
             "time_grain": self.time_grain,
             "dimensions": list(self.dimensions),
+            "band_dimensions": [
+                {"name": b.name, "field": b.field_name, "bands": list(b.bands)}
+                for b in self.band_dims
+            ],
             "age": (
                 {"name": self.age.name, "encoding": self.age.encoding,
                  "fields": list(self.age.fields), "bands": list(self.age.bands)}
@@ -207,17 +215,25 @@ def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
             },
             label=str(data.get("label") or ""),
             age=_parse_age(data.get("age_dimension")),
+            band_dims=_parse_bands(data.get("band_dimensions")),
         )
         spec = out[name]
-        if spec.age is not None:
-            # The derived dimension joins the declared ones, carrying its own
-            # labels: the bands are the analyst's construction, so the spec IS
-            # the top rung of the ladder here, not an override of a table.
+        # Every derived dimension joins the declared ones, carrying its own
+        # labels: the bands are the analyst's construction, so the spec IS the
+        # top rung of the ladder here, not an override of a table.
+        derived = ([spec.age] if spec.age is not None else []) + list(spec.band_dims)
+        if derived:
             out[name] = replace(
                 spec,
-                dimensions=(*spec.dimensions, spec.age.name),
-                dimension_labels={**spec.dimension_labels, spec.age.name: spec.age.label},
-                level_labels={**spec.level_labels, spec.age.name: spec.age.band_levels()},
+                dimensions=(*spec.dimensions, *(d.name for d in derived)),
+                dimension_labels={
+                    **spec.dimension_labels,
+                    **{d.name: d.label for d in derived},
+                },
+                level_labels={
+                    **spec.level_labels,
+                    **{d.name: d.band_levels() for d in derived},
+                },
             )
     return out
 
@@ -227,6 +243,15 @@ def _parse_age(body: Any):
 
     try:
         return parse_age_dimension(body)
+    except ValueError as exc:
+        raise AggregationRefused(str(exc)) from exc
+
+
+def _parse_bands(body: Any) -> tuple[Any, ...]:
+    from ._age import parse_band_dimensions
+
+    try:
+        return parse_band_dimensions(body)
     except ValueError as exc:
         raise AggregationRefused(str(exc)) from exc
 
@@ -487,6 +512,10 @@ def build_aggregate(
         # from schema logic re-derived here.
         if str(year) not in report.support:
             def _support_of(dimension: str, year: int = year) -> str:
+                for band in spec.band_dims:
+                    if dimension == band.name:
+                        return str(field_available(
+                            spec.dataset, band.field_name, year, settings=resolved))
                 if spec.age is not None and dimension == spec.age.name:
                     # Derived: available exactly when its sources are. The
                     # weakest source decides -- a band computed from an absent
@@ -508,7 +537,7 @@ def build_aggregate(
         # national one, which is not a build anybody would run.
         keyed_and_mask = _key_columns(
             table, geography_field, time_fields, spec.dimensions, names,
-            encoding=time_encoding, age=spec.age)
+            encoding=time_encoding, age=spec.age, band_dims=spec.band_dims)
         if keyed_and_mask is None:
             report.warnings.append(
                 f"{year} {chunk_uf}: no usable geography/time values; skipped. If the time "
@@ -547,7 +576,7 @@ def build_aggregate(
                         blob_digests.add(str(digest))
             keyed_and_mask = _key_columns(
                 table, geography_field, time_fields, spec.dimensions, names,
-                encoding=time_encoding, age=spec.age)
+                encoding=time_encoding, age=spec.age, band_dims=spec.band_dims)
             if keyed_and_mask is None:
                 continue
             keyed, keep_mask = keyed_and_mask
@@ -669,6 +698,7 @@ def _accumulate(cells: dict, table: Any, keyed: dict, spec: AggregateSpec) -> No
 def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
                  dimensions: Sequence[str], names: set[str],
                  encoding: str = "", age: Any = None,
+                 band_dims: Sequence[Any] = (),
                  ) -> tuple[dict[str, Any], Any] | None:
     """The cell key, as columns: municipality, competencia, then dimensions.
 
@@ -690,8 +720,11 @@ def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
         GEOGRAPHY_KEY: pc.filter(municipality, keep),
         TIME_KEY: pc.filter(period, keep),
     }
+    banded = {b.name: b for b in band_dims}
     for dimension in dimensions:
-        if age is not None and dimension == age.name:
+        if dimension in banded:
+            out[dimension] = pc.filter(banded[dimension].column(table), keep)
+        elif age is not None and dimension == age.name:
             # Derived, not read: decoded to years by the system's own
             # convention and banded per the spec (see _age.py). Undecodable
             # ages land in their own level rather than vanishing.

@@ -1,0 +1,62 @@
+# Live births by the mother's municipality of residence and month of birth.
+#
+# The fifth system, and the one that completes the vital-statistics pair: SIM
+# counts the deaths, this counts the births, and between them sit the
+# indicators DATASUS exists to answer (natural increase, infant mortality's
+# denominator, the caesarean rate). Its DTNASC is the third live exercise of
+# the date-layout measurement (DDMMAAAA, like SIM and unlike SIH).
+#
+# It is also the first recipe to use BOTH derivation mechanisms: the mother's
+# age is plain years (encoding `years` -- SINASC is the one system that does
+# not pack a unit into the value), and PESO is the first numeric band
+# dimension. The weight splits are WHO's, not the data's: under 1.500 g is
+# very low birth weight, under 2.500 g is the low-birth-weight indicator,
+# 4.000+ is macrosomia. Declaring them here is what makes the low-birth-weight
+# question a filter click instead of a research project.
+
+name: sinasc_dn_municipality_month
+dataset: SINASC-DN
+label: Nascidos vivos
+description: >
+  Live births by the mother's municipality of residence and month of birth,
+  with the newborn's sex, delivery type, the mother's age band and the birth
+  weight band retained. One row of the source is one live birth.
+
+geography_binding: residence      # semantic_axes.geography.residence -> CODMUNRES
+time_binding: birth               # semantic_axes.time.birth -> DTNASC (a DATE)
+time_grain: month
+
+dimensions:
+  - SEXO
+  - PARTO
+
+# The mother's age, banded on the reproductive-health cut points rather than
+# the decade grid: under-15 and 15-19 are the adolescent-pregnancy indicators,
+# 35+ is the advanced-maternal-age line.
+age_dimension:
+  name: IDADEMAE_FAIXA
+  label: Idade da mãe
+  encoding: years
+  fields: [IDADEMAE]
+  bands: [0, 15, 20, 25, 30, 35, 40, 45]
+
+band_dimensions:
+  PESO_FAIXA:
+    field: PESO
+    label: Peso ao nascer
+    unit: g
+    bands: [0, 1500, 2500, 4000]
+
+dimension_labels:
+  SEXO: Sexo
+  PARTO: Tipo de parto
+
+# No level_labels for SEXO/PARTO yet: verify-then-declare, the order SIM
+# taught. The reference tables answer first; gaps get declared after the
+# built artifact's observed codes have been read.
+
+measures:
+  births:
+    kind: count
+    label: Nascidos vivos
+    unit: live birth

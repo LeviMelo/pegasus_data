@@ -105,3 +105,54 @@ class TestSpecIntegration:
         assert sim.level_labels["FAIXA_ETARIA"]["000"] == "menos de 1 ano"
         # The fingerprint carries the bands: changing them is a new artifact.
         assert sim.fingerprint_payload()["age"]["encoding"] == "sim"
+
+
+class TestNumericBands:
+    """`band_dimensions:` — the same derivation as age minus unit decoding."""
+
+    def _peso(self):
+        from pegasus_data._age import parse_band_dimensions
+
+        (peso,) = parse_band_dimensions({
+            "PESO_FAIXA": {"field": "PESO", "bands": [0, 1500, 2500, 4000], "unit": "g"},
+        })
+        return peso
+
+    def test_who_cut_points_band_correctly(self) -> None:
+        peso = self._peso()
+        t = pa.table({"PESO": ["0985", "1500", "3200", "4100", "", "xx"]})
+        assert peso.column(t).to_pylist() == [
+            "0000", "1500", "2500", "4000", UNKNOWN_CODE, UNKNOWN_CODE,
+        ]
+
+    def test_codes_are_padded_to_the_widest_band_so_they_sort(self) -> None:
+        peso = self._peso()
+        levels = peso.band_levels()
+        assert sorted(levels)[:-1] == ["0000", "1500", "2500", "4000"]
+        assert levels["0000"] == "menos de 1.500 g"
+        assert levels["4000"] == "4.000+ g"
+
+    def test_bands_must_start_at_zero(self) -> None:
+        from pegasus_data._age import parse_band_dimensions
+
+        with pytest.raises(ValueError):
+            parse_band_dimensions({"X": {"field": "X", "bands": [100, 200]}})
+
+    def test_plain_years_encoding_reads_the_value_as_is(self) -> None:
+        from pegasus_data._age import AgeDimension
+
+        mae = AgeDimension(
+            name="M", encoding="years", fields=("IDADEMAE",),
+            bands=(0, 15, 20, 35),
+        )
+        t = pa.table({"IDADEMAE": ["14", "22", "36", "", "9x"]})
+        assert bands_of(mae, t) == ["000", "020", "035", UNKNOWN_CODE, UNKNOWN_CODE]
+
+    def test_the_sinasc_spec_folds_both_derivations_in(self) -> None:
+        from pegasus_data._aggregate import spec_named
+
+        spec = spec_named("sinasc_dn_municipality_month")
+        assert "IDADEMAE_FAIXA" in spec.dimensions
+        assert "PESO_FAIXA" in spec.dimensions
+        payload = spec.fingerprint_payload()
+        assert payload["band_dimensions"][0]["field"] == "PESO"

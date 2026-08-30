@@ -12,6 +12,7 @@ SIH       IDADE + COD_IDADE   unit in its OWN column: 2=days, 3=months,
 SIM       IDADE               unit packed into the LEADING digit of a
                               3-char value: 4xx = xx years, 5xx = 100+xx
 SINAN     NU_IDADE_N          the same packing, 4 chars: 4yyy = yyy years
+plain     any                 the value already IS years (SINASC's IDADEMAE)
 ========  ==================  ==========================================
 
 The decode leans on one provable fact rather than a table of every unit
@@ -75,15 +76,15 @@ def parse_age_dimension(body: Any) -> AgeDimension | None:
     if not body:
         return None
     encoding = str(body.get("encoding") or "")
-    if encoding not in ("sih", "sim", "sinan"):
+    if encoding not in ("sih", "sim", "sinan", "years"):
         raise ValueError(
-            f"age_dimension.encoding must be sih|sim|sinan, got {encoding!r}"
+            f"age_dimension.encoding must be sih|sim|sinan|years, got {encoding!r}"
         )
     fields = tuple(str(f) for f in (body.get("fields") or ()))
     if encoding == "sih" and len(fields) != 2:
         raise ValueError("sih age needs [value_field, unit_field]")
-    if encoding in ("sim", "sinan") and len(fields) != 1:
-        raise ValueError(f"{encoding} age needs exactly one packed field")
+    if encoding in ("sim", "sinan", "years") and len(fields) != 1:
+        raise ValueError(f"{encoding} age needs exactly one field")
     bands = tuple(int(b) for b in (body.get("bands") or DEFAULT_BANDS))
     if list(bands) != sorted(set(bands)) or (bands and bands[0] != 0):
         raise ValueError("bands must be strictly increasing and start at 0")
@@ -133,6 +134,10 @@ def years_column(age: AgeDimension, table: Any) -> Any:
             pa.scalar(None, pa.float64()),
         )
 
+    if age.encoding == "years":
+        # The value already is years; only "is it a number" needs checking.
+        return _digits_to_years(text_of(age.fields[0]))
+
     # Packed: leading digit is the unit, the rest is the quantity.
     packed = text_of(age.fields[0])
     unit = pc.utf8_slice_codeunits(packed, 0, 1)
@@ -165,3 +170,84 @@ def band_column(age: AgeDimension, years: Any) -> Any:
             out,
         )
     return pc.fill_null(out, UNKNOWN_CODE)
+
+
+@dataclass(frozen=True, slots=True)
+class NumericBandDimension:
+    """A banded numeric dimension, declared in the spec.
+
+    The same shape as the age dimension minus the unit decoding: the field is
+    already a plain number (grams, weeks, counts) and only needs parsing and
+    banding. Declared per artifact because the bands are an analytical claim
+    -- birth weight's 1500/2500/4000 splits are WHO's, not the data's.
+    """
+
+    name: str
+    field_name: str
+    bands: tuple[int, ...]
+    label: str
+    unit: str = ""
+
+    def _width(self) -> int:
+        return max(3, len(str(self.bands[-1])))
+
+    def band_levels(self) -> dict[str, str]:
+        def fmt(value: int) -> str:
+            return f"{value:,}".replace(",", ".")
+
+        out: dict[str, str] = {}
+        edges = list(self.bands)
+        suffix = f" {self.unit}" if self.unit else ""
+        for i, lo in enumerate(edges):
+            code = f"{lo:0{self._width()}d}"
+            if i + 1 < len(edges):
+                hi = edges[i + 1] - 1
+                out[code] = (
+                    f"menos de {fmt(edges[i + 1])}{suffix}" if lo == 0
+                    else f"{fmt(lo)}–{fmt(hi)}{suffix}"
+                )
+            else:
+                out[code] = f"{fmt(lo)}+{suffix}"
+        out[UNKNOWN_CODE] = "Ignorado"
+        return out
+
+    def column(self, table: Any) -> Any:
+        """The band code column for this table. Vectorised, unknowns kept."""
+        import pyarrow as pa
+        import pyarrow.compute as pc
+
+        if self.field_name not in set(table.schema.names):
+            numeric = pa.nulls(table.num_rows, pa.float64())
+        else:
+            text = pc.utf8_trim_whitespace(
+                pc.cast(table.column(self.field_name), pa.string()))
+            numeric = _digits_to_years(text)
+        out = pa.nulls(len(numeric), pa.string())
+        for lo in self.bands:
+            out = pc.if_else(
+                pc.fill_null(pc.greater_equal(numeric, float(lo)), False),
+                f"{lo:0{self._width()}d}",
+                out,
+            )
+        return pc.fill_null(out, UNKNOWN_CODE)
+
+
+def parse_band_dimensions(body: Any) -> tuple[NumericBandDimension, ...]:
+    """The spec's ``band_dimensions:`` block, validated."""
+    out: list[NumericBandDimension] = []
+    for name, spec in (body or {}).items():
+        spec = spec or {}
+        bands = tuple(int(b) for b in (spec.get("bands") or ()))
+        if not bands or list(bands) != sorted(set(bands)) or bands[0] != 0:
+            raise ValueError(
+                f"band_dimensions.{name}: bands must be strictly increasing "
+                "and start at 0"
+            )
+        out.append(NumericBandDimension(
+            name=str(name),
+            field_name=str(spec.get("field") or name),
+            bands=bands,
+            label=str(spec.get("label") or name),
+            unit=str(spec.get("unit") or ""),
+        ))
+    return tuple(out)
