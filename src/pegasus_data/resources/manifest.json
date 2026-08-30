@@ -17,39 +17,66 @@
   },
   "resources": {
     "bindings": {
-      "file": "bindings.parquet", "tier": "B", "bytes": 38888, "rows": 9796,
+      "file": "bindings.parquet",
+      "tier": "B",
+      "bytes": 38888,
+      "rows": 9796,
       "sha256": "9766dc3999e2622575ee42c55bdc0c08c57242eb709d12efe82cee9f36cf9446"
     },
     "families": {
-      "file": "families.parquet", "tier": "A", "bytes": 20217, "rows": 1633,
+      "file": "families.parquet",
+      "tier": "A",
+      "bytes": 20217,
+      "rows": 1633,
       "sha256": "e6dcb9723cd3b3b1e8ee196e52c2512073c5c6e25173ae9ee0197cbad5872d14"
     },
     "geography": {
-      "file": "geography.parquet", "tier": "A", "bytes": 155254, "rows": 74973,
+      "file": "geography.parquet",
+      "tier": "A",
+      "bytes": 155254,
+      "rows": 74973,
       "sha256": "4c6b4f2ce58382dba24771e8e165aaa2a1aa9221cfbd807d4c5256765ba89b6d"
     },
     "municipalities": {
-      "file": "municipalities.parquet", "tier": "A", "bytes": 91300, "rows": 5571,
+      "file": "municipalities.parquet",
+      "tier": "A",
+      "bytes": 91300,
+      "rows": 5571,
       "sha256": "75405d1b977b25da925adbc0cc1b3c95fd21916d935342464a064c8a11adfb00"
     },
     "labels": {
-      "file": "labels.parquet", "tier": "B", "bytes": 29968316, "rows": 3654320,
+      "file": "labels.parquet",
+      "tier": "B",
+      "bytes": 29968316,
+      "rows": 3654320,
       "sha256": "5cbc2f09c4b35dca743d853d68fc4e444037dbea3f6645e1fc28ce2cdac50a6c"
     },
     "cnes_cnpj": {
-      "file": "labels_crosswalk.parquet", "tier": "B", "bytes": 10339656, "rows": 1774993,
+      "file": "labels_crosswalk.parquet",
+      "tier": "B",
+      "bytes": 10339656,
+      "rows": 1774993,
       "sha256": "b89d5f54359e6b58e3e3fdc1ed18a4ab9d4c4b7f8781c0f9362445421e733a63"
     },
     "schema_presence": {
-      "file": "schema_presence.parquet", "tier": "A", "bytes": 44232, "rows": 17189,
+      "file": "schema_presence.parquet",
+      "tier": "A",
+      "bytes": 44232,
+      "rows": 17189,
       "sha256": "5faa2dd625792b74b3bcc1ca9525395bbe427e078ed0ae6c64a754971b008313"
     },
     "query_capabilities": {
-      "file": "query_capabilities.json", "tier": "A", "bytes": 1060, "rows": 5,
-      "sha256": "e18df346329e39acec73e36d0cc160d5fe0207be6f2a1cdd66444cbe1634c752"
+      "file": "query_capabilities.json",
+      "tier": "A",
+      "bytes": 1128,
+      "rows": 5,
+      "sha256": "3a4ad4bb13d3ee6249d8552dbf96ea3f1e58a437ea5b750905c47b32dedde676"
     },
     "tree": {
-      "file": "tree.parquet", "tier": "A", "bytes": 1294140, "rows": 207251,
+      "file": "tree.parquet",
+      "tier": "A",
+      "bytes": 1294140,
+      "rows": 207251,
       "sha256": "06e27369c6ba868e34e7855516ded07e2e4fb865e34a80cb871152c798c38b81"
     }
   },

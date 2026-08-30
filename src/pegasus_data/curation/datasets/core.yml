@@ -46,6 +46,10 @@ datasets:
       observed_systems: [SIM]
       observed_series: [DO]
       temporal_resolution: year
+      # DOAC2022.dbc, DOSP2022.dbc... -- one file per UF per year. The records
+      # engine refused UF scoping for SIM because this line was missing, while
+      # the tree plainly partitions by state.
+      physical_geography: uf
     semantic_axes:
       default_time: occurrence
       time:
@@ -78,6 +82,7 @@ datasets:
       observed_systems: [SINASC]
       observed_series: [DN]
       temporal_resolution: year
+      physical_geography: uf
     semantic_axes:
       default_time: birth
       time:

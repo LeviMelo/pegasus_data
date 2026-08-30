@@ -208,8 +208,15 @@ def _capabilities(
         )
         relevant = [row for row in publications if not requested_years or row.get("year") in requested_years]
         observed_geo = [str(row.get("geo_code") or "") for row in relevant]
+        # ANY UF-coded publication proves the axis. The old test demanded the
+        # partition be EXCLUSIVELY per-UF, and SIM's tree is not: DO{UF}2022
+        # for all 27 states coexists with a consolidated DOBR file and a few
+        # geo-less documentation rows, so the axis was erased by the company
+        # it keeps. When a UF is requested, the filter below already excludes
+        # the BR consolidated, so no row is double-counted.
         physical_uf = declared_physical_uf and (
-            not observed_geo or all(value not in {"", "BR"} for value in observed_geo)
+            not observed_geo
+            or any(value not in {"", "BR"} for value in observed_geo)
         )
         if physical_uf and geography and geography.uf:
             relevant = [row for row in relevant if str(row.get("geo_code") or "").upper() == geography.uf]

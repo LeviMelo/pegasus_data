@@ -19,7 +19,8 @@
       "observed_series": [
         "DO"
       ],
-      "publication_resolution": "year"
+      "publication_resolution": "year",
+      "physical_geography": "uf"
     },
     "SINASC.DN": {
       "observed_systems": [
@@ -28,7 +29,8 @@
       "observed_series": [
         "DN"
       ],
-      "publication_resolution": "year"
+      "publication_resolution": "year",
+      "physical_geography": "uf"
     },
     "SIA.PA": {
       "observed_systems": [
