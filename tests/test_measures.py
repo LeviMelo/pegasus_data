@@ -26,6 +26,7 @@ from pegasus_data.measures import (
     kind_named,
     measure_from_declaration,
     merge_all,
+    lift,
 )
 from pegasus_data.semantics.curation import parse_grain
 
@@ -102,6 +103,26 @@ class TestFinalizeSaysTheHonestThing:
         assert finalize(Measure("m", MAX, "x"), MAX.identity()) is None
 
 
+class TestMultiFieldSum:
+    """CNES splits "beds" across three legacy columns; the sum is declared."""
+
+    def test_row_wise_sum_across_columns(self) -> None:
+        m = measure_from_declaration(
+            "beds", {"kind": "sum", "field": ["A", "B", "C"], "unit": "bed"})
+        assert m.source_fields == ("A", "B", "C")
+        assert lift(m, {"A": "2", "B": 3, "C": None}) == (5.0,)
+
+    def test_a_row_where_no_column_parses_stays_null_not_zero(self) -> None:
+        m = measure_from_declaration(
+            "beds", {"kind": "sum", "field": ["A", "B"], "unit": "bed"})
+        assert lift(m, {"A": "", "B": None}) == m.kind.lift(None)
+
+    def test_only_sum_composes_across_columns(self) -> None:
+        with pytest.raises(AggregationRefused):
+            measure_from_declaration(
+                "m", {"kind": "mean", "field": ["A", "B"], "unit": "u"})
+
+
 class TestMeasuresThatCannotExist:
     @pytest.mark.parametrize("name", ["median", "p95", "percentile", "mode"])
     def test_non_mergeable_kinds_are_refused_at_declaration(self, name) -> None:
@@ -118,7 +139,7 @@ class TestMeasuresThatCannotExist:
             measure_from_declaration("cost", {"kind": "sum"})
 
     def test_count_needs_no_field(self) -> None:
-        assert measure_from_declaration("n", {"kind": "count"}).source_field is None
+        assert measure_from_declaration("n", {"kind": "count"}).source_fields == ()
 
 
 class TestAdditivityIsPerAxis:

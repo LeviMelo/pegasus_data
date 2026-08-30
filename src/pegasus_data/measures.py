@@ -274,8 +274,12 @@ class Measure:
 
     name: str
     kind: Kind
-    #: The source column `lift` reads. None for `count`, which counts rows.
-    source_field: str | None = None
+    #: The source columns `lift` reads, summed per row when there are several
+    #: -- CNES splits "beds" across the three legacy rollup columns, and a
+    #: total that IS the row-wise sum belongs in the declaration, not in a
+    #: client stitching three partial measures together. Empty for `count`,
+    #: which counts rows.
+    source_fields: tuple[str, ...] = ()
     #: What one increment counts — `admission`, `death`, `brl`. Checked against
     #: the dataset's grain, because `count` of anything else is a different
     #: measure wearing the same name.
@@ -308,9 +312,20 @@ def measure_from_declaration(name: str, body: Mapping[str, Any]) -> Measure:
     """Build a `Measure` from one entry of a spec's `measures:` block."""
     kind = kind_named(str(body.get("kind", "count")))
     source = body.get("field")
-    if kind.needs_field and not source:
+    fields: tuple[str, ...] = (
+        tuple(str(f) for f in source)
+        if isinstance(source, (list, tuple))
+        else (str(source),) if source else ()
+    )
+    if kind.needs_field and not fields:
         raise AggregationRefused(
             f"measure {name!r} is a {kind.name} and names no source field"
+        )
+    if len(fields) > 1 and kind.name != "sum":
+        raise AggregationRefused(
+            f"measure {name!r} names {len(fields)} fields but is a "
+            f"{kind.name}; only `sum` composes row-wise across columns -- a "
+            "mean or extreme of a sum of columns is a different statement"
         )
     declared = body.get("additive_over")
     if declared is None:
@@ -333,7 +348,7 @@ def measure_from_declaration(name: str, body: Mapping[str, Any]) -> Measure:
     return Measure(
         name=name,
         kind=kind,
-        source_field=str(source) if source else None,
+        source_fields=fields,
         unit=str(body.get("unit") or ""),
         label=str(body.get("label") or ""),
         additive_over=additive,
@@ -346,9 +361,20 @@ def measure_from_declaration(name: str, body: Mapping[str, Any]) -> Measure:
 
 
 def lift(measure: Measure, row: Mapping[str, Any]) -> State:
-    if measure.source_field is None:
+    if not measure.source_fields:
         return measure.kind.lift(None)
-    return measure.kind.lift(row.get(measure.source_field))
+    if len(measure.source_fields) == 1:
+        return measure.kind.lift(row.get(measure.source_fields[0]))
+    # Row-wise sum across columns; a row where NO column parses stays null.
+    total: float | None = None
+    for field_name in measure.source_fields:
+        value = row.get(field_name)
+        try:
+            number = float(value)  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            continue
+        total = number if total is None else total + number
+    return measure.kind.lift(total)
 
 
 def merge(measure: Measure, left: State, right: State) -> State:

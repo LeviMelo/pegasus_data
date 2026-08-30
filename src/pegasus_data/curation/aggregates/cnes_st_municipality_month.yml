@@ -66,10 +66,19 @@ measures:
     # say so, or a quarterly figure reads as three times the estate.
     unit: establishment-month
 
+  # Both stocks below originally read a SINGLE wrong column each: QTINST07
+  # and QTINST08 are male/unsegregated REST ROOMS in the emergency grid, and
+  # the "Leitos" they painted for Sao Paulo were ~1.9 mil where the state has
+  # over a hundred thousand beds. The dictionary rows for the QTINST/QTLEIT
+  # grids name what each position actually is; these lists follow them.
+
   consulting_rooms:
     kind: sum
     label: Consultórios
-    field: QTINST07
+    # Physician and non-physician consulting rooms: the general-physician
+    # room of the emergency grid plus the four outpatient consulting-room
+    # positions. Dental rooms are their own thing and stay out.
+    field: [QTINST14, QTINST15, QTINST16, QTINST17, QTINST18]
     unit: room
     additive_over: [geography, dimensions]
     time_reducer: mean          # a stock: rooms in a quarter is not rooms x 3
@@ -77,7 +86,9 @@ measures:
   beds_total:
     kind: sum
     label: Leitos
-    field: QTINST08
+    # The legacy existing-beds rollup: surgical + clinical + complementary.
+    # The QTLEIT05.. specialty columns partition a different, narrower grid.
+    field: [QTLEITP1, QTLEITP2, QTLEITP3]
     unit: bed
     additive_over: [geography, dimensions]
     time_reducer: mean

@@ -25,7 +25,7 @@ pytestmark = pytest.mark.filterwarnings("ignore")
 
 
 def _measure(kind, name="extreme"):
-    return Measure(name=name, kind=kind, source_field="VALUE", label=name, unit="unit")
+    return Measure(name=name, kind=kind, source_fields=("VALUE",), label=name, unit="unit")
 
 
 class TestLift:

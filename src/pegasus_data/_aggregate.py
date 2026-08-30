@@ -151,7 +151,8 @@ class AggregateSpec:
             ),
             "measures": [
                 {
-                    "name": m.name, "kind": m.kind.name, "field": m.source_field,
+                    "name": m.name, "kind": m.kind.name,
+                    "field": list(m.source_fields),
                     "unit": m.unit, "additive_over": sorted(m.additive_over),
                     "time_reducer": m.time_reducer,
                 }
@@ -865,8 +866,18 @@ def _lift_columns(table: Any, measures: Sequence[Measure]) -> tuple[dict[str, An
     rows = table.num_rows
     for measure in measures:
         columns = measure.state_columns()
-        if measure.source_field and measure.source_field in table.schema.names:
-            numeric = _to_number(table.column(measure.source_field), rows)
+        present = [f for f in measure.source_fields if f in table.schema.names]
+        if present:
+            # Several columns sum row-wise (null contributes nothing, but a
+            # row where NO column parses stays null, not zero).
+            numeric = _to_number(table.column(present[0]), rows)
+            for extra in present[1:]:
+                more = _to_number(table.column(extra), rows)
+                numeric = pc.if_else(
+                    pc.is_valid(numeric),
+                    pc.add(pc.fill_null(numeric, 0.0), pc.fill_null(more, 0.0)),
+                    more,
+                )
         else:
             numeric = pa.nulls(rows, pa.float64())
         valid = pc.cast(pc.is_valid(numeric), pa.float64())
