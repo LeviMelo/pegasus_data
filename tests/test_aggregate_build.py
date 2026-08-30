@@ -32,15 +32,18 @@ pytestmark = pytest.mark.filterwarnings("ignore")
 
 
 ROWS = [
-    # municipality, ano, mes, sexo, raca, morte, dias, valor
-    ("120040", "2022", "01", "1", "01", "0", "3", "100.00"),
-    ("120040", "2022", "01", "1", "01", "1", "5", "200.00"),
-    ("120040", "2022", "01", "3", "02", "0", "1", "50.00"),
-    ("120020", "2022", "02", "1", "01", "0", "",  "10.00"),   # blank stay
-    ("355030", "2022", "02", "3", "01", "0", "7", "70.00"),
+    # municipality, ano, mes, sexo, raca, carater, morte, dias, valor, idade, cod_idade, uti
+    # The first two rows agree on EVERY key column -- ages 30 and 32 land in
+    # the same band -- so they merge into one cell; that merge is what
+    # test_cells_are_the_distinct_key_tuples pins.
+    ("120040", "2022", "01", "1", "01", "01", "0", "3", "100.00", "030", "4", "2"),
+    ("120040", "2022", "01", "1", "01", "01", "0", "5", "200.00", "032", "4", "0"),
+    ("120040", "2022", "01", "3", "02", "01", "1", "1", "50.00", "071", "4", "1"),
+    ("120020", "2022", "02", "1", "01", "02", "0", "",  "10.00", "008", "3", "0"),  # blank stay; 8 MONTHS old
+    ("355030", "2022", "02", "3", "01", "01", "0", "7", "70.00", "xx", "9", "0"),   # undecodable age
 ]
-COLUMNS = ("MUNIC_RES", "ANO_CMPT", "MES_CMPT", "SEXO", "RACA_COR",
-           "MORTE", "DIAS_PERM", "VAL_TOT")
+COLUMNS = ("MUNIC_RES", "ANO_CMPT", "MES_CMPT", "SEXO", "RACA_COR", "CAR_INT",
+           "MORTE", "DIAS_PERM", "VAL_TOT", "IDADE", "COD_IDADE", "UTI_MES_TO")
 
 
 #: The two-digit IBGE prefixes the fixture rows use, so the fake fetch can
@@ -93,7 +96,8 @@ class TestTheSpecIsDeclarative:
         assert spec.dataset == "SIH-RD"
         assert spec.geography_binding == "residence"
         assert spec.time_binding == "competence"
-        assert {m.name for m in spec.measures} == {"admissions", "deaths", "los", "cost"}
+        assert {m.name for m in spec.measures} == {
+            "admissions", "deaths", "los", "cost", "uti_days"}
 
     def test_bindings_name_semantic_axes_not_columns(self) -> None:
         """`residence` is a key of semantic_axes, not a field name.
@@ -138,10 +142,16 @@ class TestTheBuild:
         rows = {(r["municipality"], r["competencia"], r["SEXO"], r["RACA_COR"]): r
                 for r in table.to_pylist()}
         merged = rows[("120040", "202201", "1", "01")]
+        assert merged["FAIXA_ETARIA"] == "030", "ages 30 and 32 share a band"
         assert merged["admissions_n"] == 2
-        assert merged["deaths_sum"] == 1
+        assert merged["deaths_sum"] == 0
         assert merged["los_n"] == 2 and merged["los_sum"] == 8
         assert merged["cost_sum"] == pytest.approx(300.0)
+        assert merged["uti_days_sum"] == 2
+        eighty = rows[("120040", "202201", "3", "02")]
+        assert eighty["deaths_sum"] == 1
+        unknown = rows[("355030", "202202", "3", "01")]
+        assert unknown["FAIXA_ETARIA"] == "ZIG", "an undecodable age is a level"
 
     def test_a_blank_value_contributes_no_observation_to_a_mean(self, built) -> None:
         """A blank DIAS_PERM is an unknown stay, not a stay of nought days."""
@@ -156,7 +166,10 @@ class TestTheBuild:
     def test_the_support_mask_is_recorded_per_year_and_dimension(self, built) -> None:
         """Distinguishes 'zero happened' from 'the column did not exist'."""
         settings, report = built
-        assert report.support["2022"] == {"SEXO": "present", "RACA_COR": "present"}
+        assert report.support["2022"]["SEXO"] == "present"
+        assert report.support["2022"]["RACA_COR"] == "present"
+        # The derived dimension reports the availability of its SOURCES.
+        assert "FAIXA_ETARIA" in report.support["2022"]
 
     def test_the_manifest_records_identity_and_support(self, built) -> None:
         settings, report = built

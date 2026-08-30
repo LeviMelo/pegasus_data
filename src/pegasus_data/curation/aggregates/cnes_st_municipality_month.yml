@@ -34,7 +34,29 @@ geography_binding: facility       # semantic_axes.geography.facility -> CODUFMUN
 time_binding: competence
 time_grain: month
 
-dimensions: []
+# TP_UNID is the variable this artifact was shallow without: hospital versus
+# UBS versus clinic is the first split any question about capacity needs.
+# TPGESTAO (municipal/state/dual management) costs almost nothing (3 levels)
+# and answers "whose network is this". NAT_JUR measured at 20 levels and left
+# out -- juridical nature is a narrower question than one artifact should
+# spend cells on.
+dimensions:
+  - TP_UNID
+  - TPGESTAO
+
+dimension_labels:
+  TP_UNID: Tipo de unidade
+  TPGESTAO: Gestão
+
+level_labels:
+  # The reference tables bind TP_UNID; TPGESTAO's letters are documented in
+  # the layout and bound to no table, so the words are the spec's own.
+  TPGESTAO:
+    "M": "Municipal"
+    "E": "Estadual"
+    "D": "Dupla"
+    "S": "Sem gestão"
+    "Z": "Sob intervenção"
 
 measures:
   establishment_months:

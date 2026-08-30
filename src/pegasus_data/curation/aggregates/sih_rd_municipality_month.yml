@@ -25,11 +25,24 @@ geography_binding: residence      # semantic_axes.geography.residence -> MUNIC_R
 time_binding: competence          # semantic_axes.time.competence -> ANO_CMPT, MES_CMPT
 time_grain: month
 
-# Kept deliberately few. Each additional dimension multiplies the cell count and
-# spends the compression that justifies the artifact.
+# Widened by measurement, not by appetite (AGGREGATE_DESIGN §6 still rules).
+# On PE/2022 the full set below lands at 3.4 rows per cell -- the artifact
+# stays an order of magnitude under the microdata while carrying the variables
+# an epidemiologist reaches for first. ESPEC and COBRANCA measured too and
+# left out: each roughly doubles the cells for a narrower question, and the
+# design's answer to that is a SECOND artifact, not a fatter one.
 dimensions:
   - SEXO
   - RACA_COR
+  - CAR_INT
+  - MORTE
+
+# Age is DERIVED, not read: no raw column holds years. SIH keeps the unit in
+# COD_IDADE beside the value (2=days, 3=months, 4=years, 5=100+); anything
+# sub-year lands in the first band, anything undecodable in its own level.
+age_dimension:
+  encoding: sih
+  fields: [IDADE, COD_IDADE]
 
 # What the interface calls these. A column name is not a label, and curation's
 # translated names are English while the interface is Portuguese -- so the
@@ -37,6 +50,15 @@ dimensions:
 dimension_labels:
   SEXO: Sexo
   RACA_COR: Raça/cor
+  CAR_INT: Caráter da internação
+  MORTE: Óbito na internação
+
+level_labels:
+  # MORTE is a 0/1 flag the reference tables do not bind; the words are the
+  # spec's own statement, verified against the observed codes (0 and 1 only).
+  MORTE:
+    "0": "Sem óbito"
+    "1": "Com óbito"
 
 measures:
   admissions:
@@ -58,3 +80,8 @@ measures:
     label: Valor total
     field: VAL_TOT
     unit: brl                # nominal reais at billing time, never deflated
+  uti_days:
+    kind: sum
+    label: Dias de UTI
+    field: UTI_MES_TO
+    unit: day                # ICU-days billed in the month; a flow, it sums

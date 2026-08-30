@@ -89,6 +89,29 @@ def _population_payload(
             "data": data, "total": total}
 
 
+#: Shaped responses as SERIALISED BYTES, keyed by (artifact identity, the
+#: whole request). Bytes, not the dict: FastAPI's encoder walk over a 66k-row
+#: payload costs ~0.4 s per response, which is most of the route's warm time
+#: -- serialising once with orjson and replaying the bytes skips it entirely.
+#: The identity is the pair of file mtimes every other cache here keys on, so
+#: a rebuild is a different key and nothing needs invalidating.
+_RESPONSE_CACHE: dict[tuple, bytes] = {}
+_RESPONSE_CACHE_LIMIT = 256
+
+
+def _artifact_identity(settings: Any, artifact: str) -> tuple[int, int]:
+    from .._aggregate import artifact_dir
+
+    target = artifact_dir(artifact, settings)
+    try:
+        return (
+            (target / "cells.parquet").stat().st_mtime_ns,
+            (target / "manifest.json").stat().st_mtime_ns,
+        )
+    except OSError:
+        return (0, 0)
+
+
 def _error(status: int, message: str, **extra: Any):
     from fastapi.responses import JSONResponse
 
@@ -194,6 +217,16 @@ def create_app(
         for key, value in request.query_params.multi_items():
             if key.startswith("dim.") and value:
                 where[key[4:]] = [v.strip() for v in value.split(",") if v.strip()]
+        cache_key = (
+            artifact, tuple(levels), tuple(wanted), system,
+            tuple(sorted((k, tuple(v)) for k, v in where.items())),
+            _artifact_identity(settings, artifact),
+        )
+        cached = _RESPONSE_CACHE.get(cache_key)
+        if cached is not None:
+            from fastapi import Response
+
+            return Response(content=cached, media_type="application/json")
         # Resolved before the try, so "there is no such recipe" cannot be
         # reported as "that roll-up does not mean anything".
         try:
@@ -231,7 +264,14 @@ def create_app(
             report=report, fingerprint=report.fingerprint,
         )
         body["dataset"] = spec.dataset
-        return body
+        import orjson
+        from fastapi import Response
+
+        blob = orjson.dumps(body)
+        if len(_RESPONSE_CACHE) >= _RESPONSE_CACHE_LIMIT:
+            _RESPONSE_CACHE.clear()
+        _RESPONSE_CACHE[cache_key] = blob
+        return Response(content=blob, media_type="application/json")
 
     # --------------------------------------------------------- geography
 
@@ -390,6 +430,33 @@ def create_app(
             "columns": list(page.schema.names),
             "rows": page.to_pylist(),
         }
+
+    @app.on_event("startup")
+    def _prewarm() -> None:  # pragma: no cover - timing-dependent warmup
+        """Warm each built artifact's canonical shape before anyone asks.
+
+        The first municipality-month question against a national artifact
+        costs ~1.5 s of reads and grouping; every later identical question is
+        the response cache. Paying the first one at startup, in a thread,
+        means no user ever does.
+        """
+        import threading
+
+        def work() -> None:
+            from .._aggregate import aggregate as _aggregate
+
+            for entry in catalogue(settings=settings):
+                if not entry.get("built"):
+                    continue
+                try:
+                    _aggregate(
+                        entry["id"], by=["municipality", "month"],
+                        settings=settings, finalize=False,
+                    )
+                except Exception:  # noqa: BLE001 - warmup must never block serving
+                    continue
+
+        threading.Thread(target=work, name="prewarm", daemon=True).start()
 
     # Registered on Exception, not on 500: Starlette dispatches int-keyed
     # handlers only for HTTPExceptions RAISED with that status, and nothing

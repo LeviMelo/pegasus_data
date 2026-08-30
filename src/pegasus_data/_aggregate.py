@@ -33,7 +33,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -109,6 +109,12 @@ class AggregateSpec:
     level_labels: Mapping[str, Mapping[str, str]] = field(default_factory=dict)
     #: What to call this artifact on screen.
     label: str = ""
+    #: A derived age-band dimension, or None. Declared rather than raw because
+    #: no raw column holds an age in years: every system packs a unit into the
+    #: value or a sibling column, each its own way (see _age.py). The band
+    #: column participates in `dimensions` like any other -- serve, filters
+    #: and the descriptor need never know it was derived.
+    age: Any = None
 
     def measure_named(self, name: str) -> Measure:
         for item in self.measures:
@@ -130,6 +136,11 @@ class AggregateSpec:
             "time_binding": self.time_binding,
             "time_grain": self.time_grain,
             "dimensions": list(self.dimensions),
+            "age": (
+                {"name": self.age.name, "encoding": self.age.encoding,
+                 "fields": list(self.age.fields), "bands": list(self.age.bands)}
+                if self.age is not None else None
+            ),
             "measures": [
                 {
                     "name": m.name, "kind": m.kind.name, "field": m.source_field,
@@ -195,8 +206,29 @@ def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
                 for dim, body in (data.get("level_labels") or {}).items()
             },
             label=str(data.get("label") or ""),
+            age=_parse_age(data.get("age_dimension")),
         )
+        spec = out[name]
+        if spec.age is not None:
+            # The derived dimension joins the declared ones, carrying its own
+            # labels: the bands are the analyst's construction, so the spec IS
+            # the top rung of the ladder here, not an override of a table.
+            out[name] = replace(
+                spec,
+                dimensions=(*spec.dimensions, spec.age.name),
+                dimension_labels={**spec.dimension_labels, spec.age.name: spec.age.label},
+                level_labels={**spec.level_labels, spec.age.name: spec.age.band_levels()},
+            )
     return out
+
+
+def _parse_age(body: Any):
+    from ._age import parse_age_dimension
+
+    try:
+        return parse_age_dimension(body)
+    except ValueError as exc:
+        raise AggregationRefused(str(exc)) from exc
 
 
 def spec_named(name: str, root: Path | None = None) -> AggregateSpec:
@@ -454,10 +486,19 @@ def build_aggregate(
         # The support mask, from the existing availability verb rather than
         # from schema logic re-derived here.
         if str(year) not in report.support:
+            def _support_of(dimension: str, year: int = year) -> str:
+                if spec.age is not None and dimension == spec.age.name:
+                    # Derived: available exactly when its sources are. The
+                    # weakest source decides -- a band computed from an absent
+                    # unit column is not "present".
+                    return min(
+                        str(field_available(spec.dataset, f, year, settings=resolved))
+                        for f in spec.age.fields
+                    )
+                return str(field_available(spec.dataset, dimension, year, settings=resolved))
+
             report.support[str(year)] = {
-                dimension: str(
-                    field_available(spec.dataset, dimension, year, settings=resolved))
-                for dimension in spec.dimensions
+                dimension: _support_of(dimension) for dimension in spec.dimensions
             }
 
         # lift + merge, columnar. Each accumulator's lift is a column
@@ -465,10 +506,10 @@ def build_aggregate(
         # group_by. The row loop this replaced ran at about 1.4 ms per
         # admission -- fine for one state-year, and roughly five hours for a
         # national one, which is not a build anybody would run.
-        keyed = _key_columns(
+        keyed_and_mask = _key_columns(
             table, geography_field, time_fields, spec.dimensions, names,
-            encoding=time_encoding)
-        if keyed is None:
+            encoding=time_encoding, age=spec.age)
+        if keyed_and_mask is None:
             report.warnings.append(
                 f"{year} {chunk_uf}: no usable geography/time values; skipped. If the time "
                 f"axis is a date, {list(time_fields)} may hold a layout neither "
@@ -476,7 +517,8 @@ def build_aggregate(
                 "bucketed under a period that means nothing."
             )
             continue
-        _accumulate(cells, table, keyed, spec)
+        keyed, keep_mask = keyed_and_mask
+        _accumulate(cells, table.filter(keep_mask), keyed, spec)
         if year not in report.years:
             report.years = (*report.years, year)
 
@@ -503,12 +545,13 @@ def build_aggregate(
                 for digest in set(table.column("_blob_sha256").to_pylist()):
                     if digest:
                         blob_digests.add(str(digest))
-            keyed = _key_columns(
+            keyed_and_mask = _key_columns(
                 table, geography_field, time_fields, spec.dimensions, names,
-                encoding=time_encoding)
-            if keyed is None:
+                encoding=time_encoding, age=spec.age)
+            if keyed_and_mask is None:
                 continue
-            _accumulate(cells, table, keyed, spec)
+            keyed, keep_mask = keyed_and_mask
+            _accumulate(cells, table.filter(keep_mask), keyed, spec)
             if year not in report.years:
                 report.years = (*report.years, year)
             report.warnings.extend(fetch_report.warnings[:3])
@@ -625,7 +668,8 @@ def _accumulate(cells: dict, table: Any, keyed: dict, spec: AggregateSpec) -> No
 
 def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
                  dimensions: Sequence[str], names: set[str],
-                 encoding: str = "") -> dict[str, Any] | None:
+                 encoding: str = "", age: Any = None,
+                 ) -> tuple[dict[str, Any], Any] | None:
     """The cell key, as columns: municipality, competencia, then dimensions.
 
     Rows with no municipality or no resolvable period are dropped here rather
@@ -647,7 +691,14 @@ def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
         TIME_KEY: pc.filter(period, keep),
     }
     for dimension in dimensions:
-        if dimension in names:
+        if age is not None and dimension == age.name:
+            # Derived, not read: decoded to years by the system's own
+            # convention and banded per the spec (see _age.py). Undecodable
+            # ages land in their own level rather than vanishing.
+            from ._age import band_column, years_column
+
+            out[dimension] = pc.filter(band_column(age, years_column(age, table)), keep)
+        elif dimension in names:
             column = pc.utf8_trim_whitespace(pc.cast(table.column(dimension), pa.string()))
             out[dimension] = pc.filter(pc.fill_null(column, ""), keep)
         else:
@@ -655,9 +706,14 @@ def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],
             # "unknown" -- the support mask is what says the column did not
             # exist -- but the cell still has to exist so its measures are not
             # silently lost.
-            out[dimension] = pa.array([""] * pc.sum(pc.cast(keep, pa.int64())).as_py(),
-                                      pa.string())
-    return out
+            # `or 0`: Arrow sums an empty mask to null, not to nought.
+            kept = int(pc.sum(pc.cast(keep, pa.int64())).as_py() or 0)
+            out[dimension] = pa.array([""] * kept, pa.string())
+    # The mask goes back WITH the keys. The keys are filtered by it; measures
+    # must be lifted from a table filtered the same way, and returning only
+    # the keys let the two drift -- length-mismatch crash on the first dataset
+    # with an undecodable row, silent misalignment never (Arrow validates).
+    return out, keep
 
 
 #: How many values to look at when deciding a date column's layout. The two

@@ -44,12 +44,20 @@ time_grain: month
 
 # CLASSI_FIN is the honesty dimension (see above). CS_SEXO is kept because the
 # sex split is the first question asked of any arbovirus series and it only
-# triples the cells. CS_GESTANT, the age fields and the clinical block are
-# deliberately absent — each would multiply the cells for a question this
-# artifact is not built to answer.
+# triples the cells, and age arrives as the derived band dimension below.
+# CS_GESTANT, EVOLUCAO and the clinical block are deliberately absent — each
+# multiplies the cells for a question this artifact is not built to answer,
+# and the design's answer to a narrower question is a second artifact.
 dimensions:
   - CLASSI_FIN
   - CS_SEXO
+
+# SINAN packs age like SIM does, one digit wider: NU_IDADE_N is 4yyy for yyy
+# years, sub-year units land in the under-1 band, anything else keeps its own
+# "ignorada" level.
+age_dimension:
+  encoding: sinan
+  fields: [NU_IDADE_N]
 
 dimension_labels:
   CLASSI_FIN: Classificação final

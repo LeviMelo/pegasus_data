@@ -265,7 +265,8 @@ class TestItAnswersFastEnoughToServe:
         random.seed(11)
         municipalities = [f"{random.randint(11, 53):02d}{random.randint(1000, 9999):04d}"
                           for _ in range(5570)]
-        rows = [(m, f"2022{month:02d}", sexo, "01", 3.0, 0.0, 3.0, 9.0, 300.0)
+        rows = [(m, f"2022{month:02d}", sexo, "01", "01", "0", "030",
+                 3.0, 0.0, 3.0, 9.0, 300.0, 0.0)
                 for m in municipalities for month in range(1, 13) for sexo in ("1", "3")]
         table = pa.table({
             **{n: pa.array([r[i] for r in rows], pa.string()) for i, n in enumerate(KEYS)},

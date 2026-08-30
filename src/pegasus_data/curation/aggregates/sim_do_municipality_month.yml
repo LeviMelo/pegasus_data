@@ -39,6 +39,15 @@ dimensions:
   - RACACOR
   - LOCOCOR
 
+# The mortality pyramid's missing axis. SIM packs the unit into IDADE's
+# leading digit (4xx = xx years, 5xx = 100+xx; 1xx/2xx/3xx are sub-year units
+# that all land in the under-1 band; 0xx and 9xx are unknown and keep their
+# own level). Near-singleton cells are expected at this width and are not a
+# new disclosure: SIM's row-level microdata is itself public.
+age_dimension:
+  encoding: sim
+  fields: [IDADE]
+
 dimension_labels:
   SEXO: Sexo
   RACACOR: Raça/cor
