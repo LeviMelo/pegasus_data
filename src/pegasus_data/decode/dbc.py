@@ -6,9 +6,9 @@ decoded without inflating everything before it: **parallelise across files, neve
 within one** (§7.2). That property is also the architectural reason a ``.dbc`` is
 slow to query and Parquet is not.
 
-Decompression is delegated to ``datasus_dbc`` (a Rust extension wrapping the
-original ``blast``-style decoder). It insists on filesystem paths, so callers
-working from the blob store hand it a materialised path.
+Decompression is first-party: ``decode/_native`` implements the PKWare DCL
+stream the container uses, native where a compiler exists and in Python where
+none does, byte-identical by test either way.
 """
 
 from __future__ import annotations
@@ -16,18 +16,29 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from .base import DecodedTable, DecodeError, UnsupportedContainer
+from .base import DecodedTable, DecodeError
 from .dbf import read_dbf_bytes, read_dbf_file
 
 
 def _decompress(src: Path, dst: Path) -> None:
+    """Inflate one ``.dbc`` with the project's own decompressor.
+
+    First-party on purpose (`decode/_native/`): the third-party options were a
+    Rust wheel doing unbuffered byte I/O (a steady 5.3 s for a 3.5 MB file)
+    and a C extension that printf()'d its errors into the decode worker's IPC
+    pipe and signalled failure by writing a truncated file. Ours is memory to
+    memory, bounds the output by the DBF header's own arithmetic, and raises
+    one exception whose message names what was wrong. Native when a compiler
+    exists (~83 MB/s), the identical algorithm in Python when none does --
+    byte-for-byte equal by test, not by hope.
+    """
+    from ._native import DbcError, dbc_file_to_dbf
+
     try:
-        import datasus_dbc
-    except ImportError as exc:  # pragma: no cover - dependency is declared
-        raise UnsupportedContainer("datasus-dbc is required to read .dbc files") from exc
-    try:
-        datasus_dbc.decompress(str(src), str(dst))
-    except Exception as exc:
+        dbc_file_to_dbf(src, dst)
+    except DbcError as exc:
+        raise DecodeError(f"dbc decompression failed for {src.name}: {exc}") from exc
+    except OSError as exc:
         raise DecodeError(f"dbc decompression failed for {src.name}: {exc}") from exc
 
 

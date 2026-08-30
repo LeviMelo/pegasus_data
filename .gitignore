@@ -56,3 +56,7 @@ pegasus-data.toml
 /src.zip
 /src(*).zip
 /pegasus_data_source.zip
+src/pegasus_data/decode/_native/*.dll
+src/pegasus_data/decode/_native/*.obj
+src/pegasus_data/decode/_native/*.lib
+src/pegasus_data/decode/_native/*.exp

@@ -1,0 +1,46 @@
+# GENERATED from curation/datasets/sinan_agravos.yml -- edit freely; the
+# generator never overwrites an existing file. SINAN's 58 agravos share one
+# notification core (see sinan_agravos.yml shared block), so the recipe is the
+# same shape as dengue's: municipality of residence x month of notification,
+# with the classification, sex, outcome and confirmation criterion retained
+# and age banded from NU_IDADE_N.
+#
+# Two honesty notes that hold for every agravo:
+#   * a row is a NOTIFICATION, not a case -- CLASSI_FIN separates them;
+#   * CLASSI_FIN / CRITERIO / EVOLUCAO code sets are defined PER AGRAVO in
+#     SINAN's Anexo I. Where the bound tables cannot label this agravo's
+#     codes, the interface shows the raw code -- visibly unfinished beats
+#     confidently wrong (the project's standing rule).
+
+name: sinan_esqu_municipality_month
+dataset: SINAN-ESQU
+label: Esquistossomose
+description: >
+  Esquistossomose — notificações por município de residência e mês de notificação.
+  Uma linha da fonte é one notification of schistosomiasis.
+
+geography_binding: residence
+time_binding: notification
+time_grain: month
+
+dimensions:
+  - CLASSI_FIN
+  - CS_SEXO
+  - EVOLUCAO
+  - CRITERIO
+
+age_dimension:
+  encoding: sinan
+  fields: [NU_IDADE_N]
+
+dimension_labels:
+  CLASSI_FIN: Classificação final
+  CS_SEXO: Sexo
+  EVOLUCAO: Evolução
+  CRITERIO: Critério de confirmação
+
+measures:
+  notifications:
+    kind: count
+    label: Notificações
+    unit: notification

@@ -468,8 +468,28 @@ class Ontology:
         being restated here — one agravo per dataset, 58 of them, and they were
         already curated. They are folded in as dataset nodes so that
         ``info("SINAN.DENG")`` resolves like any other.
+
+        Cached per (directory, files' mtimes): a single fetch loaded this
+        thirteen times and paid 4.6 seconds re-parsing YAML that had not
+        changed since the process started.
         """
         root = curation_dir or CURATION
+        stamp = tuple(
+            (str(f), f.stat().st_mtime_ns)
+            for f in sorted(root.glob("*.yml")) + sorted((root / "datasets").glob("*.yml"))
+            if f.is_file()
+        )
+        cached = _ONTOLOGY_CACHE.get((str(root), stamp))
+        if cached is not None:
+            return cached
+        ontology = cls._load_uncached(root)
+        if len(_ONTOLOGY_CACHE) >= 8:
+            _ONTOLOGY_CACHE.clear()
+        _ONTOLOGY_CACHE[(str(root), stamp)] = ontology
+        return ontology
+
+    @classmethod
+    def _load_uncached(cls, root: Path) -> Ontology:
         data = _read_yaml(root / "ontology.yml")
 
         systems: dict[str, SystemNode] = {}
@@ -890,6 +910,10 @@ def _clean(value: object) -> str | None:
         return None
     text = " ".join(str(value).split())
     return text or None
+
+
+#: Ontology.load results, keyed by (curation dir, every source file's mtime).
+_ONTOLOGY_CACHE: dict[tuple, Any] = {}
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:
