@@ -317,3 +317,56 @@ class TestCoverageIsRecordedNotInferred:
         )
         assert report.uf == ("AC",)
         assert any("NOT OBSERVED" in w for w in report.warnings)
+
+
+class TestLevelLabelsFollowTheLadder:
+    """Spec statement, then reference table, then the honest raw code.
+
+    Exists because serving SIM found reference tables that fall short in two
+    different ways: SEXO's bound table labels 0/1/2 with the single letters
+    I/M/F, and RACACOR's is truncated at source (`Bra`, `Amar`, `Indig` -- the
+    .CNV truncation). The spec is where an analyst states what THIS artifact's
+    codes mean, without touching the global tables.
+    """
+
+    def test_the_spec_statement_wins_over_the_table(self, aggregate_lake) -> None:
+
+
+        # The shared fixture serves SIH; its spec declares no level_labels, so
+        # patch a statement in through a scratch spec is heavier than needed --
+        # the SHIPPED SIM spec is the real case and loads without a lake.
+        from pegasus_data._aggregate import spec_named
+
+        spec = spec_named("sim_do_municipality_month")
+        assert spec.level_labels["SEXO"]["1"] == "Masculino"
+        assert spec.level_labels["RACACOR"]["5"].startswith("Ind")
+        # LOCOCOR deliberately absent: its table's 2-vs-4 question is open, and
+        # overriding institutional-vs-street deaths on a guess would be worse
+        # than the ambiguity.
+        assert "LOCOCOR" not in spec.level_labels
+
+    def test_an_empty_code_is_not_a_level(self, aggregate_lake) -> None:
+        """A blank dimension column is a row, not a category.
+
+        Offering it as a chip labelled with an em-dash invites filtering on
+        nothing. Its mass still reaches every marginal, unfiltered.
+        """
+
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        from pegasus_data._aggregate import artifact_dir
+
+        target = artifact_dir("sih_rd_municipality_month", aggregate_lake)
+        table = pq.read_table(str(target / "cells.parquet"))
+        # Blank one SEXO cell, as a structurally-absent generation would.
+        sexo = table.column("SEXO").to_pylist()
+        sexo[0] = ""
+        table = table.set_column(
+            table.schema.get_field_index("SEXO"), "SEXO", pa.array(sexo, pa.string())
+        )
+        pq.write_table(table, str(target / "cells.parquet"))
+
+        capability = capabilities("sih_rd_municipality_month", settings=aggregate_lake)
+        sexo_levels = next(d for d in capability.dimensions if d.id == "SEXO")
+        assert "" not in {level.code for level in sexo_levels.levels}

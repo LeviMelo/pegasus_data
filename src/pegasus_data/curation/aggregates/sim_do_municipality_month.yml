@@ -44,6 +44,37 @@ dimension_labels:
   RACACOR: Raça/cor
   LOCOCOR: Local do óbito
 
+# What this artifact's codes mean, where the reference tables fall short.
+#
+# SEXO: measured on the built cells, SIM-DO 2022 codes sex as 0/1/2 and the
+# bound table labels them with SINGLE LETTERS -- I, M, F. A letter is a code
+# wearing a label's clothes; the words are stated here. (First guess was that
+# SIM writes M/F/I; the verification against the artifact said otherwise, which
+# is why these keys are the OBSERVED codes and not the documented ones.)
+#
+# RACACOR: the bound table is truncated at source -- `Bra`, `Amar`, `Indig` --
+# the .CNV truncation measured in FINDINGS. The codes are the table's own; only
+# the words are completed.
+#
+# LOCOCOR is left to its reference table. Open question, not overridden: that
+# table maps 2 -> "Via pública" and 4 -> "Outro" where the modern SIM dictionary
+# says 2 = outro estabelecimento de saúde and 4 = via pública, and it labels
+# 5, 6 and 9 all "Ignorado". Overriding institutional-vs-street deaths on a
+# guess would be worse than the ambiguity; this needs the vintage-correct
+# dictionary, not an opinion.
+level_labels:
+  SEXO:
+    "0": Ignorado
+    "1": Masculino
+    "2": Feminino
+  RACACOR:
+    "1": Branca
+    "2": Preta
+    "3": Amarela
+    "4": Parda
+    "5": Indígena
+    "9": Ignorado
+
 measures:
   deaths:
     kind: count

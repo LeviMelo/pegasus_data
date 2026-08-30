@@ -262,7 +262,12 @@ def capabilities(
     for dimension in spec.dimensions:
         if dimension in cells.schema.names:
             values = pc.unique(cells.column(dimension)).to_pylist()
-            observed[dimension] = sorted(str(v) for v in values if v is not None)
+            # An empty string is a row whose dimension column was blank, not a
+            # level. Offering it as a selectable chip invites filtering on
+            # nothing; its mass still reaches every marginal, unfiltered.
+            observed[dimension] = sorted(
+                str(v) for v in values if v is not None and str(v).strip() != ""
+            )
 
     periods = sorted({str(p) for p in cells.column("competencia").to_pylist() if p})
 
@@ -286,8 +291,15 @@ def capabilities(
                 )
             except Exception:  # pragma: no cover - a missing reference table
                 mapping = {}
+            declared_levels = dict(spec.level_labels.get(dimension) or {})
             levels = tuple(
-                Level(code=code, label=mapping.get(code) or code) for code in codes
+                # The ladder, per level: the spec's own statement, then the
+                # reference tables, then the honest raw code.
+                Level(
+                    code=code,
+                    label=declared_levels.get(code) or mapping.get(code) or code,
+                )
+                for code in codes
             )
             per_year = {
                 year: str((flags or {}).get(dimension) or "unknown")

@@ -101,6 +101,12 @@ class AggregateSpec:
     #: `dimension -> display name`, for the interface. Optional: an absent entry
     #: falls back to curation's translated name and then to the column itself.
     dimension_labels: Mapping[str, str] = field(default_factory=dict)
+    #: `dimension -> {code -> label}`, for the interface. Same ladder as the
+    #: names: the analyst's statement about THIS artifact wins, the reference
+    #: tables fill the rest, the raw code is the honest last resort. Exists
+    #: because reference tables are sometimes truncated at source (`Bra` for
+    #: Branca) or simply absent (SIM's SEXO has no binding at all).
+    level_labels: Mapping[str, Mapping[str, str]] = field(default_factory=dict)
     #: What to call this artifact on screen.
     label: str = ""
 
@@ -183,6 +189,10 @@ def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
             description=str(data.get("description") or ""),
             dimension_labels={
                 str(k): str(v) for k, v in (data.get("dimension_labels") or {}).items()
+            },
+            level_labels={
+                str(dim): {str(c): str(lbl) for c, lbl in (body or {}).items()}
+                for dim, body in (data.get("level_labels") or {}).items()
             },
             label=str(data.get("label") or ""),
         )
