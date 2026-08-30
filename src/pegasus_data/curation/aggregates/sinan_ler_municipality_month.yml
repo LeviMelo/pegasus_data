@@ -14,7 +14,7 @@
 
 name: sinan_ler_municipality_month
 dataset: SINAN-LER
-label: LER
+label: LER/DORT
 description: >
   LER — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified repetitive-strain or work-related musculoskeletal disorder.

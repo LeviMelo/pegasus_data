@@ -14,7 +14,7 @@
 
 name: sinan_trac_municipality_month
 dataset: SINAN-TRAC
-label: TRAC
+label: Tracoma
 description: >
   TRAC — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified case of trachoma.

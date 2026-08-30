@@ -14,7 +14,7 @@
 
 name: sinan_espo_municipality_month
 dataset: SINAN-ESPO
-label: ESPO
+label: Esporotricose
 description: >
   ESPO — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified case of sporotrichosis.

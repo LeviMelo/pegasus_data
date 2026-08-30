@@ -290,9 +290,20 @@ def capabilities(
         manifest_mtime = (cells_path.parent / "manifest.json").stat().st_mtime_ns
     except OSError:
         pass
+    # The spec file's mtime too: labels and level words live in the SPEC, and
+    # an edited YAML must reach the descriptor without waiting for a rebuild.
+    spec_mtime = 0
+    try:
+        from .ontology import CURATION
+
+        spec_mtime = (
+            (CURATION / "aggregates" / f"{name}.yml").stat().st_mtime_ns
+        )
+    except OSError:
+        pass
     key = (
         name, str(resolved_early.lake_dir),
-        cells_path.stat().st_mtime_ns, manifest_mtime,
+        cells_path.stat().st_mtime_ns, manifest_mtime, spec_mtime,
     )
     hit = _CAPABILITY_CACHE.get(key)
     if hit is not None:

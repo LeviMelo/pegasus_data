@@ -14,7 +14,7 @@
 
 name: sinan_viol_municipality_month
 dataset: SINAN-VIOL
-label: VIOL
+label: Violência interpessoal e autoprovocada
 description: >
   VIOL — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notification of interpersonal or self-inflicted violence.

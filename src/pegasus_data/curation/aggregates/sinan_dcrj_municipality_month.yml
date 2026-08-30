@@ -14,7 +14,7 @@
 
 name: sinan_dcrj_municipality_month
 dataset: SINAN-DCRJ
-label: DCRJ
+label: Doenças e agravos (RJ)
 description: >
   DCRJ — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified case of Creutzfeldt-Jakob disease.

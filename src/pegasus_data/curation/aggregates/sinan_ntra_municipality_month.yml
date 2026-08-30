@@ -14,7 +14,7 @@
 
 name: sinan_ntra_municipality_month
 dataset: SINAN-NTRA
-label: NTRA
+label: Notificação de tracoma
 description: >
   NTRA — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified occupational accident.

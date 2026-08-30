@@ -14,7 +14,7 @@
 
 name: sinan_hive_municipality_month
 dataset: SINAN-HIVE
-label: HIVE
+label: HIV (exposição)
 description: >
   HIVE — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one child born to a mother with HIV, followed until infection is confirmed or excluded.

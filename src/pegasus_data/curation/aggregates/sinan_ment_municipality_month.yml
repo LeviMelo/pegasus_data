@@ -14,7 +14,7 @@
 
 name: sinan_ment_municipality_month
 dataset: SINAN-MENT
-label: MENT
+label: Transtorno mental relacionado ao trabalho
 description: >
   MENT — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified mental health disorder attributed to work.

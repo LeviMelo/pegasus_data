@@ -14,7 +14,7 @@
 
 name: sinan_varc_municipality_month
 dataset: SINAN-VARC
-label: VARC
+label: Varicela
 description: >
   VARC — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified case of varicella.

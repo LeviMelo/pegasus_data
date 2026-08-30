@@ -14,7 +14,7 @@
 
 name: sinan_hans_municipality_month
 dataset: SINAN-HANS
-label: HANS
+label: Hanseníase
 description: >
   HANS — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified case of leprosy.

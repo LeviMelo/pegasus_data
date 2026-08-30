@@ -14,7 +14,7 @@
 
 name: sinan_hivc_municipality_month
 dataset: SINAN-HIVC
-label: HIVC
+label: HIV (criança)
 description: >
   HIVC — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one HIV infection notified in a child.

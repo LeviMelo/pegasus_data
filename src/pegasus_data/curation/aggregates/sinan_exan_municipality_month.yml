@@ -14,7 +14,7 @@
 
 name: sinan_exan_municipality_month
 dataset: SINAN-EXAN
-label: EXAN
+label: Doenças exantemáticas
 description: >
   EXAN — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one rash-and-fever case investigated for measles or rubella.

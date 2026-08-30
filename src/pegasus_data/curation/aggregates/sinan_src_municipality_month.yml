@@ -14,7 +14,7 @@
 
 name: sinan_src_municipality_month
 dataset: SINAN-SRC
-label: SRC
+label: Síndrome da rubéola congênita
 description: >
   SRC — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one case of congenital rubella syndrome.

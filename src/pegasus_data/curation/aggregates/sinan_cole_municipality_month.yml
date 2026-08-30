@@ -14,7 +14,7 @@
 
 name: sinan_cole_municipality_month
 dataset: SINAN-COLE
-label: COLE
+label: Cólera
 description: >
   COLE — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified case of cholera.

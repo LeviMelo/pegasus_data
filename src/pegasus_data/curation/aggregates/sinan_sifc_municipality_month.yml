@@ -14,7 +14,7 @@
 
 name: sinan_sifc_municipality_month
 dataset: SINAN-SIFC
-label: SIFC
+label: Sífilis congênita
 description: >
   SIFC — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one case of syphilis transmitted in pregnancy.

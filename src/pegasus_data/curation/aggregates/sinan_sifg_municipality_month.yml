@@ -14,7 +14,7 @@
 
 name: sinan_sifg_municipality_month
 dataset: SINAN-SIFG
-label: SIFG
+label: Sífilis em gestante
 description: >
   SIFG — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one case of syphilis detected during pregnancy.

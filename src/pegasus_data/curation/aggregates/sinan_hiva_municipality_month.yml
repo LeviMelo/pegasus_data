@@ -14,7 +14,7 @@
 
 name: sinan_hiva_municipality_month
 dataset: SINAN-HIVA
-label: HIVA
+label: HIV (adulto)
 description: >
   HIVA — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one HIV infection notified in an adult.

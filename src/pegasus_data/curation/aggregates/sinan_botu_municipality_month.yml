@@ -14,7 +14,7 @@
 
 name: sinan_botu_municipality_month
 dataset: SINAN-BOTU
-label: BOTU
+label: Botulismo
 description: >
   BOTU — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one notified case of botulism.

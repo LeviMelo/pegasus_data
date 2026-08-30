@@ -14,7 +14,7 @@
 
 name: sinan_sdta_municipality_month
 dataset: SINAN-SDTA
-label: SDTA
+label: Síndrome da rubéola congênita (descartados)
 description: >
   SDTA — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one foodborne outbreak, NOT one person affected.

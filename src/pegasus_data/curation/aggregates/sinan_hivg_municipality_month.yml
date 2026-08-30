@@ -14,7 +14,7 @@
 
 name: sinan_hivg_municipality_month
 dataset: SINAN-HIVG
-label: HIVG
+label: HIV (gestante)
 description: >
   HIVG — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one pregnancy in a woman with HIV.

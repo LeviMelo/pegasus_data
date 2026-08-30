@@ -14,7 +14,7 @@
 
 name: sinan_aidc_municipality_month
 dataset: SINAN-AIDC
-label: AIDC
+label: Aids (criança)
 description: >
   AIDC — notificações por município de residência e mês de notificação.
   Uma linha da fonte é one AIDS case notified in a child under 13.
