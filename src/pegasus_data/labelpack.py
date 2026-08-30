@@ -727,6 +727,103 @@ def packed_mapping_covers_interval(
     return True
 
 
+def clear_caches() -> None:
+    """Forget everything derived from the pack.
+
+    The read path is a chain of process-lifetime caches -- pack scan, run
+    materialisation, vintage resolution, range expansion -- and anything that
+    swaps the pack out from under it (tests monkeypatching `_dataset`, a
+    rebuilt pack installed in place) must clear the WHOLE chain. Clearing only
+    `_read_packed` leaves the layers beneath it serving the old pack.
+    """
+    # `_dataset` may have been monkeypatched to a bare callable; clear what
+    # is clearable rather than requiring every stand-in to be an lru_cache.
+    for fn in (_read_packed, _expand_runs, _codelist_runs, _codelist_rows, _dataset):
+        clear = getattr(fn, "cache_clear", None)
+        if clear is not None:
+            clear()
+
+
+@lru_cache(maxsize=256)
+def _codelist_rows(codelist: str):
+    """One codelist's rows from the pack, read once per process.
+
+    The pack is a shipped resource -- immutable for the life of the install --
+    so the scan result can be held. `_read_packed` cannot reuse its own cache
+    here because its key includes the vintage, and a monthly dataset asks for
+    the same codelist under twelve competencias: each was a fresh scan.
+
+    Pushed into the Parquet scan, not filtered afterwards: row-group
+    statistics skip every group that cannot contain this codelist.
+    """
+    import pyarrow.compute as pc
+
+    data = _dataset()
+    if data is None:
+        return None
+    return data.to_table(filter=pc.field("codelist") == codelist)
+
+
+@lru_cache(maxsize=256)
+def _codelist_runs(codelist: str) -> tuple:
+    """One codelist's rows as run tuples, materialised once per process."""
+    hit = _codelist_rows(codelist)
+    if hit is None or not hit.num_rows:
+        return ()
+    has_windows = "valid_from" in hit.schema.names
+    return tuple(
+        zip(
+            hit.column("system").to_pylist(),
+            hit.column("code_lo").to_pylist(),
+            hit.column("code_hi").to_pylist(),
+            hit.column("label").to_pylist(),
+            hit.column("code_width").to_pylist(),
+            hit.column("valid_from").to_pylist() if has_windows else [""] * hit.num_rows,
+            hit.column("valid_to").to_pylist() if has_windows else [""] * hit.num_rows,
+            strict=True,
+        )
+    )
+
+
+@lru_cache(maxsize=512)
+def _expand_runs(chosen: tuple, code_width: int | None):
+    """Expand code ranges into a lookup table, once per distinct row selection.
+
+    `_read_packed`'s own cache cannot do this: its key carries the vintage, and
+    a monthly dataset asks for the same codelist under twelve competencias --
+    which nearly always resolve to the SAME rows. Expansion is where the time
+    goes (measured: 122 of a 218-second labelled state-year fetch), so it is
+    keyed by what is actually expanded. Hashing the rows is O(runs); expanding
+    them is O(codes), orders of magnitude larger.
+    """
+    import pyarrow as pa
+
+    codes: list[str] = []
+    labels: list[str] = []
+    widths: list[int] = []
+    seen: set[str] = set()
+    for _sys, lo, hi, label, width, _vf, _vt in chosen:
+        width = int(width or len(str(lo)))
+        if code_width is not None and width != code_width:
+            continue
+        for code in _expand(lo, hi):
+            if code in seen:
+                continue
+            seen.add(code)
+            codes.append(code)
+            labels.append(label)
+            widths.append(width)
+    if not codes:
+        return None
+    return pa.table(
+        {
+            "code": pa.array(codes, pa.string()),
+            "label": pa.array(labels, pa.string()),
+            "code_width": pa.array(widths, pa.int32()),
+        }
+    )
+
+
 @lru_cache(maxsize=512)
 def _read_packed(
     codelist: str,
@@ -747,17 +844,12 @@ def _read_packed(
     ``policy`` is :func:`historical_labels` passed in, because it can change
     between calls and would otherwise be baked into the first result.
     """
-    import pyarrow as pa
-    import pyarrow.compute as pc
 
     note: tuple[str, str, str, bool] | None = None
 
-    data = _dataset()
-    if data is None:
+    hit = _codelist_rows(codelist)
+    if hit is None:
         return None, None, "this build ships no label pack", False
-    # Pushed into the Parquet scan, not filtered afterwards: row-group
-    # statistics skip every group that cannot contain this codelist.
-    hit = data.to_table(filter=pc.field("codelist") == codelist)
     if not hit.num_rows:
         return (
             None,
@@ -766,18 +858,7 @@ def _read_packed(
             False,
         )
     has_windows = "valid_from" in hit.schema.names
-    runs = list(
-        zip(
-            hit.column("system").to_pylist(),
-            hit.column("code_lo").to_pylist(),
-            hit.column("code_hi").to_pylist(),
-            hit.column("label").to_pylist(),
-            hit.column("code_width").to_pylist(),
-            hit.column("valid_from").to_pylist() if has_windows else [""] * hit.num_rows,
-            hit.column("valid_to").to_pylist() if has_windows else [""] * hit.num_rows,
-            strict=True,
-        )
-    )
+    runs = list(_codelist_runs(codelist))
 
     # VINTAGE, before system scoping: a window that covers the request wins;
     # otherwise the open-ended (current) rows stand in, and that substitution is
@@ -827,40 +908,15 @@ def _read_packed(
         borrowed = True
     chosen = (specific + shared) if specific else shared or runs
 
-    codes: list[str] = []
-    labels: list[str] = []
-    widths: list[int] = []
-    seen: set[str] = set()
-    for _sys, lo, hi, label, width, _vf, _vt in chosen:
-        width = int(width or len(str(lo)))
-        if code_width is not None and width != code_width:
-            continue
-        for code in _expand(lo, hi):
-            if code in seen:
-                continue
-            seen.add(code)
-            codes.append(code)
-            labels.append(label)
-            widths.append(width)
-    if not codes:
+    table = _expand_runs(tuple(chosen), code_width)
+    if table is None:
         return (
             None,
             note,
             f"reference table {codelist!r} has no rows at width {code_width}",
             borrowed,
         )
-    return (
-        pa.table(
-            {
-                "code": pa.array(codes, pa.string()),
-                "label": pa.array(labels, pa.string()),
-                "code_width": pa.array(widths, pa.int32()),
-            }
-        ),
-        note,
-        None,
-        borrowed,
-    )
+    return (table, note, None, borrowed)
 
 
 def build_binding_pack(catalog: Catalog, out: str | Path) -> int:

@@ -88,7 +88,9 @@ class TestReadingAtAVintage:
         monkeypatch.setattr(lp, "_dataset", lambda: __import__(
             "pyarrow.dataset", fromlist=["dataset"]
         ).dataset(out, format="parquet"))
-        return lp
+        lp.clear_caches()
+        yield lp
+        lp.clear_caches()
 
     def test_a_historical_year_gets_the_historical_label(self, packed):
         table = packed.read_packed("TESTCL", year=1995)
@@ -132,9 +134,9 @@ class TestBackwardsCompatibility:
             }
         )
         monkeypatch.setattr(lp, "_dataset", lambda: ds.dataset(old))
-        lp._read_packed.cache_clear()
+        lp.clear_caches()
         yield lp
-        lp._read_packed.cache_clear()
+        lp.clear_caches()
 
     def test_a_pack_without_windows_still_reads(self, unwindowed):
         """Old artifacts remain readable after the shipped pack gained windows."""

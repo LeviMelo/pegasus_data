@@ -6,11 +6,12 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass
 from enum import StrEnum
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 from ..catalog.store import Catalog, _semantic_relation_id, utcnow
-from ..ontology import CURATION, _read_yaml
+from ..ontology import CURATION
 
 
 class RelationType(StrEnum):
@@ -39,7 +40,26 @@ class SemanticRelation:
 
 
 def load_relations(root: Path | None = None) -> tuple[SemanticRelation, ...]:
-    data = _read_yaml((root or CURATION) / "joins.yml")
+    # Parsed once per distinct CONTENT, not once per call. `relations_for` runs
+    # for every column of every rendered file, and re-parsing joins.yml each
+    # time was 84 seconds of a single state-year fetch. The key is the text
+    # itself rather than the file's mtime: Windows advances mtime on a ~16 ms
+    # timer tick, so two writes in quick succession can share one, and a
+    # rewritten file would be served from the parse of its predecessor.
+    # Reading a few kilobytes per call is nothing; the YAML parse is not.
+    path = (root or CURATION) / "joins.yml"
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return ()
+    return _parse_relations(text)
+
+
+@lru_cache(maxsize=8)
+def _parse_relations(text: str) -> tuple[SemanticRelation, ...]:
+    import yaml
+
+    data = yaml.safe_load(text) or {}
     out: list[SemanticRelation] = []
     for body in data.get("relations") or ():
         out.append(

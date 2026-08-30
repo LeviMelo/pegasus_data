@@ -282,6 +282,11 @@ def write_reference_tables(
             root=root,
             lake_root=Path(lake_root),
         )
+    # The render path caches its lookups for the life of the process; tables
+    # were just (re)written underneath it. See view.clear_lookup_caches.
+    from ..view import clear_lookup_caches
+
+    clear_lookup_caches()
     return written
 
 

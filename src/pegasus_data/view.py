@@ -35,6 +35,7 @@ import re
 import warnings
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
 
@@ -191,6 +192,23 @@ def column_kind(name: str, base_columns: frozenset[str]) -> str:
 # ------------------------------------------------------------------ labelling
 
 
+def clear_lookup_caches() -> None:
+    """Forget every code->label map derived from the lake's reference tables.
+
+    The maps below are cached for the life of the process, which is only sound
+    while the tables they were built from stand still. Anything that installs
+    or rewrites ``lake/reference/`` -- the reference build stage, the first-use
+    materialisation inside ``fetch``, a bundle unpacked mid-process -- must
+    call this, or the process keeps labelling from the tables it saw first.
+    """
+    _lookup_map.cache_clear()
+    _contradictions.cache_clear()
+
+
+# Cached for the life of the process, like the packed reads underneath: a
+# monthly dataset asks for the same map twelve times per fetch. Callers
+# treat the returned dict as read-only; mutating it would poison the cache.
+@lru_cache(maxsize=512)
 def _lookup_map(
     lake_root: Path,
     codelist: str,
@@ -311,6 +329,8 @@ def _single_lookup(
         return None
 
 
+# Same contract as _lookup_map: cached, and the returned mapping is shared.
+@lru_cache(maxsize=512)
 def _contradictions(
     lake_root: Path,
     codelist: str,
@@ -1100,6 +1120,20 @@ def _render_table(
     )
     kinds = {n: column_kind(n, base_columns) for n in table.schema.names}
 
+    # When every column will be emitted as its stored code -- the `codes`
+    # profile with no per-column override asking for more -- codelist selection
+    # has no bearing on the output at all: whatever it decides, the branch below
+    # renders the column as filed. Selection is nevertheless the expensive part
+    # of rendering (it reads reference tables and weighs every binding against
+    # the observed values), and `fetch(labels=False)` runs through here once per
+    # file. Measured on one state-year of SIH-RD: 205 of a 209-second fetch was
+    # selection whose result was then discarded.
+    codes_only = (
+        settings_profile.internal == "code"
+        and settings_profile.external == "code"
+        and all(mode == "code" for mode in overrides.values())
+    )
+
     columns: list[pa.Array] = []
     names: list[str] = []
     lookups: dict[tuple, dict[str, str]] = {}
@@ -1167,6 +1201,11 @@ def _render_table(
             if not keep:
                 report.companions_dropped.append(name)
                 continue
+            columns.append(column)
+            names.append(name)
+            continue
+
+        if codes_only:
             columns.append(column)
             names.append(name)
             continue
