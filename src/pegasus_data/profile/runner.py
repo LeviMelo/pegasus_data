@@ -160,15 +160,16 @@ def record_stratum_schema(
     status: str = "ok",
     error: str | None = None,
 ) -> None:
-    catalog.execute(
-        """
-        UPDATE strata
-           SET schema_signature=?, field_count=?, sampled_member=?, sample_status=?, sample_error=?
-         WHERE stratum_id=?
-        """,
-        (schema_sig, field_count, sampled_member, status, error, stratum_id),
-    )
-    catalog.conn.commit()
+    # Through write(), which owns the lock -- see persist_reconciliation.
+    with catalog.write() as conn:
+        conn.execute(
+            """
+            UPDATE strata
+               SET schema_signature=?, field_count=?, sampled_member=?, sample_status=?, sample_error=?
+             WHERE stratum_id=?
+            """,
+            (schema_sig, field_count, sampled_member, status, error, stratum_id),
+        )
 
 
 def record_decode_attempts(

@@ -1,0 +1,69 @@
+# Dengue notifications by municipality of residence and month of notification.
+#
+# This is the artifact the surveillance module was written for. The explorer's
+# two artifacts prove generality; this one exists because its QUESTION is
+# different — not "how does this vary" but "is this period above what the
+# history would lead us to expect" — and that question needs history. The years
+# below span two complete epidemic cycles, including 2024, the largest dengue
+# epidemic ever recorded anywhere.
+#
+# Three semantic decisions, each from the curated gotchas rather than invented
+# here:
+#
+#   * A row is a NOTIFICATION, not a case and not a person. Someone notified
+#     twice is two rows; a notification discarded on investigation stays in the
+#     file with CLASSI_FIN changed. That is why CLASSI_FIN is a dimension: a
+#     count that cannot separate "confirmed" from "discarded" is not a case
+#     count and must not be readable as one.
+#
+#   * The time axis is DT_NOTIFIC — reporting, not onset. Surveillance
+#     thresholds are computed on what the system RECEIVES, and DT_NOTIFIC is
+#     the one date SINAN guarantees; DT_SIN_PRI arrives later and is more often
+#     absent. A record date means partial_periods applies: the last months of
+#     the newest year are structurally incomplete and the artifact says so.
+#
+#   * Years start at 2015, after the 2014 adoption of the current WHO
+#     classification (dengue / with warning signs / severe). Earlier files
+#     answer CLASSI_FIN in a different vocabulary (classic / FHD / SCD), and an
+#     artifact that mixes the two vocabularies in one dimension would need a
+#     concordance nobody has adjudicated. Extending backwards is a curation
+#     decision, not a rebuild flag.
+
+name: sinan_deng_municipality_month
+dataset: SINAN-DENG
+label: Dengue
+description: >
+  Dengue notifications by the patient's municipality of residence and month of
+  notification, with final classification and sex retained. A row of the source
+  is one notification; the classification dimension is what separates
+  notifications from cases.
+
+geography_binding: residence      # semantic_axes.geography.residence -> ID_MN_RESI
+time_binding: notification        # semantic_axes.time.notification -> DT_NOTIFIC (a DATE)
+time_grain: month
+
+# CLASSI_FIN is the honesty dimension (see above). CS_SEXO is kept because the
+# sex split is the first question asked of any arbovirus series and it only
+# triples the cells. CS_GESTANT, the age fields and the clinical block are
+# deliberately absent — each would multiply the cells for a question this
+# artifact is not built to answer.
+dimensions:
+  - CLASSI_FIN
+  - CS_SEXO
+
+dimension_labels:
+  CLASSI_FIN: Classificação final
+  CS_SEXO: Sexo
+
+# No level_labels yet, on purpose. The ladder says spec labels outrank the
+# reference tables, which makes a spec label an assertion strong enough to be
+# wrong loudly — and SIM taught the lesson (FINDINGS: the first SEXO guess
+# declared labels for documented codes the data does not use). Declare here
+# only after the built artifact's OBSERVED codes have been read and any gap in
+# the bound tables measured, the same verify-then-declare order SIM followed.
+
+measures:
+  notifications:
+    kind: count
+    label: Notificações
+    unit: notification

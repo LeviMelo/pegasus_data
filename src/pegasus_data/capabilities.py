@@ -164,12 +164,51 @@ class Capability:
     dimensions: tuple[Dimension, ...]
     measures: tuple[MeasureCapability, ...]
     provenance: dict[str, Any]
+    #: Denominator series the lake can actually serve for this artifact's
+    #: years, in preference order. Empty when none is materialised -- and the
+    #: UI draws no rate control it cannot honour (invariant 4). Whether the
+    #: ACTIVE geography binding may meet a population denominator at all is
+    #: `spatial.denominator_compatible`; this is the other half of the offer.
+    denominators: tuple[dict[str, Any], ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 # ------------------------------------------------------------------ helpers
+
+
+def _denominators(settings: Any, years: tuple[int, ...]) -> tuple[dict[str, Any], ...]:
+    """Population series the lake holds that cover at least one artifact year.
+
+    A PROJECTION of what is materialised, like everything else here: declaring
+    POPSVS while `lake/population/POPSVS` does not exist would hand the UI a
+    rate toggle that 404s. The order is the preference order -- POPSVS carries
+    age and sex, POPTCU is totals-only, and the rest are historical.
+    """
+    from .sources.ibge import KNOWN_SERIES
+
+    out: list[dict[str, Any]] = []
+    for name, series in KNOWN_SERIES.items():
+        directory = settings.population_dir / name
+        if not directory.exists():
+            continue
+        covered = [
+            y for y in years
+            if (series.year_min is None or y >= series.year_min)
+            and (series.year_max is None or y <= series.year_max)
+        ]
+        if not covered:
+            continue
+        out.append({
+            "series": name,
+            "authority": series.authority,
+            "stratifications": list(series.stratifications),
+            "age_standardizable": series.age_standardizable,
+            "years": covered,
+            "note": series.notes,
+        })
+    return tuple(out)
 
 
 def _control_for(cardinality: int) -> str:
@@ -243,7 +282,18 @@ def capabilities(
         return _capabilities_uncached(name, settings=resolved_early)
     # A plain dict rather than lru_cache: Settings is unhashable, and the key
     # that actually identifies the answer is (artifact, lake, on-disk version).
-    key = (name, str(resolved_early.lake_dir), cells_path.stat().st_mtime_ns)
+    # BOTH files' mtimes, matching _read_artifact's key exactly: the manifest
+    # carries fingerprint, support and partial_periods, and a manifest-only
+    # change must invalidate the descriptor just as it invalidates the read.
+    manifest_mtime = 0
+    try:
+        manifest_mtime = (cells_path.parent / "manifest.json").stat().st_mtime_ns
+    except OSError:
+        pass
+    key = (
+        name, str(resolved_early.lake_dir),
+        cells_path.stat().st_mtime_ns, manifest_mtime,
+    )
     hit = _CAPABILITY_CACHE.get(key)
     if hit is not None:
         return hit
@@ -516,6 +566,8 @@ def _capabilities_uncached(
             "rows_read": int(manifest.get("rows_read") or 0),
             "built_from": spec.dataset,
         },
+        denominators=_denominators(
+            resolved, tuple(int(y) for y in (manifest.get("years") or ()))),
     )
 
 

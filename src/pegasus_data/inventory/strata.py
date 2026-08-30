@@ -145,11 +145,12 @@ def persist_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
         """
     )
     # Re-seed the sample for anything just invalidated, and for anything new.
+    # executemany commits inside the lock; the bare conn.commit() this had
+    # after it could land mid-way through another thread's write().
     catalog.executemany(
         "UPDATE strata SET sampled_path = ? WHERE stratum_id = ? AND sampled_path IS NULL",
         [(s.sample_path(), s.stratum_id) for s in strata if s.sample_path()],
     )
-    catalog.conn.commit()
     return len(strata)
 
 

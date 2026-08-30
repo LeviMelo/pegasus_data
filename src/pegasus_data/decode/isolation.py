@@ -94,6 +94,31 @@ class _RemoteTable:
                 with pa.ipc.open_stream(pa.BufferReader(frame)) as stream:
                     yield from stream
 
+    def to_table(self, *, row_limit: int | None = None) -> pa.Table:
+        """Materialise, matching :meth:`DecodedTable.to_table` exactly.
+
+        The docstring above promises this class is shaped like DecodedTable so
+        callers need not care which side of the process boundary parsed the
+        bytes -- and the population build took that promise at its word,
+        called ``to_table()``, and died on the isolated path only. Same
+        semantics as the original, including the empty-source shape: all
+        declared fields as empty string columns.
+        """
+        import pyarrow as pa
+
+        collected: list[pa.RecordBatch] = []
+        seen = 0
+        for batch in self.batches():
+            if row_limit is not None and seen + batch.num_rows > row_limit:
+                batch = batch.slice(0, row_limit - seen)
+            collected.append(batch)
+            seen += batch.num_rows
+            if row_limit is not None and seen >= row_limit:
+                break
+        if not collected:
+            return pa.table({f.name: pa.array([], type=pa.string()) for f in self.fields})
+        return pa.Table.from_batches(collected)
+
 
 @dataclass
 class _RemoteOutcome:

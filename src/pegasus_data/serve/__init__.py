@@ -30,12 +30,63 @@ detector and its open question stay on, because that flag is the evidence.
 #
 # Evaluating annotations eagerly costs nothing here and keeps the lazy import.
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 __all__ = ["create_app", "main"]
 
 API = "/api/v1"
+
+
+@lru_cache(maxsize=64)
+def _population_payload(
+    lake_dir: str,
+    series: str,
+    by: tuple[str, ...],
+    years: tuple[int, ...],
+    dir_mtime_ns: int,
+) -> dict[str, Any]:
+    """One grouped denominator, cached per (request shape, series version).
+
+    ``dir_mtime_ns`` is the series directory's mtime: a re-ingested population
+    is a new key, the same discipline every artifact cache here follows.
+    """
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    from ..api import load_population
+    from ..normalize.geo import uf_from_code
+
+    table = load_population(series=series, years=list(years) or None)
+    columns: dict[str, Any] = {}
+    if "municipality" in by or "uf" in by:
+        code = pc.cast(table.column("municipality"), pa.string())
+        if "municipality" in by:
+            columns["municipality"] = code
+        if "uf" in by:
+            distinct = pc.unique(code).to_pylist()
+            mapping = {c: str(uf_from_code(str(c)) or "") for c in distinct}
+            keys = pa.array(list(mapping.keys()), pa.string())
+            values = pa.array(list(mapping.values()), pa.string())
+            columns["uf"] = pc.take(values, pc.index_in(code, value_set=keys))
+    if "year" in by:
+        columns["year"] = pc.cast(table.column("year"), pa.string())
+    pop = pc.cast(table.column("population"), pa.float64())
+    total = float(pc.sum(pop).as_py() or 0.0)
+    if not columns:
+        return {"series": series, "by": [], "rows": 1,
+                "data": {"population": [total]}, "total": total}
+    grouped = (
+        pa.table({**columns, "population": pop})
+        .group_by(list(columns))
+        .aggregate([("population", "sum")])
+        .sort_by([(name, "ascending") for name in columns])
+    )
+    data = {name: grouped.column(name).to_pylist() for name in columns}
+    data["population"] = grouped.column("population_sum").to_pylist()
+    return {"series": series, "by": list(by), "rows": grouped.num_rows,
+            "data": data, "total": total}
 
 
 def _error(status: int, message: str, **extra: Any):
@@ -184,6 +235,58 @@ def create_app(
 
     # --------------------------------------------------------- geography
 
+    # ------------------------------------------------------------ population
+
+    @app.get(f"{API}/population")
+    def population(
+        series: str = Query("POPSVS"),
+        by: str = Query("municipality,year", description="comma-separated: municipality, uf, year"),
+        years: str = Query("", description="comma-separated years; empty means all"),
+    ):
+        """A denominator, served at the grain a rate needs.
+
+        The client divides AFTER aggregating -- sum of events over sum of
+        population -- which is the only order that survives roll-ups. Serving
+        pre-divided rates would hand back exactly the mean-of-means the whole
+        cube layer exists to prevent.
+        """
+        from ..sources.ibge import KNOWN_SERIES
+
+        spec_ = KNOWN_SERIES.get(series)
+        if spec_ is None:
+            return _error(422, f"unknown population series {series!r}", known=sorted(KNOWN_SERIES))
+        wanted = tuple(dict.fromkeys(p.strip() for p in by.split(",") if p.strip()))
+        allowed = {"municipality", "uf", "year"}
+        if bad := [w for w in wanted if w not in allowed]:
+            return _error(422, f"cannot serve population by {bad}", allowed=sorted(allowed))
+        supported, missing = spec_.supports([w for w in wanted if w != "uf"])
+        if not supported:
+            return _error(
+                422,
+                f"{series} does not carry {missing}; a rate built on it would "
+                "divide by a population that does not stratify that way",
+                stratifications=spec_.stratifications,
+            )
+        try:
+            year_tuple = tuple(int(y) for y in years.split(",") if y.strip())
+        except ValueError:
+            return _error(422, f"years must be integers, got {years!r}")
+        directory = settings.population_dir / series
+        if not directory.exists():
+            return _error(
+                404,
+                f"population series {series!r} is not materialised; "
+                "run `pegasus-data population`",
+            )
+        try:
+            payload = _population_payload(
+                str(settings.lake_dir), series, wanted, year_tuple,
+                directory.stat().st_mtime_ns,
+            )
+        except Exception as exc:  # noqa: BLE001 - refusal with reason, not a bare 500
+            return _error(422, f"{type(exc).__name__}: {exc}", series=series)
+        return payload
+
     @app.get(f"{API}/geo/hierarchies")
     def hierarchies() -> dict[str, Any]:
         declared = classifications()
@@ -288,7 +391,12 @@ def create_app(
             "rows": page.to_pylist(),
         }
 
-    @app.exception_handler(500)
+    # Registered on Exception, not on 500: Starlette dispatches int-keyed
+    # handlers only for HTTPExceptions RAISED with that status, and nothing
+    # here raises one -- so the int-keyed version was dead code and a genuine
+    # crash surfaced as Starlette's bare-text default instead of a JSON body
+    # the frontend can read.
+    @app.exception_handler(Exception)
     def _unhandled(request: Request, exc: Exception):  # pragma: no cover
         return JSONResponse({"error": f"{type(exc).__name__}: {exc}"}, status_code=500)
 

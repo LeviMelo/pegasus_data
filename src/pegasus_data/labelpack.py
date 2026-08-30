@@ -427,6 +427,11 @@ def build_label_pack(
     report.runs_out = table.num_rows
     report.bytes_out = target.stat().st_size
     report.largest = sorted(per_table.items(), key=lambda kv: -kv[1])[:10]
+    # This process may read what it just wrote -- a rebuild-then-verify in one
+    # session is the natural maintainer workflow -- so the whole derivation
+    # chain forgets the old pack, including the cached pack PATH: a pack that
+    # did not exist at first probe was cached as None for the process's life.
+    clear_caches()
     return report
 
 

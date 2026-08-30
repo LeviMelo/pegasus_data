@@ -363,6 +363,7 @@ def build_aggregate(
     from ._availability import field_available
     from .config import load_settings
     from .persist.staging import staged_file
+    from .retrieve import NothingPublished
     from .retrieve import fetch as _fetch
 
     resolved = settings or load_settings(root=Path(root) if root else None)
@@ -423,10 +424,20 @@ def build_aggregate(
         # `query()` is the only retrieval path. It plans lake-vs-fetch, unions
         # schema generations with structural nulls and returns raw codes, which
         # is what `lift` needs.
-        table, fetch_report = _fetch(
-            spec.dataset, uf=chunk_uf, years=year, settings=resolved,
-            report=True, labels=False, provenance=True,
-        )
+        try:
+            table, fetch_report = _fetch(
+                spec.dataset, uf=chunk_uf, years=year, settings=resolved,
+                report=True, labels=False, provenance=True,
+            )
+        except NothingPublished:
+            # An empty (year, UF) chunk is DATA for the fallback below, not an
+            # error: a dataset published one national file per year -- SINAN's
+            # agravos -- answers every per-UF probe with nothing, and raising
+            # here made the national fallback unreachable for exactly the
+            # datasets it was written for.
+            if national_fallback:
+                continue
+            raise
         report.rows_read += table.num_rows
         names = set(table.schema.names)
         missing = [f for f in (geography_field, *time_fields) if f not in names]
@@ -534,23 +545,26 @@ def build_aggregate(
     target.mkdir(parents=True, exist_ok=True)
     with staged_file(target / "cells.parquet") as staged:
         pq.write_table(arrow, staged, compression="zstd", compression_level=9)
-    _manifest_path(name, resolved).write_text(
-        json.dumps({
-            "name": name,
-            "spec": spec.fingerprint_payload(),
-            "fingerprint": report.fingerprint,
-            "engine_version": ENGINE_VERSION,
-            "cells": report.cells,
-            "rows_read": report.rows_read,
-            "years": list(report.years),
-            "uf": list(report.uf),
-            "support": report.support,
-            "partial_periods": list(report.partial_periods),
-            "key_columns": list(key_names),
-            "warnings": report.warnings,
-        }, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+    manifest_payload = json.dumps({
+        "name": name,
+        "spec": spec.fingerprint_payload(),
+        "fingerprint": report.fingerprint,
+        "engine_version": ENGINE_VERSION,
+        "cells": report.cells,
+        "rows_read": report.rows_read,
+        "years": list(report.years),
+        "uf": list(report.uf),
+        "support": report.support,
+        "partial_periods": list(report.partial_periods),
+        "key_columns": list(key_names),
+        "warnings": report.warnings,
+    }, indent=2, ensure_ascii=False) + "\n"
+    # Atomic, like the cells write above it. A plain write_text left a window
+    # where a killed build (or a concurrent reader) paired fresh cells with a
+    # torn or stale manifest -- and the mtime caches key on BOTH files, so the
+    # pair must move together or not at all.
+    with staged_file(_manifest_path(name, resolved)) as staged_manifest:
+        staged_manifest.write_text(manifest_payload, encoding="utf-8")
     return report
 
 
@@ -586,15 +600,23 @@ def _accumulate(cells: dict, table: Any, keyed: dict, spec: AggregateSpec) -> No
     import pyarrow as pa
 
     lifted, state_names = _lift_columns(table, spec.measures)
+    # Each state column is reduced by ITS kind's operation. Hardcoding "sum"
+    # here silently turned a min/max cell into a total -- the monoid's merge is
+    # only a sum for the kinds whose merge IS addition.
+    reduction = {}
+    for measure in spec.measures:
+        for column in measure.state_columns():
+            reduction[column] = (
+                measure.kind.name if measure.kind.name in ("min", "max") else "sum")
     grouped = pa.table({**keyed, **lifted}).group_by(list(keyed)).aggregate(
-        [(name, "sum") for name in state_names])
+        [(name, reduction[name]) for name in state_names])
     got = {n: grouped.column(n).to_pylist() for n in grouped.schema.names}
     key_order = list(keyed)
     for i in range(grouped.num_rows):
         key = tuple(str(got[k][i]) for k in key_order)
         bucket = cells.setdefault(key, {})
         for measure in spec.measures:
-            state = tuple(float(got[f"{c}_sum"][i] or 0.0)
+            state = tuple(float(got[f"{c}_{reduction[c]}"][i] or 0.0)
                           for c in measure.state_columns())
             prior = bucket.get(measure.name)
             bucket[measure.name] = (
@@ -770,8 +792,17 @@ def _lift_columns(table: Any, measures: Sequence[Measure]) -> tuple[dict[str, An
                 out[first], out[second] = valid, filled
             else:
                 out[first], out[second] = filled, valid
+        elif measure.kind.name in ("min", "max"):
+            # The fill is the kind's IDENTITY, not zero: a blank lifted to 0.0
+            # would drag every minimum to nought and hand every maximum a floor.
+            identity = measure.kind.identity()[0]
+            out[columns[0]] = pc.fill_null(numeric, identity)
         else:
-            out[columns[0]] = filled
+            raise AggregationRefused(
+                f"no columnar lift for kind {measure.kind.name!r}; a new kind "
+                "must be added here explicitly, because the generic fallback "
+                "this replaced summed whatever it was handed"
+            )
         order.extend(columns)
     return out, order
 
@@ -998,7 +1029,11 @@ def aggregate(
 
     wanted = tuple(measures or [m.name for m in spec.measures])
     chosen = [spec.measure_named(m) for m in wanted]
-    levels = tuple(by or ())
+    # Deduplicated, order kept: grouping by an axis twice is grouping by it
+    # once, and Arrow would otherwise return two identically named columns --
+    # which downstream reads as a KeyError the route misreports as a missing
+    # artifact.
+    levels = tuple(dict.fromkeys(by or ()))
 
     # --- which level applies to which axis, and what gets marginalised -------
     geography_level = next(
@@ -1186,8 +1221,14 @@ def _finalize_column(measure: Measure, state: tuple[Any, ...]) -> Any:
     import pyarrow.compute as pc
 
     kind = measure.kind.name
-    if kind in ("count", "sum", "min", "max"):
+    if kind in ("count", "sum"):
         return state[0]
+    if kind in ("min", "max"):
+        # The identity means "never observed", and the scalar finalize nulls it.
+        # Passing it through here handed orjson a literal Infinity, which JSON
+        # cannot carry -- an unobserved cell became a crash instead of a null.
+        identity = measure.kind.identity()[0]
+        return pc.if_else(pc.equal(state[0], identity), None, state[0])
     if kind == "mean":
         n, total = state
         return pc.if_else(pc.equal(n, 0.0), None, pc.divide(total, pc.if_else(

@@ -814,6 +814,7 @@ def _select_codelists(
     store: Catalog | None = None,
     system: str = "",
     family_id: str = "",
+    vintage: int | None = None,
 ) -> _Selection:
     """Choose the codelist(s) for one column, or decide that none fits.
 
@@ -856,6 +857,10 @@ def _select_codelists(
                         name,
                         relation_type=RelationType.LABEL_OF,
                         catalog=store,
+                        # Scoped to the record's vintage: an adjudication with
+                        # a validity window is a decision about ONE era, and
+                        # omitting the vintage applied it to every era.
+                        vintage=vintage,
                     )
                 }
             )
@@ -1222,6 +1227,7 @@ def _render_table(
             store=store,
             system=system,
             family_id=family_id or "",
+            vintage=competencia if competencia is not None else year,
         )
         if selection.unlabelled:
             # Selection decided this column cannot be labelled and has already
@@ -1238,6 +1244,13 @@ def _render_table(
         )
 
         if code_system == "none" or codelist is None or mode == "code":
+            if (codelist is None and code_system in ("internal", "external")
+                    and name not in report.unlabelled):
+                # Curation says this column IS coded; nothing is bound to
+                # decode it. The unlabelled list is the machine-readable form
+                # of "visibly unfinished" -- without it the column reverted to
+                # raw codes with no trace anywhere in the report.
+                report.unlabelled.append(name)
             if mode != "code" and codelist is None and name.upper() in overrides:
                 # An explicit request that cannot be honoured must say so.
                 message = f"{name}: no codelist is bound, so no label can be produced"
@@ -1285,14 +1298,20 @@ def _render_table(
         # confidently wrong label is not.
         observed = {str(v).strip() for v in column.to_pylist() if v is not None}
         try:
-            disagreements = _contradictions(
-                lake,
-                codelists[0],
-                system=system,
-                year=year,
-                competencia=competencia,
-                code_width=None,
-            )
+            disagreements = {}
+            for bound in codelists:
+                # Every table the merged lookup draws from, not just the
+                # first: a self-contradictory SECOND table was never checked,
+                # and its labels reached the merge all the same.
+                for code, found in _contradictions(
+                    lake,
+                    bound,
+                    system=system,
+                    year=year,
+                    competencia=competencia,
+                    code_width=None,
+                ).items():
+                    disagreements.setdefault(code, set()).update(found)
         except FileNotFoundError:
             # A codelist bound but never materialised. That is a labelling gap
             # for this one column, already reported where the lookup was built —

@@ -478,6 +478,10 @@ def read_reference_table(
         return table.slice(0, 0)
 
     # No year asked for: give the CURRENT vintage, not every vintage at once.
+    # RECORDED all the same (translate()'s docstring promises the report says
+    # which vintage was applied): "correct for recent data and wrong for a 1998
+    # extract" is a judgement only the caller can make, and they can only make
+    # it if the substitution is visible.
     # Merging windows is never what a caller wants and manufactures a
     # contradiction out of ordinary editorial drift — SIHSUS's CID10 renders
     # C96.7 as "…tec linf hematop e relac" today and "…e corr" in the 1992–1997
@@ -487,6 +491,7 @@ def read_reference_table(
         windows = table.column("valid_from").to_pylist()
         open_ended = [v is None or not str(v).strip() for v in windows]
         if any(open_ended):
+            note_fallback(_SAFE.sub("_", table_id), "unscoped", "current")
             return table.filter(pa.array(open_ended, type=pa.bool_()))
         dated_windows = [str(v) for v in windows if v is not None]
         if dated_windows:

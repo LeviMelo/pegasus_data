@@ -249,19 +249,22 @@ def detect_moves(
 
 
 def persist_reconciliation(catalog: Catalog, run_id: str, report: Reconciliation) -> None:
-    catalog.execute(
-        """
-        UPDATE crawl_runs
-           SET files_new = ?, files_unchanged = ?, files_changed = ?,
-               files_moved = ?, files_gone = ?, files_unresolved = ?
-         WHERE run_id = ?
-        """,
-        (
-            report.new, report.unchanged, report.changed,
-            report.moved, report.gone, report.unresolved, run_id,
-        ),
-    )
-    catalog.conn.commit()
+    # Through write(), which owns the lock: committing the shared connection
+    # from outside it could commit ANOTHER thread's half-done transaction,
+    # defeating write()'s rollback-on-error atomicity.
+    with catalog.write() as conn:
+        conn.execute(
+            """
+            UPDATE crawl_runs
+               SET files_new = ?, files_unchanged = ?, files_changed = ?,
+                   files_moved = ?, files_gone = ?, files_unresolved = ?
+             WHERE run_id = ?
+            """,
+            (
+                report.new, report.unchanged, report.changed,
+                report.moved, report.gone, report.unresolved, run_id,
+            ),
+        )
 
 
 def recent_reconciliations(catalog: Catalog, limit: int = 10) -> list[dict[str, object]]:

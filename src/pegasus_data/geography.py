@@ -400,7 +400,7 @@ def _municipality_pack_path(pack_path: str | Path | None) -> Path | None:
 
 
 @lru_cache(maxsize=2)
-def _municipality_index(path: str) -> dict[str, dict[str, str]]:
+def _municipality_index(path: str, mtime_ns: int = 0) -> dict[str, dict[str, str]]:
     """`code6 -> row`, built once.
 
     Cached for the same reason `_index` is: a national roll-up asks 5,570 times,
@@ -423,7 +423,7 @@ def municipalities(pack_path: str | Path | None = None) -> dict[str, dict[str, s
     resolved = _municipality_pack_path(pack_path)
     if resolved is None:
         return {}
-    return _municipality_index(str(resolved))
+    return _municipality_index(str(resolved), _pack_mtime(str(resolved)))
 
 
 def to_code7(code: str, pack_path: str | Path | None = None) -> str | None:
@@ -448,7 +448,7 @@ def _pack(path: str) -> Any:
 
 
 @lru_cache(maxsize=4)
-def _index(path: str) -> dict[str, tuple[tuple[str, ...], ...]]:
+def _index(path: str, mtime_ns: int = 0) -> dict[str, tuple[tuple[str, ...], ...]]:
     """`municipality -> rows`, built once.
 
     The obvious implementation reads the columns to Python lists inside
@@ -471,8 +471,23 @@ def _index(path: str) -> dict[str, tuple[tuple[str, ...], ...]]:
 
 
 @lru_cache(maxsize=4)
-def _fields(path: str) -> dict[str, int]:
+def _fields(path: str, mtime_ns: int = 0) -> dict[str, int]:
     return {name: i for i, name in enumerate(_pack(path).schema.names)}
+
+
+def _pack_mtime(path: str) -> int:
+    """The pack file's mtime, so a swapped pack is a different cache key.
+
+    The artifact fingerprint hashes the pack's checksum precisely because a
+    new pack changes every roll-up; a path-only key let a long-lived server
+    keep serving the old pack's answers after the file changed underneath it.
+    """
+    from pathlib import Path as _P
+
+    try:
+        return _P(path).stat().st_mtime_ns
+    except OSError:
+        return 0
 
 
 def _pack_path(pack_path: str | Path | None) -> Path | None:
@@ -510,7 +525,8 @@ def memberships(
     path = _pack_path(pack_path)
     if path is None:
         return MembershipSet(municipality=str(code))
-    index, at = _index(str(path)), _fields(str(path))
+    stamp_ns = _pack_mtime(str(path))
+    index, at = _index(str(path), stamp_ns), _fields(str(path), stamp_ns)
 
     six = str(code).strip()
     if len(six) == 7:
