@@ -518,6 +518,7 @@ def catalogue(
     """
     from ._aggregate import artifact_dir, load_specs
     from .config import load_settings
+    from .semantics.curation import semantics_for
 
     resolved = settings or load_settings(root=Path(root) if root else None)
     out: list[dict[str, Any]] = []
@@ -525,10 +526,21 @@ def catalogue(
         directory = artifact_dir(name, resolved)
         manifest_path = directory / "manifest.json"
         built = manifest_path.exists() and (directory / "cells.parquet").exists()
+        # The system identity travels with the listing. A picker that says only
+        # "Óbitos" hides WHICH mortality system that is — and DATASUS has more
+        # than one thing a reader could mistake it for. The label names the
+        # subject; the system names the source, and both are needed to know
+        # what you are looking at.
+        semantics = semantics_for(spec.dataset)
         entry: dict[str, Any] = {
             "id": name,
             "dataset": spec.dataset,
             "label": spec.label or spec.dataset,
+            "system": getattr(semantics, "system", None) if semantics else None,
+            "series": getattr(semantics, "series", None) if semantics else None,
+            "observation_unit": str(
+                getattr(getattr(semantics, "grain", None), "prose", "") or ""
+            ) if semantics else "",
             "description": (spec.description or "").strip(),
             "dimensions": list(spec.dimensions),
             "measures": [m.name for m in spec.measures],

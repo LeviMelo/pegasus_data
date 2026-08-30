@@ -135,6 +135,18 @@ class AggregateSpec:
         }
 
 
+#: Every UF, for chunking a national build. Ordered by IBGE code so a build's
+#: progress reads north to south, which is also roughly smallest to largest and
+#: therefore fails fast on a systematic problem.
+_ALL_UFS: tuple[str, ...] = (
+    "RO", "AC", "AM", "RR", "PA", "AP", "TO",
+    "MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA",
+    "MG", "ES", "RJ", "SP",
+    "PR", "SC", "RS",
+    "MS", "MT", "GO", "DF",
+)
+
+
 def _spec_root(root: Path | None = None) -> Path:
     if root is not None:
         return root
@@ -379,12 +391,30 @@ def build_aggregate(
     cells: dict[tuple[str, ...], dict[str, tuple[float, ...]]] = {}
     blob_digests: set[str] = set()
 
-    for year in sorted(wanted_years):
+    # One chunk per (year, UF) rather than one per year.
+    #
+    # `_fetch(uf=None, years=Y)` materialises a whole national year as one Arrow
+    # table before any cell is written. Measured on SIH-RD 2022: 7.9 GB resident
+    # and climbing, for ~11.8 million admissions.
+    #
+    # The merge is a commutative monoid, so `cells` accumulating across chunks
+    # gives exactly the artifact one big call would have. Chunking caps the peak
+    # at the LARGEST STATE instead of the country, and lets the build report
+    # progress rather than going quiet for half an hour.
+    def _chunks() -> list[tuple[int, str | Sequence[str] | None]]:
+        if report.uf:
+            return [(year, u) for year in sorted(wanted_years) for u in report.uf]
+        return [(year, u) for year in sorted(wanted_years) for u in _ALL_UFS]
+
+    chunks = _chunks()
+    national_fallback = not report.uf
+
+    for year, chunk_uf in chunks:
         # `query()` is the only retrieval path. It plans lake-vs-fetch, unions
         # schema generations with structural nulls and returns raw codes, which
         # is what `lift` needs.
         table, fetch_report = _fetch(
-            spec.dataset, uf=uf, years=year, settings=resolved,
+            spec.dataset, uf=chunk_uf, years=year, settings=resolved,
             report=True, labels=False, provenance=True,
         )
         report.rows_read += table.num_rows
@@ -392,7 +422,7 @@ def build_aggregate(
         missing = [f for f in (geography_field, *time_fields) if f not in names]
         if missing:
             report.warnings.append(
-                f"{year}: {missing} absent from this generation; year skipped")
+                f"{year} {chunk_uf}: {missing} absent from this generation; skipped")
             continue
 
         if "_blob_sha256" in names:
@@ -402,10 +432,12 @@ def build_aggregate(
 
         # The support mask, from the existing availability verb rather than
         # from schema logic re-derived here.
-        report.support[str(year)] = {
-            dimension: str(field_available(spec.dataset, dimension, year, settings=resolved))
-            for dimension in spec.dimensions
-        }
+        if str(year) not in report.support:
+            report.support[str(year)] = {
+                dimension: str(
+                    field_available(spec.dataset, dimension, year, settings=resolved))
+                for dimension in spec.dimensions
+            }
 
         # lift + merge, columnar. Each accumulator's lift is a column
         # expression and its merge is a sum, so the whole build is one
@@ -417,27 +449,48 @@ def build_aggregate(
             encoding=time_encoding)
         if keyed is None:
             report.warnings.append(
-                f"{year}: no usable geography/time values; skipped. If the time "
+                f"{year} {chunk_uf}: no usable geography/time values; skipped. If the time "
                 f"axis is a date, {list(time_fields)} may hold a layout neither "
                 "AAAAMMDD nor DDMMAAAA explains -- which is refused rather than "
                 "bucketed under a period that means nothing."
             )
             continue
-        lifted, state_names = _lift_columns(table, spec.measures)
-        grouped = pa.table({**keyed, **lifted}).group_by(list(keyed)).aggregate(
-            [(name, "sum") for name in state_names])
-        got = {n: grouped.column(n).to_pylist() for n in grouped.schema.names}
-        key_order = list(keyed)
-        for i in range(grouped.num_rows):
-            key = tuple(str(got[k][i]) for k in key_order)
-            bucket = cells.setdefault(key, {})
-            for measure in spec.measures:
-                state = tuple(float(got[f"{c}_sum"][i] or 0.0)
-                              for c in measure.state_columns())
-                prior = bucket.get(measure.name)
-                bucket[measure.name] = (
-                    state if prior is None else measure.kind.merge(prior, state))
-        report.years = (*report.years, year)
+        _accumulate(cells, table, keyed, spec)
+        if year not in report.years:
+            report.years = (*report.years, year)
+
+    if not cells and national_fallback:
+        # Every state came back empty, which for a UF-partitioned dataset would
+        # mean nothing was published at all. More likely the dataset is NOT
+        # partitioned by state -- IBGE's population files are national, and so
+        # is anything published one file a year. Ask for it whole.
+        report.warnings.append(
+            "no state-partitioned files found; retrying as a single national "
+            "fetch. This dataset appears not to be published per UF, so the "
+            "build holds a whole year at once."
+        )
+        for year in sorted(wanted_years):
+            table, fetch_report = _fetch(
+                spec.dataset, uf=None, years=year, settings=resolved,
+                report=True, labels=False, provenance=True,
+            )
+            report.rows_read += table.num_rows
+            names = set(table.schema.names)
+            if [f for f in (geography_field, *time_fields) if f not in names]:
+                continue
+            if "_blob_sha256" in names:
+                for digest in set(table.column("_blob_sha256").to_pylist()):
+                    if digest:
+                        blob_digests.add(str(digest))
+            keyed = _key_columns(
+                table, geography_field, time_fields, spec.dimensions, names,
+                encoding=time_encoding)
+            if keyed is None:
+                continue
+            _accumulate(cells, table, keyed, spec)
+            if year not in report.years:
+                report.years = (*report.years, year)
+            report.warnings.extend(fetch_report.warnings[:3])
 
     if not cells:
         raise AggregationRefused(
@@ -511,6 +564,31 @@ def _to_number(column: Any, rows: int) -> Any:
     # A decimal comma is how some DATASUS layouts write money.
     cleaned = pc.replace_substring(cleaned, ",", ".")
     return pc.cast(cleaned, pa.float64(), safe=False)
+
+
+def _accumulate(cells: dict, table: Any, keyed: dict, spec: AggregateSpec) -> None:
+    """Lift, group and merge one chunk into the accumulating cells.
+
+    The merge is a commutative monoid, which is exactly why a national build can
+    be assembled a state at a time: the order chunks arrive in cannot change the
+    artifact, and neither can how they are divided.
+    """
+    import pyarrow as pa
+
+    lifted, state_names = _lift_columns(table, spec.measures)
+    grouped = pa.table({**keyed, **lifted}).group_by(list(keyed)).aggregate(
+        [(name, "sum") for name in state_names])
+    got = {n: grouped.column(n).to_pylist() for n in grouped.schema.names}
+    key_order = list(keyed)
+    for i in range(grouped.num_rows):
+        key = tuple(str(got[k][i]) for k in key_order)
+        bucket = cells.setdefault(key, {})
+        for measure in spec.measures:
+            state = tuple(float(got[f"{c}_sum"][i] or 0.0)
+                          for c in measure.state_columns())
+            prior = bucket.get(measure.name)
+            bucket[measure.name] = (
+                state if prior is None else measure.kind.merge(prior, state))
 
 
 def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],

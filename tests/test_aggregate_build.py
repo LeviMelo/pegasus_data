@@ -43,6 +43,11 @@ COLUMNS = ("MUNIC_RES", "ANO_CMPT", "MES_CMPT", "SEXO", "RACA_COR",
            "MORTE", "DIAS_PERM", "VAL_TOT")
 
 
+#: The two-digit IBGE prefixes the fixture rows use, so the fake fetch can
+#: answer a per-state request the way the real one does.
+_UF_OF = {"12": "AC", "35": "SP", "11": "RO", "33": "RJ"}
+
+
 def _table():
     data = {name: [row[i] for row in ROWS] for i, name in enumerate(COLUMNS)}
     data["_blob_sha256"] = ["deadbeef"] * len(ROWS)
@@ -57,8 +62,23 @@ def built(tmp_path, monkeypatch):
     settings = load_settings(root=tmp_path)
 
     def fake_fetch(dataset, **kwargs):
+        # Honours `uf`, because the build now chunks a national request one
+        # state at a time. A fake that ignored it would hand the same rows back
+        # 27 times and report 27x the volume -- which is exactly what happened
+        # the first time this changed.
         report = type("R", (), {"warnings": []})()
-        return _table(), report
+        wanted = kwargs.get("uf")
+        table = _table()
+        if wanted is None:
+            return table, report
+        codes = {u.upper() for u in ([wanted] if isinstance(wanted, str) else wanted)}
+        keep = [
+            i for i, code in enumerate(table.column("MUNIC_RES").to_pylist())
+            if _UF_OF.get(str(code)[:2]) in codes
+        ]
+        # A typed index array: `take([])` on an empty Python list gives Arrow a
+        # null-typed index and it refuses the kernel.
+        return table.take(pa.array(keep, pa.int64())), report
 
     monkeypatch.setattr("pegasus_data.retrieve.fetch", fake_fetch)
     monkeypatch.setattr("pegasus_data._availability.field_available",
