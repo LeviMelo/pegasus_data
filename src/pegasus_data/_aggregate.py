@@ -1400,7 +1400,14 @@ def _is_classification(level: str) -> bool:
 
 @lru_cache(maxsize=256)
 def _is_multi_valued(dataset: str, field_name: str) -> bool:
-    """`CODANOMAL` holds up to five ICD codes; a row lands in several cells."""
+    """`CODANOMAL` holds up to five ICD codes; a row lands in several cells.
+
+    Scoped to the dataset's SYSTEM. The first version matched by field name
+    alone with LIMIT 1, and field names are shared identities that disagree
+    across systems -- another system's multi-valued CRITERIO made SINAN's
+    single-character CRITERIO refuse every roll-up over it. The same lesson
+    SEXO taught the reference tables, replayed on a boolean.
+    """
     from .catalog.store import Catalog
     from .config import load_settings
 
@@ -1408,8 +1415,23 @@ def _is_multi_valued(dataset: str, field_name: str) -> bool:
         settings = load_settings()
         if not settings.catalog_path.is_file():
             return False
+        system = ""
+        try:
+            from .semantics.curation import semantics_for
+
+            semantics = semantics_for(dataset)
+            system = str(getattr(semantics, "system", "") or "").upper()
+        except Exception:  # noqa: BLE001 - no semantics, fall back to any row
+            pass
         catalog = Catalog(settings.catalog_path, read_only=True)
         try:
+            if system:
+                rows = list(catalog.query(
+                    "SELECT multi_valued FROM variable_docs "
+                    "WHERE system = ? AND field_name = ? LIMIT 1",
+                    (system, field_name.upper())))
+                if rows:
+                    return bool(rows[0]["multi_valued"])
             rows = list(catalog.query(
                 "SELECT multi_valued FROM variable_docs WHERE field_name = ? LIMIT 1",
                 (field_name.upper(),)))
