@@ -1185,7 +1185,7 @@ def aggregate(
     mapped_time = _apply(time_map, time_column) if time_map is not None else None
 
     filters = dict(where or {})
-    keep = _mask(filters, spec, table, geo_column, time_column)
+    keep = _mask(filters, spec, table, geo_column, time_column, system)
 
     # The merge is Arrow's grouped aggregation, not a Python loop over cells.
     # That is a property of the design rather than an optimisation: every
@@ -1351,7 +1351,7 @@ def _merge_column(measure: Measure, column: Any) -> float:
 
 
 def _mask(filters: Mapping[str, Any], spec: AggregateSpec, table: Any,
-          geo_column: Any, time_column: Any) -> Any:
+          geo_column: Any, time_column: Any, system: str | None = None) -> Any:
     """The row filter as an Arrow boolean column: `is_in` per filter, ANDed.
 
     The Python predecessor walked every row per filter, which at 422k cells was
@@ -1383,10 +1383,23 @@ def _mask(filters: Mapping[str, Any], spec: AggregateSpec, table: Any,
             source = geo_column
         elif key in spec.dimensions:
             source = table.column(key)
+        elif _is_classification(key):
+            # Filtering by a health region IS filtering by its member
+            # municipalities: the same pushforward the roll-up applies, used
+            # as a predicate. Without this, "the composition of THIS region"
+            # forced clients to download geography x every dimension and
+            # filter locally -- the cuboid, to answer a one-region question.
+            distinct = tuple(sorted(set(pc.unique(geo_column).to_pylist())))
+            mapping, _contested = _classification_map(key, system, distinct)
+            keys = pa.array(list(mapping.keys()), pa.string())
+            values = pa.array(
+                [v if v is not None else "" for v in mapping.values()], pa.string())
+            source = pc.take(values, pc.index_in(geo_column, value_set=keys))
         else:
             raise AggregationRefused(
                 f"cannot filter on {key!r}; this artifact has "
-                f"{[_BASE_LEVEL, _UF_LEVEL, 'year', 'period', *spec.dimensions]}"
+                f"{[_BASE_LEVEL, _UF_LEVEL, 'year', 'period', *spec.dimensions]} "
+                "and the compiled classifications"
             )
         keep = pc.and_(keep, pc.fill_null(pc.is_in(source, value_set=wanted), False))
     return keep
