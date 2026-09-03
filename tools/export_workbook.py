@@ -66,13 +66,109 @@ def number_format(measure: dict) -> str:
     return "#,##0" if decimals == 0 else "#,##0." + "0" * decimals
 
 
-def cut(artifact: str, by: list[str], measures: list[str]) -> pa.Table:
-    """One aggregation. Finalised by the library -- means included."""
-    return aggregate(artifact, by=by or None, measures=measures)
-
-
 def rows_of(table: pa.Table) -> list[dict]:
     return table.to_pylist()
+
+
+def cut(
+    artifact: str,
+    by: list[str],
+    measures: list[dict],
+    time_grain: str = "month",
+) -> list[dict]:
+    """One cut, honouring each measure's rule for collapsing time.
+
+    Flows (no `time_reducer`) are handed straight to the aggregate layer,
+    which finalises them correctly -- a mean like `los` included.
+
+    Stocks are the case that made the first version of this script crash on
+    CNES. Beds are a quantity held AT a moment; summing them across twelve
+    months yields bed-months, so the backend refuses the roll-up outright.
+    The honest answer is to keep time as an axis, let each period finalise on
+    its own, and then reduce those period values by the rule the artifact
+    declares (mean, last or max) -- the same thing the frontend does.
+
+    Flows and stocks therefore travel as two separate aggregations joined on
+    the requested keys, because no single request is legitimate for both.
+    """
+    flows = [m for m in measures if not m.get("time_reducer")]
+    stocks = [m for m in measures if m.get("time_reducer")]
+    time_on_axis = any(b in ("month", "year", time_grain) for b in by)
+
+    merged: dict[tuple, dict] = {}
+
+    def absorb(rows: list[dict], value_keys: list[str]) -> None:
+        for row in rows:
+            key = tuple(row.get(b) for b in by)
+            slot = merged.setdefault(key, {b: row.get(b) for b in by})
+            for k in value_keys:
+                slot[k] = row.get(k)
+
+    if flows:
+        ids = [m["id"] for m in flows]
+        absorb(rows_of(aggregate(artifact, by=by or None, measures=ids)), ids)
+
+    if stocks:
+        ids = [m["id"] for m in stocks]
+        if time_on_axis:
+            absorb(rows_of(aggregate(artifact, by=by, measures=ids)), ids)
+        else:
+            per_period = rows_of(
+                aggregate(artifact, by=[*by, time_grain], measures=ids)
+            )
+            # `last` is only meaningful in period order, which the aggregate
+            # layer does not promise.
+            per_period.sort(key=lambda r: str(r.get(time_grain) or ""))
+            buckets: dict[tuple, dict[str, list[float]]] = {}
+            for row in per_period:
+                key = tuple(row.get(b) for b in by)
+                slot = buckets.setdefault(key, {i: [] for i in ids})
+                for i in ids:
+                    v = row.get(i)
+                    if v is not None:
+                        slot[i].append(v)
+            reduced = []
+            for key, values in buckets.items():
+                out = dict(zip(by, key))
+                for m in stocks:
+                    series = values[m["id"]]
+                    if not series:
+                        out[m["id"]] = None
+                        continue
+                    rule = m["time_reducer"]
+                    if rule == "mean":
+                        out[m["id"]] = sum(series) / len(series)
+                    elif rule == "last":
+                        out[m["id"]] = series[-1]
+                    elif rule == "max":
+                        out[m["id"]] = max(series)
+                    else:
+                        # An undeclared rule is a contract gap, not a licence
+                        # to sum. Blank is the honest cell.
+                        out[m["id"]] = None
+                reduced.append(out)
+            absorb(reduced, ids)
+
+    return list(merged.values())
+
+
+def headers_for(measures: list[dict], time_on_axis: bool) -> list[str]:
+    """Measure labels, qualified when a stock has had its time collapsed.
+
+    On a sheet with time as an axis a stock's cell IS that period's value and
+    needs no qualifier. On a sheet without one, the cell is a reduction over
+    the whole window, and a bare "Leitos" over 78.594 reads as a total when
+    it is a monthly mean.
+    """
+    words = {"mean": "média", "last": "último", "max": "máximo"}
+    out = []
+    for m in measures:
+        rule = m.get("time_reducer")
+        if rule and not time_on_axis:
+            out.append(f"{m['label']} ({words.get(rule, rule)} por período)")
+        else:
+            out.append(m["label"])
+    return out
 
 
 def sheet_title(name: str) -> str:
@@ -148,8 +244,6 @@ def build(artifact: str, out: Path) -> Path:
     caps = api_json(f"/api/v1/datasets/{artifact}/capabilities")
     measures = caps["measures"]
     mids = [m["id"] for m in measures]
-    mlabels = [f"{m['label']}" for m in measures]
-    mformats = {i + 1: number_format(m) for i, m in enumerate(measures)}
 
     # Territory names, indexed by the 6-digit code the artifact stores.
     membership = api_json("/api/v1/geo/membership")["membership"]
@@ -229,6 +323,14 @@ def build(artifact: str, out: Path) -> Path:
                 "  ⚠ É uma MÉDIA: não some nem tire média desta coluna. "
                 "Cada total foi recalculado a partir dos dados de origem."
             )
+        if m.get("time_reducer"):
+            words = {"mean": "média", "last": "último valor", "max": "máximo"}
+            extra += (
+                f"  ⚠ É um ESTOQUE: existe em cada instante, não se acumula. "
+                f"Somar ao longo dos meses produziria '{m['unit']}-mês'. "
+                f"Onde o tempo foi colapsado, a coluna traz o "
+                f"{words.get(m['time_reducer'], m['time_reducer'])} dos valores mensais."
+            )
         kv(m["label"], f"{kind} · unidade: {m['unit']} · fórmula: {m['formula']}{extra}")
     gap()
 
@@ -264,14 +366,17 @@ def build(artifact: str, out: Path) -> Path:
     )
 
     # ------------------------------------------------- Resumo (Brasil/ano)
-    national = rows_of(cut(artifact, [], mids))
+    national = cut(artifact, [], measures)
     if national:
         n = national[0]
         write_sheet(
             wb,
             "Resumo Brasil",
             ["Medida", "Valor", "Unidade"],
-            [[m["label"], n.get(m["id"]), m["unit"]] for m in measures],
+            [
+                [h, n.get(m["id"]), m["unit"]]
+                for h, m in zip(headers_for(measures, False), measures)
+            ],
             {2: "#,##0.00"},
             note=f"Brasil · {period['from']} a {period['to']}. Uma agregação nacional única.",
         )
@@ -281,12 +386,12 @@ def build(artifact: str, out: Path) -> Path:
             sheet.cell(row=4 + i, column=2).number_format = number_format(m)
 
     # ------------------------------------------------------ tempo (mês)
-    monthly = rows_of(cut(artifact, ["month"], mids))
+    monthly = cut(artifact, ["month"], measures)
     monthly.sort(key=lambda r: r.get("month") or "")
     write_sheet(
         wb,
         "Por mês",
-        ["Mês"] + mlabels,
+        ["Mês"] + headers_for(measures, True),
         [[r.get("month")] + [r.get(i) for i in mids] for r in monthly],
         {i + 2: number_format(m) for i, m in enumerate(measures)},
         note="Brasil, por mês de competência.",
@@ -294,12 +399,12 @@ def build(artifact: str, out: Path) -> Path:
     )
 
     # ------------------------------------------------------------- por UF
-    per_uf = rows_of(cut(artifact, ["uf"], mids))
+    per_uf = cut(artifact, ["uf"], measures)
     per_uf.sort(key=lambda r: -(r.get(mids[0]) or 0))
     write_sheet(
         wb,
         "Por UF",
-        ["UF", "Estado"] + mlabels,
+        ["UF", "Estado"] + headers_for(measures, False),
         [
             [r.get("uf"), uf_name.get(r.get("uf"), r.get("uf"))] + [r.get(i) for i in mids]
             for r in per_uf
@@ -310,12 +415,12 @@ def build(artifact: str, out: Path) -> Path:
     )
 
     # -------------------------------------------------------- UF x mês
-    uf_month = rows_of(cut(artifact, ["uf", "month"], mids))
+    uf_month = cut(artifact, ["uf", "month"], measures)
     uf_month.sort(key=lambda r: (r.get("uf") or "", r.get("month") or ""))
     write_sheet(
         wb,
         "Por UF e mês",
-        ["UF", "Estado", "Mês"] + mlabels,
+        ["UF", "Estado", "Mês"] + headers_for(measures, True),
         [
             [r.get("uf"), uf_name.get(r.get("uf"), r.get("uf")), r.get("month")]
             + [r.get(i) for i in mids]
@@ -326,7 +431,7 @@ def build(artifact: str, out: Path) -> Path:
     )
 
     # ------------------------------------------------------ municípios
-    per_mun = rows_of(cut(artifact, ["municipality"], mids))
+    per_mun = cut(artifact, ["municipality"], measures)
     per_mun.sort(key=lambda r: -(r.get(mids[0]) or 0))
     mun_rows = []
     for r in per_mun:
@@ -339,7 +444,7 @@ def build(artifact: str, out: Path) -> Path:
     write_sheet(
         wb,
         "Por município",
-        ["Código", "Município", "UF", "Região"] + mlabels,
+        ["Código", "Município", "UF", "Região"] + headers_for(measures, False),
         mun_rows,
         {i + 5: number_format(m) for i, m in enumerate(measures)},
         note=(
@@ -352,7 +457,7 @@ def build(artifact: str, out: Path) -> Path:
     # ------------------------------------------------- uma aba por dimensão
     for dim in caps["dimensions"]:
         did, dlabel = dim["id"], dim["label"]
-        table = rows_of(cut(artifact, [did], mids))
+        table = cut(artifact, [did], measures)
         labels = codelists.get(did, {})
         table.sort(key=lambda r: -(r.get(mids[0]) or 0))
         rows = [
@@ -367,7 +472,7 @@ def build(artifact: str, out: Path) -> Path:
         write_sheet(
             wb,
             f"Por {dlabel}",
-            ["Código", dlabel] + mlabels,
+            ["Código", dlabel] + headers_for(measures, False),
             rows,
             {i + 3: number_format(m) for i, m in enumerate(measures)},
             note=note,
