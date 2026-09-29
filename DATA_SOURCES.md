@@ -364,3 +364,23 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - SIH-RD Acre 2022: 49,547 admissions, 1,706 deaths, R$ 43,377,991.73, mean
   stay 4.702323 (F §3o and §3q, second). National SIH-RD artifact: 12,520,914
   admissions, mean length of stay 5.210395 (F §3t).
+
+## SINAN birth dates after the LGPD (measured 2026-09-28)
+
+- **Every SINAN file on the server is dated 2021-11 or later**, including data
+  years 1999–2006 in `SINAN/DADOS/FINAIS` (`files.modified`, full crawl of
+  2026-09-28). The archive was republished after the LGPD took effect
+  (2020-09).
+- **The current files mostly reduce the birth date to the year.** 63 of 98
+  SINAN families carry `ANO_NASC` without `DT_NASC`; 28 carry neither.
+- **7 families still carry `DT_NASC`:** BOTU 2007–15, COLE 2007–19,
+  TETN 2014–19 and 2020, DERM 2019, IEXO 2006, and SIFC 2023 (PRELIM). The
+  reduction was applied unevenly. These families are identifying data under
+  the project's personal-identifier policy (ADR-0032).
+- **The form itself collects `DT_NASC`** (`sources/dic_notif_indiv.txt`). A
+  Ministry note on a public export states the reduction and its reason:
+  "Data de nascimento configurada para ANO_NASC (classificação como dado
+  pessoal sensível)" (`sources/nota_chagas.txt`).
+- What the pre-2021 files carried is not measurable from today's tree
+  (OQ-56).
+

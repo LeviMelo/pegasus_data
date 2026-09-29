@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import PurePosixPath
 from typing import Any
 
 from .catalog.store import Catalog, utcnow
@@ -44,6 +45,11 @@ def choose_representations(
         member = str(row.get("member") or "")
         groups.setdefault((logical, member), []).append(row)
 
+    # A stored conflict gates only when its evidence cannot be recomputed here
+    # (row counts or schemas measured at decode). One this selector derived
+    # itself ("multiple objects of the same format") is re-evaluated every time:
+    # gating on it kept SINAN-TUBE 2022 refused after the rule that wrote it was
+    # fixed (live run 2026-09-28).
     logical_ids = sorted({key[0] for key in groups})
     open_conflicts: set[str] = set()
     if logical_ids:
@@ -53,7 +59,8 @@ def choose_representations(
                 str(row["logical_id"])
                 for row in catalog.query(
                     f"SELECT logical_id FROM representation_conflicts "
-                    f"WHERE status = 'open' AND logical_id IN ({marks})",
+                    f"WHERE status = 'open' AND logical_id IN ({marks}) "
+                    f"AND evidence NOT LIKE 'multiple objects of the same format%'",
                     tuple(logical_ids),
                 )
             }
@@ -76,7 +83,7 @@ def choose_representations(
         if len(candidates) == 1:
             selected.extend(candidates)
             continue
-        formats = [str(row.get("container_format") or "unknown") for row in candidates]
+        formats = [_representation_kind(row) for row in candidates]
         contradictions: list[str] = []
         if len(formats) != len(set(formats)):
             # Same format twice is only a contradiction when the objects can
@@ -89,9 +96,7 @@ def choose_representations(
             # server's date wins, and only undated or tied editions refuse.
             by_format: dict[str, set[Any]] = {}
             for row in candidates:
-                by_format.setdefault(
-                    str(row.get("container_format") or "unknown"), set()
-                ).add(row.get("size"))
+                by_format.setdefault(_representation_kind(row), set()).add(row.get("size"))
             for fmt, sizes in by_format.items():
                 if len(sizes) <= 1:
                     continue
@@ -100,7 +105,7 @@ def choose_representations(
                 # 2017-10) and again, corrected, in 200801_/Dados/ (2018). The
                 # newest edition is the publisher's current word; refusing made
                 # SIH unreadable for three years (live run 2026-09-28, ADR-0068).
-                editions = [row for row in candidates if str(row.get("container_format") or "unknown") == fmt]
+                editions = [row for row in candidates if _representation_kind(row) == fmt]
                 newest = _newest_edition(catalog, editions)
                 if newest is None:
                     contradictions.append("multiple objects of the same format")
@@ -192,3 +197,18 @@ def _newest_edition(catalog: Catalog, candidates: Sequence[dict[str, Any]]) -> d
     if not dated[-1][0] or (len(dated) > 1 and dated[-1][0] == dated[-2][0]):
         return None
     return candidates[dated[-1][1]]  # type: ignore[return-value]
+
+
+def _representation_kind(row: Mapping[str, Any]) -> str:
+    """What a candidate IS, for telling editions from alternatives.
+
+    The outer container is not enough: SINAN's Dados Abertos ship one
+    publication as ``.csv.zip``, ``.json.zip`` and ``.xml.zip``, all container
+    ``zip`` and all different sizes, and reading them as three editions of one
+    format refused ``SINAN-TUBE`` 2022 outright (live run 2026-09-28). The full
+    suffix separates them; cost ranking still uses the container.
+    """
+    from .inventory.naming import strip_container_suffixes
+
+    _stem, suffix, _container = strip_container_suffixes(PurePosixPath(str(row.get("path") or "")).name)
+    return (suffix or "").lstrip(".").lower() or str(row.get("container_format") or "unknown")

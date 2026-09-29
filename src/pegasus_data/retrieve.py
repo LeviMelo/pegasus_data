@@ -1303,10 +1303,7 @@ def _select_files(
 
             raise MissingColumnError(
                 every[0],
-                "; ".join(
-                    f"{fam} lacks {', '.join(cols)}"
-                    for fam, cols in sorted(absent_by_family.items())
-                ),
+                ", ".join(sorted(absent_by_family)),
                 carried,
                 also_absent=every[1:],
             )

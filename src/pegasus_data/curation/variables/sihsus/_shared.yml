@@ -528,8 +528,8 @@ variables:
       - IDADE
       - COD_IDADE
       encoding: sih
-      rule: age in completed years; COD_IDADE 4 = years, 5 = 100 + value, 2 (days) and 3
-        (months) = 0 completed years, 0 = ignored (null). One converter, _age.years_column
+      rule: fractional years (ADR-0070); COD_IDADE 2 days, 3 months, 4 years, 5 = 100 + value,
+        0 ignored (null). Units measured against NASC and DT_INTER. One converter, _age.years_column
     source: layout_doc
     notes: 'NOT interpretable alone. IDADE=030 with COD_IDADE meaning months is thirty months,
       not thirty years. Averaging this column across a population mixes units and produces

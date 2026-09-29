@@ -195,8 +195,8 @@ class TestDerived:
         out, report = _render(rendered)
         assert "IDADE_anos" in report.derived_added
         years = out.column("IDADE_anos").to_pylist()
-        # ADR-0064: age in completed years from one converter (_age.years_column).
-        assert years[0] == pytest.approx(2.0), "30 months is two completed years"
+        # ADR-0070: fractional years from one converter (_age.years_column).
+        assert years[0] == pytest.approx(2.5), "30 months is two and a half years"
         assert years[1] == pytest.approx(67.0)
 
     def test_derived_can_be_switched_off(self, rendered):

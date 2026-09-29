@@ -1,6 +1,6 @@
 ## ADR-0064: Age is derived in completed years by one converter, declared per curated recipe
 
-**Date:** 2026-09-28. **Status:** active. **Supersedes:** ADR-0020 (no
+**Date:** 2026-09-28. **Status:** superseded (2026-09-28, by ADR-0070: fractional years, measured units). **Supersedes:** ADR-0020 (no
 `IDADE_anos`). **Amends:** ADR-0058 (age banded in aggregates).
 
 **Context.**

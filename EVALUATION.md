@@ -102,3 +102,4 @@ in.
 | 2026-08-30 | [The CNES stock that measured the wrong columns](docs/evaluation/2026-08-30-the-stock-that-measured-the-wrong-columns.md) | §3y The CNES stocks |
 | 2026-09-28 | [The first live runs on a fresh home: the primary interface returned codes without meaning](docs/evaluation/2026-09-28-the-first-live-runs-on-a-fresh-home.md) | live (`scripts/live.py`) |
 | 2026-09-28 | [The maintainer catalog refreshed from a full crawl: listing is cheap, and 5% of the tree had no family](docs/evaluation/2026-09-28-the-maintainer-catalog-refreshed-from-a-full-crawl.md) | maintainer build |
+| 2026-09-28 | [Age units measured against the records' own dates: SIM's layout document is wrong, and SINAN hides plain years](docs/evaluation/2026-09-28-age-units-measured-against-dates.md) | live |

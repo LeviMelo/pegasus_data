@@ -199,7 +199,7 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | export the semantic layer | `labelpack.py`, `bundle.py`, `docsgen.py` (`docs/dictionary.sqlite`), `_compendium.py` (another SQLite), `persist/reference.py` | M3: one snapshot and one dictionary database |
 | describe a thing | `info`, `describe`, `explore`, `DataDictionary`, `compendium`, `search`, `availability` | M3: kept as questions, backed by one catalog |
 | decide a file's system | `inventory/naming.py`, `inventory/systems.py`, `ontology.py` | examined in M3 |
-| convert an age | ~~`view._derive_age_years`~~ | **done** (ADR-0064): `_age.years_column` only |
+| convert an age | ~~`view._derive_age_years`~~ | **done** (ADR-0070): `_age.years_column` only, fractional years from measured units |
 | query capabilities | `capabilities.py` (aggregate artifacts) and `_query_engine/capabilities.py` (publication coverage) | rename in M3 |
 | a `Catalog` | `api.Catalog` (public facade) and `catalog/store.Catalog` | rename in M3 |
 | re-export the query engine | `_query.py` → `_query_engine/__init__.py` → `_query_engine/core.py` | M3: one module |
@@ -253,7 +253,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `geography.py`: health-region memberships and the geography graph.
 - `crosswalk.py`: CNES↔CNPJ enrichment.
 - `providers.py`: optional attribute providers (CNES names).
-- `_age.py`: vectorised age in years and age bands.
+- `_age.py`: age in fractional years from measured unit tables (ADR-0070), and age bands.
 - `_vintage.py`: vintage resolution helpers.
 - `_explore.py`: `explore()`, what is on DATASUS.
 - `_info.py`: `info()`, what a node of the ontology is.

@@ -37,12 +37,16 @@ by `scripts/live.py`.
 | 6 | 20–60 warnings a call | **fixed**: one summary warning; the full list on the report |
 | 7 | leaks: decoder workers outlived the interpreter, pipes and spools left open | **fixed** |
 | 8 | a warm `query()` took 15 s against `fetch()`'s 4 s | **fixed** by #1: 2.7 s |
-| 9 | SIH `SEXO` unlabelled; no age in years in any `query()` | **fixed**: SIH's own SEXO table; `IDADE_anos` in completed years for SIH, SIM, SINAN (ADR-0064) |
+| 9 | SIH `SEXO` unlabelled; no age in years in any `query()` | **fixed**: SIH's own SEXO table; `IDADE_anos` in fractional years for SIH, SIM, SINAN from unit tables measured against the records' dates (ADR-0070) |
 | 10 | SIA's split files (984, SP/RJ/MG) and SISCAN's annual files had no UF or date | **fixed** (ADR-0065) |
 | 11 | SIH-RD 2008/10/12/14 had no family: the census sampled the `.xml` republication | **fixed**: one sample selection, header-readable first |
 | 12 | a first SIA request spent 5.6 min censusing | **fixed** (ADR-0067): 339 s → 35.5 s on a fresh home |
 | 13 | `CNES`, `PROC_REA`, `CGC_HOSP` refused as having more than 12 bound codelists | open: M2 |
 | 14 | SIH-RD 2014–2016 refused: two editions of each publication (`MHJ_14_16/`, `200801_/Dados/`) | **fixed** (ADR-0068): the newest edition is read |
+| 15 | SINAN-TUBE 2022 refused: `.csv.zip`/`.json.zip`/`.xml.zip` read as three editions of `zip`, and the stored conflict kept gating | **fixed** (ADR-0071) |
+| 16 | SINAN plain-year ages (0.8% of dengue) decoded as days; SIM's unit table wrong in its own layout document | **fixed** (ADR-0070) |
+
+All thirteen live scenarios pass on a fresh seeded home (run `m1-seed-age-1`).
 
 ## After M1
 

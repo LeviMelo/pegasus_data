@@ -174,6 +174,53 @@ def s_cli_get() -> dict[str, Any]:
     return out
 
 
+def s_sih_2016() -> dict[str, Any]:
+    """SIH-RD 2016 is published twice (MHJ_14_16/ and 200801_/Dados/): the newest edition must be read."""
+    from pegasus_data import query
+
+    table, report = query("SIH-RD", period="2016-05", geography="AC", return_report=True)
+    out = table_metrics(table)
+    source = report.source_report
+    out["read"] = list(getattr(source, "source_facts", {}) or {})
+    out["superseded"] = list(getattr(source, "representations_deduplicated", []) or [])
+    return out
+
+
+def s_sia_sp_parts() -> dict[str, Any]:
+    """SIA-PA São Paulo is split into parts (PASP2301a/b/c): every part must be selected."""
+    from pegasus_data import explore
+
+    files = explore("SIA-PA", year=2023, uf="SP")
+    names = sorted(str(r["path"]).rsplit("/", 1)[-1] for r in files.rows)
+    january = [n for n in names if n.upper().startswith("PASP2301")]
+    if len(january) < 2:
+        raise AssertionError(f"expected the split parts of PASP2301, found {january}")
+    return {"files_2023": len(names), "january_parts": january}
+
+
+def s_age() -> dict[str, Any]:
+    """IDADE_anos in fractional years, per system: distribution and infant precision (ADR-0070)."""
+    import pyarrow.compute as pc
+
+    from pegasus_data import query
+
+    out: dict[str, Any] = {}
+    for dataset, period, geo in (("SIH-RD", "2023-01", "AL"), ("SIM-DO", 2022, "AL"), ("SINAN-TUBE", 2022, None)):
+        table = query(dataset, period=period, geography=geo)
+        years = table.column("IDADE_anos")
+        valid = pc.drop_null(years)
+        infants = pc.filter(valid, pc.less(valid, 1.0))
+        out[dataset] = {
+            "rows": table.num_rows,
+            "null": table.num_rows - len(valid),
+            "min": pc.min(valid).as_py(), "median": float(pc.approximate_median(valid).as_py()),
+            "max": pc.max(valid).as_py(),
+            "under_1": len(infants),
+            "under_1_distinct": len(pc.unique(infants)),
+        }
+    return out
+
+
 SCENARIOS = {
     "metadata": s_metadata,
     "sih_rd": s_sih_rd,
@@ -185,6 +232,9 @@ SCENARIOS = {
     "sinan_deng": s_sinan_deng,
     "sinan_tube": s_sinan_tube,
     "cli_get": s_cli_get,
+    "sih_2016": s_sih_2016,
+    "sia_sp_parts": s_sia_sp_parts,
+    "age": s_age,
 }
 
 

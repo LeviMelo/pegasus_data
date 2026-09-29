@@ -1,27 +1,33 @@
-"""Age, decoded per system and banded per spec.
+"""Age, decoded per system into one number: years, fractional (ADR-0070).
 
-DATASUS does not use one age encoding any more than it uses one date format
-(`_date_layout`). Three conventions are live in the built systems, each
-documented in curation:
+DATASUS states an age as ONE quantity in ONE unit ("18 months", "5 hours",
+"78 years"), encoded three different ways. Each is decoded into
+``IDADE_anos``: exact years, fractional. 18 months is 1.5, 12 days is
+12 / 365.25. Completed years, if wanted, is ``floor(IDADE_anos)``; age bands
+use this same number.
 
-========  ==================  ==========================================
-system    fields              convention
-========  ==================  ==========================================
-SIH       IDADE + COD_IDADE   unit in its OWN column: 2=days, 3=months,
-                              4=years, 5=100+years
-SIM       IDADE               unit packed into the LEADING digit of a
-                              3-char value: 4xx = xx years, 5xx = 100+xx
-SINAN     NU_IDADE_N          the same packing, 4 chars: 4yyy = yyy years
-plain     any                 the value already IS years (SINASC's IDADEMAE)
-========  ==================  ==========================================
+The unit tables are MEASURED, not copied from layout documents. On
+2026-09-28, each unit digit was checked against the record's own dates:
+birth to death in SIM, birth to admission in SIH, and birth year to symptom
+onset in SINAN (evaluation 2026-09-28, "age units measured against dates").
+SIM's own structure document (``sources/sim2025.txt``) says 1 = minutes and
+2 = hours. The data says 0 = minutes, 1 = hours and 2 = days: unit-2
+quantities of 0–28 run at exactly 1.0 day per unit.
 
-The decode leans on one provable fact rather than a table of every unit
-code: **every unit below "years" is a sub-year unit** (minutes, hours, days,
-months — their exact assignment varies by system and vintage, and does not
-matter here), so any such value lands in the first band as "under one year"
-without knowing which sub-year unit it was. Only the "years" and "100+"
-units need reading precisely, and those are stable across every layout
-document ingested.
+========  ==================  ============================================
+encoding  fields              units
+========  ==================  ============================================
+sih       IDADE + COD_IDADE   COD_IDADE 2 days, 3 months, 4 years,
+                              5 = 100 + years; 0 ignored
+sim       IDADE (3 chars)     leading digit 0 minutes, 1 hours, 2 days,
+                              3 months, 4 years, 5 = 100 + years; 999 and
+                              000 ignored
+sinan     NU_IDADE_N          4 chars: leading digit 1 hours, 2 days,
+                              3 months, 4 years. 1–3 chars: plain years
+                              (0.8% of SINAN-DENG 2022, confirmed by the
+                              birth year)
+years     any                 the value already is years (SINASC IDADEMAE)
+========  ==================  ============================================
 
 An unparseable or absent age is a LEVEL, not a dropped row: unknown age is
 data, and a pyramid that silently sheds its unknowns claims a completeness
@@ -107,8 +113,34 @@ def _digits_to_years(text: Any) -> Any:
     return pc.cast(safe, pa.float64())
 
 
+#: Years per unit. A month is 1/12 year exactly (an age in months is a count
+#: of calendar months); a day is 1/365.25.
+_YEAR, _MONTH, _DAY, _HOUR, _MINUTE = 1.0, 1 / 12, 1 / 365.25, 1 / 8766.0, 1 / 525960.0
+
+#: ``encoding -> {unit code -> years per unit}``. "100+" is handled apart.
+UNITS: dict[str, dict[str, float]] = {
+    "sih": {"2": _DAY, "3": _MONTH, "4": _YEAR},
+    "sim": {"0": _MINUTE, "1": _HOUR, "2": _DAY, "3": _MONTH, "4": _YEAR},
+    "sinan": {"1": _HOUR, "2": _DAY, "3": _MONTH, "4": _YEAR},
+}
+
+
+def _scaled(value: Any, unit: Any, table: dict[str, float]) -> Any:
+    """value x years-per-unit, 100 + value for unit 5, null for anything else."""
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    conditions, choices = [], []
+    for code, per in table.items():
+        conditions.append(pc.equal(unit, code))
+        choices.append(pc.multiply(value, per))
+    conditions.append(pc.equal(unit, "5"))
+    choices.append(pc.add(value, 100.0))
+    return pc.case_when(pc.make_struct(*conditions), *choices, pa.scalar(None, pa.float64()))
+
+
 def years_column(age: AgeDimension, table: Any) -> Any:
-    """Age in years as float64, null where undecodable. Vectorised."""
+    """Age in fractional years as float64, null where undecodable. Vectorised."""
     import pyarrow as pa
     import pyarrow.compute as pc
 
@@ -119,51 +151,24 @@ def years_column(age: AgeDimension, table: Any) -> Any:
             return pa.nulls(table.num_rows, pa.string())
         return pc.utf8_trim_whitespace(pc.cast(table.column(name), pa.string()))
 
-    # Completed years, floored in the stated unit (ADR-0064): thirty months is
-    # two completed years, not zero. Minutes and hours are always under a year.
-    if age.encoding == "sih":
-        # SIH (USP dictionary, sources/sih_batch/usp_dict.txt): 2 days, 3 months,
-        # 4 years, 5 = 100 + years; 0 ignored.
-        value = _digits_to_years(text_of(age.fields[0]))
-        unit = text_of(age.fields[1])
-        return pc.case_when(
-            pc.make_struct(
-                pc.equal(unit, "4"),
-                pc.equal(unit, "5"),
-                pc.equal(unit, "3"),
-                pc.equal(unit, "2"),
-            ),
-            value,
-            pc.add(value, 100.0),
-            pc.floor(pc.divide(value, 12.0)),
-            pc.floor(pc.divide(value, 365.25)),
-            pa.scalar(None, pa.float64()),
-        )
-
     if age.encoding == "years":
-        # The value already is years; only "is it a number" needs checking.
         return _digits_to_years(text_of(age.fields[0]))
+    if age.encoding == "sih":
+        return _scaled(_digits_to_years(text_of(age.fields[0])), text_of(age.fields[1]), UNITS["sih"])
 
-    # Packed: leading digit is the unit, the rest is the quantity.
     packed = text_of(age.fields[0])
     unit = pc.utf8_slice_codeunits(packed, 0, 1)
     rest = _digits_to_years(pc.utf8_slice_codeunits(packed, 1, 32))
-    # SIM (sources/sim2025.txt) and SINAN (DIC-NOTIF-IND) share 3 = months,
-    # 4 = years, 5 = 100 + years; their 1 and 2 are minutes/hours/days, which
-    # both layouts bound below a year.
-    return pc.case_when(
-        pc.make_struct(
-            pc.equal(unit, "4"),
-            pc.equal(unit, "5"),
-            pc.equal(unit, "3"),
-            pc.is_in(unit, value_set=pa.array(["1", "2"])),
-        ),
-        rest,
-        pc.add(rest, 100.0),
-        pc.floor(pc.divide(rest, 12.0)),
-        pa.scalar(0.0, pa.float64()),
-        pa.scalar(None, pa.float64()),
-    )
+    scaled = _scaled(rest, unit, UNITS[age.encoding])
+    if age.encoding == "sim":
+        # "000" is an unfilled field, not zero minutes: measured unit-0
+        # quantities run 1-52, and fetal deaths leave IDADE empty.
+        return pc.if_else(pc.fill_null(pc.equal(packed, "000"), False), pa.scalar(None, pa.float64()), scaled)
+    if age.encoding == "sinan":
+        # Fewer than four characters carries no unit digit: plain years.
+        short = pc.less(pc.utf8_length(packed), 4)
+        return pc.if_else(pc.fill_null(short, False), _digits_to_years(packed), scaled)
+    return scaled
 
 
 def band_column(age: AgeDimension, years: Any) -> Any:
