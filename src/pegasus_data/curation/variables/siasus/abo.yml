@@ -266,6 +266,7 @@ variables:
     description: 'Whether the patient has comorbidities recorded on this authorisation:
       S = Sim, N = Não. A flag, not a diagnosis.'
     code_system: internal
+    codes: {"S": "Sim", "N": "Não"}
     source: layout_doc
     source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
       (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
@@ -275,7 +276,9 @@ variables:
     official_name: Data da ocorrência
     translated_name: Date of the event
     description: Date of the event recorded on the follow-up authorisation.
-    code_system: internal
+    # A date. The .DEF tabulates it on a year/month axis (ANOMES, COMPT,
+    # SEMANAEP), which is a way to group dates, not a codelist for them.
+    code_system: none
     source: def
     source_ref: ANO_2008.CNV
     reasoning: C(8) date bound to ANOMES2008 and ANO_2008.

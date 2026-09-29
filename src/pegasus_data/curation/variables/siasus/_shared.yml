@@ -27,7 +27,9 @@ variables:
       after weight loss.
 
       '
-    code_system: internal
+    # A date. The .DEF tabulates it on a year/month axis (ANOMES, COMPT,
+    # SEMANAEP), which is a way to group dates, not a codelist for them.
+    code_system: none
     source: def
     source_ref: ANOMES2008.CNV
     reasoning: C(8) date bound to ANOMES2008; the second surgery date.
@@ -38,7 +40,9 @@ variables:
       from here, so it anchors the whole post-surgical series.
 
       '
-    code_system: internal
+    # A date. The .DEF tabulates it on a year/month axis (ANOMES, COMPT,
+    # SEMANAEP), which is a way to group dates, not a codelist for them.
+    code_system: none
     source: def
     source_ref: ANOMES2008.CNV
     reasoning: C(8) date bound to ANOMES2008; DTCIRUR reads data da cirurgia.

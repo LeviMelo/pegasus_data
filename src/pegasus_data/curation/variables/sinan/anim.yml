@@ -64,7 +64,9 @@ variables:
       the delay, but ANT_TEMPO_ carries the clinically decisive interval directly.
 
       '
-    code_system: internal
+    # A date. The .DEF tabulates it on a year/month axis (ANOMES, COMPT,
+    # SEMANAEP), which is a way to group dates, not a codelist for them.
+    code_system: none
     source: def
     source_ref: SEMANAEP.CNV
     reasoning: DT_ACI reads data do acidente; D(8) date.
