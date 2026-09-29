@@ -37,7 +37,7 @@ variables:
 
       '
     code_system: external
-    codelist: CBO
+    codelist: CBO2002
     source: layout_doc
     notes: 'Six digits, which is CBO-2002. The CBO table on the tree mixes 3,000 three-digit
       CBO-1994 codes with 2,813 six-digit CBO-2002 codes in one file, so a join must

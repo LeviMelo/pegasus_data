@@ -44,6 +44,7 @@ variables:
       characters here, against the six-character CBO-2002 codes elsewhere, so it decodes against
       the CBO-1994 vintage.
     code_system: external
+    codelist: CBO2002
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 68'

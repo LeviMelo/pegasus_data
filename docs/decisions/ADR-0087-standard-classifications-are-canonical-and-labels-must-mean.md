@@ -74,3 +74,23 @@ is keyed by its system (CLAUDE.md §6), ADR-0079, ADR-0080, ADR-0085.
 - 262 SIM `OCUP` rows hold codes outside the CBO table.
 - Other standards (CBO, SIGTAP, CNAE, municipalities) need the same canonical
   treatment.
+
+**Amended 2026-09-29: CBO is the second canonical classification.**
+- **The table.** `resources/cbo2002.parquet`, built by `scripts/build_cbo.py`,
+  holds 3,715 codes:
+  - the official CBO 2002 structure from the Ministério do Trabalho
+    (`estrutura-cbo.zip`): 2,694 occupations, and the family, subgroup and
+    group levels;
+  - 141 codes DATASUS uses beyond CBO, from the kits:
+    - non-occupations: `999993` Aposentado/Pensionista, `998999` Ignorada,
+      `000000` Não informado;
+    - the first edition's physician codes (`2231xx`);
+    - the Ministry of Health's alphanumeric occupations (`2231F9` Médico
+      residente, `5152A1` Microscopista).
+- **The binding.** Fourteen occupation fields in CNES, SIA, SIH, SIM, SINASC
+  and SINAN are bound to `CBO2002`. System tables are kept as fallbacks, and
+  group tables are no longer bound as a label.
+- **Results in the live home.**
+  - SIM `OCUP`, Alagoas 2022: 262 undecoded rows became 0.
+  - SIH `CBOR` reads "Não informado (000000)".
+  - CNES-PF `CBO`, Acre 2023-01, reads "Técnico de enfermagem (322205)".

@@ -5114,7 +5114,7 @@ variables:
       '
     code_system: external
     codelists:
-    - GRUPO1A
+    - CBO2002
     - OCUPANET
     - SEMOCUPA
     source: layout_doc

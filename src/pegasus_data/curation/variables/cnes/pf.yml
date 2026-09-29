@@ -16,13 +16,12 @@ variables:
       is a real, externally defined classification (not a DATASUS-only invention),
       so codes keep meaning outside this dataset.
     code_system: external
+    codelists:
+    - CBO2002
+    - CBO_94
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 23
-    codelists:
-    - CBO_02
-    - CBO_94
-    - CBO_FAM2
     notes: The catalog also surfaces low-confidence bindings to narrower medical-only
       codelists (e.g. MEDICOS/MEDIC_02/NIVSUPER); CBO covers all occupations at a CNES-registered
       establishment, not physicians only.
@@ -33,15 +32,14 @@ variables:
       across the professional's PF rows - i.e. once per distinct occupation actually
       held by that person, even if that combination recurs across several establishment
       rows.
-    code_system: internal
+    code_system: external
+    codelists:
+    - CBO2002
+    - CBO_94
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.3 Layout dos arquivos de Profissionais (PF*.dbf), SEQ 24
     modifies: CBO
-    codelists:
-    - CBO_02
-    - CBO_94
-    - CBO_FAM2
     notes: Use together with CPFUNICO to avoid overcounting when a professional holds
       the same occupation at multiple establishments; the actual DBF field name drops
       the underscore present in the PDF's 'CBO_UNICO' label.

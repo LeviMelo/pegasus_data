@@ -23,8 +23,7 @@ variables:
     description: CBO (Classificação Brasileira de Ocupações, Ministry of Labour) code
       of the professional who executed the procedure recorded on this BPA-I line.
     code_system: external
-    codelists:
-    - CBO
+    codelist: CBO2002
   CNPJ_CC:
     official_name: CNPJ do Órgão que recebeu pela produção por cessão de crédito
     translated_name: Credit-cession recipient CNPJ

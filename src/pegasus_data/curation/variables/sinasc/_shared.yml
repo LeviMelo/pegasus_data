@@ -208,13 +208,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - CBO2002
-    - GRUPO1
-    - GRUPO2
-    - GRUPO3
-    - GRUPO4
-    - GRUPOCUP
+    codelist: CBO2002
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "Código CBO 2002 | CODOCUPMAE | Caracter 6 | números | Código
       de ocupação da mãe conforme tabela do CBO (Código Brasileiro de Ocupações)"
