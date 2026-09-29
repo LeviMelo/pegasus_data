@@ -276,6 +276,9 @@ variables:
 
       '
     code_system: internal
+    # Estrutura do SINASC 2019 (sources/Estrutura_SINASC_2019.txt). The kit table's labels drop the unit ("01-03", "28-36",
+    # "7 e +"); it stays as the fallback for its own extra codes (ADR-0099).
+    codes: {"1": "Nenhuma", "2": "De 1 a 3 consultas", "3": "De 4 a 6 consultas", "4": "7 consultas e mais", "9": "Ignorado"}
     codelists:
     - CONSULTAS
     - CONSULT
@@ -491,6 +494,9 @@ variables:
       — on the older declaration. ESCMAE2010 and ESCMAEAGR1 carry the later schemes and none
       of the three maps cleanly onto another.
     code_system: internal
+    # Estrutura do SINASC 2019 (sources/Estrutura_SINASC_2019.txt). The kit table's labels drop the unit ("01-03", "28-36",
+    # "7 e +"); it stays as the fallback for its own extra codes (ADR-0099).
+    codes: {"1": "Nenhuma", "2": "1 a 3 anos", "3": "4 a 7 anos", "4": "8 a 11 anos", "5": "12 anos e mais", "9": "Ignorado"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo ESCMAE'
@@ -634,6 +640,9 @@ variables:
       22-27, 28-31, 32-36, 37-41, and 42 e mais. The older declaration''s form; SEMAGESTAC
       carries the week itself where both are present.'
     code_system: internal
+    # Estrutura do SINASC 2019 (sources/Estrutura_SINASC_2019.txt). The kit table's labels drop the unit ("01-03", "28-36",
+    # "7 e +"); it stays as the fallback for its own extra codes (ADR-0099).
+    codes: {"1": "Menos de 22 semanas", "2": "22 a 27 semanas", "3": "28 a 31 semanas", "4": "32 a 36 semanas", "5": "37 a 41 semanas", "6": "42 semanas e mais", "9": "Ignorado"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo GESTACAO'

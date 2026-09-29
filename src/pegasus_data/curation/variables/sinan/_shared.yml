@@ -3046,7 +3046,9 @@ variables:
 
       '
     code_system: external
+    # State names first (ADR-0087): UFCSIGLA labels "AC" as "AC" (ADR-0099).
     codelists:
+    - UF_BR
     - UFCCODIG
     - UFCODIGO
     - UFCSIGLA
@@ -4994,14 +4996,16 @@ variables:
       codelist) applies to the rest of the record.
 
       '
-    codelist: AGRAVONOTS
+    code_system: external
+    # An agravo is filed by its CID-10 code (A90 dengue); AGRAVSURT labels A009 as "A009" (ADR-0099).
     codelists:
+    - ICD10
+    - AGRAVONOTS
     - AGRAVOSSURTO
     - AGRAVSURT
     - AGUDOSNET
     - COMPNAC
     - CRONICASNET
-    code_system: external
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "2. Agravo | co_cid | varchar2(4) | Nome e código do agravo
       notificado segundo CID-10 (Centro Colaborador da OMS para a Classificação de Doenças

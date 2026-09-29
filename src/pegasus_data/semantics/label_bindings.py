@@ -457,7 +457,7 @@ def _record_gaps(
         )
 
 
-_WORD = re.compile(r"[A-Za-zÀ-ÿ]{3,}")
+_WORD = re.compile(r"[A-Za-zÀ-ÿ]{2,}")
 _REPEATED = re.compile(r"^(.)\1+$")
 
 
