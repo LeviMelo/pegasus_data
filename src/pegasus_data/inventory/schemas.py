@@ -663,15 +663,17 @@ def archive_census_targets(catalog: Catalog, *, limit: int | None = None) -> lis
     return [str(r["path"]) for r in catalog.query(sql)]
 
 
-def list_lha_members(fetch_range: Callable[[int, int], bytes], *, first: int = 16 * 1024) -> list[tuple[str, int]]:
+def list_lha_members(
+    fetch_range: Callable[[int, int], bytes], *, first: int = 16 * 1024, total_size: int | None = None
+) -> list[tuple[str, int]]:
     """``(name, original size)`` of every member, from the headers alone."""
     from ..decode.lha import _parse_header, find_lha_offset
 
     head = fetch_range(0, first)
-    offset = find_lha_offset(head, search_limit=len(head))
+    offset = find_lha_offset(head, search_limit=len(head), total_size=total_size)
     if offset is None:
         head = fetch_range(0, 512 * 1024)
-        offset = find_lha_offset(head, search_limit=len(head))
+        offset = find_lha_offset(head, search_limit=len(head), total_size=total_size)
         if offset is None:
             raise HeaderUnreadable("no LHA header in the first 512 KB")
     members: list[tuple[str, int]] = []
@@ -699,6 +701,13 @@ def run_archive_member_census(
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     local = threading.local()
+    sizes = {
+        str(r["path"]): int(r["size"] or 0)
+        for r in catalog.query(
+            "SELECT path, size FROM files WHERE path IN (SELECT archive_path FROM archive_members) OR "
+            "lower(extension) = '.exe'"
+        )
+    }
 
     def _list(path: str) -> tuple[str, list[tuple[str, int]] | None, str | None]:
         import time
@@ -712,7 +721,8 @@ def run_archive_member_census(
             return path, None, f"connect: {type(exc).__name__}: {exc}"[:300]
         try:
             members = list_lha_members(
-                lambda offset, size: client.retrieve_prefix(path, size, offset=offset)  # type: ignore[attr-defined]
+                lambda offset, size: client.retrieve_prefix(path, size, offset=offset),  # type: ignore[attr-defined]
+                total_size=sizes.get(path) or None,
             )
             return path, members, None
         except Exception as exc:  # noqa: BLE001 - one archive never stops the census

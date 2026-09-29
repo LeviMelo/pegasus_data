@@ -376,7 +376,7 @@ def _dos_time(value: int) -> datetime | None:
         return None
 
 
-def find_lha_offset(data: bytes, *, search_limit: int = 1 << 20) -> int | None:
+def find_lha_offset(data: bytes, *, search_limit: int = 1 << 20, total_size: int | None = None) -> int | None:
     """Locate the first plausible LHA header, skipping any SFX stub.
 
     Validated by reading the candidate header and checking that its declared
@@ -394,7 +394,9 @@ def find_lha_offset(data: bytes, *, search_limit: int = 1 << 20) -> int | None:
         if member is None:
             continue
         end = member.offset + member.compressed_size
-        if end <= len(data):
+        # Against the whole container when only a prefix is in hand (a ranged
+        # read of the header, ADR-0103); against the bytes otherwise.
+        if end <= (total_size if total_size is not None else len(data)):
             return offset
     return None
 
