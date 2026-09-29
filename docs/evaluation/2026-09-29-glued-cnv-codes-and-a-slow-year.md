@@ -84,3 +84,15 @@ Both warm runs return the same table (`Table.equals`).
   re-reading the CIHA kit take 45 minutes. One indexed range read per kit
   replaced it; all 38 kits then re-read in 89 minutes, superseding 17,515,772
   rows.
+- **What remains after both fixes** (catalog after `rebuild-cnv2`): 13 dictionary
+  codes still mix prose and code.
+  - 10 are alphanumeric ICD codes glued in SIM's TabWin groupings
+    (`orgânicaR652` in `CID10_18`, `determinadaY175` in `CID10_20_ST`). SIM's
+    cause fields decode through canonical ICD-10 (ADR-0087), not through these
+    groupings.
+  - 2 are in SISCAN `Adequabilidade.cnv`.
+  - 1 is a FORMORGS line whose prose ends in a hyphen.
+
+  The split is not widened to alphanumeric tails. A letter-and-digit code
+  cannot be told from the prose around it as safely as a digit run of the
+  declared width can.
