@@ -961,8 +961,6 @@ def load(
     settings: Settings | None = None,
     profile: str = "analysis",
     render: Mapping[str, str] | None = None,
-    headers: str | None = None,
-    values: str | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
@@ -1079,8 +1077,6 @@ def load(
                 system=system,
                 profile=profile,
                 render=render,
-                headers=headers,
-                values=values,
                 companions=companions,
                 derived=derived,
                 strict=strict_labels,
@@ -1567,10 +1563,9 @@ def export(
     catalog: Catalog | None = None,
     root: str | Path | None = None,
     settings: Settings | None = None,
-    profile: str = "report",
+    profile: str = "audit",
+    present: object = None,
     render: Mapping[str, str] | None = None,
-    headers: str | None = None,
-    values: str | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
@@ -1706,8 +1701,6 @@ def export(
         settings=settings,
         profile=profile,
         render=render,
-        headers=headers,
-        values=values,
         companions=companions,
         derived=derived,
         strict_labels=strict_labels,
@@ -1715,6 +1708,19 @@ def export(
         allow_borrowed_labels=allow_borrowed_labels,
     )
     assert isinstance(table, pa.Table)
+    # A file someone opens reads like the query default: meaning first, the
+    # code in parentheses (ADR-0084).
+    from .presentation import documented_names
+    from .presentation import present as apply_presentation
+
+    resolved = settings or load_settings(root=Path(root) if root else None)
+    store_for_names = Catalog(settings=resolved) if catalog is None else catalog
+    try:
+        names = documented_names(store_for_names.store, system)
+    finally:
+        if catalog is None:
+            store_for_names.close()
+    table = apply_presentation(table, present if present is not None else resolved.presentation, names=names)  # type: ignore[arg-type]
     return write_table(table, path, fmt)
 
 

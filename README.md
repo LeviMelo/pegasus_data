@@ -19,16 +19,15 @@ document.
 ```python
 from pegasus_data import query
 
-table = query("SIH.RD", period="2023-01", geography="AL")   # hospital admissions, Alagoas
-df = table.to_pandas()
-df[["DIAG_PRINC", "DIAG_PRINC_label", "SEXO_label", "IDADE_anos"]].head()
+table = query("SIH.RD", period="2022-01", geography="AL",   # hospital admissions, Alagoas
+              select=["MUNIC_RES", "SEXO", "DIAG_PRINC"])
+table.to_pandas().head(2)
 ```
 
 ```text
-  DIAG_PRINC            DIAG_PRINC_label SEXO_label  IDADE_anos
-0       F102  F10.2 Sindr de dependencia  Masculino        48.0
-1       F192  F19.2 Sindr de dependencia  Masculino        36.0
-2        F29   F29 Psicose nao-organica NE   Feminino       69.0
+  Município de Residência do Paciente (MUNIC_RES)  Sexo do paciente (SEXO)  Código do diagnóstico principal (DIAG_PRINC)
+0                    Delmiro Gouveia, AL (270240)             Feminino (3)             Parto espontaneo cefalico (O800)
+1                    Delmiro Gouveia, AL (270240)             Feminino (3)             Parto espontaneo cefalico (O800)
 ```
 
 ---
@@ -92,13 +91,21 @@ dengue = query("SINAN.DENG", period=2022, select=["NU_IDADE_N", "CS_SEXO", "ID_M
   filter record variables such as the date of admission or the municipality of
   residence. Ask for a month of an annual dataset and you get the year, with a
   warning.
-- **Every coded column keeps its raw value and gains `<column>_label`.**
-  Nothing is replaced, so joins on codes keep working.
+- **`present`** decides how the result reads (ADR-0084). The default,
+  `"readable"`, puts meaning first and keeps the code in parentheses: values
+  `Masculino (1)` under headers `Sexo do paciente (SEXO)`. A code no table
+  decodes stays visibly undecoded: `9 (?)`. Other presets: `"analysis"` (raw
+  codes plus `<column>_label` columns, for code that joins and groups on
+  codes), `"labels"` (labels only) and `"codes"` (as filed). Any part is a
+  template you can change, per call or as your default in `pegasus-data.toml`:
+
+  ```python
+  query("SIH.RD", period="2022-01", geography="AL",
+        present={"values": "{code} - {label}", "names": "{name}", "language": "en"})
+  ```
 - **Derived columns come with it.** `IDADE_anos` is age in fractional years
   (18 months = 1.5), decoded from each system's own age encoding for SIH, SIM
   and SINAN.
-- **`names="described"`** renames columns to their English names
-  (`CODMUNRES` → `Municipality of residence`).
 - **`return_report=True`** also returns what was read, what was skipped and
   why, which columns could not be labelled and why, and which editions of a
   publication were superseded.
@@ -113,7 +120,8 @@ read it directly.
 
 ```bash
 pegasus-data query SIH.RD --period 2023-01 --geo AL,SE --out sih.csv
-pegasus-data query SIM.DO --period 2020..2022 --geo AL --described-names --dictionary sim_dictionary.md --out sim.parquet
+pegasus-data query SIM.DO --period 2020..2022 --geo AL --present analysis --dictionary sim_dictionary.md --out sim.parquet
+pegasus-data query SIM.DO --period 2022 --geo AL --values "{code} - {label}" --language en --out sim.csv
 pegasus-data info SIH.RD
 pegasus-data search raça
 pegasus-data explore SIA.PA

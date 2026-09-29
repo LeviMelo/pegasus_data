@@ -1199,7 +1199,7 @@ def translate_file(
     out: Annotated[Path | None, typer.Option("--out", help="Where to write the labelled table")] = None,
     fmt: Annotated[str, typer.Option("--format", help="csv | parquet | xlsx")] = "csv",
     year: Annotated[int | None, typer.Option("--year", help="Vintage of the codelists to apply")] = None,
-    profile: Annotated[str, typer.Option("--profile", help="analysis | codes | audit | report")] = "report",
+    present: Annotated[str | None, typer.Option("--present", help="readable | analysis | labels | codes (ADR-0084)")] = None,
     as_json: JsonOpt = False,
 ) -> None:
     """Label DATASUS data you already have. No download, no lake.
@@ -1214,8 +1214,20 @@ def translate_file(
     try:
         with console.status(f"labelling {path.name}…"):
             table, result = translate_table(
-                path, system=system, year=year, profile=profile, root=root, report=True
+                path, system=system, year=year, profile="audit", root=root, report=True
             )
+        from .catalog.store import Catalog
+        from .presentation import documented_names
+        from .presentation import present as apply_presentation
+
+        settings = _settings(root)
+        store = Catalog(settings.catalog_path, read_only=True)
+        try:
+            table = apply_presentation(
+                table, present or settings.presentation, names=documented_names(store, system.upper())  # type: ignore[arg-type]
+            )
+        finally:
+            store.close()
     except TranslationImpossible as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
@@ -1248,10 +1260,17 @@ def query_cmd(
     select: Annotated[list[str] | None, typer.Option("--select", "-c", help="Columns to keep (labels follow)")] = None,
     out: Annotated[Path | None, typer.Option("--out", "-o", help="Write the table here instead of summarising")] = None,
     fmt: Annotated[str | None, typer.Option("--format", help="csv | parquet | xlsx (default: from --out)")] = None,
-    no_labels: Annotated[bool, typer.Option("--no-labels", help="Codes only, as filed")] = False,
-    described_names: Annotated[
-        bool, typer.Option("--described-names", help="English column names: CODMUNRES -> Municipality of residence")
-    ] = False,
+    present: Annotated[
+        str | None,
+        typer.Option("--present", help="readable (default) | analysis | labels | codes  (ADR-0084)"),
+    ] = None,
+    values: Annotated[
+        str | None, typer.Option("--values", help='Value template, e.g. "{label} ({code})" or "{code} - {label}"')
+    ] = None,
+    names: Annotated[
+        str | None, typer.Option("--names", help='Header template, e.g. "{name} ({code})" or "{code}"')
+    ] = None,
+    language: Annotated[str | None, typer.Option("--language", help="pt | en: which documented name heads a column")] = None,
     dictionary_out: Annotated[
         Path | None,
         typer.Option("--dictionary", help="Also write the table's data dictionary (.md, .csv, .json or .parquet)"),
@@ -1266,8 +1285,9 @@ def query_cmd(
 
     'pegasus-data query SIH.RD --period 2023-01 --geo AL --out sih.csv'. Reads a
     lake you built where it covers the request and the FTP server otherwise;
-    every raw code keeps its label beside it. `plan` first, to see what it
-    will read: 'pegasus-data query SIH.RD --period 2023 --geo AL' without --out
+    every coded value reads "Masculino (1)" under "Sexo do paciente (SEXO)" unless
+    --present or the templates say otherwise. `plan` first, to see what it will
+    read: 'pegasus-data query SIH.RD --period 2023 --geo AL' without --out
     prints the plan and a summary.
     """
     from ._query_engine import plan as plan_query
@@ -1282,8 +1302,10 @@ def query_cmd(
         console.print(plan_query(dataset, period=span, geography=geography, settings=settings,
                                  allow_unbounded=allow_unbounded).explain())
         with console.status(f"querying {dataset}…"):
+            # The canonical form first: the dictionary is written from it, and
+            # the presentation is applied to it once, below.
             table, report = run_query(
-                dataset, period=span, geography=geography, select=select, labels=not no_labels,
+                dataset, period=span, geography=geography, select=select, present="analysis",
                 allow_unbounded=allow_unbounded, settings=settings, return_report=True,
             )
     except (DatasetUnknown, NothingPublished, ValueError, FileNotFoundError) as exc:
@@ -1291,21 +1313,28 @@ def query_cmd(
         raise typer.Exit(code=1) from exc
 
     labelled = sum(1 for c in table.column_names if c.endswith("_label"))
-    if described_names or dictionary_out:
-        from ._dictionary import describe_table
-        from .catalog.store import Catalog
-        from .retrieve import parse_dataset
+    from ._dictionary import describe_table
+    from .catalog.store import Catalog
+    from .presentation import documented_names
+    from .presentation import present as apply_presentation
+    from .retrieve import parse_dataset
 
-        store = Catalog(settings.catalog_path, read_only=True)
-        try:
-            table, book = describe_table(
-                store, parse_dataset(dataset)[0], table, dataset=dataset, rename=described_names
-            )
-        finally:
-            store.close()
+    system = parse_dataset(dataset)[0]
+    store = Catalog(settings.catalog_path, read_only=True)
+    try:
         if dictionary_out:
+            _, book = describe_table(store, system, table, dataset=dataset, rename=False)
             book.write(dictionary_out)
             console.print(f"[green]wrote[/green] {dictionary_out}  ({len(book)} columns described)")
+        overrides = {k: v for k, v in {"values": values, "names": names, "language": language}.items() if v}
+        spec: object = {"preset": present, **overrides} if present else (overrides or None)
+        if spec is None:
+            spec = settings.presentation
+        elif isinstance(spec, dict) and "preset" not in spec:
+            spec = {"preset": settings.presentation if isinstance(settings.presentation, str) else "readable", **spec}
+        table = apply_presentation(table, spec, names=documented_names(store, system))  # type: ignore[arg-type]
+    finally:
+        store.close()
     if out:
         from .api import write_table
 

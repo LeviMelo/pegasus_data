@@ -47,11 +47,7 @@ from .catalog.store import Catalog
 from .persist.reference import read_reference_table
 from .semantics.curation import VariableDoc, load_variable_docs
 
-RenderMode = Literal["code", "label", "both", "combined"]
-
-#: How a combined value reads: ``1 – Masculino``. An en dash, because a hyphen
-#: is already inside plenty of codes.
-COMBINED_SEP = " – "
+RenderMode = Literal["code", "label", "both"]
 
 #: Multi-valued columns join with this. Wide enough to survive a label that has
 #: commas in it, which ICD labels routinely do.
@@ -77,8 +73,6 @@ class RenderProfile:
     external: RenderMode = "both"
     companions: bool = True
     derived: bool = True
-    headers: Literal["original", "translated", "both"] = "original"
-    values: Literal["separate", "combined"] = "separate"
 
 
 PROFILES: dict[str, RenderProfile] = {
@@ -95,9 +89,6 @@ PROFILES: dict[str, RenderProfile] = {
     # Everything visible at once, including the internal codes the analysis
     # profile hides, so a disagreement can be traced back to what was stored.
     "audit": RenderProfile("audit", internal="both", external="both"),
-    # For a document someone reads. Translated headers and combined values are
-    # both hostile to machines and are why this is not the default.
-    "report": RenderProfile("report", headers="translated", values="combined"),
 }
 
 
@@ -132,11 +123,9 @@ class RenderReport:
     #: health regions where municipalities were asked for. Only a caller who
     #: could see the table name could see the defect.
     codelist_used: dict[str, str] = field(default_factory=dict)
-    #: ``rendered name -> DATASUS name``, when a profile translated the headers.
     #: The `report` profile does, and it is the CLI's default, so anything built
     #: from the rendered table afterwards — the data dictionary — would look up
     #: "Mother's age" in curation, find nothing, and describe nothing.
-    renamed_headers: dict[str, str] = field(default_factory=dict)
     #: Unlabelled columns holding one value in every row, with that value —
     #: ``CID_MORTE`` is ``'0000'`` 59,835 times in SIH-RD/AC/2023. These are ALSO
     #: in ``unlabelled``, so nothing a caller checks today is lost; this names
@@ -581,48 +570,9 @@ def _check_width(
     )
 
 
-def _combine(codes: pa.Array, labels: pa.Array) -> pa.Array:
-    """``code – label``, unless the label already opens with the code.
-
-    Many DATASUS `.CNV` tables write the code into the label — BR_MUNICIPALFA
-    maps ``120001`` to ``'120001 Acrelândia, AC'`` — and combining blindly
-    produced ``'120001 – 120001 Acrelândia, AC'`` in the report profile's
-    output. The code is not missing from those cells, it is doubled, so the fix
-    is to not add what is already there.
-
-    The boundary check is what keeps this from over-firing: code ``12`` against
-    label ``'120001 Acrelândia'`` starts-with, but ``0`` is not a boundary, so
-    the code is still prefixed.
-    """
-    out: list[str | None] = []
-    for code, label in zip(codes.to_pylist(), labels.to_pylist(), strict=True):
-        if code is None and label is None:
-            out.append(None)
-        elif label is None:
-            out.append(str(code))
-        elif code is None:
-            out.append(str(label))
-        else:
-            text, key = str(label), str(code)
-            rest = text[len(key):]
-            if text.startswith(key) and (not rest or not rest[0].isalnum()):
-                out.append(text)
-            else:
-                out.append(f"{key}{COMBINED_SEP}{text}")
-    return pa.array(out, type=pa.string())
-
-
-# -------------------------------------------------------------------- derived
-
-
-# --------------------------------------------------------------------- render
-
-
 def resolve_profile(
     profile: str | RenderProfile = "analysis",
     *,
-    headers: str | None = None,
-    values: str | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
 ) -> RenderProfile:
@@ -631,10 +581,6 @@ def resolve_profile(
     if base is None:
         raise KeyError(f"unknown render profile {profile!r}; known: {sorted(PROFILES)}")
     changes: dict[str, Any] = {}
-    if headers is not None:
-        changes["headers"] = headers
-    if values is not None:
-        changes["values"] = values
     if isinstance(companions, bool):
         changes["companions"] = companions
     if isinstance(derived, bool):
@@ -795,8 +741,6 @@ def render_table(
     family_id: str | None = None,
     profile: str | RenderProfile = "analysis",
     render: Mapping[str, RenderMode] | None = None,
-    headers: str | None = None,
-    values: str | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     year: int | None = None,
@@ -822,8 +766,6 @@ def render_table(
             family_id=family_id,
             profile=profile,
             render=render,
-            headers=headers,
-            values=values,
             companions=companions,
             derived=derived,
             year=year,
@@ -842,8 +784,6 @@ def _render_table(
     family_id: str | None = None,
     profile: str | RenderProfile = "analysis",
     render: Mapping[str, RenderMode] | None = None,
-    headers: str | None = None,
-    values: str | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     year: int | None = None,
@@ -852,7 +792,7 @@ def _render_table(
     collected: dict[str, set] | None = None,
 ) -> tuple[pa.Table, RenderReport]:
     settings_profile = resolve_profile(
-        profile, headers=headers, values=values, companions=companions, derived=derived
+        profile, companions=companions, derived=derived
     )
     report = RenderReport()
     collected = collected if collected is not None else {"borrowed": set(), "fallback": set()}
@@ -1119,9 +1059,6 @@ def _render_table(
         if mode == "label":
             columns.append(labels)
             names.append(name)
-        elif mode == "combined" or settings_profile.values == "combined":
-            columns.append(_combine(column, labels))
-            names.append(name)
         else:  # "both"
             columns.append(column)
             names.append(name)
@@ -1138,19 +1075,6 @@ def _render_table(
             system, competencia,
         )
 
-    if settings_profile.headers != "original":
-        before_headers = list(rendered_table.schema.names)
-        rendered_table = _apply_headers(rendered_table, docs, settings_profile.headers)
-        report.renamed_headers.update(
-            {new: old for old, new in zip(before_headers, rendered_table.schema.names, strict=True)
-             if new != old}
-        )
-
-    if settings_profile.values == "combined" and settings_profile.name == "report":
-        report.warnings.append(
-            "values='combined' produces a reading format: the result cannot be "
-            "filtered, joined or aggregated on"
-        )
     # ONE warning, not one per finding. A wide dataset with many unresolved or
     # ambiguous columns produced a wall of them — slow to emit and hostile in a
     # notebook, and it trained people to filter the channel entirely. The
@@ -1229,27 +1153,3 @@ def _apply_derived(
     return rendered
 
 
-def _apply_headers(
-    table: pa.Table, docs: Mapping[str, VariableDoc], style: str
-) -> pa.Table:
-    """Rename columns for a human reader.
-
-    Off by default and documented as a one-way door: renamed headers break
-    scripts, joins and every downstream reference, and accented names cause
-    friction in SQL and in some Parquet readers. Fine for a deliverable someone
-    reads; a poor choice for a pipeline stage.
-    """
-    names: list[str] = []
-    for name in table.schema.names:
-        base = name[: -len(LABEL_SUFFIX)] if name.endswith(LABEL_SUFFIX) else name
-        doc = docs.get(base.upper())
-        translated = (doc.translated_name if doc else None) or (
-            doc.official_name if doc else None
-        )
-        if not translated:
-            names.append(name)
-            continue
-        if name.endswith(LABEL_SUFFIX):
-            translated = f"{translated} (label)"
-        names.append(translated if style == "translated" else f"{name} ({translated})")
-    return table.rename_columns(names)

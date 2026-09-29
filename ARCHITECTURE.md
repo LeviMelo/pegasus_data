@@ -239,7 +239,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `api.py`: `Catalog` facade, `describe`, `load`, `scan`, `export`, `open_lake`,
   `write_table`, `load_population`, `load_reference`.
 - `retrieve.py`: `fetch()`, DATASUS to a table in one call; the de facto read engine.
-- `view.py`: rendering: codelist selection, labels, profiles, derived columns.
+- `view.py`: rendering into the canonical form: codelist selection, `_label` companions, derived columns.
+- `presentation.py`: how a result reads, applied last: value and header templates, presets, language (ADR-0084).
 - `render_groups.py`: groups files by vintage and system before rendering.
 - `representations.py`: deduplicates the same publication delivered twice.
 - `_aggregate.py`: recipes, `build_aggregate`, `aggregate()`.

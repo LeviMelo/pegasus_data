@@ -73,7 +73,6 @@ def merge_reports(into: RenderReport | None, addition: RenderReport) -> RenderRe
     into.constant.update(getattr(addition, "constant", {}) or {})
     into.fallback_vintage.update(getattr(addition, "fallback_vintage", {}) or {})
     into.partial_codelist_match.update(getattr(addition, "partial_codelist_match", {}) or {})
-    into.renamed_headers.update(getattr(addition, "renamed_headers", {}) or {})
     # Two vintages of one column can be decoded by two different tables — that
     # is what vintage scoping is FOR — so disagreement is recorded rather than
     # overwritten. A silent last-group-wins here would report one table for a
@@ -197,8 +196,6 @@ def render_groups(
     system: str,
     profile: str | Any = "analysis",
     render: Mapping[str, str] | None = None,
-    headers: str | None = None,
-    values: str | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict: bool = False,
@@ -223,8 +220,6 @@ def render_groups(
             family_id=family_id,
             profile=profile,
             render=render,
-            headers=headers,
-            values=values,
             companions=companions,
             derived=derived,
             year=year,

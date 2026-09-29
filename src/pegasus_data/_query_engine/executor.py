@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import warnings
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Literal
@@ -65,8 +65,7 @@ def query(
     period: object = None,
     geography: object = None,
     select: Sequence[str] | None = None,
-    labels: bool = True,
-    names: Literal["original", "described"] = "original",
+    present: str | Mapping[str, Any] | object | None = None,
     dimensions: Sequence[str] | None = None,
     enrich: Sequence[str | EnrichmentRequest] | None = None,
     provenance: Literal[False, "all"] = False,
@@ -78,6 +77,13 @@ def query(
     root: str | Path | None = None,
     settings: Settings | None = None,
 ) -> pa.Table | tuple[pa.Table, QueryReport]:
+    from ..presentation import resolve as resolve_presentation
+
+    resolved_settings = settings or load_settings(root=Path(root) if root else None)
+    # How the result is shown (ADR-0084): the engine always builds the
+    # canonical form (codes + labels), and the presentation is applied last.
+    presentation = resolve_presentation(present, default=resolved_settings.presentation)  # type: ignore[arg-type]
+    labels = not presentation.codes_only
     query_plan = plan(
         dataset, period=period, geography=geography, select=select, labels=labels,
         dimensions=dimensions, enrich=enrich, provenance=provenance,
@@ -85,7 +91,7 @@ def query(
         allow_unbounded=allow_unbounded,
         root=root, settings=settings,
     )
-    resolved = settings or load_settings(root=Path(root) if root else None)
+    resolved = resolved_settings
     retrieval = query_plan.retrieval
     # A download budget the caller sees before anything moves (ADR-0076):
     # 1 GiB of NEW compressed bytes by default; cached files cost nothing.
@@ -288,21 +294,20 @@ def query(
         report.structural_absence, sort_keys=True
     ).encode()
     table = table.replace_schema_metadata(metadata)
-    if names == "described":
-        table = _described(table, query_plan, resolved)
+    table = _presented(table, presentation, query_plan, resolved)
     return (table, report) if return_report else table
 
 
-def _described(table: pa.Table, query_plan: Any, settings: Settings) -> pa.Table:
-    """English column names from the curated dictionary (``names="described"``)."""
-    from .._dictionary import describe_table
+def _presented(table: pa.Table, presentation: Any, query_plan: Any, settings: Settings) -> pa.Table:
+    """Apply the presentation with the curated names of this dataset's system."""
     from ..catalog.store import Catalog
+    from ..presentation import documented_names, present
 
     store = Catalog(settings.catalog_path, read_only=True)
     try:
-        renamed, _book = describe_table(
-            store, query_plan.retrieval.system, table, dataset=query_plan.spec.dataset, rename=True
-        )
+        names = documented_names(store, query_plan.retrieval.system)
     finally:
         store.close()
-    return renamed
+    metadata = table.schema.metadata
+    shown = present(table, presentation, names=names)
+    return shown.replace_schema_metadata(metadata) if metadata else shown

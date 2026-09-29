@@ -123,6 +123,12 @@ class Settings:
     #: (reproducibility over currency) that used to be implicit.
     refresh: str = "catalog"
 
+    #: How query() shows a result unless the call says otherwise: a preset
+    #: ("readable", "analysis", "labels", "codes") or a mapping of overrides,
+    #: e.g. {values = "{code} - {label}", language = "en"} in pegasus-data.toml
+    #: (ADR-0084).
+    presentation: object = "readable"
+
     #: Decode in a separate, killable process. `item_timeout` was never
     #: cancellation without this: Python cannot kill a thread and DBC inflation
     #: runs inside a native extension that never yields, so an "abandoned" file
