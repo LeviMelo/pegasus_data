@@ -6040,6 +6040,13 @@ variables:
       meses, 4018 – dezoito anos | Campo Obrigatório | NU_IDADE_N"
 
       '
+    derived:
+    - name: IDADE_anos
+      from:
+      - NU_IDADE_N
+      encoding: sinan
+      rule: age in completed years; leading digit 4 = years, 1-3 (hour, day, month) = 0.
+        One converter, _age.years_column
     notes: Bound age-band codelists (FX14A69, FXIDAD10NET, FXIDAD13NET, ...) are TabNet age-group
       tabulation axes derived from this coded number, not a code system for the column itself
       — expect a SPURIOUS-BINDING? report for code_system 'none' against these bindings, same

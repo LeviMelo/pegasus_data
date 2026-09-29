@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any
 
 import pyarrow as pa
 
@@ -170,66 +169,6 @@ def _apply_dimensions(
                 )
                 report.warnings.append(message)
                 warnings.warn(message, SemanticFallbackWarning, stacklevel=3)
-    finally:
-        if catalog is not None:
-            catalog.close()
-    return output
-
-
-def _enforce_identity_labels(
-    table: pa.Table,
-    query_plan: QueryPlan,
-    source_report: Any,
-    report: QueryReport,
-    settings: Settings,
-) -> pa.Table:
-    """Keep a high-level label only when an effective ``label_of`` allows it."""
-    from ..catalog.store import Catalog
-    from ..semantics.relations import (
-        RelationType,
-        ensure_adjudication_item,
-        relations_for,
-    )
-
-    source_reports = source_report if isinstance(source_report, (list, tuple)) else [source_report]
-    used: dict[str, set[str]] = {}
-    for item in source_reports:
-        render = getattr(item, "render", None) or item
-        for field_name, artifacts in (getattr(render, "codelist_used", {}) or {}).items():
-            used.setdefault(str(field_name), set()).update(
-                part.strip() for part in str(artifacts).split(",") if part.strip()
-            )
-    for column_name in table.column_names:
-        if column_name.endswith("_label"):
-            used.setdefault(column_name.removesuffix("_label"), set())
-    dataset_code = f"{query_plan.retrieval.system}.{query_plan.retrieval.series or '*'}"
-    output = table
-    catalog = Catalog(settings.catalog_path) if settings.catalog_path.is_file() else None
-    try:
-        for field_name, chosen in used.items():
-            relations = relations_for(
-                query_plan.retrieval.system, dataset_code, field_name,
-                relation_type=RelationType.LABEL_OF, catalog=catalog,
-            )
-            allowed = {item.artifact for item in relations}
-            if chosen and chosen <= allowed:
-                continue
-            label_name = f"{field_name}_label"
-            if label_name in output.column_names:
-                output = output.drop_columns([label_name])
-            message = (
-                f"{field_name}: rendered artifact(s) {', '.join(sorted(chosen)) or 'unknown'} "
-                "lack an explicit label_of relation; the raw code was preserved and the "
-                "high-level label was refused"
-            )
-            if catalog is not None:
-                ensure_adjudication_item(
-                    catalog, kind="label_relation", system=query_plan.retrieval.system,
-                    dataset=dataset_code, field=field_name, candidates=sorted(chosen),
-                    reason="renderer selected an artifact without an effective label_of relation",
-                )
-            report.warnings.append(message)
-            warnings.warn(message, SemanticFallbackWarning, stacklevel=3)
     finally:
         if catalog is not None:
             catalog.close()

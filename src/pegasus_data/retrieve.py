@@ -1580,6 +1580,13 @@ def _read_families(
         else:
             report.schema_mismatch.append(path)
 
+    # Every member has been read into memory; the decoder spools on disk can go
+    # now instead of whenever the garbage collector notices them.
+    for pending in decoded_cache.values():
+        if pending.done() and pending.exception() is None:
+            retains = getattr(pending.result()[0], "retains", None)
+            if hasattr(retains, "cleanup"):
+                retains.cleanup()  # type: ignore[union-attr]
     report.sources_read = len(read_sources)
     report.file_years_returned = sorted(seen_years)
     report.file_ufs_returned = sorted(seen_ufs)

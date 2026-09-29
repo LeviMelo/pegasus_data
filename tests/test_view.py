@@ -60,7 +60,7 @@ def rendered(settings, catalog: Catalog):
             ("SIHSUS", "COD_IDADE", "internal", "UNIDIDADE", 0, None, None, None,
              "Age unit", "manual", "t"),
             ("SIHSUS", "IDADE", "none", None, 0, None, '["COD_IDADE"]',
-             '[{"name": "IDADE_anos", "from": ["IDADE", "COD_IDADE"], "rule": "years"}]',
+             '[{"name": "IDADE_anos", "from": ["IDADE", "COD_IDADE"], "encoding": "sih", "rule": "years"}]',
              "Age", "manual", "t"),
             ("SIHSUS", "VAL_TOT", "none", None, 0, None, None, None, "Total value", "manual", "t"),
         ],
@@ -90,10 +90,11 @@ def _render(rendered, **kw):
 class TestTheAxis:
     """§5.2 — internal vs external governs replace vs accompany."""
 
-    def test_internal_labels_replace_the_code(self, rendered):
+    def test_internal_labels_accompany_the_code(self, rendered):
+        """ADR-0063: the default profile keeps the code and adds the label."""
         out, _ = _render(rendered)
-        assert out.column("SEXO").to_pylist() == ["Masculino", "Feminino", "Masculino"]
-        assert "SEXO_label" not in out.schema.names
+        assert out.column("SEXO_label").to_pylist() == ["Masculino", "Feminino", "Masculino"]
+        assert "SEXO" in out.schema.names
 
     def test_external_keeps_both(self, rendered):
         out, _ = _render(rendered)
@@ -194,7 +195,8 @@ class TestDerived:
         out, report = _render(rendered)
         assert "IDADE_anos" in report.derived_added
         years = out.column("IDADE_anos").to_pylist()
-        assert years[0] == pytest.approx(2.5), "30 months is two and a half years"
+        # ADR-0064: age in completed years from one converter (_age.years_column).
+        assert years[0] == pytest.approx(2.0), "30 months is two completed years"
         assert years[1] == pytest.approx(67.0)
 
     def test_derived_can_be_switched_off(self, rendered):
@@ -336,7 +338,7 @@ class TestContradictoryCodelists:
             pa.table({"SEXO": pa.array(["2"])}),
             store=catalog, lake_root=settings.lake_dir, system="SIHSUS",
         )
-        assert out.column("SEXO").to_pylist() == ["Feminino"]
+        assert out.column("SEXO_label").to_pylist() == ["Feminino"]
         assert "SEXO" not in report.unlabelled
 
 
@@ -383,8 +385,8 @@ class TestSystemScoping:
             pa.table({"SEXO": pa.array(["2"])}),
             store=catalog, lake_root=settings.lake_dir, system="SINASC",
         )
-        assert sih.column("SEXO").to_pylist() == ["Feminino"], "SIH codes sex 1/3"
-        assert dn.column("SEXO").to_pylist() == ["Feminino"], "SINASC codes sex 1/2"
+        assert sih.column("SEXO_label").to_pylist() == ["Feminino"], "SIH codes sex 1/3"
+        assert dn.column("SEXO_label").to_pylist() == ["Feminino"], "SINASC codes sex 1/2"
 
     def test_the_other_systems_codes_do_not_leak_in(self, settings, catalog: Catalog):
         """SIHSUS has no '2', and must not borrow SINASC's meaning for it."""

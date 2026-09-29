@@ -1013,6 +1013,13 @@ variables:
       '
     code_system: internal
     source: layout_doc
+    derived:
+    - name: IDADE_anos
+      from:
+      - IDADE
+      encoding: sim
+      rule: age in completed years; leading digit 4 = years, 5 = 100 + years, 1-3 (sub-year
+        units) = 0 completed years. One converter, _age.years_column
     notes: 'SIM packs the unit into the value itself, unlike SIH which uses a separate COD_IDADE
       column. The two systems'' IDADE columns are not comparable without decoding each by
       its own rule.

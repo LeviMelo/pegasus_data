@@ -68,8 +68,8 @@ class TestDescribe:
 
 
 class TestLoad:
-    def test_an_internal_code_is_replaced_by_its_label(self, built_lake):
-        """§5.2: nobody wants SEXO=1 in a finished output."""
+    def test_an_internal_code_keeps_its_code_beside_the_label(self, built_lake):
+        """ADR-0063: the raw code stays; the label is a companion."""
         settings, catalog, _ = built_lake
         public = PublicCatalog(settings.root, settings=settings)
         try:
@@ -78,8 +78,8 @@ class TestLoad:
         finally:
             public.close()
         assert table.num_rows == 3
-        assert table.column("SEXO").to_pylist() == ["Masculino", "Feminino", "Masculino"]
-        assert "SEXO_label" not in table.schema.names, "internal codes are replaced, not accompanied"
+        assert table.column("SEXO_label").to_pylist() == ["Masculino", "Feminino", "Masculino"]
+        assert "SEXO" in table.schema.names, "ADR-0063: the raw code is never discarded"
 
     def test_an_external_code_keeps_its_code_beside_the_label(self, built_lake):
         """§5.2: an external code is a join key and must survive."""

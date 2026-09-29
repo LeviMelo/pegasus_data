@@ -56,7 +56,7 @@ SAMPLE = pa.table({"N_AIH": ["A1", "A2"], "SEXO": ["1", "3"]})
 class TestItLabels:
     def test_an_arrow_table_comes_back_labelled(self, dictionary):
         out = translate(SAMPLE, system="SIHSUS", settings=dictionary)
-        assert out.column("SEXO").to_pylist() == ["Masculino", "Feminino"]
+        assert out.column("SEXO_label").to_pylist() == ["Masculino", "Feminino"]
 
     def test_columns_it_knows_nothing_about_pass_through_untouched(self, dictionary):
         out = translate(SAMPLE, system="SIHSUS", settings=dictionary)
@@ -66,14 +66,14 @@ class TestItLabels:
         csv = tmp_path / "extract.csv"
         csv.write_text("N_AIH;SEXO\nA1;1\nA2;3\n", encoding="latin-1")
         out = translate(csv, system="SIHSUS", settings=dictionary)
-        assert out.column("SEXO").to_pylist() == ["Masculino", "Feminino"]
+        assert out.column("SEXO_label").to_pylist() == ["Masculino", "Feminino"]
 
     def test_a_comma_separated_export_works_too(self, dictionary, tmp_path):
         """DATASUS exports use ';' about as often as ','."""
         csv = tmp_path / "extract.csv"
         csv.write_text("N_AIH,SEXO\nA1,1\nA2,3\n", encoding="latin-1")
         out = translate(csv, system="SIHSUS", settings=dictionary)
-        assert out.column("SEXO").to_pylist() == ["Masculino", "Feminino"]
+        assert out.column("SEXO_label").to_pylist() == ["Masculino", "Feminino"]
 
     def test_a_parquet_file_can_be_translated(self, dictionary, tmp_path):
         import pyarrow.parquet as pq
@@ -81,7 +81,7 @@ class TestItLabels:
         target = tmp_path / "extract.parquet"
         pq.write_table(SAMPLE, target)
         out = translate(target, system="SIHSUS", settings=dictionary)
-        assert out.column("SEXO").to_pylist() == ["Masculino", "Feminino"]
+        assert out.column("SEXO_label").to_pylist() == ["Masculino", "Feminino"]
 
     def test_the_codes_can_be_kept_instead(self, dictionary):
         out = translate(SAMPLE, system="SIHSUS", profile="codes", settings=dictionary)

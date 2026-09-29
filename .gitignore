@@ -60,3 +60,6 @@ src/pegasus_data/decode/_native/*.dll
 src/pegasus_data/decode/_native/*.obj
 src/pegasus_data/decode/_native/*.lib
 src/pegasus_data/decode/_native/*.exp
+
+# live checks and probes (local)
+/data/

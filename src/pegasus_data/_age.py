@@ -119,18 +119,24 @@ def years_column(age: AgeDimension, table: Any) -> Any:
             return pa.nulls(table.num_rows, pa.string())
         return pc.utf8_trim_whitespace(pc.cast(table.column(name), pa.string()))
 
+    # Completed years, floored in the stated unit (ADR-0064): thirty months is
+    # two completed years, not zero. Minutes and hours are always under a year.
     if age.encoding == "sih":
+        # SIH (USP dictionary, sources/sih_batch/usp_dict.txt): 2 days, 3 months,
+        # 4 years, 5 = 100 + years; 0 ignored.
         value = _digits_to_years(text_of(age.fields[0]))
         unit = text_of(age.fields[1])
         return pc.case_when(
             pc.make_struct(
                 pc.equal(unit, "4"),
                 pc.equal(unit, "5"),
-                pc.is_in(unit, value_set=pa.array(["2", "3"])),
+                pc.equal(unit, "3"),
+                pc.equal(unit, "2"),
             ),
             value,
             pc.add(value, 100.0),
-            pa.scalar(0.0, pa.float64()),
+            pc.floor(pc.divide(value, 12.0)),
+            pc.floor(pc.divide(value, 365.25)),
             pa.scalar(None, pa.float64()),
         )
 
@@ -142,14 +148,19 @@ def years_column(age: AgeDimension, table: Any) -> Any:
     packed = text_of(age.fields[0])
     unit = pc.utf8_slice_codeunits(packed, 0, 1)
     rest = _digits_to_years(pc.utf8_slice_codeunits(packed, 1, 32))
+    # SIM (sources/sim2025.txt) and SINAN (DIC-NOTIF-IND) share 3 = months,
+    # 4 = years, 5 = 100 + years; their 1 and 2 are minutes/hours/days, which
+    # both layouts bound below a year.
     return pc.case_when(
         pc.make_struct(
             pc.equal(unit, "4"),
             pc.equal(unit, "5"),
-            pc.is_in(unit, value_set=pa.array(["1", "2", "3"])),
+            pc.equal(unit, "3"),
+            pc.is_in(unit, value_set=pa.array(["1", "2"])),
         ),
         rest,
         pc.add(rest, 100.0),
+        pc.floor(pc.divide(rest, 12.0)),
         pa.scalar(0.0, pa.float64()),
         pa.scalar(None, pa.float64()),
     )

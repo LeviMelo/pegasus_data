@@ -705,7 +705,7 @@ lists every such case alongside the ones that were settled.
 dropped, and that is a decision rather than an omission: masking in a library
 would destroy the evidence that the data was published, and deciding what may be
 disclosed about a named person is not a call a data library is entitled to make.
-The detector flags them and [`docs/FINDINGS.md` §3j](docs/FINDINGS.md) records
+The detector flags them and [the evaluation entry of 2026-08-21](docs/evaluation/2026-08-21-identifiers-and-re-identification-risk-in-siasus.md) records
 what was measured — including which apparent identifiers turned out, on
 check-digit testing, to be obfuscated rather than published.
 
@@ -775,38 +775,29 @@ rather than merely convenient.
 
 ## Documentation
 
-- **[`CONTRIBUTING.md`](CONTRIBUTING.md)** — how to work on this, and the rules
-  that are not stylistic. Start here if you are going to change anything.
-- **[`pegasus_data_ARCHITECTURE.md`](pegasus_data_ARCHITECTURE.md)** — how it is
-  built and why. §5.4 is the ontology, §11 is `fetch()`, §14 is the public API,
-  §19 records every departure from the original brief with its reasoning, §21 is
-  the measured state.
-- **[`docs/FINDINGS.md`](docs/FINDINGS.md)** — what we learned about DATASUS
-  itself. §0 is the headline: why a correct crawl finds 82,441 more files than
-  the previous one. §3j is the personal-identifier finding. §3k is the six
-  municipality tables DATASUS ships, why they are not interchangeable, and how a
-  city came to be labelled with the name of its health region.
-- **[`docs/RESUME.md`](docs/RESUME.md)** — operational state: what is left, and
-  how to resume an interrupted run.
-- **[`docs/AGGREGATE_DESIGN.md`](docs/AGGREGATE_DESIGN.md)** — the aggregate
-  layer: why a frontend must not aggregate microdata (measured: 130 s and 50×
-  compression for one small state-year), what already exists to build on, and
-  the phased plan. Phase 0 — supramunicipal geography — is built.
-- **[`docs/IBGE_LOCALIDADES.md`](docs/IBGE_LOCALIDADES.md)** — the geography
-  audit: which IBGE API is current, what DATASUS gets right (the microregion
-  partition is IBGE's exactly), what it deprecates (meso/micro, retired 2017),
-  and why the outcome is a supplement rather than a replacement.
-- **[`docs/AGGREGATE_PLAN.md`](docs/AGGREGATE_PLAN.md)** — the single source of
-  truth for what the aggregate layer builds, how, and where each change lands.
-- **[`docs/AGGREGATE_ALGEBRA.md`](docs/AGGREGATE_ALGEBRA.md)** — the mathematics
-  under it: aggregates as maps into a commutative monoid, roll-up as pushforward,
-  and the four ways that structure breaks on real DATASUS (partial maps,
-  multi-valued dimensions, contested classifications, semi-additive stocks).
-- **[`docs/HANDOFF.md`](docs/HANDOFF.md)** — for anyone taking the work over:
-  every defect found by running it, what is still open, the traps that have bitten
-  more than once, and an honest account of how the work went wrong.
-- **[`REVIEW.md`](REVIEW.md)** — the second external static audit. Its findings
-  are **unverified** — the reviewer could not execute the suite.
+The project's record follows one model (ADR-0001). Start with the file that
+answers your question:
+
+- **[`STATUS.md`](STATUS.md)**: what is true now, and what is being worked on.
+- **[`CLAUDE.md`](CLAUDE.md)**: how to work on this repository, and the
+  semantic rules that are not stylistic.
+- **[`ARCHITECTURE.md`](ARCHITECTURE.md)**: the map of the code, what overlaps,
+  and the invariants. **[`HOW_IT_WORKS.md`](HOW_IT_WORKS.md)** is the prose tour.
+- **[`DECISIONS.md`](DECISIONS.md)**: every decision, one file each under
+  `docs/decisions/`, with its evidence and what would reverse it.
+- **[`EVALUATION.md`](EVALUATION.md)**: every measurement and live run, one file
+  each under `docs/evaluation/`. The August 2026 lab notebook is split there.
+  Among its entries: why a correct crawl finds 82,441 more files, the
+  personal-identifier finding, and how a city came to be labelled with the
+  name of its health region.
+- **[`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md)**: what is not known, and what
+  would settle it.
+- **[`DATA_SOURCES.md`](DATA_SOURCES.md)**: measured facts about DATASUS, IBGE,
+  SIGTAP and the other sources.
+- **[`RUNBOOK.md`](RUNBOOK.md)**: operating commands. **[`GLOSSARY.md`](GLOSSARY.md)**:
+  the terms, each with the failure it prevents.
+- `docs/history/`: the superseded architecture document, briefs, reviews,
+  handoffs and aggregate design notes, frozen.
 - The data dictionary is a **database**, not files. `pegasus-data dictionary`
   builds `docs/dictionary.sqlite`; `search` and `page` read it, or open it with
   anything that speaks SQL:
@@ -853,9 +844,9 @@ screen — including each column's codelist *with its values spelled out*, which
 usually the decisive evidence and usually the thing not looked at.
 
 ```bash
-pytest                            # 601 tests, all offline
+pytest -m "not network"          # the regression net (1,861 on 2026-09-28)
 ruff check src tests scripts
 pegasus-data verify               # 20 regression assertions
 ```
 
-See `CONTRIBUTING.md` for the full rules.
+See `CLAUDE.md` for the full rules.

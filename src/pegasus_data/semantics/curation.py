@@ -432,6 +432,16 @@ SETTLED: tuple[tuple[str, str, str, str], ...] = (
         "MUNIC_RES answers the geographic question at a granularity the data is "
         "actually licensed and safe to publish at.",
     ),
+    (
+        "semantics.sexo_contradictory_coding",
+        "semantics",
+        "Which SEXO coding applies to which SIH generation?",
+        "One coding throughout. SIHSUS's own SEXO table (0 Ignorado, 1 Masculino, 2-3 "
+        "Feminino, 4-9 Ignorado) is identical in all four vintages the kits ship: 1992-97, "
+        "1998-2003, 2003-07 and current. The contradiction was between SYSTEMS (RESP codes "
+        "1 as Feminino), and appeared only when every system's table was merged; codelists "
+        "are keyed by system, so SIH's column is bound to SIH's table (2026-09-28).",
+    ),
 )
 
 
@@ -451,18 +461,6 @@ UNRESOLVED: tuple[tuple[str, str, str, str, str], ...] = (
         "as the single unresolved coverage_gap rather than passed over. Closing it needs "
         "credentials or a question to the Ministry, not another crawl.",
         "nothing measurable: it is one path of 362, holding no content this project can see",
-    ),
-    (
-        "semantics.sexo_contradictory_coding",
-        "semantics",
-        "Which SEXO coding applies to which SIH generation?",
-        "The merged SEXO table maps '1' to both Masculino and Feminino, and '3' to both "
-        "Feminino and Ignorado, because the kits ship .CNV files from systems that "
-        "encoded sex differently. Find a per-system or per-generation .CNV, or a record "
-        "layout that states the coding for a named competencia, and bind that scoped "
-        "table rather than the merged one.",
-        "labelling SEXO at all: choosing between the mappings without a scoped source "
-        "would give a large share of admissions the wrong sex, invisibly",
     ),
     (
         "semantics.cod_idade_units",

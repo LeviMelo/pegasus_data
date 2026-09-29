@@ -81,8 +81,11 @@ class RenderProfile:
 
 
 PROFILES: dict[str, RenderProfile] = {
-    # The default. Labels everywhere, codes kept where they are join keys.
-    "analysis": RenderProfile("analysis"),
+    # The default. Every code keeps its raw value and gains a `_label`
+    # companion. It used to REPLACE internal codes in place (MORTE "0" became
+    # "Sem óbito"), which discarded the raw value (CLAUDE.md §6) and made the
+    # shape of a column depend on which kind of codelist it happened to have.
+    "analysis": RenderProfile("analysis", internal="both"),
     # Nothing rendered: the lake as stored, for a pipeline stage that will do its
     # own joining and wants no surprises.
     "codes": RenderProfile(
@@ -703,64 +706,6 @@ def _combine(codes: pa.Array, labels: pa.Array) -> pa.Array:
 # -------------------------------------------------------------------- derived
 
 
-_UNIT_YEARS = re.compile(r"\ban(?:o|os)\b", re.I)
-_UNIT_MONTHS = re.compile(r"\b(?:m[eê]s|meses)\b", re.I)
-_UNIT_DAYS = re.compile(r"\bdias?\b", re.I)
-_UNIT_HOURS = re.compile(r"\bhoras?\b", re.I)
-_UNIT_MINUTES = re.compile(r"\bminutos?\b", re.I)
-
-#: How many of a unit make a year. Read off the unit column's own labels rather
-#: than hardcoded per system, because SIH and SIM number their units differently
-#: and both change over time.
-_PER_YEAR: tuple[tuple[re.Pattern[str], float], ...] = (
-    (_UNIT_YEARS, 1.0),
-    (_UNIT_MONTHS, 12.0),
-    (_UNIT_DAYS, 365.25),
-    (_UNIT_HOURS, 365.25 * 24),
-    (_UNIT_MINUTES, 365.25 * 24 * 60),
-)
-
-
-def _unit_divisors(lookup: Mapping[str, str]) -> dict[str, float]:
-    """``unit code -> how many of it make a year``, from the codelist's labels."""
-    out: dict[str, float] = {}
-    for code, label in lookup.items():
-        for pattern, per_year in _PER_YEAR:
-            if pattern.search(label):
-                out[code] = per_year
-                break
-    return out
-
-
-def _derive_age_years(
-    table: pa.Table, value_column: str, unit_column: str, divisors: Mapping[str, float]
-) -> pa.Array | None:
-    """Resolve a value+unit pair into years — the canonical multi-column case.
-
-    ``IDADE`` alone is not interpretable: 030 with a unit of months is thirty
-    months, and averaging the column across a population mixes units and returns
-    a number that is not an age. This is the whole reason ``depends_on`` is
-    recorded in §4.
-    """
-    if value_column not in table.schema.names or unit_column not in table.schema.names:
-        return None
-    values = table.column(value_column).to_pylist()
-    units = table.column(unit_column).to_pylist()
-    out: list[float | None] = []
-    for raw, unit in zip(values, units, strict=True):
-        divisor = divisors.get(str(unit).strip()) if unit is not None else None
-        if raw is None or divisor is None:
-            out.append(None)
-            continue
-        try:
-            number = float(str(raw).strip())
-        except (TypeError, ValueError):
-            out.append(None)
-            continue
-        out.append(round(number / divisor, 4))
-    return pa.array(out, type=pa.float64())
-
-
 # --------------------------------------------------------------------- render
 
 
@@ -882,10 +827,9 @@ def _select_codelists(
         seen = {
             str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()
         }
-        width_hint = None
-        if doc is not None and getattr(doc, "token_rule", None) and not getattr(doc, "multi_valued", False):
-            width_hint = doc.token_rule.get("width")
-        lookup = lookup_one(candidates[0], width_hint) if seen else None
+        # Measured against the whole table: a curated token width splits packed
+        # cells, it does not filter a single-valued column's codelist.
+        lookup = lookup_one(candidates[0], None) if seen else None
         if lookup:
             hits = [lookup[v] for v in seen if v in lookup]
             grain = (len(set(hits)) / len(hits)) if hits else 1.0
@@ -929,9 +873,7 @@ def _select_codelists(
 
     # Several tables claim this column and nothing declared which is right. Ask
     # the data.
-    width_hint = None
-    if doc is not None and getattr(doc, "token_rule", None) and not getattr(doc, "multi_valued", False):
-        width_hint = doc.token_rule.get("width")  # type: ignore[attr-defined]
+    width_hint = None  # never filter a single-valued column's table by width (see _lookup)
     seen = {
         str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()
     }
@@ -1145,10 +1087,13 @@ def _render_table(
 
     def _lookup(field_name: str, codelists: Sequence[str]) -> dict[str, str] | None:
         """Merge every table bound to this field. Exact width keeps them apart."""
-        doc = docs.get(field_name)
+        # No width filter. Exact string matching already keeps classifications of
+        # different widths apart (§6.2); filtering the TABLE to the curated token
+        # width as well dropped every legitimate code of another width. SIH's
+        # DIAG_PRINC is curated at width 4 and holds 3-character CID-10
+        # categories (I64, J18, I10) beside 4-character subcategories: 13% of
+        # AL 2023-01 admissions came back unlabelled (live run 2026-09-28).
         width = None
-        if doc and doc.token_rule and not doc.multi_valued:
-            width = doc.token_rule.get("width")
         # The key has to carry EVERYTHING the lookup below depends on. It was
         # just the codelist names, but the result is filtered by the field's
         # curated token width — so two fields sharing a codelist and needing
@@ -1448,7 +1393,7 @@ def _apply_derived(
             if requested is not None and column_name not in requested:
                 continue
             inputs = [str(c).upper() for c in (recipe.get("from") or [])]
-            if len(inputs) != 2:
+            if not inputs:
                 continue
             absent = [c for c in inputs if c not in source.schema.names]
             if absent:
@@ -1463,41 +1408,23 @@ def _apply_derived(
                         f"(it is dropped again unless you asked for it)"
                     )
                 continue
-            unit_column = inputs[1]
-            bound = bindings.get(unit_column) or []
-            codelist = bound[0] if bound else (
-                docs[unit_column].codelist if unit_column in docs else None
+            # One age converter for the whole package (`_age.years_column`),
+            # chosen by the encoding the recipe declares. This used to read the
+            # unit column's LABELS for words like "meses" and divide, a second
+            # converter that disagreed with the aggregate path's and produced
+            # nothing when the unit column had no codelist (SIH's COD_IDADE).
+            from ._age import AgeDimension, years_column
+
+            encoding = str(recipe.get("encoding") or "")
+            if encoding not in ("sih", "sim", "sinan", "years"):
+                report.warnings.append(
+                    f"{column_name}: the curated recipe declares no age encoding "
+                    "(sih|sim|sinan|years), so it cannot be derived"
+                )
+                continue
+            derived_column = years_column(
+                AgeDimension(name=column_name, encoding=encoding, fields=tuple(inputs)), source
             )
-            if not codelist:
-                report.warnings.append(
-                    f"{column_name}: {unit_column} has no codelist, so its units cannot be read"
-                )
-                continue
-            try:
-                divisors = _unit_divisors(
-                    _lookup_map(
-                        lake,
-                        codelist,
-                        system=system,
-                        year=year,
-                        competencia=competencia,
-                        code_width=None,
-                    )
-                )
-            except FileNotFoundError:
-                report.warnings.append(
-                    f"{column_name}: no reference table {codelist!r} for the unit column"
-                )
-                continue
-            if not divisors:
-                report.warnings.append(
-                    f"{column_name}: no label in {codelist!r} names a time unit, so "
-                    f"{inputs[0]} cannot be converted"
-                )
-                continue
-            derived_column = _derive_age_years(source, inputs[0], unit_column, divisors)
-            if derived_column is None:
-                continue
             rendered = rendered.append_column(column_name, derived_column)
             report.derived_added.append(column_name)
     return rendered

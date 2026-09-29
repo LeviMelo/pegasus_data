@@ -91,7 +91,8 @@ class TestItReturnsData:
 
     def test_columns_selects_without_reordering_into_something_else(self, settings, seeded):
         table = fetch("SIH-RD", columns=["SEXO"], settings=settings)
-        assert table.column_names == ["SEXO"]
+        # The selected column, then its companion label (ADR-0063); nothing else.
+        assert table.column_names == ["SEXO", "SEXO_label"]
 
 
 class TestItSaysWhatItCouldNotDo:
@@ -348,19 +349,18 @@ class TestOffline:
         assert report.render.labelled, "nothing was labelled from the shipped pack"
         assert not any("nothing can be labelled" in w for w in report.warnings)
 
-    def test_a_curated_refusal_outranks_the_shipped_pack(self, settings, seeded):
-        """SIHSUS's SEXO stays raw, and that is the point.
+    def test_sih_sex_decodes_against_sihs_own_table(self, settings, seeded):
+        """SIH's SEXO is bound to SIHSUS's own table: 1 Masculino, 2-3 Feminino.
 
-        The pack HAS a SEXO table. Curation marks the column unbound anyway,
-        because the kits ship both `1 -> Masculino` and `1 -> Feminino` and a
-        merged reading would be confidently wrong. Until the shipped curation
-        was actually loaded on first use, this refusal was silently bypassed on
-        every fresh install and SEXO was labelled from the contradictory table.
+        It was left unbound while the tables of every system were read merged,
+        where RESP codes 1 as Feminino. Codelists are keyed by system, and SIH's
+        table is identical in all four vintages (2026-09-28, the settled
+        question semantics.sexo_contradictory_coding).
         """
         table, report = fetch("SIH-RD", settings=settings, report=True)
-        assert set(table.column("SEXO").to_pylist()) == {"1", "3"}
-        assert "SEXO_label" not in table.column_names
-        assert "SEXO" not in report.render.labelled
+        pairs = set(zip(table.column("SEXO").to_pylist(), table.column("SEXO_label").to_pylist(), strict=True))
+        assert pairs == {("1", "Masculino"), ("3", "Feminino")}
+        assert "SEXO" in report.render.labelled
 
 
 class TestMonthOfACompetence:

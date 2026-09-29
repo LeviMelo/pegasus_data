@@ -23,6 +23,7 @@ interpreter startup is paid once rather than per file.
 
 from __future__ import annotations
 
+import atexit
 import json
 import queue
 import struct
@@ -159,6 +160,14 @@ class _Worker:
             proc.wait(timeout=5)
         except Exception:  # noqa: BLE001 - it is going away regardless
             pass
+        # The pipes are ours to close; left open they outlive the process and
+        # surface as "unclosed file" at interpreter exit (live run 2026-09-28).
+        for pipe in (proc.stdin, proc.stdout):
+            try:
+                if pipe is not None:
+                    pipe.close()
+            except Exception:  # noqa: BLE001
+                pass
 
 
 class DecoderPool:
@@ -365,4 +374,15 @@ def decoder_pool(size: int = 4) -> DecoderPool:
     with _POOL_LOCK:
         if _POOL is None:
             _POOL = DecoderPool(size)
+            # Workers are child processes: without this they outlived every
+            # script that decoded anything ("subprocess … is still running").
+            atexit.register(_shutdown_pool)
         return _POOL
+
+
+def _shutdown_pool() -> None:
+    global _POOL
+    with _POOL_LOCK:
+        pool, _POOL = _POOL, None
+    if pool is not None:
+        pool.close()

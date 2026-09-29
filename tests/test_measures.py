@@ -24,9 +24,9 @@ from pegasus_data.measures import (
     check_rollup,
     finalize,
     kind_named,
+    lift,
     measure_from_declaration,
     merge_all,
-    lift,
 )
 from pegasus_data.semantics.curation import parse_grain
 

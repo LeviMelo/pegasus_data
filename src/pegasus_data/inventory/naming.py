@@ -53,7 +53,18 @@ _COMPOSITE_SUFFIXES = (
     ".tar.gz",
 )
 
-_CLASSIC = re.compile(r"^(?P<prefix>[A-Z]{1,8}?)(?P<geo>[A-Z]{2})(?P<date>\d{2,6})$")
+#: The optional trailing letter is a PART: SIA splits a large state-month into
+#: `PASP2301a.dbc`, `…b`, `…c`. Without it those 727 files (71 GB: SP, RJ and MG
+#: since 2015) parsed as series `PASP2301A` with no UF and no date, so a request
+#: for SIA in São Paulo could not select them (live run 2026-09-28).
+#: SIA's BI production uses a numbered part instead: `BISP2507_1.dbc`, `_2`, `_3`
+#: (257 files on the 2026-09-28 crawl).
+_CLASSIC = re.compile(
+    r"^(?P<prefix>[A-Z]{1,8}?)(?P<geo>[A-Z]{2})(?P<date>\d{2,6})(?:(?P<part>[A-Z])|_(?P<npart>\d{1,2}))?$"
+)
+#: A descriptive national publication with its year last: SISCAN's
+#: `SISCAN_CITO_COLO_2013.csv`. The year is explicit, so it is never read as YYMM.
+_DESCRIPTIVE_YEAR = re.compile(r"^(?P<prefix>[A-Z][A-Z0-9_]*?)_(?P<date>(?:19|20)\d{2})$")
 _CLASSIC_SEP = re.compile(r"^(?P<prefix>[A-Z]{1,10})[_\-](?P<geo>[A-Z]{2})[_\-]?(?P<date>\d{2,6})$")
 _NO_GEO = re.compile(r"^(?P<prefix>[A-Z][A-Z_]{1,11}?)(?P<date>\d{2,6})$")
 _DESCRIPTIVE_UF = re.compile(r"^(?P<prefix>[a-z0-9_]+?)_(?P<geo>[a-z]{2})$")
@@ -72,6 +83,8 @@ class ParsedName:
     series_prefix: str | None = None
     geo_code: str | None = None
     date_code: str | None = None
+    #: A split publication's part letter (``A``, ``B`` …), or None.
+    part: str | None = None
     grammar: str = "unparsed"
 
     # Filled in by apply_convention once the directory's convention is known.
@@ -114,6 +127,7 @@ def parse_filename(filename: str) -> ParsedName:
             parsed.series_prefix = m.group("prefix") or None
             parsed.geo_code = m.group("geo")
             parsed.date_code = m.group("date")
+            parsed.part = m.groupdict().get("part") or m.groupdict().get("npart") or None
             parsed.grammar = grammar
             return parsed
 
@@ -129,6 +143,13 @@ def parse_filename(filename: str) -> ParsedName:
             parsed.series_prefix = prefix or None
         parsed.date_code = m.group("date")
         parsed.grammar = "classic_no_geo" if parsed.geo_code is None else "classic"
+        return parsed
+
+    m = _DESCRIPTIVE_YEAR.match(upper)
+    if m:
+        parsed.series_prefix = m.group("prefix")
+        parsed.date_code = m.group("date")
+        parsed.grammar = "descriptive_year"
         return parsed
 
     m = _DESCRIPTIVE_UF.match(stem.lower())
@@ -261,6 +282,11 @@ def apply_convention(parsed: ParsedName, convention: str, *, epoch: str = "pivot
         parsed.year = _year_from_two_digits(int(code), epoch)
         parsed.normalized_date = parsed.year * 100
         return parsed
+    if len(code) == 4 and parsed.grammar == "descriptive_year":
+        parsed.date_format = "YYYY"
+        parsed.year = int(code)
+        parsed.normalized_date = parsed.year * 100
+        return parsed
     if len(code) == 4:
         if convention == "monthly":
             month = int(code[2:])
@@ -330,6 +356,10 @@ def logical_identity(
                 (parsed.geo_code or "").upper(),
                 parsed.date_code or "",
             ]
+            # A part is a different publication, not another representation of
+            # the same one: parts a, b, c sharing an identity would be
+            # "deduplicated" down to one, dropping the rest of the state-month.
+            + ([parsed.part.upper()] if parsed.part else [])
         )
     return f"{(system or 'UNKNOWN').upper()}|~{parsed.filename.upper()}"
 

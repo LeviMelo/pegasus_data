@@ -24,7 +24,6 @@ from .model import (
 from .planner import plan
 from .semantics import (
     _apply_dimensions,
-    _enforce_identity_labels,
     _enrich_cnes_attribute,
     _enrich_cnes_name,
     _enrichment_output_name,
@@ -158,7 +157,7 @@ def query(
                 uf=[retrieval.physical_geography] if retrieval.physical_geography else None,
                 years=retrieval.lake_years or None, columns=requested_columns,
                 labels=labels, profile="audit" if labels else "codes",
-                companions=False, derived=False, on_missing_column="null_fill",
+                companions=False, derived=labels, on_missing_column="null_fill",
                 report=True, catalog=cat, _preserve_internal=True,
             )
             tables.append(_with_competence(local_table, local_report))
@@ -183,7 +182,9 @@ def query(
                 labels=labels,
                 profile="audit" if labels else "codes",
                 companions=False,
-                derived=False,
+                # Curated derivations (IDADE_anos) are declarations like labels
+                # are, so they travel with them.
+                derived=labels,
                 provenance=True,
                 on_missing_column="null_fill",
                 allow_partial=False,
@@ -231,7 +232,6 @@ def query(
     table = _filter_source_period(
         table, query_plan.spec.period, retain_annual_enclosures=coarsening
     )
-    table = _enforce_identity_labels(table, query_plan, source_report, report, resolved)
     table = _apply_dimensions(table, query_plan, report, resolved)
     for request in query_plan.spec.enrichments:
         if request.target == "CNPJ":

@@ -14,8 +14,8 @@ import pathlib
 import pytest
 
 from pegasus_data.decode._native import (
-    DbcError,
     _CONSTRUCTED_OK,
+    DbcError,
     _explode_py,
     _load_native,
     dbc_to_dbf_bytes,

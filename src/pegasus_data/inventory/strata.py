@@ -64,7 +64,12 @@ class Stratum:
         """
         if not self.paths:
             return None
-        return min(self.paths, key=lambda p: (self.sizes.get(p, 1 << 62), p))
+        # A representation whose header the census can read comes first. SIH-RD
+        # 2008/2010/2012/2014 are published as .dbc AND as .xml/.csv under
+        # /SIHSUS/<year>/; when the cheapest member was an .xml the census could
+        # not read it, the stratum stayed 'pending', and those four years had no
+        # family, so nothing could fetch them (inventory, 2026-09-28).
+        return min(self.paths, key=lambda p: (_census_rank(p), self.sizes.get(p, 1 << 62), p))
 
 
 def build_strata(rows: Iterable[dict[str, object]]) -> list[Stratum]:
@@ -104,7 +109,12 @@ def persist_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
         VALUES (?,?,?,?,?,?, 'pending')
         ON CONFLICT(stratum_id) DO UPDATE SET
             file_count=excluded.file_count,
-            sampled_path=COALESCE(strata.sampled_path, excluded.sampled_path)
+            -- A sample that produced a schema is kept, so the answer is
+            -- reproducible. One that never did is replaced by today's best
+            -- choice: pinning it kept four SIH-RD years on an unreadable .xml.
+            sampled_path=CASE WHEN strata.schema_signature IS NULL
+                              THEN excluded.sampled_path
+                              ELSE COALESCE(strata.sampled_path, excluded.sampled_path) END
         """,
         [
             (s.stratum_id, s.system, s.series, s.year, s.file_count, s.sample_path())
@@ -224,3 +234,13 @@ def prune_orphan_strata(
     catalog.executemany("DELETE FROM strata WHERE stratum_id = ?", [(s,) for s in orphans])
     catalog.executemany("DELETE FROM stratum_members WHERE stratum_id = ?", [(s,) for s in orphans])
     return len(orphans)
+
+
+def _census_rank(path: str) -> int:
+    """0 for a header the census reads from bytes (DBF/DBC), 1 for a CSV, 2 else."""
+    lower = path.lower()
+    if lower.endswith((".dbc", ".dbf")):
+        return 0
+    if lower.endswith(".csv"):
+        return 1
+    return 2

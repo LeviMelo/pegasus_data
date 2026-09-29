@@ -82,23 +82,24 @@ def census_targets(
     only_missing: bool = True,
     stratum_ids: Sequence[str] | None = None,
 ) -> list[dict[str, object]]:
-    """One representative file per stratum, cheapest first.
+    """The stratum's own recorded sample, one file per stratum.
 
-    Cheapest by byte size, which for a header read is nearly irrelevant — but it
-    costs nothing to prefer the small one and it keeps the choice aligned with
-    how the profile stage samples.
+    The sample is chosen once, by :meth:`Stratum.sample_path` (a header the
+    census can read first, then the cheapest), and recorded in
+    ``strata.sampled_path``. This used to re-pick with its own SQL ("smallest
+    file"), a second selection beside the first that sampled SIH-RD's .xml
+    republications and left four years with no family (2026-09-28).
 
     ``stratum_ids`` narrows the census to a named set. Without it, answering
     ``fetch("CNES-ST", uf="AC", years=2023)`` on a fresh catalog censused **271
     strata across all thirteen CNES datasets** — hundreds of sequential requests
-    to a high-latency legacy server, to learn about twelve files. Byte volume is
-    tiny either way; wall time is not.
+    to a high-latency legacy server, to learn about twelve files.
     """
-    clauses = ["f.gone_at IS NULL", "ff.role = 'data'"]
+    clauses = ["f.gone_at IS NULL", "s.sampled_path IS NOT NULL"]
     params: list[object] = []
     if systems:
-        clauses.append(f"ff.system IN ({','.join('?' * len(systems))})")
-        params.extend(s.upper() for s in systems)
+        clauses.append(f"s.system IN ({','.join('?' * len(systems))})")
+        params.extend(str(x).upper() for x in systems)
     if stratum_ids:
         clauses.append(f"s.stratum_id IN ({','.join('?' * len(stratum_ids))})")
         params.extend(stratum_ids)
@@ -110,14 +111,10 @@ def census_targets(
         for r in catalog.query(
             f"""
             SELECT s.stratum_id, s.system, s.series, s.year,
-                   ff.path AS path, f.size AS size, f.extension AS extension
+                   s.sampled_path AS path, f.size AS size, f.extension AS extension
               FROM strata s
-              JOIN stratum_members m ON m.stratum_id = s.stratum_id
-              JOIN file_facts ff     ON ff.path = m.path
-              JOIN files f           ON f.path = m.path
+              JOIN files f ON f.path = s.sampled_path
              WHERE {where}
-             GROUP BY s.stratum_id
-             HAVING f.size = MIN(f.size)
              ORDER BY s.system, s.series, s.year
             """,
             params,
