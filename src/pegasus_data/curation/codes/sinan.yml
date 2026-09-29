@@ -12,7 +12,7 @@ series:
         '3': Inconclusivo
         '4': Não realizado
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     ANTI_HCV:
       codes:
         '1': Positivo
@@ -20,7 +20,7 @@ series:
         '3': Inconclusivo
         '4': Não realizado
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     ANTI_HIV:
       codes:
         '1': Positivo
@@ -28,32 +28,32 @@ series:
         '3': Inconclusiv o
         '4': Não realizado
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     AZT3TC:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     AZT3TC_IND:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     CAT:
       codes:
         '1': Sim
         '2': Não
         '3': Não se aplica
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     FONTE:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     FO_ANT_HBC:
       codes:
         '1': Positivo
@@ -62,7 +62,7 @@ series:
         '4': Em andamento
         '5': Não realizado
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     FO_ANT_HCV:
       codes:
         '1': Positivo
@@ -71,7 +71,7 @@ series:
         '4': Em andamento
         '5': Não realizado
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     FO_ANT_HIV:
       codes:
         '1': Positivo
@@ -80,7 +80,7 @@ series:
         '4': Em andamento
         '5': Não realizado
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     FO_HBSAG:
       codes:
         '1': Positivo
@@ -89,13 +89,13 @@ series:
         '4': Em andamento
         '5': Não realizado
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     IMU_HEP_B:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     MAT_ORG:
       codes:
         '1': Sangue
@@ -107,75 +107,75 @@ series:
         '7': Soro/plasma
         '8': Outros
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     MUCOSA:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     OUTRO_EXP:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     PELE_INTEG:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     PELE_NAO_I:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     PERCUTANEA:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     RECUSA_QUI:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     SEM_QUIMIO:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     SIT_TRAB:
       codes:
         '1': Empregado registrado com carteira assinada
         '2': Empregado não registrado
         '3': Autônomo/cont a própria
         '4': Servidor público estatuário
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     TIPO_ACID:
       codes:
         '01': Administ. de medicação endovenosa
         '02': Administ. de medicação intramuscular
         '03': Administ. de medicação subcutânea
         '04': Administ. de
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     VACINA:
       codes:
         '1': Vacinado
         '2': Não vacinado
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
     VAC_HEP_B:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: drt-exposicao-a-material-biologico__DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf
+      source_ref: acbi_dic.pdf
   ACGR:
     ATENDE_MED:
       codes:
@@ -2487,7 +2487,8 @@ series:
     SOROTIPO:
       codes:
         '1': DEN 1
-        '2': DEN 2 3 DEN 3
+        '2': DEN 2
+        '3': DEN 3
         '4': DEN 4
       source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
     TPAUTOCTO:
@@ -2946,7 +2947,8 @@ series:
     SOROTIPO:
       codes:
         '1': DEN 1
-        '2': DEN 2 3 DEN 3
+        '2': DEN 2
+        '3': DEN 3
         '4': DEN 4
       source_ref: dengue__DIC_DADOS_ONLINE.pdf
     TPAUTOCTO:
@@ -3129,7 +3131,8 @@ series:
     ATE_HOSPIT:
       codes:
         '1': Sim
-        '2': Não 9 Ignorado
+        '2': Não
+        '9': Ignorado
       source_ref: difteria__DIC_DADOS_Difteria_v5.pdf
     CLASSI_FIN:
       codes:
@@ -3179,6 +3182,12 @@ series:
         '9': Ignorado
       source_ref: difteria__DIC_DADOS_Difteria_v5.pdf
     CLI_FARING:
+      codes:
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: difteria__DIC_DADOS_Difteria_v5.pdf
+    CLI_FEBRE:
       codes:
         '1': Sim
         '2': Não
@@ -3967,6 +3976,13 @@ series:
         '2': Não
       source_ref: febre-tifoide__DIC_DADOS_Febre_Tifoide_v5.pdf
   HANS:
+    AVALIA_N:
+      codes:
+        '0': Grau zero
+        '1': Grau I
+        '2': Grau II
+        '3': Não avaliado
+      source_ref: hanseniase__DIC_DADOS_Hanseniase_v5.pdf
     AVAL_ATU_N:
       codes:
         '0': grau zero
@@ -4232,7 +4248,8 @@ series:
     EVOLUCAO:
       codes:
         '1': Cura
-        '2': Óbito por hantavirose 3Óbito por outra causa
+        '2': Óbito por hantavirose
+        '3': Óbito por outra causa
         '9': Ignorado
       source_ref: hantavirose__DIC_DADOS_Hantavirose_v5.pdf
     EXPO_N:
@@ -4802,12 +4819,123 @@ series:
         '9': Ignorado
       source_ref: gestante-hiv__DIC_DADOS_Gestante_HIV_v5.pdf
   IEXO:
+    AGENTE_TOX:
+      codes:
+        '01': Medicamento
+        '02': Agrotóxico/uso agrícola
+        '03': Agrotóxico/uso doméstico
+        '04': Agrotóxico/uso saúde pública
+        '05': Raticida
+        '06': Produto Veterinário
+        '07': Produto de uso domiciliar
+        08: Cosmético / higiene pessoal
+        09: Produto químico de uso industrial
+        '10': Metal
+        '11': Drogas de abuso
+        '12': Planta tóxica
+        '13': Alimento e bebida
+        '14': Outro
+        '99': Ignorado
+      source_ref: iexo_dic.pdf
+    ATIVIDA_1:
+      codes:
+        '01': Diluição
+        '02': Pulverização
+        '03': Tratamento de sementes
+        '04': Armazenagem
+        '05': Colheita
+        '06': Transporte
+        '07': Desinsetização
+        08: Produção / formulação
+        09: Outros
+        '10': Não se aplica
+        '99': Ignorado
+      source_ref: iexo_dic.pdf
+    ATIVIDA_2:
+      codes:
+        '01': Diluição
+        '02': Pulverização
+        '03': Tratamento de sementes
+        '04': Armazenagem
+        '05': Colheita
+        '06': Transporte
+        '07': Desinsetização
+        08: Produção / formulação
+        09: Outros
+        '10': Não se aplica
+      source_ref: iexo_dic.pdf
+    ATIVIDA_3:
+      codes:
+        '01': Diluição
+        '02': Pulverização
+        '03': Tratamento de sementes
+        '04': Armazenagem
+        '05': Colheita
+        '06': Transporte
+        '07': Desinsetização
+        08: Produção / formulação
+        09: Outros
+        '10': Não se aplica
+        '99': Ignorado
+      source_ref: iexo_dic.pdf
+    CAT:
+      codes:
+        '1': Sim
+        '2': Não
+        '3': Não se aplica
+        '9': Ignorado
+      source_ref: iexo_dic.pdf
+    CIRCUNSTAN:
+      codes:
+        '01': Uso habitual
+        '02': Acidental
+        '03': Ambiental
+        '04': Uso terapêutico
+        '05': Prescrição médica inadequada
+        '06': Erro de administração
+        '07': Automedicação
+        08: Abuso
+        09: Ingestão de alimento ou bebida
+        '10': Tentativa de suicídio
+        '11': Tentativa de aborto
+        '12': Violência / homicídio
+        '13': Outra
+        '99': Ignorado
+      source_ref: iexo_dic.pdf
+    CLASSI_FIN:
+      codes:
+        '1': Intoxicação Confirmada
+        '2': Exposição
+        '3': Reação adversa
+        '4': Diagnóstico diferencial
+      source_ref: iexo_dic.pdf
+    CRITERIO:
+      codes:
+        '1': Clínico laboratorial
+        '2': Clínico epidemiológico
+        '3': Clínico
+      source_ref: iexo_dic.pdf
+    DOENCA_TRA:
+      codes:
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: iexo_dic.pdf
+    EVOLUCAO:
+      codes:
+        '1': Cura sem sequela
+        '2': Cura com sequela
+        '3': Óbito por intoxicação exógena
+        '4': Óbito por outra causa
+        '5': Perda do seguimento
+        '9': Ignorada
+      source_ref: iexo_dic.pdf
     HOSPITAL:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026.pdf
+      source_ref: iexo_dic.pdf
     LOC_EXPO:
       codes:
         '1': Residência
@@ -4816,38 +4944,109 @@ series:
         '4': Serviços de saúde
         '5': Escola/creche
         '6': Ambiente Externo
-        '7': Outro 9 Ignorado
-      source_ref: intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026.pdf
+        '7': Outro
+        '9': Ignorado
+      source_ref: iexo_dic.pdf
+    TPATENDE:
+      codes:
+        '1': Hospitalar
+        '2': Ambulatorial
+        '3': Domiciliar
+        '4': Nenhum
+        '9': Ignorado
+      source_ref: iexo_dic.pdf
+    TPEXP:
+      codes:
+        '1': Aguda – única
+        '2': Aguda – repetida
+        '3': Crônica
+        '4': Aguda sobre crônica
+      source_ref: iexo_dic.pdf
+    UTILIZACAO:
+      codes:
+        '1': Inseticida
+        '2': Herbicida
+        '3': Carrapaticida
+        '4': Raticida
+        '5': Fungicida
+        '6': Preservante para madeira
+        '7': Outro
+        '8': Não se aplica
+        '9': Ignorado
+      source_ref: iexo_dic.pdf
+    VIA_1:
+      codes:
+        '1': Digestiva
+        '2': Cutânea
+        '3': Respiratória
+        '4': Ocular
+        '5': Parenteral
+        '6': Vaginal
+        '7': Transplacentária
+        '8': Outra
+        '9': Ignorado
+      source_ref: iexo_dic.pdf
+    VIA_2:
+      codes:
+        '1': Digestiva
+        '2': Cutânea
+        '3': Respiratória
+        '4': Ocular
+        '5': Parenteral
+        '6': Vaginal
+        '7': Transplacentária
+        '8': Outra
+        '9': Ignorado
+      source_ref: iexo_dic.pdf
+    VIA_3:
+      codes:
+        '1': Digestiva
+        '2': Cutânea
+        '3': Respiratória
+        '4': Ocular
+        '5': Parenteral
+        '6': Vaginal
+        '7': Transplacentária
+        '8': Outra
+        '9': Ignorado
+      source_ref: iexo_dic.pdf
+    ZONA_EXP:
+      codes:
+        '1': Urbana
+        '2': Rural
+        '3': Periurbana
+        '9': Ignorado
+      source_ref: iexo_dic.pdf
   LEIV:
     BACO:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     CLASSI_FIN:
       codes:
         '1': Confirmado
         '2': Descartado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     DIAG_PAR_N:
       codes:
         '1': Positivo
         '2': Negativo
         '3': Não realizado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     DOENCA_TRA:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     DOSE:
       codes:
         '1': Maior ou igual a 10 e menor que 15
         '2': Maior ou igual a 15 e menor que 20
         '3': Maior ou igual a 20
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     DROGA:
       codes:
         '1': Antimonial Pentavalente
@@ -4856,26 +5055,26 @@ series:
         '4': anfotericina b lipossomal
         '5': outras
         '6': Não utilizada
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     EDEMA:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     EMAGRA:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     ENTRADA:
       codes:
         '1': Caso novo
         '2': Recidiva
         '3': Transferência
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     EVOLUCAO:
       codes:
         '1': Cura
@@ -4883,80 +5082,86 @@ series:
         '3': Óbito por LV
         '4': Óbito por outras causas
         '5': Transferênci a
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     FALENCIA:
       codes:
         '1': Anfotericina B
         '2': Anfotericina B lipossomal
         '3': Outras
         '4': Não se aplica
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     FEBRE:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     FEN_HEMORR:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     FIGADO:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
+    FRAQUEZA:
+      codes:
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: dic_lv.pdf
     HIV:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     ICTERICIA:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     IFI:
       codes:
         '1': Positivo
         '2': Negativo
         '3': Não realizado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     INFECCIOSO:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     OUTRO:
       codes:
         '1': Positivo
         '2': Negativo
         '3': Não realizado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     OUTROS:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     PALIDEZ:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
     TOSSE:
       codes:
         '1': Sim
         '2': Não
         '9': Ignorado
-      source_ref: leishmaniose-visceral__DIC_DADOS_LV_v5.pdf
+      source_ref: dic_lv.pdf
   LEPT:
     ANT_ANIMAI:
       codes:
@@ -5166,7 +5371,8 @@ series:
     EVOLUCAO:
       codes:
         '1': Cura
-        '2': Óbito por leptospirose 3 Óbito por outras causas
+        '2': Óbito por leptospirose
+        '3': Óbito por outras causas
         '9': Ignorado
       source_ref: leptospirose__DIC_DADOS_Leptospirose_v5.pdf
     LAB_ELIS_1:
@@ -5576,7 +5782,8 @@ series:
         '1': Alta por cura
         '2': Abandono
         '3': Óbito por LTA
-        '4': Óbito por outras causas 5 Transferência
+        '4': Óbito por outras causas
+        '5': Transferência
         '6': Mudança de diagnóstico
       source_ref: leishmaniose-tegumentar-americana__DIC_DADOS_LTA_v5.pdf
     LAB_HISTOP:
@@ -5609,7 +5816,8 @@ series:
         '1': Menor que 10
         '2': Maior ou igual a 10 e menor que 15
         '3': Igual a 15
-        '4': Maior ou igual a 15 e menor que 20 5 Maior ou igual a 20
+        '4': Maior ou igual a 15 e menor que 20
+        '5': Maior ou igual a 20
       source_ref: leishmaniose-tegumentar-americana__DIC_DADOS_LTA_v5.pdf
     TRA_DROGA_:
       codes:
@@ -7698,13 +7906,28 @@ series:
         '2': Não
         '9': Ignorado
       source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
+    CS_ESCOL_N:
+      codes:
+        '43': Analfabeto
+        '1': 1ª a 4ª série incompleta do EF
+        '2': 4ª série completa do EF ( antigo 1° grau)
+        '3': 5ª à 8ª série incompleta do EF (antigo ginásio ou 1° grau)
+        '4': Ensino fundamental completo (antigo ginásio ou 1° grau)
+        '5': Ensino médio incompleto (antigo colegial ou 2° grau)
+        '6': Ensino médio completo (antigo colegial ou 2° grau)
+        '7': Educação superior incompleta
+        '8': Educação superior completa
+        '9': Ignorado
+        '10': Não se aplica
+      source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
     CS_RACA:
       codes:
         '1': branca
         '2': preta
         '3': amarela
         '4': parda
-        '5': indígena 9 Ignorado
+        '5': indígena
+        '9': Ignorado
       source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
     CS_SEXO:
       codes:
@@ -7797,6 +8020,11 @@ series:
         '2': Não
         '9': Ignorado
       source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
+    IN_VINCULA:
+      codes:
+        '0': ou branco – Não Vinculado
+        '1': Vinculado
+      source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
     LES_AUTOP:
       codes:
         '1': Sim
@@ -7816,6 +8044,12 @@ series:
         08: Industrias/ construção
         09: Outro
         '99': Ignorado
+      source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
+    NDUPLIC_N:
+      codes:
+        '0': ou branco – Não identificado
+        '1': Não é duplicidade (não listar)
+        '2': Duplicidade (não contar)
       source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
     ORIENT_SEX:
       codes:

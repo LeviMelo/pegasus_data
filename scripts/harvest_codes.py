@@ -79,26 +79,38 @@ DICTIONARIES: dict[str, tuple[str, ...]] = {
     "Tetano_NeoNatal": ("TETN",),
     "Tuberculose": ("TUBE",),
     "Violencias": ("VIOL",),
+    # Older editions, read after the v5 dictionaries (a field only they carry is added).
+    "iexo_dic": ("IEXO",),
+    "dic_lv": ("LEIV",),
+    "dic_dengue_online": ("DENG",),
+    "acbi_dic": ("ACBI",),
+    "dermatoses_dic": ("DERM",),
+    "lerdort_dic": ("LERD", "LER"),
 }
 
 _WIDTH = re.compile(r"(?:varchar2?|char)\s*\(\s*(\d+)\s*\)", re.I)
 #: "1 – Sim", "1-Sim", "1. Sim", "9-" (label wrapped to the next line).
-_CODE = re.compile(r"^\s*([0-9]{1,3}|[A-Z]{1,2})\s*[–\-—=.]\s*(.*?)\s*$")
+_CODE = re.compile(
+    r"^\s*(?:([0-9]{1,3})\s*(?:[–\-—=.]\s*|\s+)|([A-Z]{1,2})\s*[–\-—=.]\s*)(.*?)\s*$"
+)  # "1 Sim" (IEXO v6) has no separator; a letter code always has one
 _DBF = re.compile(r"^[A-Z][A-Z0-9_]{1,10}$")
 
 
 def _categories(cell: str) -> dict[str, str]:
     codes: dict[str, str] = {}
     last: str | None = None
-    # "1-Sim; 2-Não; 9-Ignorado" on one line is several codes.
+    # "1-Sim; 2-Não; 9-Ignorado" on one line is several codes, and the PDF
+    # text sometimes glues the next code to a label ("epidemiológico 3Clínico").
+    cell = re.sub(r"(?<=[a-zà-ú)])\s*(\d{1,2})(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-zà-ú])", r"\n\1 ", cell)
     for raw in re.split(r"\n|;", cell):
         line = raw.strip()
         if not line:
             continue
         m = _CODE.match(line)
-        if m and m.group(1) not in codes:
-            last = m.group(1)
-            codes[last] = m.group(2)
+        code = (m.group(1) or m.group(2)) if m else None
+        if m and code not in codes:
+            last = code
+            codes[last] = m.group(3)
         elif last is not None:
             joiner = "" if codes[last].endswith("/") or not codes[last] else " "
             codes[last] = f"{codes[last]}{joiner}{line}"
