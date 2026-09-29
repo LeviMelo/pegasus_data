@@ -401,7 +401,10 @@ KIT_PATTERNS: tuple[str, ...] = (
     "*/Auxiliar/*.zip", "*/AUXILIAR/*.zip", "*/Auxiliares/*.zip", "*/AUXILIARES/*.zip",
     "*/Auxiliar/*.rar", "*/AUXILIAR/*.rar",
     "*/VersoesAntigas/*.zip",
-    "*TAB_*.zip", "*TAB_*.rar", "*Tab_*.zip", "*tab_*.zip", "*tab*.zip",
+    # A kit's NAME starts with tab. "*tab*.zip" over the whole lowercased path
+    # took SINAN's open-data TETABR07.csv.zip and ROTABR09.json.zip for kits
+    # (te-TAB-r, ro-TAB-r) and parsed data files as code tables (2026-09-29).
+    "*TAB_*.zip", "*TAB_*.rar", "*Tab_*.zip", "*tab_*.zip", "*/tab*.zip", "*/TAB*.zip",
     "*/Doc/*.zip", "*/DOC/*.zip", "*/DOCS/*.zip", "*/Docs/*.zip",
     "*/TAB/*.zip", "*/TABELAS/*.zip",
 )
@@ -418,6 +421,10 @@ def find_kits(catalog: Catalog, *, systems: Sequence[str] | None = None) -> list
         lowered = path.lower()
         if not lowered.endswith((".zip", ".rar", ".7z")):
             continue
+        if lowered.endswith((".csv.zip", ".json.zip", ".xml.zip", ".duck.zip", ".dbc.zip", ".dbf.zip", ".parquet.zip")):
+            continue  # a data export, never a kit
+        if any(part in lowered for part in ("/tabwin/", "/tabnet/", "/tabdos/")):
+            continue  # the tabulators' own software and manuals, not a system's code tables
         if any(fnmatch.fnmatch(path, pattern) or fnmatch.fnmatch(lowered, pattern.lower()) for pattern in KIT_PATTERNS):
             out.append(path)
     if systems:
