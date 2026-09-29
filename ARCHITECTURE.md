@@ -166,20 +166,99 @@ Built by `scripts/build_resources.py` (the seed and the manifest) and the
 
 ---
 
+## 3a. The data model: from a file on the server to a variable
+
+DATASUS publishes files. A person asks for a dataset. Between the two are six
+objects, each derived from the one before and each with one job.
+
+```text
+system    SIH, SIA, SINAN …           ontology.yml: what the institution calls it
+ └ dataset  SIH.RD, SINAN.DENG …        ontology.yml + curation/datasets: what one row IS
+    └ stratum  (system, series, year)    inventory/strata.py: the unit of sampling
+       └ file     one path on the server   files, file_facts (UF, date, logical_id, part)
+          └ member   a table inside an archive or a DuckDB database (archive_members)
+    └ family   (system, series, schema signature)  inventory/families.py
+       └ publication  logical_id = system|series|UF|date[|part]; its representations
+```
+
+- **Dataset and series.** A dataset is the ontology's name for a series:
+  `SIH.RD` is the series `RD` of the system `SIHSUS`. One dataset is one kind
+  of row.
+- **File facts.** Parsing a file's name (`inventory/naming.py`) gives:
+  - its series, its UF (or `BR`), its date and its split-publication part;
+  - its **logical identity**, which uses the **normalized** date, so
+    `DNRRR95.DBC` and `DNRRR1995.dbc` are one publication (ADR-0081).
+- **Schema.** A file's schema is its ordered column list, hashed into a
+  **signature**. Since ADR-0081 every DBC/DBF header is read (`file_schemas`,
+  183,128 files, 437 MB, 2026-09-29), plus archives and DuckDB databases by
+  their members (ADR-0077, ADR-0083). Nothing is inferred from a sample any
+  more, except inside archives.
+- **Family.** A family is one dataset in one physical layout: (system,
+  series, signature). Measured 2026-09-29: **390 families**, with 77 datasets
+  having more than one. Every file belongs to the family of its **own**
+  header. A layout change mid-series (SIH added columns in 2008, SIA-PA gained
+  `PA_VL_CRD` in 2026) is a new family, not an error.
+- **Publication and representation.** One publication can exist several times:
+  - in several formats (`.dbc`, `.csv.zip`, `.xml`), where the cheapest to
+    decode is read;
+  - in several trees (the 1994_1995/Dados and ANT folders), where byte-identical
+    copies collapse;
+  - as several editions (the MHJ_14_16 folder versus 200801_/Dados), where the
+    newest wins;
+  - in several layouts, where the majority layout wins.
+
+  A query reads each publication **once** (`representations.py`).
+- **Member.** A table inside an archive is its own publication. SIA's
+  2001-2007 APAC archives each hold up to eight tables; a DuckDB database
+  holds a fact table and its `dim_*` tables.
+
+**How a query crosses layouts.**
+- A query selects publications by period and UF. It decodes each file with its
+  own family's normalisation plan and concatenates the results.
+- A column absent from one layout is null for those rows, and
+  `structural_absence` in the report says so.
+- A file that gained columns since it was catalogued is read with them
+  (ADR-0078). A file that lost a catalogued column is refused.
+
+**What the model does not yet do: the variable.**
+- A column is identified by its physical name. When DATASUS renames a column
+  between layouts (SINASC's `CODIGO` and `CONTADOR`, 1995), the two stay two
+  columns.
+- Measured 2026-09-29: 1,869 fields are absent from some family of their
+  dataset.
+- The column position gives no reliable pairing: 1,176 same-position
+  complementary pairs, most of them unrelated fields.
+- A merge needs evidence, either a documented rename or matching value
+  distributions. Merging silently would break the rule "never resolve a
+  conflict silently". This is OQ-57.
+
+---
+
 ## 4. How a label is chosen
 
-`view._select_codelists`, per column, per (family, year) render group:
+One function, `semantics/label_bindings.decide()`, used by the renderer at
+query time and by `compile_bindings` at build time (ADR-0082). Best evidence
+first:
 
-1. a curated `codelist`/`codelists` in `curation/variables` decides;
-2. else a single adjudicated catalog `label_of` relation decides;
-3. else the family's row in `label_bindings` decides (compiled by
-   `pegasus-data bindings`, shipped in the seed);
-4. else `label_bindings.resolve` weighs every bound candidate on the column in
-   hand (per-state partitions collapsed, rollups excluded, the best identity
-   table at ≥ 50%) and stores the decision when it is conclusive (ADR-0072).
+1. **`codes:` in the curation**: a code table written for this column, from
+   a document (ADR-0079);
+2. **the form's own dictionary**: a table harvested from DATASUS's official
+   data-dictionary PDFs (`scripts/harvest_codes.py`, `curation/codes/`), keyed
+   by series because a column name means different codes on different forms.
+   It is taken when it decodes at least 95% of the column's rows (ADR-0080);
+3. **a curated `codelist:`** (or, with `per_form: true`, a list of per-form
+   alternatives, which become candidates for step 6);
+4. **a reviewed adjudication** (`label_of` relation);
+5. **the stored decision** in `label_bindings`, compiled from sample files and
+   shipped in the seed (ADR-0072);
+6. **measured weighing** of every table the TabWin `.DEF` files bind to the
+   field. Per-state partitions are collapsed, rollups (a region for a
+   municipality) are excluded, and the best identity table must decode at
+   least half the values.
 
-Every read path applies this one policy (ADR-0061). The default render
-profile keeps every raw code and adds a `<field>_label` companion (ADR-0063).
+A code no table decodes stays raw and is reported. The presentation then shows
+it as `9 (?)` (ADR-0084). `pegasus-data meaning` measures, for every field of
+every family, whether it is described and whether its codes decode (ADR-0085).
 
 ---
 
@@ -340,7 +419,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `semantics/dictionary.py`: merges sources by authority.
 - `semantics/curation.py`: loads `curation/`.
 - `semantics/bindings.py`: field→codelist bindings (the candidates).
-- `semantics/label_bindings.py`: the ONE decided codelist per (system, family, field): `weigh`, `resolve`, `compile_bindings` (ADR-0072).
+- `semantics/label_bindings.py`: the ONE label decision (`decide`, ADR-0082) and the compiled bindings per (system, family, field): `weigh`, `resolve`, `compile_bindings` (ADR-0072).
+- `semantics/coverage.py`: whether every field of every family is described and decodes (`pegasus-data meaning`, ADR-0085).
 - `semantics/ledger.py`: per-field aggregation rules.
 - `semantics/relations.py`: typed relations and the adjudication queue.
 - `semantics/reference.py`: reference-table helpers.

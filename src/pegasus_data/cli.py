@@ -911,6 +911,38 @@ def families(root: RootOpt = None, as_json: JsonOpt = False) -> None:
         pipeline.close()
 
 
+@app.command(rich_help_panel="AUDIT")
+def meaning(
+    root: RootOpt = None,
+    system: SystemsOpt = None,
+    out: Annotated[Path | None, typer.Option("--out", help="Write every (family, field) row here (.csv or .parquet)")] = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """How much is described and translatable, field by field (ADR-0085).
+
+    Every field of every family: is it described from a source, and does a
+    table decode every code observed in real samples? The standard is total;
+    this is the distance to it.
+    """
+    import pyarrow as pa
+
+    from .catalog.store import Catalog
+    from .semantics.coverage import as_records, measure, summarise
+
+    settings = _settings(root)
+    store = Catalog(settings.catalog_path, read_only=True)
+    try:
+        rows = measure(store, system)
+    finally:
+        store.close()
+    _emit(summarise(rows), as_json, "coverage (distinct fields per system, at their worst family)")
+    if out:
+        from .api import write_table
+
+        write_table(pa.Table.from_pylist(as_records(rows)), out, out.suffix.lstrip(".") or "csv")
+        console.print(f"[green]wrote[/green] {out}  ({len(rows):,} family-field rows)")
+
+
 @app.command(rich_help_panel="PIPELINE")
 def bindings(
     root: RootOpt = None,
