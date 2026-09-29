@@ -1368,7 +1368,8 @@ variables:
     translated_name: Place of birth
     description: Where the deceased was born, as a code for the state or, for a foreigner,
       the country. Three characters, so it is coarser than CODMUNNATU beside it.
-    code_system: internal
+    code_system: external
+    codelist: NATURALIDADE  # SIM TABPAIS: 800 Brasil, 8xx states, others countries (ADR-0093)
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo NATURAL'

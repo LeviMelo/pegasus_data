@@ -227,6 +227,7 @@ variables:
     description: Country code where the mother lives abroad. Filled instead of, not alongside,
       a Brazilian municipality.
     code_system: external
+    codelist: NATURALIDADE  # SIM TABPAIS: 800 Brasil, 8xx states, others countries (ADR-0093)
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo CODPAISRES'
@@ -905,7 +906,8 @@ variables:
       are 811, 812, 813 and so on — an 8 followed by the two-digit UF for a Brazilian, with
       country codes used only for a foreign mother. Binding it to the country table decodes
       none of the Brazilian majority.'
-    code_system: internal
+    code_system: external
+    codelist: NATURALIDADE  # SIM TABPAIS: 800 Brasil, 8xx states, others countries (ADR-0093)
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "Naturalidade da mãe | NATURALMAE | Caracter 3 | Números
       | Se a mãe for estrangeira, constará o código do país de nascimento"; identical wording
@@ -1158,6 +1160,7 @@ variables:
       and SIH use numerals. Pooling SINASC with either without recoding silently drops every
       row.
     code_system: internal
+    codes: {"1": "Masculino", "2": "Feminino", "0": "Ignorado"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo SEXO'

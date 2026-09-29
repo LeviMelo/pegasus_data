@@ -382,6 +382,7 @@ def _health_regions() -> pa.Table:
 CLASSIFICATIONS: dict[str, str] = {
     "ICD10": "icd10.parquet", "CBO2002": "cbo2002.parquet", "BANCO_BR": "banks.parquet",
     "SIGTAP": "sigtap.parquet",
+    "NATURALIDADE": "countries.parquet",
 }
 
 

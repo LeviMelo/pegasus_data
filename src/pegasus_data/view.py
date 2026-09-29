@@ -1157,6 +1157,9 @@ def _render_table(
                 report.unlabelled.append(name)
                 columns.append(column)
                 names.append(name)
+                if _coded(doc):  # visibly undecoded, not a plain value (ADR-0086)
+                    columns.append(pa.nulls(len(column), type=pa.string()))
+                    names.append(f"{name}{LABEL_SUFFIX}")
                 continue
             message = f"{name}: reference table {codelist!r} matched none of the observed codes"
             if strict:
@@ -1165,6 +1168,9 @@ def _render_table(
             report.unlabelled.append(name)
             columns.append(column)
             names.append(name)
+            if _coded(doc):
+                columns.append(pa.nulls(len(column), type=pa.string()))
+                names.append(f"{name}{LABEL_SUFFIX}")
             continue
 
         report.labelled.append(name)
@@ -1194,6 +1200,23 @@ def _render_table(
 
     _report_reference_decisions(report, collected, system, strict=strict)
 
+    # THE INVARIANT (ADR-0086): a column the curation says is coded leaves with a
+    # label companion, null where nothing decoded it, so the presentation shows
+    # "9 (?)" instead of a bare code that reads like a value. Enforced once
+    # here rather than in each of the loop's refusal branches.
+    if not codes_only:
+        present_names = set(names)
+        final_columns: list[pa.Array] = []
+        final_names: list[str] = []
+        for col, col_name in zip(columns, names, strict=True):
+            final_columns.append(col)
+            final_names.append(col_name)
+            label_name = f"{col_name}{LABEL_SUFFIX}"
+            if (not col_name.endswith(LABEL_SUFFIX) and label_name not in present_names
+                    and _coded(docs.get(col_name.upper()))):
+                final_columns.append(pa.nulls(len(col), type=pa.string()))
+                final_names.append(label_name)
+        columns, names = final_columns, final_names
     rendered_table = pa.Table.from_arrays(columns, names=names)
 
     if settings_profile.derived:
