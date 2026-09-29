@@ -106,3 +106,4 @@ in.
 | 2026-09-28 | [The frontend's API after the redesign, and one served number checked against the microdata](docs/evaluation/2026-09-28-the-served-aggregate-matches-the-microdata.md) | live (`serve/`) |
 | 2026-09-29 | [43,916 .CNV codes glued to their labels, and a year that took four minutes](docs/evaluation/2026-09-29-glued-cnv-codes-and-a-slow-year.md) | kit re-parse; live (`query`) |
 | 2026-09-29 | [A fresh-home sweep of undecoded values: 1.23 million undecoded cells to 0.56 million](docs/evaluation/2026-09-29-fresh-home-sweep-of-undecoded-values.md) | live (`scripts/sweep_undecoded.py`, fresh home) |
+| 2026-09-29 | [Description and decoding coverage after the kit rebuild: undecoded 240 → 34, missing descriptions 441 → 130](docs/evaluation/2026-09-29-coverage-after-the-kit-rebuild.md) | maintainer (`pegasus-data meaning`) |

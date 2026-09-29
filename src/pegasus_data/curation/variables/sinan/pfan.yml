@@ -617,7 +617,9 @@ variables:
       is what most rows actually carry.
 
       '
-    code_system: internal
+    # A CID-10 code (its description says so): canonical ICD-10 (ADR-0087).
+    code_system: external
+    codelist: ICD10
     source: def
     source_ref: DIAGNOS.CNV
     reasoning: 'Bound in the catalog to DIAGNOS, 40 CID-10 codes covering the causes

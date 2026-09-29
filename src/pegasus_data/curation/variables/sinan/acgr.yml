@@ -212,7 +212,9 @@ variables:
     official_name: Unidade de atendimento
     translated_name: Treating establishment
     description: The establishment that treated the worker, by CNES code.
-    code_system: internal
+    # A CNES code: named by the establishment registry (ADR-0086).
+    code_system: external
+    codelist: CADGERBR
     source: def
     source_ref: UNIDINVEST.CNV
     reasoning: C(7) establishment code bound to UNIDINVEST.

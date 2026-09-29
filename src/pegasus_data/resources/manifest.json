@@ -1,16 +1,16 @@
 {
   "resource_schema_version": 2,
   "resource_content_version": "2026-09-29",
-  "built_at": "2026-09-29T01:46:46Z",
+  "built_at": "2026-09-29T19:26:45Z",
   "source_build_id": "2026-09-28T23:41:36+00:00",
   "crawled_at": "2026-09-28T23:41:36+00:00",
   "counts": {
     "files": 208095,
-    "systems": 20,
-    "families": 337,
-    "columns": 4206,
-    "variables_described": 4534,
-    "bindings": 9890
+    "systems": 17,
+    "families": 390,
+    "columns": 4568,
+    "variables_described": 4624,
+    "bindings": 10658
   },
   "budgets": {
     "growth_ratio": 1.25,
@@ -36,16 +36,16 @@
     "labels": {
       "file": "labels.parquet",
       "tier": "B",
-      "bytes": 29968316,
+      "bytes": 29294535,
       "rows": 3654320,
-      "sha256": "5cbc2f09c4b35dca743d853d68fc4e444037dbea3f6645e1fc28ce2cdac50a6c"
+      "sha256": "08289ba092d99711ff2c2e20c07486f6bbc07154d83ffe9e602c8fea2ff2ecb5"
     },
     "cnes_cnpj": {
       "file": "labels_crosswalk.parquet",
       "tier": "B",
-      "bytes": 10339656,
+      "bytes": 11431654,
       "rows": 1774993,
-      "sha256": "b89d5f54359e6b58e3e3fdc1ed18a4ab9d4c4b7f8781c0f9362445421e733a63"
+      "sha256": "9a4877d84e79e2362c2059bc5f532b3b38e3eb9482b079483f0990ce0e1ccb5d"
     },
     "query_capabilities": {
       "file": "query_capabilities.json",
@@ -57,9 +57,9 @@
     "catalog_seed": {
       "file": "catalog_seed.sqlite.gz",
       "tier": "A",
-      "bytes": 19171899,
-      "rows": 898646,
-      "sha256": "2c67621f0b1bd793a975dadd6db63703c4b85c2b880f2e6d36c7b3e10a5939a0"
+      "bytes": 19591546,
+      "rows": 913457,
+      "sha256": "bd0cdddf80ba31e8b521431fe1e70957c95b3d77f3fb6cf6fee904bd3b17f54e"
     }
   },
   "note": "Bundled resources are an offline runtime baseline. Local version-compatible updates take precedence."

@@ -161,7 +161,8 @@ variables:
       so a change between authorisations is not necessarily nutritional.
 
       '
-    code_system: internal
+    # A weight in kilograms: a measurement, not a code.
+    code_system: none
     source: def
     source_ref: PESO.CNV
     reasoning: Bound to PESO, whose labels are kilogram values.
