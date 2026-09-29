@@ -610,6 +610,16 @@ class _Selection:
     unlabelled: bool = False
 
 
+def _lookup_key(table: pa.Table, doc: object, column: pa.Array) -> pa.Array:
+    """The column's own values, or the concatenation its curated ``key:`` names."""
+    key = getattr(doc, "key", None) if doc is not None else None
+    if not key or not all(k in table.schema.names for k in key):
+        return column
+    parts = [table.column(k).combine_chunks().cast(pa.string()) for k in key]
+    joined = pc.binary_join_element_wise(*parts, "")
+    return joined.combine_chunks() if hasattr(joined, "combine_chunks") else joined
+
+
 def _coded(doc: object) -> bool:
     """The curation says this column holds codes (not numbers, dates or text)."""
     return doc is not None and getattr(doc, "code_system", None) in ("internal", "external")
@@ -913,9 +923,13 @@ def _render_table(
             continue
 
         doc = docs.get(name.upper())
+        # The value a table is keyed by. Usually the column itself; for a code
+        # that only means something with another column (CNES CLASS_SR, keyed
+        # by SERV_ESP + CLASS_SR in S_CLASSEN), the concatenation (ADR-0088).
+        key_column = _lookup_key(table, doc, column)
         selection = _select_codelists(
             name,
-            column,
+            key_column,
             doc=doc,
             candidates=list(bindings.get(name.upper()) or []),
             report=report,
@@ -995,14 +1009,14 @@ def _render_table(
             report.codelist_used[name] = "+".join(codelists)
             continue
 
-        width_warning = _check_width(name, "+".join(codelists), column, lookup)
+        width_warning = _check_width(name, "+".join(codelists), key_column, lookup)
         if width_warning:
             report.warnings.append(width_warning)
 
         # A table that disagrees with itself cannot render this column. Refusing
         # is the whole point: an unlabelled code is visibly unfinished, and a
         # confidently wrong label is not.
-        observed = {str(v).strip() for v in column.to_pylist() if v is not None}
+        observed = {str(v).strip() for v in key_column.to_pylist() if v is not None}
         try:
             disagreements = {}
             for bound in codelists:
@@ -1043,7 +1057,7 @@ def _render_table(
             columns.append(column)
             names.append(name)
             continue
-        labels = _labels_for(column, lookup)
+        labels = _labels_for(key_column, lookup)
         matched = int(pc.sum(pc.is_valid(labels)).as_py() or 0)
         if not matched:
             if len(observed) <= 1:

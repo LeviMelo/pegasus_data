@@ -33,7 +33,11 @@ import re
 from collections import Counter
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
+from functools import lru_cache
+from pathlib import Path
 from typing import Any
+
+import pyarrow as pa
 
 from ..catalog.store import Catalog, utcnow
 from ..inventory.naming import UF_CODES
@@ -330,12 +334,20 @@ def compile_bindings(
                 table = table.filter(pc.equal(table.column("_source_path"), sample["path"]))
             counts["files"] += 1
             used.append(str(sample["path"]))
+            key_docs = _keyed_docs(settings, system)
             for name in table.column_names:
                 if name.startswith("_"):
                     continue
                 # Row counts, not only distinct values: the form-dictionary rung
-                # is judged on rows (ADR-0080).
-                tally = pc.value_counts(table.column(name).combine_chunks()).to_pylist()
+                # is judged on rows (ADR-0080). A column with a curated composite
+                # key is measured on the key, as it is looked up (ADR-0088).
+                key = key_docs.get(name.upper())
+                values_array = table.column(name).combine_chunks()
+                if key and all(k in table.column_names for k in key):
+                    values_array = pc.binary_join_element_wise(
+                        *[table.column(k).combine_chunks().cast(pa.string()) for k in key], ""
+                    )
+                tally = pc.value_counts(values_array).to_pylist()
                 bucket = observed.setdefault(name.upper(), Counter())
                 for item in tally:
                     value = item["values"]
@@ -387,6 +399,22 @@ def compile_bindings(
         finally:
             store.close()
     return counts
+
+
+@lru_cache(maxsize=32)
+def _keyed_docs_cached(catalog_path: str, system: str) -> dict[str, tuple[str, ...]]:
+    store = Catalog(Path(catalog_path), read_only=True)
+    try:
+        from .curation import load_variable_docs
+
+        return {n: tuple(d.key) for n, d in load_variable_docs(store, system).items() if d.key}
+    finally:
+        store.close()
+
+
+def _keyed_docs(settings: Any, system: str) -> dict[str, tuple[str, ...]]:
+    """``FIELD -> key columns`` for the system's fields that declare a composite key."""
+    return _keyed_docs_cached(str(settings.catalog_path), system)
 
 
 def _record_gaps(

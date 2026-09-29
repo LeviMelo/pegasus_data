@@ -90,6 +90,10 @@ class VariableDoc:
     #: CLASSHEPAT on the hepatitis form. Each family picks one by measurement
     #: after its own form's dictionary (ADR-0080).
     per_form: bool = False
+    #: Columns whose concatenated values are this column's lookup key, in
+    #: order, when its code only means something with another column's
+    #: (CNES CLASS_SR: SERV_ESP + CLASS_SR, ADR-0088).
+    key: list[str] = field(default_factory=list)
 
     def as_row(self) -> tuple[object, ...]:
         return (
@@ -103,6 +107,7 @@ class VariableDoc:
             json.dumps(self.derived) if self.derived else None,
             self.notes, self.vintage_note, self.source, self.source_ref,
             self.asserted_by, utcnow(), self.reasoning, int(self.per_form),
+            json.dumps(self.key) if self.key else None,
         )
 
 
@@ -261,6 +266,7 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
                 reasoning=reasoning,
                 codes=codes,
                 per_form=bool(body.get("per_form", False)),
+                key=[str(k).upper() for k in (body.get("key") or [])],
             )
         )
     return out
@@ -612,8 +618,8 @@ def _replace_variable_docs(catalog: Catalog, docs: Sequence[VariableDoc]) -> Non
         INSERT INTO variable_docs (system, field_name, official_name, translated_name,
             description, code_system, codelist, multi_valued, token_rule, depends_on,
             modifies, derived, notes, vintage_note, source, source_ref, asserted_by,
-            asserted_at, reasoning, per_form)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            asserted_at, reasoning, per_form, lookup_key)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(system, field_name) DO UPDATE SET
             official_name=excluded.official_name, translated_name=excluded.translated_name,
             description=excluded.description, code_system=excluded.code_system,
@@ -623,7 +629,7 @@ def _replace_variable_docs(catalog: Catalog, docs: Sequence[VariableDoc]) -> Non
             vintage_note=excluded.vintage_note,
             source=excluded.source, source_ref=excluded.source_ref,
             asserted_by=excluded.asserted_by, asserted_at=excluded.asserted_at,
-            reasoning=excluded.reasoning, per_form=excluded.per_form
+            reasoning=excluded.reasoning, per_form=excluded.per_form, lookup_key=excluded.lookup_key
         """,
         [d.as_row() for d in docs],
     )
@@ -818,6 +824,7 @@ def load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str,
             asserted_by=r["asserted_by"],
             reasoning=r["reasoning"],
             per_form=bool(r["per_form"]),
+            key=json.loads(r["lookup_key"]) if r["lookup_key"] else [],
         )
         doc = out[str(r["field_name"])]
         if doc.codelist and doc.codelist.upper().startswith(CURATED_PREFIX):

@@ -52,6 +52,11 @@ variables:
     description: 'Code of the classification (sub-type) of the specialized service in
       SERV_ESP, or 999 when the service has no classification.'
     code_system: internal
+    # A classification code means nothing alone: S_CLASSEN is keyed by service
+    # + classification ("159001" = 159 ATENCAO PRIMARIA / 001 ATENCAO
+    # PRIMARIA), the way TabWin's .DEF combines the two columns (ADR-0088).
+    codelist: S_CLASSEN
+    key: [SERV_ESP, CLASS_SR]
     source: layout_doc
     source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
@@ -124,22 +129,28 @@ variables:
   SERV_ESP:
     official_name: Serviço especializado
     translated_name: Specialised service
-    description: 'Which specialised service the establishment offers. Read with SRVUNICO,
-      which narrows it to a classification: the service alone is too coarse to interpret.
+    description: 'Which specialised service the establishment offers (3-digit service code).
+      CLASS_SR narrows it to a classification, decoded with this column as its key.
 
       '
     code_system: internal
+    codelist: SRN_ORD_N
     source: def
-    source_ref: S_CLASSEA.CNV
-    reasoning: C(3) code bound to the S_CLASSE service codelists.
+    source_ref: SRN_ORD_N.CNV (TAB_CNES), service names by 3-digit code; checked against
+      CNES-SR AC 2023-01 (159 = ATENCAO PRIMARIA)
+    reasoning: C(3) service code. The S_CLASSE tables are keyed by service + classification
+      (6 digits), so they decode CLASS_SR with SERV_ESP as its key, not this column alone.
   SRVUNICO:
     official_name: Classificação do serviço
     translated_name: Service classification
-    description: 'The classification within the service — the second half of the pair
-      that SERV_ESP opens.
+    description: 'A service code (3 digits, the same codes as SERV_ESP) carried once per
+      establishment and service, for counting distinct services.
 
       '
     code_system: internal
+    codelist: SRN_ORD_N
     source: def
-    source_ref: SRA_ORD_A.CNV
-    reasoning: C(3) code bound to the SRA_ORD service-classification codelists.
+    source_ref: SRN_ORD_N.CNV (TAB_CNES); checked against CNES-SR AC 2023-01, where its
+      values are service codes (159 = ATENCAO PRIMARIA)
+    reasoning: C(3). The earlier reading as "the classification" is contradicted by the data,
+      whose values are service codes decoded by the service table.
