@@ -71,6 +71,11 @@ _HEADER_FLAGGED = re.compile(r"^\s*(\d+)\s+(\d+)\s+([A-Za-z])\s*$")
 #: real header, so header detection has to look past them rather than at line 1,
 #: and they must not survive into the body as categories.
 _COMMENT = re.compile(r"^\s*;")
+#: A last token that is label text glued to a trailing run of digits.
+_GLUED = re.compile(r"(.*?[^\d-])(\d+(?:-\d+)?)")
+#: What marks that text as prose rather than part of an alphanumeric code:
+#: lower case or punctuation a code never carries.
+_PROSE = re.compile(r"[a-zà-ÿ)/(]")
 #: Widths beyond this are not code widths; the longest real one on the tree is
 #: the 10-character SIGTAP procedure code.
 _MAX_CODE_WIDTH = 30
@@ -334,6 +339,15 @@ def parse_cnv_bytes(
             expression = tokens[-1].group()
             if expr_col is not None:
                 out.warnings.append(f"line {line_no}: label overflows expression column")
+        glued = _GLUED.fullmatch(expression) if width else None
+        if glued and all(len(end) == width for end in glued.group(2).split("-")) \
+                and _PROSE.search(glued.group(1)):
+            # A label that ran past the column AND abutted the code:
+            # ``... punção/biópsi020101`` (FORMORGS.CNV). The last token is prose
+            # ending in a code (or a range) of exactly the declared width.
+            label = f"{label} {glued.group(1)}".strip()
+            expression = glued.group(2)
+            out.warnings.append(f"line {line_no}: code {expression!r} split from glued label text")
         codes, unexpanded = expand_expression(
             expression, width=width, universe=universe, max_expansion=max_expansion
         )

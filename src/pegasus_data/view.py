@@ -194,8 +194,10 @@ def clear_lookup_caches() -> None:
     materialisation inside ``fetch``, a bundle unpacked mid-process -- must
     call this, or the process keeps labelling from the tables it saw first.
     """
-    _lookup_map.cache_clear()
-    _contradictions.cache_clear()
+    _cached_lookup_map.cache_clear()
+    _cached_contradictions.cache_clear()
+    _cached_merged_lookup.cache_clear()
+    _MAPS_BY_CONTENT.clear()
 
 
 # Cached for the life of the process, like the packed reads underneath: a

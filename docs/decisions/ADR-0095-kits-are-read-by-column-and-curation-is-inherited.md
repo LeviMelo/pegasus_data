@@ -41,6 +41,14 @@
   first code has the header's declared width. An overflowing label that
   pushes prose past the column (`medico02.CNV`) still takes the existing
   fallbacks.
+- **A glued last token is split when the label also overran the column.**
+  `FORMORGS.CNV` reads `… punção/biópsi020101`: the label ran past the
+  column and abutted the code, so the column rule rightly declines. When the
+  last token is prose (lower case or punctuation) ending in a code or range
+  whose every end has the declared width, those digits are the code:
+  `020101`, and `9906400000010-9906400051239` kept whole. This recovers
+  129 more lines (SIASUS 124, SIHSUS 4, RESP 1;
+  `data/probes/cnv_glued_tail.txt`).
 - **Re-ingestion supersedes `.CNV` readings.** Kit members and loose `.CNV`
   files are superseded like DBF tables, matching `…:<line>` as well
   (`dictionary.supersede_source`). It reads the kit's `source_ref` range once through
