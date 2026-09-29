@@ -965,6 +965,11 @@ def bindings(
         on_progress=None if as_json else (lambda line: console.print(f"[dim]{line}[/dim]")),
     )
     _emit(counts, as_json, "label bindings")
+    if counts.get("failed") and not counts.get("families"):
+        # Every sampled family failed: nothing was compiled, and a zero exit
+        # let a maintainer chain carry on as if it had been (2026-09-29).
+        console.print("[red]no family compiled; every sample failed[/red]")
+        raise typer.Exit(code=1)
 
 
 @app.command(rich_help_panel="PIPELINE")
