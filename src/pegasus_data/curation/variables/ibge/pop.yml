@@ -15,6 +15,7 @@ variables:
 
       '
     code_system: external
+    codelist: BR_MUNICIPALFA
     source: def
     source_ref: 'TabWin DEF POPSVSBR.DEF ''População Residente - Estudo de Estimativas
       Populacionais por Município, Idade e Sexo 2000-2024'' (DATASUS TAB_POP kit) —
