@@ -29,6 +29,7 @@ the table audits every column.
 from __future__ import annotations
 
 import json
+from collections import Counter
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
@@ -306,7 +307,7 @@ def compile_bindings(
     for family_id, system, series, samples in plan:
         if not samples or family_id in done:
             continue
-        observed: dict[str, set[str]] = {}
+        observed: dict[str, Counter[str]] = {}
         used: list[str] = []
         for sample in samples:
             month = int(sample["normalized_date"] or 0) % 100
@@ -331,9 +332,14 @@ def compile_bindings(
             for name in table.column_names:
                 if name.startswith("_"):
                     continue
-                values = pc.unique(table.column(name).combine_chunks()).to_pylist()
-                bucket = observed.setdefault(name.upper(), set())
-                bucket.update(str(v).strip() for v in values if v is not None and str(v).strip())
+                # Row counts, not only distinct values: the form-dictionary rung
+                # is judged on rows (ADR-0080).
+                tally = pc.value_counts(table.column(name).combine_chunks()).to_pylist()
+                bucket = observed.setdefault(name.upper(), Counter())
+                for item in tally:
+                    value = item["values"]
+                    if value is not None and str(value).strip():
+                        bucket[str(value).strip()] += int(item["counts"])
         if not used:
             continue
         counts["families"] += 1
@@ -342,35 +348,37 @@ def compile_bindings(
         try:
             candidates_by_field = _bindings(store, system, family_id)
             docs = load_variable_docs(store, system)
+            from .curation import harvested_codelist
+
+            series = str(series or "").upper()
             for name, values in observed.items():
                 candidates = candidates_by_field.get(name) or []
                 doc = docs.get(name)
-                curated = [doc.codelist, *doc.codelists] if doc is not None and getattr(doc, "codelist", None) else []
-                if curated and getattr(doc, "per_form", False):
-                    # Per-form alternatives are weighed per family, not merged (ADR-0080).
-                    candidates = list(dict.fromkeys([*curated, *candidates]))
-                    curated = []
-                if not candidates and not curated:
+                if not (candidates or getattr(doc, "codelist", None)
+                        or harvested_codelist(system, series, name)):
                     continue
 
                 def load(codelist: str, _year: int = year, _system: str = system) -> Mapping[str, str] | None:
                     return _single_lookup(settings.lake_dir, codelist, _system, _year, None)
 
-                if curated:
+                decision = decide(
+                    system=system, family_id=family_id, series=series, field_name=name,
+                    doc=doc, candidates=candidates, counts=values, load=load,
+                    store=store, use_stored=False,
+                )
+                if decision.basis == "curated" and decision.share is None and values:
+                    # A curated decision is recorded with its measured coverage.
                     merged: dict[str, str] = {}
-                    for codelist in curated:
+                    for codelist in decision.codelists:
                         merged.update({k: v for k, v in (load(codelist) or {}).items() if k not in merged})
+                    total = sum(values.values())
                     hits = [merged[v] for v in values if v in merged]
-                    decision = LabelBinding(
-                        tuple(curated), "curated",
-                        share=round(len(hits) / len(values), 4) if values else None,
-                        grain=round(len(set(hits)) / len(hits), 4) if hits else None,
-                        observed=len(values), candidates=len(curated),
-                        reason="declared in curation", sample=tuple(used),
-                    )
-                else:
-                    decision = weigh(name, candidates, values, load)
-                    decision = LabelBinding(**{**_as_dict(decision), "sample": tuple(used)})
+                    decision = LabelBinding(**{
+                        **_as_dict(decision),
+                        "share": round(sum(values[v] for v in values if v in merged) / total, 4),
+                        "grain": round(len(set(hits)) / len(hits), 4) if hits else None,
+                    })
+                decision = LabelBinding(**{**_as_dict(decision), "sample": tuple(used)})
                 record(store, system, family_id, name, decision)
                 counts["fields"] += 1
                 counts[decision.basis if decision.conclusive else "deferred"] += 1
@@ -381,3 +389,95 @@ def compile_bindings(
 
 def _as_dict(binding: LabelBinding) -> dict[str, Any]:
     return {k: getattr(binding, k) for k in binding.__dataclass_fields__}
+
+
+# ------------------------------------------------------------------ decide
+#
+# ONE ladder of evidence for "which table labels this column", used by the
+# renderer at query time and by `compile_bindings` at build time. The two used
+# to be separate implementations and drifted: ADR-0080 had to be added to
+# both, and the harvested dictionaries reached only one (ADR-0082).
+
+#: The form's own dictionary is taken when it decodes this share of the ROWS.
+FORM_DICTIONARY_ROWS = 0.95
+
+
+def candidates_for(doc: object, candidates: Sequence[str]) -> list[str]:
+    """The pool weighed for a column: bound tables, plus a per-form curated list."""
+    if doc is not None and getattr(doc, "per_form", False) and getattr(doc, "codelist", None):
+        return list(dict.fromkeys([doc.codelist, *doc.codelists, *candidates]))  # type: ignore[attr-defined]
+    return list(candidates)
+
+
+def decide(
+    *,
+    system: str,
+    family_id: str,
+    series: str,
+    field_name: str,
+    doc: object,
+    candidates: Sequence[str],
+    counts: Mapping[str, int],
+    load: Callable[[str], Mapping[str, str] | None],
+    store: Catalog | None = None,
+    vintage: int | None = None,
+    use_stored: bool = True,
+) -> LabelBinding:
+    """The label decision for one column of one family, best evidence first.
+
+    1. ``codes:`` written in the curation for this column (ADR-0079);
+    2. the family's own form dictionary, when it decodes >= 95% of the ROWS
+       (ADR-0080: rare undocumented codes must not discard it);
+    3. a curated ``codelist:``, unless it lists per-form alternatives;
+    4. a reviewed adjudication (store only);
+    5. the stored decision (store and ``use_stored`` only);
+    6. measured weighing of the candidate pool.
+    """
+    from .curation import harvested_codelist, inline_codelist
+
+    observed = {str(k) for k in counts}
+    total = sum(counts.values())
+    if doc is not None and getattr(doc, "codes", None):
+        return LabelBinding((str(doc.codelist),), "curated", observed=len(observed),  # type: ignore[attr-defined]
+                            reason="inline code table in the curation")
+    if series:
+        harvested = harvested_codelist(system, series, field_name)
+        if harvested:
+            table = inline_codelist(harvested) or {}
+            covered = sum(n for v, n in counts.items() if v in table)
+            if not total or covered >= FORM_DICTIONARY_ROWS * total:
+                return LabelBinding(
+                    (harvested,), "curated",
+                    share=round(covered / total, 4) if total else None,
+                    observed=len(observed), reason="the form's own data dictionary",
+                )
+    if doc is not None and getattr(doc, "codelist", None) and not getattr(doc, "per_form", False):
+        curated = (str(doc.codelist), *(str(c) for c in doc.codelists))  # type: ignore[attr-defined]
+        return LabelBinding(curated, "curated", observed=len(observed), candidates=len(curated),
+                            reason="declared in curation")
+    if store is not None:
+        try:
+            from .relations import RelationType, relations_for
+
+            artifacts = sorted({
+                item.artifact
+                for item in relations_for(
+                    system, f"{system}.{series}" if family_id else "*", field_name,
+                    relation_type=RelationType.LABEL_OF, catalog=store,
+                    # An adjudication with a validity window decides ONE era.
+                    vintage=vintage,
+                )
+            })
+            if len(artifacts) == 1:
+                return LabelBinding((artifacts[0],), "curated", reason="reviewed adjudication")
+        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
+            pass
+    pool = candidates_for(doc, candidates)
+    if use_stored and store is not None and family_id:
+        found = stored(store, system, family_id, field_name)
+        if found is not None:
+            return found
+    decision = weigh(field_name, pool, observed, load)
+    if use_stored and store is not None and family_id:
+        record(store, system, family_id, field_name, decision)
+    return decision

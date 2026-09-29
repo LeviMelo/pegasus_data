@@ -682,88 +682,26 @@ def _select_codelists(
     It reports its own findings — the caller cannot reconstruct why a column was
     left unlabelled without re-doing the weighing.
     """
-    if doc is not None and getattr(doc, "codes", None):
-        # A code table written in the curation for this very column wins.
-        return _Selection(codelists=[doc.codelist])  # type: ignore[attr-defined]
+    # One ladder of evidence, shared with compile_bindings (ADR-0082).
+    from .semantics.label_bindings import candidates_for, decide
 
     series = ""
     if store is not None and family_id:
         try:
             row = store.query("SELECT series FROM families WHERE family_id=?", (family_id,))
             series = str(row[0]["series"] or "").upper() if row else ""
-        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behavior
+        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
             series = ""
-    if series:
-        # The form's own data dictionary outranks a system-wide binding: SINAN's
-        # EVOLUCAO is "1 Cura, 2 Óbito por botulismo" on one form and "1 Alta,
-        # 2 Óbito por meningite" on another (ADR-0079). Taken only when it
-        # decodes what the column actually holds.
-        from .semantics.curation import harvested_codelist, inline_codelist
-
-        harvested = harvested_codelist(system, series, name)
-        if harvested:
-            table = inline_codelist(harvested) or {}
-            counts = Counter(
-                str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()
-            )
-            # Row-weighted: meningitis CLASSI_FIN holds 379 rows of an
-            # undocumented "8" beside 25,642 documented ones; by distinct values
-            # that was 2 of 3 and the form's own table lost to another form's.
-            total = sum(counts.values())
-            if not total or sum(n for v, n in counts.items() if v in table) >= 0.95 * total:
-                return _Selection(codelists=[harvested])
-
-    if doc is not None and getattr(doc, "codelist", None):
-        if getattr(doc, "per_form", False):
-            # Alternatives, one per form: weighed below against this family's
-            # own values, never merged (ADR-0080).
-            candidates = [doc.codelist, *doc.codelists, *candidates]  # type: ignore[attr-defined]
-            candidates = list(dict.fromkeys(candidates))
-        else:
-            # A curated entry decides both the table and whether there are
-            # several. Nothing else may widen it.
-            return _Selection(codelists=[doc.codelist, *doc.codelists])  # type: ignore[attr-defined]
-
-    # A reviewed adjudication is a semantic declaration too. It lives in the
-    # catalog until the next resource/curation build promotes it to YAML; if the
-    # runtime ignored it, `adjudicate apply` would close a queue item while the
-    # renderer continued making the same refusal.
-    if store is not None:
-        try:
-            dataset = f"{system}.{series}" if family_id else "*"
-            from .semantics.relations import RelationType, relations_for
-
-            artifacts = sorted(
-                {
-                    item.artifact
-                    for item in relations_for(
-                        system,
-                        dataset,
-                        name,
-                        relation_type=RelationType.LABEL_OF,
-                        catalog=store,
-                        # Scoped to the record's vintage: an adjudication with
-                        # a validity window is a decision about ONE era, and
-                        # omitting the vintage applied it to every era.
-                        vintage=vintage,
-                    )
-                }
-            )
-            if len(artifacts) == 1:
-                return _Selection(codelists=artifacts)
-        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behavior
-            pass
-
-    # One decision per (system, family, field): stored, or weighed on this
-    # column and stored (ADR-0072). No cap: the 124 fields with more than twelve
-    # bound tables used to be refused outright.
-    from .semantics.label_bindings import resolve
-
-    seen = {str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()}
-    decision = resolve(
-        store, system, family_id, name, candidates, seen,
-        lambda cl: lookup_one(cl, None),
+    counts = Counter(str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip())
+    seen = set(counts)
+    decision = decide(
+        system=system, family_id=family_id, series=series, field_name=name, doc=doc,
+        candidates=candidates, counts=counts, load=lambda cl: lookup_one(cl, None),
+        store=store, vintage=vintage,
     )
+    if decision.basis == "curated" and decision.codelists:
+        return _Selection(codelists=list(decision.codelists), share=decision.share)
+    candidates = candidates_for(doc, candidates)
     if not decision.labels:
         if candidates or decision.reason != "no codelist is bound to this field":
             if len(seen) <= 1 and seen:

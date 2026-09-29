@@ -191,7 +191,20 @@ class Pipeline:
         self.catalog.close()
 
     def seed_questions(self) -> None:
+        # Only what is missing or changed: opening a pipeline to READ must not
+        # write, or a query waits on (and fails behind) any running stage.
+        try:
+            known = {
+                str(r["key"]): (r["area"], r["question"], r["verification_procedure"], r["blocking"])
+                for r in self.catalog.query(
+                    "SELECT key, area, question, verification_procedure, blocking FROM open_questions"
+                )
+            }
+        except Exception:  # noqa: BLE001 - a catalog without the table seeds everything
+            known = {}
         for q in SEED_QUESTIONS:
+            if known.get(q["key"]) == (q["area"], q["question"], q["verification_procedure"], q["blocking"]):
+                continue
             self.catalog.note_question(
                 q["key"],
                 area=q["area"],

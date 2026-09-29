@@ -630,16 +630,30 @@ class Catalog:
     def write(self) -> Iterator[sqlite3.Connection]:
         """Serialised write transaction."""
         with self._lock:
+            self._write_depth = getattr(self, "_write_depth", 0) + 1
             try:
                 yield self.conn
-                self.conn.commit()
+                if self._write_depth == 1:
+                    self.conn.commit()
             except Exception:
-                self.conn.rollback()
+                if self._write_depth == 1:
+                    self.conn.rollback()
                 raise
+            finally:
+                self._write_depth -= 1
 
     def execute(self, sql: str, params: Sequence[Any] = ()) -> sqlite3.Cursor:
+        """One statement; a write outside a ``write()`` block commits itself.
+
+        It used to leave the implicit transaction open, so a long stage writing
+        through ``execute`` (the census) held the database lock until some later
+        commit and every other process got "database is locked" (2026-09-28).
+        """
         with self._lock:
-            return self.conn.execute(sql, params)
+            cursor = self.conn.execute(sql, params)
+            if getattr(self, "_write_depth", 0) == 0 and self.conn.in_transaction:
+                self.conn.commit()
+            return cursor
 
     def executemany(self, sql: str, rows: Iterable[Sequence[Any]]) -> int:
         batch = list(rows)
