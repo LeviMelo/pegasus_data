@@ -236,8 +236,12 @@ def s_sweep() -> dict[str, Any]:
     budget_mb = float(os.environ.get("PEGASUS_SWEEP_BUDGET_MB", "800"))
     spent_mb = 0.0
     results: dict[str, Any] = {}
-    for code in sorted(Ontology.load().datasets):
+    datasets = Ontology.load().datasets
+    for code in sorted(datasets):
         if only and code not in only:
+            continue
+        if datasets[code].status in ("tooling", "retired"):
+            # Software and retired nodes are not data (TABDOS.APP is the DOS tabulator).
             continue
         entry: dict[str, Any] = {}
         t = time.perf_counter()
