@@ -390,6 +390,10 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, l
         SELECT field_name, codelist, family_id, source, confidence, decodes_observed
           FROM field_codelists
          WHERE system = ? AND (family_id = '' OR family_id = ?)
+           -- A binding inferred from value overlap alone is a guess, not a
+           -- source: it bound SIA's OPC_PRIPAL (a procedure) to municipalities
+           -- and SIH's CEP to procedures (ADR-0091).
+           AND source <> 'semantic_match'
         """,
         (system.upper(), family_id or ""),
     )

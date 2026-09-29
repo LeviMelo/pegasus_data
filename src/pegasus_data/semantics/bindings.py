@@ -139,6 +139,7 @@ def working_bindings(
           FROM field_codelists
          WHERE system = ?
            AND (decodes_observed IS NULL OR decodes_observed > 0)
+           AND source <> 'semantic_match'  -- a value-overlap guess is not a source (ADR-0091)
          ORDER BY COALESCE(decodes_observed, 0) DESC, confidence DESC
         """,
         (system.upper(),),
