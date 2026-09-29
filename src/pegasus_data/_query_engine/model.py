@@ -101,6 +101,10 @@ class RetrievalPlan:
     fetch_years: tuple[int, ...] = ()
     year_resolutions: tuple[tuple[int, str], ...] = ()
     year_months: tuple[tuple[int, tuple[int, ...]], ...] = ()
+    #: Compressed bytes the fetched years would download, and how many of them
+    #: are already in the local cache (ADR-0076). None when not estimable.
+    download_bytes: int | None = None
+    cached_bytes: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,6 +133,13 @@ class QueryPlan:
         ]
         if self.retrieval.physical_geography:
             lines.append(f"Physical geography filter: {', '.join(self.retrieval.physical_geography)}")
+        if self.retrieval.download_bytes is not None:
+            new = self.retrieval.download_bytes - (self.retrieval.cached_bytes or 0)
+            lines.append(
+                f"Download: {new / 2**20:,.1f} MiB new"
+                f" ({self.retrieval.download_bytes / 2**20:,.1f} MiB selected, "
+                f"{(self.retrieval.cached_bytes or 0) / 2**20:,.1f} MiB already cached)"
+            )
         for adaptation in self.retrieval.adaptations:
             lines.append(
                 f"Adaptation: {adaptation.requested} -> {adaptation.effective} ({adaptation.reason})"

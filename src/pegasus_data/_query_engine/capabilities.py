@@ -234,3 +234,57 @@ def _capabilities(
         )
     finally:
         store.close()
+
+
+def download_estimate(
+    settings: Settings,
+    system: str,
+    series: str | None,
+    years: Sequence[int],
+    months_by_year: dict[int, tuple[int, ...]],
+    ufs: Sequence[str],
+) -> tuple[int | None, int | None]:
+    """(bytes the fetch would select, bytes of those already cached).
+
+    From the catalog alone, before anything moves: the publications a fetch of
+    these years, months and states would read, one representation each
+    (ADR-0076). ``(None, None)`` when the catalog cannot say.
+    """
+    if not years:
+        return 0, 0
+    from ..catalog.store import Catalog
+    from ..representations import choose_representations
+    from ..retrieve import _families, _month_of
+
+    try:
+        store = Catalog(settings.catalog_path, read_only=True)
+    except FileNotFoundError:
+        return None, None
+    try:
+        ids = [str(f["family_id"]) for f in _families(store, system, series)]
+        if not ids:
+            return None, None
+        wanted_ufs = {u.upper() for u in ufs}
+        rows = [
+            row for row in _publication_rows(store, ids)
+            if row.get("year") in set(years)
+            and (not wanted_ufs or str(row.get("geo_code") or "").upper() in wanted_ufs)
+            and (not months_by_year.get(int(row["year"]))
+                 or _month_of(row.get("normalized_date")) in set(months_by_year[int(row["year"])])
+                 or _month_of(row.get("normalized_date")) is None)
+        ]
+        selected = list(choose_representations(store, rows, on_conflict="all").selected) if rows else []
+        paths = sorted({str(r["path"]) for r in selected})
+        total = sum(int(r.get("size") or 0) for r in {str(r["path"]): r for r in selected}.values())
+        cached = 0
+        if paths:
+            marks = ",".join("?" for _ in paths)
+            cached = int(store.scalar(
+                f"SELECT COALESCE(SUM(f.size), 0) FROM files f WHERE f.path IN ({marks}) "
+                f"AND EXISTS (SELECT 1 FROM fetches x WHERE x.source_path = f.path)",
+                tuple(paths),
+            ) or 0)
+        return total, cached
+    finally:
+        store.close()
+

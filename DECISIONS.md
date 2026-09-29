@@ -100,3 +100,4 @@ last, comes first.
 | [ADR-0073](docs/decisions/ADR-0073-query-is-the-one-data-door.md) | 2026-09-28 | `query()` is the one public door to data; one dataset identifier; one CLI verb | active | amends ADR-0026, ADR-0043 |
 | [ADR-0074](docs/decisions/ADR-0074-the-native-engine-builds-into-a-user-cache.md) | 2026-09-28 | The native DBC engine builds into a per-user cache, never the package; wheels should ship it compiled | active | amends ADR-0059 |
 | [ADR-0075](docs/decisions/ADR-0075-the-dictionary-database-and-the-bundle-are-retired.md) | 2026-09-28 | The dictionary database and the semantic bundle are retired; the seed and `compendium()` carry the meaning | active | supersedes ADR-0027, ADR-0028; amends ADR-0069 |
+| [ADR-0076](docs/decisions/ADR-0076-a-query-states-and-bounds-its-download.md) | 2026-09-28 | A query states its download before anything moves, and is bounded by default | active |  |

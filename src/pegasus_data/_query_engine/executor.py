@@ -73,6 +73,7 @@ def query(
     resource_policy: Literal["local"] = "local",
     time_policy: Literal["adapt", "strict"] = "adapt",
     allow_unbounded: bool = False,
+    max_download: int | None = 1024**3,
     return_report: bool = False,
     root: str | Path | None = None,
     settings: Settings | None = None,
@@ -86,6 +87,17 @@ def query(
     )
     resolved = settings or load_settings(root=Path(root) if root else None)
     retrieval = query_plan.retrieval
+    # A download budget the caller sees before anything moves (ADR-0076):
+    # 1 GiB of NEW compressed bytes by default; cached files cost nothing.
+    if max_download is not None and retrieval.download_bytes is not None:
+        new = retrieval.download_bytes - (retrieval.cached_bytes or 0)
+        if new > max_download:
+            raise ValueError(
+                f"this query would download {new / 2**30:.2f} GiB of new files "
+                f"({retrieval.download_bytes / 2**30:.2f} GiB selected), over max_download="
+                f"{max_download / 2**30:.2f} GiB. Narrow period or geography, or pass a larger "
+                "max_download (None for no limit) after checking plan(...).explain()"
+            )
     if not query_plan.spec.period and (
         retrieval.fetch_years
         or (retrieval.source_strategy == "fetch" and not retrieval.years)
@@ -189,6 +201,7 @@ def query(
                 provenance=True,
                 on_missing_column="null_fill",
                 allow_partial=False,
+                max_bytes=None,  # the budget is max_download, checked above on NEW bytes
                 settings=resolved,
                 report=True,
             )

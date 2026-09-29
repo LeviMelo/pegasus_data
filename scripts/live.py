@@ -229,6 +229,12 @@ def s_sweep() -> dict[str, Any]:
     from pegasus_data.ontology import Ontology
 
     only = [x.strip().upper() for x in os.environ.get("PEGASUS_SWEEP", "").split(",") if x.strip()]
+    # A hard download budget (user, 2026-09-28: never tens of gigabytes again).
+    # Per file, and for the whole sweep; a dataset whose cheapest publication is
+    # over the per-file cap is recorded as skipped, not fetched.
+    per_file_mb = float(os.environ.get("PEGASUS_SWEEP_MAX_MB", "25"))
+    budget_mb = float(os.environ.get("PEGASUS_SWEEP_BUDGET_MB", "800"))
+    spent_mb = 0.0
     results: dict[str, Any] = {}
     for code in sorted(Ontology.load().datasets):
         if only and code not in only:
@@ -248,10 +254,16 @@ def s_sweep() -> dict[str, Any]:
             cheapest = min(files, key=lambda r: float(r.get("megabytes") or 0))
             entry["file"] = cheapest["path"]
             entry["megabytes"] = cheapest.get("megabytes")
-            if float(cheapest.get("megabytes") or 0) > 300:
-                entry["skip"] = "cheapest file over 300 MB"
+            size_mb = float(cheapest.get("megabytes") or 0)
+            if size_mb > per_file_mb:
+                entry["skip"] = f"cheapest file is {size_mb:.0f} MB, over the {per_file_mb:.0f} MB cap"
                 results[code] = entry
                 continue
+            if spent_mb + size_mb > budget_mb:
+                entry["skip"] = f"sweep budget of {budget_mb:.0f} MB reached"
+                results[code] = entry
+                continue
+            spent_mb += size_mb
             month = int(cheapest.get("yyyymm") or 0) % 100
             period = f"{year}-{month:02d}" if month else str(year)
             uf = cheapest.get("uf")
@@ -269,7 +281,7 @@ def s_sweep() -> dict[str, Any]:
     ok = sum(1 for v in results.values() if v.get("ok"))
     failed = {k: v["error"] for k, v in results.items() if v.get("ok") is False}
     skipped = {k: v["skip"] for k, v in results.items() if "skip" in v}
-    return {"datasets": len(results), "ok": ok, "failed": len(failed), "skipped": len(skipped),
+    return {"downloaded_mb_at_most": round(spent_mb, 1), "datasets": len(results), "ok": ok, "failed": len(failed), "skipped": len(skipped),
             "failures": failed, "skips": skipped, "results": results}
 
 

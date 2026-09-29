@@ -121,13 +121,18 @@ def plan(
     requirements = tuple(
         provider(name).describe(resolved, resource_period) for name in required
     )
+    from .capabilities import download_estimate
+
+    estimate = download_estimate(
+        resolved, system, series, capabilities.fetch_years, dict(year_months), physical_uf
+    )
     return QueryPlan(
         spec,
         RetrievalPlan(
             system, series, resolution, years, months, physical_uf, strategy,
             tuple(sorted(hidden)), tuple(adaptations), capabilities.lake_years,
             capabilities.fetch_years, capabilities.year_resolutions,
-            tuple(year_months),
+            tuple(year_months), estimate[0], estimate[1],
         ),
         SemanticPlan(labels, spec.dimensions, spec.enrichments, required, requirements),
     )
