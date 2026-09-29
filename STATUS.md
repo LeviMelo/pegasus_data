@@ -2,13 +2,13 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. Last rewritten 2026-09-29, afternoon.
+`DECISIONS.md`. Last rewritten 2026-09-29, evening.
 
 ## Where the project is
 
 Development resumed on 2026-09-28 on branch `redesign`. The first day made the
 read path deliver meaning, with one door (`query()`) and measured sampling
-(ADR-0061 to ADR-0082). The second day (ADR-0083 to ADR-0098) went after the
+(ADR-0061 to ADR-0082). The second day (ADR-0083 to ADR-0099) went after the
 standing instruction that every variable be described and every code
 translatable, by meaningful labels rather than one opaque code standing in for
 another.
@@ -52,14 +52,18 @@ another.
 - **Sweep tools.** `scripts/sweep_undecoded.py` lists undecoded values over 16
   datasets. `scripts/def_evidence.py` lists what each `.DEF` offers for them.
 
-## In progress
+## Coverage now
 
-- **Maintainer rebuild with the fixed parser** (`data/logs/rebuild-cnv.ps1`):
-  semantics → curate → reference → registry → bindings → `meaning`. After it:
-  1. the coverage measure and its evaluation entry;
-  2. `scripts/build_resources.py` (the seed), so fresh homes get the
-     corrected dictionary;
-  3. the sweep rerun on a fresh home.
+- **Kits and pack.** The maintainer catalog was re-read with the fixed parser.
+  The label pack and the seed are rebuilt from it; the pack no longer loses a
+  window the catalog lacks (ADR-0095).
+- **Per family-field** (`pegasus-data meaning`, 22,714 rows):
+  - missing descriptions: 441 → 130;
+  - undecoded: 240 → 34;
+  - opaque: 120.
+- **Per cell, fresh home, 16 datasets:** undecoded 1.23 M → 0.56 M, with no
+  regressions. What remains is mostly values that no source documents
+  (EVALUATION, 2026-09-29).
 
 ## Open fronts
 
