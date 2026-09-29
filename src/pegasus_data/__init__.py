@@ -86,6 +86,8 @@ _EXPORTS: dict[str, str] = {
     "EnrichmentRequest": ".crosswalk",
     "DatasetUnknown": ".retrieve",
     "NothingPublished": ".retrieve",
+    "PublishedEmpty": ".retrieve",
+    "DownloadBudgetExceeded": ".retrieve",
     "FilterHasNoAxis": ".retrieve",
 }
 
@@ -132,7 +134,13 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .crosswalk import EnrichmentRequest, enrichment
     from .geography import Membership, MembershipSet, memberships
     from .ontology import Ontology
-    from .retrieve import DatasetUnknown, FilterHasNoAxis, NothingPublished
+    from .retrieve import (
+        DatasetUnknown,
+        DownloadBudgetExceeded,
+        FilterHasNoAxis,
+        NothingPublished,
+        PublishedEmpty,
+    )
 
 
 def __getattr__(name: str) -> Any:

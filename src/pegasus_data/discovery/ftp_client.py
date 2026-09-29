@@ -367,7 +367,7 @@ class FtpClient:
         """``SIZE``/``MDTM`` for one path — the per-file rescue when a listing is unavailable."""
         return self.size(path), self.modified_time(path)
 
-    def retrieve_prefix(self, path: str, max_bytes: int) -> bytes:
+    def retrieve_prefix(self, path: str, max_bytes: int, *, offset: int = 0) -> bytes:
         """Download only the first ``max_bytes`` of a file.
 
         A DBF — and a ``.dbc``, whose DBF header is stored uncompressed ahead of
@@ -384,7 +384,9 @@ class FtpClient:
         before — a failure that shows up far from its cause.
         """
         def _once() -> bytes:
-            conn = self.ftp.transfercmd(f"RETR {path}")
+            # `offset` (FTP REST) reads a slice from the middle or the end: a
+            # Parquet file's schema is in its footer (ADR-0077).
+            conn = self.ftp.transfercmd(f"RETR {path}", rest=offset or None)
             buf = io.BytesIO()
             try:
                 conn.settimeout(self.timeout)

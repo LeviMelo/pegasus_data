@@ -743,9 +743,27 @@ def _matches_schema(field_names: Sequence[str], plan: NormalizePlan) -> bool:
     A family is defined by its schema signature, so a file whose columns differ
     belongs to a different generation and must not be folded in silently (D2/D3).
     """
+    return schema_fit(field_names, plan) is not None
+
+
+def schema_fit(field_names: Sequence[str], plan: NormalizePlan) -> tuple[str, ...] | None:
+    """``()`` for the family's own schema; the added columns for a republication
+    that kept every catalogued column and gained some; ``None`` otherwise.
+
+    DATASUS republished all of SIA-PA on 2026-09-17 with one more column
+    (``PA_VL_CRD``). Every earlier column kept its name, so its meaning; refusing
+    the files turned a year of SIA-PA into "no rows" (ADR-0078). A file that LOST
+    a column is still a different generation and is refused.
+    """
     from .inventory.families import schema_signature
 
-    return schema_signature(field_names) == plan.schema_signature
+    if schema_signature(field_names) == plan.schema_signature:
+        return ()
+    names = [str(n).upper() for n in field_names]
+    if plan.columns and set(plan.columns) < set(names):
+        known = set(plan.columns)
+        return tuple(n for n in names if n not in known)
+    return None
 
 
 def _year_from_path(catalog: Catalog, path: str) -> int | None:

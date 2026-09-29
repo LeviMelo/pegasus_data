@@ -69,7 +69,16 @@ class Stratum:
         # /SIHSUS/<year>/; when the cheapest member was an .xml the census could
         # not read it, the stratum stayed 'pending', and those four years had no
         # family, so nothing could fetch them (inventory, 2026-09-28).
-        return min(self.paths, key=lambda p: (_census_rank(p), self.sizes.get(p, 1 << 62), p))
+        # A stratum of archives with a stray loose file (SIA APAC 2002: 266
+        # .exe, 2 .dbf) samples an archive, so the census records the members
+        # every other file of the stratum is named after (ADR-0077).
+        archives = sum(p.lower().endswith(".exe") for p in self.paths)
+        prefer_archive = archives * 2 > len(self.paths)
+
+        def rank(p: str) -> int:
+            return 0 if prefer_archive and p.lower().endswith(".exe") else _census_rank(p) + prefer_archive
+
+        return min(self.paths, key=lambda p: (rank(p), self.sizes.get(p, 1 << 62), p))
 
 
 def build_strata(rows: Iterable[dict[str, object]]) -> list[Stratum]:
@@ -244,3 +253,52 @@ def _census_rank(path: str) -> int:
     if lower.endswith(".csv"):
         return 1
     return 2
+
+
+def expand_archive_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
+    """One stratum per member kind of a multi-table archive, over all its files.
+
+    SIA's 2001-2007 APAC archives (``ACAC0201.EXE``) each carry seven tables
+    (``ACAC0201.DBF``, ``PCAC0201.DBF`` …). The census records the sampled
+    archive's members in ``archive_members``; here every other kind becomes a
+    stratum ``<parent>#<kind>`` spanning EVERY archive of the parent, so each
+    kind's family reaches all its months, not only the one sampled (ADR-0077).
+    Returns the member strata written.
+    """
+    from .naming import member_kind
+
+    written = 0
+    for stratum in strata:
+        sample = stratum.sample_path()
+        if not sample:
+            continue
+        members = [
+            str(r["member"]) for r in catalog.query(
+                "SELECT member FROM archive_members WHERE archive_path = ? AND member_role = 'data' "
+                "ORDER BY member", (sample,)
+            )
+        ]
+        if len(members) < 2:
+            continue
+        for member in members:
+            kind = member_kind(sample, member, stratum.series or "")
+            if not kind or kind == (stratum.series or "").upper():
+                continue
+            child = f"{stratum.stratum_id}#{kind}"
+            catalog.execute(
+                """
+                INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path,
+                                    sampled_member, sample_status)
+                VALUES (?,?,?,?,?,?,?, 'pending')
+                ON CONFLICT(stratum_id) DO UPDATE SET file_count = excluded.file_count
+                """,
+                (child, stratum.system, kind, stratum.year, stratum.file_count, sample, member),
+            )
+            catalog.execute("DELETE FROM stratum_members WHERE stratum_id = ?", (child,))
+            catalog.executemany(
+                "INSERT OR IGNORE INTO stratum_members (stratum_id, path) VALUES (?,?)",
+                [(child, p) for p in stratum.paths],
+            )
+            written += 1
+    return written
+

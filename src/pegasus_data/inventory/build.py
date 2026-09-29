@@ -20,7 +20,7 @@ from .naming import (
     role_from_path,
     system_from_path,
 )
-from .strata import build_strata, persist_strata, prune_orphan_strata
+from .strata import build_strata, expand_archive_strata, persist_strata, prune_orphan_strata
 from .systems import (
     learn_prefix_systems,
     load_prefix_systems,
@@ -181,8 +181,10 @@ def build_inventory(
     # `families.time_min` back to 1901 long after the facts were corrected.
     pruned = prune_orphan_strata(catalog, {s.stratum_id for s in strata}, systems=systems)
     persist_strata(catalog, strata)
+    member_strata = expand_archive_strata(catalog, strata)
 
     return {
+        "archive_member_strata": member_strata,
         "prefix_system_contradictions": prefix_stats["contradictions"],
         "system_disagreements": len(disagreements),
         "strata_pruned": pruned,

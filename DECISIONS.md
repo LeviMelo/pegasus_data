@@ -101,3 +101,5 @@ last, comes first.
 | [ADR-0074](docs/decisions/ADR-0074-the-native-engine-builds-into-a-user-cache.md) | 2026-09-28 | The native DBC engine builds into a per-user cache, never the package; wheels should ship it compiled | active | amends ADR-0059 |
 | [ADR-0075](docs/decisions/ADR-0075-the-dictionary-database-and-the-bundle-are-retired.md) | 2026-09-28 | The dictionary database and the semantic bundle are retired; the seed and `compendium()` carry the meaning | active | supersedes ADR-0027, ADR-0028; amends ADR-0069 |
 | [ADR-0076](docs/decisions/ADR-0076-a-query-states-and-bounds-its-download.md) | 2026-09-28 | A query states its download before anything moves, and is bounded by default | active |  |
+| [ADR-0077](docs/decisions/ADR-0077-archives-are-censused-and-their-members-are-publications.md) | 2026-09-28 | Archives are censused, and each table inside a multi-table archive is its own publication | active | amends ADR-0071 |
+| [ADR-0078](docs/decisions/ADR-0078-a-republished-file-is-re-censused-and-added-columns-are-read.md) | 2026-09-28 | A republished file is re-censused, and a file that only gained columns is read, not refused | active |  |

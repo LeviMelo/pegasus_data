@@ -38,6 +38,7 @@ import functools
 import os
 import re
 import threading
+import warnings
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field, replace
@@ -117,6 +118,18 @@ class NothingPublished(FileNotFoundError):
     That is a fact about DATASUS, not a failure, and it is worth saying so
     rather than returning an empty table that reads like "no admissions".
     """
+
+
+class PublishedEmpty(NothingPublished):
+    """The files exist and were read, and DATASUS published them with no records.
+
+    CNES-EE for Minas Gerais in July 2021 is a 1,035-byte file with a header and
+    no rows. The count for that selection is zero, which is an answer, not a gap.
+    """
+
+
+class DownloadBudgetExceeded(ValueError):
+    """The query would download more new bytes than ``max_download`` (ADR-0076)."""
 
 
 @dataclass(slots=True)
@@ -717,7 +730,14 @@ def fetch(
             only_paths=_only_paths,
         )
         if table.num_rows == 0:
-            raise NothingPublished(_nothing_message(fetch_report, want_ufs, want_years))
+            empty = (
+                fetch_report.files_read > 0
+                and not fetch_report.undecoded
+                and not fetch_report.schema_mismatch
+            )
+            raise (PublishedEmpty if empty else NothingPublished)(
+                _nothing_message(fetch_report, want_ufs, want_years)
+            )
 
         # A SHORT answer is refused by default. Raising only on zero rows meant
         # eleven of twelve monthly files decoding returned eleven months that
@@ -1696,8 +1716,17 @@ def _decode_one(
     for decoded in outcome.tables:  # type: ignore[union-attr]
         if member and decoded.member != member:
             continue
-        if not _fits(decoded.field_names, plan):
+        from .build import schema_fit
+
+        added = schema_fit(decoded.field_names, plan)
+        if added is None:
             continue
+        if added:
+            warnings.warn(
+                f"{path}: republished with column(s) {', '.join(added)} the catalog does not "
+                "know yet; read with them kept (re-run `schemas` to catalogue them, ADR-0078)",
+                stacklevel=2,
+            )
         matched = True
         for batch in normalize_table(decoded, plan, blob_sha256=digest):
             batches.append(_project(batch, keep_columns))
@@ -1742,12 +1771,6 @@ def _month_of(normalized_date: object) -> int | None:
         return None
     month = int(normalized_date) % 100
     return month or None
-
-
-def _fits(field_names: Sequence[str], plan: NormalizePlan) -> bool:
-    from .build import _matches_schema
-
-    return _matches_schema(field_names, plan)
 
 
 def _nothing_message(report: FetchReport, ufs: Sequence[str], years: Sequence[int]) -> str:

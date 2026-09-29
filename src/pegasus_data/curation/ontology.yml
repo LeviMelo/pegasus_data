@@ -406,14 +406,107 @@ datasets:
 
   SIA.AC:
     system: SIA
-    official_name: APAC de Acompanhamento
-    translated_name: APAC, registry follow-up
+    official_name: APAC de Alta Complexidade (2001-2007), bloco de autorização
+    translated_name: APAC 2001-2007, authorisation header
     what_it_is: >
-      The 2002-era renal replacement registry, published as self-extracting
-      archives carrying seven linked datasets rather than as one flat table.
-      See FINDINGS.md 3j — its patient block carries date of birth, postcode and
-      diagnosis, and joins one-to-one to a serology block.
+      The authorisation block of SIA's 2001-2007 APAC archives: one row per
+      APAC, with its issue and validity dates, type, main procedure, closing
+      reason and the CPF/CNS and names of patient, responsible and director
+      (identifiers, flagged). Each monthly self-extracting archive
+      (ACAC0201.EXE) holds this table and its sibling blocks, published here
+      as SIA.CO, SIA.EX, SIA.OP, SIA.PC, SIA.PF, SIA.PQ, SIA.UD and SIA.UO;
+      all join on the APAC number (*_NUM) or the unit (*_CODUNI) (ADR-0077).
+      2007 files are dBase 7.
+    confidence: medium
     observed_as: [AC]
+
+  SIA.CO:
+    system: SIA
+    official_name: APAC 2001-2007, bloco de cobrança
+    translated_name: APAC 2001-2007, billed procedures
+    what_it_is: >
+      The procedures billed under each APAC of SIA.AC: procedure code,
+      specialty, quantity and value presented and approved (COB_*). From 2005
+      the archives carry only this block. Named from its columns; no layout
+      document found yet.
+    confidence: medium
+    observed_as: [CO]
+
+  SIA.EX:
+    system: SIA
+    official_name: APAC 2001-2007, bloco de exames (terapia renal substitutiva)
+    translated_name: APAC 2001-2007, dialysis patient exams
+    what_it_is: >
+      Exams of renal-replacement patients per APAC: creatinine, pre- and
+      post-dialysis urea, hepatitis, HBsAg, HIV and HLA (EXA_*). Named from its
+      columns.
+    confidence: medium
+    observed_as: [EX]
+
+  SIA.OP:
+    system: SIA
+    official_name: APAC 2001-2007, bloco de paciente de outros procedimentos
+    translated_name: APAC 2001-2007, other high-complexity procedure patients
+    what_it_is: >
+      Patient block for APACs outside renal therapy and oncology: birth date,
+      sex, residence, main procedure, its result, ICD and the linked AIH
+      (OPC_*). Named from its columns.
+    confidence: low
+    observed_as: [OP]
+
+  SIA.PC:
+    system: SIA
+    official_name: APAC 2001-2007, bloco de paciente (terapia renal substitutiva)
+    translated_name: APAC 2001-2007, renal-replacement patients
+    what_it_is: >
+      Patient block of renal-replacement APACs: birth date, sex, residence,
+      treatment start, primary and secondary diagnosis, transplant indication
+      and waiting-list registration (PAC_*). Named from its columns.
+    confidence: medium
+    observed_as: [PC]
+
+  SIA.PF:
+    system: SIA
+    official_name: APAC 2001-2007, bloco de paciente (variante F)
+    translated_name: APAC 2001-2007, patient block, variant F
+    what_it_is: >
+      Same layout as SIA.PC (PAF_*); which programme the F variant covers is
+      not documented in the files. Named from its columns.
+    confidence: low
+    observed_as: [PF]
+
+  SIA.PQ:
+    system: SIA
+    official_name: APAC 2001-2007, bloco de paciente oncológico
+    translated_name: APAC 2001-2007, oncology patients
+    what_it_is: >
+      Patient block of oncology APACs: diagnosis, metastasis, diagnosis date,
+      treatment dates, stage and previous treatment (PAQ_*). The pre-2008
+      counterpart of SIA.AQ and SIA.AR. Named from its columns.
+    confidence: medium
+    observed_as: [PQ]
+
+  SIA.UD:
+    system: SIA
+    official_name: APAC 2001-2007, cadastro de unidade de diálise
+    translated_name: APAC 2001-2007, dialysis unit census
+    what_it_is: >
+      One row per dialysis unit and month: counts of machines and modalities,
+      water treatment, the partner laboratories and services, and the unit's
+      responsible nephrologist and director (UDI_*). Named from its columns.
+    confidence: medium
+    observed_as: [UD]
+
+  SIA.UO:
+    system: SIA
+    official_name: APAC 2001-2007, cadastro de unidade de oncologia
+    translated_name: APAC 2001-2007, oncology unit census
+    what_it_is: >
+      One row per oncology unit and month: radiotherapy rooms and equipment
+      (simulator, cobalt, linear accelerator, brachytherapy), the partner
+      services, and responsible professionals (UDO_*). Named from its columns.
+    confidence: medium
+    observed_as: [UO]
 
   SIA.PS:
     system: SIA

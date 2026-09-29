@@ -51,6 +51,10 @@ CSV_READABLE = (".csv",)
 #: strata are zips of a few KB to a few MB (OQ-54, 2026-09-28).
 SMALL_ARCHIVE_BYTES = 20_000_000
 ARCHIVE_READABLE = (".zip",)
+#: A Parquet file declares its schema in a footer at the END: the last bytes
+#: hold the footer's length and the magic "PAR1". SIPNI's 1.2 GB exports are
+#: censused from their last 256 KB (ADR-0077).
+PARQUET_TAIL = 256 * 1024
 
 #: First ask. Covers every header measured on this tree (the widest, a
 #: 113-column SIH-RD file, needs about 3.7 KB) with room to spare.
@@ -111,13 +115,18 @@ def census_targets(
         clauses.append(f"s.stratum_id IN ({','.join('?' * len(stratum_ids))})")
         params.extend(stratum_ids)
     if only_missing:
-        clauses.append("s.schema_signature IS NULL")
+        # Missing, or republished since it was read: DATASUS rewrote all of
+        # SIA-PA on 2026-09-17 with one more column, and a signature read in
+        # August described files that no longer existed (ADR-0078).
+        clauses.append(
+            "(s.schema_signature IS NULL OR f.modified > COALESCE(s.censused_at, f.first_seen))"
+        )
     where = " AND ".join(clauses)
     return [
         dict(r)
         for r in catalog.query(
             f"""
-            SELECT s.stratum_id, s.system, s.series, s.year,
+            SELECT s.stratum_id, s.system, s.series, s.year, s.sampled_member AS member,
                    s.sampled_path AS path, f.size AS size, f.extension AS extension
               FROM strata s
               JOIN files f ON f.path = s.sampled_path
@@ -179,12 +188,13 @@ def persist_header(
     catalog.execute(
         """
         UPDATE strata
-           SET schema_signature = COALESCE(schema_signature, ?),
-               field_count      = COALESCE(field_count, ?),
+           SET schema_signature = ?,
+               field_count      = ?,
+               censused_at      = ?,
                sample_status    = CASE WHEN sample_status = 'pending' THEN 'header' ELSE sample_status END
          WHERE stratum_id = ?
         """,
-        (signature, len(header.fields), stratum_id),
+        (signature, len(header.fields), utcnow(), stratum_id),
     )
     return signature
 
@@ -195,15 +205,54 @@ def run_census(
     targets: Sequence[dict[str, object]],
     *,
     on_item: Callable[[str], None] | None = None,
+    fetch_range: Callable[[str, int, int], bytes] | None = None,
 ) -> SchemaCensus:
     """Read one header per target, widening the request only when asked to."""
     census = SchemaCensus()
+    archive_cache: dict[str, bytes] = {}
     for target in targets:
         path = str(target["path"])
         census.examined += 1
         if on_item:
             on_item(path)
         extension = str(target.get("extension") or "").lower()
+        if extension == ".parquet" and fetch_range is not None and int(target.get("size") or 0) > 8:
+            size = int(target.get("size") or 0)
+            try:
+                tail_size = min(size, PARQUET_TAIL)
+                tail = fetch_range(path, size - tail_size, tail_size)
+                census.bytes_fetched += len(tail)
+                footer = int.from_bytes(tail[-8:-4], "little") + 8
+                if footer > len(tail) and footer <= size:
+                    # A wide or many-row-group file: ask again for exactly the footer.
+                    tail = fetch_range(path, size - footer, footer)
+                    census.bytes_fetched += len(tail)
+                header = _parquet_header(tail, size)
+            except Exception as exc:  # noqa: BLE001 - one bad file is not the census
+                census.unreadable += 1
+                census.errors.append((path, f"{type(exc).__name__}: {exc}"))
+                continue
+            signature = persist_header(catalog, stratum_id=str(target["stratum_id"]), path=path, header=header)
+            census.signatures.add(signature)
+            census.read += 1
+            continue
+        if extension == ".exe" and int(target.get("size") or 0) <= SMALL_ARCHIVE_BYTES:
+            try:
+                data = archive_cache.get(path) or fetch_prefix(path, int(target.get("size") or SMALL_ARCHIVE_BYTES))
+                if path not in archive_cache:
+                    census.bytes_fetched += len(data)
+                    archive_cache[path] = data
+                header, member = _header_in_lha(catalog, path, data, target)
+            except Exception as exc:  # noqa: BLE001 - one bad archive is not the census
+                census.unreadable += 1
+                census.errors.append((path, f"{type(exc).__name__}: {exc}"))
+                continue
+            signature = persist_header(catalog, stratum_id=str(target["stratum_id"]), path=path, header=header)
+            catalog.execute("UPDATE strata SET sampled_member = ? WHERE stratum_id = ?",
+                            (member, str(target["stratum_id"])))
+            census.signatures.add(signature)
+            census.read += 1
+            continue
         if extension in ARCHIVE_READABLE and int(target.get("size") or 0) <= SMALL_ARCHIVE_BYTES:
             try:
                 data = fetch_prefix(path, int(target.get("size") or SMALL_ARCHIVE_BYTES))
@@ -292,5 +341,92 @@ def _header_in_archive(data: bytes) -> TableHeader:
             if name.endswith(".csv"):
                 with archive.open(member) as handle:
                     return read_csv_header(handle.read(64 * 1024))
-    raise HeaderUnreadable("no DBF, DBC or CSV member in the archive")
+            if name.endswith(".parquet"):
+                body = archive.read(member)
+                return _parquet_header(body, len(body))
+    raise HeaderUnreadable("no DBF, DBC, CSV or Parquet member in the archive")
+
+
+def _parquet_header(tail: bytes, size: int) -> TableHeader:
+    """Column names from a Parquet footer held in memory.
+
+    The reader is handed a file of the true size in which only the tail is
+    present; reading the schema touches nothing else.
+    """
+    import io
+    import struct
+
+    import pyarrow.parquet as pq
+
+    from ..decode.header import HeaderField
+
+    if tail[-4:] != b"PAR1":
+        raise HeaderUnreadable("not a Parquet file: no PAR1 magic at the end")
+    footer_len = struct.unpack("<I", tail[-8:-4])[0]
+    if footer_len + 8 > len(tail):
+        raise HeaderUnreadable(f"Parquet footer is {footer_len} bytes; the tail read holds {len(tail)}")
+    base = size - len(tail)
+
+    class _Tail(io.RawIOBase):
+        def __init__(self) -> None:
+            self.pos = 0
+
+        def readable(self) -> bool:
+            return True
+
+        def seekable(self) -> bool:
+            return True
+
+        def seek(self, offset: int, whence: int = 0) -> int:
+            self.pos = offset if whence == 0 else (self.pos + offset if whence == 1 else size + offset)
+            return self.pos
+
+        def tell(self) -> int:
+            return self.pos
+
+        def readinto(self, buffer) -> int:  # type: ignore[no-untyped-def]
+            # Bytes before the tail are never interpreted (the footer is whole
+            # in the tail); a buffered reader's speculative prefetch gets zeros.
+            if self.pos < base:
+                gap = min(len(buffer), base - self.pos)
+                buffer[:gap] = bytes(gap)
+                self.pos += gap
+                return gap
+            chunk = tail[self.pos - base : self.pos - base + len(buffer)]
+            buffer[: len(chunk)] = chunk
+            self.pos += len(chunk)
+            return len(chunk)
+
+    schema = pq.read_schema(io.BufferedReader(_Tail()))
+    fields = [HeaderField(name=name, type_code="P", width=0, decimals=0) for name in schema.names]
+    return TableHeader(fields=fields, declared_records=0, header_length=0, record_length=0, version=0)
+
+
+def _header_in_lha(catalog: Catalog, path: str, data: bytes, target: dict[str, object]) -> tuple[TableHeader, str]:
+    """Open an LHA self-extracting archive; record every member; read one.
+
+    The member read is the stratum's own: the one named in ``sampled_member``
+    (a member stratum from inventory's expansion), else the one whose kind is
+    the stratum's series, else the first DBF (ADR-0077).
+    """
+    from ..decode.lha import LhaArchive
+    from .naming import member_kind
+
+    archive = LhaArchive(data)
+    names = [m.name for m in archive.members]
+    catalog.executemany(
+        "INSERT OR IGNORE INTO archive_members (archive_path, member, member_size, member_role, container) "
+        "VALUES (?,?,?,?, 'lha_sfx')",
+        [(path, m.name, m.original_size, "data" if m.name.lower().endswith((".dbf", ".dbc")) else "binary")
+         for m in archive.members],
+    )
+    wanted = str(target.get("member") or "")
+    if not wanted:
+        series = str(target.get("series") or "")
+        own = [n for n in names if member_kind(path, n, series) == series.upper()]
+        dbfs = [n for n in names if n.lower().endswith((".dbf", ".dbc"))]
+        wanted = (own or dbfs or [""])[0]
+    if wanted not in names:
+        raise HeaderUnreadable(f"member {wanted!r} not in the archive ({len(names)} members)")
+    return read_table_header(archive.read(wanted)[: 64 * 1024]), wanted
 

@@ -220,7 +220,7 @@ question they answer; the overlap is §5's first rows.
 
 | Question | Functions | Types and errors |
 |---|---|---|
-| give me data | `query`, `plan`, `translate` | `QuerySpec`, `QueryPlan`, `QueryReport`, `Period`, `Geography`, `RenderReport`, `DatasetUnknown`, `NothingPublished`, `FilterHasNoAxis`, `MissingColumnError`, `LabelUnavailable`, `TranslationImpossible`; warnings `TimeResolutionWarning`, `StructuralSchemaWarning`, `SemanticFallbackWarning`, `CrosswalkAmbiguityWarning` |
+| give me data | `query`, `plan`, `translate` | `QuerySpec`, `QueryPlan`, `QueryReport`, `Period`, `Geography`, `RenderReport`, `DatasetUnknown`, `NothingPublished` (and its `PublishedEmpty`: read, and published with no records), `DownloadBudgetExceeded` (over `max_download`, ADR-0076), `FilterHasNoAxis`, `MissingColumnError`, `LabelUnavailable`, `TranslationImpossible`; warnings `TimeResolutionWarning`, `StructuralSchemaWarning`, `SemanticFallbackWarning`, `CrosswalkAmbiguityWarning` |
 | attach more to it | `enrichment`, `memberships` | `EnrichmentRequest`, `MembershipSet`, `Membership` |
 | what is this | `info`, `explore`, `describe`, `availability`, `field_available`, `field_coverage`, `search`, `compendium`, `gaps`, `questions`, `DataDictionary`, `Ontology` | `Info`, `Exploration`, `FieldDescription`, `Availability`, `FieldWindow`, `CompendiumReport`, `Gaps`, `OpenQuestions` |
 | aggregate it | `aggregate`, `build_aggregate` | `AggregateSpec`, `AggregateReport` |

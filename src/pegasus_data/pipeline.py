@@ -859,6 +859,14 @@ class Pipeline:
                 client_cell[0] = _connect()
                 raise
 
+        def _fetch_range(path: str, offset: int, size: int) -> bytes:
+            client = client_cell[0]
+            return run_with_timeout(
+                lambda: client.retrieve_prefix(path, size, offset=offset),
+                seconds=min(120.0, self.settings.item_timeout),
+                label=path,
+            )
+
         def _seen(path: str) -> None:
             progress.current = path
             progress.current_started = time.monotonic()
@@ -867,7 +875,7 @@ class Pipeline:
 
         try:
             with Heartbeat(progress, interval=self.settings.heartbeat_interval):
-                census = run_census(self.catalog, _fetch, targets, on_item=_seen)
+                census = run_census(self.catalog, _fetch, targets, on_item=_seen, fetch_range=_fetch_range)
         finally:
             client_cell[0].close()
 

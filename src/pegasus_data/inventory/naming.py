@@ -386,6 +386,11 @@ DICTIONARY_DIR_TOKENS = {
 }
 _DICTIONARY_SUFFIXES = {".def", ".cnv"}
 _DOC_SUFFIXES = {".pdf", ".doc", ".docx", ".htm", ".html", ".hlp", ".cnt", ".txt", ".rtf"}
+#: Software and pointers, not data: TabWin/TabDOS/TabNet installers, a Windows
+#: DLL beside SIA's files, a `.url` shortcut in CIH. They were counted as data
+#: files without a schema (2026-09-28).
+_SOFTWARE_DIRS = {"tabwin", "tabdos", "tabnet", "programa"}
+_SOFTWARE_SUFFIXES = {".dll", ".url", ".ini", ".bat", ".msi"}
 
 
 def role_from_path(path: str) -> str:
@@ -402,9 +407,43 @@ def role_from_path(path: str) -> str:
         return "dictionary"
     if suffix in _DOC_SUFFIXES:
         return "documentation"
+    if suffix in _SOFTWARE_SUFFIXES or parts_lower & _SOFTWARE_DIRS:
+        return "auxiliary"
     name_lower = p.name.lower()
     if name_lower.startswith("tab") and suffix in {".zip", ".rar"}:
         return "dictionary"
     if parts_lower & DICTIONARY_DIR_TOKENS:
         return "auxiliary"
     return "data"
+
+
+def member_name_for(path: str, sampled_path: str, sampled_member: str, archive_series: str) -> str | None:
+    """The member of ``path`` that corresponds to ``sampled_member`` of ``sampled_path``.
+
+    SIA's 2001-2007 APAC archives hold seven tables named by the archive's own
+    coordinates: ``ACAC0201.EXE`` carries ``PCAC0201.DBF``, so ``ACSP0411.EXE``
+    carries ``PCSP0411.DBF``. The member kind (``PC``) is what precedes the
+    archive's coordinates (``AC0201``) in the sampled member's name (ADR-0077).
+    """
+    sample_stem = strip_container_suffixes(PurePosixPath(sampled_path).name)[0].upper()
+    target_stem = strip_container_suffixes(PurePosixPath(path).name)[0].upper()
+    member_stem, _, member_ext = sampled_member.rpartition(".")
+    series = archive_series.upper()
+    if not (sample_stem.startswith(series) and target_stem.startswith(series)):
+        return None
+    coordinates = sample_stem[len(series):]
+    if not coordinates or not member_stem.upper().endswith(coordinates):
+        return None
+    kind = member_stem[: len(member_stem) - len(coordinates)]
+    return f"{kind}{target_stem[len(series):]}.{member_ext}"
+
+
+def member_kind(sampled_path: str, member: str, archive_series: str) -> str | None:
+    """``PC`` for member ``PCAC0201.DBF`` of ``ACAC0201.EXE`` (series ``AC``)."""
+    stem = strip_container_suffixes(PurePosixPath(sampled_path).name)[0].upper()
+    coordinates = stem[len(archive_series):] if stem.startswith(archive_series.upper()) else ""
+    member_stem = member.rpartition(".")[0].upper()
+    if not coordinates or not member_stem.endswith(coordinates):
+        return None
+    return member_stem[: len(member_stem) - len(coordinates)] or None
+

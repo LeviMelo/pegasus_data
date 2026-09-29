@@ -225,7 +225,7 @@ def s_age() -> dict[str, Any]:
 
 def s_sweep() -> dict[str, Any]:
     """Every declared dataset, queried for its cheapest publication: does it return labelled rows?"""
-    from pegasus_data import explore, query
+    from pegasus_data import PublishedEmpty, explore, plan, query
     from pegasus_data.ontology import Ontology
 
     only = [x.strip().upper() for x in os.environ.get("PEGASUS_SWEEP", "").split(",") if x.strip()]
@@ -263,14 +263,28 @@ def s_sweep() -> dict[str, Any]:
                 entry["skip"] = f"sweep budget of {budget_mb:.0f} MB reached"
                 results[code] = entry
                 continue
-            spent_mb += size_mb
             month = int(cheapest.get("yyyymm") or 0) % 100
             period = f"{year}-{month:02d}" if month else str(year)
             uf = cheapest.get("uf")
-            table = query(code, period=period, geography=uf if uf and uf != "BR" else None)
+            geography = uf if uf and uf != "BR" else None
+            # The cap is enforced on what the QUERY would move, not on the file
+            # picked: SIA-PA's cheapest 2026 file was PAPR2604b (0.5 MB), and
+            # its month also read PAPR2604a (158 MB) (live, 2026-09-28).
+            planned = plan(code, period=period, geography=geography).retrieval
+            new_mb = ((planned.download_bytes or 0) - (planned.cached_bytes or 0)) / 2**20
+            entry["download_mb"] = round(new_mb, 1)
+            if new_mb > per_file_mb or spent_mb + new_mb > budget_mb:
+                entry["skip"] = f"query would download {new_mb:.0f} MB (cap {per_file_mb:.0f}, spent {spent_mb:.0f})"
+                results[code] = entry
+                continue
+            spent_mb += new_mb
+            table = query(code, period=period, geography=geography,
+                          max_download=int((per_file_mb + 1) * 2**20))
             labelled = [c for c in table.column_names if c.endswith("_label")]
             entry.update(ok=True, period=period, uf=uf, rows=table.num_rows, columns=table.num_columns,
                          labelled=len(labelled))
+        except PublishedEmpty as exc:
+            entry.update(ok=True, empty=True, rows=0, note=str(exc)[:200])
         except Exception as exc:  # noqa: BLE001 - the sweep records every failure
             entry.update(ok=False, error=f"{type(exc).__name__}: {exc}"[:400])
         entry["seconds"] = round(time.perf_counter() - t, 1)

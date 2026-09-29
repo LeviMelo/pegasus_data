@@ -89,6 +89,9 @@ class NormalizePlan:
     system: str
     schema_signature: str
     fields: dict[str, FieldPlan] = field(default_factory=dict)
+    #: The family's catalogued columns, in order. A file carrying all of them
+    #: and more is a republication that gained columns (ADR-0078).
+    columns: tuple[str, ...] = ()
     municipalities: MunicipalityIndex | None = None
     keep_raw: bool = True
     #: Materialise a `<field>_label` column for small closed codelists (§7.1
@@ -164,10 +167,20 @@ def build_plan(
     system = family[0]["system"]
     signature = family[0]["schema_signature"]
 
+    schema_row = catalog.query(
+        "SELECT fields_json FROM schemas WHERE schema_signature = ?", (signature,)
+    )
+    columns: tuple[str, ...] = ()
+    if schema_row and schema_row[0]["fields_json"]:
+        columns = tuple(
+            str(f["name"] if isinstance(f, dict) else f).upper()
+            for f in json.loads(schema_row[0]["fields_json"])
+        )
     plan = NormalizePlan(
         family_id=family_id,
         system=system,
         schema_signature=signature,
+        columns=columns,
         municipalities=municipalities,
     )
 

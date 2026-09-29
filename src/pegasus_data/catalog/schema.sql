@@ -168,7 +168,8 @@ CREATE TABLE IF NOT EXISTS strata (          -- D2: unit of schema sampling
   schema_signature  TEXT,
   field_count       INTEGER,
   sample_status     TEXT,               -- 'pending' | 'ok' | 'failed'
-  sample_error      TEXT
+  sample_error      TEXT,
+  censused_at       TEXT                -- when the sample's header was last read (ADR-0078)
 );
 CREATE INDEX IF NOT EXISTS ix_strata_system ON strata (system, series, year);
 

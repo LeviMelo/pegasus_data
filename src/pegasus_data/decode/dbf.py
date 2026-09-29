@@ -1,4 +1,4 @@
-"""Fast, vectorised dBase III/IV/FoxPro reader.
+"""Fast, vectorised dBase III/IV/7 and FoxPro reader.
 
 DBF is the backbone of DATASUS: every ``.dbc`` inflates to one, and every kit
 lookup table is one. A row-at-a-time Python reader is the wrong tool at 12,000
@@ -24,6 +24,7 @@ import pyarrow.compute as pc
 
 from ..textenc import best_effort_decode
 from .base import DecodedTable, DecodeError, FieldMeta
+from .header import descriptor_layout, descriptor_widths
 
 #: DATASUS mixes DOS-era cp850 with Windows-era cp1252 across its 35 years and
 #: marks neither; the choice is scored, not ordered (see ``pegasus_data.textenc``).
@@ -44,14 +45,13 @@ class DbfHeader:
             raise DecodeError(f"implausible DBF header (header_len={self.header_len}, record_len={self.record_len})")
         self.has_memo = bool(self.version & 0x88) or self.version in (0x83, 0x8B, 0xF5, 0xFB)
         self.fields: list[FieldMeta] = []
-        pos = 32
+        pos, size, name_len, type_at = descriptor_layout(self.version)
         order = 0
-        while pos + 32 <= self.header_len and data[pos] != _TERMINATOR:
-            raw_name = bytes(data[pos : pos + 11]).split(b"\x00", 1)[0]
+        while pos + size <= self.header_len and data[pos] != _TERMINATOR:
+            raw_name = bytes(data[pos : pos + name_len]).split(b"\x00", 1)[0]
             name = raw_name.decode("ascii", errors="replace").strip().upper()
-            type_letter = chr(data[pos + 11])
-            width = data[pos + 16]
-            decimals = data[pos + 17]
+            type_letter = chr(data[pos + type_at])
+            width, decimals = descriptor_widths(bytes(data[pos : pos + size]), 0, self.version, type_at)
             if not name:
                 name = f"FIELD_{order + 1}"
             self.fields.append(
@@ -64,7 +64,7 @@ class DbfHeader:
                 )
             )
             order += 1
-            pos += 32
+            pos += size
         if not self.fields:
             raise DecodeError("DBF header declares no fields")
 

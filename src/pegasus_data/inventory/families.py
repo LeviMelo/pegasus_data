@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
 from ..catalog.store import Catalog
+from .naming import member_kind, member_name_for
 
 #: Cheapest-to-read first. Parquet's footer is a map and its row groups are
 #: independently decodable; a ``.dbc`` must be inflated from byte zero (§7.2).
@@ -185,7 +186,7 @@ def build_families(catalog: Catalog) -> list[Family]:
     stratum_rows = catalog.query(
         """
         SELECT stratum_id, system, series, year, schema_signature, field_count,
-               sampled_member, sample_status
+               sampled_member, sampled_path, sample_status
           FROM strata
          WHERE schema_signature IS NOT NULL AND schema_signature <> ''
            AND sample_status IN ('ok', 'header')
@@ -195,17 +196,27 @@ def build_families(catalog: Catalog) -> list[Family]:
     for row in catalog.query("SELECT stratum_id, path FROM stratum_members"):
         members_by_stratum[row["stratum_id"]].append(row["path"])
 
-    geo_by_path: dict[str, str | None] = {
-        r["path"]: r["geo_code"] for r in catalog.query("SELECT path, geo_code FROM file_facts")
+    facts_by_path = {
+        r["path"]: (r["geo_code"], r["series_prefix"])
+        for r in catalog.query("SELECT path, geo_code, series_prefix FROM file_facts")
     }
+    geo_by_path: dict[str, str | None] = {p: v[0] for p, v in facts_by_path.items()}
 
     for row in stratum_rows:
-        key = (row["system"], row["series"], row["schema_signature"])
+        sampled_member = row["sampled_member"] or ""
+        sampled_path = str(row["sampled_path"] or "")
+        archive_series = str(facts_by_path.get(sampled_path, (None, ""))[1] or "")
+        # The family is named for the table actually read: an "AC" archive of
+        # 2005 that holds only COAP0511.DBF is a CO table (ADR-0077).
+        series = row["series"]
+        if sampled_member:
+            series = member_kind(sampled_path, sampled_member, archive_series) or series
+        key = (row["system"], series, row["schema_signature"])
         fam = families.get(key)
         if fam is None:
             fam = Family(
                 system=row["system"],
-                series=row["series"],
+                series=series,
                 schema_signature=row["schema_signature"],
                 field_count=row["field_count"] or 0,
             )
@@ -216,8 +227,23 @@ def build_families(catalog: Catalog) -> list[Family]:
             fam.schema_source = "profile"
         if row["year"] is not None:
             fam.years.add(int(row["year"]))
-        member = row["sampled_member"] or ""
+        own_kind = series == archive_series.upper()
         for path in members_by_stratum.get(row["stratum_id"], []):
+            # Each archive carries its OWN member name: PCSP0411.DBF inside
+            # ACSP0411.EXE, not the sampled archive's PCAC0201.DBF (ADR-0077).
+            member: str | None = sampled_member
+            if sampled_member and path != sampled_path:
+                if path.lower().endswith(".exe"):
+                    member = member_name_for(
+                        path, sampled_path, sampled_member,
+                        str(facts_by_path.get(path, (None, ""))[1] or ""),
+                    )
+                else:
+                    # A loose file beside the archives is the stratum's own
+                    # table, so it belongs to the own-kind family only.
+                    member = "" if own_kind else None
+            if member is None:
+                continue
             fam.paths.append((path, member))
             fmt = _container_format(path, member)
             fam.formats[fmt] = fam.formats.get(fmt, 0) + 1

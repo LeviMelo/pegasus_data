@@ -92,7 +92,9 @@ def query(
     if max_download is not None and retrieval.download_bytes is not None:
         new = retrieval.download_bytes - (retrieval.cached_bytes or 0)
         if new > max_download:
-            raise ValueError(
+            from ..retrieve import DownloadBudgetExceeded
+
+            raise DownloadBudgetExceeded(
                 f"this query would download {new / 2**30:.2f} GiB of new files "
                 f"({retrieval.download_bytes / 2**30:.2f} GiB selected), over max_download="
                 f"{max_download / 2**30:.2f} GiB. Narrow period or geography, or pass a larger "

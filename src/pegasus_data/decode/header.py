@@ -31,6 +31,19 @@ _DESCRIPTOR_SIZE = 32
 #: Terminates the descriptor array.
 _HEADER_TERMINATOR = 0x0D
 
+
+def descriptor_layout(version: int) -> tuple[int, int, int, int]:
+    """(first descriptor, descriptor size, name length, type offset) for a DBF.
+
+    dBase III/IV and FoxPro put 32-byte descriptors at byte 32; dBase level 7
+    (version byte's low bits = 4, e.g. SIA's 2007 APAC tables, whose header
+    names the ``DBWINWE0`` language driver) has a 68-byte header and 48-byte
+    descriptors with 32-byte names. Width and decimals follow the type byte.
+    """
+    if version & 0x07 == 4:
+        return 68, 48, 32, 32
+    return _DESCRIPTOR_START, _DESCRIPTOR_SIZE, 11, 11
+
 #: DBF field type codes. Anything outside this set means the bytes are not a
 #: descriptor array, which is the cheapest way to notice we are reading garbage.
 _FIELD_TYPES = frozenset("CNLDMFBGPYTI@O+")
@@ -119,17 +132,17 @@ def read_table_header(data: bytes) -> TableHeader:
             f"header_length={header_length} is too small to hold any field descriptor"
         )
 
+    start, size, name_len, type_at = descriptor_layout(version)
     fields: list[HeaderField] = []
     limit = min(header_length if header_length <= len(data) else len(data), len(data))
-    offset = _DESCRIPTOR_START
-    while offset + _DESCRIPTOR_SIZE <= limit:
+    offset = start
+    while offset + size <= limit:
         if data[offset] == _HEADER_TERMINATOR:
             break
-        raw_name = data[offset : offset + 11]
+        raw_name = data[offset : offset + name_len]
         name = raw_name.split(b"\x00", 1)[0].decode("latin-1", "replace").strip()
-        type_code = chr(data[offset + 11])
-        width = data[offset + 16]
-        decimals = data[offset + 17]
+        type_code = chr(data[offset + type_at])
+        width, decimals = descriptor_widths(data, offset, version, type_at)
         if not name or type_code not in _FIELD_TYPES:
             # A descriptor that is not a descriptor means the offsets are wrong.
             # Stop rather than accumulate noise.
@@ -137,14 +150,14 @@ def read_table_header(data: bytes) -> TableHeader:
         fields.append(
             HeaderField(name=name.upper(), type_code=type_code, width=width, decimals=decimals)
         )
-        offset += _DESCRIPTOR_SIZE
+        offset += size
 
     if not fields:
         raise HeaderUnreadable(
             f"no field descriptors found (version=0x{version:02x}, "
             f"header_length={header_length}, prefix={len(data)} bytes)"
         )
-    expected = (header_length - _DESCRIPTOR_START - 1) // _DESCRIPTOR_SIZE
+    expected = (header_length - start - 1) // size
     if expected > len(fields) and header_length > len(data):
         raise HeaderUnreadable(
             f"prefix holds {len(fields)} of about {expected} descriptors; "
@@ -216,6 +229,13 @@ def read_csv_header(data: bytes, *, encoding: str = "latin-1") -> TableHeader:
         record_length=0,
         version=0,
     )
+
+
+def descriptor_widths(data: bytes, offset: int, version: int, type_at: int) -> tuple[int, int]:
+    """Width and decimals: right after the type byte in dBase 7, at +16/+17 otherwise."""
+    if version & 0x07 == 4:
+        return data[offset + type_at + 1], data[offset + type_at + 2]
+    return data[offset + 16], data[offset + 17]
 
 
 def prefix_bytes_needed(data: bytes) -> int:
