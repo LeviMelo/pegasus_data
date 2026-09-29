@@ -71,3 +71,16 @@ Both warm runs return the same table (`Table.equals`).
   they now decode from the layout.
 - **`query()` refused a whole year over one unreadable 5.9 KB file.** It
   hard-coded `allow_partial=False`, while the error told the caller to pass it.
+- **A second shape of glued code.** After the rebuild, 87 dictionary codes still
+  mixed prose and digits (`punção/biópsi020101` in SIASUS `FORMORGS`). There the
+  label had run past the column as well. Splitting that last token when it ends
+  in a code or range of the declared width recovers 129 more lines (SIASUS 124,
+  SIHSUS 4, RESP 1; `data/probes/cnv_glued_tail.txt`), and ranges are kept whole.
+- **The first rebuild's `reference` step crashed** (`rc-reference.log`):
+  `view.clear_lookup_caches` still called `cache_clear` on functions the ADR-0097
+  refactor had turned into cached wrappers. It is fixed and the step re-run
+  (`data/logs/rebuild-cnv2.ps1`).
+- **Supersession was itself slow.** One `LIKE` delete per `.CNV` member made
+  re-reading the CIHA kit take 45 minutes. One indexed range read per kit
+  replaced it; all 38 kits then re-read in 89 minutes, superseding 17,515,772
+  rows.
