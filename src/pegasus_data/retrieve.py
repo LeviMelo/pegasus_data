@@ -689,6 +689,7 @@ def fetch(
         # fetch("CNES-ZZ") spent 18.3 seconds crawling before saying it does not
         # exist, and no amount of crawling could have made it exist.
         _reject_unresolvable(system, series_name)
+        _ensure_curation(pipeline, fetch_report)
 
         _check_axes(
             pipeline.catalog, dataset, system, series_name,
@@ -872,6 +873,36 @@ def fetch(
         pipeline.close()
 
 
+def _ensure_curation(pipeline: Pipeline, report: FetchReport) -> None:
+    """Load the shipped curation into the catalog when it changed (ADR-0067).
+
+    Run FIRST in ``fetch``: the kept columns, the derived names and the missing
+    column check all read the curation, and reading a stale one refused
+    ``PROC_REA_sigtap`` on the first query after the YAML gained it
+    (2026-09-29).
+    """
+    try:
+        from .ontology import CURATION
+        from .semantics.curation import (
+            curation_is_current,
+            load_curation,
+            note_curation_loaded,
+        )
+
+        first_time = not pipeline.catalog.count("variable_docs")
+        if not curation_is_current(pipeline.catalog, CURATION):
+            loaded = load_curation(pipeline.catalog, CURATION)
+            note_curation_loaded(pipeline.catalog, CURATION)
+            report.warnings.append(
+                ("loaded the shipped curation on first use: " if first_time
+                 else "the shipped curation changed since this catalog was built; reloaded it: ")
+                + ", ".join(f"{k}={v}" for k, v in sorted(loaded.items())[:4])
+            )
+    except Exception as exc:  # noqa: BLE001 - unreadable curation is not fatal
+        report.warnings.append(f"could not load the shipped curation: {exc}")
+
+
+
 def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     """Materialise the Parquet lookups the render path joins against.
 
@@ -903,26 +934,6 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     # decodes none of their values, and the correction would have been invisible
     # to every existing catalog. Comparing a fingerprint of the files reloads
     # when the meaning changed and stays quiet when it did not.
-    try:
-        from .ontology import CURATION
-        from .semantics.curation import (
-            curation_is_current,
-            load_curation,
-            note_curation_loaded,
-        )
-
-        first_time = not pipeline.catalog.count("variable_docs")
-        if not curation_is_current(pipeline.catalog, CURATION):
-            loaded = load_curation(pipeline.catalog, CURATION)
-            note_curation_loaded(pipeline.catalog, CURATION)
-            report.warnings.append(
-                ("loaded the shipped curation on first use: " if first_time
-                 else "the shipped curation changed since this catalog was built; reloaded it: ")
-                + ", ".join(f"{k}={v}" for k, v in sorted(loaded.items())[:4])
-            )
-    except Exception as exc:  # noqa: BLE001 - unreadable curation is not fatal
-        report.warnings.append(f"could not load the shipped curation: {exc}")
-
     lake_root = pipeline.settings.lake_dir
     # Does THIS SYSTEM have tables, not "are there any". The warehouse is built
     # per system, so a lake holding SINASC's codelists answered yes and a SIH

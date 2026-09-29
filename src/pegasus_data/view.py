@@ -979,6 +979,60 @@ def _label_via(lake: Path, system: str, keys: object, via: Mapping[str, str]) ->
     return pc.take(pc.cast(table.column(field_name), pa.string()), at).combine_chunks()
 
 
+@lru_cache(maxsize=1)
+def _bridge_table() -> dict[tuple[str, str], tuple[str, ...]]:
+    """``(old code, A|H) -> SIGTAP codes`` from the official Tabela Unificada."""
+    from importlib.resources import files
+
+    import pyarrow.parquet as _pq
+
+    path = files("pegasus_data.resources") / "sigtap_bridge.parquet"
+    try:
+        table = _pq.read_table(str(path))
+    except (FileNotFoundError, OSError):
+        return {}
+    out: dict[tuple[str, str], set[str]] = {}
+    for old, kind, new in zip(
+        table["old_code"].to_pylist(), table["old_system"].to_pylist(), table["sigtap_code"].to_pylist(), strict=True
+    ):
+        out.setdefault((str(old), str(kind)), set()).add(str(new))
+    return {k: tuple(sorted(v)) for k, v in out.items()}
+
+
+def sigtap_bridged(codes: object, system_kind: str) -> pa.Array:
+    """Each procedure as a SIGTAP code (ADR-0101).
+
+    A 10-digit code already is one. An old 8-digit SIA (``A``) or SIH (``H``)
+    code becomes the SIGTAP procedure the official table says replaced it,
+    when exactly one did; with several (98 old codes) or none it stays null
+    rather than choosing.
+    """
+    bridge = _bridge_table()
+    values = codes.to_pylist() if hasattr(codes, "to_pylist") else list(codes)  # type: ignore[union-attr]
+    out: list[str | None] = []
+    for v in values:
+        code = str(v).strip() if v is not None else ""
+        if len(code) == 10 and code.isdigit():
+            out.append(code)
+            continue
+        targets = bridge.get((code, system_kind), ())
+        out.append(targets[0] if len(targets) == 1 else None)
+    return pa.array(out, type=pa.string())
+
+
+def _labelled_codes(lake: Path, classification: str, codes: object) -> pa.Array | None:
+    """``label (code)`` from a canonical classification, or None where unknown."""
+    try:
+        table = read_reference_table(lake, classification)
+    except (FileNotFoundError, OSError):
+        return None
+    names = dict(zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True))
+    values = codes.to_pylist() if hasattr(codes, "to_pylist") else list(codes)  # type: ignore[union-attr]
+    return pa.array(
+        [f"{names[v]} ({v})" if v in names else (f"{v} (?)" if v else None) for v in values], type=pa.string()
+    )
+
+
 def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object) -> pa.Array | None:
     """``label (prefix)`` for the first ``digits`` of each code, or None if unknown."""
     if digits <= 0:
@@ -1596,13 +1650,26 @@ def _apply_derived(
                         f"(it is dropped again unless you asked for it)"
                     )
                 continue
+            bridge = recipe.get("bridge")
+            codes_in = source.column(inputs[0])
+            if bridge:
+                # Across the 2008 change of classification: an old SIA/SIH
+                # procedure becomes the SIGTAP procedure that replaced it, when
+                # exactly one did (ADR-0101).
+                codes_in = sigtap_bridged(codes_in, str(bridge))
             hierarchy = recipe.get("hierarchy")
+            if bridge and not hierarchy:
+                derived_column = _labelled_codes(lake, "SIGTAP", codes_in)
+                if derived_column is not None:
+                    rendered = rendered.append_column(column_name, derived_column)
+                    report.derived_added.append(column_name)
+                continue
             if hierarchy:
                 # A level of a hierarchical classification as its own dimension:
                 # PROC_REA's SIGTAP group, "Procedimentos cirurgicos (04)", which
                 # is what "was this a surgery" means (ADR-0092).
                 derived_column = _hierarchy_level(
-                    lake, str(hierarchy), int(recipe.get("digits") or 0), source.column(inputs[0])
+                    lake, str(hierarchy), int(recipe.get("digits") or 0), codes_in
                 )
                 if derived_column is not None:
                     rendered = rendered.append_column(column_name, derived_column)

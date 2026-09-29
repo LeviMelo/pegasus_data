@@ -157,7 +157,9 @@ local state (`blobs`, `fetches`, `lake_partitions`, `build_outcomes`,
 |---|---|---|
 | `catalog_seed.sqlite.gz` (18.8 MB) | the maintainer catalog's tree and meaning tables; a fresh catalog starts as a copy (ADR-0067) | `catalog/seed.py` from `Catalog.__init__` |
 | `labels.parquet` (30 MB) | 3.65M codelist rows as code ranges, by system and vintage | `labelpack.py`, `persist/reference.py` fallback, `geography.py` |
-| `labels_crosswalk.parquet` (10 MB) | temporal CNES↔CNPJ | `crosswalk.py` |
+| `labels_crosswalk.parquet` (11 MB) | historical CNES↔CNPJ claims from older kits; the registry answers first (ADR-0100) | `crosswalk.py` |
+| `icd10`, `cbo2002`, `sigtap`, `banks`, `countries` `.parquet` | canonical classifications, one table for every system (ADR-0087) | `persist/reference.py` |
+| `sigtap_bridge.parquet` | the official map from pre-2008 SIA/SIH procedures to SIGTAP (ADR-0101) | `view.sigtap_bridged` |
 | `geography.parquet`, `municipalities.parquet` | health-region memberships | `geography.py`, `_aggregate.py` |
 | `query_capabilities.json`, `manifest.json` | compiled capabilities; the resource manifest with checksums | `_query_engine/capabilities.py`, `_resources.py`, `serve/` |
 

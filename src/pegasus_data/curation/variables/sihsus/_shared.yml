@@ -824,16 +824,25 @@ variables:
     - TPROC  # SIH's 8-digit table before SIGTAP (1992-2007); widths never collide
     - PROC
     derived:
+    # bridge: H reads a pre-2008 SIH procedure through the official Tabela Unificada
+    # (rl_procedimento_sia_sih) as the SIGTAP procedure that replaced it, so these
+    # dimensions mean the same thing before and after 2008 (ADR-0101).
+    - name: PROC_REA_sigtap
+      from: [PROC_REA]
+      bridge: H
+      rule: the procedure as a SIGTAP code, across the 2008 change (35001011 PARTO NORMAL = 0310010039), ADR-0101
     - name: PROC_REA_grupo
       from: [PROC_REA]
+      bridge: H
       hierarchy: SIGTAP
       digits: 2
-      rule: the SIGTAP group of the procedure (04 = Procedimentos cirurgicos), ADR-0092
+      rule: the SIGTAP group of the procedure (04 = Procedimentos cirurgicos), ADR-0092, ADR-0101
     - name: PROC_REA_subgrupo
       from: [PROC_REA]
+      bridge: H
       hierarchy: SIGTAP
       digits: 4
-      rule: the SIGTAP subgroup (0411 = Cirurgia obstetrica), ADR-0092
+      rule: the SIGTAP subgroup (0411 = Cirurgia obstetrica), ADR-0092, ADR-0101
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 24'
