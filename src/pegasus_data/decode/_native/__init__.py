@@ -2,8 +2,8 @@
 
 Two engines for ONE algorithm, both in this repository:
 
-* ``pegasus_blast.c`` — the native engine, compiled on demand into a DLL
-  beside the source and loaded with ctypes. Memory to memory, no I/O, no
+* ``pegasus_blast.c`` — the native engine, compiled once into a per-user cache
+  (never the package directory, ADR-0074) and loaded with ctypes. Memory to memory, no I/O, no
   printf, hard output bounds. This is what production decodes run on.
 * :func:`_explode_py` — the same algorithm in Python, line for line. It is
   the engine on a machine with no C compiler, and the cross-check in tests:
@@ -19,21 +19,102 @@ guarding someone else's.
 from __future__ import annotations
 
 import ctypes
+import hashlib
 import os
+import shutil
 import struct
 import subprocess
+import sys
+import tempfile
+import warnings
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 _SOURCE = _HERE / "pegasus_blast.c"
-_DLL = _HERE / "pegasus_blast.dll"
 
-#: Known self-contained MSVC installs to try, cheapest first. A full VS
-#: install exposes cl.exe on PATH via vcvars; the ScopeCppSDK copy ships with
-#: VS Community even when the C++ workload was never installed.
-_SCOPE_SDK = Path(
-    r"C:\Program Files\Microsoft Visual Studio\2022\Community\SDK\ScopeCppSDK\vc15"
-)
+
+def _cache_dir() -> Path:
+    """Where the compiled engine lives: a per-user cache, never the package.
+
+    The package directory may be read-only (a system site-packages, a wheel
+    install), and writing a DLL beside the source mixed build output into the
+    source tree (ADR-0074).
+    """
+    override = os.environ.get("PEGASUS_NATIVE_CACHE")
+    if override:
+        return Path(override)
+    if sys.platform == "win32":
+        base = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local")
+    else:
+        base = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
+    return base / "pegasus_data" / "native"
+
+
+def _library_path() -> Path:
+    digest = hashlib.sha256(_SOURCE.read_bytes()).hexdigest()[:12]
+    suffix = ".dll" if sys.platform == "win32" else (".dylib" if sys.platform == "darwin" else ".so")
+    return _cache_dir() / f"pegasus_blast-{digest}-{sys.platform}-{struct.calcsize('P') * 8}{suffix}"
+
+
+def _msvc_candidates() -> list[tuple[str, dict[str, str]]]:
+    """cl.exe from every Visual Studio install vswhere reports, then PATH.
+
+    Only the self-contained ScopeCppSDK layout is driven directly; a full VC
+    toolset is reached through a vcvars shell's PATH. Found by asking vswhere,
+    never by a hardcoded edition and year.
+    """
+    out: list[tuple[str, dict[str, str]]] = []
+    program_files = os.environ.get("PROGRAMFILES(X86)") or r"C:\Program Files (x86)"
+    vswhere = Path(program_files) / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
+    installs: list[Path] = []
+    if vswhere.exists():
+        try:
+            listed = subprocess.run(
+                [str(vswhere), "-all", "-products", "*", "-format", "value", "-property", "installationPath"],
+                capture_output=True, text=True, timeout=30,
+            ).stdout
+            installs = [Path(line.strip()) for line in listed.splitlines() if line.strip()]
+        except (OSError, subprocess.TimeoutExpired):
+            installs = []
+    for install in installs:
+        sdk = install / "SDK" / "ScopeCppSDK" / "vc15"
+        if (sdk / "VC" / "bin" / "cl.exe").exists():
+            out.append((str(sdk / "VC" / "bin" / "cl.exe"), {
+                "PATH": str(sdk / "VC" / "bin") + os.pathsep + os.environ.get("PATH", ""),
+                "INCLUDE": ";".join(str(sdk / part) for part in (
+                    "VC/include", "SDK/include/ucrt", "SDK/include/shared", "SDK/include/um")),
+                "LIB": ";".join(str(sdk / part) for part in ("VC/lib", "SDK/lib")),
+            }))
+    if shutil.which("cl.exe"):
+        out.append(("cl.exe", {}))
+    return out
+
+
+def _build_library(target: Path) -> bool:
+    """Compile the native engine into ``target``. True when it is ready."""
+    if target.exists():
+        return True
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="pegasus_blast_") as work:
+        built = Path(work) / target.name
+        attempts: list[tuple[list[str], dict[str, str]]] = []
+        if sys.platform == "win32":
+            for exe, extra in _msvc_candidates():
+                attempts.append(([exe, "/nologo", "/O2", "/LD", str(_SOURCE), f"/Fe:{built}",
+                                  f"/Fo:{Path(work) / 'pegasus_blast.obj'}"], extra))
+        for cc in ("cc", "gcc", "clang"):
+            if shutil.which(cc):
+                attempts.append(([cc, "-O2", "-shared", "-fPIC", str(_SOURCE), "-o", str(built)], {}))
+        for command, extra in attempts:
+            try:
+                result = subprocess.run(command, capture_output=True, env={**os.environ, **extra},
+                                        cwd=work, timeout=120)
+            except (OSError, subprocess.TimeoutExpired):
+                continue
+            if result.returncode == 0 and built.exists():
+                os.replace(built, target)  # atomic: another process never loads half a DLL
+                return True
+    return False
 
 
 class DbcError(ValueError):
@@ -50,47 +131,6 @@ _ERRORS = {
 }
 
 
-def _build_dll() -> bool:
-    """Compile the native engine beside its source. True when a DLL is ready."""
-    if _DLL.exists() and _DLL.stat().st_mtime >= _SOURCE.stat().st_mtime:
-        return True
-    compilers: list[tuple[str, dict[str, str]]] = []
-    if (_SCOPE_SDK / "VC" / "bin" / "cl.exe").exists():
-        compilers.append((
-            str(_SCOPE_SDK / "VC" / "bin" / "cl.exe"),
-            {
-                # cl.exe needs its own bin on PATH for mspdb DLLs, and the
-                # ucrt/shared/um SDK splits spelled out: this is the layout the
-                # ScopeCppSDK actually ships, not the vcvars one.
-                "PATH": str(_SCOPE_SDK / "VC" / "bin") + ";" + os.environ.get("PATH", ""),
-                "INCLUDE": ";".join((
-                    str(_SCOPE_SDK / "VC" / "include"),
-                    str(_SCOPE_SDK / "SDK" / "include" / "ucrt"),
-                    str(_SCOPE_SDK / "SDK" / "include" / "shared"),
-                    str(_SCOPE_SDK / "SDK" / "include" / "um"),
-                )),
-                "LIB": ";".join((
-                    str(_SCOPE_SDK / "VC" / "lib"),
-                    str(_SCOPE_SDK / "SDK" / "lib"),
-                )),
-            },
-        ))
-    compilers.append(("cl.exe", {}))  # a vcvars shell, if the user runs in one
-    for exe, extra in compilers:
-        env = {**os.environ, **extra}
-        try:
-            result = subprocess.run(
-                [exe, "/nologo", "/O2", "/LD",
-                 str(_SOURCE), f"/Fe:{_DLL}", f"/Fo:{_HERE / 'pegasus_blast.obj'}"],
-                capture_output=True, env=env, cwd=str(_HERE), timeout=120,
-            )
-        except (OSError, subprocess.TimeoutExpired):
-            continue
-        if result.returncode == 0 and _DLL.exists():
-            return True
-    return False
-
-
 _native = None
 _native_tried = False
 
@@ -100,9 +140,10 @@ def _load_native():
     if _native_tried:
         return _native
     _native_tried = True
+    target = _library_path()
     try:
-        if _build_dll():
-            lib = ctypes.CDLL(str(_DLL))
+        if _build_library(target):
+            lib = ctypes.CDLL(str(target))
             lib.pegasus_explode.restype = ctypes.c_int
             lib.pegasus_explode.argtypes = [
                 ctypes.c_char_p, ctypes.c_size_t,
@@ -112,6 +153,13 @@ def _load_native():
             _native = lib
     except OSError:
         _native = None
+    if _native is None:
+        warnings.warn(
+            "pegasus_data: no C compiler was found to build the .dbc decompressor, so the "
+            "pure-Python engine is used; it is about 20x slower (0.95 s vs 19 s for an 8 MB file). "
+            "Installing a C compiler, or a build that ships the compiled engine, removes this.",
+            RuntimeWarning, stacklevel=3,
+        )
     return _native
 
 

@@ -83,7 +83,7 @@ last, comes first.
 | [ADR-0056](docs/decisions/ADR-0056-a-date-columns-layout-is-measured.md) | 2026-08-29 | A date column's layout is measured from its values, not declared per system | active |  |
 | [ADR-0057](docs/decisions/ADR-0057-every-build-qualifier-is-recorded-in-the-manifest.md) | 2026-08-29 | Every qualifier a build applies to its input is recorded in the artifact's manifest | active |  |
 | [ADR-0058](docs/decisions/ADR-0058-age-is-banded-per-system-in-aggregates.md) | 2026-08-30 | Age is decoded per system and banded in aggregates, reading only the "years" and "100+" units | active | amends ADR-0020; amended by ADR-0064; amended by ADR-0070 |
-| [ADR-0059](docs/decisions/ADR-0059-the-dbc-decompressor-is-first-party.md) | 2026-08-30 | The DBC decompressor is first-party: a PKWare DCL "explode" in C and in Python | active | supersedes ADR-0007 |
+| [ADR-0059](docs/decisions/ADR-0059-the-dbc-decompressor-is-first-party.md) | 2026-08-30 | The DBC decompressor is first-party: a PKWare DCL "explode" in C and in Python | active | supersedes ADR-0007; amended by ADR-0074 |
 | [ADR-0060](docs/decisions/ADR-0060-a-measure-reads-the-columns-its-dictionary-row-names.md) | 2026-08-30 | A measure's source columns are the ones its dictionary row names; a `sum` may declare several | active |  |
 | [ADR-0061](docs/decisions/ADR-0061-one-labelling-policy-for-every-read.md) | 2026-09-28 | One labelling policy for every read; `query()`'s `label_of` gate is removed | active | amends ADR-0044, ADR-0041; amended by ADR-0072 |
 | [ADR-0062](docs/decisions/ADR-0062-width-is-matched-per-value-never-used-to-filter-a-codelist.md) | 2026-09-28 | Width is matched per value; a codelist is never filtered by a column's curated width | active | amends ADR-0015 |
@@ -98,3 +98,4 @@ last, comes first.
 | [ADR-0071](docs/decisions/ADR-0071-a-representation-is-its-full-suffix-and-self-derived-conflicts-do-not-gate.md) | 2026-09-28 | A representation is known by its full suffix; a self-derived conflict is re-evaluated, not stored as a gate | active | amends ADR-0047, ADR-0068 |
 | [ADR-0072](docs/decisions/ADR-0072-one-compiled-label-binding-per-family-and-field.md) | 2026-09-28 | One label binding per (system, family, field), compiled from samples and shipped | active | supersedes ADR-0041; amends ADR-0012, ADR-0031, ADR-0061 |
 | [ADR-0073](docs/decisions/ADR-0073-query-is-the-one-data-door.md) | 2026-09-28 | `query()` is the one public door to data; one dataset identifier; one CLI verb | active | amends ADR-0026, ADR-0043 |
+| [ADR-0074](docs/decisions/ADR-0074-the-native-engine-builds-into-a-user-cache.md) | 2026-09-28 | The native DBC engine builds into a per-user cache, never the package; wheels should ship it compiled | active | amends ADR-0059 |

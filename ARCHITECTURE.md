@@ -203,9 +203,9 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | stock time reducers | refused in `measures.py`, implemented in `tools/export_workbook.py` | M4: into `measures.py` |
 
 Also known, not duplicates:
-- `decode/_native/` compiles a C decompressor at runtime with a hardcoded
-  Visual Studio path and writes the DLL into the package directory. A Python
-  fallback exists.
+- ~~`decode/_native/` compiled into the package with a hardcoded Visual
+  Studio path~~: it builds into a per-user cache with discovered compilers
+  (ADR-0074). Shipping it compiled in wheels awaits a publishing decision.
 - `ontology.py` hardcodes `CURATION`, so `PEGASUS_CURATION_DIR` is ignored by
   every `Ontology.load()` call.
 - Rendering writes adjudication rows into the catalog, with failures silenced
@@ -300,7 +300,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
   `decode/duckdb_.py`, `decode/text_.py`: readers.
 - `decode/header.py`: DBF header parsing for the census.
 - `decode/isolation.py`, `decode/_worker.py`: killable subprocess decoding.
-- `decode/_native/`: the PKWare DCL decompressor (C, compiled on demand; Python fallback).
+- `decode/_native/`: the PKWare DCL decompressor (C, built once into a user cache; Python fallback, 20× slower).
 
 ### `discovery/`
 
@@ -370,6 +370,6 @@ The semantic non-negotiables are in `CLAUDE.md` §6. Structural ones:
 - Every decode runs where it can be killed; a timeout ends the work.
 - Writes to the lake are staged and published atomically.
 - `resources/` is a snapshot of a maintainer's catalog; nothing at runtime
-  writes into the package directory (violated by `decode/_native/`, §5).
+  writes into the package directory (ADR-0074).
 - A fresh catalog is the seed (ADR-0067); every door reads the catalog, never
   a shipped file directly, except the label pack and the geography packs.

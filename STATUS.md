@@ -63,6 +63,13 @@ All thirteen live scenarios pass on a fresh seeded home (run `m1-seed-age-1`).
 - **M4: every system live.** A green scenario per information system,
   aggregates and `serve/` included.
 
+## Waiting on the user
+
+- **Publishing.** The branch `redesign` is not pushed (CLAUDE.md §4). Two
+  things need a decision: fix CI's trigger (it fires on `main`; the branch is
+  `master`), and ship the DBC engine compiled in platform wheels (ADR-0074).
+  Without compiled wheels, a user with no C compiler decodes 20× slower.
+
 ## Tests and checks
 
 - `pytest -q -m "not network"` in the `pegasus` env (1,861 passed, 21 skipped,
