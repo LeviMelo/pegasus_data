@@ -2,90 +2,100 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. Last rewritten 2026-09-28, late evening.
+`DECISIONS.md`. Last rewritten 2026-09-29, afternoon.
 
 ## Where the project is
 
-Development resumed on 2026-09-28 after a pause since 2026-09-03, on branch
-`redesign`. The first day of live use (ADR-0061 to ADR-0082) changed the
-project in three ways:
-- it made the read path deliver meaning;
-- it collapsed the four data doors into one, `query()`;
-- it replaced three sampling assumptions with measurements: one header per
-  stratum, one codelist per column name, and one layout per publication.
+Development resumed on 2026-09-28 on branch `redesign`. The first day made the
+read path deliver meaning, with one door (`query()`) and measured sampling
+(ADR-0061 to ADR-0082). The second day (ADR-0083 to ADR-0098) went after the
+standing instruction that every variable be described and every code
+translatable, by meaningful labels rather than one opaque code standing in for
+another.
 
 ## Done (live-verified)
 
-- **One door.** `query()` returns the raw code and its label as a companion
-  (ADR-0063, ADR-0073). It states its download in `plan()` and refuses more
-  than 1 GiB of new files by default (ADR-0076).
-- **Labels.**
-  - One binding decision per (system, family, field), compiled and shipped in
-    the seed (ADR-0072). It is decided by one evidence ladder shared by query
-    and compile (ADR-0082):
-    1. inline curated `codes:`;
-    2. the form's own data dictionary;
-    3. a curated codelist;
-    4. adjudication;
-    5. measured weighing.
-  - 1,264 SINAN code tables are harvested from the 41 official data dictionary
-    PDFs (ADR-0079, ADR-0080). Codes belong to their form: meningitis
-    `CLASSI_FIN 2` is "descartado", no longer another form's "Só Exposição".
-  - Curation review: inferred descriptions went from 1,799 to 505, all
-    document-backed, with the sources cited per entry.
-- **Age.** `IDADE_anos` in fractional years for SIH, SIM and SINAN (ADR-0070).
-- **Coverage.**
-  - SIA APAC 2001-2007: 1,457 multi-table LHA archives, now nine datasets
-    (SIA.AC/CO/EX/OP/PC/PF/PQ/UD/UO), including dBase 7 (ADR-0077).
-  - Parquet and small archives are censused without full downloads.
-- **Republications.**
-  - A file that gained columns is read, with a warning.
-  - A republished stratum is re-censused (ADR-0078).
-- **Identity.**
-  - A publication is read once across trees and layouts: normalized-date
-    identity, and the majority layout wins (ADR-0081). SINASC-DNR Roraima 1995
-    returns 7,020 births, not 14,040.
+- **Presentation** (ADR-0084).
+  - Headers read "Variable name (CODE)" and values "Label (code)"; an
+    undecoded value reads `code (?)`.
+  - Presets `readable` (the default), `analysis`, `labels` and `codes`, plus
+    templates and pt/en.
+  - Every coded column leaves rendering with a label companion (ADR-0093).
+- **Canonical classifications,** one table for every system (ADR-0087):
+  - ICD-10, falling back to the category when a subcategory is not listed
+    (ADR-0089);
+  - SIGTAP, with group, subgroup and form as dimensions (ADR-0092);
+  - CBO 2002, banks, naturality/countries, states and health regions.
+- **Establishments and legal entities.**
+  - Registry names come from the CNES kit (692,004 establishments,
+    ADR-0086).
+  - CNPJ → legal name; a CPF is never resolved (ADR-0093).
+  - A maintainer is named through the row's establishment (ADR-0094); the
+    documented all-zeros is "Sem mantenedora" (ADR-0097).
+- **Relations between columns.**
+  - A composite key (`CLASS_SR`, `PA_CLASS_S`, `SUBFIN`), whose parts can carry
+    the record's width: age unit + age via `IDADEDET` reads "3 dias"
+    (ADR-0088, ADR-0098).
+  - A sibling that names the code (ADR-0090).
+  - Path tables whose unlisted codes are named by their deepest listed level
+    (`VINCULO`, `S_CLASSEN`, ADR-0096).
+- **Municipalities** show the 7-digit IBGE code.
+- **The kits are read correctly** (ADR-0095). 43,916 `.CNV` lines had codes
+  glued to their labels (`PACIENT15`); a re-read now supersedes the old
+  reading.
+- **Speed** (ADR-0097). One year of SIASUS-ACF, files cached: 104 s → 16.7 s
+  (35 s in a fresh process).
+- **Descriptions.**
+  - DADOS_ABERTOS inherits SIASUS's curation (ADR-0095).
+  - Curated: BASE_AIH1 (60 fields), SIA PQ (7), SIA UO (4) and the SI-PNI
+    exports (22).
+- **Sweep tools.** `scripts/sweep_undecoded.py` lists undecoded values over 16
+  datasets. `scripts/def_evidence.py` lists what each `.DEF` offers for them.
 
 ## In progress
 
-- **Per-file header census** (ADR-0081): all 198,916 DBC/DBF headers, about
-  0.5 GB and 3 h on 8 connections, incremental afterwards. The run is
-  `pegasus-data schemas --all-files`, log `data/logs/file-census.log`. When it
-  finishes:
-  1. `families`;
-  2. `bindings` (recompile, since the ladder changed);
-  3. `scripts/build_resources.py` (seed);
-  4. the full live sweep.
+- **Maintainer rebuild with the fixed parser** (`data/logs/rebuild-cnv.ps1`):
+  semantics → curate → reference → registry → bindings → `meaning`. After it:
+  1. the coverage measure and its evaluation entry;
+  2. `scripts/build_resources.py` (the seed), so fresh homes get the
+     corrected dictionary;
+  3. the sweep rerun on a fresh home.
 
 ## Open fronts
 
-- **Harvest the other systems' layout documents** (SIM, SINASC, SIH, CNES,
-  SIA) the way SINAN's dictionaries are harvested. There are ten SINAN
-  dictionary PDFs with no series mapping yet.
-- **Undescribed exports.**
-  - The 12 DuckDB databases (`Dados_Abertos/APAC_SIA/*.duck.zip`,
-    `SIHSUS/base_aih1.duck`). A ranged-read schema probe of the 12 GB
-    `.duck` works over FTP `REST`; it still needs to be finished and wired in.
-  - The header-less SISCAN 2015 CSV.
-- **Harness.** The live sweep now budgets on `plan()` and counts
-  `PublishedEmpty` as a result; its SIA.AC and TABDOS.APP failures still need
-  a rerun after the census.
-- **Carried from before:**
-  - distinct-count and known-values-only measures, age-standardised rates;
-  - the health macroregion and geography vintage;
-  - moving stock time reducers from `tools/` into `measures.py`;
-  - mypy (157 findings);
-  - splitting the large modules (`cli`, `retrieve`, `view`).
+- **Undecoded because no source names them:**
+  - SIH `TPDISEC*` `0`, `GESTOR_TP`, `SP_DES_*`, `SP_U_AIH`;
+  - SIA `TIPPRE` `00`, `AP_TPATEN` `12`, `PA_CODOCO`;
+  - CNES `TP_PREST` `99`, bank codes `71X`/`002`, `ID_AREA`/`ID_SEGM`
+    placeholders;
+  - SINASC `CODPAISRES` `1`, `KOTELCHUCK` `9`, `TPDOCRESP` `0`;
+  - SINAN meningitis quadros (OQ-59).
+
+  Each reads `code (?)`.
+- **Undescribed:**
+  - SIA UO's 74 modality fields and PQ's 14 name-only fields (no layout
+    found);
+  - BASE_AIH1's 11 fields without an RD/SP twin;
+  - its age pairing, unverified until a sample of the 12 GB file is read.
+- **Renamed columns** across layouts (OQ-57).
+- **Speed.** A cold process still spends most of its time in per-group
+  binding decisions and catalog reads.
+- **Carried:**
+  - distinct-count measures and age-standardised rates;
+  - health macroregions;
+  - moving `tools/` into the package;
+  - mypy;
+  - splitting `cli`, `retrieve` and `view`.
 
 ## Waiting on the user
 
-- **Publishing.** The branch `redesign` is not pushed (CLAUDE.md §4). The
-  compiled DBC engine should ship in platform wheels (ADR-0074); without
-  them, a user with no C compiler decodes 20× slower.
+- **Publishing.** `redesign` is not pushed (CLAUDE.md §4). Platform wheels for
+  the compiled DBC engine (ADR-0074).
 
 ## Tests and checks
 
-- `scripts/live.py --all --fresh`: the live scenarios, which measure progress.
+- `scripts/live.py --all --fresh` and `scripts/sweep_undecoded.py` on a fresh
+  home.
 - `ruff check src scripts tests` and `scripts/check_docs.py`.
 - `pytest -q -m "not network"` is a regression net that does not grow
-  (CLAUDE.md §5); tests contradicting a decision are deleted.
+  (CLAUDE.md §5).
