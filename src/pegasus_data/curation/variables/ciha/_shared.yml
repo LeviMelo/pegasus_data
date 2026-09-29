@@ -25,7 +25,7 @@ variables:
     # kit's .DEF reads them and the system's own IDADEDET.CNV names them:
     # 463 = 63 anos, 205 = 5 dias, 312 = 11 meses (ADR-0095).
     codelist: IDADEDET
-    key: [COD_IDADE, IDADE]
+    key: [COD_IDADE, "IDADE:2"]
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, campo COD_IDADE'
@@ -36,7 +36,11 @@ variables:
       the dot. CIHA records care NOT funded by SUS, reported so the Ministry sees the whole
       picture; the column carries SIH's meaning on a population SIH does not cover.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, campo DIAG_PRINC'

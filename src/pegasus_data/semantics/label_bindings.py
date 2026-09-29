@@ -37,8 +37,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-import pyarrow as pa
-
 from ..catalog.store import Catalog, utcnow
 from ..inventory.naming import UF_CODES
 
@@ -278,7 +276,7 @@ def compile_bindings(
 
     from ..retrieve import fetch
     from ..semantics.curation import load_variable_docs
-    from ..view import _bindings, _single_lookup
+    from ..view import _bindings, _single_lookup, compose_key
 
     counts = {"families": 0, "fields": 0, "measured": 0, "curated": 0, "none": 0, "deferred": 0,
               "files": 0, "failed": 0}
@@ -343,10 +341,9 @@ def compile_bindings(
                 # key is measured on the key, as it is looked up (ADR-0088).
                 key = key_docs.get(name.upper())
                 values_array = table.column(name).combine_chunks()
-                if key and all(k in table.column_names for k in key):
-                    values_array = pc.binary_join_element_wise(
-                        *[table.column(k).combine_chunks().cast(pa.string()) for k in key], ""
-                    )
+                composed = compose_key(table, key) if key else None
+                if composed is not None:
+                    values_array = composed
                 tally = pc.value_counts(values_array).to_pylist()
                 bucket = observed.setdefault(name.upper(), Counter())
                 for item in tally:

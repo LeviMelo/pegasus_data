@@ -766,7 +766,16 @@ class PathLabels(dict):  # type: ignore[type-arg]
             return found
         code = str(key).strip()
         seg = self._segment
-        if not code.isdigit() or len(code) % seg or len(code) <= seg:
+        if not code.isdigit() or len(code) % seg:
+            return default
+        # A code that IS a leading level (SIA PA_SRV "115", beside PA_CLASS_S)
+        # is named by that level of any listed code under it.
+        longer = next((str(v) for k, v in self.items() if len(str(k)) > len(code) and str(k).startswith(code)), None)
+        if longer is not None:
+            parts = longer.split(" / ")
+            if len(parts) >= len(code) // seg:
+                return " / ".join(parts[: len(code) // seg])
+        if len(code) <= seg:
             return default
         for depth in range(len(code) // seg - 1, 0, -1):
             prefix = code[: depth * seg]
@@ -782,7 +791,7 @@ class PathLabels(dict):  # type: ignore[type-arg]
 
 
 #: Codelists whose labels spell out a fixed-width level path (``PathLabels``).
-PATH_CODELISTS: dict[str, int] = {"VINCULO": 2}
+PATH_CODELISTS: dict[str, int] = {"VINCULO": 2, "S_CLASSEN": 3}
 
 
 def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
@@ -877,14 +886,46 @@ class _Selection:
     unlabelled: bool = False
 
 
+def key_parts(key: Sequence[str]) -> list[tuple[str, int | None]]:
+    """``[COD_IDADE, IDADE:2]`` -> ``[(COD_IDADE, None), (IDADE, 2)]``.
+
+    A width is the part's fixed width in the source record. TabWin reads a
+    composite key from the DBF's own bytes, where the numeric ``IDADE`` (N 2) is
+    ``05``; decoded, it is ``5``, and ``45`` matches nothing in IDADEDET.CNV
+    while ``405`` is "5 anos". Rebuilding the record's form of a quantity is not
+    padding a code (§6.2): the part is a number, and the width is the layout's.
+    """
+    out: list[tuple[str, int | None]] = []
+    for part in key:
+        name, _, width = str(part).partition(":")
+        out.append((name.strip().upper(), int(width) if width.strip().isdigit() else None))
+    return out
+
+
+def compose_key(table: pa.Table, key: Sequence[str]) -> pa.Array | None:
+    """The concatenated key the codelist is indexed by, or None if a part is missing.
+
+    The one place a composite key is built: rendering and the bindings compiler
+    both call it, so a column is measured exactly as it is looked up (ADR-0088).
+    """
+    parts = key_parts(key)
+    if not parts or not all(name in table.schema.names for name, _ in parts):
+        return None
+    arrays = []
+    for name, width in parts:
+        values = pc.cast(table.column(name).combine_chunks(), pa.string())
+        if width:
+            values = pc.utf8_lpad(pc.utf8_trim_whitespace(values), width, "0")
+        arrays.append(values)
+    joined = pc.binary_join_element_wise(*arrays, "")
+    return joined.combine_chunks() if hasattr(joined, "combine_chunks") else joined
+
+
 def _lookup_key(table: pa.Table, doc: object, column: pa.Array) -> pa.Array:
     """The column's own values, or the concatenation its curated ``key:`` names."""
     key = getattr(doc, "key", None) if doc is not None else None
-    if not key or not all(k in table.schema.names for k in key):
-        return column
-    parts = [table.column(k).combine_chunks().cast(pa.string()) for k in key]
-    joined = pc.binary_join_element_wise(*parts, "")
-    return joined.combine_chunks() if hasattr(joined, "combine_chunks") else joined
+    composed = compose_key(table, key) if key else None
+    return column if composed is None else composed
 
 
 def _label_via(lake: Path, system: str, keys: object, via: Mapping[str, str]) -> pa.Array | None:
@@ -1228,8 +1269,16 @@ def _render_table(
             report.codelist_used[name] = f"column {sibling}"
             continue
         via = getattr(doc, "label_via", None) if doc is not None else None
-        if via and str(via.get("column", "")).upper() in table.schema.names:
-            named_via = _label_via(lake, system, table.column(str(via["column"]).upper()), via)
+        # ``column`` may list candidates: one variable, several layouts (SIA BI
+        # names its establishment CODUNI, PS names it CNES_EXEC).
+        via_columns = via.get("column", []) if via else []
+        via_column = next(
+            (str(c).upper() for c in (via_columns if isinstance(via_columns, list) else [via_columns])
+             if str(c).upper() in table.schema.names),
+            None,
+        )
+        if via and via_column:
+            named_via = _label_via(lake, system, table.column(via_column), via)
             if named_via is not None:
                 # The field's own tables first: they name THIS value exactly (a
                 # CNPJ's own legal name, a documented "zeros: no maintainer").
@@ -1243,7 +1292,7 @@ def _render_table(
                 columns.append(named_via)
                 names.append(f"{name}{LABEL_SUFFIX}")
                 report.labelled.append(name)
-                report.codelist_used[name] = f"{via.get('table')}.{via.get('field')} via {via.get('column')}"
+                report.codelist_used[name] = f"{via.get('table')}.{via.get('field')} via {via_column}"
                 continue
         # The value a table is keyed by. Usually the column itself; for a code
         # that only means something with another column (CNES CLASS_SR, keyed

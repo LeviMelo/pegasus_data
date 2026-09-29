@@ -339,7 +339,28 @@ variables:
       RD*.dbf's DIAG_PRINC; see sihsus/_shared.yml's DIAG_PRINC entry for the CID-9/CID-10
       vintage note.
     code_system: external
-    codelists: [ICD10, CID9_01, CID9_02, CID9_03, CID9_04, CID9_05, CID9_06, CID9_07,
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - CID9_01
+    - CID9_02
+    - CID9_03
+    - CID9_04
+    - CID9_05
+    - CID9_06
+    - CID9_07
+    - CID9_08
+    - CID9_09
+    - CID9_10
+    - CID9_11
+    - CID9_12
+    - CID9_13
+    - CID9_14
+    - CID9_15
+    - CID9_16
+    - CID9_17
+    - S_CID
       CID9_08, CID9_09, CID9_10, CID9_11, CID9_12, CID9_13, CID9_14, CID9_15, CID9_16,
       CID9_17]
     source: layout_doc
@@ -351,7 +372,11 @@ variables:
     translated_name: Secondary diagnosis 1
     description: ICD-10 code of secondary diagnosis 1. Corresponds to RD*.dbf's DIAGSEC1.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 96 DIAGSEC1.'
@@ -360,7 +385,11 @@ variables:
     translated_name: Secondary diagnosis 2
     description: ICD-10 code of secondary diagnosis 2. Corresponds to RD*.dbf's DIAGSEC2.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 97 DIAGSEC2.'
@@ -369,7 +398,11 @@ variables:
     translated_name: Secondary diagnosis 3
     description: ICD-10 code of secondary diagnosis 3. Corresponds to RD*.dbf's DIAGSEC3.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 98 DIAGSEC3.'
@@ -378,7 +411,11 @@ variables:
     translated_name: Secondary diagnosis 4
     description: ICD-10 code of secondary diagnosis 4. Corresponds to RD*.dbf's DIAGSEC4.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 99 DIAGSEC4.'
@@ -387,7 +424,11 @@ variables:
     translated_name: Secondary diagnosis 5
     description: ICD-10 code of secondary diagnosis 5. Corresponds to RD*.dbf's DIAGSEC5.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 100 DIAGSEC5.'
@@ -396,7 +437,11 @@ variables:
     translated_name: Secondary diagnosis 6
     description: ICD-10 code of secondary diagnosis 6. Corresponds to RD*.dbf's DIAGSEC6.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 101 DIAGSEC6.'
@@ -405,7 +450,11 @@ variables:
     translated_name: Secondary diagnosis 7
     description: ICD-10 code of secondary diagnosis 7. Corresponds to RD*.dbf's DIAGSEC7.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 102 DIAGSEC7.'
@@ -414,7 +463,11 @@ variables:
     translated_name: Secondary diagnosis 8
     description: ICD-10 code of secondary diagnosis 8. Corresponds to RD*.dbf's DIAGSEC8.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 103 DIAGSEC8.'
@@ -423,7 +476,11 @@ variables:
     translated_name: Secondary diagnosis 9
     description: ICD-10 code of secondary diagnosis 9. Corresponds to RD*.dbf's DIAGSEC9.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 104 DIAGSEC9.'
@@ -514,7 +571,11 @@ variables:
     description: ICD-10 code of the cause of death where the patient died. Corresponds to
       RD*.dbf's CID_MORTE. Zeros where the patient survived.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 79 CID_MORTE ''CID da morte''.'

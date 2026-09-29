@@ -1156,12 +1156,13 @@ def _keep_columns(
         # and a sibling that names it (ADR-0090). Without them a narrow select=
         # showed CNES ID_SEGM as undecoded while the full query named it.
         for part in (getattr(doc, "key", None) or []):
-            keep.add(str(part).upper())
+            keep.add(str(part).partition(":")[0].strip().upper())
         if getattr(doc, "label_from", None):
             keep.add(str(doc.label_from).upper())
         via = getattr(doc, "label_via", None)
         if via and via.get("column"):
-            keep.add(str(via["column"]).upper())
+            columns_via = via["column"] if isinstance(via["column"], list) else [via["column"]]
+            keep.update(str(c).upper() for c in columns_via)
     # And anything that MODIFIES a requested column (a unit beside a duration).
     for name, doc in docs.items():
         if doc.modifies and str(doc.modifies).upper() in keep:

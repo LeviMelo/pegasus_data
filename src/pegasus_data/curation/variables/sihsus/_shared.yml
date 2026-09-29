@@ -75,7 +75,11 @@ variables:
     description: ICD-10 code of an associated condition contributing to the admission, distinct
       from the principal diagnosis and from the cause of death.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 78'
@@ -85,7 +89,11 @@ variables:
     description: ICD-10 code of the cause of death where the patient died. Zeros where the
       patient survived, so it is constant in most extracts.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 79'
@@ -95,7 +103,11 @@ variables:
     description: ICD-10 code of a notifiable condition identified during the admission, which
       triggers a parallel SINAN notification.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 62'
@@ -144,7 +156,7 @@ variables:
     # kit's .DEF reads them and the system's own IDADEDET.CNV names them:
     # 463 = 63 anos, 205 = 5 dias, 312 = 11 meses (ADR-0095).
     codelist: IDADEDET
-    key: [COD_IDADE, IDADE]
+    key: [COD_IDADE, "IDADE:2"]
     modifies: IDADE
     source: layout_doc
     notes: 'Unit codes, from the USP SIH dictionary (sources/sih_batch/usp_dict.txt): 0 ignored,
@@ -203,7 +215,11 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 96'
@@ -214,7 +230,11 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 97'
@@ -225,7 +245,11 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 98'
@@ -236,7 +260,11 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 99'
@@ -247,7 +275,11 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 100'
@@ -258,7 +290,11 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 101'
@@ -269,7 +305,11 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 102'
@@ -280,7 +320,11 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 103'
@@ -291,7 +335,11 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 104'
@@ -303,6 +351,8 @@ variables:
 
       '
     code_system: external
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
     codelists:
     - ICD10
     - CID9_01
@@ -322,6 +372,7 @@ variables:
     - CID9_15
     - CID9_16
     - CID9_17
+    - S_CID
     vintage_note: 'SIH spans the CID-9/CID-10 changeover and the older era is still in the
       data: 426 of the 1,590 distinct values observed for this column are 6-digit numeric
       CID-9 codes, not malformed CID-10. They decode already — 065099 is "650 - Parto normal"
@@ -346,6 +397,8 @@ variables:
     translated_name: Secondary diagnosis
     description: CID-10 code for a secondary diagnosis, without the dot.
     code_system: external
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
     codelists:
     - ICD10
     - CID9_01
@@ -365,6 +418,7 @@ variables:
     - CID9_15
     - CID9_16
     - CID9_17
+    - S_CID
     vintage_note: 'Same CID-9/CID-10 span as DIAG_PRINC; both classifications are bound and
       exact matching selects per row. See that entry for the measurement.
 
@@ -924,7 +978,11 @@ variables:
     description: ICD-10 principal diagnosis carried on the act row, repeated from the parent
       AIH.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 33'
@@ -933,7 +991,11 @@ variables:
     translated_name: Secondary ICD code
     description: ICD-10 secondary diagnosis carried on the act row.
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 34'
@@ -952,6 +1014,9 @@ variables:
     translated_name: Act complexity
     description: Complexity tier of this act, which may differ from the AIH's overall COMPLEX.
     code_system: internal
+    # IT SIH 2016-03 gives SP_COMPLEX RD's COMPLEX definition; COMPLEX2 names
+    # 02/03 as RD's column is measured against it (ADR-0098).
+    codelist: COMPLEX2
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 23'
@@ -961,6 +1026,8 @@ variables:
     description: 'Funding type and FAEC subtype for this act packed into one field: the first
       characters give the type, the rest the strategic-action subtype.'
     code_system: internal
+    # FAEC type + subtype, as RD's FAEC_TP, measured against TP_FINAN (ADR-0098).
+    codelist: TP_FINAN
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 25'
@@ -1014,6 +1081,8 @@ variables:
     translated_name: Act funding type
     description: Which funding stream paid for this act, which may differ from the AIH's FINANC.
     code_system: internal
+    # RD's FINANC classification (IT SIH 2016-03), measured on RD (ADR-0098).
+    codelist: FINANC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 24'

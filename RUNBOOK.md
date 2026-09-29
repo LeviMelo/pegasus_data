@@ -26,6 +26,8 @@ $PY scripts/check_docs.py
 ```bash
 $PY scripts/live.py --list
 $PY scripts/live.py sih_rd sim_do           # named scenarios
+PEGASUS_DATA_HOME=~/pegasus_live/home $PY scripts/sweep_undecoded.py   # undecoded values, 16 datasets
+$PY scripts/def_evidence.py data/probes/live/sweep_undecoded.json          # which .CNV the .DEF offers each
 $PY scripts/live.py --all --fresh           # everything, on an emptied home
 $PY scripts/live.py --show <run-id>
 ```

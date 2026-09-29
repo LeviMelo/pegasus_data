@@ -56,6 +56,8 @@ variables:
     description: 0 if the patient's municipality of residence matches the executing
       establishment's municipality; 1 if they differ.
     code_system: internal
+    # The kit's INVASAO, as AP_MNDIF and PA_MNDIF use (ADR-0098).
+    codelist: INVASAO
   PROC_ID:
     official_name: Código do Procedimento Ambulatorial
     translated_name: Outpatient procedure code
@@ -63,7 +65,10 @@ variables:
       the unified PA file carries as PA_PROC_ID, but under the BPA-I file's own unprefixed
       field name.
     code_system: external
+    # Canonical SIGTAP first, with its group/subgroup/form fallback (ADR-0092);
+    # the kit's TPROC10 names nothing SIGTAP does not.
     codelists:
+    - SIGTAP
     - TPROC10
   QT_APRES:
     official_name: Quantidade Produzida (APRESENTADA)
@@ -84,12 +89,17 @@ variables:
     description: BPA-I file's own copy of the financing-subtype code — the same concept
       the unified PA file carries as PA_SUBFIN.
     code_system: internal
+    # As PA_SUBFIN: TP_FINAN keyed by financing type + subtype (ADR-0098).
+    codelist: TP_FINAN
+    key: [TPFIN, SUBFIN]
   TPFIN:
     official_name: Tipo de Financiamento da produção
     translated_name: Production financing type
     description: BPA-I file's own copy of the SUS financing-type code — the same concept
       the unified PA file carries as PA_TPFIN.
     code_system: internal
+    # The same classification as PA_TPFIN (Informe Técnico SIA; ADR-0098).
+    codelist: FINANC
   UFDIF:
     official_name: Indica se a UF de residência do paciente é diferente da UF de localização
       do estabelecimento
@@ -98,6 +108,8 @@ variables:
       state; 1 if they differ. BPA-I's own copy of the flag the unified PA file carries
       as PA_UFDIF.
     code_system: internal
+    # The kit's INVASAO, as AP_UFDIF and PA_MNDIF use (ADR-0098).
+    codelist: INVASAO
   VL_APRES:
     official_name: Valor Produzido (APRESENTADO)
     translated_name: Value presented (produced)

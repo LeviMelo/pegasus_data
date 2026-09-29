@@ -284,7 +284,10 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
                 per_form=bool(body.get("per_form", False)),
                 key=[str(k).upper() for k in (body.get("key") or [])],
                 label_from=(str(body["label_from"]).upper() if body.get("label_from") else None),
-                label_via=({k: str(v) for k, v in body["label_via"].items()} if body.get("label_via") else None),
+                label_via=(
+                    {k: ([str(x) for x in v] if isinstance(v, list) else str(v)) for k, v in body["label_via"].items()}
+                    if body.get("label_via") else None
+                ),
             )
         )
     return out

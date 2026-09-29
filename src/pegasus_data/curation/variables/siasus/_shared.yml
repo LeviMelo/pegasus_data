@@ -414,7 +414,7 @@ variables:
     # that follows it (APAC_*.DEF 'Idade detalhada', AP_COIDADE width 3), and
     # IDADEDET names the pair: 463 = 63 anos, 205 = 5 dias (ADR-0095).
     codelist: IDADEDET
-    key: [AP_COIDADE, AP_NUIDADE]
+    key: [AP_COIDADE, "AP_NUIDADE:2"]
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -1013,7 +1013,8 @@ variables:
 
       '
     code_system: external
-    label_via: {column: CODUNI, table: CADGERBR, field: maintainer}  # the row's establishment's mantenedora (ADR-0094)
+    # The row's establishment's mantenedora (ADR-0094): BI names it CODUNI, PS CNES_EXEC.
+    label_via: {column: [CODUNI, CNES_EXEC], table: CADGERBR, field: maintainer}
     codelist: CNPJ_BR
     # "ou zeros, caso não a tenha" (Informe Técnico SIA): all zeros is documented
     # as no maintainer. The files write it in 14 and, in the APACs, 13 characters.
@@ -1052,6 +1053,8 @@ variables:
     description: Complexity tier of the procedure — basic, medium or high — which governs
       the funding stream and which establishments may perform it.
     code_system: internal
+    # The same classification as PA_NIVCPL: 0 não se aplica .. 3 alta (ADR-0098).
+    codelist: COMPLEX
     source: layout_doc
     source_ref: '[APAC-LAYOUT] SIA APAC layout, campo COMPLEX, campo COMPLEX'
   CONDIC:
@@ -1260,7 +1263,11 @@ variables:
     description: CNES classification code that refines PA_SRV, the specialised-service code
       on the same RAAS line — the pair (service, classification) together identifies the exact
       CNES service offered.
-    code_system: external
+    code_system: internal
+    # Meaningful only with its service: S_CLASSEN is keyed service + classification
+    # (115002 = psicossocial / atendimento psicossocial), as CNES CLASS_SR (ADR-0088).
+    codelist: S_CLASSEN
+    key: [PA_SRV, PA_CLASS_S]
     notes: The layout document prints this field as PA_CLAS_S (one S); the catalogued header
       is PA_CLASS_S (two), 10 characters, matching the classic DBF field-name limit — almost
       certainly the same field.
@@ -1388,7 +1395,7 @@ variables:
     # kit's .DEF reads them and the system's own IDADEDET.CNV names them:
     # 463 = 63 anos, 205 = 5 dias, 312 = 11 meses (ADR-0095).
     codelist: IDADEDET
-    key: [TPIDADEPAC, IDADEPAC]
+    key: [TPIDADEPAC, "IDADEPAC:2"]
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions

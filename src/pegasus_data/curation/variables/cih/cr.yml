@@ -132,7 +132,7 @@ variables:
     # kit's .DEF reads them and the system's own IDADEDET.CNV names them:
     # 463 = 63 anos, 205 = 5 dias, 312 = 11 meses (ADR-0095).
     codelist: IDADEDET
-    key: [COD_IDADE, IDADE]
+    key: [COD_IDADE, "IDADE:2"]
     depends_on:
     - IDADE
     source: def
@@ -158,7 +158,11 @@ variables:
 
       '
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
       -> "CIH [2008-2010].DEF", section "CID-10 Prim.", binding DIAG_PRINC to CID10CAP.CNV,
@@ -180,7 +184,11 @@ variables:
 
       '
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
       -> "CIH [2008-2010].DEF", section "CID-10 Sec.", binding DIAG_SECUN to the same family

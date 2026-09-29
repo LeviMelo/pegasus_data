@@ -856,6 +856,10 @@ variables:
       budget line financed the procedure (e.g. a specific strategic-action or incentive program
       within the broader financing type).'
     code_system: internal
+    # The kit's TP_FINAN is keyed by financing type + subtype (040017 Nefrologia,
+    # 060000 MAC); every pair in AC 2023-01 is named there (ADR-0098).
+    codelist: TP_FINAN
+    key: [PA_TPFIN, PA_SUBFIN]
     notes: No codelist is bound to this exact field name in the catalog; only the paired PA_TPFIN
       carries one (FINANC/TP_FINAN). Read PA_SUBFIN together with PA_TPFIN.
   PA_TIPATE:
@@ -947,6 +951,8 @@ variables:
       executing establishment (PA_UFMUN); 1 if they differ, i.e. the patient crossed a state
       line for care.
     code_system: internal
+    # The kit's INVASAO, as PA_MNDIF and AP_UFDIF use (ADR-0098).
+    codelist: INVASAO
   PA_UFMUN:
     official_name: UF+Municipio do estabelecimento
     translated_name: Establishment's municipality IBGE code

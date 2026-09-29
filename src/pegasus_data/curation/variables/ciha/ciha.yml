@@ -102,7 +102,11 @@ variables:
 
       '
     code_system: external
-    codelist: ICD10
+    # The kit's S_CID after the canonical table: it names 0000 "CID NAO
+    # INFORMADO", which ICD-10 cannot (as for SIA's CID fields).
+    codelists:
+    - ICD10
+    - S_CID
     notes: 'The extra codelists beyond CID10_01 are chapter/group/category groupings TabNet
       derives from the same ICD-10 code for tabulation axes, not alternate codings of the
       field itself.
