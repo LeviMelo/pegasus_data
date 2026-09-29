@@ -296,7 +296,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `decode/base.py`: the reader interface.
 - `decode/dbc.py`, `decode/dbf.py`, `decode/lha.py`, `decode/archives.py`,
   `decode/duckdb_.py`, `decode/text_.py`: readers.
-- `decode/header.py`: DBF header parsing for the census.
+- `decode/header.py`: DBF header parsing for the census (dBase III/IV/7).
+- `decode/duckdb_remote.py`: a remote DuckDB database's tables and columns from a few ranged reads (ADR-0083).
 - `decode/isolation.py`, `decode/_worker.py`: killable subprocess decoding.
 - `decode/_native/`: the PKWare DCL decompressor (C, built once into a user cache; Python fallback, 20× slower).
 
