@@ -69,10 +69,9 @@ another.
 - **Pre-2006 occupations** decode from SIM/SINASC's own `OCUPA` table.
 - **SIA's 2001–2007 establishment codes** are keyed by the file's state
   (`SIA_UPS_BR`).
-- **In progress:** the ranged census of every legacy APAC archive's members,
-  then inventory → strata → families → seed (`data/logs/rebuild-members.ps1`).
-  Membership was assumed from one archive per state-year. It listed tables
-  that most archives lack, and missed EX, PC and AC for 2003–2006.
+- **Every legacy APAC archive's members are measured** by ranged header reads
+  (1,721 of 1,723), so components reach the years they exist in (EX and PC,
+  2003–2006) and absent ones are not gaps (ADR-0103).
 
 ## Coverage now
 
