@@ -35,7 +35,12 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 PDFS = ROOT / "sources" / "pdfs"
-OUT = ROOT / "src" / "pegasus_data" / "curation" / "codes" / "sinan.yml"
+OUT_DIR = ROOT / "src" / "pegasus_data" / "curation" / "codes"
+
+#: Other systems' dictionaries in the same tabular layout: file -> (system, series).
+OTHER_DICTIONARIES: dict[str, tuple[str, tuple[str, ...]]] = {
+    "sources/DIC_DADOS_RESP.pdf": ("RESP", ("RESP",)),
+}
 
 #: Dictionary PDF (a substring of its file name) -> the SINAN series it documents.
 DICTIONARIES: dict[str, tuple[str, ...]] = {
@@ -88,7 +93,7 @@ DICTIONARIES: dict[str, tuple[str, ...]] = {
     "lerdort_dic": ("LERD", "LER"),
 }
 
-_WIDTH = re.compile(r"(?:varchar2?|char)\s*\(\s*(\d+)\s*\)", re.I)
+_WIDTH = re.compile(r"(?:varchar2?|char|caractere|num[eé]rico)\s*\(\s*(\d+)\s*\)", re.I)
 #: "1 – Sim", "1-Sim", "1. Sim", "9-" (label wrapped to the next line).
 _CODE = re.compile(
     r"^\s*(?:([0-9]{1,3})\s*(?:[–\-—=.]\s*|\s+)|([A-Z]{1,2})\s*[–\-—=.]\s*)(.*?)\s*$"
@@ -129,25 +134,46 @@ def _rows(pdf_path: Path):
 
 
 def _parse_row(row: list[str]) -> tuple[str, dict[str, str]] | None:
-    for i, cell in enumerate(row):
-        m = _WIDTH.fullmatch(cell.replace("\n", " ").strip()) or (
-            _WIDTH.search(cell) if len(cell) < 20 else None
-        )
+    """One dictionary row: the width cell, the first non-empty cell after it
+    (the categories), and the DBF name at either end of the row.
+
+    SINAN NET puts the DBF name last (``| 44. Reflexos | tp_... | varchar(1) |
+    categories | ... | TPNEURO |``); RESP and PCE put it first, with empty spacer
+    cells (``| SEXO | | | Caractere (1) | | | 1-Masculino ... |``).
+    """
+    cells = [c.replace("\n", " ").strip() for c in row]
+    for i, cell in enumerate(cells):
+        m = _WIDTH.search(cell) if len(cell) < 25 else None
         if not m:
             continue
         width = int(m.group(1))
-        if i + 1 >= len(row):
+        following = [row[k] for k in range(i + 1, len(row)) if row[k].strip()]
+        if not following:
             return None
-        codes = _categories(row[i + 1])
-        name = row[-1].replace("\n", " ").split()[-1] if row[-1].strip() else ""
-        if not _DBF.match(name) or len(codes) < 2 or any(len(c) > width for c in codes):
+        codes = _categories(following[0])
+        ends = [cells[0].split()[0] if cells[0] else "", cells[-1].split()[-1] if cells[-1] else ""]
+        name = next((n for n in reversed(ends) if _DBF.fullmatch(n)), "")
+        if not name or len(codes) < 2 or any(len(c) > width for c in codes):
             return None
         return name, codes
     return None
 
 
-def harvest() -> tuple[dict[str, dict], list[str]]:
-    per_series: dict[str, dict[str, dict]] = defaultdict(dict)
+def _read(pdf: Path, series: tuple[str, ...], into: dict[str, dict[str, dict]]) -> None:
+    for row in _rows(pdf):
+        parsed = _parse_row(row)
+        if not parsed:
+            continue
+        name, codes = parsed
+        for s in series:
+            # Two dictionaries for one series (older and newer editions): the
+            # first parsed is kept, and a later one only adds fields.
+            into[s].setdefault(name, {"codes": codes, "source_ref": pdf.name})
+
+
+def harvest() -> tuple[dict[str, dict[str, dict[str, dict]]], list[str]]:
+    """``system -> series -> field -> {codes, source_ref}``, and unmapped PDFs."""
+    out: dict[str, dict[str, dict[str, dict]]] = defaultdict(lambda: defaultdict(dict))
     unmapped: list[str] = []
     for pdf in sorted(PDFS.glob("*.pdf")):
         series = next((s for key, s in DICTIONARIES.items() if key in pdf.name), None)
@@ -155,42 +181,38 @@ def harvest() -> tuple[dict[str, dict], list[str]]:
             if "DIC" in pdf.name.upper():
                 unmapped.append(pdf.name)
             continue
-        for row in _rows(pdf):
-            parsed = _parse_row(row)
-            if not parsed:
-                continue
-            name, codes = parsed
-            for s in series:
-                # Two dictionaries for one series (older and newer editions):
-                # the first parsed is kept, and a later one only adds fields.
-                per_series[s].setdefault(name, {"codes": codes, "source_ref": pdf.name})
-    return dict(per_series), unmapped
+        _read(pdf, series, out["SINAN"])
+    for rel, (system, series) in OTHER_DICTIONARIES.items():
+        if (ROOT / rel).exists():
+            _read(ROOT / rel, series, out[system])
+    return {k: dict(v) for k, v in out.items()}, unmapped
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
-    tables, unmapped = harvest()
-    count = sum(len(v) for v in tables.values())
-    fields = Counter(f for v in tables.values() for f in v)
-    print(f"{count} code tables over {len(tables)} series; {len(fields)} distinct fields")
+    systems, unmapped = harvest()
+    for system, tables in sorted(systems.items()):
+        count = sum(len(v) for v in tables.values())
+        fields = Counter(f for v in tables.values() for f in v)
+        print(f"{system}: {count} code tables over {len(tables)} series; {len(fields)} distinct fields")
     if unmapped:
         print("dictionaries with no series mapping:", unmapped)
     if args.dry_run:
-        for s in sorted(tables):
-            print(f"  {s}: {len(tables[s])}")
         return 0
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    header = (
-        "# GENERATED by scripts/harvest_codes.py from the SINAN NET data dictionaries\n"
-        "# (sources/pdfs). Do not edit by hand: a variable's own codes:/codelist: wins\n"
-        "# over this file (ADR-0079). Keyed by series, because the same column name\n"
-        "# carries different codes on different forms (EVOLUCAO, CLASSI_FIN).\n"
-    )
-    body = {"system": "SINAN", "series": {s: dict(sorted(t.items())) for s, t in sorted(tables.items())}}
-    OUT.write_text(header + yaml.safe_dump(body, allow_unicode=True, sort_keys=False, width=100), encoding="utf-8")
-    print(f"wrote {OUT.relative_to(ROOT)}")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    for system, tables in sorted(systems.items()):
+        header = (
+            f"# GENERATED by scripts/harvest_codes.py from the official {system} data\n"
+            "# dictionaries. Do not edit by hand: a variable's own codes:/codelist: wins\n"
+            "# over this file (ADR-0079). Keyed by series, because the same column name\n"
+            "# carries different codes on different forms (EVOLUCAO, CLASSI_FIN).\n"
+        )
+        body = {"system": system, "series": {s: dict(sorted(t.items())) for s, t in sorted(tables.items())}}
+        out = OUT_DIR / f"{system.lower()}.yml"
+        out.write_text(header + yaml.safe_dump(body, allow_unicode=True, sort_keys=False, width=100), encoding="utf-8")
+        print(f"wrote {out.relative_to(ROOT)}")
     return 0
 
 
