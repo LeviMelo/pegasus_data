@@ -925,4 +925,5 @@ def _read_yaml(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     with path.open(encoding="utf-8") as handle:
-        return yaml.safe_load(handle) or {}
+        # libyaml's loader when present: ~10x the pure-Python one (ADR-0097).
+        return yaml.load(handle, Loader=getattr(yaml, "CSafeLoader", yaml.SafeLoader)) or {}  # noqa: S506

@@ -118,30 +118,37 @@ def _render_values(
     6-digit code by its 7-digit IBGE code); the label lookup already happened."""
     codes_py = [shown.get(c, c) if shown and c is not None else c for c in codes.to_pylist()]
     labels_py = labels.to_pylist()
+    # Formatted once per distinct (code, label), not once per row: a year of a
+    # 38-column file is 1.4 million cells and a few thousand distinct pairs.
+    memo: dict[tuple[object, object], str | None] = {}
     out: list[str | None] = []
-    for code, label in zip(codes_py, labels_py, strict=True):
-        if code is None or str(code).strip() == "":
-            out.append(None)
-        elif label is None or str(label).strip() == "":
-            out.append(p.unlabelled.format(code=code, label=""))
-        else:
-            text = str(label)
-            tail = re.search(r"\(([A-Z0-9]{3,})\)$", text)
-            if " | " in text or text.endswith(" (?)") or (tail and tail.group(1) in str(code) and tail.group(1) != str(code)):
-                # A multi-valued column already writes each token as
-                # "label (code)"; appending the raw string would repeat them.
-                out.append(text)
-                continue
-            # Many tables already write the code into the label: BR_MUNICIPALFA
-            # "120001 Acrelândia, AC", CID-10 "O80.0 Parto espontaneo cefalico"
-            # for O800. Do not print it twice when the template shows the code.
-            if "{code}" in p.values:
-                head, _, rest = text.partition(" ")
-                if rest and _plain(head) == _plain(str(code)):
-                    text = rest.lstrip(" -–")
-            text = clean_label(text)
-            out.append(p.values.format(code=code, label=text))
+    for pair in zip(codes_py, labels_py, strict=True):
+        if pair not in memo:
+            memo[pair] = _render_value(pair[0], pair[1], p)
+        out.append(memo[pair])
     return pa.array(out, type=pa.string())
+
+
+def _render_value(code: object, label: object, p: Presentation) -> str | None:
+    """One cell: ``label (code)`` by the template, ``code (?)`` when unlabelled."""
+    if code is None or str(code).strip() == "":
+        return None
+    if label is None or str(label).strip() == "":
+        return p.unlabelled.format(code=code, label="")
+    text = str(label)
+    tail = re.search(r"\(([A-Z0-9]{3,})\)$", text)
+    if " | " in text or text.endswith(" (?)") or (tail and tail.group(1) in str(code) and tail.group(1) != str(code)):
+        # A multi-valued column already writes each token as
+        # "label (code)"; appending the raw string would repeat them.
+        return text
+    # Many tables already write the code into the label: BR_MUNICIPALFA
+    # "120001 Acrelândia, AC", CID-10 "O80.0 Parto espontaneo cefalico"
+    # for O800. Do not print it twice when the template shows the code.
+    if "{code}" in p.values:
+        head, _, rest = text.partition(" ")
+        if rest and _plain(head) == _plain(str(code)):
+            text = rest.lstrip(" -–")
+    return p.values.format(code=code, label=clean_label(text))
 
 
 def present(

@@ -121,3 +121,4 @@ last, comes first.
 | [ADR-0094](docs/decisions/ADR-0094-a-label-reached-through-another-column.md) | 2026-09-29 | A label can be reached through another column of the row | active | amends ADR-0090, ADR-0093 |
 | [ADR-0095](docs/decisions/ADR-0095-kits-are-read-by-column-and-curation-is-inherited.md) | 2026-09-29 | A `.CNV` is read by its columns; a republishing system inherits curation; the age unit is keyed with the age | active | amends ADR-0088 |
 | [ADR-0096](docs/decisions/ADR-0096-a-path-coded-table-names-an-unlisted-code-by-its-listed-levels.md) | 2026-09-29 | A code built from levels is named by its deepest listed level when the table does not list it | active | amends ADR-0089, ADR-0092 |
+| [ADR-0097](docs/decisions/ADR-0097-render-work-is-done-once-per-distinct-thing.md) | 2026-09-29 | Rendering does its work once per distinct thing; a field's own codes come before a label reached through another column | active | amends ADR-0084, ADR-0094 |

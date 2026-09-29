@@ -202,7 +202,109 @@ def clear_lookup_caches() -> None:
 # monthly dataset asks for the same map twelve times per fetch. Callers
 # treat the returned dict as read-only; mutating it would poison the cache.
 @lru_cache(maxsize=512)
+def _reference_version(lake_root: Path, codelist: str) -> tuple[int, ...]:
+    """What a reference table's content depends on, as file times.
+
+    The lake's copy of the table and any registry cache of that name. Shipped
+    canonical tables change only with the package, so they need no stamp.
+    """
+    import re as _re
+
+    from .config import load_settings
+
+    stamps: list[int] = []
+    lake_copy = Path(lake_root) / "reference" / _re.sub(r"[^A-Za-z0-9_.-]", "_", codelist)
+    if lake_copy.exists():
+        stamps.append(lake_copy.stat().st_mtime_ns)
+    try:
+        registries = Path(load_settings().root) / "registries"
+        stamps.extend(p.stat().st_mtime_ns for p in sorted(registries.glob(f"*/{codelist.upper()}.parquet")))
+    except OSError:  # pragma: no cover - an unreadable home is not a cache key
+        pass
+    return tuple(stamps)
+
+
+def _vintage_free(codelist: str) -> bool:
+    """Is this table one version for every year?
+
+    Canonical classifications, registries and curated inline codes are read
+    before any vintage filter (``read_reference_table``), so asking for them
+    per month only multiplied cache misses: 492 rebuilds in a year's query.
+    """
+    from .persist.reference import CLASSIFICATIONS
+    from .registry import is_registry
+    from .semantics.curation import inline_codelist
+
+    name = codelist.upper()
+    return (
+        name in CLASSIFICATIONS or name in ("UF_BR", "CIR_BR") or is_registry(name)
+        or inline_codelist(codelist) is not None
+    )
+
+
 def _lookup_map(
+    lake_root: Path,
+    codelist: str,
+    *,
+    system: str | None,
+    year: int | None,
+    competencia: int | None = None,
+    code_width: int | None,
+) -> Mapping[str, str]:
+    """``_lookup_map_uncached``, built once per process per table version.
+
+    A year of monthly files renders as twelve groups, and each rebuilt the same
+    maps: 7 of a 17-second one-month query was reading and re-reading reference
+    tables (profiled 2026-09-29), the 692,004-row establishment registry among
+    them. Callers only read the result.
+    """
+    if _vintage_free(codelist):
+        year = competencia = None
+    return _cached_lookup_map(
+        str(lake_root), codelist, system, year, competencia, code_width,
+        _reference_version(Path(lake_root), codelist),
+    )
+
+
+@lru_cache(maxsize=256)
+def _cached_lookup_map(
+    lake_root: str, codelist: str, system: str | None, year: int | None,
+    competencia: int | None, code_width: int | None, version: tuple[int, ...],
+) -> Mapping[str, str]:
+    return _lookup_map_uncached(
+        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width
+    )
+
+
+def _contradictions(
+    lake_root: Path,
+    codelist: str,
+    *,
+    system: str | None,
+    year: int | None,
+    competencia: int | None = None,
+    code_width: int | None,
+) -> Mapping[str, set[str]]:
+    """``_contradictions_uncached``, cached like ``_lookup_map``."""
+    if _vintage_free(codelist):
+        year = competencia = None
+    return _cached_contradictions(
+        str(lake_root), codelist, system, year, competencia, code_width,
+        _reference_version(Path(lake_root), codelist),
+    )
+
+
+@lru_cache(maxsize=256)
+def _cached_contradictions(
+    lake_root: str, codelist: str, system: str | None, year: int | None,
+    competencia: int | None, code_width: int | None, version: tuple[int, ...],
+) -> Mapping[str, set[str]]:
+    return _contradictions_uncached(
+        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width
+    )
+
+
+def _lookup_map_uncached(
     lake_root: Path,
     codelist: str,
     *,
@@ -226,19 +328,24 @@ def _lookup_map(
         competencia=competencia,
         code_width=code_width,
     )
-    codes = table.column("code").to_pylist()
-    labels = table.column("label").to_pylist()
+    # Nulls and blanks are dropped in Arrow, before 700,000 registry rows
+    # become Python strings; order is kept, so the dict below still lets the
+    # last line win.
+    codes = pc.cast(table.column("code"), pa.string())
+    labels = pc.cast(table.column("label"), pa.string())
+    keep = pc.and_(
+        pc.and_(pc.is_valid(codes), pc.is_valid(labels)),
+        pc.not_equal(pc.utf8_trim_whitespace(labels), ""),
+    )
+    codes = pc.filter(codes, keep).to_pylist()
+    labels = pc.filter(labels, keep).to_pylist()
     # Last write wins, matching .CNV semantics, where a later line deliberately
     # overrides an earlier one. A blank label is dropped rather than stored: an
     # empty string is not a translation, and offering one turns a labelled column
     # into a column of nothing while still reporting that it was labelled. This
     # is how CADMUN behaved — a DBF lookup that picked OBSERV as its label
     # column, which is blank for 5,517 of its 5,579 rows.
-    return {
-        str(c): str(lbl)
-        for c, lbl in zip(codes, labels, strict=True)
-        if c is not None and lbl is not None and str(lbl).strip()
-    }
+    return dict(zip(codes, labels, strict=True))
 
 
 def codelist_levels(
@@ -323,8 +430,7 @@ def _single_lookup(
 
 
 # Same contract as _lookup_map: cached, and the returned mapping is shared.
-@lru_cache(maxsize=512)
-def _contradictions(
+def _contradictions_uncached(
     lake_root: Path,
     codelist: str,
     *,
@@ -351,14 +457,21 @@ def _contradictions(
         competencia=competencia,
         code_width=code_width,
     )
+    # In Arrow, not per row: the registries hold 700,000 codes and almost none
+    # contradict, so only the few that do are brought into Python.
+    pairs = table.select(["code", "label"]).cast(
+        pa.schema([("code", pa.string()), ("label", pa.string())])
+    )
+    pairs = pairs.filter(pc.and_(pc.is_valid(pairs["code"]), pc.is_valid(pairs["label"])))
+    counted = pairs.group_by("code").aggregate([("label", "count_distinct")])
+    multi = counted.filter(pc.greater(counted["label_count_distinct"], 1))["code"]
+    if not len(multi):
+        return {}
+    clash = pairs.filter(pc.is_in(pairs["code"], value_set=multi))
     seen: dict[str, set[str]] = {}
-    for code, label in zip(
-        table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True
-    ):
-        if code is None or label is None:
-            continue
-        seen.setdefault(str(code), set()).add(str(label))
-    return {code: labels for code, labels in seen.items() if len(labels) > 1}
+    for code, label in zip(clash["code"].to_pylist(), clash["label"].to_pylist(), strict=True):
+        seen.setdefault(code, set()).add(label)
+    return seen
 
 
 def _widths(lookup: Mapping[str, str]) -> set[int]:
@@ -726,9 +839,11 @@ def _label_via(lake: Path, system: str, keys: object, via: Mapping[str, str]) ->
     field_name = str(via.get("field") or "label")
     if field_name not in table.column_names:
         return None
-    names = dict(zip(table.column("code").to_pylist(), table.column(field_name).to_pylist(), strict=True))
-    values = keys.to_pylist() if hasattr(keys, "to_pylist") else list(keys)  # type: ignore[union-attr]
-    return pa.array([names.get(str(k).strip()) if k is not None else None for k in values], type=pa.string())
+    # A join in Arrow: the registry has 692,004 rows, and building a Python
+    # dict of it per month group cost 25 s of a year's query (2026-09-29).
+    wanted = pc.utf8_trim_whitespace(pc.cast(pa.chunked_array([keys]) if isinstance(keys, pa.Array) else keys, pa.string()))
+    at = pc.index_in(wanted, value_set=pc.cast(table.column("code"), pa.string()))
+    return pc.take(pc.cast(table.column(field_name), pa.string()), at).combine_chunks()
 
 
 def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object) -> pa.Array | None:
@@ -1077,6 +1192,13 @@ def _render_table(
         if via and str(via.get("column", "")).upper() in table.schema.names:
             named_via = _label_via(lake, system, table.column(str(via["column"]).upper()), via)
             if named_via is not None:
+                # The field's own tables first: they name THIS value exactly (a
+                # CNPJ's own legal name, a documented "zeros: no maintainer").
+                # The row's establishment's maintainer fills what they leave.
+                own = [c for c in (doc.codelist, *doc.codelists) if c] if doc is not None else []
+                own_lookup = _lookup(name.upper(), own) if own else None
+                if own_lookup:
+                    named_via = pc.coalesce(_labels_for(column, own_lookup), named_via)
                 columns.append(column)
                 names.append(name)
                 columns.append(named_via)

@@ -193,6 +193,9 @@ variables:
     code_system: external
     label_via: {column: PA_CODUNI, table: CADGERBR, field: maintainer}  # the row's establishment's mantenedora (ADR-0094)
     codelist: CNPJ_BR
+    # "ou zeros, caso não a tenha" (Informe Técnico SIA): all zeros is documented
+    # as no maintainer. The files write it in 14 and, in the APACs, 13 characters.
+    codes: {"00000000000000": "Sem mantenedora", "0000000000000": "Sem mantenedora"}
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'

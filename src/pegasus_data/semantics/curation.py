@@ -25,6 +25,7 @@ requires the reasoning to be written out and refuses to load without it.
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 from collections.abc import Iterator, Mapping, Sequence
@@ -311,6 +312,27 @@ def _parse_codes(path: Path, name: str, raw: object) -> dict[str, str] | None:
     return out
 
 
+def read_yaml(path: Path) -> dict[str, Any]:
+    """One curation file, parsed once per process per version of the file.
+
+    Every curation reader parsed all 157 files itself, with the pure-Python
+    loader: 23 of a 43-second first query was YAML (profiled 2026-09-29,
+    SIASUS-ACF 2023-01). libyaml's loader reads the same documents ~10x faster,
+    and the cache is keyed on the file's mtime so an edited file is re-read.
+    Callers get a fresh copy: the parsed mapping is not theirs to mutate.
+    """
+    stat = path.stat()
+    return copy.deepcopy(_parsed_yaml(str(path), stat.st_mtime_ns, stat.st_size))
+
+
+@lru_cache(maxsize=1024)
+def _parsed_yaml(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
+    yaml = _require_yaml()
+    loader = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+    with open(path, encoding="utf-8") as handle:
+        return yaml.load(handle, Loader=loader) or {}  # noqa: S506 - a safe loader
+
+
 @lru_cache(maxsize=1)
 def _inline_codelists() -> dict[str, dict[str, str]]:
     """Every inline code table in the package's own curation, by codelist id.
@@ -318,11 +340,10 @@ def _inline_codelists() -> dict[str, dict[str, str]]:
     Read from the shipped YAML rather than the catalog, so a fresh install
     labels these columns with no catalog, lake or label-pack rebuild.
     """
-    yaml = _require_yaml()
     root = Path(__file__).resolve().parent.parent / "curation"
     out: dict[str, dict[str, str]] = {}
     for path in sorted(root.glob("variables/**/*.yml")):
-        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        data = read_yaml(path)
         system = str(data.get("system") or "")
         for name, body in (data.get("variables") or {}).items():
             if isinstance(body, dict) and body.get("codes"):
@@ -341,11 +362,10 @@ def _harvested_codelists() -> dict[str, dict[str, str]]:
     different codes on different forms (ADR-0079). Ids are
     ``CURATED.<SYSTEM>.<SERIES>.<FIELD>``.
     """
-    yaml = _require_yaml()
     root = Path(__file__).resolve().parent.parent / "curation" / "codes"
     out: dict[str, dict[str, str]] = {}
     for path in sorted(root.glob("*.yml")):
-        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        data = read_yaml(path)
         system = str(data.get("system") or "").upper()
         for series, fields in (data.get("series") or {}).items():
             for name, body in (fields or {}).items():
@@ -487,7 +507,6 @@ def load_curation(catalog: Catalog, root: Path) -> dict[str, object]:
     Only rows whose source is one of the curated rungs are touched — anything the
     harvesters wrote is left alone.
     """
-    yaml = _require_yaml()
     # The settled rulings and the named gaps are properties of this module, not
     # of whatever files happen to be on disk, so they are recorded even when the
     # curation directory is absent. A settled "no" that only appears when someone
@@ -503,7 +522,7 @@ def load_curation(catalog: Catalog, root: Path) -> dict[str, object]:
     files = 0
     for path in iter_curation_files(root):
         try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            data = read_yaml(path)
         except Exception as exc:
             raise CurationError(f"{path}: {exc}") from exc
         if not isinstance(data, dict):
@@ -993,10 +1012,9 @@ def _dataset_semantics(root: str) -> dict[str, DatasetSemantics]:
     establishment-bed type-month — and inheriting that would be exactly the
     "COUNT(*) means one thing everywhere" assumption the algebra refuses.
     """
-    yaml = _require_yaml()
     out: dict[str, DatasetSemantics] = {}
     for path in iter_curation_files(Path(root)):
-        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        data = read_yaml(path)
         if not isinstance(data, dict) or "datasets" not in data:
             continue
         file_shared = dict((data.get("shared") or {}).get("semantic_axes") or {})
