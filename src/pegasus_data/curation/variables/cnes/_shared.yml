@@ -852,11 +852,12 @@ variables:
     description: 'Outpatient primary care (atencao basica), state-level management: flag (1=yes/0=no)
       self- declared by the establishment on its gestao/nivel-de-atencao grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 40
-    codelists:
-    - GESPROG1
     notes: Read alongside GESPRG1M (the other sphere for the same program) and the coarser
       NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
       tier exists at all, not how it is managed.
@@ -867,6 +868,9 @@ variables:
     description: 'Outpatient primary care (atencao basica), municipal-level management: flag
       (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 41
@@ -878,11 +882,12 @@ variables:
       management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-
       atencao grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 42
-    codelists:
-    - GESPRG2E
     notes: Read alongside GESPRG2M (the other sphere for the same program) and the coarser
       NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
       tier exists at all, not how it is managed.
@@ -894,6 +899,9 @@ variables:
       management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-
       atencao grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 43
@@ -905,11 +913,12 @@ variables:
       labelled ANTIGO (old) in DATASUS's own field list - superseded by the media/alta-complexidade
       split in GESPRG5E/GESPRG6E.
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: def
     source_ref: Estabelecimento.def line 'Internacao Estadual (ANTIGO), GESPRG3E' / 'Internacao
       Municipal(ANTIGO), GESPRG3M', and CNV/GESPROG3.CNV, both from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip
-    codelists:
-    - GESPRG3E
   GESPRG3M:
     official_name: Indicador se a gestao do programa cod. 03 e MUNICIPAL
     translated_name: Legacy municipal-level 'internacao' (general inpatient) management indicator,
@@ -918,6 +927,9 @@ variables:
       labelled ANTIGO (old) in DATASUS's own field list - superseded by the media/alta-complexidade
       split in GESPRG5M/GESPRG6M.
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: def
     source_ref: Estabelecimento.def line 'Internacao Estadual (ANTIGO), GESPRG3E' / 'Internacao
       Municipal(ANTIGO), GESPRG3M', and CNV/GESPROG3.CNV, both from ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip
@@ -929,11 +941,12 @@ variables:
       management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao
       grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 44
-    codelists:
-    - GESPRG4E
     notes: Read alongside GESPRG4M (the other sphere for the same program) and the coarser
       NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
       tier exists at all, not how it is managed.
@@ -945,6 +958,9 @@ variables:
       management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-
       atencao grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 45
@@ -956,11 +972,12 @@ variables:
       management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao
       grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 49
-    codelists:
-    - GESPRG5E
     notes: Read alongside GESPRG5M (the other sphere for the same program) and the coarser
       NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
       tier exists at all, not how it is managed.
@@ -972,6 +989,9 @@ variables:
       management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-
       atencao grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 50
@@ -983,11 +1003,12 @@ variables:
       management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao
       grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 51
-    codelists:
-    - GESPRG6E
     notes: Read alongside GESPRG6M (the other sphere for the same program) and the coarser
       NIVATE_A/NIVATE_H existence flags, which only say whether the ambulatorial/hospitalar
       tier exists at all, not how it is managed.
@@ -999,6 +1020,9 @@ variables:
       management: flag (1=yes/0=no) self-declared by the establishment on its gestao/nivel-de-atencao
       grid.'
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 52
@@ -1056,6 +1080,9 @@ variables:
       or GESPRG4E/M is the one that is set, only that at least one ambulatorial management
       combination applies.
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 46
@@ -1068,6 +1095,9 @@ variables:
       (ST) record. Sibling of NIVATE_A for the hospital side; a coarse existence flag, not
       a breakdown by GESPRG5E/M vs GESPRG6E/M.
     code_system: internal
+    # IT CNES 2017-06 (sources/IT_CNES_1706.txt), ST*.dbf: "1-sim 0-não". The kit's
+    # GESPROG<n>.CNV reads this flag and its E/M twin as one 2-character code.
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 53
