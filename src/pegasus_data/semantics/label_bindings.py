@@ -232,6 +232,12 @@ def _samples(store: Catalog, family_id: str, per_family: int) -> list[dict[str, 
         """,
         (family_id,),
     )
+    # The representation a read would choose (a .dbc over its .xml or .csv.zip
+    # republication), then the cheapest: sampling the .xml made the read select
+    # the .dbc and the exact-path filter left nothing (111 failed samples).
+    from ..inventory.strata import _census_rank
+
+    rows = sorted(rows, key=lambda r: (_census_rank(str(r["path"])), int(r["size"] or 0), str(r["path"])))
     chosen: list[dict[str, Any]] = []
     seen_geo: set[str] = set()
     for r in rows:
