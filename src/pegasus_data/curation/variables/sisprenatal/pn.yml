@@ -99,12 +99,14 @@ variables:
       '
     code_system: external
     source: inferred
-    reasoning: 'CO_ prefix (código) plus the C(3,0) declared width matches the standard DATASUS
-      país/nacionalidade code table used across other systems. The field is not referenced
-      in Gestantes.def and the catalog binds no codelist to it, so this rests on naming convention
-      and the standard table''s known width, not a direct citation naming this specific column.
-
-      '
+    reasoning: 'CO_ prefix (código) plus the C(3,0) declared width matches the standard
+      DATASUS país/nacionalidade code table used across other systems. The field is not
+      referenced in Gestantes.def and the catalog binds no codelist to it, so this rests
+      on naming convention and the standard table''s known width, not a direct citation
+      naming this specific column. Reviewed 2026-09-28: no documentation found (searched
+      the TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota técnica, the
+      empty ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and
+      the web).'
     notes: 'The bundled dictionary ships a one-row "no_pais_re.cnv" containing only "BRASIL"
       — too thin to be the real codelist; do not treat it as the full country table. Expect
       a validator warning that no codelist is bound to this field in the catalog.
@@ -142,14 +144,16 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: 'CO_..._GP matches the grouped-field pattern of CO_ESC_GP/CO_RAC_GP/ CO_ETN_GP
-      in this same GestacaoWeb.dbf schema. The registration form for this exact system (SISTEMA
-      DE MONITORAMENTO E AVALIAÇÃO DO PRÉ-NATAL, PARTO, PUERPÉRIO E CRIANÇA, "SISPRENATAL
-      N:") sits its "Estado civil/união" question between Escolaridade and Raça/cor, with
-      six cohabitation options (codes 0,2-6, no 1) rather than single/married/ divorced categories
-      — content and position match CO_STF_GP.
-
-      '
+    reasoning: 'CO_..._GP matches the grouped-field pattern of CO_ESC_GP/CO_RAC_GP/
+      CO_ETN_GP in this same GestacaoWeb.dbf schema. The registration form for this
+      exact system (SISTEMA DE MONITORAMENTO E AVALIAÇÃO DO PRÉ-NATAL, PARTO, PUERPÉRIO
+      E CRIANÇA, "SISPRENATAL N:") sits its "Estado civil/união" question between
+      Escolaridade and Raça/cor, with six cohabitation options (codes 0,2-6, no 1)
+      rather than single/married/ divorced categories — content and position match
+      CO_STF_GP. Reviewed 2026-09-28: no documentation found (searched the
+      TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
     notes: '"STF" is read as Situação Familiar; the exact official expansion is not confirmed,
       only the field''s subject and coded shape.
 
@@ -235,13 +239,15 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DT_ prefix marks a date field, declared C(8,0) consistent with the other 8-digit
-      dates in this dictionary (e.g. DT_DUM). "DPP" is the near universal Brazilian prenatal-care
-      abbreviation for Data Provável do Parto, and its adjacency to DT_DUM in the field list
-      matches the standard DUM-to-EDD relationship. Not referenced in Gestantes.def, so only
-      the DT_/date shape is dictionary-grounded — the label itself is domain convention.
-
-      '
+    reasoning: 'DT_ prefix marks a date field, declared C(8,0) consistent with the other
+      8-digit dates in this dictionary (e.g. DT_DUM). "DPP" is the near universal
+      Brazilian prenatal-care abbreviation for Data Provável do Parto, and its adjacency
+      to DT_DUM in the field list matches the standard DUM-to-EDD relationship. Not
+      referenced in Gestantes.def, so only the DT_/date shape is dictionary-grounded —
+      the label itself is domain convention. Reviewed 2026-09-28: no documentation found
+      (searched the TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota
+      técnica, the empty ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc
+      directory, and the web).'
   DT_DUM:
     official_name: Data da Última Menstruação (DUM)
     translated_name: Last menstrual period date (LMP)
@@ -309,12 +315,14 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'NU_CNS is a fixed, unambiguous DATASUS field name that appears identically
-      (always 15 digits) across dozens of systems (SINASC, SIM, SIASUS, SISCAN, etc.). It
-      is not referenced in Gestantes.def for SISPRENATAL specifically, so this is grounded
-      in that universal naming/width convention rather than a SISPRENATAL-specific citation.
-
-      '
+    reasoning: 'NU_CNS is a fixed, unambiguous DATASUS field name that appears
+      identically (always 15 digits) across dozens of systems (SINASC, SIM, SIASUS,
+      SISCAN, etc.). It is not referenced in Gestantes.def for SISPRENATAL specifically,
+      so this is grounded in that universal naming/width convention rather than a
+      SISPRENATAL-specific citation. Reviewed 2026-09-28: no documentation found
+      (searched the TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota
+      técnica, the empty ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc
+      directory, and the web).'
     notes: 'This is a real personal identifier (a national health-system ID) and passes through
       unmodified in the source data — flagged here, no masking proposed.
 
@@ -328,11 +336,13 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'NU_ prefix (número) plus "GESTA" (gestações). Not referenced in Gestantes.def,
-      so grounded in DATASUS naming grammar together with general published guidance describing
-      SISPRENATAL Web''s "number of previous pregnancies, 00 if first pregnancy" question.
-
-      '
+    reasoning: 'NU_ prefix (número) plus "GESTA" (gestações). Not referenced in
+      Gestantes.def, so grounded in DATASUS naming grammar together with general
+      published guidance describing SISPRENATAL Web''s "number of previous pregnancies,
+      00 if first pregnancy" question. Reviewed 2026-09-28: no documentation found
+      (searched the TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota
+      técnica, the empty ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc
+      directory, and the web).'
     notes: Declared C(6,0), wider than a small gravidity count would need — likely a generic
       export width.
   NU_IDADE:
@@ -366,13 +376,15 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'NU_ (número) + NIS is a standard, unambiguous Brazilian abbreviation for Número
-      de Identificação Social. Corroborated by the Porto Alegre SISPRENATAL manual''s recommendation
-      to identify Bolsa Família beneficiaries among gestantes for follow-up (SISVAN section).
-      Not referenced in Gestantes.def, so the field''s existence-rationale is inferred, not
-      verbatim-sourced.
-
-      '
+    reasoning: 'NU_ (número) + NIS is a standard, unambiguous Brazilian abbreviation for
+      Número de Identificação Social. Corroborated by the Porto Alegre SISPRENATAL
+      manual''s recommendation to identify Bolsa Família beneficiaries among gestantes
+      for follow-up (SISVAN section). Not referenced in Gestantes.def, so the field''s
+      existence-rationale is inferred, not verbatim-sourced. Reviewed 2026-09-28: no
+      documentation found (searched the TAB_SISPRENATAL kit incl. Gestantes.def, the
+      SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
     notes: 'Personal identifier (a social-benefit ID number) — passes through unmodified,
       no masking proposed. The adjacent field NU_NIS_REP was left out of this file because
       its exact referent (a confirmation re-entry of the same NIS, versus a different person''s
@@ -405,11 +417,13 @@ variables:
     description: Count of previous ectopic pregnancies in the woman's obstetric history.
     code_system: none
     source: inferred
-    reasoning: 'QT_ (quantidade) + AB (abortos) + ECT (ectópico) is an unambiguous DATASUS
-      abbreviation chain, part of the same obstetric-history block as QT_AB_GER, QT_AB_MOL,
-      QT_NSC_VIV/MOR and QT_PRT_CIR/FOR/VAG.
-
-      '
+    reasoning: 'QT_ (quantidade) + AB (abortos) + ECT (ectópico) is an unambiguous
+      DATASUS abbreviation chain, part of the same obstetric-history block as QT_AB_GER,
+      QT_AB_MOL, QT_NSC_VIV/MOR and QT_PRT_CIR/FOR/VAG. Reviewed 2026-09-28: no
+      documentation found (searched the TAB_SISPRENATAL kit incl. Gestantes.def, the
+      SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
   QT_AB_GER:
     official_name: Quantidade de Abortos (Geral)
     translated_name: Abortion count, general/other
@@ -419,13 +433,14 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'QT_ + AB (abortos) + GER most plausibly abbreviates "geral" (general), reading
-      as the catch-all category alongside the two specifically-named abortion subtypes in
-      the same block. Less certain than QT_AB_ECT/ QT_AB_MOL — GER could in principle abbreviate
-      something else — but no alternative reading fits the surrounding DATASUS grammar as
-      well.
-
-      '
+    reasoning: 'QT_ + AB (abortos) + GER most plausibly abbreviates "geral" (general),
+      reading as the catch-all category alongside the two specifically-named abortion
+      subtypes in the same block. Less certain than QT_AB_ECT/ QT_AB_MOL — GER could in
+      principle abbreviate something else — but no alternative reading fits the
+      surrounding DATASUS grammar as well. Reviewed 2026-09-28: no documentation found
+      (searched the TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota
+      técnica, the empty ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc
+      directory, and the web).'
     notes: Whether GER covers spontaneous and induced abortions together, or is a genuinely
       separate "other" bucket, could not be confirmed from available sources.
   QT_AB_MOL:
@@ -435,7 +450,11 @@ variables:
       history.
     code_system: none
     source: inferred
-    reasoning: QT_ (quantidade) + AB (abortos) + MOL (molar/mola), the same pattern as QT_AB_ECT.
+    reasoning: 'QT_ (quantidade) + AB (abortos) + MOL (molar/mola), the same pattern as
+      QT_AB_ECT. Reviewed 2026-09-28: no documentation found (searched the
+      TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
   QT_CONS:
     official_name: Qt Consultas
     translated_name: Consultation count (summable)
@@ -487,13 +506,15 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Sits between the abortion counts and QT_NSC_MOR/QT_NSC_VIV in the GestacaoWeb.dbf
-      field order. The registration form''s Antecedentes Obstétricos diagram (same "SISPRENATAL
-      N:" system) branches "Nascidos Vivos" into "Vivem" (alive) and two fillable count boxes
-      labelled "mortos 1 Semana" and "depois 1 Semana" — read as APS = até (before/by) the
-      first week, PS = pós (after) the week.
-
-      '
+    reasoning: 'Sits between the abortion counts and QT_NSC_MOR/QT_NSC_VIV in the
+      GestacaoWeb.dbf field order. The registration form''s Antecedentes Obstétricos
+      diagram (same "SISPRENATAL N:" system) branches "Nascidos Vivos" into "Vivem"
+      (alive) and two fillable count boxes labelled "mortos 1 Semana" and "depois 1
+      Semana" — read as APS = até (before/by) the first week, PS = pós (after) the week.
+      Reviewed 2026-09-28: no documentation found (searched the TAB_SISPRENATAL kit
+      incl. Gestantes.def, the SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
   QT_MOR_PS:
     official_name: Óbitos de Nascidos Vivos após 1 Semana
     translated_name: Later death count, after 1 week
@@ -504,11 +525,13 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Same diagram evidence as QT_MOR_APS: the two boxes are adjacent, sequential
-      outcomes of "Nascidos Vivos" (died within the first week vs. died later), matching the
-      field order QT_MOR_APS immediately followed by QT_MOR_PS.
-
-      '
+    reasoning: 'Same diagram evidence as QT_MOR_APS: the two boxes are adjacent,
+      sequential outcomes of "Nascidos Vivos" (died within the first week vs. died
+      later), matching the field order QT_MOR_APS immediately followed by QT_MOR_PS.
+      Reviewed 2026-09-28: no documentation found (searched the TAB_SISPRENATAL kit
+      incl. Gestantes.def, the SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
   QT_NSC_MOR:
     official_name: Quantidade de Nascidos Mortos
     translated_name: Stillbirth count (obstetric history)
@@ -516,16 +539,22 @@ variables:
       history.
     code_system: none
     source: inferred
-    reasoning: QT_ (quantidade) + NSC (nascidos) + MOR (mortos), mirroring QT_NSC_VIV in the
-      same block.
+    reasoning: 'QT_ (quantidade) + NSC (nascidos) + MOR (mortos), mirroring QT_NSC_VIV
+      in the same block. Reviewed 2026-09-28: no documentation found (searched the
+      TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
   QT_NSC_VIV:
     official_name: Quantidade de Nascidos Vivos
     translated_name: Live-birth count (obstetric history)
     description: Count of previous live births (nascidos vivos) in the woman's obstetric history.
     code_system: none
     source: inferred
-    reasoning: QT_ (quantidade) + NSC (nascidos) + VIV (vivos), a standard DATASUS abbreviation
-      chain.
+    reasoning: 'QT_ (quantidade) + NSC (nascidos) + VIV (vivos), a standard DATASUS
+      abbreviation chain. Reviewed 2026-09-28: no documentation found (searched the
+      TAB_SISPRENATAL kit incl. Gestantes.def, the SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
   QT_PRT_CIR:
     official_name: Quantidade de Partos Cirúrgicos
     translated_name: Surgical (cesarean) delivery count
@@ -533,24 +562,34 @@ variables:
       history.
     code_system: none
     source: inferred
-    reasoning: 'QT_ (quantidade) + PRT (partos) + CIR (cirúrgico), part of the same three-way
-      delivery-route breakdown as QT_PRT_FOR and QT_PRT_VAG.
-
-      '
+    reasoning: 'QT_ (quantidade) + PRT (partos) + CIR (cirúrgico), part of the same
+      three-way delivery-route breakdown as QT_PRT_FOR and QT_PRT_VAG. Reviewed
+      2026-09-28: no documentation found (searched the TAB_SISPRENATAL kit incl.
+      Gestantes.def, the SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
   QT_PRT_FOR:
     official_name: Quantidade de Partos Fórceps
     translated_name: Forceps delivery count
     description: Count of previous forceps-assisted deliveries, in the woman's obstetric history.
     code_system: none
     source: inferred
-    reasoning: QT_ (quantidade) + PRT (partos) + FOR (fórceps).
+    reasoning: 'QT_ (quantidade) + PRT (partos) + FOR (fórceps). Reviewed 2026-09-28: no
+      documentation found (searched the TAB_SISPRENATAL kit incl. Gestantes.def, the
+      SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
   QT_PRT_VAG:
     official_name: Quantidade de Partos Vaginais
     translated_name: Vaginal delivery count
     description: Count of previous vaginal deliveries, in the woman's obstetric history.
     code_system: none
     source: inferred
-    reasoning: QT_ (quantidade) + PRT (partos) + VAG (vaginal).
+    reasoning: 'QT_ (quantidade) + PRT (partos) + VAG (vaginal). Reviewed 2026-09-28: no
+      documentation found (searched the TAB_SISPRENATAL kit incl. Gestantes.def, the
+      SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
   ST_AUX_DSL:
     official_name: Precisa de Auxílio Deslocamento
     translated_name: Needs transportation-assistance flag
@@ -613,12 +652,14 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: 'ST_ prefix (status/situação flag, declared C(1,0)) + GRA (gravidez, confirmed
-      elsewhere in this same dictionary via CO_TPO_GRA''s "Tipo de Gravidez" label) + PLA
-      (planejada). Corroborated by general published documentation of SISPRENATAL Web collecting
-      a planned-pregnancy yes/no question.
-
-      '
+    reasoning: 'ST_ prefix (status/situação flag, declared C(1,0)) + GRA (gravidez,
+      confirmed elsewhere in this same dictionary via CO_TPO_GRA''s "Tipo de Gravidez"
+      label) + PLA (planejada). Corroborated by general published documentation of
+      SISPRENATAL Web collecting a planned-pregnancy yes/no question. Reviewed
+      2026-09-28: no documentation found (searched the TAB_SISPRENATAL kit incl.
+      Gestantes.def, the SISPRENATAL nota técnica, the empty
+      ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Doc directory, and the
+      web).'
     notes: 'The exact code values (S/N, or 1/2) are not confirmed for this specific field
       — only the subject and likely Sim/Não shape are grounded. Expect a validator warning
       that no codelist is bound to it in the catalog.

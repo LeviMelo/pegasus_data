@@ -6,219 +6,178 @@ asserted_by: pegasus_data
 
 variables:
   COM_PEST:
-    official_name: Comunicante de peste
-    translated_name: Contact of a plague case
-    description: 'Whether this notification concerns a comunicante (traced contact
-      of a confirmed plague case) rather than an independently suspected case, used
-      in plague outbreak contact-tracing.
+    official_name: Os sinais e sintomas são compatíveis com a definição de caso?
+    translated_name: Signs and symptoms match the case definition
+    description: 'Whether the patient''s signs and symptoms fit the plague case definition
+      (1 yes, 2 no, 9 unknown). With CO_RISCO and EPI_PESTE all yes, the case is confirmed
+      automatically.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is PEST (peste/plague); COM_ plausibly reads "comunicante";
-      C1 width fits a coded yes/no contact-tracing flag.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 35
   CON_GRAVID:
-    official_name: Condição de gravidez
-    translated_name: Pregnant (flag)
-    description: 'Whether the plague (PEST) patient is pregnant, relevant because first-line
-      plague treatment (aminoglycosides such as streptomycin) carries different risk
-      considerations in pregnancy.
+    official_name: Gravidade
+    translated_name: Severity
+    description: 'Severity of a confirmed plague case: mild/outpatient, moderate, or severe.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CON_ = condição, GRAVID = gravidez; pregnancy status affects drug choice
-      for plague treatment, C1 fits a checkbox.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 47 (Gravidade)
   CO_FOCAL:
-    official_name: Condição focal
-    translated_name: Within a known plague focus (flag)
-    description: 'Whether the plague (PEST) case occurred within a recognized natural
-      "foco pestoso" (endemic enzootic focus area), rather than outside known plague-endemic
-      zones - Brazil''s plague surveillance is organized around such registered foci.
+    official_name: Instituído controle focal?
+    translated_name: Focal control instituted
+    description: 'Whether focal control measures (rodent and flea control around the case)
+      were put in place (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CO_ = condição, FOCAL = focal; C1 width is too short for a focus identifying
-      code, pointing to a yes/no flag rather than the focus''s own ID.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 43
   CO_RISCO:
-    official_name: Condição de risco
-    translated_name: Risk condition code
-    description: 'Coded risk classification (e.g. occupational or environmental exposure
-      category) for the plague case, distinct from CO_FOCAL, which flags whether the
-      case falls within a recognized endemic natural focus.
+    official_name: A ocorrência cumpre condições básicas de risco?
+    translated_name: Occurrence meets basic risk conditions
+    description: 'Whether the occurrence meets the basic risk conditions for plague (1 yes,
+      2 no, 9 unknown); one of the three criteria for confirming a case.
 
       '
     code_system: none
-    source: inferred
-    reasoning: CO_ = condição; RISCO = risco; PEST series carries the related CO_FOCAL
-      field.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 33
   DT_S1:
-    official_name: Data da primeira amostra
+    official_name: Data da coleta S1
     translated_name: Date of first sample
     description: When the first serum was taken, on the plague investigation form.
     code_system: none
-    source: inferred
-    reasoning: D(8) date; S1 is the first sample.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 38 (Data da coleta S1)
   DT_S2:
-    official_name: Data da segunda amostra
+    official_name: Data da coleta S2
     translated_name: Date of second sample
     description: 'When the second serum was taken. The paired sample that confirms
       plague by a rising titre.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; S2 is the second sample.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 39 (Data da coleta S2)
   ELISA1:
-    official_name: Resultado ELISA - 1ª amostra
+    official_name: Resultado da sorologia para ELISA – S1
     translated_name: ELISA result - 1st sample
-    description: 'Result of the first ELISA serology sample in a plague (Peste) investigation,
-      paired with ELISA2 for a second sample and with the separate IGM_T1/IGG_T2 titer
-      fields.
+    description: 'ELISA serology result on the first serum sample (S1): reactive, non-reactive,
+      inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and PEST series membership.
-      The name and paired-sample pattern mirror the confirmed LAB_ELIS_1/LAB_ELIS_2
-      ELISA fields on the Leptospirose form, the same style of paired-sample serology
-      SINAN uses across its zoonosis forms.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 40 (Resultado da sorologia para ELISA – S1)
   ELISA2:
-    official_name: Resultado ELISA - 2ª amostra
+    official_name: Resultado da sorologia para ELISA – S2
     translated_name: ELISA result - 2nd sample
-    description: 'Second-sample result paired with ELISA1 in the same plague-investigation
-      ELISA pair.
+    description: 'ELISA serology result on the second serum sample (S2), paired with ELISA1.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same basis as ELISA1: C1 width, PEST series, and the paired-sample
-      ELISA pattern confirmed elsewhere in SINAN (Leptospirose''s LAB_ELIS_1/2).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 41 (Resultado da sorologia para ELISA – S2)
   EPI_PESTE:
-    official_name: Epizootia
-    translated_name: Epizootic (rodent die-off) flag
-    description: 'Whether an epizootic — an abnormal die-off among local rodents —
-      was reported in the area before the human plague case, a classic early-warning
-      sign used in plague surveillance.
+    official_name: O caso está associado a eventos positivos de importância epidemiológica
+      para peste?
+    translated_name: Case linked to epidemiologically important plague events
+    description: 'Whether the case is associated with positive events of epidemiological importance
+      for plague, such as rodent die-offs or positive animal findings (1 yes, 2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and PEST (Peste) series
-      membership. Rodent epizootics are the standard sentinel event plague surveillance
-      protocols look for before human cases appear, making an epizootic flag a plausible
-      fit for a field literally named "epi_peste".
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 34
   HEMO_IGG:
-    official_name: Resultado Hemaglutinação IgG
-    translated_name: Hemagglutination inhibition test - IgG result
-    description: 'IgG result of the hemagglutination-inhibition serology test for plague
-      (Yersinia pestis), a single-sample test alongside the paired-sample ELISA fields
-      (ELISA1/ELISA2) on the same form.
+    official_name: Resultado da hemoaglutinação – IgG
+    translated_name: Hemagglutination result – IgG
+    description: 'IgG result of the hemagglutination test for plague: reactive, non-reactive,
+      inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and PEST series membership.
-      Hemagglutination inhibition is a classic plague serology method, and running
-      it alongside an ELISA panel matches how other SINAN zoonosis forms (e.g. Chagas)
-      run multiple serology methods side by side.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 41 (Resultado da hemoaglutinação – IgG)
   HEMO_IGM:
-    official_name: Resultado Hemaglutinação IgM
-    translated_name: Hemagglutination inhibition test - IgM result
-    description: 'IgM half of the same hemagglutination-inhibition test as HEMO_IGG,
-      for plague.
+    official_name: Resultado da hemoaglutinação – IgM
+    translated_name: Hemagglutination result – IgM
+    description: 'IgM result of the hemagglutination test for plague: reactive, non-reactive,
+      inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as HEMO_IGG.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 41 (Resultado da hemoaglutinação – IgM)
   IGG_T2:
-    official_name: Título IgG - 2ª amostra
-    translated_name: IgG titer - 2nd sample
-    description: 'IgG antibody titer from the plague hemagglutination-inhibition test
-      on the second sample, a companion field to the qualitative HEMO_IGG result.
+    official_name: Resultado da hemoaglutinação – IgG título
+    translated_name: Hemagglutination IgG titre
+    description: 'Titre of the IgG hemagglutination test, filled when HEMO_IGG was done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C2, two digits — a titer
-      dilution step rather than a Sim/Não flag) and PEST series membership. "T2" reads
-      as "titer, 2nd sample", quantifying how strong the reaction was on top of the
-      qualitative HEMO_IGG/HEMO_IGM results.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 41 (Resultado da hemoaglutinação – IgG título)
   IGM_T1:
-    official_name: Título IgM - 1ª amostra
-    translated_name: IgM titer - 1st sample
-    description: 'IgM antibody titer from the same plague hemagglutination-inhibition
-      test, read on the first sample; sibling field to IGG_T2.
+    official_name: Resultado da hemoaglutinação – IgM título
+    translated_name: Hemagglutination IgM titre
+    description: 'Titre of the IgM hemagglutination test, filled when HEMO_IGM was done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as IGG_T2, C2 width and PEST series membership.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 41 (Resultado da hemoaglutinação – IgM título)
   LAB_ESFR:
-    official_name: Esfregaço
+    official_name: Exame bacteriológico – esfregaço
     translated_name: Smear microscopy result
-    description: 'Result of direct smear microscopy (e.g. of bubo aspirate or blood)
-      for Yersinia pestis in a plague investigation, a rapid bedside test distinct
-      from the culture result in LAB_HEMO.
+    description: 'Result of the bacteriological smear for Yersinia pestis: positive, negative,
+      inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and PEST series membership.
-      "Esfregaço" (smear) is standard plague-diagnosis terminology for direct microscopy
-      of bubo aspirate, one of the fastest confirmatory tests available and a natural
-      companion to the culture and serology fields confirmed elsewhere on this form.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 37 (Exame bacteriológico – esfregaço)
   LAB_HEMO:
-    official_name: Hemocultura
+    official_name: Exame bacteriológico – hemocultura
     translated_name: Blood/bubo culture result
-    description: 'Result of microbial culture (blood or bubo aspirate) for Yersinia
-      pestis, the plague form''s culture-based confirmation test, distinct from the
-      Chagas HEMOCULT field on a different agravo.
+    description: 'Result of the blood culture for Yersinia pestis: positive, negative, inconclusive,
+      or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and PEST series membership.
-      Culture is the reference standard for confirming plague, and pairing it with
-      the confirmed LAB_ESFR (smear) and ELISA/hemagglutination serology fields on
-      the same form fits the standard plague diagnostic workup.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 37 (Exame bacteriológico – hemocultura)
   SIN_GANG:
-    official_name: Sinal ganglionar (bubão)
+    official_name: Sintomatologia específica – ganglionar
     translated_name: Bubo (swollen lymph node)
     description: 'Clinical-signs checklist item marking presence of a bubo — a painful,
       swollen lymph node — the hallmark clinical sign of bubonic plague.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'PEST form; SIN_ is the sinal/sign prefix, GANG reads "gânglio"; C1
-      width fits a coded sign checkbox.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 36 (Sintomatologia específica – ganglionar)
   SIN_PULM:
-    official_name: Sinais pulmonares
+    official_name: Sintomatologia específica – pulmonar
     translated_name: Pulmonary signs (flag)
     description: 'Whether the patient had pulmonary signs or symptoms — distinguishes
       the highly lethal, person-to-person-transmissible pneumonic form of plague from
@@ -226,15 +185,17 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C1 flag; SIN_=sinal, PULM=pulmonar, in the PEST (peste) stratum.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 36 (Sintomatologia específica – pulmonar)
   TRATADO:
-    official_name: Tratado
+    official_name: Caso tratado
     translated_name: Treated (flag)
     description: 'Whether the plague patient received treatment (typically streptomycin
       or doxycycline).
 
       '
     code_system: none
-    source: inferred
-    reasoning: TRATADO = tratado; plain treatment-given flag on the PEST form.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Peste — http://portalsinan.saude.gov.br/images/documentos/Agravos/Peste/DIC_DADOS_Peste_v5.pdf,
+      campo 42 (Caso tratado)

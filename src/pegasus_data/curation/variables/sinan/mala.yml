@@ -17,10 +17,11 @@ variables:
     code_system: none
     source: inferred
     reasoning: '"MALARIA" names the species; MALA series carries a matching field PMALARIA,
-      so the "A" vs "P" prefixes most plausibly mark different test methods (e.g. antigen
-      vs. blood-smear) for the same species.
-
-      '
+      so the "A" vs "P" prefixes most plausibly mark different test methods (e.g. antigen vs.
+      blood-smear) for the same species. Reviewed 2026-09-28: no documentation found (searched
+      DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def,
+      local SINAN sources and the web). The field appears only in the 2004-2006 MALA files
+      (pre-SINAN NET form), whose dictionary is not published.'
   ARTEI:
     official_name: Uso de arteméter
     translated_name: Artemether given
@@ -31,10 +32,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Agravo is MALA (malária); name abbreviates "artemeter"; C1 width matches
-      the sibling per-drug treatment flags on the same form.
-
-      '
+    reasoning: 'Agravo is MALA (malária); name abbreviates "artemeter"; C1 width matches the
+      sibling per-drug treatment flags on the same form. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   ARTEM:
     official_name: Artemeter/Artesunato
     translated_name: Artemisinin-based drug used (flag)
@@ -45,8 +47,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag; ARTEM names the drug class directly, grouped with other treatment-drug
-      flags in the same MALA stratum.
+    reasoning: 'C1 flag; ARTEM names the drug class directly, grouped with other treatment-drug
+      flags in the same MALA stratum. Reviewed 2026-09-28: no documentation found (searched
+      DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def,
+      local SINAN sources and the web). The field appears only in the 2004-2006 MALA files
+      (pre-SINAN NET form), whose dictionary is not published.'
   ARTEMI:
     official_name: Uso de artemisinina/derivado
     translated_name: Artemisinin-based drug used (flag)
@@ -58,10 +63,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'ARTEMI abbreviates artemisinina, a first-line antimalarial class in
-      Brazilian treatment protocols; C1 width fits a checkbox.
-
-      '
+    reasoning: 'ARTEMI abbreviates artemisinina, a first-line antimalarial class in Brazilian
+      treatment protocols; C1 width fits a checkbox. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   ARTESU:
     official_name: Uso de artesunato
     translated_name: Artesunate used (flag)
@@ -72,8 +78,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: ARTESU = artesunato; MALA series' drug-given checklist (with MEFLOQ,
-      CLINDI).
+    reasoning: 'ARTESU = artesunato; MALA series'' drug-given checklist (with MEFLOQ, CLINDI).
+      Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN
+      NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the web). The
+      field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose dictionary
+      is not published.'
   ASSINTOM:
     official_name: Caso assintomático
     translated_name: Asymptomatic case
@@ -84,10 +93,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MALA form; name reads "assintomático"; C1 width fits a coded yes/no
-      case-detection flag.
-
-      '
+    reasoning: 'MALA form; name reads "assintomático"; C1 width fits a coded yes/no case-detection
+      flag. Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf,
+      the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the
+      web). The field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose
+      dictionary is not published.'
   AT_ATIVIDA:
     official_name: Atividade exercida no momento da provável infecção
     translated_name: Activity being performed at likely infection
@@ -103,34 +113,27 @@ variables:
     source: web
     source_ref: https://github.com/rfsaldanha/microdatasus/blob/7109ec2c42cf/R/process_sinan_malaria.R#AT_ATIVIDA
   AT_LAMINA:
-    official_name: Atividade que gerou a lâmina
-    translated_name: Activity that produced the blood smear
-    description: 'Which surveillance activity generated the malaria diagnostic blood
-      smear (lâmina): BP=Busca Passiva (patient sought care), BA=Busca Ativa (active
-      case search), LVC=Levantamento de Casos (case survey).
+    official_name: Tipo de lâmina
+    translated_name: Type of slide
+    description: 'Type of blood slide: passive detection (BP), active detection (BA), or cure-verification
+      slide (LVC). Separates new cases (BP/BA) from relapse or recrudescence (LVC).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Catalog dictionary gives values 1=BP, 2=BA, 3=LVC; AT_ = atividade,
-      LAMINA = lâmina (blood smear), and BP/BA/LVC map onto Brazil''s standard malaria
-      case-detection-mode abbreviations.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Malária — portalsinan.saude.gov.br, DIC_DADOS_Malaria_v5.pdf
+      (sources/dic_text/malaria__DIC_DADOS_Malaria_v5.txt), campo 34 (Tipo de lâmina)
   AT_SINTOMA:
-    official_name: Atendimento com sintomas
+    official_name: Sintomas
     translated_name: Attended with symptoms (flag)
-    description: 'Whether the patient was symptomatic at the visit that generated this
-      malaria notification, as opposed to being found through active case-search while
-      asymptomatic (see ASSINTOM).
+    description: 'Whether the patient had symptoms characteristic of malaria at the examination
+      (1 with symptoms, 2 without); used to measure asymptomatic carriage.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Catalog dictionary confirms values 1=Com sintomas, 2=Sem sintomas for
-      this field in the MALA series.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Malária — portalsinan.saude.gov.br, DIC_DADOS_Malaria_v5.pdf
+      (sources/dic_text/malaria__DIC_DADOS_Malaria_v5.txt), campo 35 (Sintomas)
   CALAFRIO:
     official_name: Calafrio
     translated_name: Chills
@@ -152,8 +155,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C30 text field, wide enough for a drug name, sitting with the other
-      MALA treatment-drug flags.
+    reasoning: 'C30 text field, wide enough for a drug name, sitting with the other MALA treatment-drug
+      flags. Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf,
+      the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the
+      web). The field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose
+      dictionary is not published.'
   CLIND:
     official_name: Diagnóstico clínico
     translated_name: Clinical (unconfirmed) diagnosis flag
@@ -165,10 +171,11 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'CLIN = clínica/clínico; malaria surveillance distinguishes clinically-diagnosed
-      from laboratory-confirmed cases, and this field sits beside the confirmation
-      flag CON_CONFIR.
-
-      '
+      from laboratory-confirmed cases, and this field sits beside the confirmation flag CON_CONFIR.
+      Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN
+      NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the web). The
+      field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose dictionary
+      is not published.'
   CLINDI:
     official_name: Uso de clindamicina
     translated_name: Clindamycin used (flag)
@@ -179,8 +186,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: CLINDI = clindamicina; a companion field CLIND (not owned here) suggests
-      a schema-revision variant of the same drug flag.
+    reasoning: 'CLINDI = clindamicina; a companion field CLIND (not owned here) suggests a
+      schema-revision variant of the same drug flag. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   CLOROQ:
     official_name: Uso de cloroquina
     translated_name: Chloroquine given
@@ -190,10 +200,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MALA form; name abbreviates "cloroquina"; C1 width matches the sibling
-      per-drug flags.
-
-      '
+    reasoning: 'MALA form; name abbreviates "cloroquina"; C1 width matches the sibling per-drug
+      flags. Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf,
+      the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the
+      web). The field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose
+      dictionary is not published.'
   CLOROQI:
     official_name: Cloroquina
     translated_name: Chloroquine used (flag)
@@ -204,7 +215,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag; CLOROQI is cloroquina truncated.
+    reasoning: 'C1 flag; CLOROQI is cloroquina truncated. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   CON_CONFIR:
     official_name: Confirmação laboratorial
     translated_name: Lab-confirmed case (flag)
@@ -215,10 +229,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CON_ = condição/confirmação, CONFIR = confirmado; lab confirmation
-      is the standard classification axis for malaria case status.
-
-      '
+    reasoning: 'CON_ = condição/confirmação, CONFIR = confirmado; lab confirmation is the standard
+      classification axis for malaria case status. Reviewed 2026-09-28: no documentation found
+      (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def,
+      local SINAN sources and the web). The field appears only in the 2004-2006 MALA files
+      (pre-SINAN NET form), whose dictionary is not published.'
   DEXAME:
     official_name: Data do exame
     translated_name: Date of examination
@@ -228,8 +243,9 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; DEXAME reads data do exame.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Malária — portalsinan.saude.gov.br, DIC_DADOS_Malaria_v5.pdf
+      (sources/dic_text/malaria__DIC_DADOS_Malaria_v5.txt), campo 36 (Data do exame)
   DINTERNA:
     official_name: Data de internação
     translated_name: Date of hospital admission
@@ -240,8 +256,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: D = data, INTERNA = internação; declared as a date; MALA series has
-      matching M/UF variants.
+    reasoning: 'D = data, INTERNA = internação; declared as a date; MALA series has matching
+      M/UF variants. Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf,
+      the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the
+      web). The field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose
+      dictionary is not published.'
   DOXOCI:
     official_name: Uso de doxiciclina
     translated_name: Doxycycline given
@@ -252,34 +271,34 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MALA form; name abbreviates "doxiciclina"; C1 width matches the sibling
-      per-drug treatment flags.
-
-      '
+    reasoning: 'MALA form; name abbreviates "doxiciclina"; C1 width matches the sibling per-drug
+      treatment flags. Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf,
+      the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the
+      web). The field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose
+      dictionary is not published.'
   DSTRAESQUE:
-    official_name: Descrição do esquema de tratamento
+    official_name: Esquema de tratamento utilizado – outro
     translated_name: Treatment regimen - free-text description
-    description: 'Free-text description of the antimalarial regimen actually given,
-      used when it doesn''t match a standard coded scheme; complements the coded field
-      TRA_ESQUEM.
+    description: 'Free-text description of the treatment regimen used, filled when the coded
+      regimen TRA_ESQUEM is 99 (other regimen, prescribed by a physician).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DS_TRA_ESQUE = descrição + tratamento + esquema; width 30 fits free
-      text; MALA series also carries the coded sibling TRA_ESQUEM.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Malária — portalsinan.saude.gov.br, DIC_DADOS_Malaria_v5.pdf
+      (sources/dic_text/malaria__DIC_DADOS_Malaria_v5.txt), campo 40 (Esquema de tratamento
+      utilizado – outro)
   DTRATA:
-    official_name: Data do tratamento
+    official_name: Data do início do tratamento
     translated_name: Date treatment started
     description: 'When treatment began. Against DEXAME it measures the gap the programme
       works to keep at zero, since falciparum malaria can kill within days.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; DTRATA reads data do tratamento.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Malária — portalsinan.saude.gov.br, DIC_DADOS_Malaria_v5.pdf
+      (sources/dic_text/malaria__DIC_DADOS_Malaria_v5.txt), campo 41 (Data do início do tratamento)
   DTTRANSFU:
     official_name: Data da transfusão
     translated_name: Date of blood transfusion
@@ -290,7 +309,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: D8 date; DT_+TRANSFU, grouped with the transfusion flags in this stratum.
+    reasoning: 'D8 date; DT_+TRANSFU, grouped with the transfusion flags in this stratum. Reviewed
+      2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET
+      malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the web). The field
+      appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose dictionary is not
+      published.'
   GESTANTE:
     official_name: Gestante
     translated_name: Pregnant (flag)
@@ -301,24 +324,23 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Direct decode of GESTANTE; pregnancy status is a standard field wherever
-      it affects malaria treatment choice, C1 width fits a checkbox.
-
-      '
+    reasoning: 'Direct decode of GESTANTE; pregnancy status is a standard field wherever it
+      affects malaria treatment choice, C1 width fits a checkbox. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   LOC_INF:
-    official_name: Local provável de infecção
+    official_name: Localidade provável de infecção
     translated_name: Probable infection location (free text)
-    description: 'Free-text description of where the patient likely acquired malaria
-      (locality, village, mining site), used to map transmission foci separately from
-      the patient''s residence address.
+    description: 'Name of the locality where the patient was probably infected; guides control
+      actions.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'LOC_ = local, INF = infecção; C60 width fits free-text place names,
-      and probable-infection-site is a standard malaria epidemiological field.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Malária — portalsinan.saude.gov.br, DIC_DADOS_Malaria_v5.pdf
+      (sources/dic_text/malaria__DIC_DADOS_Malaria_v5.txt), campo 49 (Localidade provável de
+      infecção)
   MEFLOQ:
     official_name: Uso de mefloquina
     translated_name: Mefloquine used (flag)
@@ -328,7 +350,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: MEFLOQ = mefloquina; MALA drug-checklist sibling of ARTESU/CLINDI.
+    reasoning: 'MEFLOQ = mefloquina; MALA drug-checklist sibling of ARTESU/CLINDI. Reviewed
+      2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET
+      malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the web). The field
+      appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose dictionary is not
+      published.'
   MINTERNA:
     official_name: Unidade de internação (CNES)
     translated_name: Hospitalization facility (CNES code)
@@ -338,10 +364,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MALA form; C7 width matches the standard 7-digit CNES facility-code
-      length rather than a single yes/no flag; name reads "internação".
-
-      '
+    reasoning: 'MALA form; C7 width matches the standard 7-digit CNES facility-code length
+      rather than a single yes/no flag; name reads "internação". Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   MTRANSFU:
     official_name: Município da transfusão
     translated_name: Municipality where transfusion occurred
@@ -353,8 +380,11 @@ variables:
     codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
-    reasoning: C7 matches a 7-digit IBGE municipality code; M_+TRANSFU reads município
-      da transfusão, grouped with TRANSFU/DTTRANSFU.
+    reasoning: 'C7 matches a 7-digit IBGE municipality code; M_+TRANSFU reads município da
+      transfusão, grouped with TRANSFU/DTTRANSFU. Reviewed 2026-09-28: no documentation found
+      (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def,
+      local SINAN sources and the web). The field appears only in the 2004-2006 MALA files
+      (pre-SINAN NET form), whose dictionary is not published.'
   PCRUZ:
     official_name: Parasitemia em cruzes
     translated_name: Parasitaemia, cross scale
@@ -380,25 +410,22 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MALA form; name directly reads "P. malariae"; C1 width fits a species
-      flag distinct from the general species-code field owned elsewhere.
-
-      '
+    reasoning: 'MALA form; name directly reads "P. malariae"; C1 width fits a species flag
+      distinct from the general species-code field owned elsewhere. Reviewed 2026-09-28: no
+      documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   PMM:
-    official_name: Parasitemia (parasitos por mm³)
+    official_name: Parasitos por mm³
     translated_name: Parasite density (parasites per mm³)
-    description: 'Quantitative parasite count from the malaria patient''s blood smear,
-      expressed as parasites per cubic millimeter of blood - a numeric lab value distinct
-      from the qualitative species-positive checkboxes elsewhere on the form.
+    description: 'Parasite density on the blood slide, in parasites per cubic millimetre; indicates
+      severity and treatment delay.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'MALA = Malária; declared character in some schema years and numeric
-      (width 8) in later ones, consistent with a lab count rather than a code; "parasitos/mm3"
-      is the standard unit for malaria parasitemia.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Malária — portalsinan.saude.gov.br, DIC_DADOS_Malaria_v5.pdf
+      (sources/dic_text/malaria__DIC_DADOS_Malaria_v5.txt), campo 38 (Parasitos por mm³)
   PRIMAQ:
     official_name: Primaquina
     translated_name: Primaquine used (flag)
@@ -409,7 +436,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag; PRIMAQ is primaquina truncated.
+    reasoning: 'C1 flag; PRIMAQ is primaquina truncated. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   PTRANSFU:
     official_name: Provável transfusional
     translated_name: Transfusion-related transmission (flag)
@@ -420,10 +450,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'P_ = provável, TRANSFU = transfusão/transfusional; transfusional malaria
-      is a recognized, separately-flagged transmission mode in Brazilian surveillance.
-
-      '
+    reasoning: 'P_ = provável, TRANSFU = transfusão/transfusional; transfusional malaria is
+      a recognized, separately-flagged transmission mode in Brazilian surveillance. Reviewed
+      2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET
+      malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the web). The field
+      appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose dictionary is not
+      published.'
   PUSUARIO:
     official_name: Peso do usuário
     translated_name: Patient's body weight
@@ -434,10 +466,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'P_USUARIO read as peso do usuário; no direct textual confirmation found,
-      but fits the treatment-dosing context of the surrounding drug-checklist fields.
-
-      '
+    reasoning: 'P_USUARIO read as peso do usuário; no direct textual confirmation found, but
+      fits the treatment-dosing context of the surrounding drug-checklist fields. Reviewed
+      2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET
+      malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the web). The field
+      appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose dictionary is not
+      published.'
   QUININO:
     official_name: Uso de quinino
     translated_name: Quinine given
@@ -448,10 +482,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MALA form; name reads "quinino"; C1 width matches the sibling per-drug
-      treatment flags.
-
-      '
+    reasoning: 'MALA form; name reads "quinino"; C1 width matches the sibling per-drug treatment
+      flags. Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf,
+      the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the
+      web). The field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose
+      dictionary is not published.'
   QUININOI:
     official_name: Quinino
     translated_name: Quinine used (flag)
@@ -462,7 +497,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag; QUININOI reads quinino.
+    reasoning: 'C1 flag; QUININOI reads quinino. Reviewed 2026-09-28: no documentation found
+      (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def,
+      local SINAN sources and the web). The field appears only in the 2004-2006 MALA files
+      (pre-SINAN NET form), whose dictionary is not published.'
   RESULT:
     official_name: Resultado do exame
     translated_name: Examination result
@@ -488,10 +526,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'S_OUTROS = "se outros" (if other); matches the flag+detail pattern
-      used across SINAN "outro, especifique" fields, C1 width fits a checkbox.
-
-      '
+    reasoning: 'S_OUTROS = "se outros" (if other); matches the flag+detail pattern used across
+      SINAN "outro, especifique" fields, C1 width fits a checkbox. Reviewed 2026-09-28: no
+      documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   SUDORESE:
     official_name: Sudorese
     translated_name: Sweating (flag)
@@ -502,7 +541,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: SUDORESE = sudorese; MALA symptom-checklist field.
+    reasoning: 'SUDORESE = sudorese; MALA symptom-checklist field. Reviewed 2026-09-28: no
+      documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   TETRAC:
     official_name: Uso de tetraciclina
     translated_name: Tetracycline given
@@ -512,10 +554,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MALA form; name abbreviates "tetraciclina"; C1 width matches the sibling
-      per-drug flags.
-
-      '
+    reasoning: 'MALA form; name abbreviates "tetraciclina"; C1 width matches the sibling per-drug
+      flags. Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf,
+      the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the
+      web). The field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose
+      dictionary is not published.'
   TRANSFU:
     official_name: Transfusão
     translated_name: Blood transfusion (flag)
@@ -526,7 +569,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag, root of the DTTRANSFU/MTRANSFU trio.
+    reasoning: 'C1 flag, root of the DTTRANSFU/MTRANSFU trio. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   UFINTERNA:
     official_name: UF de internação
     translated_name: State of hospitalization
@@ -537,10 +583,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'UF_ = unidade federativa, INTERNA = internação; C2 width matches a
-      standard Brazilian state abbreviation.
-
-      '
+    reasoning: 'UF_ = unidade federativa, INTERNA = internação; C2 width matches a standard
+      Brazilian state abbreviation. Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Malaria_v5.pdf,
+      the SINAN NET malaria form Malaria_v5.pdf, MalariaNET.def, local SINAN sources and the
+      web). The field appears only in the 2004-2006 MALA files (pre-SINAN NET form), whose
+      dictionary is not published.'
   UFTRANSFU:
     official_name: UF da transfusão
     translated_name: State (UF) of the transfusion
@@ -553,9 +600,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'UF + TRANSFU = transfusão; MALA series carries the full DTTRANSFU/MTRANSFU/PTRANSFU/UTRANSFU
-      location-and-date set for a transfusion-transmission workup.
-
-      '
+      location-and-date set for a transfusion-transmission workup. Reviewed 2026-09-28: no
+      documentation found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'
   UTRANSFU:
     official_name: Unidade da transfusão (CNES)
     translated_name: Transfusion facility (CNES code)
@@ -566,7 +614,8 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MALA form; name reads "unidade transfusão"; C7 width matches the standard
-      CNES facility-code length, the same pattern as MINTERNA.
-
-      '
+    reasoning: 'MALA form; name reads "unidade transfusão"; C7 width matches the standard CNES
+      facility-code length, the same pattern as MINTERNA. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Malaria_v5.pdf, the SINAN NET malaria form Malaria_v5.pdf,
+      MalariaNET.def, local SINAN sources and the web). The field appears only in the 2004-2006
+      MALA files (pre-SINAN NET form), whose dictionary is not published.'

@@ -568,6 +568,7 @@ CREATE TABLE IF NOT EXISTS variable_docs (
   asserted_by     TEXT,
   asserted_at     TEXT,
   reasoning       TEXT,              -- required when source='inferred'
+  per_form        INTEGER DEFAULT 0, -- codelists are per-form alternatives (ADR-0080)
   PRIMARY KEY (system, field_name)
 );
 CREATE INDEX IF NOT EXISTS ix_variable_docs_source ON variable_docs (source);

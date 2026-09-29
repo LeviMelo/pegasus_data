@@ -9,17 +9,19 @@ variables:
   AMP_ACEVAS:
     official_name: Acesso vascular
     translated_name: Vascular access type
-    description: 'Which kind of vascular access the patient is dialysing through —
-      fistula, graft or catheter. Catheter use is the quality indicator here, since
-      it carries the highest infection risk.
-
-      '
+    description: 'Vascular access the patient dialyses through: 1 = arteriovenous
+      fistula (FAV), 2 = short-term catheter, 3 = long-term catheter. Catheter use is
+      the quality indicator here, since it carries the highest infection risk.'
     code_system: internal
-    source: inferred
-    reasoning: 'ACE VAS reads as acesso vascular, and C(1) admits a small enumerated
-      set rather than free text.
-
-      '
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''TRATAMENTO DIALITICO'' variable part (laudo 18) seq 9
+      APA_ACEVAS ''Acesso Vascular: 1-FAV, 2-Cateter curta permanência, 3-Cateter longa
+      permanência''; same field as ATD_ACEVAS in Informe Técnico SIASUS 2019-07
+      (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 49'
   AMP_ALBUMI:
     official_name: Albumina
     translated_name: Serum albumin
@@ -28,8 +30,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: ALBUMI is albumina; C(4) matches the other lab values in the APAC blocks.
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''TRATAMENTO DIALITICO'' variable part (laudo 18) seq 18
+      APA_ALBUMI ''Albumina''; ATD_ALBUMI in Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 58'
   AMP_CARACT:
     official_name: Característica
     translated_name: Case characteristic
@@ -45,20 +52,20 @@ variables:
 
       '
   AMP_DTCLI:
-    official_name: Data Clínica
-    translated_name: Clinical admission date
-    description: 'Date the patient was clinically admitted into the chronic-kidney-disease
-      follow-up program at this facility, which can precede AMP_DTINI when a patient
-      was followed before dialysis began.
-
-      '
+    official_name: Data do início da diálise nesta clínica
+    translated_name: Dialysis start date at this facility
+    description: 'Date (AAAAMMDD) the patient started dialysis at this facility. Differs
+      from AMP_DTINI, the date of the patient''s first dialysis anywhere, when the
+      patient transferred in.'
     code_system: none
-    source: inferred
-    reasoning: 'DT_ marks a date under the standard DATASUS naming grammar, and "CLI"
-      abbreviates "clínica"; the sibling field AMP_DTINI is confirmed as the first-dialysis
-      date, so DTCLI is the earlier clinical-admission date in the same record.
-
-      '
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''TRATAMENTO DIALITICO'' variable part (laudo 18) seq 8
+      APA_DTCLI ''Data (AAAAMMDD) do início da diálise nesta clínica''; ATD_DTCLI in
+      Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 48'
   AMP_DTINI:
     official_name: Data da 1ª Diálise
     translated_name: First dialysis date
@@ -82,12 +89,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: '"FOSFOR" is the Portuguese word "fósforo" shortened; CKD/dialysis monitoring
-      protocols require phosphorus alongside the other lab fields present in this same
-      AMP record (Hb, PTH, HBsAg).
-
-      '
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''TRATAMENTO DIALITICO'' variable part (laudo 18) seq 15
+      APA_FOSFOR ''Fósforo''; ATD_FOSFOR in Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 55'
   AMP_HB:
     official_name: Hb
     translated_name: Hemoglobin
@@ -146,18 +154,19 @@ variables:
   AMP_INTERC:
     official_name: Intercorrência
     translated_name: Clinical complication flag
-    description: 'Flags whether a clinical intercurrence (a complication or adverse
-      event, such as infection or hospitalization) occurred during the period covered
-      by this dialysis follow-up record.
-
-      '
+    description: 'Whether the patient was admitted to hospital, with the admission
+      starting in the reporting month, to treat a clinical intercurrence: S = Sim, N =
+      Não, I = Ignorado.'
     code_system: none
-    source: inferred
-    reasoning: '"INTERC" is the plain Portuguese clinical term "intercorrência" shortened,
-      a routine yes/no item on periodic treatment-monitoring records like the rest
-      of this AMP panel.
-
-      '
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''TRATAMENTO DIALITICO'' variable part (laudo 18) seq 23
+      APA_INTERC ''Usuário internado, com data de início no mês vigente, para tratamento
+      de intercorrência clínica? (S-Sim, N-Não, I-Ignorado)''; ATD_INTERC in Informe
+      Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 63'
   AMP_KTVSEM:
     official_name: Kt/V Semanal
     translated_name: Weekly Kt/V
@@ -167,12 +176,14 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: '"KTV" is the clinical shorthand Kt/V and "SEM" abbreviates "semanal"
-      (weekly), the usual reporting period for this dialysis-adequacy index in Brazilian
-      nephrology monitoring.
-
-      '
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''TRATAMENTO DIALITICO'' variable part (laudo 18) seq 16
+      APA_KTVSEM ''Kt/v Semanal''; ATD_KTVSEM in Informe Técnico SIASUS 2019-07
+      (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 56'
   AMP_MAISNE:
     official_name: Acompanhamento há mais de 1 ano
     translated_name: Followed over one year flag
@@ -196,12 +207,14 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: '"PTH" is the standard clinical abbreviation for parathyroid hormone;
-      CKD monitoring protocols pair it with phosphorus (AMP_FOSFOR) in the same panel,
-      matching this field''s placement among the other AMP lab fields.
-
-      '
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''TRATAMENTO DIALITICO'' variable part (laudo 18) seq 19
+      APA_PTH ''PTH (hormônio da paratireóide)''; ATD_PTH in Informe Técnico SIASUS
+      2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 59'
   AMP_SEAPTO:
     official_name: Situação de aptidão para transplante
     translated_name: Transplant-eligibility status detail
@@ -257,21 +270,21 @@ variables:
 
       '
   AMP_SITTRA:
-    official_name: Situação do Tratamento
-    translated_name: Current treatment status
-    description: 'Current status of the patient''s renal-replacement therapy at reporting
-      time - still in dialysis, transferred to another service, transplanted, or deceased
-      - the outcomes billing staff check monthly before renewing the APAC.
-
-      '
+    official_name: Situação de transplante
+    translated_name: Transplant eligibility status
+    description: 'The patient''s kidney-transplant situation: 1 = fit (apto), 2 = unfit
+      (inapto), 3 = declined (recusa), 4 = not applicable, new case with under 90 days
+      of treatment. Not a treatment outcome; AMP_SEAPTO details the fit cases.'
     code_system: none
-    source: inferred
-    reasoning: '"SIT"+"TRA" pairs with the documented sibling AMP_SITINI ("situação
-      inicial") to give "situação do tratamento"; the outcome categories come from
-      the same operational manual''s monthly review step, which lists exactly these
-      possibilities (óbito, mudança de procedimento, transplante, transferência, continuidade).
-
-      '
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''TRATAMENTO DIALITICO'' variable part (laudo 18) seq 12
+      APA_SITTRA ''Situação de transplante (1-Apto, 2-Inapto, 3-Recusa, 4-N/A caso novo,
+      com menos de 90 dias de tratamento)''; ATD_SITTRA in Informe Técnico SIASUS
+      2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 52'
   AMP_TRU:
     official_name: TRU
     translated_name: Urea reduction rate
@@ -281,9 +294,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: '"TRU" is the standard Brazilian-nephrology abbreviation for Taxa de
-      Redução de Ureia, the companion adequacy metric to Kt/V (AMP_KTVSEM) computed
-      from the same pre/post-dialysis blood draw.
-
-      '
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''TRATAMENTO DIALITICO'' variable part (laudo 18) seq 17
+      APA_TRU ''TRU (taxa de redução de uréia)''; ATD_TRU in Informe Técnico SIASUS
+      2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 57'

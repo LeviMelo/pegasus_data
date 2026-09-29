@@ -362,13 +362,14 @@ variables:
       returned as filed.
     code_system: internal
     source: inferred
-    reasoning: '"Etiologia" is a specific, unambiguous Portuguese medical term, and RESP''s
-      whole purpose is attributing congenital alterations to a cause (Zika, other STORCH pathogens,
-      etc.), so a field with this exact name plausibly records that attribution. This is a
-      translation-level inference only - the actual set of codes/labels used is not confirmed
-      by any source consulted.
-
-      '
+    reasoning: '"Etiologia" is a specific, unambiguous Portuguese medical term, and
+      RESP''s whole purpose is attributing congenital alterations to a cause (Zika,
+      other STORCH pathogens, etc.), so a field with this exact name plausibly records
+      that attribution. This is a translation-level inference only - the actual set of
+      codes/labels used is not confirmed by any source consulted. Reviewed 2026-09-28:
+      no documentation found (searched DIC_DADOS_RESP.pdf and the RESP.def in
+      tabresp.zip on ftp.datasus.gov.br/dissemin/publicos/RESP; neither lists the
+      column).'
     notes: Declared width changes across file vintages (1 and 9 characters both observed),
       consistent with a schema change at some point in the 2015-2024 span. Verify against
       a same-year DEF/CNV file before using the values, and do not infer what any specific
@@ -469,13 +470,14 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'DATASUS TabWin tabulations commonly attach a constant count column, often
-      named FREQUENCIA, to derived extracts so a generic .def file can sum it into a frequency
-      table. This field is absent from the RESP dictionary and from every per-UF/per-year
-      RESP file, and appears only in the single consolidated RESPBR.dbc file, consistent with
-      that role; its actual stored value is not confirmed by any source consulted.
-
-      '
+    reasoning: 'DATASUS TabWin tabulations commonly attach a constant count column,
+      often named FREQUENCIA, to derived extracts so a generic .def file can sum it into
+      a frequency table. This field is absent from the RESP dictionary and from every
+      per-UF/per-year RESP file, and appears only in the single consolidated RESPBR.dbc
+      file, consistent with that role; its actual stored value is not confirmed by any
+      source consulted. Reviewed 2026-09-28: no documentation found (searched
+      DIC_DADOS_RESP.pdf and the RESP.def in tabresp.zip on
+      ftp.datasus.gov.br/dissemin/publicos/RESP; neither lists the column).'
   GEST_DIAG:
     official_name: Idade gestacional na deteccao da alteracao congenita
     translated_name: Gestational age at detection (weeks)
@@ -566,14 +568,14 @@ variables:
     code_system: external
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Its 7-character width matches the standard 6-digit IBGE municipality code
-      plus check digit used as a cross-system field name by several DATASUS tabulation tools,
-      distinct from CODMUNRES''s system-specific 6-digit code recorded elsewhere in RESP.
-      It is present only in the single national RESPBR.dbc extract, not in the per-UF/year
-      files or the RESP dictionary; the exact code standard is not confirmed by any source
-      consulted.
-
-      '
+    reasoning: 'Its 7-character width matches the standard 6-digit IBGE municipality
+      code plus check digit used as a cross-system field name by several DATASUS
+      tabulation tools, distinct from CODMUNRES''s system-specific 6-digit code recorded
+      elsewhere in RESP. It is present only in the single national RESPBR.dbc extract,
+      not in the per-UF/year files or the RESP dictionary; the exact code standard is
+      not confirmed by any source consulted. Reviewed 2026-09-28: no documentation found
+      (searched DIC_DADOS_RESP.pdf and the RESP.def in tabresp.zip on
+      ftp.datasus.gov.br/dissemin/publicos/RESP; neither lists the column).'
     notes: 'Not documented in DIC_DADOS_RESP.pdf; inferred from field name, width, and its
       presence only in the consolidated RESPBR.dbc file.
 

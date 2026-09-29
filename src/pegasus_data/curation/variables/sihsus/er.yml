@@ -19,11 +19,11 @@ variables:
     source: inferred
     reasoning: 'No .DEF binds a display name to this column, but its 13-digit values
       match the AIH numbering already documented for N_AIH, and it sits in a file whose
-      other columns (ANO, MES, CO_ERRO below) route through [DEF-MOTERRO] — an AIH-number
-      column is exactly what a per-error record needs to identify which admission the
-      error is about.
-
-      '
+      other columns (ANO, MES, CO_ERRO below) route through [DEF-MOTERRO] — an
+      AIH-number column is exactly what a per-error record needs to identify which
+      admission the error is about. Reviewed 2026-09-28: no documentation found
+      (searched IT_SIHSUS_1603, TAB_SIH Motivo_de_Erro.DEF which binds only ANO, MES,
+      CO_ERRO and CNES, web).'
     notes: 'Do not assume this joins 1:1 to N_AIH in RD — an AIH that errored out may
       never reach RD.
 
@@ -91,9 +91,9 @@ variables:
     reasoning: 'No .DEF display name is bound, but the detector matches this column''s
       values to MUNICBR (six-character IBGE codes) with high confidence, the observed
       values are real Acre-state municipalities, and MUN_MOV pairs directly with the
-      already-documented MUNIC_MOV concept.
-
-      '
+      already-documented MUNIC_MOV concept. Reviewed 2026-09-28: no documentation found
+      (searched IT_SIHSUS_1603, TAB_SIH Motivo_de_Erro.DEF which binds only ANO, MES,
+      CO_ERRO and CNES, web).'
     notes: 'MUN_MOV and MUN_RES answer different questions, exactly as MUNIC_MOV and
       MUNIC_RES do in RD (see sihsus_rd.yml) — the same caution applies here.
 
@@ -109,8 +109,10 @@ variables:
     - MUNICBR
     code_system: external
     source: inferred
-    reasoning: Same basis as MUN_MOV — detector-matched to MUNICBR, and the name pairs
-      with the documented MUNIC_RES concept.
+    reasoning: 'Same basis as MUN_MOV — detector-matched to MUNICBR, and the name pairs
+      with the documented MUNIC_RES concept. Reviewed 2026-09-28: no documentation found
+      (searched IT_SIHSUS_1603, TAB_SIH Motivo_de_Erro.DEF which binds only ANO, MES,
+      CO_ERRO and CNES, web).'
   UF_RES:
     translated_name: State of residence (error file)
     description: 'IBGE 2-digit state (UF) code of the patient''s residence — a coarser,
@@ -122,6 +124,6 @@ variables:
     source: inferred
     reasoning: 'The 2-digit values match the IBGE UF numeric codes for the two states
       this batch''s error files cover (Acre, Amazonas), and the name follows the UF_
-      prefix paired directly with MUN_RES in the same file.
-
-      '
+      prefix paired directly with MUN_RES in the same file. Reviewed 2026-09-28: no
+      documentation found (searched IT_SIHSUS_1603, TAB_SIH Motivo_de_Erro.DEF which
+      binds only ANO, MES, CO_ERRO and CNES, web).'

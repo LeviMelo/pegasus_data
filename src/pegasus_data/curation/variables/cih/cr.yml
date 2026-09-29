@@ -314,23 +314,16 @@ variables:
   HOMONIMO:
     official_name: Indicador de homônimo
     translated_name: Homonymous-patient flag
-    description: 'A single-character flag field with no codelist bound in this catalog. "Homônimo"
-      is Portuguese for "sharing the same name" - DATASUS''s hospital-record systems use a
-      field by this name to flag when a record''s patient-identifying data matches another
-      record''s closely enough to be a same-name duplicate, for de-duplication and audit rather
-      than clinical purposes.
-
-      '
+    description: 'Flag saying whether the patient on this record is a homonym of (shares
+      the identifying data of) the patient on another AIH: blank = not a homonym, 1 =
+      homonym. An audit/de-duplication marker, not clinical content.'
     code_system: none
-    source: inferred
-    reasoning: 'Declared C(1,0) with no codelist bound and no observed values in this catalog.
-      The field name has one unambiguous everyday meaning in Portuguese ("homônimo" = homonym),
-      and DATASUS reuses this exact field name with this exact meaning in the related SIH/AIH-SUS
-      hospital record (its own hospital-admission microdata line), which shares CIH''s record
-      shape closely enough that several other fields in this batch (SEXO, COBRANCA/motivo,
-      NATUREZA, GESTAO, COD_IDADE) use identical or near-identical codelists.
-
-      '
+    source: layout_doc
+    source_ref: 'Ficha de Qualificação ''FQA CIH 180610.doc'' (DATASUS, 06/2010), layout
+      CR*.dbf, in the TAB_CIH kit — local: sources/tab_cih_extract/FQA CIH 180610.doc
+      (strings in sources/tab_cih_extract/fqa_strings.txt), Seq 25 HOMONIMO CHAR(01)
+      ''Indica se o paciente da AIH é homônimo do paciente de outra AIH: Branco - não
+      homônimo; 1 - homônimo'''
     notes: 'No codelist is bound for this field in either CIH''s own dictionary or this catalog,
       so the specific code(s) that mean "is a homonym" versus "is not" are not asserted here
       - only the column''s purpose.
@@ -347,14 +340,11 @@ variables:
     code_system: none
     depends_on:
     - COD_IDADE
-    source: inferred
-    reasoning: 'CIH''s own dictionary binds COD_IDADE (not IDADE) to the IDADEDET/ IDADE18
-      age codelists, and IDADEDET''s raw codes are a concatenation of a unit digit and this
-      field''s 2-digit value (e.g. "004" = "3 dias" is unit 2 + value "03"... "042" = "1 ano"
-      is unit 4 + value "01"), confirming IDADE is the bare numeric companion to COD_IDADE''s
-      unit code rather than a self-contained value.
-
-      '
+    source: layout_doc
+    source_ref: 'Ficha de Qualificação ''FQA CIH 180610.doc'' (DATASUS, 06/2010), layout
+      CR*.dbf, in the TAB_CIH kit — local: sources/tab_cih_extract/FQA CIH 180610.doc
+      (strings in sources/tab_cih_extract/fqa_strings.txt), Seq 20 IDADE CHAR(02)
+      ''Idade, na unidade do campo COD_IDADE'''
     notes: 'Do not treat IDADE alone as "age in years" - it is meaningless without COD_IDADE.
 
       '
@@ -466,18 +456,13 @@ variables:
   NASC:
     official_name: Data de nascimento
     translated_name: Patient date of birth
-    description: 'The patient''s date of birth, 8 digits.
-
-      '
+    description: The patient's date of birth, as AAAAMMDD.
     code_system: none
-    source: inferred
-    reasoning: '"NASC" is the standard DATASUS abbreviation for "nascimento" (birth), and
-      no codelist is bound to it - a date, not a coded field. Declared width (8 characters)
-      matches DT_INTER/DT_SAIDA''s confirmed AAAAMMDD date format in the same record, so the
-      same year-month-day convention is expected, though this specific field''s digit order
-      is not spelled out anywhere in CIH''s own dictionary.
-
-      '
+    source: layout_doc
+    source_ref: 'Ficha de Qualificação ''FQA CIH 180610.doc'' (DATASUS, 06/2010), layout
+      CR*.dbf, in the TAB_CIH kit — local: sources/tab_cih_extract/FQA CIH 180610.doc
+      (strings in sources/tab_cih_extract/fqa_strings.txt), Seq 6 NASC CHAR(08) ''Data
+      de nasc. do paciente, formato AAAAMMDD'''
     notes: 'Format (AAAAMMDD) is inferred from DATASUS''s system-wide date convention and
       this record''s other date fields, not confirmed by a document that names NASC specifically.
 
@@ -568,23 +553,16 @@ variables:
 
       '
   UTI_MES_TO:
-    official_name: Diárias de UTI (total)
+    official_name: Total de dias de UTI durante a internação
     translated_name: Total ICU day count
-    description: 'A count of ICU daily-rate units billed for the admission, in the same 3-character
-      width as its sibling UTI_INT_TO.
-
-      '
+    description: 'Total number of ICU days during the admission. UTI_INT_TO carries the
+      intermediate-care ICU days separately.'
     code_system: none
-    source: inferred
-    reasoning: 'CIH''s own dictionary explicitly labels the sibling field UTI_INT_TO as "Diárias
-      UTI interm" (intermediate-care ICU days) but has no corresponding line for UTI_MES_TO.
-      Same C(3,0) declared width and _TO suffix as UTI_INT_TO, and the DATASUS naming convention
-      where a qualified field (UTI_INT_TO, the intermediate-care subset) sits alongside an
-      unqualified sibling (UTI_MES_TO) that carries the more general/total count for the competência
-      month, by parallel to how DIAS_PERM (total stay days) is unqualified while more specific
-      duration fields elsewhere carry qualifiers.
-
-      '
+    source: layout_doc
+    source_ref: 'Ficha de Qualificação ''FQA CIH 180610.doc'' (DATASUS, 06/2010), layout
+      CR*.dbf, in the TAB_CIH kit — local: sources/tab_cih_extract/FQA CIH 180610.doc
+      (strings in sources/tab_cih_extract/fqa_strings.txt), Seq 8 UTI_MES_TO CHAR(03)
+      ''Total de dias de UTI durante a internação'''
     notes: 'Not confirmed by CIH''s own dictionary or a located layout document - treat "total
       (all ICU types)" as a reasoned guess about scope, not a quoted definition. No observed
       values are catalogued to check it against.

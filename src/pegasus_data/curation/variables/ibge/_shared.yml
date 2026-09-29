@@ -35,13 +35,13 @@ variables:
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Naming grammar (no DT_/CS_ prefix, a bare demographic noun) plus the
-      two distinct value formats actually observed — 3-digit single years bound to
-      IDADEDETSVS, and 4-digit wide ranges in the ALF/IDOSO series — match DATASUS''s
-      dual age-coding convention used alongside FXETARIA.
-
-      '
+    source: def
+    source_ref: 'TabWin DEF POPSVSBR.DEF ''População Residente - Estudo de Estimativas
+      Populacionais por Município, Idade e Sexo 2000-2024'' (DATASUS TAB_POP kit) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/Auxiliar/TAB_POP.zip, lines
+      ''LIdade simples, IDADE, 1, CNV\idadedetsvs.cnv'' and ''Faixa_Etária 1/2, IDADE''
+      (fxidad1svs/fxidad2svs) for the single-year form; the wide range codes in the
+      ALF/IDOSO census tables are measured, not documented'
     asserted_by: pegasus_data
   MUNCOD:
     translated_name: Municipality code (6-digit)
@@ -53,11 +53,12 @@ variables:
     codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
-    reasoning: 'CO_ prefix = código naming grammar; bound to the MUNICBR codelist as
-      a 6-digit municipality code and appears across the same ALF/ESCA/RENDA series
-      as MUNIC_RES, under a differently spelled field name.
-
-      '
+    reasoning: 'CO_ prefix = código naming grammar; bound to the MUNICBR codelist as a
+      6-digit municipality code and appears across the same ALF/ESCA/RENDA series as
+      MUNIC_RES, under a differently spelled field name. Reviewed 2026-09-28: no
+      documentation found (searched ftp.datasus.gov.br/dissemin/publicos/IBGE/doc and
+      Auxiliar/TAB_POP.zip DEFs; the censo ALF/ESCA/IDOSO/RENDA zips ship DBF only, with
+      no DEF or layout).'
     asserted_by: pegasus_data
   POPTOT:
     translated_name: Total population (indicator base)
@@ -69,10 +70,11 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'POP=população, TOT=total per naming grammar; appears alongside literacy
-      and schooling breakdowns as an additive numeric measure with no codelist, consistent
-      with a denominator population count for those rates.
-
-      '
+      and schooling breakdowns as an additive numeric measure with no codelist,
+      consistent with a denominator population count for those rates. Reviewed
+      2026-09-28: no documentation found (searched
+      ftp.datasus.gov.br/dissemin/publicos/IBGE/doc and Auxiliar/TAB_POP.zip DEFs; the
+      censo ALF/ESCA/IDOSO/RENDA zips ship DBF only, with no DEF or layout).'
     asserted_by: pegasus_data
   POPULACAO:
     translated_name: Population count

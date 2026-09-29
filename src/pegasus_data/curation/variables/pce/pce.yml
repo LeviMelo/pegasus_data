@@ -22,9 +22,9 @@ variables:
       transitam de fase ativa de controle para "fase de vigilância" conforme critérios
       de positividade e número de ciclos. O campo só aparece nos arquivos de 2024-2026
       (33 arquivos), mesma leva em que surge ID_DRS, coerente com a publicação dessa
-      diretriz em nov/2024.
-
-      '
+      diretriz em nov/2024. Revisado em 2026-09-28: nenhuma documentação encontrada
+      (buscado DIC_DADOS_SISPCE_PCE-DG.pdf em ftp.datasus.gov.br/dissemin/publicos/PCE,
+      a nota técnica do PCE e o pce.def do tab_pce.zip; nenhum menciona o campo).'
     notes: 'Inferência de confiança moderada: nenhum dicionário de dados lista este
       campo nem seus códigos; a largura declarada (1 caractere) é compatível com poucas
       categorias de fase, mas os valores específicos não foram confirmados em nenhuma
@@ -81,17 +81,18 @@ variables:
     code_system: external
     source: inferred
     reasoning: 'O prefixo ID_ é o padrão DATASUS para campo de identificação/código.
-      "DRS" não tem outro significado corrente em vigilância em saúde no Brasil além
-      de "Departamento Regional de Saúde" - divisão administrativa real e publicamente
+      "DRS" não tem outro significado corrente em vigilância em saúde no Brasil além de
+      "Departamento Regional de Saúde" - divisão administrativa real e publicamente
       documentada (17 departamentos em SP), não um código inventado pelo DATASUS. O
       dicionário de dados oficial do PCE_DG (revisado em novembro/2021) não lista este
-      campo; ele só aparece nos arquivos mais recentes (2024-2026), consistente com
-      uma extensão de schema posterior à revisão do dicionário - plausivelmente ligada
-      à integração do sistema próprio de São Paulo que a nota técnica do PCE no TabNet
-      já registra ("O Estado de São Paulo possui Sistema de Informação próprio de onde
-      é feita a migração dos dados para o SISPCE").
-
-      '
+      campo; ele só aparece nos arquivos mais recentes (2024-2026), consistente com uma
+      extensão de schema posterior à revisão do dicionário - plausivelmente ligada à
+      integração do sistema próprio de São Paulo que a nota técnica do PCE no TabNet já
+      registra ("O Estado de São Paulo possui Sistema de Informação próprio de onde é
+      feita a migração dos dados para o SISPCE"). Revisado em 2026-09-28: nenhuma
+      documentação encontrada (buscado DIC_DADOS_SISPCE_PCE-DG.pdf em
+      ftp.datasus.gov.br/dissemin/publicos/PCE, a nota técnica do PCE e o pce.def do
+      tab_pce.zip; nenhum menciona o campo).'
     notes: 'Inferência de confiança moderada: nenhum documento consultado confirma
       explicitamente que este campo, neste arquivo, guarda um código de DRS, e não
       há lista de códigos para validar contra. Não usar isoladamente para decisões
@@ -162,11 +163,12 @@ variables:
     source: inferred
     reasoning: 'Prefixo NU_ é o padrão DATASUS para número/contador. As Diretrizes
       Técnicas Nacionais para a Vigilância da Esquistossomose Mansoni (2024) descrevem
-      explicitamente o "número de ciclos de trabalho" (pelo menos dois, inclusive o
-      LI) como critério operacional do programa - conceito que corresponde ao nome
-      do campo. Aparece na mesma leva de arquivos (2024-2026) que CS_FASE e ID_DRS.
-
-      '
+      explicitamente o "número de ciclos de trabalho" (pelo menos dois, inclusive o LI)
+      como critério operacional do programa - conceito que corresponde ao nome do campo.
+      Aparece na mesma leva de arquivos (2024-2026) que CS_FASE e ID_DRS. Revisado em
+      2026-09-28: nenhuma documentação encontrada (buscado DIC_DADOS_SISPCE_PCE-DG.pdf
+      em ftp.datasus.gov.br/dissemin/publicos/PCE, a nota técnica do PCE e o pce.def do
+      tab_pce.zip; nenhum menciona o campo).'
     notes: 'Inferência de confiança moderada: não há dicionário de dados nem lista
       de valores para este campo; a correspondência com "ciclo de trabalho" é dedução
       a partir do nome e do contexto operacional documentado, não confirmação direta.

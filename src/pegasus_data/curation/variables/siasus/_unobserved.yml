@@ -17,13 +17,13 @@ variables:
     - TPROC10
     source: inferred
     reasoning: 'Observed at two widths in the sampled values: 398 distinct 8-character
-      codes and 400 distinct 10-character ones. TPROC holds 23,151 8-character codes
-      and TPROC10 holds 23,136 10-character ones, so the column spans the 1994-era
-      table and the post-2008 Tabela Unificada. Both are bound; exact width selects
-      per row. The instruction expected 8-digit only, which is true of the older era
-      and not of the whole column.
-
-      '
+      codes and 400 distinct 10-character ones. TPROC holds 23,151 8-character codes and
+      TPROC10 holds 23,136 10-character ones, so the column spans the 1994-era table and
+      the post-2008 Tabela Unificada. Both are bound; exact width selects per row. The
+      instruction expected 8-digit only, which is true of the older era and not of the
+      whole column. Reviewed 2026-09-28: no documentation found (searched Informe
+      Técnico SIASUS 2019-07 and the APAC interface layouts; SP_ATOPROF is an SIH/SP
+      field name and no SIA layout lists it).'
     notes: 'A join must match width exactly. An 8-character code is not a truncated
       10-character one, and treating it as such maps procedures to the wrong classification
       entirely.
@@ -64,9 +64,8 @@ variables:
     source: inferred
     reasoning: 'Same two-width pattern as SP_ATOPROF: 400 distinct 8-character values
       and 395 distinct 10-character ones in the sample. Bound to both tables for the
-      same reason.
-
-      '
+      same reason. Reviewed 2026-09-28: no documentation found (searched Informe Técnico
+      SIASUS 2019-07 and the APAC interface layouts).'
   SP_PTSP:
     official_name: Indicador de participação do profissional
     translated_name: Professional participation indicator

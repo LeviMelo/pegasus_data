@@ -203,9 +203,12 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'C(3) in the AR_ radiotherapy block, whose other fields are counts of
-      fractions and fields. The expansion of SMRD itself is not attested.
-
-      '
+      fractions and fields. The expansion of SMRD itself is not attested. Reviewed
+      2026-09-28: no documentation found (searched Informe Técnico SIASUS 2019-07
+      (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.5 ARUFAAMM.DBF, which lists AR_SMRD CHAR(3) at SEQ 46 with no description;
+      the APAC interface layouts do not name it; web search).'
     notes: 'The abbreviation is not resolved by any source found. Treat the exact quantity
       as unconfirmed and check against AR_ siblings before using it.
 

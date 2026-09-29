@@ -75,13 +75,10 @@ variables:
     reasoning: TT is the WHO grade for trichiasis.
   NU_CASO:
     official_name: Número do caso
-    translated_name: Case sequence number (within survey/notification)
-    description: 'Sequential case number within a tracoma screening survey or batch
-      notification (which can cover many people at once), distinct from NU_NOTIFIC,
-      the individual notification''s own identifier.
-
-      '
+    translated_name: Case number
+    description: Order number of the positive trachoma case within the survey's follow-up
+      spreadsheet (one row per positive case found in the inquiry).
     code_system: none
-    source: inferred
-    reasoning: N5 numeric; NU_=número, CASO=caso, fits a sequence count in the TRAC
-      (tracoma) stratum.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Tracoma v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Tracoma/DIC_DADOS_Tracoma_v5.pdf,
+      RQ002 Planilha para Acompanhamento de Agregados (Número do Caso)

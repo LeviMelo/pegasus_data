@@ -205,43 +205,37 @@ variables:
     source: inferred
     reasoning: 'ANO_ is SINAN/DATASUS''s prefix for a plain calendar year, NASC is nascimento
       (birth); the declared width (4 characters, occasionally 8) and no codelist binding are
-      consistent with a bare year rather than a coded category.
-
-      '
+      consistent with a bare year rather than a coded category. Reviewed 2026-09-28: no documentation
+      found (searched the SINAN NET v5 and Sinan Online dictionaries in sources/dic_text, the
+      Notificação Individual dictionary, TAB_SINANNET .DEF files and the web).'
     notes: 'Not documented in the two SINAN dictionaries checked for this batch (the generic
       Notificação Individual header uses DT_NASC, a full date, not this field) — treat the
       "year only" reading as a naming-convention inference, not a confirmed layout definition.
 
       '
   ANTDTTRANS:
-    official_name: Antecedente – Data da transfusão
+    official_name: Data da transfusão/acidente
     translated_name: Prior history — date of blood transfusion
-    description: 'Date of a prior blood transfusion, recorded as an epidemiological antecedent
-      on this batch''s AIDS-adulto, AIDS-criança, HIV-adulto and HIV-criança investigation
-      forms — paired with ANTMUNTRAN and ANTUFTRANS for where the transfusion occurred.
+    description: 'Date of the blood transfusion, or of the accident with biological material
+      followed by seroconversion within 6 months, that is the suspected route of HIV transmission.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'D(8,0) date field; ANT_ (antecedente) + DT (data) + TRANS (transfusão) compressed
-      to fit the 10-character DBF name limit, sharing the identical series and file count
-      (72) with ANTMUNTRAN/ANTUFTRANS; blood-transfusion history is a standard epidemiological
-      antecedent on AIDS/HIV investigation forms.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS adulto — http://portalsinan.saude.gov.br/images/documentos/Agravos/AidsAdulto/DIC_DADOS_Aids_adulto_v5.pdf,
+      campo 35 (Data da transfusão/acidente); AIDS criança idem
   ANTMUNTRAN:
-    official_name: Antecedente – Município da transfusão
+    official_name: Município onde foi realizada a transfusão/acidente
     translated_name: Prior history — municipality of blood transfusion
-    description: 'IBGE municipality of the prior blood transfusion described alongside ANTDTTRANS/ANTUFTRANS.
+    description: 'Municipality (IBGE code) where the transfusion or the accident with biological
+      material took place.
 
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: 'C(6,0) bound to the MUNICBR-family codelists, same series/file-count group
-      as ANTDTTRANS; ANT_+MUN(icípio)+TRAN(sfusão) compressed to 10 characters.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS adulto — http://portalsinan.saude.gov.br/images/documentos/Agravos/AidsAdulto/DIC_DADOS_Aids_adulto_v5.pdf,
+      campo 37 (Município onde foi realizada a transfusão/acidente)
   ANTRELSE_N:
     official_name: '33. Sexual
 
@@ -290,17 +284,16 @@ variables:
 
       '
   ANTUFTRANS:
-    official_name: Antecedente – UF da transfusão
+    official_name: UF da transfusão/acidente
     translated_name: Prior history — state (UF) of blood transfusion
-    description: 'State of the prior blood transfusion described alongside ANTDTTRANS/ANTMUNTRAN.
+    description: 'State where the transfusion or the accident with biological material took
+      place.
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'C(2,0) bound to UF codelists, same series/file-count group as ANTDTTRANS;
-      ANT_+UF+TRANS compressed to 10 characters.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS adulto — http://portalsinan.saude.gov.br/images/documentos/Agravos/AidsAdulto/DIC_DADOS_Aids_adulto_v5.pdf,
+      campo 36 (UF da transfusão/acidente)
   ANT_ACIDEN:
     official_name: Acidente com material biológico com posterior soroconversão até 6 meses
     translated_name: Occupational biological-material accident with seroconversion
@@ -638,19 +631,16 @@ variables:
 
       '
   ANT_DROGA:
-    official_name: Antecedente – Uso de drogas
-    translated_name: Prior history — drug use
-    description: 'History of illicit/injecting drug use, recorded as an epidemiological antecedent
-      on this batch''s AIDS/HIV investigation forms. 1=Sim, 2=Não, 9=Ignorado.
+    official_name: 'Provável modo de transmissão – sanguínea: uso de droga injetável'
+    translated_name: 'Probable transmission: injecting drug use'
+    description: 'Whether injecting drug use is a probable route of HIV transmission for the
+      case (1 yes, 2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'ANT_ prefix bound to SIM_NAO, in the same AIDA/AIDC/HIVA/HIVC antecedentes-epidemiológicos
-      block as ANTDTTRANS; drug-use history is a standard field on AIDS/HIV investigation
-      forms.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – AIDS adulto — http://portalsinan.saude.gov.br/images/documentos/Agravos/AidsAdulto/DIC_DADOS_Aids_adulto_v5.pdf,
+      campo 34 (Provável modo de transmissão – sanguínea: uso de droga injetável)'
   ANT_DT_INV:
     official_name: Data da investigação (bloco de conclusão legado)
     translated_name: Original investigation start date
@@ -663,11 +653,12 @@ variables:
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Appears only in CHAG, DENG, LEIV, LEPT, LTAN and MALA in 2000-2006, alongside
-      CON_CLASSI/CON_DOENCA/CON_DT_ENC/CON_DT_OBI/CON_EVOLUC — the same discontinued set.
-      Every later per-disease dictionary reviewed places an equivalent DT_INVEST field right
-      after the notification block, matching ANT_''s prior-record naming pattern.
-
-      '
+      CON_CLASSI/CON_DOENCA/CON_DT_ENC/CON_DT_OBI/CON_EVOLUC — the same discontinued set. Every
+      later per-disease dictionary reviewed places an equivalent DT_INVEST field right after
+      the notification block, matching ANT_''s prior-record naming pattern. Reviewed 2026-09-28:
+      no documentation found (searched the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET
+      .DEF files and the web). The field belongs to the 2000-2006 pre-SINAN NET files, whose
+      dictionary is not published.'
   ANT_ESOF_N:
     official_name: '42. Critério CDC — Candidose de Esôfago
 
@@ -802,21 +793,19 @@ variables:
 
       '
   ANT_INVEST:
-    official_name: Antecedente – Investigado
-    translated_name: Prior history — previously investigated
-    description: 'Whether a related prior case/contact was already investigated, recorded
-      as an epidemiological antecedent on this batch''s AIDS/HIV investigation forms, bound
-      to a three-way SIM_NAOAP (sim/não/aplicável-style) codelist rather than the plain SIM_NAO
-      used by ANT_DROGA.
+    official_name: Após investigação, a transfusão/acidente com material biológico foi confirmada
+      como via de transmissão
+    translated_name: Transfusion/accident confirmed as route after investigation
+    description: 'Whether, after investigation following the national STD/AIDS programme algorithm,
+      the transfusion or biological-material accident was accepted as the route of HIV infection
+      (1 yes, 2 no, 3 not applicable).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'ANT_ prefix in the same AIDA/AIDC/HIVA/HIVC antecedentes block as ANTDTTRANS/ANT_DROGA,
-      bound to codelist SIM_NAOAP at 0.9 confidence; the exact three category labels were
-      not inspected here.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS adulto — http://portalsinan.saude.gov.br/images/documentos/Agravos/AidsAdulto/DIC_DADOS_Aids_adulto_v5.pdf,
+      campo 39 (Após investigação conforme algoritmo do PN DST/AIDS, a transfusão/acidente
+      com material biológico foi …)
   ANT_ISOPOR:
     official_name: '42. Critério CDC — Isosporidiose Intestinal Crônica >1 Mês
 
@@ -960,10 +949,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'C5 coded field; ANT_=antecedente, OCUPAC=ocupacional; the agravo grouping
-      places it in both the HANT and LEPT strata rather than one exclusively.
-
-      '
+    reasoning: 'C5 coded field; ANT_=antecedente, OCUPAC=ocupacional; the agravo grouping places
+      it in both the HANT and LEPT strata rather than one exclusively. Reviewed 2026-09-28:
+      no documentation found (searched the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET
+      .DEF files and the web). The field belongs to the 2000-2006 pre-SINAN NET files, whose
+      dictionary is not published.'
   ANT_PERINA:
     official_name: '36. Transmissão (Perinatal)
 
@@ -987,19 +977,19 @@ variables:
 
       '
   ANT_PNEUMO:
-    official_name: Antecedente – Pneumonia
-    translated_name: Prior history — pneumonia
-    description: 'History-of-pneumonia comorbidity flag, in this batch''s AIDS-adulto, HIV-adulto
-      and meningite investigation forms. 1=Sim, 2=Não, 9=Ignorado.
+    official_name: Pneumonia por Pneumocystis carinii (AIDS) / Vacinação pneumococo (Meningite)
+    translated_name: Pneumocystis pneumonia (AIDS) / pneumococcal vaccination (meningitis)
+    description: 'Form-dependent yes/no flag (1 yes, 2 no, 9 unknown). On the AIDS forms it
+      is the CDC-adapted AIDS-defining criterion Pneumocystis pneumonia; on the meningitis
+      form it records pneumococcal vaccination history.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'ANT_ prefix (antecedente) bound to the SIM_NAO codelist; a prior-pneumonia
-      history is a standard epidemiological-antecedent field on AIDS/HIV and meningitis investigation
-      forms.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS adulto — http://portalsinan.saude.gov.br/images/documentos/Agravos/AidsAdulto/DIC_DADOS_Aids_adulto_v5.pdf,
+      campo 42 (Critério CDC adaptado – pneumonia por Pneumocystis carinii); Dicionário de
+      Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf,
+      campo 33 (Vacinação – pneumococo)
   ANT_PULMON:
     official_name: '41. RJ/Caracas — Tuberculose Pulmonar Cavitária ou Não Especificada (5
       pts)
@@ -1327,45 +1317,40 @@ variables:
     source_ref: http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20LER%20DORT/DIC_DADOS_DRT_LERDORT_v5.pdf
       — campo 46 'Agravos associados – Asma', DBF=ASMA
   ASTENIA:
-    official_name: Sinais clínicos – Astenia
+    official_name: Astenia
     translated_name: Clinical sign — asthenia (weakness/fatigue)
     description: 'Clinical-sign-present flag for asthenia, in this batch''s doença de Chagas
       aguda and febre tifóide symptom checklists.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'C(1,0), bound to SIM_NAO, and "astenia" is the unambiguous medical term for
-      generalized weakness/fatigue.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf,
+      campo 41 (Sinais e sintomas – astenia); Dicionário de Dados SINAN NET v5.0 – Febre Tifóide
+      — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      sinais e sintomas – astenia
   ATE_DT_INT:
-    official_name: Data de internação (atendimento)
+    official_name: Data da internação
     translated_name: Care-episode hospital admission date
-    description: 'Date of hospital admission for a care episode, in this batch''s leptospirose
-      and paralisia-flácida-aguda forms — paired with ATE_HOSP (whether that care was hospital
-      care) and ATE_UF (its location).
+    description: 'Date of hospital admission, when the patient was hospitalised.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'D(8,0) date field, sharing the identical series and file count (47) with ATE_HOSP
-      and ATE_UF, forming a coherent small block; ATE_ abbreviates "atendimento" (care).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 38 (Data da internação)
   ATE_HOSP:
-    official_name: Atendimento – Hospitalar?
-    translated_name: Was that care episode hospital-based?
-    description: 'Flags whether the care episode described alongside ATE_DT_INT/ATE_UF was
-      hospital-based. 1=Sim, 2=Não, 9=Ignorado.
+    official_name: Ocorreu hospitalização?
+    translated_name: Hospitalised
+    description: 'Whether the patient was hospitalised (1 yes, 2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'C(1,0) bound to SIM_NAO, sharing the identical series and file count with
-      ATE_DT_INT and ATE_UF.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 37 (Ocorreu hospitalização?)
   ATE_HOSPIT:
     official_name: 'Ocorreu Hospitalização
 
@@ -1418,11 +1403,9 @@ variables:
     depends_on:
     - ATE_HOSPIT
   ATE_MUNICI:
-    official_name: Município de Atendimento
-    translated_name: Municipality of medical care
-    description: 'IBGE municipality code of where the patient received medical care for this
-      case — a fourth place-of-X field alongside notification (ID_MUNICIP), residence (ID_MN_RESI)
-      and probable infection (COMUNINF).
+    official_name: Município do hospital
+    translated_name: Municipality of the hospital
+    description: 'Municipality (IBGE code) of the hospital where the patient was admitted.
 
       '
     codelist: BR_MUNICIPALFA
@@ -1434,31 +1417,28 @@ variables:
     - MUNICBA
     - MUNICBR
     code_system: external
-    source: inferred
-    reasoning: 'ATE_ is short for atendimento (medical care), matching the confirmed MUN_ATENDE
-      field on the occupational-accident dictionary ("Município do Atendimento ... Habilitar
-      se campo 58 Ocorreu Atendimento Médico? =1"), and this column binds to the same municipality
-      codelists as the other município fields in this file.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 41 (Município do hospital); Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf,
+      campo 45; Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf,
+      campo 44
     notes: 'Appears on the diphtheria/leptospirose/meningite/PFA family of forms in the evidence,
       not on the DRT form that names MUN_ATENDE directly — the "attendance municipality" reading
       is a cross-form analogy, not a confirmed layout for this specific form.
 
       '
   ATE_UF:
-    official_name: Atendimento – UF
-    translated_name: State (UF) of that care episode
-    description: 'State where the care episode described alongside ATE_DT_INT/ATE_HOSP took
-      place.
+    official_name: UF do hospital
+    translated_name: State of the hospital
+    description: 'State (UF) of the hospital where the patient was admitted.
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'C(2,0) bound to UF codelists, sharing the identical series and file count
-      with ATE_DT_INT and ATE_HOSP.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 40 (UF)
   AUTO_IMUNE:
     official_name: Doenças auto-imunes
     translated_name: Pre-existing autoimmune disease
@@ -1524,11 +1504,12 @@ variables:
     code_system: internal
     codelists:
     - SIM_NAO
-    source: inferred
-    reasoning: 'CEFALEIA is the plain Portuguese medical term for headache; C(1) bound to
-      SIM_NAO, co-occurring with FEBRE on the same agravo series.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados – Sinan Online (Dengue/Chikungunya) — https://portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf,
+      campo 33 (Sinais clínicos – cefaleia); Dicionário de Dados SINAN NET v5.0 – Febre Maculosa
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf,
+      campo 33; Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf,
+      campo 51
   CHOQUE:
     official_name: Choque/Hipotensão
     translated_name: Shock/hypotension sign
@@ -1551,6 +1532,7 @@ variables:
 
       '
     code_system: internal
+    per_form: true
     codelists:
     - CLASINTO
     - CLASRC
@@ -1589,17 +1571,19 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_ONLINE.pdf, campo 64 (Apresentação clínica Chikungunya)
   CLI_ANEMIA:
-    official_name: Sinais clínicos – Anemia
+    official_name: Anemia
     translated_name: Clinical sign — anemia
-    description: 'Clinical-sign-present flag for anemia, in this batch''s AIDS-criança, HIV-criança
-      and sífilis-congênita symptom checklists.
+    description: 'Anaemia in the child (1 yes, 2 no, 9 unknown): on the AIDS/HIV child forms
+      the CDC-adapted criterion ''anaemia for more than 30 days''; on the congenital syphilis
+      form anaemia on physical examination.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS criança — https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf,
+      campo 45 (Critério CDC adaptado – anemia por mais de 30 dias); Dicionário de Dados SINAN
+      NET v5.0 – Sífilis Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
+      sinais clínicos da criança – anemia (nome SINAN-W)
   CLI_CANDIA:
     official_name: Candidose oral resistente ao tratamento
     translated_name: Oral candidiasis resistant to treatment
@@ -1612,22 +1596,22 @@ variables:
     source: inferred
     reasoning: 'Field abbreviation matches "candidíase" with no esophagus/trachea qualifier
       unlike its siblings on the same checklist; the form lists oral candidiasis as its own
-      moderate/severe item.
-
-      '
+      moderate/severe item. Reviewed 2026-09-28: no documentation found (searched the SINAN
+      NET v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual
+      dictionary, TAB_SINANNET .DEF files and the web).'
     asserted_by: pegasus_data
   CLI_CARDIA:
-    official_name: Sinais clínicos – Cardíaco
+    official_name: Alterações cardíacas
     translated_name: Clinical sign — cardiac involvement
     description: 'Clinical-sign-present flag for cardiac involvement, in this batch''s hantavirose
       and leptospirose symptom checklists.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – alterações cardíacas)
   CLI_CDCCRE:
     official_name: '45. Critério CDC — Criptococose (Extra-Pulmonar)
 
@@ -2046,16 +2030,20 @@ variables:
 
       '
   CLI_CEFALE:
-    official_name: Cefaleia (achado clínico)
+    official_name: Cefaleia
     translated_name: Headache (clinical finding)
-    description: Clinical-examination record of headache, the CLI_ clinical-finding sibling
-      of CEFALEIA.
+    description: 'Whether the patient had headache (1 yes, 2 no, 9 unknown).
+
+      '
     code_system: internal
     codelists:
     - SIM_NAO
-    source: inferred
-    reasoning: Same CLI_ clinical-finding pattern as CLI_FEBRE and CLI_VOMITO, C(1)/N(1) bound
-      to SIM_NAO.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – cefaleia); Dicionário de Dados SINAN NET v5.0 – Meningite
+      — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf,
+      campo 40
   CLI_CRONIC:
     official_name: '45. Critério CDC — Diarréia Recorrente ou Crônica
 
@@ -2097,7 +2085,7 @@ variables:
 
       '
   CLI_DIARRE:
-    official_name: Sinais clínicos – Diarreia
+    official_name: Diarreia
     translated_name: Clinical sign — diarrhea
     description: 'Clinical-sign-present flag for diarrhea in this batch''s hantavirose, leptospirose
       and paralisia-flácida-aguda symptom checklists — distinct from the plain DIARREIA column
@@ -2105,10 +2093,10 @@ variables:
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – diarreia)
   CLI_DISSEM:
     official_name: '45. Critério CDC — Tuberculose Disseminada ou Extrapulmonar
 
@@ -2132,17 +2120,16 @@ variables:
   CLI_DT_ATE:
     official_name: Data de atendimento
     translated_name: Date of clinical care
-    description: 'Date of the clinical-care episode the CLI_ signs checklist refers to, in
-      this batch''s hantavirose and leptospirose forms.
+    description: 'Date the patient was first seen for this illness; must be on or after the
+      symptom-onset date.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DT_ segment is this system''s date convention; ATE abbreviates "atendimento"
-      (clinical care/visit), paired conceptually with the CLI_ clinical-sign columns from
-      the same forms.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 35 (Data de atendimento); Dicionário de Dados SINAN NET v5.0 – Hantavirose — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hantavirose/DIC_DADOS_Hantavirose_v5.pdf,
+      idem
   CLI_ESPECI:
     official_name: 'Sinais e Sintomas / Complicações — Outros (Especificar)
 
@@ -2171,47 +2158,47 @@ variables:
 
       '
   CLI_ESPLEN:
-    official_name: Sinais clínicos – Esplenomegalia
+    official_name: Esplenomegalia
     translated_name: Clinical sign — splenomegaly
-    description: 'Clinical-sign-present flag for splenomegaly (enlarged spleen), in this batch''s
-      AIDS-criança, HIV-criança and sífilis-congênita symptom checklists.
+    description: 'Enlarged spleen in the child (1 yes, 2 no, 9 unknown), a CDC-adapted AIDS
+      criterion and a sign on the congenital syphilis form.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL; ESPLEN abbreviates
-      "esplenomegalia".
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS criança — https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf,
+      campo 45 (Critério CDC adaptado – esplenomegalia); Dicionário de Dados SINAN NET v5.0
+      – Sífilis Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
+      sinais clínicos da criança – esplenomegalia (nome SINAN-W)
   CLI_FEBRE:
-    official_name: Febre (achado clínico)
+    official_name: Febre
     translated_name: Fever (clinical finding)
-    description: 'Clinical-examination record of fever, on forms that separate self-reported
-      symptoms from clinical findings (AIDS criança, difteria, hantavirose, HIV criança, leptospirose,
-      meningite).
+    description: 'Whether the patient had fever (1 yes, 2 no, 9 unknown). On the AIDS/HIV child
+      forms it is the CDC-adapted criterion ''persistent fever for more than one month''.
 
       '
     code_system: internal
     codelists:
     - SIM_NAO
-    source: inferred
-    reasoning: 'CLI_ is a recognisable "clínico" prefix distinguishing this from the bare
-      FEBRE symptom field; C(1) bound to SIM_NAO, same shape as CLI_CEFALE and CLI_VOMITO
-      below.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – febre); Dicionário de Dados SINAN NET v5.0 – Meningite
+      — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf,
+      campo 40; Dicionário de Dados SINAN NET v5.0 – AIDS criança — https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf,
+      campo 45 (febre persistente > 1 mês)
   CLI_HEMORR:
-    official_name: Sinais clínicos – Hemorrágico
+    official_name: Outras hemorragias
     translated_name: Clinical sign — hemorrhagic manifestation
-    description: 'Clinical-sign-present flag for a hemorrhagic manifestation, in this batch''s
-      venomous-animal-accident and leptospirose symptom checklists.
+    description: 'Haemorrhage other than the separately recorded pulmonary haemorrhage (1 yes,
+      2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – outras hemorragias)
   CLI_HEPATI:
     official_name: '45. Critério CDC — Hepatite pelo HIV
 
@@ -2275,12 +2262,14 @@ variables:
     source: inferred
     reasoning: '"HERPES" is the residual herpes-simplex field once CLI_HERPEG claims the gengivo-estomatite-specific
       item; the checklist''s remaining herpes-simplex entries (mucocutaneous >1 month, bronchial/pulmonary/GI)
-      are the candidates left for it.
-
-      '
+      are the candidates left for it. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual
+      dictionary, TAB_SINANNET .DEF files and the web). The AIDS criança dictionary (campo
+      45) prints CLI_HERPES against two rows, herpes simplex of bronchi/lungs/GI tract and
+      herpes zoster, so which item it holds is unresolved.'
     asserted_by: pegasus_data
   CLI_ICTERI:
-    official_name: Sinais clínicos – Ictérico
+    official_name: Icterícia
     translated_name: Clinical sign — jaundice
     description: 'Clinical-sign-present flag for jaundice, in this batch''s leptospirose and
       sífilis-congênita symptom checklists — distinct from the plain ICTERICIA column used
@@ -2288,11 +2277,12 @@ variables:
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL; ICTERI abbreviates
-      "ictérico"/"icterícia".
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – icterícia); Dicionário de Dados SINAN NET v5.0 – Sífilis
+      Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
+      sinais clínicos da criança – icterícia (nome SINAN-W)
   CLI_INFCIT:
     official_name: '45. Critério CDC — Infecção por Citomegalovírus (<1 Mês de Idade)
 
@@ -2416,18 +2406,19 @@ variables:
     source_ref: prefeitura.pbh.gov.br leptospirose ficha de investigação (03010012), campo
       36 "Mialgia"
   CLI_MIOCAR:
-    official_name: Sinais clínicos – Miocardite
+    official_name: Miocardite / miocardiopatia
     translated_name: Clinical sign — myocarditis
-    description: 'Clinical-sign-present flag for myocarditis, in this batch''s AIDS-criança,
-      difteria and HIV-criança symptom checklists.
+    description: 'Heart-muscle involvement (1 yes, 2 no, 9 unknown): myocarditis as a complication
+      on the diphtheria form; cardiomyopathy as a CDC-adapted criterion on the AIDS/HIV child
+      forms.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL; MIOCAR abbreviates
-      "miocardite".
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf,
+      campo 41 (Complicações – miocardite); Dicionário de Dados SINAN NET v5.0 – AIDS criança
+      — https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf,
+      campo 45 (Critério CDC adaptado – miocardiopatia)
   CLI_NEFRO:
     official_name: '45. Critério CDC — Nefropatia
 
@@ -2470,46 +2461,40 @@ variables:
     source: layout_doc
     source_ref: Aids_crianca_v5.pdf, campo 45
   CLI_OUTRAS:
-    official_name: Sinais clínicos – Outras
+    official_name: Outras (complicações/manifestações)
     translated_name: Clinical sign — other (unlisted), feminine form
-    description: 'The catch-all member of the CLI_ clinical-sign checklist on forms whose
-      list is grammatically feminine (e.g. "manifestações"): flags an unlisted sign, in this
-      batch''s difteria, leptospirose and meningite checklists.
+    description: 'Catch-all flag (1 yes, 2 no, 9 unknown): other complications on the diphtheria
+      form, other clinical manifestations on the meningitis form.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL; the masculine/feminine
-      split from CLI_OUTROS mirrors the underlying Portuguese form label on each ficha.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf,
+      campo 41 (Complicações – outras); Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf,
+      campo 40 (Sinais e sintomas – outras)
   CLI_OUTRO:
-    official_name: Outro achado clínico
+    official_name: Outros sinais/sintomas
     translated_name: Other clinical finding
-    description: 'Whether a clinical finding was present that the form''s own list does not
-      name. The catch-all that closes a checklist of specific findings.
+    description: 'Whether the child had other signs or symptoms on examination not listed on
+      the form (1 yes, 2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'CLI is clínico and OUTRO is other; C(1), and the OUTRO suffix is how DATASUS
-      closes an enumerated checklist throughout.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Sífilis Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
+      sinais clínicos da criança – outros (nome SINAN-W CLI_OUTRO)
   CLI_OUTROS:
-    official_name: Sinais clínicos – Outros
+    official_name: Sinais e sintomas – outros
     translated_name: Clinical sign — other (unlisted), masculine form
-    description: 'The catch-all member of the CLI_ clinical-sign checklist (see CLI_RENAL):
-      flags whether an unlisted sign was present, in this batch''s hantavirose, leptospirose
-      and paralisia-flácida-aguda symptom checklists.
+    description: 'Whether the patient had signs or symptoms other than those listed (1 yes,
+      2 no, 9 unknown); if yes a specification field is enabled.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL; "outros" is the
-      standard catch-all category name used throughout this system''s checklists.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – outros)
   CLI_PAROTI:
     official_name: Aumento crônico de parótida
     translated_name: Chronic parotid enlargement
@@ -2579,47 +2564,40 @@ variables:
 
       '
   CLI_PULMAO:
-    official_name: Pneumonia linfóide intersticial
-    translated_name: Lymphoid interstitial pneumonia
-    description: 'Whether the child had lymphoid interstitial pneumonia (LIP), a chronic lung
-      disease seen mainly in pediatric HIV, one moderate/severe condition on the pediatric
-      AIDS clinical checklist.
+    official_name: Candidose de traqueia, brônquios ou pulmões
+    translated_name: Candidiasis of trachea, bronchi or lungs
+    description: 'CDC-adapted AIDS-defining criterion on the child form: candidiasis of the
+      trachea, bronchi or lungs (1 yes, 2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Among the checklist''s several lung-related items (LIP, Pneumocystis pneumonia,
-      tracheobronchial candidiasis, pulmonary herpes), the bare noun "pulmão" (lung) best
-      matches LIP, the item most specific to pediatric HIV.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS criança — https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf,
+      campo 45 (Critério CDC adaptado – candidose de traqueia, brônquios ou pulmões)
     asserted_by: pegasus_data
   CLI_RENAL:
-    official_name: Sinais clínicos – Renal
-    translated_name: Clinical sign — renal involvement
-    description: 'Clinical-sign-present flag for renal (kidney) involvement, in this batch''s
-      animal-bite/hantavirose/leptospirose symptom checklists. 1=Sim, 2=Não, 9=Ignorado.
+    official_name: Insuficiência renal
+    translated_name: Renal failure
+    description: 'Whether the patient had renal failure (1 yes, 2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'CLI_ prefix (clínico) is used consistently across a dozen columns in this
-      batch, all C(1,0) and bound to SIM_NAO; RENAL is the unambiguous Portuguese adjective
-      for kidney-related.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – insuficiência renal)
   CLI_RESPIR:
-    official_name: Sinais clínicos – Respiratório
+    official_name: Alterações respiratórias
     translated_name: Clinical sign — respiratory involvement
     description: 'Clinical-sign-present flag for respiratory involvement, in this batch''s
       leptospirose and paralisia-flácida-aguda symptom checklists.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same CLI_ prefix and SIM_NAO binding pattern as CLI_RENAL.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – alterações respiratórias)
   CLI_TOX1M:
     official_name: Toxoplasmose iniciada antes de 1 mês de idade
     translated_name: Toxoplasmosis before 1 month old
@@ -2641,11 +2619,13 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: 'The checklist has exactly two tuberculosis checkboxes; CLI_TUPULM''s name
-      clearly claims the pulmonary one, leaving the unqualified CLI_TUBERC for the disseminated/extrapulmonary
-      item.
-
-      '
+    reasoning: 'The checklist has exactly two tuberculosis checkboxes; CLI_TUPULM''s name clearly
+      claims the pulmonary one, leaving the unqualified CLI_TUBERC for the disseminated/extrapulmonary
+      item. Reviewed 2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan
+      Online dictionaries in sources/dic_text, the Notificação Individual dictionary, TAB_SINANNET
+      .DEF files and the web). The AIDS criança dictionary (campo 45) prints CLI_TUPULM, CLI_TUBERC
+      and CLI_DISSEM against misaligned rows (trombocitopenia, tuberculose pulmonar, tuberculose
+      disseminada), so whether CLI_TUBERC is pulmonary or disseminated TB is unresolved.'
     asserted_by: pegasus_data
   CLI_TUPULM:
     official_name: Tuberculose pulmonar
@@ -2669,15 +2649,20 @@ variables:
     source: layout_doc
     source_ref: Aids_crianca_v5.pdf, campo 45
   CLI_VOMITO:
-    official_name: Vômito (achado clínico)
+    official_name: Vômito
     translated_name: Vomiting (clinical finding)
-    description: Clinical-examination record of vomiting.
+    description: 'Whether the patient had vomiting (1 yes, 2 no, 9 unknown).
+
+      '
     code_system: internal
     codelists:
     - SIM_NAO
-    source: inferred
-    reasoning: Same CLI_ clinical-finding pattern as CLI_FEBRE and CLI_CEFALE, C(1)/N(1) bound
-      to SIM_NAO.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
+      DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
+      campo 36 (Sinais e sintomas – vômito); Dicionário de Dados SINAN NET v5.0 – Meningite
+      — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf,
+      campo 40
   CNAE:
     official_name: Código da Atividade Econômica (CNAE)
     translated_name: Employer's economic activity (CNAE)
@@ -2777,20 +2762,18 @@ variables:
     source_ref: http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20LER%20DORT/DIC_DADOS_DRT_LERDORT_v5.pdf
       — campo 57 'Conduta geral, se outro especificar', DBF=CONDUT_DES, varchar2(30)
   CONFIRMA:
-    official_name: Confirmação
-    translated_name: Case confirmed flag
-    description: 'A simple case-confirmation flag on early pediatric AIDS/HIV records, predating
-      the multi-category Classificação Final (CLASSI_FIN) field that later replaced it as
-      the standard outcome variable.
+    official_name: Evidência laboratorial de infecção pelo HIV (teste confirmatório após 18
+      meses de vida)
+    translated_name: Confirmatory HIV test after 18 months of age
+    description: 'Result of the confirmatory anti-HIV test done after 18 months of age: positive/reactive,
+      negative, inconclusive, not done, or unknown.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Naming grammar: "CONFIRMA" reads directly as confirmação; the field appears
-      only in AIDC/HIVC with no bound codelist, consistent with a legacy simple flag predating
-      CLASSI_FIN''s richer classification.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS criança — https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf,
+      campo 44 (Evidência laboratorial de infecção pelo HIV – teste confirmatório anti-HIV
+      após 18 meses de vida)
     asserted_by: pegasus_data
   CONJUNTVIT:
     official_name: Sinais clínicos - Conjuntivite
@@ -2857,9 +2840,9 @@ variables:
     reasoning: 'Shares the identical 2000-2006 CHAG/DENG/LEIV/LEPT/LTAN/MALA series footprint
       as five CON_/ANT_ siblings; CLASSI_FIN plays this exact role — final Confirmado/Descartado
       classification — in every current-generation dictionary checked (AIDS, Chagas, Meningite,
-      LTA, Hantavirose, Leptospirose).
-
-      '
+      LTA, Hantavirose, Leptospirose). Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET .DEF files and the web).
+      The field belongs to the 2000-2006 pre-SINAN NET files, whose dictionary is not published.'
   CON_CRITER:
     official_name: Critério de confirmação
     translated_name: Confirmation criterion
@@ -2886,9 +2869,10 @@ variables:
       CHAG/DENG/LEIV/LEPT/LTAN/MALA footprint; naming it "doença" alongside a classification
       and outcome field fits the same reclassification-on-closure pattern seen in CO_CID_DIAGNOSTICO
       in the outbreak-investigation dictionary. No evidence pins its coding to CID-10 specifically,
-      hence code_system none rather than external.
-
-      '
+      hence code_system none rather than external. Reviewed 2026-09-28: no documentation found
+      (searched the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET .DEF files
+      and the web). The field belongs to the 2000-2006 pre-SINAN NET files, whose dictionary
+      is not published.'
   CON_DT_ENC:
     official_name: Data de encerramento (bloco de conclusão legado)
     translated_name: Final case-closure date (legacy)
@@ -2901,10 +2885,10 @@ variables:
     asserted_by: pegasus_data
     reasoning: 'Same 2000-2006 CHAG/DENG/LEIV/LEPT/LTAN/MALA series footprint as its CON_/ANT_
       siblings; DT_ENCERRA is the closure-date field observed filling this role in every current
-      dictionary reviewed (AIDS, Chagas, Esquistossomose, Hantavirose, Leptospirose, LTA,
-      Meningite).
-
-      '
+      dictionary reviewed (AIDS, Chagas, Esquistossomose, Hantavirose, Leptospirose, LTA, Meningite).
+      Reviewed 2026-09-28: no documentation found (searched the SINAN NET v5 dictionaries in
+      sources/dic_text, TAB_SINANNET .DEF files and the web). The field belongs to the 2000-2006
+      pre-SINAN NET files, whose dictionary is not published.'
   CON_DT_OBI:
     official_name: Data do óbito (bloco de conclusão legado)
     translated_name: Final recorded death date (legacy)
@@ -2916,11 +2900,12 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Same 2000-2006 series footprint as CON_CLASSI and CON_EVOLUC; DT_OBITO is
-      the death-date field observed in this exact role across every current dictionary checked,
-      always paired with an outcome field the way this one is paired with CON_EVOLUC.
-
-      '
+    reasoning: 'Same 2000-2006 series footprint as CON_CLASSI and CON_EVOLUC; DT_OBITO is the
+      death-date field observed in this exact role across every current dictionary checked,
+      always paired with an outcome field the way this one is paired with CON_EVOLUC. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET v5 dictionaries in sources/dic_text,
+      TAB_SINANNET .DEF files and the web). The field belongs to the 2000-2006 pre-SINAN NET
+      files, whose dictionary is not published.'
   CON_EVOLUC:
     official_name: Evolução (bloco de conclusão legado)
     translated_name: Final case outcome (legacy)
@@ -2934,9 +2919,10 @@ variables:
     asserted_by: pegasus_data
     reasoning: 'Same 2000-2006 CHAG/DENG/LEIV/LEPT/LTAN/MALA footprint as its five CON_/ANT_
       siblings; EVOLUCAO is the outcome field (cure/death/other, an internal code) observed
-      filling this exact role in every current dictionary reviewed.
-
-      '
+      filling this exact role in every current dictionary reviewed. Reviewed 2026-09-28: no
+      documentation found (searched the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET
+      .DEF files and the web). The field belongs to the 2000-2006 pre-SINAN NET files, whose
+      dictionary is not published.'
   CON_FHD:
     official_name: 'Classificação/Conduta — Grau da FHD
 
@@ -2977,9 +2963,9 @@ variables:
       The 2012 Hantavirose dictionary documents the surviving version of this concept (campos
       57-59, COUFINF/COMUNINF = "UF/Município provável da fonte de infecção"); CON_INF_MU/UF
       are the retired pre-2007 names for the same pair, dropped when SINAN NET standardized
-      field naming.
-
-      '
+      field naming. Reviewed 2026-09-28: no documentation found (searched the SINAN NET v5
+      dictionaries in sources/dic_text, TAB_SINANNET .DEF files and the web). The field belongs
+      to the 2000-2006 pre-SINAN NET files, whose dictionary is not published.'
     asserted_by: pegasus_data
   CON_INF_OU:
     official_name: Outra condição de imunossupressão
@@ -2991,11 +2977,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Shared between CHAG and LEIV agravos; CON_INF_OU reads "condição/contexto
-      de infecção - outra"; C12 width fits a short coded or abbreviated entry, and both diseases
-      share an immunosuppression risk factor.
-
-      '
+    reasoning: 'Shared between CHAG and LEIV agravos; CON_INF_OU reads "condição/contexto de
+      infecção - outra"; C12 width fits a short coded or abbreviated entry, and both diseases
+      share an immunosuppression risk factor. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET .DEF files and the web).
+      The field belongs to the 2000-2006 pre-SINAN NET files, whose dictionary is not published.'
   CON_INF_PA:
     official_name: País de infecção
     translated_name: Country of infection
@@ -3006,10 +2992,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CON_INF_ prefix recurs across several probable-infection-location fields;
-      PA plus the 3-character width matches a country-code slot rather than a place name.
-
-      '
+    reasoning: 'CON_INF_ prefix recurs across several probable-infection-location fields; PA
+      plus the 3-character width matches a country-code slot rather than a place name. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET v5 dictionaries in sources/dic_text,
+      TAB_SINANNET .DEF files and the web). The field belongs to the 2000-2006 pre-SINAN NET
+      files, whose dictionary is not published.'
   CON_INF_UF:
     official_name: UF provável de infecção (nome de campo legado)
     translated_name: Probable state of infection
@@ -3020,11 +3007,12 @@ variables:
       '
     code_system: external
     source: inferred
-    reasoning: 'Same evidence as CON_INF_MU: paired UF/município fields appearing only in
-      2000-2006 CHAG/DENG/LEIV/LEPT/MALA records, predating the COUFINF/COMUNINF pair documented
-      in the 2012 Hantavirose dictionary for the identical "provável fonte de infecção" concept.
-
-      '
+    reasoning: 'Same evidence as CON_INF_MU: paired UF/município fields appearing only in 2000-2006
+      CHAG/DENG/LEIV/LEPT/MALA records, predating the COUFINF/COMUNINF pair documented in the
+      2012 Hantavirose dictionary for the identical "provável fonte de infecção" concept. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET v5 dictionaries in sources/dic_text,
+      TAB_SINANNET .DEF files and the web). The field belongs to the 2000-2006 pre-SINAN NET
+      files, whose dictionary is not published.'
     asserted_by: pegasus_data
   COPAISINF:
     official_name: País Provável da Fonte de Infecção
@@ -3073,7 +3061,7 @@ variables:
     - CLASSI_FIN
     - SG_UF
   CO_UF_DES1:
-    official_name: UF de destino/deslocamento (1)
+    official_name: Deslocamento – UF 1
     translated_name: State (UF) of travel/exposure location — 1st episode
     description: 'Part of a repeated three-slot travel/exposure-history block (see also MUN_DES1,
       PA_DES1, DT_DESC1) recording up to three prior locations or episodes relevant to the
@@ -3083,40 +3071,40 @@ variables:
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'C(2,0) bound to UF codelists (UFCCODIG/UFCODIGO), numbered 1 alongside three
-      sibling location fields (MUN_DES1, PA_DES1) and a matching date field (DT_DESC1), all
-      sharing the identical file set and count (77) — a coherent repeated sub-block for recording
-      prior locations/episodes.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), UF 1 (block documented; DBF names
+      not listed)
     notes: 'The exact ficha section this block belongs to (e.g. "local provável de infecção
       anterior" vs. a travel-history question) was not read directly; the "travel/exposure"
       framing is inferred from the disease mix and the repeated UF+município+país+data shape.
 
       '
   CO_UF_DES2:
-    official_name: UF de destino/deslocamento (2)
+    official_name: Deslocamento – UF 2
     translated_name: State (UF) of travel/exposure location — 2nd episode
     description: 'Second slot of the travel/exposure-history block described under CO_UF_DES1.
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'Same reasoning as CO_UF_DES1, numbered slot 2.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), UF 2 (block documented; DBF names
+      not listed)
   CO_UF_DES3:
-    official_name: UF de destino/deslocamento (3)
+    official_name: Deslocamento – UF 3
     translated_name: State (UF) of travel/exposure location — 3rd episode
     description: 'Third slot of the travel/exposure-history block described under CO_UF_DES1.
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'Same reasoning as CO_UF_DES1, numbered slot 3.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), UF 3 (block documented; DBF names
+      not listed)
   CRITERIO:
     official_name: Critério de Confirmação
     translated_name: Confirmation/discard criterion
@@ -3127,6 +3115,7 @@ variables:
 
       '
     code_system: internal
+    per_form: true
     codelists:
     - CONFDESC
     - CONFDESCA
@@ -3257,19 +3246,16 @@ variables:
     - CS_SEXO
     - NU_IDADE_N
   CS_HOSPITA:
-    official_name: Característica – Hospitalização
+    official_name: Ocorreu hospitalização?
     translated_name: Hospitalization status
     description: 'Hospitalization-status flag, in this batch''s coqueluche, tétano acidental
       and tétano neonatal forms. 1=Sim, 2=Não, 9=Ignorado.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'CS_ prefix (característica) bound to the SIM_NAO codelist, consistent with
-      other CS_-prefixed status flags in this system (CS_SUSPEIT, and the base dictionary''s
-      CS_SEXO/CS_RACA/CS_ZONA family).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf,
+      campo 42 (Ocorreu hospitalização?); tétano acidental e tétano neonatal idem
   CS_INQUERI:
     official_name: Tipo de inquérito
     translated_name: Survey type
@@ -3328,9 +3314,9 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'CS_ is the classificação/situação prefix and MENING reads meningite; 1-character
-      width matches a short enumerated code rather than free text.
-
-      '
+      width matches a short enumerated code rather than free text. Reviewed 2026-09-28: no
+      documentation found (searched the SINAN NET v5 and Sinan Online dictionaries in sources/dic_text,
+      the Notificação Individual dictionary, TAB_SINANNET .DEF files and the web).'
   CS_NUCA:
     official_name: Rigidez de Nuca
     translated_name: Neck stiffness
@@ -3511,51 +3497,49 @@ variables:
   DIABETES:
     official_name: Diabetes
     translated_name: Diabetes (comorbidity)
-    description: Whether the patient has diabetes as a pre-existing comorbidity, recorded
-      on forms that collect a comorbidity checklist.
+    description: 'Whether the patient has diabetes, as a pre-existing disease (dengue/chikungunya)
+      or a condition associated with the occupational disease (DRT forms).
+
+      '
     code_system: internal
     codelists:
     - SIM_NAO
-    source: inferred
-    reasoning: 'DIABETES is the plain medical term; C(1) bound to SIM_NAO, matching the shape
-      of an explicit comorbidity checklist rather than a symptom of the notified disease itself.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados – Sinan Online (Dengue/Chikungunya) — https://portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf,
+      campo 34 (Doenças pré-existentes – diabetes); Dicionário de Dados SINAN NET v5.0 – DRT
+      LER/DORT — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20LER%20DORT/DIC_DADOS_DRT_LERDORT_v5.pdf,
+      agravos associados – diabetes mellitus
   DIAG_ESP:
-    official_name: Diagnóstico Específico
+    official_name: Diagnóstico específico (CID 10)
     translated_name: Specific diagnosis code
-    description: 'A specific-diagnosis code for the occupational condition (e.g. which dermatosis,
-      which mental disorder), narrower than the agravo-group ID_AGRAVO — bound to the same
-      agravo/CID-anchored table family as ID_AGRAVO.
+    description: 'ICD-10 code of the specific diagnosis of the work-related disease.
 
       '
     codelist: AGRAVONOTS
     code_system: external
-    source: inferred
-    reasoning: 'DIAG_ESP reads as diagnóstico específico; it is declared C(4), the same width
-      as ID_AGRAVO''s CID-10-based code, and shares the AGRAVNET codelist binding with ID_AGRAVO.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT LER/DORT — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20LER%20DORT/DIC_DADOS_DRT_LERDORT_v5.pdf,
+      campo 52 (Diagnóstico específico – CID 10); Dicionário de Dados SINAN NET v5.0 – DRT
+      Câncer relacionado ao trabalho — http://www.portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 48
     notes: 'Not found named in either dictionary fetched for this batch — the exact value
       domain (whether it is a raw CID-10 code or a SINAN-specific sub-agravo code) is not
       confirmed.
 
       '
   DIARREIA:
-    official_name: Sinais clínicos – Diarreia
+    official_name: Diarreia
     translated_name: Clinical sign — diarrhea
     description: 'Clinical-sign-present flag for diarrhea, appearing in this batch''s dengue,
       febre maculosa, febre tifóide and rotavirus symptom checklists. 1=Sim, 2=Não, 9=Ignorado.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'C(1,0) width matching the yes/no/ignored pattern used throughout every other
-      named symptom checklist item in this system (EXANTEMA, MIALGIA, ARTRITE, NAUSEA, VOMITO
-      above), bound to the SIM_NAO codelist, and the column name is the unambiguous Portuguese
-      word for the symptom.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf,
+      campo 33 (Sinais e sintomas – diarreia); Dicionário de Dados SINAN NET v5.0 – Febre Tifóide
+      — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      sinais e sintomas; rotavírus campo 31
   DOENCA_TRA:
     official_name: Doença Relacionada ao Trabalho
     translated_name: Work-related disease flag
@@ -3651,8 +3635,9 @@ variables:
     source: inferred
     reasoning: 'Declared width C6 matches the standard 6-digit IBGE municipality code, not
       free text; the 1/2/3 suffix mirrors other SINAN "up to three locations" field families.
-
-      '
+      Reviewed 2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan Online
+      dictionaries in sources/dic_text, the Notificação Individual dictionary, TAB_SINANNET
+      .DEF files and the web).'
   DS_TRANS2:
     official_name: Município de transmissão (2)
     translated_name: Municipality of transmission (2)
@@ -3664,7 +3649,10 @@ variables:
     codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
-    reasoning: Same evidence as DS_TRANS1; distinguished only by ordinal position.
+    reasoning: 'Same evidence as DS_TRANS1; distinguished only by ordinal position. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan Online dictionaries
+      in sources/dic_text, the Notificação Individual dictionary, TAB_SINANNET .DEF files and
+      the web).'
   DS_TRANS3:
     official_name: Município de transmissão (3)
     translated_name: Municipality of transmission (3)
@@ -3676,7 +3664,10 @@ variables:
     codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
-    reasoning: Same evidence as DS_TRANS1; distinguished only by ordinal position.
+    reasoning: 'Same evidence as DS_TRANS1; distinguished only by ordinal position. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan Online dictionaries
+      in sources/dic_text, the Notificação Individual dictionary, TAB_SINANNET .DEF files and
+      the web).'
   DTALTA:
     official_name: 'Data da Alta
 
@@ -3709,19 +3700,18 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_Aids_crianca_v5.pdf, campo 44
   DTINTERNA:
-    official_name: Data de internação
+    official_name: Data da internação
     translated_name: Hospital admission date
     description: 'Date of hospital admission, carried in this batch by botulismo, febre maculosa
       and intoxicação exógena files.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DT_ prefix is the system''s date-field convention (see DT_NOTIFIC, DT_SIN_PRI
-      in the base notification dictionary); "INTERNA" abbreviates "internação" (hospital admission);
-      declared D(8,0) matches an 8-digit ddmmyyyy date.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Botulismo — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
+      campo 37 (Data da internação); Dicionário de Dados SINAN NET v5.0 – Febre Maculosa —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf,
+      campo 37
   DTRAPIDO1:
     official_name: Data de realização dos exames (Teste rápido)
     translated_name: Rapid test collection date
@@ -3752,9 +3742,9 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'DT_ prefix (this system''s date convention) plus ACID (acidente); D(8,0) matches
-      an 8-digit date.
-
-      '
+      an 8-digit date. Reviewed 2026-09-28: no documentation found (searched the SINAN NET
+      v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual dictionary,
+      TAB_SINANNET .DEF files and the web).'
   DT_ALRM:
     official_name: Dengue com sinais de alarme - Data de início dos sintomas
     translated_name: Dengue warning-sign onset date
@@ -3826,14 +3816,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf,
+      campo 44 (Data da coleta); Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf,
+      Data da coleta; cólera e hepatites idem
     asserted_by: pegasus_data
-    reasoning: 'SINAN''s naming grammar pairs a dt_coleta_<test> field immediately before
-      its matching lab-result field in every disease dictionary reviewed (AIDS, Chagas, Hantavirose,
-      Leptospirose, LTA); DT_ = data and coleta = sample collection are two of its most regular
-      tokens.
-
-      '
   DT_CONFIRM:
     official_name: Data de coleta (Teste confirmatório)
     translated_name: Confirmatory test collection date
@@ -3845,40 +3832,42 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
   DT_DESC1:
-    official_name: Data de destino/deslocamento (1)
+    official_name: Deslocamento – Data 1
     translated_name: Date of travel/exposure episode — 1st
     description: 'Date for the first slot of the travel/exposure-history block described under
       CO_UF_DES1.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'D(8,0), part of the same numbered block as CO_UF_DES1/MUN_DES1/PA_DES1 (identical
-      series and file count).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), Data 1 (block documented; DBF names
+      not listed)
   DT_DESC2:
-    official_name: Data de destino/deslocamento (2)
+    official_name: Deslocamento – Data 2
     translated_name: Date of travel/exposure episode — 2nd
     description: 'Second slot of the travel/exposure-history block described under CO_UF_DES1/DT_DESC1.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Same reasoning as DT_DESC1, numbered slot 2.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), Data 2 (block documented; DBF names
+      not listed)
   DT_DESC3:
-    official_name: Data de destino/deslocamento (3)
+    official_name: Deslocamento – Data 3
     translated_name: Date of travel/exposure episode — 3rd
     description: 'Third slot of the travel/exposure-history block described under CO_UF_DES1/DT_DESC1.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Same reasoning as DT_DESC1, numbered slot 3.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), Data 3 (block documented; DBF names
+      not listed)
   DT_DIAG:
     official_name: Data do Diagnóstico
     translated_name: Diagnosis date
@@ -3892,9 +3881,9 @@ variables:
     reasoning: 'DT_ is SINAN''s date prefix and DIAG is the standard abbreviation for diagnóstico
       used elsewhere in this same dictionary (e.g. the field 7 description above); the column
       is declared D(8), a plain date width, with no codelist beyond TabNet''s generic year/month/quarter
-      axes and a TB-cohort table.
-
-      '
+      axes and a TB-cohort table. Reviewed 2026-09-28: no documentation found (searched the
+      SINAN NET v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual
+      dictionary, TAB_SINANNET .DEF files and the web).'
     notes: Not itself named in the two dictionaries fetched for this batch.
   DT_DIGITA:
     official_name: Data de Digitação
@@ -3954,7 +3943,7 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_ONLINE.pdf, campo 71 (Dengue grave, Data de início dos sintomas)
   DT_INIC_TR:
-    official_name: Data de início do tratamento
+    official_name: Data do início do tratamento
     translated_name: Treatment start date
     description: 'Date treatment started, in this batch''s leishmaniose tegumentar americana
       and tuberculose forms — for tuberculose specifically it feeds the cohort classification
@@ -3962,24 +3951,21 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DT_ prefix (date) + INIC (início) + TR (tratamento); bound to codelist COORTE_TB,
-      DATASUS''s tuberculosis-cohort classification which is built from the treatment start
-      date.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – LTA — portalsinan.saude.gov.br, DIC_DADOS_LTA_v5.pdf,
+      campo 41 (Data do início do tratamento); Dicionário de Dados SINAN NET – Tuberculose
+      (23/07/2020) — portalsinan.saude.gov.br, DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, Data
+      de início do tratamento atual
   DT_INTERNA:
-    official_name: Data de Internação
+    official_name: Data da internação
     translated_name: Hospitalization date
     description: Date the patient was admitted to hospital for this case, where the form collects
       it.
     code_system: none
-    source: inferred
-    reasoning: 'DT_ is the date prefix and INTERNA(ÇÃO) is DATASUS''s standard abbreviation
-      for hospital admission, used with the same spelling across SIH and other DATASUS systems;
-      declared D(8), a plain date width.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados – Sinan Online (Dengue/Chikungunya) — https://portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf,
+      campo 51 (Data da internação); Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf,
+      campo 43
   DT_INVEST:
     official_name: Data da Investigação
     translated_name: Investigation start date
@@ -4275,10 +4261,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'DT_ prefix is the date convention; the field is one of several near-identically-named
-      DT_TRANS*/DTTRANS* siblings that differ only by a 2-letter route suffix, consistent
-      with a per-exposure-route date block.
-
-      '
+      DT_TRANS*/DTTRANS* siblings that differ only by a 2-letter route suffix, consistent with
+      a per-exposure-route date block. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual
+      dictionary, TAB_SINANNET .DEF files and the web).'
   DT_ULT_DOS:
     official_name: 'Data da Última Dose
 
@@ -4323,22 +4309,23 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'DURACAO reads duração; declared as a 2-character numeric-like code, consistent
-      with a small day/week count rather than a coded category.
-
-      '
+      with a small day/week count rather than a coded category. Reviewed 2026-09-28: no documentation
+      found (searched the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET .DEF
+      files and the web). The field belongs to the 2000-2006 pre-SINAN NET files, whose dictionary
+      is not published.'
   EDEMA:
-    official_name: Sinais clínicos – Edema
+    official_name: Edema
     translated_name: Clinical sign — edema (swelling)
     description: 'Clinical-sign-present flag for edema, in this batch''s doença de Chagas
       aguda and leishmaniose visceral symptom checklists.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'C(1,0), bound to SIM_NAO, and "edema" is the unambiguous Portuguese/ medical
-      term for swelling.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf,
+      campo 41 (Sinais e sintomas – edema); Dicionário de Dados SINAN NET v5.0 – Leishmaniose
+      Visceral — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose%20Visceral/DIC_DADOS_LV_v5.pdf,
+      campo 33
   ELISA:
     official_name: ELISA
     translated_name: ELISA serology test result
@@ -4349,8 +4336,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 coded field named directly for the test; shared between the CHAG and LEIV
-      strata rather than exclusive to one.
+    reasoning: 'C1 coded field named directly for the test; shared between the CHAG and LEIV
+      strata rather than exclusive to one. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET .DEF files and the web).
+      The field belongs to the 2000-2006 pre-SINAN NET files, whose dictionary is not published.'
   EPISTAXE:
     official_name: 'Sinais e Sintomas — Epistaxe
 
@@ -4402,6 +4391,7 @@ variables:
 
       '
     code_system: internal
+    per_form: true
     codelists:
     - ALTAOBIT
     - CURAOBIT
@@ -4499,17 +4489,19 @@ variables:
   FEBRE:
     official_name: Febre
     translated_name: Fever (symptom present)
-    description: Whether the patient reported fever, on the febrile-illness investigation
-      forms (dengue, chikungunya, febre maculosa, febre tifóide, leishmaniose visceral, ...).
+    description: 'Whether the patient had fever (on the acute Chagas form, persistent fever),
+      recorded on the febrile-illness investigation forms.
+
+      '
     code_system: internal
     codelists:
     - SIM_NAO
-    source: inferred
-    reasoning: 'FEBRE is the plain Portuguese word for fever; the column is C(1) bound to
-      the SIM_NAO codelist, matching the shape of every other named yes/no symptom field in
-      this dictionary.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados – Sinan Online (Dengue/Chikungunya) — https://portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf,
+      campo 33 (Sinais clínicos – febre); Dicionário de Dados SINAN NET v5.0 – Febre Maculosa
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf,
+      campo 33; Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf,
+      campo 41 (febre persistente)
   FLOGISTICO:
     official_name: Sinais e sintomas - Sinais flogísticos
     translated_name: Inflammatory signs present
@@ -4579,31 +4571,27 @@ variables:
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Bound to codelists FORMA and, for hepatitis specifically, HEPAGCRNET (both
-      at 0.9 confidence from the DEF/CNV files), plus the unambiguous Portuguese name; the
-      actual code labels were not inspected here.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Esquistossomose — portalsinan.saude.gov.br,
+      DIC_DADOS_Esquistossomose_v5.pdf, Forma clínica; Dicionário de Dados SINAN NET v5.0 –
+      Hepatites Virais — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatite/DIC_DADOS_Hepatite_v5.pdf,
+      Forma clínica; Dicionário de Dados SINAN NET – Tuberculose (23/07/2020) — portalsinan.saude.gov.br,
+      DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 35 (Forma)
     notes: 'Declared width varies between 1 and 2 characters across files/agravos, so the
       category count likely differs by disease.
 
       '
   FUMA:
-    official_name: Fuma?
-    translated_name: Current smoker?
-    description: 'Smoking-history flag in the occupational-cancer, work-related-mental-health
-      and pneumoconiosis fichas (series CANC/MENT/PNEU): whether the patient smokes. 1=Sim,
-      2=Não, 9=Ignorado. Pairs with TEMPO_FUMA (duration) and TP_TEMP_FU (duration unit).
+    official_name: Hábito de fumar
+    translated_name: Smoking habit
+    description: 'Patient''s smoking habit: smoker, non-smoker, ex-smoker, or unknown (1, 2,
+      3, 9). Pairs with TEMPO_FUMA and TP_TEMP_FU.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'C(1,0), bound to the SIM_NAO codelist, and "fuma" is the unambiguous Portuguese
-      verb for "smokes"; smoking history is a standard risk-factor field for lung cancer and
-      pneumoconiosis case investigation.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT Câncer relacionado ao trabalho — http://www.portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 50 (Hábito de fumar)
   GENGIVO:
     official_name: 'Sinais e Sintomas — Gengivorragia
 
@@ -4853,17 +4841,18 @@ variables:
 
       '
   HEPATOME:
-    official_name: Sinais clínicos – Hepatomegalia
+    official_name: Hepatomegalia
     translated_name: Clinical sign — hepatomegaly
-    description: 'Clinical-sign-present flag for hepatomegaly (enlarged liver), in this batch''s
-      doença de Chagas aguda and febre maculosa symptom checklists.
+    description: 'Whether the patient had an enlarged liver (on the spotted fever form, liver
+      and/or spleen enlargement) (1 yes, 2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'C(1,0), bound to SIM_NAO, and HEPATOME abbreviates "hepatomegalia".
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf,
+      campo 41 (Sinais e sintomas – hepatomegalia); Dicionário de Dados SINAN NET v5.0 – Febre
+      Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf,
+      campo 33 (hepatomegalia/esplenomegalia)
   HEPATOPAT:
     official_name: Doenças pré-existentes - Hepatopatias
     translated_name: Pre-existing liver disease
@@ -4908,20 +4897,20 @@ variables:
     source: layout_doc
     source_ref: Dengue/Chikungunya ficha de investigação (prefeitura.pbh.gov.br), campo "HISTOPATOLOGIA"
   HIV:
-    official_name: Sorologia HIV
-    translated_name: HIV serology status
-    description: 'Comorbidity/coinfection field recording HIV serology status, appearing in
-      this batch''s hepatitis, visceral leishmaniasis and tuberculosis notification forms.
-      Bound to a POSNEGEM (positivo/negativo) codelist.
+    official_name: HIV
+    translated_name: HIV status
+    description: 'Form-dependent HIV field: on tuberculosis, the anti-HIV test result (positive,
+      negative, in progress, not done); on visceral leishmaniasis, HIV co-infection yes/no;
+      on viral hepatitis, HIV/AIDS diagnosed at any time yes/no.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Bound to codelist POSNEGEM (0.9 confidence) plus the plain field name; HIV
-      status is a standard comorbidity/coinfection field on hepatitis, visceral leishmaniasis
-      and tuberculosis notification forms.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Tuberculose (23/07/2020) — portalsinan.saude.gov.br,
+      DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 40 (HIV – resultado da sorologia); Dicionário
+      de Dados SINAN NET v5.0 – Leishmaniose Visceral — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose%20Visceral/DIC_DADOS_LV_v5.pdf,
+      campo 34 (Co-infecção HIV); Dicionário de Dados SINAN NET v5.0 – Hepatites Virais — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatite/DIC_DADOS_Hepatite_v5.pdf,
+      agravos associados – HIV/Aids
     notes: 'Declared width varies between 1 and 4 characters across files, so the category
       count likely differs by agravo (e.g. a simple positivo/negativo pair on some forms vs.
       an extra "em andamento"/"não realizado" category on others) — the exact set is not verified
@@ -4952,7 +4941,7 @@ variables:
     source_ref: https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SINAN/Dengue/dic_dados_dengue.pdf
       — campo 62 'Ocorreu Hospitalização?', DBF=HOSPITALIZ
   ICTERICIA:
-    official_name: Sinais clínicos – Icterícia
+    official_name: Icterícia
     translated_name: Clinical sign — jaundice
     description: 'Clinical-sign-present flag for jaundice, in this batch''s febre maculosa,
       leishmaniose visceral and síndrome da rubéola congênita symptom checklists — the general-form
@@ -4960,40 +4949,35 @@ variables:
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'C(1,0), bound to SIM_NAO, and "icterícia" is the unambiguous Portuguese word
-      for jaundice.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf,
+      campo 33 (Sinais e sintomas – icterícia); Dicionário de Dados SINAN NET v5.0 – Leishmaniose
+      Visceral — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose%20Visceral/DIC_DADOS_LV_v5.pdf,
+      campo 33; Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf,
+      campo 35 (sinais menores)
   IDADE_MAE:
     official_name: Idade da mãe
     translated_name: Mother's age
-    description: 'Mother''s age in years at the time of the case, recorded in this batch''s
-      pediatric/neonatal forms (AIDS criança, HIV criança, tétano neonatal).
+    description: 'Mother''s age in years: at the child''s diagnosis on the AIDS/HIV child forms,
+      at the birth of the last newborn on the neonatal tetanus form.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'N(3,0) numeric field; "idade" + "mãe" is unambiguous, and the column is bound
-      to several maternal-age-bracket tabulation codelists (FXID10MAENET, FXIMAE14, IDDETMAENET)
-      that only make sense as TabNet''s auto-derived axes over a raw maternal-age number.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS criança — https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf,
+      campo 31 (Idade da mãe); Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf, campo 39
   IDENT_MICR:
-    official_name: Identificação microbiológica
-    translated_name: Microbiological identification
-    description: 'Free-text description of the pathogen species identified by laboratory testing
-      (e.g. the Rickettsia species found), used when the causative organism needs to be recorded
-      beyond a simple positive/negative result.
+    official_name: Identificação do micro
+    translated_name: Data-entry computer identifier
+    description: 'Internal system field identifying the microcomputer (SINAN installation code)
+      on which the record was entered. Not a clinical variable.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Shared between FMAC and a related rickettsial/tick-borne agravo; name reads
-      "identificação microbiológica"; wide C50 width fits a written species identification
-      rather than a coded field.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Notificação Individual — http://portalsinan.saude.gov.br/images/documentos/Agravos/NINDIV/DIC_DADOS_NET_Not_Individual_rev.pdf,
+      Identificação do micro (campo interno)
   ID_AGRAVO:
     official_name: Agravo/doença
     translated_name: Notifiable disease/condition
@@ -5041,11 +5025,12 @@ variables:
     reasoning: 'No def_variables, dictionary, or field_documentation row exists for this name
       in the catalog. Its declared type/width is inconsistent across the seven agravos that
       carry it (C1 vs C11 vs N1), unlike genuine clinical fields which keep a stable shape
-      across forms; that instability, plus the ID_ prefix SINAN uses for both identifiers
-      and internal control codes, is the basis for treating it as a record-control field rather
-      than guessing a specific clinical meaning.
-
-      '
+      across forms; that instability, plus the ID_ prefix SINAN uses for both identifiers and
+      internal control codes, is the basis for treating it as a record-control field rather
+      than guessing a specific clinical meaning. Reviewed 2026-09-28: no documentation found
+      (searched the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET .DEF files
+      and the web). The field belongs to the 2000-2006 pre-SINAN NET files, whose dictionary
+      is not published.'
   ID_EV_NOT:
     official_name: Identificador de notificação (bloco Evolução/Notificação)
     translated_name: Notification-record control code (evolution block)
@@ -5059,10 +5044,10 @@ variables:
     source: inferred
     reasoning: 'Same absence of evidence as ID_DG_NOT: no def_variables, dictionary or field_documentation
       row, and a declared width that changes by agravo. Recorded separately because the catalog
-      treats it as a distinct column, but the real distinction between the two beyond the
-      DG/EV naming is not verifiable here.
-
-      '
+      treats it as a distinct column, but the real distinction between the two beyond the DG/EV
+      naming is not verifiable here. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET .DEF files and the web).
+      The field belongs to the 2000-2006 pre-SINAN NET files, whose dictionary is not published.'
   ID_MN_RESI:
     official_name: Município de Residência
     translated_name: Municipality of residence
@@ -5278,9 +5263,9 @@ variables:
     code_system: internal
     source: inferred
     reasoning: 'IN_ is the flag prefix and AIDS needs no expansion; C(1), and it sits with
-      the prophylaxis fields it governs.
-
-      '
+      the prophylaxis fields it governs. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual
+      dictionary, TAB_SINANNET .DEF files and the web).'
   IN_VINCULA:
     official_name: Vinculação
     translated_name: Linked-record flag
@@ -5738,7 +5723,7 @@ variables:
 
       '
   MUN_DES1:
-    official_name: Município de destino/deslocamento (1)
+    official_name: Deslocamento – Município 1
     translated_name: Municipality of travel/exposure location — 1st episode
     description: 'IBGE municipality code for the first slot of the travel/exposure-history
       block described under CO_UF_DES1.
@@ -5746,35 +5731,37 @@ variables:
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: 'C(6,0) bound to the MUNICBR-family codelists, part of the same numbered block
-      as CO_UF_DES1/PA_DES1/DT_DESC1 (identical series and file count).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), Município 1 (block documented; DBF
+      names not listed)
   MUN_DES2:
-    official_name: Município de destino/deslocamento (2)
+    official_name: Deslocamento – Município 2
     translated_name: Municipality of travel/exposure location — 2nd episode
     description: 'Second slot of the travel/exposure-history block described under CO_UF_DES1/MUN_DES1.
 
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: 'Same reasoning as MUN_DES1, numbered slot 2.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), Município 2 (block documented; DBF
+      names not listed)
   MUN_DES3:
-    official_name: Município de destino/deslocamento (3)
+    official_name: Deslocamento – Município 3
     translated_name: Municipality of travel/exposure location — 3rd episode
     description: 'Third slot of the travel/exposure-history block described under CO_UF_DES1/MUN_DES1.
 
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: 'Same reasoning as MUN_DES1, numbered slot 3.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), Município 3 (block documented; DBF
+      names not listed)
   MUN_EMP:
     official_name: Município da Empresa Contratante
     translated_name: Municipality of the employer
@@ -5964,22 +5951,16 @@ variables:
     depends_on:
     - TPTEMPO
   NUTEMPORIS:
-    official_name: Tempo de Exposição ao Risco (valor)
+    official_name: Tempo de exposição ao agente de risco
     translated_name: Time exposed to risk (magnitude)
-    description: 'Numeric magnitude of how long the person was exposed to the occupational
-      risk factor, paired with the unit field TPTEMPORIS — the risk-exposure analogue of NUTEMPO/TPTEMPO
-      (which measure time in the occupation, not time exposed to the specific hazard).
+    description: 'How long the person was exposed to the occupational risk agent, as a number
+      in the unit given by TPTEMPORIS.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'NUTEMPORIS mirrors the confirmed NUTEMPO field''s shape (a bare number(2-3)
-      paired with a same-form unit code) and co-occurs with it on the occupational-disease
-      forms; "RIS" reads as risco (risk), and the companion TPTEMPORIS binds to a codelist
-      (HORADIAMESANO — "hora dia mês ano") with exactly NUTEMPO/TPTEMPO''s hour/day/month/year
-      shape.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT Câncer relacionado ao trabalho — http://www.portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      tempo de exposição ao agente de risco
     depends_on:
     - TPTEMPORIS
   NU_AFAST:
@@ -6069,19 +6050,17 @@ variables:
 
       '
   NU_LOTE_I:
-    official_name: Número do Lote (tipo I)
+    official_name: Número do lote da transferência vertical da investigação
     translated_name: Batch number, third variant
-    description: 'A third batch/lot identifier in the same NU_LOTE_ family as NU_LOTE_H (horizontal
-      transfer) and NU_LOTE_V (vertical transfer) — SINAN''s own internal record-transfer
-      bookkeeping, not a case attribute.
+    description: 'Batch number of the vertical transfer that sent the investigation record
+      from one level of the system to another; filled by the system.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Shares the NU_LOTE_ prefix, C(7-9) width and no-codelist shape of the confirmed
-      NU_LOTE_H/NU_LOTE_V fields.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf,
+      Transferência vertical da investigação – número do lote; AIDS, febre tifoide, peçonhentos
+      idem
     notes: 'Neither dictionary fetched for this batch defines an "I" transfer axis (only horizontal
       and vertical are documented) — what specifically the "I" denotes is not confirmed; treat
       this column as "some lot number", not as a specific known transfer direction.
@@ -6103,7 +6082,7 @@ variables:
 
       '
   NU_NOTIFIC:
-    official_name: Número da notificação
+    official_name: Nº da notificação
     translated_name: Notification number
     description: 'Identifier the system assigns to a case notification when it is registered
       — the record''s key within its agravo/year/notifying-unit combination, not a national
@@ -6111,11 +6090,9 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'C7; NU_=número, NOTIFIC=notificação, a near-universal SINAN field appearing
-      here in a small residual stratum (anthrax, neonatal tetanus, trachoma) not covered elsewhere.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Notificação Individual — http://portalsinan.saude.gov.br/images/documentos/Agravos/NINDIV/DIC_DADOS_NET_Not_Individual_rev.pdf,
+      campo Nº da notificação
   OCUPACAO:
     official_name: Ocupação
     translated_name: Patient occupation
@@ -6130,9 +6107,9 @@ variables:
     reasoning: 'Appears only in CHAG, DENG, LEIV and MALA in 2000-2006, the same discontinued
       pre-SINAN-NET footprint seen for ANT_DT_INV and the CON_ conclusion-block fields; declared
       width varies (5 vs 11 characters) across files, consistent with an unstandardized legacy
-      field rather than a fixed code.
-
-      '
+      field rather than a fixed code. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET .DEF files and the web).
+      The field belongs to the 2000-2006 pre-SINAN NET files, whose dictionary is not published.'
   ORIGEM:
     official_name: Origem do registro
     translated_name: Record origin
@@ -6146,9 +6123,9 @@ variables:
     source: inferred
     reasoning: 'ORIGEM = origem; values skew overwhelmingly to one code with two rare alternates,
       consistent with "current system" vs. legacy-migration flags; the field appears identically
-      in both AIDA and AIDC schemas.
-
-      '
+      in both AIDA and AIDC schemas. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual
+      dictionary, TAB_SINANNET .DEF files and the web).'
   OUTRAS:
     official_name: Drogas - Outras
     translated_name: Non-standard TB drug used
@@ -6183,22 +6160,20 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_Esquistossomose_v5.pdf, campo 36
   OUTRO_DES:
-    official_name: Outro – especificar
+    official_name: Outro (especificar)
     translated_name: Free-text detail when "other" was checked
-    description: 'Free-text elaboration field (up to 30 characters), paired with an unlisted-category
-      flag (typically named OUTRO/OUTRA, not itself in this batch) in the same ficha section
-      — the same flag-plus-"_DES"-free-text pairing confirmed for CONDUT_DES and AGRAVO_DES
-      in the DRT dictionary. Carried in this batch by antraz, doença de Chagas aguda and raiva
-      files.
+    description: 'Thirty-character free text for an ''other, specify'' option; its subject
+      depends on the form: other aggressor animal species (anti-rabies care), other control
+      measures (acute Chagas), other signs and symptoms (human rabies).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'C(30,0) matches the free-text width of the confirmed CONDUT_DES/AGRAVO_DES
-      pattern; "_DES" is this system''s suffix for a free-text elaboration paired with a same-named
-      or thematically-named flag.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.1 – Atendimento antirrábico — portalsinan.saude.gov.br,
+      DIC_DADOS_anti_rabico_v5.1.pdf, campo 40 (Espécie do animal agressor – outro, especificar);
+      Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf,
+      campo 56 (Medidas tomadas – outros, especifique); raiva humana campo 48 (Principais sinais/sintomas
+      – outros)
   OUTRO_ESP:
     official_name: 'Sinais e Sintomas — Outros (Especificar)
 
@@ -6295,40 +6270,42 @@ variables:
     depends_on:
     - OUTRO_EXP
   PA_DES1:
-    official_name: País de destino/deslocamento (1)
+    official_name: Deslocamento – País 1
     translated_name: Country of travel/exposure location — 1st episode
     description: 'Nation code for the first slot of the travel/exposure-history block described
       under CO_UF_DES1 — only meaningful when the location was outside Brazil.
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'Bound to the PAISNET country codelist, part of the same numbered block as
-      CO_UF_DES1/MUN_DES1/DT_DESC1.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), País 1 (block documented; DBF names
+      not listed)
   PA_DES2:
-    official_name: País de destino/deslocamento (2)
+    official_name: Deslocamento – País 2
     translated_name: Country of travel/exposure location — 2nd episode
     description: 'Second slot of the travel/exposure-history block described under CO_UF_DES1/PA_DES1.
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'Same reasoning as PA_DES1, numbered slot 2.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), País 2 (block documented; DBF names
+      not listed)
   PA_DES3:
-    official_name: País de destino/deslocamento (3)
+    official_name: Deslocamento – País 3
     translated_name: Country of travel/exposure location — 3rd episode
     description: 'Third slot of the travel/exposure-history block described under CO_UF_DES1/PA_DES1.
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'Same reasoning as PA_DES1, numbered slot 3.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      Informações complementares – deslocamento (datas e locais frequentados no período de
+      45 dias anteriores ao início dos sinais e sintomas), País 3 (block documented; DBF names
+      not listed)
   PESO:
     official_name: 'Peso
 
@@ -6394,14 +6371,15 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'PLAQ_/MENOR is a standard DATASUS abbreviation pair (plaqueta, menor) and
-      the field sits alongside CON_FHD, SANGRAM, HEMATURA, EPISTAXE and GENGIVO in the same
-      DENG/CHIK legacy hemorrhagic block confirmed via TAB_SINANNET; platelet-count nadir
-      is exactly the lab value that classic WHO dengue-hemorrhagic-fever monitoring tracks.
-      No layout document or dictionary label was found for this specific field, so the reading
-      rests on name and context, not a verbatim source.
-
-      '
+    reasoning: 'PLAQ_/MENOR is a standard DATASUS abbreviation pair (plaqueta, menor) and the
+      field sits alongside CON_FHD, SANGRAM, HEMATURA, EPISTAXE and GENGIVO in the same DENG/CHIK
+      legacy hemorrhagic block confirmed via TAB_SINANNET; platelet-count nadir is exactly
+      the lab value that classic WHO dengue-hemorrhagic-fever monitoring tracks. No layout
+      document or dictionary label was found for this specific field, so the reading rests
+      on name and context, not a verbatim source. Reviewed 2026-09-28: no documentation found
+      (searched the SINAN NET v5 dictionaries in sources/dic_text, TAB_SINANNET .DEF files
+      and the web). The field belongs to the 2000-2006 pre-SINAN NET files, whose dictionary
+      is not published.'
     notes: 'The catalog''s own header facts show this column declared inconsistently across
       strata — C(6), C(7) and one outlier N(18,9) — with no observed values sampled. Treat
       any parse of this column as low- confidence; the type inconsistency itself suggests
@@ -6685,9 +6663,9 @@ variables:
     source: inferred
     reasoning: 'C(6,0) matching the AAAASS epidemiological-week width used by SEM_NOT/ SEM_PRI
       in the base notification dictionary; SEM_ prefix plus ACID (acidente) on a workplace-accident
-      ficha.
-
-      '
+      ficha. Reviewed 2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan
+      Online dictionaries in sources/dic_text, the Notificação Individual dictionary, TAB_SINANNET
+      .DEF files and the web).'
   SEM_DIAG:
     official_name: Semana Epidemiológica do Diagnóstico
     translated_name: Epidemiological week of diagnosis
@@ -6696,9 +6674,9 @@ variables:
     source: inferred
     reasoning: 'SEM_ is SINAN''s epi-week prefix (see SEM_NOT, SEM_PRI, both C(6-7) AAAASS
       strings derived from a sibling date field); DIAG mirrors DT_DIAG, which this field co-occurs
-      with in the same agravo forms.
-
-      '
+      with in the same agravo forms. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual
+      dictionary, TAB_SINANNET .DEF files and the web).'
     depends_on:
     - DT_DIAG
   SEM_NOT:
@@ -6815,15 +6793,17 @@ variables:
 
       '
   SINAIS:
-    official_name: Sinais clínicos
-    translated_name: Clinical signs present
-    description: 'Whether clinical signs were present at examination, as a flag. The signs
-      themselves, where the form records them, are in separate columns.
+    official_name: Sinais e sintomas (de rubéola na mãe)
+    translated_name: Mother had rubella symptoms
+    description: 'On the congenital rubella syndrome form, whether the mother had signs and
+      symptoms of rubella during pregnancy (1 yes, 2 no, 9 unknown). The 2000-2006 Chagas files
+      also carry a SINAIS column, not covered by this dictionary.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Sinais is clinical signs; C(1) admits a flag, not a list.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf,
+      campo 47 (Sinais e sintomas)
   SINTO_DES:
     official_name: Sinais e sintomas - Se outro, especificar
     translated_name: Other symptom, specified
@@ -6888,19 +6868,16 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, campo 50
   TEMPO_FUMA:
-    official_name: Tempo de fumo (número)
+    official_name: Tempo de exposição ao tabaco
     translated_name: Smoking duration — magnitude
-    description: 'Numeric magnitude of how long the patient has smoked, paired with the unit
-      code in TP_TEMP_FU. Only meaningful when FUMA=1.
+    description: 'How long the patient was exposed to tobacco, as a number in the unit given
+      by TP_TEMP_FU; enabled when FUMA is smoker or ex-smoker.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'TEMPO_ prefix on a C(2,0) field immediately adjacent to FUMA and TP_TEMP_FU
-      mirrors the confirmed NU_AFAST+TP_AFAST magnitude+unit pattern documented for this same
-      system''s DRT fichas (see NU_AFAST).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT Câncer relacionado ao trabalho — http://www.portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      tempo de exposição ao tabaco
   TERCEIRIZA:
     official_name: Empregador é Empresa Terceirizada?
     translated_name: Is the employer a subcontractor?
@@ -6916,18 +6893,19 @@ variables:
     notes: When Sim, the form separately captures the principal company's CNAE, CNPJ and name.
       Those fields are not carried in this file.
   TIPO_ACID:
-    official_name: Tipo de acidente
+    official_name: Tipo de acidente / circunstância do acidente
     translated_name: Type of accident
-    description: 'Type-of-accident classification, in this batch''s biological-material and
-      severe work-accident forms, bound to a dedicated TIPOACID codelist.
+    description: 'Form-dependent: on the severe work-accident form, typical (at work) versus
+      commuting accident; on the biological-material form, the procedure or circumstance in
+      which the exposure happened (e.g. intravenous medication, needle recapping).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Bound to codelist TIPOACID at 0.9 confidence from the DEF/CNV files, plus
-      the unambiguous Portuguese name; the actual code labels were not inspected here.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT Acidente de trabalho grave — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20Acidente%20Trabalho%20Grave/DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf,
+      campo 55 (Tipo de acidente); Dicionário de Dados SINAN NET v5.0 – DRT Exposição a material
+      biológico — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtmb/DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf,
+      campo 48 (Circunstância do acidentado)
   TIPO_INVES:
     official_name: Tipo de investigação
     translated_name: Investigation type
@@ -7042,18 +7020,18 @@ variables:
     depends_on:
     - TIT_IGM_S1
   TOSSE:
-    official_name: Sinais clínicos – Tosse
+    official_name: Tosse
     translated_name: Clinical sign — cough
-    description: 'Clinical-sign-present flag for cough, in this batch''s febre tifóide and
-      leishmaniose visceral symptom checklists.
+    description: 'Whether the patient had a cough (on the visceral leishmaniasis form the item
+      is ''cough and/or diarrhoea'') (1 yes, 2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Predominant declared width C(1,0) bound to SIM_NAO, and "tosse" is the unambiguous
-      Portuguese word for cough.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
+      sinais e sintomas – tosse; Dicionário de Dados SINAN NET v5.0 – Leishmaniose Visceral
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose%20Visceral/DIC_DADOS_LV_v5.pdf,
+      campo 33 (tosse e/ou diarreia)
     notes: 'A small number of files declare this column as C(7,0) rather than C(1,0) — those
       files may carry a different, unrelated "TOSSE"-named column; treat values from a 7-character
       file with caution rather than assuming Sim/Não.
@@ -7127,19 +7105,17 @@ variables:
     depends_on:
     - NUTEMPO
   TPTEMPORIS:
-    official_name: Unidade do Tempo de Exposição ao Risco
+    official_name: Tempo de exposição ao agente de risco – unidade
     translated_name: Unit for NUTEMPORIS
-    description: Unit that NUTEMPORIS is measured in, on the same hour/day/month/year scale
-      as TPTEMPO.
+    description: 'Unit of NUTEMPORIS: hours, days, months or years.
+
+      '
     code_system: internal
     codelists:
     - HORADIAMESANO
-    source: inferred
-    reasoning: 'Same reasoning as NUTEMPORIS: parallel structure to the confirmed TPTEMPO
-      field, and the bound codelist name (HORADIAMESANO) spells out the same hour/day/month/year
-      domain TPTEMPO uses.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT Câncer relacionado ao trabalho — http://www.portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      tempo de exposição ao agente de risco – unidade
     depends_on:
     - NUTEMPORIS
   TPUNINOT:
@@ -7153,8 +7129,9 @@ variables:
     source: inferred
     reasoning: 'TP_ is the categorical-type prefix and UNINOT abbreviates unidade notificante;
       the bound codelist name TIPOUNIDADE ("tipo de unidade") spells out exactly this reading.
-
-      '
+      Reviewed 2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan Online
+      dictionaries in sources/dic_text, the Notificação Individual dictionary, TAB_SINANNET
+      .DEF files and the web).'
   TP_AFAST:
     official_name: Tempo de afastamento do trabalho para tratamento (unidade)
     translated_name: Work-leave duration — unit
@@ -7203,20 +7180,15 @@ variables:
       — Dicionário de Dados, Sinan Online, DENGUE, campo 116 'Tipo de Sistema', DBF=TP_SISTEMA
       (Ministério da Saúde/SVSA/DAENT)
   TP_TEMP_FU:
-    official_name: Tempo de fumo (unidade)
+    official_name: Tempo de exposição ao tabaco – unidade
     translated_name: Smoking duration — unit
-    description: 'Unit of time for the magnitude in TEMPO_FUMA, by analogy with the confirmed
-      TP_AFAST pattern (hora/dias/meses/anos) — the specific codes for this field are not
-      independently verified.
+    description: 'Unit of TEMPO_FUMA: hours, days, months or years.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'TP_ prefix (tipo) paired with a TEMPO_ magnitude field, structurally identical
-      to the confirmed NU_AFAST/TP_AFAST time-unit pair in the DRT LER/DORT dictionary (1=hora,
-      2=dias, 3=meses, 4=anos).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT Câncer relacionado ao trabalho — http://www.portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      tempo de exposição ao tabaco – unidade
     notes: 'No codelist is bound to this column in the catalog; the unit-code values are inferred
       by structural analogy, not read from a document for this specific field.
 
@@ -7319,40 +7291,30 @@ variables:
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 44; DIC_DADOS_Hantavirose_v5.pdf, campo
       49
   TUBE:
-    official_name: Tuberculose
+    official_name: Agravos associados – tuberculose
     translated_name: Tuberculosis (comorbidity)
-    description: 'Whether the patient has tuberculosis as a pre-existing comorbidity — inferred
-      by analogy to the confirmed DIABETES comorbidity field, which it co-occurs with on the
-      same occupational-disease series.
+    description: 'Whether the patient has tuberculosis as a condition associated with the occupational
+      disease (1 yes, 2 no, 9 unknown).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'TUBE reads as short for tuberculose; C(1)/C(6), no codelist bound, but appears
-      alongside DIABETES in the same series group with the same bare-boolean shape, on forms
-      (dermatoses/LER/PAIR/pneumoconioses occupational-disease series) that plausibly screen
-      for TB as a confounding comorbidity.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT LER/DORT — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20LER%20DORT/DIC_DADOS_DRT_LERDORT_v5.pdf,
+      agravos associados – tuberculose; Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf,
+      idem
     notes: Lower confidence than DIABETES — no codelist binding confirms the SIM_NAO domain
       for this specific column.
   UF:
-    official_name: UF (da hospitalização)
+    official_name: UF de hospitalização
     translated_name: State (UF) where the patient was hospitalized
-    description: 'IBGE/UF code of the state where the patient was hospitalized. Not independently
-      visible in the fetched dengue dictionary text (only its sibling field "Município" was
-      extracted), but inferred as the paired UF field for MUNICIPIO''s hospitalization-location
-      block: identical series (CHIK/DENG/FTIF/RAIV) and the same 80 carrying files as MUNICIPIO,
-      and DATASUS forms pair a município field with a UF field as standard practice.
+    description: 'State (UF) where the patient was hospitalised, on the dengue/chikungunya
+      and related forms.
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'Same series and file count as the layout_doc-confirmed MUNICIPIO (hospitalization)
-      field in the same files, C(2,0) width matching a UF code, and DATASUS''s standard município+UF
-      pairing convention used throughout every other location block in this system.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados – Sinan Online (Dengue/Chikungunya) — https://portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf,
+      campo 52 (UF de hospitalização)
     notes: 'Not a direct citation — treat the "hospitalization" framing as a strong inference
       from MUNICIPIO''s confirmed meaning, not a verified fact.
 

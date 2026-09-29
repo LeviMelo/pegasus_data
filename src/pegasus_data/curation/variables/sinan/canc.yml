@@ -6,63 +6,63 @@ asserted_by: pegasus_data
 
 variables:
   ALCATRAO:
-    official_name: Alcatrão
-    translated_name: Tar
-    description: 'Sim/Não flag for occupational exposure to tar, one item in a chemical
-      carcinogen exposure checklist alongside AMINA, BENZENO, CADMIO and CROMO (work-related
-      cancer investigation).
-
-      '
+    official_name: Exposição ocupacional - Alcatrão, breu, betume, hulha mineral, parafina
+    translated_name: Occupational exposure - Tar, pitch, bitumen, mineral coal, paraffin
+      and their products or residues
+    description: Whether the worker was exposed to tar, pitch, bitumen, mineral coal,
+      paraffin and their products or residues at work at any time during their working
+      life.
     code_system: none
-    source: inferred
-    reasoning: 'ALCATRAO names a specific chemical; it shares its rarity tier and 1-character
-      width with several other named-substance flags, matching SINAN''s per-substance
-      occupational-exposure checklist pattern.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 49 (Houve exposição nos locais de trabalho, durante toda a sua vida profissional,
+      a algum dos itens abaixo relacionados?) – Alcatrão, breu, betume, hulha mineral,
+      parafina e produtos ou resíduos dessas substâncias
   AMINA:
-    official_name: Amina aromática
-    translated_name: Aromatic amine
-    description: 'Sim/Não flag for occupational exposure to aromatic amines, part of
-      the same chemical-agent checklist as ALCATRAO, BENZENO, CADMIO and CROMO.
-
-      '
+    official_name: Exposição ocupacional - Aminas aromáticas
+    translated_name: Occupational exposure - Aromatic amines
+    description: Whether the worker was exposed to aromatic amines at work at any time
+      during their working life.
     code_system: none
-    source: inferred
-    reasoning: Same clustering and width evidence as ALCATRAO.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 49 (Houve exposição nos locais de trabalho, durante toda a sua vida profissional,
+      a algum dos itens abaixo relacionados?) – Aminas aromáticas
   BENZENO:
-    official_name: Benzeno
-    translated_name: Benzene
-    description: 'Sim/Não flag for occupational exposure to benzene, one item in the
-      same chemical-carcinogen checklist as ALCATRAO, AMINA, CADMIO and CROMO.
-
-      '
+    official_name: Exposição ocupacional - Benzeno ou seus homólogos tóxicos
+    translated_name: Occupational exposure - Benzene or its toxic homologues
+    description: Whether the worker was exposed to benzene or its toxic homologues at
+      work at any time during their working life.
     code_system: none
-    source: inferred
-    reasoning: 'Named-substance field with 1-character width, matching the other per-chemical
-      occupational-exposure flags at the same rarity tier.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 49 (Houve exposição nos locais de trabalho, durante toda a sua vida profissional,
+      a algum dos itens abaixo relacionados?) – Benzeno ou seus homólogos tóxicos
   CADMIO:
-    official_name: Cádmio
-    translated_name: Cadmium
-    description: 'Sim/Não flag for occupational exposure to cadmium, part of the same
-      chemical-agent checklist as BENZENO, ALCATRAO and AMINA.
-
-      '
+    official_name: Exposição ocupacional - Cádmio ou seus compostos
+    translated_name: Occupational exposure - Cadmium or its compounds
+    description: Whether the worker was exposed to cadmium or its compounds at work at
+      any time during their working life.
     code_system: none
-    source: inferred
-    reasoning: Same evidence as BENZENO.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 49 (Houve exposição nos locais de trabalho, durante toda a sua vida profissional,
+      a algum dos itens abaixo relacionados?) – Cádmio ou seus compostos
   CROMO:
-    official_name: Cromo
-    translated_name: Chromium
-    description: 'Sim/Não flag for occupational exposure to chromium, part of the same
-      chemical-carcinogen checklist as BENZENO, CADMIO, ALCATRAO and AMINA.
-
-      '
+    official_name: Exposição ocupacional - Cromo ou seus compostos tóxicos
+    translated_name: Occupational exposure - Chromium or its toxic compounds
+    description: Whether the worker was exposed to chromium or its toxic compounds at
+      work at any time during their working life.
     code_system: none
-    source: inferred
-    reasoning: Same evidence as BENZENO.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 49 (Houve exposição nos locais de trabalho, durante toda a sua vida profissional,
+      a algum dos itens abaixo relacionados?) – Cromo ou seus compostos tóxicos
   HIDROCARBO:
     official_name: Agentes de Exposição - Hidrocarbonetos
     translated_name: Occupational exposure - hydrocarbons
@@ -101,48 +101,47 @@ variables:
     source_ref: DIC_DADOS_DRT_Cancer_v5.pdf, campo 49 "Houve exposição nos locais de
       trabalho"
   NAO_IONIZA:
-    official_name: Exposição a radiação não ionizante
-    translated_name: Non-ionizing radiation exposure
-    description: 'Whether the work-related cancer (CANC) patient had occupational exposure
-      to non-ionizing radiation (e.g. UV, radiofrequency), one of the carcinogen-exposure
-      checkboxes alongside nickel (NIQUEL) and oils (OLEOS).
-
-      '
+    official_name: Exposição ocupacional - Radiações não ionizantes
+    translated_name: Occupational exposure - Non-ionizing radiation
+    description: Whether the worker was exposed to non-ionizing radiation at work at any
+      time during their working life.
     code_system: none
-    source: inferred
-    reasoning: 'NAO_IONIZA = não ionizante; CANC form exposure checklist; width 1.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 49 (Houve exposição nos locais de trabalho, durante toda a sua vida profissional,
+      a algum dos itens abaixo relacionados?) – Radiações não ionizantes
   NEOPLASICO:
-    official_name: Confirmação de doença neoplásica
-    translated_name: Neoplastic disease confirmed (flag)
-    description: 'Whether the case''s diagnosis has been confirmed as a neoplastic
-      (cancer) disease, the core case-definition flag on the work-related cancer form,
-      distinct from the specific carcinogen-exposure checkboxes.
-
-      '
+    official_name: Exposição ocupacional - Antineoplásicos
+    translated_name: Occupational exposure - Antineoplastic drugs
+    description: Whether the worker was exposed to antineoplastic (chemotherapy) drugs
+      at work at any time during their working life. Not a confirmation of the cancer
+      diagnosis.
     code_system: none
-    source: inferred
-    reasoning: CANC form; NEOPLASICO = neoplásico; width 1 checkbox.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 49 (Houve exposição nos locais de trabalho, durante toda a sua vida profissional,
+      a algum dos itens abaixo relacionados?) – Antineoplásicos
   NIQUEL:
-    official_name: Exposição a níquel
-    translated_name: Nickel exposure
-    description: 'Whether the work-related cancer patient had occupational exposure
-      to nickel, a recognized carcinogen and one of the named exposure-agent checkboxes
-      on the CANC form.
-
-      '
+    official_name: Exposição ocupacional - Compostos de níquel
+    translated_name: Occupational exposure - Nickel compounds
+    description: Whether the worker was exposed to nickel compounds at work at any time
+      during their working life.
     code_system: none
-    source: inferred
-    reasoning: CANC form; NIQUEL = níquel; width 1 checkbox.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 49 (Houve exposição nos locais de trabalho, durante toda a sua vida profissional,
+      a algum dos itens abaixo relacionados?) – Composto de níquel
   OLEOS:
-    official_name: Exposição a óleos
-    translated_name: Mineral/cutting oil exposure
-    description: 'Whether the work-related cancer (CANC) patient had occupational exposure
-      to oils (e.g. mineral or cutting oils), a named carcinogen-exposure checkbox
-      alongside nickel (NIQUEL) and non-ionizing radiation (NAO_IONIZA).
-
-      '
+    official_name: Exposição ocupacional - Óleos minerais
+    translated_name: Occupational exposure - Mineral oils
+    description: Whether the worker was exposed to mineral oils at work at any time during
+      their working life.
     code_system: none
-    source: inferred
-    reasoning: CANC form; OLEOS = óleos; width 1 checkbox.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
+      — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
+      campo 49 (Houve exposição nos locais de trabalho, durante toda a sua vida profissional,
+      a algum dos itens abaixo relacionados?) – Óleos minerais

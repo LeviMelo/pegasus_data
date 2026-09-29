@@ -167,18 +167,16 @@ variables:
       '
   CIRC_LESAO:
     official_name: Circunstância da lesão
-    translated_name: Circumstance of the injury (code)
-    description: 'Coded circumstance under which the injury occurred (e.g. intentional
-      vs. accidental context), part of the injury-description section on the interpersonal/self-inflicted
-      violence (VIOL) notification form.
+    translated_name: Circumstance of the injury (ICD-10 external cause)
+    description: 'ICD-10 code from Chapter XX (external causes, V01–Y98) describing the circumstance
+      of the injury, e.g. assault by a given means or intentional self-harm.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CIRC_ = circunstância, LESAO = lesão; C5 width fits a short coded value
-      rather than free text.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
+      — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
+      campo 68 (Circunstância da lesão); also VIVA dictionary campo 67
   CONS_ABORT:
     official_name: Aborto
     translated_name: Abortion followed
@@ -208,20 +206,17 @@ variables:
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: DST in the consequences block, as against PROC_DST for the prophylaxis.
   CONS_ESPEC:
-    official_name: Outra consequência - especifique
+    official_name: Consequências da ocorrência no momento da notificação – outros (especificar)
     translated_name: Other consequence - specify
-    description: 'Free-text description of the violence''s consequence when it falls
-      outside the standard checklist (pregnancy, STI, abortion, mental disorder, suicide
-      attempt, etc.) and the "other" box (CONS_OUTR) is checked.
+    description: 'Free-text description of another consequence of the violence at the time
+      of notification, filled when CONS_OUTROS is yes. Older (pre-2015) form only.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CONS_ = consequência (a checklist block: CONS_GRAV, CONS_DST, CONS_SUIC,
-      CONS_OUTR); ESPEC = especifique, the same "other, specify" pattern confirmed
-      for AG_ESPEC and LOCAL_ESPE on this same form.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Variáveis VIVA/SINAN – Violência doméstica, sexual e/ou outras
+      violências (MS/SVS) — https://svs.aids.gov.br/bases_vigitel_viva/dic_var/viva_cont/dicionario-de-Variaveis_VIVASINAN.pdf,
+      campo 56 (Consequências da ocorrência – outros, especificar)
   CONS_ESTRE:
     official_name: Estresse pós-traumático
     translated_name: Post-traumatic stress followed
@@ -314,20 +309,17 @@ variables:
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: DEF_AUDITI reads deficiência auditiva.
   DEF_ESPEC:
-    official_name: Especificação da deficiência
+    official_name: Outras deficiências/síndromes (especificar)
     translated_name: Disability specification
-    description: 'Free-text field describing the type of disability a violence victim
-      has, recorded because disability is tracked on this form as a vulnerability factor
-      for interpersonal/self-inflicted violence.
+    description: 'Free-text name of the other disability or syndrome the victim has, filled
+      when ''other disabilities/syndromes'' is yes.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is VIOL (violência); DEF_ESPEC reads "deficiência - especificar";
-      C30 free-text width fits a written disability description rather than a coded
-      flag.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
+      — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
+      campo 39 (Outras deficiências/síndromes – especificar)
   DEF_FISICA:
     official_name: Deficiência física
     translated_name: Physical disability
@@ -426,7 +418,7 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: Part of the later network-referral block.
   DT_OCOR:
-    official_name: Data da ocorrência
+    official_name: Data da ocorrência da violência
     translated_name: Date the violence occurred
     description: 'Date of the episode, which is not the notification date. For sexual
       violence the gap between the two decides whether prophylaxis was still possible,
@@ -434,8 +426,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: DT_OCOR reads data da ocorrência; D(8) date distinct from DT_NOTIFIC.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
+      — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
+      campo 9 (Data da ocorrência da violência)
   ENC_ABRIGO:
     official_name: Encaminhamento a abrigo
     translated_name: Referred to a shelter
@@ -488,16 +482,17 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: DPCA is the Delegacia de Proteção à Criança e ao Adolescente.
   ENC_ESPEC:
-    official_name: Encaminhamento - especificar
-    translated_name: Referral destination, specify (free text)
-    description: 'Free-text name of where the case was referred, filled in when the
-      referral checklist''s "other" option is chosen — distinct from REL_ESPEC (relationship)
-      and VIOL_ESPEC (violence type), the form''s other two specify fields.
+    official_name: Encaminhamento para outros setores – outros (especificar)
+    translated_name: Referral to other sectors (specify)
+    description: 'Free-text name of the other sector the victim was referred to, filled when
+      ENC_OUTROS is yes. Older (pre-2015) form only.
 
       '
     code_system: none
-    source: inferred
-    reasoning: C30 text; ENC_=encaminhamento, ESPEC=especificar.
+    source: layout_doc
+    source_ref: Dicionário de Variáveis VIVA/SINAN – Violência doméstica, sexual e/ou outras
+      violências (MS/SVS) — https://svs.aids.gov.br/bases_vigitel_viva/dic_var/viva_cont/dicionario-de-Variaveis_VIVASINAN.pdf,
+      campo 64 (Outros setores – especificar)
   ENC_IML:
     official_name: Encaminhamento ao IML
     translated_name: Referred to forensic medicine
@@ -510,20 +505,17 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: IML is the Instituto Médico Legal, an item of the referral block.
   ENC_MPU:
-    official_name: Encaminhamento ao Ministério Público
+    official_name: Encaminhamento para outros setores – Ministério Público
     translated_name: Referred to the Public Prosecutor's Office (flag)
-    description: 'Whether the violence case was referred to the Ministério Público
-      (public prosecutor''s office), one of several mandatory-referral network flags
-      alongside the Conselho Tutelar and police on the VIOL form.
+    description: 'Whether the victim was referred to the public prosecutor''s office (Ministério
+      Público) (1 yes, 2 no, 9 unknown). Older (pre-2015) form only.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'ENC_ = encaminhamento, MPU = Ministério Público; referral tracking
-      to protective/legal bodies is a standard section of the violence notification
-      form.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Variáveis VIVA/SINAN – Violência doméstica, sexual e/ou outras
+      violências (MS/SVS) — https://svs.aids.gov.br/bases_vigitel_viva/dic_var/viva_cont/dicionario-de-Variaveis_VIVASINAN.pdf,
+      campo 64 (Encaminhamento da pessoa atendida para outros setores – Ministério Público)
   ENC_MULHER:
     official_name: Encaminhamento ao centro de referência da mulher
     translated_name: Referred to a women's reference centre
@@ -587,15 +579,17 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: VARA is the vara da infância, an item of the referral block.
   HORA_OCOR:
-    official_name: Hora da ocorrência
+    official_name: Hora de ocorrência
     translated_name: Time the incident occurred
     description: 'Time of day (HH:MM) the violent incident took place, complementing
       the incident date recorded elsewhere on the form.
 
       '
     code_system: none
-    source: inferred
-    reasoning: C5 fits an HH:MM string; HORA_=hora, OCOR=ocorrência.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
+      — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
+      campo 51 (Hora de ocorrência)
   IDENT_GEN:
     official_name: Identidade de gênero
     translated_name: Gender identity
@@ -618,11 +612,10 @@ variables:
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: 'C(6) IBGE municipality codes, bound to the per-state municipality codelists.
-      MN_OCOR reads município de ocorrência.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
+      — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
+      campo 41 (Município de ocorrência)
   INFAN_JUV:
     official_name: Vara da infância e juventude
     translated_name: Juvenile court
@@ -647,19 +640,17 @@ variables:
 
       '
   LESAO_ESPE:
-    official_name: Especificação da lesão
-    translated_name: Injury specification (free text)
-    description: 'Free-text specification of the type of injury/lesion suffered by
-      the violence victim, filled in when the form''s standard injury checklist doesn''t
-      cover the case.
+    official_name: Natureza da lesão – especificar
+    translated_name: Other nature of injury (specify)
+    description: 'Free-text nature of the injury, filled when the nature of injury (LESAO_NAT)
+      is 11 (other). Older (pre-2015) form only.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'LESAO_ = lesão, ESPE = especifique; C30 width fits free text, following
-      the "specify" pattern paired with a checkbox list.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Variáveis VIVA/SINAN – Violência doméstica, sexual e/ou outras
+      violências (MS/SVS) — https://svs.aids.gov.br/bases_vigitel_viva/dic_var/viva_cont/dicionario-de-Variaveis_VIVASINAN.pdf,
+      campo 57 (Natureza da lesão – especificar; DBF LESAO_ESPEC)
   LESAO_NAT:
     official_name: Natureza da lesão
     translated_name: Nature of the injury
@@ -964,7 +955,7 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: DESCO reads desconhecido, an item of the relationship block.
   REL_ESPEC:
-    official_name: Relação com o agressor - especificar
+    official_name: Relação com a pessoa atendida – outros (especificar)
     translated_name: Relationship to aggressor, specify (free text)
     description: 'Free-text description of the victim-aggressor relationship, filled
       in when the standard relationship checklist''s "other" option is chosen — distinct
@@ -972,8 +963,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C30 text; REL_=relação, ESPEC=especificar.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
+      — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
+      campo 61 (Relação com a pessoa atendida – outros, especificar)
   REL_EXCON:
     official_name: Agressor foi o ex-cônjuge
     translated_name: Aggressor was the former spouse
@@ -1149,19 +1142,17 @@ variables:
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: SEX_ subdivides the sexual violence flag; ASSEDI is assédio.
   SEX_ESPEC:
-    official_name: Especificação da violência sexual
+    official_name: Se ocorreu violência sexual, qual tipo? – outro (especificar)
     translated_name: Sexual violence detail (free text)
-    description: 'Free-text detail specifying the type of sexual violence experienced,
-      filled in when the case involves sexual violence beyond the form''s standard
-      checkbox categories.
+    description: 'Free-text type of sexual violence, filled when the ''other'' sexual violence
+      type is marked.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'SEX_ = sexual, ESPEC = especifique; C30 width fits free text, and sexual-violence
-      detail is a distinct section on the VIOL form.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
+      — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
+      campo 58 (Se ocorreu violência sexual, qual tipo? – outro, especificar)
   SEX_ESTUPR:
     official_name: Estupro
     translated_name: Rape
@@ -1253,7 +1244,7 @@ variables:
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: TRAN_ marks transtorno as against DEF_ for deficiência.
   VIOL_ESPEC:
-    official_name: Tipo de violência - especificar
+    official_name: Outros tipos de violência (especificar)
     translated_name: Violence type, specify (free text)
     description: 'Free-text description of the type of violence, filled in when it
       falls outside the standard categories (physical, sexual, psychological, negligence)
@@ -1261,8 +1252,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C30 text; VIOL_=violência, ESPEC=especificar.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
+      — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
+      campo 56 (Outros tipos de violência – especificar)
   VIOL_FINAN:
     official_name: Violência financeira ou econômica
     translated_name: Financial violence
@@ -1286,19 +1279,16 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: VIOL_ opens the tipo de violência block; FISIC is física.
   VIOL_INFAN:
-    official_name: Violência infantil
-    translated_name: Child-victim violence (flag)
-    description: 'Whether the notified violence case specifically involves a child
-      victim (violência infantil), a classification flag distinguishing child-focused
-      cases within the broader violence surveillance form.
+    official_name: Tipo de violência – trabalho infantil
+    translated_name: 'Type of violence: child labour'
+    description: 'Whether the violence notified includes child labour (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'VIOL_ = violência, INFAN = infantil; C1 width fits a checkbox distinguishing
-      this population subgroup within the VIOL series.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
+      — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),
+      campo 56 (Tipo de violência – trabalho infantil)
   VIOL_LEGAL:
     official_name: Intervenção legal
     translated_name: Legal intervention

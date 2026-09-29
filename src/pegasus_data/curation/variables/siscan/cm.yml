@@ -7,44 +7,30 @@ asserted_by: pegasus_data
 
 variables:
   CCLIMATDPC:
-    official_name: Material enviado - tipo de coleta
+    official_name: Material enviado
     translated_name: Specimen collection-method code
-    description: 'Ties to the ''5. Material enviado:'' checkboxes (descarga papilar
-      / puncao aspirativa / conteudo cistico) - which of the three specimen types accompanies
-      the request.
-
-      '
+    description: 'Type of material sent (CCLIMATDPC.CNV): 01 nipple discharge, 02 fine-needle
+      aspiration, 03 cyst content.'
     codelists:
     - CCLIMATDPC
     code_system: internal
-    source: inferred
-    reasoning: 'CCLI (caracteristica clinica) + MAT (material) + DPC reads as an abbreviation
-      of descarga papilar / conteudo (cistico), the specimen-source checkboxes under
-      ''Material enviado'' once CCLIMATMAM (laterality) is set aside.
-
-      '
-    notes: 'Moderate confidence; the exact option wording per code value is not confirmed.
-
-      '
+    source: layout_doc
+    source_ref: TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CCLIMATDPC "Material Enviado" (CCLIMATDPC.CNV); INCA, Requisição de Exame Citopatológico
+      - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.1 item 5 "Material enviado"
   CCLIMATMAM:
-    official_name: Lateralidade da mama (material enviado)
+    official_name: Mama
     translated_name: Breast laterality of specimen
-    description: 'From ''Mama direita / Mama esquerda'' under ''Material enviado''
-      - which breast the specimen came from.
-
-      '
+    description: 'Which breast the material came from (CCLIMATMAM.CNV): 01 right, 02 left.'
     codelists:
     - CCLIMATMAM
     code_system: internal
-    source: inferred
-    reasoning: 'CCLI+MAT+MAM reads as caracteristica-material-mama; laterality is the
-      remaining checkbox in that section once CCLIMATDPC accounts for the collection-method
-      options.
-
-      '
-    notes: 'Moderate confidence.
-
-      '
+    source: layout_doc
+    source_ref: 'TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CCLIMATMAM "Mama" (CCLIMATMAM.CNV); INCA, Requisição de Exame Citopatológico -
+      Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.1 item 5 "Material enviado: Mama direita / Mama esquerda"'
   CNPJ_MANT:
     official_name: CNPJ da mantenedora
     translated_name: Maintaining entity's CNPJ
@@ -55,11 +41,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Follows CNES-style cadastro naming (CNPJ_MAN identifies the mantenedora
-      entity); the sampled file path CMAC*.dbc under SISMAMA/Dados matches the Cadastro
-      Mantenedora registration-file pattern used elsewhere in DATASUS.
-
-      '
+    reasoning: 'Follows CNES-style cadastro naming (CNPJ_MAN identifies the mantenedora entity);
+      the sampled file path CMAC*.dbc under SISMAMA/Dados matches the Cadastro Mantenedora
+      registration-file pattern used elsewhere in DATASUS. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web).'
     source_ref: naming grammar + strata sampled_path SISMAMA/Dados/CMAC0907.dbc
   COMPET:
     official_name: Competência
@@ -71,11 +58,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: '6-digit declared width matches YYYYMM; SISCAN''s technical notes define
-      competência as the month/year a record is released, and this cadastro file reuses
-      that same DATASUS convention.
-
-      '
+    reasoning: '6-digit declared width matches YYYYMM; SISCAN''s technical notes define competência
+      as the month/year a record is released, and this cadastro file reuses that same DATASUS
+      convention. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
     source_ref: naming grammar + SISCAN Nota Tecnica 8 competência field
   CO_CLI_DES:
     official_name: Descarga papilar (achado clínico)
@@ -112,8 +99,10 @@ variables:
       table, distinct from the _PACNT patient-dimension sequence.
     code_system: none
     source: inferred
-    reasoning: Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID
-      in siscan_fill_02.yml.
+    reasoning: 'Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID in
+      siscan_fill_02.yml. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   CRESBENIG:
     official_name: Resultado da puncao aspirativa - Processos Benignos. Negativo para
       malignidade
@@ -209,28 +198,26 @@ variables:
     code_system: internal
     source: inferred
     reasoning: 'Shares the ANM (anamnese) + TCAN (câncer) pattern with CANMPACANC (MMAMA4.def)
-      and C_CLI_TCAN (HMAMA4.def), both labeled "Risco Elevado" and defined in Nota
-      Tecnica 8.
-
-      '
+      and C_CLI_TCAN (HMAMA4.def), both labeled "Risco Elevado" and defined in Nota Tecnica
+      8. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). The requisition asks
+      "3. Apresenta risco elevado para câncer de mama?" (form 416) and CMAMA4.def tabulates
+      "Risco Elevado" from CANMPACANC (RiscoElevado.CNV), but no document names C_ANM_TCAN.'
     source_ref: 'naming grammar + Nota Tecnica 8 SISCAN - Mamografia, campo Risco elevado
 
       '
   DELESMALIG:
-    official_name: Descarga papilar/cístico — consistente com lesão papilar
+    official_name: Consistente com lesão papilar
     translated_name: Nipple-discharge/cystic result — consistent with papillary lesion
-    description: Count of nipple-discharge or cystic-content specimens whose cytological
-      pattern was "Consistente com lesão papilar".
+    description: Number of nipple-discharge or cyst-content specimens whose cytology pattern
+      was consistent with a papillary lesion.
     code_system: none
-    source: inferred
-    reasoning: 'Completes the six-category "Padrão citopatológico da amostra" checklist
-      on the descarga-papilar/conteúdo-cístico result panel alongside DEMATACELU, DENEGMALIG,
-      DEMALIINDT, DEPOSMALIG and DEPROCINFL — those five map cleanly by their letters,
-      and this is the one remaining checkbox ("Consistente com lesão papilar") for
-      which DELESMALIG is the only unassigned field left in the family.
-
-      '
-    asserted_by: pegasus_data
+    source: layout_doc
+    source_ref: 'TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DELESMALIG "Desc Les Papilar"; INCA, Requisição de Exame Citopatológico - Mama
+      (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da descarga papilar / conteúdo cístico: Consistente com lesão papilar"'
   DEMALIINDT:
     official_name: Descarga papilar - Padrao citopatologico de malignidade indeterminada
     translated_name: 'Nipple-discharge finding: Padrao citopatologico de malignidade
@@ -305,220 +292,263 @@ variables:
     depends_on:
     - CRESDERPAP
   NU_PAAF_B_ABC_SUBARE:
-    official_name: PAAF, benigno — abscesso subareolar
+    official_name: 'Processos benignos: Abscesso subareolar recorrente'
     translated_name: Count of benign FNA results, subareolar abscess
-    description: Count of fine-needle aspirations (PAAF) reading benign with a subareolar
-      abscess — an infected duct beneath the nipple.
+    description: Number of fine-needle aspiration (PAAF) results benign, compatible with recurrent
+      subareolar abscess.
     code_system: none
-    source: inferred
-    reasoning: PAAF_B is PAAF, benigno; ABC_SUBARE abbreviates abscesso subareolar.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Processos benignos: Abscesso subareolar recorrente";
+      Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PBENABSUBA "PAAF B Abs Subare"'
   NU_PAAF_B_COM_FIB_MAM:
-    official_name: PAAF, benigno — condição fibrocística mamária
+    official_name: 'Processos benignos: Condição fibrocística mamária'
     translated_name: Count of benign FNA results, fibrocystic breast condition
-    description: Count of benign PAAF results showing fibrocystic breast changes —
-      the FNA counterpart of HISTO_MAMA's NU_CONDICAO_FIBROCISTICA (siscan_fill_07.yml).
+    description: Number of fine-needle aspiration (PAAF) results benign, compatible with fibrocystic
+      breast condition.
     code_system: none
-    source: inferred
-    reasoning: PAAF_B_COM_FIB_MAM most plausibly abbreviates PAAF benigno, condição
-      fibrocística mamária.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Processos benignos: Condição fibrocística mamária";
+      Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PBENCONDFI "PAAF B Con Fib Mam"'
   NU_PAAF_B_FIBROAD:
-    official_name: PAAF, benigno — fibroadenoma
+    official_name: 'Processos benignos: Fibroadenoma'
     translated_name: Count of benign FNA results, fibroadenoma
-    description: Count of benign PAAF results reading fibroadenoma — the FNA counterpart
-      of HISTO_MAMA's NU_FIBROADENOMA.
+    description: Number of fine-needle aspiration (PAAF) results benign, compatible with fibroadenoma.
     code_system: none
-    source: inferred
-    reasoning: PAAF_B_FIBROAD is PAAF benigno, fibroadenoma, truncated.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Processos benignos: Fibroadenoma"; Nota Técnica
+      11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PBENFIBROA "PAAF B Fibroad"'
   NU_PAAF_B_L_E_P:
-    official_name: PAAF, benigno — lesão epitelial papilar
-    translated_name: Count of benign FNA results, papillary lesion
-    description: 'Count of benign PAAF results reading a papillary lesion. Papillary
-      breast lesions span a benign-to-malignant spectrum, which is why this same L_E_P
-      stem recurs under the suspicious category (NU_PAAF_SUS_L_E_P) below.
-
-      '
+    official_name: 'Processos benignos: Lesão epitelial benigna proliferativa sem atipias'
+    translated_name: Count of benign FNA results, proliferative epithelial lesion without
+      atypia
+    description: Number of fine-needle aspiration (PAAF) results benign, compatible with a
+      proliferative epithelial lesion without atypia.
     code_system: none
-    source: inferred
-    reasoning: L_E_P most plausibly initials lesão epitelial papilar; recurs identically
-      under a different top-level category, consistent with a spectrum finding rather
-      than a single fixed diagnosis.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Processos benignos: Lesão epitelial benigna proliferativa
+      sem atipias"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PBENLESEPI "PAAF B L E P  s/at"'
   NU_PAAF_B_MASTITE:
-    official_name: PAAF, benigno — mastite
+    official_name: 'Processos benignos: Mastite'
     translated_name: Count of benign FNA results, mastitis
-    description: Count of benign PAAF results reading mastitis.
+    description: Number of fine-needle aspiration (PAAF) results benign, compatible with mastitis.
     code_system: none
-    source: inferred
-    reasoning: PAAF_B_MASTITE is PAAF benigno, mastite, unabbreviated.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Processos benignos: Mastite"; Nota Técnica 11 SISCAN
+      - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PBENMASTIT "PAAF B Mastite"'
   NU_PAAF_B_NECR_GORDUR:
-    official_name: PAAF, benigno — necrose gordurosa
+    official_name: 'Processos benignos: Necrose gordurosa'
     translated_name: Count of benign FNA results, fat necrosis
-    description: Count of benign PAAF results reading fat necrosis — often post-traumatic,
-      the cytology counterpart of HISTO_MAMA's oil-cyst finding.
+    description: Number of fine-needle aspiration (PAAF) results benign, compatible with fat
+      necrosis.
     code_system: none
-    source: inferred
-    reasoning: NECR_GORDUR abbreviates necrose gordurosa.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Processos benignos: Necrose gordurosa"; Nota Técnica
+      11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PBENNECGOR "PAAF B Necr Gord"'
   NU_PAAF_B_OUTRAS:
-    official_name: PAAF, benigno — outras
+    official_name: 'Processos benignos: Outros (exclusivamente benignos)'
     translated_name: Count of other benign FNA results
-    description: Count of benign PAAF results not fitting any of this batch's other
-      named benign categories — closes out the seven-way PAAF_B breakdown.
+    description: Number of fine-needle aspiration (PAAF) results benign, other (exclusively
+      benign) processes.
     code_system: none
-    source: inferred
-    reasoning: OUTRAS is the standard residual/other category label.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Processos benignos: Outros (exclusivamente benignos)";
+      Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PBENOUTRAS "PAAF B Outras"'
   NU_PAAF_M_IND_OUTROS:
-    official_name: PAAF, indeterminado — outros
-    translated_name: Count of indeterminate FNA results, other
-    description: 'Count of PAAF results in the least-settled category of this batch
-      — M_IND does not decompose with full confidence, but reads most plausibly as
-      an indeterminate-result grouping distinct from the determined-malignancy P_M
-      group below.
-
-      '
+    official_name: 'Padrão citopatológico de malignidade indeterminada: Outros'
+    translated_name: Count of FNA results of indeterminate malignancy, other
+    description: Number of fine-needle aspiration (PAAF) results of indeterminate malignancy,
+      other than papillary or phyllodes tumour.
     code_system: none
-    source: inferred
-    reasoning: 'Shares the PAAF_ stem with the confidently-read B/P_M/SUS groups; IND
-      plausibly abbreviates indeterminado, paired here with a residual OUTROS subtype.
-
-      '
-    notes: 'DELIBERATELY UNDER-SPECIFIED — no observed values or codelist confirm what
-      M_IND, TUMF or TUMPA (its sibling subtypes) each mean precisely.
-
-      '
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Padrão citopatológico de malignidade indeterminada:
+      Outros"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PMALINOUTR "PAAF M Ind Outros"'
   NU_PAAF_M_IND_TUMF:
-    official_name: PAAF, indeterminado — TUMF
-    translated_name: Count of indeterminate FNA results, "TUMF" subtype
-    description: 'A subtype of the indeterminate PAAF category (see NU_PAAF_M_IND_OUTROS)
-      whose specific referent — possibly a fixed/non-mobile palpable mass — is not
-      established.
-
-      '
+    official_name: 'Padrão citopatológico de malignidade indeterminada: Tumor filóide'
+    translated_name: Count of FNA results of indeterminate malignancy, phyllodes tumour
+    description: Number of fine-needle aspiration (PAAF) results of indeterminate malignancy,
+      compatible with phyllodes tumour.
     code_system: none
-    source: inferred
-    reasoning: Same M_IND stem as NU_PAAF_M_IND_OUTROS/TUMPA; TUM plausibly abbreviates
-      tumoração.
-    notes: DELIBERATELY UNDER-SPECIFIED — see NU_PAAF_M_IND_OUTROS.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Padrão citopatológico de malignidade indeterminada:
+      Tumor filóide"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PMALINTUMF "PAAF M Ind Tumpf"'
   NU_PAAF_M_IND_TUMPA:
-    official_name: PAAF, indeterminado — TUMPA
-    translated_name: Count of indeterminate FNA results, "TUMPA" subtype
-    description: 'A subtype of the indeterminate PAAF category (see NU_PAAF_M_IND_OUTROS)
-      whose specific referent — possibly a palpable mass — is not established.
-
-      '
+    official_name: 'Padrão citopatológico de malignidade indeterminada: Tumor papilar'
+    translated_name: Count of FNA results of indeterminate malignancy, papillary tumour
+    description: Number of fine-needle aspiration (PAAF) results of indeterminate malignancy,
+      compatible with papillary tumour.
     code_system: none
-    source: inferred
-    reasoning: Same M_IND stem as NU_PAAF_M_IND_OUTROS/TUMF; TUM plausibly abbreviates
-      tumoração, PA possibly palpável.
-    notes: DELIBERATELY UNDER-SPECIFIED — see NU_PAAF_M_IND_OUTROS.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Padrão citopatológico de malignidade indeterminada:
+      Tumor papilar"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PMALINTUMP "PAAF M Ind Tumpa"'
   NU_PAAF_P_M_CARC_DUC:
-    official_name: PAAF, positivo para malignidade — carcinoma ductal
+    official_name: 'Padrão citopatológico positivo para malignidade: Carcinoma ductal'
     translated_name: Count of malignant FNA results, ductal carcinoma
-    description: Count of PAAF results positive for malignancy and typed as ductal
-      carcinoma — the most common breast-cancer cell type.
+    description: Number of fine-needle aspiration (PAAF) results positive for malignancy,
+      compatible with ductal carcinoma.
     code_system: none
-    source: inferred
-    reasoning: P_M plausibly abbreviates positivo [para] malignidade, paired with the
-      determined subtypes CARC_DUC/CARC_LOB/OUTROS.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Padrão citopatológico positivo para malignidade:
+      Carcinoma ductal"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PPOSMACDUC "PAAF P M Carc Duc"'
   NU_PAAF_P_M_CARC_LOB:
-    official_name: PAAF, positivo para malignidade — carcinoma lobular
+    official_name: 'Padrão citopatológico positivo para malignidade: Carcinoma lobular'
     translated_name: Count of malignant FNA results, lobular carcinoma
-    description: Count of PAAF results positive for malignancy and typed as lobular
-      carcinoma — the counterpart of NU_PAAF_P_M_CARC_DUC.
+    description: Number of fine-needle aspiration (PAAF) results positive for malignancy,
+      compatible with lobular carcinoma.
     code_system: none
-    source: inferred
-    reasoning: Same P_M stem as NU_PAAF_P_M_CARC_DUC; CARC_LOB is carcinoma lobular.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Padrão citopatológico positivo para malignidade:
+      Carcinoma lobular"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PPOSMACLOB "PAAF P M Carc Lob"'
   NU_PAAF_P_M_OUTROS:
-    official_name: PAAF, positivo para malignidade — outros
+    official_name: 'Padrão citopatológico positivo para malignidade: Outros (exclusivamente
+      malignos)'
     translated_name: Count of malignant FNA results, other type
-    description: Count of PAAF results positive for malignancy with a cell type other
-      than ductal or lobular carcinoma.
+    description: Number of fine-needle aspiration (PAAF) results positive for malignancy,
+      other (exclusively malignant) types.
     code_system: none
-    source: inferred
-    reasoning: Same P_M stem as NU_PAAF_P_M_CARC_DUC/LOB; OUTROS is the residual/other
-      category.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Padrão citopatológico positivo para malignidade:
+      Outros (exclusivamente malignos)"; Nota Técnica 11 SISCAN - Citopatológico de mama —
+      http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf, "Resultado
+      PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PPOSMACOUT "PAAF P M Outros"'
   NU_PAAF_SUSM_OUTROS:
-    official_name: PAAF, suspeito de malignidade — outros
+    official_name: 'Padrão citopatológico suspeito para malignidade: Outros'
     translated_name: Count of suspicious FNA results, other
-    description: 'Count of PAAF results classified suspicious for malignancy (a category
-      between benign and positive), not otherwise sub-typed.
-
-      '
+    description: Number of fine-needle aspiration (PAAF) results suspicious for malignancy,
+      other than a proliferative epithelial lesion with atypia.
     code_system: none
-    source: inferred
-    reasoning: SUSM plausibly contracts suspeito [de] malignidade; OUTROS is the residual
-      category.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Padrão citopatológico suspeito para malignidade:
+      Outros"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PSUSOUTROS "PAAF S M Outros"'
   NU_PAAF_SUS_L_E_P:
-    official_name: PAAF, suspeito — lesão epitelial papilar
-    translated_name: Count of suspicious FNA results, papillary lesion
-    description: 'Count of PAAF results reading a papillary lesion classified suspicious
-      rather than benign — the higher-concern counterpart of NU_PAAF_B_L_E_P, reflecting
-      papillary lesions'' benign-to-malignant spectrum.
-
-      '
+    official_name: 'Padrão citopatológico suspeito para malignidade: Lesão epitelial proliferativa
+      com atipias'
+    translated_name: Count of suspicious FNA results, proliferative epithelial lesion with
+      atypia
+    description: Number of fine-needle aspiration (PAAF) results suspicious for malignancy,
+      compatible with a proliferative epithelial lesion with atypia.
     code_system: none
-    source: inferred
-    reasoning: 'Same L_E_P stem as NU_PAAF_B_L_E_P; SUS here (vs. SUSM above) is an
-      inconsistent abbreviation of the same suspeito category, a naming inconsistency
-      rather than a distinct third category.
-
-      '
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da punção aspirativa: Padrão citopatológico suspeito para malignidade:
+      Lesão epitelial proliferativa com atipias"; Nota Técnica 11 SISCAN - Citopatológico
+      de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Resultado PAAF"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PSUSLEJPCA "PAAF S M L E P  c/at"'
   NU_QDESC_LES_PAPIL:
-    official_name: Descarga papilar — lesão papilar
+    official_name: Consistente com lesão papilar
     translated_name: Count of nipple-discharge-cytology results, papillary lesion
-    description: 'Count of nipple-discharge cytology specimens reading a papillary
-      lesion — this batch''s second specimen type, alongside PAAF.
-
-      '
+    description: Number of nipple-discharge or cyst-content specimens whose cytology pattern
+      was consistent with a papillary lesion.
     code_system: none
-    source: inferred
-    reasoning: 'QDESC most plausibly abbreviates descarga [papilar] (nipple discharge),
-      SISCAN''s other breast-cytology collection method besides PAAF; LES_PAPIL is
-      lesão papilar.
-
-      '
-    notes: DESC's exact expansion is not confirmed by any observed value or dictionary
-      entry.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da descarga papilar / conteúdo cístico - Padrão citopatológico da amostra:
+      Consistente com lesão papilar"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Result Desc/císt"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DELESMALIG "Desc Les Papilar"'
   NU_QDESC_MALIG_INDT:
-    official_name: Descarga papilar — maligno indeterminado
+    official_name: Padrão citopatológico de malignidade indeterminada
     translated_name: Count of nipple-discharge-cytology results, indeterminate malignancy
-    description: Count of nipple-discharge cytology specimens read as indeterminate
-      for malignancy.
+    description: Number of nipple-discharge or cyst-content specimens whose cytology pattern
+      was of indeterminate malignancy.
     code_system: none
-    source: inferred
-    reasoning: Same QDESC stem as NU_QDESC_LES_PAPIL; MALIG_INDT is maligno indeterminado.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da descarga papilar / conteúdo cístico - Padrão citopatológico da amostra:
+      Padrão citopatológico de malignidade indeterminada"; Nota Técnica 11 SISCAN - Citopatológico
+      de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Result Desc/císt"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DEMALIINDT "Desc Malig Indet"'
   NU_QDESC_MAT_ACELULAR:
-    official_name: Descarga papilar — material acelular
+    official_name: Material acelular
     translated_name: Count of nipple-discharge-cytology results, acellular material
-    description: 'Count of nipple-discharge cytology specimens containing no cellular
-      material — an inadequacy/unsatisfactory-sample result rather than a diagnosis.
-
-      '
+    description: Number of nipple-discharge or cyst-content specimens whose cytology pattern
+      was acellular (no cells to assess).
     code_system: none
-    source: inferred
-    reasoning: MAT_ACELULAR is material acelular, unabbreviated.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da descarga papilar / conteúdo cístico - Padrão citopatológico da amostra:
+      Material acelular"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Result Desc/císt"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DEMATACELU "Desc Mat Acelular"'
   NU_QDESC_NEG_MALIG:
-    official_name: Descarga papilar — negativo para malignidade
+    official_name: Negativo para malignidade
     translated_name: Count of nipple-discharge-cytology results, negative for malignancy
-    description: Count of nipple-discharge cytology specimens read as negative for
-      malignancy — this dataset's normal/benign result for this specimen type.
+    description: Number of nipple-discharge or cyst-content specimens whose cytology pattern
+      was negative for malignancy.
     code_system: none
-    source: inferred
-    reasoning: NEG_MALIG is negativo [para] malignidade, unabbreviated.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da descarga papilar / conteúdo cístico - Padrão citopatológico da amostra:
+      Negativo para malignidade"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Result Desc/císt"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DENEGMALIG "Desc Neg Malig"'
   NU_QDESC_POS_MALIG:
-    official_name: Descarga papilar — positivo para malignidade
+    official_name: Positivo para malignidade
     translated_name: Count of nipple-discharge-cytology results, positive for malignancy
-    description: Count of nipple-discharge cytology specimens read as positive for
-      malignancy — the counterpart of NU_QDESC_NEG_MALIG.
+    description: Number of nipple-discharge or cyst-content specimens whose cytology pattern
+      was positive for malignancy.
     code_system: none
-    source: inferred
-    reasoning: POS_MALIG is positivo [para] malignidade, unabbreviated.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da descarga papilar / conteúdo cístico - Padrão citopatológico da amostra:
+      Positivo para malignidade"; Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Result Desc/císt"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DEPOSMALIG "Desc Pos Malig"'
   NU_QDESC_PROC_INFL:
-    official_name: Descarga papilar — processo inflamatório
+    official_name: Consistente com processo inflamatório
     translated_name: Count of nipple-discharge-cytology results, inflammatory process
-    description: Count of nipple-discharge cytology specimens showing an inflammatory
-      process rather than a neoplastic finding.
+    description: Number of nipple-discharge or cyst-content specimens whose cytology pattern
+      was consistent with an inflammatory process.
     code_system: none
-    source: inferred
-    reasoning: PROC_INFL is processo inflamatório, unabbreviated.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da descarga papilar / conteúdo cístico - Padrão citopatológico da amostra:
+      Consistente com processo inflamatório"; Nota Técnica 11 SISCAN - Citopatológico de mama
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf, "Result
+      Desc/císt"; legacy equivalent TabWin definition CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DEPROCINFL "Desc Proc Infl"'
   PBENABSUBA:
     official_name: PAAF benigno - Abscesso subareolar recorrente
     translated_name: 'Benign PAAF finding: Abscesso subareolar recorrente'
@@ -765,13 +795,16 @@ variables:
     depends_on:
     - CRESSUSMAL
   QT_EXAME:
-    official_name: Quantidade de exames
+    official_name: Exames
     translated_name: Total exam count
-    description: Total number of breast cytology exams in this row's aggregation —
-      the denominator the NU_PAAF_*/NU_QDESC_* result counts are drawn from.
+    description: Number of breast cytology exams the row accounts for; the denominator of
+      the NU_PAAF_* and NU_QDESC_* counts.
     code_system: none
-    source: inferred
-    reasoning: QT_ is DATASUS's standard quantidade prefix; EXAME is exame, unabbreviated.
+    source: layout_doc
+    source_ref: 'Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Medidas: as tabulações são feitas por exames"; legacy equivalent TabWin definition
+      CMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo QUANTEXAME "Quant Exames"'
   RAZAO:
     official_name: Razão social
     translated_name: Corporate name
@@ -784,7 +817,7 @@ variables:
     source: inferred
     reasoning: 'RAZAO follows CNES-style cadastro field naming for razão social, matching
       the CNPJ_MANT/COMPET fields in the same file, which together read as a legal-entity
-      registration record.
-
-      '
+      registration record. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
     source_ref: naming grammar

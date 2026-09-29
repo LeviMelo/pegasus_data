@@ -648,8 +648,11 @@ variables:
     codelists:
     - MUNICBR
     code_system: external
-    source: inferred
-    reasoning: Same 6-character IBGE coding as MUNIC_RES; see that entry.
+    source: layout_doc
+    source_ref: 'Informe Técnico SIHSUS 2016-03 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Doc/IT_SIHSUS_1603.pdf
+      (local: sources/IT_SIHSUS_1603.txt), layout RD*.dbf SEQ 49 MUNIC_MOV char(6)
+      ''Município do Estabelecimento'''
   MUNIC_RES:
     official_name: Município de Residência do Paciente
     translated_name: Municipality of residence
@@ -658,13 +661,11 @@ variables:
     codelists:
     - MUNICBR
     code_system: external
-    source: inferred
-    reasoning: 'The column holds 6-character IBGE codes. CADMUN as shipped in the kits parses
-      to 5,579 four-character codes, so it is not the municipality table despite the name;
-      MUNICBR holds 280,002 six-character codes labelled ''120001 Acrelandia''. Bound by measured
-      width and label shape.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIHSUS 2016-03 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Doc/IT_SIHSUS_1603.pdf
+      (local: sources/IT_SIHSUS_1603.txt), layout RD*.dbf SEQ 9 MUNIC_RES char(6)
+      ''Município de Residência do Paciente'''
     notes: 'MUNIC_RES and MUNIC_MOV answer different questions and are routinely confused.
       Rates per population must use MUNIC_RES, because the denominator is residents; describing
       hospital activity must use MUNIC_MOV.

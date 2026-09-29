@@ -18,7 +18,7 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: SENTIN reads sentinela; a yes/no flag.
   COD_MUN_HO:
-    official_name: Município de hospitalização
+    official_name: 'Município do hospital'
     translated_name: Municipality of hospitalisation
     description: 'Municipality where the patient was admitted. Severe cases are referred
       to larger centres, so this concentrates in capitals and is not a measure of where
@@ -27,8 +27,8 @@ variables:
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE code; MUN_HO reads município de hospitalização.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf, campo 45 (Município do hospital)'
   COD_UF_HOS:
     official_name: UF de hospitalização
     translated_name: State of hospitalisation
@@ -229,26 +229,22 @@ variables:
     source_ref: DOSES.CNV
     reasoning: Bound to DOSES, whose values run uma through nunca vacinado.
   DT_ADM_ANT:
-    official_name: Data de início do antibiótico
+    official_name: 'Data de administração do antibiótico'
     translated_name: Date antibiotic started
     description: 'When antibiotics began. Read against DT_CATARRA: started in the catarrhal
       phase they change the course, later they only stop transmission.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; ADM_ANT reads administração de antibiótico.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf, campo 48 (Data de adm. do antibiótico)'
   DT_CATARRA:
-    official_name: Data do início da fase catarral
-    translated_name: Date the catarrhal phase began
-    description: 'When the catarrhal phase began — the first stage, which looks like
-      an ordinary cold and is when the patient is most infectious. Antibiotics only
-      alter the course if started here.
-
-      '
+    official_name: 'Data do início da tosse'
+    translated_name: 'Date cough began'
+    description: 'Date the cough began. It is the onset date used against the case definition and must precede the notification date.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date; CATARRA reads catarral.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf, campo 39 (Data do início da tosse)'
   MED_BLOQUE:
     official_name: Medida preventiva adotada
     translated_name: Preventive measure taken
@@ -265,50 +261,30 @@ variables:
 
       '
   NM_OUT_COM:
-    official_name: Nome do outro comunicante
-    translated_name: Other contact's name
-    description: 'Free-text name of an additional close contact of the pertussis (COQU)
-      case, recorded when contact-tracing finds someone beyond the household contacts
-      already listed by name.
-
-      '
+    official_name: 'Outras complicações (especificar)'
+    translated_name: 'Other complications - specify'
+    description: 'Free-text name of a complication other than those listed on the form; enabled only when the "other complications" flag is 1.'
     code_system: none
-    source: inferred
-    reasoning: 'COQU = Coqueluche; NM = nome, OUT = outro, COM = comunicante; width
-      30 fits a person''s name.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf, campo 41 (Outras complicações – especificar)'
   OUT_CONTAT:
-    official_name: Outro tipo de contato - descreva
-    translated_name: Other contact setting - describe
-    description: 'Free-text description of a pertussis (COQU) exposure contact setting
-      other than the household (e.g. daycare, school, workplace), distinct from NM_OUT_COM,
-      which records an individual contact''s name.
-
-      '
+    official_name: 'Se outro contato, especificar'
+    translated_name: 'Other contact place - specify'
+    description: 'Free-text description of the place of contact with a suspected or confirmed case when it is not one of the places coded in LO_CONTATO.'
     code_system: none
-    source: inferred
-    reasoning: 'COQU form; OUT_CONTAT = outro contato; width 30 free text; read as
-      a setting rather than a person''s name to distinguish it from NM_OUT_COM.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf, campo 34 (Se outro contato, especificar)'
   QUAN_COMUN:
-    official_name: Quantidade de comunicantes
-    translated_name: Contacts identified
-    description: 'How many contacts were identified. Pertussis is highly transmissible
-      within households, so this is usually the household size.
-
-      '
+    official_name: 'Se sim, em quantos? (comunicantes com coleta)'
+    translated_name: 'Contacts sampled'
+    description: 'Number of contacts from whom nasopharyngeal material was collected; filled when contact sampling (campo 55) was done.'
     code_system: none
-    source: inferred
-    reasoning: N(4) tally of comunicantes.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf, campo 56 (Se sim, em quantos?)'
   QUAN_POSIT:
-    official_name: Comunicantes positivos
-    translated_name: Contacts testing positive
-    description: 'How many contacts tested positive. Against QUAN_COMUN it gives the
-      secondary attack rate, which is what makes household transmission measurable.
-
-      '
+    official_name: 'Em quantos comunicantes o resultado da cultura foi positivo?'
+    translated_name: 'Contacts with positive culture'
+    description: 'Number of sampled contacts whose nasopharyngeal culture was positive; read against QUAN_COMUN.'
     code_system: none
-    source: inferred
-    reasoning: N(4) tally; the positive subset of QUAN_COMUN.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Coqueluche — http://portalsinan.saude.gov.br/images/documentos/Agravos/Coqueluche/DIC_DADOS_Coqueluche_v5.pdf, campo 57 (Em quantos comunicantes o resultado da cultura foi positivo?)'

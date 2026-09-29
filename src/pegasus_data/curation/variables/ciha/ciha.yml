@@ -22,22 +22,20 @@ variables:
 
       '
   CGC_CONSOR:
-    official_name: CNPJ do consórcio de saúde (inferido)
-    translated_name: CNPJ of the reporting health consortium (inferred)
-    description: CNPJ of the intermunicipal health consortium (consórcio público de saúde,
-      Lei 11.107/2005) through which the remittance was submitted, where a facility files
-      via a consortium rather than directly. Sits alongside CGC_HOSP and is the same 14-character
-      shape.
+    official_name: CNPJ da Fonte de Remuneração - Consórcios Públicos
+    translated_name: CNPJ of the paying public health consortium
+    description: 'CNPJ of the public health consortium (consórcio público) that is the
+      source of payment for the care reported, filled only when the remuneration source
+      is 13 - Consórcio Público and zero-filled otherwise.'
     code_system: none
-    source: inferred
-    reasoning: 'Name decomposes under DATASUS''s own convention as CGC_ (legacy pre-1998 name
-      for CNPJ, used elsewhere in this very file as CGC_HOSP) + CONSOR (consórcio). Declared
-      width C(14,0) is exactly CNPJ''s 14-digit length and matches CGC_HOSP''s width in the
-      same record, i.e. a second legal-entity identifier slot alongside the establishment''s
-      own CNPJ - the pattern DATASUS uses when a second reporting entity (a consortium) can
-      stand in for the facility.
-
-      '
+    source: layout_doc
+    source_ref: 'Layout da interface texto do CIHA01 (DATASUS, atualizado 06/2024) —
+      http://ciha.datasus.gov.br/documentos/documentos_ciha1.php (local:
+      sources/cih_doc/Layout_CIHA01.pdf), Seq 16 NU_CNPJ_FONTE_REMUNERACAO, 14 posições,
+      ''CNPJ da Fonte de Remuneração - Consórcios Públicos'' (obrigatório para a fonte
+      de remuneração 13 - Consórcio Público; zeros caso não tenha). The disseminated
+      CIHA*.dbf layout (sources/ciha/Layout_Arquivos_CIHA.pdf) does not list the column;
+      the match is by name and width.'
     notes: Not documented in the Layout_Arquivos_CIHA.pdf I read (the 2011 rollout table,
       29 fields, ending at MODALIDADE). This column post-dates that document; treat this description
       as a naming/width inference, not a confirmed field definition, until a newer layout

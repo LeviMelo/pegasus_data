@@ -6,20 +6,17 @@ asserted_by: pegasus_data
 
 variables:
   COUNIDINF:
-    official_name: Código da unidade de infecção
+    official_name: Unidade (provável da fonte de infecção)
     translated_name: Facility code where infection occurred
-    description: 'Code of the health facility where a neonatal tetanus infection likely
-      occurred (e.g. site of unhygienic cord care or delivery), distinct from the unit
-      that notified the case.
+    description: 'Health facility where the infection probably occurred, filled when the probable
+      place of infection is a hospital or birth centre.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CO_ = código, UNID = unidade, INF = infecção; C7 width fits a facility
-      code, consistent with SINAN''s practice of tracking the infection site''s own
-      facility on the neonatal tetanus (TETN) form.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 57 (Unidade)
   CS_ABDOMEN:
     official_name: Abdome rígido
     translated_name: Rigid abdomen
@@ -29,21 +26,20 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: ABDOMEN reads abdome; a clinical flag.
   CS_ANALISE:
-    official_name: Situação da análise do caso
-    translated_name: Case analysis status
-    description: 'Status of the epidemiological analysis/investigation of the neonatal
-      tetanus case - an administrative-tracking field, unlike most of the form''s other
-      CS_ fields, which record the classic clinical signs (trismus, opisthotonus, risus
-      sardonicus).
+    official_name: Medidas adotadas – análise da cobertura vacinal e vacinação discriminada
+      em MIF contra o tétano
+    translated_name: 'Measure taken: analysis of tetanus vaccine coverage in women of childbearing
+      age'
+    description: 'Whether, as a control measure, tetanus vaccination coverage among women of
+      childbearing age was analysed and selective vaccination of them carried out (1 yes, 2
+      no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CS_ here is TETN''s clinical-signs prefix, but ANALISE (analysis) doesn''t
-      fit that pattern; more plausibly investigation-status bookkeeping, given neonatal
-      tetanus is a sentinel, fully-preventable event subject to case review.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 50 (Medidas adotadas – análise da cobertura vacinal de MIF e vacinação discriminada)
   CS_ATEND_N:
     official_name: Quem atendeu o parto
     translated_name: Who attended the birth
@@ -60,30 +56,29 @@ variables:
 
       '
   CS_BUSCAAT:
-    official_name: Busca ativa realizada
+    official_name: Medidas adotadas – busca ativa de outros casos
     translated_name: Active case search performed
-    description: 'Whether active case-finding (busca ativa) was carried out for this
-      neonatal tetanus case, standard practice given how underreported the disease
-      is in areas with poor birth-registration coverage.
+    description: 'Whether active search for other neonatal tetanus cases was done in the community,
+      inpatient units and death records to gauge under-reporting (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is TETN (tétano neonatal); CS_ characteristic prefix with BUSCAAT
-      reading "busca ativa"; C1 width fits a coded yes/no flag.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 50 (Medidas adotadas – busca ativa de outros casos)
   CS_CADASTR:
-    official_name: Cadastro (pré-natal/atenção básica)
-    translated_name: Registered in prenatal/primary care (flag)
-    description: 'Whether the mother was registered in prenatal care or a primary-care
-      program at the time of delivery — relevant to neonatal tetanus risk, since unregistered
-      mothers are more likely to have unattended, unhygienic deliveries.
+    official_name: Medidas adotadas – cadastro e capacitação de parteiras atuantes
+    translated_name: 'Measure taken: registration and training of midwives'
+    description: 'Whether, as a control measure, the traditional midwives working in the area
+      were registered and trained (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: C1 flag; CS_=característica social per prefix convention, CADASTR=cadastro.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 50 (Medidas adotadas – cadastro e capacitação de parteiras atuantes)
   CS_CHORO:
     official_name: Choro excessivo
     translated_name: Excessive crying
@@ -93,31 +88,31 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: CHORO reads choro; a clinical flag.
   CS_COBERTU:
-    official_name: Cobertura vacinal da mãe
-    translated_name: Maternal tetanus vaccination coverage (flag)
-    description: 'Whether the mother had adequate tetanus toxoid vaccination coverage
-      at the time of delivery - the key preventable risk factor tracked on the neonatal
-      tetanus investigation form.
+    official_name: Local de residência coberto pelo
+    translated_name: Residence covered by primary-care programme
+    description: 'Primary-care programme covering the mother''s place of residence: PACS, PSF,
+      both, none, or other.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CS_ = cobertura, COBERTU = cobertura (vacinal); maternal immunization
-      status is the central risk factor for neonatal tetanus, C1 fits a checkbox.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 49 (Local de residência coberto pelo)
   CS_DIVULGA:
-    official_name: Divulgação do caso
+    official_name: Medidas adotadas – divulgação do problema para autoridades e profissionais
+      de saúde
     translated_name: Case disclosed/reported (flag)
-    description: 'Whether the neonatal tetanus case was disclosed through a public
-      health bulletin or alert - tetanus neonatal being a sentinel event that triggers
-      mandatory public health follow-up and reporting.
+    description: 'Whether, as a control measure, the case was made known to authorities and
+      health professionals (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: CS_DIVULGA = divulgação; sits with CS_ANALISE among TETN's non-clinical
-      investigation fields.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 50 (Medidas adotadas – divulgação do problema para autoridades e profissionais
+      de saúde)
   CS_INF_COT:
     official_name: Infecção do coto umbilical
     translated_name: Umbilical stump infection
@@ -142,30 +137,31 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: MAMAR reads mamar; a clinical flag.
   CS_NASCIDO:
-    official_name: Local de nascimento
+    official_name: Local de ocorrência do parto
     translated_name: Birth setting
-    description: 'Coded setting where the baby was born (e.g. hospital versus home
-      delivery), a key risk factor for neonatal tetanus since unsanitary umbilical
-      cord care during home births is the classic transmission route.
+    description: 'Where the birth took place: hospital, home, birth centre (casa de parto)
+      or other.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'TETN form; CS_NASCIDO reads "característica - nascido"; C1 width fits
-      a small enumerated birth-setting code.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 42 (Local de ocorrência do parto)
   CS_ORIENTA:
-    official_name: Orientação recebida
-    translated_name: Mother received guidance/counseling (flag)
-    description: 'Whether the mother received health guidance (e.g. on tetanus vaccination
-      or safe delivery practices) before or around delivery — a health-education flag
-      distinct from the registration flag CS_CADASTR.
+    official_name: Medidas adotadas – orientação às parturientes quanto aos cuidados com o
+      coto umbilical
+    translated_name: 'Measure taken: umbilical-stump care guidance'
+    description: 'Whether, as a control measure, women giving birth were taught how to care
+      for the umbilical stump (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: C1 flag; CS_=característica social, ORIENTA=orientação.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 50 (Medidas adotadas – orientação às parturientes quanto aos cuidados com o coto
+      umbilical)
   CS_ORIGEM:
     official_name: Origem da notificação
     translated_name: How the case was found
@@ -182,18 +178,17 @@ variables:
 
       '
   CS_OUTRAS:
-    official_name: Cobertura - outras características
-    translated_name: Other coverage-related factor (flag)
-    description: 'Whether another vaccine-coverage-related factor, beyond the standard
-      checklist, applied to the mother - paired with the free-text detail field NO_COBOUTR.
+    official_name: Medidas adotadas – outras
+    translated_name: Other control measures taken
+    description: 'Whether control measures other than those listed were adopted (1 yes, 2 no,
+      9 unknown); they are named in NO_OUTRAS.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CS_ = cobertura, OUTRAS = outras; shares the "coverage" root with CS_COBERTU
-      and pairs with NO_COBOUTR''s free-text detail, matching the flag+detail pattern.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 50 (Medidas adotadas – outras)
   CS_OUTROS:
     official_name: Outro sinal
     translated_name: Other sign, neonatal tetanus
@@ -206,7 +201,7 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: The residual item of the clinical block.
   CS_SUGOU:
-    official_name: Criança sugou bem ao nascer
+    official_name: Sugou normalmente após o nascimento
     translated_name: Baby suckled normally at birth (flag)
     description: 'Whether the newborn suckled/breastfed normally right after birth
       - the classic early-warning question for neonatal tetanus, since loss of the
@@ -214,9 +209,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: CS_SUGOU = sugou (suckled); a hallmark neonatal-tetanus history question,
-      distinct from the disease-agnostic CS_ prefix used elsewhere in SINAN.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 44 (Sugou normalmente após o nascimento)
   CS_VACINAC:
     official_name: Mãe vacinada
     translated_name: Mother vaccinated
@@ -230,82 +226,83 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: VACINAC reads vacinação, about the mother; a yes/no flag.
   CS_VACTETA:
-    official_name: Mãe vacinada contra tétano
+    official_name: Antecedentes vacinais contra tétano (mãe)
     translated_name: Mother vaccinated against tetanus
-    description: 'Whether the mother received tetanus toxoid vaccination before or
-      during pregnancy, the primary measure that prevents neonatal tetanus by passive
-      antibody transfer to the newborn.
+    description: 'Mother''s tetanus vaccination history: vaccinated (proven by vaccination
+      card), not vaccinated, or unknown.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'TETN form; CS_VACTETA reads "característica - vacinação tetânica";
-      C1 width fits a coded yes/no immunization flag.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 34 (Antecedentes vacinais contra tétano – mãe)
   DS_INF_LOC:
-    official_name: Local da infecção
+    official_name: Local provável da fonte de infecção
     translated_name: Site/type of infection location (flag)
-    description: 'Coded flag for the type of place where the newborn was likely infected
-      (e.g. home delivery vs. health facility) — a categorical field despite the DS_
-      (descrição) prefix, since it is stored as a single character rather than free
-      text.
+    description: 'Probable place where the infection occurred: hospital, home, birth centre
+      (casa de parto) or other.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'C1 — unusually narrow for a DS_ (descrição) field, indicating it is
-      actually a coded category rather than free text; INF=infecção, LOC=local.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 52 (Local provável da fonte de infecção)
   DS_INF_OUT:
-    official_name: Descrição de outra circunstância de infecção
-    translated_name: Other infection circumstance (free text)
-    description: 'Free-text description of an unlisted circumstance of neonatal tetanus
-      infection (e.g. a non-standard cord-care practice), filled in when the standard
-      checklist doesn''t capture it.
+    official_name: Local provável da fonte de infecção – outro, especificar
+    translated_name: Other probable place of infection (specify)
+    description: 'Free-text probable place of infection, filled when DS_INF_LOC is 4 (other
+      place).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DS_ = descrição, INF = infecção, OUT = outro; C30 width fits free text,
-      matching the "other, specify" pattern used across SINAN forms.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 52 (Local provável da fonte de infecção – outro, especificar)
   DT_1_DOSE:
-    official_name: Data da primeira dose materna
+    official_name: Data da 1ª dose
     translated_name: Date of mother's first dose
     description: When the mother received her first tetanus dose.
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the first of the maternal dose dates.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 35 (Data da 1ª dose)
   DT_2_DOSE:
-    official_name: Data da segunda dose materna
+    official_name: Data da 2ª dose
     translated_name: Date of mother's second dose
     description: 'When the mother received her second dose. Two doses more than fifteen
       days before birth is the minimum that protects the baby.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the second of the maternal dose dates.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 36 (Data da 2ª dose)
   DT_3_DOSE:
-    official_name: Data da terceira dose materna
+    official_name: Data da 3ª dose
     translated_name: Date of mother's third dose
     description: When the mother received her third dose, completing the primary course.
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the third of the maternal dose dates.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 37 (Data da 3ª dose)
   DT_REFORCO:
-    official_name: Data do reforço materno
+    official_name: Data do último reforço
     translated_name: Date of mother's booster
-    description: 'When the mother had a booster. Tetanus immunity wanes over a decade,
-      so a distant primary course without a booster leaves the newborn unprotected.
+    description: 'When the mother had her last tetanus booster. Immunity wanes over a decade,
+      so a distant booster leaves the newborn unprotected.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; REFORCO reads reforço.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 38 (Data do último reforço)
   DT_TRISMO:
     official_name: Data do trismo
     translated_name: Date trismus began
@@ -315,99 +312,90 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: DT_TRISMO = data + trismo; TETN also carries CS_TRISMO (Sim/Não flag)
-      alongside this onset date.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 46 (Data do trismo)
   ESCOLMAE_N:
-    official_name: Escolaridade da mãe (código numérico)
+    official_name: Escolaridade da mãe
     translated_name: Mother's education level (numeric code)
-    description: 'Mother''s education level recorded on the neonatal tetanus form as
-      a short numeric code, distinct from any text-labeled schooling field used elsewhere
-      in SINAN.
+    description: 'Mother''s schooling, coded in the SINAN NET education bands (from illiterate
+      through completed higher education, plus not applicable).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'TETN form; ESCOLMAE reads "escolaridade da mãe"; the _N suffix and
-      C2 width indicate a numeric-coded variant of the schooling field.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 41 (Escolaridade da mãe)
   NO_ATENOUT:
-    official_name: Nome do outro local de atendimento
-    translated_name: Name of another care facility (referral)
-    description: 'Free-text name of an additional health facility where the mother
-      or newborn was seen — a referral or transfer facility outside the notifying unit.
+    official_name: Parto atendido por – se outro, especificar
+    translated_name: Birth attended by other (specify)
+    description: 'Free-text description of who attended the birth, filled when the birth attendant
+      was coded as other.
 
       '
     code_system: none
-    source: inferred
-    reasoning: C30 text; NO_=nome, ATEN=atendimento, OUT=outro.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 43 (Parto atendido por – se outro, especificar)
   NO_COBOUTR:
-    official_name: Nome - outra cobertura
-    translated_name: Other vaccine-coverage detail (free text)
-    description: 'Free-text name/detail of another maternal vaccine-coverage item not
-      captured by the standard checklist, paired with the CS_OUTRAS flag that marks
-      it applies.
+    official_name: Local de residência coberto pelo – se outros, especificar
+    translated_name: Other primary-care programme (specify)
+    description: 'Free-text name of the other primary-care programme covering the mother''s
+      residence, filled when CS_COBERTU is 5 (other).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'NO_ = nome, COB = cobertura, OUTR = outro; C30 width fits free text,
-      and it shares the "cobertura" root with CS_COBERTU/CS_OUTRAS.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 49 (Local de residência coberto pelo – se outros, especificar)
   NO_OUPARTO:
-    official_name: Nome/descrição do outro local de parto
+    official_name: Local de ocorrência do parto – outro, especificar
     translated_name: Other birthplace - name/description
-    description: 'Free-text description of the birth location when it was not a standard
-      health facility (e.g. home birth, in transit) - relevant because non-sterile
-      umbilical cord care during non-institutional births is the classic neonatal tetanus
-      risk factor.
+    description: 'Free-text place of birth, filled when CS_NASCIDO is 4 (other).
 
       '
     code_system: none
-    source: inferred
-    reasoning: NO_OUPARTO = nome + outro + parto; "outro local de parto" is the standard
-      SINAN phrasing for a non-facility birth.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 42 (Local de ocorrência do parto – outro, especificar)
   NO_OUTRAS:
-    official_name: Nome de outras informações
-    translated_name: Other information (free text)
-    description: 'Free-text field for naming an additional detail on the neonatal tetanus
-      form not captured by the standard coded fields (e.g. another risk factor or birth
-      attendant).
+    official_name: Medidas adotadas – se outras, especificar
+    translated_name: Other control measures (specify)
+    description: 'Free-text description of the other control measures adopted, filled when
+      CS_OUTRAS is yes.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'TETN form; NO_ reads "nome" and OUTRAS reads "outras"; C30 width fits
-      a free-text "other, specify" field.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 50 (Medidas adotadas – se outras, especificar)
   NUM_CON_N:
-    official_name: Número de consultas (categoria)
+    official_name: Número de consultas de pré-natal
     translated_name: Prenatal visit-count category
-    description: 'Coded category for how many prenatal care visits the mother had (e.g.
-      none, few, adequate) rather than a raw count — inadequate prenatal care is a
-      recognized neonatal tetanus risk factor.
+    description: 'Number of prenatal visits in the last pregnancy, banded: one, two, three
+      to five, six or more, none.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'C1 — a single character can''t hold a raw visit count, so this reads
-      as a coded category; NUM_=número, CON_N=consultas.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 33 (Número de consultas de pré-natal)
   NU_GESTA:
     official_name: Número de gestações
     translated_name: Number of pregnancies (parity)
-    description: 'Coded count of the mother''s pregnancies (parity), recorded on the
-      neonatal tetanus form to characterize her obstetric history and prior exposure
-      to antenatal care/vaccination opportunities.
+    description: 'Number of pregnancies the mother has had, including abortions, banded one
+      to five or more.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'NU_ = número, GESTA = gestação(ões); C1 width fits a short coded count
-      rather than free text.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
+      DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
+      campo 40 (Número de gestações)

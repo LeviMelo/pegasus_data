@@ -83,11 +83,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CNS is the national health card and PAC paciente; declared C(15), which
-      is the CNS length.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário ''Estrutura do Painel-Oncologia para tabulação'' (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/painel_oncologia/Doc/Dicionario_Painel_Oncologia.pdf,
+      seq 19 cns_pac CHAR(15) ''Cartão Nacional de Saúde'''
     notes: 'UNVERIFIED whether this holds a readable CNS. The equivalent SIASUS column
       (AP_CNSPCN) was measured and is obfuscated — fifteen non-numeric bytes, not a
       CNS — but that result is SIASUS''s and has not been tested here, so do not assume
@@ -127,17 +126,14 @@ variables:
   DT_DIAG:
     official_name: Data do diagnóstico
     translated_name: Date of diagnosis
-    description: 'Date the cancer was diagnosed. The start of the interval the sixty-day
-      treatment law is measured over, so it decides whether a case counts as treated
-      in time.
-
-      '
+    description: 'Date the cancer diagnosis was registered, as DD/MM/AAAA. The start of
+      the interval the sixty-day treatment law is measured over.'
     code_system: none
-    source: inferred
-    reasoning: 'DT_ is the date prefix and DIAG diagnóstico; C(10) is a formatted date
-      with separators rather than the bare AAAAMMDD used elsewhere.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário ''Estrutura do Painel-Oncologia para tabulação'' (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/painel_oncologia/Doc/Dicionario_Painel_Oncologia.pdf,
+      seq 21 dt_diag CHAR(10) ''Data detalhada do diagnóstico registrado no formato
+      DD/MM/AAAA'''
     notes: 'Ten characters, so it carries separators — unlike the C(8) dates in SIH
       and SIM. Parse it as formatted text, not as AAAAMMDD.
 
@@ -150,23 +146,25 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: NASC is nascimento; same C(10) formatted-date shape.
+    source: layout_doc
+    source_ref: 'Dicionário ''Estrutura do Painel-Oncologia para tabulação'' (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/painel_oncologia/Doc/Dicionario_Painel_Oncologia.pdf,
+      seq 23 dt_nasc CHAR(10) ''Data de nascimento do paciente no formato DD/MM/AAAA'''
     notes: 'A date of birth beside a national health-card number is identifying. Handle
       it as such.
 
       '
   DT_TRAT:
-    official_name: Data do início do tratamento
+    official_name: Data detalhada do primeiro tratamento registrado
     translated_name: Date treatment began
-    description: 'Date the first cancer treatment began. With DT_DIAG it forms the
-      interval the panel reports, and the gap between them is the number the policy
-      is judged on.
-
-      '
+    description: 'Date of the first registered cancer treatment, as DD/MM/AAAA. With
+      DT_DIAG it forms the interval the panel reports (TEMPO_TRAT).'
     code_system: none
-    source: inferred
-    reasoning: TRAT is tratamento; same C(10) formatted-date shape as DT_DIAG.
+    source: layout_doc
+    source_ref: 'Dicionário ''Estrutura do Painel-Oncologia para tabulação'' (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/painel_oncologia/Doc/Dicionario_Painel_Oncologia.pdf,
+      seq 22 dt_trat CHAR(10) ''Data detalhada do primeiro tratamento registrado no
+      formato DD/MM/AAAA'''
   ESTADIAM:
     official_name: Estadiamento
     translated_name: Stage at diagnosis
@@ -197,11 +195,15 @@ variables:
   MUN_DIAG:
     official_name: Município do diagnóstico
     translated_name: Municipality of diagnosis
-    description: Municipality where the diagnosis was made, by IBGE code.
+    description: 'IBGE code of the municipality of the establishment where the diagnosis
+      was registered.'
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE municipality code bound to BR_MUNICIP.
+    source: layout_doc
+    source_ref: 'Dicionário ''Estrutura do Painel-Oncologia para tabulação'' (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/painel_oncologia/Doc/Dicionario_Painel_Oncologia.pdf,
+      seq 10 mun_diag CHAR(6) ''Cód. da UF + Cód. do Município ... do estabelecimento
+      onde foi registrado o diagnóstico, conforme código IBGE'''
   MUN_RESID:
     official_name: Município de residência
     translated_name: Municipality of residence
@@ -212,20 +214,24 @@ variables:
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE municipality code bound to BR_MUNICIP.
+    source: layout_doc
+    source_ref: 'Dicionário ''Estrutura do Painel-Oncologia para tabulação'' (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/painel_oncologia/Doc/Dicionario_Painel_Oncologia.pdf,
+      seq 6 mun_resid CHAR(6) ''Cód. da Unidade de Federação de residência + Cód. do
+      Município de residência, conforme código IBGE'''
   MUN_TRATAM:
     official_name: Município do tratamento
     translated_name: Municipality of treatment
-    description: 'Municipality where treatment began. Oncology is concentrated in a
-      small number of accredited centres, so this is heavily clustered and is not a
-      measure of where patients come from.
-
-      '
+    description: 'IBGE code of the municipality of the establishment where the first
+      treatment was registered. Oncology is concentrated in a few accredited centres, so
+      this is heavily clustered and is not a measure of where patients come from.'
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE municipality code bound to BR_MUNICIP.
+    source: layout_doc
+    source_ref: 'Dicionário ''Estrutura do Painel-Oncologia para tabulação'' (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/painel_oncologia/Doc/Dicionario_Painel_Oncologia.pdf,
+      seq 8 mun_tratam CHAR(6) ''Cód. da UF + Cód. do Município ... do estabelecimento
+      onde foi registrado o primeiro tratamento, conforme código IBGE'''
   TEMPO_TRAT:
     official_name: Tempo até o tratamento
     translated_name: Time to treatment

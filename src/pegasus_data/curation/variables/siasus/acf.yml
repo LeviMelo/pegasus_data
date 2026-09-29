@@ -16,11 +16,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'ART is artéria and DIA is diâmetro; C(4) fits a millimetre measurement
-      with an implied decimal.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.7 APAC de Confecção de Fístula Arteriovenosa (ACF*.DBF) SEQ 54 NUMERIC(4)
+      ''Diâmetro da artéria (em mm)'''
   ACF_DUPLEX:
     official_name: Ultrassom duplex scan
     translated_name: Duplex ultrasound done
@@ -46,16 +46,17 @@ variables:
   ACF_FREMIT:
     official_name: Frêmito
     translated_name: Thrill
-    description: 'Whether a thrill — the palpable vibration of blood crossing the anastomosis
-      — is present. Its presence is the bedside sign that a fistula is patent and working.
-
-      '
+    description: 'Thrill (frêmito, the vibration felt by touch) along the arteriovenous
+      fistula path, graded 1 to 4 in the capture layout rather than a yes/no flag.'
     code_system: internal
-    source: inferred
-    reasoning: 'Frêmito is the clinical term, and C(1) admits a presence flag rather
-      than a measurement.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.7 APAC de Confecção de Fístula Arteriovenosa (ACF*.DBF) SEQ 55 CHAR(1)
+      ''Frêmito - Vibração perceptível pelo tato''; ''Layout da interface texto do APAC
+      e do SIA - layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local:
+      sources/layout_interno.pdf (text: sources/apac_layout.txt), Confecção de Fístula
+      part, APA_FREMIT ''Presença de frêmito no trajeto da FAV (1 a 4)'''
   ACF_HEMATO:
     official_name: Hematoma
     translated_name: Haematoma
@@ -122,5 +123,8 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: VEI is veia and DIA is diâmetro, matching ACF_ARTDIA's C(4) shape.
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.7 APAC de Confecção de Fístula Arteriovenosa (ACF*.DBF) SEQ 53 NUMERIC(4)
+      ''Diâmetro da veia (em mm)'''

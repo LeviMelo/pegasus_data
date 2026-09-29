@@ -36,11 +36,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'High per-value repetition (hundreds to ~1,700 rows sharing one code)
-      rules out a per-record sequence number; the narrow 2005-2006 window coincides
-      with the pre-2008 to 200801_ layout transition in this system, and "SEG" most
-      plausibly abbreviates segmento.
-
-      '
+      rules out a per-record sequence number; the narrow 2005-2006 window coincides with
+      the pre-2008 to 200801_ layout transition in this system, and "SEG" most plausibly
+      abbreviates segmento. Reviewed 2026-09-28: no documentation found (searched
+      IT_SIHSUS_1603 RD layout, GEOCOD-AIH dictionary, TAB_SIH RD/MA DEFs 1992-2007).'
     notes: 'What specifically the segment groups — hospital complex, submission batch,
       region — is not established here.
 
@@ -55,12 +54,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'The catalog''s own detector flags it a constant_column (confidence
-      0.9) with a single observed value "1" across ~47k rows; "CONT" most plausibly
+    reasoning: 'The catalog''s own detector flags it a constant_column (confidence 0.9)
+      with a single observed value "1" across ~47k rows; "CONT" most plausibly
       abbreviates "contador," the same internal-control naming DATASUS uses elsewhere
-      (SIM''s own CONTADOR, documented there as "dado para controle interno").
-
-      '
+      (SIM''s own CONTADOR, documented there as "dado para controle interno"). Reviewed
+      2026-09-28: no documentation found (searched IT_SIHSUS_1603 RD layout, GEOCOD-AIH
+      dictionary, TAB_SIH RD/MA DEFs 1992-2007).'
     notes: 'DELIBERATELY UNDER-SPECIFIED — no .DEF label, dictionary entry or documentation
       names this field; only its observed constant behaviour is asserted here.
 
@@ -134,8 +133,10 @@ variables:
       and prosthetic devices), expressed in US dollars.
     code_system: none
     source: inferred
-    reasoning: Same VAL_*/US_* pairing basis as US_SH; VAL_ORTP is documented as "Valor
-      de órtese e prótese" [GEOCOD-AIH p.5].
+    reasoning: 'Same VAL_*/US_* pairing basis as US_SH; VAL_ORTP is documented as "Valor
+      de órtese e prótese" [GEOCOD-AIH p.5]. Reviewed 2026-09-28: no documentation found
+      (searched IT_SIHSUS_1603 and GEOCOD-AIH, which document only US_TOT among the US_
+      columns; TAB_SIH DEFs 1992-2007).'
     notes: Same currency caveat as US_SH.
   US_RN:
     translated_name: Newborn-nursery value, in US dollars
@@ -146,8 +147,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: Same VAL_*/US_* pairing basis as US_SH; VAL_RN is documented as "Valor
-      de recém-nato (a partir de dezembro de 1994)" [GEOCOD-AIH p.5].
+    reasoning: 'Same VAL_*/US_* pairing basis as US_SH; VAL_RN is documented as "Valor
+      de recém-nato (a partir de dezembro de 1994)" [GEOCOD-AIH p.5]. Reviewed
+      2026-09-28: no documentation found (searched IT_SIHSUS_1603 and GEOCOD-AIH, which
+      document only US_TOT among the US_ columns; TAB_SIH DEFs 1992-2007).'
     vintage_note: Not present before December 1994 — its Real-valued sibling VAL_RN
       did not exist before then either.
     notes: Same currency caveat as US_SH.
@@ -160,8 +163,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: Same VAL_*/US_* pairing basis as US_SH; VAL_SADT is documented as "Valor
-      de SADT (serviços auxiliares de diagnose e terapia)" [GEOCOD-AIH p.5].
+    reasoning: 'Same VAL_*/US_* pairing basis as US_SH; VAL_SADT is documented as "Valor
+      de SADT (serviços auxiliares de diagnose e terapia)" [GEOCOD-AIH p.5]. Reviewed
+      2026-09-28: no documentation found (searched IT_SIHSUS_1603 and GEOCOD-AIH, which
+      document only US_TOT among the US_ columns; TAB_SIH DEFs 1992-2007).'
     notes: Same currency caveat as US_SH.
   US_SANGUE:
     translated_name: Blood/hemoderivatives value, in US dollars
@@ -172,11 +177,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Same VAL_*/US_* pairing basis as US_SH; VAL_SANG (the Real-valued sibling)
-      is documented as "Valor gasto com sangue; nos arquivos de 1992, este valor está
-      somado em VAL_SADT" [GEOCOD-AIH p.5].
-
-      '
+    reasoning: 'Same VAL_*/US_* pairing basis as US_SH; VAL_SANG (the Real-valued
+      sibling) is documented as "Valor gasto com sangue; nos arquivos de 1992, este
+      valor está somado em VAL_SADT" [GEOCOD-AIH p.5]. Reviewed 2026-09-28: no
+      documentation found (searched IT_SIHSUS_1603 and GEOCOD-AIH, which document only
+      US_TOT among the US_ columns; TAB_SIH DEFs 1992-2007).'
     vintage_note: 1992 files fold this value into the SADT component; only from 1993
       is it broken out.
     notes: Same currency caveat as US_SH.
@@ -189,13 +194,13 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'No .DEF binds a display name to US_SH, but the same RD layout documents
-      US_TOT as "Valor total da AIH (VAL_TOT) em dólares" [GEOCOD-AIH p.5] — the dollar-denominated
-      twin of the Real-valued VAL_TOT — and separately documents VAL_SH as "Valor de
-      serviços hospitalares" [GEOCOD-AIH p.5]. US_SH follows the identical VAL_*/US_*
-      pairing for the SH component; the catalog''s own detector independently classifies
-      this column as money-shaped.
-
-      '
+      US_TOT as "Valor total da AIH (VAL_TOT) em dólares" [GEOCOD-AIH p.5] — the
+      dollar-denominated twin of the Real-valued VAL_TOT — and separately documents
+      VAL_SH as "Valor de serviços hospitalares" [GEOCOD-AIH p.5]. US_SH follows the
+      identical VAL_*/US_* pairing for the SH component; the catalog''s own detector
+      independently classifies this column as money-shaped. Reviewed 2026-09-28: no
+      documentation found (searched IT_SIHSUS_1603 and GEOCOD-AIH, which document only
+      US_TOT among the US_ columns; TAB_SIH DEFs 1992-2007).'
     notes: 'The catalog''s automatic unit detector labels this column BRL — that is
       wrong. Brazil ran three currencies across 1992–1997 (cruzeiro, cruzeiro real,
       then the real from July 1994), and DATASUS carried a dollar-pegged shadow value
@@ -212,8 +217,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: Same VAL_*/US_* pairing basis as US_SH; VAL_SP is documented as "Valor
-      de serviços profissionais" [GEOCOD-AIH p.5].
+    reasoning: 'Same VAL_*/US_* pairing basis as US_SH; VAL_SP is documented as "Valor
+      de serviços profissionais" [GEOCOD-AIH p.5]. Reviewed 2026-09-28: no documentation
+      found (searched IT_SIHSUS_1603 and GEOCOD-AIH, which document only US_TOT among
+      the US_ columns; TAB_SIH DEFs 1992-2007).'
     notes: Same currency caveat as US_SH — this is US dollars, not reais, despite the
       detector's BRL label.
   UTI_TOTAL:

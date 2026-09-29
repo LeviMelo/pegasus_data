@@ -104,3 +104,4 @@ last, comes first.
 | [ADR-0077](docs/decisions/ADR-0077-archives-are-censused-and-their-members-are-publications.md) | 2026-09-28 | Archives are censused, and each table inside a multi-table archive is its own publication | active | amends ADR-0071 |
 | [ADR-0078](docs/decisions/ADR-0078-a-republished-file-is-re-censused-and-added-columns-are-read.md) | 2026-09-28 | A republished file is re-censused, and a file that only gained columns is read, not refused | active |  |
 | [ADR-0079](docs/decisions/ADR-0079-a-code-table-found-only-in-a-document-is-written-in-the-curation.md) | 2026-09-28 | A code table found only in a document is written in the curation | active | amends ADR-0012, ADR-0072 |
+| [ADR-0080](docs/decisions/ADR-0080-a-code-belongs-to-its-form.md) | 2026-09-28 | A code belongs to its form; per-form alternatives are chosen per family, never merged | active | amends ADR-0072, ADR-0079 |

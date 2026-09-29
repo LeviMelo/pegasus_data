@@ -15,10 +15,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'AMOS_ = amostra (sample), OUT = outra (other); C1 width fits a Sim/Não
-      checkbox on the dengue investigation form''s lab section.
-
-      '
+    reasoning: 'AMOS_ = amostra (sample), OUT = outra (other); C1 width fits a Sim/Não checkbox on the dengue investigation form''s lab section. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   AMOS_PCR:
     official_name: Amostra para RT-PCR
     translated_name: Sample collected for RT-PCR
@@ -29,10 +26,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'AMOS_ = amostra, PCR = the molecular test; DENG series; distinguishes
-      the molecular-diagnosis path from the paired-serology path also on this form.
-
-      '
+    reasoning: 'AMOS_ = amostra, PCR = the molecular test; DENG series; distinguishes the molecular-diagnosis path from the paired-serology path also on this form. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   ANO:
     official_name: Ano
     translated_name: Year
@@ -43,10 +37,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Agravo is DENG (dengue); name reads "ano" and C4 width matches a 4-digit
-      year rather than a full date.
-
-      '
+    reasoning: 'Agravo is DENG (dengue); name reads "ano" and C4 width matches a 4-digit year rather than a full date. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   ASCITE:
     official_name: Ascite
     translated_name: Ascites
@@ -57,10 +48,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'C1 flag in a low-coverage DENG stratum; ASCITE directly names the clinical
-      sign, a recognized severe-dengue plasma-leakage marker.
-
-      '
+    reasoning: 'C1 flag in a low-coverage DENG stratum; ASCITE directly names the clinical sign, a recognized severe-dengue plasma-leakage marker. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DENGUE:
     official_name: Dengue
     translated_name: Dengue case flag
@@ -72,11 +60,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Field name matches the series (DENGUE in DENG); C1 width and very low
-      file weight (7) point to a legacy pre-2014 schema checkbox rather than a lab
-      result.
-
-      '
+    reasoning: 'Field name matches the series (DENGUE in DENG); C1 width and very low file weight (7) point to a legacy pre-2014 schema checkbox rather than a lab result. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_CHOQUE:
     official_name: Data do choque
     translated_name: Date of shock onset
@@ -88,10 +72,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'D8 date field named CHOQUE (shock); DT_ is the date prefix, grouped
-      with other timeline dates in the same DENG stratum.
-
-      '
+    reasoning: 'D8 date field named CHOQUE (shock); DT_ is the date prefix, grouped with other timeline dates in the same DENG stratum. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_COL_HE2:
     official_name: Data da coleta - Hemograma 2
     translated_name: Date of second blood-count sample
@@ -102,11 +83,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DT_ = data, COL = coleta, HE2 = hemograma/hematócrito, segunda coleta;
-      D8 AAAAMMDD type fits a collection date, and dengue monitoring routinely repeats
-      the blood count.
-
-      '
+    reasoning: 'DT_ = data, COL = coleta, HE2 = hemograma/hematócrito, segunda coleta; D8 AAAAMMDD type fits a collection date, and dengue monitoring routinely repeats the blood count. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_COL_HEM:
     official_name: Data da coleta de sangue
     translated_name: Date blood sample collected
@@ -117,7 +94,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: DT_ = data, COL = coleta, HEM = sangue; declared as a date (D8).
+    reasoning: 'DT_ = data, COL = coleta, HEM = sangue; declared as a date (D8). Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_COL_PL2:
     official_name: Data da 2ª coleta de plaquetas
     translated_name: Date of second platelet count
@@ -128,11 +105,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DENG form; DT_COL reads "data coleta" and PL2 reads "plaquetas 2";
-      D8 width fits a clinical monitoring date, paired conceptually with DT_SORO2 but
-      tracking a different lab value.
-
-      '
+    reasoning: 'DENG form; DT_COL reads "data coleta" and PL2 reads "plaquetas 2"; D8 width fits a clinical monitoring date, paired conceptually with DT_SORO2 but tracking a different lab value. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_COL_PLQ:
     official_name: Data de coleta de plaquetas
     translated_name: Date platelet-count sample was collected
@@ -143,8 +116,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: D8 date; COL=coleta, PLQ=plaquetas, matches the lab-timeline fields
-      in this stratum.
+    reasoning: 'D8 date; COL=coleta, PLQ=plaquetas, matches the lab-timeline fields in this stratum. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_DOSE:
     official_name: Data da dose (vacina dengue)
     translated_name: Dengue vaccine dose date
@@ -155,10 +127,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DT_ = data, DOSE = dose; sits in the DENG series where Brazil''s dengue
-      vaccination program (Qdenga) makes a dose date a plausible addition to case investigation.
-
-      '
+    reasoning: 'DT_ = data, DOSE = dose; sits in the DENG series where Brazil''s dengue vaccination program (Qdenga) makes a dose date a plausible addition to case investigation. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_SORO1:
     official_name: Data da coleta do 1º soro
     translated_name: Date of 1st serum sample collection
@@ -169,11 +138,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DT_SORO1 pairs with SORO2/S1_TIT1 in the same DENG series; "1" marks
-      it as the first of two paired serum draws, the classic acute/convalescent dengue
-      serology design.
-
-      '
+    reasoning: 'DT_SORO1 pairs with SORO2/S1_TIT1 in the same DENG series; "1" marks it as the first of two paired serum draws, the classic acute/convalescent dengue serology design. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_SORO2:
     official_name: Data da 2ª sorologia
     translated_name: Date of second serology sample
@@ -184,10 +149,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DENG form; SORO2 reads "sorologia 2"; D8 width fits a date, and pairs
-      with S2_TIT1, the titer result from this same sample.
-
-      '
+    reasoning: 'DENG form; SORO2 reads "sorologia 2"; D8 width fits a date, and pairs with S2_TIT1, the titer result from this same sample. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_SOROR1:
     official_name: Data da 1ª sorologia
     translated_name: Date of first serology sample collection
@@ -198,8 +160,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: D8 date; SOROR=sorologia, trailing 1 marks it as the first of a possible
-      series.
+    reasoning: 'D8 date; SOROR=sorologia, trailing 1 marks it as the first of a possible series. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   DT_SOROR2:
     official_name: Data da sorologia 2
     translated_name: Date of second serology sample
@@ -210,10 +171,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DT_ = data, SOROR2 = sorologia, segunda amostra; D8 date type matches,
-      and paired-sample serology is standard for dengue confirmation.
-
-      '
+    reasoning: 'DT_ = data, SOROR2 = sorologia, segunda amostra; D8 date type matches, and paired-sample serology is standard for dengue confirmation. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   HEMA_MAIOR:
     official_name: Maior valor de hematócrito
     translated_name: Highest hematocrit value recorded
@@ -224,10 +182,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'C6 fits a percentage value rather than a flag; HEMA=hematócrito, MAIOR=highest,
-      a standard severe-dengue marker.
-
-      '
+    reasoning: 'C6 fits a percentage value rather than a flag; HEMA=hematócrito, MAIOR=highest, a standard severe-dengue marker. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   HEMA_MENOR:
     official_name: Hematócrito menor
     translated_name: Lowest hematocrit value
@@ -238,11 +193,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'HEMA_ = hematócrito, MENOR = menor (lowest); C6 alphanumeric width
-      fits a percentage value, and dengue protocols track hematocrit trend, not a single
-      reading.
-
-      '
+    reasoning: 'HEMA_ = hematócrito, MENOR = menor (lowest); C6 alphanumeric width fits a percentage value, and dengue protocols track hematocrit trend, not a single reading. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   HIPOTENSAO:
     official_name: Hipotensão postural
     translated_name: Postural hypotension (warning sign)
@@ -253,11 +204,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Direct decode of HIPOTENSAO; postural hypotension is a named warning
-      sign in the Brazilian dengue clinical-management protocol, and C1 width fits
-      a checkbox.
-
-      '
+    reasoning: 'Direct decode of HIPOTENSAO; postural hypotension is a named warning sign in the Brazilian dengue clinical-management protocol, and C1 width fits a checkbox. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   HISTOPA:
     official_name: Resultado do exame histopatológico
     translated_name: Histopathology exam result
@@ -269,7 +216,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: HISTOPA = histopatologia; DENG series with other autopsy-style fields.
+    reasoning: 'HISTOPA = histopatologia; DENG series with other autopsy-style fields. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   IMUNOH:
     official_name: Resultado da imuno-histoquímica
     translated_name: Immunohistochemistry result
@@ -280,7 +227,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: IMUNOH = imuno-histoquímica; sits alongside HISTOPA in the DENG series.
+    reasoning: 'IMUNOH = imuno-histoquímica; sits alongside HISTOPA in the DENG series. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   INSUFICIEN:
     official_name: Insuficiência de órgãos
     translated_name: Organ insufficiency (complication)
@@ -291,8 +238,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag; name reads as insuficiência (insufficiency), grouped with other
-      complication flags in the DENG stratum.
+    reasoning: 'C1 flag; name reads as insuficiência (insufficiency), grouped with other complication flags in the DENG stratum. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   MANIFESTA:
     official_name: Manifestações hemorrágicas
     translated_name: Hemorrhagic manifestations (flag)
@@ -303,11 +249,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MANIFESTA(ÇÕES) decodes directly; hemorrhagic manifestations are a
-      standard checkbox group on the dengue clinical section, and the field sits next
-      to OUTROS_M (other manifestation, specify).
-
-      '
+    reasoning: 'MANIFESTA(ÇÕES) decodes directly; hemorrhagic manifestations are a standard checkbox group on the dengue clinical section, and the field sits next to OUTROS_M (other manifestation, specify). Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   MATERIAL:
     official_name: Material coletado
     translated_name: Specimen material collected
@@ -318,8 +260,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: Plain "material" field name; paired with the "outro material" free-text
-      sibling.
+    reasoning: 'Plain "material" field name; paired with the "outro material" free-text sibling. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   MIOCARDI:
     official_name: Miocardite
     translated_name: Myocarditis (complication)
@@ -330,7 +271,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag; MIOCARDI directly names the clinical complication.
+    reasoning: 'C1 flag; MIOCARDI directly names the clinical complication. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   OUTROS_M:
     official_name: Outras manifestações
     translated_name: Other manifestation (flag/specify)
@@ -341,11 +282,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'OUTROS_ = outros, M = manifestações; standard "outro, especifique"
-      companion pattern to a checkbox list, consistent with the DENG series'' clinical-signs
-      section.
-
-      '
+    reasoning: 'OUTROS_ = outros, M = manifestações; standard "outro, especifique" companion pattern to a checkbox list, consistent with the DENG series'' clinical-signs section. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   OUTROS_M_D:
     official_name: Outro material - descrição
     translated_name: Other specimen material - description
@@ -356,10 +293,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'OUTROS_M_D = outros materiais + descrição, the standard "outro - especifique"
-      pairing with MATERIAL; width 20 fits free text.
-
-      '
+    reasoning: 'OUTROS_M_D = outros materiais + descrição, the standard "outro - especifique" pairing with MATERIAL; width 20 fits free text. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   OUTRO_S:
     official_name: Outro sinal/sintoma
     translated_name: Other sign/symptom
@@ -369,10 +303,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DENG form; OUTRO_S reads "outro s[inal/intoma]"; C1 width fits a coded
-      yes/no flag alongside the form''s other named sign checkboxes.
-
-      '
+    reasoning: 'DENG form; OUTRO_S reads "outro s[inal/intoma]"; C1 width fits a coded yes/no flag alongside the form''s other named sign checkboxes. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   OUTRO_S_D:
     official_name: Outro tecido - descrição
     translated_name: Other tissue collected, description
@@ -383,11 +314,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'C20 text sitting alongside TECIDOS in the same stratum; OUTRO=other,
-      read as the specify-field for an "other tissue" checkbox rather than a clinical-sign
-      field like SIN_OUT.
-
-      '
+    reasoning: 'C20 text sitting alongside TECIDOS in the same stratum; OUTRO=other, read as the specify-field for an "other tissue" checkbox rather than a clinical-sign field like SIN_OUT. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   PALQ_MAIOR:
     official_name: Plaquetas maior
     translated_name: Highest platelet count
@@ -398,11 +325,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'PALQ = plaquetas (likely a transposition of PLAQ), MAIOR = maior (highest);
-      C6 width fits a lab count value, mirroring the paired HEMA_MENOR pattern for
-      hematocrit.
-
-      '
+    reasoning: 'PALQ = plaquetas (likely a transposition of PLAQ), MAIOR = maior (highest); C6 width fits a lab count value, mirroring the paired HEMA_MENOR pattern for hematocrit. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   PERICARDI:
     official_name: Derrame pericárdico
     translated_name: Pericardial effusion
@@ -413,7 +336,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: PERICARDI = pericárdico; classic severe-dengue plasma-leakage sign.
+    reasoning: 'PERICARDI = pericárdico; classic severe-dengue plasma-leakage sign. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   PLEURAL:
     official_name: Derrame pleural
     translated_name: Pleural effusion
@@ -423,10 +346,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DENG form; name reads "derrame pleural" directly; C1 width matches
-      the coded sign-checklist pattern used elsewhere on the dengue form.
-
-      '
+    reasoning: 'DENG form; name reads "derrame pleural" directly; C1 width matches the coded sign-checklist pattern used elsewhere on the dengue form. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   RESUL_OUT:
     official_name: Resultado de outro exame
     translated_name: Other test result
@@ -436,11 +356,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DENG form; RESUL_OUT reads "resultado outro"; C1 width fits a coded
-      result flag, the same catch-all pattern seen elsewhere (e.g. LAB_OUTRO on the
-      hantavirus form).
-
-      '
+    reasoning: 'DENG form; RESUL_OUT reads "resultado outro"; C1 width fits a coded result flag, the same catch-all pattern seen elsewhere (e.g. LAB_OUTRO on the hantavirus form). Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   RESUL_PCR:
     official_name: Resultado do PCR
     translated_name: RT-PCR test result
@@ -451,7 +367,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 coded field; RESUL_ is the lab-result prefix, PCR names the test.
+    reasoning: 'C1 coded field; RESUL_ is the lab-result prefix, PCR names the test. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   RESUL_VIRA:
     official_name: Resultado - isolamento viral
     translated_name: Viral isolation result
@@ -462,11 +378,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'RESUL_ = resultado, VIRA = viral (isolamento viral); C1 width fits
-      a short result code, and viral isolation is a listed confirmatory method for
-      dengue.
-
-      '
+    reasoning: 'RESUL_ = resultado, VIRA = viral (isolamento viral); C1 width fits a short result code, and viral isolation is a listed confirmatory method for dengue. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   S1_TIT1:
     official_name: Título do 1º soro
     translated_name: Titer of 1st serum sample
@@ -477,7 +389,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: S1 = soro 1, TIT1 = título 1; pairs with DT_SORO1 in the same series.
+    reasoning: 'S1 = soro 1, TIT1 = título 1; pairs with DT_SORO1 in the same series. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   S2_TIT1:
     official_name: Título da 2ª sorologia
     translated_name: Second serology titer
@@ -487,10 +399,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DENG form; S2 reads "sorologia 2" and TIT1 reads "título"; C4 width
-      fits a short numeric titer value, and it pairs directly with DT_SORO2.
-
-      '
+    reasoning: 'DENG form; S2 reads "sorologia 2" and TIT1 reads "título"; C4 width fits a short numeric titer value, and it pairs directly with DT_SORO2. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   SIN_OUT:
     official_name: Outros sinais e sintomas
     translated_name: Other signs/symptoms (free text)
@@ -501,8 +410,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C20 text; SIN_=sinal/sintoma, OUT=outro, distinct from the tissue-specific
-      OUTRO_S_D.
+    reasoning: 'C20 text; SIN_=sinal/sintoma, OUT=outro, distinct from the tissue-specific OUTRO_S_D. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   SORO1:
     official_name: Sorologia 1 - resultado
     translated_name: First serology result
@@ -513,10 +421,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'SORO1 = sorologia, primeira amostra; C1 fits a coded result, and it
-      pairs naturally with DT_SOROR2 in the same series.
-
-      '
+    reasoning: 'SORO1 = sorologia, primeira amostra; C1 fits a coded result, and it pairs naturally with DT_SOROR2 in the same series. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   SORO2:
     official_name: Coleta do 2º soro
     translated_name: 2nd serum sample collected (flag)
@@ -527,7 +432,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: SORO2 = soro 2, second of the acute/convalescent pair.
+    reasoning: 'SORO2 = soro 2, second of the acute/convalescent pair. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   TECIDOS:
     official_name: Coleta de tecidos
     translated_name: Tissue samples collected (flag)
@@ -538,8 +443,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag named directly for the action (tecidos=tissues) in the DENG
-      death-review stratum.
+    reasoning: 'C1 flag named directly for the action (tecidos=tissues) in the DENG death-review stratum. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   TECNICA:
     official_name: Técnica utilizada
     translated_name: Lab technique used
@@ -550,10 +454,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'TECNICA = técnica; C20 width is long enough for a method name rather
-      than a coded result, and it sits among the dengue lab-result fields.
-
-      '
+    reasoning: 'TECNICA = técnica; C20 width is long enough for a method name rather than a coded result, and it sits among the dengue lab-result fields. Reviewed 2026-09-28: no documentation found (the column exists only in 2000-2006 SINAN Windows dengue files; searched the SINAN Online dengue dictionary DIC_DADOS_ONLINE.pdf, the OpenDataSUS dic_dados_dengue.pdf, the 2006 SINAN NET dengue form, local TabNet DEF/CNV files and the web; no SINAN Windows dengue dictionary or form was found).'
   VACINADO:
     official_name: Vacinado contra dengue
     translated_name: Dengue vaccinated

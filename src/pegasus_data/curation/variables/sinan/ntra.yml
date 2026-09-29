@@ -8,25 +8,27 @@ asserted_by: pegasus_data
 
 variables:
   NU_CASOEXA:
-    official_name: Casos examinados
+    official_name: Número de casos examinados
     translated_name: Cases examined
-    description: 'How many people were examined. On the trachoma survey form, where
-      the denominator is a screened population rather than a single patient.
+    description: 'Number of people examined in the trachoma survey (school or household inquiry).
+      Must be non-zero.
 
       '
     code_system: none
-    source: inferred
-    reasoning: N(5) tally; CASOEXA reads casos examinados.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tracoma — http://portalsinan.saude.gov.br/images/documentos/Agravos/Tracoma/DIC_DADOS_Tracoma_v5.pdf,
+      campo 8 (Número de casos examinados)
   NU_CASOPOS:
-    official_name: Casos positivos
+    official_name: Número de casos positivos
     translated_name: Cases positive
-    description: 'How many were positive. With NU_CASOEXA it gives the prevalence that
-      decides whether mass treatment is indicated for the community.
+    description: 'Number of people found positive for trachoma among those examined; with NU_CASOEXA
+      it gives the survey prevalence.
 
       '
     code_system: none
-    source: inferred
-    reasoning: N(5) tally; the positive subset of NU_CASOEXA.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Tracoma — http://portalsinan.saude.gov.br/images/documentos/Agravos/Tracoma/DIC_DADOS_Tracoma_v5.pdf,
+      campo 9 (Número de casos positivos)
   NU_LOTE:
     official_name: Número do lote
     translated_name: Screening batch/lot number
@@ -37,11 +39,13 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'NTRA''s schema carries NU_CASOEXA (cases examined) and NU_CASOPOS (cases
-      positive) alongside NU_LOTE/NU_LOTE_H/NU_LOTE_V, consistent with aggregate trachoma
-      school-screening surveillance rather than individual case notification.
-
-      '
+    reasoning: 'NTRA''s schema carries NU_CASOEXA (cases examined) and NU_CASOPOS (cases positive)
+      alongside NU_LOTE/NU_LOTE_H/NU_LOTE_V, consistent with aggregate trachoma school-screening
+      surveillance rather than individual case notification. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Tracoma_v5.pdf, NotTracoNet.def and the local SINAN NET dictionaries).
+      Caution: in the other SINAN NET dictionaries NU_LOTE_* fields are data-transfer batch
+      numbers (lote de transferência horizontal/vertical), so this may be a transfer lot rather
+      than a screening batch.'
   NU_SEMA_EP:
     official_name: Semana epidemiológica
     translated_name: Epidemiological week
@@ -52,5 +56,7 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: NU_SEMA_EP = número da semana epidemiológica; standard SINAN aggregate-reporting
-      field.
+    reasoning: 'NU_SEMA_EP = número da semana epidemiológica; standard SINAN aggregate-reporting
+      field. Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Tracoma_v5.pdf,
+      NotTracoNet.def and the local SINAN NET dictionaries; the dictionary documents SEM_NOT
+      as the notification week).'

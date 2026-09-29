@@ -6,159 +6,101 @@ asserted_by: pegasus_data
 
 variables:
   BIOPSIA:
-    official_name: Biópsia realizada
-    translated_name: Biopsy performed
-    description: 'Whether a biopsy was taken as part of investigating the case.
-
-      '
+    official_name: 'Confirmação diagnóstica - Biópsia pulmonar'
+    translated_name: 'Diagnosis confirmed by lung biopsy'
+    description: 'Whether the pneumoconiosis diagnosis was confirmed by lung biopsy.'
     code_system: internal
-    source: inferred
-    reasoning: Biópsia without its accent; C(1) flag.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 54 (Confirmação diagnóstica – Biópsia pulmonar)'
   CANCER:
-    official_name: Câncer
-    translated_name: Cancer present
-    description: 'Whether cancer was identified in the person notified. On the occupational
-      forms this is the outcome being notified; elsewhere it is a comorbidity.
-
-      '
+    official_name: 'Agravos associados - Câncer'
+    translated_name: 'Associated condition: cancer'
+    description: 'Whether cancer is present as a condition associated with the pneumoconiosis.'
     code_system: internal
-    source: inferred
-    reasoning: Câncer without its accent; C(1) flag.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 46 (Agravos associados – Câncer)'
   CARVAO:
-    official_name: Carvão ativado
-    translated_name: Activated charcoal given
-    description: 'Whether activated charcoal was administered — the first-line decontamination
-      for many ingested poisons, and one of the treatment options the exogenous-intoxication
-      form asks about.
-
-      '
+    official_name: 'Agentes de exposição - Poeiras de carvão mineral'
+    translated_name: 'Exposure agent: mineral coal dust'
+    description: 'Whether the worker was exposed to mineral coal dust, one of the exposure agents listed on the pneumoconiosis form.'
     code_system: internal
-    source: inferred
-    reasoning: 'Carvão without its accent, on the poisoning form; C(1) admits a given/not-given
-      flag.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 51 (Agentes de exposição – Poeiras de carvão mineral)'
   FLUXO_AERE:
-    official_name: Obstrução ao fluxo aéreo
-    translated_name: Airflow obstruction (spirometry finding)
-    description: 'Spirometry-based finding on the pneumoconiosis investigation form,
-      marking whether the worker''s lung-function test showed airflow obstruction.
-
-      '
+    official_name: 'Agravos associados - Limitação crônica ao fluxo aéreo'
+    translated_name: 'Associated condition: chronic airflow limitation'
+    description: 'Whether chronic airflow limitation is present as a condition associated with the pneumoconiosis.'
     code_system: none
-    source: inferred
-    reasoning: 'No catalog evidence exists for this field beyond declared type (C1)
-      and its PNEU (pneumoconiose) series membership. "Fluxo aéreo" is standard spirometry
-      terminology, and pneumoconiosis investigation forms routinely record spirometry
-      pattern (obstructive/restrictive/mixed) as a diagnostic aid.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 46 (Agravos associados – Limitação crônica ao fluxo aéreo)'
   OUTRO_DOE:
-    official_name: Outra doença associada
+    official_name: 'Agravos associados - Outros'
     translated_name: Other associated disease (flag)
-    description: 'Whether the pneumoconiosis patient has a pre-existing or associated
-      disease not covered by the form''s named comorbidity checkboxes (e.g. tuberculosis,
-      autoimmune conditions). Paired with OUT_DOE_DE, which names the disease.
-
-      '
+    description: 'Whether a condition other than the listed ones is associated with the pneumoconiosis; if so it is named in OUT_DOE_DE.'
     code_system: none
-    source: inferred
-    reasoning: 'PNEU = Pneumoconioses; OUTRO_DOE = "outra doença"; companion free-text
-      field OUT_DOE_DE confirms the checkbox+specify pattern; width 1.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 46 (Agravos associados – Outros)'
   OUT_DOE_DE:
-    official_name: Outra doença associada - descrição
+    official_name: 'Agravos associados - se Outros, especificar'
     translated_name: Other associated disease - description
     description: 'Free-text name of the associated disease recorded when OUTRO_DOE
       flags a comorbidity outside the pneumoconiosis form''s standard checklist.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DE = "descreva"; width 30 fits a disease name; pairs with OUTRO_DOE.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 46 (Agravos associados – se Outros, especificar)'
   OUT_EXAME:
-    official_name: Realização de outro exame complementar
-    translated_name: Other complementary exam performed (flag)
-    description: 'Whether a diagnostic test other than the pneumoconiosis form''s named
-      exams (e.g. chest X-ray, tomography as in TOMOGRAFIA) was performed, without
-      identifying which one.
-
-      '
+    official_name: 'Confirmação diagnóstica - Outro'
+    translated_name: 'Diagnosis confirmed by another exam'
+    description: 'Whether the diagnosis was confirmed by an exam or test other than biopsy or high-resolution chest CT.'
     code_system: none
-    source: inferred
-    reasoning: 'PNEU form; OUT_ = outro, EXAME = exame; width 1 checkbox, no accompanying
-      specify field found among this batch''s columns.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 54 (Confirmação diagnóstica – Outro)'
   POEIRAS:
-    official_name: Exposição a poeiras
-    translated_name: Dust exposure (general)
-    description: 'Whether the pneumoconiosis patient had occupational exposure to dust
-      in general - the umbrella risk-factor checkbox above the form''s specific dust-type
-      items (abrasive, mixed, organic).
-
-      '
+    official_name: 'A exposição a poeiras e minerais ocorreu em um ou mais vínculos distintos da empresa'
+    translated_name: 'Dust exposure in other employment bonds'
+    description: 'Whether exposure to dusts and minerals also occurred in one or more employment bonds other than the current company; details go in VINC_ESP.'
     code_system: none
-    source: inferred
-    reasoning: PNEU form; POEIRAS = poeiras (dusts); width 1 checkbox.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 49 (A exposição a poeiras e minerais ocorreu em um ou mais vínculos distintos da empresa)'
   POE_ABRASI:
-    official_name: Exposição a poeira abrasiva
-    translated_name: Exposure to abrasive dust
-    description: 'Whether exposure was specifically to abrasive dust (e.g. from sandblasting
-      or grinding), one of three dust-type refinements - alongside mixed (POE_MISTA)
-      and organic (POE_ORGANI) - of the general POEIRAS flag.
-
-      '
+    official_name: 'Agentes de exposição - Poeiras de abrasivos'
+    translated_name: 'Exposure agent: abrasive dust'
+    description: 'Whether the worker was exposed to abrasive dust, one of the exposure agents listed on the pneumoconiosis form.'
     code_system: none
-    source: inferred
-    reasoning: POE_ = poeira; ABRASI = abrasiva; width 1 checkbox.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 51 (Agentes de exposição – Poeiras de abrasivos)'
   POE_MISTA:
-    official_name: Exposição a poeira mista
-    translated_name: Exposure to mixed dust
-    description: 'Whether exposure was to mixed dust, the second of the three dust-type
-      refinements of POEIRAS, alongside abrasive (POE_ABRASI) and organic (POE_ORGANI).
-
-      '
+    official_name: 'Agentes de exposição - Poeira mista (silicato, talco)'
+    translated_name: 'Exposure agent: mixed dust (silicate, talc)'
+    description: 'Whether the worker was exposed to mixed dust such as silicates or talc, one of the exposure agents listed on the form.'
     code_system: none
-    source: inferred
-    reasoning: POE_ = poeira; MISTA = mista; width 1 checkbox.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 51 (Agentes de exposição – Poeira mista (silicato, talco))'
   POE_ORGANI:
-    official_name: Exposição a poeira orgânica
-    translated_name: Exposure to organic dust
-    description: 'Whether exposure was to organic dust (e.g. agricultural/biological
-      material rather than mineral dust), the third refinement of POEIRAS alongside
-      abrasive and mixed dust.
-
-      '
+    official_name: 'Agentes de exposição - Poeiras orgânicas'
+    translated_name: 'Exposure agent: organic dust'
+    description: 'Whether the worker was exposed to organic dust, one of the exposure agents listed on the form.'
     code_system: none
-    source: inferred
-    reasoning: POE_ = poeira; ORGANI = orgânica; width 1 checkbox.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 51 (Agentes de exposição – Poeiras orgânicas)'
   STAVALIA:
-    official_name: Situação da avaliação
-    translated_name: Evaluation status
-    description: 'Status of the pneumoconiosis patient''s clinical/functional evaluation
-      (e.g. completed vs pending), tracked separately from STRESULTA, which records
-      the outcome once an exam is done.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: ST = situação, AVALIA = avaliação; PNEU form; width 1.
+    official_name: 'Avaliação funcional (prova de função pulmonar)'
+    translated_name: 'Functional evaluation (pulmonary function test) done'
+    description: 'Whether a functional evaluation by pulmonary function test was performed.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 57 (Avaliação funcional – prova de função pulmonar)'
   STRESULTA:
-    official_name: Situação do resultado
-    translated_name: Result status
-    description: 'Outcome status of the pneumoconiosis diagnostic evaluation (e.g.
-      normal vs altered), recorded once STAVALIA shows the assessment was completed.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: ST = situação, RESULTA = resultado; PNEU form; width 1.
+    official_name: 'Resultado da avaliação funcional'
+    translated_name: 'Functional evaluation result'
+    description: 'Result of the pulmonary function test, normal or altered; filled when STAVALIA is 1 (yes).'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 58 (Resultado da avaliação funcional)'
   TIREOIDITE:
-    official_name: Doença associada - Tireoidite
+    official_name: 'Agravos associados - Tireoidite'
     translated_name: Associated disease - thyroiditis
     description: 'Whether the pneumoconiosis (PNEU) patient has thyroiditis, one of
       the form''s named associated-disease checkboxes, distinct from the free-text
@@ -166,31 +108,19 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'PNEU form comorbidity checklist; TIREOIDITE = tireoidite; width 1 checkbox.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 46 (Agravos associados – Tireoidite)'
   TOMOGRAFIA:
-    official_name: Realização de tomografia
-    translated_name: CT scan performed (flag)
-    description: 'Whether a chest CT scan was performed to support the pneumoconiosis
-      diagnosis, one of the form''s named-exam checkboxes, distinct from the unnamed
-      "other exam" flagged by OUT_EXAME.
-
-      '
+    official_name: 'Confirmação diagnóstica - Tomografia de tórax de alta resolução'
+    translated_name: 'Diagnosis confirmed by high-resolution chest CT'
+    description: 'Whether the pneumoconiosis diagnosis was confirmed by high-resolution chest CT.'
     code_system: none
-    source: inferred
-    reasoning: PNEU form; TOMOGRAFIA = tomografia; width 1 checkbox.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 54 (Confirmação diagnóstica – Tomografia de tórax de alta resolução)'
   VINC_ESP:
-    official_name: Vínculo empregatício - especifique
-    translated_name: Employment bond - specify
-    description: 'Free-text detail of the pneumoconiosis patient''s employment relationship
-      (e.g. contract type or employer) when the form''s standard employment-bond categories
-      don''t fit.
-
-      '
+    official_name: 'Especificar (vínculos distintos com exposição a poeiras)'
+    translated_name: 'Other employment bonds with dust exposure - specify'
+    description: 'Free-text detail of the other employment bonds in which dust or mineral exposure occurred; enabled when POEIRAS is 1 (yes).'
     code_system: none
-    source: inferred
-    reasoning: 'PNEU form; VINC_ESP = vínculo + especifique; width 30 free text.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 50 (Especificar)'

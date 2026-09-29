@@ -17,9 +17,9 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'POP is população and ALFAB alfabetizada, in a table whose other columns
-      are population counts.
-
-      '
+      are population counts. Reviewed 2026-09-28: no documentation found (searched
+      ftp.datasus.gov.br/dissemin/publicos/IBGE/doc and Auxiliar/TAB_POP.zip DEFs; the
+      censo ALF/ESCA/IDOSO/RENDA zips ship DBF only, with no DEF or layout).'
     notes: 'A count, not a rate. The denominator is the total population column, not
       POPALFAB plus POPNALFAB, which exclude the age groups the question is not asked
       of.
@@ -35,6 +35,7 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'N prefixed to ALFAB is the negation DATASUS uses elsewhere (HOSP_NSUS
-      for não-SUS); a population count in the same table.
-
-      '
+      for não-SUS); a population count in the same table. Reviewed 2026-09-28: no
+      documentation found (searched ftp.datasus.gov.br/dissemin/publicos/IBGE/doc and
+      Auxiliar/TAB_POP.zip DEFs; the censo ALF/ESCA/IDOSO/RENDA zips ship DBF only, with
+      no DEF or layout).'

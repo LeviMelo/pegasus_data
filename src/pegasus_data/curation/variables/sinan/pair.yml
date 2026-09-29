@@ -6,18 +6,17 @@ asserted_by: pegasus_data
 
 variables:
   CONDUTA_DE:
-    official_name: Descrição da conduta
+    official_name: Conduta geral – se outro, especificar
     translated_name: Management, free text
     description: 'Free text describing what was done for the patient, where the coded
       management fields did not cover it. Thirty characters.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Conduta with a DE (descrição) suffix truncated to ten characters; C(30),
-      the same shape as CIRCUN_DES.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
+      (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo Conduta geral – Se outro,
+      especificar
   FALA:
     official_name: Sintomas - Dificuldade para compreensão da fala
     translated_name: Symptom - difficulty understanding speech
@@ -53,67 +52,72 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_DRT_PAIR_v5.pdf, campo 50 "Exposição Concomitante a Ruído"
   RUIDO_OUT:
-    official_name: Outra fonte de ruído
-    translated_name: Other noise source (flag)
-    description: 'Whether the noise-induced hearing loss (PAIR) patient was exposed
-      to a workplace noise source not covered by the form''s standard list. Paired
-      with RUI_OUTDES, which names it.
+    official_name: Exposição concomitante a ruído e outros
+    translated_name: Concomitant exposure to noise and other agents
+    description: 'Whether the worker was exposed to noise together with some other product
+      or situation not listed on the form (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: RUIDO_OUT = ruído + outro; width 1 checkbox.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
+      (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 50 (Exposição concomitante
+      a ruído e outros)
   RUI_OUTDES:
-    official_name: Outra fonte de ruído - descrição
-    translated_name: Other noise source - description
-    description: 'Free-text description of the other noise source flagged by RUIDO_OUT.
+    official_name: Exposição concomitante a ruído e outros – especificar
+    translated_name: Other concomitant exposure (specify)
+    description: 'Free-text name of the other product or situation the worker was exposed to
+      along with noise, filled when RUIDO_OUT is yes.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'RUI_OUTDES = ruído + outro + descrição; width 30 fits free text; pairs
-      with RUIDO_OUT.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
+      (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 50 (Exposição concomitante
+      a ruído e outros – especificar)
   SOLVENTE:
-    official_name: Exposição a solventes
-    translated_name: Solvent exposure
-    description: 'Whether the hearing-loss (PAIR) patient was also exposed to ototoxic
-      solvents at work, a chemical risk factor tracked alongside noise because solvents
-      can worsen or mimic noise-induced hearing damage.
+    official_name: Exposição concomitante a ruído e solvente a base de tolueno
+    translated_name: Concomitant exposure to noise and toluene-based solvent
+    description: 'Whether the worker was exposed to noise together with toluene-based solvents,
+      which are ototoxic and add to the hearing damage (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: PAIR form; SOLVENTE = solvente; width 1 checkbox.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
+      (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 50 (Exposição concomitante
+      a ruído e solvente a base de tolueno)
   TONTURA:
-    official_name: Sinais e sintomas - Tontura
+    official_name: Sintomas – Tontura
     translated_name: Dizziness
     description: 'Whether the noise-induced hearing loss (PAIR) patient reports dizziness/vertigo,
       a vestibular symptom checkbox recorded alongside tinnitus (ZUMBIDO).
 
       '
     code_system: none
-    source: inferred
-    reasoning: PAIR form; TONTURA = tontura; width 1 checkbox.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
+      (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 51 (Sintomas – Tontura)
   TPRUIDO:
-    official_name: Tipo de ruído
-    translated_name: Type of noise
-    description: 'Pattern of the occupational noise exposure behind the hearing loss
-      - e.g. continuous, intermittent, or impact/impulse noise - distinct from TONTURA
-      and ZUMBIDO, which record symptoms rather than exposure type.
+    official_name: Tipo de ruído predominante
+    translated_name: Predominant type of noise
+    description: 'Predominant noise that caused the hearing loss: continuous, intermittent,
+      or both.
 
       '
-    code_system: none
-    source: inferred
-    reasoning: TP_ = tipo, RUIDO = ruído; PAIR form; width 1.
+    code_system: internal
+    codes: {'1': Ruído contínuo, '2': Ruído intermitente, '3': Ambos, '9': Ignorado}
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
+      (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 49 (Tipo de ruído predominante)
   ZUMBIDO:
-    official_name: Sinais e sintomas - Zumbido
+    official_name: Sintomas – Zumbido
     translated_name: Tinnitus
     description: 'Whether the noise-induced hearing loss patient reports tinnitus (ringing
       in the ears), the symptom most closely tied to PAIR alongside dizziness (TONTURA).
 
       '
     code_system: none
-    source: inferred
-    reasoning: PAIR form; ZUMBIDO = zumbido; width 1 checkbox.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
+      (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 51 (Sintomas – Zumbido)

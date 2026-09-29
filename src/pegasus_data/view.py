@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import re
 import warnings
+from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from functools import lru_cache
@@ -681,10 +682,47 @@ def _select_codelists(
     It reports its own findings — the caller cannot reconstruct why a column was
     left unlabelled without re-doing the weighing.
     """
+    if doc is not None and getattr(doc, "codes", None):
+        # A code table written in the curation for this very column wins.
+        return _Selection(codelists=[doc.codelist])  # type: ignore[attr-defined]
+
+    series = ""
+    if store is not None and family_id:
+        try:
+            row = store.query("SELECT series FROM families WHERE family_id=?", (family_id,))
+            series = str(row[0]["series"] or "").upper() if row else ""
+        except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behavior
+            series = ""
+    if series:
+        # The form's own data dictionary outranks a system-wide binding: SINAN's
+        # EVOLUCAO is "1 Cura, 2 Óbito por botulismo" on one form and "1 Alta,
+        # 2 Óbito por meningite" on another (ADR-0079). Taken only when it
+        # decodes what the column actually holds.
+        from .semantics.curation import harvested_codelist, inline_codelist
+
+        harvested = harvested_codelist(system, series, name)
+        if harvested:
+            table = inline_codelist(harvested) or {}
+            counts = Counter(
+                str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()
+            )
+            # Row-weighted: meningitis CLASSI_FIN holds 379 rows of an
+            # undocumented "8" beside 25,642 documented ones; by distinct values
+            # that was 2 of 3 and the form's own table lost to another form's.
+            total = sum(counts.values())
+            if not total or sum(n for v, n in counts.items() if v in table) >= 0.95 * total:
+                return _Selection(codelists=[harvested])
+
     if doc is not None and getattr(doc, "codelist", None):
-        # A curated entry decides both the table and whether there are several.
-        # Nothing else may widen it.
-        return _Selection(codelists=[doc.codelist, *doc.codelists])  # type: ignore[attr-defined]
+        if getattr(doc, "per_form", False):
+            # Alternatives, one per form: weighed below against this family's
+            # own values, never merged (ADR-0080).
+            candidates = [doc.codelist, *doc.codelists, *candidates]  # type: ignore[attr-defined]
+            candidates = list(dict.fromkeys(candidates))
+        else:
+            # A curated entry decides both the table and whether there are
+            # several. Nothing else may widen it.
+            return _Selection(codelists=[doc.codelist, *doc.codelists])  # type: ignore[attr-defined]
 
     # A reviewed adjudication is a semantic declaration too. It lives in the
     # catalog until the next resource/curation build promotes it to YAML; if the
@@ -692,13 +730,7 @@ def _select_codelists(
     # renderer continued making the same refusal.
     if store is not None:
         try:
-            dataset = "*"
-            if family_id:
-                family = store.query(
-                    "SELECT series FROM families WHERE family_id=?", (family_id,)
-                )
-                series = str(family[0]["series"] or "").upper() if family else ""
-                dataset = f"{system}.{series}"
+            dataset = f"{system}.{series}" if family_id else "*"
             from .semantics.relations import RelationType, relations_for
 
             artifacts = sorted(

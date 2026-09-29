@@ -6,66 +6,40 @@ asserted_by: pegasus_data
 
 variables:
   AEROFOBIA:
-    official_name: Aerofobia
+    official_name: 'Principais sinais/sintomas - Aerofobia'
     translated_name: Aerophobia
-    description: 'Sim/Não flag for aerofobia (fear of air currents on the face), a
-      hallmark symptom of furious-form human rabies. Part of the Raiva Humana clinical
-      symptom checklist alongside AGITACAO and AGRESSIVI.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: '1-character width matches a binary flag; aerofobia is a named clinical
-      sign specific to rabies, and it co-occurs at the same rarity tier as other rabies-checklist
-      and animal-exposure fields (AGITACAO, AGRESSIVI, ANI_TIPO_1).
-
-      '
+    description: 'Whether the patient presented aerophobia (fear of air currents), one of the main rabies signs listed on the form.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 48 (Principais sinais/sintomas – Aerofobia)'
   AGITACAO:
-    official_name: Agitação
-    translated_name: Agitation
-    description: 'Sim/Não flag for psychomotor agitation, a neuropsychiatric symptom
-      on the same clinical checklist as AEROFOBIA and AGRESSIVI (consistent with Raiva
-      Humana''s furious-form presentation).
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: Same clustering and width evidence as AEROFOBIA.
+    official_name: 'Principais sinais/sintomas - Agitação psicomotora'
+    translated_name: 'Psychomotor agitation'
+    description: 'Whether the patient presented psychomotor agitation.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 48 (Principais sinais/sintomas – Agitação psicomotora)'
   AGRESSIVI:
-    official_name: Agressividade
+    official_name: 'Principais sinais/sintomas - Agressividade'
     translated_name: Aggressiveness
-    description: 'Sim/Não flag for aggressive behavior, a neuropsychiatric symptom
-      on the same clinical checklist as AEROFOBIA and AGITACAO.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: Same clustering and width evidence as AEROFOBIA.
+    description: 'Whether the patient presented aggressiveness.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 48 (Principais sinais/sintomas – Agressividade)'
   ANTEC_POS:
-    official_name: Antecedente pós-exposição
+    official_name: 'Tem antecedentes de tratamento anti-rábico? - Pós-exposição'
     translated_name: Prior post-exposure prophylaxis
-    description: 'Sim/Não flag for whether the patient had a prior post-exposure rabies
-      prophylaxis scheme, paired with ANTEC_PRE (pre-exposure). Part of the Raiva Humana
-      vaccination-antecedents block together with the ANT_DOSE_* and ANT_DTUL_8 fields.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'ANTEC_PRE/ANTEC_POS is a pré/pós (before/after) pair; it clusters with
-      a variable-length dose series (ANT_DOSE_4/5/7/C/T) that matches the day-based
-      Essen and Zagreb antirábica regimens.
-
-      '
+    description: 'Whether the patient had previously received post-exposure anti-rabies treatment; paired with ANTEC_PRE.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 38 (Tem antecedentes de tratamento anti-rábico? – Pós-exposição)'
   ANTEC_PRE:
-    official_name: Antecedente pré-exposição
+    official_name: 'Tem antecedentes de tratamento anti-rábico? - Pré-exposição'
     translated_name: Prior pre-exposure prophylaxis
-    description: 'Sim/Não flag for whether the patient had a prior pre-exposure rabies
-      prophylaxis scheme; see ANTEC_POS for the paired post-exposure flag.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: Same evidence as ANTEC_POS.
+    description: 'Whether the patient had previously received pre-exposure anti-rabies treatment; paired with ANTEC_POS.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 38 (Tem antecedentes de tratamento anti-rábico? – Pré-exposição)'
   ANTI_RAB:
     official_name: Vacina antirrábica indicada
     translated_name: Rabies vaccine given
@@ -109,77 +83,61 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no flag; DILACERANT reads dilacerante.
   DISFAGIA:
-    official_name: Disfagia
+    official_name: 'Principais sinais/sintomas - Disfagia'
     translated_name: Dysphagia
-    description: 'Sim/Não flag for dysphagia (difficulty swallowing), a symptom common
-      to neurological/toxin-mediated agravo forms such as Botulismo, Tétano or Raiva
-      Humana.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: DISFAGIA is a direct clinical term; 1-character width matches a binary
-      flag.
+    description: 'Whether the patient presented dysphagia (difficulty swallowing).'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 48 (Principais sinais/sintomas – Disfagia)'
   DOSES_A:
-    official_name: Doses aplicadas
-    translated_name: Doses applied
-    description: Doses actually applied, recorded beside the indicated count in NUM_DOSES.
+    official_name: 'Número de doses aplicadas (tratamento atual)'
+    translated_name: 'Vaccine doses applied in current treatment'
+    description: 'Number of anti-rabies vaccine doses applied in the current treatment; NUM_DOSES instead counts doses of a previous treatment.'
     code_system: none
-    source: inferred
-    reasoning: N(2) dose count; DOSES_A reads doses aplicadas.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 51 (Número de doses aplicadas)'
   DT_APLI_SO:
-    official_name: Data da aplicação do soro
-    translated_name: Date immunoglobulin given
-    description: When the immunoglobulin was given.
+    official_name: 'Data da aplicação do soro'
+    translated_name: 'Date serum applied'
+    description: 'Date the anti-rabies serum was applied.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with TRA_SORO.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 55 (Se sim, data da aplicação)'
   DT_EXPO:
     official_name: Data da exposição
     translated_name: Date of exposure
-    description: 'When the exposure happened. Prophylaxis started promptly is essentially
-      completely effective, and rabies once symptomatic is essentially always fatal,
-      so this date is the whole clock.
-
-      '
+    description: 'Date the aggression (bite or other exposure) occurred. Prophylaxis started promptly is highly effective, while symptomatic rabies is almost always fatal.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date; DT_EXPO reads data da exposição.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 37 (Data da exposição)'
   DT_R_TRA:
-    official_name: Data de reinício do tratamento
-    translated_name: Date treatment restarted
-    description: 'Date treatment restarted after an interruption — the field that exists
-      because interrupted courses are common.
-
-      '
+    official_name: 'Data do início do tratamento'
+    translated_name: 'Date current treatment started'
+    description: 'Date the current anti-rabies treatment began, for patients receiving anti-rabies vaccine at the time of investigation.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date; R_TRA reads reinício do tratamento.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 50 (Data do início do tratamento)'
   DT_TR_RAB:
-    official_name: Data do tratamento antirrábico
-    translated_name: Date of rabies treatment
-    description: Date the anti-rabies treatment was recorded as given.
+    official_name: 'Data da última dose (tratamento anterior)'
+    translated_name: 'Date of last dose of previous treatment'
+    description: 'Date of the last dose of a previous anti-rabies treatment, in the antecedents block with ANTEC_PRE, ANTEC_POS and NUM_DOSES.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date in the prophylaxis block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 40 (Data da última dose)'
   DT_VAC1:
-    official_name: Data da primeira dose
+    official_name: 'Data da 1ª dose da vacina'
     translated_name: Date of first dose
-    description: 'When the vaccine course began. With DT_EXPO it gives the delay, the
-      single most important quality measure of the service.
-
-      '
+    description: 'Date of the first vaccine dose applied in the current treatment. With DT_EXPO it gives the delay to prophylaxis.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the first vaccine dose.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 52 (Data da 1ª dose da vacina)'
   DT_VAC_ULT:
-    official_name: Data da última dose
+    official_name: 'Data da última dose da vacina'
     translated_name: Date of last dose
-    description: When the course finished, which with DT_VAC1 shows whether it was
-      completed.
+    description: 'Date of the last vaccine dose applied in the current treatment.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the last vaccine dose.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 53 (Data da última dose da vacina)'
   ESPECIE_N:
     official_name: Espécie do animal agressor
     translated_name: Animal species
@@ -319,38 +277,26 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no flag opening the exposure-type block.
   NUM_DOSES:
-    official_name: Número de doses da vacina
-    translated_name: Vaccine doses given
-    description: 'How many vaccine doses were given. An incomplete course is a real
-      failure mode here, since patients stop attending once the animal turns out to
-      be healthy.
-
-      '
+    official_name: 'Número de doses aplicadas (tratamento anterior)'
+    translated_name: 'Doses applied in previous treatment'
+    description: 'Number of doses applied in a previous anti-rabies treatment, filled when the patient has pre- or post-exposure treatment antecedents; DOSES_A counts the current treatment.'
     code_system: none
-    source: inferred
-    reasoning: N(2) dose count in the prophylaxis block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 39 (Número de doses aplicadas)'
   PARALISIA:
-    official_name: Sinais e sintomas - Paralisia
+    official_name: 'Principais sinais/sintomas - Paralisia'
     translated_name: Paralysis
-    description: 'Whether the human rabies (RAIV) patient shows paralysis, a neurological
-      sign recorded alongside paresthesia (PARESTESI) as the disease progresses from
-      prodrome to advanced illness.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: RAIV form; PARALISIA = paralisia; width 1 checkbox.
+    description: 'Whether the patient presented paralysis.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 48 (Principais sinais/sintomas – Paralisia)'
   PARESTESI:
-    official_name: Sinais e sintomas - Parestesia
+    official_name: 'Principais sinais/sintomas - Parestesia'
     translated_name: Paresthesia
-    description: 'Whether the rabies patient reports paresthesia (abnormal tingling
-      or burning) at or near the bite site, an early sensory sign often preceding the
-      paralysis recorded in PARALISIA.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: RAIV form; PARESTESI = parestesia; width 1 checkbox.
+    description: 'Whether the patient presented paresthesia (abnormal tingling or burning sensations).'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 48 (Principais sinais/sintomas – Parestesia)'
   PES:
     official_name: Exposição nos pés
     translated_name: Foot exposure
@@ -371,33 +317,19 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no flag; PROFUNDO reads profundo.
   PROVA_BIOL:
-    official_name: Prova biológica
-    translated_name: Biological (mouse inoculation) test result
-    description: 'Result of the biological test for rabies virus - inoculation into
-      laboratory mice - one of the confirmatory lab methods recorded on the human rabies
-      form.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'RAIV form; PROVA_BIOL = prova biológica, the classic rabies confirmatory
-      bioassay; width 1.
-
-      '
+    official_name: 'Diagnóstico laboratorial - Prova biológica'
+    translated_name: 'Biological test (mouse inoculation) result'
+    description: 'Result of the biological test (mouse inoculation) for rabies virus: positive, negative, inconclusive, or not done.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 58 (Diagnóstico laboratorial – Prova biológica)'
   QUANTID:
-    official_name: Quantidade (soro/imunoglobulina antirrábica)
-    translated_name: Amount administered
-    description: 'Numeric amount of rabies immunoglobulin or serum administered to
-      the patient, a treatment-dosage value distinct from the vaccine dose-date fields
-      recorded elsewhere on the rabies forms.
-
-      '
+    official_name: 'Quantidade de soro aplicada'
+    translated_name: 'Serum applied (ml)'
+    description: 'Amount of anti-rabies serum applied, in millilitres.'
     code_system: none
-    source: inferred
-    reasoning: 'RAIV form; QUANTID = quantidade; declared numeric width 3, fitting
-      a dosage amount rather than a code.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 56 (Quantidade de soro aplicada)'
   SUPERFICIA:
     official_name: Ferimento superficial
     translated_name: Superficial wound
@@ -448,16 +380,9 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no flag about the aggressor animal.
   VARIA_VIR:
-    official_name: Variante viral identificada
+    official_name: 'Variante'
     translated_name: Viral variant identified
-    description: 'Antigenic/genetic variant of rabies virus identified through laboratory
-      characterization (e.g. a variant associated with a hematophagous bat vs. a canine
-      reservoir) - important for tracing which animal population transmitted the case.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'VARIA_VIR = variante viral; RAIV''s lab block includes IMUNO_DIRE/IMUNO_INDI
-      and PROVA_BIOL, consistent with viral characterization following diagnostic confirmation.
-
-      '
+    description: 'Numeric code of the rabies virus antigenic variant identified by the laboratory (which points to the animal reservoir); required when indirect immunofluorescence is positive.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Raiva Humana — http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf, campo 59 (Variante)'

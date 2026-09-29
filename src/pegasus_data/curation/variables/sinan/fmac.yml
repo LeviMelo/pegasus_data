@@ -21,83 +21,77 @@ variables:
 
       '
   ANIM_ESP:
-    official_name: Espécie do animal
-    translated_name: Animal species
-    description: 'Free-text species of an animal involved in the case''s exposure history
-      (e.g. the biting or contact animal), distinct from the coded per-species Sim/Não
-      flags (BOVINO, CAO_GATO, CAPIVARA) elsewhere on the same checklist.
+    official_name: Teve contato com animais? Outros (especificar)
+    translated_name: Other animal contact (specify)
+    description: 'Free-text name of the other animal the patient had contact with, when OUTROANI
+      is yes.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'ESP abbreviates espécie; 30-character width fits free text, unlike
-      the 1-character per-species flags around it.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
+      com animais? – Outros (especificar))
   BOVINO:
-    official_name: Bovino
+    official_name: Teve contato com bovinos
     translated_name: Cattle
-    description: 'Sim/Não flag for contact/exposure with cattle, part of an animal-
-      contact checklist alongside CAO_GATO, CAPIVARA and CARRAPATO — consistent with
-      a zoonotic-disease exposure history (e.g. leptospirose, febre maculosa).
+    description: 'Whether the patient had contact with cattle in the exposure period (1 yes,
+      2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'BOVINO names the species directly; 1-character width matches the other
-      per-animal contact flags at the same rarity tier.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
+      com animais? – Bovinos)
   CAO_GATO:
-    official_name: Cão/gato
+    official_name: Teve contato com cão/gato
     translated_name: Dog/cat
-    description: 'Sim/Não flag for contact with dogs or cats, sibling of BOVINO in
-      the same animal-contact checklist.
+    description: 'Whether the patient had contact with dogs or cats (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as BOVINO.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
+      com animais? – Cão/Gato)
   CAPIVARA:
-    official_name: Capivara
+    official_name: Teve contato com capivara
     translated_name: Capybara
-    description: 'Sim/Não flag for contact/exposure with capybaras, a known tick host
-      and reservoir for febre maculosa (Brazilian spotted fever); sibling of CARRAPATO
-      in the same exposure checklist.
+    description: 'Whether the patient had contact with capybaras, a tick host for spotted fever
+      (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CAPIVARA names the species; its pairing with CARRAPATO (tick) in the
-      same checklist points to febre maculosa rather than a generic zoonosis.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
+      com animais? – Capivara)
   CARRAPATO:
-    official_name: Carrapato
+    official_name: Teve contato com carrapato
     translated_name: Tick
-    description: 'Sim/Não flag for tick contact/bite, the strongest single indicator
-      in this cluster that the source form is a febre maculosa (Brazilian spotted fever)
-      investigation.
+    description: 'Whether the patient had contact with ticks, the vector of spotted fever (1
+      yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: CARRAPATO is tick; pairs with CAPIVARA, a well-known tick host in febre
-      maculosa transmission.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
+      com animais? – Carrapato)
   COMA:
-    official_name: Coma
-    translated_name: Coma (flag)
-    description: 'Whether the patient presented with coma - a severe neurological complication
-      of Brazilian spotted fever, whose rickettsial vasculitis can progress to encephalitis
-      and coma in fulminant cases.
+    official_name: Estupor/coma
+    translated_name: Stupor/coma
+    description: 'Whether the patient had stupor or coma, a sign of severe spotted fever.
 
       '
     code_system: none
-    source: inferred
-    reasoning: COMA = coma; FMAC's severity/complications checklist (with CHOQUE, CONVULSAO,
-      HEMORRAGI).
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
+      e sintomas – Estupor/Coma)
   COMUNHOSP:
-    official_name: Município de hospitalização
+    official_name: Município do hospital
     translated_name: Municipality of hospitalisation
     description: 'Municipality where the patient was admitted. Spotted fever kills
       within days untreated, so the distance from exposure to a hospital that recognises
@@ -106,8 +100,10 @@ variables:
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE code; COMUNHOSP reads código município hospitalização.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 40 (Município
+      do hospital)
   CONVULSAO:
     official_name: Convulsão
     translated_name: Seizure (complication)
@@ -117,8 +113,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C1 flag named directly for the finding.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
+      e sintomas – Convulsão)
   COUFHOSP:
     official_name: UF de hospitalização
     translated_name: State of hospitalisation
@@ -140,7 +138,7 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: DIAGNO_LAB reads diagnóstico laboratorial; a yes/no flag.
   DIAG_DESCA:
-    official_name: Diagnóstico de descarte
+    official_name: Se descartado, especificar diagnóstico
     translated_name: Alternative diagnosis on discard
     description: 'Alternative/definitive diagnosis recorded when a suspected spotted
       fever case is discarded (descartado) on investigation - explains what the illness
@@ -148,39 +146,35 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: DIAG_DESCA = diagnóstico + descarte; FMAC carries CLASSI_FIN/CRITERIO
-      for the confirm/discard decision itself.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 51 (Se descartado,
+      especificar diagnóstico)
   DTS1:
-    official_name: Data - sinal/sintoma 1
-    translated_name: Date of first sign/symptom
-    description: 'Date of symptom or sign onset for a Brazilian spotted fever (FMAC)
-      case, establishing the case timeline that the necrotic-lesion field NECROSE is
-      assessed against.
+    official_name: Data da coleta S1
+    translated_name: First serum sample date
+    description: 'Collection date of the first serum sample (S1) for spotted fever serology.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DT = data, S1 = sinal/sintoma 1; D8 date type fits, though the exact
-      milestone ("S1") is not confirmed by other catalog evidence.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 43 (Data da
+      coleta S1)
   DTS2:
-    official_name: Data do 2º soro
+    official_name: Data da coleta S2
     translated_name: Date of 2nd serum sample
-    description: 'Collection date of the second (convalescent-phase) serum sample in
-      spotted fever''s paired-serology protocol - mirrors dengue''s DT_SORO1/SORO2
-      pattern, read against the IgG/IgM S1/S2 titer fields also on this form.
+    description: 'Collection date of the second serum sample (S2), used with S1 to show a rise
+      in antibody titre.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DTS2 = data soro 2; FMAC series carries matching TIT_IGG_S2/TIT_IGM_S2
-      titer fields and an unlisted DTS1 sibling.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 43 (Data da
+      coleta S2)
   EQUINOS:
-    official_name: Contato com equinos
+    official_name: Teve contato com eqüinos
     translated_name: Contact with horses
     description: 'Whether the Brazilian spotted fever (Febre Maculosa) patient had
       contact with horses, a recognized amplifying host for the Amblyomma ticks that
@@ -188,29 +182,22 @@ variables:
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
-      Horse contact is a documented epidemiological risk factor for Brazilian spotted
-      fever, and the field sits among other exposure/clinical-sign flags (FOI_MATA,
-      HEMORRAG, HIPEREMIA, LINFADENO) confirmed to share this series.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
+      com animais? – Eqüinos)
   FOI_MATA:
-    official_name: Esteve em área de mata
+    official_name: Freqüentou ambientes com vegetação (mata, floresta, rios, cachoeiras)
     translated_name: Was in forest/woodland area
-    description: 'Whether the Brazilian spotted fever patient had been in a forest/woodland
-      area before onset, an exposure-history item alongside EQUINOS given the disease''s
-      tick-vector ecology.
+    description: 'Whether the patient frequented places with vegetation such as woods, forest,
+      rivers or waterfalls, where ticks are picked up.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
-      "FOI_MATA" reads as "foi à mata" (went to the woods); woodland/pasture exposure
-      is the standard risk-history question on Brazilian spotted fever investigation
-      forms, alongside animal-contact items like EQUINOS.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 35 (Freqüentou
+      ambientes com vegetação)
   HEMORRAG:
     official_name: Manifestações hemorrágicas
     translated_name: Hemorrhagic manifestations
@@ -221,43 +208,33 @@ variables:
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
-      Petechiae, purpura and gastrointestinal bleeding are recognized severity markers
-      of Brazilian spotted fever, making a hemorrhagic-manifestation flag a natural
-      checklist item; two similarly-named fields (HEMORRAG/HEMORRAGI) could not be
-      told apart from the evidence available.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
+      e sintomas – Manifestações hemorrágicas)
   HEMORRAGI:
-    official_name: Manifestações hemorrágicas (item associado)
-    translated_name: Hemorrhagic manifestations (related item)
-    description: 'Sibling checklist flag to HEMORRAG on the same Febre Maculosa form;
-      see HEMORRAG for what the pair jointly captures. The precise distinction between
-      the two (e.g. site or severity) is not recoverable from the evidence here.
+    official_name: Sufusão hemorrágica
+    translated_name: Haemorrhagic suffusion
+    description: 'Whether the patient had haemorrhagic suffusion (bleeding into the skin),
+      a separate item from the general haemorrhagic manifestations flag HEMORRAG.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'Same basis as HEMORRAG: C1 width, FMAC series, no further catalog evidence
-      to separate the two similarly-named fields.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
+      e sintomas – Sufusão hemorrágica)
   HIPEREMIA:
-    official_name: Hiperemia
-    translated_name: Skin hyperemia/flushing
-    description: 'Whether the Brazilian spotted fever patient showed hyperemia (skin
-      redness/flushing), a clinical-signs checklist item alongside LINFADENO.
+    official_name: Hiperemia conjuntival
+    translated_name: Conjunctival hyperaemia
+    description: 'Whether the patient had conjunctival hyperaemia (red eyes).
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
-      Skin hyperemia is a recognized early clinical finding in Brazilian spotted fever,
-      fitting alongside the confirmed-series siblings EQUINOS, HEMORRAG and LINFADENO
-      on the same checklist.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
+      e sintomas – Hiperemia conjuntival)
   HISTOPATO:
     official_name: Histopatologia
     translated_name: Histopathology
@@ -326,63 +303,59 @@ variables:
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and FMAC series membership.
-      Lymphadenopathy is a documented clinical finding in rickettsial spotted fevers,
-      fitting the same checklist as the confirmed-series siblings EQUINOS, FOI_MATA
-      and HIPEREMIA.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
+      e sintomas – Linfadenopatia)
   NECROSE:
-    official_name: Necrose
-    translated_name: Skin necrosis (flag)
-    description: 'Whether the patient developed skin necrosis (a necrotic eschar or
-      lesion), a distinctive and severe clinical sign of Brazilian spotted fever (febre
-      maculosa) reflecting Rickettsia-driven vasculitis.
+    official_name: Necrose de extremidades
+    translated_name: Necrosis of the extremities
+    description: 'Whether the patient had necrosis of the extremities (fingers, toes, ears),
+      a sign of severe vasculitis in spotted fever.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Direct decode of NECROSE; necrotic skin lesions are a recognized severe
-      manifestation of febre maculosa (FMAC), C1 fits a checkbox.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
+      e sintomas – Necrose de extremidades)
   OLIGURIA:
-    official_name: Oligúria
-    translated_name: Oliguria (flag)
+    official_name: Oligúria/anúria
+    translated_name: Oliguria/anuria
     description: 'Whether the patient had reduced urine output - a marker of renal
       impairment or shock in severe spotted fever, where vasculitis can cause multi-organ
       dysfunction.
 
       '
     code_system: none
-    source: inferred
-    reasoning: OLIGURIA = oligúria; FMAC's severity checklist alongside COMA and CHOQUE.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
+      e sintomas – Oligúria/Anúria)
   OUTROANI:
-    official_name: Outro animal envolvido
+    official_name: Teve contato com outros animais
     translated_name: Other animal involved
-    description: 'Flag for whether an animal other than the disease''s typical tick-associated
-      hosts (e.g. horses, capybaras) was reported in the epidemiological context of
-      this Brazilian spotted fever case.
+    description: 'Whether the patient had contact with animals other than those listed (1 yes,
+      2 no, 9 unknown); the animal is named in ANIM_ESP.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is FMAC (febre maculosa); OUTROANI reads "outro animal"; C1
-      width fits a coded yes/no flag.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
+      com animais? – Outros)
   RESPIRATO:
-    official_name: Insuficiência respiratória
-    translated_name: Respiratory complication (flag)
-    description: 'Whether the patient developed respiratory distress or failure — a
-      severe spotted-fever complication, recorded alongside the neurological complication
-      flag CONVULSAO.
+    official_name: Alterações respiratórias
+    translated_name: Respiratory changes
+    description: 'Whether the patient had respiratory changes (any respiratory involvement,
+      not only respiratory failure).
 
       '
     code_system: none
-    source: inferred
-    reasoning: C1 flag; RESPIRATO=respiratório.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
+      (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
+      e sintomas – Alterações respiratórias)
   ZONA:
     official_name: Zona de ocorrência
     translated_name: Zone

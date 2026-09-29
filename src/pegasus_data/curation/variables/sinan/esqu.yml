@@ -6,50 +6,40 @@ asserted_by: pegasus_data
 
 variables:
   AN_QUALI:
-    official_name: Análise - resultado qualitativo
-    translated_name: Analysis - qualitative result
-    description: 'Qualitative result (e.g. reagente/não reagente) of a laboratory analysis,
-      paired with AN_QUANT which records the same analysis''s numeric/quantitative
-      result.
-
-      '
+    official_name: Análise qualitativa (Hoffman)
+    translated_name: Qualitative analysis (Hoffman)
+    description: 'Result of the qualitative Hoffman sedimentation stool exam for schistosome
+      eggs: positive, negative, or not done.'
     code_system: none
-    source: inferred
-    reasoning: 'AN_QUALI/AN_QUANT is a qualitative/quantitative pair; 1-character width
-      fits a short reagent-style result code.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 35 (Análise qualitativa – Hoffman)
   AN_QUANT:
-    official_name: Análise - resultado quantitativo
-    translated_name: Analysis - quantitative result
-    description: 'Numeric result (e.g. a titer) of the same laboratory analysis described
-      qualitatively by AN_QUALI.
-
-      '
+    official_name: Análise quantitativa (Kato-Katz)
+    translated_name: Quantitative analysis (Kato-Katz)
+    description: Number of Schistosoma mansoni eggs found in the Kato-Katz stool exam.
     code_system: none
-    source: inferred
-    reasoning: 6-digit numeric width fits a titer or measured value, unlike AN_QUALI's
-      1-character code.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 34 (Análise quantitativa – Kato-Katz)
   DS_FORMA:
-    official_name: Descrição da forma
-    translated_name: Description of form/manner
-    description: 'Free-text description of the form or manner of a condition or exposure
-      recorded on the case; the exact sub-question is not resolved from available evidence.
-
-      '
+    official_name: Forma clínica - Outra (especificar)
+    translated_name: Other clinical form (specify)
+    description: Free text naming the anatomo-clinical form of schistosomiasis when it
+      is "outra" (not intestinal, hepato-intestinal, hepatosplenic or acute).
     code_system: none
-    source: inferred
-    reasoning: DS_FORMA contracts descrição + forma; 30-character free text.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 43 (Especificar forma clínica, se outro especificar)
   DTTRAT:
     official_name: Data do tratamento
     translated_name: Treatment date
-    description: 'Date treatment began, paired with DS_TRAT which describes the treatment
-      itself. AAAAMMDD.
-
-      '
+    description: Date the schistosomiasis treatment was given, filled when TRATAM = praziquantel
+      or oxamniquine. AAAAMMDD.
     code_system: none
-    source: inferred
-    reasoning: DTTRAT contracts data + tratamento.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 39 (Data do tratamento)
   DT_COPRO:
     official_name: Data da coproscopia
     translated_name: Date of stool examination
@@ -58,20 +48,20 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; COPRO reads coproscopia.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 33 (Data da coproscopia)
   DT_RESU3:
-    official_name: Data do resultado (3)
-    translated_name: Date of result (3)
-    description: 'Date a third laboratory result was obtained/reported, one of a numbered
-      series of result dates on the form.
-
-      '
+    official_name: Data do resultado da 3ª amostra
+    translated_name: Date of result of cure-verification sample 3
+    description: Date of the result of the third cure-verification stool sample (STCURA3).
+      AAAAMMDD.
     code_system: none
-    source: inferred
-    reasoning: RESU3 contracts resultado (3); D8 width fits a full date.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 42 (Data do resultado da 3ª amostra)
   NOCOLINF:
-    official_name: Nome da coleção hídrica de infecção
+    official_name: Nome da coleção hídrica
     translated_name: Name of infection water body
     description: 'Free-text name of the water body (stream, dam, irrigation canal)
       where the schistosomiasis (ESQU) patient likely had contact with contaminated
@@ -79,13 +69,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'ESQU form; NOCOLINF read as nome + coleção (hídrica) + infecção, standard
-      schistosomiasis epidemiological terminology; width 100 fits a location name.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 51 (Nome da coleção hídrica)
   NOPROPIN:
-    official_name: Nome da propriedade/local de infecção
+    official_name: Nome da propriedade (se área rural)
     translated_name: Name of property/infection site
     description: 'Free-text name of the property or locality associated with the water
       contact that likely infected the schistosomiasis patient, complementing NOCOLINF''s
@@ -93,73 +81,60 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'NOPROPIN read as nome + propriedade; ESQU form; width 100 free text.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 50 (Nome da propriedade (se área rural))
   OUTRO_EX:
-    official_name: Outro exame - especifique
-    translated_name: Other exam - specify
-    description: 'Free-text name of a diagnostic test used to confirm schistosomiasis
-      other than the standard Kato-Katz stool exam, such as a biopsy or serological
-      test.
-
-      '
+    official_name: Outros exames, especificar
+    translated_name: Other exam (specify)
+    description: Free-text name of another diagnostic exam performed (see the OUTROS result
+      field).
     code_system: none
-    source: inferred
-    reasoning: ESQU form; OUTRO_EX = outro exame; width 40 free text.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 37 (Outros exames, especificar)
   STCURA1:
-    official_name: Cura - Critério 1
-    translated_name: Cure criterion (1st)
-    description: 'Whether the first of the schistosomiasis (ESQU) form''s cure-confirmation
-      criteria (e.g. negative follow-up stool exam) was met, one of several checkboxes
-      (STCURA2, STCURA3) tracking different evidence of parasitological cure.
-
-      '
+    official_name: Resultado da análise de verificação de cura - 1ª amostra
+    translated_name: Cure-verification stool exam - sample 1
+    description: 'Result of cure-verification stool sample 1 after treatment: zero eggs,
+      one or more eggs, or not done.'
     code_system: none
-    source: inferred
-    reasoning: ESQU form; STCURA1/2/3 = situação de cura, numbered; width 1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 41 (Resultado da análise de verificação de cura – 1ª amostra)
   STCURA2:
-    official_name: Cura - Critério 2
-    translated_name: Cure criterion (2nd)
-    description: 'Second cure-confirmation criterion tracked on the schistosomiasis
-      follow-up form, alongside STCURA1 and STCURA3.
-
-      '
+    official_name: Resultado da análise de verificação de cura - 2ª amostra
+    translated_name: Cure-verification stool exam - sample 2
+    description: 'Result of cure-verification stool sample 2 after treatment: zero eggs,
+      one or more eggs, or not done.'
     code_system: none
-    source: inferred
-    reasoning: Second of three same-pattern fields; see STCURA1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 41 (Resultado da análise de verificação de cura – 2ª amostra)
   STCURA3:
-    official_name: Cura - Critério 3
-    translated_name: Cure criterion (3rd)
-    description: 'Third cure-confirmation criterion, completing the set alongside STCURA1
-      and STCURA2.
-
-      '
+    official_name: Resultado da análise de verificação de cura - 3ª amostra
+    translated_name: Cure-verification stool exam - sample 3
+    description: 'Result of cure-verification stool sample 3 after treatment: zero eggs,
+      one or more eggs, or not done.'
     code_system: none
-    source: inferred
-    reasoning: Third of three same-pattern fields; see STCURA1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 41 (Resultado da análise de verificação de cura – 3ª amostra)
   TRATAM:
-    official_name: Tratamento
-    translated_name: Treatment given (flag/type)
-    description: 'Whether/what treatment (e.g. praziquantel) was given for the schistosomiasis
-      case — the ESQU form''s core treatment field.
-
-      '
+    official_name: Fez tratamento?
+    translated_name: Treatment given
+    description: 'Whether the patient was treated and with which drug: praziquantel, oxamniquine,
+      not treated, or unknown.'
     code_system: none
-    source: inferred
-    reasoning: C1 field; TRATAM=tratamento, in the ESQU (esquistossomose) stratum.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 38 (Fez tratamento?)
   TRATANAO:
-    official_name: Tratamento não realizado
-    translated_name: Treatment not given (flag)
-    description: 'Whether the schistosomiasis (ESQU) patient did NOT receive antiparasitic
-      treatment (e.g. praziquantel) - capturing refusal, contraindication, or loss
-      to follow-up rather than treatment given.
-
-      '
+    official_name: Caso não tenha feito tratamento, qual o motivo?
+    translated_name: Reason treatment was not given
+    description: 'Reason the patient was not treated: contraindication, refusal, absence,
+      or unknown.'
     code_system: none
-    source: inferred
-    reasoning: 'TRAT_ = tratamento, A_NAO reads as "tratou? não"; C1 width fits a checkbox,
-      and non-treatment tracking complements the disease''s standard treatment fields.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
+      campo 40 (Caso não tenha feito tratamento, qual o motivo?)

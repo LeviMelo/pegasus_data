@@ -26,8 +26,10 @@ variables:
     description: CID-10 diagnosis recorded on the home care action.
     code_system: external
     codelist: cid10
-    source: inferred
-    reasoning: C(4) CID-10 code bound to S_CID, on the SAD dataset.
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §4.1 Atenção Domiciliar (SAD*.DBF) SEQ 38 ''CID do Procedimento'''
   PA_EQUIPE:
     official_name: Equipe
     translated_name: Health team identifier
@@ -36,11 +38,11 @@ variables:
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'Declared C(12), which is the INE team-code width used in CNES, and
-      EQUIPE names it.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §4.1 Atenção Domiciliar (SAD*.DBF) SEQ 36 CHAR(12) ''Código da Equipe (somente
+      para o Instrumento de registro RAAS)'''
   PA_TP_EQP:
     official_name: Tipo de equipe
     translated_name: Team type

@@ -7,18 +7,14 @@ asserted_by: pegasus_data
 
 variables:
   ANTIB_DES:
-    official_name: Antibiótico - descrição
-    translated_name: Antibiotic used (free text)
-    description: 'Free-text name of the antibiotic administered to a cholera (COLE)
-      patient, part of the treatment section of the cholera case investigation form.
-
-      '
+    official_name: Utilizou antibióticos - Caso afirmativo, qual
+    translated_name: Antibiotic used in treatment
+    description: Free-text name of the antibiotic used to treat the patient, filled when
+      CS_ANTIB_T (used antibiotics) = Sim.
     code_system: none
-    source: inferred
-    reasoning: 'ANTIB_ = antibiótico, DES = descrição; C30 width fits a drug name rather
-      than a coded value.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
+      campo 59 (Utilizou antibióticos – Caso afirmativo, qual)
   CS_ANTIB:
     official_name: Uso de antibiótico
     translated_name: Antibiotic given
@@ -76,19 +72,13 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: CHOQUE reads choque; a clinical flag.
   CS_DESIT:
-    official_name: Situação de desidratação
-    translated_name: Dehydration status
-    description: 'Classifies the patient''s dehydration severity (e.g. none/some/severe)
-      - the key clinical staging for cholera, which causes severe watery diarrhea,
-      and the field that guides oral vs. IV rehydration therapy (CS_REIDRAT).
-
-      '
+    official_name: Desidratação
+    translated_name: Dehydration
+    description: 'Degree of the patient''s dehydration: none, some, or severe.'
     code_system: none
-    source: inferred
-    reasoning: 'CS_ is COLE''s clinical-signs prefix (CS_DIARRE, CS_VOMITO, CS_CHOQUE);
-      DESIT reads as desidratação, matching the classic cholera severity assessment.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
+      campo 39 (Desidratação)
   CS_DIARRE:
     official_name: Diarreia
     translated_name: Diarrhoea
@@ -147,19 +137,14 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: MUCO reads muco; a clinical flag.
   CS_NEG_ESP:
-    official_name: Espécie identificada (cultura negativa para cólera)
-    translated_name: Species identified (culture negative for cholera)
-    description: 'Free-text field recording an organism identified by stool culture
-      when the test came back negative for Vibrio cholerae — i.e. what alternate species,
-      if any, was found instead.
-
-      '
+    official_name: Caso negativo, especificar
+    translated_name: If negative, specify
+    description: Free text naming another etiologic agent found when the cholera laboratory
+      result is negative.
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is COLE (cólera); NEG_ESP reads "negativo - espécie"; wide C30
-      width fits a free-text organism name rather than a coded flag.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
+      campo 56 (Caso negativo, especificar)
   CS_POSITIV:
     official_name: Sorotipo isolado
     translated_name: Serotype isolated
@@ -219,38 +204,30 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; ATENDIM reads atendimento.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
+      campo 45 (Data do atendimento)
   FC_CONT_DE:
-    official_name: Fonte de contaminação - descrição
-    translated_name: Contamination source, described
-    description: 'Free-text description of the suspected contamination source (e.g.
-      a specific water supply or food item) in a cholera investigation, likely the
-      free-text half of a coded contamination-source field.
-
-      '
+    official_name: Contato com caso suspeito ou confirmado de cólera - Outros (especificar)
+    translated_name: Other contact with a cholera case (specify)
+    description: Free text describing another type of contact with a suspected or confirmed
+      cholera case in the 10 days before symptom onset.
     code_system: none
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C30, a free-text width) and
-      COLE (Cólera) series membership. "FC" plausibly abbreviates "fonte de contaminação"
-      (contamination source) and "DE" the "descrição/especificar" suffix SINAN uses
-      throughout for the free-text half of a coded-plus-specify field pair.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
+      campo 33 (Contato com caso suspeito ou confirmado de cólera – No caso de outros,
+      especificar)
   NM_ANTIBIO:
-    official_name: Nome do antibiótico
-    translated_name: Name of antibiotic (treatment)
-    description: 'Name of the antibiotic used to treat the cholera case (e.g. doxiciclina,
-      azitromicina, ciprofloxacino) — shortens V. cholerae shedding and illness duration,
-      though rehydration is what actually prevents death.
-
-      '
+    official_name: Uso de antibiótico antes da coleta do material - Caso afirmativo, qual
+    translated_name: Antibiotic used before sample collection
+    description: Free-text name of the antibiotic the patient took before the stool sample
+      was collected, filled when CS_ANTIB = Sim.
     code_system: none
-    source: inferred
-    reasoning: C30 text; NM_=nome, ANTIBIO=antibiótico, in the treatment section of
-      the cholera investigation form.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
+      campo 53 (Uso de antibiótico antes da coleta do material – Caso afirmativo, qual)
   OUT_VINCUL:
-    official_name: Outro vínculo epidemiológico
+    official_name: Sugestão de vínculo - Se outros, especificar
     translated_name: Other epidemiological link (free text)
     description: 'Free-text description of an epidemiological link to another cholera
       case or outbreak not covered by the form''s standard categories, used to trace
@@ -258,11 +235,9 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'OUT_ = outro, VINCUL = vínculo; C30 width fits free text, and epidemiological
-      linkage is a standard element of cholera outbreak investigation.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
+      campo 37 (Sugestão de vínculo – Se outros, especificar)
   TIP_DIARRE:
     official_name: Característica da diarreia
     translated_name: Stool character
@@ -278,18 +253,16 @@ variables:
 
       '
   UF_HOSPITA:
-    official_name: UF de hospitalização
+    official_name: UF de internação
     translated_name: State of hospitalization
     description: 'Two-letter code of the Brazilian state where the cholera patient
       was hospitalized, distinct from the state of residence or of probable infection.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'UF_ = unidade federativa, HOSPITA = hospitalização; C2 width matches
-      a standard state abbreviation.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
+      campo 47 (UF de internação)
   VINCULO:
     official_name: Vínculo epidemiológico sugerido
     translated_name: Suggested epidemiological link

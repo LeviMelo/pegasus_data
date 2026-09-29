@@ -17,13 +17,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: '"ABAND" abbreviates abandono; the column appears only in the DPNIUF
-      (dropout-by-UF) tabulation series, completing the DOSE1/DOSEN/DIFER dropout-rate
-      family already documented, the same way COBERT is that family''s completed coverage
-      percentage.
-
-      '
+    source: web
+    source_ref: 'PNI nota técnica ''Taxas de abandono'' (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/notatecnicaTx.pdf (local:
+      sources/notatecnicaTx.pdf): ''diferença entre a quantidade de D1 e quantidade de
+      doses que finalizou o esquema vacinal, dividido pelo total de D1, multiplicado por
+      100 = TX''. The note defines the rate; the column name ABAND is matched to it by
+      name.'
     notes: 'Declared N(11,0) with zero decimals despite representing a percentage —
       consistent with the width/type quirks already flagged on QT_DOSE and other PNI
       fields in pni_a.yml.
@@ -38,12 +38,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'ANO+MES compound field name; declared width C(6,0) matches a 4-digit
-      year plus 2-digit month; ANOMES.CNV/ANOMESC.CNV map short codes to year-month
-      ranges rather than a free-standing category list.
-
-      '
+    source: def
+    source_ref: 'TabWin DEF dpniuf.def ''Imunizações - Doses Aplicadas'' (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/AUXILIARES/dpniuf.def, lines
+      ''LAno/mês, ANOMES, 1, PNI\CNV\ANOMES.CNV'' and ''LMês, ANOMES, 5,
+      PNI\CNV\MES.CNV'''
     notes: 'Spuriously bound to codelists ANOMES, ANOMESC and MES even though it is
       a period value, not a category.
 

@@ -236,16 +236,20 @@ variables:
     code_system: internal
     source: inferred
     source_ref: null
-    reasoning: COD is código and ESP is the standard abbreviation for especialidade. Bound
-      to ATIVPROF and ATVPRF02, both named for 'Atividade Profissional' rather than a medical
-      specialty proper, so the description is worded around professional activity rather than
-      asserting a clinical specialty the codelist names don't support. This field is not covered
-      by the current SIA/SUS layout document (Informe Técnico SIASUS, which documents only
-      the post-January-2008 unified layout); it belongs to an earlier PA file generation,
-      before PA_PROC_ID, PA_UFMUN and the other prefixed PA_ names in the modern layout replaced
-      it. No pre-2008 SIA layout PDF was found on the crawled FTP tree or reachable DATASUS
-      pages, so this is read from the field name and the catalog's own evidence, not a written
-      record layout.
+    reasoning: 'COD is código and ESP is the standard abbreviation for especialidade.
+      Bound to ATIVPROF and ATVPRF02, both named for ''Atividade Profissional'' rather
+      than a medical specialty proper, so the description is worded around professional
+      activity rather than asserting a clinical specialty the codelist names don''t
+      support. This field is not covered by the current SIA/SUS layout document (Informe
+      Técnico SIASUS, which documents only the post-January-2008 unified layout); it
+      belongs to an earlier PA file generation, before PA_PROC_ID, PA_UFMUN and the
+      other prefixed PA_ names in the modern layout replaced it. No pre-2008 SIA layout
+      PDF was found on the crawled FTP tree or reachable DATASUS pages, so this is read
+      from the field name and the catalog''s own evidence, not a written record layout.
+      Reviewed 2026-09-28: no documentation found (searched Informe Técnico SIASUS
+      2019-07, which documents only the post-2008 PA layout, the empty
+      ftp.datasus.gov.br SIASUS/199407_200712/Doc directory, and the APAC interface
+      layouts).'
   PA_CODOCO:
     official_name: Codigo de Ocorrencia
     translated_name: Occurrence code
@@ -267,17 +271,21 @@ variables:
     code_system: external
     source: inferred
     source_ref: null
-    reasoning: 'COD is código and PRO is the natural reading of procedimento, reinforced by
-      every codelist bound to it being procedure-flavoured: PAB (Piso de Atenção Básica, a
-      procedure/financing table), GRPR1199 and ITEMPROG/ITEMP898 (grouped procedure-item tables),
-      and CNRAC_PR. The field is catalogued at both 3 and 7 characters, consistent with the
-      pre-2008 SIA procedure table''s own varying code widths before the 2008 unification
-      fixed it at 10. This field is not covered by the current SIA/SUS layout document (Informe
-      Técnico SIASUS, which documents only the post-January-2008 unified layout); it belongs
-      to an earlier PA file generation, before PA_PROC_ID, PA_UFMUN and the other prefixed
-      PA_ names in the modern layout replaced it. No pre-2008 SIA layout PDF was found on
-      the crawled FTP tree or reachable DATASUS pages, so this is read from the field name
-      and the catalog''s own evidence, not a written record layout.'
+    reasoning: 'COD is código and PRO is the natural reading of procedimento, reinforced
+      by every codelist bound to it being procedure-flavoured: PAB (Piso de Atenção
+      Básica, a procedure/financing table), GRPR1199 and ITEMPROG/ITEMP898 (grouped
+      procedure-item tables), and CNRAC_PR. The field is catalogued at both 3 and 7
+      characters, consistent with the pre-2008 SIA procedure table''s own varying code
+      widths before the 2008 unification fixed it at 10. This field is not covered by
+      the current SIA/SUS layout document (Informe Técnico SIASUS, which documents only
+      the post-January-2008 unified layout); it belongs to an earlier PA file
+      generation, before PA_PROC_ID, PA_UFMUN and the other prefixed PA_ names in the
+      modern layout replaced it. No pre-2008 SIA layout PDF was found on the crawled FTP
+      tree or reachable DATASUS pages, so this is read from the field name and the
+      catalog''s own evidence, not a written record layout. Reviewed 2026-09-28: no
+      documentation found (searched Informe Técnico SIASUS 2019-07, which documents only
+      the post-2008 PA layout, the empty ftp.datasus.gov.br SIASUS/199407_200712/Doc
+      directory, and the APAC interface layouts).'
   PA_CODUNI:
     official_name: Codigo do Estabelecimento no CNES
     translated_name: Establishment's CNES code
@@ -313,17 +321,21 @@ variables:
     code_system: none
     source: inferred
     source_ref: null
-    reasoning: DAT is data (date) and PR reads as procedimento, matching the modern PA_DOCORIG-adjacent
-      competência concept. The field is catalogued at widths of 4 and 6 characters and is
-      bound only to year and year-month codelists (ANO, ANO99_03, ANO_0803, MESANO, MMAA0803)
-      across several SIA eras (99-03, pre/post Aug 2003) — consistent with a period field
-      whose width changed as the format evolved, not a classification code. This field is
-      not covered by the current SIA/SUS layout document (Informe Técnico SIASUS, which documents
-      only the post-January-2008 unified layout); it belongs to an earlier PA file generation,
-      before PA_PROC_ID, PA_UFMUN and the other prefixed PA_ names in the modern layout replaced
-      it. No pre-2008 SIA layout PDF was found on the crawled FTP tree or reachable DATASUS
-      pages, so this is read from the field name and the catalog's own evidence, not a written
-      record layout.
+    reasoning: 'DAT is data (date) and PR reads as procedimento, matching the modern
+      PA_DOCORIG-adjacent competência concept. The field is catalogued at widths of 4
+      and 6 characters and is bound only to year and year-month codelists (ANO,
+      ANO99_03, ANO_0803, MESANO, MMAA0803) across several SIA eras (99-03, pre/post Aug
+      2003) — consistent with a period field whose width changed as the format evolved,
+      not a classification code. This field is not covered by the current SIA/SUS layout
+      document (Informe Técnico SIASUS, which documents only the post-January-2008
+      unified layout); it belongs to an earlier PA file generation, before PA_PROC_ID,
+      PA_UFMUN and the other prefixed PA_ names in the modern layout replaced it. No
+      pre-2008 SIA layout PDF was found on the crawled FTP tree or reachable DATASUS
+      pages, so this is read from the field name and the catalog''s own evidence, not a
+      written record layout. Reviewed 2026-09-28: no documentation found (searched
+      Informe Técnico SIASUS 2019-07, which documents only the post-2008 PA layout, the
+      empty ftp.datasus.gov.br SIASUS/199407_200712/Doc directory, and the APAC
+      interface layouts).'
   PA_DATREF:
     official_name: Data de Referência (inferido)
     translated_name: Reference date
@@ -333,16 +345,20 @@ variables:
     code_system: none
     source: inferred
     source_ref: null
-    reasoning: DAT is data and REF is the natural abbreviation for referência. Bound to the
-      same family of year/year-month codelists as PA_DATPR (ANO, ANO_0803, MESANO, MMAA0803)
-      plus SEME0803, a semester table PA_DATPR is not bound to — that extra binding is what
-      distinguishes it from a duplicate of PA_DATPR rather than confirming its exact role.
-      This field is not covered by the current SIA/SUS layout document (Informe Técnico SIASUS,
-      which documents only the post-January-2008 unified layout); it belongs to an earlier
-      PA file generation, before PA_PROC_ID, PA_UFMUN and the other prefixed PA_ names in
-      the modern layout replaced it. No pre-2008 SIA layout PDF was found on the crawled FTP
-      tree or reachable DATASUS pages, so this is read from the field name and the catalog's
-      own evidence, not a written record layout.
+    reasoning: 'DAT is data and REF is the natural abbreviation for referência. Bound to
+      the same family of year/year-month codelists as PA_DATPR (ANO, ANO_0803, MESANO,
+      MMAA0803) plus SEME0803, a semester table PA_DATPR is not bound to — that extra
+      binding is what distinguishes it from a duplicate of PA_DATPR rather than
+      confirming its exact role. This field is not covered by the current SIA/SUS layout
+      document (Informe Técnico SIASUS, which documents only the post-January-2008
+      unified layout); it belongs to an earlier PA file generation, before PA_PROC_ID,
+      PA_UFMUN and the other prefixed PA_ names in the modern layout replaced it. No
+      pre-2008 SIA layout PDF was found on the crawled FTP tree or reachable DATASUS
+      pages, so this is read from the field name and the catalog''s own evidence, not a
+      written record layout. Reviewed 2026-09-28: no documentation found (searched
+      Informe Técnico SIASUS 2019-07, which documents only the post-2008 PA layout, the
+      empty ftp.datasus.gov.br SIASUS/199407_200712/Doc directory, and the APAC
+      interface layouts).'
   PA_DIF_VAL:
     official_name: Diferenca do Valor Unitario
     translated_name: Unit-price gap x approved quantity (BRL)
@@ -592,7 +608,9 @@ variables:
       '
     code_system: external
     source: inferred
-    reasoning: C(6) code bound to S_CIDM, the morphology codelist.
+    reasoning: 'C(6) code bound to S_CIDM, the morphology codelist. Reviewed 2026-09-28:
+      no documentation found (searched Informe Técnico SIASUS 2019-07 §2.3 PA layout and
+      the APAC/BPA interface layouts; the column is not listed).'
   PA_MOTSAI:
     official_name: Motivo de saida
     translated_name: Exit-reason code
@@ -616,15 +634,19 @@ variables:
     code_system: external
     source: inferred
     source_ref: null
-    reasoning: MUN is the standard DATASUS abbreviation for município and AT for atendimento
-      (seen throughout this same document, e.g. PA_TPATEN, AP_TPATEN). The field is declared
-      CHAR(6), matching the UF+município IBGE code width used by every other 'where' field
-      in this layout (PA_UFMUN, PA_MUNPCN, AP_MUNPCN). This field is not covered by the current
-      SIA/SUS layout document (Informe Técnico SIASUS, which documents only the post-January-2008
-      unified layout); it belongs to an earlier PA file generation, before PA_PROC_ID, PA_UFMUN
-      and the other prefixed PA_ names in the modern layout replaced it. No pre-2008 SIA layout
-      PDF was found on the crawled FTP tree or reachable DATASUS pages, so this is read from
-      the field name and the catalog's own evidence, not a written record layout.
+    reasoning: 'MUN is the standard DATASUS abbreviation for município and AT for
+      atendimento (seen throughout this same document, e.g. PA_TPATEN, AP_TPATEN). The
+      field is declared CHAR(6), matching the UF+município IBGE code width used by every
+      other ''where'' field in this layout (PA_UFMUN, PA_MUNPCN, AP_MUNPCN). This field
+      is not covered by the current SIA/SUS layout document (Informe Técnico SIASUS,
+      which documents only the post-January-2008 unified layout); it belongs to an
+      earlier PA file generation, before PA_PROC_ID, PA_UFMUN and the other prefixed PA_
+      names in the modern layout replaced it. No pre-2008 SIA layout PDF was found on
+      the crawled FTP tree or reachable DATASUS pages, so this is read from the field
+      name and the catalog''s own evidence, not a written record layout. Reviewed
+      2026-09-28: no documentation found (searched Informe Técnico SIASUS 2019-07, which
+      documents only the post-2008 PA layout, the empty ftp.datasus.gov.br
+      SIASUS/199407_200712/Doc directory, and the APAC interface layouts).'
   PA_MUNPCN:
     official_name: UF+Municipio de residencia do paciente
     translated_name: Patient's home municipality IBGE code
@@ -700,16 +722,20 @@ variables:
     code_system: none
     source: inferred
     source_ref: null
-    reasoning: NUM is número and APA is the natural truncation of APAC within a 10-character
-      DBF field-name budget (PA_+NUMAPA = 9 characters). The field is catalogued at widths
-      of both 11 and 13 characters across the era; 13 exactly matches the documented APAC
-      numbering law 'UFAATsssssssd' (2+2+1+7+1=13) that this same document gives for PA_AUTORIZ/AP_AUTORIZ.
-      This field is not covered by the current SIA/SUS layout document (Informe Técnico SIASUS,
-      which documents only the post-January-2008 unified layout); it belongs to an earlier
-      PA file generation, before PA_PROC_ID, PA_UFMUN and the other prefixed PA_ names in
-      the modern layout replaced it. No pre-2008 SIA layout PDF was found on the crawled FTP
-      tree or reachable DATASUS pages, so this is read from the field name and the catalog's
-      own evidence, not a written record layout.
+    reasoning: 'NUM is número and APA is the natural truncation of APAC within a
+      10-character DBF field-name budget (PA_+NUMAPA = 9 characters). The field is
+      catalogued at widths of both 11 and 13 characters across the era; 13 exactly
+      matches the documented APAC numbering law ''UFAATsssssssd'' (2+2+1+7+1=13) that
+      this same document gives for PA_AUTORIZ/AP_AUTORIZ. This field is not covered by
+      the current SIA/SUS layout document (Informe Técnico SIASUS, which documents only
+      the post-January-2008 unified layout); it belongs to an earlier PA file
+      generation, before PA_PROC_ID, PA_UFMUN and the other prefixed PA_ names in the
+      modern layout replaced it. No pre-2008 SIA layout PDF was found on the crawled FTP
+      tree or reachable DATASUS pages, so this is read from the field name and the
+      catalog''s own evidence, not a written record layout. Reviewed 2026-09-28: no
+      documentation found (searched Informe Técnico SIASUS 2019-07, which documents only
+      the post-2008 PA layout, the empty ftp.datasus.gov.br SIASUS/199407_200712/Doc
+      directory, and the APAC interface layouts).'
   PA_OBITO:
     official_name: Indicador de Obito (APAC)
     translated_name: Death indicator
@@ -762,11 +788,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'RCB is the standard DATASUS abbreviation for recibo; PA_RCB sits beside PA_RCBDF,
-      a one-character companion field, the same value-plus-check- digit pairing DATASUS uses
-      elsewhere (e.g. the APAC number itself, 12 digits plus 1 check digit).
-
-      '
+    reasoning: 'RCB is the standard DATASUS abbreviation for recibo; PA_RCB sits beside
+      PA_RCBDF, a one-character companion field, the same value-plus-check- digit
+      pairing DATASUS uses elsewhere (e.g. the APAC number itself, 12 digits plus 1
+      check digit). Reviewed 2026-09-28: no documentation found (searched Informe
+      Técnico SIASUS 2019-07 §2.3 PA layout and the APAC/BPA interface layouts; the
+      column is not listed).'
   PA_RCBDF:
     official_name: Dígito verificador do recibo
     translated_name: Receipt check digit
@@ -776,11 +803,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DF is DATASUS''s usual abbreviation for dígito (verificador); the field is
-      one character and sits immediately after PA_RCB, matching the number-plus-check-digit
-      pairing documented for the APAC number in the same file family.
-
-      '
+    reasoning: 'DF is DATASUS''s usual abbreviation for dígito (verificador); the field
+      is one character and sits immediately after PA_RCB, matching the
+      number-plus-check-digit pairing documented for the APAC number in the same file
+      family. Reviewed 2026-09-28: no documentation found (searched Informe Técnico
+      SIASUS 2019-07 §2.3 PA layout and the APAC/BPA interface layouts; the column is
+      not listed).'
   PA_REGCT:
     official_name: Codigo da Regra Contratual
     translated_name: Contract-rule code
@@ -830,15 +858,19 @@ variables:
     code_system: internal
     source: inferred
     source_ref: null
-    reasoning: TIP is tipo and ATE is the standard abbreviation for atendimento, used throughout
-      this same document (AP_TPATEN, PA_CATEND). Bound to GRUPO_AT ('grupo atendimento'),
-      GRUPOCOL and GRUP1199 — codelist names built around 'atendimento', supporting this reading
-      over a procedure- or provider-type one. This field is not covered by the current SIA/SUS
-      layout document (Informe Técnico SIASUS, which documents only the post-January-2008
-      unified layout); it belongs to an earlier PA file generation, before PA_PROC_ID, PA_UFMUN
-      and the other prefixed PA_ names in the modern layout replaced it. No pre-2008 SIA layout
-      PDF was found on the crawled FTP tree or reachable DATASUS pages, so this is read from
-      the field name and the catalog's own evidence, not a written record layout.
+    reasoning: 'TIP is tipo and ATE is the standard abbreviation for atendimento, used
+      throughout this same document (AP_TPATEN, PA_CATEND). Bound to GRUPO_AT (''grupo
+      atendimento''), GRUPOCOL and GRUP1199 — codelist names built around
+      ''atendimento'', supporting this reading over a procedure- or provider-type one.
+      This field is not covered by the current SIA/SUS layout document (Informe Técnico
+      SIASUS, which documents only the post-January-2008 unified layout); it belongs to
+      an earlier PA file generation, before PA_PROC_ID, PA_UFMUN and the other prefixed
+      PA_ names in the modern layout replaced it. No pre-2008 SIA layout PDF was found
+      on the crawled FTP tree or reachable DATASUS pages, so this is read from the field
+      name and the catalog''s own evidence, not a written record layout. Reviewed
+      2026-09-28: no documentation found (searched Informe Técnico SIASUS 2019-07, which
+      documents only the post-2008 PA layout, the empty ftp.datasus.gov.br
+      SIASUS/199407_200712/Doc directory, and the APAC interface layouts).'
   PA_TIPPRE:
     official_name: Tipo de Prestador
     translated_name: Provider-type code

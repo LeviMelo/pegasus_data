@@ -17,11 +17,14 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'ESPO''s field set includes C_D/C_M and G_D/G_M alongside TP_ZN_OCO
-      and TP_AMB_OCO (zone/environment of occurrence), consistent with a degrees/minutes
-      geocoordinate pair for the exposure site.
-
-      '
+    reasoning: 'ESPO''s field set includes C_D/C_M and G_D/G_M alongside TP_ZN_OCO and TP_AMB_OCO
+      (zone/environment of occurrence), consistent with a degrees/minutes geocoordinate pair
+      for the exposure site. Reviewed 2026-09-28: no documentation found (searched portalsinan.saude.gov.br,
+      the SINAN NET Epizootia dictionary DIC_DADOS_EPIZOO_NET_v5.pdf, TAB_SINANNET .DEF files,
+      state sporotrichosis notes from RJ/SP/SC). The C_D/C_M/G_D/G_M quartet parallels the
+      epizootia form''s sick/dead animal counts (NU_ANIDO/NU_ANIMO), so cães doentes / cães
+      mortos / gatos doentes / gatos mortos is a more likely reading than coordinates or contact
+      type.'
   C_M:
     official_name: Contato com mordedura
     translated_name: Contact by bite
@@ -32,35 +35,37 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Agravo is ESPO (esporotricose, typically cat-transmitted); short numeric
-      (N1) code fits a categorical contact-type field; exact label inferred from the
-      abbreviation and disease context rather than confirmed documentation.
-
-      '
+    reasoning: 'Agravo is ESPO (esporotricose, typically cat-transmitted); short numeric (N1)
+      code fits a categorical contact-type field; exact label inferred from the abbreviation
+      and disease context rather than confirmed documentation. Reviewed 2026-09-28: no documentation
+      found (searched portalsinan.saude.gov.br, the SINAN NET Epizootia dictionary DIC_DADOS_EPIZOO_NET_v5.pdf,
+      TAB_SINANNET .DEF files, state sporotrichosis notes from RJ/SP/SC). The C_D/C_M/G_D/G_M
+      quartet parallels the epizootia form''s sick/dead animal counts (NU_ANIDO/NU_ANIMO),
+      so C_M more likely reads cães mortos (dead dogs).'
   DS_OUT_AMB:
-    official_name: Outro ambiente de exposição
-    translated_name: Other exposure setting, description
-    description: 'Free-text description of a setting, other than the patient''s own
-      home, where contact with an infected cat (the dominant Brazilian transmission
-      route) may have occurred.
+    official_name: Se outro ambiente, especificar
+    translated_name: Other setting of occurrence (specify)
+    description: 'Free-text setting where the occurrence took place, filled when TP_AMB_OCO
+      is 5 (other).
 
       '
     code_system: none
-    source: inferred
-    reasoning: C29 text; DS_=descrição, OUT=outro, AMB=ambiente.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Epizootia — http://portalsinan.saude.gov.br/images/documentos/Agravos/Epizootia/DIC_DADOS_EPIZOO_NET_v5.pdf
+      (same DBF name; the ESPO form reuses the epizootia occurrence block, cf. TP_AMB_OCO →
+      AMB_EPIZ.CNV), campo 23 (Se outro ambiente, especificar)
   DT_INI_EPI:
-    official_name: Data de início - semana epidemiológica
-    translated_name: Onset date for epidemiological week
-    description: 'Date used to place a sporotrichosis (ESPO) case in its epidemiological
-      week for surveillance charts, functioning as the case''s reference onset date.
+    official_name: Data do início da epizootia
+    translated_name: Start date of the epizootic
+    description: 'Date the animal outbreak (epizootic) began; it may not be later than the
+      notification date.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DT_ = data, INI = início, EPI = epidemiológica; D8 date type fits,
-      and an epidemiological-week reference date is standard for outbreak curve tracking.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Epizootia — http://portalsinan.saude.gov.br/images/documentos/Agravos/Epizootia/DIC_DADOS_EPIZOO_NET_v5.pdf
+      (same DBF name; the ESPO form reuses the epizootia occurrence block, cf. TP_AMB_OCO →
+      AMB_EPIZ.CNV), campo 7 (Data do início da epizootia)
   ESPECIE:
     official_name: Espécie do animal envolvido
     translated_name: Animal species involved
@@ -71,8 +76,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: ESPECIE = espécie; sporotrichosis is predominantly a zoonosis transmitted
-      by cat scratches/bites.
+    reasoning: 'ESPECIE = espécie; sporotrichosis is predominantly a zoonosis transmitted by
+      cat scratches/bites. Reviewed 2026-09-28: no documentation found (searched portalsinan.saude.gov.br,
+      the SINAN NET Epizootia dictionary DIC_DADOS_EPIZOO_NET_v5.pdf, TAB_SINANNET .DEF files,
+      state sporotrichosis notes from RJ/SP/SC).'
   G_D:
     official_name: Gatos doentes no domicílio
     translated_name: Sick cats in the household
@@ -83,10 +90,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'ESPO form; N2 numeric width suggests a small count rather than a yes/no
-      flag, consistent with "quantity of sick cats"; exact label not confirmed by documentation.
-
-      '
+    reasoning: 'ESPO form; N2 numeric width suggests a small count rather than a yes/no flag,
+      consistent with "quantity of sick cats"; exact label not confirmed by documentation.
+      Reviewed 2026-09-28: no documentation found (searched portalsinan.saude.gov.br, the SINAN
+      NET Epizootia dictionary DIC_DADOS_EPIZOO_NET_v5.pdf, TAB_SINANNET .DEF files, state
+      sporotrichosis notes from RJ/SP/SC). Likely gatos doentes (sick cats), paired with G_M
+      gatos mortos.'
   G_M:
     official_name: Gatos (contagem/faixa)
     translated_name: Cats involved in suspected transmission
@@ -97,10 +106,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'N2 numeric field in the ESPO stratum; G read as gato (cat), though
-      the exact unit (count vs. coded range) isn''t confirmed by the evidence available.
-
-      '
+    reasoning: 'N2 numeric field in the ESPO stratum; G read as gato (cat), though the exact
+      unit (count vs. coded range) isn''t confirmed by the evidence available. Reviewed 2026-09-28:
+      no documentation found (searched portalsinan.saude.gov.br, the SINAN NET Epizootia dictionary
+      DIC_DADOS_EPIZOO_NET_v5.pdf, TAB_SINANNET .DEF files, state sporotrichosis notes from
+      RJ/SP/SC). Likely gatos mortos (dead cats), by parallel with the epizootia form''s sick/dead
+      counts.'
   ID_NOTIFIC:
     official_name: Identificador da notificação
     translated_name: Notification record identifier
@@ -110,10 +121,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'ID_ = identificador, NOTIFIC = notificação; N5 numeric width fits a
-      sequential record number rather than a coded value.
-
-      '
+    reasoning: 'ID_ = identificador, NOTIFIC = notificação; N5 numeric width fits a sequential
+      record number rather than a coded value. Reviewed 2026-09-28: no documentation found
+      (searched portalsinan.saude.gov.br, the SINAN NET Epizootia dictionary DIC_DADOS_EPIZOO_NET_v5.pdf,
+      TAB_SINANNET .DEF files, state sporotrichosis notes from RJ/SP/SC).'
   TP_AMB_OCO:
     official_name: Ambiente de ocorrência
     translated_name: Setting of occurrence
@@ -130,14 +141,13 @@ variables:
 
       '
   TP_ZN_OCO:
-    official_name: Tipo de zona de ocorrência
+    official_name: Zona
     translated_name: Occurrence zone type
-    description: 'Urban/rural/peri-urban classification of the zone where the sporotrichosis
-      exposure occurred - a standard geographic classification alongside the environment-type
-      field TP_AMB_OCO.
+    description: 'Zone where the occurrence took place: urban, rural or peri-urban.
 
       '
     code_system: none
-    source: inferred
-    reasoning: TP_ = tipo; ZN = zona; OCO = ocorrência; ESPO's site-classification
-      field.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Epizootia — http://portalsinan.saude.gov.br/images/documentos/Agravos/Epizootia/DIC_DADOS_EPIZOO_NET_v5.pdf
+      (same DBF name; the ESPO form reuses the epizootia occurrence block, cf. TP_AMB_OCO →
+      AMB_EPIZ.CNV), campo 22 (Zona)

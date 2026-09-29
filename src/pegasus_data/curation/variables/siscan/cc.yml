@@ -7,217 +7,267 @@ asserted_by: pegasus_data
 
 variables:
   ALTERADO:
-    official_name: Resultado alterado
-    translated_name: Result abnormal
-    description: 'Whether the exam was abnormal overall. A summary of the specific
-      findings rather than an extra one, so counting it alongside them double-counts.
-
-      '
+    official_name: Exames Alterados
+    translated_name: Abnormal exams (count)
+    description: 'Number of exams in the row with at least one atypia result: atypical squamous,
+      glandular or undefined-origin cells, a low- or high-grade squamous lesion, invasive
+      squamous carcinoma, or adenocarcinoma. Benign changes are not counted. A roll-up of
+      the specific findings, so adding it to them double-counts.'
     code_system: none
-    source: inferred
-    reasoning: ALTERADO is the summary abnormality flag; C(8), values unobserved.
+    source: layout_doc
+    source_ref: TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo ALTERADO "Exames Alterados"; Nota Técnica 2 SISCAN - Citopatológico do colo do
+      útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Exames Alterados"
   AMOSREJALH:
-    official_name: Amostra rejeitada por identificação alheia
-    translated_name: Rejected, identification mismatched
-    description: 'Sample rejected because the identification on the slide did not match
-      the form. Distinct from AMOSREJAUS, where identification was missing rather than
-      wrong.
-
-      '
+    official_name: Amostra rejeitada por causas alheias ao laboratório
+    translated_name: Rejected, causes outside the laboratory
+    description: Number of samples rejected before reading for causes outside the laboratory's
+      control.
     code_system: none
-    source: inferred
-    reasoning: ALH reads alheia, in the rejection-reason block; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo AMOSREJALH "Rejeit.alheias lab"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Amostra rejeitada por: Causas alheias ao laboratório"; Nota Técnica 2 SISCAN -
+      Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Rej. causas alheias"'
   AMOSREJAUS:
-    official_name: Amostra rejeitada por ausência de identificação
-    translated_name: Rejected, unidentified
-    description: 'Sample rejected because it or its form was not identified. The AMOSREJ_
-      items give the reason behind a rejection in CO_ADEQ_MA, and they are failures
-      of process rather than of the specimen.
-
-      '
+    official_name: Amostra rejeitada por ausência ou erro na identificação da lâmina, frasco
+      ou formulário
+    translated_name: Rejected, missing or wrong identification
+    description: Number of samples rejected because the slide, vial or form was missing its
+      identification or was wrongly identified.
     code_system: none
-    source: inferred
-    reasoning: 'AMOSREJ reads amostra rejeitada and AUS ausência de identificação;
-      C(8) with no observed values, so the encoding is unknown.
-
-      '
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo AMOSREJAUS "Rejeit.erro ident."; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Amostra rejeitada por: Ausência ou erro na identificação da lâmina, frasco ou formulário";
+      Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Rejeitada id. lâmin"'
   AMOSREJDAN:
-    official_name: Amostra rejeitada por lâmina danificada
-    translated_name: Rejected, slide damaged
-    description: 'Sample rejected because the slide arrived broken or damaged. A transport
-      failure, and the reason most reducible by better packaging.
-
-      '
+    official_name: Amostra rejeitada por lâmina danificada ou ausente
+    translated_name: Rejected, slide damaged or missing
+    description: Number of samples rejected because the slide was damaged or missing.
     code_system: none
-    source: inferred
-    reasoning: DAN reads danificada, in the rejection-reason block; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo AMOSREJDAN "Rejeit.lâm.danif."; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Amostra rejeitada por: Lâmina danificada ou ausente"; Nota Técnica 2 SISCAN - Citopatológico
+      do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Rej. lâmina danif"'
   AMOSREJOUT:
-    official_name: Amostra rejeitada por outro motivo
+    official_name: Amostra rejeitada por outras causas
     translated_name: Rejected, other reason
-    description: Any rejection reason the named items do not cover.
+    description: Number of samples rejected for any other stated cause.
     code_system: none
-    source: inferred
-    reasoning: The OUT residual item closing the rejection-reason block.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo AMOSREJOUT "Rejeit.outras"; INCA, Requisição de Exame Citopatológico - Colo do
+      Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Amostra rejeitada por: Outras causas"; Nota Técnica 2 SISCAN - Citopatológico do
+      colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Rejeitada: Outros"'
   CARCINO:
-    official_name: Carcinoma epidermoide invasor
+    official_name: Carcinoma epidermóide invasor
     translated_name: Invasive squamous carcinoma
-    description: 'Invasive squamous carcinoma on cytology. Not a screening result but
-      a cancer found by screening, and the point at which the pathway stops being preventive.
-
-      '
+    description: Number of exams reporting invasive squamous (epidermoid) carcinoma on cytology.
     code_system: none
-    source: inferred
-    reasoning: CARCINO reads carcinoma, the invasive category; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CARCINO "Carc.Epid.invasor"; INCA, Requisição de Exame Citopatológico - Colo do
+      Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Atipias em células escamosas: Carcinoma epidermóide invasor"; Nota Técnica 2 SISCAN
+      - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Carc. Epiderm. Inv"'
   CBEMATROF:
-    official_name: Alterações celulares benignas, atrofia com inflamação
+    official_name: 'Alterações celulares benignas reativas ou reparativas: Atrofia com inflamação'
     translated_name: Benign change, atrophy with inflammation
-    description: 'Atrophic change with inflammation, typical after the menopause. Atrophy
-      makes cells look abnormal and is a recognised source of false positives, so reporting
-      it explains an otherwise worrying smear.
-
-      '
+    description: Number of exams negative for neoplasia that reported benign reactive or reparative
+      cell changes associated with atrophy with inflammation.
     code_system: none
-    source: inferred
-    reasoning: ATROF reads atrofia, a Bethesda reactive category; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CBEMATROF "Alt.Ben.Atrofia"; INCA, Requisição de Exame Citopatológico - Colo do
+      Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Alterações celulares benignas reativas ou reparativas: Atrofia com inflamação";
+      Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Alt.ben.atr.inflam"'
   CBEMINFLA:
-    official_name: Alterações celulares benignas, inflamação
+    official_name: 'Alterações celulares benignas reativas ou reparativas: Inflamação'
     translated_name: Benign change, inflammation
-    description: 'Inflammatory change. The CBEM_ block records benign reactive findings
-      — not neoplastic, not a reason to refer, and by far the commonest thing a Pap
-      smear reports.
-
-      '
+    description: Number of exams negative for neoplasia that reported benign reactive or reparative
+      cell changes associated with inflammation.
     code_system: none
-    source: inferred
-    reasoning: 'CBEM reads células benignas and INFLA inflamação; one of the Bethesda
-      reactive categories. C(8), values unobserved.
-
-      '
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CBEMINFLA "Alt.Ben.Inflamação"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Alterações celulares benignas reativas ou reparativas: Inflamação"; Nota Técnica
+      2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Alt.ben.inflamação"'
   CBEMMETAS:
-    official_name: Alterações celulares benignas, metaplasia escamosa imatura
+    official_name: 'Alterações celulares benignas reativas ou reparativas: Metaplasia escamosa
+      imatura'
     translated_name: Benign change, immature squamous metaplasia
-    description: 'Immature squamous metaplasia — normal repair of the transformation
-      zone. Benign, but it can mimic atypia, which is why it is reported explicitly.
-
-      '
+    description: Number of exams negative for neoplasia that reported benign reactive or reparative
+      cell changes associated with immature squamous metaplasia.
     code_system: none
-    source: inferred
-    reasoning: METAS reads metaplasia, a Bethesda reactive category; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CBEMMETAS "Alt.Ben.Metaplasia"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Alterações celulares benignas reativas ou reparativas: Metaplasia escamosa imatura";
+      Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Alt.ben.metap.esca"'
   CBEMOUT:
-    official_name: Outras alterações celulares benignas
+    official_name: 'Alterações celulares benignas reativas ou reparativas: Outros'
     translated_name: Benign change, other
-    description: Any benign reactive change the named items do not cover.
+    description: Number of exams negative for neoplasia that reported benign reactive or reparative
+      cell changes associated with other causes.
     code_system: none
-    source: inferred
-    reasoning: The OUT residual item closing the benign-changes block.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CBEMOUT "Alt.Ben.Outros"; INCA, Requisição de Exame Citopatológico - Colo do Útero
+      (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Alterações celulares benignas reativas ou reparativas: Outros"; Nota Técnica 2
+      SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Alt.ben.outros"'
   CBEMRADI:
-    official_name: Alterações celulares benignas, radiação
+    official_name: 'Alterações celulares benignas reativas ou reparativas: Radiação'
     translated_name: Benign change, radiation effect
-    description: 'Cellular change caused by radiotherapy. Appears in women already
-      treated for cervical cancer, and is benign despite looking dramatic.
-
-      '
+    description: Number of exams negative for neoplasia that reported benign reactive or reparative
+      cell changes associated with radiation.
     code_system: none
-    source: inferred
-    reasoning: RADI reads radiação, a Bethesda reactive category; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CBEMRADI "Alt.Ben.Radiação"; INCA, Requisição de Exame Citopatológico - Colo do
+      Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Alterações celulares benignas reativas ou reparativas: Radiação"; Nota Técnica
+      2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Alt.ben.radiação"'
   CBEMREPAR:
-    official_name: Alterações celulares benignas, reparação
+    official_name: 'Alterações celulares benignas reativas ou reparativas: Reparação'
     translated_name: Benign change, repair
-    description: Reparative change following injury or inflammation.
+    description: Number of exams negative for neoplasia that reported benign reactive or reparative
+      cell changes associated with repair.
     code_system: none
-    source: inferred
-    reasoning: REPAR reads reparação, a Bethesda reactive category; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CBEMREPAR "Alt.Ben.Reparação"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Alterações celulares benignas reativas ou reparativas: Reparação"; Nota Técnica
+      2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Alt.ben.reparação"'
   CMICACTI:
-    official_name: Microbiologia, Actinomyces
+    official_name: 'Microbiologia: Actinomyces sp'
     translated_name: Actinomyces seen
-    description: 'Actinomyces, associated with intrauterine devices. Reported because
-      it changes contraceptive management, not because it bears on cancer.
-
-      '
+    description: Number of exams whose microbiology section reported Actinomyces sp. (associated
+      with IUD use).
     code_system: none
-    source: inferred
-    reasoning: ACTI is Actinomyces, an organism item; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICACTI "Mic.actinomyces sp"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Actinomyces sp"'
   CMICBACI:
-    official_name: Microbiologia, bacilos supracitoplasmáticos
-    translated_name: Supracytoplasmic bacilli seen
-    description: 'Bacilli lying over the cell cytoplasm — the clue cells of bacterial
-      vaginosis, distinct from the ordinary bacilli of normal flora.
-
-      '
+    official_name: 'Microbiologia: Outros bacilos'
+    translated_name: Other bacilli seen
+    description: Number of exams whose microbiology section reported bacilli other than lactobacilli
+      and the supracytoplasmic (Gardnerella/Mobiluncus) type.
     code_system: none
-    source: inferred
-    reasoning: BACI reads bacilos, an organism item; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICBACI "Mic.outros bacilos"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Outros bacilos"'
   CMICCAND:
-    official_name: Microbiologia, Candida
+    official_name: 'Microbiologia: Candida sp'
     translated_name: Candida seen
-    description: Candida species, a treatable cause of symptoms rather than a cancer
-      risk.
+    description: Number of exams whose microbiology section reported Candida sp..
     code_system: none
-    source: inferred
-    reasoning: CAND is Candida, an organism item; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICCAND "Mic.CANDIDA sp"; INCA, Requisição de Exame Citopatológico - Colo do
+      Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Candida sp"'
   CMICCHLA:
-    official_name: Microbiologia, Chlamydia
-    translated_name: Chlamydia seen
-    description: Chlamydia, again inferred from cell appearance rather than confirmed
-      by testing.
+    official_name: 'Microbiologia: Sugestivo de Chlamydia sp'
+    translated_name: Suggestive of Chlamydia
+    description: Number of exams whose microbiology section reported changes suggestive of
+      Chlamydia sp. (a morphological suggestion, not a confirmed infection).
     code_system: none
-    source: inferred
-    reasoning: CHLA is Chlamydia, an organism item; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICCHLA "Mic.sug.chlamydia"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Sugestivo de Chlamydia sp"'
   CMICCOCO:
-    official_name: Microbiologia, cocos
+    official_name: 'Microbiologia: Cocos'
     translated_name: Cocci seen
-    description: Cocci, indicating a shift away from the normal lactobacillary flora.
+    description: Number of exams whose microbiology section reported cocci.
     code_system: none
-    source: inferred
-    reasoning: COCO reads cocos, an organism item; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICCOCO "Mic.cocos"; INCA, Requisição de Exame Citopatológico - Colo do Útero
+      (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Cocos"'
   CMICGARD:
-    official_name: Microbiologia, Gardnerella
-    translated_name: Gardnerella seen
-    description: Gardnerella vaginalis, reported alongside the supracytoplasmic bacilli
-      of vaginosis.
+    official_name: 'Microbiologia: Bacilos supracitoplasmáticos (sugestivos de Gardnerella/Mobiluncus)'
+    translated_name: Supracytoplasmic bacilli (Gardnerella/Mobiluncus) seen
+    description: Number of exams whose microbiology section reported supracytoplasmic bacilli
+      suggestive of Gardnerella/Mobiluncus (the bacterial-vaginosis pattern).
     code_system: none
-    source: inferred
-    reasoning: GARD is Gardnerella, an organism item; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICGARD "Mic.bacil supracit."; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Bacilos supracitoplasmáticos (sugestivos de Gardnerella/Mobiluncus)"'
   CMICHERP:
-    official_name: Microbiologia, efeito citopático do herpes
+    official_name: 'Microbiologia: Efeito citopático compatível com vírus do grupo Herpes'
     translated_name: Herpes cytopathic effect seen
-    description: 'The cytopathic effect of herpes simplex. A morphological inference
-      from the cells, not a virological test.
-
-      '
+    description: Number of exams whose microbiology section reported a cytopathic effect compatible
+      with a herpes-group virus.
     code_system: none
-    source: inferred
-    reasoning: HERP is herpes, an organism item; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICHERP "Mic.vir gr.herpes"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Efeito citopático compatível com vírus do grupo Herpes"'
   CMICLACT:
-    official_name: Microbiologia, lactobacilos
+    official_name: 'Microbiologia: Lactobacillus sp'
     translated_name: Lactobacilli seen
-    description: 'Lactobacilli, the normal vaginal flora. The CMIC_ block reports what
-      organisms the smear showed; this one is the finding that means normal.
-
-      '
+    description: Number of exams whose microbiology section reported Lactobacillus sp., the
+      normal vaginal flora.
     code_system: none
-    source: inferred
-    reasoning: 'CMIC reads citologia microbiologia and LACT lactobacilos; one of the
-      Bethesda organism categories. C(8), values unobserved.
-
-      '
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICLACT "Mic.lactobacillus"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Lactobacillus sp"'
   CMICOUT:
-    official_name: Outros achados microbiológicos
+    official_name: 'Microbiologia: Outros'
     translated_name: Other organism seen
-    description: Any organism the named items do not cover.
+    description: Number of exams whose microbiology section reported another organism not
+      covered by the named items.
     code_system: none
-    source: inferred
-    reasoning: The OUT residual item closing the microbiology block.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICOUT "Mic.outros"; INCA, Requisição de Exame Citopatológico - Colo do Útero
+      (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Outros"'
   CMICTRICO:
-    official_name: Microbiologia, Trichomonas vaginalis
+    official_name: 'Microbiologia: Trichomonas vaginalis'
     translated_name: Trichomonas seen
-    description: 'Trichomonas vaginalis. A sexually transmitted infection, so its presence
-      is a reason to offer wider testing rather than only to treat.
-
-      '
+    description: Number of exams whose microbiology section reported Trichomonas vaginalis.
     code_system: none
-    source: inferred
-    reasoning: TRICO is Trichomonas, an organism item; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CMICTRICO "Mic.trichomonas"; INCA, Requisição de Exame Citopatológico - Colo do
+      Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Microbiologia: Trichomonas vaginalis"'
   CO_ADEQ_MA:
     official_name: Adequabilidade do material
     translated_name: Specimen adequacy
@@ -244,9 +294,10 @@ variables:
     code_system: internal
     source: inferred
     reasoning: 'AMOSTRA is the sample; C(1) admits the small enumerated set the Brazilian
-      nomenclature defines for adequacy.
-
-      '
+      nomenclature defines for adequacy. Reviewed 2026-09-28: no documentation found (searched
+      TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas 1-14,
+      INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). CColo4.def binds adequacy to CO_ADEQ_MA, not to this column.'
   CO_ANM_PRE:
     official_name: Exame citopatológico anterior alterado
     translated_name: Previous cytology abnormal
@@ -308,10 +359,12 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: 'BEN is the benign-changes block and ATR atrofia; C(1) flag, matching
-      its INF, RAD and REP siblings.
-
-      '
+    reasoning: 'BEN is the benign-changes block and ATR atrofia; C(1) flag, matching its INF,
+      RAD and REP siblings. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Form 415 (p.2) lists
+      the benign-change category this flag matches, but no document names the C(1) column
+      itself.'
   CO_BEN_INF:
     official_name: Alteração benigna — inflamação
     translated_name: 'Benign change: inflammation'
@@ -321,7 +374,11 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: INF is inflamação in the BEN block; C(1) flag.
+    reasoning: 'INF is inflamação in the BEN block; C(1) flag. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). Form 415 (p.2) lists the benign-change category this flag
+      matches, but no document names the C(1) column itself.'
   CO_BEN_OUT:
     official_name: Alteração benigna — outras
     translated_name: 'Benign change: other'
@@ -332,9 +389,11 @@ variables:
     code_system: internal
     source: inferred
     reasoning: 'OUT is outras, and an OUT/OUTRO suffix is how DATASUS closes an enumerated
-      checklist throughout; C(1) flag.
-
-      '
+      checklist throughout; C(1) flag. Reviewed 2026-09-28: no documentation found (searched
+      TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas 1-14,
+      INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). Form 415 (p.2) lists the benign-change category this flag matches, but
+      no document names the C(1) column itself.'
   CO_BEN_RAD:
     official_name: Alteração benigna — radiação
     translated_name: 'Benign change: radiation effect'
@@ -344,7 +403,11 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: RAD is radiação in the BEN block; C(1) flag.
+    reasoning: 'RAD is radiação in the BEN block; C(1) flag. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). Form 415 (p.2) lists the benign-change category this flag
+      matches, but no document names the C(1) column itself.'
   CO_BEN_REP:
     official_name: Alteração benigna — reparação
     translated_name: 'Benign change: repair'
@@ -354,18 +417,26 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: REP is reparação in the BEN block; C(1) flag.
+    reasoning: 'REP is reparação in the BEN block; C(1) flag. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). Form 415 (p.2) lists the benign-change category this flag
+      matches, but no document names the C(1) column itself.'
   CO_CEL_ESC:
-    official_name: Células escamosas
-    translated_name: Squamous cells present
-    description: 'Whether squamous epithelial cells were present in the sample. Their
-      presence, with the endocervical cells, is what makes a smear representative of
-      the transformation zone.
-
-      '
+    official_name: Atipias em células escamosas
+    translated_name: Squamous-cell atypia
+    description: 'Squamous-cell atypia result, coded on aticelesc.CNV: 1 low-grade lesion
+      (HPV effect and CIN I), 2 high-grade lesion (CIN II and III), 3 high-grade lesion not
+      excluding microinvasion, 4 invasive squamous carcinoma; 0 not classified.'
     code_system: internal
-    source: inferred
-    reasoning: CEL ESC is células escamosas; C(1) flag.
+    source: layout_doc
+    source_ref: TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CO_CEL_ESCA "Atipias.Cél.Escam."; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Atipias em células escamosas"
+    notes: CColo4.def names the field CO_CEL_ESCA (bound to aticelesc.CNV); dBase field names
+      stop at 10 characters, so the file column is CO_CEL_ESC. Its glandular sibling CO_CEL_GLA
+      is bound to aticelglan.CNV.
   CO_CEL_GLA:
     official_name: Atipias em células glandulares, neoplasia
     translated_name: Glandular neoplasia
@@ -382,19 +453,19 @@ variables:
 
       '
   CO_EPI_MET:
-    official_name: Epitélio metaplásico na amostra
+    official_name: 'Epitélios representados na amostra: Metaplásico'
     translated_name: Metaplastic epithelium present
-    description: 'Whether metaplastic or glandular epithelium was present. Its presence
-      shows the smear sampled the transformation zone, where cervical cancer arises
-      — a smear without it may be satisfactory and still have missed the target.
-
-      '
+    description: Number of exams whose slide showed metaplastic epithelium among the epithelia
+      represented in the sample. With glandular epithelium, it is what shows the transformation
+      zone was sampled.
     code_system: none
-    source: inferred
-    reasoning: 'EPI_MET reads epitélio metaplásico, an adequacy item; C(8), values
-      unobserved.
-
-      '
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CO_EPI_MET "Epitelio metaplasia"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Epitélios representados na amostra: Metaplásico"; Nota Técnica 2 SISCAN - Citopatológico
+      do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Epitélio metaplas."'
   CO_INSA_AC:
     official_name: Insatisf.Mat.Acelul
     translated_name: Unsatisfactory - acellular/hypocellular material
@@ -503,12 +574,14 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'CColo4.def has no entry for CO_MIC_ACT, but its microbiology block
-      lists CMICACTI = "Mic.actinomyces sp" at the position matching this field''s
-      ACT suffix; DATASUS''s CO_/CD_ = codigo naming grammar and the shared 3-letter
-      organism abbreviations across the CO_MIC_* set support the link.
-
-      '
+    reasoning: 'CColo4.def has no entry for CO_MIC_ACT, but its microbiology block lists CMICACTI
+      = "Mic.actinomyces sp" at the position matching this field''s ACT suffix; DATASUS''s
+      CO_/CD_ = codigo naming grammar and the shared 3-letter organism abbreviations across
+      the CO_MIC_* set support the link. Reviewed 2026-09-28: no documentation found (searched
+      TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas 1-14,
+      INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). The organism labels agree with the Microbiologia block of form 415, but
+      no document names the CO_MIC_* columns.'
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       -> CColo4.def, campo CMICACTI "Mic.actinomyces sp".
 
@@ -524,10 +597,12 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Matched via CColo4.def''s CMICBACI = "Mic.outros bacilos", the same
-      naming correspondence used for the other CO_MIC_* organism flags.
-
-      '
+    reasoning: 'Matched via CColo4.def''s CMICBACI = "Mic.outros bacilos", the same naming
+      correspondence used for the other CO_MIC_* organism flags. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). The organism labels agree with the Microbiologia block of
+      form 415, but no document names the CO_MIC_* columns.'
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       -> CColo4.def, campo CMICBACI "Mic.outros bacilos".
 
@@ -542,10 +617,12 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Matched via CColo4.def''s CMICCAND = "Mic.CANDIDA sp", the same naming
-      correspondence used for the other CO_MIC_* organism flags.
-
-      '
+    reasoning: 'Matched via CColo4.def''s CMICCAND = "Mic.CANDIDA sp", the same naming correspondence
+      used for the other CO_MIC_* organism flags. Reviewed 2026-09-28: no documentation found
+      (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas
+      1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). The organism labels agree with the Microbiologia block of form 415, but
+      no document names the CO_MIC_* columns.'
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       -> CColo4.def, campo CMICCAND "Mic.CANDIDA sp".
 
@@ -561,10 +638,12 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Matched via CColo4.def''s CMICCHLA = "Mic.sug.chlamydia", the same
-      naming correspondence used for the other CO_MIC_* organism flags.
-
-      '
+    reasoning: 'Matched via CColo4.def''s CMICCHLA = "Mic.sug.chlamydia", the same naming
+      correspondence used for the other CO_MIC_* organism flags. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). The organism labels agree with the Microbiologia block of
+      form 415, but no document names the CO_MIC_* columns.'
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       -> CColo4.def, campo CMICCHLA "Mic.sug.chlamydia".
 
@@ -580,9 +659,11 @@ variables:
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Matched via CColo4.def''s CMICCOCO = "Mic.cocos", the same naming correspondence
-      used for the other CO_MIC_* organism flags.
-
-      '
+      used for the other CO_MIC_* organism flags. Reviewed 2026-09-28: no documentation found
+      (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas
+      1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). The organism labels agree with the Microbiologia block of form 415, but
+      no document names the CO_MIC_* columns.'
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       -> CColo4.def, campo CMICCOCO "Mic.cocos".
 
@@ -598,11 +679,13 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Matched via CColo4.def''s CMICGARD = "Mic.bacil supracit." (bacilos
-      supracitados, i.e. suggestive of Gardnerella/Mobiluncus), the same naming correspondence
-      used for the other CO_MIC_* organism flags.
-
-      '
+    reasoning: 'Matched via CColo4.def''s CMICGARD = "Mic.bacil supracit." (bacilos supracitados,
+      i.e. suggestive of Gardnerella/Mobiluncus), the same naming correspondence used for
+      the other CO_MIC_* organism flags. Reviewed 2026-09-28: no documentation found (searched
+      TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas 1-14,
+      INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). The organism labels agree with the Microbiologia block of form 415, but
+      no document names the CO_MIC_* columns.'
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       -> CColo4.def, campo CMICGARD "Mic.bacil supracit.".
 
@@ -618,10 +701,12 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Matched via CColo4.def''s CMICHERP = "Mic.vir gr.herpes", the same
-      naming correspondence used for the other CO_MIC_* organism flags.
-
-      '
+    reasoning: 'Matched via CColo4.def''s CMICHERP = "Mic.vir gr.herpes", the same naming
+      correspondence used for the other CO_MIC_* organism flags. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). The organism labels agree with the Microbiologia block of
+      form 415, but no document names the CO_MIC_* columns.'
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       -> CColo4.def, campo CMICHERP "Mic.vir gr.herpes".
 
@@ -636,10 +721,12 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Matched via CColo4.def''s CMICLACT = "Mic.lactobacillus", the same
-      naming correspondence used for the other CO_MIC_* organism flags.
-
-      '
+    reasoning: 'Matched via CColo4.def''s CMICLACT = "Mic.lactobacillus", the same naming
+      correspondence used for the other CO_MIC_* organism flags. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). The organism labels agree with the Microbiologia block of
+      form 415, but no document names the CO_MIC_* columns.'
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       -> CColo4.def, campo CMICLACT "Mic.lactobacillus".
 
@@ -656,9 +743,11 @@ variables:
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Matched via CColo4.def''s CMICOUT = "Mic.outros", the same naming correspondence
-      used for the other CO_MIC_* organism flags.
-
-      '
+      used for the other CO_MIC_* organism flags. Reviewed 2026-09-28: no documentation found
+      (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas
+      1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). The organism labels agree with the Microbiologia block of form 415, but
+      no document names the CO_MIC_* columns.'
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       -> CColo4.def, campo CMICOUT "Mic.outros".
 
@@ -719,21 +808,18 @@ variables:
       (formulario no.415), p.1-2
   CO_SEQ_SISCAN_CITO_COLO_RESID:
     official_name: Sequencial SISCAN citopatologia colo (resultado de origem)
-    translated_name: Originating cytology record reference
-    description: 'Links this histopathology (biopsy) row back to the cytology (Pap
-      smear) record whose abnormal result led to the biopsy — the two SISCAN datasets''
-      natural join key.
-
-      '
+    translated_name: Record sequence number (cervical-cytology exam extract)
+    description: Row-sequence identifier of the SISCAN cervical-cytology exam extract (SISCAN_CITO_COLO),
+      the table's own record number.
     code_system: none
     source: inferred
-    reasoning: 'A cervical biopsy is clinically triggered by an abnormal cytology result;
-      this column names CITO_COLO explicitly while living on the HISTO_COLO table,
-      which only makes sense as a cross-dataset reference rather than a same-table
-      sequence id.
-
-      '
-    notes: Distinguish from CO_SEQ_SISCAN_HISTO_COLO_RESID, this table's own row id.
+    reasoning: 'CO_SEQ_ plus a table name is the row-identifier pattern of every SISCAN yearly
+      extract, and catalog evidence places this column on the SISCAN_CITO_COLO yearly files
+      themselves. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Description corrected:
+      it is not a histology-to-cytology link.'
+    notes: Occurs on the SISCAN_CITO_COLO yearly extracts, not on HISTO_COLO.
   CVCIONAL:
     official_name: Coleta - meio convencional
     translated_name: Conventional (slide) collection method flag
@@ -744,14 +830,15 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Decomposes to an abbreviation of ''convencional'', paired with the
-      neighbouring field MEIOLIQU (''meio liquido''). Liquid-based cervical cytology
-      became a billable SUS procedure alongside the conventional smear, so a binary
-      collection-method pair is the natural DATASUS-style encoding, but neither field
-      name is confirmed against a written source - the paper form on file predates
-      the liquid-based option and does not show either checkbox.
-
-      '
+    reasoning: 'Decomposes to an abbreviation of ''convencional'', paired with the neighbouring
+      field MEIOLIQU (''meio liquido''). Liquid-based cervical cytology became a billable
+      SUS procedure alongside the conventional smear, so a binary collection-method pair is
+      the natural DATASUS-style encoding, but neither field name is confirmed against a written
+      source - the paper form on file predates the liquid-based option and does not show either
+      checkbox. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Form 415 has no collection-method
+      item.'
     notes: 'Moderate confidence only; treat as a working hypothesis, not a citation.
 
       '
@@ -807,11 +894,13 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DT_ is DATASUS''s date-field prefix; a declared width of 4 characters
-      only fits a bare year, which matches the ''ano ___'' blank on anamnese question
-      2 rather than any full-date field on the form.
-
-      '
+    reasoning: 'DT_ is DATASUS''s date-field prefix; a declared width of 4 characters only
+      fits a bare year, which matches the ''ano ___'' blank on anamnese question 2 rather
+      than any full-date field on the form. Reviewed 2026-09-28: no documentation found (searched
+      TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas 1-14,
+      INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). Form 415 item 2 ("Sim. Quando fez o último exame? ano") has the year blank
+      this reading assumes.'
     notes: 'Do not expect day/month precision from this column - it is a year only.
 
       '
@@ -877,15 +966,20 @@ variables:
       Ministerio da Saude/INCA, Requisicao de Exame Citopatologico - Colo do Utero
       (formulario no.415), p.1-2
   LESALTGRA:
-    official_name: Lesão intraepitelial escamosa de alto grau
-    translated_name: High-grade squamous intraepithelial lesion
-    description: 'A high-grade squamous lesion (HSIL). The finding cervical screening
-      exists to catch: precancerous, treatable, and the direct indication for colposcopy.
-
-      '
+    official_name: 'Células escamosas atípicas de significado indeterminado: não se pode afastar
+      lesão de alto grau (ASC-H)'
+    translated_name: Atypical squamous cells, cannot exclude high-grade lesion (ASC-H)
+    description: Number of exams reporting atypical squamous cells of undetermined significance
+      where a high-grade lesion cannot be excluded (ASC-H). Not the high-grade squamous lesion
+      itself, which is a separate item.
     code_system: none
-    source: inferred
-    reasoning: LES ALT GRA reads lesão de alto grau; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo LESALTGRA "Esc.Indet alto grau"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Células atípicas de significado indeterminado - Escamosas: Não se pode afastar
+      lesão de alto grau (ASC-H)"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf, "ASC-H"'
   MEIOLIQU:
     official_name: Coleta - meio liquido
     translated_name: Liquid-based collection method flag
@@ -895,50 +989,55 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'MEIO+LIQU decomposes directly to ''meio liquido'' (liquid medium),
-      the standard term for liquid-based Pap-smear preparation, paired with CVCIONAL
-      as the two collection-method options.
-
-      '
+    reasoning: 'MEIO+LIQU decomposes directly to ''meio liquido'' (liquid medium), the standard
+      term for liquid-based Pap-smear preparation, paired with CVCIONAL as the two collection-method
+      options. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Form 415 has no collection-method
+      item.'
     notes: 'Moderate confidence only; not confirmed against a written source.
 
       '
   NALTGRA:
-    official_name: Lesão intraepitelial de alto grau não podendo excluir microinvasão
-    translated_name: High-grade lesion, microinvasion not excluded
-    description: 'A high-grade lesion where microinvasion cannot be excluded. More
-      serious than LESALTGRA, because invasion changes the treatment from local excision
-      to staging.
-
-      '
+    official_name: 'Células atípicas de origem indefinida: não se pode afastar lesão de alto
+      grau'
+    translated_name: Atypical cells of undefined origin, cannot exclude high-grade lesion
+    description: Number of exams reporting atypical cells of undefined origin where a high-grade
+      lesion cannot be excluded.
     code_system: none
-    source: inferred
-    reasoning: 'N ALT GRA reads não podendo excluir, alto grau, a distinct Bethesda
-      category; C(8), values unobserved.
-
-      '
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo NALTGRA "Ori.Indef alto grau"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Células atípicas de significado indeterminado - De origem indefinida: Não se pode
+      afastar lesão de alto grau"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf, "Ori.
+      Indef. Alto Grau"'
   NLSALTGRA:
-    official_name: Lesão intraepitelial de alto grau, variante
-    translated_name: High-grade lesion, variant field
-    description: 'The high-grade lesion item as carried in another generation of the
-      form. See PSNAONPLA on duplicated items across generations.
-
-      '
+    official_name: 'Células glandulares atípicas de significado indeterminado: não se pode
+      afastar lesão de alto grau'
+    translated_name: Atypical glandular cells, cannot exclude high-grade lesion
+    description: Number of exams reporting atypical glandular cells of undetermined significance
+      where a high-grade lesion cannot be excluded.
     code_system: none
-    source: inferred
-    reasoning: A variant spelling of LESALTGRA in a different generation; C(8), values
-      unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo NLSALTGRA "Gland.Ind.alto grau"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Células atípicas de significado indeterminado - Glandulares: Não se pode afastar
+      lesão de alto grau"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "At.Glan.Ind. Alto Grau"'
   NU_EXAME_ALTERADO:
-    official_name: Número de exames alterados
+    official_name: Exames Alterados
     translated_name: Count of altered (abnormal) exam results
-    description: 'Count of cytology exams in this row''s aggregation with an abnormal
-      ("alterado") result — the complement of the normal category recorded in ST_DENTRO_LIMITE_NORMALIDADE.
-
-      '
+    description: Number of cytology exams in the row with at least one atypia result (atypical
+      squamous, glandular or undefined-origin cells, low- or high-grade lesion, invasive carcinoma,
+      adenocarcinoma). Benign changes are excluded, so this is not the complement of the within-normal-limits
+      count.
     code_system: none
-    source: inferred
-    reasoning: NU_ is this dataset's count prefix; "exame alterado" is standard for
-      an abnormal result.
+    source: layout_doc
+    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Exames Alterados"
     notes: Declared C(0,0); no observed values captured.
   OUTNEO:
     official_name: Outras neoplasias malignas (citologia)
@@ -955,41 +1054,45 @@ variables:
 
       '
   POSNAONEO:
-    official_name: Possivelmente não neoplásico
-    translated_name: Possibly non-neoplastic
-    description: 'The possibly-non-neoplastic category as recorded in another generation
-      of the form. See PSNAONPLA for why several near-identical fields exist.
-
-      '
+    official_name: 'Células escamosas atípicas de significado indeterminado: possivelmente
+      não neoplásicas (ASC-US)'
+    translated_name: Atypical squamous cells, possibly non-neoplastic (ASC-US)
+    description: Number of exams reporting atypical squamous cells of undetermined significance,
+      possibly non-neoplastic (ASC-US).
     code_system: none
-    source: inferred
-    reasoning: POS NAO NEO reads possivelmente não neoplásico; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo POSNAONEO "Esc.Indet não neopl"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Células atípicas de significado indeterminado - Escamosas: Possivelmente não neoplásicas
+      (ASC-US)"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "ASC-US"'
   PSNAONPLA:
-    official_name: Células escamosas atípicas possivelmente não neoplásicas
-    translated_name: Squamous atypia, possibly non-neoplastic
-    description: 'The ASC-US finding carried as its own item. Duplicates part of CO_ATI_ESC
-      and comes from a different generation of the form, so the two must not be added
-      together.
-
-      '
+    official_name: 'Células glandulares atípicas de significado indeterminado: possivelmente
+      não neoplásicas'
+    translated_name: Atypical glandular cells, possibly non-neoplastic
+    description: Number of exams reporting atypical glandular cells of undetermined significance,
+      possibly non-neoplastic.
     code_system: none
-    source: inferred
-    reasoning: 'PS reads possivelmente and NAONPLA não neoplásica, mirroring the ASC-US
-      value of ATIPINDESC; C(8), values unobserved.
-
-      '
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo PSNAONPLA "Gland.Indet não neo"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Células atípicas de significado indeterminado - Glandulares: Possivelmente não
+      neoplásicas"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "At. Glan.Ind.Não Neo"'
   PSNNPLA:
-    official_name: Células escamosas atípicas possivelmente não neoplásicas
-    translated_name: Squamous atypia, possibly non-neoplastic, variant field
-    description: 'A second field carrying the same ASC-US finding under a shorter name.
-      Schema generations of this form repeat items under variant names; read whichever
-      is populated for the year in hand.
-
-      '
+    official_name: 'Células atípicas de origem indefinida: possivelmente não neoplásicas'
+    translated_name: Atypical cells of undefined origin, possibly non-neoplastic
+    description: Number of exams reporting atypical cells of undefined origin, possibly non-neoplastic.
     code_system: none
-    source: inferred
-    reasoning: A truncated spelling of PSNAONPLA in a different generation; C(8), values
-      unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo PSNNPLA "Ori.Indef não neopl"; INCA, Requisição de Exame Citopatológico - Colo
+      do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Células atípicas de significado indeterminado - De origem indefinida: Possivelmente
+      não neoplásicas"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Ori. Indef. Não Neo"'
   REJEITADA:
     official_name: Amostra rejeitada
     translated_name: Rejected sample flag (cytology)
@@ -1009,29 +1112,17 @@ variables:
 
       '
   REPREZT:
-    official_name: Representacao da zona de transformacao
-    translated_name: Transformation-zone representation flag
-    description: 'Whether the transformation zone / endocervical component is represented
-      in the cervical smear - a standard adequacy sub-item in the Bethesda-based Brazilian
-      cervical-cytology nomenclature (Nomenclatura Brasileira para Laudos Cervicais,
-      INCA 2006), tracked alongside but separately from the basic satisfatoria/insatisfatoria
-      call. Only present from 2008 onward (2,210 of the 2,858 CC files), consistent
-      with a criterion added partway through the 2006-2015 window rather than present
-      at launch.
-
-      '
+    official_name: Representatividade da Zona de Transformação
+    translated_name: Transformation zone represented (count)
+    description: Number of exams in which the transformation zone was represented, meaning
+      metaplastic and/or glandular (endocervical) epithelium was present on the slide.
     code_system: none
-    source: inferred
-    reasoning: 'REPREZT decomposes to ''representacao da zona de transformacao''; presence/absence
-      of the transformation-zone component is a documented part of the Brazilian cervical-cytology
-      reporting nomenclature, and the field''s later start year is consistent with
-      a criterion added after the system''s 2006 launch.
-
-      '
-    notes: 'Exact code values not verified against a written source - a well-reasoned
-      reading, not a citation.
-
-      '
+    source: layout_doc
+    source_ref: TabWin definition CColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo REPREZT "Represent. ZT"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf, "Representatividade
+      da Zona de Transformação"
+    notes: Present only from 2008 onward (2,210 of the 2,858 CC files).
   RESNORM:
     official_name: Resultado normal/benigno
     translated_name: Normal/benign result flag

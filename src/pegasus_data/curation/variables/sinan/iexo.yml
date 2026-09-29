@@ -48,161 +48,96 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_Intoxicacao_Exogena_v5.pdf, campo 49
   ATIVIDA_1:
-    official_name: Atividade exercida (1)
-    translated_name: Activity being performed, first
-    description: 'What the person was doing when the event happened, as the first of
-      up to three coded activities. More than one is recorded because an exposure can
-      occur during a task made of several.
-
-      '
+    official_name: 'Se agrotóxico, quais as atividades exercidas na exposição atual (1ª opção)'
+    translated_name: 'Pesticide activity at exposure, first option'
+    description: 'For pesticide poisonings, the first activity being carried out at the exposure (e.g. dilution, spraying, seed treatment, storage, harvest, transport).'
     code_system: internal
-    source: inferred
-    reasoning: 'ATIVIDA is atividade truncated to the ten characters DBF allows; C(2)
-      admits a code, and the numbered siblings admit up to three.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 52 (Se agrotóxico, quais as atividades exercidas na exposição atual – 1ª opção)'
   ATIVIDA_2:
-    official_name: Atividade exercida (2)
-    translated_name: Activity being performed, second
-    description: 'The second activity recorded for the same event, where one was not
-      enough to describe what was being done.
-
-      '
+    official_name: 'Se agrotóxico, quais as atividades exercidas na exposição atual (2ª opção)'
+    translated_name: 'Pesticide activity at exposure, second option'
+    description: 'For pesticide poisonings, the second activity being carried out at the exposure; see ATIVIDA_1.'
     code_system: internal
-    source: inferred
-    reasoning: Numbered sibling of ATIVIDA_1, same C(2) width.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 52 (Se agrotóxico, quais as atividades exercidas na exposição atual – 2ª opção)'
   ATIVIDA_3:
-    official_name: Atividade exercida (3)
-    translated_name: Activity being performed, third
-    description: 'The third and last activity slot. Beyond three the form has nowhere
-      to put an activity, so a complex task is truncated rather than continued.
-
-      '
+    official_name: 'Se agrotóxico, quais as atividades exercidas na exposição atual (3ª opção)'
+    translated_name: 'Pesticide activity at exposure, third option'
+    description: 'For pesticide poisonings, the third activity being carried out at the exposure; see ATIVIDA_1.'
     code_system: internal
-    source: inferred
-    reasoning: Last numbered sibling of the ATIVIDA_* group.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 52 (Se agrotóxico, quais as atividades exercidas na exposição atual – 3ª opção)'
   CIRCUNSTAN:
-    official_name: Circunstância
+    official_name: 'Circunstância da exposição / contaminação'
     translated_name: Circumstance
-    description: 'Coded circumstance in which the event occurred — accidental, occupational,
-      intentional and so on. The distinction that separates an exposure at work from
-      one at home, and an accident from an attempt.
-
-      '
+    description: 'Circumstance of the exposure, e.g. habitual use, accidental, environmental, therapeutic use, self-medication, abuse, food or drink ingestion, suicide attempt, violence.'
     code_system: internal
-    source: inferred
-    reasoning: 'Circunstância truncated to ten characters, C(2) for a code; the free-text
-      elaboration is in CIRCUN_DES.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 55 (Circunstância da exposição / contaminação)'
   CIRCUN_DES:
-    official_name: Descrição da circunstância
+    official_name: 'Circunstância da exposição / contaminação - Outro (especificar)'
     translated_name: Circumstance, free text
-    description: 'Free text elaborating the coded circumstance, where the code did
-      not capture it. Thirty characters, so it is a phrase and not an account.
-
-      '
+    description: 'Free-text description of the circumstance when CIRCUNSTAN is 13 (other).'
     code_system: none
-    source: inferred
-    reasoning: 'DES is descrição and C(30) is too wide for a code and too narrow for
-      prose; it is the text companion of CIRCUNSTAN.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 55 (Circunstância da exposição / contaminação – Outro, especificar)'
     notes: 'Free text, uncoded and unvalidated. Do not tabulate it without reading
       it.
 
       '
   COAGTOXMA1:
-    official_name: Tempo de coagulação (1)
-    translated_name: Coagulation time, first measurement
-    description: 'First coagulation-time measurement taken after a venomous bite. Clotting
-      time is what determines whether antivenom is working, so it is measured repeatedly.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'COAG is coagulação and the column is N(4) — numeric, unlike the C(1)
-      flags around it — with three numbered repeats, which is how a serial measurement
-      is recorded.
-
-      '
+    official_name: 'Agente tóxico (código) 1'
+    translated_name: 'Toxic agent code, first'
+    description: 'Code of the first toxic agent (commercial product/brand) involved in the poisoning; its active ingredient is P_ATIVO_1.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 50 (Agente tóxico (código) 1, co_ag_tox_marca)'
   COAGTOXMA2:
-    official_name: Tempo de coagulação (2)
-    translated_name: Coagulation time, second measurement
-    description: 'Second coagulation-time measurement, taken after the first to see
-      whether clotting is recovering.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: Numbered sibling of COAGTOXMA1, same N(4).
+    official_name: 'Agente tóxico (código) 2'
+    translated_name: 'Toxic agent code, second'
+    description: 'Code of the second toxic agent (commercial product/brand) involved; see COAGTOXMA1.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 50 (Agente tóxico (código) 2)'
   COAGTOXMA3:
-    official_name: Tempo de coagulação (3)
-    translated_name: Coagulation time, third measurement
-    description: 'Third and last coagulation-time slot on the form. A case still not
-      clotting by this point has nowhere further to be recorded.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: Last numbered sibling of the COAGTOXMA group.
+    official_name: 'Agente tóxico (código) 3'
+    translated_name: 'Toxic agent code, third'
+    description: 'Code of the third toxic agent (commercial product/brand) involved; see COAGTOXMA1.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 50 (Agente tóxico (código) 3)'
   DIAG_CONF:
-    official_name: Diagnóstico confirmado
+    official_name: 'Se intoxicação confirmada, qual o diagnóstico (CID-10)'
     translated_name: Confirmed diagnosis
     description: 'CID-10 code of the diagnosis once investigation confirmed it, as
       opposed to what was suspected at notification. Stored without the dot.
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'Declared C(4), the CID-10 subcategory width, and CONF is confirmado
-      — the confirmed counterpart of the notified suspicion.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 66 (Se intoxicação confirmada, qual o diagnóstico (CID-10))'
   INTOX_CHUM:
-    official_name: Agente Tóxico - Chumbo
+    official_name: 'Intoxicação exógena por chumbo'
     translated_name: Toxic agent - lead
-    description: 'Whether lead (chumbo) was the metal identified as the poisoning agent
-      in an exogenous-poisoning (Intoxicação Exógena) case, one item of the form''s
-      metals checklist alongside INTOX_MERC.
-
-      '
+    description: 'Flag set to 1 when the chemical product was classified as lead; blank means no or unknown.'
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and IEXO series membership.
-      "INTOX_CHUM" decomposes to "intoxicação por chumbo"; the Intoxicação Exógena
-      form is known to break its toxic-agent question into a checklist by substance
-      class, with metals as one class.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), derived field (Intoxicação exógena por chumbo)'
   INTOX_MERC:
-    official_name: Agente Tóxico - Mercúrio
+    official_name: 'Intoxicação exógena por mercúrio'
     translated_name: Toxic agent - mercury
-    description: 'Whether mercury was the metal identified as the poisoning agent,
-      sibling checklist item to INTOX_CHUM on the same metals sub-list.
-
-      '
+    description: 'Flag set to 1 when the chemical product was classified as mercury; blank means no or unknown.'
     code_system: internal
-    source: inferred
-    reasoning: 'Same basis as INTOX_CHUM: C1 width, IEXO series, and unambiguous name
-      decomposition ("intoxicação por mercúrio").
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), derived field (Intoxicação exógena por mercúrio)'
   INTOX_META:
-    official_name: Agente Tóxico - Outro metal
-    translated_name: Toxic agent - other metal
-    description: 'Whether a metal other than lead or mercury was the identified poisoning
-      agent. DBF names are capped at 10 characters, so "INTOX_META" most likely truncates
-      "INTOX_METAL" rather than naming one specific metal.
-
-      '
+    official_name: 'Intoxicação exógena por metanol'
+    translated_name: 'Exogenous poisoning by methanol'
+    description: 'Flag set to 1 when the chemical product was classified as methanol; blank means no or unknown.'
     code_system: internal
-    source: inferred
-    reasoning: 'Same C1/IEXO basis as INTOX_CHUM and INTOX_MERC. Read as the checklist''s
-      catch-all "outro metal" item rather than a third named metal, since no other
-      common heavy-metal name fits the 10-character DBF limit as cleanly.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), derived field (Intoxicação exógena por metanol)'
   LAVOURA:
     official_name: Se agrotóxico de uso agrícola, qual a cultura / lavoura
     translated_name: Crop treated with the pesticide
@@ -237,36 +172,21 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026.pdf, campo 34
   OUT_AGENTE:
-    official_name: Outro agente tóxico
+    official_name: 'Grupo do agente tóxico - Outro (especificar)'
     translated_name: Other toxic agent (specify)
-    description: 'Free-text field naming the toxic agent responsible for a poisoning
-      case when it isn''t one of the form''s standard agent categories (pesticide,
-      medication, industrial chemical, etc.).
-
-      '
+    description: 'Free-text name of the toxic agent group when the general classification (campo 49) is 14 (other).'
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is IEXO (intoxicação exógena); OUT_AGENTE reads "outro agente";
-      C30 free-text width fits an "other, specify" companion to a coded agent-type
-      field.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 50 (Grupo do agente tóxico / classificação geral – Outro, especificar)'
   PAIS_EXP:
-    official_name: País de exposição
+    official_name: 'País (se estabelecimento fora do Brasil)'
     translated_name: Country of exposure
-    description: 'Country where the poisoning exposure took place, used for the minority
-      of Intoxicação Exógena (IEXO) cases where contact with the toxic agent happened
-      outside Brazil.
-
-      '
+    description: 'Country of the place of exposure when it lies outside Brazil.'
     code_system: none
-    source: inferred
-    reasoning: 'IEXO = Intoxicação Exógena; PAIS = país, EXP = exposição; width 4 short
-      code, but no codelist is bound to it in the catalog.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 48 (País, se estabelecimento fora do Brasil)'
   P_ATIVO_1:
-    official_name: Princípio ativo (1º)
+    official_name: 'Agente tóxico (princípio ativo) 1'
     translated_name: Active ingredient (1st)
     description: 'Free-text name of the toxic substance''s active ingredient (e.g.
       a pesticide''s chemical name) involved in the poisoning - first of up to three
@@ -274,113 +194,91 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'IEXO form; P_ATIVO = princípio ativo; width 60 fits a chemical/product
-      name; numbered 1-3 like PART_CORP and VIA below.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 50 (Agente tóxico (princípio ativo) 1)'
   P_ATIVO_2:
-    official_name: Princípio ativo (2º)
+    official_name: 'Agente tóxico (princípio ativo) 2'
     translated_name: Active ingredient (2nd)
     description: 'Second active-ingredient name recorded when the poisoning involved
       more than one toxic substance, alongside P_ATIVO_1.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Second of three same-pattern fields; see P_ATIVO_1.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 50 (Agente tóxico (princípio ativo) 2)'
   P_ATIVO_3:
-    official_name: Princípio ativo (3º)
+    official_name: 'Agente tóxico (princípio ativo) 3'
     translated_name: Active ingredient (3rd)
     description: 'Third active-ingredient name, completing the up-to-three-substance
       record alongside P_ATIVO_1 and P_ATIVO_2.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Third of three same-pattern fields; see P_ATIVO_1.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 50 (Agente tóxico (princípio ativo) 3)'
   TPATENDE:
     official_name: Tipo de atendimento
     translated_name: Type of care provided
-    description: 'Coded type of medical care the poisoning (IEXO) patient received
-      (e.g. outpatient, hospital admission, emergency-only), a single-digit classification
-      distinct from TPEXP, which codes how exposure occurred.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: TP_ = tipo, ATENDE = atendimento; IEXO form; width 1.
+    description: 'Type of care the patient received: hospital, outpatient, home, or none.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 59 (Tipo de atendimento)'
   TPEXP:
     official_name: Tipo de exposição
     translated_name: Type of exposure
-    description: 'How the patient came into contact with the toxic agent - e.g. occupational,
-      accidental, suicide attempt, or other circumstance - the core exposure-circumstance
-      classification on the poisoning form.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: TP_ = tipo, EXP = exposição; IEXO form; width 1.
+    description: 'Temporal pattern of the exposure: acute single, acute repeated, chronic, or acute on chronic.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 57 (Tipo de exposição)'
   TRAB_DESC:
-    official_name: Trabalho - descrição
-    translated_name: Occupation description
-    description: 'Free-text description of the poisoning (IEXO) patient''s job or work
-      activity, used to characterize occupational exposure when the case''s circumstance
-      is work-related.
-
-      '
+    official_name: 'Situação no mercado de trabalho - Se outro, especificar'
+    translated_name: 'Labour-market situation, other - specify'
+    description: 'Free-text labour-market situation when campo 33 (situação no mercado de trabalho) is 12 (other).'
     code_system: none
-    source: inferred
-    reasoning: TRAB_DESC = trabalho + descreva; width 30 free text.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 33 (Situação no mercado de trabalho – Se outro especificar)'
   UTILIZACAO:
-    official_name: Utilização do produto
-    translated_name: Product in use at exposure (flag)
-    description: 'Whether the toxic product was in active use (being applied, mixed,
-      or handled) at the moment of exposure, as opposed to accidental contact with
-      a stored or discarded product. Paired with UTIL_DESC for detail.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: IEXO form; UTILIZACAO = utilização; width 1 checkbox.
+    official_name: 'Se agrotóxico, qual a finalidade da utilização'
+    translated_name: 'Pesticide purpose of use'
+    description: 'For pesticide poisonings, what the product is used for: insecticide, herbicide, tick killer, rodenticide, fungicide, wood preservative, or other.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 51 (Se agrotóxico, qual a finalidade da utilização)'
   UTIL_DESC:
-    official_name: Utilização do produto - descrição
-    translated_name: Product use - description
-    description: 'Free-text detail of how the toxic product was being used when the
-      poisoning occurred, filled in alongside the UTILIZACAO checkbox.
-
-      '
+    official_name: 'Se agrotóxico, qual a finalidade da utilização - Outro (especificar)'
+    translated_name: 'Pesticide purpose of use, other - specify'
+    description: 'Free-text purpose of the pesticide when UTILIZACAO is 7 (other).'
     code_system: none
-    source: inferred
-    reasoning: UTIL_DESC = utilização + descreva; width 30 free text.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 51 (Finalidade da utilização – Outro, especificar)'
   VIA_1:
-    official_name: Via de exposição (1ª)
+    official_name: 'Via de exposição / contaminação (1ª opção)'
     translated_name: Exposure route (1st)
     description: 'First recorded route by which the toxic agent entered the body (e.g.
       oral, dermal, respiratory, ocular) - the IEXO form allows up to three routes
       since a single exposure can involve more than one.
 
       '
-    code_system: none
-    source: inferred
-    reasoning: VIA_ = via, numbered 1-3; width 1 code.
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 54 (Via de exposição / contaminação – 1ª opção)'
   VIA_2:
-    official_name: Via de exposição (2ª)
+    official_name: 'Via de exposição / contaminação (2ª opção)'
     translated_name: Exposure route (2nd)
     description: 'Second exposure route recorded when the poisoning involved more than
       one route of entry, alongside VIA_1.
 
       '
-    code_system: none
-    source: inferred
-    reasoning: Second of three same-pattern fields; see VIA_1.
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 54 (Via de exposição / contaminação – 2ª opção)'
   VIA_3:
-    official_name: Via de exposição (3ª)
+    official_name: 'Via de exposição / contaminação (3ª opção)'
     translated_name: Exposure route (3rd)
     description: 'Third exposure route, completing the up-to-three-route record alongside
       VIA_1 and VIA_2.
 
       '
-    code_system: none
-    source: inferred
-    reasoning: Third of three same-pattern fields; see VIA_1.
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 54 (Via de exposição / contaminação – 3ª opção)'

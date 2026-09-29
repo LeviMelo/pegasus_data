@@ -16,7 +16,8 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'DEPEND is dependente; a count in the population table, and the dependency
-      ratio is the standard use of such a split.
-
-      '
+    reasoning: 'DEPEND is dependente; a count in the population table, and the
+      dependency ratio is the standard use of such a split. Reviewed 2026-09-28: no
+      documentation found (searched ftp.datasus.gov.br/dissemin/publicos/IBGE/doc and
+      Auxiliar/TAB_POP.zip DEFs; the censo ALF/ESCA/IDOSO/RENDA zips ship DBF only, with
+      no DEF or layout).'

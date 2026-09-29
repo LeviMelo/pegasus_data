@@ -294,17 +294,15 @@ variables:
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: 'The Nota Informativa lists the export''s IBGE code columns and names
-      this one CD_MN_RESI_TF ("Código IBGE de novo município de residência"), but that
-      is thirteen characters and truncating it to the DBF ten-character limit yields
-      CD_MN_RESI, which the file already uses for the municipality of residence; DBF
-      resolves such a collision by altering the last character, giving CD_MN_RES0.
-      Position confirms it: the seven documented code columns appear in the file in
-      the same order as their name columns, and this one sits exactly where the MN_RESI_TF
-      companion belongs, between CD_MUN_ESP and CD_MUN_NOV.
-
-      '
+    source: layout_doc
+    source_ref: 'Nota técnica TabWin ''Doença de Chagas crônica – e-SUS Notifica''
+      (conforme Nota Informativa nº 7/2023-CGZV/DEIDT/SVS/MS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/ESUSNOTIFICA/DOCS/Nota_Informativa_Doenca_de_Chagas_Cronica.pdf
+      (local: sources/nota_chagas.txt), table of IBGE code columns: CD_MN_RESI_TF ''COD
+      IBGE – Município de transferência: Código IBGE de novo município de residência''.
+      The DBF name CD_MN_RES0 is the 10-character truncation of CD_MN_RESI_TF with the
+      last character altered to avoid colliding with CD_MN_RESI; the mapping is by name
+      and column position, not stated in the note.'
     modifies: MN_RESI_TF
     notes: 'Declared N(1,0), like MN_RESI_TF itself, so the column is almost certainly
       empty in the published extract.
@@ -377,14 +375,13 @@ variables:
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: 'The Nota Informativa names this column CD_MUN_NOV_AC and defines it
-      as the IBGE code of the municipality of the new follow-up UBS; CD_MUN_NOV is
-      that name cut to the DBF ten-character limit. Its position in the code block
-      matches MUN_NOV_AC''s position among the name columns, following the same parallel
-      ordering as the other six code companions.
-
-      '
+    source: layout_doc
+    source_ref: 'Nota técnica TabWin ''Doença de Chagas crônica – e-SUS Notifica''
+      (conforme Nota Informativa nº 7/2023-CGZV/DEIDT/SVS/MS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/ESUSNOTIFICA/DOCS/Nota_Informativa_Doenca_de_Chagas_Cronica.pdf
+      (local: sources/nota_chagas.txt), table of IBGE code columns: CD_MUN_NOV_AC ''COD
+      IBGE - Município de nova UBS: Código IBGE do Município da nova UBS de
+      acompanhamento do caso'' (the DBF column is that name cut to 10 characters)'
     modifies: MUN_NOV_AC
     notes: 'No municipality codelist is bound to this column in the catalog, unlike
       its siblings.
@@ -916,12 +913,13 @@ variables:
       '
     code_system: external
     source: inferred
-    reasoning: 'LAB_ + CNES decomposition, alongside the ficha''s own CNES field (notifying
-      establishment, esus.yml) which likewise carries an establishment identifier despite
-      a declared width mismatched to a real CNES code — the same kind of DCCR data-quality
-      gap already flagged there.
-
-      '
+    reasoning: 'LAB_ + CNES decomposition, alongside the ficha''s own CNES field
+      (notifying establishment, esus.yml) which likewise carries an establishment
+      identifier despite a declared width mismatched to a real CNES code — the same kind
+      of DCCR data-quality gap already flagged there. Reviewed 2026-09-28: no
+      documentation found (searched the DCC Dicionário de Dados and Nota Informativa on
+      ftp.datasus.gov.br/dissemin/publicos/ESUSNOTIFICA/DOCS; neither mentions a
+      laboratory CNES column).'
     notes: 'Only 3 files and no observed values for this column in the catalog; whether
       it actually holds a code, a boolean flag, or is functionally unused could not
       be confirmed.

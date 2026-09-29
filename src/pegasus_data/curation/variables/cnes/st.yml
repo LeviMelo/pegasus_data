@@ -925,189 +925,275 @@ variables:
       the installation type - that identification comes from Estabelecimento.def, not
       the layout PDF.
   QTINST32:
-    official_name: Instalações físicas do tipo 32
-    translated_name: Physical installations, type 32
-    description: 'Number of physical installations of type 32 at the establishment.
-      The QTINST series counts rooms and facilities by a type code; no codelist for
-      the type numbering is present in the catalogue.
-
-      '
+    official_name: Qt. sala Recuperação
+    translated_name: Recovery rooms, surgical centre
+    description: Number of recovery rooms in the surgical centre (centro cirúrgico).
     code_system: none
-    source: inferred
-    reasoning: 'QTINST<nn> is a N(3) count per installation type, parallel to QTLEIT<nn>
-      for beds. The type codelist is not carried in the catalogue, so the type is identified
-      by its number and no more.
-
-      '
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.sala Recuperação,QTINST32'';
+      listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 91 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTINST33:
-    official_name: Instalações físicas do tipo 33
-    translated_name: Physical installations, type 33
-    description: Number of physical installations of type 33. See QTINST32.
+    official_name: Qt. sala Cirurgia Ambulatorial
+    translated_name: Outpatient surgery rooms, surgical centre
+    description: 'Number of outpatient-surgery rooms in the surgical centre (centro
+      cirúrgico).'
     code_system: none
-    source: inferred
-    reasoning: The QTINST<nn> installation count series, type 33.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.sala Cirurgia Ambulatorial,
+      QTINST33''; listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 92 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTINST34:
-    official_name: Instalações físicas do tipo 34
-    translated_name: Physical installations, type 34
-    description: Number of physical installations of type 34. See QTINST32.
+    official_name: Qt. sala Pré Parto
+    translated_name: Pre-delivery rooms, obstetric centre
+    description: 'Number of pre-delivery (pré-parto) rooms in the obstetric centre
+      (centro obstétrico).'
     code_system: none
-    source: inferred
-    reasoning: The QTINST<nn> installation count series, type 34.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.sala Pré Parto, QTINST34'';
+      listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 94 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTINST35:
-    official_name: Instalações físicas do tipo 35
-    translated_name: Physical installations, type 35
-    description: Number of physical installations of type 35. See QTINST32.
+    official_name: Qt. sala Parto Normal
+    translated_name: Normal-delivery rooms, obstetric centre
+    description: Number of normal-delivery rooms in the obstetric centre.
     code_system: none
-    source: inferred
-    reasoning: The QTINST<nn> installation count series, type 35.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.sala Parto Normal,QTINST35'';
+      listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 95 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTINST36:
-    official_name: Instalações físicas do tipo 36
-    translated_name: Physical installations, type 36
-    description: Number of physical installations of type 36. See QTINST32.
+    official_name: Qt. sala Curetagem
+    translated_name: Curettage rooms, obstetric centre
+    description: Number of curettage rooms in the obstetric centre.
     code_system: none
-    source: inferred
-    reasoning: The QTINST<nn> installation count series, type 36.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.sala Curetagem, QTINST36'';
+      listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 96 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTINST37:
-    official_name: Instalações físicas do tipo 37
-    translated_name: Physical installations, type 37
-    description: Number of physical installations of type 37. See QTINST32.
+    official_name: Qt. sala Cirurgia
+    translated_name: Surgery rooms, obstetric centre
+    description: Number of surgery rooms in the obstetric centre.
     code_system: none
-    source: inferred
-    reasoning: The QTINST<nn> installation count series, type 37.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.sala Cirurgia, QTINST37'';
+      listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 97 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT05:
-    official_name: Leitos de gastroenterologia
-    translated_name: Gastroenterology beds
-    description: 'Surgical beds in gastroenterology. A count, so sum the value rather
-      than the rows.
-
-      '
+    official_name: Qt. Leito Repouso/Obs. Pediatria
+    translated_name: Paediatric rest/observation beds, emergency
+    description: 'Number of paediatric rest/observation beds in the urgency/emergency
+      physical installation. Not inpatient specialty beds.'
     code_system: none
-    source: inferred
-    reasoning: 'QTLEIT<nn> counts beds of ESP_LEIT specialty <nn>; 05 is GASTROENTEROLOGIA
-      in that codelist.
-
-      '
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito
+      Repouso/Obs.Pediatria,QTLEIT05''; listed in CNES - Informe Técnico 2017-06
+      (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 99 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT06:
-    official_name: Leitos de ginecologia
-    translated_name: Gynaecology beds
-    description: Surgical beds in gynaecology.
+    official_name: Qt. Leito Repouso/Obs. Feminino
+    translated_name: Female rest/observation beds, emergency
+    description: 'Number of female rest/observation beds in the urgency/emergency
+      physical installation.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT 06 is GINECOLOGIA.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito
+      Repouso/Obs.Feminino,QTLEIT06''; listed in CNES - Informe Técnico 2017-06
+      (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 100 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT07:
-    official_name: Leitos cirúrgico/diagnóstico/terapêutico
-    translated_name: Surgical, diagnostic and therapeutic beds
-    description: 'Beds serving surgery, diagnosis and therapy together — a combined
-      category rather than one clinical specialty.
-
-      '
+    official_name: Qt. Leito Repouso/Obs. Masculino
+    translated_name: Male rest/observation beds, emergency
+    description: 'Number of male rest/observation beds in the urgency/emergency physical
+      installation.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT 07 is CIRURGICO/DIAGNOSTICO/TERAPEUTICO.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito Repouso/Obs.Masculino,
+      QTLEIT07''; listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 101 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT08:
-    official_name: Leitos de nefrologia e urologia
-    translated_name: Nephrology and urology beds
-    description: Surgical beds in nephrology and urology.
+    official_name: Qt. Leito Repouso/Obs. Indiferenciado
+    translated_name: Undifferentiated rest/observation beds, emergency
+    description: 'Number of undifferentiated (any sex/age) rest/observation beds in the
+      urgency/emergency physical installation.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT 08 is NEFROLOGIA/UROLOGIA.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito
+      Repouso/Obs.Indiferen.,QTLEIT08''; absent from the IT 2017-06 ST layout (which
+      lists QTLEIT21 twice)'
   QTLEIT09:
-    official_name: Leitos de neurocirurgia
-    translated_name: Neurosurgery beds
-    description: Surgical beds in neurosurgery.
+    official_name: Qt. Equipo Odontologia
+    translated_name: Dental units, emergency
+    description: 'Number of dental chair units (equipos odontológicos) in the
+      urgency/emergency physical installation. Not beds.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT 09 is NEUROCIRURGIA.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Equipe
+      Odontologia,QTLEIT09''; listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 102 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT19:
-    official_name: Leitos de especialidade não discriminada, código 19
-    translated_name: Beds, undesignated specialty 19
-    description: 'Beds in specialty slot 19. DATASUS''s own codelist marks codes 17
-      to 30 as "não discriminado", so the column counts beds whose specialty the Ministry
-      does not name.
-
-      '
+    official_name: Qt. Leito Repouso/Obs. Feminino
+    translated_name: Female rest/observation beds, outpatient
+    description: 'Number of female rest/observation beds in the outpatient (atendimento
+      ambulatorial) physical installation.'
     code_system: none
-    source: inferred
-    reasoning: 'QTLEIT<nn> follows ESP_LEIT, where 19 falls in the 17-30 range whose
-      entries read "Não discriminado".
-
-      '
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito
+      Repouso/Obs.Feminino,QTLEIT19''; listed in CNES - Informe Técnico 2017-06
+      (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 103 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT20:
-    official_name: Leitos de especialidade não discriminada, código 20
-    translated_name: Beds, undesignated specialty 20
-    description: Beds in specialty slot 20, which DATASUS leaves unnamed. See QTLEIT19.
+    official_name: Qt. Leito Repouso/Obs. Masculino
+    translated_name: Male rest/observation beds, outpatient
+    description: 'Number of male rest/observation beds in the outpatient physical
+      installation.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT code 20 is in the undesignated 17-30 range.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito
+      Repouso/Obs.Masculino,QTLEIT20''; listed in CNES - Informe Técnico 2017-06
+      (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 104 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT21:
-    official_name: Leitos de especialidade não discriminada, código 21
-    translated_name: Beds, undesignated specialty 21
-    description: Beds in specialty slot 21, which DATASUS leaves unnamed. See QTLEIT19.
+    official_name: Qt. Leitos Repouso/Obs. Pediatria
+    translated_name: Paediatric rest/observation beds, outpatient
+    description: 'Number of paediatric rest/observation beds in the outpatient physical
+      installation.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT code 21 is in the undesignated 17-30 range.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leitos
+      Repouso/Obs.Pediatria,QTLEIT21''; listed in CNES - Informe Técnico 2017-06
+      (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 105 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT22:
-    official_name: Leitos de especialidade não discriminada, código 22
-    translated_name: Beds, undesignated specialty 22
-    description: Beds in specialty slot 22, which DATASUS leaves unnamed. See QTLEIT19.
+    official_name: Qt. Leito Repouso/Obs. Indiferenciado
+    translated_name: Undifferentiated rest/observation beds, outpatient
+    description: 'Number of undifferentiated rest/observation beds in the outpatient
+      physical installation.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT code 22 is in the undesignated 17-30 range.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito
+      Repouso/Obs.Indiferen.,QTLEIT22''; listed in CNES - Informe Técnico 2017-06
+      (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 107 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT23:
-    official_name: Leitos de especialidade não discriminada, código 23
-    translated_name: Beds, undesignated specialty 23
-    description: Beds in specialty slot 23, which DATASUS leaves unnamed. See QTLEIT19.
+    official_name: Qt. Equipo Odontologia
+    translated_name: Dental units, outpatient
+    description: 'Number of dental chair units (equipos odontológicos) in the outpatient
+      physical installation. Not beds.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT code 23 is in the undesignated 17-30 range.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Equipe
+      Odontologia,QTLEIT23''; listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 108 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT32:
-    official_name: Leitos clínicos de cardiologia
-    translated_name: Cardiology beds, clinical
-    description: 'Clinical cardiology beds. Distinct from the surgical cardiology beds
-      counted under code 02, since ESP_LEIT numbers surgical and clinical specialties
-      in separate ranges.
-
-      '
+    official_name: Qt. Leito Recuperação
+    translated_name: Recovery beds, surgical centre
+    description: Number of recovery beds in the surgical centre.
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT 32 is CARDIOLOGIA in the 31-49 clinical range.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito Recuperação,QTLEIT32'';
+      listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 109 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT34:
-    official_name: Leitos de crônicos
-    translated_name: Chronic care beds
-    description: 'Beds for chronic patients — long stays, which makes them behave quite
-      differently from acute beds in any occupancy calculation.
-
-      '
+    official_name: Qt. Leito Pré Parto
+    translated_name: Pre-delivery beds, obstetric centre
+    description: Number of pre-delivery beds in the obstetric centre.
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT 34 is CRONICOS.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito Pré Parto, QTLEIT34'';
+      listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 110 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT38:
-    official_name: Leitos de hematologia
-    translated_name: Haematology beds
-    description: Clinical beds in haematology.
+    official_name: Qt. Leito RN Normal
+    translated_name: Normal newborn cots, neonatal unit
+    description: Number of cots for healthy newborns in the neonatal unit.
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT 38 is HEMATOLOGIA.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito RN Normal, QTLEIT38'';
+      listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 111 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT39:
-    official_name: Leitos de hospital-dia
-    translated_name: Day hospital places
-    description: 'Day-hospital places. Not overnight beds: the patient is discharged
-      the same day, so counting these with inpatient beds overstates capacity.
-
-      '
+    official_name: Qt. Leito RN Patológico
+    translated_name: Sick newborn cots, neonatal unit
+    description: 'Number of cots for sick (pathological) newborns in the neonatal unit.
+      Not day-hospital places.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT 39 is LEITO/DIA.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito RN
+      Patológico.,QTLEIT39''; listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 112 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEIT40:
-    official_name: Leitos de nefrologia e urologia, clínicos
-    translated_name: Nephrology and urology beds, clinical
-    description: 'Clinical nephrology and urology beds, as against the surgical ones
-      under code 08.
-
-      '
+    official_name: Qt. Leito Alojamento Conjunto
+    translated_name: Rooming-in beds, neonatal unit
+    description: 'Number of rooming-in (alojamento conjunto) beds, where mother and
+      newborn stay together, in the neonatal unit.'
     code_system: none
-    source: inferred
-    reasoning: ESP_LEIT 40 is NEFROUROLOGIA in the clinical range.
+    source: def
+    source_ref: 'TabWin CNES Estabelecimento.def (DATASUS TAB_CNES kit) — local:
+      sources/tab_cnes/estabelecimento_def.txt, line ''IQt.Leito
+      Aloj.Conjunto,QTLEIT40''; listed in CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 Estabelecimentos (ST*.dbf) SEQ 113 as
+      ''Quantidade de salas/consultórios'' or ''leitos/equipos'''
   QTLEITP1:
     official_name: Quantidade de leitos tipo 1 (cirurgico) existentes
     translated_name: Existing surgical beds (legacy rollup)

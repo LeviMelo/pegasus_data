@@ -39,20 +39,14 @@ variables:
 
       '
   AGUA_ALIME:
-    official_name: Água/alimento como via de transmissão
-    translated_name: Water/food transmission route (flag)
-    description: 'Whether contaminated water or food is the likely transmission route
-      for this viral hepatitis (HEPA) case - relevant to the fecal-oral spread pattern
-      of hepatitis A and E, as opposed to bloodborne routes.
-
-      '
+    official_name: Exposição a água e/ou alimento contaminado
+    translated_name: Exposure to contaminated water/food
+    description: Whether the patient was exposed to contaminated water or food, and whether
+      less or more than six months before the investigation.
     code_system: none
-    source: inferred
-    reasoning: 'AGUA_ = água, ALIME = alimento; water/food exposure is the defining
-      transmission-route question for enterically-spread hepatitis viruses, C1 fits
-      a checkbox.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 38 (O paciente foi submetido ou exposto à: Água e/ou alimento contaminado)'
   ANTIHAVIGM:
     official_name: Anti-HAV IgM
     translated_name: Anti-HAV IgM
@@ -99,7 +93,7 @@ variables:
     source_ref: HEPREAG.CNV
     reasoning: Bound to HEPREAG; ANTIHBS is the surface antibody.
   ANTIHCV:
-    official_name: Anti-HCV
+    official_name: Resultados sorológicos/virológicos - Anti-HCV
     translated_name: Anti-HCV antibody test result
     description: 'Result of the anti-HCV serology screening test (reactive, non-reactive,
       not done) — the antibody test that first flags possible hepatitis C, distinct
@@ -107,8 +101,9 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C1 coded field; ANTI+HCV names the antibody test directly.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 46 (Resultados sorológicos/virológicos – Anti-HCV)
   ANTIHDV:
     official_name: Anti-HDV
     translated_name: Anti-HDV antibody
@@ -167,7 +162,7 @@ variables:
     source_ref: HEPA6MES.CNV
     reasoning: Bound to HEPA6MES; CIRURGICO reads cirúrgico.
   COLETAMARC:
-    official_name: Data da coleta dos marcadores
+    official_name: Data da coleta da sorologia
     translated_name: Date markers were collected
     description: 'When the serology sample was taken. Marker interpretation depends
       on timing — IgM windows open and close — so the date is what makes the panel
@@ -175,32 +170,36 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date for the marker collection.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 45 (Data da coleta da sorologia)
   CO_MUN_EX2:
-    official_name: Município da segunda exposição
+    official_name: Local/Município da exposição - Município 2
     translated_name: Municipality of second exposure
     description: Municipality of the second exposure location.
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: The second slot of the exposure municipality series.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 40 (Local/Município da exposição – Município 2)
   CO_MUN_EX3:
-    official_name: Município da terceira exposição
+    official_name: Local/Município da exposição - Município 3
     translated_name: Municipality of third exposure
     description: Municipality of the third exposure location.
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: The third slot of the exposure municipality series.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 40 (Local/Município da exposição – Município 3)
   CO_MUN_EXP:
-    official_name: Município da exposição
+    official_name: Local/Município da exposição - Município 1
     translated_name: Municipality of exposure
     description: Municipality where the exposure happened, the finer companion to CO_UF_EXP.
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE code bound to the municipality codelists.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 40 (Local/Município da exposição – Município 1)
   CO_UF_EX2:
     official_name: UF da segunda exposição
     translated_name: State of second exposure
@@ -251,23 +250,23 @@ variables:
     source_ref: HEPA6MES.CNV
     reasoning: Bound to HEPA6MES; DOMICILI reads domiciliar.
   DSFONTE:
-    official_name: Descrição da fonte de infecção
-    translated_name: Source of infection, description
-    description: 'Free-text note on the suspected source or route of hepatitis exposure
-      (blood transfusion, injection drug use, sexual contact, vertical transmission,
-      etc.) gathered during the epidemiological investigation.
-
-      '
+    official_name: Provável fonte/mecanismo de infecção - Outros (especificar)
+    translated_name: Probable source/mechanism of infection - other (specify)
+    description: Free text describing another probable source or mechanism of infection,
+      filled when the coded source is "outros".
     code_system: none
-    source: inferred
-    reasoning: C30 text; DS_=descrição, FONTE=fonte (source).
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 51 (Provável fonte/mecanismo de infecção – Outros)
   DT_ACIDENT:
-    official_name: Data do acidente
-    translated_name: Date of the exposure incident
-    description: Date of the exposure incident, where one specific event is identifiable.
+    official_name: Data do acidente ou transfusão ou transplante
+    translated_name: Date of accident, transfusion or transplant
+    description: Date of the accident with biological material, the blood/blood-product
+      transfusion, or the transplant reported as an exposure. AAAAMMDD.
     code_system: none
-    source: inferred
-    reasoning: D(8) date; DT_ACIDENT reads data do acidente.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 39 (Data do acidente ou transfusão ou transplante)
   GEN_VHC:
     official_name: Genótipo do HCV
     translated_name: Hepatitis C genotype
@@ -290,8 +289,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: HAV = the standard abbreviation for Hepatitis A Virus; HEPA series tests
-      multiple hepatitis viruses.
+    reasoning: 'HAV = the standard abbreviation for Hepatitis A Virus; HEPA series tests
+      multiple hepatitis viruses. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET Hepatites Virais v5 data dictionary, HepavirNET.def in TAB_SINANNET,
+      and the web; neither the dictionary nor the TabNet definition lists this column).'
   HBC_TOTAL:
     official_name: Anti-HBc total
     translated_name: Anti-HBc total
@@ -314,9 +315,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'Agravo is HEPA (hepatites virais); name is the standard HBV abbreviation;
-      C1 width fits a coded reactive/non-reactive result.
-
-      '
+      C1 width fits a coded reactive/non-reactive result. Reviewed 2026-09-28: no documentation
+      found (searched the SINAN NET Hepatites Virais v5 data dictionary, HepavirNET.def
+      in TAB_SINANNET, and the web; neither the dictionary nor the TabNet definition lists
+      this column).'
   HCV:
     official_name: Hepatite C
     translated_name: Case classified as hepatitis C (flag)
@@ -327,8 +329,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag named for the virus itself rather than the antibody test (compare
-      ANTIHCV).
+    reasoning: 'C1 flag named for the virus itself rather than the antibody test (compare
+      ANTIHCV). Reviewed 2026-09-28: no documentation found (searched the SINAN NET Hepatites
+      Virais v5 data dictionary, HepavirNET.def in TAB_SINANNET, and the web; neither
+      the dictionary nor the TabNet definition lists this column).'
   HDV:
     official_name: Vírus da Hepatite D
     translated_name: Hepatitis D virus marker (flag)
@@ -340,9 +344,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'HDV is the standard abbreviation for Hepatitis D Virus; C1 width fits
-      a checkbox, and HDV requires HBV coinfection to replicate.
-
-      '
+      a checkbox, and HDV requires HBV coinfection to replicate. Reviewed 2026-09-28:
+      no documentation found (searched the SINAN NET Hepatites Virais v5 data dictionary,
+      HepavirNET.def in TAB_SINANNET, and the web; neither the dictionary nor the TabNet
+      definition lists this column).'
   HEMODIALIS:
     official_name: Hemodiálise
     translated_name: Haemodialysis
@@ -381,17 +386,14 @@ variables:
     source_ref: HEPNAOVA.CNV
     reasoning: Bound to HEPNAOVA, the same completa/incompleta/não vacinado list.
   HEPATITE_N:
-    official_name: Tipo de hepatite (normalizado)
-    translated_name: Hepatitis type (normalized code)
-    description: 'Recoded/normalized classification of which hepatitis virus (A/B/C/D/E)
-      was identified, derived from the individual virus-specific serology flags (like
-      HAV) for easier tabulation - the DATASUS "_N" companion pattern.
-
-      '
+    official_name: Suspeita de
+    translated_name: Suspected hepatitis type
+    description: 'Type of viral hepatitis the patient is suspected to have at notification:
+      hepatitis A, hepatitis B/C, or unspecified.'
     code_system: none
-    source: inferred
-    reasoning: HEPATITE = hepatite; the "_N" suffix matches DATASUS's normalized-field
-      convention seen across SINAN.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 33 (Suspeita de)
   HEV:
     official_name: Marcador de hepatite E
     translated_name: Hepatitis E marker
@@ -401,10 +403,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'HEPA form; name is the standard HEV abbreviation; C1 width matches
-      the sibling HBV result flag.
-
-      '
+    reasoning: 'HEPA form; name is the standard HEV abbreviation; C1 width matches the
+      sibling HBV result flag. Reviewed 2026-09-28: no documentation found (searched the
+      SINAN NET Hepatites Virais v5 data dictionary, HepavirNET.def in TAB_SINANNET, and
+      the web; neither the dictionary nor the TabNet definition lists this column).'
   INAL_CRACK:
     official_name: Uso de drogas inaladas
     translated_name: Inhaled drug use
@@ -428,19 +430,14 @@ variables:
     source_ref: HEPA6MES.CNV
     reasoning: Bound to HEPA6MES; INJETAVEIS reads injetáveis.
   MATBIOLOGI:
-    official_name: Material biológico coletado
-    translated_name: Biological specimen type
-    description: 'Coded type of biological specimen collected for hepatitis testing
-      (e.g. blood/serum), recorded once per case regardless of which virus markers
-      (HBV, HEV, etc.) were tested.
-
-      '
+    official_name: Exposição a acidente com material biológico
+    translated_name: Exposure to accident with biological material
+    description: Whether the patient had an accident with biological material, and whether
+      less or more than six months before the investigation. Not a specimen type.
     code_system: none
-    source: inferred
-    reasoning: 'HEPA form; name reads "material biológico"; C1 width fits a small enumerated
-      specimen-type code.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 38 (O paciente foi submetido ou exposto à: Acidente com material biológico)'
   OCUPACIO:
     official_name: Exposição ocupacional
     translated_name: Occupational exposure
@@ -475,22 +472,23 @@ variables:
     source_ref: HEPREAG.CNV
     reasoning: Bound to HEPREAG; a duplicate of the AGHBS marker.
   RE_ANTIHBC:
-    official_name: Resultado do anti-HBc
-    translated_name: Anti-HBc result
-    description: The core antibody result in a second field, beside HBC_TOTAL.
+    official_name: Resultado da sorologia do banco de sangue ou CTA - Anti-HBc total
+    translated_name: Blood bank/CTA serology - total anti-HBc
+    description: Total anti-HBc result from the blood bank or testing centre (CTA) that
+      referred the patient.
     code_system: none
-    source: inferred
-    reasoning: C(1) duplicate of the core antibody marker in another generation.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 44 (Resultado da sorologia do banco de sangue ou CTA – Anti-HBc total)
   RE_ANTIHCV:
-    official_name: Resultado do anti-HCV
-    translated_name: Anti-HCV result
-    description: 'Antibody to hepatitis C. Screening only: it stays positive after
-      cure, so it does not distinguish current from past infection.
-
-      '
+    official_name: Resultado da sorologia do banco de sangue ou CTA - Anti-HCV
+    translated_name: Blood bank/CTA serology - anti-HCV
+    description: Anti-HCV result from the blood bank or testing centre (CTA) that referred
+      the patient.
     code_system: none
-    source: inferred
-    reasoning: C(1) hepatitis C antibody result, paired with TP_SOROHCV.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
+      campo 44 (Resultado da sorologia do banco de sangue ou CTA – Anti-HCV)
   SEXUAL:
     official_name: Exposição sexual
     translated_name: Sexual exposure

@@ -48,20 +48,15 @@ variables:
 
       '
   ANI_TIPO_1:
-    official_name: Tipo de animal (1)
-    translated_name: Animal type (1)
-    description: 'Free-text species/type of the animal involved in the case (e.g. the
-      biting animal in a rabies exposure), first of a possible numbered series of animal
-      entries.
-
-      '
+    official_name: Tipo de acidente - Outros (especificar)
+    translated_name: Other animal (specify)
+    description: Free text naming the other venomous animal responsible for the accident,
+      when the accident type is "outros".
     code_system: none
-    source: inferred
-    reasoning: 'ANI_TIPO reads tipo de animal; 30-character width fits free text, and
-      it clusters with AEROFOBIA/AGITACAO/AGRESSIVI, consistent with a Raiva Humana
-      (rabies) exposure-history block.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 45 (Tipo de acidente – No caso de outros, especificar)
   ANT_DT_ACI:
     official_name: Data do acidente
     translated_name: Date of the accident
@@ -89,7 +84,7 @@ variables:
 
       '
   ANT_MUNIC_:
-    official_name: Município do acidente
+    official_name: Município de ocorrência do acidente
     translated_name: Municipality of the accident
     description: 'Where the accident happened, by IBGE code. Often not where the patient
       was treated, since antivenom is held at designated centres.
@@ -97,8 +92,10 @@ variables:
       '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE code bound to the municipality codelists.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 35 (Município de ocorrência do acidente)
   ANT_TEMPO_:
     official_name: Tempo entre o acidente e o atendimento
     translated_name: Time from accident to care
@@ -115,16 +112,15 @@ variables:
 
       '
   ANT_UF:
-    official_name: Antecedente - UF
-    translated_name: Prior event - state
-    description: 'Brazilian state (UF) code for where an antecedent event took place;
-      paired with ANT_PAIS for the country-level version of the same antecedent-location
-      field.
-
-      '
+    official_name: UF de ocorrência do acidente
+    translated_name: State where the accident occurred
+    description: State (UF) where the accident with the venomous animal occurred; paired
+      with ANT_MUNIC_.
     code_system: none
-    source: inferred
-    reasoning: 2-character width matches the standard UF code; sits alongside ANT_PAIS.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 34 (UF de ocorrência do acidente)
   CLI_DOR:
     official_name: Dor local
     translated_name: Local pain
@@ -167,16 +163,15 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: The residual item closing the local-signs block.
   CLI_LOCA_1:
-    official_name: Clínico - local (1)
-    translated_name: Clinical - location (1)
-    description: 'Free-text body location or site associated with the symptom flagged
-      by CLI_LOCAL (e.g. where a lesion or localized sign was observed).
-
-      '
+    official_name: Manifestações locais - Outras (especificar)
+    translated_name: Other local manifestations (specify)
+    description: Free text naming other local manifestations at the bite/sting site not
+      listed on the form.
     code_system: none
-    source: inferred
-    reasoning: 30-character width fits free text, distinguishing it from the CLI_LOCAL
-      flag.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 41 (Manifestações locais – No caso de outras, especificar)
   CLI_MIOLIT:
     official_name: Mioanálise ou mialgia
     translated_name: Muscle breakdown
@@ -219,18 +214,14 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: The residual item closing the systemic-signs block.
   CLI_OUTR_3:
-    official_name: Clínico - outro sintoma (3)
-    translated_name: Clinical - other symptom (3)
-    description: 'Third slot of a numbered "other symptom" free-text series in the
-      CLI_ checklist; see CLI_OTRDES for the shared "other, specify" pattern.
-
-      '
+    official_name: Manifestações sistêmicas - Outras (especificar)
+    translated_name: Other systemic manifestations (specify)
+    description: Free text naming other systemic manifestations not listed on the form.
     code_system: none
-    source: inferred
-    reasoning: 'The "_3" suffix implies at least two earlier slots in the same series;
-      not otherwise distinguishable from CLI_OTRDES''s evidence.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 43 (Manifestações sistêmicas – No caso de outras, especificar)
   CLI_TEMPO_:
     official_name: Tempo de coagulação
     translated_name: Coagulation time
@@ -403,78 +394,98 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: MCLI with SIST for sistêmicas; the gate for the systemic block.
   NU_AMPOLAS:
-    official_name: Número de ampolas de soro
-    translated_name: Antivenom vials given
-    description: 'How many vials of antivenom were given. Dosing goes by severity rather
-      than by body weight, so a child and an adult with the same grade receive the
-      same number.
-
-      '
+    official_name: Número de ampolas de soro antibotrópico (SAB)
+    translated_name: Ampoules of antibothropic serum (SAB)
+    description: Number of ampoules of antibothropic serum (SAB) given, when serotherapy
+      was used.
     code_system: none
-    source: inferred
-    reasoning: NU_AMPOLAS reads número de ampolas; N(2) count.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 51 (Se soroterapia sim, número de ampolas de soro: antibotrópico (SAB))'
   NU_AMPOL_1:
-    official_name: Ampolas de soro, tipo 1
-    translated_name: Antivenom vials, type 1
-    description: 'Vials of one specific antivenom. The numbered fields split the total
-      by serum type, since a patient may receive more than one.
-
-      '
+    official_name: Número de ampolas de soro anticrotálico (SAC)
+    translated_name: Ampoules of anticrotalic serum (SAC)
+    description: Number of ampoules of anticrotalic serum (SAC) given, when serotherapy
+      was used.
     code_system: none
-    source: inferred
-    reasoning: 'One of nine numbered N(2) vial counts beside NU_AMPOLAS; the numbering
-      selects the serum type and the mapping is not carried in the catalogue.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 51 (Se soroterapia sim, número de ampolas de soro: anticrotálico (SAC))'
   NU_AMPOL_3:
-    official_name: Ampolas de soro, tipo 3
-    translated_name: Antivenom vials, type 3
-    description: Vials of antivenom type 3. See NU_AMPOL_1.
+    official_name: Número de ampolas de soro antilonômico (SALon)
+    translated_name: Ampoules of antilonomic (caterpillar) serum (SALon)
+    description: Number of ampoules of antilonomic (caterpillar) serum (SALon) given,
+      when serotherapy was used.
     code_system: none
-    source: inferred
-    reasoning: A numbered vial count in the antivenom block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 51 (Se soroterapia sim, número de ampolas de soro: antilonômico (SALon))'
   NU_AMPOL_4:
-    official_name: Ampolas de soro, tipo 4
-    translated_name: Antivenom vials, type 4
-    description: Vials of antivenom type 4. See NU_AMPOL_1.
+    official_name: Número de ampolas de soro antielapídico (SAEL)
+    translated_name: Ampoules of antielapidic serum (SAEL)
+    description: Number of ampoules of antielapidic serum (SAEL) given, when serotherapy
+      was used.
     code_system: none
-    source: inferred
-    reasoning: A numbered vial count in the antivenom block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 51 (Se soroterapia sim, número de ampolas de soro: antielapídico (SAEL))'
   NU_AMPOL_6:
-    official_name: Ampolas de soro, tipo 6
-    translated_name: Antivenom vials, type 6
-    description: Vials of antivenom type 6. See NU_AMPOL_1.
+    official_name: Número de ampolas de soro antibotrópico-laquético (SABL)
+    translated_name: Ampoules of antibothropic-lachetic serum (SABL)
+    description: Number of ampoules of antibothropic-lachetic serum (SABL) given, when
+      serotherapy was used.
     code_system: none
-    source: inferred
-    reasoning: A numbered vial count in the antivenom block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 51 (Se soroterapia sim, número de ampolas de soro: antibotrópico-laquético
+      (SABL))'
   NU_AMPOL_8:
-    official_name: Ampolas de soro, tipo 8
-    translated_name: Antivenom vials, type 8
-    description: Vials of antivenom type 8. See NU_AMPOL_1.
+    official_name: Número de ampolas de soro antiaracnídico (SAAr)
+    translated_name: Ampoules of antiarachnidic serum (SAAr)
+    description: Number of ampoules of antiarachnidic serum (SAAr) given, when serotherapy
+      was used.
     code_system: none
-    source: inferred
-    reasoning: A numbered vial count in the antivenom block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 51 (Se soroterapia sim, número de ampolas de soro: antiaracnídico (SAAr))'
   NU_AMPOL_9:
-    official_name: Ampolas de soro, tipo 9
-    translated_name: Antivenom vials, type 9
-    description: Vials of antivenom type 9. See NU_AMPOL_1.
+    official_name: Número de ampolas de soro antiescorpiônico (SAEsc)
+    translated_name: Ampoules of antiscorpion serum (SAEsc)
+    description: Number of ampoules of antiscorpion serum (SAEsc) given, when serotherapy
+      was used.
     code_system: none
-    source: inferred
-    reasoning: A numbered vial count in the antivenom block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 51 (Se soroterapia sim, número de ampolas de soro: antiescorpiônico (SAEsc))'
   NU_AMPO_5:
-    official_name: Ampolas de soro, tipo 5
-    translated_name: Antivenom vials, type 5
-    description: Vials of antivenom type 5. See NU_AMPOL_1.
+    official_name: Número de ampolas de soro antibotrópico-crotálico (SABC)
+    translated_name: Ampoules of antibothropic-crotalic serum (SABC)
+    description: Number of ampoules of antibothropic-crotalic serum (SABC) given, when
+      serotherapy was used.
     code_system: none
-    source: inferred
-    reasoning: A numbered vial count in the antivenom block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 51 (Se soroterapia sim, número de ampolas de soro: antibotrópico-crotálico
+      (SABC)); the dictionary spells the DBF name NU_AMPOL_5'
   NU_AMPO_7:
-    official_name: Ampolas de soro, tipo 7
-    translated_name: Antivenom vials, type 7
-    description: Vials of antivenom type 7. See NU_AMPOL_1.
+    official_name: Número de ampolas de soro antiloxoscélico (SALox)
+    translated_name: Ampoules of antiloxoscelic serum (SALox)
+    description: Number of ampoules of antiloxoscelic serum (SALox) given, when serotherapy
+      was used.
     code_system: none
-    source: inferred
-    reasoning: A numbered vial count in the antivenom block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Acidente por Animais Peçonhentos v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/AAP/DIC_DADOS_Animais_Pedonhentos_v5.pdf,
+      campo 51 (Se soroterapia sim, número de ampolas de soro: antiloxoscélico (SALox));
+      the dictionary spells the DBF name NU_AMPOL_7'
   TP_ACIDENT:
     official_name: Tipo de acidente
     translated_name: Type of animal

@@ -22,40 +22,29 @@ variables:
 
       '
   ANT_DOSES:
-    official_name: Número de doses recebidas
+    official_name: 'Número de doses válidas'
     translated_name: Number of polio doses received
-    description: 'How many doses of polio vaccine the child had received. Distinguishes
-      never vaccinated from incompletely vaccinated, which are different failures —
-      one of access, the other of the schedule.
-
-      '
+    description: 'Number of valid doses of polio vaccine (Sabin/anti-polio) received; filled when ANT_VACINA is 1 (yes).'
     code_system: none
-    source: inferred
-    reasoning: N(2) count under the ANT_ vaccination block, following ANT_VACINA.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 34 (Número de doses válidas)'
   ANT_DT_VAC:
-    official_name: Data da última dose
+    official_name: 'Data da última dose da vacina'
     translated_name: Date of last polio dose
     description: 'Date of the most recent polio dose. With the onset date it gives
       the interval that decides whether vaccine-associated paralysis is even possible.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date in the vaccination block; DT_VAC reads data da vacina.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 35 (Data da última dose da vacina)'
   ANT_PAIS:
-    official_name: Antecedente - país
-    translated_name: Prior event - country
-    description: 'Country code for where an antecedent event (e.g. a prior vaccination
-      or exposure) took place, in the same antecedents block as ANTEC_PRE/POS. Distinct
-      from CON_INF_PA, which codes the country of the current case''s probable infection.
-
-      '
+    official_name: 'Se sim, país origem'
+    translated_name: 'Country of travel or visitors from polio-endemic area'
+    description: 'Country the patient travelled to, or visitors came from, when there was travel to or visits from a polio-endemic area in the 30 days before the motor deficit began (ANT_30_DIA = 1).'
     code_system: none
-    source: inferred
-    reasoning: 'PAIS is country; the 4-character width differs from CON_INF_PA''s 3-character
-      country field, indicating a separate field in a different part of the form.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 37 (Se sim, país origem)'
   ANT_VACINA:
     official_name: Antecedente de vacina contra poliomielite
     translated_name: Received polio vaccine
@@ -72,19 +61,12 @@ variables:
 
       '
   ATE_HIPOTE:
-    official_name: Atendimento - hipótese diagnóstica
+    official_name: 'Hipótese diagnóstica'
     translated_name: Encounter - diagnostic hypothesis
-    description: 'Coded diagnostic hypothesis recorded at the medical encounter (atendimento),
-      before laboratory confirmation. Short code, plausibly CID-10-shaped given its
-      5-character width.
-
-      '
+    description: 'Diagnostic hypothesis for the paralysis, coded (CID-10 style, 5 characters) from the table annexed to the dictionary.'
     code_system: none
-    source: inferred
-    reasoning: 'ATE_ abbreviates atendimento and HIPOTE hipótese; C5 width matches
-      a CID-10 code with subcategory (e.g. A00.0).
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 55 (Hipótese diagnóstica – vide tabela anexa)'
   CLI_AGUDA:
     official_name: Instalação aguda
     translated_name: Acute onset
@@ -349,20 +331,12 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: CONTAT reads contato; standard epidemiological-link flag.
   CLI_CON_ES:
-    official_name: Clínico - condição especial
-    translated_name: Clinical - special condition
-    description: 'Free-text elaboration of a clinical condition or complication noted
-      in the CLI_ symptom checklist (60-character field, longer than the 1-character
-      symptom flags around it).
-
-      '
+    official_name: 'Contato ou ingestão de substâncias tóxicas - caso afirmativo, especifique'
+    translated_name: 'Toxic substance contacted or ingested - specify'
+    description: 'Free-text name of the toxic substance (pesticide, lead, mercury, medication) the patient contacted or ingested; filled when CLI_CONTAT is 1 (yes).'
     code_system: none
-    source: inferred
-    reasoning: 'CLI_ prefix places it in the clinical block; the unusually wide 60-character
-      width (vs 1-character for CLI_COMA/CLI_CONVUL) fits a short free-text note rather
-      than another binary flag.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 52 (Caso afirmativo, especifique)'
   CLI_DESCEN:
     official_name: Progressão descendente
     translated_name: Descending progression
@@ -387,7 +361,7 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: DORES reads dores; C(1) symptom flag.
   CLI_DT:
-    official_name: Data do início da deficiência motora
+    official_name: 'Data de início da deficiência motora'
     translated_name: Date motor deficit began
     description: 'Date the weakness itself started, which is not always the date the
       illness started — many cases begin with fever or diarrhoea days earlier. The
@@ -395,19 +369,15 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date opening the CLI_ clinical block, distinct from DT_SIN_PRI.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 39 (Data de início da deficiência motora)'
   CLI_DT_EXA:
-    official_name: Data do exame neurológico
+    official_name: 'Data do exame'
     translated_name: Date of neurological examination
-    description: 'Date the examination recorded in this block was performed. Weakness
-      in acute flaccid paralysis evolves over days, so an exam without its date cannot
-      be placed on the progression.
-
-      '
+    description: 'Date of the neurological examination done in the acute phase.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with the CLI_ examination fields; EXA reads exame.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 44 (Data do exame)'
   CLI_EXT_D:
     official_name: Comprometimento de extremidade direita
     translated_name: Right extremity involved
@@ -538,16 +508,12 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: INJECA reads injeção; C(1) flag among the precipitating factors.
   CLI_LOCAL:
-    official_name: Clínico - sinal localizado
-    translated_name: Clinical - localized sign
-    description: 'Sim/Não flag for a localized clinical sign (e.g. focal pain or neurological
-      finding), part of the CLI_ symptom checklist. Distinct from CLI_LOCA_1, the free-text
-      field naming the location itself.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 1-character width matches a binary flag, unlike the free-text CLI_LOCA_1.
+    official_name: 'Local de aplicação'
+    translated_name: 'Site of intramuscular injection'
+    description: 'Body site of the intramuscular injection in the patient''s history: left or right lower limb, left or right upper limb, or left or right buttock.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 54 (Local de aplicação)'
   CLI_NUCA:
     official_name: Rigidez de nuca
     translated_name: Neck stiffness
@@ -659,28 +625,19 @@ variables:
 
       '
   DTPRICONS:
-    official_name: Data da primeira consulta
+    official_name: 'Data da 1ª consulta'
     translated_name: Date of first consultation
-    description: 'Date of the patient''s first medical consultation for the condition
-      being investigated. AAAAMMDD.
-
-      '
+    description: 'Date of the patient''s first medical consultation for the paralysis.'
     code_system: none
-    source: inferred
-    reasoning: PRICONS contracts primeira consulta.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 31 (Data da 1ª consulta)'
   EVOR1_DT_R:
-    official_name: Data da primeira reavaliação
-    translated_name: Date of first reassessment
-    description: 'Date of an earlier reassessment where more than one was done. Distinct
-      from EVOR_DT_RE, which carries the 60-day examination the classification uses.
-
-      '
+    official_name: 'Data da revisão'
+    translated_name: 'Date of review'
+    description: 'Date the case review was carried out, recorded after the revisit examination (EVOR_DT_RE) and before final classification.'
     code_system: none
-    source: inferred
-    reasoning: 'EVOR1 numbers a first reassessment against the unnumbered EVOR_ block;
-      D(8) date. Lower confidence, since only the numbering distinguishes them.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 81 (Data da revisão)'
   EVOR_A_MID:
     official_name: Atrofia no membro inferior direito na reavaliação
     translated_name: Atrophy at reassessment, right leg
@@ -721,16 +678,12 @@ variables:
     source_ref: PRESAUSE.CNV
     reasoning: EVOR atrophy at membro superior esquerdo.
   EVOR_DT_RE:
-    official_name: Data da reavaliação
-    translated_name: Date of reassessment
-    description: 'Date of the 60-day reassessment. The interval matters as much as
-      the findings: an examination done too early records a deficit that would still
-      have recovered, and the case is then misclassified as having sequelae.
-
-      '
+    official_name: 'Data da revisita'
+    translated_name: 'Date of revisit'
+    description: 'Date of the follow-up revisit examination (normally about 60 days after onset) that checks for residual paralysis.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date opening the EVOR_ reassessment block; RE reads reavaliação.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 74 (Data da revisita)'
   EVOR_F_MID:
     official_name: Força no membro inferior direito na reavaliação
     translated_name: Strength at reassessment, right leg
@@ -887,41 +840,28 @@ variables:
 
       '
   LAB_DT_C1:
-    official_name: Data da primeira coleta
-    translated_name: Date of first collection
-    description: 'Collection date for the first specimen of the general laboratory
-      block, distinct from the specific stool and CSF dates.
-
-      '
+    official_name: 'Data da coleta (material anatomopatológico)'
+    translated_name: 'Date anatomopathological material collected'
+    description: 'Date anatomopathological material (brain, spinal cord or intestine) was collected, typically at autopsy.'
     code_system: none
-    source: inferred
-    reasoning: 'LAB_DT_C with C for coleta, numbered 1; D(8) date. Which specimen it
-      governs is not established, so it is described at that level.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 72 (Data da coleta – material anatomopatológico)'
   LAB_DT_CEN:
-    official_name: Data de envio ao laboratório central
-    translated_name: Date sent to the central laboratory
-    description: 'Date the specimen went to the central laboratory. Polio confirmation
-      happens only in the reference network, so this date starts the part of the turnaround
-      the notifying unit no longer controls.
-
-      '
+    official_name: 'Data do envio do nível estadual para LRR'
+    translated_name: 'Date stool sample sent from state level to reference laboratory'
+    description: 'Date the stool sample was sent from the state level to the regional reference laboratory (LRR).'
     code_system: none
-    source: inferred
-    reasoning: CEN abbreviates central in a block of laboratory routing dates; D(8).
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 62 (Data do envio do nível estadual para LRR)'
   LAB_DT_E_1:
-    official_name: Data de envio da primeira amostra
-    translated_name: Date first sample despatched
-    description: 'Date the first sample was despatched. With the collection date it
-      gives the delay in transit, which is where the cold chain is usually lost.
-
-      '
+    official_name: 'Eletroneuromiografia - data da realização'
+    translated_name: 'Date of electroneuromyography'
+    description: 'Date the first electroneuromyography was performed.'
     code_system: none
-    source: inferred
-    reasoning: E for envio, numbered 1; D(8) date in the routing block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 69 (Eletroneuromiografia – data da realização)'
   LAB_DT_F1:
-    official_name: Data da coleta da primeira amostra de fezes
+    official_name: 'Data da coleta (amostra de fezes)'
     translated_name: Date first stool sample collected
     description: 'Date the first stool sample was taken. The single most important
       date in polio surveillance: two samples within 14 days of onset is the adequacy
@@ -930,76 +870,56 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: LAB_ with F for fezes and a D(8) date; the 1 numbers the sample.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 60 (Data da coleta)'
   LAB_DT_L_1:
-    official_name: Data da primeira coleta de líquor
+    official_name: 'Exame complementar 1 Líquor - Data da coleta'
     translated_name: Date first CSF sample taken
     description: 'Date of the first lumbar puncture. CSF findings change over the first
       fortnight, so the date is what makes the cell and protein values interpretable.
 
       '
     code_system: none
-    source: inferred
-    reasoning: LAB_DT with L for líquor, numbered 1; D(8) date.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 1 Líquor – data da coleta)'
   LAB_DT_L_2:
-    official_name: Data da segunda coleta de líquor
+    official_name: 'Exame complementar 2 Líquor - Data da coleta'
     translated_name: Date second CSF sample taken
     description: 'Date of a repeat lumbar puncture. Repeated because the protein rise
       that distinguishes Guillain-Barré often appears only in the second week.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same LAB_DT_L pattern numbered 2.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 2 Líquor – data da coleta)'
   LAB_DT_NLE:
-    official_name: Data de envio ao laboratório de referência nacional
-    translated_name: Date sent to the national reference laboratory
-    description: 'Date the specimen reached the national reference laboratory. Intratypic
-      differentiation — telling wild virus from vaccine virus — is done only there,
-      and that answer is the one the surveillance exists for.
-
-      '
+    official_name: 'Data do envio do nível local para estadual'
+    translated_name: 'Date stool sample sent from local to state level'
+    description: 'Date the stool sample was sent from the local level to the state level.'
     code_system: none
-    source: inferred
-    reasoning: 'NLE names a national laboratory in the routing block, a step beyond
-      LAB_DT_CEN; D(8) date.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 61 (Data do envio do nível local para estadual)'
   LAB_DT_R1:
-    official_name: Data do resultado da primeira amostra
-    translated_name: Date of first result
-    description: 'Date the first result was issued. Against the collection date it
-      measures the laboratory turnaround the certification standard also monitors.
-
-      '
+    official_name: 'Data do recebimento no LRR'
+    translated_name: 'Date stool sample received at reference laboratory'
+    description: 'Date the stool sample was received at the regional reference laboratory (LRR).'
     code_system: none
-    source: inferred
-    reasoning: R for resultado, numbered 1; D(8) date.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 63 (Data do recebimento no LRR)'
   LAB_DT_RE1:
-    official_name: Data de recebimento do resultado
-    translated_name: Date result received
-    description: 'Date the result reached the notifying service, which is later than
-      LAB_DT_R1 and is the date the investigation could actually act on.
-
-      '
+    official_name: 'Data do resultado'
+    translated_name: 'Date of stool sample result'
+    description: 'Date of the result of the stool sample; the result itself is LAB_RES_F1.'
     code_system: none
-    source: inferred
-    reasoning: 'RE1 distinguishes recebimento from the R1 result date; D(8). The pair
-      separates issuing from receiving.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 66 (Data do resultado)'
   LAB_E_D_1:
-    official_name: Especificação do exame
-    translated_name: Examination detail
-    description: 'Free text naming a test not covered by the coded fields. Thirty characters
-      of uncontrolled vocabulary, so it must be read case by case and never grouped
-      as though it were a code.
-
-      '
+    official_name: 'Diagnóstico sugestivo de (eletroneuromiografia)'
+    translated_name: 'Diagnosis suggested by electroneuromyography'
+    description: 'Diagnosis suggested by the electroneuromyography, from the table annexed to the dictionary; filled when LAB_DT_E_1 is filled.'
     code_system: none
-    source: inferred
-    reasoning: C(30) free text in the laboratory block, the only wide text field there.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 70 (Diagnóstico sugestivo de – tabela anexa)'
   LAB_INTEST:
     official_name: Coleta de conteúdo intestinal
     translated_name: Intestinal content collected
@@ -1015,7 +935,7 @@ variables:
 
       '
   LAB_L_CEL1:
-    official_name: Celularidade do primeiro líquor
+    official_name: 'Exame complementar 1 Líquor - Nº de células/mm³'
     translated_name: CSF cell count, first sample
     description: 'White cell count in the first CSF sample. The core of the differential:
       poliomyelitis raises the cell count, while Guillain-Barré leaves it normal despite
@@ -1023,10 +943,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: L for líquor and CEL for células; N(7) numeric, numbered by sample.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 1 Líquor – Nº de células/mm³)'
   LAB_L_CEL2:
-    official_name: Celularidade do segundo líquor
+    official_name: 'Exame complementar 2 Líquor - Nº de células/mm³'
     translated_name: CSF cell count, second sample
     description: 'White cell count in the second CSF sample. The fall from the first
       sample is itself informative, since the pleocytosis of poliomyelitis settles
@@ -1034,10 +954,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same L_CEL pattern numbered 2.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 2 Líquor – Nº de células/mm³)'
   LAB_L_CL1:
-    official_name: Cloretos no primeiro líquor
+    official_name: 'Exame complementar 1 Líquor - Cloreto mg%'
     translated_name: CSF chloride, first sample
     description: 'Chloride in the first CSF sample. A traditional part of the Brazilian
       CSF panel, low in tuberculous meningitis, and reported here mainly to complete
@@ -1045,17 +965,17 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: CL is cloretos; N(7) numeric completing the líquor panel.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 1 Líquor – Cloreto mg%)'
   LAB_L_CL2:
-    official_name: Cloretos no segundo líquor
+    official_name: 'Exame complementar 2 Líquor - Cloreto mg%'
     translated_name: CSF chloride, second sample
     description: Chloride in the second CSF sample; the comparator for LAB_L_CL1.
     code_system: none
-    source: inferred
-    reasoning: Same L_CL pattern numbered 2.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 2 Líquor – Cloreto mg%)'
   LAB_L_GLI1:
-    official_name: Glicose no primeiro líquor
+    official_name: 'Exame complementar 1 Líquor - Glicose mg%'
     translated_name: CSF glucose, first sample
     description: 'Glucose in the first CSF sample. Normal in viral processes and low
       in bacterial or tuberculous meningitis, so it is the field that rules those out
@@ -1063,17 +983,17 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: GLI is glicose; N(7) numeric within the líquor block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 1 Líquor – Glicose mg%)'
   LAB_L_GLI2:
-    official_name: Glicose no segundo líquor
+    official_name: 'Exame complementar 2 Líquor - Glicose mg%'
     translated_name: CSF glucose, second sample
     description: Glucose in the second CSF sample; the comparator for LAB_L_GLI1.
     code_system: none
-    source: inferred
-    reasoning: Same L_GLI pattern numbered 2.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 2 Líquor – Glicose mg%)'
   LAB_L_LIN1:
-    official_name: Linfócitos no primeiro líquor
+    official_name: 'Exame complementar 1 Líquor - Linfócitos %'
     translated_name: CSF lymphocytes, first sample
     description: 'Lymphocyte proportion in the first CSF sample. A lymphocytic predominance
       indicates a viral process; a neutrophilic one points to bacterial meningitis
@@ -1081,20 +1001,20 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: LIN is linfócitos; N(7) numeric within the líquor block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 1 Líquor – Linfócitos %)'
   LAB_L_LIN2:
-    official_name: Linfócitos no segundo líquor
+    official_name: 'Exame complementar 2 Líquor - Linfócitos %'
     translated_name: CSF lymphocytes, second sample
     description: 'Lymphocyte proportion in the second CSF sample. The shift towards
       lymphocytes over days is characteristic of enteroviral infection.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same L_LIN pattern numbered 2.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 2 Líquor – Linfócitos %)'
   LAB_L_PRO1:
-    official_name: Proteínas no primeiro líquor
+    official_name: 'Exame complementar 1 Líquor - Proteínas mg%'
     translated_name: CSF protein, first sample
     description: 'Protein concentration in the first CSF sample. Read against LAB_L_CEL1:
       high protein with a normal cell count is the Guillain-Barré pattern and the main
@@ -1102,18 +1022,18 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: PRO is proteínas; N(7) numeric within the líquor block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 1 Líquor – Proteínas mg%)'
   LAB_L_PRO2:
-    official_name: Proteínas no segundo líquor
+    official_name: 'Exame complementar 2 Líquor - Proteínas mg%'
     translated_name: CSF protein, second sample
     description: 'Protein in the second CSF sample. The rise between samples is what
       confirms Guillain-Barré when the first puncture was done too early.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same L_PRO pattern numbered 2.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 68 (Exame complementar 2 Líquor – Proteínas mg%)'
   LAB_MEDULA:
     official_name: Coleta de medula espinhal
     translated_name: Spinal cord tissue collected
@@ -1140,21 +1060,12 @@ variables:
     source_ref: SUFINSUF.CNV
     reasoning: Q for quantidade with the F fezes suffix; C(1) flag.
   LAB_RESULT:
-    official_name: Resultado do exame laboratorial
-    translated_name: Lab test result
-    description: 'Single-character coded result of a laboratory exam on the acute flaccid
-      paralysis (Paralisia Flácida Aguda / poliomyelitis surveillance) form.
-
-      '
+    official_name: 'Resultado (exame anatomopatológico)'
+    translated_name: 'Anatomopathological result'
+    description: 'Result of the anatomopathological exam: compatible or not compatible with poliomyelitis.'
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and PFAN series membership.
-      The generic name and single-character width match the many "RESULTADO" coded
-      fields (positivo/negativo/inconclusivo/não realizado, or similar) confirmed on
-      sibling SINAN lab panels (Hantavirose, Leptospirose), but no document was located
-      naming which specific exam this one reports on.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 73 (Resultado – anatomopatológico)'
   LAB_RES_F1:
     official_name: Resultado da primeira amostra de fezes
     translated_name: First stool result
@@ -1232,19 +1143,12 @@ variables:
     source_ref: DISTPROX.CNV
     reasoning: LOCA localização at membro superior esquerdo.
   OUTROS_DES:
-    official_name: Outros - descreva
-    translated_name: Other - describe
-    description: 'Free-text entry for a risk factor, contact, or finding on the acute
-      flaccid paralysis (PFAN, polio surveillance) form that falls outside its named
-      checkbox options.
-
-      '
+    official_name: 'Sinais e sintomas - Outros (especificar)'
+    translated_name: 'Other signs and symptoms - specify'
+    description: 'Free-text name of other signs or symptoms the patient presented; filled when CLI_OUTROS is 1 (yes).'
     code_system: none
-    source: inferred
-    reasoning: 'OUTROS_DES = outros + descreva; PFAN form has a detailed neuro-exam
-      checklist plus this catch-all; width 30 free text.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 38 (Sinais e sintomas – outros, especificar)'
   REFR_AQD_N:
     official_name: Reflexo aquileu direito na reavaliação
     translated_name: Ankle reflex at reassessment, right
@@ -1317,21 +1221,12 @@ variables:
     source_ref: DIMABOAUN.CNV
     reasoning: REFR with TR tricipital and E esquerdo.
   TONR_CER_N:
-    official_name: Tônus cervical normal
-    translated_name: Normal cervical muscle tone
-    description: 'Coded neurological-exam finding on the acute flaccid paralysis (polio
-      surveillance) form indicating whether cervical muscle tone was found to be normal
-      on clinical examination.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'Agravo is PFAN (paralisia flácida aguda); C1 width fits a coded exam-finding
-      flag. The exact meaning of "TONR_CER_N" is not confirmed by documentation; read
-      as "tônus cervical normal" from the AFP exam''s tone/reflex assessment, but with
-      lower confidence than other entries in this file.
-
-      '
+    official_name: 'Tônus muscular - Musculatura cervical (revisita)'
+    translated_name: 'Cervical muscle tone at revisit'
+    description: 'Muscle tone of the neck musculature at the revisit examination: decreased, absent, normal, or increased.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 76 (Tônus muscular – musculatura cervical, revisita)'
   TONR_FAC_N:
     official_name: Tônus facial na reavaliação
     translated_name: Tone at reassessment, face

@@ -8,42 +8,53 @@ asserted_by: pegasus_data
 
 variables:
   ADENOINSUT:
-    official_name: Adenocarcinoma in situ
-    translated_name: Adenocarcinoma in situ
-    description: 'Glandular carcinoma confined to the epithelium. Precancerous rather
-      than invasive, and the glandular counterpart of a high-grade squamous lesion.
-
-      '
+    official_name: Adenocarcinoma "in situ" (citopatológico de encaminhamento)
+    translated_name: 'Referring cytology: adenocarcinoma in situ'
+    description: Number of cervical histopathology exams whose referring cytology result was
+      adenocarcinoma in situ.
     code_system: none
-    source: inferred
-    reasoning: ADENO IN SITU; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo ADENOINSUT "Adenocarc.in situ"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 "Resultado do exame citopatológico / encaminhamento: Atipias em células glandulares
+      - Adenocarcinoma in situ"'
   CBENALTER:
-    official_name: Alterações benignas
-    translated_name: Benign alterations
-    description: 'Benign alteration on the cervical biopsy. The commonest histopathology
-      result, and the one that closes the episode.
-
-      '
+    official_name: 'Lesões de caráter benigno: Alterações citoarquiteturais compatíveis com
+      ação viral (HPV)'
+    translated_name: 'Benign: HPV-compatible cyto-architectural changes'
+    description: Number of biopsies with cyto-architectural changes compatible with viral
+      (HPV) action, a benign result.
     code_system: none
-    source: inferred
-    reasoning: CBEN reads células benignas; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CBENALTER "Ben.alt.cit.com.HPV"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter benigno: Alterações citoarquiteturais compatíveis com ação viral
+      (HPV)"'
   CBENCERVI:
-    official_name: Cervicite
-    translated_name: Cervicitis
-    description: Cervicitis — inflammation of the cervix, benign and treatable.
+    official_name: 'Lesões de caráter benigno: Cervicite crônica inespecífica'
+    translated_name: 'Benign: chronic non-specific cervicitis'
+    description: Number of biopsies showing chronic non-specific cervicitis, a benign result.
     code_system: none
-    source: inferred
-    reasoning: CERVI reads cervicite in the benign block; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CBENCERVI "Ben.Cervic.cron.esp"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter benigno: Cervicite crônica inespecífica"'
   CCOLANORMA:
-    official_name: Colpocitologia anormal
-    translated_name: Cytology abnormal
-    description: 'Number of cytology reports showing an abnormality — the complement
-      of CCOLNORMAL, and what the screening programme is measured on finding.
-
-      '
+    official_name: Colposcopia anormal
+    translated_name: Colposcopy abnormal
+    description: Number of exams whose colposcopy was abnormal (apparently the "Anormal" value
+      of the HC colposcopy axis).
     code_system: none
     source: inferred
-    reasoning: ANORMA is anormal, truncated; C(8) count in the CCOL block.
+    reasoning: 'ANORMA is anormal, truncated; C(8) count in the CCOL block. Reviewed 2026-09-28:
+      no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files,
+      SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide,
+      the DATASUS FTP DOC folders and the web). SISCOLO4 COLPOSCO.CNV (the HColo4.def "Colposcopia"
+      axis) has exactly three values, Insatisfatório / Anormal / Normal, so CCOL* reads as
+      colposcopia, not colpocitologia; no document names the column.'
   CCOLDEFAUL:
     translated_name: HC file field (meaning not established)
     description: 'An 8-character field on the HC aggregate file. Its abbreviation does
@@ -54,38 +65,45 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'Sits among the confirmed C(8) count fields on the same HC file (siscan_findings.yml''s
-      CNODCALD cluster), whose header states these files "aggregate exams" so C(8)
-      columns are counts — but the name itself does not decompose cleanly.
-
-      '
+      CNODCALD cluster), whose header states these files "aggregate exams" so C(8) columns
+      are counts — but the name itself does not decompose cleanly. Reviewed 2026-09-28: no
+      documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files,
+      SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide,
+      the DATASUS FTP DOC folders and the web). SISCOLO4 COLPOSCO.CNV (the HColo4.def "Colposcopia"
+      axis) has exactly three values, Insatisfatório / Anormal / Normal, so CCOL* reads as
+      colposcopia, not colpocitologia; no document names the column. DEFAUL may be the residual/unfilled
+      value.'
     notes: 'DELIBERATELY UNDER-SPECIFIED — already flagged unresolved in siscan_findings.yml
       ("the abbreviation does not settle them").
 
       '
   CCOLINSATI:
-    official_name: Colpocitologia insatisfatória
-    translated_name: Cytology unsatisfactory
-    description: 'Number of reports the laboratory could not read — obscured, scant
-      or badly fixed material. A high rate here is a collection-quality problem, not
-      a disease signal.
-
-      '
+    official_name: Colposcopia insatisfatória
+    translated_name: Colposcopy unsatisfactory
+    description: Number of exams whose colposcopy was unsatisfactory (apparently the "Insatisfatório"
+      value of the HC colposcopy axis).
     code_system: none
     source: inferred
-    reasoning: INSATI is insatisfatória truncated; C(8) count.
+    reasoning: 'INSATI is insatisfatória truncated; C(8) count. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). SISCOLO4 COLPOSCO.CNV (the HColo4.def "Colposcopia" axis)
+      has exactly three values, Insatisfatório / Anormal / Normal, so CCOL* reads as colposcopia,
+      not colpocitologia; no document names the column.'
   CCOLNORMAL:
-    official_name: Colpocitologia normal
-    translated_name: Cytology within normal limits
-    description: 'Number of cytology reports within normal limits — no epithelial lesion
-      and no malignancy.
-
-      '
+    official_name: Colposcopia normal
+    translated_name: Colposcopy normal
+    description: Number of exams whose colposcopy was normal (apparently the "Normal" value
+      of the HC colposcopy axis).
     code_system: none
     source: inferred
-    reasoning: 'CCOL is the cytology prefix of this block and NORMAL its outcome; C(8)
-      count, like its ANORMA and INSATI siblings.
-
-      '
+    reasoning: 'CCOL is the cytology prefix of this block and NORMAL its outcome; C(8) count,
+      like its ANORMA and INSATI siblings. Reviewed 2026-09-28: no documentation found (searched
+      TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas 1-14,
+      INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). SISCOLO4 COLPOSCO.CNV (the HColo4.def "Colposcopia" axis) has exactly
+      three values, Insatisfatório / Anormal / Normal, so CCOL* reads as colposcopia, not
+      colpocitologia; no document names the column.'
   CDIEXAMINS:
     official_name: Exame insatisfatório
     translated_name: Examination unsatisfactory
@@ -95,67 +113,75 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: EXAM INS reads exame insatisfatório; C(8) count.
+    reasoning: 'EXAM INS reads exame insatisfatório; C(8) count. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web).'
   CDIFGRAU:
     official_name: Grau de diferenciação
     translated_name: Degree of differentiation
-    description: 'Count of reports stating the tumour''s degree of differentiation
-      — how closely the malignant cells still resemble the tissue they arose from,
-      which is a determinant of prognosis.
-
-      '
+    description: A count on the HC differentiation-grade block, probably the well-differentiated
+      (grade I) or not-applicable category left over by CDIFMODDIF, CDIFPOUDIF and CDIFINDFER.
     code_system: none
     source: inferred
-    reasoning: DIF GRAU reads grau de diferenciação; C(8) count in the histopathology
-      block.
+    reasoning: 'DIF GRAU reads grau de diferenciação; C(8) count in the histopathology block.
+      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). difgrau.CNV lists Não
+      se aplica, Bem, Moderadamente, Pouco diferenciado and Indiferenciado; the three other
+      CDIF* columns take Moderadamente, Pouco and Indiferenciado, so this one is probably
+      Bem diferenciado (grau I) or Não se aplica.'
   CDIFINDFER:
-    official_name: Indiferenciado
+    official_name: 'Grau de diferenciação: Indiferenciado (Grau IV)'
     translated_name: Undifferentiated
-    description: 'Reports of tumour so undifferentiated that the tissue of origin can
-      no longer be told from its appearance.
-
-      '
+    description: Number of reports grading the tumour undifferentiated (grade IV).
     code_system: none
-    source: inferred
-    reasoning: INDFER is indiferenciado truncated; C(8) count in the same grading block.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Grau de diferenciação: Indiferenciado (Grau IV)"; SISCOLO4 difgrau.CNV'
   CDIFMODDIF:
-    official_name: Moderadamente diferenciado
+    official_name: 'Grau de diferenciação: Moderadamente diferenciado (Grau II)'
     translated_name: Moderately differentiated
-    description: 'Reports grading the tumour moderately differentiated — the middle
-      of the three grades this block enumerates.
-
-      '
+    description: Number of reports grading the tumour moderately differentiated (grade II).
     code_system: none
-    source: inferred
-    reasoning: MOD DIF is moderadamente diferenciado; C(8) count.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Grau de diferenciação: Moderadamente diferenciado (Grau II)"; SISCOLO4 difgrau.CNV'
   CDIFPOUDIF:
-    official_name: Pouco diferenciado
+    official_name: 'Grau de diferenciação: Pouco diferenciado (Grau III)'
     translated_name: Poorly differentiated
-    description: 'Reports grading the tumour poorly differentiated — the grade carrying
-      the worst prognosis of the three.
-
-      '
+    description: Number of reports grading the tumour poorly differentiated (grade III).
     code_system: none
-    source: inferred
-    reasoning: POU DIF is pouco diferenciado; C(8) count.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Grau de diferenciação: Pouco diferenciado (Grau III)"; SISCOLO4 difgrau.CNV'
   CITINDALGR:
-    official_name: Citologia indicando lesão de alto grau
-    translated_name: Cytology indicated a high-grade lesion
-    description: 'Whether the referring cytology had indicated a high-grade lesion.
-      Carried here so the biopsy result can be scored against what the smear predicted.
-
-      '
+    official_name: 'Células atípicas de origem indefinida: não se pode afastar lesão de alto
+      grau (citopatológico de encaminhamento)'
+    translated_name: 'Referring cytology: undefined-origin atypia, cannot exclude high grade'
+    description: Number of histopathology exams whose referring cytology reported atypical
+      cells of undefined origin where a high-grade lesion cannot be excluded.
     code_system: none
-    source: inferred
-    reasoning: CIT IND AL GR reads citologia indicando alto grau; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CITINDALGR "Ori.Indet alto grau"; INCA, Requisição de Exame Histopatológico -
+      Colo do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 "Resultado do exame citopatológico / encaminhamento: De origem indefinida - Não
+      se pode afastar lesão de alto grau"'
   CIT_OUTNEO:
-    official_name: Citologia, outra neoplasia
-    translated_name: Cytology, other neoplasia
-    description: Any other neoplasm reported on the referring cytology.
+    official_name: Outras neoplasias malignas (citopatológico de encaminhamento)
+    translated_name: 'Referring cytology: other malignant neoplasm'
+    description: Number of histopathology exams whose referring cytology reported another
+      malignant neoplasm.
     code_system: none
-    source: inferred
-    reasoning: The residual neoplasia item of the referring-cytology block; C(8), values
-      unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CIT_OUTNEO "Outras Neoplasias"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 "Resultado do exame citopatológico / encaminhamento: Outras neoplasias malignas"'
   CLABCID:
     official_name: Descrição do diagnóstico
     translated_name: Diagnosis, free text
@@ -165,64 +191,60 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'C(40) is far too wide for a CID-10 code and is the only free-text field
-      in the block, so it carries the wording rather than the code.
-
-      '
+    reasoning: 'C(40) is far too wide for a CID-10 code and is the only free-text field in
+      the block, so it carries the wording rather than the code. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web).'
     notes: 'Free text, uncoded. Do not tabulate without reading it.
 
       '
   CMARCOMPRO:
-    official_name: Margens comprometidas
+    official_name: 'Margens cirúrgicas: Comprometidas'
     translated_name: Surgical margins involved
-    description: 'Reports in which disease reached the surgical margin, meaning the
-      excision was incomplete and further treatment follows.
-
-      '
+    description: Number of reports with surgical margins involved by the lesion, meaning the
+      excision was incomplete.
     code_system: none
-    source: inferred
-    reasoning: COMPRO is comprometidas truncated; the counterpart of CMARLIVRE. C(8).
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Margens cirúrgicas: Comprometidas"; SISCOLO4 Margem.cnv'
   CMARIMPAVA:
-    official_name: Margens impossíveis de avaliar
+    official_name: 'Margens cirúrgicas: Impossível de serem avaliadas'
     translated_name: Surgical margins not assessable
-    description: 'Reports where the margins could not be assessed — fragmented or cauterised
-      specimens. Distinct from involved margins, and neither reassuring nor conclusive.
-
-      '
+    description: Number of reports where the surgical margins could not be assessed.
     code_system: none
-    source: inferred
-    reasoning: 'IMP AVA reads impossível avaliar, the third state alongside livre and
-      comprometida. C(8) count.
-
-      '
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Margens cirúrgicas: Impossível de serem avaliadas"; SISCOLO4 Margem.cnv'
   CMARLIVRE:
-    official_name: Margens livres
+    official_name: 'Margens cirúrgicas: Livres'
     translated_name: Surgical margins clear
-    description: 'Reports in which the surgical margins were free of disease — the
-      finding that says the excision took all of the lesion.
-
-      '
+    description: Number of reports with surgical margins free of lesion.
     code_system: none
-    source: inferred
-    reasoning: MAR LIVRE is margens livres; C(8) count.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Margens cirúrgicas: Livres"; SISCOLO4 Margem.cnv'
   CO_ANO_COMPETENCIA:
     official_name: Ano de competência
     translated_name: Reference year
-    description: Calendar year this row's aggregated biopsy counts are attributed to.
+    description: Year of the competência, the period in which the provider released and billed
+      the exam.
     code_system: none
-    source: inferred
-    reasoning: ANO_COMPETENCIA is DATASUS's standard reference-period naming across
-      systems.
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Mês/Ano competência"
   CO_ANO_MES_COMPETENCIA:
-    official_name: Ano/mês de competência
+    official_name: Mês/Ano competência
     translated_name: Reference year-month
-    description: 'Combined year-month reference period this row''s aggregated biopsy
-      counts are attributed to — a finer breakdown than CO_ANO_COMPETENCIA.
-
-      '
+    description: Month and year of the competência, the period in which the provider released
+      and billed the exam.
     code_system: none
-    source: inferred
-    reasoning: ANO_MES_COMPETENCIA compounds the same reference-period naming as CO_ANO_COMPETENCIA.
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Mês/Ano competência"
   CO_BEN_ALT:
     official_name: Alteração benigna
     translated_name: Benign change present
@@ -232,7 +254,10 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: ALT is alteração, the general case of the block; C(1) flag.
+    reasoning: 'ALT is alteração, the general case of the block; C(1) flag. Reviewed 2026-09-28:
+      no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files,
+      SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide,
+      the DATASUS FTP DOC folders and the web).'
   CO_BEN_CER:
     official_name: Alteração benigna — cervicite
     translated_name: 'Benign change: cervicitis'
@@ -242,17 +267,22 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: 'CER is cervicite in the BEN block; C(2) here where its siblings are
-      C(1), so it admits more than a plain flag.
-
-      '
+    reasoning: 'CER is cervicite in the BEN block; C(2) here where its siblings are C(1),
+      so it admits more than a plain flag. Reviewed 2026-09-28: no documentation found (searched
+      TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas 1-14,
+      INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). Form 414 lists "Cervicite crônica inespecífica" among benign lesions;
+      the C(2) column itself is not named anywhere.'
   CO_BEN_POL:
-    official_name: Pólipo
-    translated_name: Polyp
-    description: A cervical polyp, benign and usually removed at the same visit.
+    official_name: 'Lesões de caráter benigno: Pólipo Endocervical'
+    translated_name: 'Benign: endocervical polyp'
+    description: Number of biopsies showing an endocervical polyp, a benign result.
     code_system: none
-    source: inferred
-    reasoning: BEN_POL reads benigno pólipo; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CO_BEN_POL "Ben.Pólipo Endocerv"; INCA, Requisição de Exame Histopatológico -
+      Colo do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter benigno: Pólipo Endocervical"'
   CO_CIT_ESC:
     official_name: Citologia anterior, atipias escamosas
     translated_name: Prior cytology, squamous atypia
@@ -298,35 +328,30 @@ variables:
 
       '
   CO_COLP_BI:
-    official_name: Colposcopia, biópsia
-    translated_name: Colposcopy, biopsy taken
-    description: 'Whether a biopsy was taken at colposcopy. The CO_COLP_ items record
-      what was done at the examination, as against CO_COLP which records what was seen.
-
-      '
+    official_name: 'Procedimento: Biópsia a frio'
+    translated_name: 'Procedure: cold-knife biopsy'
+    description: Number of exams whose material was obtained by cold-knife biopsy.
     code_system: none
-    source: inferred
-    reasoning: BI reads biópsia in the colposcopy block; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CO_COLP_BI "Proc.Biópsia a frio"
   CO_COLP_CU:
-    official_name: Colposcopia, curetagem endocervical
-    translated_name: Colposcopy, endocervical curettage
-    description: 'Whether endocervical curettage was done — sampling the canal, which
-      colposcopy cannot see, and the step that catches glandular disease.
-
-      '
+    official_name: 'Procedimento: Curetagem'
+    translated_name: 'Procedure: curettage'
+    description: Number of exams whose material was obtained by (endocervical) curettage.
     code_system: none
-    source: inferred
-    reasoning: CU reads curetagem in the colposcopy block; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CO_COLP_CU "Proc.Curetagem"
   CO_COLP_EX:
-    official_name: Colposcopia, exérese da zona de transformação
-    translated_name: Colposcopy, transformation zone excision
-    description: 'Whether the transformation zone was excised. Both diagnostic and
-      treatment, which is why a high-grade lesion can be resolved in one visit.
-
-      '
+    official_name: 'Procedimento: CAF alargada'
+    translated_name: 'Procedure: extended LEEP (CAF) excision'
+    description: Number of exams whose material came from an extended high-frequency (LEEP/CAF)
+      excision.
     code_system: none
-    source: inferred
-    reasoning: EX reads exérese in the colposcopy block; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CO_COLP_EX "Proc.CAF alarg"
   CO_COLP_PO:
     translated_name: Colposcopy-related field (HC file)
     description: 'Likely records a colposcopy finding paired with this biopsy''s histopathology
@@ -336,49 +361,52 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'COLP is a standard abbreviation for colposcopia, the procedure that
-      guides where a cervical biopsy is taken from; C(8) matches this file''s count-field
-      convention (siscan_findings.yml), but "PO" does not resolve with confidence.
-
-      '
+    reasoning: 'COLP is a standard abbreviation for colposcopia, the procedure that guides
+      where a cervical biopsy is taken from; C(8) matches this file''s count-field convention
+      (siscan_findings.yml), but "PO" does not resolve with confidence. Reviewed 2026-09-28:
+      no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files,
+      SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide,
+      the DATASUS FTP DOC folders and the web).'
     notes: 'DELIBERATELY UNDER-SPECIFIED — already flagged unresolved in siscan_findings.yml;
       no observed values or codelist exist for it.
 
       '
   CO_COLP_RE:
-    official_name: Colposcopia, resultado
-    translated_name: Colposcopy, result
-    description: The result recorded for the colposcopy procedure block.
+    official_name: 'Procedimento: CAF com retirada do canal'
+    translated_name: 'Procedure: LEEP (CAF) excision including the canal'
+    description: Number of exams whose material came from a high-frequency (LEEP/CAF) excision
+      that removed the endocervical canal. A procedure count, not a colposcopy result.
     code_system: none
-    source: inferred
-    reasoning: RE reads resultado in the colposcopy block; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo CO_COLP_RE "Proc.CAF ret Canal"
   CO_CTRL_BL:
-    translated_name: Control code (HC file, "BL")
-    description: 'A 2-character control code on the HC file, paired with CO_CTRL_FR
-      — CTRL abbreviates controle, but what BL and FR each track (block or fragment
-      numbering, or something else) is not established.
-
-      '
+    official_name: 'Controle de representação histológica: Blocos'
+    translated_name: 'Histological representation control: blocks'
+    description: Apparently the number of paraffin blocks in the "Controle de representação
+      histológica" box of the result form.
     code_system: none
     source: inferred
-    reasoning: 'CTRL is DATASUS''s standard "controle" abbreviation; C(2) fits a short
-      code rather than a count; sits directly beside CO_CTRL_FR.
-
-      '
-    notes: 'DELIBERATELY UNDER-SPECIFIED — no observed values, dictionary entry or
-      documentation resolves BL/FR.
-
-      '
+    reasoning: 'CTRL is DATASUS''s standard "controle" abbreviation; C(2) fits a short code
+      rather than a count; sits directly beside CO_CTRL_FR. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). Form 414 p.2 has "Controle de representação histológica*:
+      [__] Fragmentos [__] Blocos", two 2-digit boxes that match these two C(2) columns; the
+      mapping rests on that match.'
   CO_CTRL_FR:
-    translated_name: Control code (HC file, "FR")
-    description: 'The counterpart of CO_CTRL_BL on the same HC file — a 2-character
-      control code whose specific referent is not established.
-
-      '
+    official_name: 'Controle de representação histológica: Fragmentos'
+    translated_name: 'Histological representation control: fragments'
+    description: Apparently the number of tissue fragments in the "Controle de representação
+      histológica" box of the result form.
     code_system: none
     source: inferred
-    reasoning: Same CTRL_ pairing as CO_CTRL_BL; C(2), sits directly beside it.
-    notes: DELIBERATELY UNDER-SPECIFIED — see CO_CTRL_BL.
+    reasoning: 'Same CTRL_ pairing as CO_CTRL_BL; C(2), sits directly beside it. Reviewed
+      2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def
+      and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the SISMAMA
+      laudo guide, the DATASUS FTP DOC folders and the web). Form 414 p.2 has "Controle de
+      representação histológica*: [__] Fragmentos [__] Blocos", two 2-digit boxes that match
+      these two C(2) columns; the mapping rests on that match.'
   CO_DIF_GRA:
     official_name: Grau de diferenciação
     translated_name: Differentiation grade
@@ -395,17 +423,17 @@ variables:
       '
   CO_EXTEN_C:
     translated_name: Extensão field, HC file (variant C)
-    description: 'One of four EXTEN-stem fields on the HC file (C/L/P/V variants);
-      EXTEN plausibly abbreviates extensão, but which specific attribute each of the
-      four single-letter variants records is not established.
-
-      '
+    description: One of the tumour-extension fields of the result form, possibly uterine-body
+      (corpo uterino) involvement, yes/no.
     code_system: none
     source: inferred
-    reasoning: 'EXTEN is a plausible abbreviation of extensão; C(1) width, shared stem
-      with CO_EXTEN_L/P/V.
-
-      '
+    reasoning: 'EXTEN is a plausible abbreviation of extensão; C(1) width, shared stem with
+      CO_EXTEN_L/P/V. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Form 414 p.2 "Dados em
+      relação à extensão do tumor" has depth of invasion (mm), vascular, perineural, parametrial,
+      uterine-body and vaginal involvement (Sim/Não) and regional lymph nodes examined/involved;
+      which item each EXTEN column carries is not documented.'
     notes: 'DELIBERATELY UNDER-SPECIFIED — the four variants'' widths differ (C1, C8,
       C4, C1), so they are not simple parallel flags; no observed values exist for
       any of them.
@@ -413,40 +441,55 @@ variables:
       '
   CO_EXTEN_L:
     translated_name: Extensão field, HC file (variant L)
-    description: 'The C(8)-wide variant of the EXTEN-stem cluster (see CO_EXTEN_C)
-      — wide enough to be a count or a short code, unlike its C(1)/C(4) siblings.
-
-      '
+    description: One of the tumour-extension fields of the result form, possibly the regional
+      lymph nodes.
     code_system: none
     source: inferred
-    reasoning: Same EXTEN_ stem as CO_EXTEN_C/P/V; widest of the four (C8).
+    reasoning: 'Same EXTEN_ stem as CO_EXTEN_C/P/V; widest of the four (C8). Reviewed 2026-09-28:
+      no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files,
+      SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide,
+      the DATASUS FTP DOC folders and the web). Form 414 p.2 "Dados em relação à extensão
+      do tumor" has depth of invasion (mm), vascular, perineural, parametrial, uterine-body
+      and vaginal involvement (Sim/Não) and regional lymph nodes examined/involved; which
+      item each EXTEN column carries is not documented.'
     notes: DELIBERATELY UNDER-SPECIFIED — see CO_EXTEN_C.
   CO_EXTEN_P:
     translated_name: Extensão field, HC file (variant P)
-    description: The C(4)-wide variant of the EXTEN-stem cluster (see CO_EXTEN_C).
+    description: One of the tumour-extension fields of the result form; its C(4) width fits
+      depth of invasion in mm (profundidade), though parametrial involvement also starts with
+      P.
     code_system: none
     source: inferred
-    reasoning: Same EXTEN_ stem as CO_EXTEN_C/L/V; C(4) width.
+    reasoning: 'Same EXTEN_ stem as CO_EXTEN_C/L/V; C(4) width. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). Form 414 p.2 "Dados em relação à extensão do tumor" has depth
+      of invasion (mm), vascular, perineural, parametrial, uterine-body and vaginal involvement
+      (Sim/Não) and regional lymph nodes examined/involved; which item each EXTEN column carries
+      is not documented.'
     notes: DELIBERATELY UNDER-SPECIFIED — see CO_EXTEN_C.
   CO_EXTEN_V:
     translated_name: Extensão field, HC file (variant V)
-    description: 'The second C(1)-wide variant of the EXTEN-stem cluster (see CO_EXTEN_C),
-      alongside CO_EXTEN_C.
-
-      '
+    description: One of the tumour-extension fields of the result form, possibly vaginal (vagina)
+      or vascular involvement, yes/no.
     code_system: none
     source: inferred
-    reasoning: Same EXTEN_ stem as CO_EXTEN_C/L/P; C(1) width like CO_EXTEN_C.
+    reasoning: 'Same EXTEN_ stem as CO_EXTEN_C/L/P; C(1) width like CO_EXTEN_C. Reviewed 2026-09-28:
+      no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files,
+      SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide,
+      the DATASUS FTP DOC folders and the web). Form 414 p.2 "Dados em relação à extensão
+      do tumor" has depth of invasion (mm), vascular, perineural, parametrial, uterine-body
+      and vaginal involvement (Sim/Não) and regional lymph nodes examined/involved; which
+      item each EXTEN column carries is not documented.'
     notes: DELIBERATELY UNDER-SPECIFIED — see CO_EXTEN_C.
   CO_FAIXA_ETARIA:
     official_name: Faixa etária
     translated_name: Age bracket
-    description: Age bracket of the patients this row's biopsy counts are aggregated
-      over.
+    description: Age band of the patient, in five-year classes.
     code_system: internal
-    source: inferred
-    reasoning: FAIXA_ETARIA is the standard Brazilian age-bracket field name, used
-      the same way elsewhere in this catalog (e.g. PNI's FX_ETARIA).
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Faixa etária"
   CO_MARG:
     official_name: Margens cirúrgicas
     translated_name: Surgical margin status
@@ -473,11 +516,12 @@ variables:
       '
     code_system: internal
     source: inferred
-    reasoning: 'MAT_INS is a transparent contraction of "material insatisfatório,"
-      a standard Brazilian pathology-reporting adequacy term; C(1) fits a flag, and
-      HC is the cervical-histopathology series.
-
-      '
+    reasoning: 'MAT_INS is a transparent contraction of "material insatisfatório," a standard
+      Brazilian pathology-reporting adequacy term; C(1) fits a flag, and HC is the cervical-histopathology
+      series. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Form 414 p.2 has "Adequabilidade
+      do material: Satisfatório / Insatisfatório", which fits this reading.'
     notes: No observed values were captured to confirm the flag's exact coding.
   CO_NEO_ADE:
     official_name: Codigo de adenocarcinoma (histopatologia)
@@ -550,22 +594,15 @@ variables:
     source_ref: https://www.inca.gov.br/sites/ufu.sti.inca.local/files//media/document//formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
       page 2, MACROSCOPIA — Distância da margem mais próxima ___ mm
   CO_RES_NEOPL_OUTRAS:
-    official_name: Resultado — outras neoplasias
-    translated_name: Other-neoplasm result subtype code
-    description: 'Identifies which specific diagnosis the catch-all NU_OUTRAS_NEOPL_MALIG
-      count refers to, when that count is non-zero — a residual-category breakdown
-      rather than a count itself.
-
-      '
+    official_name: Res_Neo_Outras
+    translated_name: Other malignant neoplasm result (yes/no)
+    description: Whether the cervical histopathology diagnosed another malignant neoplasm
+      outside the named squamous and glandular categories (yes/no).
     code_system: internal
-    source: inferred
-    reasoning: 'CO_ (not NU_) marks it a code/dimension in this table''s convention;
-      RES_NEOPL_OUTRAS reads as "resultado, outras neoplasias," a natural breakdown
-      code for the "outras" bucket beside the named NIC/ adenocarcinoma/carcinoma counts
-      in this same batch.
-
-      '
-    notes: No observed values or codelist were captured for this column.
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Res_Neo_Outras"; TabWin definition histo_colo.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar,
+      variável "Res_Neopl_Outras" (SIMNAO2.CNV)
   CO_RES_TAM:
     official_name: Tamanho do tumor (histopatologia colo) — dimensão 1
     translated_name: Cervical tumour size, first dimension (mm)
@@ -607,11 +644,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'RESID reads as resultado; the same PACNT-vs-RESID split recurs for
-      CITO_MAMA, HISTO_MAMA and MAMOGRAFIA elsewhere in this batch, always as this
-      table''s own id rather than a patient id.
-
-      '
+    reasoning: 'RESID reads as resultado; the same PACNT-vs-RESID split recurs for CITO_MAMA,
+      HISTO_MAMA and MAMOGRAFIA elsewhere in this batch, always as this table''s own id rather
+      than a patient id. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   CRESBIOPSI:
     official_name: Tipo de procedimento cirurgico - biopsia
     translated_name: 'Surgical procedure flag: biopsia'
@@ -891,26 +928,17 @@ variables:
 
       '
   ESCCARINVA:
-    official_name: Carcinoma epidermoide invasivo (nomenclatura alternativa)
-    translated_name: Invasive squamous carcinoma flag (legacy naming)
-    description: 'Reads as an earlier-generation duplicate of NICEPIINVA - the same
-      ''carcinoma epidermoide invasivo'' finding under an ESC-prefixed name instead
-      of the NIC-prefixed one used elsewhere in the same field group.
-
-      '
+    official_name: Carcinoma epidermóide invasor (citopatológico de encaminhamento)
+    translated_name: 'Referring cytology: invasive squamous carcinoma'
+    description: Number of histopathology exams whose referring cytology reported invasive
+      squamous carcinoma. A cytology result, not the biopsy diagnosis (that is NICEPIINVA).
     code_system: none
-    source: inferred
-    reasoning: 'ESC (escamoso/epidermoide) + CAR (carcinoma) + INVA (invasivo) decomposes
-      to the same finding NICEPIINVA already names. Two differently-prefixed columns
-      for what reads as one checkbox is consistent with SISCOLO''s field names changing
-      across the 2006-2015 span, with old and new columns both surviving in the combined
-      file.
-
-      '
-    notes: 'Possible duplicate of NICEPIINVA - verify before summing the two as independent
-      counts.
-
-      '
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo ESCCARINVA "Carc.Epid.Invasor"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 "Resultado do exame citopatológico / encaminhamento: Atipias em células escamosas
+      - Carcinoma epidermóide invasor"'
   ESCIEMCINV:
     official_name: Les.IEAG mic.inv
     translated_name: High-grade squamous lesion, cannot exclude microinvasion
@@ -968,57 +996,58 @@ variables:
 
       '
   GPNNEOP:
-    official_name: Grupo de processo não neoplásico
-    translated_name: Non-neoplastic process group
-    description: The grouped non-neoplastic finding, recorded beside INDPNAONEO in
-      a different generation.
+    official_name: 'Células glandulares atípicas: possivelmente não neoplásicas (citopatológico
+      de encaminhamento)'
+    translated_name: 'Referring cytology: atypical glandular cells, possibly non-neoplastic'
+    description: Number of histopathology exams whose referring cytology reported atypical
+      glandular cells, possibly non-neoplastic.
     code_system: none
-    source: inferred
-    reasoning: G P N NEOP reads grupo processo não neoplásico; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo GPNNEOP "Gla.Indet não neop"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 "Resultado do exame citopatológico / encaminhamento: Glandulares - Possivelmente
+      não neoplásicas"'
   INDPNAONEO:
-    official_name: Processo não neoplásico
-    translated_name: Non-neoplastic process
-    description: A non-neoplastic process — the negative counterpart of PNEOPLA.
+    official_name: 'Células atípicas de origem indefinida: possivelmente não neoplásicas (citopatológico
+      de encaminhamento)'
+    translated_name: 'Referring cytology: undefined-origin atypia, possibly non-neoplastic'
+    description: Number of histopathology exams whose referring cytology reported atypical
+      cells of undefined origin, possibly non-neoplastic.
     code_system: none
-    source: inferred
-    reasoning: IND P NAO NEO reads processo não neoplásico; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo INDPNAONEO "Ori.Indet não neop"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 "Resultado do exame citopatológico / encaminhamento: De origem indefinida - Possivelmente
+      não neoplásicas"'
   NEOINSUTU:
-    official_name: Adenocarcinoma in situ (citologia/histopatologia)
+    official_name: 'Lesões de caráter neoplásico ou pré-neoplásico: Adenocarcinoma in situ'
     translated_name: Adenocarcinoma in situ flag
-    description: 'Reads as the ''Adenocarcinoma "in situ"'' checkbox under ATIPIAS
-      EM CELULAS GLANDULARES (cytology form) or the equivalent MICROSCOPIA entry on
-      the histopathology form.
-
-      '
+    description: Number of biopsies diagnosed as adenocarcinoma in situ.
     code_system: none
-    source: inferred
-    reasoning: 'NEO+INSUTU is a near-exact respelling of ''neoplasia in situ'' (adenocarcinoma
-      "in situ" is the only ''in situ'' checkbox on either form), with the vowel order
-      in ''situ'' transposed - a common effect of stripping accents/vowels when building
-      fixed-width field names.
-
-      '
-    notes: 'Moderate confidence; the near match in spelling is the main evidence.
-
-      '
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo NEOINSUTU "NeoAdeno.in situ"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: Adenocarcinoma in situ"'
   NEOMUCINO:
     official_name: Adenocarcinoma mucinoso
     translated_name: Mucinous adenocarcinoma
-    description: Mucinous adenocarcinoma, a glandular subtype.
+    description: Number of biopsies diagnosed as mucinous adenocarcinoma, a glandular subtype.
     code_system: none
-    source: inferred
-    reasoning: MUCINO reads mucinoso, an adenocarcinoma subtype; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo NEOMUCINO "NeoAdeno.mucinoso"
   NEOVILOGL:
     official_name: Adenocarcinoma viloglandular
     translated_name: Villoglandular adenocarcinoma
-    description: 'Villoglandular adenocarcinoma, a glandular subtype with a notably
-      better prognosis than the others, which is why it is reported separately.
-
-      '
+    description: Number of biopsies diagnosed as villoglandular adenocarcinoma, a glandular
+      subtype.
     code_system: none
-    source: inferred
-    reasoning: VILOGL reads viloglandular, an adenocarcinoma subtype; C(8), values
-      unobserved.
+    source: def
+    source_ref: TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo NEOVILOGL "NeoAdeno.Vilogland"
   NICCARCMIN:
     official_name: Carcinoma epidermoide microinvasivo
     translated_name: 'Histopathology microscopy flag: carcinoma epidermoide microinvasivo'
@@ -1102,272 +1131,282 @@ variables:
       Ministerio da Saude/INCA, Requisicao de Exame Histopatologico - Colo do Utero
       (formulario no.414), p.1-2
   NICNAOCERA:
-    official_name: Carcinoma escamoso não ceratinizante
+    official_name: Carcinoma epidermóide não ceratinizante
     translated_name: Non-keratinising squamous carcinoma
-    description: 'Non-keratinising squamous carcinoma, one of the histological subtypes
-      of invasive cervical cancer.
-
-      '
+    description: Number of biopsies diagnosed as non-keratinising squamous carcinoma.
     code_system: none
-    source: inferred
-    reasoning: NAO CERA reads não ceratinizante, a squamous carcinoma subtype; C(8),
-      values unobserved.
+    source: def
+    source_ref: TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo NICNAOCERA "NeoCar.epi.n.cerat"
   NICVERRUCO:
-    official_name: Carcinoma verrucoso
+    official_name: Carcinoma epidermóide verrucoso
     translated_name: Verrucous carcinoma
-    description: 'Verrucous carcinoma, a rare and locally invasive squamous subtype
-      that rarely metastasises.
-
-      '
+    description: Number of biopsies diagnosed as verrucous squamous carcinoma.
     code_system: none
-    source: inferred
-    reasoning: VERRUCO reads verrucoso, a squamous carcinoma subtype; C(8), values
-      unobserved.
+    source: def
+    source_ref: TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo NICVERRUCO "NeoCar.verrugosso"
   NU_AC_ANORMAL_C_ALT_MAIOR:
-    official_name: Atipia celular anormal — alteração maior
-    translated_name: Count of high-grade cytological atypia (antecedent)
-    description: 'Count of biopsies whose antecedent cytology finding was graded a
-      major/high-grade cellular atypia — part of a four-way atypia-severity breakdown
-      alongside ALT_MENOR, MISCELANIA and SUGEST_CANCER.
-
-      '
+    official_name: 'Achados colposcópicos: Anormal - Alterações Maiores'
+    translated_name: Colposcopy abnormal, major changes (count)
+    description: Number of exams whose colposcopy was abnormal with major changes (suggesting
+      a high-grade lesion, grade II). A colposcopy finding, not a cytology result.
     code_system: none
-    source: inferred
-    reasoning: 'AC abbreviates atipia celular, ANORMAL qualifies it, and ALT_MAIOR
-      reads as "alteração maior" (major/high-grade change) — the standard high/low-grade
-      split used in Brazilian cervical cytology reporting.
-
-      '
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 item 1 "Achados colposcópicos": "Anormal - Alterações Maiores (sug. Alto grau; Grau
+      II)"; Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Colposcopia"'
   NU_AC_ANORMAL_C_ALT_MENOR:
-    official_name: Atipia celular anormal — alteração menor
-    translated_name: Count of low-grade cytological atypia (antecedent)
-    description: 'Count of biopsies whose antecedent cytology finding was graded a
-      minor/low-grade cellular atypia — the low-grade counterpart of NU_AC_ANORMAL_C_ALT_MAIOR.
-
-      '
+    official_name: 'Achados colposcópicos: Anormal - Alterações Menores'
+    translated_name: Colposcopy abnormal, minor changes (count)
+    description: Number of exams whose colposcopy was abnormal with minor changes (suggesting
+      a low-grade lesion, grade I).
     code_system: none
-    source: inferred
-    reasoning: Same AC_ANORMAL_C_ALT_ stem as NU_AC_ANORMAL_C_ALT_MAIOR; MENOR is menor
-      (lesser/minor).
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 item 1 "Achados colposcópicos": "Anormal - Alterações Menores (sug. Baixo grau,
+      Grau I)"; Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Colposcopia"'
   NU_AC_ANORMAL_C_MISCELANIA:
-    official_name: Atipia celular anormal — miscelânea
-    translated_name: Count of miscellaneous-category cytological atypia (antecedent)
-    description: 'Count of biopsies whose antecedent cytology finding fell in a miscellaneous/other
-      atypia category, not fitting the major/minor grade split.
-
-      '
+    official_name: 'Achados colposcópicos: Miscelânea'
+    translated_name: Colposcopy, miscellaneous findings (count)
+    description: 'Number of exams whose colposcopy showed miscellaneous findings: condyloma,
+      post-treatment sequela, polyp, stenosis, congenital anomaly, inflammation or endometriosis.'
     code_system: none
-    source: inferred
-    reasoning: MISCELANIA is the unabbreviated Portuguese word for miscellaneous; sits
-      in the same AC_ANORMAL_C_ cluster.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 item 1 "Achados colposcópicos": "Miscelânea (condiloma, sequela pós tratamento,
+      pólipo, estenose, anomalia congênita, inflamação, endometriose)"; Nota Técnica 5 SISCAN
+      - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Colposcopia"'
   NU_AC_ANORMAL_C_SUGEST_CANCER:
-    official_name: Atipia celular anormal — sugestivo de câncer
-    translated_name: Count of cancer-suggestive cytological atypia (antecedent)
-    description: 'Count of biopsies whose antecedent cytology finding was itself already
-      classified as suggestive of cancer — the most severe category in this atypia
-      cluster.
-
-      '
+    official_name: 'Achados colposcópicos: Sugestivo de câncer'
+    translated_name: Colposcopy suggestive of cancer (count)
+    description: Number of exams whose colposcopy findings were suggestive of cancer.
     code_system: none
-    source: inferred
-    reasoning: SUGEST_CANCER abbreviates sugestivo de câncer; completes the four-way
-      AC_ANORMAL_C_ breakdown.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 item 1 "Achados colposcópicos": "Sugestivo de câncer"; Nota Técnica 5 SISCAN - Histopatológico
+      do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Colposcopia"'
   NU_LES_BEN_ALTO_CITO_COMPA:
-    official_name: Lesão benigna — alterações citopáticas compatíveis (HPV)
+    official_name: 'Lesões de caráter benigno: Alterações citoarquiteturais compatíveis com
+      ação viral (HPV)'
     translated_name: Count of HPV-compatible cytopathic changes (benign)
-    description: 'Count of biopsies showing benign cytopathic changes compatible with
-      HPV infection (e.g. koilocytosis) — a reactive/viral finding, not a neoplasm.
-
-      '
+    description: Number of exams negative for cervical cancer with cyto-architectural changes
+      compatible with viral (HPV) action.
     code_system: none
-    source: inferred
-    reasoning: 'LES_BEN is lesão benigna, a recurring stem in this cluster; ALTO_CITO_COMPA
-      most plausibly contracts "alterações citopáticas compatíveis," the standard term
-      for HPV''s cytopathic effect — the single most common benign/reactive finding
-      named in Brazilian cervical-biopsy reporting.
-
-      '
-    notes: '"ALTO" could alternatively read as the literal word alto (high); no observed
-      value or codelist confirms which.
-
-      '
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Ben. alt. cito. compa"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter benigno: Alterações citoarquiteturais compatíveis com ação viral
+      (HPV)"'
   NU_LES_BEN_CERVICITE_CRON:
-    official_name: Lesão benigna — cervicite crônica
+    official_name: 'Lesões de caráter benigno: Cervicite crônica inespecífica'
     translated_name: Count of chronic cervicitis diagnoses (benign)
-    description: Count of biopsies showing chronic cervicitis — benign, non-specific
-      cervical inflammation.
+    description: Number of exams negative for cervical cancer with chronic non-specific cervicitis.
     code_system: none
-    source: inferred
-    reasoning: LES_BEN stem plus CERVICITE_CRON, an unabbreviated contraction of cervicite
-      crônica.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Ben. cervicite cron"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter benigno: Cervicite crônica inespecífica"'
   NU_LES_BEN_METAPLASIA_ESC:
-    official_name: Lesão benigna — metaplasia escamosa
+    official_name: 'Lesões de caráter benigno: Metaplasia Escamosa'
     translated_name: Count of squamous metaplasia diagnoses (benign)
-    description: 'Count of biopsies showing squamous metaplasia — the normal reparative
-      replacement of glandular by squamous epithelium in the transformation zone, not
-      itself a lesion.
-
-      '
+    description: Number of exams negative for cervical cancer with squamous metaplasia.
     code_system: none
-    source: inferred
-    reasoning: LES_BEN stem plus METAPLASIA_ESC, escamosa truncated.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Ben. metaplasia esc"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter benigno: Metaplasia Escamosa"'
   NU_LES_BEN_POLIPO_ENDOCERVICAL:
-    official_name: Lesão benigna — pólipo endocervical
+    official_name: 'Lesões de caráter benigno: Pólipo Endocervical'
     translated_name: Count of endocervical polyp diagnoses (benign)
-    description: Count of biopsies showing a benign endocervical polyp.
+    description: Number of exams negative for cervical cancer with an endocervical polyp.
     code_system: none
-    source: inferred
-    reasoning: LES_BEN stem plus POLIPO_ENDOCERVICAL, unabbreviated.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Ben. pólipo endocer"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter benigno: Pólipo Endocervical"'
   NU_NEOPLASICO_NIC_I:
-    official_name: NIC I
+    official_name: NIC I (displasia leve)
     translated_name: Count of CIN 1 (mild dysplasia) diagnoses
-    description: Count of biopsies diagnosed as NIC I (Neoplasia Intraepitelial Cervical
-      grau I) — mild cervical dysplasia.
+    description: Number of exams diagnosed with cervical intraepithelial neoplasia grade I
+      (mild dysplasia).
     code_system: none
-    source: inferred
-    reasoning: NIC is the standard Brazilian abbreviation for cervical intraepithelial
-      neoplasia (CIN); I/II/III are its three grades.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Neo. NIC I"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: NIC I (displasia leve)"'
   NU_NEOPLASICO_NIC_II:
-    official_name: NIC II
+    official_name: NIC II (displasia moderada)
     translated_name: Count of CIN 2 (moderate dysplasia) diagnoses
-    description: Count of biopsies diagnosed as NIC II — moderate cervical dysplasia,
-      one grade more severe than NIC I.
+    description: Number of exams diagnosed with CIN grade II (moderate dysplasia).
     code_system: none
-    source: inferred
-    reasoning: Same NIC grading stem as NU_NEOPLASICO_NIC_I.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Neo. NIC II"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: NIC II (displasia moderada)"'
   NU_NEOPLASICO_NIC_III:
-    official_name: NIC III
+    official_name: NIC III (displasia acentuada / carcinoma in situ)
     translated_name: Count of CIN 3 (severe dysplasia/carcinoma in situ) diagnoses
-    description: Count of biopsies diagnosed as NIC III — severe dysplasia/carcinoma
-      in situ, the most advanced pre-invasive grade.
+    description: Number of exams diagnosed with CIN grade III (severe dysplasia / carcinoma
+      in situ).
     code_system: none
-    source: inferred
-    reasoning: Same NIC grading stem as NU_NEOPLASICO_NIC_I/II.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Neo. NIC III"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: NIC III (displasia acentuada /
+      carcinoma in situ)"'
   NU_NEO_ADENO_INVASOR:
-    official_name: Neoplasia — adenocarcinoma invasor
+    official_name: Adenocarcinoma invasor
     translated_name: Count of invasive adenocarcinoma diagnoses
-    description: Count of biopsies diagnosed as invasive cervical adenocarcinoma —
-      glandular-cell cancer that has invaded beyond the epithelium.
+    description: Number of exams diagnosed with invasive adenocarcinoma.
     code_system: none
-    source: inferred
-    reasoning: NEO_ADENO abbreviates neoplasia adenocarcinoma; INVASOR is invasor (invasive).
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Neo. adeno invas"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: Adenocarcinoma invasor"'
   NU_NEO_ADENO_IN_SITU:
-    official_name: Neoplasia — adenocarcinoma in situ
+    official_name: Adenocarcinoma in situ
     translated_name: Count of adenocarcinoma-in-situ diagnoses
-    description: 'Count of biopsies diagnosed as adenocarcinoma in situ — the pre-invasive
-      glandular counterpart of NU_NEO_ADENO_INVASOR, confined to the epithelium.
-
-      '
+    description: Number of exams diagnosed with adenocarcinoma in situ.
     code_system: none
-    source: inferred
-    reasoning: Same NEO_ADENO stem as NU_NEO_ADENO_INVASOR; IN_SITU is the standard
-      Latin pathology term, unabbreviated.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Neo. adeno in situ"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: Adenocarcinoma in situ"'
   NU_NEO_CARC_EPID_IMPOSSIVEL:
-    official_name: Neoplasia — carcinoma epidermoide, invasão não avaliável
+    official_name: Carcinoma epidermóide, impossível avaliar invasão
     translated_name: Count of squamous-cell carcinoma with invasion not assessable
-    description: 'Count of biopsies diagnosed as squamous-cell (epidermoide) carcinoma
-      where depth of invasion could not be assessed from the specimen — distinct from
-      the confirmed invasive and microinvasive counts.
-
-      '
+    description: Number of exams diagnosed with squamous carcinoma with invasion impossible
+      to assess.
     code_system: none
-    source: inferred
-    reasoning: NEO_CARC_EPID abbreviates neoplasia carcinoma epidermoide; IMPOSSIVEL
-      is impossível (de avaliar), unabbreviated.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Neo. carc. epid. imp."; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: Carcinoma epidermóide, impossível
+      avaliar invasão"'
   NU_NEO_CARC_EPID_INVASIVO:
-    official_name: Neoplasia — carcinoma epidermoide invasivo
+    official_name: Carcinoma epidermóide invasivo
     translated_name: Count of invasive squamous-cell carcinoma diagnoses
-    description: Count of biopsies diagnosed as frankly invasive squamous-cell cervical
-      carcinoma.
+    description: Number of exams diagnosed with invasive squamous carcinoma.
     code_system: none
-    source: inferred
-    reasoning: Same NEO_CARC_EPID stem as its siblings in this cluster; INVASIVO is
-      unabbreviated.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Neo. carc. epid. inva"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: Carcinoma epidermóide invasivo"'
   NU_NEO_CARC_EPID_MICRO_INVASIV:
-    official_name: Neoplasia — carcinoma epidermoide microinvasivo
+    official_name: Carcinoma epidermóide microinvasivo
     translated_name: Count of microinvasive squamous-cell carcinoma diagnoses
-    description: 'Count of biopsies diagnosed as microinvasive squamous-cell carcinoma
-      — the earliest-stage invasive category, between carcinoma in situ (NIC III) and
-      frank invasion.
-
-      '
+    description: Number of exams diagnosed with microinvasive squamous carcinoma.
     code_system: none
-    source: inferred
-    reasoning: Same NEO_CARC_EPID stem; MICRO_INVASIV is microinvasivo truncated to
-      the field-name limit.
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Neo. carc. epid. micr"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: Carcinoma epidermóide microinvasivo"'
   NU_OUTRAS_NEOPL_MALIG:
     official_name: Outras neoplasias malignas
     translated_name: Count of other malignant neoplasm diagnoses
-    description: 'Count of biopsies diagnosed with a malignant neoplasm outside the
-      named NIC/adenocarcinoma/carcinoma-epidermoide categories in this batch. CO_RES_NEOPL_OUTRAS
-      (siscan_fill_02.yml) records which specific diagnosis this catch-all refers to.
-
-      '
+    description: Number of exams diagnosed with another malignant neoplasm (specified only
+      inside the system).
     code_system: none
-    source: inferred
-    reasoning: OUTRAS_NEOPL_MALIG is unabbreviated Portuguese for "other malignant
-      neoplasms."
+    source: layout_doc
+    source_ref: 'Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Out neopl.malig"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico: Outras neoplasias malignas"'
   NU_PROC_BIOPSIA:
-    official_name: Procedimento — biópsia
+    official_name: 'Procedimento: Biópsia'
     translated_name: Count of biopsy procedures
-    description: Count of rows/specimens in this aggregation obtained by biopsy, as
-      opposed to an excisional procedure.
+    description: Number of exams whose material was obtained by biopsy (the procedure on the
+      requisition).
     code_system: none
-    source: inferred
-    reasoning: PROC_BIOPSIA is procedimento biópsia, unabbreviated; opens the procedure-type
-      cluster completed by the NU_PROC_EXERESE_* fields below.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 Informações da colposcopia e procedimento diagnósticos do colo do útero, item 3
+      "Procedimento": "Biópsia"; Nota Técnica 5 SISCAN - Histopatológico do colo do útero
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf, "Tipo
+      de procedimento (mat. enviado)"'
   NU_PROC_EXERESE_CONIZACAO:
-    official_name: Procedimento — exérese, conização
+    official_name: 'Procedimento: Conização'
     translated_name: Count of conization excision procedures
-    description: Count of specimens obtained by conization (cone biopsy) — an excisional
-      procedure removing a cone-shaped section of the cervix.
+    description: Number of exams whose material was obtained by conization.
     code_system: none
-    source: inferred
-    reasoning: PROC_EXERESE is procedimento exérese; CONIZACAO is conização, unabbreviated.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 Informações da colposcopia e procedimento diagnósticos do colo do útero, item 3
+      "Procedimento": "Conização"; Nota Técnica 5 SISCAN - Histopatológico do colo do útero
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf, "Tipo
+      de procedimento (mat. enviado)"'
   NU_PROC_EXERESE_OUTROS:
-    official_name: Procedimento — exérese, outros
-    translated_name: Count of other excision procedures
-    description: Count of specimens obtained by an excisional procedure other than
-      conization or Ver e Tratar.
+    official_name: 'Procedimento: Outras'
+    translated_name: Count of other procedures
+    description: Number of exams whose material was obtained by another procedure than biopsy,
+      transformation-zone excision or conization.
     code_system: none
-    source: inferred
-    reasoning: Same PROC_EXERESE stem as its siblings; OUTROS is the residual/other
-      category.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 Informações da colposcopia e procedimento diagnósticos do colo do útero, item 3
+      "Procedimento": "Outras"; Nota Técnica 5 SISCAN - Histopatológico do colo do útero —
+      http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf, "Tipo
+      de procedimento (mat. enviado)"'
   NU_PROC_EXERESE_POS_BIOPSIA:
-    official_name: Procedimento — exérese pós-biópsia
+    official_name: 'Exerese da Zona de Transformação: Pós biópsia'
     translated_name: Count of excisions performed after a prior biopsy
-    description: 'Count of excision procedures performed as a follow-up after an earlier
-      biopsy, rather than as the initial diagnostic procedure.
-
-      '
+    description: Number of exams whose material came from a transformation-zone excision (EZT)
+      done after an earlier biopsy.
     code_system: none
-    source: inferred
-    reasoning: PROC_EXERESE stem plus POS_BIOPSIA, pós biópsia unabbreviated.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 Informações da colposcopia e procedimento diagnósticos do colo do útero, item 3
+      "Procedimento": "Exerese da Zona de Transformação - Pós biópsia"; Nota Técnica 5 SISCAN
+      - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "EZT após biópsia"'
   NU_PROC_EXERESE_VER_E_TRATAR:
-    official_name: Procedimento — exérese, Ver e Tratar
+    official_name: 'Exerese da Zona de Transformação: Ver e Tratar'
     translated_name: Count of "See and Treat" excision procedures
-    description: 'Count of excisions performed under Brazil''s "Ver e Tratar" (see-and-
-      treat) protocol, where colposcopy and excisional treatment are combined in a
-      single visit for a high-grade lesion.
-
-      '
+    description: Number of exams whose material came from a see-and-treat transformation-zone
+      excision (EZT "Ver e Tratar"), done at the same visit as colposcopy.
     code_system: none
-    source: inferred
-    reasoning: 'PROC_EXERESE stem; "Ver e Tratar" is the named strategy used in Brazilian
-      cervical-cancer-prevention services, spelled out rather than abbreviated.
-
-      '
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 Informações da colposcopia e procedimento diagnósticos do colo do útero, item 3
+      "Procedimento": "Exerese da Zona de Transformação - Ver e Tratar"; Nota Técnica 5 SISCAN
+      - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "EZT ver e tratar"'
   NU_RES_EXAMES_NEO_PRENEO:
-    official_name: Resultado dos exames — neoplásico/pré-neoplásico
+    official_name: Res_Exames_Neo_Preneo
     translated_name: Count of neoplastic/pre-neoplastic results
-    description: 'Roll-up count of biopsies whose result fell anywhere in the neoplastic
-      or pre-neoplastic categories (NIC grades, carcinoma, adenocarcinoma) — a summary
-      figure over several of this batch''s more specific counts.
-
-      '
+    description: Number of exams with at least one neoplastic or pre-neoplastic result (squamous,
+      glandular or other malignant). A roll-up of the specific counts, so do not add it to
+      them.
     code_system: none
-    source: inferred
-    reasoning: RES_EXAMES is resultado dos exames; NEO_PRENEO contracts neoplásico/pré-neoplásico.
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Res_Exames_Neo_Preneo"
   NU_ZT_SATIF_IND:
     official_name: Zona de transformação satisfatória — tipo indeterminado
     translated_name: Count of satisfactory transformation zones, indeterminate type
@@ -1379,42 +1418,52 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'ZT is zona de transformação, SATIF is satisfatória; IND is indeterminado,
-      paired with the TP_I/II/III type fields that follow.
-
-      '
+      paired with the TP_I/II/III type fields that follow. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). Form 414 item 2 has no "indeterminate type"; the remaining
+      option is "Insatisfatória: Atrofia/Inflamação severa/trauma colo/cérvice não visível
+      (colposcopia inadequada)", which this column may carry.'
   NU_ZT_SATIF_TP_I:
-    official_name: Zona de transformação satisfatória — tipo I
+    official_name: 'Satisfatória: ZT completamente visível e ectocervical (ZT tipo I)'
     translated_name: Count of satisfactory transformation zones, type I
-    description: 'Count of colposcopy exams with a fully visible, entirely ectocervical
-      transformation zone — Type 1 in the IFCPC colposcopy classification, the most
-      favourable type for complete assessment.
-
-      '
+    description: Number of exams whose colposcopy was satisfactory with a type I transformation
+      zone (fully visible and ectocervical).
     code_system: none
-    source: inferred
-    reasoning: Same ZT_SATIF_TP stem as its siblings; I/II/III is the standard IFCPC
-      transformation-zone typing.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 item 2 "Zona de Transformação (ZT)/Adequabilidade": "Satisfatória ZT completamente
+      visível e ectocervical (ZT tipo I)"; Nota Técnica 5 SISCAN - Histopatológico do colo
+      do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Adequab Zona de Transformação"'
   NU_ZT_SATIF_TP_II:
-    official_name: Zona de transformação satisfatória — tipo II
+    official_name: 'Satisfatória: ZT ecto e endocervical (ZT tipo II)'
     translated_name: Count of satisfactory transformation zones, type II
-    description: 'Count of colposcopy exams with a Type 2 transformation zone — visible
-      but partly extending into the endocervical canal, still fully assessable with
-      instruments.
-
-      '
+    description: Number of exams whose colposcopy was satisfactory with a type II transformation
+      zone (ecto- and endocervical; the form further splits squamocolumnar junction up to
+      or beyond 1 cm into the canal).
     code_system: none
-    source: inferred
-    reasoning: Same ZT_SATIF_TP stem as NU_ZT_SATIF_TP_I/III.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 item 2 "Zona de Transformação (ZT)/Adequabilidade": "Satisfatória ZT ecto e endocervical
+      (ZT tipo II)"; Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Adequab Zona de Transformação"'
   NU_ZT_SATIF_TP_III:
-    official_name: Zona de transformação satisfatória — tipo III
+    official_name: 'Insatisfatória: ZT não visível ou parcialmente visível (ZT tipo III)'
     translated_name: Count of satisfactory transformation zones, type III
-    description: 'Count of colposcopy exams with a Type 3 transformation zone — extends
-      far enough into the canal that only part of it is visible.
-
-      '
+    description: Number of exams with a type III transformation zone (not visible or only
+      partly visible, mostly or entirely endocervical). The form and Nota Técnica 5 class
+      this as an unsatisfactory colposcopy, despite the SATIF in the column name.
     code_system: none
-    source: inferred
-    reasoning: Same ZT_SATIF_TP stem as NU_ZT_SATIF_TP_I/II.
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário nº
+      414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 item 2 "Zona de Transformação (ZT)/Adequabilidade": "Insatisfatória - ZT não visível
+      ou parcialmente visível (predom./complet endocervical) (ZT tipo III)"; Nota Técnica
+      5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Adequab Zona de Transformação"'
   O_CIT_ESCA:
     official_name: Resultado - atipias em celulas escamosas
     translated_name: Squamous-cell abnormality result code
@@ -1468,11 +1517,13 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'Sits in the same field family as O_COLP_BIO (biópsia). The requisition''s
-      procedure section 3 lists Biópsia, Exérese da Zona de Transformação with two
-      sub-options (Ver e Tratar / Pós biópsia), Conização and Outras. "POS" matches
-      "Pós biópsia" specifically rather than the "Ver e Tratar" sub-option.
-
-      '
+      procedure section 3 lists Biópsia, Exérese da Zona de Transformação with two sub-options
+      (Ver e Tratar / Pós biópsia), Conização and Outras. "POS" matches "Pós biópsia" specifically
+      rather than the "Ver e Tratar" sub-option. Reviewed 2026-09-28: no documentation found
+      (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas
+      1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). HColo4.def names O_COLP_BIO "Proc.CAF biópsia" in the same block but not
+      this column.'
     asserted_by: pegasus_data
   O_EXTEN_LI:
     official_name: Extensao para linfonodos
@@ -1483,11 +1534,14 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'O_EXTEN_ parallels the C_EXT_* extension-site columns; ''LI'' is the
-      one anatomical site in that section not already covered by a C_EXT_* column,
-      and it matches ''linfonodos''.
-
-      '
+    reasoning: 'O_EXTEN_ parallels the C_EXT_* extension-site columns; ''LI'' is the one anatomical
+      site in that section not already covered by a C_EXT_* column, and it matches ''linfonodos''.
+      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Form 414 p.2 "Dados em
+      relação à extensão do tumor" has depth of invasion (mm), vascular, perineural, parametrial,
+      uterine-body and vaginal involvement (Sim/Não) and regional lymph nodes examined/involved;
+      which item each EXTEN column carries is not documented.'
     notes: 'Whether it stores a count or a Sim/Nao flag is not confirmed.
 
       '
@@ -1533,22 +1587,27 @@ variables:
     depends_on:
     - CO_RES_TAM
   PNEOPLA:
-    official_name: Processo neoplásico
-    translated_name: Neoplastic process
-    description: A neoplastic process reported on the biopsy.
+    official_name: 'Células escamosas atípicas: não se pode afastar lesão de alto grau (ASC-H)
+      (citopatológico de encaminhamento)'
+    translated_name: 'Referring cytology: ASC-H'
+    description: Number of histopathology exams whose referring cytology reported atypical
+      squamous cells where a high-grade lesion cannot be excluded (ASC-H).
     code_system: none
-    source: inferred
-    reasoning: P NEOPLA reads processo neoplásico; C(8), values unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definition HColo4.def (SISCOLO4) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip,
+      campo PNEOPLA "Esc.Indet alto grau"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 "Resultado do exame citopatológico / encaminhamento: Escamosas - Não se pode afastar
+      lesão de alto grau (ASC-H)"'
   TP_PROCEDIMENTO_CIR:
     official_name: Tipo de procedimento cirúrgico
     translated_name: Type of surgical procedure
-    description: 'Category of surgical procedure performed to obtain this specimen
-      (e.g. biopsy, conization, Ver e Tratar excision) — the row-level type field the
-      NU_PROC_* counts above are aggregated from.
-
-      '
+    description: 'Surgical procedure reported on the histopathology result form: biopsy, conization,
+      transformation-zone excision, hysterectomy or total hysterectomy. Distinct from the
+      procedure on the requisition, which the NU_PROC_* counts tabulate.'
     code_system: internal
-    source: inferred
-    reasoning: Full-word decomposition (tipo de procedimento cirúrgico); TP_ type-code
-      prefix.
-    notes: No observed values or codelist were captured for this column.
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Tipo de procedimento cir"; INCA, Requisição de Exame Histopatológico - Colo do Útero
+      (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Tipo de procedimento cirúrgico"; TAB_SISCAN tpproccir.cnv

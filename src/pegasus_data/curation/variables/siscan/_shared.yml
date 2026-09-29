@@ -10,28 +10,31 @@ variables:
   ADENCARCIN:
     official_name: Adenocarcinoma
     translated_name: Adenocarcinoma
-    description: 'Adenocarcinoma — glandular rather than squamous cancer. Screening
-      detects it less reliably than squamous disease, which is why its share of cervical
-      cancers has risen as squamous disease has been controlled.
-
-      '
+    description: Number of exams reporting adenocarcinoma, with a meaning that differs by
+      dataset. In cervical cytology (CC) the .def labels it adenocarcinoma in situ (invasive
+      adenocarcinoma is DENCARCINV there). In cervical histopathology (HC) it is invasive
+      adenocarcinoma on the referring cytology result, with ADENOINSUT holding the in-situ
+      count.
     code_system: none
-    source: inferred
-    reasoning: ADENCARCIN reads adenocarcinoma; present on both the CC and HC forms.
-      C(8), values unobserved.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo ADENCARCIN "Adenocarc.In Situ (CColo4) / Adenocarc.invasor (HColo4)"
+    notes: 'Same name, different finding in CC and HC: never pool the two datasets on this
+      column.'
   ANO_COMP:
-    official_name: Ano de competência
+    official_name: Ano de Competência
     translated_name: Competence year
-    description: 'Four-digit year of the competência the exam was reported under —
-      the administrative reporting month, not the date the exam was performed or read.
-
-      '
+    description: Four-digit year of the competência, the period in which the provider released
+      and billed the exam, not the date the exam was collected or read.
     code_system: none
-    source: inferred
-    reasoning: 'Declared C(4) and bound by .DEF to the ANO tabulation axis; competência
-      is SISCAN''s reporting period throughout.
-
-      '
+    source: layout_doc
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo ANO_COMP "Ano de Competência"; Nota Técnica 11 SISCAN - Citopatológico de mama
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf, "Ano
+      competência"
   CANMPACANC:
     official_name: Risco elevado para câncer de mama
     translated_name: High breast cancer risk
@@ -45,30 +48,30 @@ variables:
     source_ref: RISCOELEVADO.CNV
     reasoning: Bound to RISCOELEVADO, the same elevated-risk list as C_CLI_TCAN.
   CLABIBGE:
-    official_name: Município do laboratório (IBGE)
+    official_name: Município do prestador de serviço
     translated_name: Laboratory municipality
-    description: 'IBGE code of the municipality where the reading laboratory is. Cervical
-      cytology is often read far from where it was collected, so this and CO_US_IBGE
-      routinely differ.
-
-      '
+    description: IBGE code of the municipality of the service provider (the laboratory that
+      read the exam). Cytology is often read far from where it was collected, so this and
+      CO_US_IBGE routinely differ.
     codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
     code_system: external
-    source: inferred
-    reasoning: Declared C(7) and bound to MUNICBR.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CLABIBGE "Mun.prest.serviço"
   CLABUF:
-    official_name: UF do laboratório
+    official_name: UF do prestador de serviço
     translated_name: Laboratory state
-    description: 'Two-digit IBGE code of the state the reading laboratory is in.
-
-      '
+    description: State (UF) code of the service provider, the laboratory that read the exam.
     code_system: external
     codelists:
     - ESTADO
-    source: inferred
-    reasoning: Declared C(2) and bound to ESTADO.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CLABUF "UF prest.serviço"
   CO_ALT_CEL_ATROFIA:
     official_name: Alt. ben:Atr. inflam
     translated_name: Benign atrophic cellular change
@@ -147,11 +150,14 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CO_ANO + LIBERACAO by naming grammar; Nota Tecnica 2 defines Mês/Ano
-      competência as "o mês/ano em que o exame foi liberado e faturado", showing liberação
-      is a distinct dated event this field isolates.
-
-      '
+    reasoning: 'CO_ANO + LIBERACAO by naming grammar; Nota Tecnica 2 defines Mês/Ano competência
+      as "o mês/ano em que o exame foi liberado e faturado", showing liberação is a distinct
+      dated event this field isolates. Reviewed 2026-09-28: no documentation found (searched
+      TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas Tecnicas 1-14,
+      INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP DOC folders
+      and the web). Ambiguous against the documents: Nota Técnica 2 dates competência by release
+      and billing, and the form has a separate "Data do Resultado", so which of the two this
+      column carries is not settled.'
     source_ref: 'naming grammar + Nota Tecnica 2 SISCAN - Citopatologico Colo, campo
       Mês/Ano competência
 
@@ -165,11 +171,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Same reasoning as CO_ANO_LIBERACAO, applied at month grain; mirrors
-      the ANO/ANO_MES pairing already documented for CO_ANO_RESULTADO and CO_ANO_MES_RESULTADO
-      elsewhere in SISCAN.
-
-      '
+    reasoning: 'Same reasoning as CO_ANO_LIBERACAO, applied at month grain; mirrors the ANO/ANO_MES
+      pairing already documented for CO_ANO_RESULTADO and CO_ANO_MES_RESULTADO elsewhere in
+      SISCAN. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Same ambiguity as CO_ANO_LIBERACAO
+      (competência vs. result date).'
     source_ref: 'naming grammar + Nota Tecnica 2 SISCAN - Citopatologico Colo, campo
       Mês/Ano competência
 
@@ -195,32 +202,32 @@ variables:
     source: layout_doc
     source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Ano de resultado
   CO_BEN_MET:
-    official_name: Achado benigno, metaplasia
+    official_name: 'Lesão de caráter benigno: Metaplasia escamosa'
     translated_name: Benign finding, metaplasia
-    description: 'Metaplasia reported as a benign finding on the histopathology side,
-      where CBEMMETAS carries it on the cytology side.
-
-      '
+    description: Squamous metaplasia reported as a benign histopathology finding. In the HC
+      files (C(8)) it is the number of exams with that finding; in the CC files it is a one-character
+      flag.
     code_system: none
-    source: inferred
-    reasoning: BEN_MET reads benigno metaplasia; appears on both CC and HC. C(8), values
-      unobserved.
+    source: layout_doc
+    source_ref: 'TabWin definitions HColo4.def (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_BEN_MET "Ben.Metaplasia esc"; INCA, Requisição de Exame Histopatológico - Colo
+      do Útero (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter benigno: Metaplasia Escamosa"'
   CO_CNES:
-    official_name: CNES do laboratório
+    official_name: Prestador de serviço (CNES)
     translated_name: Laboratory CNES code
-    description: 'CNES code of the laboratory that read the slide or the mammogram.
-      In these files it identifies the reader, not the collector — CO_US is the collector.
-
-      '
+    description: CNES code of the service provider that read the slide or the mammogram (bound
+      to TB_LAB.DBF). It identifies the reader, not the collector; CO_US is the collecting
+      unit.
     code_system: external
     codelists:
     - TB_LAB
-    source: inferred
-    reasoning: 'Declared C(7), the CNES width, and bound to TB_LAB — the laboratory
-      table rather than the general establishment table, which is what distinguishes
-      it from CO_US.
-
-      '
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_CNES "Prestador serviço"
   CO_EPIT_ESCAMOSO:
     official_name: Epitélio escamoso
     translated_name: Squamous epithelium present
@@ -265,21 +272,15 @@ variables:
     source: layout_doc
     source_ref: Nota Tecnica 1 SISCAN - Pacientes, campo Escolaridade
   CO_ETNIA:
-    official_name: Etnia indígena
+    official_name: Etnia
     translated_name: Indigenous ethnicity
-    description: 'Code for the patient''s specific indigenous ethnic group, drawn from
-      the IBGE/FUNAI ethnicity table and populated only when her raça/cor is registered
-      as Indígena on the Cartão SUS.
-
-      '
+    description: Code of the patient's indigenous ethnic group, filled when race/colour is
+      Indígena (the TAB_SISCAN etnia.cnv table lists 264 groups).
     code_system: external
-    source: inferred
-    reasoning: 'Distinct from a race/color field, DATASUS''s "etnia" column consistently
-      names the indigenous-ethnicity code table imported from Cartão Nacional de Saúde
-      demographics across systems that share this import path.
-
-      '
-    source_ref: naming grammar + domain knowledge of DATASUS etnia table
+    source: layout_doc
+    source_ref: 'INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
+      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.1 "Raça/cor: Indígena/ Etnia"; TAB_SISCAN etnia.cnv'
   CO_FAIXA_ETARIA_PACIENTE:
     official_name: Faixa etária
     translated_name: Age bracket
@@ -293,36 +294,34 @@ variables:
 
       '
   CO_FX_ETAR:
-    official_name: Faixa etária
+    official_name: Faixa Etária
     translated_name: Age band
-    description: 'The age band the person falls in, as SISCAN''s screening bands rather
-      than a general age grouping — the bands follow the ages at which cervical and
-      breast screening is recommended.
-
-      '
+    description: 'Age band of the person examined (fetaria.cnv): up to 11, 12-14, 15-19, then
+      five-year classes up to 60-64, and 65 or over.'
     code_system: internal
     codelists:
     - FETARIA
-    source: inferred
-    reasoning: Declared C(2) and bound to FETARIA, whose labels are age ranges.
+    source: layout_doc
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_FX_ETAR "Faixa Etária"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf, "Faixa
+      etária"
     notes: 'A banding of CO_PAC_IDA, not an independent fact. Use one or the other.
 
       '
   CO_IDADE_PACIENTE:
-    official_name: Idade da paciente
+    official_name: Idade
     translated_name: Patient age
-    description: 'Patient''s age in years at the time of the cervical cytopathology
-      exam, recorded on the SISCAN request form and used to build the Faixa Etária
-      five-year age brackets shown in tabulation.
-
-      '
+    description: Patient's age in years at the cervical cytology exam, from the requisition
+      form; the Faixa etária bands are built from it.
     code_system: none
-    source: inferred
-    reasoning: 'CO_ prefix plus IDADE/PACIENTE by naming grammar; SISCAN''s own age-bracket
-      variable is documented as derived from an underlying per-exam age value.
-
-      '
-    source_ref: naming grammar
+    source: layout_doc
+    source_ref: INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
+      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.1 "Idade"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Faixa etária"
   CO_IND_CLINICA:
     official_name: Indicação clínica
     translated_name: Clinical indication
@@ -428,12 +427,14 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Nota Tecnica 2 names three time metrics for this dataset (Intervalo
-      de coleta, Intervalo de resultado, Tempo Exame); CO_INTERVALO_COLETA and CO_TEMPO_EXAME
-      already match two by name, leaving Intervalo de resultado as the remaining match
-      for this field.
-
-      '
+    reasoning: 'Nota Tecnica 2 names three time metrics for this dataset (Intervalo de coleta,
+      Intervalo de resultado, Tempo Exame); CO_INTERVALO_COLETA and CO_TEMPO_EXAME already
+      match two by name, leaving Intervalo de resultado as the remaining match for this field.
+      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Supporting hint: TAB_SISCAN
+      cito_colo.def labels its own field INT_EXAME "Interv Resultado", which matches this
+      reading, but that is a different file.'
     source_ref: 'naming grammar + Nota Tecnica 2 SISCAN - Citopatológico Colo, campo
       Intervalo de resultado
 
@@ -472,11 +473,14 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CO_ + LAUDO_CITOPATOLOGICO by naming grammar; Nota Tecnica 2 lists
-      the full set of mutually exclusive diagnostic-result categories (Dentro da Normalidade
-      through Outras Neoplasias) this single field is the code for.
-
-      '
+    reasoning: 'CO_ + LAUDO_CITOPATOLOGICO by naming grammar; Nota Tecnica 2 lists the full
+      set of mutually exclusive diagnostic-result categories (Dentro da Normalidade through
+      Outras Neoplasias) this single field is the code for. Reviewed 2026-09-28: no documentation
+      found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files, SISCAN Notas
+      Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide, the DATASUS FTP
+      DOC folders and the web). TAB_SISCAN ships laudo_citopatologico.cnv (13 categories from
+      invasive squamous carcinoma to Negativo) consistent with this reading, but no .def binds
+      it to the column.'
     source_ref: 'naming grammar + Nota Tecnica 2 SISCAN - Citopatologico Colo, resultado
       categories section
 
@@ -646,31 +650,34 @@ variables:
 
       '
   CO_PAC_ESC:
-    official_name: Escolaridade do paciente
+    official_name: Escolaridade
     translated_name: Patient schooling
-    description: 'Level of schooling recorded for the person examined. A single character,
-      drawn on the schooling categories used across Brazilian health records.
-
-      '
+    description: Schooling level of the person examined, from the requisition form (analfabeta,
+      ensino fundamental incompleto/completo, médio completo, superior completo).
     code_system: internal
     codelists:
     - ESCOLARIDADE
-    source: inferred
-    reasoning: Declared C(1) and bound by .DEF to ESCOLARIDADE.
+    source: layout_doc
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_PAC_ESC "Escolaridade"; INCA, Requisição de Exame Citopatológico - Colo do
+      Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.1 "Escolaridade"
   CO_PAC_IBG:
-    official_name: Município de residência do paciente (IBGE)
+    official_name: Município de residência
     translated_name: Patient municipality of residence
-    description: 'IBGE code of the municipality where the person examined lives — not
-      where the exam was collected, which is the unit''s municipality (CO_US_IBGE),
-      and not where it was read, which is the laboratory''s (CLABIBGE).
-
-      '
+    description: IBGE code of the municipality where the person examined lives. Not where
+      the exam was collected (CO_US_IBGE) and not where it was read (CLABIBGE).
     codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
     code_system: external
-    source: inferred
-    reasoning: Declared C(7) and bound to MUNICBR; seven digits is the IBGE code.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_PAC_IBG "Mun.residência"
     notes: 'Screening is often collected away from home. Counting exams by the unit''s
       municipality and calling it coverage of that municipality''s women is the standard
       mistake these three columns exist to let you avoid.
@@ -686,84 +693,78 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Declared C(3), no codelist bound, and the sibling CO_FX_ETAR holds
-      the banded form of the same quantity.
-
-      '
+    reasoning: 'Declared C(3), no codelist bound, and the sibling CO_FX_ETAR holds the banded
+      form of the same quantity. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). CColo4.def and HColo4.def
+      tabulate age only through CO_FX_ETAR.'
   CO_PAC_RAC:
-    official_name: Raça/cor do paciente
+    official_name: Cor/raça
     translated_name: Patient race or colour
-    description: 'Race or colour of the person examined, on the IBGE categories used
-      throughout Brazilian health data (branca, preta, parda, amarela, indígena). Self-declared
-      in principle; in practice often recorded by staff.
-
-      '
+    description: Race or colour of the person examined, on the IBGE categories (branca, preta,
+      parda, amarela, indígena).
     code_system: internal
     codelists:
     - RACACOR
-    source: inferred
-    reasoning: Declared C(2) and bound by .DEF to RACACOR.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_PAC_RAC "Cor/raça"
     notes: 'Missing and "ignorado" are common and not distributed evenly by region,
       so race-stratified rates from this column understate some groups.
 
       '
   CO_PAC_SEX:
-    official_name: Sexo do paciente
+    official_name: Sexo
     translated_name: Patient sex
-    description: 'Sex recorded for the person examined. Overwhelmingly female across
-      every series here, since these are cervical and breast screening programmes.
-
-      '
+    description: Sex of the person examined. Present on the breast datasets (CM, HM, MM),
+      which include men.
     code_system: internal
     codelists:
     - SEXO
-    source: inferred
-    reasoning: Declared C(1) and bound by .DEF to the SEXO codelist.
+    source: def
+    source_ref: TabWin definitions CMAMA4.def, HMAMA4.def, MMAMA4.def (SISCOLO4/SISMAMA) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_PAC_SEX "Sexo"
   CO_PAC_UF:
-    official_name: UF de residência do paciente
+    official_name: UF de residência
     translated_name: Patient state of residence
-    description: 'Two-digit IBGE code of the state where the person examined lives.
-
-      '
+    description: State (UF) code where the person examined lives.
     code_system: external
     codelists:
     - ESTADO
-    source: inferred
-    reasoning: Declared C(2) and bound to ESTADO.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_PAC_UF "UF residência"
   CO_PERIODO_PREVENTIVO:
-    official_name: Período preventivo
-    translated_name: Preventive-exam periodicity/interval code
-    description: 'Code for the recommended screening-interval category applied to this
-      cervical cytology exam (e.g. routine annual/triennial screening vs. an earlier-than-routine
-      repeat) — part of the request form''s screening-history section.
-
-      '
+    official_name: Período do preventivo
+    translated_name: Time since previous Pap test
+    description: 'Time since the woman''s previous Pap test, in years, derived from the year
+      she reported on requisition item 2 (tempo.CNV: same year, 1, 2, 3, 4 or more years,
+      ignored/blank, inconsistent). Not a recommended screening interval.'
     code_system: internal
-    source: inferred
-    reasoning: 'Full-word Portuguese field name (período preventivo, "preventive[-
-      exam] period"), on the SISCAN_CITO_COLO yearly extracts alongside TP_MOTIVO_EXAME
-      (exam reason).
-
-      '
+    source: layout_doc
+    source_ref: TabWin definition cito_colo.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar,
+      variável "Periodo do preventivo" (tempo.CNV; removed from TabNet 02/04/2018); INCA,
+      Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.1 item 2 "Fez o exame preventivo (Papanicolaou) alguma vez? ... ano"
     notes: 'Declared C(0,0) — a CSV yearly-extract column, not a fixed-width DBF field;
       no observed values were captured.
 
       '
   CO_PREST_SERVICO:
-    official_name: Prestador de serviço
+    official_name: Prestador do serviço
     translated_name: Service provider
-    description: 'CNES code identifying the laboratory or clinic that performed and
-      analyzed the exam, as opposed to the unit that requested it.
-
-      '
+    description: CNES code of the service provider (the laboratory) that issued the exam report,
+      as opposed to the unit that collected it.
     code_system: external
-    source: inferred
-    reasoning: 'Builds on the provider/requesting-unit distinction SISCAN''s technical
-      notes draw explicitly for the parallel municipality fields; this is the code
-      identifying that same provider.
-
-      '
-    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+    source: layout_doc
+    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Prestador do serviço"
   CO_RACA_COR:
     official_name: Raça/Cor
     translated_name: Race/color
@@ -911,169 +912,147 @@ variables:
 
       '
   CO_UF_PREST_SERVICO:
-    official_name: UF do prestador de serviço
+    official_name: UF do prest.serviço
     translated_name: Provider's state
-    description: 'State (UF) code where the exam-performing service provider is located,
-      the state-level counterpart to the provider''s municipality code.
-
-      '
+    description: State (UF) code of the service provider (laboratory) that issued the report.
     code_system: external
-    source: inferred
-    reasoning: 'Same provider/requesting-unit distinction as CO_MUN_PREST_SERVICO,
-      at state rather than municipality granularity, using the standard DATASUS UF
-      code table.
-
-      '
-    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+    source: layout_doc
+    source_ref: Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "UF do prest.serviço"
   CO_UF_RESIDENCIA:
-    official_name: UF residência
+    official_name: UF de residência
     translated_name: State of residence
-    description: 'IBGE code for the patient''s state of residence, imported from the
-      Cartão Nacional de Saúde alongside the municipality of residence.
-
-      '
+    description: State (UF) code of the patient's residence, as registered in the Cartão Nacional
+      de Saúde (Cartão SUS).
     code_system: external
-    source: inferred
-    reasoning: 'Nota Tecnica 1 describes Munic. de residência as ordered by "código
-      do estado e seus municípios", implying this parallel state-level code field from
-      the same Cartão SUS/IBGE import.
-
-      '
-    source_ref: naming grammar + Nota Tecnica 1 SISCAN - Pacientes, campo Munic. de
-      residência
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Munic.de residência" (registered in the Cartão Nacional de Saúde)
   CO_UF_UNIDADE_SAUDE:
-    official_name: UF da unidade de saúde
-    translated_name: Requesting unit's state
-    description: 'State (UF) code where the requesting health unit is located, the
-      state-level counterpart to the requesting unit''s municipality code.
-
-      '
+    official_name: UF da un.saúde
+    translated_name: Collecting unit's state
+    description: State (UF) code of the health unit where the exam was collected.
     code_system: external
-    source: inferred
-    reasoning: 'Same requesting-unit field Nota Tecnica 8 describes at municipality
-      level, applied here at state granularity.
-
-      '
-    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+    source: layout_doc
+    source_ref: Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "UF da un.saúde"
   CO_UNIDADE_SAUDE:
     official_name: Unidade de saúde
-    translated_name: Requesting health unit
-    description: 'CNES code of the health unit that requested the exam, e.g. a primary-care
-      clinic, as opposed to the laboratory that performed it.
-
-      '
+    translated_name: Collecting health unit
+    description: CNES code of the health unit where the sample was collected (typically primary
+      care), as opposed to the laboratory that read it.
     code_system: external
-    source: inferred
-    reasoning: 'Counterpart code field to CO_PREST_SERVICO, following the requesting-unit/provider
-      distinction SISCAN''s technical notes describe for the parallel municipality
-      fields.
-
-      '
-    source_ref: naming grammar + SISCAN Nota Tecnica 8 provider/unit distinction
+    source: layout_doc
+    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Unidade de saúde"
   CO_US:
-    official_name: Código da unidade de saúde
+    official_name: Unidade de coleta (CNES)
     translated_name: Health unit code
-    description: 'CNES code of the health unit that collected the sample or performed
-      the mammogram. The point of contact with the woman, distinct from the laboratory
-      that read it.
-
-      '
+    description: CNES code of the health unit that collected the sample or requested the exam,
+      bound to the UnidSaude tables. The point of contact with the patient, distinct from
+      the provider that read it.
     code_system: external
-    source: inferred
-    reasoning: 'Declared C(7) — the CNES establishment width — and bound to UNIDSAUDE
-      plus a per-state family of unit tables.
-
-      '
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_US "Unid.Coleta"
   CO_US_IBGE:
-    official_name: Município da unidade de saúde (IBGE)
+    official_name: Município da unidade de coleta
     translated_name: Health unit municipality
-    description: 'IBGE code of the municipality where the collecting unit is, which
-      is where the exam happened rather than where the woman lives.
-
-      '
+    description: IBGE code of the municipality of the collecting unit, which is where the
+      exam happened rather than where the patient lives.
     codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
     code_system: external
-    source: inferred
-    reasoning: Declared C(7) and bound to MUNICBR.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_US_IBGE "Mun.Unid.Coleta"
   CO_US_UF:
-    official_name: UF da unidade de saúde
+    official_name: UF da unidade de coleta
     translated_name: Health unit state
-    description: 'Two-digit IBGE code of the state the collecting unit is in.
-
-      '
+    description: State (UF) code of the collecting unit.
     code_system: external
     codelists:
     - ESTADO
-    source: inferred
-    reasoning: Declared C(2) and bound to ESTADO.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_US_UF "UF Unid.Coleta"
   DINTCOLETA:
-    official_name: Intervalo até a coleta
-    translated_name: Interval to collection, banded
-    description: 'How long the woman waited for the sample to be collected, as a band
-      rather than a number of days: 1 is 0–10 days, 2 is 11–20, 3 is 21–30, and so
-      on.
-
-      '
+    official_name: Intervalo de coleta
+    translated_name: Collection-to-laboratory interval, banded
+    description: 'Days between collection of the sample and its arrival at the laboratory,
+      banded (IntColeta.CNV): 1 = 0-10 days, 2 = 11-20, 3 = 21-30, 4 = over 30, 9 = inconsistent.'
     code_system: internal
     codelists:
     - INTCOLETA
-    source: inferred
-    reasoning: 'Declared C(1) and bound to INTCOLETA, whose labels are day ranges ("0
-      - 10 dias", "11 - 20 dias").
-
-      '
+    source: layout_doc
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def (SISCOLO4/SISMAMA)
+      — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DINTCOLETA "Interv Coleta"; Nota Técnica 2 SISCAN - Citopatológico do colo do
+      útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Intervalo de coleta"
     notes: 'Banded, so it cannot be averaged. Treat it as ordered categories.
 
       '
   DINTRESULT:
-    official_name: Intervalo até o resultado
+    official_name: Intervalo de resultado
     translated_name: Interval to result, banded
-    description: 'How long the result took to come back, in the same day-range bands:
-      1 is 0–10 days, 2 is 11–20, 3 is 21–30. This is the delay that decides whether
-      a screening programme reaches a woman in time to act.
-
-      '
+    description: 'Days between the sample entering the laboratory (or, for mammography, the
+      exam being performed) and release of the report, banded (IntResultado.CNV): 1 = 0-10
+      days, 2 = 11-20, 3 = 21-30, 4 = over 30, 9 = inconsistent.'
     code_system: internal
     codelists:
     - INTRESULTADO
-    source: inferred
-    reasoning: 'Declared C(1) and bound to INTRESULTADO, whose labels are day ranges.
-
-      '
+    source: layout_doc
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DINTRESULT "Interv Resultado"; Nota Técnica 2 SISCAN - Citopatológico do colo
+      do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Intervalo de resultado"; Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Interv Resultado"
     notes: 'Banded, not a day count. Averaging the code numbers produces a number with
       no meaning.
 
       '
   DINTTEMPEX:
-    official_name: Intervalo de tempo do exame
+    official_name: Tempo exame
     translated_name: Exam turnaround, banded
-    description: 'Total time the exam took end to end, banded the same way as DINTCOLETA
-      and DINTRESULT rather than given in days.
-
-      '
+    description: 'Total days from collection (mammography: from request) to release of the
+      report, the sum of the two intervals, banded differently from them (IntTempoExame.CNV):
+      1 = 0-30 days, 2 = 31-60, 3 = over 60, 9 = inconsistent.'
     code_system: internal
     codelists:
     - INTTEMPOEXAME
-    source: inferred
-    reasoning: 'Declared C(1) and bound to INTTEMPOEXAME, a sibling of the other two
-      interval tables.
-
-      '
+    source: layout_doc
+    source_ref: TabWin definitions CColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def (SISCOLO4/SISMAMA)
+      — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DINTTEMPEX "Tempo Exame"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf, "Tempo
+      Exame"
+    notes: HColo4.def spells it DINTTEMPEXAME, which a dBase file stores as DINTTEMPEX. Banded,
+      not a day count.
   DT_ID_COMP:
-    official_name: Competência (AAAAMM)
+    official_name: Mês/Ano de Competência
     translated_name: Competence year-month
-    description: 'Competência as AAAAMM: the month a record was reported in. Two records
-      of the same exam re-sent in different months carry different values here.
-
-      '
+    description: 'Competência as AAAAMM: the month in which the provider released and billed
+      the exam.'
     code_system: none
-    source: inferred
-    reasoning: 'Declared C(6) and bound to ANOMES; six characters and that binding
-      admit only AAAAMM.
-
-      '
+    source: layout_doc
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo DT_ID_COMP "MêsAno Competência"; Nota Técnica 2 SISCAN - Citopatológico do colo
+      do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Mês/Ano competência"
     notes: 'Counting by competência counts reporting, not screening activity.
 
       '
@@ -1218,30 +1197,20 @@ variables:
 
       '
   NU_CA_IND_NAO_LESAO:
-    official_name: Ori. Indef. Alto Grau (inferido)
+    official_name: Ori. Indef. Alto Grau
     translated_name: Atypical cells of indefinite origin, cannot exclude high-grade
       lesion
-    description: 'Count of exams reporting atypical cells of indefinite origin where
-      a high-grade lesion could not be excluded, the more concerning counterpart to
-      NU_CA_ORIGEM_IND_NAO_NEOPLAST.
-
-      '
+    description: Number of exams reporting atypical cells of undefined origin where a high-grade
+      lesion cannot be excluded.
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
+    source: layout_doc
     depends_on:
     - NU_CA_ORIGEM_IND_NAO_NEOPLAST
-    reasoning: 'This column''s name breaks the ORIGEM/NAO_NEOPLAST pattern its sibling
-      carries. Across the escamosa and glandular pairs in this same file the milder,
-      probably-non-neoplastic member always keeps a NAO_NEOPL(AST) suffix, so the sibling
-      lacking that suffix is assigned to the higher-severity "não se pode afastar lesão
-      de alto grau" category by elimination.
-
-      '
-    source_ref: 'naming grammar (sibling-pair pattern) + Nota Tecnica 2 SISCAN - Citopatologico
-      Colo, medida Ori. Indef. Alto Grau
-
-      '
+    source_ref: 'Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Ori. Indef. Alto Grau"; INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário
+      nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Células atípicas de significado indeterminado - De origem indefinida: Não se pode
+      afastar lesão de alto grau"'
   NU_CA_ORIGEM_IND_NAO_NEOPLAST:
     official_name: Ori. Indef. Não Neo
     translated_name: Atypical cells of indefinite origin, probably non-neoplastic
@@ -1336,17 +1305,16 @@ variables:
 
       '
   PRESTMUN:
-    official_name: Município do prestador
+    official_name: Município do prestador de serviço
     translated_name: Provider municipality
-    description: 'IBGE code of the municipality of the laboratory or service. Screening
-      is centralised, so this is frequently not the woman''s municipality and must
-      not be used as residence.
-
-      '
+    description: IBGE code of the municipality of the laboratory that read the breast cytology
+      or histopathology. Not the patient's municipality.
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(7) bound to MUNICBR, the national municipality codelist.
+    source: def
+    source_ref: TabWin definitions CMAMA4.def, HMAMA4.def (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo PRESTMUN "Mun.prest.serviço"
   PRESTUF:
     official_name: UF do prestador
     translated_name: Provider state
@@ -1359,29 +1327,24 @@ variables:
   QTDEXA:
     official_name: Quantidade de exames
     translated_name: Number of exams
-    description: 'The same count as QUANTEXAME under the shorter name a different generation
-      of the layout uses. Only one of the two is present in any given file.
-
-      '
+    description: Number of exams the row accounts for, in the cervical files (CC, HC); QUANTEXAME
+      is the same measure in the breast files.
     code_system: none
-    source: inferred
-    reasoning: 'Declared C(8), unbound, and never appears in the same schema signature
-      as QUANTEXAME — the abbreviation pattern DATASUS uses when a layout is revised.
-
-      '
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo QTDEXA "Quant. Exames"
   QUANTEXAME:
     official_name: Quantidade de exames
     translated_name: Number of exams
-    description: 'Number of exams the record accounts for. Ordinarily 1, since one
-      row is one exam; values above 1 mean the row stands for several.
-
-      '
+    description: Number of exams the row accounts for, in the breast files (CM, HM, MM). Sum
+      this column rather than counting rows.
     code_system: none
-    source: inferred
-    reasoning: 'Declared C(8) with no codelist bound; QUANT/QTD is DATASUS''s prefix
-      for a count and EXAME names what is counted.
-
-      '
+    source: def
+    source_ref: TabWin definitions CMAMA4.def, HMAMA4.def, MMAMA4.def (SISCOLO4/SISMAMA) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo QUANTEXAME "Quant Exames"
     notes: 'Rows are not necessarily one exam each. Sum this column rather than counting
       rows.
 
@@ -1389,37 +1352,42 @@ variables:
   REGLAB:
     official_name: Região do laboratório
     translated_name: Laboratory region
-    description: 'Macro-region of the reading laboratory, as a single digit.
-
-      '
+    description: 'Macro-region of the reading laboratory or service provider (regiao.CNV):
+      1 North, 2 Northeast, 3 Southeast, 4 South, 5 Centre-West.'
     code_system: internal
     codelists:
     - REGIAO
-    source: inferred
-    reasoning: Declared C(1) and bound to REGIAO; derived from CLABUF.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo REGLAB "Reg.Laboratório / Reg prest.serviço"
   REGRESID:
     official_name: Região de residência
     translated_name: Region of residence
-    description: 'Macro-region of the person''s residence — North, Northeast, Southeast,
-      South, Centre-West — as a single digit.
-
-      '
+    description: 'Macro-region of the patient''s residence (regiao.CNV): 1 North, 2 Northeast,
+      3 Southeast, 4 South, 5 Centre-West.'
     code_system: internal
     codelists:
     - REGIAO
-    source: inferred
-    reasoning: Declared C(1) and bound to REGIAO; derived from CO_PAC_UF.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo REGRESID "Reg.residência"
   REGUS:
-    official_name: Região da unidade de saúde
+    official_name: Região da unidade de coleta
     translated_name: Health unit region
-    description: 'Macro-region of the collecting unit, as a single digit.
-
-      '
+    description: 'Macro-region of the collecting unit (regiao.CNV): 1 North, 2 Northeast,
+      3 Southeast, 4 South, 5 Centre-West.'
     code_system: internal
     codelists:
     - REGIAO
-    source: inferred
-    reasoning: Declared C(1) and bound to REGIAO; derived from CO_US_UF.
+    source: def
+    source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
+      (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
+      and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo REGUS "Reg.Unid.Coleta"
   SG_SEXO:
     official_name: Sexo
     translated_name: Sex
@@ -1432,22 +1400,14 @@ variables:
     source: layout_doc
     source_ref: Nota Tecnica 8 SISCAN - Mamografia, campo Sexo
   SG_UF_RESIDENCIA:
-    official_name: UF residência (sigla)
+    official_name: UF de residência (sigla)
     translated_name: State of residence (abbreviation)
-    description: 'Two-letter abbreviation of the patient''s state of residence (e.g.
-      SP, RJ, BA), the sigla counterpart to the numeric CO_UF_RESIDENCIA code, imported
-      from the Cartão SUS.
-
-      '
+    description: Two-letter abbreviation (sigla) of the patient's state of residence, the
+      letter counterpart of CO_UF_RESIDENCIA.
     code_system: external
-    source: inferred
-    reasoning: 'SG_=sigla by naming grammar; same state-of-residence concept documented
-      for CO_UF_RESIDENCIA, here expressed as the letter abbreviation rather than the
-      numeric code.
-
-      '
-    source_ref: naming grammar + Nota Tecnica 1 SISCAN - Pacientes, campo Munic. de
-      residência
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Munic.de residência" (registered in the Cartão Nacional de Saúde)
   ST_CELULA_ENDOMETRIAL_PRESENTE:
     official_name: Presença de células endometriais
     translated_name: Endometrial cells present
@@ -1463,100 +1423,72 @@ variables:
 
       '
   ST_DENTRO_LIMITE_NORMALIDADE:
-    official_name: Dentro dos limites da normalidade
+    official_name: Dentro dos limites da normalidade no material examinado
     translated_name: Result within normal limits (DLN) flag
-    description: 'Whether the cytology result was classified "dentro dos limites da
-      normalidade" (DLN) — the standard category for a normal, non-atypical smear,
-      as opposed to any abnormal-finding category.
-
-      '
+    description: 'Whether the result was "within normal limits in the material examined":
+      no atypia of oncotic interest and no benign change.'
     code_system: internal
-    source: inferred
-    reasoning: '"Dentro do limite de normalidade" is the standard nomenclature category
-      for a normal Pap result in Brazilian cervical cytology; ST_ is this dataset''s
-      status-flag prefix.
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Dentro da Normalidade"; INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário
+      nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Dentro dos limites da normalidade no material examinado? Sim/Não"
     notes: Declared C(0,0); no observed values captured.
   ST_MICROCALCIFICACAO:
     official_name: Microcalcificações
     translated_name: Microcalcifications present
-    description: 'Whether microcalcifications, small calcium-density particles that
-      can mark ductal carcinoma in situ, are present in the breast tissue specimen
-      examined by the pathologist.
-
-      '
+    description: Whether microcalcifications were present in the breast tissue examined by
+      the pathologist.
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Field label "Microcalcificações" and lookup MICROCALC.CNV in TAB_SISCAN.rar!histo_mama.def
-      name a presence flag; DATASUS ST_ prefix marks status/boolean fields per the
-      naming grammar.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field MICROCALC
-
-      '
+    source: layout_doc
+    source_ref: 'Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
+      "Microcalcificações"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº
+      335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      p.2 "Microcalcificações: Sim/Não"'
   ST_OUTRA_NEOPLASIA_MALIGNA:
-    official_name: Outra neoplasia maligna
+    official_name: Outras neoplasias malignas
     translated_name: Other malignant neoplasm
-    description: 'Flags whether the cervical cytopathology report classified a finding
-      as a malignant tumor other than squamous or glandular cervical carcinoma, e.g.
-      a metastatic or non-cervical malignancy.
-
-      '
+    description: Whether the cervical cytology reported another malignant neoplasm not classified
+      under the squamous or glandular categories.
     code_system: internal
-    source: inferred
-    reasoning: 'ST_=status/flag by naming grammar; "Outras neoplasias malignas" is
-      a top-level diagnostic category in the Nomenclatura Brasileira para Laudos Citopatológicos
-      Cervicais, alongside the squamous/glandular atypia categories that appear in
-      the same file.
-
-      '
-    source_ref: naming grammar + Nomenclatura Brasileira para Laudos Cervicais
+    source: layout_doc
+    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Outras neoplasias malignas"; INCA, Requisição de Exame Citopatológico - Colo do Útero
+      (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Outras neoplasias malignas"
   ST_REPRESENTATI_ZONA_TRANSFORM:
-    official_name: Representatividade da zona de transformação
+    official_name: Representatividade da Zona de Transformação
     translated_name: Transformation-zone representativity flag
-    description: 'Whether the transformation zone — where most cervical lesions arise
-      — is represented in the collected sample, a standard specimen-adequacy criterion
-      reported alongside DLN status.
-
-      '
+    description: Whether the transformation zone was represented in the smear, defined as
+      metaplastic and/or glandular (endocervical) epithelium being present.
     code_system: internal
-    source: inferred
-    reasoning: '"Representatividade da zona de transformação" (ZT/JEC representation)
-      is standard Brazilian cytology-adequacy terminology; ST_ status-flag prefix.
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Representatividade da Zona de Transformação"
     notes: Declared C(0,0); no observed values captured.
   ST_SCREENING_REALIZADO:
-    official_name: Screening realizado
-    translated_name: Automated screening performed flag
-    description: 'Whether the slide underwent computer-assisted ("automated") pre-screening
-      before manual review — a lab-process flag, not a clinical finding.
-
-      '
+    official_name: Screening pelo citotécnico
+    translated_name: Screening done by cytotechnician
+    description: Whether the laboratory screening of the slide was done by a cytotechnician
+      (as opposed to directly by the pathologist). A lab-process flag, not a clinical finding.
     code_system: internal
-    source: inferred
-    reasoning: '"Screening realizado" reads literally; ST_ status-flag prefix consistent
-      with its siblings in this batch.
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Screening pelo citotécnico"; INCA, Requisição de Exame Citopatológico - Colo do Útero
+      (formulário nº 415) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.2 "Screening pelo citotécnico"
     notes: Declared C(0,0); no observed values captured.
   ST_SINAL_SUGESTIVO_DST:
-    official_name: Sinal sugestivo de DST
+    official_name: Sinais sugestivos de doenças sexualmente transmissíveis
     translated_name: Sign suggestive of an STD flag
-    description: 'Whether the cytology specimen showed cellular changes suggestive
-      of a sexually transmitted disease (e.g. Chlamydia, Trichomonas, HSV) — a finding
-      category distinct from the neoplastic/pre-neoplastic ones.
-
-      '
+    description: Whether the clinician saw signs suggestive of a sexually transmitted disease
+      during the clinical exam at collection (requisition item 12). A clinical observation,
+      not a cytology finding.
     code_system: internal
-    source: inferred
-    reasoning: '"Sinal sugestivo de DST" reads literally as a standard cytology finding
-      category; ST_ status-flag prefix.
-
-      '
+    source: layout_doc
+    source_ref: INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
+      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.1 Exame clínico, item 12 "Sinais sugestivos de doenças sexualmente transmissíveis?"
     notes: Declared C(0,0); no observed values captured.
   TP_ACHADO_COLPOSCOPICO:
     official_name: Achado colposcópico
@@ -1677,252 +1609,151 @@ variables:
   TP_DETECCAO_LESAO:
     official_name: Detecção da lesão
     translated_name: How the lesion was detected
-    description: 'How the breast lesion sent for histopathology was first found: through
-      clinical or self breast exam, screening mammography, diagnostic mammography,
-      or another imaging method.
-
-      '
+    description: 'How the biopsied breast lesion was detected: by clinical breast exam (palpable
+      lesion) or by imaging (non-palpable lesion).'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Field label "Detecção da lesão" (lookup CCLIDETEC.CNV) in TAB_SISCAN.rar!histo_mama.def
-      names the detection route; SISCAN''s mammography request already distinguishes
-      clinical-finding-driven exams from screening exams, the same split reused here.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field DET_LESAO
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
+      "Detecção da Lesão"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº
+      335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      p.1 item 5 "Detecção da lesão"
   TP_DIAGNOSTICO_IMAGEM:
-    official_name: Diagnóstico por imagem
-    translated_name: Imaging modality
-    description: 'Imaging method, such as mammography, ultrasound, or magnetic resonance,
-      that identified the finding for which the breast biopsy or surgical specimen
-      was obtained.
-
-      '
+    official_name: Diagnóstico de imagem
+    translated_name: Imaging finding
+    description: 'Type of imaging abnormality reported on the breast histopathology request:
+      microcalcification, distortion, nodule or asymmetry. Not the imaging modality.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Field label "Diagn_imagem" (lookup diagn_imagem.cnv) in TAB_SISCAN.rar!histo_mama.def,
-      a TP_ (tipo) field naming which imaging technique drove the diagnosis.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field DIAG_IMAG
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
+      "Diagn_imagem"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº 335)
+      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      p.1 item 5a "Diagnóstico de Imagem"
   TP_ENCAMINHAMENTO:
     official_name: Tipo de encaminhamento
     translated_name: Referral reason
-    description: 'Reason the patient was referred for cervical histopathology: an abnormal
-      Pap smear result, an abnormal colposcopy finding, or another clinical indication
-      that prompted the biopsy.
-
-      '
+    description: 'Why the woman was referred for cervical histopathology: abnormal cytology
+      result, lesion suggestive of cancer without prior cytology, or normal/benign cytology
+      result.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Field label "Tipo Encaminhamento" (lookup tpencaminh.CNV) in TAB_SISCAN.rar!histo_colo.def,
-      on the cervical histopathology request; SISCAN routes patients to biopsy from
-      either altered cytology or altered colposcopy.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_colo.def, field TP_ENCAMINH
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Tipo de encaminhamento"; INCA, Requisição de Exame Histopatológico - Colo do Útero
+      (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.1 "Resultado do exame citopatológico / encaminhamento"
   TP_EXAME_HISTOPATOLOGICO:
-    official_name: Procedimento cirúrgico
-    translated_name: Specimen-collection procedure
-    description: 'How the breast tissue was obtained for histopathology: needle/core
-      biopsy, incisional or excisional surgical biopsy, segmentectomy, or mastectomy,
-      among other listed procedure types.
-
-      '
+    official_name: Tipo de exame histopatológico
+    translated_name: Type of histopathology exam
+    description: 'Type of breast histopathology exam requested: slide review, immunohistochemistry,
+      or biopsy/surgical specimen.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Field label "Proc. Cirúrgico" (lookup TP_PROCEDIMENTO_CIRURGICO_HISTO.CNV)
-      in TAB_SISCAN.rar!histo_mama.def; procedure names match the breast surgery list
-      defined on INCA''s mammography request form (biópsia incisional/excisional, segmentectomia,
-      mastectomia, etc.).
-
-      '
-    source_ref: 'TAB_SISCAN.rar!histo_mama.def, field PROC_CIR + Orientacoes para elaboracao
-      de laudo no SISMAMA (INCA, 2011), Campo 11 definicoes
-
-      '
+    source: layout_doc
+    source_ref: INCA, Requisição de Exame Histopatológico - Mama (formulário nº 335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      p.1 item 1 "Tipo de Exame histopatológico"; TabWin definition HMAMA4.def (SISMAMA) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CCLITPEXA "Tipo Exame Histopatológico"
   TP_GRAU_DIFERENCIACAO:
     official_name: Grau de diferenciação
     translated_name: Tumor differentiation grade
-    description: 'How closely an invasive cervical carcinoma resembles normal tissue
-      under the microscope: well, moderately, or poorly differentiated, a marker of
-      how aggressive the tumor is.
-
-      '
+    description: 'Differentiation grade of the cervical tumour: well (grade I), moderately
+      (II), poorly (III) differentiated, undifferentiated (IV), or not applicable.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Field label "Grau de diferenciação" (lookup DifGrau.CNV) in TAB_SISCAN.rar!histo_colo.def;
-      well/moderate/poor differentiation is the standard pathology grading scale for
-      invasive carcinoma.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_colo.def, field GRAU_DIFER
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Grau de diferenciação"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Grau de diferenciação"
   TP_GRAU_HISTOLOGICO:
     official_name: Grau histológico
     translated_name: Histological grade
-    description: 'Breast tumor grade on the Nottingham/Scarff-Bloom-Richardson scale:
-      Grade I, II, or III, combining tubule formation, nuclear pleomorphism, and mitotic
-      count into one aggressiveness score.
-
-      '
+    description: 'Histological grade of the breast tumour: I, II, III, or not assessable.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Field label "Grau Histológico" (lookup CHISGRAU.CNV) in TAB_SISCAN.rar!histo_mama.def;
-      this is the standard breast-cancer grading scheme used throughout INCA pathology
-      guidance.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field GRAU_HIST
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
+      "Grau Histológico"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº
+      335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      p.2 "Grau histológico"
   TP_LATERALIDADE_LESAO:
-    official_name: Mama (histopatológico)
+    official_name: Mama
     translated_name: Lesion laterality
-    description: 'Which breast the biopsied or excised lesion sent for histopathology
-      came from: right, left, or bilateral.
-
-      '
+    description: 'Which breast the material sent for histopathology came from: right or left.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Def field LATER_MAMA, labeled "Mama" (lookup CCLIMATMAM.CNV) in TAB_SISCAN.rar!histo_mama.def,
-      the laterality field DATASUS renamed TP_LATERALIDADE_LESAO in this series'' modern
-      export.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field LATER_MAMA
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
+      "Mama"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº 335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      p.1 item 6 "Mama direita / Mama esquerda"
   TP_LATERALIDADE_MAMA:
-    official_name: Mama (citopatológico)
+    official_name: Mama
     translated_name: Breast side sampled
-    description: 'Which breast the cytology material, nipple discharge or a needle-aspirated
-      nodule, was collected from: right or left, distinct from TP_LATERALIDADE_LESAO''s
-      histopathology-request counterpart.
-
-      '
+    description: 'Which breast the cytology material came from: right or left.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
+    source: layout_doc
     depends_on:
     - TP_LATERALIDADE_LESAO
-    reasoning: 'Def field LATER_MAMA, labeled "Mama" (lookup CCLIMATMAM.CNV) in TAB_SISCAN.rar!cito_mama.def,
-      the same laterality concept as TP_LATERALIDADE_LESAO but on the cytology request
-      series.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!cito_mama.def, field LATER_MAMA
-
-      '
+    source_ref: 'Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Mama"; INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.1 item 5 "Material enviado: Mama direita / Mama esquerda"'
   TP_LESAO:
-    official_name: Tipo de lesão
+    official_name: Tipo lesão
     translated_name: Lesion type
-    description: 'Overall histopathological classification of the breast specimen:
-      benign lesion, proliferative lesion, in-situ neoplasia, or invasive malignant
-      neoplasia, ahead of any malignant subtype detail.
-
-      '
+    description: 'Overall result class of the breast histopathology: benign lesion, indeterminate
+      core biopsy, suspicious core biopsy, or malignant neoplastic lesion.'
     code_system: internal
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Def label "Tipo Lesão" (lookup TP_LESAO.CNV) in TAB_SISCAN.rar!histo_mama.def,
-      already bound as a codelist in the catalog; it precedes and is more general than
-      LESAO_CNM (TP_LESAO_CARAT_NEOPL_MALI), which characterizes malignant cases specifically.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field TP_LESAO
-
-      '
+    source: layout_doc
+    source_ref: TabWin definition histo_mama.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar,
+      variável "Tipo Lesão" (TP_LESAO.CNV); Nota Técnica 13 SISCAN - Histopatológico de mama
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf, "Tipo
+      lesão"
   TP_LESAO_CARAT_NEOPL_MALI:
-    official_name: Lesão característica de neoplasia maligna
+    official_name: Lesão de caráter neoplásico maligno
     translated_name: Malignant neoplasia subtype
-    description: 'Specific malignant breast tumor subtype recorded when TP_LESAO is
-      malignant: for example invasive or in-situ ductal carcinoma, or invasive or in-situ
-      lobular carcinoma.
-
-      '
+    description: 'Predominant type of malignant breast lesion: ductal carcinoma in situ of
+      low, intermediate or high grade, lobular carcinoma in situ, Paget disease without tumour,
+      invasive ductal carcinoma (with or without predominant intraductal component), invasive
+      lobular, tubular, mucinous, medullary carcinoma, or other.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
+    source: layout_doc
     depends_on:
     - TP_LESAO
-    reasoning: 'Def label "Les carat neo mal" (lookup CNEOMALIG.CNV, "categoria neoplasia
-      maligna") in TAB_SISCAN.rar!histo_mama.def.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field LESAO_CNM
-
-      '
+    source_ref: Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
+      "Les carat neo mal"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº
+      335) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      p.2 "Lesão de caráter neoplásico maligno (tipo predominante)"
   TP_LESAO_CARAT_NEOP_PRENEO:
-    official_name: Resultado neoplasia pré-neoplásica escamosa
-    translated_name: Squamous pre-neoplastic lesion grade
-    description: 'Grade of squamous pre-cancerous cervical lesion found on histopathology:
-      cervical intraepithelial neoplasia I, II, or III, or squamous carcinoma in situ.
-
-      '
+    official_name: Res_Neopl_Preneo_Escam
+    translated_name: Squamous neoplastic/pre-neoplastic result
+    description: 'Squamous neoplastic or pre-neoplastic result on cervical histopathology:
+      CIN I, CIN II, CIN III (including carcinoma in situ), microinvasive, invasive, or invasion-not-assessable
+      squamous carcinoma.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Def label "Res_Neopl_Preneo_Escam" (lookup RES_NEOPL_PRENEO_ESCAM.cnv)
-      in TAB_SISCAN.rar!histo_colo.def; NIC I-III is the standard grading for squamous
-      cervical pre-cancer.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_colo.def, field R_NEOPREESC
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Res_Neopl_Preneo_Escam"; INCA, Requisição de Exame Histopatológico - Colo do Útero
+      (formulário nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Lesões de caráter neoplásico ou pré-neoplásico"
   TP_LESAO_CARAT_NEOP_PREN_AD:
-    official_name: Resultado neoplasia glandular
-    translated_name: Glandular pre-neoplastic lesion grade
-    description: 'Glandular, as opposed to squamous, pre-cancerous or cancerous finding
-      on cervical histopathology: adenocarcinoma in situ or invasive adenocarcinoma.
-
-      '
+    official_name: Res_Neopl_Glandular
+    translated_name: Glandular neoplastic result
+    description: 'Glandular neoplastic result on cervical histopathology: adenocarcinoma in
+      situ or invasive adenocarcinoma.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
+    source: layout_doc
     depends_on:
     - TP_LESAO_CARAT_NEOP_PRENEO
-    reasoning: 'Def label "Res_Neopl_Glandular" (lookup RES_NEOPLl_GLANDULAR.cnv) in
-      TAB_SISCAN.rar!histo_colo.def, the glandular counterpart to TP_LESAO_CARAT_NEOP_PRENEO''s
-      squamous result.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_colo.def, field R_NEOGLAND
-
-      '
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Res_Neopl_Glandular"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Adenocarcinoma in situ / Adenocarcinoma invasor"
   TP_LINFONODO_AXILAR_PALPAVEL:
     official_name: Linfonodo axilar palpável
     translated_name: Palpable axillary lymph node
-    description: 'Whether an axillary lymph node was felt as enlarged on clinical breast
-      exam at the time the histopathology specimen was requested: yes or no.
-
-      '
+    description: 'Whether a palpable axillary lymph node was reported on the breast histopathology
+      request: yes or no.'
     code_system: none
-    source: inferred
-    asserted_by: pegasus_data
-    reasoning: 'Def label "Linf axil palp" (lookup CCLILINFO.CNV) in TAB_SISCAN.rar!histo_mama.def,
-      a clinical-exam finding distinct from the mammographic axillary-lymph-node fields
-      TP_LINFONODO_DIR/ESQ.
-
-      '
-    source_ref: 'naming grammar + TAB_SISCAN.rar!histo_mama.def, field LINF_A_PAL
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
+      "Linf axil palp"; INCA, Requisição de Exame Histopatológico - Mama (formulário nº 335)
+      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-mama.pdf,
+      p.1 item 7 "Linfonodo axilar palpável?"
   TP_LINFONODO_DIR:
     official_name: Linfonodo axilar mama direita
     translated_name: Right axillary lymph node finding
@@ -2021,21 +1852,16 @@ variables:
 
       '
   TP_MARGEM_CIRURGICA:
-    official_name: Margem cirúrgica
+    official_name: Margens cirúrgicas
     translated_name: Surgical margin
-    description: 'Whether the tumor reaches the cut edge of tissue removed by conization
-      or EZT in a cervical histopathology exam: margin free of lesion, compromised,
-      or not assessable.
-
-      '
+    description: 'Assessment of the surgical margins on the cervical histopathology: free,
+      involved, or impossible to assess.'
     code_system: internal
-    source: inferred
-    reasoning: 'TP_=tipo by naming grammar; SISCAN''s cervical histopathology form
-      records the excision procedure (EZT/conização) that produces a surgical margin,
-      and margin status is the standard pathology-report category for such specimens.
-
-      '
-    source_ref: naming grammar + SISCAN Nota Tecnica 4 procedure field
+    source: layout_doc
+    source_ref: Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Margens cirúrgicas"; INCA, Requisição de Exame Histopatológico - Colo do Útero (formulário
+      nº 414) — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-histopatologico-colo-do-utero.pdf,
+      p.2 "Margens cirúrgicas"
   TP_MATERIAL:
     official_name: Material Enviado
     translated_name: Material submitted
@@ -2065,15 +1891,15 @@ variables:
   TP_MOTIVO_EXAME:
     official_name: Motivo do exame
     translated_name: Reason for the exam (type)
-    description: 'Why this cervical cytology exam was requested — e.g. routine screening
-      versus a repeat after a prior unsatisfactory or abnormal result. A standard field
-      on the SISCAN cytology request form.
-
-      '
+    description: 'Reason for the cervical cytology exam: screening (rastreamento), repeat
+      after an ASC-US or low-grade result, or follow-up after colposcopic diagnosis or treatment.'
     code_system: internal
-    source: inferred
-    reasoning: Full-word Portuguese decomposition (tipo + motivo do exame); TP_ type-code
-      prefix.
+    source: layout_doc
+    source_ref: INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
+      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.1 item 1 "Motivo do exame"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero
+      — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf, "Motivo
+      do exame"; TAB_SISCAN motivo_exame.CNV
     notes: Declared C(0,0); no observed values captured.
   TP_NODULO:
     official_name: Tipo Nódulo
@@ -2102,26 +1928,17 @@ variables:
 
       '
   TP_PADRAO_CITOPATOL_AMOST:
-    official_name: Result Desc/cist
+    official_name: Padrão citopatológico da amostra
     translated_name: Cytology pattern for discharge/cyst material
-    description: 'For breast material from nipple discharge or cyst fluid rather than
-      a needle aspirate, the cytology pattern: acellular, negative, indeterminate,
-      positive for malignancy, consistent with a papillary lesion, or inflammatory.
-
-      '
+    description: 'Cytology pattern of nipple-discharge or cyst-content material: acellular,
+      negative for malignancy, indeterminate malignancy, positive for malignancy, consistent
+      with a papillary lesion, or consistent with an inflammatory process.'
     code_system: internal
-    source: inferred
-    reasoning: 'TP_ plus PADRAO_CITOPATOL_AMOST names a cytology-pattern-of-the-sample
-      field. The sibling TP_RESULTA_PUNCAO_ASPIRATIVA already matches cito_mama.def''s
-      PAAF-specific "Resultado PAAF" field, leaving this column to match the def''s
-      separate "Result Desc/cist" field (RESULT_DC, CRESDERPAP.CNV), whose six categories
-      Nota Tecnica 12 lists for discharge/cystic-content material specifically.
-
-      '
-    source_ref: 'TAB_SISCAN.rar!cito_mama.def campo Result Desc/cist (RESULT_DC) +
-      Nota Tecnica 12 SISCAN - Citopatologico de Mama, tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica12_cito_mama_residencia.pdf
-
-      '
+    source: layout_doc
+    source_ref: 'Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
+      "Result Desc/císt"; INCA, Requisição de Exame Citopatológico - Mama (formulário nº 416)
+      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-mama.pdf,
+      p.2 "Resultado da descarga papilar / conteúdo cístico: Padrão citopatológico da amostra"'
   TP_PADR_CITO_MALIG_INDET:
     official_name: Malignid Indeterm
     translated_name: Indeterminate-malignancy pattern
@@ -2208,36 +2025,24 @@ variables:
   TP_RECOMENDACAO_DIREITA:
     official_name: Recomendação - mama direita
     translated_name: Right-breast follow-up recommendation
-    description: 'Follow-up action recommended for the right breast in the mammography
-      report, e.g. routine annual screening, additional imaging, six-month follow-up,
-      or biopsy, tied to its BI-RADS category.
-
-      '
+    description: 'Management recommended for the right breast in the mammography report, tied
+      to its BI-RADS category: ultrasound complement, mammography in 2 years or 1 year, radiological
+      control in 6 months or 1 year, cyto/histopathology, or specific therapy.'
     code_system: internal
-    source: inferred
-    reasoning: 'TP_=tipo, RECOMENDACAO=recommendation, DIREITA=the laterality suffix
-      already used by sibling fields TP_MAMA_PELE_DIR and TP_RECOMENDACAO_ESQUERDA
-      in the same mammography series; BI-RADS mammography reporting assigns a management
-      recommendation per breast, independently for each side.
-
-      '
-    source_ref: naming grammar + BI-RADS per-breast recommendation convention
+    source: layout_doc
+    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Quadro 10 "Recomendação de conduta"; TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CCONRECOM "Recomendações" (CCONRECOM.CNV)
   TP_RECOMENDACAO_ESQUERDA:
     official_name: Recomendação - mama esquerda
     translated_name: Left-breast follow-up recommendation
-    description: 'Follow-up action recommended for the left breast in the mammography
-      report, the counterpart to TP_RECOMENDACAO_DIREITA reported for the opposite
-      breast.
-
-      '
+    description: Management recommended for the left breast in the mammography report, on
+      the same list as TP_RECOMENDACAO_DIREITA.
     code_system: internal
-    source: inferred
-    reasoning: 'Same laterality-suffix pattern as TP_RECOMENDACAO_DIREITA and TP_MAMA_PELE_ESQ;
-      BI-RADS mammography reporting assigns a management recommendation per breast,
-      independently for each side.
-
-      '
-    source_ref: naming grammar + BI-RADS per-breast recommendation convention
+    source: layout_doc
+    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Quadro 10 "Recomendação de conduta"; TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CCONRECOM "Recomendações" (CCONRECOM.CNV)
   TP_RESP_ANT_MAMA_EXA_PROF_SAUD:
     official_name: Ex Clin Ant
     translated_name: Prior clinical breast exam
@@ -2266,19 +2071,20 @@ variables:
 
       '
   TP_RESP_EXAME_PREVENTIVO_REALI:
-    official_name: Responsável pelo exame preventivo realizado
-    translated_name: Type of professional who collected the exam
-    description: 'Category of health professional (e.g. physician, nurse) who performed
-      the specimen collection for this preventive (cytology) exam — REALI is "realizado"
-      truncated to the field-name limit.
-
-      '
+    official_name: 'Resposta: exame preventivo realizado'
+    translated_name: Previous Pap test reported
+    description: 'The woman''s answer to requisition item 2, whether she has ever had a Pap
+      test: yes, no, or doesn''t know.'
     code_system: internal
     source: inferred
     reasoning: 'Full-word decomposition (tipo + responsável + exame preventivo realizado);
-      pairs with TP_MOTIVO_EXAME on the same request-form section.
-
-      '
+      pairs with TP_MOTIVO_EXAME on the same request-form section. Reviewed 2026-09-28: no
+      documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN .def and .cnv files,
+      SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the SISMAMA laudo guide,
+      the DATASUS FTP DOC folders and the web). Description rewritten: RESP most plausibly
+      abbreviates resposta (answer), matching requisition item 2 "Fez o exame preventivo (Papanicolaou)
+      alguma vez?" (Sim / Não / Não sabe; citoant.CNV); nothing on the form records the collecting
+      professional''s category.'
     notes: Declared C(0,0); no observed values captured.
   TP_RESP_FEZ_MAMOGRA_ALGUMA_VEZ:
     official_name: Mamog. Anterior

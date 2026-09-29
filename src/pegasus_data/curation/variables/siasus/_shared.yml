@@ -9,17 +9,17 @@ variables:
   AB_ANOACOM:
     official_name: Ano do acompanhamento
     translated_name: Follow-up year
-    description: 'Year of the post-operative follow-up this record reports. Bariatric surgery
-      is authorised with follow-up attached, so a patient generates several of these after
-      one operation.
-
-      '
+    description: 'Year of follow-up reported on this bariatric APAC, as given by the
+      layout (''Ano de acompanhamento''); read it together with AB_MESACOM, the number
+      of months of follow-up.'
     code_system: none
-    source: inferred
-    reasoning: 'C(4) with ANO in the name; ACOM is acompanhamento, which is what the bariatric
-      APAC exists to record.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.6 APAC de Cirurgia Bariátrica (AB*.DBF) SEQ 55 ''Ano de Acompanhamento'';
+      ''Layout da interface texto do APAC e do SIA - layout INTERNO'' (DATASUS/SIA,
+      11/04/2014) — local: sources/layout_interno.pdf (text: sources/apac_layout.txt),
+      APA_ANOACOMP N(4) ''Ano de acompanhamento'''
   AB_DTCIRG2:
     official_name: Data da segunda cirurgia
     translated_name: Date of second surgery
@@ -50,21 +50,26 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'IMC is the Portuguese initialism for body mass index; C(3) fits a value in
-      whole units, which is how the authorisation thresholds are written.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.6 APAC de Cirurgia Bariátrica (AB*.DBF) SEQ 46 ''IMC do paciente''; ''Layout
+      da interface texto do APAC e do SIA - layout INTERNO'' (DATASUS/SIA, 11/04/2014) —
+      local: sources/layout_interno.pdf (text: sources/apac_layout.txt), bariatric
+      variable part APA_IMC ''IMC do Paciente'''
   AB_MESACOM:
-    official_name: Mês do acompanhamento
-    translated_name: Follow-up month
-    description: 'Month of the follow-up, paired with AB_ANOACOM. Together they place the
-      visit relative to the date of surgery.
-
-      '
+    official_name: Número em meses de acompanhamento
+    translated_name: Months of follow-up
+    description: 'Number of months of post-operative follow-up this record reports — a
+      count of months since the bariatric surgery, not a calendar month.'
     code_system: none
-    source: inferred
-    reasoning: C(2) with MES in the name, the companion of AB_ANOACOM.
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.6 APAC de Cirurgia Bariátrica (AB*.DBF) SEQ 54 ''Número em MESES de
+      Acompanhamento''; ''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), APA_MESACOMP N(2) ''Num.meses acompanhamento'''
   AB_NUMAIH:
     official_name: Número da AIH
     translated_name: Hospital admission authorisation number
@@ -74,11 +79,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Declared C(13), which is exactly the AIH number width in SIHSUS, and NUMAIH
-      names it.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.6 APAC de Cirurgia Bariátrica (AB*.DBF) SEQ 49 ''Número da AIH'''
     notes: 'A real key into SIHSUS, and one of the few explicit cross-system links DATASUS
       publishes. Worth using rather than matching on patient attributes.
 
@@ -91,11 +95,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Same C(13) AIH width as AB_NUMAIH, with the numeric suffix DATASUS uses for
-      a repeated field.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.6 APAC de Cirurgia Bariátrica (AB*.DBF) SEQ 52 ''Número da AIH'' (second AIH,
+      beside AB_PRCAIH3 and AB_DTCIRG2)'
   AB_PONTBAR:
     official_name: Pontuação de Barros
     translated_name: Barros score

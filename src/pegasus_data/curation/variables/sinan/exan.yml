@@ -9,18 +9,12 @@ asserted_by: pegasus_data
 
 variables:
   CS_DESCART:
-    official_name: Caso descartado
-    translated_name: Case discarded
-    description: 'Sim/Não flag marking the case as discarded/ruled out, distinct from
-      CLASSI_FIN, the standard final-classification field used across all SINAN agravos.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'CS_ is the classificação/situação prefix and DESCART abbreviates descartado;
-      1-character width matches a binary flag.
-
-      '
+    official_name: 'Classificação final do caso descartado'
+    translated_name: 'Diagnosis of the discarded case'
+    description: 'For a case discarded as measles/rubella (CLASSI_FIN = 3), the diagnosis it was discarded for, e.g. dengue, scarlet fever, exanthema subitum, erythema infectiosum, enterovirus, or a vaccine-related event.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 56 (Classificação final do caso descartado)'
   CS_FONTE:
     official_name: Local provável de contágio
     translated_name: Probable place of infection
@@ -49,45 +43,38 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no vaccination flag opening the EXAN antecedent block.
   CS_VACINAL:
-    official_name: Situação vacinal
-    translated_name: Vaccination status
-    description: 'Code/flag for the patient''s vaccination status against the disease
-      under investigation, distinct from the specimen-collection CS_ fields (CS_LIQUOR/CS_SECRECA/CS_URINA)
-      — here CS_ carries its usual classificação/situação sense.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: VACINAL reads vacinal; 1-character width matches a short status code.
+    official_name: 'Realizou bloqueio vacinal'
+    translated_name: 'Vaccination blockade carried out'
+    description: 'Whether a vaccination blockade (ring vaccination of susceptibles around the case) was carried out, with reasons when not (all already vaccinated, no contact history).'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 51 (Realizou bloqueio vacinal)'
   DE15A39ANO:
-    official_name: Contatos de 15 a 39 anos
-    translated_name: Contacts 15 to 39
-    description: 'How many contacts aged 15 to 39 were identified. The band that matters
-      for rubella, because infection in pregnancy causes congenital rubella syndrome.
-
-      '
+    official_name: 'Quantidade de suscetíveis vacinados - De 15 a 39 anos'
+    translated_name: 'Susceptibles vaccinated in blockade, 15 to 39 years'
+    description: 'Number of susceptible people aged 15 to 39 vaccinated in the vaccination blockade around the case.'
     code_system: none
-    source: inferred
-    reasoning: N(3) count; the 15-39 band of the contact tally.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 52 (Quantidade de suscetíveis vacinados – De 15 a 39 anos)'
   DE5A14ANOS:
-    official_name: Contatos de 5 a 14 anos
-    translated_name: Contacts 5 to 14
-    description: How many contacts aged 5 to 14 were identified. See MENOR_5ANO.
+    official_name: 'Quantidade de suscetíveis vacinados - De 5 a 14 anos'
+    translated_name: 'Susceptibles vaccinated in blockade, 5 to 14 years'
+    description: 'Number of susceptible people aged 5 to 14 vaccinated in the vaccination blockade around the case.'
     code_system: none
-    source: inferred
-    reasoning: N(3) count; the 5-14 band of the contact tally.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 52 (Quantidade de suscetíveis vacinados – De 5 a 14 anos)'
   DT_COL_1:
-    official_name: Data da coleta da primeira amostra
+    official_name: 'Exame sorológico (data da coleta da 1ª amostra S1)'
     translated_name: Date first sample collected
     description: 'When the first serum was taken. Taken too early it misses IgM, which
       is why a second sample exists.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the first of the paired sera.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 46 (Exame sorológico – data da coleta da 1ª amostra S1)'
   DT_COL_2:
-    official_name: Data da coleta da segunda amostra
+    official_name: 'Exame sorológico (data da coleta da 2ª amostra S2)'
     translated_name: Date second sample collected
     description: 'When the second serum was taken, weeks after the first. The pair
       is what shows a rising titre, which confirms recent infection where a single
@@ -95,28 +82,25 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the second of the paired sera.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 47 (Exame sorológico – data da coleta da 2ª amostra S2)'
   DT_DOSE_N:
-    official_name: Data da última dose
+    official_name: 'Data da última dose'
     translated_name: Date of last dose
-    description: 'Date of the last vaccine dose. A rash within about two weeks of a
-      dose is likely vaccine-associated, so the interval decides the interpretation.
-
-      '
+    description: 'Date of the last dose of triple viral (MMR) or double viral vaccine the patient received, as checked on the vaccination card. A rash shortly after a dose may be vaccine-associated.'
     code_system: none
-    source: inferred
-    reasoning: D(8) date following CS_VACINA.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 34 (Data da última dose)'
   DT_INICIO_:
-    official_name: Data do início do exantema
+    official_name: 'Data do início do exantema'
     translated_name: Date the rash began
     description: 'When the rash started. Serology timing is measured from rash onset,
       not from fever, so this is the anchor for the whole laboratory sequence.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the rash onset that dates the sample intervals.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 38 (Data do início do exantema)'
   ETIOL_OUTR:
     official_name: Etiologia Viral se Outras especificar
     translated_name: Viral etiology - other, specified
@@ -439,45 +423,31 @@ variables:
     source_ref: DIC_DADOS_Exantematica_v5.pdf, campo 53 "Em caso afirmativo, especifique
       intervalo de tempo"
   MENOR_5ANO:
-    official_name: Contatos menores de 5 anos
-    translated_name: Contacts under 5
-    description: 'How many contacts under five were identified. The contact age bands
-      drive the vaccination sweep around a case, and the under-fives are the priority.
-
-      '
+    official_name: 'Quantidade de pessoas vacinadas - Menor de 5 anos'
+    translated_name: 'Susceptibles vaccinated in blockade, under 5'
+    description: 'Number of people under five vaccinated in the vaccination blockade around the case; filled when CS_VACINAL is 1 (yes).'
     code_system: none
-    source: inferred
-    reasoning: N(3) count; the first band of the contact age tally.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 52 (Quantidade de pessoas vacinadas – Menor de 5 anos)'
   NM_MUN_HOS:
-    official_name: Município de hospitalização
+    official_name: 'Município do hospital'
     translated_name: Municipality of hospitalisation
-    description: Where the patient was admitted, by IBGE code.
+    description: 'IBGE code of the municipality of the hospital where the patient was admitted.'
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE code bound to the municipality codelists.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 44 (Município do hospital)'
   TPEXANTE:
-    official_name: Tipo de exantema
-    translated_name: Rash type/characteristic
-    description: 'Type or pattern of skin rash (e.g. maculopapular, distribution) recorded
-      on the exanthematous-illness investigation form used for measles/rubella-like
-      rash surveillance.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: C1 coded field; TP_=tipo, EXANTE=exantema.
+    official_name: 'Outras exantemáticas'
+    translated_name: 'Other exanthematous disease identified'
+    description: 'Which other exanthematous disease the serology identified: dengue, parvovirus B19, human herpesvirus 6, or other.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 48 (Outras exantemáticas, tp_outra_exantematica)'
   UF_H:
-    official_name: UF do hospital
+    official_name: 'UF (do hospital)'
     translated_name: State of hospital
-    description: 'Two-letter state code of the hospital where a suspected exanthematous-disease
-      (measles/rubella, EXAN) patient was treated, distinct from the patient''s state
-      of residence.
-
-      '
+    description: 'State (UF) where the patient was hospitalised.'
     code_system: none
-    source: inferred
-    reasoning: 'UF_ = unidade federativa, H = hospital; C2 width matches a state abbreviation,
-      and hospital location tracking supports outbreak case-finding.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Doenças Exantemáticas (rev. mar/2012) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Exantematicas/DIC_DADOS_Exantematica_v5.pdf, campo 43 (UF do hospital)'

@@ -14,7 +14,10 @@ variables:
       extract.
     code_system: none
     source: inferred
-    reasoning: LAUDO is the standard Portuguese word for a diagnostic report, unabbreviated.
+    reasoning: 'LAUDO is the standard Portuguese word for a diagnostic report, unabbreviated.
+      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   CO_PACIENTE:
     official_name: Código do paciente
     translated_name: Patient code
@@ -25,11 +28,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CO_=codigo, PACIENTE=patient by naming grammar; SISCAN''s technical
-      notes state tabulations count women, not exams, which requires a per-patient
-      linking key such as this one.
-
-      '
+    reasoning: 'CO_=codigo, PACIENTE=patient by naming grammar; SISCAN''s technical notes
+      state tabulations count women, not exams, which requires a per-patient linking key such
+      as this one. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
     source_ref: naming grammar + SISCAN Nota Tecnica 1 measures section
   CO_SEQ_SISCAN_CITO_COLO_PACNT:
     official_name: Sequencial SISCAN citopatologia colo (paciente)
@@ -40,12 +43,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CO_SEQ_SISCAN_* is this catalog''s recurring row-identifier pattern
-      across every SISCAN yearly extract (six near-identical PACNT/RESID variants across
-      this fill batch alone); PACNT marks the patient- dimension table per SISCAN.PACNT
-      in ontology.yml.
-
-      '
+    reasoning: 'CO_SEQ_SISCAN_* is this catalog''s recurring row-identifier pattern across
+      every SISCAN yearly extract (six near-identical PACNT/RESID variants across this fill
+      batch alone); PACNT marks the patient- dimension table per SISCAN.PACNT in ontology.yml.
+      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
     notes: Declared C(0,0); no observed values captured.
   CO_SEQ_SISCAN_CITO_MAMA_PACNT:
     official_name: Sequencial SISCAN citopatologia mama (paciente)
@@ -54,8 +57,10 @@ variables:
       yearly extract.
     code_system: none
     source: inferred
-    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
-      in siscan_fill_01.yml.
+    reasoning: 'Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
+      in siscan_fill_01.yml. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   CO_SEQ_SISCAN_HISTO_COLO_PACNT:
     official_name: Sequencial SISCAN histopatologia colo (paciente)
     translated_name: Record sequence number (cervical-histopathology patient extract)
@@ -65,8 +70,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
-      in siscan_fill_01.yml.
+    reasoning: 'Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
+      in siscan_fill_01.yml. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   CO_SEQ_SISCAN_HISTO_MAMA_PACNT:
     official_name: Sequencial SISCAN histopatologia mama (paciente)
     translated_name: Record sequence number (breast-histopathology patient extract)
@@ -74,8 +81,10 @@ variables:
       yearly extract.
     code_system: none
     source: inferred
-    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
-      in siscan_fill_01.yml.
+    reasoning: 'Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
+      in siscan_fill_01.yml. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   CO_SEQ_SISCAN_MAMOGRAFIA_PACNT:
     official_name: Sequencial SISCAN mamografia (paciente)
     translated_name: Record sequence number (mammography patient extract)
@@ -83,27 +92,31 @@ variables:
       yearly extract.
     code_system: none
     source: inferred
-    reasoning: Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
-      in siscan_fill_01.yml.
+    reasoning: 'Same CO_SEQ_SISCAN_*_PACNT row-identifier pattern documented for CITO_COLO_PACNT
+      in siscan_fill_01.yml. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   IDADE:
     official_name: Idade
     translated_name: Patient age
-    description: 'Patient''s age, in years, at the time of this cervical cytology exam
-      — on the patient-dimension extract.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: IDADE is the plain, unabbreviated Portuguese word for age.
-  NU_ANO_RESULTADO:
-    official_name: Ano do resultado
-    translated_name: Year of the result
-    description: Year the histopathology result was issued, on the patient-dimension
+    description: Patient's age in years, as recorded on the exam requisition, on the patient-dimension
       extract.
     code_system: none
-    source: inferred
-    reasoning: Full-word decomposition (ano do resultado); NU_ prefix shared with this
-      table's other numeric fields despite not being a count here.
+    source: layout_doc
+    source_ref: INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
+      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.1 "Idade"; Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
+      "Faixa etária"
+  NU_ANO_RESULTADO:
+    official_name: Ano Resultado
+    translated_name: Year of the result
+    description: Year in which the exam received its result from the service provider (laboratory),
+      on the patient-dimension extract.
+    code_system: none
+    source: layout_doc
+    source_ref: Nota Técnica 13 SISCAN - Histopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica13_histo_mama_atend.pdf,
+      "Ano Resultado"; Nota Técnica 5 SISCAN - Histopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_5_histo_colo_atend.pdf,
+      "Mês/Ano Resultado"
   NU_LAUDO_HISTOP:
     official_name: Número do laudo histopatológico
     translated_name: Histopathology report number
@@ -111,8 +124,10 @@ variables:
       row refers to.
     code_system: none
     source: inferred
-    reasoning: LAUDO_HISTOP unambiguously abbreviates laudo histopatológico (histopathology
-      report).
+    reasoning: 'LAUDO_HISTOP unambiguously abbreviates laudo histopatológico (histopathology
+      report). Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   REQ:
     official_name: Requisição
     translated_name: Exam request (order) number
@@ -120,36 +135,49 @@ variables:
       was issued against.
     code_system: none
     source: inferred
-    reasoning: REQ is the standard abbreviation for requisição (request), on the patient-dimension
-      extract alongside CO_LAUDO.
+    reasoning: 'REQ is the standard abbreviation for requisição (request), on the patient-dimension
+      extract alongside CO_LAUDO. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   TP_INSPECAO_COLO:
-    official_name: Tipo de inspeção do colo
+    official_name: Inspeção do colo
     translated_name: Type of cervical (visual) inspection
-    description: 'Category of visual cervical inspection performed alongside the cytology
-      collection — e.g. whether the cervix appeared normal, altered, or was not visualised.
-
-      '
+    description: 'Result of the visual inspection of the cervix at collection (form item 11):
+      normal, absent (congenital anomaly or surgically removed), altered, or cervix not visualised.'
     code_system: internal
-    source: inferred
-    reasoning: Full-word decomposition (tipo + inspeção do colo); TP_ type-code prefix.
+    source: layout_doc
+    source_ref: INCA, Requisição de Exame Citopatológico - Colo do Útero (formulário nº 415)
+      — https://www.inca.gov.br/sites/ufu.sti.inca.local/files/media/document/formulario-colorido-exame-citopatologico-colo-do-utero.pdf,
+      p.1 Exame clínico, item 11 "Inspeção do colo"; TAB_SISCAN insp_colo.CNV
     notes: Declared C(0,0); no observed values captured.
   TP_LAUDO_CITOP:
     official_name: Tipo de laudo citopatológico
     translated_name: Type of cytology report
-    description: Category of this breast cytology report — e.g. which collection method
-      (PAAF or nipple discharge) it covers.
+    description: 'Overall category of the breast cytology report, apparently on the LAUDO_CITOP.CNV
+      scale: positive for malignancy, suspicious, indeterminate malignancy, benign, no alteration,
+      or unsatisfactory.'
     code_system: internal
     source: inferred
-    reasoning: Full-word decomposition (tipo de laudo citopatológico); TP_ type-code
-      prefix.
+    reasoning: 'Full-word decomposition (tipo de laudo citopatológico); TP_ type-code prefix.
+      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). TAB_SISCAN ships LAUDO_CITOP.CNV
+      (01 positivo para malignidade, 02 suspeito, 03 malignidade indeterminada, 04 benigno,
+      05 sem alteração, 06 insatisfatório) but no .def binds it to this column; description
+      rewritten to that reading, which replaces the earlier collection-method guess.'
     notes: No observed values or codelist were captured.
   TP_LAUDO_HISTOPATOLOGICO:
     official_name: Tipo de laudo histopatológico
     translated_name: Type of histopathology report
-    description: Category of this breast histopathology report — e.g. which biopsy/procedure
-      type it covers.
+    description: 'Overall category of the breast histopathology report, apparently on the
+      LAUDO_HISTOP.CNV scale: malignant neoplastic lesion, suspicious, indeterminate, benign,
+      or not informed.'
     code_system: internal
     source: inferred
-    reasoning: Full-word decomposition (tipo de laudo histopatológico); TP_ type-code
-      prefix.
+    reasoning: 'Full-word decomposition (tipo de laudo histopatológico); TP_ type-code prefix.
+      Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). TAB_SISCAN ships LAUDO_HISTOP.CNV
+      (01 lesão neoplásica maligna, 02 suspeita, 03 indeterminada, 04 benigna, 06 não informado)
+      but no .def binds it to this column; description rewritten to that reading.'
     notes: No observed values or codelist were captured.

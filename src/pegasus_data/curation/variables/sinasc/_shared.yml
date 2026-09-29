@@ -50,20 +50,17 @@ variables:
   AREA:
     official_name: Área de residência
     translated_name: Residence sub-area code
-    description: 'A locally assigned code for a residence area or district smaller than the
-      municipality, from the 1994-1995 birth-record layout. Each state or municipality numbers
-      these independently; no national lookup table exists for the codes.
-
-      '
+    description: 'Code of the mother''s residence area, finer than the municipality, in
+      the 1994-1995 birth-record layout. Assigned by each state and/or municipality and
+      not part of the national base.'
     code_system: none
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'SIM''s parallel 1979-1995 legacy layout documents its equivalent field, AREARES,
-      as "Área de residência...atribuído por cada estado e/ou município, não fazendo parte
-      da base nacional" (ESTRUTURA-SIM pos. 16). SINASC''s AREA is the same era and naming
-      grammar, so is read the same way.
-
-      '
+    source_ref: 'NASC98.HLP, help file for the SINASC 1994-1995 files (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc/NASC98.HLP,
+      ''Definição dos registros de nascidos vivos'', AREA C(03) ''Área de residência da
+      mãe. Este código é atribuído por cada estado e/ou município, não fazendo parte da
+      base nacional.'''
   BAIRRO_MAE:
     official_name: Bairro de residência da mãe
     translated_name: Neighbourhood of the mother's residence
@@ -75,16 +72,13 @@ variables:
     code_system: none
     depends_on:
     - MUNI_MAE
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'The name is transparent Portuguese — BAIRRO (neighbourhood) suffixed _MAE
-      (mother), matching the _MAE / _OCOR residence-versus-occurrence pairing this layout
-      uses throughout (MUNI_MAE / MUNI_OCOR). NASC.DEF-1995 hangs a "Bairro Resid" BAIRROS.CNV
-      axis off the residence side of the record, and the 1996+ layout documents a CODBAIRES
-      "Código do bairro de residência" in exactly this role. The column is declared C(3),
-      i.e. a short code, not a name.
-
-      '
+    source_ref: 'NASC98.HLP, help file for the SINASC 1994-1995 files (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc/NASC98.HLP,
+      ''Definição dos registros de nascidos vivos'', BAIRRO_MAE C(03) ''Bairro de
+      residência da mãe. Este código é atribuído por cada estado e/ou município, não
+      fazendo parte da base nacional.'''
     notes: 'No codelist is bound to this column in the catalog and no national bairro register
       exists, so the code has no label outside the originating municipality.
 
@@ -98,15 +92,12 @@ variables:
 
       '
     code_system: none
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'The column name is the Portuguese word for a civil registry office, it is
-      declared C(4), it sits beside DATA_CART ("Ano/Mês do Registro" in NASC.DEF-1995), and
-      the 1996+ layout carries an explicitly documented CODCART "Código do cartório" in exactly
-      this role. Observed values are 4-digit codes such as 0423, 0001, 0106 with a distinct
-      9999 at 2.3% of records, which is the shape of a small enumerated office register.
-
-      '
+    source_ref: 'NASC98.HLP, help file for the SINASC 1994-1995 files (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc/NASC98.HLP,
+      ''Definição dos registros de nascidos vivos'', CARTORIO C(04) ''Código do cartório
+      onde o nascimento foi registrado'''
     notes: 'No label table for these codes exists in the tree, and no document states whether
       the numbering is national or per-UF, so do not compare a code across states. The meaning
       of the 9999 value is not documented anywhere consulted — it is not asserted here.
@@ -328,13 +319,12 @@ variables:
 
       '
     code_system: none
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'SIM''s ESTRUTURA-SIM documents CRITICA at the same C(7) width in its own 1979-1995
-      legacy layout as "Dado para controle interno." SINASC''s CRITICA shares the field name,
-      the width, and the vintage, indicating the same bookkeeping role.
-
-      '
+    source_ref: 'NASC98.HLP, help file for the SINASC 1994-1995 files (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc/NASC98.HLP,
+      ''Definição dos registros de nascidos vivos'', CRITICA C(03) ''Dado para controle
+      interno.'''
   CRS_MAE:
     official_name: CRS de residência da mãe
     translated_name: Health-region code of mother's residence (locally coded)
@@ -344,14 +334,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'SIM''s parallel legacy layout has CRSRES, "Regional de Saúde de residência...não
-      fazendo parte da base nacional" (ESTRUTURA-SIM pos. 47). SINASC''s residence concept
-      in this era attaches to the mother rather than the record subject, which is why the
-      SINASC field is named for the mother instead of "RES" generically.
-
-      '
+    source_ref: 'NASC98.HLP, help file for the SINASC 1994-1995 files (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc/NASC98.HLP,
+      ''Definição dos registros de nascidos vivos'', CRS_MAE C(03) ''Regional de Saúde
+      de residência da mãe. Este código é atribuído por cada estado e/ou município, não
+      fazendo parte da base nacional.'''
   CRS_OCOR:
     official_name: CRS de ocorrência
     translated_name: Health-region code of occurrence (locally coded)
@@ -361,13 +350,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'SIM''s parallel legacy layout has CRSOCOR, "Regional de Saúde de ocorrência...não
-      fazendo parte da base nacional" (ESTRUTURA-SIM pos. 46). SINASC''s CRS_OCOR shares the
-      name stem, the era, and the paired occurrence/residence field pattern.
-
-      '
+    source_ref: 'NASC98.HLP, help file for the SINASC 1994-1995 files (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc/NASC98.HLP,
+      ''Definição dos registros de nascidos vivos'', CRS_OCOR C(03) ''Regional de
+      ocorrência do nascimento. Este código é atribuído por cada estado e/ou município,
+      não fazendo parte da base nacional.'''
   DATA_CART:
     official_name: Data do registro em cartório
     translated_name: Date of civil registration
@@ -532,24 +521,19 @@ variables:
   ESTAB_OCOR:
     official_name: Estabelecimento de ocorrência
     translated_name: Establishment where the birth occurred
-    description: 'Identifier of the health establishment where the birth happened, in the
-      1994–1995 layout. Declared C(6) and predating CNES (which SINASC only adopts for CODESTAB
-      from 2000), so these are pre-CNES establishment codes and will not join to a CNES register.
-
-      '
+    description: 'Code of the establishment where the birth occurred, in the 1994-1995
+      layout. Assigned by each state and/or municipality and not part of the national
+      base, so it will not join to CNES or any national register.'
     code_system: none
     depends_on:
     - MUNI_OCOR
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'ESTAB is DATASUS''s standard abbreviation for estabelecimento (de saúde) and
-      _OCOR is the occurrence-side suffix this layout uses consistently (MUNI_OCOR, LOCAL_OCOR,
-      CRS_OCOR). The column is declared C(6), the width of an establishment code rather than
-      a name, and the 1996+ layout documents CODESTAB "Código do estabelecimento de saúde
-      onde ocorreu o nascimento" filling exactly this slot, appearing in the microdata only
-      from 2000 per [EVOL-1996-2019] row 24.
-
-      '
+    source_ref: 'NASC98.HLP, help file for the SINASC 1994-1995 files (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc/NASC98.HLP,
+      ''Definição dos registros de nascidos vivos'', ESTAB_OCOR C(06) ''Estabelecimento
+      onde ocorreu o nascimento. Este código é atribuído por cada estado e/ou município,
+      não fazendo parte da base nacional.'''
     notes: 'No document consulted states which establishment register these codes come from,
       so they should be treated as opaque within the 1994–1995 files rather than linked anywhere.
 
@@ -580,22 +564,18 @@ variables:
 
       '
   ETNIA:
-    official_name: Etnia
-    translated_name: Ethnicity (likely Indigenous ethnic group)
-    description: 'A short numeric code recording ethnicity, present in this 1994-1995 vintage
-      of the birth record. By the naming convention DATASUS used elsewhere at the same time,
-      this most likely records Indigenous ethnic group of the mother or newborn.
-
-      '
+    official_name: Código para etnia indígena
+    translated_name: Indigenous ethnic group code
+    description: 'Code of the Indigenous ethnic group, filled when race/colour (RACACOR)
+      is Indigenous, per the DATASUS table of ethnicities (TABETNIA), in the 1994-1995
+      birth-record layout.'
     code_system: none
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'SIM introduced an identically-named ETNIA field in 1995, read there as Indigenous
-      ethnicity because it was added alongside RACACOR (race/colour, code 5 = Indígena). SINASC''s
-      own 1996+ layout adds RACACOR the very next year, so an ETNIA field appearing in SINASC''s
-      1994-1995 records fits the same system-wide timing.
-
-      '
+    source_ref: 'NASC98.HLP, help file for the SINASC 1994-1995 files (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc/NASC98.HLP,
+      ''Definição dos registros de nascidos vivos'', ETNIA C(03) ''Código para etnia
+      indígena, caso o código de RACACOR seja 3, conforme a tabela de etnias'''
     notes: 'No codelist survives in the catalog for this column; treat individual codes as
       uninterpretable without a table.
 
@@ -953,25 +933,15 @@ variables:
   NUM_EXPORT:
     official_name: Número de exportação
     translated_name: Export/batch sequence number
-    description: 'Sequence number stamped onto this record by the export process that moved
-      it out of the originating system, in the 1994–1995 legacy layout. Administrative bookkeeping
-      generated by data transmission, not something recorded on the birth certificate — it
-      carries no demographic or clinical content and is not safe to use as a durable record
-      identifier, since a re-export can renumber it.
-
-      '
+    description: 'Internal control field of the 1994-1995 birth-record layout, with no
+      demographic or clinical content. Not a durable record identifier.'
     code_system: none
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'NUM_ is the transparent Portuguese abbreviation for número ("number") and
-      EXPORT is the English word used as-is, together reading plainly as "export number".
-      The 1996+ layout documents an analogous purely-internal housekeeping field in the same
-      pipeline, NUMEROLOTE ("Número do lote... Campo interno do sistema", per Estrutura_SINASC_para_CD.pdf),
-      which confirms DATASUS''s SINASC processing tracks batch/transmission sequence numbers
-      as system bookkeeping separate from the certificate''s substantive fields. The column
-      is declared C(3)/C(10), the width of an integer counter stored as text.
-
-      '
+    source_ref: 'NASC98.HLP, help file for the SINASC 1994-1995 files (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SINASC/1994_1995/Doc/NASC98.HLP,
+      ''Definição dos registros de nascidos vivos'', listed as NUMEXPORT C(03) ''Dado
+      para controle interno.'' (the files spell it NUM_EXPORT)'
     notes: 'No document consulted confirms the exact scope of the counter (per file, per batch,
       per municipality, per submission) or ties it explicitly to the same mechanism as NUMEROLOTE
       — only that it is administrative rather than clinical/demographic in nature. Treat the

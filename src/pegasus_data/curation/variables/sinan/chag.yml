@@ -15,11 +15,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'C5, wider than a plain flag, suggesting it can hold more than one code;
-      AFIRMATIVO reads literally "affirmative," fitting a summary of which antecedent
-      items (CON_TRIAT, CON_INFECC, etc.) were marked yes.
-
-      '
+    reasoning: 'C5, wider than a plain flag, suggesting it can hold more than one code; AFIRMATIVO
+      reads literally "affirmative," fitting a summary of which antecedent items (CON_TRIAT,
+      CON_INFECC, etc.) were marked yes. Reviewed 2026-09-28: no documentation found (searched
+      DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources and the web). The
+      field appears only in the 2000-2006 CHAG files (pre-SINAN NET form), whose dictionary
+      is not published.'
   ANOREXIA:
     official_name: Anorexia
     translated_name: Anorexia / loss of appetite (symptom)
@@ -30,7 +31,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag named directly for the symptom.
+    reasoning: 'C1 flag named directly for the symptom. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources
+      and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form),
+      whose dictionary is not published.'
   ANT_UF_1:
     official_name: UF de residência anterior 1
     translated_name: Previous state of residence 1
@@ -91,26 +95,24 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'AUMENTO = aumento (enlargement); hepatosplenomegaly is a named clinical
-      sign on the Chagas (CHAG) investigation form''s exam checklist, C1 width fits
-      a checkbox.
-
-      '
+    reasoning: 'AUMENTO = aumento (enlargement); hepatosplenomegaly is a named clinical sign
+      on the Chagas (CHAG) investigation form''s exam checklist, C1 width fits a checkbox.
+      Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET
+      .DEF files, local SINAN sources and the web). The field appears only in the 2000-2006
+      CHAG files (pre-SINAN NET form), whose dictionary is not published.'
   BIOSSEG:
-    official_name: Biossegurança
+    official_name: Implantação de normas de biossegurança em laboratório
     translated_name: Biosafety
-    description: 'Whether biosafety measures applied to the case''s exposure (Sim/Não/Não
-      se aplica), most plausibly on a laboratory-acquired or occupational exposure
-      investigation.
+    description: 'Whether laboratory biosafety rules were put in place in response to the case
+      (1 yes, 2 no, 3 not applicable, 9 unknown); relevant to laboratory-acquired infection.
 
       '
     code_system: internal
     codelist: BIOSSEG
-    source: inferred
-    reasoning: 'The catalog binds this field to a BIOSSEG codelist with exactly those
-      three values (Sim/Não/Não se aplica).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 56 (Ocorreu
+      ou medidas tomadas – implantação de normas de biossegurança em laboratório)
   CHAGOMA:
     official_name: Chagoma de inoculação/Sinal de Romaña
     translated_name: Inoculation chagoma/Romaña's sign
@@ -132,11 +134,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CONFIRMAD = confirmado; not found in the 2010 CHAG data dictionary,
-      consistent with the low file-count schema this field belongs to (an older/rarer
-      layout).
-
-      '
+    reasoning: 'CONFIRMAD = confirmado; not found in the 2010 CHAG data dictionary, consistent
+      with the low file-count schema this field belongs to (an older/rarer layout). Reviewed
+      2026-09-28: no documentation found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF
+      files, local SINAN sources and the web). The field appears only in the 2000-2006 CHAG
+      files (pre-SINAN NET form), whose dictionary is not published.'
   CONTROLE:
     official_name: Existência de controle sorológico na Unidade de Hemoterapia
     translated_name: Blood-bank serological screening existed
@@ -159,7 +161,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 coded field; CON_=condição per prefix convention, INFECC=infecção.
+    reasoning: 'C1 coded field; CON_=condição per prefix convention, INFECC=infecção. Reviewed
+      2026-09-28: no documentation found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF
+      files, local SINAN sources and the web). The field appears only in the 2000-2006 CHAG
+      files (pre-SINAN NET form), whose dictionary is not published.'
   CON_LOCAL:
     official_name: Local provável de infecção (no período de 90 dias)
     translated_name: Probable infection site (type)
@@ -177,20 +182,17 @@ variables:
     reasoning: Confirmed by the CHAG data dictionary text and by the catalog's own
       value list.
   CON_OUTRA:
-    official_name: Outra forma de contágio
+    official_name: Modo provável da infecção – outra (especificar)
     translated_name: Other route of transmission (specify)
-    description: 'Free-text field on the acute Chagas disease form used when the suspected
-      transmission route is not one of the standard options (vectorial, transfusional,
-      oral, vertical) — the investigator writes in the alternative route here.
+    description: 'Free-text probable mode of infection, filled when the mode of infection is
+      6 (other).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is CHAG (Chagas); CON_ prefix pairs with an "outra" free-text
-      slot (C30) typical of DATASUS forms where a fixed-option field has an "other,
-      specify" companion.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 61 (Modo provável
+      da infecção – outra, especificar)
   CON_PROVAV:
     official_name: Modo Provável da Infecção
     translated_name: Probable Chagas transmission route
@@ -225,12 +227,13 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CHAG form; narrow width (C3) fits a coded dose amount/range rather
-      than a description, alongside the treatment-scheme fields on the same form.
-
-      '
+    reasoning: 'CHAG form; narrow width (C3) fits a coded dose amount/range rather than a description,
+      alongside the treatment-scheme fields on the same form. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources
+      and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form),
+      whose dictionary is not published.'
   DT_COL_DIR:
-    official_name: Data da coleta do exame direto
+    official_name: Parasitológico direto – data da coleta
     translated_name: Date of direct parasitological exam collection
     description: 'Date blood was drawn for the direct parasitological exam (thick smear
       / fresh blood exam) used to confirm acute Chagas disease, when parasitemia is
@@ -238,27 +241,24 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CHAG form; DT_ date prefix, COL_DIR reads "coleta direta" (direct-exam
-      collection), the standard parasitological confirmation test for the acute phase.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 42 (Parasitológico
+      direto – data da coleta)
   DT_COL_IND:
-    official_name: Data de coleta - exame indireto
+    official_name: Parasitológico indireto – data da coleta
     translated_name: Date sample collected for indirect diagnostic test
-    description: 'Date a specimen was collected for an indirect parasitological method
-      (e.g. xenodiagnosis or hemoculture) used to confirm acute Chagas when direct
-      blood-smear microscopy is negative or unavailable.
+    description: 'Date material was collected for the indirect parasitological exam (blood
+      culture or xenodiagnosis).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'D8 date; COL=coleta, IND read as indireto, fitting the confirmatory-testing
-      theme of this stratum; exact expansion not independently confirmed.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 44 (Parasitológico
+      indireto – data da coleta)
   DT_COL_S1:
-    official_name: Data da coleta da primeira amostra
+    official_name: Data da coleta S1
     translated_name: Date first sample collected
     description: 'When the first serum was taken. Acute Chagas is diagnosed by seeing
       the parasite directly; chronic Chagas needs two different serological tests to
@@ -266,22 +266,22 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; S1 is the first sample.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 46 (Data da
+      coleta S1)
   DT_COL_S2:
-    official_name: Data da coleta - sorologia 2
+    official_name: Data da coleta S2
     translated_name: Date of second serology sample
-    description: 'Collection date of the second (convalescent) serology sample for
-      Chagas disease confirmation, paired with a first-sample draw to show antibody
-      titer change over time.
+    description: 'Collection date of the second serum sample (S2), paired with S1 to show seroconversion
+      or a rising titre.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DT_ = data, COL = coleta, S2 = segunda sorologia; D8 date type matches,
-      and paired-sample serology is standard practice for Chagas confirmation.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 47 (Data da
+      coleta S2)
   ECG:
     official_name: Eletrocardiograma
     translated_name: Electrocardiogram (flag or result)
@@ -292,8 +292,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: ECG = eletrocardiograma; not in the 2010 dictionary excerpt found, but
-      fits the acute-Chagas cardiac workup context.
+    reasoning: 'ECG = eletrocardiograma; not in the 2010 dictionary excerpt found, but fits
+      the acute-Chagas cardiac workup context. Reviewed 2026-09-28: no documentation found
+      (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources and the
+      web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form), whose
+      dictionary is not published.'
   ECG_RESULT:
     official_name: Resultado do ECG
     translated_name: ECG result
@@ -304,55 +307,59 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CHAG form; name directly reads "resultado do ECG"; width C20 fits a
-      short result code/phrase rather than a raw tracing.
-
-      '
+    reasoning: 'CHAG form; name directly reads "resultado do ECG"; width C20 fits a short result
+      code/phrase rather than a raw tracing. Reviewed 2026-09-28: no documentation found (searched
+      DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources and the web). The
+      field appears only in the 2000-2006 CHAG files (pre-SINAN NET form), whose dictionary
+      is not published.'
   ELI_IGG_S1:
-    official_name: Sorologia ELISA IgG - amostra 1
+    official_name: Resultado da sorologia para ELISA IgG S1
     translated_name: ELISA IgG serology - sample 1
-    description: 'IgG-ELISA result for the first serum sample in a Chagas Aguda investigation,
-      one test in a three-method serology panel (ELISA, hemaglutinação HEM_*, imunofluorescência
-      IMU_*) each split into IgG/IgM and sample 1/2.
+    description: 'ELISA IgG result on serum sample 1: reactive, non-reactive, inconclusive,
+      or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
-      The IGG/IGM x S1/S2 naming exactly parallels the confirmed sample-pairing pattern
-      on the Leptospirose and exanthematous-disease forms, and acute Chagas disease
-      is confirmed serologically with paired IgM/IgG samples by design.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 48 (Resultado
+      da sorologia para ELISA IgG S1)
   ELI_IGG_S2:
-    official_name: Sorologia ELISA IgG - amostra 2
+    official_name: Resultado da sorologia para ELISA IgG S2
     translated_name: ELISA IgG serology - sample 2
-    description: 'Second-sample ELISA IgG result, paired with ELI_IGG_S1 to track antibody-titer
-      change across the two draws.
+    description: 'ELISA IgG result on serum sample 2: reactive, non-reactive, inconclusive,
+      or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as ELI_IGG_S1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 48 (Resultado
+      da sorologia para ELISA IgG S2)
   ELI_IGM_S1:
-    official_name: Sorologia ELISA IgM - amostra 1
+    official_name: Resultado da sorologia para ELISA IgM S1
     translated_name: ELISA IgM serology - sample 1
-    description: 'IgM-ELISA result for the first serum sample, the acute-phase antibody
-      test in the same Chagas serology panel as ELI_IGG_S1.
+    description: 'ELISA IgM result on serum sample 1: reactive, non-reactive, inconclusive,
+      or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as ELI_IGG_S1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 48 (Resultado
+      da sorologia para ELISA IgM S1)
   ELI_IGM_S2:
-    official_name: Sorologia ELISA IgM - amostra 2
+    official_name: Resultado da sorologia para ELISA IgM S2
     translated_name: ELISA IgM serology - sample 2
-    description: 'Second-sample ELISA IgM result, paired with ELI_IGM_S1.
+    description: 'ELISA IgM result on serum sample 2: reactive, non-reactive, inconclusive,
+      or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as ELI_IGG_S1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 48 (Resultado
+      da sorologia para ELISA IgM S2)
   ESPECIFICO:
     official_name: Tipo de Tratamento - Específico
     translated_name: Specific antiparasitic treatment given
@@ -407,10 +414,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CHAG form; C1 width matches the other single-character sign checkboxes
-      (HEPAESPLE, INESPECIF) on the same clinical-signs section.
-
-      '
+    reasoning: 'CHAG form; C1 width matches the other single-character sign checkboxes (HEPAESPLE,
+      INESPECIF) on the same clinical-signs section. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources
+      and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form),
+      whose dictionary is not published.'
   HEMO:
     official_name: Hemocultura
     translated_name: Blood culture (flag or result)
@@ -420,70 +428,71 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'HEMO likely abbreviates hemocultura; the dictionary documents a full
-      "Hemocultivo" field (DBF code HEMOCULT) in the same parasitological-exam block.
-
-      '
+    reasoning: 'HEMO likely abbreviates hemocultura; the dictionary documents a full "Hemocultivo"
+      field (DBF code HEMOCULT) in the same parasitological-exam block. Reviewed 2026-09-28:
+      no documentation found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local
+      SINAN sources and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN
+      NET form), whose dictionary is not published.'
   HEMOCULT:
-    official_name: Hemocultura
+    official_name: Parasitológico indireto – hemocultivo
     translated_name: Blood culture (for T. cruzi)
-    description: 'Result of blood culture attempted to recover Trypanosoma cruzi in
-      an acute Chagas disease investigation, one of the panel''s direct parasitological
-      tests alongside MICRO_HEMA (microhematocrit).
+    description: 'Result of blood culture for Trypanosoma cruzi: positive, negative, or not
+      done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
-      Hemocultura is a standard, if low-sensitivity, direct method for confirming acute
-      Chagas disease, and the single-character width matches the positivo/negativo/não
-      realizado coding used elsewhere on this form''s lab fields.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 45 (Parasitológico
+      indireto – hemocultivo)
   HEM_IGG_S1:
-    official_name: Sorologia Hemaglutinação IgG - amostra 1
+    official_name: Resultado da sorologia para hemoaglutinação IgG S1
     translated_name: Hemagglutination IgG serology - sample 1
-    description: 'IgG hemagglutination-inhibition result for the first serum sample
-      in a Chagas Aguda investigation, one of three serology methods on this form (with
-      ELI_IGG_S1 for ELISA and IMU_IGG_S1 for immunofluorescence).
+    description: 'Indirect haemagglutination IgG result on serum sample 1: reactive, non-reactive,
+      inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
-      The IGG/IGM x S1/S2 naming mirrors the confirmed ELI_* fields on the same form,
-      and hemagglutination inhibition is a standard third method run alongside ELISA
-      and IFI in Chagas serology panels.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 49 (Resultado
+      da sorologia para hemoaglutinação IgG S1)
   HEM_IGG_S2:
-    official_name: Sorologia Hemaglutinação IgG - amostra 2
+    official_name: Resultado da sorologia para hemoaglutinação IgG S2
     translated_name: Hemagglutination IgG serology - sample 2
-    description: 'Second-sample result matching HEM_IGG_S1.
+    description: 'Indirect haemagglutination IgG result on serum sample 2: reactive, non-reactive,
+      inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as HEM_IGG_S1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 49 (Resultado
+      da sorologia para hemoaglutinação IgG S2)
   HEM_IGM_S1:
-    official_name: Sorologia Hemaglutinação IgM - amostra 1
+    official_name: Resultado da sorologia para hemoaglutinação IgM S1
     translated_name: Hemagglutination IgM serology - sample 1
-    description: 'IgM hemagglutination-inhibition result for the first sample, the
-      acute-phase test matching HEM_IGG_S1.
+    description: 'Indirect haemagglutination IgM result on serum sample 1: reactive, non-reactive,
+      inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as HEM_IGG_S1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 49 (Resultado
+      da sorologia para hemoaglutinação IgM S1)
   HEM_IGM_S2:
-    official_name: Sorologia Hemaglutinação IgM - amostra 2
+    official_name: Resultado da sorologia para hemoaglutinação IgM S2
     translated_name: Hemagglutination IgM serology - sample 2
-    description: 'Second-sample result matching HEM_IGM_S1.
+    description: 'Indirect haemagglutination IgM result on serum sample 2: reactive, non-reactive,
+      inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as HEM_IGG_S1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 49 (Resultado
+      da sorologia para hemoaglutinação IgM S2)
   HEPAESPLE:
     official_name: Hepatoesplenomegalia
     translated_name: Hepatosplenomegaly
@@ -493,10 +502,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CHAG form; name is a direct contraction of hepatoesplenomegalia; C1
-      width matches sibling sign checkboxes on the same form section.
-
-      '
+    reasoning: 'CHAG form; name is a direct contraction of hepatoesplenomegalia; C1 width matches
+      sibling sign checkboxes on the same form section. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources
+      and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form),
+      whose dictionary is not published.'
   HIPOREXIA:
     official_name: Hiporexia
     translated_name: Reduced appetite (symptom)
@@ -507,7 +517,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag named directly for the symptom.
+    reasoning: 'C1 flag named directly for the symptom. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources
+      and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form),
+      whose dictionary is not published.'
   HISTORIA:
     official_name: História de uso de sangue ou hemoderivados nos últimos 120 dias
     translated_name: Recent blood/blood-product transfusion history
@@ -529,8 +542,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C1 flag; IMPLANTA reads implantação, fitting the entomological-investigation
-      theme shared with CON_TRIAT and QUANTOS.
+    reasoning: 'C1 flag; IMPLANTA reads implantação, fitting the entomological-investigation
+      theme shared with CON_TRIAT and QUANTOS. Reviewed 2026-09-28: no documentation found
+      (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources and the
+      web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form), whose
+      dictionary is not published.'
   IMUNO:
     official_name: Método imunológico utilizado
     translated_name: Immunological test method used (flag)
@@ -542,54 +558,59 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'IMUNO = imunológico; C1 width fits a checkbox, and serology is a standard
-      confirmatory route for Chagas disease alongside the direct parasitological methods.
-
-      '
+    reasoning: 'IMUNO = imunológico; C1 width fits a checkbox, and serology is a standard confirmatory
+      route for Chagas disease alongside the direct parasitological methods. Reviewed 2026-09-28:
+      no documentation found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local
+      SINAN sources and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN
+      NET form), whose dictionary is not published.'
   IMU_IGG_S1:
-    official_name: Sorologia Imunofluorescência IgG - amostra 1
+    official_name: Resultado da sorologia para imunofluorescência indireta IgG S1
     translated_name: Immunofluorescence IgG serology - sample 1
-    description: 'IgG immunofluorescence (IFI) result for the first sample in a Chagas
-      Aguda investigation, the third serology method on this form alongside ELISA (ELI_IGG_S1)
-      and hemagglutination (HEM_IGG_S1).
+    description: 'Indirect immunofluorescence (IFI) IgG result on serum sample 1: reactive,
+      non-reactive, inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
-      Immunofluorescence is the standard third leg of a Chagas serology panel run with
-      ELISA and hemagglutination inhibition, and the naming mirrors the confirmed pattern
-      of the other two methods on this same form.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 50 (Resultado
+      da sorologia para imunofluorescência indireta IgG S1)
   IMU_IGG_S2:
-    official_name: Sorologia Imunofluorescência IgG - amostra 2
+    official_name: Resultado da sorologia para imunofluorescência indireta IgG S2
     translated_name: Immunofluorescence IgG serology - sample 2
-    description: 'Second-sample result matching IMU_IGG_S1.
+    description: 'Indirect immunofluorescence (IFI) IgG result on serum sample 2: reactive,
+      non-reactive, inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as IMU_IGG_S1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 50 (Resultado
+      da sorologia para imunofluorescência indireta IgG S2)
   IMU_IGM_S1:
-    official_name: Sorologia Imunofluorescência IgM - amostra 1
+    official_name: Resultado da sorologia para imunofluorescência indireta IgM S1
     translated_name: Immunofluorescence IgM serology - sample 1
-    description: 'IgM immunofluorescence result for the first sample, the acute-phase
-      test matching IMU_IGG_S1.
+    description: 'Indirect immunofluorescence (IFI) IgM result on serum sample 1: reactive,
+      non-reactive, inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as IMU_IGG_S1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 50 (Resultado
+      da sorologia para imunofluorescência indireta IgM S1)
   IMU_IGM_S2:
-    official_name: Sorologia Imunofluorescência IgM - amostra 2
+    official_name: Resultado da sorologia para imunofluorescência indireta IgM S2
     translated_name: Immunofluorescence IgM serology - sample 2
-    description: 'Second-sample result matching IMU_IGM_S1.
+    description: 'Indirect immunofluorescence (IFI) IgM result on serum sample 2: reactive,
+      non-reactive, inconclusive, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: Same basis as IMU_IGG_S1.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 50 (Resultado
+      da sorologia para imunofluorescência indireta IgM S2)
   INESPECIF:
     official_name: Sinais e sintomas inespecíficos
     translated_name: Nonspecific signs and symptoms
@@ -601,9 +622,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'CHAG form; name reads "inespecífico"; C1 width matches the other checklist
-      sign fields on the same clinical section.
-
-      '
+      sign fields on the same clinical section. Reviewed 2026-09-28: no documentation found
+      (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources and the
+      web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form), whose
+      dictionary is not published.'
   MAECHAGA:
     official_name: Mãe com doença de Chagas
     translated_name: Mother has Chagas disease
@@ -636,10 +658,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CHAG form; MED_CONTR reads "medida[s] de controle"; C1 width fits a
-      yes/no field alongside SUSPEITOS in the same outbreak-response block.
-
-      '
+    reasoning: 'CHAG form; MED_CONTR reads "medida[s] de controle"; C1 width fits a yes/no
+      field alongside SUSPEITOS in the same outbreak-response block. Reviewed 2026-09-28: no
+      documentation found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local
+      SINAN sources and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN
+      NET form), whose dictionary is not published.'
   MED_OUTRO:
     official_name: Medidas Tomadas - Outros
     translated_name: Other control measure taken
@@ -663,45 +686,56 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_Chagas_v5.pdf (SINAN NET, Doença de Chagas), campo 41.
   MICRO_HEMA:
-    official_name: Micro-hematócrito
+    official_name: Parasitológico direto – Strout/micro-hematócrito/QBC
     translated_name: Microhematocrit concentration test
-    description: 'Result of the microhematocrit technique, a direct parasitological
-      method for finding circulating Trypanosoma cruzi in acute Chagas disease; sibling
-      direct-detection test to HEMOCULT on the same form.
+    description: 'Result of the direct parasitological exam by Strout, microhaematocrit or
+      QBC concentration methods: positive, negative, or not done.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and CHAG series membership.
-      Microhematocrit concentration is a standard, widely used parasitological test
-      specifically for acute Chagas disease, and its pairing with HEMOCULT (also CHAG,
-      also a direct-detection method) supports the reading.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 43 (Parasitológico
+      direto – Strout/micro-hematócrito/QBC)
+  MUN_1:
+    official_name: Deslocamento – município 1
+    translated_name: Travel municipality 1
+    description: 'First municipality the patient travelled to or frequented in the 15 months
+      before symptom onset, paired with ANT_UF_1.
 
       '
-  MUN_1:
-    official_name: Município de residência anterior 1
-    translated_name: Previous municipality of residence 1
-    description: The municipality paired with ANT_UF_1 in the residence history.
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE code; the first residence-history municipality.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 33 (Deslocamento
+      – município 1)
   MUN_2:
-    official_name: Município de residência anterior 2
-    translated_name: Previous municipality of residence 2
-    description: The municipality paired with ANT_UF_2.
+    official_name: Deslocamento – município 2
+    translated_name: Travel municipality 2
+    description: 'Second municipality the patient travelled to in the 15 months before symptom
+      onset, paired with ANT_UF_2.
+
+      '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE code; the second residence-history municipality.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 33 (Deslocamento
+      – município 2)
   MUN_3:
-    official_name: Município de residência anterior 3
-    translated_name: Previous municipality of residence 3
-    description: The municipality paired with ANT_UF_3.
+    official_name: Deslocamento – município 3
+    translated_name: Travel municipality 3
+    description: 'Third municipality the patient travelled to in the 15 months before symptom
+      onset, paired with ANT_UF_3.
+
+      '
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(6) IBGE code; the third residence-history municipality.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 33 (Deslocamento
+      – município 3)
   ORAL:
     official_name: Transmissão oral
     translated_name: Oral transmission
@@ -731,7 +765,7 @@ variables:
 
       '
   POLIADENO:
-    official_name: Poliadenomegalia
+    official_name: Sinais e sintomas – poliadenopatia
     translated_name: Generalized lymphadenopathy
     description: 'Clinical-signs checklist item for acute Chagas disease: widespread
       (multi-site) lymph-node enlargement, as opposed to GANGLIOS, which marks localized
@@ -739,11 +773,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CHAG form; name reads "poliadenomegalia" (multiple enlarged nodes);
-      pairs with GANGLIOS as the localized/generalized split of the same sign.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 41 (Sinais
+      e sintomas – poliadenopatia)
   PRESENCA:
     official_name: Presença de Vestígios de Triatomídeos Intra-Domicílio
     translated_name: Triatomine-bug traces found in the home
@@ -765,8 +798,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C5; QUANTOS="how many," fitting the entomological-count theme paired
-      with IMPLANTA.
+    reasoning: 'C5; QUANTOS="how many," fitting the entomological-count theme paired with IMPLANTA.
+      Reviewed 2026-09-28: no documentation found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET
+      .DEF files, local SINAN sources and the web). The field appears only in the 2000-2006
+      CHAG files (pre-SINAN NET form), whose dictionary is not published.'
   RAI_RESULT:
     official_name: Resultado - reação de aglutinação indireta
     translated_name: Indirect agglutination test result
@@ -777,10 +812,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'RAI = reação de aglutinação indireta, RESULT = resultado; C20 width
-      fits a free-text or titer-style result rather than a single code.
-
-      '
+    reasoning: 'RAI = reação de aglutinação indireta, RESULT = resultado; C20 width fits a
+      free-text or titer-style result rather than a single code. Reviewed 2026-09-28: no documentation
+      found (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources
+      and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form),
+      whose dictionary is not published.'
   RECEMNASC:
     official_name: Recém-nascido - mãe com infecção chagásica
     translated_name: Newborn with Chagas-infected mother (flag)
@@ -799,19 +835,16 @@ variables:
 
       '
   RESUL_HIS:
-    official_name: Resultado - exame histopatológico
-    translated_name: Histopathology exam result
-    description: 'Date/result of histopathological examination for Chagas disease confirmation
-      (e.g. tissue biopsy showing amastigotes), a less common confirmatory method than
-      serology or direct parasitology.
+    official_name: Data da coleta do histopatológico
+    translated_name: Histopathology collection date
+    description: 'Date tissue was collected for the histopathological exam.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'RESUL_ = resultado, HIS = histopatológico; D8 declared type suggests
-      the field actually stores the exam date rather than a result code.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 51 (Data da
+      coleta do histopatológico)
   RES_HIST:
     official_name: Resultado do exame histopatológico
     translated_name: Histopathology result
@@ -861,24 +894,22 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CHAG form; SUSPEITOS reads "suspeitos"; C1 width fits a yes/no flag
-      in the outbreak-context section alongside MED_CONTR.
-
-      '
+    reasoning: 'CHAG form; SUSPEITOS reads "suspeitos"; C1 width fits a yes/no flag in the
+      outbreak-context section alongside MED_CONTR. Reviewed 2026-09-28: no documentation found
+      (searched DIC_DADOS_Chagas_v5.pdf, TAB_SINANNET .DEF files, local SINAN sources and the
+      web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form), whose
+      dictionary is not published.'
   TEMPO:
-    official_name: Tempo entre exposição e sintomas
-    translated_name: Days from exposure to symptom onset
-    description: 'Number of days between the suspected Chagas exposure (or symptom
-      onset) and diagnosis/notification, an interval used to characterize the case
-      timeline.
+    official_name: Tempo de tratamento
+    translated_name: Treatment duration (days)
+    description: 'Duration of the specific (trypanocidal) treatment, in days.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'TEMPO = tempo (time interval); N3 numeric width fits a day count up
-      to a few hundred days.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
+      (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 55 (Tempo de
+      tratamento)
   XENODIAG:
     official_name: Xenodiagnóstico
     translated_name: Xenodiagnosis result (Chagas disease)

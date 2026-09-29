@@ -10,10 +10,14 @@ variables:
   ASSENTAD:
     official_name: Atende assentamento
     translated_name: Serves a land settlement
-    description: Whether the team serves a rural land-reform settlement.
+    description: 'Whether the team serves a land-reform settlement (assentados)
+      population. 1=Sim, 0=Não.'
     code_system: none
-    source: inferred
-    reasoning: ASSENTAD reads assentamento, an item of the served-population block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.7 Equipes (EP*.dbf) SEQ 93 ''Atende
+      População Assistida Assentados: 1-Sim 0-Não'''
   DESCSEGM:
     official_name: Descrição do segmento
     translated_name: Segment description
@@ -22,8 +26,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C(60) free text paired with the coded segment identifier.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.7 Equipes (EP*.dbf) SEQ 88 ''Descrição do
+      Segmento'''
   DT_ATIVA:
     official_name: Competência de ativação da equipe
     translated_name: Team activation month
@@ -49,14 +56,14 @@ variables:
   ESCOLA:
     official_name: Atende escolares
     translated_name: Serves schoolchildren
-    description: 'Whether the team works with schoolchildren, under the school health
-      programme.
-
-      '
+    description: 'Whether the team serves a schoolchildren population (escolares).
+      1=Sim, 0=Não.'
     code_system: none
-    source: inferred
-    reasoning: ESCOLA names the school population, an item of the served-population
-      block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.7 Equipes (EP*.dbf) SEQ 95 ''Atende
+      População Assistida Escolares: 1-Sim 0-Não'''
   IDEQUIPE:
     official_name: Identificador da equipe
     translated_name: Team identifier
@@ -95,8 +102,12 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: An item of the served-population block; INDIGENA names the population.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.7 Equipes (EP*.dbf) SEQ 96
+      (served-population flag, 1-Sim 0-Não; the IT''s description text for SEQ 96 and 97
+      is visibly shifted, labelling INDIGENA ''PRONASCI'' and PRONASCI ''Geral'')'
   MOTDESAT:
     official_name: Motivo da desativação
     translated_name: Reason for deactivation
@@ -120,8 +131,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C(60) free text paired with the coded area identifier.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.7 Equipes (EP*.dbf) SEQ 86 ''Nome da Área'''
   NOME_EQP:
     official_name: Nome da equipe
     translated_name: Team name
@@ -131,8 +144,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C(60) free text paired with the coded team identifier.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.7 Equipes (EP*.dbf) SEQ 84 ''Nome da
+      Equipe'''
   POPGERAL:
     official_name: Atende população geral
     translated_name: Serves the general population
@@ -142,18 +158,24 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C(1) flag opening the served-population block of the team record.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.7 Equipes (EP*.dbf) SEQ 94 ''Atende
+      População Assistida Geral: 1-Sim 0-Não'''
   PRONASCI:
     official_name: Equipe do PRONASCI
     translated_name: PRONASCI team
-    description: 'Whether the team belongs to PRONASCI, the public-security-linked
-      programme placing health teams in areas of high violence.
-
-      '
+    description: 'Whether the team serves the population assisted under PRONASCI, the
+      public-security-linked programme placing health teams in areas of high violence.
+      1=Sim, 0=Não.'
     code_system: none
-    source: inferred
-    reasoning: PRONASCI names the programme, an item of the served-population block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.7 Equipes (EP*.dbf) SEQ 97
+      (served-population flag, 1-Sim 0-Não; the IT''s description text for SEQ 96 and 97
+      is visibly shifted, labelling INDIGENA ''PRONASCI'' and PRONASCI ''Geral'')'
   QUILOMBO:
     official_name: Atende população quilombola
     translated_name: Serves quilombola population

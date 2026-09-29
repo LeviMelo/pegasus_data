@@ -42,16 +42,14 @@ variables:
   ATD_DTPDR:
     official_name: Data de início em diálise
     translated_name: Dialysis start date
-    description: 'Date this patient began renal replacement therapy, which is what
-      dialysis vintage — time on treatment — is computed from.
-
-      '
+    description: 'Date (AAAAMMDD) the patient began their first dialysis — what dialysis
+      vintage is computed from. ATD_DTCLI gives the start at this facility.'
     code_system: none
-    source: inferred
-    reasoning: 'Declared C(8), the width of every AAAAMMDD date in this system, and
-      DT is the prefix DATASUS uses for a date throughout.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 47 ''Data (AAAAMMDD) do início
+      da primeira diálise'''
   ATD_FOSFOR:
     official_name: Fósforo
     translated_name: Serum phosphorus
@@ -60,8 +58,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: FOSFOR is fósforo; C(4), the same shape as the other lab values here.
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 55 ''Fósforo'''
   ATD_HB:
     official_name: Hemoglobina
     translated_name: Haemoglobin
@@ -70,8 +70,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: HB is haemoglobina; C(4) fits a value such as 11.2 without a separator.
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 54 ''HB (hemoglobina)'''
   ATD_HBSAG:
     official_name: HBsAg em tratamento dialítico
     translated_name: HBsAg during dialysis
@@ -98,17 +100,15 @@ variables:
   ATD_HIV:
     official_name: Sorologia para HIV
     translated_name: HIV serology
-    description: 'Whether the patient''s HIV serology is positive, negative or not
-      done. Recorded because it determines which machine and shift a haemodialysis
-      patient can be treated on.
-
-      '
+    description: 'Whether HIV antibodies are present: P = positive, N = negative (blank
+      when not informed). Recorded because it determines which machine and shift a
+      haemodialysis patient can be treated on.'
     code_system: internal
-    source: inferred
-    reasoning: 'A single character beside the other serology and lab fields of the
-      dialysis block; C(1) admits only a flag, not a titre.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 60 ''Indicativo de presença de
+      anticorpos de HIV (P - Positivo; N - Negativo)'''
     notes: 'A serostatus on an individual record. Handle as the identifying information
       it is, and do not publish it disaggregated.
 
@@ -133,11 +133,10 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Kt/V is the universal name for dialysis adequacy and SEM is semanal;
-      the column is C(4), which fits a value like 1.20 recorded without a separator.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 56 ''Kt/v Semanal'''
     notes: 'Stored without a decimal point. Read the width before scaling it.
 
       '
@@ -164,8 +163,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: PTH is the universal abbreviation and needs no expansion.
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 59 ''PTH (hormônio da
+      paratireoide)'''
   ATD_SEAPTO:
     official_name: Encaminhamento se apto ao transplante
     translated_name: Referral status if transplant-eligible
@@ -234,8 +236,8 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'TRU is the Portuguese initialism for taxa de redução de ureia, and
-      it sits in the same C(4) dialysis block as ATD_KTVSEM.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      §3.4.8 APAC de Tratamento Dialítico (ATD*.DBF) SEQ 57 ''TRU (taxa de redução de
+      ureia)'''

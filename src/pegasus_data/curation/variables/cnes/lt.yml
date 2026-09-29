@@ -27,8 +27,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: N(4) tally in the bed record; CONTR reads contratado.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.4 Leitos (LT*.dbf) SEQ 24 ''Quantidade de
+      leitos contratados'''
   QT_NSUS:
     official_name: Quantidade de leitos não SUS
     translated_name: Beds not available to SUS
@@ -39,7 +42,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: N(4) count paired with QT_SUS; NSUS reads não SUS.
+    reasoning: 'N(4) count paired with QT_SUS; NSUS reads não SUS. Reviewed 2026-09-28:
+      no documentation found (searched CNES Informe Técnico 2017-06 §2.4, whose LT
+      layout ends at QT_SUS; the TabWin CNES kit''s Leitos DEF is only in the 127 MB
+      TAB_CNES.zip, not downloaded; web search found only a secondary MDR wiki mention
+      that could not be opened).'
   QT_SUS:
     official_name: Quantidade de leitos SUS
     translated_name: Beds available to SUS
@@ -49,8 +56,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: N(4) count paired with QT_NSUS; SUS names the public system.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.4 Leitos (LT*.dbf) SEQ 25 ''Quantidade de
+      leitos para o SUS'''
   TP_LEITO:
     official_name: Tipo de leito
     translated_name: Bed type

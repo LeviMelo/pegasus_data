@@ -6,25 +6,18 @@ system: SISCAN
 asserted_by: pegasus_data
 variables:
   CANMEXAPR:
-    official_name: Mamografia anterior
-    translated_name: Prior mammogram flag
-    description: 'Sim/Não/Não sabe flag for whether the patient reports having had a mammogram
-      before, from the requisition anamnesis. Nota Técnica 7 uses this to compute Periodicidade
-      (years since the previous mammogram) and to classify screening-type mammograms.
-
-      '
+    official_name: Exame clínico anterior
+    translated_name: Prior clinical breast exam
+    description: 'Whether the patient had her breasts examined by a health professional before
+      the consultation that requested the mammogram (CANMEXAPR.CNV: 3 yes, 2 never examined,
+      9 inconsistent). Not the prior-mammogram question, which is CANMMAMOGR.'
     code_system: internal
-    source: inferred
-    reasoning: 'Sits alongside CANMMAMOGR (same CANM prefix, same MM series, same C(1,0) width)
-      and "EXAPR" decomposes as "EXAme PRévio" (prior exam). Nota Técnica 7 names exactly
-      this concept as "Mamog. Anterior — refere-se à informação dada pelo(a) paciente de já
-      haver realizado alguma mamografia anteriormente", which is the only anamnesis item in
-      the document this field could be.
-
-      '
-    asserted_by: pegasus_data
-    source_ref: http://tabnet.datasus.gov.br/cgi/siscan/doc/nota_tecnica7_mamografia_residente.pdf
-      — Nota Técnica 7 SISCAN, 'Mamog. Anterior'
+    source: layout_doc
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CANMEXAPR "Exam Clín Ant" (CANMEXAPR.CNV); INCA, Orientações para elaboração de
+      laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 3; Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Ex Clin Ant"
   CANMMAMOGR:
     official_name: Risco elevado para cancer de mama
     translated_name: Elevated breast-cancer risk flag
@@ -65,45 +58,45 @@ variables:
 
       '
   CCALCASPBD:
-    official_name: Calcificações de aspecto benigno, mama direita
+    official_name: 'Outros achados: Calcificações de aspecto benigno, mama direita'
     translated_name: Benign-appearing calcifications, right breast
-    description: 'Number of reports finding calcifications of benign appearance in the right
-      breast. Their morphology is what separates them from the suspicious microcalcifications
-      that prompt biopsy.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      benign-appearing calcifications (skin, eggshell, dystrophic) in the right breast.
     code_system: none
-    source: inferred
-    reasoning: CALC ASP B reads calcificações aspecto benigno; D for direita, C(8).
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Calcificações de aspecto benigno"'
   CCALCASPBE:
-    official_name: Calcificações de aspecto benigno, mama esquerda
+    official_name: 'Outros achados: Calcificações de aspecto benigno, mama esquerda'
     translated_name: Benign-appearing calcifications, left breast
-    description: 'The benign-calcification count for the left breast.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      benign-appearing calcifications (skin, eggshell, dystrophic) in the left breast.
     code_system: none
-    source: inferred
-    reasoning: E laterality suffix on the same stem.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Calcificações de aspecto benigno"'
   CCALCVASCD:
-    official_name: Calcificações vasculares, mama direita
+    official_name: 'Outros achados: Calcificações vasculares, mama direita'
     translated_name: Vascular calcifications, right breast
-    description: 'Calcifications following the line of a blood vessel in the right breast.
-      Recorded apart from other benign calcifications because their cause is arterial rather
-      than glandular.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      vascular calcifications in the right breast.
     code_system: none
-    source: inferred
-    reasoning: CALC VASC is calcificações vasculares; D for direita, C(8).
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Calcificações vasculares"'
   CCALCVASCE:
-    official_name: Calcificações vasculares, mama esquerda
+    official_name: 'Outros achados: Calcificações vasculares, mama esquerda'
     translated_name: Vascular calcifications, left breast
-    description: 'Vascular calcifications in the left breast.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      vascular calcifications in the left breast.
     code_system: none
-    source: inferred
-    reasoning: E laterality suffix on the same stem.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Calcificações vasculares"'
   CCONRECOM:
     official_name: Conduta recomendada
     translated_name: Recommended follow-up
@@ -120,107 +113,107 @@ variables:
 
       '
   CCONRECOMD:
-    official_name: Conduta recomendada, mama direita
+    official_name: Recomendação de conduta, mama direita
     translated_name: Recommended management, right breast
-    description: 'What the radiologist recommends next for the right breast — routine recall,
-      short-interval follow-up, further imaging or biopsy. The actionable end of the report.
-
-      '
+    description: 'Management recommended for the right breast (CCONRECOM.CNV): 1 ultrasound
+      complement, 2 mammography in 2 years, 3 mammography in 1 year, 4 radiological control
+      in 6 months, 5 radiological control in 1 year, 6 cyto/histopathology, 7 specific therapy.'
     code_system: internal
-    source: inferred
-    reasoning: 'CON RECOM is conduta recomendada; unlike the findings around it this is C(1),
-      a single coded decision rather than a count.
-
-      '
+    source: layout_doc
+    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Quadro 10 "Recomendação de conduta"; TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CCONRECOM "Recomendações" (CCONRECOM.CNV)
   CCONRECOME:
-    official_name: Conduta recomendada, mama esquerda
+    official_name: Recomendação de conduta, mama esquerda
     translated_name: Recommended management, left breast
-    description: 'The recommendation for the left breast, which can differ from the right.
-
-      '
+    description: 'Management recommended for the left breast (CCONRECOM.CNV): 1 ultrasound
+      complement, 2 mammography in 2 years, 3 mammography in 1 year, 4 radiological control
+      in 6 months, 5 radiological control in 1 year, 6 cyto/histopathology, 7 specific therapy.'
     code_system: internal
-    source: inferred
-    reasoning: E laterality suffix, same C(1) coded decision.
+    source: layout_doc
+    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Quadro 10 "Recomendação de conduta"; TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CCONRECOM "Recomendações" (CCONRECOM.CNV)
   CDISARQCID:
-    official_name: Distorção arquitetural, mama direita
-    translated_name: Architectural distortion, right breast
-    description: 'Distortion of the breast''s normal architecture on the right, with no discrete
-      mass — a subtle finding that can be the only sign of a malignancy.
-
-      '
+    official_name: 'Outros achados: Distorção arquitetural por cirurgia, mama direita'
+    translated_name: Architectural distortion from surgery, right breast
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      architectural distortion caused by surgery (spiculated lesion in the surgical bed) in
+      the right breast.
     code_system: none
-    source: inferred
-    reasoning: 'DIS ARQ reads distorção arquitetural; the trailing D is the laterality suffix
-      used by every field in this block. C(8) count.
-
-      '
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Distorção arquitetural por cirurgia"'
   CDISARQCIE:
-    official_name: Distorção arquitetural, mama esquerda
-    translated_name: Architectural distortion, left breast
-    description: 'Architectural distortion on the left.
-
-      '
+    official_name: 'Outros achados: Distorção arquitetural por cirurgia, mama esquerda'
+    translated_name: Architectural distortion from surgery, left breast
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      architectural distortion caused by surgery (spiculated lesion in the surgical bed) in
+      the left breast.
     code_system: none
-    source: inferred
-    reasoning: E laterality suffix on the same stem.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Distorção arquitetural por cirurgia"'
   CIMPINTEGD:
-    official_name: Implante íntegro, mama direita
+    official_name: 'Outros achados: Implantes íntegros, mama direita'
     translated_name: Implant intact, right breast
-    description: 'Whether a breast implant on the right appears intact. Present because an
-      implant changes both how the mammogram is taken and how it is read.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      intact implants in the right breast.
     code_system: none
-    source: inferred
-    reasoning: IMP INTEG is implante íntegro; D for direita, C(8) count.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Implantes íntegros"'
   CIMPINTEGE:
-    official_name: Implante íntegro, mama esquerda
+    official_name: 'Outros achados: Implantes íntegros, mama esquerda'
     translated_name: Implant intact, left breast
-    description: 'Whether the left implant appears intact.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      intact implants in the left breast.
     code_system: none
-    source: inferred
-    reasoning: E laterality suffix on the same stem.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Implantes íntegros"'
   CIMPSINRUD:
-    official_name: Implante com sinais de rotura, mama direita
+    official_name: 'Outros achados: Implantes com sinais de ruptura, mama direita'
     translated_name: Implant with signs of rupture, right breast
-    description: 'Signs of rupture in a right-side implant — the finding CIMPINTEGD exists
-      to be contrasted with.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      implants with signs of rupture in the right breast.
     code_system: none
-    source: inferred
-    reasoning: 'IMP SIN RU reads implante sinais de rotura, the negative counterpart of the
-      IMPINTEG stem. C(8).
-
-      '
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Implantes com sinais de ruptura"'
   CIMPSINRUE:
-    official_name: Implante com sinais de rotura, mama esquerda
+    official_name: 'Outros achados: Implantes com sinais de ruptura, mama esquerda'
     translated_name: Implant with signs of rupture, left breast
-    description: 'Signs of rupture in a left-side implant.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      implants with signs of rupture in the left breast.
     code_system: none
-    source: inferred
-    reasoning: E laterality suffix on the same stem.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Implantes com sinais de ruptura"'
   CIRURGANTD:
-    official_name: Cirurgia anterior, mama direita
+    official_name: Fez cirurgia anterior, mama direita
     translated_name: Previous surgery, right breast
-    description: 'Whether the right breast had previous surgery. Scar tissue mimics malignancy
-      on a mammogram, so knowing about it prevents a false alarm.
-
-      '
+    description: Number of mammograms where the patient reported previous surgery on the right
+      breast (result form, anamnesis field 11).
     code_system: none
-    source: inferred
-    reasoning: CIRURG ANT D reads cirurgia anterior direita; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CIRURGANTD "Fez Cir Anter Mam Dir"
   CIRURGANTE:
-    official_name: Cirurgia anterior, mama esquerda
+    official_name: Fez cirurgia anterior, mama esquerda
     translated_name: Previous surgery, left breast
-    description: Previous surgery on the left; the counterpart of CIRURGANTD.
+    description: Number of mammograms where the patient reported previous surgery on the left
+      breast.
     code_system: none
-    source: inferred
-    reasoning: CIRURG ANT E reads cirurgia anterior esquerda; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CIRURGANTE "Fez Cir Anter Mam Esq"
   CLINFAUXD:
     official_name: Linfonodos axilares, direita
     translated_name: Axillary nodes, right
@@ -235,15 +228,14 @@ variables:
 
       '
   CLINFAUXDI:
-    official_name: Linfonodos axilares direita, detalhe
-    translated_name: Axillary nodes, right, detail
-    description: 'A further right-side nodal item carried in another generation of the form,
-      beside the coded CLINFAUXD.
-
-      '
+    official_name: Linfonodos axilares, mama direita
+    translated_name: Axillary lymph nodes, right (count)
+    description: Number of mammograms with an axillary lymph-node finding recorded for the
+      right side.
     code_system: none
-    source: inferred
-    reasoning: An I-suffixed variant of CLINFAUXD; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CLINFAUXDI "Linf Axilar Mama Dir"
   CLINFAUXE:
     official_name: Linfonodos axilares, esquerda
     translated_name: Axillary nodes, left
@@ -253,96 +245,100 @@ variables:
     source_ref: CLINFAUX.CNV
     reasoning: Bound to CLINFAUX, the left-side field of the pair.
   CLINFAUXEI:
-    official_name: Linfonodos axilares esquerda, detalhe
-    translated_name: Axillary nodes, left, detail
-    description: The left-side counterpart of CLINFAUXDI.
+    official_name: Linfonodos axilares, mama esquerda
+    translated_name: Axillary lymph nodes, left (count)
+    description: Number of mammograms with an axillary lymph-node finding recorded for the
+      left side.
     code_system: none
-    source: inferred
-    reasoning: An I-suffixed variant of CLINFAUXE; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CLINFAUXEI "Linf Axilar Mama  Esq"
   CLINFINTRD:
-    official_name: Linfonodo intramamário, mama direita
+    official_name: 'Outros achados: Linfonodo intramamário, mama direita'
     translated_name: Intramammary lymph node, right breast
-    description: 'An intramammary lymph node seen on the right. Normally an incidental and
-      benign finding, recorded so that it is not mistaken for a mass.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      an intramammary lymph node in the right breast.
     code_system: none
-    source: inferred
-    reasoning: LINF INTR is linfonodo intramamário; D for direita, C(8).
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Linfonodo intramamário"'
   CLINFINTRE:
-    official_name: Linfonodo intramamário, mama esquerda
+    official_name: 'Outros achados: Linfonodo intramamário, mama esquerda'
     translated_name: Intramammary lymph node, left breast
-    description: 'An intramammary lymph node seen on the left.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      an intramammary lymph node in the left breast.
     code_system: none
-    source: inferred
-    reasoning: E laterality suffix on the same stem.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Linfonodo intramamário"'
   CNODCALD:
-    official_name: Nódulo calcificado, mama direita
+    official_name: 'Outros achados: Nódulo calcificado (sugere fibroadenoma), mama direita'
     translated_name: Calcified nodule, right breast
-    description: 'Number of reports finding a calcified nodule in the right breast. Calcification
-      within a nodule is generally the reassuring finding, as against the dense nodules recorded
-      separately.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      a calcified nodule (suggests fibroadenoma) in the right breast.
     code_system: none
-    source: inferred
-    reasoning: 'NOD is nódulo and CAL calcificado, with the D suffix that marks direita throughout
-      this block; C(8), a count like every finding field here.
-
-      '
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Nódulo calcificado (sugere fibroadenoma)"'
   CNODCALE:
-    official_name: Nódulo calcificado, mama esquerda
+    official_name: 'Outros achados: Nódulo calcificado (sugere fibroadenoma), mama esquerda'
     translated_name: Calcified nodule, left breast
-    description: 'The same calcified-nodule count for the left breast. Paired with CNODCALD
-      because a mammogram reports the two sides separately.
-
-      '
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      a calcified nodule (suggests fibroadenoma) in the left breast.
     code_system: none
-    source: inferred
-    reasoning: E marks esquerda, the counterpart of the D suffix.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Nódulo calcificado (sugere fibroadenoma)"'
   CNODDEND:
-    official_name: Nódulo denso, mama direita
-    translated_name: Dense nodule, right breast
-    description: 'Number of reports finding a dense nodule in the right breast — the finding
-      that ordinarily prompts further investigation rather than routine recall.
-
-      '
+    official_name: 'Outros achados: Nódulo com densidade de gordura (sugere lipoma), mama
+      direita'
+    translated_name: Fat-density nodule, right breast
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      a fat-density nodule (suggests lipoma) in the right breast.
     code_system: none
-    source: inferred
-    reasoning: NOD DEN is nódulo denso; D for direita, C(8) count.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Nódulo com densidade de gordura (sugere lipoma)"'
   CNODDENE:
-    official_name: Nódulo denso, mama esquerda
-    translated_name: Dense nodule, left breast
-    description: 'Dense nodules found in the left breast, the counterpart of CNODDEND.
-
-      '
+    official_name: 'Outros achados: Nódulo com densidade de gordura (sugere lipoma), mama
+      esquerda'
+    translated_name: Fat-density nodule, left breast
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      a fat-density nodule (suggests lipoma) in the left breast.
     code_system: none
-    source: inferred
-    reasoning: E for esquerda, sibling of CNODDEND.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Nódulo com densidade de gordura (sugere lipoma)"'
   CNODDENHED:
-    official_name: Nódulo denso heterogêneo, mama direita
-    translated_name: Heterogeneous dense nodule, right breast
-    description: 'Dense nodules of heterogeneous appearance in the right breast — a subdivision
-      of the dense-nodule finding, heterogeneity being the feature that raises concern.
-
-      '
+    official_name: 'Outros achados: Nódulo com densidade heterogênea (sugere fibroadenolipoma),
+      mama direita'
+    translated_name: Heterogeneous-density nodule, right breast
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      a nodule of heterogeneous (fat and fibrous) density, suggesting fibroadenolipoma in
+      the right breast.
     code_system: none
-    source: inferred
-    reasoning: 'HE extends the NODDEN stem with heterogêneo before the D laterality suffix;
-      C(8) count.
-
-      '
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Nódulo com densidade heterogênea (sugere fibroadenolipoma)"'
   CNODDENHEE:
-    official_name: Nódulo denso heterogêneo, mama esquerda
-    translated_name: Heterogeneous dense nodule, left breast
-    description: 'The heterogeneous dense-nodule count for the left breast.
-
-      '
+    official_name: 'Outros achados: Nódulo com densidade heterogênea (sugere fibroadenolipoma),
+      mama esquerda'
+    translated_name: Heterogeneous-density nodule, left breast
+    description: Number of mammograms reporting, among the typically benign "other findings",
+      a nodule of heterogeneous (fat and fibrous) density, suggesting fibroadenolipoma in
+      the left breast.
     code_system: none
-    source: inferred
-    reasoning: E laterality suffix on the same NODDENHE stem.
+    source: layout_doc
+    source_ref: 'INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) —
+      https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf, p.30-31
+      "Outros achados": "Nódulo com densidade heterogênea (sugere fibroadenolipoma)"'
   CNODTAMD:
     official_name: Tamanho do nódulo, mama direita
     translated_name: Nodule size, right breast
@@ -386,16 +382,15 @@ variables:
     source_ref: CCLIDIAG.CNV
     reasoning: Bound to CCLIDIAG, whose values are direita, esquerda and ambas.
   CO_IBGE:
-    official_name: Município do prestador
+    official_name: Município do prestador de serviço
     translated_name: Provider municipality
-    description: 'IBGE code of the municipality of the service that performed the exam. Where
-      the exam happened, not where the woman lives.
-
-      '
+    description: IBGE code of the municipality of the service that performed the mammogram.
+      Where the exam happened, not where the patient lives.
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: C(7) bound to MUNICBR, the national municipality codelist.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CO_IBGE "Mun.prest.serviço"
   CO_SEQ_SISCAN_MAMOGRAFIA_RESID:
     official_name: Sequencial SISCAN mamografia (resultado)
     translated_name: Record sequence number (mammography result)
@@ -403,24 +398,31 @@ variables:
       table, distinct from the _PACNT patient-dimension sequence.
     code_system: none
     source: inferred
-    reasoning: Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID in
-      siscan_fill_02.yml.
+    reasoning: 'Same PACNT-vs-RESID split documented for CO_SEQ_SISCAN_HISTO_COLO_RESID in
+      siscan_fill_02.yml. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web).'
   CO_TAMANHO_NOD_DIR:
     official_name: Tamanho do nódulo, mama direita
     translated_name: Nodule size, right breast (mm)
-    description: Measured size of the largest/reported nodule found in the right breast on
-      this mammogram.
+    description: Size of the nodule recorded for the right breast in the mammography report
+      (the system allows up to three nodules per breast).
     code_system: none
-    source: inferred
-    reasoning: TAMANHO_NOD is tamanho do nódulo; DIR is direita, paired with CO_TAMANHO_NOD_ESQ.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Tam nódulo"; INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010)
+      — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      p.22 "Tamanho"
   CO_TAMANHO_NOD_ESQ:
     official_name: Tamanho do nódulo, mama esquerda
     translated_name: Nodule size, left breast (mm)
-    description: Measured size of the largest/reported nodule found in the left breast — the
-      counterpart of CO_TAMANHO_NOD_DIR.
+    description: Size of the nodule recorded for the left breast in the mammography report.
     code_system: none
-    source: inferred
-    reasoning: Same TAMANHO_NOD stem; ESQ is esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Tam nódulo"; INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010)
+      — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      p.22 "Tamanho"
   CRADCOMPCD:
     official_name: Composição do parênquima, mama direita
     translated_name: Parenchyma composition, right breast
@@ -494,348 +496,349 @@ variables:
   MICRODIR:
     official_name: Microcalcificações, mama direita
     translated_name: Microcalcifications, right breast
-    description: 'Whether microcalcifications were seen on the right. Frequently the only
-      mammographic sign of ductal carcinoma in situ.
-
-      '
+    description: Number of mammograms reporting microcalcifications (the suspicious kind;
+      typically benign calcifications go under other findings) in the right breast.
     code_system: none
-    source: inferred
-    reasoning: MICRO DIR reads microcalcificações direita; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo MICRODIR "Microcal Mam Dir"
   MICROESQ:
     official_name: Microcalcificações, mama esquerda
     translated_name: Microcalcifications, left breast
-    description: Microcalcifications on the left; the counterpart of MICRODIR.
+    description: Number of mammograms reporting microcalcifications in the left breast.
     code_system: none
-    source: inferred
-    reasoning: MICRO ESQ reads microcalcificações esquerda; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo MICROESQ "Microcal Mam Esq"
   NAOFZCIANT:
-    official_name: Não fez mamografia anterior
-    translated_name: No previous mammogram
-    description: 'Whether this is the woman''s first mammogram. First rounds find more disease
-      than subsequent ones, so pooling them understates what routine screening detects.
-
-      '
+    official_name: Não fez cirurgia de mama
+    translated_name: No previous breast surgery (count)
+    description: Number of mammograms where the patient reported no previous breast surgery
+      (anamnesis field 11, "Não fez cirurgia"). Not a first-mammogram flag.
     code_system: none
-    source: inferred
-    reasoning: NAO FZ ... ANT reads não fez anterior; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo NAOFZCIANT "Não Fez Cir Mam"
   NODULODIR:
     official_name: Nódulo, mama direita
     translated_name: Nodule, right breast
-    description: 'Whether a nodule was seen on the right. The presence item that CNODTAMD
-      then sizes.
-
-      '
+    description: Number of mammograms reporting a nodule in the right breast.
     code_system: none
-    source: inferred
-    reasoning: NODULO DIR reads nódulo direita; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo NODULODIR "Nod Mama Dir"
   NODULOESQ:
     official_name: Nódulo, mama esquerda
     translated_name: Nodule, left breast
-    description: Whether a nodule was seen on the left; the counterpart of NODULODIR.
+    description: Number of mammograms reporting a nodule in the left breast.
     code_system: none
-    source: inferred
-    reasoning: NODULO ESQ reads nódulo esquerda; C(8), values unobserved.
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo NODULOESQ "Nod Mama Esq"
   NU_CALC_TIPICA_BENIG_MD:
-    official_name: Calcificação tipicamente benigna, mama direita
+    official_name: 'Achado benigno: calcificações tipicamente benignas, mama direita'
     translated_name: Count of typically-benign calcifications, right breast
-    description: 'Count of right-breast findings classified as "calcificações tipicamente
-      benignas" — the standard BI-RADS lexicon category for calcifications that need no further
-      work-up.
-
-      '
+    description: Number of mammograms with the benign finding typically benign calcifications
+      in the right breast.
     code_system: none
-    source: inferred
-    reasoning: CALC_TIPICA_BENIG abbreviates calcificação tipicamente benigna; MD is mama
-      direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_CALC_TIPICA_BENIG_ME:
-    official_name: Calcificação tipicamente benigna, mama esquerda
+    official_name: 'Achado benigno: calcificações tipicamente benignas, mama esquerda'
     translated_name: Count of typically-benign calcifications, left breast
-    description: The left-breast counterpart of NU_CALC_TIPICA_BENIG_MD.
+    description: Number of mammograms with the benign finding typically benign calcifications
+      in the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same CALC_TIPICA_BENIG stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_CALC_VASCULARES_MD:
-    official_name: Calcificações vasculares, mama direita
+    official_name: 'Achado benigno: calcificações vasculares, mama direita'
     translated_name: Count of vascular calcifications, right breast
-    description: 'Count of right-breast findings of vascular calcification — calcified vessel
-      walls, a classic benign calcification type distinct from the typically-benign category
-      above.
-
-      '
+    description: Number of mammograms with the benign finding vascular calcifications in the
+      right breast.
     code_system: none
-    source: inferred
-    reasoning: CALC_VASCULARES is calcificações vasculares, unabbreviated; MD is mama direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_CALC_VASCULARES_ME:
-    official_name: Calcificações vasculares, mama esquerda
+    official_name: 'Achado benigno: calcificações vasculares, mama esquerda'
     translated_name: Count of vascular calcifications, left breast
-    description: The left-breast counterpart of NU_CALC_VASCULARES_MD.
+    description: Number of mammograms with the benign finding vascular calcifications in the
+      left breast.
     code_system: none
-    source: inferred
-    reasoning: Same CALC_VASCULARES stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_CISTO_OLEOSO_MD:
-    official_name: Cisto oleoso, mama direita
+    official_name: 'Achado benigno: cisto oleoso (esteatonecrose), mama direita'
     translated_name: Count of oil cysts, right breast
-    description: Count of right-breast findings of oil cyst (cisto oleoso) — a benign fat-necrosis
-      finding, often post-traumatic or post-surgical.
+    description: Number of mammograms with the benign finding an oil cyst (fat necrosis) in
+      the right breast.
     code_system: none
-    source: inferred
-    reasoning: CISTO_OLEOSO is cisto oleoso, unabbreviated; MD is mama direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_CISTO_OLEOSO_ME:
-    official_name: Cisto oleoso, mama esquerda
+    official_name: 'Achado benigno: cisto oleoso (esteatonecrose), mama esquerda'
     translated_name: Count of oil cysts, left breast
-    description: The left-breast counterpart of NU_CISTO_OLEOSO_MD.
+    description: Number of mammograms with the benign finding an oil cyst (fat necrosis) in
+      the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same CISTO_OLEOSO stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_CONTROLE_CATEGORIA3:
-    official_name: Controle, categoria 3
-    translated_name: Count of BI-RADS category-3 follow-up exams
-    description: 'Count of mammograms classified BI-RADS category 3 (probably benign) and
-      returned for short-interval follow-up ("controle") rather than biopsy.
-
-      '
+    official_name: 'Mamografia diagnóstica: controle radiológico de lesão categoria 3'
+    translated_name: Count of diagnostic mammograms for category-3 follow-up
+    description: Number of diagnostic mammograms done as radiological follow-up of a lesion
+      previously reported as BI-RADS category 3 (probably benign).
     code_system: none
-    source: inferred
-    reasoning: CONTROLE_CATEGORIA3 is controle categoria 3, unabbreviated — literal BI-RADS
-      category-3 terminology.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Mmg diag categoria 3"; TabWin definition mamografia.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar
   NU_DIAG_ACHADOS:
-    official_name: Diagnóstico, achados
+    official_name: 'Mamografia diagnóstica: achados clínicos'
     translated_name: Count of diagnostic exams performed for clinical/imaging findings
-    description: 'Count of exams performed as a diagnostic mammogram (not routine screening)
-      because of a clinical or prior-imaging finding — as opposed to NU_DIAG_AVAL_QT''s treatment-response
-      reason.
-
-      '
+    description: Number of diagnostic mammograms done because of signs or symptoms of breast
+      cancer (papillary lesion, spontaneous nipple discharge, nodule, thickening, axillary
+      or supraclavicular node).
     code_system: none
-    source: inferred
-    reasoning: 'DIAG_ACHADOS is diagnóstico [por] achados; SISCAN mammography splits exams
-      into rastreamento (screening) and diagnóstico, with diagnóstico further split by reason.
-
-      '
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Mmg diag achados"; TabWin definition mamografia.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar
   NU_DIAG_AVAL_QT:
-    official_name: Diagnóstico, avaliação de quimioterapia
+    official_name: 'Mamografia diagnóstica: avaliação de resposta à quimioterapia neoadjuvante'
     translated_name: Count of diagnostic exams performed to evaluate chemotherapy response
-    description: 'Count of exams performed as a diagnostic mammogram specifically to assess
-      response to chemotherapy — the treatment-monitoring counterpart of NU_DIAG_ACHADOS.
-
-      '
+    description: Number of diagnostic mammograms done after neoadjuvant chemotherapy to evaluate
+      response.
     code_system: none
-    source: inferred
-    reasoning: DIAG_AVAL_QT abbreviates diagnóstico avaliação de quimioterapia (QT is the
-      standard Brazilian abbreviation for chemotherapy).
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Mmg diag aval QT"; TabWin definition mamografia.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar
   NU_DIS_ARQ_POR_CIR_MD:
-    official_name: Distorção de arquitetura por cirurgia, mama direita
+    official_name: 'Achado benigno: distorção arquitetural por cirurgia, mama direita'
     translated_name: Count of surgery-related architectural distortion, right breast
-    description: 'Count of right-breast mammograms showing architectural distortion attributed
-      to a prior surgical scar, rather than the concerning distortion tracked in ST_DISTORCAO_FOCAL
-      (siscan_fill_04.yml).
-
-      '
+    description: Number of mammograms with the benign finding architectural distortion caused
+      by surgery in the right breast.
     code_system: none
-    source: inferred
-    reasoning: DIS_ARQ_POR_CIR abbreviates distorção de arquitetura por cirurgia; MD is mama
-      direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_DIS_ARQ_POR_CIR_ME:
-    official_name: Distorção de arquitetura por cirurgia, mama esquerda
+    official_name: 'Achado benigno: distorção arquitetural por cirurgia, mama esquerda'
     translated_name: Count of surgery-related architectural distortion, left breast
-    description: The left-breast counterpart of NU_DIS_ARQ_POR_CIR_MD.
+    description: Number of mammograms with the benign finding architectural distortion caused
+      by surgery in the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same DIS_ARQ_POR_CIR stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_ECTASIA_DUCTAL_MD:
-    official_name: Ectasia ductal, mama direita
+    official_name: 'Achado benigno: ectasia ductal, mama direita'
     translated_name: Count of duct ectasia findings, right breast
-    description: Count of right-breast findings of duct ectasia (ectasia ductal) — benign
-      dilation of the milk ducts.
+    description: Number of mammograms with the benign finding duct ectasia in the right breast.
     code_system: none
-    source: inferred
-    reasoning: ECTASIA_DUCTAL is ectasia ductal, unabbreviated; MD is mama direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_ECTASIA_DUCTAL_ME:
-    official_name: Ectasia ductal, mama esquerda
+    official_name: 'Achado benigno: ectasia ductal, mama esquerda'
     translated_name: Count of duct ectasia findings, left breast
-    description: The left-breast counterpart of NU_ECTASIA_DUCTAL_MD.
+    description: Number of mammograms with the benign finding duct ectasia in the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same ECTASIA_DUCTAL stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_FEZ_CIRURGIA_DIR:
-    official_name: Fez cirurgia, mama direita
+    official_name: Fez cirurgia de mama, mama direita
     translated_name: Count of patients with prior right-breast surgery
-    description: 'Count of mammograms where the patient reported prior surgery on the right
-      breast — relevant clinical history for reading the exam. Uses DIR/ESQ rather than this
-      batch''s usual MD/ME laterality suffix.
-
-      '
+    description: Number of mammograms where the patient reported previous surgery on the right
+      breast.
     code_system: none
-    source: inferred
-    reasoning: FEZ_CIRURGIA is fez cirurgia (had surgery); DIR is direita.
+    source: layout_doc
+    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 11 "Fez cirurgia de mama?"; legacy equivalent TabWin definition MMAMA4.def (SISMAMA)
+      — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CIRURGANTD "Fez Cir Anter Mam Dir"
   NU_FEZ_CIRURGIA_ESQ:
-    official_name: Fez cirurgia, mama esquerda
+    official_name: Fez cirurgia de mama, mama esquerda
     translated_name: Count of patients with prior left-breast surgery
-    description: The left-breast counterpart of NU_FEZ_CIRURGIA_DIR.
+    description: Number of mammograms where the patient reported previous surgery on the left
+      breast.
     code_system: none
-    source: inferred
-    reasoning: Same FEZ_CIRURGIA stem; ESQ is esquerda.
+    source: layout_doc
+    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 11 "Fez cirurgia de mama?"; legacy equivalent TabWin definition MMAMA4.def (SISMAMA)
+      — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo CIRURGANTE "Fez Cir Anter Mam Esq"
   NU_GINECOMASTIA_MD:
-    official_name: Ginecomastia, mama direita
+    official_name: 'Achado benigno: ginecomastia, mama direita'
     translated_name: Count of gynecomastia findings, right breast
-    description: 'Count of right-breast findings of gynecomastia — benign glandular enlargement,
-      relevant because SISCAN mammography also covers male patients.
-
-      '
+    description: Number of mammograms with the benign finding gynaecomastia in the right breast.
     code_system: none
-    source: inferred
-    reasoning: GINECOMASTIA is unabbreviated; MD is mama direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_GINECOMASTIA_ME:
-    official_name: Ginecomastia, mama esquerda
+    official_name: 'Achado benigno: ginecomastia, mama esquerda'
     translated_name: Count of gynecomastia findings, left breast
-    description: The left-breast counterpart of NU_GINECOMASTIA_MD.
+    description: Number of mammograms with the benign finding gynaecomastia in the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same GINECOMASTIA stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_IMPLANT_SEM_SIN_RUPTU_MD:
-    official_name: Implante sem sinais de ruptura, mama direita
+    official_name: 'Achado benigno: implante sem sinais de ruptura, mama direita'
     translated_name: Count of intact-implant findings, right breast
-    description: 'Count of right-breast mammograms reporting a breast implant with no signs
-      of rupture — paired with NU_IMP_COM_SIN_RUPTU_MD for the ruptured case.
-
-      '
+    description: Number of mammograms with the benign finding an implant without signs of
+      rupture in the right breast.
     code_system: none
-    source: inferred
-    reasoning: IMPLANT_SEM_SIN_RUPTU abbreviates implante sem sinais de ruptura; MD is mama
-      direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_IMPLANT_SEM_SIN_RUPTU_ME:
-    official_name: Implante sem sinais de ruptura, mama esquerda
+    official_name: 'Achado benigno: implante sem sinais de ruptura, mama esquerda'
     translated_name: Count of intact-implant findings, left breast
-    description: The left-breast counterpart of NU_IMPLANT_SEM_SIN_RUPTU_MD.
+    description: Number of mammograms with the benign finding an implant without signs of
+      rupture in the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same IMPLANT_SEM_SIN_RUPTU stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_IMP_COM_SIN_RUPTU_MD:
-    official_name: Implante com sinais de ruptura, mama direita
+    official_name: 'Achado benigno: implante com sinais de ruptura, mama direita'
     translated_name: Count of ruptured-implant findings, right breast
-    description: 'Count of right-breast mammograms reporting a breast implant with signs of
-      rupture — the counterpart of NU_IMPLANT_SEM_SIN_RUPTU_MD.
-
-      '
+    description: Number of mammograms with the benign finding an implant with signs of rupture
+      in the right breast.
     code_system: none
-    source: inferred
-    reasoning: IMP_COM_SIN_RUPTU abbreviates implante com sinais de ruptura; MD is mama direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_IMP_COM_SIN_RUPTU_ME:
-    official_name: Implante com sinais de ruptura, mama esquerda
+    official_name: 'Achado benigno: implante com sinais de ruptura, mama esquerda'
     translated_name: Count of ruptured-implant findings, left breast
-    description: The left-breast counterpart of NU_IMP_COM_SIN_RUPTU_MD.
+    description: Number of mammograms with the benign finding an implant with signs of rupture
+      in the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same IMP_COM_SIN_RUPTU stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_LES_BIOSPIA_PAAF:
-    official_name: Lesão — biópsia/PAAF
-    translated_name: Count of lesions recommended for biopsy or fine-needle aspiration
-    description: 'Count of lesions whose BI-RADS management recommendation was tissue sampling
-      — either core biopsy or PAAF (punção aspirativa por agulha fina, fine-needle aspiration).
-
-      '
+    official_name: 'Mamografia diagnóstica: pós biópsia'
+    translated_name: Count of diagnostic mammograms after biopsy/FNA of a benign lesion
+    description: Number of diagnostic mammograms done in patients with a previous core biopsy
+      or fine-needle aspiration of a benign lesion. Not a recommendation for biopsy.
     code_system: none
-    source: inferred
-    reasoning: LES_BIOSPIA_PAAF is lesão, biópsia/PAAF; PAAF is the standard Brazilian abbreviation
-      for fine-needle aspiration.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Mmg diag pos biopsia"; TabWin definition mamografia.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar
   NU_LES_DIAG_CANCER:
-    official_name: Lesão — diagnóstico de câncer
-    translated_name: Count of lesions with a cancer diagnosis
-    description: Count of lesions whose result was a cancer diagnosis (BI-RADS categories
-      5/6 or a confirmed malignant biopsy).
+    official_name: 'Mamografia diagnóstica: lesão com diagnóstico de câncer'
+    translated_name: Count of diagnostic mammograms in diagnosed cancer, before treatment
+    description: Number of diagnostic mammograms done in patients already diagnosed with breast
+      cancer by histopathology, before treatment.
     code_system: none
-    source: inferred
-    reasoning: LES_DIAG_CANCER is lesão, diagnóstico de câncer, unabbreviated.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Mmg diag lesao câncer"; TabWin definition mamografia.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar
   NU_LINFON_INTRAMAM_MD:
-    official_name: Linfonodo intramamário, mama direita
+    official_name: 'Achado benigno: linfonodos intramamários, mama direita'
     translated_name: Count of intramammary lymph node findings, right breast
-    description: 'Count of right-breast findings of an intramammary lymph node — a normal
-      structure that can mimic a nodule and is recorded to explain a benign round opacity.
-
-      '
+    description: Number of mammograms with the benign finding an intramammary lymph node in
+      the right breast.
     code_system: none
-    source: inferred
-    reasoning: LINFON_INTRAMAM abbreviates linfonodo intramamário; MD is mama direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_LINFON_INTRAMAM_ME:
-    official_name: Linfonodo intramamário, mama esquerda
+    official_name: 'Achado benigno: linfonodos intramamários, mama esquerda'
     translated_name: Count of intramammary lymph node findings, left breast
-    description: The left-breast counterpart of NU_LINFON_INTRAMAM_MD.
+    description: Number of mammograms with the benign finding an intramammary lymph node in
+      the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same LINFON_INTRAMAM stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_NAO_FEZ_CIRURGIAS:
-    official_name: Não fez cirurgias
+    official_name: Não fez cirurgia
     translated_name: Count of patients with no prior breast surgery
-    description: 'Count of mammograms where the patient reported no prior breast surgery in
-      either breast — the complement of NU_FEZ_CIRURGIA_DIR/ESQ, not itself split by laterality.
-
-      '
+    description: Number of mammograms where the patient reported no previous breast surgery.
     code_system: none
-    source: inferred
-    reasoning: NAO_FEZ_CIRURGIAS is não fez cirurgias (did not have surgery), unabbreviated.
+    source: layout_doc
+    source_ref: INCA, Orientações para elaboração de laudo utilizando o SISMAMA (2010) — https://bvsms.saude.gov.br/bvs/publicacoes/inca/Orientacoes_no_laudo_sismama.pdf,
+      Campo 11 "Não fez cirurgia"; legacy equivalent TabWin definition MMAMA4.def (SISMAMA)
+      — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo NAOFZCIANT "Não Fez Cir Mam"
   NU_NODULO_CALCIFIC_MD:
-    official_name: Nódulo calcificado, mama direita
+    official_name: 'Achado benigno: nódulo calcificado, mama direita'
     translated_name: Count of calcified nodules, right breast
-    description: 'Count of calcified nodules found in the right breast — the same finding
-      as siscan_findings.yml''s CNODCALD, on this later, unabbreviated-suffix table.
-
-      '
+    description: Number of mammograms with the benign finding a calcified nodule in the right
+      breast.
     code_system: none
-    source: inferred
-    reasoning: NODULO_CALCIFIC is nódulo calcificado, unabbreviated; MD is mama direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_NODULO_CALCIFIC_ME:
-    official_name: Nódulo calcificado, mama esquerda
+    official_name: 'Achado benigno: nódulo calcificado, mama esquerda'
     translated_name: Count of calcified nodules, left breast
-    description: The left-breast counterpart of NU_NODULO_CALCIFIC_MD — the same finding as
-      siscan_findings.yml's CNODCALE.
+    description: Number of mammograms with the benign finding a calcified nodule in the left
+      breast.
     code_system: none
-    source: inferred
-    reasoning: Same NODULO_CALCIFIC stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_NODULO_DENS_GORD_MD:
-    official_name: Nódulo com densidade de gordura, mama direita
+    official_name: 'Achado benigno: nódulo com densidade de gordura (sugere lipoma), mama
+      direita'
     translated_name: Count of fat-density nodules, right breast
-    description: 'Count of nodules with fat density in the right breast — a fat-containing
-      lesion (e.g. lipoma, oil cyst, galactocele) rather than a solid mass.
-
-      '
+    description: Number of mammograms with the benign finding a fat-density nodule (suggests
+      lipoma) in the right breast.
     code_system: none
-    source: inferred
-    reasoning: NODULO_DENS_GORD is nódulo [com] densidade [de] gordura, a standard BI-RADS
-      lexicon descriptor; MD is mama direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_NODULO_DENS_GORD_ME:
-    official_name: Nódulo com densidade de gordura, mama esquerda
+    official_name: 'Achado benigno: nódulo com densidade de gordura (sugere lipoma), mama
+      esquerda'
     translated_name: Count of fat-density nodules, left breast
-    description: The left-breast counterpart of NU_NODULO_DENS_GORD_MD.
+    description: Number of mammograms with the benign finding a fat-density nodule (suggests
+      lipoma) in the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same NODULO_DENS_GORD stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_NODULO_DEN_HETEROG_MD:
-    official_name: Nódulo denso heterogêneo, mama direita
+    official_name: 'Achado benigno: nódulo com densidade heterogênea (sugere fibroadenolipoma),
+      mama direita'
     translated_name: Count of heterogeneous dense nodules, right breast
-    description: 'Count of dense nodules of heterogeneous appearance in the right breast —
-      the same finding as siscan_findings.yml''s CNODDENHED, on this later table.
-
-      '
+    description: Number of mammograms with the benign finding a heterogeneous-density nodule
+      (suggests fibroadenolipoma) in the right breast.
     code_system: none
-    source: inferred
-    reasoning: NODULO_DEN_HETEROG is nódulo denso heterogêneo; MD is mama direita.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_NODULO_DEN_HETEROG_ME:
-    official_name: Nódulo denso heterogêneo, mama esquerda
+    official_name: 'Achado benigno: nódulo com densidade heterogênea (sugere fibroadenolipoma),
+      mama esquerda'
     translated_name: Count of heterogeneous dense nodules, left breast
-    description: The left-breast counterpart of NU_NODULO_DEN_HETEROG_MD.
+    description: Number of mammograms with the benign finding a heterogeneous-density nodule
+      (suggests fibroadenolipoma) in the left breast.
     code_system: none
-    source: inferred
-    reasoning: Same NODULO_DEN_HETEROG stem; ME is mama esquerda.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      "Achado benigno" (list of benign findings)
   NU_REV_MAMOGRAFIA:
-    official_name: Revisão de mamografia
-    translated_name: Count of mammograms undergoing a quality-control review read
-    description: 'Count of mammograms that received a second, review read — a routine quality-control
-      step in screening mammography programmes, distinct from the original report.
-
-      '
+    official_name: 'Mamografia diagnóstica: revisão'
+    translated_name: Count of diagnostic mammograms reviewing an outside report
+    description: Number of diagnostic mammograms done to review a previous report from another
+      institution in BI-RADS categories 0, 3, 4 or 5. Not an internal quality-control second
+      read.
     code_system: none
-    source: inferred
-    reasoning: REV_MAMOGRAFIA is revisão de mamografia, unabbreviated.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Mmg diag revisao"; TabWin definition mamografia.def (TAB_SISCAN) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/TAB_SISCAN.rar
   PRESNOD:
     official_name: Presença de Nódulo (inferido)
     translated_name: Nodule reported
@@ -848,9 +851,12 @@ variables:
     source: inferred
     reasoning: 'Name abbreviates "presença de nódulo"; matches the requisition-stage Nódulo_requis
       concept Nota Tecnica 8 defines, and the 1-character declared width fits a short presence
-      flag rather than free text.
-
-      '
+      flag rather than free text. Reviewed 2026-09-28: no documentation found (searched TAB_SISCOLO4/TAB_SISMAMA/TAB_SISCAN
+      .def and .cnv files, SISCAN Notas Tecnicas 1-14, INCA requisition/result forms, the
+      SISMAMA laudo guide, the DATASUS FTP DOC folders and the web). Nota Técnica 7 describes
+      "Nódulo_requis" (nodule reported on the requisition: right, left, both) and the SISMAMA
+      laudo guide Campo 1 asks "Tem nódulo ou caroço na mama?", which fit this reading, but
+      no document names PRESNOD.'
     source_ref: naming grammar + Nota Tecnica 8 SISCAN - Mamografia, campo Nódulo_requis
   SEMACHADOS:
     official_name: Sem Achados
@@ -867,93 +873,73 @@ variables:
   ST_ACHADO_BENIGNO:
     official_name: Achado benigno
     translated_name: Benign-finding flag
-    description: Whether this mammogram's overall assessment was a benign finding (BI-RADS
-      category 2).
+    description: Whether the mammogram had a benign result in one or both breasts, meaning
+      any of the typically benign findings (fat-density, calcified or heterogeneous nodule,
+      vascular or typically benign calcifications, intramammary node, surgical distortion,
+      implant, oil cyst, gynaecomastia, duct ectasia). Not the same as BI-RADS category 2.
     code_system: internal
-    source: inferred
-    reasoning: Achado benigno reads literally as "benign finding"; ST_ status-flag prefix.
-    notes: No observed values or codelist were captured.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Achado benigno"
   ST_AREA_DENSA:
     official_name: Área densa
     translated_name: Dense-area flag
-    description: Whether this mammogram reported a focal dense area distinct from a discrete
-      nodule.
+    description: Whether the mammogram showed a dense area.
     code_system: internal
-    source: inferred
-    reasoning: Área densa reads literally; ST_ status-flag prefix.
-    notes: No observed values or codelist were captured.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Área densa"
   ST_ASSIMETRIA_DIFUSA:
     official_name: Assimetria difusa
     translated_name: Diffuse-asymmetry flag
-    description: 'Whether this mammogram reported diffuse asymmetry — a standard BI- RADS
-      lexicon finding spanning a large portion of the breast, as opposed to the focal form
-      below.
-
-      '
+    description: Whether the mammogram showed a diffuse asymmetry.
     code_system: internal
-    source: inferred
-    reasoning: Assimetria difusa reads literally, a standard BI-RADS descriptor; ST_ status-flag
-      prefix.
-    notes: No observed values or codelist were captured.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Assimetria difusa"
   ST_ASSIMETRIA_FOCAL:
     official_name: Assimetria focal
     translated_name: Focal-asymmetry flag
-    description: Whether this mammogram reported focal asymmetry — a localised counterpart
-      of ST_ASSIMETRIA_DIFUSA.
+    description: Whether the mammogram showed a focal asymmetry.
     code_system: internal
-    source: inferred
-    reasoning: Same ST_ + BI-RADS descriptor pattern as ST_ASSIMETRIA_DIFUSA.
-    notes: No observed values or codelist were captured.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Assimetria focal"
   ST_DISTORCAO_FOCAL:
     official_name: Distorção focal
     translated_name: Focal architectural-distortion flag
-    description: 'Whether this mammogram reported focal architectural distortion — a BI-RADS
-      lexicon finding that, unlike a discrete mass, warps the surrounding tissue architecture
-      and often prompts biopsy.
-
-      '
+    description: Whether the mammogram showed a focal architectural distortion.
     code_system: internal
-    source: inferred
-    reasoning: Distorção focal reads literally as a standard BI-RADS descriptor; ST_ status-flag
-      prefix.
-    notes: No observed values or codelist were captured.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Distorção focal"
   ST_TEM_MICROCALCIFICACAO:
-    official_name: Tem microcalcificação
+    official_name: Microcalcificação
     translated_name: Microcalcification-present flag
-    description: Whether this mammogram reported microcalcifications — a finding tracked separately
-      from the nodule findings above.
+    description: Whether the mammogram showed microcalcifications.
     code_system: internal
-    source: inferred
-    reasoning: Tem microcalcificação reads literally; same ST_ status-flag prefix.
-    notes: No observed values or codelist were captured.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Microcalcificação"
   ST_TEM_NODULO:
-    official_name: Tem nódulo
+    official_name: Nódulo_resul
     translated_name: Any-nodule-present flag
-    description: 'Whether this mammogram reported any nodule at all, in either breast — a
-      general flag distinct from the specific nodule-subtype counts (calcified, fat-density,
-      heterogeneous dense) above.
-
-      '
+    description: Whether the mammogram result showed a nodule.
     code_system: internal
-    source: inferred
-    reasoning: Tem nódulo reads literally as "has a nodule"; ST_ status-flag prefix used throughout
-      this batch.
-    notes: No observed values or codelist were captured.
+    source: layout_doc
+    source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
+      medida "Nódulo_resul"
   TEMPOMAMOG:
-    official_name: Tempo Mamog Ant (truncated from TEMPOMAMOGANT)
+    official_name: Tempo desde a mamografia anterior
     translated_name: Time since previous mammogram
-    description: 'How long since the patient''s last mammogram, as a coded time band (never,
-      under 1 year, 1-2 years, etc.), self-reported on the requisition before the current
-      exam.
-
-      '
+    description: 'Time since the previous mammogram (TEMPOMAMOGANT.CNV): same year, 1, 2,
+      3, 4 or more years, not applicable, no information, inconsistent.'
     code_system: internal
-    source: inferred
-    reasoning: 'DBF field names truncate at 10 characters; TEMPOMAMOGANT truncates to TEMPOMAMOG,
-      and MMAMA4.def names that field "Tempo Mamog Ant" bound to a tempomamogant.cnv lookup.
-
-      '
-    source_ref: TAB_SISMAMA.zip!MMAMA4.def, campo Tempo Mamog Ant (field TEMPOMAMOGANT)
+    source: def
+    source_ref: TabWin definition MMAMA4.def (SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
+      campo TEMPOMAMOG "Tempo Mamog Ant"
+    notes: MMAMA4.def spells the field TEMPOMAMOGANT; dBase field names stop at 10 characters,
+      so the file column is TEMPOMAMOG.
   TIPMAMDIAG:
     official_name: Tipo Mamog Diagn
     translated_name: Type of diagnostic mammogram

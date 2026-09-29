@@ -88,12 +88,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Same AP0[1-7]CV07 grid as the documented AP03CV07-AP07CV07 (SADT through Regulação,
-      convênio 07=Gratuidade per Manual_preench_ficha_02.pdf item 5.10); AP01 is grid-category
-      1, Internação, per AP01CV01''s own citation (IT_CNES_1706.pdf SEQ 157) already in cnes_b.yml.
-
-      '
+    source: web
+    source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento
+      Prestado categories 1-Internação to 7-Regulação); grid AP01/AP02 =
+      Internação/Ambulatorial per CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 SEQ 157-168'
   AP02CV01:
     official_name: Atendimento prestado ATENDIMENTO AMBULATORIAL/Convenio SUS
     translated_name: Outpatient care (atendimento ambulatorial) offered under the SUS public
@@ -172,12 +173,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Same grid as AP01CV07 above; AP02 is grid-category 2, Atendimento Ambulatorial,
-      per AP02CV01''s own citation (IT_CNES_1706.pdf SEQ 163) in cnes_b.yml, and CV07 is the
-      Gratuidade convênio already established by the documented AP03CV07-AP07CV07 siblings.
-
-      '
+    source: web
+    source_ref: 'wiki.saude.gov.br/cnes/index.php/Saiba_mais_sobre_o_CNES_Simplificado
+      (convênio 07=Gratuidade); Manual_preench_ficha_02.pdf item 5.10 (Atendimento
+      Prestado categories 1-Internação to 7-Regulação); grid AP01/AP02 =
+      Internação/Ambulatorial per CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.1 SEQ 157-168'
   AP03CV01:
     official_name: Atendimento prestado SADT/Convenio SUS
     translated_name: Diagnostic/therapy support services (SADT) offered under the SUS public
@@ -654,8 +656,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same reasoning as CMPT_INI, its paired start-of-period column.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.8 Habilitações (HB*.dbf) SEQ 26; same field
+      in GM/EE/EF layouts'
   CMPT_INI:
     official_name: Competência inicial
     translated_name: Start year-month of the habilitação record's validity period
@@ -665,12 +670,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CMPT_ is DATASUS''s "competência" period-field prefix (paired here with CMPT_FIM),
-      the column is bound to the "COMPT" period codelist, and it appears only in the habilitação-
-      family series (EE, EF, EFUFAAMM, GM, GMUFAAMM, HB) alongside SGRUPHAB/DTPORTAR/ MAPORTAR/PORTARIA.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.8 Habilitações (HB*.dbf) SEQ 25; same field
+      in GM/EE/EF layouts'
   CNES:
     official_name: Código CNES do estabelecimento
     translated_name: Establishment code (CNES)
@@ -816,13 +820,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DT_ is DATASUS''s date-field prefix; the same record group carries PORTARIA
-      (declared as a long text field consistent with an ordinance citation) and MAPORTAR (a
-      companion AAAAMM period), so DTPORTAR reads naturally as the calendar date of that same
-      ordinance.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.8 Habilitações (HB*.dbf) SEQ 27; same field
+      in GM/EE/EF layouts'
   ESFERA_A:
     official_name: Esfera administrativa
     translated_name: Administrative sphere / level of government
@@ -998,19 +1000,18 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 52
   MAPORTAR:
-    official_name: Mês/Ano da portaria
+    official_name: Campo DT_PORTARIA formatado como AAAAMM
     translated_name: Year-month of the ordinance (portaria)
     description: 'The AAAAMM year-month of the same ordinance recorded in DTPORTAR/PORTARIA
       — a coarser, period-grain companion to the exact date.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Declared width C(6,0) matches AAAAMM, and it is bound to the same "COMPT"
-      period codelist as CMPT_INI/CMPT_FIM; sits beside DTPORTAR/PORTARIA in the habilitação
-      series.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.8 Habilitações (HB*.dbf) SEQ 29; same field
+      in GM/EE/EF layouts'
   MICR_REG:
     official_name: Microrregião de saúde
     translated_name: Health micro-region code (NOAS regionalization)
@@ -1124,12 +1125,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Field name plus declared C(50,0) width (too wide for a bare code, right for
-      a citation string) and its presence alongside DTPORTAR/MAPORTAR/SGRUPHAB in the same
-      habilitação series.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.8 Habilitações (HB*.dbf) SEQ 28; same field
+      in GM/EE/EF layouts'
   QT_EXIST:
     official_name: Quantidade existente
     translated_name: Existing-quantity count
@@ -1137,14 +1137,12 @@ variables:
       comes from the row, not from this column — read it with whatever type code sits beside
       it, or it counts nothing in particular.
     code_system: none
-    source: inferred
-    reasoning: 'QT_ is DATASUS''s quantity-field prefix, declared N(4,0) numeric; [PDFCOFFEE]
-      independently glosses it as "Quantidade de Leitos Existentes" in the beds context, and
-      the evidence shows the same column also carries the EQ equipment series, so the generic
-      "existing quantity of X" reading (rather than a beds-only meaning) is inferred from
-      combining the two.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.4 Leitos (LT*.dbf) SEQ 23 ''Quantidade de
+      leitos existentes'' and §2.5 Equipamentos (EQ*.dbf) SEQ 23 ''Quantidade existente
+      do equipamento'''
     notes: 'Reused across series with different referents: in LT (leitos) it counts existing
       beds of the row''s type; in EQ (equipamentos) it counts existing units of the row''s
       equipment type.'
@@ -1193,7 +1191,7 @@ variables:
     - RETENCAO
     notes: See COD_IR — a related but not confirmed-identical tax-classification column.
   SGRUPHAB:
-    official_name: Sigla do grupo de habilitação
+    official_name: Código da habilitação
     translated_name: Habilitação (SUS accreditation) group code
     description: 'Identifies which specific SUS service accreditation/habilitação this row
       grants the establishment — e.g. a qualification tied to a particular incentive programme,
@@ -1203,14 +1201,11 @@ variables:
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'SGRUPHAB sits in the same EE/EF/GM/HB series as CMPT_INI, CMPT_FIM, DTPORTAR,
-      MAPORTAR and PORTARIA — a period-plus-ordinance cluster of fields consistent with a
-      habilitação record — and is bound to six habilitação/incentive-related DATASUS domain
-      tables (ESTABENS, ESTABFIL, GESTAO, HABILITA, INCENTIVOS, REGRAS), matching DATASUS''s
-      SG_ ("sigla") short-code naming convention.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.8 Habilitações (HB*.dbf) SEQ 24; same field
+      in GM/EE/EF layouts'
     codelists:
     - ESTABENS
     - ESTABFIL

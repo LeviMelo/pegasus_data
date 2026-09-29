@@ -346,6 +346,10 @@ def compile_bindings(
                 candidates = candidates_by_field.get(name) or []
                 doc = docs.get(name)
                 curated = [doc.codelist, *doc.codelists] if doc is not None and getattr(doc, "codelist", None) else []
+                if curated and getattr(doc, "per_form", False):
+                    # Per-form alternatives are weighed per family, not merged (ADR-0080).
+                    candidates = list(dict.fromkeys([*curated, *candidates]))
+                    curated = []
                 if not candidates and not curated:
                     continue
 

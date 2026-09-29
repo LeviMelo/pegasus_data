@@ -25,8 +25,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: A yes/no flag; the SUS half of the ambulatorial pair.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.6 Serviço Especializado (SR*.dbf) SEQ 25
+      AMB_HOSP ''Indica se o Serviço é Ambulatorial Não SUS / Ambulatorial SUS /
+      Hospitalar Não SUS / Hospitalar SUS, onde: 1-Sim 0-Não'' (this column is one of
+      those four flags, published as a separate field)'
   CARACTER:
     official_name: Caracterização do serviço
     translated_name: Service arrangement
@@ -44,19 +49,14 @@ variables:
   CLASS_SR:
     official_name: Classificação do Serviço Especializado
     translated_name: Specialized-service classification code
-    description: 'Sub-classification code for the specialized service (serviço especializado)
-      reported in this SR record — the finer category nested under a broader service
-      type, e.g. which specific modality within an imaging or laboratory service group.
-
-      '
+    description: 'Code of the classification (sub-type) of the specialized service in
+      SERV_ESP, or 999 when the service has no classification.'
     code_system: internal
-    source: inferred
-    reasoning: 'CLASS_ is DATASUS''s standard "classificação" prefix; the column only
-      appears in the SR file, whose documented purpose in this catalog''s own ontology
-      is "specialised services offered, and their classifications" — CLASS_SR is the
-      classification half of that service/classification pair.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.6 Serviço Especializado (SR*.dbf) SEQ 4
+      ''Código da classificação do serviço ou 999, caso INEXISTENTE'''
     notes: 'No observed values or bound codelist were captured, so which numeric codes
       map to which classification labels is not established here.
 
@@ -70,19 +70,25 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C(7) CNES establishment code; TERC reads terceirizado.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.6 Serviço Especializado (SR*.dbf) SEQ 28
+      ''Número nacional do estabelecimento de saúde TERCEIRO'''
   CONTSRVU:
-    official_name: Serviço terceirizado
-    translated_name: Service is contracted out
-    description: 'Whether the service is provided under contract by a third party rather
-      than by the establishment itself.
-
-      '
+    official_name: Indicador de serviço especializado único
+    translated_name: Unique specialized-service indicator
+    description: 'Flag marking the row that counts a specialized service once per
+      establishment (unique CNES + SERV_ESP), since a service with several
+      classifications appears on several rows. Use it to count services without double
+      counting; it does not say whether the service is contracted out.'
     code_system: none
-    source: inferred
-    reasoning: CONT reads contratado or terceirizado with SRVU for serviço único; C(1)
-      flag.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.6 Serviço Especializado (SR*.dbf) SEQ 27
+      ''INDICADOR de serviço especializado ÚNICO'' (cf. SEQ 5 SRVUNICO, filled once per
+      CNES + SERV_ESP)'
   HOSP_NSUS:
     official_name: Atendimento hospitalar não SUS
     translated_name: Hospital care outside SUS
@@ -91,8 +97,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: A yes/no flag; the non-SUS half of the hospitalar pair.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.6 Serviço Especializado (SR*.dbf) SEQ 25
+      AMB_HOSP ''Indica se o Serviço é Ambulatorial Não SUS / Ambulatorial SUS /
+      Hospitalar Não SUS / Hospitalar SUS, onde: 1-Sim 0-Não'' (this column is one of
+      those four flags, published as a separate field)'
   HOSP_SUS:
     official_name: Atendimento hospitalar SUS
     translated_name: Hospital care for SUS
@@ -102,8 +113,13 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: A yes/no flag; the SUS half of the hospitalar pair.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.6 Serviço Especializado (SR*.dbf) SEQ 25
+      AMB_HOSP ''Indica se o Serviço é Ambulatorial Não SUS / Ambulatorial SUS /
+      Hospitalar Não SUS / Hospitalar SUS, onde: 1-Sim 0-Não'' (this column is one of
+      those four flags, published as a separate field)'
   SERV_ESP:
     official_name: Serviço especializado
     translated_name: Specialised service

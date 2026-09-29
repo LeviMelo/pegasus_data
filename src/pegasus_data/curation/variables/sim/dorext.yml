@@ -17,11 +17,12 @@ variables:
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'CB_ALT appears only alongside TP_ALTERA in the same SIM DOREXT 2021
-      file; the CB_ prefix matches CB_PRE (causa básica antes da resseleção), and DATASUS''s
-      own note calls it a "variável de sistema" with no value list, consistent with
-      a system-written CID-10 output rather than a form field.
-
-      '
+      file; the CB_ prefix matches CB_PRE (causa básica antes da resseleção), and
+      DATASUS''s own note calls it a "variável de sistema" with no value list,
+      consistent with a system-written CID-10 output rather than a form field. Reviewed
+      2026-09-28: no documentation found (searched Estrutura do SIM 2025 and 12/2019,
+      the positional Estrutura do SIM, Estrutura_SIM_Anterior.pdf, MORT98.HLP; Estrutura
+      do SIM 2025 lists CB_ALT only as ''Variável de sistema'', with no meaning).'
   CODINST:
     official_name: Código da instituição
     translated_name: Reporting institution code
@@ -37,19 +38,20 @@ variables:
     - CODINST
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Not documented in [ESTRUTURA-SIM]. The reading comes from decoding
-      the observed value shape directly: every value is a fixed pattern of one letter,
-      a recognizable Brazilian UF abbreviation, then a string matching a real 7-digit
-      IBGE municipality code, then a 4-digit tail (e.g. "MPR4108300001" — PR is Paraná,
-      4108300 is Curitiba''s IBGE code). This composite-key construction (type + UF
-      + municipality + sequence) is a pattern DATASUS reuses across several systems
-      for identifying the transmitting unit. The catalog binds a codelist actually
-      named CODINST to this field at high (.def-sourced) confidence — the same name
-      as the column itself — which is the basis for treating this as a genuine DATASUS-invented
+    reasoning: 'Not documented in [ESTRUTURA-SIM]. The reading comes from decoding the
+      observed value shape directly: every value is a fixed pattern of one letter, a
+      recognizable Brazilian UF abbreviation, then a string matching a real 7-digit IBGE
+      municipality code, then a 4-digit tail (e.g. "MPR4108300001" — PR is Paraná,
+      4108300 is Curitiba''s IBGE code). This composite-key construction (type + UF +
+      municipality + sequence) is a pattern DATASUS reuses across several systems for
+      identifying the transmitting unit. The catalog binds a codelist actually named
+      CODINST to this field at high (.def-sourced) confidence — the same name as the
+      column itself — which is the basis for treating this as a genuine DATASUS-invented
       institution code with a name lookup (code_system internal) rather than a bare
-      unlabelled identifier.
-
-      '
+      unlabelled identifier. Reviewed 2026-09-28: no documentation found (searched
+      Estrutura do SIM 2025 and 12/2019, the positional Estrutura do SIM,
+      Estrutura_SIM_Anterior.pdf, MORT98.HLP; not listed under this name for the DOREXT
+      extract).'
     notes: 'The extra MICRO/MUNI208TMI/MUNICBR/UFC bindings the catalog also attaches
       here likely just key off the embedded UF/municipality fragment inside the composite
       value rather than describing the field as a whole — treat only the CODINST-named
@@ -71,11 +73,12 @@ variables:
     asserted_by: pegasus_data
     reasoning: 'Not itself listed in [ESTRUTURA-SIM]. The CO_/CD_...RES naming pattern
       (código + domain + "residência") mirrors MUNIRES/CODMUNRES ("residência" fields
-      already documented there), the catalog binds it to a PAIS (country) codelist
-      with high confidence from the .def files, and it appears exclusively in the DOREXT
+      already documented there), the catalog binds it to a PAIS (country) codelist with
+      high confidence from the .def files, and it appears exclusively in the DOREXT
       series, which is where a country-of-residence-abroad concept would belong.
-
-      '
+      Reviewed 2026-09-28: no documentation found (searched Estrutura do SIM 2025 and
+      12/2019, the positional Estrutura do SIM, Estrutura_SIM_Anterior.pdf, MORT98.HLP;
+      not listed under this name for the DOREXT extract).'
   NUMERODO:
     official_name: Número da Declaração de Óbito
     translated_name: Death certificate (DO) serial number
@@ -88,13 +91,15 @@ variables:
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Not documented in [ESTRUTURA-SIM] under this name, but the analogous
-      birth-certificate field NUMERODN is documented at position 88 ("Número da Declaração
-      de Nascido Vivo. (Números)"), and the catalog binds NUMERODO to DOANODIST and
-      MODELDONUM — high- confidence (.def-sourced) tables named for "DO year of distribution"
-      and "DO numbering model," which are exactly the kind of lookup a preprinted-form
-      serial number would carry. Observed values are 8-digit numbers, unique per record.
-
-      '
+      birth-certificate field NUMERODN is documented at position 88 ("Número da
+      Declaração de Nascido Vivo. (Números)"), and the catalog binds NUMERODO to
+      DOANODIST and MODELDONUM — high- confidence (.def-sourced) tables named for "DO
+      year of distribution" and "DO numbering model," which are exactly the kind of
+      lookup a preprinted-form serial number would carry. Observed values are 8-digit
+      numbers, unique per record. Reviewed 2026-09-28: no documentation found (searched
+      Estrutura do SIM 2025 and 12/2019, the positional Estrutura do SIM,
+      Estrutura_SIM_Anterior.pdf, MORT98.HLP; not listed under this name for the DOREXT
+      extract).'
     notes: 'DOANODIST and MODELDONUM read as TabNet tabulation groupings derived from
       ranges/ prefixes of this serial number (the same banding pattern as SINASC''s
       APGAR.CNV), not a one-to-one label for each number — keep the raw serial rather
@@ -113,13 +118,14 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'Not documented in [ESTRUTURA-SIM]. "DV" is a standard Brazilian abbreviation
-      for dígito verificador, the field sits immediately alongside NUMERODO in the
-      same DOREXT extension, and the observed values (single digits 0–9, fairly evenly
-      distributed) are exactly the shape a checksum digit produces rather than a meaningful
-      category.
-
-      '
+    reasoning: 'Not documented in [ESTRUTURA-SIM]. "DV" is a standard Brazilian
+      abbreviation for dígito verificador, the field sits immediately alongside NUMERODO
+      in the same DOREXT extension, and the observed values (single digits 0–9, fairly
+      evenly distributed) are exactly the shape a checksum digit produces rather than a
+      meaningful category. Reviewed 2026-09-28: no documentation found (searched
+      Estrutura do SIM 2025 and 12/2019, the positional Estrutura do SIM,
+      Estrutura_SIM_Anterior.pdf, MORT98.HLP; not listed under this name for the DOREXT
+      extract).'
   TP_ALTERA:
     official_name: Tipo de alteração da causa básica
     translated_name: Type of underlying-cause alteration

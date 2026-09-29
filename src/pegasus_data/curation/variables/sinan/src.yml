@@ -48,53 +48,53 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: CATARATA reads catarata; a yes/no clinical flag.
   CS_LIQUOR:
-    official_name: Coleta - líquor
+    official_name: Detecção viral – amostra clínica – líquor
     translated_name: Specimen collected - CSF
-    description: 'Sim/Não flag for whether a cerebrospinal fluid (líquor) sample was
-      collected for laboratory testing, part of a specimen-collection checklist alongside
-      CS_SECRECA and CS_URINA.
+    description: 'Whether a cerebrospinal fluid sample was collected for rubella virus detection
+      (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'LIQUOR is CSF; the CS_ prefix here marks specimen collection rather
-      than the classificação/situação sense it carries in CS_MENING, and it clusters
-      with two other named-specimen flags of identical shape.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 40 (Detecção
+      viral – amostra clínica – líquor)
   CS_SECRECA:
-    official_name: Coleta - secreção
-    translated_name: Specimen collected - secretion
-    description: 'Sim/Não flag for whether a secretion sample was collected, sibling
-      of CS_LIQUOR and CS_URINA in the same specimen-collection checklist.
+    official_name: Detecção viral – amostra clínica – secreção nasofaríngea
+    translated_name: Nasopharyngeal secretion collected
+    description: 'Whether a nasopharyngeal secretion sample was collected for rubella virus
+      detection (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as CS_LIQUOR.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 40 (Detecção
+      viral – amostra clínica – secreção nasofaríngea)
   CS_URINA:
-    official_name: Coleta - urina
+    official_name: Detecção viral – amostra clínica – urina
     translated_name: Specimen collected - urine
-    description: 'Sim/Não flag for whether a urine sample was collected, sibling of
-      CS_LIQUOR and CS_SECRECA.
+    description: 'Whether a urine sample was collected for rubella virus detection (1 yes,
+      2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as CS_LIQUOR.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 40 (Detecção
+      viral – amostra clínica – urina)
   DG_OUT_N:
-    official_name: Diagnóstico outro (nome)
-    translated_name: Other diagnosis (name)
-    description: 'Free-text name of a diagnosis not covered by the form''s standard
-      diagnosis codelist.
+    official_name: Diagnóstico de descarte – outras (especificar)
+    translated_name: Other discard diagnosis (specify)
+    description: 'Free-text alternative diagnosis for a discarded case, filled when the discard
+      diagnosis is 4 (other).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DG abbreviates diagnóstico; OUT_N matches SINAN''s "other, name it"
-      free-text pattern, at 30-character width.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 52 (Diagnóstico
+      de descarte – outras, especificar)
   DIAG_MAE:
     official_name: Critério do diagnóstico materno
     translated_name: How the mother was diagnosed
@@ -111,62 +111,74 @@ variables:
 
       '
   DSCARDIOP:
-    official_name: Descrição - cardiopatia
+    official_name: Especificar cardiopatia
     translated_name: Description - cardiac condition
-    description: 'Free-text description of a cardiac comorbidity (cardiopatia) recorded
-      for the patient.
+    description: 'Free-text description of the congenital heart defect, filled when congenital
+      heart disease (a major sign of congenital rubella) is marked.
 
       '
     code_system: none
-    source: inferred
-    reasoning: DSCARDIOP contracts descrição + cardiopatia; 30-character free text.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 34 (Especificar
+      cardiopatia)
   DS_RESU_OU:
-    official_name: Descrição - resultado outro
-    translated_name: Description - other result
-    description: 'Free-text description of a laboratory result not covered by the form''s
-      standard result options.
+    official_name: Resultado outros vírus – especificar
+    translated_name: Other virus detected (specify)
+    description: 'Free-text name of the other virus found in the viral-detection samples, filled
+      when the result is 3 (other virus).
 
       '
     code_system: none
-    source: inferred
-    reasoning: RESU_OU contracts resultado + outro; 30-character free text.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 41 (Resultado
+      outros vírus – especificar)
   DT_COL1:
-    official_name: Data da primeira coleta
+    official_name: Data da coleta da 1ª amostra
     translated_name: Date of first sample
     description: 'When the first serum was taken. Rubella IgM in a newborn is diagnostic
       because it cannot have crossed the placenta.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the first of three samples.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 36 (Data
+      da coleta da 1ª amostra)
   DT_COL2:
-    official_name: Data da segunda coleta
+    official_name: Data da coleta da 2ª amostra
     translated_name: Date of second sample
     description: When the second serum was taken.
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the second of three samples.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 37 (Data
+      da coleta da 2ª amostra)
   DT_COL3:
-    official_name: Data da terceira coleta
+    official_name: Data da coleta da 3ª amostra
     translated_name: Date of third sample
     description: 'When the third serum was taken. Persisting IgG beyond about six months
       confirms the child''s own antibody rather than the mother''s.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the third of three samples.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 38 (Data
+      da coleta da 3ª amostra)
   DT_VACINA:
-    official_name: Data da vacinação da mãe
+    official_name: Data da última dose da vacina
     translated_name: Date mother was vaccinated
-    description: 'When the mother was vaccinated. Rubella vaccine in early pregnancy
-      is a theoretical concern, so this date against the pregnancy matters.
+    description: 'Date of the mother''s last dose of rubella-containing vaccine. Rubella vaccine
+      in early pregnancy is a theoretical concern, so this date against the pregnancy matters.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date in the maternal antecedent block.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 46 (Data
+      da última dose da vacina)
   GLAUCOMA:
     official_name: Glaucoma congênito
     translated_name: Congenital glaucoma
@@ -186,19 +198,15 @@ variables:
   IDADEMAE:
     official_name: Idade da mãe
     translated_name: Mother's age
-    description: 'Mother''s age in completed years at the time of the congenital-syphilis
-      investigation, a plain two-digit numeric field on the SRC (Sífilis Congênita)
-      form.
+    description: 'Mother''s age in years (must be over 10) on the congenital rubella syndrome
+      investigation.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (N2, two-digit numeric) and
-      SRC series membership. "IDADEMAE" decomposes unambiguously to "idade da mãe",
-      and congenital syphilis is the one SINAN agravo whose subject is an infant, making
-      the mother''s age a standard companion field to the child''s own age.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 44 (Idade
+      da mãe)
   ID_DG_DES:
     official_name: Diagnóstico diferencial
     translated_name: Differential diagnosis
@@ -245,16 +253,17 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: OSSEA reads óssea; a clinical flag.
   PERIODO:
-    official_name: Período gestacional da infecção
+    official_name: Período da gestação em que foi acometida/exposta
     translated_name: Gestational period of infection
-    description: 'Trimester (or equivalent period) of pregnancy in which the mother''s
-      rubella infection likely occurred, recorded on the Congenital Rubella Syndrome
-      (SRC) form because earlier infection carries higher fetal-defect risk.
+    description: 'Trimester of pregnancy in which the mother had or was exposed to rubella;
+      filled when she had rubella signs and symptoms.
 
       '
     code_system: none
-    source: inferred
-    reasoning: SRC form; PERIODO = período; width 1 coded value.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 48 (Período
+      da gestação em que foi acometida/exposta)
   PURPURA:
     official_name: Púrpura
     translated_name: Purpura
@@ -268,15 +277,14 @@ variables:
     reasoning: PURPURA reads púrpura; a clinical flag.
   RECEM_NASC:
     official_name: Recém-nascido
-    translated_name: Newborn (flag)
-    description: 'Whether the Congenital Rubella Syndrome (SRC) case is being reported
-      for a newborn, as opposed to an older infant identified later, affecting which
-      clinical/lab findings are expected at notification.
+    translated_name: Newborn gestational age
+    description: 'Gestational age of the newborn: full term or premature (under 37 weeks).
 
       '
     code_system: none
-    source: inferred
-    reasoning: SRC form; RECEM_NASC = recém-nascido; width 1 checkbox.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 32 (Recém-nascido)
   RETAR_PM:
     official_name: Retardo do desenvolvimento
     translated_name: Developmental delay
@@ -319,21 +327,19 @@ variables:
     source_ref: REAGENTE.CNV
     reasoning: Bound to REAGENTE; the third sample's IgM.
   VACINACAO:
-    official_name: Situação vacinal da mãe (rubéola)
-    translated_name: Mother's rubella vaccination status
-    description: 'Whether the mother was vaccinated against rubella, recorded on the
-      congenital rubella syndrome form since maternal immunity is what prevents the
-      syndrome in the first place.
+    official_name: Vacinação tríplice viral (sarampo, rubéola, caxumba)
+    translated_name: Mother's MMR vaccination
+    description: 'Whether the mother received the MMR (measles, rubella, mumps) vaccine (1
+      yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is SRC (síndrome da rubéola congênita); name reads "vacinação";
-      C1 width fits a coded yes/no immunization flag.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 45 (Vacinação
+      tríplice viral – sarampo, rubéola, caxumba)
   VACINADUPL:
-    official_name: Vacina dupla viral
+    official_name: Vacinação dupla viral (sarampo e rubéola)
     translated_name: Measles-rubella (dupla viral) vaccination history
     description: 'Whether the mother had received the dupla viral (measles-rubella)
       vaccine before or during pregnancy — used on the congenital rubella syndrome
@@ -341,20 +347,19 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: C1 flag; VACINA=vacina, DUPL=dupla, in the SRC (síndrome da rubéola
-      congênita) stratum.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 45 (Vacinação
+      dupla viral – sarampo e rubéola)
   VACINARUBE:
-    official_name: Vacinação anti-rubéola da mãe
+    official_name: Vacinação rubéola (monovalente)
     translated_name: Maternal rubella vaccination (flag)
-    description: 'Whether the mother was vaccinated against rubella before or during
-      pregnancy - maternal immunization history used to assess congenital rubella syndrome
-      (SRC) risk in the newborn.
+    description: 'Whether the mother received the single-antigen (monovalent) rubella vaccine
+      (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'VACINA = vacina, RUBE = rubéola; maternal rubella immunity is the central
-      preventable risk factor investigated for SRC, C1 fits a checkbox.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Síndrome da Rubéola Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SRC/DIC_DADOS_SRC_v5.pdf
+      (sources/dic_text/sindrome-da-rubeola-congenita__DIC_DADOS_SRC_v5.txt), campo 45 (Vacinação
+      rubéola monovalente)

@@ -172,18 +172,16 @@ variables:
   UFMUNRES:
     official_name: UF e município de residência do profissional
     translated_name: Professional's state and municipality of residence
-    description: 'Where the professional lives, state and municipality packed into
-      one field. Against the establishment''s municipality it shows commuting, which
-      is how staffing shortages in small municipalities become visible.
-
-      '
+    description: 'Where the professional lives: IBGE state + municipality code without
+      the check digit, in a CHAR(8) field. Against the establishment''s municipality it
+      shows commuting.'
     codelist: BR_MUNICIPALFA
     code_system: external
-    source: inferred
-    reasoning: 'C(8) carrying a two-digit UF followed by a six-digit IBGE municipality
-      code; UFMUNRES reads UF e município de residência.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.3 Profissionais (PF*.dbf) SEQ 39 ''Código da
+      UF + município de residência do profissional (sem dígito)'''
   VINCULAC:
     official_name: Tipo de vínculo do profissional
     translated_name: Professional's employment link
@@ -200,27 +198,38 @@ variables:
 
       '
   VINCUL_A:
-    official_name: Vínculo autônomo
+    official_name: 'Vínculo empregatício com o estabelecimento: Autônomo SUS'
     translated_name: Autonomous link flag
-    description: Whether the professional works as self-employed here. See VINCUL_C.
+    description: 'Whether the professional works at the establishment as a self-employed
+      (autônomo) SUS provider. See VINCUL_C.'
     code_system: none
-    source: inferred
-    reasoning: A suffix for autônomo, parallel to VINCUL_C.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.3 Profissionais (PF*.dbf) SEQ 31 ''Vínculo
+      empregatício com o estabelecimento: Autônomo SUS'''
   VINCUL_C:
-    official_name: Vínculo contratual
+    official_name: 'Vínculo empregatício com o estabelecimento: Contratado SUS'
     translated_name: Contractual link flag
-    description: 'Whether the professional holds a contractual link. The VINCUL_ flags
-      decompose VINCULAC into separate yes/no items, and a professional can hold more
-      than one kind at the same establishment.
-
-      '
+    description: 'Whether the professional holds a SUS contracted (contratado)
+      employment link with the establishment. One of three flags (VINCUL_C, VINCUL_A,
+      VINCUL_N) beside VINCULAC.'
     code_system: none
-    source: inferred
-    reasoning: C suffix for contratual, one of three parallel flags decomposing VINCULAC.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.3 Profissionais (PF*.dbf) SEQ 30 ''Vínculo
+      empregatício com o estabelecimento: Contratado SUS'''
   VINCUL_N:
-    official_name: Vínculo não identificado
+    official_name: 'Vínculo empregatício com o estabelecimento: Vínculo não identificado'
     translated_name: Unidentified link flag
-    description: Whether the link could not be identified. See VINCUL_C.
+    description: 'Whether the professional''s link could not be identified; per the
+      layout this covers non-SUS professionals and other anomalous records. See
+      VINCUL_C.'
     code_system: none
-    source: inferred
-    reasoning: N suffix for não identificado, parallel to VINCUL_C.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.3 Profissionais (PF*.dbf) SEQ 32 ''Vínculo
+      empregatício com o estabelecimento: Vínculo não identificado (registros de
+      profissionais não SUS e outras situações anômalas)'''

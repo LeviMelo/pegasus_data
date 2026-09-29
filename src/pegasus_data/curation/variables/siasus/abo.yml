@@ -31,64 +31,103 @@ variables:
     source_ref: PROC_AIH.CNV
     reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 6.
   AB_T_PRC2:
-    official_name: Tipo de procedimento (2ª consulta de acompanhamento)
-    translated_name: Procedure type, 2nd follow-up visit
-    description: 'Three-character procedure-type code for the second scheduled post-bariatric
-      follow-up visit on this ABO authorisation. Follow-up after bariatric surgery
-      is billed across a fixed multi-visit schedule; this column and its T_PRC3-T_PRC6
-      siblings record each visit''s procedure classification in turn.
-
-      '
+    official_name: Campo AB_T_PRC2 (rótulo não documentado)
+    translated_name: Post-bariatric follow-up field 2 (probably months since surgery)
+    description: 'Three-character field of the post-bariatric follow-up APAC, one of
+      five (AB_T_PRC2-AB_T_PRC6). The documented post-2013 follow-up layout carries five
+      N(3) fields ''Tempo pós cirurgia bariátrica (meses)'', each paired with a flag for
+      a post-bariatric plastic procedure (abdominal, breast, arm, thigh and
+      circumferential dermolipectomy), which makes this most likely the months since
+      surgery for one of those procedures rather than a procedure-type code. The pairing
+      of each column with a procedure is not documented.'
     code_system: none
     source: inferred
-    reasoning: 'AB_ is the bariatric-surgery block prefix and T_PRC reads tipo de procedimento;
-      the trailing 2 matches its position in the numbered follow-up family (T_PRC2
-      through T_PRC6). No value evidence is present in the catalog to confirm the exact
-      codes used.
-
-      '
+    reasoning: 'AB_ is the bariatric-surgery block prefix and T_PRC reads tipo de
+      procedimento; the trailing 2 matches its position in the numbered follow-up family
+      (T_PRC2 through T_PRC6). No value evidence is present in the catalog to confirm
+      the exact codes used. Reviewed 2026-09-28: no documentation found (the DBF column
+      is not named in Informe Técnico SIASUS 2019-07; ''Layout da interface texto do
+      APAC e do SIA - layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local:
+      sources/layout_interno.pdf (text: sources/apac_layout.txt), ''Acompanh. PÓS
+      CIRURGIA BARIATRICA'' part (after 03/2013), seq 27-35, lists five ''Tempo pós
+      cirugia bariátrica (meses)'' N(3) fields, which contradicts the earlier
+      procedure-type reading).'
   AB_T_PRC3:
-    official_name: Tipo de procedimento (3ª consulta de acompanhamento)
-    translated_name: Procedure type, 3rd follow-up visit
-    description: 'Three-character procedure-type code for the third scheduled post-bariatric
-      follow-up visit on this ABO authorisation, the next entry after AB_T_PRC2 in
-      the same numbered family.
-
-      '
+    official_name: Campo AB_T_PRC3 (rótulo não documentado)
+    translated_name: Post-bariatric follow-up field 3 (probably months since surgery)
+    description: 'Three-character field of the post-bariatric follow-up APAC, one of
+      five (AB_T_PRC2-AB_T_PRC6). The documented post-2013 follow-up layout carries five
+      N(3) fields ''Tempo pós cirurgia bariátrica (meses)'', each paired with a flag for
+      a post-bariatric plastic procedure (abdominal, breast, arm, thigh and
+      circumferential dermolipectomy), which makes this most likely the months since
+      surgery for one of those procedures rather than a procedure-type code. The pairing
+      of each column with a procedure is not documented.'
     code_system: none
     source: inferred
-    reasoning: Same T_PRC stem as AB_T_PRC2, one position later in the sequence.
+    reasoning: 'Same T_PRC stem as AB_T_PRC2, one position later in the sequence.
+      Reviewed 2026-09-28: no documentation found (the DBF column is not named in
+      Informe Técnico SIASUS 2019-07; ''Layout da interface texto do APAC e do SIA -
+      layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf
+      (text: sources/apac_layout.txt), ''Acompanh. PÓS CIRURGIA BARIATRICA'' part (after
+      03/2013), seq 27-35, lists five ''Tempo pós cirugia bariátrica (meses)'' N(3)
+      fields, which contradicts the earlier procedure-type reading).'
   AB_T_PRC4:
-    official_name: Tipo de procedimento (4ª consulta de acompanhamento)
-    translated_name: Procedure type, 4th follow-up visit
-    description: 'Three-character procedure-type code for the fourth scheduled post-bariatric
-      follow-up visit on this ABO authorisation, continuing the AB_T_PRC2/T_PRC3 series.
-
-      '
+    official_name: Campo AB_T_PRC4 (rótulo não documentado)
+    translated_name: Post-bariatric follow-up field 4 (probably months since surgery)
+    description: 'Three-character field of the post-bariatric follow-up APAC, one of
+      five (AB_T_PRC2-AB_T_PRC6). The documented post-2013 follow-up layout carries five
+      N(3) fields ''Tempo pós cirurgia bariátrica (meses)'', each paired with a flag for
+      a post-bariatric plastic procedure (abdominal, breast, arm, thigh and
+      circumferential dermolipectomy), which makes this most likely the months since
+      surgery for one of those procedures rather than a procedure-type code. The pairing
+      of each column with a procedure is not documented.'
     code_system: none
     source: inferred
-    reasoning: Same T_PRC stem as AB_T_PRC2, two positions later in the sequence.
+    reasoning: 'Same T_PRC stem as AB_T_PRC2, two positions later in the sequence.
+      Reviewed 2026-09-28: no documentation found (the DBF column is not named in
+      Informe Técnico SIASUS 2019-07; ''Layout da interface texto do APAC e do SIA -
+      layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf
+      (text: sources/apac_layout.txt), ''Acompanh. PÓS CIRURGIA BARIATRICA'' part (after
+      03/2013), seq 27-35, lists five ''Tempo pós cirugia bariátrica (meses)'' N(3)
+      fields, which contradicts the earlier procedure-type reading).'
   AB_T_PRC5:
-    official_name: Tipo de procedimento (5ª consulta de acompanhamento)
-    translated_name: Procedure type, 5th follow-up visit
-    description: 'Three-character procedure-type code for the fifth scheduled post-bariatric
-      follow-up visit on this ABO authorisation, continuing the AB_T_PRC2-T_PRC4 series.
-
-      '
+    official_name: Campo AB_T_PRC5 (rótulo não documentado)
+    translated_name: Post-bariatric follow-up field 5 (probably months since surgery)
+    description: 'Three-character field of the post-bariatric follow-up APAC, one of
+      five (AB_T_PRC2-AB_T_PRC6). The documented post-2013 follow-up layout carries five
+      N(3) fields ''Tempo pós cirurgia bariátrica (meses)'', each paired with a flag for
+      a post-bariatric plastic procedure (abdominal, breast, arm, thigh and
+      circumferential dermolipectomy), which makes this most likely the months since
+      surgery for one of those procedures rather than a procedure-type code. The pairing
+      of each column with a procedure is not documented.'
     code_system: none
     source: inferred
-    reasoning: Same T_PRC stem as AB_T_PRC2, three positions later in the sequence.
+    reasoning: 'Same T_PRC stem as AB_T_PRC2, three positions later in the sequence.
+      Reviewed 2026-09-28: no documentation found (the DBF column is not named in
+      Informe Técnico SIASUS 2019-07; ''Layout da interface texto do APAC e do SIA -
+      layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf
+      (text: sources/apac_layout.txt), ''Acompanh. PÓS CIRURGIA BARIATRICA'' part (after
+      03/2013), seq 27-35, lists five ''Tempo pós cirugia bariátrica (meses)'' N(3)
+      fields, which contradicts the earlier procedure-type reading).'
   AB_T_PRC6:
-    official_name: Tipo de procedimento (6ª consulta de acompanhamento)
-    translated_name: Procedure type, 6th follow-up visit
-    description: 'Three-character procedure-type code for the sixth scheduled post-bariatric
-      follow-up visit on this ABO authorisation, the last in the AB_T_PRC2-T_PRC6 series
-      recorded on this form.
-
-      '
+    official_name: Campo AB_T_PRC6 (rótulo não documentado)
+    translated_name: Post-bariatric follow-up field 6 (probably months since surgery)
+    description: 'Three-character field of the post-bariatric follow-up APAC, one of
+      five (AB_T_PRC2-AB_T_PRC6). The documented post-2013 follow-up layout carries five
+      N(3) fields ''Tempo pós cirurgia bariátrica (meses)'', each paired with a flag for
+      a post-bariatric plastic procedure (abdominal, breast, arm, thigh and
+      circumferential dermolipectomy), which makes this most likely the months since
+      surgery for one of those procedures rather than a procedure-type code. The pairing
+      of each column with a procedure is not documented.'
     code_system: none
     source: inferred
-    reasoning: Same T_PRC stem as AB_T_PRC2, four positions later in the sequence.
+    reasoning: 'Same T_PRC stem as AB_T_PRC2, four positions later in the sequence.
+      Reviewed 2026-09-28: no documentation found (the DBF column is not named in
+      Informe Técnico SIASUS 2019-07; ''Layout da interface texto do APAC e do SIA -
+      layout INTERNO'' (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf
+      (text: sources/apac_layout.txt), ''Acompanh. PÓS CIRURGIA BARIATRICA'' part (after
+      03/2013), seq 27-35, lists five ''Tempo pós cirugia bariátrica (meses)'' N(3)
+      fields, which contradicts the earlier procedure-type reading).'
   AP_ADESAO:
     official_name: Adesão ao tratamento
     translated_name: Adherence to treatment
@@ -110,11 +149,11 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Declared C(13), the APAC number width, with ANT/AN naming the previous
-      one.
-
-      '
+    source: layout_doc
+    source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      common APAC header (e.g. §3.4.6 SEQ 38) AP_APACANT CHAR(13) ''Número APAC
+      Anterior''; this ABO column is the same field under a 9-character name'
     notes: 'Following this chain is how a course of treatment is reconstructed. Rows
       are authorisations, not patients or episodes.
 
@@ -139,10 +178,11 @@ variables:
     code_system: external
     codelist: cid10
     source: inferred
-    reasoning: 'C(4) CID-10 code bound to CID_COM, whose labels are conditions such
-      as hipertensão arterial sistêmica and diabetes mellitus.
-
-      '
+    reasoning: 'C(4) CID-10 code bound to CID_COM, whose labels are conditions such as
+      hipertensão arterial sistêmica and diabetes mellitus. Reviewed 2026-09-28: no
+      documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC internal
+      layout, whose bariatric parts carry S/N flags for five named comorbidities plus a
+      single ''Outros (CID10)'' field, not five comorbidity CIDs).'
   AP_CID_C2:
     official_name: CID de comorbidade 2
     translated_name: Comorbidity 2
@@ -150,7 +190,10 @@ variables:
     code_system: external
     codelist: cid10
     source: inferred
-    reasoning: C(4) CID-10 code bound to CID_COM, slot 2 of five.
+    reasoning: 'C(4) CID-10 code bound to CID_COM, slot 2 of five. Reviewed 2026-09-28:
+      no documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC
+      internal layout, whose bariatric parts carry S/N flags for five named
+      comorbidities plus a single ''Outros (CID10)'' field, not five comorbidity CIDs).'
   AP_CID_C3:
     official_name: CID de comorbidade 3
     translated_name: Comorbidity 3
@@ -158,7 +201,10 @@ variables:
     code_system: external
     codelist: cid10
     source: inferred
-    reasoning: C(4) CID-10 code bound to CID_COM, slot 3 of five.
+    reasoning: 'C(4) CID-10 code bound to CID_COM, slot 3 of five. Reviewed 2026-09-28:
+      no documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC
+      internal layout, whose bariatric parts carry S/N flags for five named
+      comorbidities plus a single ''Outros (CID10)'' field, not five comorbidity CIDs).'
   AP_CID_C4:
     official_name: CID de comorbidade 4
     translated_name: Comorbidity 4
@@ -166,7 +212,10 @@ variables:
     code_system: external
     codelist: cid10
     source: inferred
-    reasoning: C(4) CID-10 code bound to CID_COM, slot 4 of five.
+    reasoning: 'C(4) CID-10 code bound to CID_COM, slot 4 of five. Reviewed 2026-09-28:
+      no documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC
+      internal layout, whose bariatric parts carry S/N flags for five named
+      comorbidities plus a single ''Outros (CID10)'' field, not five comorbidity CIDs).'
   AP_CID_C5:
     official_name: CID de comorbidade 5
     translated_name: Comorbidity 5
@@ -174,7 +223,10 @@ variables:
     code_system: external
     codelist: cid10
     source: inferred
-    reasoning: C(4) CID-10 code bound to CID_COM, slot 5 of five.
+    reasoning: 'C(4) CID-10 code bound to CID_COM, slot 5 of five. Reviewed 2026-09-28:
+      no documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC
+      internal layout, whose bariatric parts carry S/N flags for five named
+      comorbidities plus a single ''Outros (CID10)'' field, not five comorbidity CIDs).'
   AP_CID_CO:
     official_name: CID de comorbidade
     translated_name: Comorbidity ICD-10 code
@@ -184,27 +236,25 @@ variables:
       '
     code_system: external
     source: inferred
-    reasoning: 'Declared C(4), the CID-10 subcategory width, and CID_CO names it as
-      the comorbidity''s code alongside the AP_COMORB flag.
-
-      '
+    reasoning: 'Declared C(4), the CID-10 subcategory width, and CID_CO names it as the
+      comorbidity''s code alongside the AP_COMORB flag. Reviewed 2026-09-28: no
+      documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC internal
+      layout; the nearest documented field is APA_OUTROS ''Outros (CID10)'' in the
+      bariatric parts).'
     notes: 'Sparse. Absence means nothing was recorded, not that no comorbidity exists.
 
       '
   AP_COMORB:
     official_name: Comorbidade
     translated_name: Comorbidity present
-    description: 'Whether the patient has a comorbidity recorded against this authorisation
-      — a flag, not a diagnosis. The condition itself, where it is given, is in the
-      CID columns.
-
-      '
+    description: 'Whether the patient has comorbidities recorded on this authorisation:
+      S = Sim, N = Não. A flag, not a diagnosis.'
     code_system: internal
-    source: inferred
-    reasoning: 'COMORB is comorbidade and the column is C(1), which cannot hold a diagnosis
-      code and so must be a flag.
-
-      '
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), bariatric follow-up variable parts, APA_COMORB C(1)
+      ''Comorbidades (S = Sim, N = Não)'''
   AP_DTOOCOR:
     official_name: Data da ocorrência
     translated_name: Date of the event
@@ -275,25 +325,32 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'TP PRE reads tipo de prestador, the standard SIA/APAC header field
-      for the billing establishment''s ownership/contract type; its two-character width
-      matches DATASUS''s small numeric type-code convention. No value evidence is present
-      in the catalog to confirm the exact codes.
-
-      '
+    reasoning: 'TP PRE reads tipo de prestador, the standard SIA/APAC header field for
+      the billing establishment''s ownership/contract type; its two-character width
+      matches DATASUS''s small numeric type-code convention. No value evidence is
+      present in the catalog to confirm the exact codes. Reviewed 2026-09-28: no
+      documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC
+      interface layouts; the CNES layout has a TP_PREST ''Tipo de Prestador'', but no
+      SIA document lists AP_TPPRE).'
   CO_CIDPRIM:
     official_name: CID primário
     translated_name: Primary diagnosis
     description: The principal CID-10 diagnosis on the follow-up authorisation.
     code_system: external
     codelist: cid10
-    source: inferred
-    reasoning: C(4) CID-10 code bound to S_CID.
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''Acompanh. PÓS CIRURGIA BARIATRICA'' part, seq 39
+      APA_CIDP C(4) ''CID Principal'''
   CO_CIDSEC:
     official_name: CID secundário
     translated_name: Secondary diagnosis
     description: The secondary CID-10 diagnosis, beside CO_CIDPRIM.
     code_system: external
     codelist: cid10
-    source: inferred
-    reasoning: C(4) CID-10 code bound to S_CID.
+    source: layout_doc
+    source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
+      (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
+      sources/apac_layout.txt), ''Acompanh. PÓS CIRURGIA BARIATRICA'' part, seq 40
+      APA_CIDS C(4) ''CID Secundário'''

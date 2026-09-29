@@ -35,22 +35,19 @@ variables:
   AREARES:
     official_name: Área de residência
     translated_name: Residence sub-area code
-    description: 'A locally-assigned code for a residence area/district finer than the municipality,
-      carried only in the 1979–1995-vintage files. Positioned immediately next to BAIRES (neighborhood
-      of residence) in the record layout and almost certainly shares its caveat — assigned
-      independently by each state/municipality, with no national lookup.
-
-      '
+    description: 'Code of the residence area, finer than the municipality, in the
+      1979-1995 files. Assigned by each state and/or municipality and not part of the
+      national base, so it has no national lookup.'
     code_system: none
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists AREARES at position 16 with a blank description (1979,
-      C 7), but it sits immediately after BAIRES (position 15), which IS documented: "Bairro
-      de residencia. Este codigo e atribuido por cada estado e/ou municipio, nao fazendo parte
-      da base nacional." The area/bairro name pairing and adjacent layout position are the
-      basis for treating this the same way.
-
-      '
+    source_ref: 'MORT98.HLP, help file for the SIM CID-9 files 1979-1995 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID9/DOCS/MORT98.HLP, ''Definição
+      dos registros de óbito'', AREARES C(03) ''Área de residência. Este código é
+      atribuído por cada estado e/ou município, não fazendo parte da base nacional.'';
+      [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 16 (description blank)'
     notes: 'No codelist survives for this column in the catalog; treat any code value as uninterpretable
       outside the municipality that assigned it.
 
@@ -188,16 +185,20 @@ variables:
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo CAUSAMAT'
   CB_PRE:
-    official_name: Causa básica pré-investigação
+    official_name: Causa básica informada antes da resseleção (localidade)
     translated_name: Underlying cause before investigation
     description: ICD-10 underlying cause held before the death was investigated. Compare with
       CAUSABAS to see what the investigation changed.
     code_system: external
-    source: inferred
-    reasoning: Named in SIM extracts alongside CAUSABAS_O and the post-investigation fields,
-      and not listed in the 07/2025 Estrutura do SIM. The CB prefix and its position beside
-      the investigation fields identify it as the pre-investigation underlying cause; the
-      reading is not confirmed by a published layout.
+    source: layout_doc
+    source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
+      (local: sources/simcd.txt), campo CB_PRE ''Causa básica informada antes da
+      resseleção (localidade)'', Código CID 10, ficha de investigação de óbito materno
+      ou infantil; [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional
+      version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 87'
     asserted_by: pegasus_data
   CIRCOBITO:
     official_name: Tipo de morte violenta
@@ -267,14 +268,15 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists CODCART at position 103 with a blank description (2012,
-      C 7), but it appears alongside three fully-documented siblings introduced the same year
-      — CODMUNCART ("Código do município do cartório"), DTREGCART ("Data do registro do cartório")
-      and NUMREGCART ("Número do registro do cartório") — all naming the same cartório-registration
-      event, plus the pre-existing 1979-vintage CARTORIO field documents the identical concept
-      under an earlier name.
-
-      '
+    reasoning: '[ESTRUTURA-SIM] lists CODCART at position 103 with a blank description
+      (2012, C 7), but it appears alongside three fully-documented siblings introduced
+      the same year — CODMUNCART ("Código do município do cartório"), DTREGCART ("Data
+      do registro do cartório") and NUMREGCART ("Número do registro do cartório") — all
+      naming the same cartório-registration event, plus the pre-existing 1979-vintage
+      CARTORIO field documents the identical concept under an earlier name. Reviewed
+      2026-09-28: no documentation found (searched Estrutura do SIM 2025 and 12/2019,
+      the positional Estrutura do SIM, Estrutura_SIM_Anterior.pdf, MORT98.HLP; the
+      positional Estrutura lists the field with a blank or ''-'' description).'
   CODESTAB:
     official_name: Estabelecimento
     translated_name: Establishment
@@ -344,33 +346,40 @@ variables:
     codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    description: IBGE code of the municipality where the death occurred.
     code_system: external
-    source: inferred
-    reasoning: 'Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose label
-      column resolved to OBSERV, which is blank for 5,517 of its 5,579 rows, so it decodes
-      no municipality at all. MUNICBR holds 25,733 six-character IBGE codes labelled ''120001
-      Acrelandia''.
-
-      '
-    notes: 'Residence and occurrence differ systematically for deaths in referral hospitals,
-      which concentrate in capitals. Mapping deaths by CODMUNOCOR draws a map of where hospitals
-      are.
-
-      '
+    source: layout_doc
+    source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
+      (local: sources/simcd.txt), campo CODMUNOCOR ''Município de ocorrência'';
+      [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 58 ''Código relativo ao município onde ocorreu o óbito'''
+    notes: 'Residence and occurrence differ systematically for deaths in referral
+      hospitals, which concentrate in capitals. Mapping deaths by CODMUNOCOR draws a map
+      of where hospitals are. Codelist choice: not CADMUN despite the name — CADMUN as
+      ingested is a DBF lookup whose label column resolved to OBSERV, blank for 5,517 of
+      its 5,579 rows; MUNICBR holds the six-character IBGE codes.'
   CODMUNRES:
     official_name: Município de residência
     translated_name: Municipality of residence
     codelist: BR_MUNICIPALFA
     codelists:
     - MUNICBR
+    description: 'IBGE code of the deceased''s municipality of residence; for a fetal
+      death, the mother''s municipality of residence.'
     code_system: external
-    source: inferred
-    reasoning: 'Not CADMUN despite the name. CADMUN as ingested is a DBF lookup whose label
-      column resolved to OBSERV, which is blank for 5,517 of its 5,579 rows, so it decodes
-      no municipality at all. MUNICBR holds 25,733 six-character IBGE codes labelled ''120001
-      Acrelandia''.
-
-      '
+    source: layout_doc
+    source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
+      (local: sources/simcd.txt), campo CODMUNRES ''Código do município de residência.
+      Em caso de óbito fetal, considerar o município de residência da mãe'';
+      [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 57'
+    notes: 'Codelist choice: not CADMUN despite the name — CADMUN as ingested is a DBF
+      lookup whose label column resolved to OBSERV, blank for 5,517 of its 5,579 rows;
+      MUNICBR holds the six-character IBGE codes.'
   COMUNSVOIM:
     official_name: Município do SVO ou IML
     translated_name: SVO/IML municipality
@@ -393,16 +402,18 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists CONTADOR at position 1 of the DO layout with no description
-      text at all (1979, C 8) — the only field in the whole layout with a completely blank
-      description. Two structurally similar undocumented fields sitting a few positions away,
-      CRITICA and NUMEXPORT, are both explicitly described there as "Dado para controle interno"
-      (data for internal control), which is the same category position-1-blank-name pattern
-      points to. It is also the single most common field in this batch (1,524 of the files
-      carrying any of these 66 columns), consistent with a boilerplate technical column DATASUS
-      stamps onto essentially every extract rather than a substantive DO field.
-
-      '
+    reasoning: '[ESTRUTURA-SIM] lists CONTADOR at position 1 of the DO layout with no
+      description text at all (1979, C 8) — the only field in the whole layout with a
+      completely blank description. Two structurally similar undocumented fields sitting
+      a few positions away, CRITICA and NUMEXPORT, are both explicitly described there
+      as "Dado para controle interno" (data for internal control), which is the same
+      category position-1-blank-name pattern points to. It is also the single most
+      common field in this batch (1,524 of the files carrying any of these 66 columns),
+      consistent with a boilerplate technical column DATASUS stamps onto essentially
+      every extract rather than a substantive DO field. Reviewed 2026-09-28: no
+      documentation found (searched Estrutura do SIM 2025 and 12/2019, the positional
+      Estrutura do SIM, Estrutura_SIM_Anterior.pdf, MORT98.HLP; the positional Estrutura
+      lists the field with a blank or ''-'' description).'
     notes: 'Do not use this as a cross-file or cross-vintage identifier for a specific death
       — nothing in the layout or the observed values (small integers that reset in range from
       file to file) supports that. The catalog''s MUNICBR binding on this column is a semantic-match
@@ -756,12 +767,13 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists ESTABDESCR at position 118 with a blank description
-      (2014, widths 10→19→40), but the name decomposes plainly as ESTAB(elecimento) + DESCR(ição),
-      and every observed value in the evidence is a plausible free-text hospital/facility
-      name.
-
-      '
+    reasoning: '[ESTRUTURA-SIM] lists ESTABDESCR at position 118 with a blank
+      description (2014, widths 10→19→40), but the name decomposes plainly as
+      ESTAB(elecimento) + DESCR(ição), and every observed value in the evidence is a
+      plausible free-text hospital/facility name. Reviewed 2026-09-28: no documentation
+      found (searched Estrutura do SIM 2025 and 12/2019, the positional Estrutura do
+      SIM, Estrutura_SIM_Anterior.pdf, MORT98.HLP; the positional Estrutura lists the
+      field with a blank or ''-'' description).'
   ESTCIV:
     official_name: Situação conjugal
     translated_name: Marital status
@@ -793,24 +805,21 @@ variables:
 
       '
   ETNIA:
-    official_name: Etnia
-    translated_name: Ethnicity (likely Indigenous ethnicity)
-    description: 'A short numeric code under the field name "etnia" (ethnicity), present only
-      in 1995–1998 files. By the naming convention DATASUS uses elsewhere (e.g. SINASC''s
-      own ETNIA field), this almost certainly records Indigenous ethnic group, filled when
-      RACACOR/race-colour = Indígena.
-
-      '
+    official_name: Código para etnia indígena
+    translated_name: Indigenous ethnic group code
+    description: 'Code of the deceased''s Indigenous ethnic group, filled when
+      race/colour (RACACOR) is Indigenous, per the DATASUS table of ethnicities
+      (TABETNIA).'
     code_system: none
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists ETNIA at position 50 with a blank description (1995,
-      C 5), and no codelist for it survives in the catalog, so the specific coding table cannot
-      be confirmed here — hence code_system ''none'' rather than a claimed internal/external
-      classification. The field name and its co-introduction with RACACOR (also 1995) are
-      the basis for the ethnicity reading.
-
-      '
+    source_ref: 'MORT98.HLP, help file for the SIM CID-9 files 1979-1995 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID9/DOCS/MORT98.HLP, ''Definição
+      dos registros de óbito'', ETNIA C(03) ''Código para etnia indígena, caso o código
+      de RACACOR seja 3, conforme a tabela de etnias''; [ESTRUTURA-SIM] Estrutura do SIM
+      (CGIAE/DASNT/SVS), positional version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 50 (description blank)'
     notes: 'Extremely sparse in this batch (2 distinct values observed, single digits of records)
       — do not treat as a usable indicator at this vintage.
 
@@ -836,14 +845,16 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: 'No entry for EXPDIFDATA exists in [ESTRUTURA-SIM] (blank description, 2012,
-      C 10), but the immediately neighbouring field DIFDATA (position 113) is documented as
-      "Diferença entre a data de óbito e data do recebimento original da DO ([DTOBITO] – [DTRECORIG]).
-      (Números)" — the same 2012 vintage and the "EXP" (export) prefix on an otherwise identical
-      name is the basis for treating this as a copy of that same lag measure. Observed values
-      (small positive integers, 12–32 in the top values) are consistent with a day-count.
-
-      '
+    reasoning: 'No entry for EXPDIFDATA exists in [ESTRUTURA-SIM] (blank description,
+      2012, C 10), but the immediately neighbouring field DIFDATA (position 113) is
+      documented as "Diferença entre a data de óbito e data do recebimento original da
+      DO ([DTOBITO] – [DTRECORIG]). (Números)" — the same 2012 vintage and the "EXP"
+      (export) prefix on an otherwise identical name is the basis for treating this as a
+      copy of that same lag measure. Observed values (small positive integers, 12–32 in
+      the top values) are consistent with a day-count. Reviewed 2026-09-28: no
+      documentation found (searched Estrutura do SIM 2025 and 12/2019, the positional
+      Estrutura do SIM, Estrutura_SIM_Anterior.pdf, MORT98.HLP; the positional Estrutura
+      lists the field with a blank or ''-'' description).'
     notes: 'Only carried by 2012-dated records in this batch; do not expect it in other years.
 
       '
@@ -939,23 +950,24 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists FONTESINF at position 131 with a blank description (2014,
-      C 9), but its documented sibling FONTES (position 127, same 2014 vintage) is described
-      exactly this way: "Combinado de caracteres conforme o preenchimento dos campos de fontes
-      (FONTENTREV, FONTEAMBUL, FONTEPRONT, FONTESVO, FONTEIML, FONTEPROF): se preenchido caractere
-      ''S'', se o campo estiver vazio caractere ''X''." Observed FONTESINF values in this
-      batch are 7-character strings built entirely from S and X (e.g. "XXXXXXX", "SXSSXXX"),
-      the same construction FONTES describes, just one character longer than FONTES''s documented
-      6.
-
-      '
+    reasoning: '[ESTRUTURA-SIM] lists FONTESINF at position 131 with a blank description
+      (2014, C 9), but its documented sibling FONTES (position 127, same 2014 vintage)
+      is described exactly this way: "Combinado de caracteres conforme o preenchimento
+      dos campos de fontes (FONTENTREV, FONTEAMBUL, FONTEPRONT, FONTESVO, FONTEIML,
+      FONTEPROF): se preenchido caractere ''S'', se o campo estiver vazio caractere
+      ''X''." Observed FONTESINF values in this batch are 7-character strings built
+      entirely from S and X (e.g. "XXXXXXX", "SXSSXXX"), the same construction FONTES
+      describes, just one character longer than FONTES''s documented 6. Reviewed
+      2026-09-28: no documentation found (searched Estrutura do SIM 2025 and 12/2019,
+      the positional Estrutura do SIM, Estrutura_SIM_Anterior.pdf, MORT98.HLP; the
+      positional Estrutura lists the field with a blank or ''-'' description).'
     notes: 'Which seventh source the extra character represents is not confirmed here — treat
       the string positionally rather than assuming it maps one-for-one onto the six sources
       named for FONTES.
 
       '
   FONTINFO:
-    official_name: Fonte de informação
+    official_name: Fonte da informação
     translated_name: Information source (legacy field name)
     description: 'The pre-1996 name for the same "where did the accident/violence-circumstance
       information come from" concept later renamed FONTE: 0/9 Ignorado, 1 Boletim de Ocorrência,
@@ -965,17 +977,15 @@ variables:
     code_system: internal
     codelists:
     - FONTINFO
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists FONTINFO at position 41 with a blank description (1979,
-      C 8), one field before FONTE''s fully documented 1996 entry ("fonte de informação utilizada
-      para o preenchimento dos campos 48 e 49"). The catalog''s own FONTINFO codelist (0.9
-      confidence, sourced from the .def files) carries exactly the same code set and labels
-      DATASUS shows for FONTE (1/2/3/4/9, Boletim de Ocorrência/Hospital/Família/Outro/Ignorado),
-      which is the basis for reading FONTINFO as FONTE''s earlier name rather than a different
-      concept.
-
-      '
+    source_ref: 'MORT98.HLP, help file for the SIM CID-9 files 1979-1995 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID9/DOCS/MORT98.HLP, ''Definição
+      dos registros de óbito'', FONTINFO C(01) ''Fonte da informação, conforme a tabela:
+      0 ou 9 Ignorado, Boletim de Ocorrência, Hospital, Família, Outro'';
+      [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 41 (description blank)'
   GESTACAO:
     official_name: Semanas de gestação (formulário antigo)
     translated_name: Gestation weeks (banded)
@@ -1109,16 +1119,16 @@ variables:
     token_rule:
       delimiter: '*'
       width: 4
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'The record layout gives the field a width of 20 and does not state the packing.
-      Measured over 7,823 distinct observed values of LINHAA-D: values are ''*''-prefixed
-      and ''*''-separated, and 10,196 of ~12,000 inter-''*'' segments are exactly 4 characters,
-      matching CID-10 without the dot. Examples: ''*I10X*I429*I219'', ''*R092*I509*I10X''.
-      Width 20 therefore holds up to four codes. The delimiter is the primary rule and the
-      width is the corroborating check.
-
-      '
+    source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
+      (local: sources/simcd.txt), campo LINHAA (''CIDs informados na ... da DO'',
+      Códigos CID 10); [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional
+      version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 69. Packing measured: ''*''-prefixed, ''*''-separated four-character CID
+      codes without the dot.'
     notes: 'Order is meaningful — it is the causal sequence as the physician wrote it, running
       from the immediate cause (A) to the underlying one (D). Preserve it when rendering,
       and do not sort or deduplicate the tokens.
@@ -1145,9 +1155,16 @@ variables:
     token_rule:
       delimiter: '*'
       width: 4
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: Same packing as LINHAA, measured over the same 7,823 values.
+    source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
+      (local: sources/simcd.txt), campo LINHAB (''CIDs informados na ... da DO'',
+      Códigos CID 10); [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional
+      version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 70. Packing measured: ''*''-prefixed, ''*''-separated four-character CID
+      codes without the dot.'
     notes: Order is the causal sequence. Preserve it.
   LINHAC:
     official_name: Linha C da declaração de óbito
@@ -1170,9 +1187,16 @@ variables:
     token_rule:
       delimiter: '*'
       width: 4
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: Same packing as LINHAA, measured over the same 7,823 values.
+    source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
+      (local: sources/simcd.txt), campo LINHAC (''CIDs informados na ... da DO'',
+      Códigos CID 10); [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional
+      version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 71. Packing measured: ''*''-prefixed, ''*''-separated four-character CID
+      codes without the dot.'
     notes: Order is the causal sequence. Preserve it.
   LINHAD:
     official_name: Linha D da declaração de óbito
@@ -1195,9 +1219,16 @@ variables:
     token_rule:
       delimiter: '*'
       width: 4
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: Same packing as LINHAA, measured over the same 7,823 values.
+    source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
+      (local: sources/simcd.txt), campo LINHAD (''CIDs informados na ... da DO'',
+      Códigos CID 10); [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional
+      version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 72. Packing measured: ''*''-prefixed, ''*''-separated four-character CID
+      codes without the dot.'
     notes: 'This is the physician''s stated underlying cause, which is NOT the same as CAUSABAS
       — CAUSABAS is what the coder selected after applying the ICD selection rules. They differ
       routinely.
@@ -1227,12 +1258,16 @@ variables:
     token_rule:
       delimiter: '*'
       width: 4
-    source: inferred
+    source: layout_doc
     asserted_by: pegasus_data
-    reasoning: 'Same ''*''-delimited 4-character packing as LINHAA-D, measured over the same
-      value set. Declared width is 30 rather than 20, so it holds up to six codes.
-
-      '
+    source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
+      (local: sources/simcd.txt), campo LINHAII (''CIDs informados na ... da DO'',
+      Códigos CID 10); [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional
+      version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 73. Packing measured: ''*''-prefixed, ''*''-separated four-character CID
+      codes without the dot.'
     notes: Part II conditions are contributory, not causal. Order is not a chain.
   LOCACID:
     official_name: Local do acidente
@@ -1342,12 +1377,13 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: '[ESTRUTURA-SIM] lists NUDIASINF at position 130 (2014, C9) with a blank description
-      cell — unlike its documented neighbour NUDIASOBCO at position 126. "NU"+"DIAS" is this
-      system''s day-count-field convention, and observed values (e.g. "0119", "0107") match
-      a day-count''s shape, not a code or identifier.
-
-      '
+    reasoning: '[ESTRUTURA-SIM] lists NUDIASINF at position 130 (2014, C9) with a blank
+      description cell — unlike its documented neighbour NUDIASOBCO at position 126.
+      "NU"+"DIAS" is this system''s day-count-field convention, and observed values
+      (e.g. "0119", "0107") match a day-count''s shape, not a code or identifier.
+      Reviewed 2026-09-28: no documentation found (searched Estrutura do SIM 2025 and
+      12/2019, the positional Estrutura do SIM, Estrutura_SIM_Anterior.pdf, MORT98.HLP;
+      the positional Estrutura lists the field with a blank or ''-'' description).'
     notes: 'DELIBERATELY UNDER-SPECIFIED. Present across all current DO-family series (DO,
       DOEXT, DOFET, DOINF, DOMAT, DOREXT) because those series share one record layout — that
       is not itself evidence the field is semantically meaningful in every one of them.
@@ -1375,14 +1411,16 @@ variables:
     code_system: none
     source: inferred
     asserted_by: pegasus_data
-    reasoning: '[ESTRUTURA-SIM] lists NUDIASOBIN at position 116 with a blank description
-      (2012, C 10), but its documented sibling NUDIASOBCO (position 126, same 2012 vintage)
-      is described as the death-to-investigation-conclusion day count, and the catalog''s
-      bound codelist DIASINVEST1 labels values around 110–120 as "Até 120 dias (invest oportuna)"
-      — "up to 120 days = timely investigation" — which fits a days-to-investigation measure
-      and matches the observed value range (097–120 dominating the top values) closely.
-
-      '
+    reasoning: '[ESTRUTURA-SIM] lists NUDIASOBIN at position 116 with a blank
+      description (2012, C 10), but its documented sibling NUDIASOBCO (position 126,
+      same 2012 vintage) is described as the death-to-investigation-conclusion day
+      count, and the catalog''s bound codelist DIASINVEST1 labels values around 110–120
+      as "Até 120 dias (invest oportuna)" — "up to 120 days = timely investigation" —
+      which fits a days-to-investigation measure and matches the observed value range
+      (097–120 dominating the top values) closely. Reviewed 2026-09-28: no documentation
+      found (searched Estrutura do SIM 2025 and 12/2019, the positional Estrutura do
+      SIM, Estrutura_SIM_Anterior.pdf, MORT98.HLP; the positional Estrutura lists the
+      field with a blank or ''-'' description).'
     notes: 'The DIASINVEST1 binding is a timeliness banding derived from this day count for
       tabulation, not an independent code system — see spurious_bindings; keep the number.
 
@@ -1393,10 +1431,13 @@ variables:
     description: Number of the SINASC live-birth certificate for the deceased, where one exists.
       It is the identifier that would link an infant death to its own birth record.
     code_system: none
-    source: inferred
-    reasoning: Not in the 07/2025 Estrutura do SIM. The name is DN, SINASC's live-birth declaration,
-      and it appears on infant and fetal death records; read as the DN number carried onto
-      the death certificate. Whether it is populated reliably enough to link on is unmeasured.
+    source: layout_doc
+    source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
+      (local: sources/simcd.txt), campo NUMERODN ''Número da Declaração de Nascido
+      Vivo''; [ESTRUTURA-SIM] Estrutura do SIM (CGIAE/DASNT/SVS), positional version —
+      https://diaad.s3.sa-east-1.amazonaws.com/sim/Mortalidade_Geral+-+Estrutura.pdf,
+      pos. 88 (2006, C 8)'
     asserted_by: pegasus_data
   NUMEROLOTE:
     official_name: Número do lote
@@ -1818,11 +1859,13 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: '"TP" is DATASUS''s standard tipo prefix and "ASSINA" abbreviates assinatura
-      (signature); [ESTRUTURA-SIM] lists TPASSINA at position 79, introduced the same year
-      (2006) as DTATESTADO at position 80, with its description cell blank rather than absent.
-
-      '
+    reasoning: '"TP" is DATASUS''s standard tipo prefix and "ASSINA" abbreviates
+      assinatura (signature); [ESTRUTURA-SIM] lists TPASSINA at position 79, introduced
+      the same year (2006) as DTATESTADO at position 80, with its description cell blank
+      rather than absent. Reviewed 2026-09-28: no documentation found (searched
+      Estrutura do SIM 2025 and 12/2019, the positional Estrutura do SIM,
+      Estrutura_SIM_Anterior.pdf, MORT98.HLP; the positional Estrutura lists the field
+      with a blank or ''-'' description).'
     notes: 'DELIBERATELY UNDER-SPECIFIED — distinct from the older ATESTANTE field (position
       32, 1979 vintage, "condição do médico atestante"); no coded values were captured for
       TPASSINA itself.

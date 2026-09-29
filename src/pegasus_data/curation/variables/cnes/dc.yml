@@ -595,334 +595,351 @@ variables:
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.2 Layout dos arquivos de Dados Complementares (DC*.dbf), SEQ 78
   S_ALCOME:
-    official_name: Aférese com equipamento
-    translated_name: Apheresis, with equipment
-    description: 'An apheresis capacity count paired with S_ALSEME. Which arrangement
-      each of the pair denotes is not established, and no values were observed.
-
-      '
+    official_name: Quantidade de acelerador linear maior 6 MeV com elétrons
+    translated_name: Linear accelerators above 6 MeV, with electrons
+    description: 'Number of radiotherapy linear accelerators above 6 MeV with electron
+      beams at the establishment. Paired with S_ALSEME (without electrons) and S_ACELL6
+      (up to 6 MeV).'
     code_system: none
-    source: inferred
-    reasoning: 'AL with the COM/SEM contrast against S_ALSEME marks a with/without
-      pair in the blood bank block. Hedged: the pairing is evident, the subject is
-      not.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 54'
   S_ALSEME:
-    official_name: Aférese sem equipamento
-    translated_name: Apheresis, without equipment
-    description: The complement of S_ALCOME, and hedged for the same reason.
+    official_name: Quantidade de Acelerador Linear maior 6 MeV sem elétrons
+    translated_name: Linear accelerators above 6 MeV, without electrons
+    description: 'Number of radiotherapy linear accelerators above 6 MeV without
+      electron beams. See S_ALCOME.'
     code_system: none
-    source: inferred
-    reasoning: The SEM half of the COM/SEM pair opened by S_ALCOME.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 53'
   S_ARMAZE:
-    official_name: Armazenamento
-    translated_name: Storage capacity
-    description: 'Storage capacity. Components have short and differing shelf lives
-      — platelets days, red cells weeks — so storage is a real constraint rather than
-      a formality.
-
-      '
+    official_name: Número de salas de armazenagem
+    translated_name: Storage rooms
+    description: 'Number of storage rooms, in the oncology (chemotherapy) requirements
+      block of the complementary data, beside S_PREPAR and the chemotherapy room counts.'
     code_system: none
-    source: inferred
-    reasoning: ARMAZE reads armazenamento, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 46'
   S_BIOMOL:
-    official_name: Biologia molecular
-    translated_name: Molecular biology capacity
-    description: 'Molecular testing capacity. In a blood bank this is NAT screening,
-      which shortens the window period serology cannot cover.
-
-      '
+    official_name: Número de salas de biologia molecular
+    translated_name: Molecular biology rooms
+    description: 'Number of molecular biology rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: BIOMOL reads biologia molecular, in the S_ block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 88'
   S_COLETA:
-    official_name: Coleta de sangue
-    translated_name: Blood collection capacity
-    description: 'Blood collection capacity in the establishment''s complementary data.
-      The S_ block counts capacity across the blood bank, dialysis and radiotherapy
-      services; all are N(3) counts with no values observed in the catalogue.
-
-      '
+    official_name: Número de salas de coleta
+    translated_name: Collection rooms
+    description: 'Number of blood collection rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: 'S_ prefixes a block of N(3) service counts in the DC dataset; COLETA
-      reads coleta, the first step of the transfusion chain.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 77'
   S_CONTRQ:
-    official_name: Controle de qualidade
-    translated_name: Quality control capacity
-    description: 'Quality control on the service''s own outputs — a regulatory requirement
-      for a blood establishment rather than an optional activity.
-
-      '
+    official_name: Número de salas de controle de qualidade
+    translated_name: Quality-control rooms
+    description: 'Number of quality-control rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: CONTRQ reads controle de qualidade, in the S_ block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 87'
   S_CPFLUX:
-    official_name: Citometria de fluxo
-    translated_name: Flow cytometry capacity
-    description: Flow cytometry capacity, the technique behind immunophenotyping.
+    official_name: Salas/Equipamentos de Capela Fluxo Laminar
+    translated_name: Laminar-flow hoods
+    description: 'Number of rooms or equipment with a laminar-flow hood (capela de fluxo
+      laminar), used to prepare cytotoxic drugs in the chemotherapy block.'
     code_system: none
-    source: inferred
-    reasoning: 'CPFLUX reads citometria de fluxo, sitting beside S_IMUNFE which depends
-      on it. Lower confidence than the plainly-named items in this block.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 50'
   S_DISTRI:
-    official_name: Distribuição
-    translated_name: Distribution capacity
-    description: 'Distribution of components to the services that transfuse them. Many
-      hospitals do not collect blood and depend entirely on this step.
-
-      '
+    official_name: Número de salas de distribuição
+    translated_name: Distribution rooms
+    description: 'Number of blood distribution rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: DISTRI reads distribuição, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 82'
   S_DPAC:
-    official_name: Diálise peritoneal ambulatorial contínua
-    translated_name: CAPD capacity
-    description: 'Continuous ambulatory peritoneal dialysis capacity. Done by the patient
-      at home rather than at a machine in a clinic, so it is capacity of a quite different
-      kind from haemodialysis.
-
-      '
+    official_name: Quantidade de salas DPAC
+    translated_name: CAPD rooms
+    description: 'Number of rooms for continuous ambulatory peritoneal dialysis (DPAC),
+      in the dialysis requirements block.'
     code_system: none
-    source: inferred
-    reasoning: DPAC is the standard abbreviation for diálise peritoneal ambulatorial
-      contínua.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 26'
   S_DPI:
-    official_name: Diálise peritoneal intermitente
-    translated_name: Intermittent peritoneal dialysis capacity
-    description: 'Intermittent peritoneal dialysis capacity — performed in sessions
-      at the service, as against the continuous home modality in S_DPAC.
-
-      '
+    official_name: Quantidade de salas DPI
+    translated_name: Intermittent peritoneal dialysis rooms
+    description: 'Number of rooms for intermittent peritoneal dialysis (DPI), in the
+      dialysis requirements block.'
     code_system: none
-    source: inferred
-    reasoning: DPI is the standard abbreviation for diálise peritoneal intermitente.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 25'
   S_ESTOQU:
-    official_name: Estoque
-    translated_name: Stock capacity
-    description: Stock held, as against the physical storage capacity in S_ARMAZE.
+    official_name: Número de salas de estoque
+    translated_name: Stock rooms
+    description: 'Number of blood stock rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: ESTOQU reads estoque, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 81'
   S_HBSAGN:
-    official_name: HBsAg não reagente
-    translated_name: HBsAg negative donations
-    description: Donations testing negative for HBsAg; the denominator for S_HBSAGP.
+    official_name: Quantidade de salas HBsAG-
+    translated_name: Dialysis rooms for HBsAg-negative patients
+    description: 'Number of dialysis rooms for HBsAg-negative patients, in the dialysis
+      requirements block. Companion of S_HBSAGP.'
     code_system: none
-    source: inferred
-    reasoning: N for negativo, the counterpart of S_HBSAGP.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 24'
   S_HBSAGP:
-    official_name: HBsAg reagente
-    translated_name: HBsAg positive donations
-    description: 'Donations testing positive for hepatitis B surface antigen. A discard
-      figure, and a crude measure of hepatitis B prevalence among donors.
-
-      '
+    official_name: Quantidade de salas HBsAG+
+    translated_name: Dialysis rooms for HBsAg-positive patients
+    description: 'Number of dialysis rooms reserved for HBsAg-positive (hepatitis B)
+      patients, in the dialysis requirements block. A room count, not a count of
+      donations or tests.'
     code_system: none
-    source: inferred
-    reasoning: HBSAG is the hepatitis B surface antigen and P positivo; paired with
-      S_HBSAGN.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 23'
   S_HEMOST:
-    official_name: Hemostasia
-    translated_name: Haemostasis testing capacity
-    description: Coagulation and haemostasis testing capacity.
+    official_name: Número de salas hemostasia
+    translated_name: Haemostasis rooms
+    description: 'Number of haemostasis laboratory rooms, in the blood-bank
+      (hemoterapia) requirements block of the complementary data. A count of rooms, not
+      of capacity or activity.'
     code_system: none
-    source: inferred
-    reasoning: HEMOST reads hemostasia, in the S_ block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 86'
   S_IMUNFE:
-    official_name: Imunofenotipagem
-    translated_name: Immunophenotyping capacity
-    description: 'Immunophenotyping capacity, used in diagnosing leukaemias rather
-      than in routine transfusion work.
-
-      '
+    official_name: Número de salas de imunofenotipágem
+    translated_name: Immunophenotyping rooms
+    description: 'Number of immunophenotyping rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: IMUNFE reads imunofenotipagem, in the S_ block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 89'
   S_IMUNOH:
-    official_name: Imuno-hematologia
-    translated_name: Immunohaematology capacity
-    description: 'Immunohaematology — blood grouping and antibody screening, which
-      is what makes a unit safe for a particular recipient rather than safe in general.
-
-      '
+    official_name: Número de salas de imunohematologia
+    translated_name: Immunohaematology rooms
+    description: 'Number of immunohaematology rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: IMUNOH reads imuno-hematologia, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 84'
   S_PREEST:
-    official_name: Pré-estoque
-    translated_name: Pre-stock capacity
-    description: 'Units held before release to stock — collected and processed, but
-      not yet cleared by serology.
-
-      '
+    official_name: Número de salas de pré-estoque
+    translated_name: Pre-stock rooms
+    description: 'Number of pre-stock rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: PREEST reads pré-estoque, preceding S_ESTOQU in the chain.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 79'
   S_PREPAR:
-    official_name: Preparo de hemocomponentes
-    translated_name: Component preparation capacity
-    description: Preparation of blood components for issue, following processing.
+    official_name: Número de salas de preparo
+    translated_name: Preparation rooms
+    description: 'Number of preparation rooms, in the oncology (chemotherapy)
+      requirements block, between the storage rooms (S_ARMAZE) and the
+      short/long-duration chemotherapy rooms.'
     code_system: none
-    source: inferred
-    reasoning: PREPAR reads preparo, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 47'
   S_PRETRA:
-    official_name: Exames pré-transfusionais
-    translated_name: Pre-transfusion testing capacity
-    description: 'Pre-transfusion compatibility testing — the crossmatch performed
-      for a specific patient immediately before transfusion.
-
-      '
+    official_name: Número de salas pré-transfusionais
+    translated_name: Pre-transfusion testing rooms
+    description: 'Number of pre-transfusion testing rooms, in the blood-bank
+      (hemoterapia) requirements block of the complementary data. A count of rooms, not
+      of capacity or activity.'
     code_system: none
-    source: inferred
-    reasoning: PRETRA reads pré-transfusional, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 85'
   S_PROCES:
-    official_name: Processamento
-    translated_name: Processing capacity
-    description: 'Processing whole blood into components — red cells, plasma, platelets.
-      One donation becomes several products, which is why processing capacity is counted
-      apart from collection.
-
-      '
+    official_name: Número de salas de processamento
+    translated_name: Processing rooms
+    description: 'Number of blood processing rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: PROCES reads processamento, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 80'
   S_QCDURA:
-    official_name: Controle de qualidade, duração
-    translated_name: Quality control duration
-    description: 'A duration recorded against quality control. What it measures is
-      not established from the catalogue and no values were observed.
-
-      '
+    official_name: Salas/Equipamentos de Quimio Curta duração
+    translated_name: Short-duration chemotherapy rooms/equipment
+    description: Number of rooms or equipment for short-duration chemotherapy infusion.
     code_system: none
-    source: inferred
-    reasoning: 'QC reads controle de qualidade and DURA duração, paired with S_QLDURA.
-      Hedged deliberately: the pairing is clear, the quantity is not.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 48'
   S_QLDURA:
-    official_name: Controle laboratorial, duração
-    translated_name: Laboratory control duration
-    description: 'A duration recorded against laboratory control, paired with S_QCDURA.
-      As with that field, the quantity itself is not established.
-
-      '
+    official_name: Salas/Equipamentos de Quimio de Longa Duração
+    translated_name: Long-duration chemotherapy rooms/equipment
+    description: 'Number of rooms or equipment for long-duration chemotherapy infusion.
+      Companion of S_QCDURA.'
     code_system: none
-    source: inferred
-    reasoning: QL against QC in a matched pair; both hedged for the same reason.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 49'
   S_REAGN:
-    official_name: Amostras não reagentes
-    translated_name: Non-reactive samples
-    description: Samples non-reactive on screening; the counterpart of S_REAGP.
+    official_name: Quantidade de salas de reuso de HBsAG-
+    translated_name: Dialyser-reuse rooms, HBsAg-negative
+    description: 'Number of rooms for reprocessing (reuse) of dialysers of
+      HBsAg-negative patients. Companion of S_REAGP.'
     code_system: none
-    source: inferred
-    reasoning: N for negativo, the counterpart of S_REAGP.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 28'
   S_REAGP:
-    official_name: Amostras reagentes
-    translated_name: Reactive samples
-    description: 'Samples reactive on screening, across the serology panel rather than
-      for one marker. Reactive is not confirmed positive: screening is deliberately
-      over-sensitive.
-
-      '
+    official_name: Quantidade de salas de reuso de HBsAG+
+    translated_name: Dialyser-reuse rooms, HBsAg-positive
+    description: 'Number of rooms for reprocessing (reuse) of dialysers of
+      HBsAg-positive patients, in the dialysis requirements block. Not a count of
+      reactive samples.'
     code_system: none
-    source: inferred
-    reasoning: REAG reads reagente and P positivo; paired with S_REAGN.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 27'
   S_RECEPC:
-    official_name: Recepção de doadores
-    translated_name: Donor reception capacity
-    description: Donor reception capacity, the step before collection in the blood
-      bank chain.
+    official_name: Número de salas de recepção
+    translated_name: Reception rooms
+    description: 'Number of donor reception rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: RECEPC reads recepção, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 74'
   S_REHCV:
-    official_name: Reagentes para HCV
-    translated_name: HCV reactive samples
-    description: 'Samples reactive for hepatitis C. Broken out from the general reactive
-      count because hepatitis C was the marker that most changed transfusion safety
-      when testing arrived.
-
-      '
+    official_name: Quantidade de Salas de reuso de HCV+
+    translated_name: Dialyser-reuse rooms, HCV-positive
+    description: 'Number of rooms for reprocessing (reuse) of dialysers of hepatitis
+      C-positive patients, in the dialysis requirements block.'
     code_system: none
-    source: inferred
-    reasoning: RE reads reagente and HCV the hepatitis C virus; in the S_ serology
-      block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 29'
   S_SGDOAD:
-    official_name: Sangue de doador
-    translated_name: Donor blood capacity
-    description: Capacity relating to donor blood as a product line within the service.
+    official_name: Número de salas seguimento doador
+    translated_name: Donor follow-up rooms
+    description: 'Number of donor follow-up rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: SGDOAD reads sangue de doador, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 91'
   S_SIMULA:
-    official_name: Simulador de radioterapia
-    translated_name: Radiotherapy simulator capacity
-    description: 'Radiotherapy simulator capacity. Simulation plans where the beam
-      will go before any treatment is given, so it is a bottleneck ahead of the treatment
-      machines.
-
-      '
+    official_name: Quantidade de Simuladores
+    translated_name: Radiotherapy simulators
+    description: 'Number of radiotherapy simulators, in the radiotherapy equipment block
+      beside the linear accelerator and cobalt unit counts.'
     code_system: none
-    source: inferred
-    reasoning: 'SIMULA reads simulador and sits beside UN_COBAL, placing it in the
-      radiotherapy part of the complementary data.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 51'
   S_SOROLO:
-    official_name: Sorologia
-    translated_name: Serology capacity
-    description: 'Serological testing of donated blood. The step that keeps transfusion-
-      transmitted infection out of the supply, and the reason the HBsAg and reagent
-      counts below exist.
-
-      '
+    official_name: Número de salas de sorologia
+    translated_name: Serology rooms
+    description: 'Number of serology rooms, in the blood-bank (hemoterapia) requirements
+      block of the complementary data. A count of rooms, not of capacity or activity.'
     code_system: none
-    source: inferred
-    reasoning: SOROLO reads sorologia, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 83'
   S_TRANSF:
-    official_name: Transfusão
-    translated_name: Transfusion capacity
-    description: The transfusion itself, the last step of the chain the rest of this
-      block supports.
+    official_name: Número de salas de transfusão
+    translated_name: Transfusion rooms
+    description: 'Number of transfusion rooms, in the blood-bank (hemoterapia)
+      requirements block of the complementary data. A count of rooms, not of capacity or
+      activity.'
     code_system: none
-    source: inferred
-    reasoning: TRANSF reads transfusão, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 90'
   S_TRICLI:
-    official_name: Triagem clínica
-    translated_name: Clinical screening capacity
-    description: 'Clinical screening of donors — the interview that excludes donors
-      on history before any blood is taken.
-
-      '
+    official_name: Número de salas de triagem clínica
+    translated_name: Clinical screening rooms
+    description: 'Number of rooms for clinical screening of donors, in the blood-bank
+      (hemoterapia) requirements block of the complementary data. A count of rooms, not
+      of capacity or activity.'
     code_system: none
-    source: inferred
-    reasoning: TRICLI reads triagem clínica, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 76'
   S_TRIHMT:
-    official_name: Triagem hematológica
-    translated_name: Haematological screening capacity
-    description: 'Haematological screening of donors — the blood count that excludes
-      anaemic donors, as against the interview in S_TRICLI.
-
-      '
+    official_name: Número de salas de triagem hematológica
+    translated_name: Haematological screening rooms
+    description: 'Number of rooms for haematological screening of donors, in the
+      blood-bank (hemoterapia) requirements block of the complementary data. A count of
+      rooms, not of capacity or activity.'
     code_system: none
-    source: inferred
-    reasoning: TRIHMT reads triagem hematológica, in the S_ blood bank block.
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 75'
   UN_COBAL:
-    official_name: Unidades de cobalto
+    official_name: Quantidade de Unidade de Cobalto
     translated_name: Cobalt units
-    description: 'Cobalt-60 teletherapy units. Older technology than the linear accelerators
-      that have replaced it, so a count above zero dates the service''s equipment.
-
-      '
+    description: 'Number of cobalt-60 teletherapy units in the radiotherapy equipment
+      block.'
     code_system: none
-    source: inferred
-    reasoning: 'UN reads unidade and COBAL cobalto; cobalt-60 teletherapy, beside the
-      radiotherapy simulator count.
-
-      '
+    source: layout_doc
+    source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf
+      (local: sources/IT_CNES_1706.txt), §2.2 Dados Complementares (DC*.dbf) SEQ 58'

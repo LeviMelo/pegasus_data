@@ -27,24 +27,19 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'Agravo is LTAN (leishmaniose tegumentar); CLAS_TIPO reads "classificação
-      do tipo"; C12 width fits a short coded/text category.
-
-      '
+      do tipo"; C12 width fits a short coded/text category. Reviewed 2026-09-28: no documentation
+      found (searched the SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET,
+      and the web for a SINAN Windows 2000-2006 layout; the column occurs only in the
+      2000-2006 files).'
   CLA_TIPO_N:
-    official_name: Classificação quanto ao tipo
-    translated_name: Case-type classification
-    description: 'Classifies a leishmaniose tegumentar (LTAN) notification as a new
-      case, a relapse, or a transfer between health units: 1=Caso novo, 2=Recidiva,
-      3=Transferência.
-
-      '
+    official_name: Tipo de entrada
+    translated_name: Type of entry
+    description: 'How the case entered surveillance: new case, relapse (recidiva) or transfer.'
     code_system: internal
-    source: inferred
-    reasoning: 'Catalog dictionary gives values 1=Caso novo, 2=Recidiva, 3=Transferência;
-      CLA_ = classificação, TIPO_N = tipo de notificação, a standard case-status axis
-      on SINAN forms.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Leishmaniose Tegumentar Americana v5 —
+      http://portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose%20Tegumentar%20Americana/DIC_DADOS_LTA_v5.pdf,
+      campo 39 (Tipo de Entrada)
   CLI_CICATR:
     official_name: Presença de cicatrizes cutâneas
     translated_name: Cutaneous scarring present (leishmaniasis)
@@ -90,8 +85,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C11; CLI_=clínico, CUT=cutâneo; width fits a short descriptive code
-      rather than a full sentence.
+    reasoning: 'C11; CLI_=clínico, CUT=cutâneo; width fits a short descriptive code rather
+      than a full sentence. Reviewed 2026-09-28: no documentation found (searched the
+      SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET, and the web for
+      a SINAN Windows 2000-2006 layout; the column occurs only in the 2000-2006 files).'
   CLI_MUCOSA:
     official_name: Presença de lesão mucosa
     translated_name: Mucosal lesion present (leishmaniasis)
@@ -115,9 +112,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'CON_ = condição, AUTO = autóctone, M = município; autochthony by municipality/UF/country
-      is a standard classification set on vector-borne disease investigation forms.
-
-      '
+      is a standard classification set on vector-borne disease investigation forms. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET LTA v5 data dictionary,
+      LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006 layout;
+      the column occurs only in the 2000-2006 files).'
   CON_AUTO_U:
     official_name: Caso autóctone da UF
     translated_name: Autochthonous to state (UF) (flag)
@@ -129,9 +127,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'CON_AUTO_ = autóctone; U = UF; LTAN series carries the matching municipality-level
-      sibling CON_AUTO_M and the overall TPAUTOCTO classification field.
-
-      '
+      sibling CON_AUTO_M and the overall TPAUTOCTO classification field. Reviewed 2026-09-28:
+      no documentation found (searched the SINAN NET LTA v5 data dictionary, LeishtegNET.def
+      in TAB_SINANNET, and the web for a SINAN Windows 2000-2006 layout; the column occurs
+      only in the 2000-2006 files).'
   CON_CLASS_:
     official_name: Classificação epidemiológica
     translated_name: Epidemiological classification
@@ -156,10 +155,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'LTAN form; CON_IMPORT reads "caso importado"; C13 width fits a coded
-      flag with room for a short qualifier.
-
-      '
+    reasoning: 'LTAN form; CON_IMPORT reads "caso importado"; C13 width fits a coded flag
+      with room for a short qualifier. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET, and the web
+      for a SINAN Windows 2000-2006 layout; the column occurs only in the 2000-2006 files).'
   CON_MUNICI:
     official_name: Município provável de infecção
     translated_name: Likely municipality of infection
@@ -171,10 +170,11 @@ variables:
     codelist: BR_MUNICIPALFA
     code_system: external
     source: inferred
-    reasoning: 'LTAN form; CON_ context prefix with MUNICI reading "município"; C12
-      text width, wider than a plain IBGE numeric code, fits a name/context field.
-
-      '
+    reasoning: 'LTAN form; CON_ context prefix with MUNICI reading "município"; C12 text
+      width, wider than a plain IBGE numeric code, fits a name/context field. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET LTA v5 data dictionary,
+      LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006 layout;
+      the column occurs only in the 2000-2006 files).'
   CON_PAIS:
     official_name: País de contágio
     translated_name: Country of probable infection
@@ -185,8 +185,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C10 text; CON_=contágio in this context (place of likely infection),
-      PAIS=país.
+    reasoning: 'C10 text; CON_=contágio in this context (place of likely infection), PAIS=país.
+      Reviewed 2026-09-28: no documentation found (searched the SINAN NET LTA v5 data
+      dictionary, LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006
+      layout; the column occurs only in the 2000-2006 files).'
   CON_UF:
     official_name: UF de contágio
     translated_name: State (UF) of probable infection
@@ -197,7 +199,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C8; CON_=contágio, UF=state code.
+    reasoning: 'C8; CON_=contágio, UF=state code. Reviewed 2026-09-28: no documentation
+      found (searched the SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET,
+      and the web for a SINAN Windows 2000-2006 layout; the column occurs only in the
+      2000-2006 files).'
   ENTO_ANIMA:
     official_name: Investigação entomológica - presença de animais
     translated_name: Animal reservoirs present (entomological survey)
@@ -208,11 +213,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'ENTO_ = entomológico, ANIMA = animais; reservoir-animal presence is
-      routinely checked alongside vector (sandfly) findings in leishmaniasis field
-      investigations.
-
-      '
+    reasoning: 'ENTO_ = entomológico, ANIMA = animais; reservoir-animal presence is routinely
+      checked alongside vector (sandfly) findings in leishmaniasis field investigations.
+      Reviewed 2026-09-28: no documentation found (searched the SINAN NET LTA v5 data
+      dictionary, LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006
+      layout; the column occurs only in the 2000-2006 files).'
   ENTO_CAO:
     official_name: Presença de cão no local de investigação entomológica
     translated_name: Dog present at entomological investigation site (flag)
@@ -223,7 +228,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: ENTO_ = entomológico (vector/reservoir survey block); CAO = cão.
+    reasoning: 'ENTO_ = entomológico (vector/reservoir survey block); CAO = cão. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET LTA v5 data dictionary,
+      LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006 layout;
+      the column occurs only in the 2000-2006 files).'
   ENTO_CAPTU:
     official_name: Captura entomológica
     translated_name: Entomological capture description
@@ -235,9 +243,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'LTAN form; ENTO_ reads "entomológico" and CAPTU reads "captura"; wide
-      C50 width fits free-text description rather than a coded field.
-
-      '
+      C50 width fits free-text description rather than a coded field. Reviewed 2026-09-28:
+      no documentation found (searched the SINAN NET LTA v5 data dictionary, LeishtegNET.def
+      in TAB_SINANNET, and the web for a SINAN Windows 2000-2006 layout; the column occurs
+      only in the 2000-2006 files).'
   ENTO_EQUIN:
     official_name: Presença de equinos
     translated_name: Horses present near residence (entomological finding)
@@ -248,7 +257,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C12 flag/short code; ENTO_=entomológico per prefix convention, EQUIN=equino.
+    reasoning: 'C12 flag/short code; ENTO_=entomológico per prefix convention, EQUIN=equino.
+      Reviewed 2026-09-28: no documentation found (searched the SINAN NET LTA v5 data
+      dictionary, LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006
+      layout; the column occurs only in the 2000-2006 files).'
   ENTO_EXIST:
     official_name: Investigação entomológica - existência de vetor
     translated_name: Vector presence confirmed (entomological survey)
@@ -259,11 +271,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'ENTO_ = entomológico, EXIST = existência; a base "vector found" flag
-      preceding the location-specific ENTO_INTRA and ENTO_PROXI fields in the same
-      series.
-
-      '
+    reasoning: 'ENTO_ = entomológico, EXIST = existência; a base "vector found" flag preceding
+      the location-specific ENTO_INTRA and ENTO_PROXI fields in the same series. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET LTA v5 data dictionary,
+      LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006 layout;
+      the column occurs only in the 2000-2006 files).'
   ENTO_EXI_1:
     official_name: Pesquisa entomológica - item 1
     translated_name: Entomological investigation - finding 1
@@ -277,9 +289,9 @@ variables:
     source: inferred
     reasoning: 'ENTO_EXI = existência de pesquisa entomológica; LTAN carries ENTO_EXI_1
       through _4 as a numbered checklist, but their individual meanings are not distinguishable
-      from naming alone.
-
-      '
+      from naming alone. Reviewed 2026-09-28: no documentation found (searched the SINAN
+      NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET, and the web for a SINAN
+      Windows 2000-2006 layout; the column occurs only in the 2000-2006 files).'
   ENTO_EXI_2:
     official_name: Exame entomológico 2
     translated_name: Entomological finding 2
@@ -291,9 +303,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'LTAN form; ENTO_ prefix with numeric suffix indicating a repeated finding
-      slot; C11 width fits a coded/short-text entry.
-
-      '
+      slot; C11 width fits a coded/short-text entry. Reviewed 2026-09-28: no documentation
+      found (searched the SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET,
+      and the web for a SINAN Windows 2000-2006 layout; the column occurs only in the
+      2000-2006 files).'
   ENTO_EXI_3:
     official_name: Existência de [item 3] no peridomicílio
     translated_name: Presence of a third checklist item (entomological survey)
@@ -307,9 +320,9 @@ variables:
     source: inferred
     reasoning: 'C11; ENTO_=entomológico, EXI=existência, trailing 3 implies a numbered
       series (ENTO_EXI_1/2 not in this partition), so the specific checklist item can''t
-      be pinned down from name alone.
-
-      '
+      be pinned down from name alone. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET, and the web
+      for a SINAN Windows 2000-2006 layout; the column occurs only in the 2000-2006 files).'
   ENTO_EXI_4:
     official_name: Investigação entomológica - existência (categoria 4)
     translated_name: Vector presence, category 4
@@ -320,10 +333,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Shares the ENTO_EXI root with ENTO_EXIST but the "_4" suffix marks
-      a distinct, more granular variant; low file weight (7) limits further confirmation.
-
-      '
+    reasoning: 'Shares the ENTO_EXI root with ENTO_EXIST but the "_4" suffix marks a distinct,
+      more granular variant; low file weight (7) limits further confirmation. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET LTA v5 data dictionary,
+      LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006 layout;
+      the column occurs only in the 2000-2006 files).'
   ENTO_EXTRA:
     official_name: Vetor encontrado em ambiente extradomiciliar
     translated_name: Vector found in extradomestic setting (flag)
@@ -334,8 +348,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: ENTO_ = entomológico; EXTRA = extradomiciliar; LTAN carries the matching
-      ENTO_INTRA field.
+    reasoning: 'ENTO_ = entomológico; EXTRA = extradomiciliar; LTAN carries the matching
+      ENTO_INTRA field. Reviewed 2026-09-28: no documentation found (searched the SINAN
+      NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET, and the web for a SINAN
+      Windows 2000-2006 layout; the column occurs only in the 2000-2006 files).'
   ENTO_FLEBO:
     official_name: Flebotomíneos capturados
     translated_name: Sandflies captured
@@ -347,9 +363,10 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'LTAN form; ENTO_FLEBO reads "entomológico - flebotomíneo", the leishmaniasis
-      vector; C13 width fits a short species/count entry.
-
-      '
+      vector; C13 width fits a short species/count entry. Reviewed 2026-09-28: no documentation
+      found (searched the SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET,
+      and the web for a SINAN Windows 2000-2006 layout; the column occurs only in the
+      2000-2006 files).'
   ENTO_INSET:
     official_name: Presença de insetos vetores
     translated_name: Sandfly vector insects found (entomological finding)
@@ -360,7 +377,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C12; ENTO_=entomológico, INSET=inseto.
+    reasoning: 'C12; ENTO_=entomológico, INSET=inseto. Reviewed 2026-09-28: no documentation
+      found (searched the SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET,
+      and the web for a SINAN Windows 2000-2006 layout; the column occurs only in the
+      2000-2006 files).'
   ENTO_INTRA:
     official_name: Investigação entomológica - vetor intradomiciliar
     translated_name: Vector found inside the home
@@ -373,8 +393,9 @@ variables:
     source: inferred
     reasoning: 'ENTO_ = entomológico, INTRA = intradomiciliar; indoor vs. peridomestic
       vector presence is a standard distinction in leishmaniasis entomological surveys.
-
-      '
+      Reviewed 2026-09-28: no documentation found (searched the SINAN NET LTA v5 data
+      dictionary, LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006
+      layout; the column occurs only in the 2000-2006 files).'
   ENTO_LOCAL:
     official_name: Local da pesquisa entomológica
     translated_name: Site of entomological investigation
@@ -385,7 +406,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: ENTO_ = entomológico; LOCAL = local; anchors the ENTO_ finding block.
+    reasoning: 'ENTO_ = entomológico; LOCAL = local; anchors the ENTO_ finding block.
+      Reviewed 2026-09-28: no documentation found (searched the SINAN NET LTA v5 data
+      dictionary, LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006
+      layout; the column occurs only in the 2000-2006 files).'
   ENTO_OUTRO:
     official_name: Outro vetor capturado
     translated_name: Other vector captured
@@ -396,9 +420,9 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'LTAN form; ENTO_OUTRO reads "entomológico - outro"; C13 width matches
-      the sibling ENTO_FLEBO field.
-
-      '
+      the sibling ENTO_FLEBO field. Reviewed 2026-09-28: no documentation found (searched
+      the SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET, and the web
+      for a SINAN Windows 2000-2006 layout; the column occurs only in the 2000-2006 files).'
   ENTO_PERID:
     official_name: Investigação peridomiciliar
     translated_name: Peridomestic area investigated (flag)
@@ -409,7 +433,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: C12; ENTO_=entomológico, PERID=peridomiciliar.
+    reasoning: 'C12; ENTO_=entomológico, PERID=peridomiciliar. Reviewed 2026-09-28: no
+      documentation found (searched the SINAN NET LTA v5 data dictionary, LeishtegNET.def
+      in TAB_SINANNET, and the web for a SINAN Windows 2000-2006 layout; the column occurs
+      only in the 2000-2006 files).'
   ENTO_PROXI:
     official_name: Investigação entomológica - vetor próximo ao domicílio
     translated_name: Vector found near the home
@@ -420,11 +447,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'ENTO_ = entomológico, PROXI = próximo; peridomestic vector presence
-      is tracked separately from intradomiciliary presence on the LTAN investigation
-      form.
-
-      '
+    reasoning: 'ENTO_ = entomológico, PROXI = próximo; peridomestic vector presence is
+      tracked separately from intradomiciliary presence on the LTAN investigation form.
+      Reviewed 2026-09-28: no documentation found (searched the SINAN NET LTA v5 data
+      dictionary, LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006
+      layout; the column occurs only in the 2000-2006 files).'
   ENTO_TRANS:
     official_name: Classificação da transmissão
     translated_name: Transmission setting classification
@@ -435,8 +462,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: ENTO_ = entomológico; TRANS = transmissão; summarizes the ENTO_ investigation
-      block.
+    reasoning: 'ENTO_ = entomológico; TRANS = transmissão; summarizes the ENTO_ investigation
+      block. Reviewed 2026-09-28: no documentation found (searched the SINAN NET LTA v5
+      data dictionary, LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows
+      2000-2006 layout; the column occurs only in the 2000-2006 files).'
   ID_OCUPACA:
     official_name: Ocupação do paciente
     translated_name: Patient occupation
@@ -447,10 +476,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'LTAN form; ID_OCUPACA reads "identificação/ocupação"; C13 width fits
-      a short occupation code or abbreviation.
-
-      '
+    reasoning: 'LTAN form; ID_OCUPACA reads "identificação/ocupação"; C13 width fits a
+      short occupation code or abbreviation. Reviewed 2026-09-28: no documentation found
+      (searched the SINAN NET LTA v5 data dictionary, LeishtegNET.def in TAB_SINANNET,
+      and the web for a SINAN Windows 2000-2006 layout; the column occurs only in the
+      2000-2006 files).'
   LAB_IRM:
     official_name: IRM (Intradermorreação de Montenegro)
     translated_name: Montenegro skin test result
@@ -519,7 +549,10 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: TRA_ = tratamento; OUTRA = outra (droga); LTAN treatment block.
+    reasoning: 'TRA_ = tratamento; OUTRA = outra (droga); LTAN treatment block. Reviewed
+      2026-09-28: no documentation found (searched the SINAN NET LTA v5 data dictionary,
+      LeishtegNET.def in TAB_SINANNET, and the web for a SINAN Windows 2000-2006 layout;
+      the column occurs only in the 2000-2006 files).'
   TRA_OUTR_N:
     official_name: Outro medicamento utilizado
     translated_name: Other drug used

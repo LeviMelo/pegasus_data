@@ -15,12 +15,12 @@ variables:
 
       '
     code_system: external
-    source: inferred
-    reasoning: 'CO_ prefix follows the código naming grammar; bound to the MUNICBR
-      codelist as a 7-digit municipality code and appears only in the POPS:POP22+ series,
-      the newer annual population tables that use the checksum-digit form.
-
-      '
+    source: def
+    source_ref: 'TabWin DEF POPSVSBR.DEF ''População Residente - Estudo de Estimativas
+      Populacionais por Município, Idade e Sexo 2000-2024'' (DATASUS TAB_POP kit) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/Auxiliar/TAB_POP.zip, lines
+      ''LMunicípio, COD_MUN, 1, CNV\br_municip.cnv'' (and region/UF/health-region axes
+      on COD_MUN)'
     asserted_by: pegasus_data
   FXETARIA:
     official_name: Faixa Etária detalhada
@@ -46,17 +46,15 @@ variables:
     source: layout_doc
     source_ref: tabnet.datasus.gov.br/cgi/Ibge/popdescr.htm
   POP:
-    translated_name: Population (annual series column)
-    description: 'Estimated resident population of the municipality for one year of
-      an annual series, where each year is its own like-named column (e.g. POP22 for
-      2022), generalized here under POP.
-
-      '
+    translated_name: Resident population
+    description: 'Estimated resident population of the row''s cell — municipality
+      (COD_MUN), sex, age (IDADE) and year (ANO) — in the SVS population-estimate files,
+      which are published one file per year (POP<yy>.dbf). It is a single count column,
+      not one column per year.'
     code_system: none
-    source: inferred
-    reasoning: 'Field appears only in POPS:POP<yy>/POPS:pop<yy> series — a wide table
-      with one population column per year — matching the TCU/IBGE municipal population-estimate
-      methodology documented in the Pop_Residente_TCU PDFs on the IBGE FTP tree.
-
-      '
+    source: def
+    source_ref: 'TabWin DEF POPSVSBR.DEF ''População Residente - Estudo de Estimativas
+      Populacionais por Município, Idade e Sexo 2000-2024'' (DATASUS TAB_POP kit) —
+      ftp://ftp.datasus.gov.br/dissemin/publicos/IBGE/Auxiliar/TAB_POP.zip, line
+      ''EPopulação residente, POP, ANO, Ano'' over files IBGE\bases\PopSVS\POP??.dbf'
     asserted_by: pegasus_data

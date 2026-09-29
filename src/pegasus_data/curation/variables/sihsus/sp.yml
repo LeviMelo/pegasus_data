@@ -54,14 +54,14 @@ variables:
     code_system: none
     source: inferred
     reasoning: 'Not bound by any .DEF in the TAB_SIH auxiliary tree, but its declared
-      width (6) and its position - immediately after SP_QTD_ATO and before SP_VALATO
-      - match SP_PTSP exactly in the January-2008-forward SP*.dbf layout (DATASUS Informe
-      Tecnico IT_SIHSUS_1603.pdf: field 16 SP_PTSP char(6) "Quantidade de pontos").
-      This 1997-era file has one field in that slot rather than the later SP_PTSP/SP_NF
-      pair, so the name appears to be this vintage''s own label for what the point-count
-      field became.
-
-      '
+      width (6) and its position - immediately after SP_QTD_ATO and before SP_VALATO -
+      match SP_PTSP exactly in the January-2008-forward SP*.dbf layout (DATASUS Informe
+      Tecnico IT_SIHSUS_1603.pdf: field 16 SP_PTSP char(6) "Quantidade de pontos"). This
+      1997-era file has one field in that slot rather than the later SP_PTSP/SP_NF pair,
+      so the name appears to be this vintage''s own label for what the point-count field
+      became. Reviewed 2026-09-28: no documentation found (searched IT_SIHSUS_1603 SP
+      layout, which has SP_PTSP ''Quantidade de pontos'' but not SP_PTSP_NF; TAB_SIH SP
+      DEFs 2003-2007).'
     notes: 'The neighbouring 2008+ field SP_NF (Nota fiscal) is a separate char(8)
       field with no counterpart here - do not read this column as carrying invoice/date
       information as well, only the point count.

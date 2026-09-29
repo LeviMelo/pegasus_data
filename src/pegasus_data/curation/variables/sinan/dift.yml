@@ -21,20 +21,16 @@ variables:
 
       '
   ANT_OUTROS:
-    official_name: Antecedente outro (especificar)
-    translated_name: Other antecedent (specify)
-    description: 'Free-text field for the antecedent named when ANT_OUTR is marked.
-      One of several parallel "other, specify" text fields in the same antecedents
-      block (see also ANT_OUTR_D, ANT_OUT_D, ANT_OU_DES); which exact sub-question
-      each answers is not resolved from available evidence.
+    official_name: Se outro contato (especificar)
+    translated_name: Other place of contact (specify)
+    description: 'Free-text place where the patient had contact with a suspected or confirmed
+      diphtheria case, when the place of contact was coded as other.
 
       '
     code_system: none
-    source: inferred
-    reasoning: '30-character width fits free text; the near-duplicate naming (ANT_OUTROS/ANT_OUTR_D/ANT_OUT_D/ANT_OU_DES)
-      matches SINAN''s pattern of one specify-field per antecedent sub-category.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 33 (Se outro contato, especificar)
   ANT_TIPOCO:
     official_name: Local do contato
     translated_name: Place of contact
@@ -58,18 +54,20 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date following the dose count.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 37 (Data da última dose)
   ATE_UF_INT:
-    official_name: Atendimento - UF de internação
+    official_name: UF do hospital
     translated_name: Encounter - admission state
     description: 'UF (state) code of the facility where the patient was admitted (internado);
       see ATE_UF_HOS for the state of the initial encounter.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as ATE_UF_HOS.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 44 (UF do hospital)
   CLI_AMIGDA:
     official_name: Placas nas amígdalas
     translated_name: Membrane on the tonsils
@@ -259,15 +257,16 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no flag; PROSTR reads prostração.
   CLI_TEMPER:
-    official_name: Temperatura
+    official_name: Temperatura corporal
     translated_name: Temperature
     description: 'Body temperature. Diphtheria characteristically causes only modest
       fever despite a severe throat, which is itself a diagnostic clue.
 
       '
     code_system: none
-    source: inferred
-    reasoning: N(3) numeric temperature in the clinical block.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 39 (Temperatura corporal)
   CLI_TRAQUE:
     official_name: Placas na traqueia
     translated_name: Membrane in the trachea
@@ -300,8 +299,9 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date in the laboratory block.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 48 (Data da coleta)
   LAB_MATE_N:
     official_name: Material coletado
     translated_name: Specimen collected
@@ -329,63 +329,51 @@ variables:
     source_ref: POSNEGNR.CNV
     reasoning: Bound to POSNEGNR, positive/negative/not done.
   MED_MATERI:
-    official_name: Coleta de material (swab)
-    translated_name: Specimen (swab) collection flag
-    description: 'Whether a nasopharyngeal/oropharyngeal swab was collected for culture
-      in a diphtheria investigation, the specimen diagnosis for Corynebacterium diphtheriae
-      depends on.
+    official_name: Realizada coleta de material dos comunicantes
+    translated_name: Material collected from contacts
+    description: 'Whether swab material was collected from the case''s contacts to look for
+      carriers.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1, consistent with Sim/Não)
-      and DIFT series membership. Diphtheria confirmation is culture-based, so a swab-collection
-      flag is a standard companion to the culture-result field; "MATERI" reads as a
-      truncation of "material" (the collected specimen), paralleling how other SINAN
-      forms name their specimen-collected flags (e.g. ID_SANGUE, ID_URINA).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 57 (Realizada coleta de
+      material dos comunicantes)
   MED_PREVEN:
-    official_name: Medicação preventiva (contatos)
-    translated_name: Preventive medication given to contacts
-    description: 'Whether antibiotic chemoprophylaxis was given to a diphtheria case''s
-      close contacts, paired with MED_QUAN_P for how many contacts received it.
+    official_name: Medidas de prevenção/controle
+    translated_name: Prevention/control measures
+    description: 'Control measure taken around the case: vaccination blockade, chemoprophylaxis,
+      both, or none.
 
       '
     code_system: internal
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C1) and DIFT series membership.
-      Contact chemoprophylaxis is a standard control measure recorded on SINAN''s diphtheria
-      and meningitis forms alike (see the confirmed MED_QUIMIO on the Meningite form
-      for the same concept under a different field name).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 60 (Medidas de prevenção/controle)
   MED_QUAN_M:
-    official_name: Quantidade de comunicantes
-    translated_name: Contacts identified
-    description: 'How many contacts were identified for investigation. Diphtheria control
-      is contact tracing, culture and prophylaxis, so this measures the response.
+    official_name: Se sim, em quantos?
+    translated_name: Contacts sampled
+    description: 'Number of contacts from whom material was collected.
 
       '
     code_system: none
-    source: inferred
-    reasoning: N(3) tally of comunicantes in the measures block.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 58 (Se sim, em quantos?)
   MED_QUAN_P:
-    official_name: Quantidade de pessoas (medicação preventiva)
-    translated_name: Number of contacts given preventive medication
-    description: 'Count of contacts who received chemoprophylaxis, companion numeric
-      field to the MED_PREVEN flag.
+    official_name: Quantos portadores foram identificados entre os comunicantes?
+    translated_name: Carriers identified among contacts
+    description: 'Number of carriers of C. diphtheriae identified among the sampled contacts.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Declared as N3 (three-digit numeric) with DIFT series membership, matching
-      a headcount rather than a coded flag; "QUAN_P" reads as "quantidade de pessoas",
-      the natural pairing to a Sim/Não prophylaxis flag.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 59 (Quantos portadores
+      foram identificados entre os comunicantes?)
   TRA_DATA_A:
-    official_name: Data do início do antibiótico
+    official_name: Data da administração do antibiótico
     translated_name: Date antibiotic started
     description: 'When antibiotics began. They stop transmission and halt further toxin
       production, but do nothing about toxin already circulating, which is why antitoxin
@@ -393,10 +381,12 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; the antibiotic counterpart of TRA_DATA_S.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 53 (Data da administração
+      do antibiótico)
   TRA_DATA_S:
-    official_name: Data da soroterapia
+    official_name: Data da aplicação do soro
     translated_name: Date antitoxin given
     description: 'When diphtheria antitoxin was given. Antitoxin only neutralises toxin
       not yet bound to tissue, so every hour of delay costs effect — the single most
@@ -404,5 +394,7 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date; TRA_DATA_S is the soroterapia date.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Difteria — http://portalsinan.saude.gov.br/images/documentos/Agravos/Difteria/DIC_DADOS_Difteria_v5.pdf
+      (sources/dic_text/difteria__DIC_DADOS_Difteria_v5.txt), campo 51 (Data da aplicação do
+      soro)

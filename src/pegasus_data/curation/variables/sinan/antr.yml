@@ -217,126 +217,82 @@ variables:
 
       '
   DT_DOSE_1:
-    official_name: Data da 1ª dose
-    translated_name: Date of 1st dose
-    description: 'Date the patient received the first dose of a vaccine series recorded
-      on this form (paired with DT_VENCIM, the batch expiry date, in the same vaccination-history
-      block). AAAAMMDD; siblings DT_DOSE_2-5 record later doses in the same series.
-
-      '
+    official_name: 'Datas das aplicações da vacina (dia e mês) - Data da 1ª dose'
+    translated_name: 'Day and month of 1st vaccine dose'
+    description: 'Day and month (DDMM, 4 characters) the first dose of anti-rabies vaccine was applied, used from SINAN version 4.0; earlier versions stored the full date in DT_VAC_1.'
     code_system: none
-    source: inferred
-    reasoning: 'DT_DOSE_N is a numbered date series alongside DT_VENCIM; declared width
-      (C5) is narrower than a full AAAAMMDD date, suggesting inconsistent formatting
-      across the source files that carry it.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Datas das aplicações da vacina – Data da 1ª dose, dt_vacina_dose_1, versão 4.0)'
   DT_DOSE_2:
-    official_name: Data da 2ª dose
-    translated_name: Date of 2nd dose
-    description: 'Date of the second dose in the same vaccination series as DT_DOSE_1;
-      see that entry for what the field represents.
-
-      '
+    official_name: 'Datas das aplicações da vacina (dia e mês) - Data da 2ª dose'
+    translated_name: 'Day and month of 2nd vaccine dose'
+    description: 'Day and month (DDMM) the second anti-rabies vaccine dose was applied (SINAN version 4.0 onward); see DT_DOSE_1.'
     code_system: none
-    source: inferred
-    reasoning: Same evidence as DT_DOSE_1; distinguished only by dose number.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Data da 2ª dose, dt_vacina_dose_2, versão 4.0)'
   DT_DOSE_3:
-    official_name: Data da 3ª dose
-    translated_name: Date of 3rd dose
-    description: 'Date of the third dose in the same vaccination series as DT_DOSE_1;
-      see that entry for what the field represents.
-
-      '
+    official_name: 'Datas das aplicações da vacina (dia e mês) - Data da 3ª dose'
+    translated_name: 'Day and month of 3rd vaccine dose'
+    description: 'Day and month (DDMM) the third anti-rabies vaccine dose was applied (SINAN version 4.0 onward); see DT_DOSE_1.'
     code_system: none
-    source: inferred
-    reasoning: Same evidence as DT_DOSE_1; distinguished only by dose number.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Data da 3ª dose, dt_vacina_dose_3, versão 4.0)'
   DT_DOSE_4:
-    official_name: Data da 4ª dose
-    translated_name: Date of 4th dose
-    description: 'Date of the fourth dose in the same vaccination series as DT_DOSE_1;
-      see that entry for what the field represents.
-
-      '
+    official_name: 'Datas das aplicações da vacina (dia e mês) - Data da 4ª dose'
+    translated_name: 'Day and month of 4th vaccine dose'
+    description: 'Day and month (DDMM) the fourth anti-rabies vaccine dose was applied (SINAN version 4.0 onward); see DT_DOSE_1.'
     code_system: none
-    source: inferred
-    reasoning: Same evidence as DT_DOSE_1; distinguished only by dose number.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Data da 4ª dose, dt_vacina_dose_4, versão 4.0)'
   DT_DOSE_5:
-    official_name: Data da 5ª dose
-    translated_name: Date of 5th dose
-    description: 'Date of the fifth dose in the same vaccination series as DT_DOSE_1;
-      see that entry for what the field represents.
-
-      '
+    official_name: 'Datas das aplicações da vacina (dia e mês) - Data da 5ª dose'
+    translated_name: 'Day and month of 5th vaccine dose'
+    description: 'Day and month (DDMM) the fifth anti-rabies vaccine dose was applied (SINAN version 4.0 onward); see DT_DOSE_1.'
     code_system: none
-    source: inferred
-    reasoning: Same evidence as DT_DOSE_1; distinguished only by dose number.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Data da 5ª dose, dt_vacina_dose_5, versão 4.0)'
   DT_VAC_1:
     official_name: Data da 1ª dose
-    translated_name: Date of first dose
-    description: 'Date the first dose of the relevant vaccine was given. On the rabies
-      and tetanus forms this begins the schedule that the remaining dose dates complete.
-
-      '
+    translated_name: 'Date of 1st vaccine dose (full date)'
+    description: 'Full date the first dose of anti-rabies vaccine was applied, used in SINAN versions before 4.0 (later versions store day and month in DT_DOSE_1).'
     code_system: none
-    source: inferred
-    reasoning: 'DT_ is the date prefix and the column is declared D(8); the numbered
-      siblings run to five, the length of a rabies schedule.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Data da 1ª dose, dt_vac_dose_1, versão < 4.0)'
   DT_VAC_2:
     official_name: Data da 2ª dose
-    translated_name: Date of second dose
-    description: 'Date of the second dose. The interval from DT_VAC_1 is what says
-      whether the schedule was kept to.
-
-      '
+    translated_name: 'Date of 2nd vaccine dose (full date)'
+    description: 'Full date the second anti-rabies vaccine dose was applied (SINAN versions before 4.0); see DT_VAC_1.'
     code_system: none
-    source: inferred
-    reasoning: Numbered sibling of DT_VAC_1, same D(8).
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Data da 2ª dose, dt_vac_dose_2, versão < 4.0)'
   DT_VAC_3:
     official_name: Data da 3ª dose
-    translated_name: Date of third dose
-    description: 'Date of the third dose, which completes the primary series for most
-      of the schedules these forms cover.
-
-      '
+    translated_name: 'Date of 3rd vaccine dose (full date)'
+    description: 'Full date the third anti-rabies vaccine dose was applied (SINAN versions before 4.0); see DT_VAC_1.'
     code_system: none
-    source: inferred
-    reasoning: Numbered sibling of DT_VAC_1.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Data da 3ª dose, dt_vac_dose_3, versão < 4.0)'
   DT_VAC_4:
     official_name: Data da 4ª dose
-    translated_name: Date of fourth dose
-    description: 'Date of the fourth dose, given where the schedule extends beyond
-      three.
-
-      '
+    translated_name: 'Date of 4th vaccine dose (full date)'
+    description: 'Full date the fourth anti-rabies vaccine dose was applied (SINAN versions before 4.0); see DT_VAC_1.'
     code_system: none
-    source: inferred
-    reasoning: Numbered sibling of DT_VAC_1.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Data da 4ª dose, dt_vac_dose_4, versão < 4.0)'
   DT_VAC_5:
     official_name: Data da 5ª dose
-    translated_name: Date of fifth dose
-    description: 'Date of the fifth and last dose the form has room for — the full
-      post-exposure rabies schedule.
-
-      '
+    translated_name: 'Date of 5th vaccine dose (full date)'
+    description: 'Full date the fifth anti-rabies vaccine dose was applied (SINAN versions before 4.0); see DT_VAC_1.'
     code_system: none
-    source: inferred
-    reasoning: Last numbered sibling of the DT_VAC_* group.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 47 (Data da 5ª dose, dt_vac_dose_5, versão < 4.0)'
   DT_VENCIM:
-    official_name: Data de vencimento
+    official_name: 'Data do vencimento'
     translated_name: Expiry date
-    description: 'Expiry date of the vaccine batch/dose recorded in the DT_DOSE_1-5
-      vaccination-history block. AAAAMMDD.
-
-      '
+    description: 'Expiry date of the first anti-rabies vaccine applied (the lot recorded in LOTE_VAC).'
     code_system: none
-    source: inferred
-    reasoning: 'VENCIM reads vencimento (expiry); it sits alongside the DT_DOSE_N series
-      and D8 width matches a full date.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 46 (Data do vencimento)'
   FERIMENTO:
     official_name: Tipo de ferimento
     translated_name: Wound multiplicity
@@ -377,19 +333,12 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_anti_rabico_v5.1.pdf, campo 40
   ID_CNS_SUS:
-    official_name: Número do Cartão Nacional de Saúde
+    official_name: 'Nº Cartão SUS'
     translated_name: National Health Card (CNS) number
-    description: 'Patient''s Cartão Nacional de Saúde (CNS) number, the personal SUS
-      identifier used to link this anthrax notification to the patient''s other health
-      records.
-
-      '
+    description: 'Patient''s Cartão Nacional de Saúde (SUS card) number, the personal SUS identifier.'
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is ANTR (antraz); C15 width matches the standard 15-digit CNS
-      number used across DATASUS systems as the personal health identifier.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET – Notificação Individual (rev. nov/2018) — http://portalsinan.saude.gov.br/images/documentos/Agravos/NINDIV/DIC_DADOS_NET_Not_Individual_rev.pdf, campo 15 (Nº Cartão SUS)'
   LAB_SORO:
     official_name: Laboratório produtor do soro anti-rábico
     translated_name: Rabies antiserum manufacturer
@@ -597,28 +546,16 @@ variables:
 
       '
   TRA_NUM_PA:
-    official_name: Tratamento anterior
-    translated_name: Prior treatment (flag)
-    description: 'Whether the person bitten/exposed to a suspect animal had already
-      started anti-rabies treatment before this visit, one of the intake fields on
-      the ANTR (human anti-rabies care) form alongside the five scheduled vaccine-dose
-      dates.
-
-      '
+    official_name: 'Número da partida'
+    translated_name: 'Anti-rabies serum batch number'
+    description: 'Batch (partida or lot) number of the anti-rabies serum that was applied.'
     code_system: none
-    source: inferred
-    reasoning: 'ANTR series is the human anti-rabies exposure/treatment form (bite
-      fields like ANT_MORDED, DT_VAC_1-5 confirm this, not a work-accident form despite
-      the TRA_ prefix); width 1 fits a Sim/Não flag.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 58 (Número da partida)'
   TRA_QTD_SO:
-    official_name: Quantidade de soro
-    translated_name: Immunoglobulin quantity
-    description: 'How much immunoglobulin was given. Dosed by body weight, unlike the
-      vaccine, so it varies with the patient.
-
-      '
+    official_name: 'Quantidade de soro aplicada em ml'
+    translated_name: 'Anti-rabies serum applied (ml)'
+    description: 'Amount of anti-rabies serum applied, in millilitres; dosed by body weight (TRA_PESO).'
     code_system: none
-    source: inferred
-    reasoning: C(3) quantity in the treatment block.
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Atendimento Antirrábico Humano (rev. dez/2014) — sources/dic_text/atendimento-antirrabico__DIC_DADOS_anti_rabico_v5.1.txt (DIC_DADOS_anti_rabico_v5.1.pdf, portalsinan.saude.gov.br), campo 55 (Quantidade de soro aplicada em ml)'

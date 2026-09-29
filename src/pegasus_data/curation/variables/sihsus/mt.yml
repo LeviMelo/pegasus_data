@@ -19,8 +19,8 @@ variables:
     reasoning: 'ANO_MES is a transparent contraction of ANO ("year") and MES ("month"),
       the convention used explicitly elsewhere in this system (ANO_CMPT/MES_CMPT, and
       ANO/MES in the ER file above); a 4-character width fits a 2+2 digit YYMM encoding.
-
-      '
+      Reviewed 2026-09-28: no documentation found (searched IT_SIHSUS_1603, GEOCOD-AIH
+      dictionary, TAB_SIH DEFs 1992-2007, web search for the MT file layout).'
     notes: 'No observed values were captured for this column, so the exact digit split
       (YYMM vs MMAA) is unverified.
 
@@ -33,12 +33,12 @@ variables:
       '
     code_system: external
     source: inferred
-    reasoning: '"Ato profissional" is standard SUS billing terminology for a procedure
-      a health professional performs and is remunerated for by point value (see SP_PONTO
+    reasoning: '"Ato profissional" is standard SUS billing terminology for a procedure a
+      health professional performs and is remunerated for by point value (see SP_PONTO
       below); ATO_PROF sits directly beside QTD_ATO, TIPO_ATO and VAL_ATO — the cluster
-      expected around one billed procedure.
-
-      '
+      expected around one billed procedure. Reviewed 2026-09-28: no documentation found
+      (searched IT_SIHSUS_1603, GEOCOD-AIH dictionary, TAB_SIH DEFs 1992-2007, web
+      search for the MT file layout).'
     notes: 'No observed values or bound codelist exist in the catalog for this column
       — which procedure table (a pre-SIGTAP, era-specific table) it draws codes from
       is not established here.
@@ -53,12 +53,12 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'CGC and CPF are Brazil''s two taxpayer-registry identifiers (entity
-      and individual respectively); the declared width, C(14), exactly fits a 14-digit
-      CGC/CNPJ with an 11-digit CPF left-padded into the same field — the same CNPJ-width
-      pattern already seen in SP_CGCHOSP.
-
-      '
+    reasoning: 'CGC and CPF are Brazil''s two taxpayer-registry identifiers (entity and
+      individual respectively); the declared width, C(14), exactly fits a 14-digit
+      CGC/CNPJ with an 11-digit CPF left-padded into the same field — the same
+      CNPJ-width pattern already seen in SP_CGCHOSP. Reviewed 2026-09-28: no
+      documentation found (searched IT_SIHSUS_1603, GEOCOD-AIH dictionary, TAB_SIH DEFs
+      1992-2007, web search for the MT file layout).'
     notes: An identifier of a real-world person or organisation, not a classification
       code.
   ID_CGC_CPF:
@@ -69,10 +69,10 @@ variables:
     modifies: CGC_CPF
     source: inferred
     reasoning: 'The ID_ prefix is DATASUS''s standard indicator naming, and it sits
-      immediately after CGC_CPF — the position a type-discriminator flag for the preceding
-      field would occupy.
-
-      '
+      immediately after CGC_CPF — the position a type-discriminator flag for the
+      preceding field would occupy. Reviewed 2026-09-28: no documentation found
+      (searched IT_SIHSUS_1603, GEOCOD-AIH dictionary, TAB_SIH DEFs 1992-2007, web
+      search for the MT file layout).'
     notes: No observed values were captured, so which character means CGC and which
       means CPF is not established here.
   QTD_ATO:
@@ -81,11 +81,11 @@ variables:
       within the record.
     code_system: none
     source: inferred
-    reasoning: 'QTD_ is DATASUS''s standing abbreviation for "quantidade" (see QTDGESTANT
-      etc. in SINASC), paired here with ATO_PROF, TIPO_ATO and VAL_ATO in a one-billed-procedure-per-row
-      cluster.
-
-      '
+    reasoning: 'QTD_ is DATASUS''s standing abbreviation for "quantidade" (see
+      QTDGESTANT etc. in SINASC), paired here with ATO_PROF, TIPO_ATO and VAL_ATO in a
+      one-billed-procedure-per-row cluster. Reviewed 2026-09-28: no documentation found
+      (searched IT_SIHSUS_1603, GEOCOD-AIH dictionary, TAB_SIH DEFs 1992-2007, web
+      search for the MT file layout).'
   RATEIO:
     translated_name: Apportionment flag/code
     description: 'Appears to mark how this professional act''s points/value were apportioned
@@ -96,11 +96,11 @@ variables:
     code_system: internal
     source: inferred
     reasoning: '"Rateio" (apportionment/pro-rating) is the documented SUS billing term
-      for splitting a procedure''s professional-service value among multiple participating
-      professionals; the column''s single-character width and position in the ATO_PROF/QTD_ATO/VAL_ATO
-      cluster fit a per-professional share code or flag.
-
-      '
+      for splitting a procedure''s professional-service value among multiple
+      participating professionals; the column''s single-character width and position in
+      the ATO_PROF/QTD_ATO/VAL_ATO cluster fit a per-professional share code or flag.
+      Reviewed 2026-09-28: no documentation found (searched IT_SIHSUS_1603, GEOCOD-AIH
+      dictionary, TAB_SIH DEFs 1992-2007, web search for the MT file layout).'
     notes: 'DELIBERATELY UNDER-SPECIFIED. No observed values, .DEF label or bound codelist
       exist for this column anywhere consulted — only the general concept (apportionment
       among professionals) is asserted here, not any specific code''s meaning.
@@ -115,13 +115,13 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: '"SP" is this system''s established abbreviation for Serviços Profissionais
-      (confirmed by SP_CGCHOSP / [DEF-SP] above), and DATASUS documentation describes
-      AIH professional-service remuneration as a "rateio de pontos de serviços profissionais"
-      (apportionment of points among the professionals on a case) — SP_PONTO is that
-      point count.
-
-      '
+    reasoning: '"SP" is this system''s established abbreviation for Serviços
+      Profissionais (confirmed by SP_CGCHOSP / [DEF-SP] above), and DATASUS
+      documentation describes AIH professional-service remuneration as a "rateio de
+      pontos de serviços profissionais" (apportionment of points among the professionals
+      on a case) — SP_PONTO is that point count. Reviewed 2026-09-28: no documentation
+      found (searched IT_SIHSUS_1603, GEOCOD-AIH dictionary, TAB_SIH DEFs 1992-2007, web
+      search for the MT file layout).'
     notes: A remuneration unit, not currency — do not sum it as if it were reais.
   TIPO:
     translated_name: Record-type code (1995-1997 professional-acts file)
@@ -135,9 +135,8 @@ variables:
     reasoning: 'Bare "TIPO" sits in the same MT table as ATO_PROF, TIPO_ATO and QTD_ATO
       (sihsus_rest.yml); a standalone "TIPO" column beside a more specific TIPO_ATO
       reads as a record/category-level flag rather than a second name for the same
-      concept.
-
-      '
+      concept. Reviewed 2026-09-28: no documentation found (searched IT_SIHSUS_1603,
+      GEOCOD-AIH dictionary, TAB_SIH DEFs 1992-2007, web search for the MT file layout).'
     notes: 'No observed values were captured in this batch, so it is distinguished
       from TIPO_ATO by position and bareness of name only.
 
@@ -149,8 +148,10 @@ variables:
     code_system: internal
     modifies: ATO_PROF
     source: inferred
-    reasoning: TIPO_ATO pairs directly with ATO_PROF in the same billing cluster; TIPO_
-      prefixing a preceding noun is standard DATASUS naming grammar.
+    reasoning: 'TIPO_ATO pairs directly with ATO_PROF in the same billing cluster; TIPO_
+      prefixing a preceding noun is standard DATASUS naming grammar. Reviewed
+      2026-09-28: no documentation found (searched IT_SIHSUS_1603, GEOCOD-AIH
+      dictionary, TAB_SIH DEFs 1992-2007, web search for the MT file layout).'
     notes: No codelist or observed values were captured — the categories this code
       distinguishes are unknown.
   UF_DOM:
@@ -158,11 +159,11 @@ variables:
     description: IBGE 2-digit state code of the professional's declared residence (domicílio).
     code_system: external
     source: inferred
-    reasoning: 'DOM is DATASUS''s standard abbreviation for domicílio (residence),
-      C(2) matches an IBGE UF code''s width, and it sits beside UF_VINC, distinguishing
-      residence from institutional linkage.
-
-      '
+    reasoning: 'DOM is DATASUS''s standard abbreviation for domicílio (residence), C(2)
+      matches an IBGE UF code''s width, and it sits beside UF_VINC, distinguishing
+      residence from institutional linkage. Reviewed 2026-09-28: no documentation found
+      (searched IT_SIHSUS_1603, GEOCOD-AIH dictionary, TAB_SIH DEFs 1992-2007, web
+      search for the MT file layout).'
     notes: No observed values were captured to confirm the code space is the standard
       IBGE UF table.
   UF_VINC:
@@ -175,10 +176,9 @@ variables:
     code_system: external
     source: inferred
     reasoning: 'VINC is DATASUS''s standard abbreviation for vínculo (a professional''s
-      registered link to an establishment/CNES), paired directly with UF_DOM in the
-      same record.
-
-      '
+      registered link to an establishment/CNES), paired directly with UF_DOM in the same
+      record. Reviewed 2026-09-28: no documentation found (searched IT_SIHSUS_1603,
+      GEOCOD-AIH dictionary, TAB_SIH DEFs 1992-2007, web search for the MT file layout).'
     notes: Same caveat as UF_DOM — no observed values were captured.
   VAL_ATO:
     translated_name: Value of the act
@@ -186,8 +186,8 @@ variables:
       of the ATO_PROF/QTD_ATO/SP_PONTO billing chain.
     code_system: none
     source: inferred
-    reasoning: 'VAL_ is DATASUS''s standing prefix for a monetary amount throughout
-      SIH (VAL_TOT, VAL_SH, VAL_SP, ...); N(14,2) is a money-shaped declared type,
-      and it closes out the ATO_PROF/QTD_ATO/SP_PONTO cluster.
-
-      '
+    reasoning: 'VAL_ is DATASUS''s standing prefix for a monetary amount throughout SIH
+      (VAL_TOT, VAL_SH, VAL_SP, ...); N(14,2) is a money-shaped declared type, and it
+      closes out the ATO_PROF/QTD_ATO/SP_PONTO cluster. Reviewed 2026-09-28: no
+      documentation found (searched IT_SIHSUS_1603, GEOCOD-AIH dictionary, TAB_SIH DEFs
+      1992-2007, web search for the MT file layout).'

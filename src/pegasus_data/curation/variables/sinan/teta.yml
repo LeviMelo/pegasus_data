@@ -36,18 +36,12 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: The residual item of the clinical block.
   NM_SIN_OUT:
-    official_name: Outros sinais e sintomas - especifique
+    official_name: 'Manifestações clínicas - Outros (especificar)'
     translated_name: Other signs/symptoms - specify
-    description: 'Free-text name of an additional clinical sign or symptom the accidental-tetanus
-      (TETA) patient presented that isn''t among the form''s named checkboxes (trismus,
-      opisthotonus, etc.).
-
-      '
+    description: 'Free-text name of any other clinical manifestation the patient presented; enabled only when the "other" manifestation flag (CS_SIN_OUT) is 1.'
     code_system: none
-    source: inferred
-    reasoning: 'NM_SIN_OUT = nome + sinal + outro; TETA form; width 30 free text.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Tétano Acidental — http://portalsinan.saude.gov.br/images/documentos/Agravos/tetanoacidental/DIC_DADOS_Tetano_Acidental_v5.pdf, campo 38 (Manifestações clínicas – Outros)'
   NU_DOSE:
     official_name: Número de doses da vacina
     translated_name: Vaccine doses received
@@ -60,7 +54,7 @@ variables:
     source_ref: DOSES.CNV
     reasoning: Bound to DOSES, the standard vaccine-dose banding.
   SG_UF_INTE:
-    official_name: Sigla da UF de internação
+    official_name: 'UF de hospitalização'
     translated_name: State of hospitalization (abbreviation)
     description: 'Two-letter abbreviation of the state where the accidental-tetanus
       (TETA) patient was hospitalized, which can differ from the state of residence
@@ -68,27 +62,15 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'TETA form; SG_ = sigla, UF_INTE = UF de internação; width 2 matches
-      a state abbreviation.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Tétano Acidental — http://portalsinan.saude.gov.br/images/documentos/Agravos/tetanoacidental/DIC_DADOS_Tetano_Acidental_v5.pdf, campo 42 (UF de hospitalização)'
   TP_ANALISE:
-    official_name: Tipo de ferimento analisado
-    translated_name: Wound type classification
-    description: 'Classifies the wound''s type/severity (e.g. clean minor wound vs.
-      contaminated major wound) to assess tetanus risk and guide prophylaxis - grouped
-      with the form''s other wound-description fields (TP_CAUSA for cause, TP_LOCALLE
-      for body site, TP_ORIGEM for origin).
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'TP_ = tipo; sits among TETA''s wound-characteristic fields (TP_CAUSA/TP_LOCALLE/TP_ORIGEM),
-      so ANALISE more likely classifies the wound examined than the case-review status
-      seen in TETN''s differently-purposed CS_ANALISE.
-
-      '
+    official_name: 'Medidas de controle - Vacinação da população suscetível'
+    translated_name: 'Control measure: vaccination of the susceptible population'
+    description: 'Whether vaccination of the susceptible (unvaccinated or incompletely vaccinated) people around the case was carried out as a control measure.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Tétano Acidental — http://portalsinan.saude.gov.br/images/documentos/Agravos/tetanoacidental/DIC_DADOS_Tetano_Acidental_v5.pdf, campo 44 (Medidas de controle – Vacinação da população suscetível)'
   TP_CAUSA:
     official_name: Causa do ferimento
     translated_name: Cause of the wound
@@ -105,34 +87,19 @@ variables:
 
       '
   TP_CAUSOUT:
-    official_name: Outro tipo de causa (especificar)
+    official_name: 'Possível causa - Outros (descrição)'
     translated_name: Other injury cause (specify)
-    description: 'Free-text field describing the cause of the wound that put the patient
-      at risk of accidental tetanus, used when the injury type isn''t one of the form''s
-      standard cause categories.
-
-      '
+    description: 'Free-text description of the probable cause (portal of entry) of the infection when the coded possible-cause field TP_CAUSA is 8 (other).'
     code_system: none
-    source: inferred
-    reasoning: 'Agravo is TETA (tétano acidental); TP_CAUSOUT reads "tipo de causa
-      - outro"; wide C30 width fits a free-text "other, specify" companion to the coded
-      TP_ORIGEM field.
-
-      '
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Tétano Acidental — http://portalsinan.saude.gov.br/images/documentos/Agravos/tetanoacidental/DIC_DADOS_Tetano_Acidental_v5.pdf, campo 33 (Possível causa – Outros)'
   TP_IDENTFI:
-    official_name: Tipo de identificação do ferimento
-    translated_name: Wound identification type
-    description: 'Type of wound identification/classification recorded on the accidental
-      tetanus (TETA) investigation form, characterizing how the injury that led to
-      infection was assessed.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'TP_ = tipo, IDENTFI = identificação; accidental tetanus forms classify
-      the causative wound, and C1 width fits a coded category.
-
-      '
+    official_name: 'Medidas de controle - Identificar população suscetível'
+    translated_name: 'Control measure: susceptible population identified'
+    description: 'Whether people with an incomplete or absent tetanus vaccination schedule were identified around the case as a control measure.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Tétano Acidental — http://portalsinan.saude.gov.br/images/documentos/Agravos/tetanoacidental/DIC_DADOS_Tetano_Acidental_v5.pdf, campo 44 (Medidas de controle – Identificar população suscetível)'
   TP_LOCALLE:
     official_name: Local da lesão
     translated_name: Site of the wound
@@ -149,18 +116,12 @@ variables:
 
       '
   TP_ORIGEM:
-    official_name: Tipo de origem do ferimento
-    translated_name: Wound origin type
-    description: 'Coded category of how the tetanus-prone wound occurred (e.g. agricultural,
-      domestic, occupational injury), the structured counterpart to the free-text TP_CAUSOUT.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'TETA form; TP_ tipo prefix with ORIGEM reading "origem"; C1 width fits
-      a small enumerated cause category.
-
-      '
+    official_name: 'Origem do caso'
+    translated_name: 'Case origin'
+    description: 'How the case came to the attention of surveillance: through notification, active case search, or a death certificate.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Tétano Acidental — http://portalsinan.saude.gov.br/images/documentos/Agravos/tetanoacidental/DIC_DADOS_Tetano_Acidental_v5.pdf, campo 39 (Origem do caso)'
   TP_PROFILA:
     official_name: Profilaxia realizada
     translated_name: Prophylaxis given
@@ -177,15 +138,9 @@ variables:
 
       '
   TP_VACINA:
-    official_name: Tipo de vacina antitetânica
-    translated_name: Tetanus vaccine type
-    description: 'Coded type of tetanus vaccine (e.g. dT, dTpa) given to the patient
-      as prophylaxis or treatment following the injury.
-
-      '
-    code_system: none
-    source: inferred
-    reasoning: 'TETA form; TP_VACINA reads "tipo de vacina"; C1 width fits a small
-      enumerated vaccine-type code.
-
-      '
+    official_name: 'Medidas de controle - Análise de cobertura vacinal por faixa etária'
+    translated_name: 'Control measure: vaccination coverage analysed by age group'
+    description: 'Whether tetanus vaccination coverage, by age group, of the population of the case''s municipality of residence was analysed as a control measure.'
+    code_system: 'internal'
+    source: layout_doc
+    source_ref: 'Dicionário de Dados SINAN NET v5.0 – Tétano Acidental — http://portalsinan.saude.gov.br/images/documentos/Agravos/tetanoacidental/DIC_DADOS_Tetano_Acidental_v5.pdf, campo 44 (Medidas de controle – Análise de cobertura vacinal por faixa etária)'

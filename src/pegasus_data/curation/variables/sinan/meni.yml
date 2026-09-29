@@ -78,139 +78,167 @@ variables:
 
       '
   ANT_DOSES_:
-    official_name: Doses de vacina B e C
+    official_name: Número de doses (polissacarídica B/C)
     translated_name: Meningococcal B and C doses
-    description: How many doses of the B and C vaccine were given.
+    description: 'Number of doses of the polysaccharide meningococcal B/C vaccine the patient
+      received.
+
+      '
     code_system: none
-    source: inferred
-    reasoning: N(2) dose count paired with ANT_BC.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – número
+      de doses, polissacarídica B/C)
   ANT_DOSE_3:
-    official_name: Doses de vacina A e C
+    official_name: Número de doses (polissacarídica A/C)
     translated_name: Meningococcal A and C doses
-    description: How many doses of the A and C vaccine were given.
+    description: 'Number of doses of the polysaccharide meningococcal A/C vaccine the patient
+      received.
+
+      '
     code_system: none
-    source: inferred
-    reasoning: C(2) dose count paired with ANT_AC.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – número
+      de doses, polissacarídica A/C)
   ANT_DOSE_4:
-    official_name: Antecedente - dose 4 (dia)
-    translated_name: Prior regimen - dose 4 (day)
-    description: 'Day-count on which the 4th dose of a prior antirábica prophylaxis
-      regimen was given (rabies schedules are dosed by day-since-bite: 0, 3, 7, 14,
-      28). Sibling of ANT_DOSE_5/7/C/T for other doses in the same regimen.
+    official_name: Número de doses (BCG)
+    translated_name: BCG doses
+    description: 'Number of BCG doses the patient received.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'Declared as 2-digit numeric (N2), which fits a day number but not a
-      full date; it belongs to the ANTEC_PRE/POS prior-vaccination block.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – número
+      de doses, BCG)
   ANT_DOSE_5:
-    official_name: Antecedente - dose 5 (dia)
-    translated_name: Prior regimen - dose 5 (day)
-    description: 'Day-count for the 5th dose of the same prior antirábica regimen;
-      see ANT_DOSE_4.
+    official_name: Número de doses (tríplice viral)
+    translated_name: MMR doses
+    description: 'Number of MMR (measles, mumps, rubella) vaccine doses the patient received.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as ANT_DOSE_4; distinguished only by dose number.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – número
+      de doses, tríplice viral)
   ANT_DOSE_7:
-    official_name: Antecedente - dose 7 (dia)
-    translated_name: Prior regimen - dose 7 (day)
-    description: 'Day-count for the 7th dose of the same prior antirábica regimen;
-      see ANT_DOSE_4.
+    official_name: Número de doses (pneumococo)
+    translated_name: Pneumococcal vaccine doses
+    description: 'Number of pneumococcal vaccine doses the patient received.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as ANT_DOSE_4; distinguished only by dose number.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – número
+      de doses, pneumococo)
   ANT_DOSE_C:
-    official_name: Antecedente - dose complementar
-    translated_name: Prior regimen - booster dose
-    description: 'Flag/day-count for a complementary or booster ("reforço") dose in
-      the same prior antirábica regimen as ANT_DOSE_4/5/7, rather than a numbered dose
-      in the primary series.
+    official_name: Número de doses (conjugada meningo C)
+    translated_name: Meningococcal C conjugate doses
+    description: 'Number of doses of the conjugate meningococcal C vaccine the patient received.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'The C suffix breaks the numeric 4/5/7 pattern, consistent with "complementar"
-      marking a booster rather than an ordinal dose.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – número
+      de doses, conjugada meningo C)
   ANT_DOSE_T:
-    official_name: Antecedente - total de doses
-    translated_name: Prior regimen - total doses
-    description: 'Total count of doses the patient received in the prior antirábica
-      regimen summarized by ANT_DOSE_4/5/7/C.
+    official_name: Número de doses (hemófilo – tetravalente ou Hib)
+    translated_name: Haemophilus vaccine doses
+    description: 'Number of Haemophilus influenzae b vaccine doses (tetravalent or Hib) the
+      patient received.
 
       '
     code_system: none
-    source: inferred
-    reasoning: T suffix (total) fits a summary count closing out the same dose series.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – número
+      de doses, hemófilo – tetravalente ou Hib)
   ANT_DTULT_:
-    official_name: Data da última dose B e C
+    official_name: Data da última dose (polissacarídica B/C)
     translated_name: Date of last B and C dose
     description: Date of the last meningococcal B and C dose.
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with ANT_BC.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – data
+      da última dose, polissacarídica B/C)
   ANT_DTUL_3:
-    official_name: Data da última dose A e C
+    official_name: Data da última dose (polissacarídica A/C)
     translated_name: Date of last A and C dose
     description: Date of the last meningococcal A and C dose.
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with ANT_AC.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – data
+      da última dose, polissacarídica A/C)
   ANT_DTUL_4:
-    official_name: Data da vacina BCG
+    official_name: Data da última dose (BCG)
     translated_name: Date of BCG
-    description: Date the BCG was given.
+    description: 'Date of the last BCG dose.
+
+      '
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with ANT_BCG.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – data
+      da última dose, BCG)
   ANT_DTUL_5:
-    official_name: Data da vacina tríplice
-    translated_name: Date of triple vaccine
-    description: Date the triple vaccine was given.
+    official_name: Data da última dose (tríplice viral)
+    translated_name: Date of last MMR dose
+    description: 'Date of the last MMR (measles, mumps, rubella) dose.
+
+      '
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with ANT_TRIPLI.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – data
+      da última dose, tríplice viral)
   ANT_DTUL_7:
-    official_name: Data da outra vacina
-    translated_name: Date of other vaccine
-    description: Date the other vaccine was given.
+    official_name: Data da última dose (pneumococo)
+    translated_name: Date of last pneumococcal dose
+    description: 'Date of the last pneumococcal vaccine dose.
+
+      '
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with ANT_OUTRA.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – data
+      da última dose, pneumococo)
   ANT_DTUL_8:
-    official_name: Antecedente - data da última dose
-    translated_name: Prior regimen - date of last dose
-    description: 'Date of the last dose in the prior antirábica prophylaxis regimen
-      described by ANT_DOSE_4/5/7/C/T. AAAAMMDD.
+    official_name: Data da última dose (outra)
+    translated_name: Date of last dose of other vaccine
+    description: 'Date of the last dose of the other vaccine named in ANT_OU_DE.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DTUL reads data última (last date); D8 width matches a full date, and
-      it closes the same antecedent-vaccination block as the ANT_DOSE_* series.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – data
+      da última dose, outra)
   ANT_DTUL_C:
-    official_name: Data da última dose conjugada C
+    official_name: Data da última dose (conjugada meningo C)
     translated_name: Date of last conjugate C dose
     description: Date of the last conjugate meningococcal C dose.
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with ANT_CONJ_C.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – data
+      da última dose, conjugada meningo C)
   ANT_DTUL_T:
-    official_name: Data da última dose de Hib
+    official_name: Data da última dose (hemófilo)
     translated_name: Date of last Hib dose
-    description: Date of the last Hib dose.
+    description: 'Date of the last Haemophilus influenzae b vaccine dose (tetravalent or Hib).
+
+      '
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with ANT_HEMO_T.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – data
+      da última dose, hemófilo)
   ANT_HEMO_T:
     official_name: Vacina contra Haemophilus influenzae b
     translated_name: Hib vaccine
@@ -273,25 +301,29 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: The residual item of the comorbidity block.
   ANT_OUTR_D:
-    official_name: Antecedente outro - descrição
-    translated_name: Other antecedent - description
-    description: 'A third parallel "other, specify" text field in the ANT_OUTROS antecedents
-      block, likely for yet another antecedent sub-category. See ANT_OUTROS.
+    official_name: Doenças pré-existentes (outro) – especificar
+    translated_name: Other pre-existing disease (specify)
+    description: 'Free-text name of another pre-existing disease, filled when ANT_OUTRO is
+      yes.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as ANT_OUTROS.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 34 (Doenças pré-existentes
+      – outro, especificar)
   ANT_OU_DE:
-    official_name: Especificação de outra vacina
+    official_name: Vacinação (outra) – especificar
     translated_name: Other vaccine, specified
     description: 'Free text naming the other vaccine. Thirty characters of uncontrolled
       vocabulary, so it must be read rather than grouped.
 
       '
     code_system: none
-    source: inferred
-    reasoning: C(30) free text following ANT_OUTRA.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 33 (Vacinação – outra,
+      se outra especificar)
   ANT_SECUND:
     official_name: Caso secundário
     translated_name: Secondary case
@@ -334,75 +366,65 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no comorbidity flag; TUBE reads tuberculose.
   ATE_UF_HOS:
-    official_name: Atendimento - UF do hospital
-    translated_name: Encounter - hospital state
-    description: 'UF (state) code of the hospital where the patient was first attended.
-      Distinct from ATE_UF_INT, the state of inpatient admission, which may differ
-      when a patient is transferred.
+    official_name: UF hospital
+    translated_name: State of the hospital
+    description: 'State (UF) of the hospital where the patient was admitted.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'HOS abbreviates hospital and INT internação; both are 2-character UF
-      fields under the same ATE_ (atendimento) prefix.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 43 (UF hospital)
   CLA_ME_ASS:
-    official_name: Classificação meningite - associada
-    translated_name: Meningitis classification - associated condition
-    description: 'Short code for a condition or classification associated with the
-      meningitis case (e.g. a concurrent diagnosis). Sibling of CLA_ME_BAC (bacterial
-      subtype) and CLA_ME_ETI (etiological classification) in the same Meningite classification
-      block.
+    official_name: Se confirmado, especifique (meningite asséptica)
+    translated_name: Aseptic meningitis etiology
+    description: 'Final diagnosis code (dictionary Quadro III) for a confirmed case classified
+      as aseptic meningitis (CON_DIAGES = 7).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'CLA_ME_ is classificação meningite; ASS/BAC/ETI are three parallel
-      4-character coded sub-classifications of the same case.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 51 (Se confirmado, especifique
+      – 7 Meningite asséptica; Quadro III)
   CLA_ME_BAC:
-    official_name: Classificação meningite - bacteriana
-    translated_name: Meningitis classification - bacterial subtype
-    description: 'Short code identifying the specific bacterial agent/subtype when
-      the case is classified as bacterial meningitis; see CLA_ME_ASS for the sibling
-      associated-condition code.
+    official_name: Se confirmado, especifique (meningite por outras bactérias)
+    translated_name: Other bacterial meningitis agent
+    description: 'Code of the bacterium (dictionary Quadro II) for a confirmed case classified
+      as meningitis due to other bacteria (CON_DIAGES = 5).
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as CLA_ME_ASS; BAC specifically abbreviates bacteriana.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 51 (Se confirmado, especifique
+      – 5 Meningite por outras bactérias; Quadro II)
   CLA_ME_ETI:
-    official_name: Classificação meningite - etiológica
-    translated_name: Meningitis classification - etiologic
-    description: 'Short code for the etiologic classification of the meningitis case
-      (e.g. bacterial, viral, other), sibling of CLA_ME_ASS (associated condition)
-      and CLA_ME_BAC (bacterial subtype) in the same Meningite classification block.
+    official_name: Se confirmado, especifique (meningite de outra etiologia)
+    translated_name: Other-etiology meningitis diagnosis
+    description: 'Final diagnosis code (dictionary Quadro IV) for a confirmed case classified
+      as meningitis of other etiology (CON_DIAGES = 8).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'ETI abbreviates etiológica; same CLA_ME_ prefix and 4-character width
-      as its two siblings.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 51 (Se confirmado, especifique
+      – 8 Meningite de outra etiologia; Quadro IV)
   CLA_SOROGR:
-    official_name: Classificação - sorogrupo
+    official_name: Se N. meningitidis, especificar sorogrupo
     translated_name: Classification - serogroup
-    description: 'Numeric code for the meningococcal serogroup (e.g. A, B, C, W, Y)
-      identified in laboratory testing, part of the Meningite/Doença Meningocócica
-      classification block.
+    description: 'Serogroup of Neisseria meningitidis (dictionary Quadro VI), filled for meningococcal
+      disease (CON_DIAGES 1–3).
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'SOROGR abbreviates sorogrupo; a 4-digit numeric field alongside the
-      CLA_ME_* meningitis classification codes fits a coded serogroup result.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 53 (Se N. meningitidis,
+      especificar sorogrupo; Quadro VI)
   CLI_ABAULA:
-    official_name: Clínico - abaulamento de fontanela
+    official_name: Sinais e sintomas – abaulamento de fontanela
     translated_name: Clinical - bulging fontanelle
     description: 'Sim/Não flag for abaulamento de fontanela (bulging fontanelle), a
       classic infant meningitis sign, part of the CLI_ clinical-symptom checklist alongside
@@ -410,56 +432,57 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'ABAULA abbreviates abaulamento; 1-character width matches a binary
-      symptom flag, and it clusters with other meningitis-specific signs.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 40 (Sinais e sintomas
+      – abaulamento de fontanela)
   CLI_COMA:
-    official_name: Clínico - coma
+    official_name: Sinais e sintomas – coma
     translated_name: Clinical - coma
     description: 'Sim/Não flag for coma, part of the same meningitis clinical-symptom
       checklist as CLI_ABAULA, CLI_CONVUL and CLI_RIGIDE.
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as CLI_ABAULA.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 40 (Sinais e sintomas
+      – coma)
   CLI_CONVUL:
-    official_name: Clínico - convulsão
+    official_name: Sinais e sintomas – convulsões
     translated_name: Clinical - seizure
-    description: 'Sim/Não flag for convulsions/seizures, part of the same clinical-symptom
-      checklist as CLI_COMA; CLI_CON_ES holds a free-text elaboration of a related
-      clinical condition.
+    description: 'Whether the patient had seizures (1 yes, 2 no, 9 unknown).
 
       '
     code_system: none
-    source: inferred
-    reasoning: Same evidence as CLI_ABAULA.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 40 (Sinais e sintomas
+      – convulsões)
   CLI_RIGIDE:
-    official_name: Clínico - rigidez de nuca
+    official_name: Sinais e sintomas – rigidez de nuca
     translated_name: Clinical - neck stiffness
     description: 'Sim/Não flag for rigidez de nuca (neck stiffness), a classic meningitis
       sign, part of the same checklist as CLI_ABAULA and CLI_COMA.
 
       '
     code_system: none
-    source: inferred
-    reasoning: RIGIDE abbreviates rigidez; matches the meningitis symptom cluster.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 40 (Sinais e sintomas
+      – rigidez de nuca)
   CON_DIAGES:
-    official_name: Condição - diagnóstico gestacional
-    translated_name: Condition - pregnancy-related diagnosis
-    description: 'Short code classifying a pregnancy-related diagnosis or condition
-      associated with the case, echoing the DS_INI_GES/DS_FIM_GES (gestation start/end)
-      fields seen elsewhere in SINAN''s obstetric block.
+    official_name: Se confirmado, especifique
+    translated_name: 'Confirmed case: specific diagnosis'
+    description: 'Specific form of a confirmed case: meningococcaemia, meningococcal meningitis
+      (with or without meningococcaemia), tuberculous, other bacterial, unspecified, aseptic,
+      other etiology, Haemophilus or pneumococcal meningitis.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'DIAGES plausibly contracts diagnóstico + gestacional; 2-character width
-      fits a short coded category rather than free text.
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 51 (Se confirmado, especifique)
   LAB_AGLIQU:
     official_name: LATEX líquor
     translated_name: Latex agglutination test - CSF
@@ -609,15 +632,16 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Cultura Sangue/soro"
   LAB_DTPUNC:
-    official_name: Data da punção lombar
+    official_name: Data da punção
     translated_name: Date of lumbar puncture
     description: 'When the puncture was done. A puncture after antibiotics have started
       rarely grows the organism, so the order of the two matters.
 
       '
     code_system: none
-    source: inferred
-    reasoning: D(8) date paired with LAB_PUNCAO.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 47 (Data da punção)
   LAB_EOSI:
     official_name: Exame Quimiocitológico - Eosinófilos
     translated_name: CSF chemocytology - eosinophils
@@ -775,8 +799,9 @@ variables:
     translated_name: Date of outcome
     description: Date the outcome was recorded, closing the investigation.
     code_system: none
-    source: inferred
-    reasoning: D(8) date in the measures block.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 59 (Data da evolução)
   MED_DT_QUI:
     official_name: Se sim, data (Quimioprofilaxia)
     translated_name: Chemoprophylaxis date
@@ -795,8 +820,9 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: N(2) tally of comunicantes in the measures block.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
+      (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 54 (Número de comunicantes)
   MED_QUIMIO:
     official_name: Realizada Quimioprofilaxia dos Comunicantes
     translated_name: Chemoprophylaxis given to contacts

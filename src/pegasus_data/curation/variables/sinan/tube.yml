@@ -64,16 +64,14 @@ variables:
     source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
       campo 37
   AGRAVOUTDE:
-    official_name: Outro agravo associado
-    translated_name: Other associated notifiable condition
-    description: 'Name of another notifiable condition associated with the tuberculosis
-      case (e.g. HIV/AIDS, diabetes) — a comorbidity flag commonly captured on the
-      TB form given how often these conditions co-occur and affect treatment.
-
-      '
+    official_name: Doenças e agravos associados - Outro (especificar)
+    translated_name: Other associated disease (specify)
+    description: Free text naming another disease or condition associated with the tuberculosis
+      case, filled when AGRAVOUTRA = Sim.
     code_system: none
-    source: inferred
-    reasoning: C30 text; AGRAVO=agravo, OUT=outro, in the TUBE (tuberculose) stratum.
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Tuberculose (23/07/2020) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 37 (Doenças e agravos associados – Outro, especificar)
   AGRAVOUTRA:
     official_name: Doenças e agravos associados - Outras
     translated_name: Associated condition - other (Tuberculosis)
@@ -378,7 +376,7 @@ variables:
 
       '
   EXTRAPUL_O:
-    official_name: Forma extrapulmonar - Outra
+    official_name: Se extrapulmonar - Outras (especificar)
     translated_name: Extrapulmonary site - other, specified
     description: 'Free-text name of the extrapulmonary tuberculosis site when it is
       not one of the form''s named options (e.g. pleural, ganglionar, óssea, miliar),
@@ -386,13 +384,9 @@ variables:
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'No catalog evidence beyond declared type (C30, a free-text width) and
-      TUBE series membership. TUBE forms code the extrapulmonary site from a fixed
-      list with an "outra" escape hatch, matching the standard coded-field-plus-free-text-specify
-      pattern confirmed repeatedly elsewhere in SINAN (e.g. MAT_ORG_DE, ESP_OUT).
-
-      '
+    source: layout_doc
+    source_ref: Dicionário de Dados SINAN NET – Tuberculose (23/07/2020) — http://portalsinan.saude.gov.br/images/documentos/Agravos/Tuberculose/DICI_DADOS_NET_Tuberculose_23_07_2020.pdf,
+      campo 36 (Se extrapulmonar – Outras, especificar)
   HISTOPATOL:
     official_name: Histopatologia
     translated_name: Histopathology result
@@ -508,10 +502,11 @@ variables:
       '
     code_system: none
     source: inferred
-    reasoning: 'Agravo is TUBE (tuberculose); OUTRAS_DES reads "outro[a] desfecho";
-      wide C40 width fits a free-text "other, specify" outcome field.
-
-      '
+    reasoning: 'Agravo is TUBE (tuberculose); OUTRAS_DES reads "outro[a] desfecho"; wide
+      C40 width fits a free-text "other, specify" outcome field. Reviewed 2026-09-28:
+      no documentation found (searched the SINAN NET Tuberculose 2020 data dictionary,
+      TuberculNET.def and TuberculNET5_0.def in TAB_SINANNET; the column occurs only in
+      the 2001-2018 files).'
   PIRAZINAMI:
     official_name: Drogas - Pirazinamida
     translated_name: Drug used - Pyrazinamide
@@ -603,22 +598,15 @@ variables:
     source: layout_doc
     source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 39
   RIFAMPICIN:
-    official_name: Droga - Rifampicina
+    official_name: Drogas - Rifampicina
     translated_name: Rifampicin in regimen
-    description: 'Whether rifampicin was part of the patient''s initial TB drug regimen
-      — one of several yes/no drug-presence flags, alongside isoniazid, ethambutol,
-      streptomycin, pyrazinamide and ethionamide, filled in at treatment start.
-
-      '
+    description: Whether rifampicin was part of the patient's tuberculosis drug regimen
+      (Sim/Não).
     code_system: internal
-    source: inferred
+    source: def
+    source_ref: TuberculNET.def (TAB_SINANNET, ftp://ftp.datasus.gov.br/dissemin/publicos/SINAN/AUXILIAR/TAB_SINANNET.zip),
+      line "Drog RIFAMPICINA, RIFAMPICIN, SIM_NAO.CNV"
     asserted_by: pegasus_data
-    reasoning: 'TuberculNET.def names the field "Drog RIFAMPICINA" bound to codelist
-      SIM_NAO; in the schema it sits right after DT_INIC_TR (treatment start date)
-      beside ISONIAZIDA, ETAMBUTOL, ESTREPTOMI, PIRAZINAMI and ETIONAMIDA — a regimen
-      checklist, not a resistance test.
-
-      '
   SG_UF_2:
     official_name: UF de residência atual
     translated_name: Current state of residence
@@ -644,37 +632,24 @@ variables:
   SITUA_12_M:
     official_name: Situação no 12º mês
     translated_name: Status at treatment month 12
-    description: 'Treatment follow-up status recorded at the 12th month for drug-resistant
-      TB cases, whose regimens run well past the standard six months — still on treatment,
-      cured, abandoned, transferred, or died.
-
-      '
+    description: Case situation at the 12th month of treatment (e.g. cure, abandonment,
+      death, transfer, change of regimen or diagnosis, failure, still on treatment).
     code_system: internal
-    source: inferred
+    source: def
+    source_ref: TuberculNET.def (TAB_SINANNET, ftp://ftp.datasus.gov.br/dissemin/publicos/SINAN/AUXILIAR/TAB_SINANNET.zip),
+      line "Situação 12º Mês, SITUA_12_M, CUABOB12net.CNV"
     asserted_by: pegasus_data
-    reasoning: 'Bound to codelist family CUABOB12NET/SIT12MES, the same CUABOB* naming
-      pattern as SITUA_ENCE (CUABOB15NET, confirmed case-closure outcome); appears
-      only in the TUBE series paired with SITUA_9_M, matching the 12-month checkpoint
-      used in Brazilian DR-TB treatment monitoring.
-
-      '
   SITUA_9_M:
     official_name: Situação no 9º mês
     translated_name: Status at treatment month 9
-    description: 'Treatment follow-up status recorded at the 9th month for drug-resistant
-      TB cases — still on treatment, cured, abandoned, transferred, or died — an earlier
-      checkpoint than SITUA_12_M.
-
-      '
+    description: 'Case situation at the 9th month of treatment: cure, abandonment, death
+      from TB or other causes, transfer, change of regimen or diagnosis, failure, or still
+      on treatment.'
     code_system: internal
-    source: inferred
+    source: def
+    source_ref: TuberculNET.def (TAB_SINANNET, ftp://ftp.datasus.gov.br/dissemin/publicos/SINAN/AUXILIAR/TAB_SINANNET.zip),
+      line "Situação 9º Mês, SITUA_9_M, CUABOBT9net.CNV"
     asserted_by: pegasus_data
-    reasoning: 'Bound to codelist CUABOBT9NET, sharing the CUABOB* family with SITUA_12_M
-      (CUABOB12NET) and SITUA_ENCE (CUABOB15NET, confirmed case-closure outcome); appears
-      only in the TUBE series, consistent with periodic follow-up of the longer DR-TB
-      regimen.
-
-      '
   SITUA_ENCE:
     official_name: Situação de encerramento
     translated_name: Case closure status
@@ -694,14 +669,11 @@ variables:
 
       '
     code_system: internal
-    source: inferred
+    source: def
+    source_ref: TuberculNET.def (TAB_SINANNET, ftp://ftp.datasus.gov.br/dissemin/publicos/SINAN/AUXILIAR/TAB_SINANNET.zip),
+      line "Teste Tuberculin., TESTE_TUBE, NAOREATO.CNV" (não reator / reator fraco /
+      reator forte / não realizado)
     asserted_by: pegasus_data
-    reasoning: 'TuberculNET.def names the field "Teste Tuberculin." bound to codelist
-      NAOREATO ("não reator"/non-reactor), standard PPD grading vocabulary in Brazilian
-      TB programs; the field is absent from the current v5.0 dictionary''s numbered
-      field list (campos 31-66).
-
-      '
   TEST_MOLEC:
     official_name: Teste Molecular Rápido para TB (TRM-TB)
     translated_name: Rapid molecular TB test result
@@ -755,14 +727,10 @@ variables:
 
       '
     code_system: internal
-    source: inferred
+    source: def
+    source_ref: TuberculNET.def (TAB_SINANNET, ftp://ftp.datasus.gov.br/dissemin/publicos/SINAN/AUXILIAR/TAB_SINANNET.zip),
+      line "Trat.Superv. indicado, TRAT_SUPER, SIM_NAO.CNV"
     asserted_by: pegasus_data
-    reasoning: 'TuberculNET.def names it "Trat.Superv. indicado" bound to SIM_NAO,
-      distinct from TRATSUP_AT''s "Trat.Superv. realizado" (the current dictionary''s
-      TDO-realizado field, campo 60) — indicated vs. actually performed follows directly
-      from the two DEF labels.
-
-      '
   UF_TRANSF:
     official_name: UF de transferência
     translated_name: Transfer destination state
