@@ -43,5 +43,24 @@
   `FetchReport.members_absent`; the answer is not short.
 - **A member in another layout of the dataset is read under that layout**
   (`FetchReport.refamilied`), not dropped as a mismatch.
+- **The parent stratum is a component too.** It covers only the archives
+  holding it, and it samples its own member. `SIASUS_AC_2005` had sampled
+  `COAP0511.DBF`, so the year's AC tables took the CO layout and all 324
+  archives.
 
-**Result.** See the evaluation entry of the same date.
+**Result.**
+- **Census** (`schemas --all-files -s SIASUS`): 1,721 of 1,723 archives listed,
+  6,051 members, a few KB each.
+  - Its first version failed on every archive over 512 KB (624 of them): it
+    validated the first header against the prefix instead of the file's size.
+  - One connection timeout ended a run; connect failures are now recorded
+    per archive.
+- **Measured membership**, archives per component per year:
+  - CO 2005: **58** (324 assumed before);
+  - EX and PC 2003–2006: 266, 281, 323 and 310 (0 before);
+  - AC 2005–2006: 323 and 311 (0 before).
+- **New home `~/pegasus_fresh3`, 2005-01, `geography="AC"`:** SIASUS-AC, EX,
+  PC and CO all answer. `APA_CODUNI`, `EXA_CODUNI`, `PAC_CODUNI` and
+  `COB_CODUNI` read "FUNDACAO HOSPITAL ESTADUAL DO AC (200158)", with **0
+  undecoded**. Before, the codes were bound to nothing, and EX, PC and AC
+  refused the query.

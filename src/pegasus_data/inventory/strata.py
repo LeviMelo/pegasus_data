@@ -297,6 +297,36 @@ def expand_archive_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
                 kinds.setdefault(kind, (path, member))
                 holders.setdefault(kind, []).append(path)
         unlisted = [p for p in stratum.paths if p not in listed]
+        # The parent stratum is itself one component (ACAC0501.DBF in
+        # ACAC0501.EXE): it too covers only the archives holding it, and it
+        # samples ITS member. SIASUS_AC_2005 had sampled COAP0511.DBF, so the
+        # year's AC tables took the CO layout and all 324 archives.
+        parent_kind = (stratum.series or "").upper()
+        own: list[tuple[str, str]] = [
+            (path, m) for path in stratum.paths for m in listed.get(path, ())
+            if member_kind(path, m, stratum.series or "") == parent_kind
+        ]
+        if own:
+            own_paths = sorted({path for path, _ in own} | set(unlisted))
+            catalog.execute("DELETE FROM stratum_members WHERE stratum_id = ?", (stratum.stratum_id,))
+            catalog.executemany(
+                "INSERT OR IGNORE INTO stratum_members (stratum_id, path) VALUES (?,?)",
+                [(stratum.stratum_id, path) for path in own_paths],
+            )
+            sampled = catalog.query(
+                "SELECT sampled_path, sampled_member FROM strata WHERE stratum_id = ?", (stratum.stratum_id,)
+            )
+            current = str(sampled[0]["sampled_member"] or "") if sampled else ""
+            if current and member_kind(str(sampled[0]["sampled_path"]), current, stratum.series or "") != parent_kind:
+                catalog.execute(
+                    "UPDATE strata SET sampled_path = ?, sampled_member = ?, schema_signature = NULL, "
+                    "sample_status = 'pending', file_count = ? WHERE stratum_id = ?",
+                    (own[0][0], own[0][1], len(own_paths), stratum.stratum_id),
+                )
+            else:
+                catalog.execute(
+                    "UPDATE strata SET file_count = ? WHERE stratum_id = ?", (len(own_paths), stratum.stratum_id)
+                )
         for kind, (sample_path, member) in sorted(kinds.items()):
             child = f"{stratum.stratum_id}#{kind}"
             # An archive the census has not listed yet keeps the old assumption,

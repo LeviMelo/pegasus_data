@@ -1,14 +1,14 @@
 {
   "resource_schema_version": 2,
   "resource_content_version": "2026-09-29",
-  "built_at": "2026-09-29T19:26:45Z",
+  "built_at": "2026-09-29T23:12:14Z",
   "source_build_id": "2026-09-28T23:41:36+00:00",
   "crawled_at": "2026-09-28T23:41:36+00:00",
   "counts": {
     "files": 208095,
     "systems": 17,
-    "families": 390,
-    "columns": 4568,
+    "families": 391,
+    "columns": 4593,
     "variables_described": 4624,
     "bindings": 10658
   },
@@ -36,9 +36,9 @@
     "labels": {
       "file": "labels.parquet",
       "tier": "B",
-      "bytes": 29294535,
+      "bytes": 27940325,
       "rows": 3654320,
-      "sha256": "08289ba092d99711ff2c2e20c07486f6bbc07154d83ffe9e602c8fea2ff2ecb5"
+      "sha256": "264805486a046270df2240db0c7a3235fa0902e9b17855a533a67e1913907ce1"
     },
     "cnes_cnpj": {
       "file": "labels_crosswalk.parquet",
@@ -57,9 +57,9 @@
     "catalog_seed": {
       "file": "catalog_seed.sqlite.gz",
       "tier": "A",
-      "bytes": 19591546,
-      "rows": 913457,
-      "sha256": "bd0cdddf80ba31e8b521431fe1e70957c95b3d77f3fb6cf6fee904bd3b17f54e"
+      "bytes": 19827724,
+      "rows": 929882,
+      "sha256": "7685558be704b7dba0edbedf9e400d2def38cc8189343f31e26af8bd603c9fe9"
     }
   },
   "note": "Bundled resources are an offline runtime baseline. Local version-compatible updates take precedence."
