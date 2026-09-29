@@ -104,3 +104,4 @@ in.
 | 2026-09-28 | [The maintainer catalog refreshed from a full crawl: listing is cheap, and 5% of the tree had no family](docs/evaluation/2026-09-28-the-maintainer-catalog-refreshed-from-a-full-crawl.md) | maintainer build |
 | 2026-09-28 | [Age units measured against the records' own dates: SIM's layout document is wrong, and SINAN hides plain years](docs/evaluation/2026-09-28-age-units-measured-against-dates.md) | live |
 | 2026-09-28 | [The frontend's API after the redesign, and one served number checked against the microdata](docs/evaluation/2026-09-28-the-served-aggregate-matches-the-microdata.md) | live (`serve/`) |
+| 2026-09-29 | [43,916 .CNV codes glued to their labels, and a year that took four minutes](docs/evaluation/2026-09-29-glued-cnv-codes-and-a-slow-year.md) | kit re-parse; live (`query`) |
