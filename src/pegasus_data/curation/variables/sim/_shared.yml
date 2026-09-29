@@ -1619,6 +1619,9 @@ variables:
     description: 'Which system the record came through: the national Oracle database, a state
       database sent by FTP, or SEADE for São Paulo.'
     code_system: internal
+    # Estrutura do SIM 07/2025: "01- Oracle, 02 Banco estadual disponibilizado via FTP,
+    # 03 Banco SEADE, 9 Ignorado" for a 1-character field; the files hold 1, 2, 3, 9.
+    codes: {"1": "Oracle", "2": "Banco estadual disponibilizado via FTP", "3": "Banco SEADE", "9": "Ignorado"}
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo ORIGEM'

@@ -957,6 +957,8 @@ variables:
       a state file sent by FTP, or SEADE for São Paulo. A system field, not a fact about the
       birth.'
     code_system: internal
+    # Estrutura do SINASC 2019: "1- Oracle, 2- FTP 3- SEAD Banco de dados de Origem".
+    codes: {"1": "Oracle", "2": "FTP", "3": "SEADE"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo ORIGEM'
