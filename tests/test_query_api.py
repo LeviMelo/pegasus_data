@@ -206,6 +206,7 @@ def test_legacy_annual_lake_rows_gain_only_coarse_resolution() -> None:
     assert result["_source_resolution"].to_pylist() == ["year", "unknown"]
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_optional_registry_requirement_is_planned_and_refused_before_retrieval(settings) -> None:
     query_plan = pg.plan(
         "SIH-RD",
@@ -356,6 +357,7 @@ def test_legacy_analytical_axes_are_not_in_the_public_contract(settings) -> None
         pg.query("SIH-RD", period=2023, unresolved_time="retain", settings=settings)
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_fresh_install_plans_from_compiled_tree_schema_and_capabilities(tmp_path) -> None:
     from pegasus_data.config import Settings
 
@@ -367,6 +369,7 @@ def test_fresh_install_plans_from_compiled_tree_schema_and_capabilities(tmp_path
     assert query_plan.retrieval.source_strategy == "fetch"
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_unbounded_source_acquisition_requires_explicit_opt_in(tmp_path) -> None:
     from pegasus_data.config import Settings
 

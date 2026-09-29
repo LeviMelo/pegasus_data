@@ -544,26 +544,23 @@ def aggregate_suggest(
 @app.command(rich_help_panel="UNDERSTAND")
 def search(
     query: Annotated[str, typer.Argument(help="Words to look for, e.g. 'raça' or 'Parda'")],
-    docs: Annotated[Path | None, typer.Option("--docs", help="Dictionary database")] = None,
     kind: Annotated[
-        str | None, typer.Option("--kind", help="variable | codelist | dataset")
+        str | None, typer.Option("--kind", help="variable | dataset | code")
     ] = None,
+    system: Annotated[str | None, typer.Option("--system", "-s", help="One system, e.g. SIHSUS")] = None,
     limit: Annotated[int, typer.Option("--limit", "-n")] = 25,
+    root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Search the dictionary: variable names, descriptions and every code label.
+    """Search variable names, descriptions, datasets and every code label.
 
     "Which column is about race" and "which code means Parda" are the same
-    question to ask here. Accents are folded, so both spellings find it.
+    question to ask here. Accents are folded, so both spellings find it. Reads
+    the catalog and the shipped label pack; no dictionary build is needed.
     """
-    from .docsgen import search_docs
+    from ._search import search as _search
 
-    path = docs or Path("docs") / "dictionary.sqlite"
-    if not path.exists():
-        console.print(f"[red]no dictionary at {path}[/red]")
-        console.print("Run 'pegasus-data dictionary' to build it.")
-        raise typer.Exit(code=1)
-    hits = search_docs(path, query, limit=limit, kind=kind)
+    hits = _search(query, kind=kind, system=system, limit=limit, root=root)
     if not hits:
         console.print(f"[yellow]nothing matches {query!r}[/yellow]")
         return
@@ -1126,14 +1123,12 @@ def labelpack_cmd(
     and distils it into the file that lets `fetch(labels=True)` translate on a
     fresh install with no network. Run it after `semantics`.
     """
-    from .labelpack import build_binding_pack, build_label_pack
+    from .labelpack import build_label_pack
 
     pipeline = _pipeline(root)
     try:
         report = build_label_pack(pipeline.catalog, out)
-        bindings = build_binding_pack(pipeline.catalog, out.with_name("bindings.parquet"))
         counts = dict(report.counts)
-        counts["bindings"] = bindings
         _emit(counts, as_json, "label pack")
         if report.held_back and not as_json:
             console.print(
@@ -1270,9 +1265,6 @@ def explore(
     everything: Annotated[
         bool, typer.Option("--all-roles", help="Include dictionary and documentation files")
     ] = False,
-    packaged: Annotated[
-        bool, typer.Option("--packaged", help="Use the shipped snapshot even if a crawl exists")
-    ] = False,
     as_json: JsonOpt = False,
 ) -> None:
     """What DATASUS has — answered from the map, without downloading anything.
@@ -1281,16 +1273,15 @@ def explore(
     dataset gives coverage by year. Adding --year lists the files themselves,
     with sizes, which is what you want before committing to a download.
 
-    Works on a fresh install with no crawl and no network: the map of all
-    207,251 files ships with the package. A local crawl supersedes it, and the
-    result always says which one answered.
+    Works on a fresh install with no crawl and no network: the catalog starts
+    from the seed the package ships (ADR-0067). `crawl` brings it up to date,
+    and the result names the crawl date behind it.
     """
     from ._explore import explore as explore_tree
 
     try:
         result = explore_tree(
-            target, year=year, uf=uf, role=None if everything else "data",
-            source="packaged" if packaged else "auto", root=root,
+            target, year=year, uf=uf, role=None if everything else "data", root=root,
         )
     except FileNotFoundError as exc:
         console.print(f"[red]{exc}[/red]")

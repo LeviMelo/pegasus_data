@@ -113,6 +113,7 @@ def test_applied_adjudication_changes_the_actual_rendered_value(settings, catalo
     assert adjudication_evidence(catalog, key)["status"] == "adjudicated"
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_dimension_uses_each_rows_semantic_vintage(settings, monkeypatch) -> None:
     import pegasus_data.labelpack as labelpack
     from pegasus_data._query import QueryReport, _apply_dimensions
@@ -327,6 +328,7 @@ def test_overlapping_local_temporal_assertions_are_rejected(catalog) -> None:
         adjudicate(catalog, "second", second, by="test")
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_longitudinal_dimension_uses_relation_artifact_per_source_vintage(
     settings, monkeypatch
 ) -> None:
@@ -408,6 +410,7 @@ def test_local_reviewed_relation_dominates_shipped_relation(catalog, monkeypatch
     assert [item.artifact for item in effective] == ["LOCAL"]
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_unknown_required_dimension_vintage_is_null(settings, monkeypatch) -> None:
     import pegasus_data.labelpack as labelpack
     from pegasus_data._query import QueryReport, _apply_dimensions
@@ -431,6 +434,7 @@ def test_unknown_required_dimension_vintage_is_null(settings, monkeypatch) -> No
     assert report.dimensions[0]["unresolved_vintage_rows"] == 1
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_annual_dimension_uses_mapping_only_when_safe_for_the_whole_year(
     settings, monkeypatch
 ) -> None:
@@ -456,6 +460,7 @@ def test_annual_dimension_uses_mapping_only_when_safe_for_the_whole_year(
     assert calls == list(range(202001, 202013))
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_annual_dimension_is_null_when_relation_changes_midyear(
     settings, monkeypatch
 ) -> None:

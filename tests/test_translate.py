@@ -104,7 +104,9 @@ class TestItRefusesToGuess:
             translate(empty, system="SIHSUS", settings=dictionary)
 
     def test_with_no_catalog_it_says_how_to_get_one(self, settings):
-        with pytest.raises(TranslationImpossible, match="unpack"):
+        # No catalog and no seed to start one from (the suite disables it): the
+        # error names how to create one (ADR-0067).
+        with pytest.raises(FileNotFoundError, match="pegasus-data crawl"):
             translate(SAMPLE, system="SIHSUS", settings=settings)
 
     def test_with_a_catalog_but_no_codelists_it_uses_the_shipped_pack(self, settings):

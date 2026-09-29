@@ -79,7 +79,7 @@ _EXPORTS: dict[str, str] = {
     "Membership": ".geography",
     "compendium": "._compendium",
     "CompendiumReport": "._compendium",
-    "search": ".docsgen",
+    "search": "._search",
     "fetch": ".retrieve",
     "FetchReport": ".retrieve",
     "resource_manager": "._resources",

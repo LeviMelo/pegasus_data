@@ -52,19 +52,11 @@ __all__ = [
     "build_label_pack",
     "codelist_roles",
     "read_packed",
-    "build_binding_pack",
-    "seed_bindings",
     "PACK_NAME",
-    "BINDING_PACK_NAME",
 ]
 
 #: Where the distilled pack lives inside the installed package.
 PACK_NAME = "labels.parquet"
-
-#: Which codelist decodes which column. Tiny, and useless to ship labels
-#: without: the pack answers "what does this code mean", the bindings answer
-#: "which table is this column even in".
-BINDING_PACK_NAME = "bindings.parquet"
 
 #: ``CNPJ 12.345.678/0001-90-NAME`` — a tax number and a name concatenated into
 #: one label by the source. The CNPJ is frequently all zeros, which is the
@@ -924,41 +916,6 @@ def _read_packed(
     return (table, note, None, borrowed)
 
 
-def build_binding_pack(catalog: Catalog, out: str | Path) -> int:
-    """Write ``field_codelists`` as a shippable parquet, and return the row count.
-
-    A few thousand rows, and the label pack cannot be used without them: knowing
-    what ``I219`` means is no help if nothing says ``DIAG_PRINC`` is coded in
-    CID10.
-    """
-    import pyarrow as pa
-    import pyarrow.parquet as pq
-
-    rows = catalog.query(
-        "SELECT system, family_id, field_name, codelist, source, confidence,"
-        " decodes_observed FROM field_codelists"
-    )
-    table = pa.table(
-        {
-            "system": pa.array([str(r["system"]) for r in rows], pa.string()),
-            "family_id": pa.array([str(r["family_id"] or "") for r in rows], pa.string()),
-            "field_name": pa.array([str(r["field_name"]) for r in rows], pa.string()),
-            "codelist": pa.array([str(r["codelist"]) for r in rows], pa.string()),
-            "source": pa.array([str(r["source"] or "") for r in rows], pa.string()),
-            "confidence": pa.array([float(r["confidence"] or 0) for r in rows], pa.float64()),
-            "decodes_observed": pa.array(
-                [None if r["decodes_observed"] is None else float(r["decodes_observed"])
-                 for r in rows],
-                pa.float64(),
-            ),
-        }
-    )
-    target = Path(out)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    pq.write_table(table, target, compression="zstd", compression_level=19)
-    return table.num_rows
-
-
 def build_cnes_registry_pack(
     catalog: Catalog, out: str | Path, *, years: list[int] | None = None
 ) -> tuple[int, int]:
@@ -1046,54 +1003,3 @@ def build_cnes_registry_pack(
     target.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(table, target, compression="zstd", compression_level=19)
     return table.num_rows, target.stat().st_size
-
-
-def seed_bindings(catalog: Catalog) -> int:
-    """Merge the shipped bindings into the catalog. Returns rows actually added.
-
-    A local ``semantics`` run stays authoritative: ``field_codelists`` is keyed
-    on ``(system, family_id, field_name, codelist)`` and the insert below is
-    ``OR IGNORE``, so a row the catalog already holds is never overwritten.
-
-    It used to return early whenever the catalog held ANY binding, and that
-    all-or-nothing test is what this function got wrong. Curation writes ~900
-    bindings of its own, so a catalog curated before it was seeded had a
-    non-zero count and could never receive the other ~8,500 — permanently, with
-    no warning and no way back. Measured on two catalogs of the same data:
-    CNES-ST labelled 83 columns on one and 26 on the other, purely because of
-    the order two loaders had run in months earlier.
-
-    Ordering the callers so seeding goes first fixed new installs and left every
-    existing one degraded. Merging fixes both, and makes the order stop
-    mattering at all.
-    """
-    from importlib.resources import files as _files
-
-    try:
-        path = Path(str(_files("pegasus_data.resources") / BINDING_PACK_NAME))
-    except (ModuleNotFoundError, FileNotFoundError):  # pragma: no cover
-        return 0
-    if not path.exists():
-        return 0
-    import pyarrow.parquet as pq
-
-    table = pq.read_table(path)
-    payload = [
-        (
-            r["system"], r["family_id"], r["field_name"], r["codelist"],
-            r["source"] or "packaged", "pegasus_data:labels.parquet",
-            r["confidence"], r["decodes_observed"],
-        )
-        for r in table.to_pylist()
-    ]
-    before = catalog.count("field_codelists")
-    catalog.executemany(
-        "INSERT OR IGNORE INTO field_codelists (system, family_id, field_name,"
-        " codelist, source, source_ref, confidence, decodes_observed)"
-        " VALUES (?,?,?,?,?,?,?,?)",
-        payload,
-    )
-    # What was ADDED, not what was offered: on an already-seeded catalog every
-    # row collides and the honest answer is zero, which is what the caller
-    # reports to the user.
-    return catalog.count("field_codelists") - before

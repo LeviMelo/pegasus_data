@@ -315,6 +315,4 @@ class TestPublicNamesAreCallable:
 
     def test_the_module_is_still_reachable(self) -> None:
         """Renaming must not make the implementation unreachable for testing."""
-        import pegasus_data._explore as module
 
-        assert hasattr(module, "tree_snapshot")

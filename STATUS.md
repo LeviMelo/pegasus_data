@@ -32,7 +32,7 @@ by `scripts/live.py`.
 | 1 | `query()` stripped every label lacking a declared `label_of` relation (SIH 2 of 39 labelled) | **fixed** (ADR-0061): SIH 39, SIM 52, CNES 113 |
 | 2 | every 3-character CID-10 code unlabelled (13% of SIH admissions) | **fixed** (ADR-0062) |
 | 3 | the default profile replaced internal codes in place, discarding them | **fixed** (ADR-0063) |
-| 4 | `info()` and `search()` fail on a fresh home | open: the seed catalog, next |
+| 4 | `info()` and `search()` fail on a fresh home | **fixed**: `info()` by the seed catalog (ADR-0067); `search()` reads the catalog and label pack (ADR-0069) |
 | 5 | ~~`explore()` totals wrong~~: they are right (991 GiB); the old docs were wrong | not a defect |
 | 6 | 20–60 warnings a call | **fixed**: one summary warning; the full list on the report |
 | 7 | leaks: decoder workers outlived the interpreter, pipes and spools left open | **fixed** |
@@ -40,8 +40,9 @@ by `scripts/live.py`.
 | 9 | SIH `SEXO` unlabelled; no age in years in any `query()` | **fixed**: SIH's own SEXO table; `IDADE_anos` in completed years for SIH, SIM, SINAN (ADR-0064) |
 | 10 | SIA's split files (984, SP/RJ/MG) and SISCAN's annual files had no UF or date | **fixed** (ADR-0065) |
 | 11 | SIH-RD 2008/10/12/14 had no family: the census sampled the `.xml` republication | **fixed**: one sample selection, header-readable first |
-| 12 | a first SIA request spent 5.6 min censusing | the schema knowledge must ship: the seed catalog |
+| 12 | a first SIA request spent 5.6 min censusing | **fixed** (ADR-0067): 339 s → 35.5 s on a fresh home |
 | 13 | `CNES`, `PROC_REA`, `CGC_HOSP` refused as having more than 12 bound codelists | open: M2 |
+| 14 | SIH-RD 2014–2016 refused: two editions of each publication (`MHJ_14_16/`, `200801_/Dados/`) | **fixed** (ADR-0068): the newest edition is read |
 
 ## After M1
 

@@ -51,6 +51,9 @@ def _isolated_placement(tmp_path_factory, monkeypatch):
 
     empty = tmp_path_factory.mktemp("no-config")
     monkeypatch.setenv("PEGASUS_CONFIG", str(empty / "absent.toml"))
+    # A test that builds a catalog from nothing must get nothing, not the
+    # shipped seed (ADR-0067).
+    monkeypatch.setenv("PEGASUS_SEED", "0")
     for env_name, _ in PLACEMENT_KEYS.values():
         monkeypatch.delenv(env_name, raising=False)
     monkeypatch.chdir(empty)
@@ -403,3 +406,14 @@ def write_aggregate(root) -> Settings:
 def aggregate_lake(tmp_path):
     """Settings whose lake holds one built artifact."""
     return write_aggregate(tmp_path)
+
+
+@pytest.fixture
+def fresh_install(monkeypatch):
+    """A new user's machine: the catalog starts from the shipped seed (ADR-0067).
+
+    The suite disables seeding by default so that a test building a catalog from
+    nothing gets nothing; a test about what a fresh install can do asks for it.
+    """
+    monkeypatch.setenv("PEGASUS_SEED", "1")
+    yield

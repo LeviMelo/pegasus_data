@@ -1,35 +1,24 @@
 {
   "resource_schema_version": 2,
-  "resource_content_version": "2026-08-23",
-  "built_at": "2026-08-23T00:00:00Z",
-  "source_build_id": "semantic-catalog-2026-08-23",
-  "crawled_at": "2026-08-19T04:05:43+00:00",
+  "resource_content_version": "2026-09-29",
+  "built_at": "2026-09-29T00:03:32Z",
+  "source_build_id": "2026-09-28T23:41:36+00:00",
+  "crawled_at": "2026-09-28T23:41:36+00:00",
   "counts": {
-    "files": 207251,
-    "systems": 22,
-    "families": 1633,
-    "columns": 4354
+    "files": 208095,
+    "systems": 20,
+    "families": 329,
+    "columns": 4186,
+    "variables_described": 4534,
+    "bindings": 9890
   },
   "budgets": {
     "growth_ratio": 1.25,
     "architectural_review_bytes": 104857600,
-    "aggregate_bytes": 47185920
+    "aggregate_bytes": 67108864,
+    "note": "Raised from 45 MiB to 64 MiB on 2026-09-28 for the 18 MB catalog seed (ADR-0067); keeps the wheel well under PyPI's 100 MB default."
   },
   "resources": {
-    "bindings": {
-      "file": "bindings.parquet",
-      "tier": "B",
-      "bytes": 38888,
-      "rows": 9796,
-      "sha256": "9766dc3999e2622575ee42c55bdc0c08c57242eb709d12efe82cee9f36cf9446"
-    },
-    "families": {
-      "file": "families.parquet",
-      "tier": "A",
-      "bytes": 20217,
-      "rows": 1633,
-      "sha256": "e6dcb9723cd3b3b1e8ee196e52c2512073c5c6e25173ae9ee0197cbad5872d14"
-    },
     "geography": {
       "file": "geography.parquet",
       "tier": "A",
@@ -58,13 +47,6 @@
       "rows": 1774993,
       "sha256": "b89d5f54359e6b58e3e3fdc1ed18a4ab9d4c4b7f8781c0f9362445421e733a63"
     },
-    "schema_presence": {
-      "file": "schema_presence.parquet",
-      "tier": "A",
-      "bytes": 44232,
-      "rows": 17189,
-      "sha256": "5faa2dd625792b74b3bcc1ca9525395bbe427e078ed0ae6c64a754971b008313"
-    },
     "query_capabilities": {
       "file": "query_capabilities.json",
       "tier": "A",
@@ -72,12 +54,12 @@
       "rows": 5,
       "sha256": "3a4ad4bb13d3ee6249d8552dbf96ea3f1e58a437ea5b750905c47b32dedde676"
     },
-    "tree": {
-      "file": "tree.parquet",
+    "catalog_seed": {
+      "file": "catalog_seed.sqlite.gz",
       "tier": "A",
-      "bytes": 1294140,
-      "rows": 207251,
-      "sha256": "06e27369c6ba868e34e7855516ded07e2e4fb865e34a80cb871152c798c38b81"
+      "bytes": 18816479,
+      "rows": 886972,
+      "sha256": "b36b85769ad7d7c007d658b212063872a4431198f4500a6ccc362020b72c3970"
     }
   },
   "note": "Bundled resources are an offline runtime baseline. Local version-compatible updates take precedence."

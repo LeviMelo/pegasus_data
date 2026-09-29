@@ -72,7 +72,9 @@ $PD info SIH.RD                                                # what it is
 | code tables | `reference` | `lake/reference/` |
 | the lake | `build` (`normalize` is an alias) | |
 | population | `population` | IBGE series |
-| the shipped snapshot | `labelpack`, `scripts/build_resources.py` | writes `src/pegasus_data/resources/` |
+| curation into the catalog | `curate` | 4 s |
+| the seed and the manifest | `python scripts/build_resources.py pegasus_data_home/_catalog/catalog.sqlite` | 20 s; after `crawl`, `inventory`, `schemas`, `families`, `curate` (ADR-0067) |
+| the label pack | `labelpack` | after `semantics` |
 | an aggregate | `aggregate-build <recipe>` | base cuboid under the data home |
 | everything | `all` | empty directory to lake |
 

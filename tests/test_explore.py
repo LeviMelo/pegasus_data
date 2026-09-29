@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data._explore import explore, tree_snapshot
+from pegasus_data._explore import explore
 from pegasus_data.catalog.store import Catalog
 
 
@@ -123,28 +123,11 @@ class TestCoverageIsChronological:
 class TestItSaysWhereTheAnswerCameFrom:
     def test_a_local_crawl_is_named_as_the_source(self, crawled):
         result = explore(settings=crawled)
-        assert result.source == "local crawl"
+        assert result.source == "catalog"
 
     def test_the_date_of_the_crawl_travels_with_the_answer(self, crawled):
         """A snapshot presented without its date is the failure mode."""
         assert explore(settings=crawled).as_of == "2026-01-02T00:00:00Z"
-
-    def test_a_local_crawl_beats_the_shipped_snapshot(self, crawled):
-        """The snapshot is a photograph; the crawl is the server."""
-        assert explore(settings=crawled).source == "local crawl"
-
-    def test_with_no_crawl_it_falls_back_to_what_shipped(self, settings):
-        rows, _ = tree_snapshot()
-        if not rows:
-            pytest.skip("this build ships no snapshot")
-        assert explore(settings=settings).source == "packaged snapshot"
-
-    def test_the_snapshot_can_be_asked_for_explicitly(self, crawled):
-        rows, _ = tree_snapshot()
-        if not rows:
-            pytest.skip("this build ships no snapshot")
-        assert explore(source="packaged", settings=crawled).source == "packaged snapshot"
-
 
 class TestFiltering:
     def test_documentation_is_excluded_by_default(self, crawled):
@@ -167,10 +150,9 @@ class TestItDoesNotPretendToKnow:
     def test_with_no_map_at_all_it_says_so_rather_than_returning_empty(
         self, settings, monkeypatch
     ):
-        import pegasus_data._explore as module
-
-        monkeypatch.setattr(module, "tree_snapshot", lambda: ([], None))
-        with pytest.raises(FileNotFoundError, match="no map of DATASUS"):
+        # An empty catalog, and no seed (the suite disables it, ADR-0067).
+        Catalog(settings.catalog_path).close()
+        with pytest.raises(FileNotFoundError, match="lists no files"):
             explore(settings=settings)
 
 
@@ -185,19 +167,10 @@ class TestTheResultIsUsable:
 
     def test_the_repr_leads_with_volume_because_that_decides_the_download(self, crawled):
         text = repr(explore("SIHSUS", settings=crawled))
-        assert "files" in text and "GiB" in text and "local crawl" in text
+        assert "files" in text and "GiB" in text and "catalog" in text
 
     def test_it_serialises_to_plain_data(self, crawled):
         import json
 
         payload = json.loads(json.dumps(explore("SIHSUS", settings=crawled).as_dict()))
-        assert payload["level"] == "datasets" and payload["source"] == "local crawl"
-
-
-class TestTheShippedMap:
-    def test_the_snapshot_covers_the_whole_tree_if_it_ships_at_all(self):
-        rows, as_of = tree_snapshot()
-        if not rows:
-            pytest.skip("this build ships no snapshot")
-        assert len(rows) > 100_000, "a partial map would be worse than none"
-        assert as_of, "a snapshot without a date cannot be judged for staleness"
+        assert payload["level"] == "datasets" and payload["source"] == "catalog"

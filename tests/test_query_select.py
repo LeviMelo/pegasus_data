@@ -18,10 +18,13 @@ which wanted a narrow projection (FINDINGS §3o).
 
 from __future__ import annotations
 
+import pytest
+
 from pegasus_data._query_engine.executor import SYNTHESISED_COLUMNS
 from pegasus_data._query_engine.planner import plan
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_the_planner_still_declares_them_as_dependencies() -> None:
     """They ARE needed — the fix is where they are asked for, not whether."""
     hidden = set(plan("SIH-RD", period="2022-01", geography="AC").retrieval.hidden_dependencies)
@@ -42,6 +45,7 @@ def test_exactly_the_derived_columns_are_excluded() -> None:
     assert {"_competencia", "year", "_source_resolution"} == SYNTHESISED_COLUMNS
 
 
+@pytest.mark.usefixtures("fresh_install")
 def test_a_select_projection_excludes_them() -> None:
     """The assertion that would have caught the defect without a network."""
     query_plan = plan(

@@ -29,7 +29,7 @@ snapshot, 41 MB).
             load()/scan() (api.py) ─► lake ─────────────────────────────────┤
                                                     render_groups ─► view.render_table
  metadata   info (_info) · explore (_explore) · availability (_availability)
-            describe (api) · DataDictionary (_dictionary) · search/dictionary (docsgen)
+            describe (api) · DataDictionary (_dictionary) · search (_search) · dictionary (docsgen)
             compendium (_compendium) · gaps/questions (_unknowns) · translate (_translate)
  aggregate  aggregate() (_aggregate) · measures · capabilities · suggest
               │
@@ -63,8 +63,11 @@ strata, reads each stratum's schema from the DBF header by a ranged fetch
 (`inventory/schemas.py`, `decode/header.py`: the header census), and groups
 schemas into families (`inventory/families.py`).
 
-`fetch()` runs a **targeted** crawl of one system's directory when the catalog
-has not seen it (`retrieve._discover`), which is why a fresh install can fetch.
+A fresh install does not crawl: its catalog starts as a copy of the shipped
+seed (`catalog/seed.py`, ADR-0067), which carries the maintainer's crawl,
+strata, schemas and families. `fetch()` still runs a **targeted** crawl of one
+system's directory when the catalog has never seen that system
+(`retrieve._discover`).
 
 ### 2.2 A read: `query()` → `fetch()`
 
@@ -82,13 +85,12 @@ has not seen it (`retrieve._discover`), which is why a fresh install can fetch.
      `decode/registry.py` probing content, not suffix);
    - normalise (`normalize/engine.py`) and union schema generations with
      structural nulls;
-   - seed bindings and curation into the catalog on first use
-     (`_ensure_reference_tables`);
+   - re-apply curation when the shipped YAML changed since the catalog was
+     built (`_ensure_reference_tables`);
    - render labels (`render_groups.py` → `view.render_table`, §4).
-3. Back in the executor: `_query_engine/semantics.py` **drops every label whose
-   codelist lacks a `label_of` relation** (`_enforce_identity_labels`),
-   applies dimensions (`MUNIC_RES.health_region`) and enrichments (CNES↔CNPJ,
-   `crosswalk.py`), and assembles a `QueryReport`.
+3. Back in the executor: `_query_engine/semantics.py` applies dimensions
+   (`MUNIC_RES.health_region`) and enrichments (CNES↔CNPJ, `crosswalk.py`), and
+   assembles a `QueryReport`. Labels are the renderer's, unfiltered (ADR-0061).
 
 `load()` and `scan()` (`api.py`) read the lake instead and render through the
 same `render_groups`.
@@ -149,17 +151,18 @@ things mean (`field_codelists`, `variable_docs`, `dataset_docs`,
 local state (`blobs`, `fetches`, `lake_partitions`, `build_outcomes`,
 `adjudication_items`). 47 tables.
 
-**The shipped snapshot** (`resources/`, in the wheel):
+**The shipped snapshot** (`resources/`, in the wheel; 56.6 MB, budget 64 MiB):
 
 | file | what | read by |
 |---|---|---|
+| `catalog_seed.sqlite.gz` (18.8 MB) | the maintainer catalog's tree and meaning tables; a fresh catalog starts as a copy (ADR-0067) | `catalog/seed.py` from `Catalog.__init__` |
 | `labels.parquet` (30 MB) | 3.65M codelist rows as code ranges, by system and vintage | `labelpack.py`, `persist/reference.py` fallback, `geography.py` |
-| `bindings.parquet` | 9,796 field→codelist bindings | `labelpack.seed_bindings` (into the catalog on first fetch) |
 | `labels_crosswalk.parquet` (10 MB) | temporal CNES↔CNPJ | `crosswalk.py` |
-| `tree.parquet` | the 207,251-file tree | `_explore.py`, `_query_engine/capabilities.py` |
 | `geography.parquet`, `municipalities.parquet` | health-region memberships | `geography.py`, `_aggregate.py` |
-| `families.parquet`, `schema_presence.parquet` | families and their fields | **nothing** |
-| `query_capabilities.json`, `manifest.json` | resource manifest | `_resources.py`, `serve/` |
+| `query_capabilities.json`, `manifest.json` | compiled capabilities; the resource manifest with checksums | `_query_engine/capabilities.py`, `_resources.py`, `serve/` |
+
+Built by `scripts/build_resources.py` (the seed and the manifest) and the
+`labelpack` command (labels).
 
 ---
 
@@ -175,14 +178,11 @@ local state (`blobs`, `fetches`, `lake_partitions`, `build_outcomes`,
    (`_choose_binding`): the best decode share wins, ties to the finest grain;
    below 50% the column is left unlabelled.
 
-Then `_query_engine/semantics._enforce_identity_labels` drops, in `query()`
-only, every label whose codelist is not the target of a declared `label_of`
-relation. `curation/joins.yml` declares six relations, so `query()` labels
-almost nothing (STATUS M1 #1).
-
-The default render profile (`view.PROFILES["analysis"]`) replaces *internal*
-codes with their labels in place and adds a `_label` companion for *external*
-ones (STATUS M1 #3).
+Every read path applies this one policy (ADR-0061). The default render
+profile keeps every raw code and adds a `<field>_label` companion (ADR-0063).
+Weighing happens per file at read time, so two files of one dataset can be
+labelled from different tables. Compiling one binding per field ahead of time
+is M2.
 
 ---
 
@@ -194,12 +194,12 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | Job | Mechanisms today | Plan |
 |---|---|---|
 | read a dataset | `query` (wraps `fetch`), `fetch`, `load`, `scan`, `open_lake`; two dataset spellings (`"SIHSUS","RD"` vs `"SIH-RD"`) | M3: `query` is the engine; the others are thin forms of it; one identifier |
-| decide a column's codelist | read-time weighing (`view.py`), query-time relation gate (`_query_engine/semantics.py`), curation, catalog relations | M1/M2: one compiled binding per field, applied identically everywhere |
-| bootstrap a fresh catalog | inside `fetch` (`retrieve._ensure_reference_tables`), `_translate.py` separately, nothing for `info`/`search` | M1: one `open_catalog` used by every entry point |
+| decide a column's codelist | read-time weighing (`view.py`), curation, catalog relations; ~~the query-time gate~~ removed (ADR-0061) | M2: one compiled binding per field, applied identically everywhere |
+| bootstrap a fresh catalog | ~~inside `fetch`, `_translate.py` separately, `tree.parquet` for `explore`, nothing for `info`~~ | **done** (ADR-0067): `Catalog.__init__` installs the seed |
 | export the semantic layer | `labelpack.py`, `bundle.py`, `docsgen.py` (`docs/dictionary.sqlite`), `_compendium.py` (another SQLite), `persist/reference.py` | M3: one snapshot and one dictionary database |
 | describe a thing | `info`, `describe`, `explore`, `DataDictionary`, `compendium`, `search`, `availability` | M3: kept as questions, backed by one catalog |
 | decide a file's system | `inventory/naming.py`, `inventory/systems.py`, `ontology.py` | examined in M3 |
-| convert an age | `view._derive_age_years` (fractional) and `_age.years_column` (days/months → 0) | M1: one converter |
+| convert an age | ~~`view._derive_age_years`~~ | **done** (ADR-0064): `_age.years_column` only |
 | query capabilities | `capabilities.py` (aggregate artifacts) and `_query_engine/capabilities.py` (publication coverage) | rename in M3 |
 | a `Catalog` | `api.Catalog` (public facade) and `catalog/store.Catalog` | rename in M3 |
 | re-export the query engine | `_query.py` → `_query_engine/__init__.py` → `_query_engine/core.py` | M3: one module |
@@ -262,9 +262,10 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_translate.py`: `translate()`, labels for a user's own files.
 - `_unknowns.py`: `gaps()`, `questions()`.
 - `_compendium.py`: `compendium()`, the map of DATASUS as a SQLite file.
-- `docsgen.py`: `docs/dictionary.sqlite` and `search()`.
+- `docsgen.py`: `docs/dictionary.sqlite` and its page reader.
+- `_search.py`: `search()`, over the catalog's docs and the shipped label pack (ADR-0069).
 - `_resources.py`: resource status, validation, `ensure`, `build`.
-- `labelpack.py`: distils the catalog's labels and bindings into `resources/`.
+- `labelpack.py`: distils the catalog's labels into `resources/labels.parquet`.
 - `bundle.py`: `pack`/`unpack` of the catalog's semantic tables.
 - `ontology.py`: the declared systems and datasets, bound to crawl evidence.
 - `pipeline.py`: `Pipeline`, the build stages.
@@ -293,6 +294,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 ### `catalog/`
 
 - `catalog/store.py`: the SQLite catalog: migrations, upserts, history.
+- `catalog/seed.py`: exports the seed from a maintainer catalog and installs it into a fresh one.
 
 ### `decode/`
 
@@ -373,3 +375,5 @@ The semantic non-negotiables are in `CLAUDE.md` §6. Structural ones:
 - Writes to the lake are staged and published atomically.
 - `resources/` is a snapshot of a maintainer's catalog; nothing at runtime
   writes into the package directory (violated by `decode/_native/`, §5).
+- A fresh catalog is the seed (ADR-0067); every door reads the catalog, never
+  a shipped file directly, except the label pack and the geography packs.

@@ -84,15 +84,30 @@ def choose_representations(
             # during a tree transition -- SINASC 2022 sits byte-for-byte
             # identical under both 1996_/ and NOV/ -- and refusing a mirror
             # made every dataset in transition unbuildable. Identical size per
-            # format is the mirror test available before any byte is fetched;
-            # a size that differs is a real conflict and still refuses.
+            # format is the mirror test available before any byte is fetched.
+            # A size that differs is a revision: the newest edition by the
+            # server's date wins, and only undated or tied editions refuse.
             by_format: dict[str, set[Any]] = {}
             for row in candidates:
                 by_format.setdefault(
                     str(row.get("container_format") or "unknown"), set()
                 ).add(row.get("size"))
-            if any(len(sizes) > 1 for sizes in by_format.values()):
-                contradictions.append("multiple objects of the same format")
+            for fmt, sizes in by_format.items():
+                if len(sizes) <= 1:
+                    continue
+                # Two editions of one publication: DATASUS republished it. SIH-RD
+                # 2014-2016 sits in /SIHSUS/MHJ_14_16/ (all 972 files dated
+                # 2017-10) and again, corrected, in 200801_/Dados/ (2018). The
+                # newest edition is the publisher's current word; refusing made
+                # SIH unreadable for three years (live run 2026-09-28, ADR-0068).
+                editions = [row for row in candidates if str(row.get("container_format") or "unknown") == fmt]
+                newest = _newest_edition(catalog, editions)
+                if newest is None:
+                    contradictions.append("multiple objects of the same format")
+                    break
+                superseded = [row for row in editions if row is not newest]
+                dropped.extend(str(row.get("path") or "") for row in superseded)
+                candidates = [row for row in candidates if not any(row is old for old in superseded)]
         row_counts = {int(row["row_count"]) for row in candidates if row.get("row_count") is not None}
         if len(row_counts) > 1:
             contradictions.append(f"contradictory row counts {sorted(row_counts)}")
@@ -154,3 +169,26 @@ def choose_representations(
             str(row.get("path") or "") for row in candidates if row is not winner
         )
     return RepresentationSelection(tuple(selected), tuple(dropped), tuple(conflicts))
+
+
+def _newest_edition(catalog: Catalog, candidates: Sequence[dict[str, Any]]) -> dict[str, Any] | None:
+    """The most recently modified candidate, when the server dates them apart.
+
+    Only a same-format revision is resolved this way; ``None`` (no dates, or a
+    tie) leaves the conflict to refuse as before.
+    """
+    paths = [str(row.get("path") or "") for row in candidates]
+    marks = ",".join("?" for _ in paths)
+    try:
+        modified = {
+            str(r["path"]): str(r["modified"] or "")
+            for r in catalog.query(f"SELECT path, modified FROM files WHERE path IN ({marks})", tuple(paths))
+        }
+    except Exception:  # noqa: BLE001 - a catalog without dates cannot decide
+        return None
+    dated = sorted(
+        ((modified.get(str(row.get("path") or ""), ""), index) for index, row in enumerate(candidates)),
+    )
+    if not dated[-1][0] or (len(dated) > 1 and dated[-1][0] == dated[-2][0]):
+        return None
+    return candidates[dated[-1][1]]  # type: ignore[return-value]

@@ -20,7 +20,7 @@ def test_resource_manifest_accounts_for_every_packaged_runtime_artifact(tmp_path
     resources = Path(__file__).parents[1] / "src" / "pegasus_data" / "resources"
     assert status.schema_version == RESOURCE_SCHEMA_VERSION
     packaged = {path.name for path in resources.glob("*.parquet")}
-    packaged.add("query_capabilities.json")
+    packaged |= {"query_capabilities.json", "catalog_seed.sqlite.gz"}
     assert {Path(item.path).name for item in status.resources} == packaged | {
         "CNES", "cnes_registry.parquet"
     }

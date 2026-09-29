@@ -161,34 +161,11 @@ def translate(
     resolved = settings or load_settings(root=Path(root) if root else None)
     from .catalog.store import Catalog
 
-    if not resolved.catalog_path.exists():
-        raise TranslationImpossible(
-            f"no catalog at {resolved.catalog_path}: labelling needs the codelists. "
-            "Unpack a semantic bundle (`pegasus-data unpack`), or build one with "
-            "`pegasus-data crawl && pegasus-data semantics`."
-        )
     store = Catalog(resolved.catalog_path, read_only=True)
     try:
-        # A local dictionary is no longer required: the package ships a label
-        # pack and read_reference_table falls back to it. This used to refuse
-        # outright and tell the caller to go and download a bundle they already
-        # have — on a root where fetch(labels=True) was labelling happily.
-        from .labelpack import seed_bindings
-
-        if not store.count("dictionary"):
-            store_rw = Catalog(resolved.catalog_path)
-            try:
-                seed_bindings(store_rw)
-                if not store_rw.count("variable_docs"):
-                    from .ontology import CURATION
-                    from .semantics.curation import load_curation
-
-                    load_curation(store_rw, CURATION)
-            except Exception:  # noqa: BLE001 - degrade to whatever is present
-                pass
-            finally:
-                store_rw.close()
-        else:
+        # A fresh catalog is the seed: bindings and curation are already in it
+        # (ADR-0067); labels come from the shipped pack when there is no dictionary.
+        if store.count("dictionary"):
             _ensure_reference(store, resolved)
         family_id = _family_for(store, system, series, table.column_names)
         from .persist.decisions import borrowed_label_policy

@@ -425,6 +425,17 @@ class Catalog:
         if not read_only:
             self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
+        if not self.path.exists():
+            # A catalog that does not exist yet starts from the shipped seed:
+            # what the tree is and what it means (ADR-0067, catalog/seed.py).
+            from .seed import install_seed
+
+            install_seed(self.path)
+        if read_only and not self.path.exists():
+            raise FileNotFoundError(
+                f"no catalog at {self.path}, and this build ships no seed to start one from; "
+                "run `pegasus-data crawl` (or any `fetch`) to create it, or check `pegasus-data where`"
+            )
         if read_only:
             uri = f"file:{self.path.as_posix()}?mode=ro"
             self.conn = sqlite3.connect(uri, uri=True, check_same_thread=False, timeout=30)

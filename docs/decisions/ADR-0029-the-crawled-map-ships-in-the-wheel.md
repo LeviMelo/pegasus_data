@@ -1,6 +1,6 @@
 ## ADR-0029: The crawled map of the tree ships in the wheel; what ships is what cannot be derived
 
-**Date:** 2026-08-19. **Status:** active.
+**Date:** 2026-08-19. **Status:** superseded (2026-09-28, by ADR-0067).
 
 **Context.** DATASUS publishes no index, manifest or API that enumerates the
 tree (`docs/history/pegasus_data_ARCHITECTURE.md` §14.1). The crawl knows

@@ -52,8 +52,8 @@ last, comes first.
 | [ADR-0025](docs/decisions/ADR-0025-community-transcriptions-are-parsed-never-executed.md) | 2026-08-19 | Community transcriptions are parsed, never executed, and rank below every primary source | active |  |
 | [ADR-0026](docs/decisions/ADR-0026-fetch-is-one-call-from-datasus-to-a-table.md) | 2026-08-19 | `fetch()` is one call from DATASUS to a labelled table, with every path taken from the catalog | active |  |
 | [ADR-0027](docs/decisions/ADR-0027-the-semantic-layer-packs-into-an-offline-bundle.md) | 2026-08-19 | The semantic layer packs into an offline bundle, restored additively and by column name | active |  |
-| [ADR-0028](docs/decisions/ADR-0028-the-data-dictionary-is-one-sqlite-database.md) | 2026-08-19 | The generated data dictionary is one SQLite database, not a tree of Markdown pages | active |  |
-| [ADR-0029](docs/decisions/ADR-0029-the-crawled-map-ships-in-the-wheel.md) | 2026-08-19 | The crawled map of the tree ships in the wheel; what ships is what cannot be derived | active |  |
+| [ADR-0028](docs/decisions/ADR-0028-the-data-dictionary-is-one-sqlite-database.md) | 2026-08-19 | The generated data dictionary is one SQLite database, not a tree of Markdown pages | active | amended by ADR-0069 |
+| [ADR-0029](docs/decisions/ADR-0029-the-crawled-map-ships-in-the-wheel.md) | 2026-08-19 | The crawled map of the tree ships in the wheel; what ships is what cannot be derived | superseded | superseded by ADR-0067 |
 | [ADR-0030](docs/decisions/ADR-0030-an-external-classification-ranks-beside-datasus-not-above.md) | 2026-08-19 | An external canonical classification ranks beside DATASUS's copy, not above it | active |  |
 | [ADR-0031](docs/decisions/ADR-0031-a-binding-is-measured-and-a-dead-one-is-withheld.md) | 2026-08-19 | A binding is measured against observed values; one that decodes nothing is withheld | active |  |
 | [ADR-0032](docs/decisions/ADR-0032-personal-identifiers-pass-through-unmodified.md) | 2026-08-20 | Personal identifiers pass through unmodified, and stay flagged | active |  |
@@ -70,8 +70,8 @@ last, comes first.
 | [ADR-0043](docs/decisions/ADR-0043-period-and-geography-select-publications.md) | 2026-08-23 | `query()` and `plan()` express publication-coordinate intent; period and geography never filter record variables | active |  |
 | [ADR-0044](docs/decisions/ADR-0044-semantic-relations-are-typed-and-uncertainty-becomes-work.md) | 2026-08-23 | Semantic relations are typed, and unresolved uncertainty becomes an adjudication item | active | amended by ADR-0061 |
 | [ADR-0045](docs/decisions/ADR-0045-cnes-cnpj-is-a-temporal-crosswalk-not-a-label.md) | 2026-08-23 | CNES↔CNPJ is a temporal crosswalk requested as an enrichment, not a label | active |  |
-| [ADR-0046](docs/decisions/ADR-0046-resources-are-packaged-in-four-tiers.md) | 2026-08-23 | Resources are packaged in four tiers, each runtime artifact with manifest identity and a lifecycle | active |  |
-| [ADR-0047](docs/decisions/ADR-0047-one-selector-chooses-a-representation-per-publication.md) | 2026-08-23 | One global selector chooses a representation per logical publication; a conflict refuses | active |  |
+| [ADR-0046](docs/decisions/ADR-0046-resources-are-packaged-in-four-tiers.md) | 2026-08-23 | Resources are packaged in four tiers, each runtime artifact with manifest identity and a lifecycle | active | amended by ADR-0067 |
+| [ADR-0047](docs/decisions/ADR-0047-one-selector-chooses-a-representation-per-publication.md) | 2026-08-23 | One global selector chooses a representation per logical publication; a conflict refuses | active | amended by ADR-0068 |
 | [ADR-0048](docs/decisions/ADR-0048-a-source-vintage-is-an-interval.md) | 2026-08-23 | A source vintage is an interval, and an unknown vintage resolves to null, not to "current" | active |  |
 | [ADR-0049](docs/decisions/ADR-0049-supramunicipal-geography-is-compiled-scoped-by-system.md) | 2026-08-27 | Supramunicipal geography is compiled from the label pack, keyed by system and window, and health macroregion is not shipped | active |  |
 | [ADR-0050](docs/decisions/ADR-0050-aggregates-store-mergeable-state-in-one-base-cuboid.md) | 2026-08-27 | Aggregates store mergeable accumulator state in one base cuboid, built once and served without microdata | active |  |
@@ -91,3 +91,6 @@ last, comes first.
 | [ADR-0064](docs/decisions/ADR-0064-age-in-completed-years-from-one-converter.md) | 2026-09-28 | Age is derived in completed years by one converter, declared per curated recipe | active | supersedes ADR-0020; amends ADR-0058 |
 | [ADR-0065](docs/decisions/ADR-0065-a-split-publications-part-is-part-of-its-identity.md) | 2026-09-28 | A split publication's part is part of its identity; descriptive names may carry a year | active | amends ADR-0017, ADR-0013 |
 | [ADR-0066](docs/decisions/ADR-0066-progress-is-measured-by-live-scenarios.md) | 2026-09-28 | Progress is measured by live scenarios; no new unit tests | active |  |
+| [ADR-0067](docs/decisions/ADR-0067-a-fresh-catalog-starts-from-the-shipped-seed.md) | 2026-09-28 | A fresh catalog starts from the shipped seed | active | supersedes ADR-0029; amends ADR-0046 |
+| [ADR-0068](docs/decisions/ADR-0068-the-newest-edition-of-a-publication-wins.md) | 2026-09-28 | The newest edition of a publication wins; only undated editions refuse | active | amends ADR-0047 |
+| [ADR-0069](docs/decisions/ADR-0069-search-reads-the-catalog-and-the-label-pack.md) | 2026-09-28 | `search()` reads the catalog and the label pack; no dictionary build is needed | active | amends ADR-0028 |

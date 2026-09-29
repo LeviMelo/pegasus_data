@@ -20,7 +20,7 @@ from email.parser import BytesParser
 from pathlib import Path, PurePosixPath
 from typing import Protocol
 
-RUNTIME_SUFFIXES = {".json", ".parquet", ".sql", ".yaml", ".yml"}
+RUNTIME_SUFFIXES = {".gz", ".json", ".parquet", ".sql", ".yaml", ".yml"}  # .gz: the catalog seed (ADR-0067)
 FORBIDDEN_PARTS = {
     ".cache_dl",
     ".git",

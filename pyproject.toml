@@ -75,6 +75,7 @@ pegasus_data = [
   "catalog/*.sql",
   "resources/*.parquet",
   "resources/*.json",
+  "resources/*.sqlite.gz",
   "curation/*.yml",
   "curation/**/*.yml",
 ]

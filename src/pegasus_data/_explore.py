@@ -6,10 +6,11 @@ files in directories that have been reorganised more than once. Finding out what
 exists has historically meant clicking through it, which is why most people who
 use this data use one system, for the years someone told them about.
 
-This module knows, because it crawled the whole thing: 207,251 files, each
-resolved to a system, a series, a year, a state and a schema. That knowledge
-compresses to about a megabyte, so it **ships with the package**. On a fresh
-install, with no crawl and no network, ``explore()`` answers immediately.
+This module knows, because it crawled the whole thing: 208,095 files on
+2026-09-28, each resolved to a system, a series, a year, a state and a schema.
+That knowledge is the catalog, and a fresh install's catalog starts as a copy of
+the maintainer's (the seed, ADR-0067). So on a fresh install, with no crawl and
+no network, ``explore()`` answers immediately.
 
 The four questions, in the order people ask them::
 
@@ -18,15 +19,13 @@ The four questions, in the order people ask them::
     explore("SIH-RD")              # which years, which states, how much?
     explore("SIH-RD", year=2023)   # which files, exactly?
 
-**Where the answer comes from is part of the answer.** A local crawl is current
-and authoritative; the shipped map is a snapshot from when the package was built
-and DATASUS moves things. Every result names its source and its date rather than
-presenting a two-year-old snapshot as the state of the server.
+**When the answer is from is part of the answer.** Every result names the date
+of the crawl behind it; ``pegasus-data crawl`` brings it up to date (half a
+minute for the whole tree).
 """
 
 from __future__ import annotations
 
-import json
 import textwrap as _textwrap
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -36,16 +35,10 @@ import pyarrow as pa
 
 from .config import Settings, load_settings
 
-__all__ = ["explore", "Exploration", "tree_snapshot"]
+__all__ = ["explore", "Exploration"]
 
 Level = Literal["systems", "datasets", "coverage", "files"]
-Source = Literal["auto", "local", "packaged"]
 
-#: Columns of the shipped map, in the order the resource stores them.
-_TREE_COLUMNS = (
-    "path", "system", "series", "uf", "year", "yyyymm", "size", "role", "format",
-    "logical_id",
-)
 
 
 @dataclass(slots=True)
@@ -123,42 +116,8 @@ class Exploration:
         return head + notes + "\n" + "\n".join(lines)
 
 
-def _resource(name: str) -> Path | None:
-    from importlib.resources import files as _files
-
-    try:
-        path = _files("pegasus_data.resources") / name
-    except (ModuleNotFoundError, FileNotFoundError):
-        return None
-    try:
-        return Path(str(path)) if Path(str(path)).exists() else None
-    except OSError:
-        return None
-
-
-def tree_snapshot() -> tuple[list[dict[str, Any]], str | None]:
-    """The shipped map, with the date of the crawl that produced it."""
-    path = _resource("tree.parquet")
-    if path is None:
-        return [], None
-    import pyarrow.parquet as pq
-
-    table = pq.read_table(path)
-    rows = table.to_pylist()
-    as_of = None
-    manifest = _resource("manifest.json")
-    if manifest is not None:
-        try:
-            as_of = json.loads(manifest.read_text(encoding="utf-8")).get("crawled_at")
-        except (json.JSONDecodeError, OSError):
-            as_of = None
-    return rows, as_of
-
-
 def _from_catalog(settings: Settings) -> tuple[list[dict[str, Any]], str | None] | None:
-    """The local crawl, when there is one. Always preferred: it is current."""
-    if not settings.catalog_path.exists():
-        return None
+    """The map: the catalog, which a fresh install seeds from the package (ADR-0067)."""
     from .catalog.store import Catalog
 
     store = Catalog(settings.catalog_path, read_only=True)
@@ -277,7 +236,6 @@ def explore(
     year: int | None = None,
     uf: str | None = None,
     role: str | None = "data",
-    source: Source = "auto",
     root: str | Path | None = None,
     settings: Settings | None = None,
 ) -> Exploration:
@@ -290,30 +248,17 @@ def explore(
 
     ``role`` defaults to ``"data"``; pass ``None`` to include the dictionary,
     documentation and auxiliary files that sit alongside it.
-
-    ``source`` is ``"auto"`` — a local crawl if one exists, otherwise the map
-    shipped with the package. ``"packaged"`` forces the snapshot, which is how
-    you ask what the tree looked like at release rather than now.
     """
     resolved = settings or load_settings(root=Path(root) if root else None)
     rows: list[dict[str, Any]] = []
     as_of: str | None = None
-    origin = ""
-
-    if source in ("auto", "local"):
-        local = _from_catalog(resolved)
-        if local is not None:
-            rows, as_of = local
-            origin = "local crawl"
-    if not rows and source in ("auto", "packaged"):
-        rows, as_of = tree_snapshot()
-        origin = "packaged snapshot"
-    if not rows:
+    local = _from_catalog(resolved)
+    if local is None:
         raise FileNotFoundError(
-            "no map of DATASUS is available: this build ships none and no local "
-            "crawl exists. Run `pegasus-data crawl`, or install a build that "
-            "carries the snapshot."
+            "the catalog lists no files: run `pegasus-data crawl` (half a minute for the whole tree)"
         )
+    rows, as_of = local
+    origin = "catalog"
 
     system, parsed_series = _resolve(target)
     want_series = (series or parsed_series or "").upper() or None

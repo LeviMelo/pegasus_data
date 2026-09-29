@@ -861,25 +861,11 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     ``.DEF`` long before this, and this only writes them down in the shape the
     join wants. It is a one-time cost, and skipped entirely once they exist.
     """
-    from .labelpack import seed_bindings
     from .persist.reference import systems_with_tables, write_reference_tables
 
-    # Three things have to exist before a code can become a label: what the
-    # column MEANS (curation, which ships as YAML), which table decodes it
-    # (bindings), and the table itself. On a fresh install the catalog has none
-    # of them, so `fetch(labels=True)` returned data and translated nothing.
-    # Order matters. Seeding runs FIRST: load_curation writes ~900 curated
-    # bindings, and seed_bindings skips a catalog that already has any — so
-    # curating first silently cost the 9,380 packaged bindings and dropped
-    # CNES-ST from 83 labelled columns to 26. Curation is applied afterwards so
-    # a human decision still outranks what shipped.
-    seeded = seed_bindings(pipeline.catalog)
-    if seeded:
-        report.warnings.append(
-            f"seeded {seeded:,} codelist bindings from the package "
-            "(run `pegasus-data semantics` for the full local build)"
-        )
-
+    # Bindings and curation arrive with the seed catalog (ADR-0067). Curation is
+    # re-applied below when the shipped YAML has changed since the catalog was
+    # built, so a corrected meaning reaches an existing catalog.
     # load_curation, not pipeline.curate(): Pipeline has no such method, and the
     # try/except below turned that AttributeError into a warning nobody reads.
     # The effect was that variable_docs and dataset_docs stayed empty on every

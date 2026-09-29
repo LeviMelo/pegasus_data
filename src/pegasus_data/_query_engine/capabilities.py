@@ -157,44 +157,7 @@ def _capabilities(
 
     declaration = _compiled_capability(settings, system, series)
     declared_physical_uf = bool((declaration or {}).get("physical_geography") == "uf")
-    if not settings.catalog_path.is_file():
-        from importlib.resources import files
-
-        import pyarrow.dataset as ds
-
-        default_resolution = str((declaration or {}).get("publication_resolution") or "unknown")
-        resource_root = files("pegasus_data.resources")
-        observed_systems = list((declaration or {}).get("observed_systems") or [system])
-        observed_series = list((declaration or {}).get("observed_series") or ([series] if series else []))
-        tree_filter = ds.field("system").isin(observed_systems)
-        if observed_series:
-            tree_filter &= ds.field("series").isin(observed_series)
-        if years:
-            tree_filter &= ds.field("year").isin(list(years))
-        tree = ds.dataset(
-            str(resource_root.joinpath("tree.parquet")), format="parquet"
-        ).to_table(columns=["year", "yyyymm", "uf"], filter=tree_filter)
-        by_year: dict[int, set[int]] = {}
-        for year, yyyymm in zip(tree["year"].to_pylist(), tree["yyyymm"].to_pylist(), strict=True):
-            if year is not None:
-                by_year.setdefault(int(year), set()).add(int(yyyymm or 0) % 100)
-        requested_years = tuple(years) or tuple(sorted(by_year))
-        resolutions = tuple(
-            (
-                year,
-                "mixed" if 0 in by_year.get(year, set()) and any(by_year.get(year, set()))
-                else "month" if any(by_year.get(year, set()))
-                else "year" if year in by_year else default_resolution,
-            )
-            for year in requested_years
-        )
-        unique = {value for _, value in resolutions}
-        overall = next(iter(unique)) if len(unique) == 1 else "mixed"
-        return _Capabilities(
-            overall, declared_physical_uf, "fetch", (), requested_years,
-            resolutions,
-        )
-
+    # The catalog always exists: a fresh one starts from the shipped seed (ADR-0067).
     from ..catalog.store import Catalog
     from ..representations import choose_representations
 
