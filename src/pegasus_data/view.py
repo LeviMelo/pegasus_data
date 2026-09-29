@@ -457,98 +457,6 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, l
     return out
 
 
-#: How many candidates to weigh for one column. `.DEF` binds DIAG_PRINC to 114
-#: tables; reading them all to label one column costs more than it can return.
-#: The list is ranked, so the right table is near the front when it is present.
-_MAX_CANDIDATES = 12
-
-#: A candidate this good ends the search — nothing later can beat it.
-_GOOD_ENOUGH = 0.99
-
-#: Below this share, the best candidate is evidence that NONE of the bound
-#: tables is the right one. `PROC_REA` has 12 tables bound and the best decodes
-#: 3% of its codes — labelling from it would fill 3% of the column and leave 97%
-#: null, which reads as "these procedures are unknown" rather than "we bound the
-#: wrong table". Refusing is the honest answer and keeps the raw codes usable.
-_TOO_WEAK = 0.5
-
-
-#: Two candidates whose decode rates are within this of each other are treated
-#: as equally good, and the tie goes to whichever preserves more distinctions.
-_SHARE_TIE = 0.05
-
-#: A table mapping observed codes to fewer distinct labels than this is a
-#: ROLLUP: it answers a coarser question than the column asks.
-_ROLLUP = 0.5
-
-
-def _choose_binding(
-    field_name: str,
-    candidates: Sequence[str],
-    observed: set[str],
-    load: Callable[[str], dict[str, str] | None],
-) -> tuple[str | None, float, int, float]:
-    """Pick the bound codelist that decodes the most of what the column holds.
-
-    Ranking got the caller a *deterministic* choice, not a *correct* one, and
-    the difference was doing real damage. `CNES` in SIH is bound by `.DEF` to 31
-    tables — `TCNESBR`, one per state, and three federal-hospital lists — all at
-    confidence 0.9, none whose name resembles the field. Every tie-break fell
-    through to alphabetical order, so the renderer chose `HOSFEDRJ`: six rows,
-    federal hospitals in Rio de Janeiro. Acre's establishment codes matched none
-    of them and the column came back raw, while `TCNESBR` sat in the same lake
-    with 7,189 rows including every code in the file.
-
-    The data is right there. Measuring against it turns an arbitrary pick into
-    an evidence-based one, and costs one parquet read per candidate — bounded by
-    ``_MAX_CANDIDATES`` and short-circuited as soon as a table decodes
-    essentially everything.
-
-    Decode rate alone is not enough, and the way it fails is subtle. SINASC's
-    CODMUNRES holds municipality codes like ``120040`` (Rio Branco), and the
-    health-REGION table ``CIRAC`` contains every one of those codes — mapped to
-    the region that contains them. It scores 100% and labels Rio Branco
-    "Baixo Acre e Purus", which is not wrong so much as a different question,
-    answered confidently.
-
-    So granularity breaks the tie: among candidates that decode about equally
-    well, the one preserving the most distinctions wins. A table collapsing 22
-    municipalities into 5 regions is a rollup, and the caller is told when the
-    best available table is one.
-
-    Returns ``(codelist, share_decoded, candidates_tried, granularity)``.
-    """
-    if not observed:
-        return (candidates[0] if candidates else None), 0.0, 0, 1.0
-    scored: list[tuple[str, float, float]] = []
-    tried = 0
-    for codelist in list(candidates)[:_MAX_CANDIDATES]:
-        lookup = load(codelist)
-        tried += 1
-        if not lookup:
-            continue
-        hits = [lookup[v] for v in observed if v in lookup]
-        share = len(hits) / len(observed)
-        # `observed` is a SET, so this weighs a code appearing once the same as
-        # one appearing in 90% of rows. That is a deliberate semantic signal —
-        # a table that covers the variety of a column is the right table — but
-        # it is not the whole story, and the row-weighted figure is reported
-        # alongside it so a caller can see both.
-        # How much of the column's own variety survives the translation.
-        granularity = (len(set(hits)) / len(hits)) if hits else 0.0
-        scored.append((codelist, share, granularity))
-        if share >= _GOOD_ENOUGH and granularity >= _GOOD_ENOUGH:
-            break
-    if not scored:
-        return (candidates[0] if candidates else None), 0.0, tried, 1.0
-    best_share = max(s for _, s, _ in scored)
-    # 1e-9 because 1.0 - 0.95 is 0.050000000000000044, and a candidate should
-    # not fall out of the band on a rounding artefact.
-    contenders = [c for c in scored if best_share - c[1] <= _SHARE_TIE + 1e-9]
-    codelist, share, granularity = max(contenders, key=lambda c: (c[2], c[1]))
-    return codelist, max(share, 0.0), tried, granularity
-
-
 def _tokenize(value: str, rule: Mapping[str, Any]) -> list[str]:
     """Split a packed multi-valued cell into its codes, in order.
 
@@ -814,117 +722,38 @@ def _select_codelists(
         except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behavior
             pass
 
-    if len(candidates) <= 1:
-        if not candidates:
-            return _Selection()
-        # A LONE binding is still measured for granularity. This returned
-        # immediately, so the roll-up guard only ever ran when several
-        # codelists competed — and the case it was written for is a single
-        # one: SINASC's CODMUNRES bound only to CIRAC, which decodes 100% of
-        # the municipality codes and answers with a health region. With one
-        # candidate there was nothing to compare it against and nothing said
-        # so.
-        seen = {
-            str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()
-        }
-        # Measured against the whole table: a curated token width splits packed
-        # cells, it does not filter a single-valued column's codelist.
-        lookup = lookup_one(candidates[0], None) if seen else None
-        if lookup:
-            hits = [lookup[v] for v in seen if v in lookup]
-            grain = (len(set(hits)) / len(hits)) if hits else 1.0
-            if hits and grain < _ROLLUP:
-                report.warnings.append(
-                    f"{name}: labelled from {candidates[0]!r}, which is a ROLLUP — it "
-                    f"maps the observed codes to {grain:.0%} as many distinct labels, "
-                    "so the label is broader than the code. It is the only table bound "
-                    "to this column."
-                )
-                report.rollup_used.append(name)
-        return _Selection(codelists=candidates)
+    # One decision per (system, family, field): stored, or weighed on this
+    # column and stored (ADR-0072). No cap: the 124 fields with more than twelve
+    # bound tables used to be refused outright.
+    from .semantics.label_bindings import resolve
 
-    if len(candidates) > _MAX_CANDIDATES:
-        message = (
-            f"{name}: {len(candidates)} codelists are bound without an explicit "
-            "semantic declaration. Refused to choose from an arbitrarily capped "
-            f"subset of {_MAX_CANDIDATES}; curate this field before labelling it."
-        )
-        if strict:
-            raise LabelUnavailable(message)
-        report.warnings.append(message)
-        report.unlabelled.append(name)
-        if store is not None:
-            try:
-                from .semantics.relations import ensure_adjudication_item
-
-                ensure_adjudication_item(
-                    store,
-                    kind="semantic_relation",
-                    system=system,
-                    family_id=family_id,
-                    field=name.upper(),
-                    candidates=candidates,
-                    reason=message,
-                    observed_summary={"distinct_sample": len(set(column.to_pylist()))},
-                )
-            except Exception:  # noqa: BLE001 - read-only catalogs still return safely
-                pass
-        return _Selection(unlabelled=True)
-
-    # Several tables claim this column and nothing declared which is right. Ask
-    # the data.
-    width_hint = None  # never filter a single-valued column's table by width (see _lookup)
-    seen = {
-        str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()
-    }
-    picked, share, tried, grain = _choose_binding(
-        name.upper(),
-        candidates,
-        seen,
-        # width_hint bound at definition: the callback is invoked synchronously
-        # today, but a closure over a loop variable is one refactor away from
-        # every column being weighed at the last column's width.
-        lambda cl, w=width_hint: lookup_one(cl, w),
+    seen = {str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip()}
+    decision = resolve(
+        store, system, family_id, name, candidates, seen,
+        lambda cl: lookup_one(cl, None),
     )
-
-    if picked and share < _TOO_WEAK:
-        if len(seen) <= 1:
-            # One value in every row and nothing decodes it. That is a dead
-            # column, not a labelling failure. Recorded in both, so a caller
-            # loses nothing and can still tell them apart.
-            report.constant[name] = next(iter(seen), "")
+    if not decision.labels:
+        if candidates or decision.reason != "no codelist is bound to this field":
+            if len(seen) <= 1 and seen:
+                # One value in every row and nothing decodes it: a dead column,
+                # not a labelling failure. Recorded in both, as before.
+                report.constant[name] = next(iter(seen))
+            message = f"{name}: {decision.reason}"
+            if strict and candidates:
+                raise LabelUnavailable(message)
+            if candidates:
+                report.warnings.append(message)
+            if decision.share is not None:
+                report.partial_codelist_match[name] = float(decision.share)
             report.unlabelled.append(name)
             return _Selection(unlabelled=True)
-        # None of them fits. Say which was closest, and how badly.
-        message = (
-            f"{name}: {tried} codelists are bound and none decodes the "
-            f"column — the best, {picked!r}, matches {share:.0%} of "
-            f"observed codes. Left unlabelled rather than partly labelled."
-        )
-        if strict:
-            raise LabelUnavailable(message)
-        report.warnings.append(message)
-        # The share as a NUMBER. A caller applying a threshold should not have
-        # to parse "matches 43% of observed codes" out of prose.
-        report.partial_codelist_match[name] = round(float(share), 4)
-        report.unlabelled.append(name)
-        return _Selection(unlabelled=True)
-
-    if picked and grain < _ROLLUP:
-        # The best available table answers a coarser question than the column
-        # asks — a municipality labelled with its health region.
+        return _Selection()
+    picked = decision.codelists[0]
+    if len(candidates) > 1 and picked != str(candidates[0]).upper():
         report.warnings.append(
-            f"{name}: labelled from {picked!r}, which is a ROLLUP — it maps "
-            f"the observed codes to {grain:.0%} as many distinct labels, so "
-            f"the label is broader than the code. No finer table is bound."
+            f"{name}: {decision.candidates} codelists weighed; {picked!r} ({decision.reason})"
         )
-        report.rollup_used.append(name)
-    elif picked and picked != candidates[0]:
-        report.warnings.append(
-            f"{name}: {tried} codelists are bound; chose {picked!r} "
-            f"({share:.0%} of observed codes) over {candidates[0]!r}"
-        )
-    return _Selection(codelists=[picked] if picked else [], share=share)
+    return _Selection(codelists=list(decision.codelists), share=decision.share)
 
 
 def _report_reference_decisions(

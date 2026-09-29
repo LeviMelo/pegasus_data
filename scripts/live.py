@@ -148,7 +148,7 @@ def s_sinan_tube() -> dict[str, Any]:
 
 def s_fetch_sih() -> dict[str, Any]:
     """The direct, source-shaped door the README also documents."""
-    from pegasus_data import fetch
+    from pegasus_data.retrieve import fetch  # the internal source engine (ADR-0073)
 
     table, report = fetch("SIH-RD", uf="AL", years=2023, months=1, report=True)
     out = table_metrics(table)
@@ -156,11 +156,10 @@ def s_fetch_sih() -> dict[str, Any]:
     return out
 
 
-def s_cli_get() -> dict[str, Any]:
-    """The command line a person would type from the README."""
-    exe = Path(sys.executable).parent / "Scripts" / "pegasus-data.exe"
-    cmd = [str(exe) if exe.exists() else "pegasus-data", "get", "SIH-RD", "--uf", "AL", "--years", "2023",
-           "--months", "1", "--out", "cli_sih.csv"]
+def s_cli_query() -> dict[str, Any]:
+    """The command line a person would type from the README (ADR-0073)."""
+    cmd = [sys.executable, "-m", "pegasus_data.cli", "query", "SIH.RD", "--period", "2023-01", "--geo", "AL",
+           "--out", "cli_sih.csv", "--dictionary", "cli_sih_dictionary.md"]
     t = time.perf_counter()
     proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=900)
     out: dict[str, Any] = {"returncode": proc.returncode, "seconds": round(time.perf_counter() - t, 2),
@@ -169,6 +168,9 @@ def s_cli_get() -> dict[str, Any]:
     if csv.exists():
         out["csv_bytes"] = csv.stat().st_size
         out["csv_head"] = csv.read_text(encoding="utf-8", errors="replace")[:600]
+    book = Path("cli_sih_dictionary.md")
+    if book.exists():
+        out["dictionary_head"] = book.read_text(encoding="utf-8", errors="replace")[:800]
     if proc.returncode != 0:
         raise RuntimeError(f"exit {proc.returncode}: {proc.stderr[-400:]}")
     return out
@@ -231,7 +233,7 @@ SCENARIOS = {
     "sia_pa": s_sia_pa,
     "sinan_deng": s_sinan_deng,
     "sinan_tube": s_sinan_tube,
-    "cli_get": s_cli_get,
+    "cli_query": s_cli_query,
     "sih_2016": s_sih_2016,
     "sia_sp_parts": s_sia_sp_parts,
     "age": s_age,

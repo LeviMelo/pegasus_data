@@ -302,15 +302,15 @@ class TestPublicNamesAreCallable:
     """
 
     def test_from_import_gives_functions(self) -> None:
-        from pegasus_data import explore, fetch, info, translate
+        from pegasus_data import explore, info, query, translate
 
-        for obj in (explore, translate, info, fetch):
+        for obj in (explore, translate, info, query):
             assert callable(obj), f"{obj!r} is not callable"
 
     def test_attribute_access_gives_functions(self) -> None:
         import pegasus_data
 
-        for name in ("explore", "translate", "info", "fetch"):
+        for name in ("explore", "translate", "info", "query"):
             assert callable(getattr(pegasus_data, name))
 
     def test_the_module_is_still_reachable(self) -> None:

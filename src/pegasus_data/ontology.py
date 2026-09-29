@@ -699,11 +699,12 @@ class Ontology:
     def resolve(self, target: str) -> tuple[str, Any] | None:
         """Resolve a user-supplied string onto a node.
 
-        Accepts ``"SIH"``, ``"SIHSUS"``, ``"SIH.RD"``, ``"SIHSUS.RD"`` or a bare
-        ``"RD"``. Returns ``(kind, node)`` where kind is ``"system"`` or
+        Accepts ``"SIH"``, ``"SIHSUS"``, ``"SIH.RD"``, ``"SIH-RD"``,
+        ``"SIHSUS.RD"`` or a bare ``"RD"``: the one resolver every entry point
+        uses (ADR-0073). Returns ``(kind, node)`` where kind is ``"system"`` or
         ``"dataset"``, or ``None``.
         """
-        text = str(target or "").strip().upper().replace("/", ".")
+        text = str(target or "").strip().upper().replace("/", ".").replace("-", ".")
         if not text:
             return None
 

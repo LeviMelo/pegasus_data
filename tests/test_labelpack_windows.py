@@ -189,7 +189,8 @@ class TestTheWindowRule:
     def test_load_exposes_the_same_policy_as_fetch(self):
         import inspect
 
-        from pegasus_data import fetch, load
+        from pegasus_data.api import load
+        from pegasus_data.retrieve import fetch
 
         assert inspect.signature(fetch).parameters["historical_labels"].default == "current"
         assert inspect.signature(load).parameters["historical_labels"].default == "current"

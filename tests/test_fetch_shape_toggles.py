@@ -202,9 +202,9 @@ def test_fetch_declares_the_three_switches_with_the_documented_defaults() -> Non
     """The defaults ARE the contract: provenance off, names original."""
     import inspect
 
-    import pegasus_data as pg
+    from pegasus_data.retrieve import fetch
 
-    params = inspect.signature(pg.fetch).parameters
+    params = inspect.signature(fetch).parameters
     assert params["provenance"].default is False
     assert params["dictionary"].default is False
     assert params["names"].default == "original"
@@ -214,12 +214,11 @@ def test_fetch_declares_the_three_switches_with_the_documented_defaults() -> Non
 
 def test_fetch_rejects_an_unknown_names_choice() -> None:
     """A typo must not silently fall through to the original names."""
-    import pegasus_data as pg
-    from pegasus_data.retrieve import _check_choice
+    from pegasus_data.retrieve import _check_choice, fetch
 
     with pytest.raises(ValueError):
         _check_choice("names", "translated", ("original", "described"))
-    assert callable(pg.fetch)
+    assert callable(fetch)
 
 
 class TestACombinedValueDoesNotRepeatTheCode:

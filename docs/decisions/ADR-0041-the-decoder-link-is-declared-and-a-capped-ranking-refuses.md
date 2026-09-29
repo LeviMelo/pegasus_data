@@ -1,6 +1,6 @@
 ## ADR-0041: The variable-to-decoder link is declared in curation; an uncurated candidate set above the cap is refused
 
-**Date:** 2026-08-23. **Status:** active. **Amends:** ADR-0012.
+**Date:** 2026-08-23. **Status:** superseded (2026-09-28, by ADR-0072). **Amends:** ADR-0012.
 
 **Context.** `CODMUNRES = 120040` is Rio Branco. It came back "Baixo Acre e
 Purus", its health region, and had for weeks (`docs/history/FINDINGS.md` §3k).

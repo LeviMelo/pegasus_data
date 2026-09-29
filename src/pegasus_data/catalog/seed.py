@@ -56,6 +56,7 @@ SEED_TABLES: tuple[str, ...] = (
     "schema_drift",
     "field_renames",
     "field_codelists",
+    "label_bindings",
     "variable_docs",
     "dataset_docs",
     "open_questions",

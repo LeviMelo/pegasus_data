@@ -4,13 +4,6 @@ import pyarrow as pa
 import pytest
 
 import pegasus_data as pg
-from pegasus_data.persist.reference import register_reference_tables, write_reference_tables
-from pegasus_data.semantics.dictionary import (
-    CodelistBinding,
-    DictionaryEntry,
-    persist_bindings,
-    persist_entries,
-)
 from pegasus_data.semantics.relations import (
     RelationType,
     SemanticRelation,
@@ -54,69 +47,11 @@ def test_runtime_ambiguity_is_deduplicated_into_work_item(catalog) -> None:
     assert adjudication_evidence(catalog, first)["candidates_json"] == ["MUNICBR", "CIRAC"]
 
 
-def test_applied_adjudication_changes_the_actual_rendered_value(settings, catalog) -> None:
-    from pegasus_data.view import render_table
-
-    codelists = [f"CANDIDATE_{index:02d}" for index in range(12)] + ["RIGHT_MUNIC"]
-    persist_entries(
-        catalog,
-        [
-            DictionaryEntry(
-                system="SIHSUS",
-                value_raw="120040",
-                value_label=("Rio Branco" if name == "RIGHT_MUNIC" else f"Wrong {name}"),
-                value_group=name,
-                source="cnv",
-                source_ref=f"test!{name}",
-                confidence=0.9,
-            )
-            for name in codelists
-        ],
-    )
-    persist_bindings(
-        catalog,
-        [CodelistBinding("SIHSUS", "CODMUNRES", name, "def", "test.def", 0.9) for name in codelists],
-    )
-    catalog.execute(
-        "INSERT INTO variable_docs (system, field_name, code_system, source, asserted_by) "
-        "VALUES ('SIHSUS', 'CODMUNRES', 'external', 'manual', 'test')"
-    )
-    register_reference_tables(catalog, write_reference_tables(catalog, settings.lake_dir))
-    table = pa.table({"CODMUNRES": ["120040"]})
-
-    refused, report = render_table(
-        table, store=catalog, lake_root=settings.lake_dir, system="SIHSUS", profile="audit"
-    )
-    assert "CODMUNRES_label" not in refused.column_names
-    assert "CODMUNRES" in report.unlabelled
-    key = str(catalog.query("SELECT key FROM adjudication_items")[0]["key"])
-
-    adjudicate(
-        catalog,
-        key,
-        SemanticRelation(
-            system="SIHSUS",
-            dataset="",
-            field_name="CODMUNRES",
-            relation_type=RelationType.LABEL_OF,
-            target_type="municipality",
-            target_name="",
-            artifact="RIGHT_MUNIC",
-            evidence="reviewed test evidence",
-        ),
-        by="test-reviewer",
-    )
-    rendered, _ = render_table(
-        table, store=catalog, lake_root=settings.lake_dir, system="SIHSUS", profile="audit"
-    )
-    assert rendered["CODMUNRES_label"].to_pylist() == ["Rio Branco"]
-    assert adjudication_evidence(catalog, key)["status"] == "adjudicated"
-
-
 @pytest.mark.usefixtures("fresh_install")
 def test_dimension_uses_each_rows_semantic_vintage(settings, monkeypatch) -> None:
     import pegasus_data.labelpack as labelpack
-    from pegasus_data._query import QueryReport, _apply_dimensions
+    from pegasus_data._query_engine.model import QueryReport
+    from pegasus_data._query_engine.semantics import _apply_dimensions
 
     calls = []
 
@@ -140,7 +75,8 @@ def test_dimension_uses_each_rows_semantic_vintage(settings, monkeypatch) -> Non
 
 def test_adjudicated_dimension_is_effective_immediately(settings, catalog, monkeypatch) -> None:
     import pegasus_data.labelpack as labelpack
-    from pegasus_data._query import QueryReport, _apply_dimensions
+    from pegasus_data._query_engine.model import QueryReport
+    from pegasus_data._query_engine.semantics import _apply_dimensions
 
     key = ensure_adjudication_item(
         catalog, kind="semantic_relation", system="SIHSUS", dataset="SIHSUS.RD",
@@ -334,7 +270,8 @@ def test_longitudinal_dimension_uses_relation_artifact_per_source_vintage(
 ) -> None:
     import pegasus_data.labelpack as labelpack
     import pegasus_data.semantics.relations as relation_module
-    from pegasus_data._query import QueryReport, _apply_dimensions
+    from pegasus_data._query_engine.model import QueryReport
+    from pegasus_data._query_engine.semantics import _apply_dimensions
 
     relations = (
         SemanticRelation(
@@ -413,7 +350,8 @@ def test_local_reviewed_relation_dominates_shipped_relation(catalog, monkeypatch
 @pytest.mark.usefixtures("fresh_install")
 def test_unknown_required_dimension_vintage_is_null(settings, monkeypatch) -> None:
     import pegasus_data.labelpack as labelpack
-    from pegasus_data._query import QueryReport, _apply_dimensions
+    from pegasus_data._query_engine.model import QueryReport
+    from pegasus_data._query_engine.semantics import _apply_dimensions
 
     monkeypatch.setattr(labelpack, "packed_mapping_is_time_invariant", lambda *_a, **_k: False)
     monkeypatch.setattr(
@@ -439,7 +377,8 @@ def test_annual_dimension_uses_mapping_only_when_safe_for_the_whole_year(
     settings, monkeypatch
 ) -> None:
     import pegasus_data.labelpack as labelpack
-    from pegasus_data._query import QueryReport, _apply_dimensions
+    from pegasus_data._query_engine.model import QueryReport
+    from pegasus_data._query_engine.semantics import _apply_dimensions
 
     calls: list[int] = []
 
@@ -466,7 +405,8 @@ def test_annual_dimension_is_null_when_relation_changes_midyear(
 ) -> None:
     import pegasus_data.labelpack as labelpack
     import pegasus_data.semantics.relations as relation_module
-    from pegasus_data._query import QueryReport, _apply_dimensions
+    from pegasus_data._query_engine.model import QueryReport
+    from pegasus_data._query_engine.semantics import _apply_dimensions
 
     relations = (
         SemanticRelation(

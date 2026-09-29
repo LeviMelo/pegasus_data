@@ -1,6 +1,13 @@
-"""Internal query planning and execution package."""
+"""``query()`` and ``plan()``: source intent before source mechanics.
 
-from .core import (
+``model`` holds the request, plan and report types; ``planner`` turns a request
+into a retrieval plan (lake, fetch or a year-level hybrid); ``executor`` runs
+it; ``filters`` and ``semantics`` are its period filter and its dimension and
+enrichment steps; ``capabilities`` says what each dataset can be asked.
+"""
+
+from .executor import query
+from .model import (
     Adaptation,
     CrosswalkAmbiguityWarning,
     DimensionRequest,
@@ -12,9 +19,8 @@ from .core import (
     SemanticFallbackWarning,
     StructuralSchemaWarning,
     TimeResolutionWarning,
-    plan,
-    query,
 )
+from .planner import plan
 
 __all__ = [
     "Adaptation", "CrosswalkAmbiguityWarning", "DimensionRequest", "Geography",

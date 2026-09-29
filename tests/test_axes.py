@@ -136,7 +136,8 @@ class TestExploreSaysWhyItIsEmpty:
 
 class TestFetchRefusesRatherThanReturningEmpty:
     def test_it_raises_on_an_absent_axis(self, national) -> None:
-        from pegasus_data import FilterHasNoAxis, fetch
+        from pegasus_data import FilterHasNoAxis
+        from pegasus_data.retrieve import fetch
 
         with pytest.raises(FilterHasNoAxis) as caught:
             fetch("SIM-DOFET", uf="AC", settings=national)

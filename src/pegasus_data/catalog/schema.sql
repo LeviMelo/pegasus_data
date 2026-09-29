@@ -705,6 +705,28 @@ CREATE TABLE IF NOT EXISTS curation_state (
   applied_at   TEXT NOT NULL
 );
 
+-- ONE decided codelist per (system, family, field): what labels the column
+-- (ADR-0072). Compiled by `pegasus-data bindings` from sampled files and shipped
+-- in the seed; a family the seed does not know is decided once, on first read,
+-- by the same function (semantics/label_bindings.py). `codelists` is a JSON list;
+-- empty means "not labelled", and `reason` says why. The renderer never weighs
+-- candidates again for a family that has a row here.
+CREATE TABLE IF NOT EXISTS label_bindings (
+  system      TEXT NOT NULL,
+  family_id   TEXT NOT NULL,
+  field_name  TEXT NOT NULL,
+  codelists   TEXT NOT NULL,
+  basis       TEXT NOT NULL,     -- 'curated' | 'measured' | 'none'
+  share       REAL,              -- share of observed distinct codes decoded
+  grain       REAL,              -- distinct labels / decoded codes (low = rollup)
+  observed    INTEGER,           -- distinct codes the decision was measured on
+  candidates  INTEGER,           -- tables weighed after collapsing per-UF partitions
+  reason      TEXT,
+  sample      TEXT,              -- JSON list of the files the values came from
+  decided_at  TEXT NOT NULL,
+  PRIMARY KEY (system, family_id, field_name)
+);
+
 -- Typed semantic edges compiled from reviewable curation. Flat field bindings
 -- remain evidence during migration; these rows say what KIND of operation a
 -- mapping performs, so a roll-up cannot compete with an identity label.

@@ -1,24 +1,19 @@
-"""pegasus_data — a queryable, self-describing data lake over DATASUS.
+"""pegasus_data: Brazil's DATASUS public health data, with its meaning attached.
 
-The intent-driven front door chooses the source mechanics for you:
+One door for data, and one per question about it (ADR-0073):
 
-    from pegasus_data import query
-    df = query("SIH-RD", period=2023, geography="AL")
+    from pegasus_data import query, info, explore, search
 
-The lower-level source-specific services remain available:
+    table = query("SIH.RD", period=2023, geography="AL")   # labelled Arrow table
+    df = table.to_pandas()
+    info("SIH.RD")                 # what this dataset is
+    explore("SIH.RD")              # what the server has for it, offline
+    search("raça")                 # which columns and codes mean what
 
-    from pegasus_data import fetch
-    df = fetch("SIH-RD", uf="AL", years=2023)      # nothing local; go and get it
-
-    from pegasus_data import load
-    df = load("SIHSUS", "RD", uf="AL", years=2023)  # read a lake you built
-
-    from pegasus_data import describe
-    describe("SIHSUS", "RD", field="DIAG_PRINC")    # what does this variable mean
-
-The names are resolved lazily. ``import pegasus_data`` should not pay for
-pyarrow and duckdb when all the caller wanted was :class:`Settings`, and the CLI
-imports this package on every invocation.
+``query`` chooses the source (a lake you built, or the FTP server) and keeps
+every raw code beside its label. The names are resolved lazily, so ``import
+pegasus_data`` does not pay for pyarrow and duckdb when the caller wanted only
+:class:`Settings`.
 """
 
 from __future__ import annotations
@@ -39,20 +34,13 @@ except PackageNotFoundError:  # pragma: no cover - direct, uninstalled source ch
 #: Public name -> the module it lives in. Kept as data so ``__all__``, the lazy
 #: loader and ``dir()`` cannot disagree about what the package exports.
 _EXPORTS: dict[str, str] = {
-    "Catalog": ".api",
     "describe": ".api",
-    "load": ".api",
-    "scan": ".api",
-    "LakeScan": ".api",
     "load_population": ".api",
     "load_reference": ".api",
-    "open_lake": ".api",
-    "export": ".api",
     "FieldDescription": ".api",
     "MissingColumnError": ".api",
     "LabelUnavailable": ".api",
     "RenderReport": ".api",
-    "PROFILES": ".api",
     "explore": "._explore",
     "info": "._info",
     "Info": "._info",
@@ -80,22 +68,20 @@ _EXPORTS: dict[str, str] = {
     "compendium": "._compendium",
     "CompendiumReport": "._compendium",
     "search": "._search",
-    "fetch": ".retrieve",
-    "FetchReport": ".retrieve",
     "resource_manager": "._resources",
     "ResourceManager": "._resources",
     "ResourceStatus": "._resources",
-    "query": "._query",
-    "plan": "._query",
-    "QuerySpec": "._query",
-    "QueryPlan": "._query",
-    "QueryReport": "._query",
-    "Period": "._query",
-    "Geography": "._query",
-    "TimeResolutionWarning": "._query",
-    "StructuralSchemaWarning": "._query",
-    "SemanticFallbackWarning": "._query",
-    "CrosswalkAmbiguityWarning": "._query",
+    "query": "._query_engine",
+    "plan": "._query_engine",
+    "QuerySpec": "._query_engine",
+    "QueryPlan": "._query_engine",
+    "QueryReport": "._query_engine",
+    "Period": "._query_engine",
+    "Geography": "._query_engine",
+    "TimeResolutionWarning": "._query_engine",
+    "StructuralSchemaWarning": "._query_engine",
+    "SemanticFallbackWarning": "._query_engine",
+    "CrosswalkAmbiguityWarning": "._query_engine",
     "enrichment": ".crosswalk",
     "EnrichmentRequest": ".crosswalk",
     "DatasetUnknown": ".retrieve",
@@ -123,7 +109,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from ._dictionary import DataDictionary
     from ._explore import Exploration, explore
     from ._info import Info, info
-    from ._query import (
+    from ._query_engine import (
         CrosswalkAmbiguityWarning,
         Geography,
         Period,
@@ -139,32 +125,19 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from ._resources import ResourceManager, ResourceStatus, resource_manager
     from ._translate import TranslationImpossible, translate
     from .api import (
-        PROFILES,
-        Catalog,
         FieldDescription,
         LabelUnavailable,
-        LakeScan,
         MissingColumnError,
         RenderReport,
         describe,
-        export,
-        load,
         load_population,
         load_reference,
-        open_lake,
-        scan,
     )
     from .bundle import BundleError, pack, read_manifest, unpack
     from .crosswalk import EnrichmentRequest, enrichment
     from .geography import Membership, MembershipSet, memberships
     from .ontology import Ontology
-    from .retrieve import (
-        DatasetUnknown,
-        FetchReport,
-        FilterHasNoAxis,
-        NothingPublished,
-        fetch,
-    )
+    from .retrieve import DatasetUnknown, FilterHasNoAxis, NothingPublished
 
 
 def __getattr__(name: str) -> Any:

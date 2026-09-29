@@ -1,18 +1,17 @@
-"""Command surface (§8).
+"""The ``pegasus-data`` command line. `RUNBOOK.md` is its manual.
 
-    pegasus-data crawl      [--host] [--base-path] [--connections N] [--resume]
-    pegasus-data inventory
-    pegasus-data sample
-    pegasus-data fetch      [--strata|--family|--system] [--concurrency N]
-    pegasus-data profile    [--family|--system]
-    pegasus-data semantics
-    pegasus-data normalize  [--system] [--uf] [--years]
-    pegasus-data build      [--system] [--uf] [--years]
-    pegasus-data report
-    pegasus-data verify
+For a person reading data:
 
-Every command is resumable and idempotent, and every command writes to the
-catalog before returning.
+    pegasus-data query SIH.RD --period 2023-01 --geo AL --out sih.csv
+    pegasus-data info SIH.RD          pegasus-data explore SIH.RD
+    pegasus-data search raça          pegasus-data translate FILE --system SIHSUS
+
+For a maintainer building the shipped snapshot (RUNBOOK §5):
+
+    crawl → inventory → schemas → families → curate → bindings → build_resources
+
+Every command is resumable and idempotent, and writes to the catalog before
+returning.
 """
 
 from __future__ import annotations
@@ -902,8 +901,8 @@ def sample(root: RootOpt = None, system: SystemsOpt = None, limit: Annotated[int
         pipeline.close()
 
 
-@app.command(rich_help_panel="PIPELINE")
-def fetch(
+@app.command(name="download", rich_help_panel="PIPELINE")
+def download(
     root: RootOpt = None,
     system: SystemsOpt = None,
     family: Annotated[list[str] | None, typer.Option("--family")] = None,
@@ -1035,6 +1034,30 @@ def families(root: RootOpt = None, as_json: JsonOpt = False) -> None:
 
 
 @app.command(rich_help_panel="PIPELINE")
+def bindings(
+    root: RootOpt = None,
+    system: SystemsOpt = None,
+    per_family: Annotated[int, typer.Option("--per-family", help="Files sampled per family, from distinct states")] = 2,
+    as_json: JsonOpt = False,
+) -> None:
+    """Decide, once per family and field, which codelist labels each column.
+
+    Samples real files from every family, weighs every bound codelist against
+    the observed codes (per-state partitions collapsed, rollups excluded) and
+    stores the decision in `label_bindings`, which ships in the seed. Run after
+    `families` and `curate`, before `scripts/build_resources.py` (ADR-0072).
+    """
+    from .semantics.label_bindings import compile_bindings
+
+    settings = _settings(root)
+    counts = compile_bindings(
+        settings, systems=system, per_family=per_family,
+        on_progress=None if as_json else (lambda line: console.print(f"[dim]{line}[/dim]")),
+    )
+    _emit(counts, as_json, "label bindings")
+
+
+@app.command(rich_help_panel="PIPELINE")
 def ledger(root: RootOpt = None, system: SystemsOpt = None, as_json: JsonOpt = False) -> None:
     """Build the metadata ledger, including dictionary_coverage per field."""
     pipeline = _pipeline(root)
@@ -1137,20 +1160,6 @@ def labelpack_cmd(
             )
     finally:
         pipeline.close()
-
-
-@app.command(rich_help_panel="EXTRACT")
-def normalize(
-    root: RootOpt = None,
-    system: SystemsOpt = None,
-    uf: Annotated[list[str] | None, typer.Option("--uf")] = None,
-    years: Annotated[str | None, typer.Option("--years", help="e.g. 2015-2024 or 2019,2020")] = None,
-    family: Annotated[list[str] | None, typer.Option("--family")] = None,
-    limit: Annotated[int | None, typer.Option("--limit", help="Max files per family")] = None,
-    as_json: JsonOpt = False,
-) -> None:
-    """Normalise and write the lake (an alias of `build`, kept for §8's surface)."""
-    build(root=root, system=system, uf=uf, years=years, family=family, limit=limit, as_json=as_json)
 
 
 @app.command(rich_help_panel="EXPLORE")
@@ -1349,133 +1358,92 @@ def translate_file(
     )
 
 
-@app.command(rich_help_panel="EXTRACT")
-def get(
-    dataset: Annotated[str, typer.Argument(help="Dataset, e.g. SIH-RD, SIM-DO, SINASC-DN")],
-    root: RootOpt = None,
-    uf: Annotated[list[str] | None, typer.Option("--uf", help="Limit to these states")] = None,
-    years: Annotated[str | None, typer.Option("--years", help="e.g. 2020-2024 or 2021,2023")] = None,
-    months: Annotated[str | None, typer.Option("--months", help="e.g. 1,2,3")] = None,
-    out: Annotated[Path | None, typer.Option("--out", help="Write here instead of summarising")] = None,
-    fmt: Annotated[str, typer.Option("--format", help="csv | parquet | xlsx")] = "csv",
-    columns: Annotated[list[str] | None, typer.Option("--column", "-c")] = None,
-    profile: Annotated[str, typer.Option("--profile", help="analysis | codes | audit | report")] = "report",
-    no_labels: Annotated[bool, typer.Option("--no-labels", help="Return codes as filed")] = False,
+@app.command(name="query", rich_help_panel="EXTRACT")
+def query_cmd(
+    dataset: Annotated[str, typer.Argument(help="Dataset: SIH.RD, SIM.DO, SINASC.DN (SIH-RD works too)")],
+    period: Annotated[
+        str | None, typer.Option("--period", "-p", help="2023, 2023-01, or a range 2020..2023 / 2022-01..2022-06")
+    ] = None,
+    geography: Annotated[
+        str | None, typer.Option("--geo", "-g", help="State(s) whose publications to read: AL, or AL,SE")
+    ] = None,
+    select: Annotated[list[str] | None, typer.Option("--select", "-c", help="Columns to keep (labels follow)")] = None,
+    out: Annotated[Path | None, typer.Option("--out", "-o", help="Write the table here instead of summarising")] = None,
+    fmt: Annotated[str | None, typer.Option("--format", help="csv | parquet | xlsx (default: from --out)")] = None,
+    no_labels: Annotated[bool, typer.Option("--no-labels", help="Codes only, as filed")] = False,
     described_names: Annotated[
-        bool,
-        typer.Option(
-            "--described-names",
-            help="Rename columns to their English names: CODMUNRES -> Municipality of "
-            "residence. A column with no curated name keeps the DATASUS one.",
-        ),
-    ] = False,
-    provenance: Annotated[
-        bool,
-        typer.Option(
-            "--provenance",
-            help="Keep _source_path, _blob_sha256, _ingested_at and _schema_signature. "
-            "Off by default: constant per source file, so they cost width in every row.",
-        ),
+        bool, typer.Option("--described-names", help="English column names: CODMUNRES -> Municipality of residence")
     ] = False,
     dictionary_out: Annotated[
         Path | None,
-        typer.Option(
-            "--dictionary",
-            help="Also write the data dictionary here (.md, .csv, .json or .parquet): "
-            "one row per column, what it means and which table decoded it.",
-        ),
+        typer.Option("--dictionary", help="Also write the table's data dictionary (.md, .csv, .json or .parquet)"),
     ] = None,
-    max_files: Annotated[int | None, typer.Option("--max-files", help="Stop after this many files")] = None,
-    no_discover: Annotated[
-        bool, typer.Option("--no-discover", help="Refuse rather than crawl an unknown system")
+    allow_unbounded: Annotated[
+        bool, typer.Option("--allow-unbounded", help="Permit a query with no --period (every year on the server)")
     ] = False,
+    root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
-    """Download a dataset from DATASUS and hand it back processed. No lake needed.
+    """Get a dataset, labelled: the command-line form of query() (ADR-0073).
 
-    The one-call door: 'pegasus-data get SIH-RD --uf AL --years 2023'. Files are
-    downloaded on demand, decoded, normalised and labelled. A system the catalog
-    has never seen triggers a crawl of that system's directory only, which is
-    recorded, so the second call is free.
+    'pegasus-data query SIH.RD --period 2023-01 --geo AL --out sih.csv'. Reads a
+    lake you built where it covers the request and the FTP server otherwise;
+    every raw code keeps its label beside it. `plan` first, to see what it
+    will read: 'pegasus-data query SIH.RD --period 2023 --geo AL' without --out
+    prints the plan and a summary.
     """
+    from ._query_engine import plan as plan_query
+    from ._query_engine import query as run_query
     from .retrieve import DatasetUnknown, NothingPublished
-    from .retrieve import fetch as fetch_dataset
 
-    month_list = [int(m) for m in (months or "").replace(" ", "").split(",") if m]
     settings = _settings(root)
+    span: object = None
+    if period:
+        span = tuple(part.strip() for part in period.split("..")) if ".." in period else period.strip()
     try:
-        with console.status(f"fetching {dataset}…"):
-            table, result, book = fetch_dataset(
-                dataset,
-                uf=uf,
-                years=_parse_years(years),
-                months=month_list,
-                columns=columns,
-                labels=not no_labels,
-                names="described" if described_names else "original",
-                provenance=provenance,
-                profile=profile,
-                max_files=max_files,
-                discover=not no_discover,
-                settings=settings,
-                report=True,
-                dictionary=True,
+        console.print(plan_query(dataset, period=span, geography=geography, settings=settings,
+                                 allow_unbounded=allow_unbounded).explain())
+        with console.status(f"querying {dataset}…"):
+            table, report = run_query(
+                dataset, period=span, geography=geography, select=select, labels=not no_labels,
+                allow_unbounded=allow_unbounded, settings=settings, return_report=True,
             )
-    except (DatasetUnknown, NothingPublished) as exc:
+    except (DatasetUnknown, NothingPublished, ValueError, FileNotFoundError) as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
 
+    labelled = sum(1 for c in table.column_names if c.endswith("_label"))
+    if described_names or dictionary_out:
+        from ._dictionary import describe_table
+        from .catalog.store import Catalog
+        from .retrieve import parse_dataset
+
+        store = Catalog(settings.catalog_path, read_only=True)
+        try:
+            table, book = describe_table(
+                store, parse_dataset(dataset)[0], table, dataset=dataset, rename=described_names
+            )
+        finally:
+            store.close()
+        if dictionary_out:
+            book.write(dictionary_out)
+            console.print(f"[green]wrote[/green] {dictionary_out}  ({len(book)} columns described)")
     if out:
         from .api import write_table
 
-        write_table(table, out, fmt)
-        console.print(f"[green]wrote[/green] {out}  ({table.num_rows:,} rows)")
-    if dictionary_out:
-        book.write(dictionary_out)
-        console.print(
-            f"[green]wrote[/green] {dictionary_out}  ({len(book)} columns described)"
-        )
-    _emit(result.as_dict(), as_json, f"get {dataset}")
-    for warning in result.warnings:
+        chosen = fmt or (out.suffix.lstrip(".").lower() or "csv")
+        write_table(table, out, chosen)
+        console.print(f"[green]wrote[/green] {out}  ({table.num_rows:,} rows, {table.num_columns} columns)")
+    summary = {
+        "rows": table.num_rows,
+        "columns": table.num_columns,
+        "labelled": labelled,
+        "strategy": report.source_strategy,
+        "warnings": len(report.warnings),
+    }
+    _emit(summary, as_json, f"query {dataset}")
+    for warning in report.warnings[:10]:
         console.print(f"[yellow]{warning}[/yellow]")
-    if result.years_missing:
-        console.print(
-            f"[yellow]no data for {result.years_missing} — "
-            "DATASUS publishes nothing for those years in this series[/yellow]"
-        )
-
-
-@app.command(rich_help_panel="EXTRACT")
-def export(
-    system: Annotated[str, typer.Argument(help="Information system, e.g. SIHSUS")],
-    series: Annotated[str | None, typer.Argument(help="Series, e.g. RD")] = None,
-    root: RootOpt = None,
-    uf: Annotated[list[str] | None, typer.Option("--uf", help="Limit to these states")] = None,
-    years: Annotated[str | None, typer.Option("--years", help="e.g. 2020-2024 or 2021,2023")] = None,
-    out: Annotated[Path | None, typer.Option("--out", help="Output file")] = None,
-    fmt: Annotated[str, typer.Option("--format", help="csv | parquet | xlsx")] = "csv",
-    profile: Annotated[str, typer.Option("--profile", help="analysis | codes | audit | report")] = "report",
-    headers: Annotated[str | None, typer.Option("--headers", help="original | translated | both")] = None,
-    values: Annotated[str | None, typer.Option("--values", help="separate | combined")] = None,
-) -> None:
-    """Write a rendered extract: labels applied, ready to open.
-
-    Same rendering path as load(), so an option means the same thing in a
-    notebook and in a file. Defaults to the 'report' profile.
-    """
-    from .api import Catalog as PublicCatalog
-    from .api import export as export_table
-
-    settings = _settings(root)
-    public = PublicCatalog(settings.root, settings=settings)
-    try:
-        target = export_table(
-            system, series, path=out, format=fmt, uf=uf, years=_parse_years(years),
-            catalog=public, profile=profile, headers=headers, values=values,
-        )
-        console.print(f"[green]wrote[/green] {target}")
-    finally:
-        public.close()
 
 
 @app.command(rich_help_panel="EXTRACT")

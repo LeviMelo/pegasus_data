@@ -166,23 +166,20 @@ Built by `scripts/build_resources.py` (the seed and the manifest) and the
 
 ---
 
-## 4. How a label is chosen today
+## 4. How a label is chosen
 
-`view._select_codelists`, per column, per file:
+`view._select_codelists`, per column, per (family, year) render group:
 
 1. a curated `codelist`/`codelists` in `curation/variables` decides;
-2. else a single catalog `label_of` relation decides;
-3. else one bound codelist: used, with a warning if it is a rollup;
-4. else more than twelve bound: **refused** ("arbitrarily capped");
-5. else up to twelve are weighed against the file's distinct values
-   (`_choose_binding`): the best decode share wins, ties to the finest grain;
-   below 50% the column is left unlabelled.
+2. else a single adjudicated catalog `label_of` relation decides;
+3. else the family's row in `label_bindings` decides (compiled by
+   `pegasus-data bindings`, shipped in the seed);
+4. else `label_bindings.resolve` weighs every bound candidate on the column in
+   hand (per-state partitions collapsed, rollups excluded, the best identity
+   table at ≥ 50%) and stores the decision when it is conclusive (ADR-0072).
 
 Every read path applies this one policy (ADR-0061). The default render
 profile keeps every raw code and adds a `<field>_label` companion (ADR-0063).
-Weighing happens per file at read time, so two files of one dataset can be
-labelled from different tables. Compiling one binding per field ahead of time
-is M2.
 
 ---
 
@@ -193,8 +190,8 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 
 | Job | Mechanisms today | Plan |
 |---|---|---|
-| read a dataset | `query` (wraps `fetch`), `fetch`, `load`, `scan`, `open_lake`; two dataset spellings (`"SIHSUS","RD"` vs `"SIH-RD"`) | M3: `query` is the engine; the others are thin forms of it; one identifier |
-| decide a column's codelist | read-time weighing (`view.py`), curation, catalog relations; ~~the query-time gate~~ removed (ADR-0061) | M2: one compiled binding per field, applied identically everywhere |
+| read a dataset | ~~`fetch`, `load`, `scan`, `open_lake`, `export` as public doors~~ | **done** (ADR-0073): `query` is the one door; the engines are internal; one identifier resolver |
+| decide a column's codelist | ~~read-time weighing per file, capped at 12~~; ~~the query-time gate~~ | **done** (ADR-0061, ADR-0072): curation, then one stored binding per family and field |
 | bootstrap a fresh catalog | ~~inside `fetch`, `_translate.py` separately, `tree.parquet` for `explore`, nothing for `info`~~ | **done** (ADR-0067): `Catalog.__init__` installs the seed |
 | export the semantic layer | `labelpack.py`, `bundle.py`, `docsgen.py` (`docs/dictionary.sqlite`), `_compendium.py` (another SQLite), `persist/reference.py` | M3: one snapshot and one dictionary database |
 | describe a thing | `info`, `describe`, `explore`, `DataDictionary`, `compendium`, `search`, `availability` | M3: kept as questions, backed by one catalog |
@@ -202,7 +199,7 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | convert an age | ~~`view._derive_age_years`~~ | **done** (ADR-0070): `_age.years_column` only, fractional years from measured units |
 | query capabilities | `capabilities.py` (aggregate artifacts) and `_query_engine/capabilities.py` (publication coverage) | rename in M3 |
 | a `Catalog` | `api.Catalog` (public facade) and `catalog/store.Catalog` | rename in M3 |
-| re-export the query engine | `_query.py` → `_query_engine/__init__.py` → `_query_engine/core.py` | M3: one module |
+| re-export the query engine | ~~three layers~~ | **done** (ADR-0073): `_query_engine/` only |
 | stock time reducers | refused in `measures.py`, implemented in `tools/export_workbook.py` | M4: into `measures.py` |
 
 Also known, not duplicates:
@@ -218,17 +215,17 @@ Also known, not duplicates:
 
 ## 5a. The public surface
 
-`__init__.py` exports 68 names (`_EXPORTS`, resolved lazily). Grouped by the
+`__init__.py` exports 60 names (`_EXPORTS`, resolved lazily); the data engines (`retrieve.fetch`, `api.load`, `api.scan`) are internal (ADR-0073). Grouped by the
 question they answer; the overlap is §5's first rows.
 
 | Question | Functions | Types and errors |
 |---|---|---|
-| give me data | `query`, `plan`, `fetch`, `load`, `scan`, `open_lake`, `translate` | `QuerySpec`, `QueryPlan`, `QueryReport`, `Period`, `Geography`, `FetchReport`, `LakeScan`, `RenderReport`, `PROFILES`, `DatasetUnknown`, `NothingPublished`, `FilterHasNoAxis`, `MissingColumnError`, `LabelUnavailable`, `TranslationImpossible`; warnings `TimeResolutionWarning`, `StructuralSchemaWarning`, `SemanticFallbackWarning`, `CrosswalkAmbiguityWarning` |
+| give me data | `query`, `plan`, `translate` | `QuerySpec`, `QueryPlan`, `QueryReport`, `Period`, `Geography`, `RenderReport`, `DatasetUnknown`, `NothingPublished`, `FilterHasNoAxis`, `MissingColumnError`, `LabelUnavailable`, `TranslationImpossible`; warnings `TimeResolutionWarning`, `StructuralSchemaWarning`, `SemanticFallbackWarning`, `CrosswalkAmbiguityWarning` |
 | attach more to it | `enrichment`, `memberships` | `EnrichmentRequest`, `MembershipSet`, `Membership` |
 | what is this | `info`, `explore`, `describe`, `availability`, `field_available`, `field_coverage`, `search`, `compendium`, `gaps`, `questions`, `DataDictionary`, `Ontology` | `Info`, `Exploration`, `FieldDescription`, `Availability`, `FieldWindow`, `CompendiumReport`, `Gaps`, `OpenQuestions` |
 | aggregate it | `aggregate`, `build_aggregate` | `AggregateSpec`, `AggregateReport` |
-| reference data | `load_population`, `load_reference`, `export` | |
-| the local store | `Catalog`, `resource_manager`, `pack`, `unpack`, `read_manifest`, `Settings`, `load_settings` | `ResourceManager`, `ResourceStatus`, `BundleError` |
+| reference data | `load_population`, `load_reference` | |
+| the local store | `resource_manager`, `pack`, `unpack`, `read_manifest`, `Settings`, `load_settings` | `ResourceManager`, `ResourceStatus`, `BundleError` |
 
 ---
 
@@ -242,7 +239,6 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `api.py`: `Catalog` facade, `describe`, `load`, `scan`, `export`, `open_lake`,
   `write_table`, `load_population`, `load_reference`.
 - `retrieve.py`: `fetch()`, DATASUS to a table in one call; the de facto read engine.
-- `_query.py`: compatibility facade over `_query_engine/`.
 - `view.py`: rendering: codelist selection, labels, profiles, derived columns.
 - `render_groups.py`: groups files by vintage and system before rendering.
 - `representations.py`: deduplicates the same publication delivered twice.
@@ -278,7 +274,6 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 
 ### `_query_engine/`
 
-- `_query_engine/core.py`: re-exports.
 - `_query_engine/model.py`: `QuerySpec`, `QueryPlan`, `QueryReport`, warnings.
 - `_query_engine/planner.py`: `plan()`.
 - `_query_engine/executor.py`: `query()`.
@@ -344,7 +339,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
   `semantics/defnames.py`, `semantics/pdf_harvest.py`: harvesting (§2.3).
 - `semantics/dictionary.py`: merges sources by authority.
 - `semantics/curation.py`: loads `curation/`.
-- `semantics/bindings.py`: field→codelist bindings.
+- `semantics/bindings.py`: field→codelist bindings (the candidates).
+- `semantics/label_bindings.py`: the ONE decided codelist per (system, family, field): `weigh`, `resolve`, `compile_bindings` (ADR-0072).
 - `semantics/ledger.py`: per-field aggregation rules.
 - `semantics/relations.py`: typed relations and the adjudication queue.
 - `semantics/reference.py`: reference-table helpers.

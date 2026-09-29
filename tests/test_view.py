@@ -461,7 +461,8 @@ class TestBindingChoiceIsDeterministic:
                 (codelist,),
             )
 
-    def test_more_candidates_than_can_be_weighed_are_refused_not_truncated(self):
+    def test_more_than_twelve_candidates_are_all_weighed_not_refused(self):
+        """ADR-0072: the cap of twelve refused 124 fields outright; now none is."""
         import pegasus_data.view as view
 
         loaded = []
@@ -470,14 +471,13 @@ class TestBindingChoiceIsDeterministic:
             "AMBIGUOUS",
             pa.chunked_array([["1", "2"]]),
             doc=None,
-            candidates=[f"C{i}" for i in range(view._MAX_CANDIDATES + 1)],
+            candidates=[f"C{i}" for i in range(13)],
             report=report,
             strict=False,
-            lookup_one=lambda name, _width: loaded.append(name) or {"1": "x"},
+            lookup_one=lambda name, _width: loaded.append(name) or {"1": "x", "2": f"y{name}"},
         )
-        assert selection.unlabelled
-        assert loaded == [], "an arbitrary first subset became an epistemic choice"
-        assert any("curate" in warning for warning in report.warnings)
+        assert not selection.unlabelled
+        assert len(loaded) == 13, "every bound table is weighed"
 
     def test_the_same_catalog_always_yields_the_same_binding(self, catalog: Catalog):
         from pegasus_data.view import _bindings
@@ -635,60 +635,48 @@ class TestTheDataDecidesWhichTableIsRight:
         return lambda codelist: tables.get(codelist)
 
     def test_the_table_that_decodes_the_column_wins(self) -> None:
-        from pegasus_data.view import _choose_binding
+        from pegasus_data.semantics.label_bindings import weigh
 
         tables = {
             "HOSFEDRJ": {"2269384": "Hospital federal"},
             "TCNESBR": {"2001578": "Hospital geral de Rio Branco"},
         }
-        picked, share, _tried, _grain = _choose_binding(
-            "CNES", ["HOSFEDRJ", "TCNESBR"], {"2001578"}, self._load(tables)
-        )
-        assert picked == "TCNESBR"
-        assert share == 1.0
+        decision = weigh("CNES", ["HOSFEDRJ", "TCNESBR"], {"2001578"}, self._load(tables))
+        assert decision.codelists == ("TCNESBR",)
+        assert decision.share == 1.0
 
     def test_a_table_missing_from_the_lake_simply_loses(self) -> None:
         """A candidate that cannot be read is not an error, it is a worse option."""
-        from pegasus_data.view import _choose_binding
+        from pegasus_data.semantics.label_bindings import weigh
 
-        tables = {"REAL": {"1": "Sim"}}
-        picked, share, _tried, _grain = _choose_binding(
-            "X", ["ABSENT", "REAL"], {"1"}, self._load(tables)
-        )
-        assert (picked, share) == ("REAL", 1.0)
+        decision = weigh("X", ["ABSENT", "REAL"], {"1"}, self._load({"REAL": {"1": "Sim"}}))
+        assert (decision.codelists, decision.share) == (("REAL",), 1.0)
 
-    def test_it_stops_once_a_table_decodes_everything(self) -> None:
-        """114 tables are bound to DIAG_PRINC; reading them all costs more than it returns."""
-        from pegasus_data.view import _choose_binding
+    def test_a_state_partition_never_beats_its_national_table(self) -> None:
+        """ADR-0072: measured on Acre's file both decode everything; only the
+        national one decodes São Paulo."""
+        from pegasus_data.semantics.label_bindings import weigh
 
-        tables = {"GOOD": {"A": "a"}, "ALSO": {"A": "a"}}
-        _, _, tried, _grain = _choose_binding("X", ["GOOD", "ALSO"], {"A"}, self._load(tables))
-        assert tried == 1
+        tables = {"TCNESAC": {"2001578": "Hospital"}, "TCNESBR": {"2001578": "Hospital"}}
+        decision = weigh("CNES", ["TCNESAC", "TCNESBR"], {"2001578"}, self._load(tables))
+        assert decision.codelists == ("TCNESBR",)
+        assert decision.candidates == 1, "the partition was collapsed before weighing"
 
-    def test_it_weighs_no_more_than_the_cap(self) -> None:
-        from pegasus_data.view import _MAX_CANDIDATES, _choose_binding
+    def test_an_empty_column_decides_nothing(self) -> None:
+        """With nothing observed there is no evidence, and no label is claimed."""
+        from pegasus_data.semantics.label_bindings import weigh
 
-        names = [f"T{i}" for i in range(40)]
-        _, _, tried, _grain = _choose_binding("X", names, {"zzz"}, lambda _cl: {"other": "x"})
-        assert tried == _MAX_CANDIDATES
-
-    def test_an_empty_column_does_not_drive_the_choice(self) -> None:
-        """With nothing observed there is no evidence, so ranking stands."""
-        from pegasus_data.view import _choose_binding
-
-        picked, share, tried, _grain = _choose_binding("X", ["FIRST", "SECOND"], set(), lambda _cl: {})
-        assert (picked, share, tried) == ("FIRST", 0.0, 0)
+        decision = weigh("X", ["FIRST", "SECOND"], set(), lambda _cl: {})
+        assert not decision.labels and "no values" in decision.reason
 
     def test_the_best_of_a_bad_set_is_reported_not_hidden(self) -> None:
-        """PROC_REA: 12 tables bound, the best decodes 3%. That is a finding."""
-        from pegasus_data.view import _TOO_WEAK, _choose_binding
+        """PROC_REA: the best table decodes a quarter. That is a finding."""
+        from pegasus_data.semantics.label_bindings import TOO_WEAK, weigh
 
-        picked, share, _tried, _grain = _choose_binding(
-            "PROC_REA", ["A"], {"1", "2", "3", "4"}, lambda _cl: {"1": "one"}
-        )
-        assert picked == "A"
-        assert share == 0.25
-        assert share < _TOO_WEAK
+        decision = weigh("PROC_REA", ["A"], {"1", "2", "3", "4"}, lambda _cl: {"1": "one"})
+        assert not decision.labels
+        assert decision.share == 0.25 < TOO_WEAK
+        assert "'A'" in decision.reason
 
 
 class TestARollupIsNotATranslation:
@@ -701,7 +689,7 @@ class TestARollupIsNotATranslation:
     """
 
     def test_the_finer_table_wins_a_tie(self) -> None:
-        from pegasus_data.view import _choose_binding
+        from pegasus_data.semantics.label_bindings import weigh
 
         codes = {"120040", "120020", "120060"}
         tables = {
@@ -710,49 +698,38 @@ class TestARollupIsNotATranslation:
             # the municipality table: every code, its own name
             "MUNIC": {"120040": "Rio Branco", "120020": "Brasileia", "120060": "Xapuri"},
         }
-        picked, share, _tried, grain = _choose_binding(
-            "CODMUNRES", ["CIRAC", "MUNIC"], codes, lambda cl: tables.get(cl)
-        )
-        assert picked == "MUNIC"
-        assert (share, grain) == (1.0, 1.0)
+        decision = weigh("CODMUNRES", ["CIRAC", "MUNIC"], codes, lambda cl: tables.get(cl))
+        assert decision.codelists == ("MUNIC",)
+        assert (decision.share, decision.grain) == (1.0, 1.0)
 
-    def test_a_rollup_is_still_used_when_it_is_all_there_is(self) -> None:
-        """Better a broad label than none — but the caller has to be told."""
-        from pegasus_data.view import _ROLLUP, _choose_binding
+    def test_a_rollup_alone_is_not_a_label(self) -> None:
+        """ADR-0072: a region's name is not a municipality's label. The code
+        stays raw and the report says why; the region is a dimension."""
+        from pegasus_data.semantics.label_bindings import weigh
 
         codes = {"120040", "120020", "120060"}
         tables = {"CIRAC": dict.fromkeys(codes, "Baixo Acre e Purus")}
-        picked, share, _tried, grain = _choose_binding(
-            "CODMUNRES", ["CIRAC"], codes, lambda cl: tables.get(cl)
-        )
-        assert (picked, share) == ("CIRAC", 1.0)
-        assert grain < _ROLLUP, "one label for three codes is a rollup"
+        decision = weigh("CODMUNRES", ["CIRAC"], codes, lambda cl: tables.get(cl))
+        assert not decision.labels
+        assert "rollup" in decision.reason
 
     def test_within_the_tie_band_the_finer_table_wins(self) -> None:
-        """A point of coverage is worth less than the distinctions it costs."""
-        from pegasus_data.view import _choose_binding
+        from pegasus_data.semantics.label_bindings import weigh
 
-        codes = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-                 "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"}
+        codes = {str(i) for i in range(1, 21)}
         coarse = dict.fromkeys(codes, "Everything")               # 100%, 1 label
         fine = {c: f"name-{c}" for c in codes if c != "20"}       # 95%, 19 labels
-        picked, _share, _tried, _grain = _choose_binding(
-            "X", ["COARSE", "FINE"], codes,
-            lambda cl: coarse if cl == "COARSE" else fine,
-        )
-        assert picked == "FINE"
+        decision = weigh("X", ["COARSE", "FINE"], codes, lambda cl: coarse if cl == "COARSE" else fine)
+        assert decision.codelists == ("FINE",)
 
-    def test_outside_it_coverage_still_wins(self) -> None:
-        """Granularity is a tie-break, not a licence to leave a quarter of the
-        rows unlabelled."""
-        from pegasus_data.view import _choose_binding
+    def test_a_rollup_does_not_outrank_an_identity_table(self) -> None:
+        """ADR-0072: coverage is compared among tables that name the code."""
+        from pegasus_data.semantics.label_bindings import weigh
 
         codes = {"1", "2", "3", "4"}
         tables = {
-            "COARSE": dict.fromkeys(codes, "Everything"),          # 100%, 1 label
-            "FINE": {"1": "A", "2": "B", "3": "C"},                # 75%, 3 labels
+            "COARSE": dict.fromkeys(codes, "Everything"),          # 100%, a rollup
+            "FINE": {"1": "A", "2": "B", "3": "C"},                # 75%, identity
         }
-        picked, _share, _tried, _grain = _choose_binding(
-            "X", ["COARSE", "FINE"], codes, lambda cl: tables.get(cl)
-        )
-        assert picked == "COARSE"
+        decision = weigh("X", ["COARSE", "FINE"], codes, lambda cl: tables.get(cl))
+        assert decision.codelists == ("FINE",)

@@ -46,7 +46,7 @@ explicitly: `python` on PATH is a bare 3.13 without the package, and conda
 ```bash
 PY=C:/Users/Galaxy/miniconda3/envs/pegasus/python.exe
 
-PYTHONUTF8=1 $PY -m pytest -q -m "not network"   # the existing suite, ~9 min
+PYTHONUTF8=1 $PY -m pytest -q -m "not network"   # old suite, ~5 min: rarely, in the background
 $PY -m ruff check src scripts tests
 $PY scripts/check_docs.py
 $PY scripts/live.py --list                        # the live scenarios (§5)
@@ -104,10 +104,12 @@ what happened (seconds, bytes, rows, labels, errors) as JSON under
 `data/probes/live/`. A defect found there is fixed, and the scenario that found
 it is run again.
 
-- **No new unit tests.** A test written in the session that makes the change
-  passes by construction (user, 2026-09-28). Verify a change by running the
-  live scenario it affects and reading its output. The existing suite is a
-  regression net: run it before each commit, keep it green, do not grow it.
+- **No new unit tests, and no time spent on the old ones** (user,
+  2026-09-28). A test written in the session that makes the change passes by
+  construction. Verify a change by running the live scenario it affects and
+  reading its output. The old suite takes ~5 minutes: never wait on it before
+  a commit. Run it rarely, in the background, and when it contradicts a
+  deliberate decision, delete the test rather than port it.
 - **Read the output, not the exit code.** Open the table; look at the labels;
   count the rows against an independent figure (TabNet, the file's own row
   count). Earlier sessions declared bugs fixed without reading the output and

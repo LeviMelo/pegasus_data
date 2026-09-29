@@ -344,3 +344,25 @@ def described_names(dictionary: DataDictionary) -> dict[str, str]:
             new = f"{new} ({base})"
         out[old] = new
     return out
+
+
+def describe_table(
+    catalog: Catalog, system: str, table: Any, *, dataset: str = "", rename: bool = False
+) -> tuple[Any, DataDictionary]:
+    """The table's dictionary, built on its DATASUS names; optionally renamed.
+
+    Built before any renaming, because the dictionary is keyed by the DATASUS
+    name: built on English headers it describes nothing. When ``rename`` is
+    set, table and dictionary are renamed together, and each row keeps
+    ``original_column`` as the key back.
+    """
+    book = build_dictionary(catalog, system, list(table.column_names), dataset=dataset)
+    if not rename:
+        return table, book
+    mapping = described_names(book)
+    renamed = [mapping.get(c, c) for c in table.column_names]
+    for row, new in zip(book.rows, renamed, strict=True):
+        row["original_column"] = row.get("original_column") or row["column"]
+        row["column"] = new
+    return table.rename_columns(renamed), book
+

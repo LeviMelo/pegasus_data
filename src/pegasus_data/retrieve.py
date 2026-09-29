@@ -306,6 +306,16 @@ def parse_dataset(spec: str, series: str | None = None) -> tuple[str, str | None
     parts = [p for p in _SPLIT.split(spec.strip().upper()) if p]
     if not parts:
         raise DatasetUnknown("no dataset named")
+    # The ontology is the one resolver (ADR-0073): "SIH.RD", "SIH-RD",
+    # "SIHSUS.RD" and a bare "RD" all name the same dataset. The split below
+    # remains for systems and series the ontology does not declare.
+    onto = _ontology()
+    found = onto.resolve(spec) if onto is not None and not series else None
+    if found is not None:
+        kind, node = found
+        if kind == "dataset":
+            return SYSTEM_ALIASES.get(node.system, node.system), node.short_code
+        return SYSTEM_ALIASES.get(node.code, node.code), None
     system = SYSTEM_ALIASES.get(parts[0], parts[0])
     if series:
         return system, series.upper()

@@ -45,8 +45,15 @@ class Period:
 
 @dataclass(frozen=True, slots=True)
 class Geography:
-    uf: str | None = None
+    """Which state publications to read: one or several UFs (ADR-0073)."""
+
+    ufs: tuple[str, ...] = ()
     municipality: str | None = None
+
+    @property
+    def uf(self) -> str | None:
+        """The one UF, when exactly one was asked for."""
+        return self.ufs[0] if len(self.ufs) == 1 else None
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,7 +93,7 @@ class RetrievalPlan:
     publication_resolution: str
     years: tuple[int, ...]
     months: tuple[int, ...]
-    physical_geography: str | None
+    physical_geography: tuple[str, ...]
     source_strategy: str
     hidden_dependencies: tuple[str, ...]
     adaptations: tuple[Adaptation, ...] = ()
@@ -118,10 +125,10 @@ class QueryPlan:
             f"Publication resolution: {self.retrieval.publication_resolution}",
             f"Source strategy: {self.retrieval.source_strategy}",
             "Schema policy: union; structurally absent fields become null",
-            f"Labels: {'identity-level only' if self.spec.labels else 'off'}",
+            f"Labels: {'on (raw codes kept beside them)' if self.spec.labels else 'off'}",
         ]
         if self.retrieval.physical_geography:
-            lines.append(f"Physical geography filter: {self.retrieval.physical_geography}")
+            lines.append(f"Physical geography filter: {', '.join(self.retrieval.physical_geography)}")
         for adaptation in self.retrieval.adaptations:
             lines.append(
                 f"Adaptation: {adaptation.requested} -> {adaptation.effective} ({adaptation.reason})"
@@ -209,14 +216,20 @@ def _period(value: object) -> Period | None:
 def _geography(value: object) -> Geography | None:
     if value is None:
         return None
+    def ufs(items: object) -> tuple[str, ...]:
+        parts = items.replace(";", ",").split(",") if isinstance(items, str) else list(items)  # type: ignore[attr-defined]
+        return tuple(dict.fromkeys(str(p).strip().upper() for p in parts if str(p).strip()))
+
     if isinstance(value, str):
-        return Geography(uf=value.strip().upper())
+        return Geography(ufs=ufs(value))
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return Geography(ufs=ufs(value))
     if isinstance(value, dict):
         return Geography(
-            uf=str(value.get("uf") or "").upper() or None,
+            ufs=ufs(value.get("ufs") or value.get("uf") or ()),
             municipality=str(value.get("municipality") or "") or None,
         )
-    raise TypeError("geography must be a UF string or mapping")
+    raise TypeError("geography must be a UF (\"AL\"), several (\"AL,PE\" or [\"AL\", \"PE\"]) or a mapping")
 
 
 def _dimensions(values: Sequence[str] | None) -> tuple[DimensionRequest, ...]:

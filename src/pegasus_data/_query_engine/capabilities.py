@@ -89,16 +89,16 @@ def _publication_rows(store: Any, family_ids: Sequence[str]) -> list[dict[str, A
 
 
 def _covered_sources(
-    store: Any, family_ids: Sequence[str], year: int, uf: str | None
+    store: Any, family_ids: Sequence[str], year: int, ufs: Sequence[str]
 ) -> set[tuple[str, str]]:
     if not family_ids:
         return set()
     marks = ",".join("?" for _ in family_ids)
     params: list[Any] = [*family_ids, year]
     clause = f"family_id IN ({marks}) AND year=?"
-    if uf:
-        clause += " AND uf=?"
-        params.append(uf)
+    if ufs:
+        clause += f" AND uf IN ({','.join('?' for _ in ufs)})"
+        params.extend(ufs)
     paths: set[tuple[str, str]] = set()
     for row in store.query(
         f"SELECT family_id, source_paths FROM lake_partitions WHERE {clause}", params
@@ -181,8 +181,9 @@ def _capabilities(
             not observed_geo
             or any(value not in {"", "BR"} for value in observed_geo)
         )
-        if physical_uf and geography and geography.uf:
-            relevant = [row for row in relevant if str(row.get("geo_code") or "").upper() == geography.uf]
+        wanted_ufs = set(geography.ufs) if physical_uf and geography else set()
+        if wanted_ufs:
+            relevant = [row for row in relevant if str(row.get("geo_code") or "").upper() in wanted_ufs]
 
         lake_years: list[int] = []
         fetch_years: list[int] = []
@@ -211,10 +212,7 @@ def _capabilities(
             ) if ids else []
             if selected:
                 expected = {_publication_identity(row) for row in selected}
-                covered = _covered_sources(
-                    store, ids, year,
-                    geography.uf if physical_uf and geography and geography.uf else None,
-                )
+                covered = _covered_sources(store, ids, year, sorted(wanted_ufs))
                 complete = expected <= _source_identities(publications, covered)
             else:
                 # An inventory-free fixture/catalog cannot prove an expected

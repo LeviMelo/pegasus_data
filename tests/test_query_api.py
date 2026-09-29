@@ -121,7 +121,7 @@ def test_period_parser_refuses_reverse_interval() -> None:
 
 
 def test_annual_publication_adapts_without_filtering_event_dates(settings) -> None:
-    from pegasus_data._query import _filter_source_period
+    from pegasus_data._query_engine.filters import _filter_source_period
     from pegasus_data.catalog.store import Catalog
     from pegasus_data.inventory.families import family_id_for, schema_signature
 
@@ -178,7 +178,8 @@ def test_annual_publication_adapts_without_filtering_event_dates(settings) -> No
 
 
 def test_annual_enclosure_does_not_hide_missing_monthly_provenance() -> None:
-    from pegasus_data._query import _filter_source_period, _period
+    from pegasus_data._query_engine.filters import _filter_source_period
+    from pegasus_data._query_engine.model import _period
 
     table = pa.table(
         {

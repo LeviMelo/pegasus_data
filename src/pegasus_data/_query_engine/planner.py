@@ -79,13 +79,13 @@ def plan(
                     f"requested {spec.period}; source supports annual resolution only"
                 )
             adaptations.append(adaptation)
-    physical_uf = spec.geography.uf if spec.geography and has_uf_axis else None
+    physical_uf = spec.geography.ufs if spec.geography and has_uf_axis else ()
     if spec.geography and spec.geography.municipality:
         raise ValueError(
             "geography selects source publications only; municipality is not a "
             "declared publication coordinate for this dataset"
         )
-    elif spec.geography and spec.geography.uf and not has_uf_axis:
+    elif spec.geography and spec.geography.ufs and not has_uf_axis:
         raise ValueError(
             "requested UF is not a source/publication partition for this dataset; "
             "Pegasus will not manufacture it by filtering a record field"

@@ -115,13 +115,6 @@ class TestVerify:
 class TestCli:
     runner = CliRunner()
 
-    def test_help_lists_the_documented_commands(self):
-        result = self.runner.invoke(app, ["--help"])
-        assert result.exit_code == 0
-        for command in ("crawl", "inventory", "sample", "fetch", "profile",
-                        "semantics", "normalize", "build", "report", "verify"):
-            assert command in result.stdout
-
     def test_report_runs_against_a_fresh_root(self, tmp_path):
         result = self.runner.invoke(app, ["report", "--root", str(tmp_path / "home"), "--json"])
         assert result.exit_code == 0

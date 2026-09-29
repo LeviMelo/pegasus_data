@@ -52,13 +52,14 @@ $PD config set --root D:/datasus [--blobs E:/cache] [--catalog C:/fast]
 ## 4. Getting data
 
 ```bash
-$PD get SIH-RD --uf AL --years 2023 --months 1 --out sih.csv   # = fetch()
-$PD translate <file>                                           # label files you already have
+$PD query SIH.RD --period 2023-01 --geo AL,SE --out sih.csv     # = query(); --described-names, --dictionary FILE
+$PD query SIH.RD --period 2020..2023 --geo AL --select DIAG_PRINC --out d.parquet
+$PD translate <file> --system SIHSUS                           # label files you already have
 $PD explore [SIH.RD]                                           # what exists, offline
 $PD info SIH.RD                                                # what it is
+$PD search raça                                                # which columns and codes mean what
+$PD download --system SIHSUS                                   # maintainer: raw files into the cache
 ```
-
-`query()` has no CLI command yet (M3).
 
 ## 5. Maintainer builds
 
@@ -69,8 +70,9 @@ $PD info SIH.RD                                                # what it is
 | column census | `schemas` | ranged header reads |
 | harvest meaning | `semantics` | TAB kits, `.CNV`/`.DEF`, SIGTAP, curation |
 | families | `families` | |
+| label bindings | `bindings` | one decision per family and field (ADR-0072); ~2 h for the tree |
 | code tables | `reference` | `lake/reference/` |
-| the lake | `build` (`normalize` is an alias) | |
+| the lake | `build` | |
 | population | `population` | IBGE series |
 | curation into the catalog | `curate` | 4 s |
 | the seed and the manifest | `python scripts/build_resources.py pegasus_data_home/_catalog/catalog.sqlite` | 20 s; after `crawl`, `inventory`, `schemas`, `families`, `curate` (ADR-0067) |

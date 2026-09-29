@@ -66,6 +66,7 @@ def query(
     geography: object = None,
     select: Sequence[str] | None = None,
     labels: bool = True,
+    names: Literal["original", "described"] = "original",
     dimensions: Sequence[str] | None = None,
     enrich: Sequence[str | EnrichmentRequest] | None = None,
     provenance: Literal[False, "all"] = False,
@@ -154,7 +155,7 @@ def query(
         try:
             local_table, local_report = load(
                 retrieval.system, retrieval.series,
-                uf=[retrieval.physical_geography] if retrieval.physical_geography else None,
+                uf=list(retrieval.physical_geography) or None,
                 years=retrieval.lake_years or None, columns=requested_columns,
                 labels=labels, profile="audit" if labels else "codes",
                 companions=False, derived=labels, on_missing_column="null_fill",
@@ -175,7 +176,7 @@ def query(
             fetch_months = months_by_year.get(fetch_year) or None
             fetched_table, fetched_report = fetch(
                 dataset,
-                uf=retrieval.physical_geography,
+                uf=list(retrieval.physical_geography) or None,
                 years=[fetch_year] if fetch_year is not None else None,
                 months=fetch_months,
                 columns=requested_columns,
@@ -272,4 +273,21 @@ def query(
         report.structural_absence, sort_keys=True
     ).encode()
     table = table.replace_schema_metadata(metadata)
+    if names == "described":
+        table = _described(table, query_plan, resolved)
     return (table, report) if return_report else table
+
+
+def _described(table: pa.Table, query_plan: Any, settings: Settings) -> pa.Table:
+    """English column names from the curated dictionary (``names="described"``)."""
+    from .._dictionary import describe_table
+    from ..catalog.store import Catalog
+
+    store = Catalog(settings.catalog_path, read_only=True)
+    try:
+        renamed, _book = describe_table(
+            store, query_plan.retrieval.system, table, dataset=query_plan.spec.dataset, rename=True
+        )
+    finally:
+        store.close()
+    return renamed
