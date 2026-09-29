@@ -1769,6 +1769,13 @@ def _nothing_message(report: FetchReport, ufs: Sequence[str], years: Sequence[in
         detail.append(f"{len(report.undecoded)} could not be fetched or decoded")
     if report.schema_mismatch:
         detail.append(f"{len(report.schema_mismatch)} did not match their family's schema")
+    if not detail and report.files_read:
+        # Read without error and empty: DATASUS published a file with no
+        # records (CNES.EE's EEMG2107.dbc is 1,035 bytes). A zero, not a gap.
+        return (
+            f"{report.files_read} file(s){where} were read and hold no records: DATASUS "
+            "published them empty, so the count for this selection is zero"
+        )
     return (
         f"{report.files_matched} file(s) matched{where} but produced no rows"
         + (f": {'; '.join(detail)}" if detail else "")

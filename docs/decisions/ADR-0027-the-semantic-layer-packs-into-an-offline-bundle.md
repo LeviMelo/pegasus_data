@@ -1,6 +1,6 @@
 ## ADR-0027: The semantic layer packs into an offline bundle, restored additively and by column name
 
-**Date:** 2026-08-19. **Status:** active.
+**Date:** 2026-08-19. **Status:** superseded (2026-09-28, by ADR-0075).
 
 **Context.** Everything the module can say about a value derives from an FTP
 server that is often slow, sometimes unreachable, and not under anyone's

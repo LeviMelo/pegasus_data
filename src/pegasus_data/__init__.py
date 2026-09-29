@@ -87,10 +87,6 @@ _EXPORTS: dict[str, str] = {
     "DatasetUnknown": ".retrieve",
     "NothingPublished": ".retrieve",
     "FilterHasNoAxis": ".retrieve",
-    "pack": ".bundle",
-    "unpack": ".bundle",
-    "read_manifest": ".bundle",
-    "BundleError": ".bundle",
 }
 
 __all__ = ["Settings", "load_settings", "__version__", *sorted(_EXPORTS)]
@@ -133,7 +129,6 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         load_population,
         load_reference,
     )
-    from .bundle import BundleError, pack, read_manifest, unpack
     from .crosswalk import EnrichmentRequest, enrichment
     from .geography import Membership, MembershipSet, memberships
     from .ontology import Ontology

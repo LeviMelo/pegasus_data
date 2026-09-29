@@ -223,6 +223,56 @@ def s_age() -> dict[str, Any]:
     return out
 
 
+def s_sweep() -> dict[str, Any]:
+    """Every declared dataset, queried for its cheapest publication: does it return labelled rows?"""
+    from pegasus_data import explore, query
+    from pegasus_data.ontology import Ontology
+
+    only = [x.strip().upper() for x in os.environ.get("PEGASUS_SWEEP", "").split(",") if x.strip()]
+    results: dict[str, Any] = {}
+    for code in sorted(Ontology.load().datasets):
+        if only and code not in only:
+            continue
+        entry: dict[str, Any] = {}
+        t = time.perf_counter()
+        try:
+            rows = list(explore(code, role="data").rows)
+            # explore(dataset) gives coverage by year; pick the year, then the cheapest file of it.
+            years = sorted({int(r["year"]) for r in rows if r.get("year")})
+            if not years:
+                entry["skip"] = "no dated files"
+                results[code] = entry
+                continue
+            year = years[-1]
+            files = explore(code, year=year).rows
+            cheapest = min(files, key=lambda r: float(r.get("megabytes") or 0))
+            entry["file"] = cheapest["path"]
+            entry["megabytes"] = cheapest.get("megabytes")
+            if float(cheapest.get("megabytes") or 0) > 300:
+                entry["skip"] = "cheapest file over 300 MB"
+                results[code] = entry
+                continue
+            month = int(cheapest.get("yyyymm") or 0) % 100
+            period = f"{year}-{month:02d}" if month else str(year)
+            uf = cheapest.get("uf")
+            table = query(code, period=period, geography=uf if uf and uf != "BR" else None)
+            labelled = [c for c in table.column_names if c.endswith("_label")]
+            entry.update(ok=True, period=period, uf=uf, rows=table.num_rows, columns=table.num_columns,
+                         labelled=len(labelled))
+        except Exception as exc:  # noqa: BLE001 - the sweep records every failure
+            entry.update(ok=False, error=f"{type(exc).__name__}: {exc}"[:400])
+        entry["seconds"] = round(time.perf_counter() - t, 1)
+        results[code] = entry
+        print(f"  {code:28s} {'ok ' if entry.get('ok') else ('skip' if 'skip' in entry else 'FAIL')} "
+              f"{entry.get('rows')} rows {entry.get('labelled')} labelled {entry.get('seconds')}s "
+              f"{entry.get('error') or entry.get('skip') or ''}"[:220], flush=True)
+    ok = sum(1 for v in results.values() if v.get("ok"))
+    failed = {k: v["error"] for k, v in results.items() if v.get("ok") is False}
+    skipped = {k: v["skip"] for k, v in results.items() if "skip" in v}
+    return {"datasets": len(results), "ok": ok, "failed": len(failed), "skipped": len(skipped),
+            "failures": failed, "skips": skipped, "results": results}
+
+
 SCENARIOS = {
     "metadata": s_metadata,
     "sih_rd": s_sih_rd,
@@ -237,6 +287,7 @@ SCENARIOS = {
     "sih_2016": s_sih_2016,
     "sia_sp_parts": s_sia_sp_parts,
     "age": s_age,
+    "sweep": s_sweep,
 }
 
 

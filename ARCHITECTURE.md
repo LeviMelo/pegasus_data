@@ -29,13 +29,13 @@ snapshot, 41 MB).
             load()/scan() (api.py) ─► lake ─────────────────────────────────┤
                                                     render_groups ─► view.render_table
  metadata   info (_info) · explore (_explore) · availability (_availability)
-            describe (api) · DataDictionary (_dictionary) · search (_search) · dictionary (docsgen)
+            describe (api) · DataDictionary (_dictionary) · search (_search)
             compendium (_compendium) · gaps/questions (_unknowns) · translate (_translate)
  aggregate  aggregate() (_aggregate) · measures · capabilities · suggest
               │
  build      pipeline.Pipeline: crawl → inventory → semantics → sample → profile → families
             build.py: lake, population, DEMAS
-            labelpack.py / bundle.py: the shipped snapshot and the portable bundle
+            labelpack.py, catalog/seed.py: the shipped snapshot
               │
  layers     discovery/ → acquire/ → decode/ → normalize/ → persist/
             inventory/  profile/  semantics/  sources/  catalog/ (SQLite, the memory)
@@ -193,7 +193,7 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | read a dataset | ~~`fetch`, `load`, `scan`, `open_lake`, `export` as public doors~~ | **done** (ADR-0073): `query` is the one door; the engines are internal; one identifier resolver |
 | decide a column's codelist | ~~read-time weighing per file, capped at 12~~; ~~the query-time gate~~ | **done** (ADR-0061, ADR-0072): curation, then one stored binding per family and field |
 | bootstrap a fresh catalog | ~~inside `fetch`, `_translate.py` separately, `tree.parquet` for `explore`, nothing for `info`~~ | **done** (ADR-0067): `Catalog.__init__` installs the seed |
-| export the semantic layer | `labelpack.py`, `bundle.py`, `docsgen.py` (`docs/dictionary.sqlite`), `_compendium.py` (another SQLite), `persist/reference.py` | M3: one snapshot and one dictionary database |
+| export the semantic layer | ~~the bundle and the dictionary database~~ | **done** (ADR-0075): the seed and label pack ship; `compendium()` is the researcher's map; `persist/reference` the lake's tables |
 | describe a thing | `info`, `describe`, `explore`, `DataDictionary`, `compendium`, `search`, `availability` | M3: kept as questions, backed by one catalog |
 | decide a file's system | `inventory/naming.py`, `inventory/systems.py`, `ontology.py` | examined in M3 |
 | convert an age | ~~`view._derive_age_years`~~ | **done** (ADR-0070): `_age.years_column` only, fractional years from measured units |
@@ -215,7 +215,7 @@ Also known, not duplicates:
 
 ## 5a. The public surface
 
-`__init__.py` exports 60 names (`_EXPORTS`, resolved lazily); the data engines (`retrieve.fetch`, `api.load`, `api.scan`) are internal (ADR-0073). Grouped by the
+`__init__.py` exports 56 names (`_EXPORTS`, resolved lazily); the data engines (`retrieve.fetch`, `api.load`, `api.scan`) are internal (ADR-0073). Grouped by the
 question they answer; the overlap is §5's first rows.
 
 | Question | Functions | Types and errors |
@@ -225,7 +225,7 @@ question they answer; the overlap is §5's first rows.
 | what is this | `info`, `explore`, `describe`, `availability`, `field_available`, `field_coverage`, `search`, `compendium`, `gaps`, `questions`, `DataDictionary`, `Ontology` | `Info`, `Exploration`, `FieldDescription`, `Availability`, `FieldWindow`, `CompendiumReport`, `Gaps`, `OpenQuestions` |
 | aggregate it | `aggregate`, `build_aggregate` | `AggregateSpec`, `AggregateReport` |
 | reference data | `load_population`, `load_reference` | |
-| the local store | `resource_manager`, `pack`, `unpack`, `read_manifest`, `Settings`, `load_settings` | `ResourceManager`, `ResourceStatus`, `BundleError` |
+| the local store | `resource_manager`, `Settings`, `load_settings` | `ResourceManager`, `ResourceStatus` |
 
 ---
 
@@ -258,11 +258,9 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_translate.py`: `translate()`, labels for a user's own files.
 - `_unknowns.py`: `gaps()`, `questions()`.
 - `_compendium.py`: `compendium()`, the map of DATASUS as a SQLite file.
-- `docsgen.py`: `docs/dictionary.sqlite` and its page reader.
 - `_search.py`: `search()`, over the catalog's docs and the shipped label pack (ADR-0069).
 - `_resources.py`: resource status, validation, `ensure`, `build`.
 - `labelpack.py`: distils the catalog's labels into `resources/labels.parquet`.
-- `bundle.py`: `pack`/`unpack` of the catalog's semantic tables.
 - `ontology.py`: the declared systems and datasets, bound to crawl evidence.
 - `pipeline.py`: `Pipeline`, the build stages.
 - `build.py`: the stages that write data (lake, population, DEMAS).

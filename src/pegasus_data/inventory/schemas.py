@@ -45,6 +45,13 @@ HEADER_READABLE = (".dbc", ".dbf")
 #: systems as CSV under Dados_Abertos where no DBF exists at all.
 CSV_READABLE = (".csv",)
 
+#: A small archive is read whole and its first data member's header parsed. A
+#: zip keeps its directory at the END, so no prefix reaches a member; below
+#: this size fetching it all is still cheap. IBGE's 120 census and population
+#: strata are zips of a few KB to a few MB (OQ-54, 2026-09-28).
+SMALL_ARCHIVE_BYTES = 20_000_000
+ARCHIVE_READABLE = (".zip",)
+
 #: First ask. Covers every header measured on this tree (the widest, a
 #: 113-column SIH-RD file, needs about 3.7 KB) with room to spare.
 FIRST_PREFIX = 8192
@@ -197,6 +204,19 @@ def run_census(
         if on_item:
             on_item(path)
         extension = str(target.get("extension") or "").lower()
+        if extension in ARCHIVE_READABLE and int(target.get("size") or 0) <= SMALL_ARCHIVE_BYTES:
+            try:
+                data = fetch_prefix(path, int(target.get("size") or SMALL_ARCHIVE_BYTES))
+                census.bytes_fetched += len(data)
+                header = _header_in_archive(data)
+            except Exception as exc:  # noqa: BLE001 - one bad archive is not the census
+                census.unreadable += 1
+                census.errors.append((path, f"{type(exc).__name__}: {exc}"))
+                continue
+            signature = persist_header(catalog, stratum_id=str(target["stratum_id"]), path=path, header=header)
+            census.signatures.add(signature)
+            census.read += 1
+            continue
         if extension not in HEADER_READABLE and extension not in CSV_READABLE:
             census.not_header_readable += 1
             continue
@@ -252,3 +272,25 @@ def census_summary(catalog: Catalog) -> list[dict[str, object]]:
             """
         )
     ]
+
+
+def _header_in_archive(data: bytes) -> TableHeader:
+    """The header of the first DBF, DBC or CSV member of a zip held in memory."""
+    import io
+    import zipfile
+
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        members = sorted(
+            (m for m in archive.infolist() if not m.is_dir()),
+            key=lambda m: (m.filename.lower().endswith(".csv"), m.filename),
+        )
+        for member in members:
+            name = member.filename.lower()
+            if name.endswith((".dbf", ".dbc")):
+                with archive.open(member) as handle:
+                    return read_table_header(handle.read(64 * 1024))
+            if name.endswith(".csv"):
+                with archive.open(member) as handle:
+                    return read_csv_header(handle.read(64 * 1024))
+    raise HeaderUnreadable("no DBF, DBC or CSV member in the archive")
+

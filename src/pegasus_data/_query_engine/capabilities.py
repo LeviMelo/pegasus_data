@@ -177,10 +177,13 @@ def _capabilities(
         # geo-less documentation rows, so the axis was erased by the company
         # it keeps. When a UF is requested, the filter below already excludes
         # the BR consolidated, so no row is double-counted.
-        physical_uf = declared_physical_uf and (
-            not observed_geo
-            or any(value not in {"", "BR"} for value in observed_geo)
-        )
+        # Whether a dataset is cut by state is a fact about its filenames, and
+        # the catalog has them: any publication carrying a real UF proves the
+        # axis. Requiring a curated declaration as well left all but five
+        # datasets (CNES.EP, CNES.EQ, CIH.CR …) refusing `geography=` although
+        # they are published per state (the all-dataset sweep, 2026-09-28).
+        measured_uf = any(value not in {"", "BR"} for value in observed_geo)
+        physical_uf = measured_uf or (declared_physical_uf and not observed_geo)
         wanted_ufs = set(geography.ufs) if physical_uf and geography else set()
         if wanted_ufs:
             relevant = [row for row in relevant if str(row.get("geo_code") or "").upper() in wanted_ufs]

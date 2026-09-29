@@ -1,6 +1,6 @@
 ## ADR-0028: The generated data dictionary is one SQLite database, not a tree of Markdown pages
 
-**Date:** 2026-08-19. **Status:** active.
+**Date:** 2026-08-19. **Status:** superseded (2026-09-28, by ADR-0075).
 
 **Context.** `a4488c5` (2026-08-19) generated the dictionary as 3,036 Markdown
 pages. Everything in them was relational (systems have variables, variables

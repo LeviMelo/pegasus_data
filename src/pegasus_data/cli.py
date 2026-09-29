@@ -464,36 +464,6 @@ def curate(
         store.close()
 
 
-@app.command(name="dictionary", rich_help_panel="UNDERSTAND")
-def dictionary(
-    root: RootOpt = None,
-    system: SystemsOpt = None,
-    out: Annotated[Path | None, typer.Option("--out", help="Where to write (default docs/dictionary.sqlite)")] = None,
-    as_json: JsonOpt = False,
-) -> None:
-    """Write the whole data dictionary as one queryable SQLite file.
-
-    Systems, variables, code tables, every code and label, schema generations and
-    dataset prose — with full-text search over all of it. Generated from the
-    catalog and never hand-written, so a variable with no description here means
-    no source supplied one; the fix is curation/, not the documentation.
-
-    Read it with `pegasus-data search` and `pegasus-data page`, or open it with
-    anything that speaks SQL.
-    """
-    from .docsgen import write_database
-
-    settings = _settings(root)
-    target = out or Path("docs") / "dictionary.sqlite"
-    store = Catalog(settings.catalog_path, read_only=settings.catalog_path.exists())
-    try:
-        with console.status(f"writing {target}…"):
-            result = write_database(store, target, systems=system)
-        _emit(result, as_json, "dictionary")
-    finally:
-        store.close()
-
-
 @app.command("aggregate-suggest", rich_help_panel="UNDERSTAND")
 def aggregate_suggest(
     dataset: Annotated[str, typer.Argument(help="e.g. SIH-RD, SIM-DO, SINAN-DENG")],
@@ -617,28 +587,6 @@ def info_cmd(
     console.print(str(answer))
 
 
-@app.command(name="page", rich_help_panel="UNDERSTAND")
-def page(
-    system: Annotated[str, typer.Argument(help="Information system, e.g. SIHSUS")],
-    field: Annotated[str, typer.Argument(help="Column, e.g. DIAG_PRINC")],
-    docs: Annotated[Path | None, typer.Option("--docs", help="Dictionary database")] = None,
-) -> None:
-    """Print one variable's documentation page, out of the dictionary database."""
-    from rich.markdown import Markdown
-
-    from .docsgen import read_page
-
-    path = docs or Path("docs") / "dictionary.sqlite"
-    if not path.exists():
-        console.print(f"[red]no dictionary at {path}[/red]")
-        raise typer.Exit(code=1)
-    body = read_page(path, system, field)
-    if body is None:
-        console.print(f"[yellow]{system}.{field} is not in the dictionary[/yellow]")
-        raise typer.Exit(code=1)
-    console.print(Markdown(body))
-
-
 @app.command(rich_help_panel="PIPELINE")
 def community(
     root: RootOpt = None,
@@ -759,89 +707,6 @@ def prefix_adjudicate(
         raise typer.Exit(code=1) from exc
     finally:
         store.close()
-
-
-@app.command(rich_help_panel="MAINTENANCE")
-def pack(
-    out: Annotated[Path, typer.Option("--out", "-o", help="Bundle file to write")],
-    root: RootOpt = None,
-    system: SystemsOpt = None,
-    everything: Annotated[
-        bool,
-        typer.Option(
-            "--all-codelists",
-            help="Pack unbound TabNet axes too (roughly doubles the size)",
-        ),
-    ] = False,
-    max_codelist_rows: Annotated[
-        int | None,
-        typer.Option(
-            "--max-codelist-rows",
-            help="Omit codelists larger than this (the geographic roll-ups carry most of the bytes)",
-        ),
-    ] = None,
-    note: Annotated[str, typer.Option("--note", help="Free text recorded in the manifest")] = "",
-    as_json: JsonOpt = False,
-) -> None:
-    """Write a portable semantic bundle: labelling and docs with no DATASUS.
-
-    Codelists, field bindings, curated meanings and the schema catalogue, in one
-    file. Restoring it into an empty catalog is enough to translate and describe
-    data; only fetching new files still needs the network.
-    """
-    from .bundle import pack as pack_bundle
-
-    settings = _settings(root)
-    catalog = Catalog(settings.catalog_path)
-    try:
-        with console.status(f"packing {out}…"):
-            report = pack_bundle(
-                catalog,
-                out,
-                systems=system,
-                bound_only=not everything,
-                max_codelist_rows=max_codelist_rows,
-                note=note,
-            )
-        _emit(report.as_dict(), as_json, "pack")
-    finally:
-        catalog.close()
-
-
-@app.command(rich_help_panel="MAINTENANCE")
-def unpack(
-    bundle: Annotated[Path, typer.Argument(help="Bundle file to load")],
-    root: RootOpt = None,
-    replace: Annotated[
-        bool,
-        typer.Option(
-            "--replace",
-            help="Clear the packed tables first; use when the bundle is the source of truth",
-        ),
-    ] = False,
-    as_json: JsonOpt = False,
-) -> None:
-    """Load a semantic bundle into the catalog.
-
-    Additive by default, because a local crawl read the files first-hand and a
-    bundle is a copy of someone else's reading. Follow with 'reference' to
-    rebuild the Parquet lookups the view layer joins against.
-    """
-    from .bundle import BundleError
-    from .bundle import unpack as unpack_bundle
-
-    settings = _settings(root)
-    catalog = Catalog(settings.catalog_path)
-    try:
-        _emit(unpack_bundle(catalog, bundle, replace=replace), as_json, "unpack")
-        console.print(
-            "[yellow]Run 'pegasus-data reference' to rebuild the Parquet lookups.[/yellow]"
-        )
-    except BundleError as exc:
-        console.print(f"[red]{exc}[/red]")
-        raise typer.Exit(code=1) from exc
-    finally:
-        catalog.close()
 
 
 @app.command(name="catalog-rebuild", rich_help_panel="MAINTENANCE")
