@@ -573,6 +573,48 @@ class SigtapLabels(dict):  # type: ignore[type-arg]
         return default
 
 
+class PathLabels(dict):  # type: ignore[type-arg]
+    """Labels of a code built from fixed-width levels, spelled out as a path.
+
+    CNES ``VINCULO`` keys a professional's employment bond by three 2-digit
+    levels and labels each code with its path: ``080501`` = "08 INTERMEDIADO /
+    05 AUTONOMO / 01 PESSOA JURIDICA". A code the table does not list
+    (``080701``) is named by the deepest level a listed code shares, and the
+    label says which levels are undocumented: "08 INTERMEDIADO — nível 07 / 01
+    não consta da tabela VINCULO". The path is read from the table's own labels,
+    never inferred from a prefix alone (§6.2).
+    """
+
+    def __init__(self, mapping: Mapping[str, str], *, table: str, segment: int) -> None:
+        super().__init__(mapping)
+        self._table = table
+        self._segment = segment
+
+    def get(self, key: object, default: object = None) -> object:
+        found = super().get(key)
+        if found is not None:
+            return found
+        code = str(key).strip()
+        seg = self._segment
+        if not code.isdigit() or len(code) % seg or len(code) <= seg:
+            return default
+        for depth in range(len(code) // seg - 1, 0, -1):
+            prefix = code[: depth * seg]
+            sibling = next(
+                (str(v) for k, v in self.items() if len(str(k)) == len(code) and str(k).startswith(prefix)),
+                None,
+            )
+            parts = sibling.split(" / ") if sibling else []
+            if len(parts) >= depth:
+                missing = " / ".join(code[i : i + seg] for i in range(depth * seg, len(code), seg))
+                return f"{' / '.join(parts[:depth])} — nível {missing} não consta da tabela {self._table}"
+        return default
+
+
+#: Codelists whose labels spell out a fixed-width level path (``PathLabels``).
+PATH_CODELISTS: dict[str, int] = {"VINCULO": 2}
+
+
 def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
     """Exact width or no match (§6.2).
 
@@ -987,6 +1029,9 @@ def _render_table(
             merged = IcdLabels(merged)
         elif any(str(c).upper() == "SIGTAP" for c in codelists):
             merged = SigtapLabels(merged)
+        elif len(codelists) == 1 and str(codelists[0]).upper() in PATH_CODELISTS:
+            name = str(codelists[0]).upper()
+            merged = PathLabels(merged, table=name, segment=PATH_CODELISTS[name])
         lookups[key] = merged
         return merged or None
 

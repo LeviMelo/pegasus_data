@@ -183,18 +183,18 @@ variables:
   VINCULAC:
     official_name: Tipo de vínculo do profissional
     translated_name: Professional's employment link
-    description: 'How the professional is attached to the establishment — employed,
-      self-employed, or link not identified. The unidentified value is common enough
-      that it should be reported rather than dropped.
-
-      '
+    description: 'How the professional is attached to the establishment, as three 2-digit
+      levels: the bond (08 intermediado), its type (05 autônomo) and subtype (01 pessoa
+      jurídica). The kit''s VINCULO table spells each code out as that path. (Until
+      2026-09-29 this read "contratado, autônomo or não identificado": that is the 1-digit
+      2014 Vinculo.cnv, which no current file uses.)'
     code_system: internal
+    # A code the table does not list is named by its deepest listed level and says so
+    # (view.PathLabels, ADR-0096): 080701 = "08 INTERMEDIADO — nível 07 / 01 não consta".
+    codelist: VINCULO
     source: def
-    source_ref: VINCULO.CNV
-    reasoning: 'Bound to VINCULAC, whose values are profissional contratado, autônomo
-      and vínculo não identificado.
-
-      '
+    source_ref: '/dissemin/publicos/CNES/200508_/Auxiliar/TAB_CNES.zip!DBF/VINCULO.DBF (CHAVE ->
+      DS_REGRA), which the kit''s .DEF tabulates as "Novo Vínculo Empregatício"'
   VINCUL_A:
     official_name: 'Vínculo empregatício com o estabelecimento: Autônomo SUS'
     translated_name: Autonomous link flag
