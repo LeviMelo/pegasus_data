@@ -94,3 +94,19 @@ is keyed by its system (CLAUDE.md §6), ADR-0079, ADR-0080, ADR-0085.
   - SIM `OCUP`, Alagoas 2022: 262 undecoded rows became 0.
   - SIH `CBOR` reads "Não informado (000000)".
   - CNES-PF `CBO`, Acre 2023-01, reads "Técnico de enfermagem (322205)".
+
+**Amended 2026-09-29: states.**
+- **The table.** `UF_BR` maps IBGE states by numeric code **and** by
+  abbreviation to the full name. It is derived at load time from the shipped
+  municipalities resource.
+- **The binding.** 57 state fields across eleven systems are bound to it. The
+  lookalikes are excluded: "state differs" flags, nationality, and a managing
+  municipality.
+- **Why.** SINAN `SG_UF_NOT` `32` read `ES`: an abbreviation is itself a code.
+  It now reads "Espírito Santo (32)".
+- **Municipalities keep DATASUS's `BR_MUNICIPALFA`.** It carries DATASUS's
+  special codes ("000000 Ignorado ou exterior", per-state "município
+  ignorado") that the IBGE list lacks.
+- **SIA `PA_SRV_C`.** It is already service + classification and is bound to
+  `S_CLASSEN`: "SERVICO DE DIAGNOSTICO POR IMAGEM / TOMOGRAFIA COMPUTADORIZADA
+  (121003)".

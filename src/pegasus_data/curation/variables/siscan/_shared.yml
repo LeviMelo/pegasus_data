@@ -66,8 +66,7 @@ variables:
     translated_name: Laboratory state
     description: State (UF) code of the service provider, the laboratory that read the exam.
     code_system: external
-    codelists:
-    - ESTADO
+    codelist: UF_BR
     source: def
     source_ref: TabWin definitions CColo4.def, HColo4.def (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
       and ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISMAMA/Auxiliar/TAB_SISMAMA.zip,
@@ -734,8 +733,7 @@ variables:
     translated_name: Patient state of residence
     description: State (UF) code where the person examined lives.
     code_system: external
-    codelists:
-    - ESTADO
+    codelist: UF_BR
     source: def
     source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
       (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
@@ -918,6 +916,7 @@ variables:
     translated_name: Provider's state
     description: State (UF) code of the service provider (laboratory) that issued the report.
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
       "UF do prest.serviço"
@@ -927,6 +926,7 @@ variables:
     description: State (UF) code of the patient's residence, as registered in the Cartão Nacional
       de Saúde (Cartão SUS).
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
       "Munic.de residência" (registered in the Cartão Nacional de Saúde)
@@ -935,6 +935,7 @@ variables:
     translated_name: Collecting unit's state
     description: State (UF) code of the health unit where the exam was collected.
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Nota Técnica 11 SISCAN - Citopatológico de mama — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica11_cito_mama_atend.pdf,
       "UF da un.saúde"
@@ -979,8 +980,7 @@ variables:
     translated_name: Health unit state
     description: State (UF) code of the collecting unit.
     code_system: external
-    codelists:
-    - ESTADO
+    codelist: UF_BR
     source: def
     source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
       (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
@@ -1324,6 +1324,7 @@ variables:
     description: State of the service that performed the exam, the coarser companion
       to PRESTMUN.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: ESTADO.CNV
     reasoning: C(2) bound to ESTADO, the state codelist.
@@ -1408,6 +1409,7 @@ variables:
     description: Two-letter abbreviation (sigla) of the patient's state of residence, the
       letter counterpart of CO_UF_RESIDENCIA.
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Nota Técnica 7 SISCAN - Mamografia — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica7_mamografia_residente.pdf,
       "Munic.de residência" (registered in the Cartão Nacional de Saúde)

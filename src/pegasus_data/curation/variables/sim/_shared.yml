@@ -1939,10 +1939,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - UF
-    - BR_UF
-    - UFC
+    codelist: UF_BR
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] pos. 48 "UFINFORM | C 8 | Código da UF que informou o registro.
       | 1979 (C 8)"

@@ -15,5 +15,6 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: def
     source_ref: BR_UF codelist (catalog binding, IBGE state code table)

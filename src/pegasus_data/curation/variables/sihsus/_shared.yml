@@ -1127,6 +1127,7 @@ variables:
     translated_name: State
     description: Two-digit IBGE code of the state where the executing establishment sits.
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 2'

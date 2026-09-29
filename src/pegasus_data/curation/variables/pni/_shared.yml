@@ -124,6 +124,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: ftp://ftp.datasus.gov.br/dissemin/publicos/PNI/DOCS/Nota_Tecnica_Imunizacoes_Doses_aplicadas_desde_1994.pdf
     notes: 'Shares the 1994-1996 rollout gaps documented under ANO: an absent UF in

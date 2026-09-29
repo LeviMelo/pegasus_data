@@ -158,6 +158,7 @@ variables:
     translated_name: State of the professional's domicile
     description: IBGE 2-digit state code of the professional's declared residence (domicílio).
     code_system: external
+    codelist: UF_BR
     source: inferred
     reasoning: 'DOM is DATASUS''s standard abbreviation for domicílio (residence), C(2)
       matches an IBGE UF code''s width, and it sits beside UF_VINC, distinguishing
@@ -174,6 +175,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: inferred
     reasoning: 'VINC is DATASUS''s standard abbreviation for vínculo (a professional''s
       registered link to an establishment/CNES), paired directly with UF_DOM in the same

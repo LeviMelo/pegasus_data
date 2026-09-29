@@ -1435,6 +1435,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
       DIC_DADOS_Leptospirose_v5.pdf (sources/dic_text/leptospirose__DIC_DADOS_Leptospirose_v5.txt),
@@ -3006,6 +3007,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: inferred
     reasoning: 'Same evidence as CON_INF_MU: paired UF/município fields appearing only in 2000-2006
       CHAG/DENG/LEIV/LEPT/MALA records, predating the COUFINF/COMUNINF pair documented in the
@@ -3071,6 +3073,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       Informações complementares – deslocamento (datas e locais frequentados no período de
@@ -3088,6 +3091,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       Informações complementares – deslocamento (datas e locais frequentados no período de
@@ -3100,6 +3104,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Tifóide — https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       Informações complementares – deslocamento (datas e locais frequentados no período de
@@ -6431,6 +6436,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: DIC_DADOS_Gestante_Sifilis_v5.pdf, campo 32
   PROSTACAO:
@@ -6738,10 +6744,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - UF
-    - UFCCODIG
-    - UFCODIGO
+    codelist: UF_BR
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "17. UF | co_uf_residencia | varchar2(2) | Sigla da Unidade
       Federada de residência do paciente por ocasião da notificação | Campo Obrigatório se
@@ -6758,9 +6761,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - UFCCODIG
-    - UFCODIGO
+    codelist: UF_BR
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "4. UF de Notificação | co_uf_notificacao | varchar2(2) |
       Sigla da Unidade Federativa onde está localizada a unidade de saúde (ou outra fonte
@@ -7288,6 +7289,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 44; DIC_DADOS_Hantavirose_v5.pdf, campo
       49
@@ -7313,6 +7315,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: Dicionário de Dados – Sinan Online (Dengue/Chikungunya) — https://portalsinan.saude.gov.br/images/documentos/Agravos/Dengue/DIC_DADOS_ONLINE.pdf,
       campo 52 (UF de hospitalização)
@@ -7325,9 +7328,7 @@ variables:
     translated_name: State of the employer
     description: State (UF) where the contracting employer is located.
     code_system: external
-    codelists:
-    - UFCCODIG
-    - UFCODIGO
+    codelist: UF_BR
     source: layout_doc
     source_ref: '[DIC-DRT-ATG] "38. UF | co_uf_empresa | varchar2(2) | Unidade da Federação
       da empresa contratante | Campo Essencial | UF_EMP"
@@ -7345,6 +7346,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: '[BOTU] http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf
       — "39. UF de internação | co_uf_hospital | varchar(2) | Informe a sigla da UF onde o

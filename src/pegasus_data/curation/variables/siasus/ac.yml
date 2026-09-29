@@ -928,6 +928,7 @@ variables:
 
       '
     code_system: internal
+    codelist: UF_BR
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 011
@@ -1242,6 +1243,7 @@ variables:
 
       '
     code_system: internal
+    codelist: UF_BR
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 011
@@ -1532,6 +1534,7 @@ variables:
 
       '
     code_system: internal
+    codelist: UF_BR
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 011

@@ -239,8 +239,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - UFC
+    codelist: UF_BR
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "CODUFNATU | Caracter 2 | Números | Código da UF de naturalidade
       da mãe"; [EVOL-1996-2019] row 61 gives 2013 as the first year in the microdata.
@@ -1420,8 +1419,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - BR_UF
+    codelist: UF_BR
     source: layout_doc
     source_ref: '[ESTRUTURA-ANT] "UFINFORM C(02) Código da UF que informou o registro"; NASC.DEF-1995
       display name "UF informante" with lookup BR_UF.CNV; [EVOL-1996-2019] row 25 "Código

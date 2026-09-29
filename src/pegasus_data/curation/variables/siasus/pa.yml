@@ -831,6 +831,8 @@ variables:
       service the establishment used to render the procedure (the CNES 'Serviço/Classificação'
       pair packed into one 6-character field).
     code_system: external
+    # Already service + classification: the CNES classification table's own key.
+    codelist: S_CLASSEN
     notes: The layout document names this field PA_SRC_C (Código do SeRviço-Classificação),
       but the catalogued file headers carry it as PA_SRV_C at the same width (6 chars) and
       file coverage — almost certainly the same column under two spellings; DATASUS's own

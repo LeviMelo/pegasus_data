@@ -195,6 +195,7 @@ variables:
     translated_name: State of the accident
     description: State where the accident happened.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: C(2) state code in the accident-location block.
@@ -203,6 +204,7 @@ variables:
     translated_name: State of treatment
     description: State where the worker was treated.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: C(2) state code in the treatment-location block.

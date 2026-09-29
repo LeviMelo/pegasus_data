@@ -271,6 +271,7 @@ variables:
     translated_name: State of diagnosis
     description: State where the diagnosis was made, the coarser companion to MUN_DIAG.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: BR_UF.CNV
     reasoning: C(2) state code bound to BR_UF.
@@ -279,6 +280,7 @@ variables:
     translated_name: State of residence
     description: State the patient lives in, the coarser companion to MUN_RESID.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: BR_UF.CNV
     reasoning: C(2) state code bound to BR_UF.
@@ -290,6 +292,7 @@ variables:
 
       '
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: BR_UF.CNV
     reasoning: C(2) state code bound to BR_UF.

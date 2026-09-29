@@ -36,6 +36,7 @@ than pretending one string is the answer.
 
 from __future__ import annotations
 
+import functools
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -328,6 +329,28 @@ def flag_mixed_width_tables(catalog: Catalog, tables: Sequence[ReferenceTable]) 
 # Re-exported so every existing caller keeps working.
 
 
+@functools.lru_cache(maxsize=1)
+def _states() -> pa.Table:
+    """IBGE states by numeric code AND by abbreviation -> full name (ADR-0087).
+
+    SINAN's SG_UF_NOT 32 read "ES", SINASC's CODUFNATU 12 read "AC": an
+    abbreviation is a code. Derived from the shipped municipalities resource.
+    """
+    from importlib.resources import files as _files
+
+    import pyarrow.parquet as _pq
+
+    rows = _pq.read_table(
+        str(_files("pegasus_data.resources") / "municipalities.parquet"),
+        columns=["uf_code", "uf_sigla", "uf_name"],
+    ).to_pylist()
+    names: dict[str, str] = {}
+    for r in rows:
+        names[str(r["uf_code"])] = str(r["uf_name"])
+        names[str(r["uf_sigla"])] = str(r["uf_name"])
+    return pa.table({"code": list(names), "label": list(names.values())})
+
+
 #: Standard classifications served from one canonical table for every system
 #: (ADR-0087): name -> file under pegasus_data/resources.
 CLASSIFICATIONS: dict[str, str] = {"ICD10": "icd10.parquet", "CBO2002": "cbo2002.parquet"}
@@ -368,6 +391,8 @@ def read_reference_table(
     from ..registry import lookup as registry_lookup
     from ..semantics.curation import inline_codelist
 
+    if table_id.upper() == "UF_BR":
+        return _states()
     canonical = CLASSIFICATIONS.get(table_id.upper())
     if canonical is not None:
         # A published standard classification, one table for every system

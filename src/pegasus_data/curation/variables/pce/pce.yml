@@ -143,6 +143,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     notes: 'O dicionário documenta ID_UF e SG_UF na mesma linha - mesmo conceito, duas
       representações (código numérico vs. sigla de 2 letras). Nos arquivos de 1995-2021
       o cabeçalho do DBF declara largura 5 (não 2); o conteúdo continua sendo o código
@@ -508,6 +509,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     notes: 'Ausente nos arquivos de 2024-2026 (33 arquivos): a partir dessa revisão
       o sistema passou a gravar só ID_UF (numérico). Código que dependa de SG_UF para
       filtrar por UF vai simplesmente não encontrar essas linhas nos arquivos mais

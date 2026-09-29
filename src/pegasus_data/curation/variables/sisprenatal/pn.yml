@@ -181,7 +181,7 @@ variables:
     translated_name: State (UF) of the pregnant woman
     description: IBGE 2-digit code of the Brazilian state (UF) associated with the record.
     code_system: external
-    codelist: UF
+    codelist: UF_BR
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SISPRENATAL/201201_/Auxiliar/TAB_SISPRENATAL.zip
       -> Gestantes.def, lines "LUF da Gestante , CO_UF_IBGE ,1 ,UF.CNV" / "SUF da Gestante

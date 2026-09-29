@@ -205,6 +205,7 @@ variables:
     translated_name: State of second exposure
     description: State of a second exposure location. See CO_UF_EXP.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: The second slot of the three exposure-location pairs.
@@ -213,6 +214,7 @@ variables:
     translated_name: State of third exposure
     description: State of a third exposure location.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: The third slot of the exposure state series.
@@ -224,6 +226,7 @@ variables:
 
       '
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: C(2) state code bound to the UF codelists; EXP reads exposição.

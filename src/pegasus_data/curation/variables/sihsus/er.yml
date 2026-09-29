@@ -121,6 +121,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: inferred
     reasoning: 'The 2-digit values match the IBGE UF numeric codes for the two states
       this batch''s error files cover (Acre, Amazonas), and the name follows the UF_

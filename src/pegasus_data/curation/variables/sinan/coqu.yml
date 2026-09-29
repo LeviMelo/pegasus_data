@@ -34,6 +34,7 @@ variables:
     translated_name: State of hospitalisation
     description: State where the patient was admitted.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: C(2) state code; HOS reads hospitalização.

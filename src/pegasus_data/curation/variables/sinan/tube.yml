@@ -627,6 +627,7 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 48
   SITUA_12_M:
@@ -740,5 +741,6 @@ variables:
 
       '
     code_system: external
+    codelist: UF_BR
     source: layout_doc
     source_ref: DICI_DADOS_NET_Tuberculose_23_07_2020.pdf, campo 64

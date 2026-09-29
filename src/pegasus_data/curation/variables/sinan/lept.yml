@@ -484,6 +484,7 @@ variables:
 
       '
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: C(2) state code; the first of four residence-history slots.
@@ -492,6 +493,7 @@ variables:
     translated_name: Previous state of residence 2
     description: A second previous state of residence. See CO_UF_R1.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: C(2) state code; the second residence-history slot.
@@ -500,6 +502,7 @@ variables:
     translated_name: Previous state of residence 3
     description: A third previous state of residence. See CO_UF_R1.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: C(2) state code; the third residence-history slot.
@@ -508,6 +511,7 @@ variables:
     translated_name: Previous state of residence 4
     description: A fourth previous state of residence, the last slot the form offers.
     code_system: internal
+    codelist: UF_BR
     source: def
     source_ref: UFCCODIG.CNV
     reasoning: C(2) state code; the fourth residence-history slot.

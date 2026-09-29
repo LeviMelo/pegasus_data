@@ -1043,9 +1043,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - UF
-    - UFREG
+    codelist: UF_BR
     source: layout_doc
     source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
   UFRES:
@@ -1053,8 +1051,6 @@ variables:
     translated_name: Mother's state of residence (UF)
     description: IBGE-standard state (UF) code of the mother's residence.
     code_system: external
-    codelists:
-    - UF
-    - UFREG
+    codelist: UF_BR
     source: layout_doc
     source_ref: http://tabnet.datasus.gov.br/cgi/RESP/NIT_RESP.pdf
