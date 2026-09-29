@@ -613,7 +613,6 @@ def fetch(
     months: int | Sequence[int] | None = None,
     columns: Sequence[str] | None = None,
     labels: bool = True,
-    names: str = "original",
     provenance: bool = False,
     dictionary: bool = False,
     profile: str = "analysis",
@@ -650,12 +649,8 @@ def fetch(
     the catalog or not at all. Use it when the network is genuinely absent and a
     silent fallback to "nothing published" would be misleading.
 
-    Three switches control what the answer LOOKS like, none of which change
+    Two switches control what the answer LOOKS like, none of which change
     which rows come back:
-
-    ``names="described"`` renames each column to its English name, so
-    ``CODMUNRES`` arrives as ``Municipality of residence``. A column with no
-    curated name keeps the name DATASUS gave it.
 
     ``provenance=True`` keeps ``_source_path``, ``_blob_sha256``,
     ``_ingested_at`` and ``_schema_signature``. They are off by default: they
@@ -683,7 +678,6 @@ def fetch(
     want_ufs = _clean_ufs(uf)
     want_months = _clean_months(months)
     _check_choice("on_missing_column", on_missing_column, ("raise", "null_fill"))
-    _check_choice("names", names, ("original", "described"))
 
     pipeline = Pipeline(resolved_settings)
     fetch_report = FetchReport(
@@ -855,8 +849,9 @@ def fetch(
             if len(keep) != len(rendered.column_names):
                 rendered = rendered.select(keep)
 
+        # Headers are named by the presentation (ADR-0084), never here.
         book = None
-        if dictionary or names == "described":
+        if dictionary:
             from ._dictionary import build_dictionary
 
             book = build_dictionary(
@@ -866,22 +861,6 @@ def fetch(
                 dataset=dataset,
                 render_report=render_report,
             )
-
-        if names == "described":
-            from ._dictionary import described_names
-
-            mapping = described_names(book)  # type: ignore[arg-type]
-            renamed = [mapping.get(c, c) for c in rendered.column_names]
-            rendered = rendered.rename_columns(renamed)
-            # The dictionary must describe the table that is actually returned,
-            # or it stops being usable as the key back to the original names.
-            for row, new in zip(book.rows, renamed, strict=True):  # type: ignore[union-attr]
-                # `original_column` is always the DATASUS name. A profile may
-                # have renamed the headers before this — `report` does — in
-                # which case it is already set and must not be overwritten with
-                # the intermediate name.
-                row["original_column"] = row.get("original_column") or row["column"]
-                row["column"] = new
 
         out: tuple[Any, ...] = (rendered,)
         if report:

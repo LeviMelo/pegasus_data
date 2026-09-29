@@ -52,7 +52,7 @@ $PD config set --root D:/datasus [--blobs E:/cache] [--catalog C:/fast]
 ## 4. Getting data
 
 ```bash
-$PD query SIH.RD --period 2023-01 --geo AL,SE --out sih.csv     # = query(); --described-names, --dictionary FILE
+$PD query SIH.RD --period 2023-01 --geo AL,SE --out sih.csv     # = query(); --present/--values/--names, --dictionary FILE
 $PD query SIH.RD --period 2020..2023 --geo AL --select DIAG_PRINC --out d.parquet
 $PD translate <file> --system SIHSUS                           # label files you already have
 $PD explore [SIH.RD]                                           # what exists, offline

@@ -29,7 +29,7 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
 
     from .catalog.store import Catalog
 
-__all__ = ["DataDictionary", "build_dictionary", "described_names"]
+__all__ = ["DataDictionary", "build_dictionary"]
 
 #: Columns the normaliser attaches to every row. Provenance, not data.
 from .normalize.engine import PROVENANCE_COLUMNS
@@ -38,8 +38,8 @@ from .normalize.engine import PROVENANCE_COLUMNS
 #: that came from. Not alphabetical — `column` first is the whole point.
 COLUMNS = (
     "column",
-    #: Present only when `names="described"` renamed the table: the DATASUS
-    #: name this column had, which is the only way back to the source layout.
+    #: The DATASUS name, when the column is shown under another (a label
+    #: companion): the only way back to the source layout.
     "original_column",
     "kind",
     "translated_name",
@@ -312,42 +312,8 @@ _PROVENANCE_PROSE = {
 }
 
 
-def described_names(dictionary: DataDictionary) -> dict[str, str]:
-    """``old name -> English name``, for renaming a fetched table's columns.
-
-    Only columns that HAVE an English name are renamed. A column with no
-    curated name keeps the name DATASUS gave it, because inventing one would
-    make the table harder to trace back, not easier.
-
-    Collisions are resolved by keeping the original name in parentheses. Two
-    SINAN columns really are both "Municipality of residence" — one current, one
-    historical — and silently merging them into one name would produce a table
-    with two identically-named columns, which Arrow allows and no caller wants.
-    """
-    from .view import LABEL_SUFFIX
-
-    proposed: dict[str, str] = {}
-    for row in dictionary.rows:
-        name = str(row["column"])
-        english = row.get("translated_name")
-        if not english or row.get("kind") == "provenance":
-            continue
-        proposed[name] = str(english)
-
-    seen: dict[str, list[str]] = {}
-    for old, new in proposed.items():
-        seen.setdefault(new, []).append(old)
-    out: dict[str, str] = {}
-    for old, new in proposed.items():
-        if len(seen[new]) > 1:
-            base = old[: -len(LABEL_SUFFIX)] if old.endswith(LABEL_SUFFIX) else old
-            new = f"{new} ({base})"
-        out[old] = new
-    return out
-
-
 def describe_table(
-    catalog: Catalog, system: str, table: Any, *, dataset: str = "", rename: bool = False
+    catalog: Catalog, system: str, table: Any, *, dataset: str = ""
 ) -> tuple[Any, DataDictionary]:
     """The table's dictionary, built on its DATASUS names; optionally renamed.
 
@@ -357,12 +323,5 @@ def describe_table(
     ``original_column`` as the key back.
     """
     book = build_dictionary(catalog, system, list(table.column_names), dataset=dataset)
-    if not rename:
-        return table, book
-    mapping = described_names(book)
-    renamed = [mapping.get(c, c) for c in table.column_names]
-    for row, new in zip(book.rows, renamed, strict=True):
-        row["original_column"] = row.get("original_column") or row["column"]
-        row["column"] = new
-    return table.rename_columns(renamed), book
+    return table, book
 

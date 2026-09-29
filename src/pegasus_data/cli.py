@@ -1359,7 +1359,7 @@ def query_cmd(
     store = Catalog(settings.catalog_path, read_only=True)
     try:
         if dictionary_out:
-            _, book = describe_table(store, system, table, dataset=dataset, rename=False)
+            _, book = describe_table(store, system, table, dataset=dataset)
             book.write(dictionary_out)
             console.print(f"[green]wrote[/green] {dictionary_out}  ({len(book)} columns described)")
         overrides = {k: v for k, v in {"values": values, "names": names, "language": language}.items() if v}
