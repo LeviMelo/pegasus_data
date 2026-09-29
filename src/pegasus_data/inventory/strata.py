@@ -272,19 +272,36 @@ def expand_archive_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
         sample = stratum.sample_path()
         if not sample:
             continue
-        members = [
-            str(r["member"]) for r in catalog.query(
-                "SELECT member FROM archive_members WHERE archive_path = ? AND member_role = 'data' "
-                "ORDER BY member", (sample,)
-            )
-        ]
-        if len(members) < 2:
+        # Each archive's OWN members, where the census listed them (ADR-0103).
+        # Expanding one sampled archive's list over the whole state-year listed
+        # tables that 22 of 27 archives lack and missed tables they hold.
+        listed: dict[str, list[str]] = {}
+        for row in catalog.query(
+            f"SELECT archive_path, member FROM archive_members WHERE member_role = 'data' "
+            f"AND archive_path IN ({','.join('?' * len(stratum.paths))}) ORDER BY member",
+            tuple(stratum.paths),
+        ):
+            listed.setdefault(str(row["archive_path"]), []).append(str(row["member"]))
+        if max((len(v) for v in listed.values()), default=0) < 2:
             continue
-        for member in members:
-            kind = member_kind(sample, member, stratum.series or "")
-            if not kind or kind == (stratum.series or "").upper():
+        kinds: dict[str, tuple[str, str]] = {}  # kind -> (an archive holding it, its member)
+        holders: dict[str, list[str]] = {}
+        for path in stratum.paths:
+            members = listed.get(path)
+            if members is None:
                 continue
+            for member in members:
+                kind = member_kind(path, member, stratum.series or "")
+                if not kind or kind == (stratum.series or "").upper():
+                    continue
+                kinds.setdefault(kind, (path, member))
+                holders.setdefault(kind, []).append(path)
+        unlisted = [p for p in stratum.paths if p not in listed]
+        for kind, (sample_path, member) in sorted(kinds.items()):
             child = f"{stratum.stratum_id}#{kind}"
+            # An archive the census has not listed yet keeps the old assumption,
+            # so nothing is lost before the census reaches it.
+            paths = sorted(set(holders[kind]) | set(unlisted))
             catalog.execute(
                 """
                 INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path,
@@ -292,12 +309,12 @@ def expand_archive_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
                 VALUES (?,?,?,?,?,?,?, 'pending')
                 ON CONFLICT(stratum_id) DO UPDATE SET file_count = excluded.file_count
                 """,
-                (child, stratum.system, kind, stratum.year, stratum.file_count, sample, member),
+                (child, stratum.system, kind, stratum.year, len(paths), sample_path, member),
             )
             catalog.execute("DELETE FROM stratum_members WHERE stratum_id = ?", (child,))
             catalog.executemany(
                 "INSERT OR IGNORE INTO stratum_members (stratum_id, path) VALUES (?,?)",
-                [(child, p) for p in stratum.paths],
+                [(child, p) for p in paths],
             )
             written += 1
     return written

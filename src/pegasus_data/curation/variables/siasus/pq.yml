@@ -52,6 +52,10 @@ variables:
       table — a legacy, pre-unified-CNES establishment coding scheme, unlike the CADGERBR
       table used by the current AQ/AP_CODUNI fields.
     code_system: external
+    # A pre-2008 SIA unit code is unique only within its state: keyed with the
+    # file's state into SIA_UPS_BR (UPS-N<UF> and CNESN<UF>), ADR-0103.
+    codelist: SIA_UPS_BR
+    key: ["@UF", PAQ_CODUNI]
     source: def
     source_ref: '[DEF-PQ] "PQ- APAC - Pacientes Quimioterapia.def" (TAB_SIA_199911-200307.zip),
       field PAQ_CODUNI, display_name "UPS Codigo <UF>", 27 per-state lookups

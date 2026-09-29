@@ -821,10 +821,16 @@ class Pipeline:
         on_item: Callable[[int, int], None] | None = None,
     ) -> StageResult:
         """Read EVERY DBC/DBF header, incrementally (ADR-0081)."""
-        from .inventory.schemas import file_census_targets, run_file_census
+        from .inventory.schemas import (
+            archive_census_targets,
+            file_census_targets,
+            run_archive_member_census,
+            run_file_census,
+        )
 
         targets = file_census_targets(self.catalog, systems=systems, limit=limit)
-        if not targets:
+        archives = archive_census_targets(self.catalog, limit=limit)
+        if not targets and not archives:
             return StageResult("file_schemas", counts={"examined": 0, "note": "nothing outstanding"})
 
         def _connect() -> FtpClient:
@@ -837,7 +843,13 @@ class Pipeline:
             fresh.connect()
             return fresh
 
-        counts = run_file_census(self.catalog, _connect, targets, workers=workers, on_item=on_item)
+        counts = run_file_census(self.catalog, _connect, targets, workers=workers, on_item=on_item) if targets else {}
+        if archives:
+            # Every multi-table archive's own member list (ADR-0103); run
+            # `inventory` and `families` after it so membership follows it.
+            counts["archive_members"] = run_archive_member_census(
+                self.catalog, _connect, archives, workers=min(workers, 4), on_item=on_item
+            )
         return StageResult("file_schemas", counts=counts)
 
     def schemas(

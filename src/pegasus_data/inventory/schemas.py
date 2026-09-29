@@ -636,3 +636,111 @@ def run_file_census(
         _flush()
     counts["megabytes"] = round(counts["bytes"] / 1e6, 1)
     return counts
+
+
+# ------------------------------------------------------- archive member census
+#
+# SIA's 2001-2007 APAC archives (``ACAC0501.EXE``, LHA self-extracting) hold
+# one table per component, and not every archive holds every component: 22 of
+# 27 states' January 2005 archives have no CO table. Family membership was
+# expanded from ONE sampled archive per state-year, so absent members were
+# listed (a query came back "short") and present ones were missed (EX, PC and
+# AC reached no archive of 2003-2006). The member list is in the LHA headers,
+# each followed by its compressed data: walking header to header with ranged
+# reads lists every member without downloading the 3.9 GB (ADR-0103).
+
+
+def archive_census_targets(catalog: Catalog, *, limit: int | None = None) -> list[str]:
+    """Self-extracting LHA archives whose members were never listed."""
+    sql = (
+        "SELECT f.path FROM files f JOIN file_facts fa ON fa.path = f.path "
+        "WHERE f.gone_at IS NULL AND fa.role = 'data' AND lower(f.extension) = '.exe' "
+        "AND NOT EXISTS (SELECT 1 FROM archive_members m WHERE m.archive_path = f.path) "
+        "ORDER BY f.path"
+    )
+    if limit:
+        sql += f" LIMIT {int(limit)}"
+    return [str(r["path"]) for r in catalog.query(sql)]
+
+
+def list_lha_members(fetch_range: Callable[[int, int], bytes], *, first: int = 16 * 1024) -> list[tuple[str, int]]:
+    """``(name, original size)`` of every member, from the headers alone."""
+    from ..decode.lha import _parse_header, find_lha_offset
+
+    head = fetch_range(0, first)
+    offset = find_lha_offset(head, search_limit=len(head))
+    if offset is None:
+        head = fetch_range(0, 512 * 1024)
+        offset = find_lha_offset(head, search_limit=len(head))
+        if offset is None:
+            raise HeaderUnreadable("no LHA header in the first 512 KB")
+    members: list[tuple[str, int]] = []
+    pos = offset
+    for _ in range(256):  # an archive of this tree holds a handful of members
+        chunk = head[pos : pos + 4096] if pos + 4096 <= len(head) else fetch_range(pos, 4096)
+        member, following = _parse_header(chunk, 0)
+        if member is None:
+            break
+        members.append((member.name, member.original_size))
+        pos += following
+    return members
+
+
+def run_archive_member_census(
+    catalog: Catalog,
+    connect: Callable[[], object],
+    paths: Sequence[str],
+    *,
+    workers: int = 4,
+    on_item: Callable[[int, int], None] | None = None,
+) -> dict[str, int]:
+    """List every archive's members by ranged header reads; record them."""
+    import threading
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    local = threading.local()
+
+    def _list(path: str) -> tuple[str, list[tuple[str, int]] | None, str | None]:
+        import time
+
+        try:
+            client = getattr(local, "client", None)
+            if client is None:
+                client = local.client = connect()
+        except Exception as exc:  # noqa: BLE001 - the server stalled: record it, back off, go on
+            time.sleep(5)
+            return path, None, f"connect: {type(exc).__name__}: {exc}"[:300]
+        try:
+            members = list_lha_members(
+                lambda offset, size: client.retrieve_prefix(path, size, offset=offset)  # type: ignore[attr-defined]
+            )
+            return path, members, None
+        except Exception as exc:  # noqa: BLE001 - one archive never stops the census
+            try:
+                client.close()  # type: ignore[attr-defined]
+            except Exception:  # noqa: BLE001
+                pass
+            local.client = None
+            return path, None, f"{type(exc).__name__}: {exc}"[:300]
+
+    counts = {"examined": 0, "listed": 0, "failed": 0, "members": 0}
+    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="members") as pool:
+        futures = [pool.submit(_list, p) for p in paths]
+        for done, future in enumerate(as_completed(futures), start=1):
+            path, members, error = future.result()
+            counts["examined"] += 1
+            if members is None:
+                counts["failed"] += 1
+                catalog.log_event("schemas", "archive members unreadable", detail=f"{path}: {error}")
+            else:
+                counts["listed"] += 1
+                counts["members"] += len(members)
+                catalog.executemany(
+                    "INSERT OR IGNORE INTO archive_members (archive_path, member, member_size, member_role, container) "
+                    "VALUES (?,?,?,?, 'lha_sfx')",
+                    [(path, name, size, "data" if name.lower().endswith((".dbf", ".dbc")) else "binary")
+                     for name, size in members],
+                )
+            if on_item:
+                on_item(done, len(paths))
+    return counts

@@ -16,6 +16,10 @@ variables:
       this APAC; the observed value 000240 resolves to FUNDHACRE, an Acre state hospital
       foundation, via the bound CNES codelist.'
     code_system: external
+    # A pre-2008 SIA unit code is unique only within its state: keyed with the
+    # file's state into SIA_UPS_BR (UPS-N<UF> and CNESN<UF>), ADR-0103.
+    codelist: SIA_UPS_BR
+    key: ["@UF", APA_CODUNI]
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 002
@@ -329,7 +333,11 @@ variables:
       records.
 
       '
-    code_system: none
+    code_system: external
+    # A pre-2008 SIA unit code is unique only within its state: keyed with the
+    # file's state into SIA_UPS_BR (UPS-N<UF> and CNESN<UF>), ADR-0103.
+    codelist: SIA_UPS_BR
+    key: ["@UF", COB_CODUNI]
     source: layout_doc
     asserted_by: pegasus_data
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
@@ -531,6 +539,10 @@ variables:
 
       '
     code_system: external
+    # A pre-2008 SIA unit code is unique only within its state: keyed with the
+    # file's state into SIA_UPS_BR (UPS-N<UF> and CNESN<UF>), ADR-0103.
+    codelist: SIA_UPS_BR
+    key: ["@UF", EXA_CODUNI]
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 002
@@ -790,7 +802,11 @@ variables:
     official_name: Código da unidade, bloco OPC
     translated_name: Establishment code, OPC block
     description: The treating unit on the OPC block. See PAC_CODUNI.
-    code_system: internal
+    code_system: external
+    # A pre-2008 SIA unit code is unique only within its state: keyed with the
+    # file's state into SIA_UPS_BR (UPS-N<UF> and CNESN<UF>), ADR-0103.
+    codelist: SIA_UPS_BR
+    key: ["@UF", OPC_CODUNI]
     source: def
     source_ref: CNESUAC.CNV
     reasoning: The OPC_ block's copy of CODUNI, on the same CNESU codelists.
@@ -965,7 +981,11 @@ variables:
       three carry the same meaning for different record types.
 
       '
-    code_system: internal
+    code_system: external
+    # A pre-2008 SIA unit code is unique only within its state: keyed with the
+    # file's state into SIA_UPS_BR (UPS-N<UF> and CNESN<UF>), ADR-0103.
+    codelist: SIA_UPS_BR
+    key: ["@UF", PAC_CODUNI]
     source: def
     source_ref: CNESUAC.CNV
     reasoning: 'Bound to the CNESU establishment codelists; CODUNI reads código da
@@ -1275,7 +1295,11 @@ variables:
     official_name: Código da unidade, bloco PAF
     translated_name: Establishment code, PAF block
     description: The treating unit on the PAF block. See PAC_CODUNI.
-    code_system: internal
+    code_system: external
+    # A pre-2008 SIA unit code is unique only within its state: keyed with the
+    # file's state into SIA_UPS_BR (UPS-N<UF> and CNESN<UF>), ADR-0103.
+    codelist: SIA_UPS_BR
+    key: ["@UF", PAF_CODUNI]
     source: def
     source_ref: CNESUAC.CNV
     reasoning: The PAF_ block's copy of CODUNI, on the same CNESU codelists.
@@ -1662,6 +1686,10 @@ variables:
 
       '
     code_system: external
+    # A pre-2008 SIA unit code is unique only within its state: keyed with the
+    # file's state into SIA_UPS_BR (UPS-N<UF> and CNESN<UF>), ADR-0103.
+    codelist: SIA_UPS_BR
+    key: ["@UF", UDI_CODUNI]
     source: layout_doc
     source_ref: 'APAC_JUL07.doc ''Layout da interface texto do APAC'' (DATASUS/SIA,
       jul/2007) — local: sources/apac.doc (text: sources/apac_layout1.txt), campo 002

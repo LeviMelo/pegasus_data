@@ -947,7 +947,7 @@ def compose_key(table: pa.Table, key: Sequence[str]) -> pa.Array | None:
     The one place a composite key is built: rendering and the bindings compiler
     both call it, so a column is measured exactly as it is looked up (ADR-0088).
     """
-    parts = key_parts(key)
+    parts = [("_source_uf" if name == "@UF" else name, width) for name, width in key_parts(key)]
     if not parts or not all(name in table.schema.names for name, _ in parts):
         return None
     arrays = []

@@ -57,7 +57,10 @@ variables:
     description: CNES code of the establishment that produced this record, the same CODUNI
       concept documented elsewhere in SIA (e.g. siasus/bi.yml's CODUNI, AP_CODUNI).
     code_system: external
-    codelist: CADGERBR
+    # A pre-2008 SIA unit code is unique only within its state: keyed with the
+    # file's state into SIA_UPS_BR (UPS-N<UF> and CNESN<UF>), ADR-0103.
+    codelist: SIA_UPS_BR
+    key: ["@UF", UDO_CODUNI]
     source: layout_doc
     notes: No UO-specific layout document was found; this entry is by analogy with CODUNI
       elsewhere in SIA, not independently confirmed for UO.

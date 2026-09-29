@@ -351,6 +351,42 @@ def _states() -> pa.Table:
     return pa.table({"code": list(names), "label": list(names.values())})
 
 
+#: SIA's pre-2008 establishments, keyed by state + code (ADR-0103).
+SIA_UPS_TABLE = "SIA_UPS_BR"
+_UF_CODES = (
+    "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA",
+    "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO",
+)
+
+
+def _legacy_sia_establishments(
+    lake_root: str | Path, *, year: int | None, competencia: int | None
+) -> pa.Table:
+    """SIA's pre-2008 establishment codes, one table, keyed ``UF + code``.
+
+    Before 2008 SIA identified a unit by a 6-digit code that is unique only
+    WITHIN its state: 14,187 codes name different establishments in different
+    states (``000001`` is Hospital de Base in Acre and another unit in
+    Alagoas). TabWin picks ``UPS-N<UF>`` (kits 1994-2003) or ``CNESN<UF>``
+    (2003-2007, split into parts for MG and SP) by the file's state. Here the
+    state goes into the code, and the record's key carries its file's state
+    (``key: ["@UF", …]``). The vintage windows of each kit are kept.
+    """
+    codes: list[str] = []
+    labels: list[str | None] = []
+    for uf in _UF_CODES:
+        for table_id in (f"UPS-N{uf}", f"CNESN{uf}", f"CNESN{uf}1", f"CNESN{uf}2", f"CNESN{uf}3"):
+            try:
+                part = read_reference_table(
+                    lake_root, table_id, system="SIASUS", year=year, competencia=competencia
+                )
+            except (FileNotFoundError, OSError, KeyError):
+                continue
+            codes.extend(f"{uf}{c}" for c in part.column("code").to_pylist())
+            labels.extend(part.column("label").to_pylist())
+    return pa.table({"code": pa.array(codes, pa.string()), "label": pa.array(labels, pa.string())})
+
+
 @functools.lru_cache(maxsize=1)
 def _health_regions() -> pa.Table:
     """IBGE health regions (CIR, 5 digits) -> name, from the shipped geography.
@@ -457,6 +493,8 @@ def _read_reference_table(
         return _states()
     if table_id.upper() == "CIR_BR":
         return _health_regions()
+    if table_id.upper() == SIA_UPS_TABLE:
+        return _legacy_sia_establishments(lake_root, year=year, competencia=competencia)
     canonical = CLASSIFICATIONS.get(table_id.upper())
     if canonical is not None:
         # A published standard classification, one table for every system

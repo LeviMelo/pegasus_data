@@ -153,6 +153,10 @@ class FetchReport:
     #: source path -> explicit publication precision. This keeps an annual
     #: enclosure distinct from a monthly source whose competence is missing.
     source_resolutions: dict[str, str] = field(default_factory=dict)
+    #: source path -> the file's state (``AC``). A code that means something
+    #: only within its state (SIA's pre-2008 UPS establishment codes) is keyed
+    #: with it (``key: ["@UF", …]``, ADR-0103).
+    source_ufs: dict[str, str] = field(default_factory=dict)
     files_matched: int = 0
     files_read: int = 0
     rows: int = 0
@@ -186,6 +190,12 @@ class FetchReport:
     file_ufs_returned: list[str] = field(default_factory=list)
     undecoded: list[str] = field(default_factory=list)
     schema_mismatch: list[str] = field(default_factory=list)
+    #: Sources read under another layout of the dataset than the catalog
+    #: assigned them, because that is the layout they turned out to have.
+    refamilied: list[str] = field(default_factory=list)
+    #: (archive!member) the catalog listed but the archive does not contain:
+    #: nothing was published for that component, so the answer is not short.
+    members_absent: list[str] = field(default_factory=list)
     #: (path, reason) for sources acquisition could not deliver. Structured,
     #: because deciding whether an answer is complete should not require
     #: matching a prose prefix in `warnings`.
@@ -792,6 +802,8 @@ def fetch(
         from .persist.decisions import borrowed_label_policy, historical_label_policy
         from .render_groups import render_groups, split_by_source
 
+        table = _with_source_uf(table, fetch_report.source_ufs)
+
         with (
             historical_label_policy(historical_labels),
             borrowed_label_policy(allow_borrowed_labels),
@@ -843,6 +855,8 @@ def fetch(
         # ORIGINAL names, because it is the only thing that can still map an
         # English name back to the DATASUS one; renaming happens last, using
         # that dictionary.
+        if SOURCE_UF in rendered.column_names:
+            rendered = rendered.drop_columns([SOURCE_UF])
         if not provenance:
             from .normalize.engine import PROVENANCE_COLUMNS
 
@@ -871,6 +885,25 @@ def fetch(
         return out if len(out) > 1 else rendered
     finally:
         pipeline.close()
+
+
+#: ``_decode_one``'s answer for a member its archive does not contain.
+ABSENT_MEMBER = "<absent member>"
+
+#: The hidden column carrying each row's file state, for ``@UF`` key parts.
+SOURCE_UF = "_source_uf"
+
+
+def _with_source_uf(table: pa.Table, source_ufs: Mapping[str, str]) -> pa.Table:
+    """Each row's file state, from ``_source_path`` (dropped after rendering)."""
+    if "_source_path" not in table.column_names or not source_ufs or SOURCE_UF in table.column_names:
+        return table
+    import pyarrow.compute as pc
+
+    source = pc.cast(table.column("_source_path"), pa.string())
+    paths = pc.unique(source)
+    lookup = pa.array([source_ufs.get(str(p)) for p in paths.to_pylist()], pa.string())
+    return table.append_column(SOURCE_UF, pc.take(lookup, pc.index_in(source, value_set=paths)))
 
 
 def _ensure_curation(pipeline: Pipeline, report: FetchReport) -> None:
@@ -1167,7 +1200,8 @@ def _keep_columns(
         # and a sibling that names it (ADR-0090). Without them a narrow select=
         # showed CNES ID_SEGM as undecoded while the full query named it.
         for part in (getattr(doc, "key", None) or []):
-            keep.add(str(part).partition(":")[0].strip().upper())
+            if not str(part).startswith("@"):  # @UF is the file's state, not a column
+                keep.add(str(part).partition(":")[0].strip().upper())
         if getattr(doc, "label_from", None):
             keep.add(str(doc.label_from).upper())
         via = getattr(doc, "label_via", None)
@@ -1307,6 +1341,8 @@ def _select_files(
                 int(year) if year is not None else None,
                 competencia,
             )
+            if item.get("geo_code"):
+                report.source_ufs[source_id] = str(item["geo_code"]).strip().upper()
             normalized = int(item.get("normalized_date") or 0)
             report.source_resolutions[source_id] = (
                 "month" if month else
@@ -1487,6 +1523,19 @@ def _read_families(
         wanted = set(only_paths)
         selected = [triple for triple in selected if str(triple[2]["path"]) in wanted]
     report.files_matched = len(selected)
+    # Every layout of the dataset, for a member the catalog placed in the wrong
+    # one: SIA's 2001-2007 APAC archives were assigned by a sampled stratum, and
+    # a member in the other layout was dropped as a schema mismatch (22 of 27
+    # states of SIASUS-CO 2005-01, 2026-09-29).
+    alternatives: list[tuple[str, NormalizePlan]] = []
+    for family in families:
+        try:
+            alt = build_plan(catalog, family_id=str(family["family_id"]), municipalities=municipalities, cache=cache)
+        except KeyError:
+            continue
+        alt.keep_raw = True
+        alt.emit_labels = False
+        alternatives.append((str(family["family_id"]), alt))
     report.sources_selected = len({str(item["path"]) for _f, _p, item in selected})
     unique_paths = {str(item["path"]) for _f, _p, item in selected}
     if unique_paths:
@@ -1564,8 +1613,9 @@ def _read_families(
                     cache_lock=cache_lock,
                     keep_columns=keep_columns,
                     decode_members=members_by_digest.get(digest),
+                    alternatives=alternatives,
             )
-            decoded_batches, matched_here, read_bytes = (
+            decoded_batches, matched_here, read_bytes, used_family = (
                 work()
                 if settings.decode_isolation
                 else run_with_timeout(work, seconds=settings.item_timeout, label=path)
@@ -1579,6 +1629,7 @@ def _read_families(
             "matched": matched_here,
             "read_bytes": read_bytes,
             "item": item,
+            "family": used_family,
         }
 
     # Decode files CONCURRENTLY. decode/dbc.py has said "parallelise across
@@ -1622,7 +1673,18 @@ def _read_families(
         report.bytes_read += int(outcome["read_bytes"] or 0)
         batches.extend(outcome["batches"])  # type: ignore[arg-type]
         item = outcome["item"]
+        if outcome.get("family") == ABSENT_MEMBER:
+            report.members_absent.append(f"{path}!{item.get('member')}")  # type: ignore[union-attr]
+            continue
         if outcome["matched"]:
+            if outcome.get("family"):
+                from .decode.base import logical_source_id
+
+                source_id = logical_source_id(path, str(item.get("member") or ""))  # type: ignore[union-attr]
+                facts = report.source_facts.get(source_id)
+                if facts:
+                    report.source_facts[source_id] = (str(outcome["family"]), facts[1], facts[2])
+                report.refamilied.append(source_id)
             report.files_read += 1
             read_sources.add(path)
             if item["year"] is not None:  # type: ignore[index]
@@ -1686,7 +1748,8 @@ def _decode_one(
     cache_lock: object | None = None,
     keep_columns: frozenset[str] | None = None,
     decode_members: frozenset[str] | None = None,
-) -> tuple[list[pa.RecordBatch], bool, int]:
+    alternatives: Sequence[tuple[str, NormalizePlan]] = (),
+) -> tuple[list[pa.RecordBatch], bool, int, str | None]:
     """Read one file and normalise it. Split out so it can be given a deadline.
 
     ``decoded_cache`` keys the DECODE by blob digest, so an archive holding
@@ -1744,12 +1807,30 @@ def _decode_one(
         outcome, size = pending.result()
     batches: list[pa.RecordBatch] = []
     matched = False
+    used_family: str | None = None
+    present = not member or any(
+        str(d.member).upper() == member.upper() for d in outcome.tables  # type: ignore[union-attr]
+    )
+    if not present:
+        # The archive has no such member: the catalog listed it by the
+        # archive's pattern, and this state published nothing for that
+        # component this month (SIA 2001-2007 APAC, 2026-09-29). Not a gap.
+        return [], False, (size if owner else 0), ABSENT_MEMBER
     for decoded in outcome.tables:  # type: ignore[union-attr]
-        if member and decoded.member != member:
+        if member and str(decoded.member).upper() != member.upper():
             continue
         from .build import schema_fit
 
+        chosen = plan
         added = schema_fit(decoded.field_names, plan)
+        if added is None:
+            for family_id, alternative in alternatives:
+                if alternative is plan:
+                    continue
+                added = schema_fit(decoded.field_names, alternative)
+                if added is not None:
+                    chosen, used_family = alternative, family_id
+                    break
         if added is None:
             continue
         if added:
@@ -1759,10 +1840,10 @@ def _decode_one(
                 stacklevel=2,
             )
         matched = True
-        for batch in normalize_table(decoded, plan, blob_sha256=digest):
+        for batch in normalize_table(decoded, chosen, blob_sha256=digest):
             batches.append(_project(batch, keep_columns))
     # Bytes are counted once per SOURCE, not once per member reading it.
-    return batches, matched, (size if owner else 0)
+    return batches, matched, (size if owner else 0), used_family
 
 
 def _open_decoded_source(
