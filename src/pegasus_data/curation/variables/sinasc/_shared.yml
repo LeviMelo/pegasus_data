@@ -208,7 +208,11 @@ variables:
 
       '
     code_system: external
-    codelist: CBO2002
+    # Before CBO 2002 the SIM/SINASC kits code occupation in their own 5-digit
+    # OCUPA table (61200 HORTICULTOR); widths 5 and 6 never collide (ADR-0101).
+    codelists:
+    - CBO2002
+    - OCUPA
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "Código CBO 2002 | CODOCUPMAE | Caracter 6 | números | Código
       de ocupação da mãe conforme tabela do CBO (Código Brasileiro de Ocupações)"

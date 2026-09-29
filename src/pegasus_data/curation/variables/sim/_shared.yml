@@ -1558,7 +1558,11 @@ variables:
     description: Work the deceased did for most of their productive life, coded to CBO 2002.
       Filled only where age is 5 years or more, so blank in child deaths is structural.
     code_system: external
-    codelist: CBO2002
+    # Before CBO 2002 the SIM/SINASC kits code occupation in their own 5-digit
+    # OCUPA table (61200 HORTICULTOR); widths 5 and 6 never collide (ADR-0101).
+    codelists:
+    - CBO2002
+    - OCUPA
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo OCUP'
@@ -1592,7 +1596,11 @@ variables:
     description: The mother's usual work, coded to CBO 2002. Where the mother is retired the
       record carries her previous occupation, not her retirement.
     code_system: external
-    codelist: CBO2002
+    # Before CBO 2002 the SIM/SINASC kits code occupation in their own 5-digit
+    # OCUPA table (61200 HORTICULTOR); widths 5 and 6 never collide (ADR-0101).
+    codelists:
+    - CBO2002
+    - OCUPA
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo OCUPMAE'

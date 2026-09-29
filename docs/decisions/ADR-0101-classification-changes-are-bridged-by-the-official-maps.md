@@ -30,8 +30,17 @@
   `PROC_REA_sigtap` gives the procedure itself.
 - **The record's own code is untouched.** `PROC_REA` still reads "PARTO
   NORMAL (35001011)" in 2005; the bridge is an added column.
-- **Open.** SIA-PA before 2008 names its procedure column differently, so the
-  bridge waits on the rename relation (OQ-57).
+- **Occupations before CBO 2002 decode from the system's own old table.**
+  SIM and SINASC's 1996+ `.DEF` tabulate `OCUP`, `OCUPMAE` and `CODOCUPMAE`
+  as "Ocup Sist Antigo" with the kit's 5-digit `OCUPA.CNV`
+  (`61200` HORTICULTOR). They are bound to `[CBO2002, OCUPA]`, and the widths
+  (6 and 5) never collide. SIM-DO AC 2000: `OCUP` undecoded 1,778 → 0.
+- **Open.**
+  - SIA-PA before 2008 names its procedure column differently, so the bridge
+    waits on the rename relation (OQ-57).
+  - The official CBO-94 → CBO-2002 conversion (`sources/CBO94 - CBO2002 -
+    Conversao.csv`, 2,319 codes) would make CNES's pre-2007 professional `CBO`
+    continuous. It is the next bridge, on the same pattern.
 
 **Result, fresh home, SIH-RD AC.**
 
