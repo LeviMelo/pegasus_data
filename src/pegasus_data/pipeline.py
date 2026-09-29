@@ -792,6 +792,34 @@ class Pipeline:
 
     # ---------------------------------------------------------------- schemas
 
+    def file_schemas(
+        self,
+        *,
+        systems: Sequence[str] | None = None,
+        limit: int | None = None,
+        workers: int = 8,
+        on_item: Callable[[int, int], None] | None = None,
+    ) -> StageResult:
+        """Read EVERY DBC/DBF header, incrementally (ADR-0081)."""
+        from .inventory.schemas import file_census_targets, run_file_census
+
+        targets = file_census_targets(self.catalog, systems=systems, limit=limit)
+        if not targets:
+            return StageResult("file_schemas", counts={"examined": 0, "note": "nothing outstanding"})
+
+        def _connect() -> FtpClient:
+            fresh = FtpClient(
+                self.settings.host,
+                timeout=self.settings.timeout,
+                max_retries=self.settings.max_retries,
+                backoff_base=self.settings.backoff_base,
+            )
+            fresh.connect()
+            return fresh
+
+        counts = run_file_census(self.catalog, _connect, targets, workers=workers, on_item=on_item)
+        return StageResult("file_schemas", counts=counts)
+
     def schemas(
         self,
         *,

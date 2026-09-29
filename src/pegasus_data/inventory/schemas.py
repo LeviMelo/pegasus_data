@@ -30,6 +30,7 @@ from ..decode.header import (
     DEFAULT_PREFIX_BYTES,
     HeaderUnreadable,
     TableHeader,
+    prefix_bytes_needed,
     read_csv_header,
     read_table_header,
 )
@@ -430,3 +431,120 @@ def _header_in_lha(catalog: Catalog, path: str, data: bytes, target: dict[str, o
         raise HeaderUnreadable(f"member {wanted!r} not in the archive ({len(names)} members)")
     return read_table_header(archive.read(wanted)[: 64 * 1024]), wanted
 
+
+
+# ------------------------------------------------------------ per-file census
+#
+# The stratum census reads ONE header per (system, series, year) and assumes the
+# rest of the stratum matches. Measured 2026-09-28, it does not always: SINASC
+# DNR 1995 spans two publication trees, and 54 of its 81 files carry CONTADOR
+# where the sampled one carries CODIGO, so a query of that year was refused.
+# Reading every DBC/DBF header costs 2.4 KB and 0.45 s per file, about 474 MB
+# for the whole tree, and turns family membership from an assumption into a
+# measurement (ADR-0081). It is incremental: a file is re-read only when it is
+# new or its `modified` changed.
+
+FILE_CENSUS_EXTENSIONS = (".dbc", ".dbf")
+
+
+def file_census_targets(
+    catalog: Catalog, *, systems: Sequence[str] | None = None, limit: int | None = None
+) -> list[str]:
+    clauses = [
+        "f.gone_at IS NULL",
+        "fa.role = 'data'",
+        "lower(f.extension) IN ('.dbc', '.dbf')",
+        "(fs.path IS NULL OR f.modified > fs.read_at)",
+    ]
+    params: list[object] = []
+    if systems:
+        clauses.append(f"fa.system IN ({','.join('?' * len(systems))})")
+        params.extend(str(s).upper() for s in systems)
+    sql = (
+        "SELECT f.path FROM files f JOIN file_facts fa ON fa.path = f.path "
+        "LEFT JOIN file_schemas fs ON fs.path = f.path "
+        f"WHERE {' AND '.join(clauses)} ORDER BY fa.system, f.path"
+    )
+    if limit:
+        sql += f" LIMIT {int(limit)}"
+    return [str(r["path"]) for r in catalog.query(sql, params)]
+
+
+def run_file_census(
+    catalog: Catalog,
+    connect: Callable[[], object],
+    paths: Sequence[str],
+    *,
+    workers: int = 8,
+    on_item: Callable[[int, int], None] | None = None,
+) -> dict[str, int]:
+    """Read every path's header on ``workers`` FTP connections; record each file's schema.
+
+    Catalog writes stay on this thread (SQLite); workers only fetch and parse.
+    """
+    import threading
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    local = threading.local()
+
+    def _read(path: str) -> tuple[str, TableHeader | None, str | None, int]:
+        client = getattr(local, "client", None)
+        if client is None:
+            client = local.client = connect()
+        try:
+            data = client.retrieve_prefix(path, 2048)  # type: ignore[attr-defined]
+            need = prefix_bytes_needed(data)
+            if need > len(data):
+                data = client.retrieve_prefix(path, need)  # type: ignore[attr-defined]
+            return path, read_table_header(data), None, len(data)
+        except HeaderUnreadable as exc:
+            return path, None, str(exc)[:300], 0
+        except Exception as exc:  # noqa: BLE001 - one file never stops the census
+            try:
+                client.close()  # type: ignore[attr-defined]
+            except Exception:  # noqa: BLE001
+                pass
+            local.client = None
+            return path, None, f"{type(exc).__name__}: {exc}"[:300], 0
+
+    counts = {"examined": 0, "read": 0, "failed": 0, "bytes": 0}
+    pending: list[tuple[object, ...]] = []
+
+    def _flush() -> None:
+        catalog.executemany(
+            """
+            INSERT INTO file_schemas (path, schema_signature, field_count, read_at, error)
+            VALUES (?,?,?,?,?)
+            ON CONFLICT(path) DO UPDATE SET schema_signature=excluded.schema_signature,
+                field_count=excluded.field_count, read_at=excluded.read_at, error=excluded.error
+            """,
+            pending,
+        )
+        pending.clear()
+
+    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="census") as pool:
+        futures = [pool.submit(_read, p) for p in paths]
+        for done, future in enumerate(as_completed(futures), start=1):
+            path, header, error, size = future.result()
+            counts["examined"] += 1
+            counts["bytes"] += size
+            if header is None:
+                counts["failed"] += 1
+                pending.append((path, None, None, utcnow(), error))
+            else:
+                counts["read"] += 1
+                signature = schema_signature(header.field_names)
+                catalog.execute(
+                    "INSERT INTO schemas (schema_signature, field_count, fields_json, first_seen) "
+                    "VALUES (?,?,?, datetime('now')) ON CONFLICT(schema_signature) DO NOTHING",
+                    (signature, len(header.fields), json.dumps(header.field_names)),
+                )
+                pending.append((path, signature, len(header.fields), utcnow(), None))
+            if len(pending) >= 500:
+                _flush()
+            if on_item:
+                on_item(done, len(paths))
+    if pending:
+        _flush()
+    counts["megabytes"] = round(counts["bytes"] / 1e6, 1)
+    return counts

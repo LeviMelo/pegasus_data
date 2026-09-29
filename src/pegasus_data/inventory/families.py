@@ -201,6 +201,23 @@ def build_families(catalog: Catalog) -> list[Family]:
         for r in catalog.query("SELECT path, geo_code, series_prefix FROM file_facts")
     }
     geo_by_path: dict[str, str | None] = {p: v[0] for p, v in facts_by_path.items()}
+    # Each file's OWN header, where the per-file census has read it (ADR-0081).
+    # A stratum's sample stands in only for files not yet read.
+    file_signature = {
+        str(r["path"]): (str(r["schema_signature"]), int(r["field_count"] or 0))
+        for r in catalog.query(
+            "SELECT path, schema_signature, field_count FROM file_schemas WHERE schema_signature IS NOT NULL"
+        )
+    }
+
+    def _family(system: str, series: str | None, signature: str, field_count: int) -> Family:
+        key = (system, series, signature)
+        fam = families.get(key)
+        if fam is None:
+            fam = families[key] = Family(
+                system=system, series=series, schema_signature=signature, field_count=field_count
+            )
+        return fam
 
     for row in stratum_rows:
         sampled_member = row["sampled_member"] or ""
@@ -211,16 +228,7 @@ def build_families(catalog: Catalog) -> list[Family]:
         series = row["series"]
         if sampled_member:
             series = member_kind(sampled_path, sampled_member, archive_series) or series
-        key = (row["system"], series, row["schema_signature"])
-        fam = families.get(key)
-        if fam is None:
-            fam = Family(
-                system=row["system"],
-                series=series,
-                schema_signature=row["schema_signature"],
-                field_count=row["field_count"] or 0,
-            )
-            families[key] = fam
+        fam = _family(row["system"], series, row["schema_signature"], row["field_count"] or 0)
         fam.strata.append(row["stratum_id"])
         if row["sample_status"] == "ok":
             # One decoded stratum is enough to say the family has been read.
@@ -244,12 +252,26 @@ def build_families(catalog: Catalog) -> list[Family]:
                     member = "" if own_kind else None
             if member is None:
                 continue
-            fam.paths.append((path, member))
+            target = fam
+            own = file_signature.get(path) if not member else None
+            if own and own[0] != fam.schema_signature:
+                # This file's own header differs from the stratum's sample: it
+                # belongs to the family of its own schema (SINASC DNR 1995).
+                target = _family(row["system"], series, own[0], own[1])
+                if row["stratum_id"] not in target.strata:
+                    target.strata.append(row["stratum_id"])
+                if row["year"] is not None:
+                    target.years.add(int(row["year"]))
+            target.paths.append((path, member))
             fmt = _container_format(path, member)
-            fam.formats[fmt] = fam.formats.get(fmt, 0) + 1
+            target.formats[fmt] = target.formats.get(fmt, 0) + 1
             geo = geo_by_path.get(path)
             if geo:
-                fam.geos.add(geo)
+                target.geos.add(geo)
+
+    # A stratum whose every file moved to other families leaves an empty one.
+    for key in [k for k, f in families.items() if not f.paths]:
+        del families[key]
 
     return sorted(families.values(), key=lambda f: (f.system, f.series or "", -len(f.paths)))
 

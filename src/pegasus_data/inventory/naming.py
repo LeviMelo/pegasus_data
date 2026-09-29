@@ -354,7 +354,12 @@ def logical_identity(
                 (system or "UNKNOWN").upper(),
                 parsed.series_prefix.upper(),
                 (parsed.geo_code or "").upper(),
-                parsed.date_code or "",
+                # The NORMALIZED date: SINASC publishes DNRRR95.DBC and
+                # DNRRR1995.dbc for the same year in two trees, and the raw
+                # tokens "95" and "1995" made them two publications, read twice
+                # (live, 2026-09-28; ADR-0081). A date the convention could not
+                # settle keeps its raw token.
+                str(parsed.normalized_date) if parsed.normalized_date else (parsed.date_code or ""),
             ]
             # A part is a different publication, not another representation of
             # the same one: parts a, b, c sharing an identity would be

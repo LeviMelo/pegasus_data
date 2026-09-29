@@ -173,6 +173,15 @@ CREATE TABLE IF NOT EXISTS strata (          -- D2: unit of schema sampling
 );
 CREATE INDEX IF NOT EXISTS ix_strata_system ON strata (system, series, year);
 
+CREATE TABLE IF NOT EXISTS file_schemas (     -- ADR-0081: every file's own header
+  path              TEXT PRIMARY KEY,
+  schema_signature  TEXT,               -- NULL when the header could not be read
+  field_count       INTEGER,
+  read_at           TEXT NOT NULL,
+  error             TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_file_schemas_signature ON file_schemas (schema_signature);
+
 CREATE TABLE IF NOT EXISTS stratum_members (
   stratum_id  TEXT NOT NULL,
   path        TEXT NOT NULL,

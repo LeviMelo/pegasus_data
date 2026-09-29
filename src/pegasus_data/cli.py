@@ -845,6 +845,8 @@ def schemas(
     system: SystemsOpt = None,
     limit: Annotated[int | None, typer.Option("--limit", help="Cap strata examined")] = None,
     all_strata: Annotated[bool, typer.Option("--all", help="Re-read strata that already have a signature")] = False,
+    all_files: Annotated[bool, typer.Option("--all-files", help="Read EVERY dbc/dbf header, incrementally (ADR-0081)")] = False,
+    workers: Annotated[int, typer.Option("--workers", help="FTP connections for --all-files")] = 8,
     as_json: JsonOpt = False,
 ) -> None:
     """Census every stratum's columns by reading file headers, not payloads.
@@ -855,6 +857,17 @@ def schemas(
     decoding one file per stratum would be 183 GiB.
     """
     pipeline = _pipeline(root)
+    if all_files:
+        try:
+            def _tick(done: int, total: int) -> None:
+                if done % 2000 == 0 or done == total:
+                    print(f"[file census] {done}/{total}", flush=True)
+
+            result = pipeline.file_schemas(systems=system, limit=limit, workers=workers, on_item=_tick)
+            _emit(result.counts, as_json, "per-file schema census")
+        finally:
+            pipeline.close()
+        return
     try:
         result = pipeline.schemas(systems=system, limit=limit, only_missing=not all_strata)
         _emit(result.counts, as_json, "schema census")

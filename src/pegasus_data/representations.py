@@ -22,6 +22,30 @@ class RepresentationConflictError(RuntimeError):
     """A logical publication has contradictory physical candidates."""
 
 
+def _majority_layout(catalog: Catalog, editions: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
+    """Of editions in DIFFERENT layouts, those in the layout most of the dataset uses.
+
+    SINASC publishes Roraima 1995 as DNRRR1995.dbc under 1994_1995/Dados and
+    ANT/ (CONTADOR, 54 files that year) and again as ANT/DNRRR1995.dbc with the
+    older CODIGO column (27 files): the same 7,020 records twice. The family with
+    more publications is the layout the rest of the dataset is read in (ADR-0081).
+    """
+    families = {str(row.get("family_id") or "") for row in editions}
+    signatures = {str(row.get("schema_signature") or "") for row in editions}
+    if len(families) <= 1 or len(signatures) <= 1 or "" in families:
+        return list(editions)
+    marks = ",".join("?" for _ in families)
+    sizes = {
+        str(r["family_id"]): int(r["n"])
+        for r in catalog.query(
+            f"SELECT family_id, COUNT(*) AS n FROM family_files WHERE family_id IN ({marks}) GROUP BY family_id",
+            tuple(sorted(families)),
+        )
+    }
+    best = max(sorted(families), key=lambda f: sizes.get(f, 0))
+    return [row for row in editions if str(row.get("family_id") or "") == best]
+
+
 def choose_representations(
     catalog: Catalog,
     rows: Sequence[Mapping[str, Any]],
@@ -60,7 +84,9 @@ def choose_representations(
                 for row in catalog.query(
                     f"SELECT logical_id FROM representation_conflicts "
                     f"WHERE status = 'open' AND logical_id IN ({marks}) "
-                    f"AND evidence NOT LIKE 'multiple objects of the same format%'",
+                    # Only evidence measured at decode (row counts) gates from
+                    # storage; formats, sizes and schemas are re-derived here.
+                    f"AND evidence LIKE '%row counts%'",
                     tuple(logical_ids),
                 )
             }
@@ -106,6 +132,14 @@ def choose_representations(
                 # newest edition is the publisher's current word; refusing made
                 # SIH unreadable for three years (live run 2026-09-28, ADR-0068).
                 editions = [row for row in candidates if _representation_kind(row) == fmt]
+                majority = _majority_layout(catalog, editions)
+                if len(majority) < len(editions):
+                    superseded = [row for row in editions if not any(row is m for m in majority)]
+                    dropped.extend(str(row.get("path") or "") for row in superseded)
+                    candidates = [row for row in candidates if not any(row is old for old in superseded)]
+                    editions = majority
+                    if len({row.get("size") for row in editions}) <= 1:
+                        continue
                 newest = _newest_edition(catalog, editions)
                 if newest is None:
                     contradictions.append("multiple objects of the same format")
