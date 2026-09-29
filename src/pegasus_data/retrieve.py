@@ -621,6 +621,7 @@ def fetch(
     settings: Settings | None = None,
     on_progress: Callable[[str, int, int], None] | None = None,
     report: bool = False,
+    _only_paths: Sequence[str] | None = None,
 ) -> pa.Table | tuple[Any, ...]:
     """Download, decode, normalise and label a DATASUS dataset in one call.
 
@@ -713,6 +714,7 @@ def fetch(
             columns=columns,
             on_missing_column=on_missing_column,
             max_bytes=max_bytes,
+            only_paths=_only_paths,
         )
         if table.num_rows == 0:
             raise NothingPublished(_nothing_message(fetch_report, want_ufs, want_years))
@@ -1399,6 +1401,7 @@ def _read_families(
     columns: Sequence[str] | None = None,
     on_missing_column: str = "raise",
     max_bytes: int | None = None,
+    only_paths: Sequence[str] | None = None,
 ) -> tuple[pa.Table, FetchReport]:
     """Download and normalise the matching files, entirely in memory.
 
@@ -1427,6 +1430,11 @@ def _read_families(
         cache=cache,
         max_bytes=max_bytes,
     )
+    if only_paths:
+        # Internal: the binding compile reads exactly its sampled file, not every
+        # file of a dataset-year that shares its (missing) state code.
+        wanted = set(only_paths)
+        selected = [triple for triple in selected if str(triple[2]["path"]) in wanted]
     report.files_matched = len(selected)
     report.sources_selected = len({str(item["path"]) for _f, _p, item in selected})
     unique_paths = {str(item["path"]) for _f, _p, item in selected}

@@ -251,6 +251,7 @@ def compile_bindings(
     systems: Sequence[str] | None = None,
     per_family: int = 2,
     max_bytes_per_file: int = 60_000_000,
+    resume: bool = True,
     on_progress: Callable[[str], None] | None = None,
 ) -> dict[str, int]:
     """Sample every family's files, weigh every bound field, store the decisions.
@@ -287,8 +288,17 @@ def compile_bindings(
     finally:
         planner.close()
 
+    done: set[str] = set()
+    if resume:
+        reader = Catalog(settings.catalog_path, read_only=True)
+        try:
+            done = {str(r["family_id"]) for r in reader.query("SELECT DISTINCT family_id FROM label_bindings")}
+        except Exception:  # noqa: BLE001 - no table yet, nothing done
+            done = set()
+        finally:
+            reader.close()
     for family_id, system, series, samples in plan:
-        if not samples:
+        if not samples or family_id in done:
             continue
         observed: dict[str, set[str]] = {}
         used: list[str] = []
@@ -301,7 +311,7 @@ def compile_bindings(
                     system, series=series or None, uf=sample["geo_code"] or None,
                     years=[int(sample["year"])], months=[month] if month else None,
                     labels=False, provenance=True, settings=settings, max_bytes=None,
-                    on_missing_column="null_fill",
+                    on_missing_column="null_fill", _only_paths=[str(sample["path"])],
                 )
             except Exception as exc:  # noqa: BLE001 - one bad sample is not the compile
                 counts["failed"] += 1
