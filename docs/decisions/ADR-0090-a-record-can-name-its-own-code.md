@@ -59,3 +59,19 @@ ADR-0086 to ADR-0089 left these gaps:
 - Two `CO_BANCO` codes (`71X`, `002`) are not in the current register.
 - One `VINCULAC` code (`080701`) and four `SGRUPHAB` habilitations are newer
   than the kit.
+
+**Amended 2026-09-29: SINAN health regions.**
+- **The finding.** `ID_REGIONA` and `ID_RG_RESI` are bound to SINAN's
+  `REGIONET` (state regional codes, e.g. "GVE XV BAURU"). Espírito Santo files
+  5-digit IBGE CIR codes there instead: 568 rows in SINAN-HANS 2023, all
+  undecoded.
+- **How it was settled.** Each row's notifying municipality belongs to that
+  code as a CIR in all 568 cases, and as a colegiado in none. The colegiado
+  table reuses the same numbers for other regions: 32002 is "ES Metropolitana"
+  as a CIR and "Colatina" as a colegiado.
+- **The fix.** `CIR_BR`, derived from the shipped geography resource, is the
+  fallback after `REGIONET`. The fields now read "ES Metropolitana (32002)",
+  with 0 undecoded.
+- **Left as it is.** Some states name their regions by number in `REGIONET`
+  itself (`1497` → "001"). That is the official name, terse but not a
+  pointer.

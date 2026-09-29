@@ -5172,6 +5172,7 @@ variables:
     code_system: internal
     codelists:
     - REGIONET
+    - CIR_BR  # ES files IBGE CIR codes here (measured, ADR-0090)
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "Regional de saúde (campo interno) | varchar2(4) | Regional
       de saúde onde está localizado o município da unidade de saúde ou outra fonte notificadora
@@ -5192,6 +5193,7 @@ variables:
     code_system: internal
     codelists:
     - REGIONET
+    - CIR_BR  # ES files IBGE CIR codes here (measured, ADR-0090)
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "Regional de saúde (campo interno) | varchar2(4) | Regional
       de saúde onde está localizado o município de residência do paciente por ocasião da notificação

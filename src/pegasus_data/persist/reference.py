@@ -351,6 +351,32 @@ def _states() -> pa.Table:
     return pa.table({"code": list(names), "label": list(names.values())})
 
 
+@functools.lru_cache(maxsize=1)
+def _health_regions() -> pa.Table:
+    """IBGE health regions (CIR, 5 digits) -> name, from the shipped geography.
+
+    SINAN files Espírito Santo's regions as CIR codes (32002): measured
+    2026-09-29, all 568 such rows in SINAN-HANS 2023 match their notifying
+    municipality's CIR, none its colegiado, whose codes reuse the same numbers
+    for other regions (32002 is "ES Metropolitana" as a CIR, "Colatina" as a
+    colegiado).
+    """
+    from importlib.resources import files as _files
+
+    import pyarrow.parquet as _pq
+
+    rows = _pq.read_table(
+        str(_files("pegasus_data.resources") / "geography.parquet"),
+        columns=["classification", "member_code", "member_label", "source_codelist"],
+    ).to_pylist()
+    names = {
+        str(r["member_code"]): str(r["member_label"])
+        for r in rows
+        if r["classification"] == "health_region" and r["source_codelist"] == "CIRBRN" and r["member_label"]
+    }
+    return pa.table({"code": list(names), "label": list(names.values())})
+
+
 #: Standard classifications served from one canonical table for every system
 #: (ADR-0087): name -> file under pegasus_data/resources.
 CLASSIFICATIONS: dict[str, str] = {
@@ -395,6 +421,8 @@ def read_reference_table(
 
     if table_id.upper() == "UF_BR":
         return _states()
+    if table_id.upper() == "CIR_BR":
+        return _health_regions()
     canonical = CLASSIFICATIONS.get(table_id.upper())
     if canonical is not None:
         # A published standard classification, one table for every system
