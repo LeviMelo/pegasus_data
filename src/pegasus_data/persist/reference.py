@@ -359,6 +359,12 @@ def read_reference_table(
     the lookup is refused by default. Foreign-system mappings are available only
     inside an explicit ``borrowed_label_policy(True)`` scope.
     """
+    from ..semantics.curation import inline_codelist
+
+    inline = inline_codelist(table_id)
+    if inline is not None:
+        # Written in the curation itself; one vintage, no system copies (ADR-0079).
+        return pa.table({"code": list(inline), "label": list(inline.values())})
     base = Path(lake_root) / "reference" / _SAFE.sub("_", table_id)
     if not base.exists():
         # Nothing in the lake. Fall back to the label pack the package ships,

@@ -80,6 +80,11 @@ class VariableDoc:
     source_ref: str | None = None
     asserted_by: str | None = None
     reasoning: str | None = None
+    #: A code table written in the curation itself, for coded columns whose
+    #: table exists only in a document (a SINAN data dictionary, an INCA form):
+    #: ``{"1": "Sim", "2": "Não", "9": "Ignorado"}``. Served as the codelist
+    #: ``CURATED.<SYSTEM>.<FIELD>`` (ADR-0079).
+    codes: dict[str, str] | None = None
 
     def as_row(self) -> tuple[object, ...]:
         return (
@@ -222,6 +227,12 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
         depends_on = body.get("depends_on") or []
         if isinstance(depends_on, str):
             depends_on = [depends_on]
+        codes = _parse_codes(path, str(name), body.get("codes"))
+        codelist = _first_codelist(body)
+        if codes and not codelist:
+            codelist = curated_codelist_id(str(system), str(name))
+        if codes and code_system in (None, "none"):
+            code_system = "internal"
         out.append(
             VariableDoc(
                 system=str(system).upper(),
@@ -230,7 +241,7 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
                 translated_name=_clean(body.get("translated_name")),
                 description=_clean(body.get("description")),
                 code_system=code_system,
-                codelist=_first_codelist(body),
+                codelist=codelist,
                 codelists=_extra_codelists(body),
                 multi_valued=bool(body.get("multi_valued", False)),
                 token_rule=token_rule,
@@ -243,9 +254,60 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
                 source_ref=body.get("source_ref", default_ref),
                 asserted_by=author,
                 reasoning=reasoning,
+                codes=codes,
             )
         )
     return out
+
+
+#: The prefix of a codelist written inline in the curation (ADR-0079).
+CURATED_PREFIX = "CURATED."
+
+
+def curated_codelist_id(system: str, field_name: str) -> str:
+    return f"{CURATED_PREFIX}{system.upper()}.{field_name.upper()}"
+
+
+def _parse_codes(path: Path, name: str, raw: object) -> dict[str, str] | None:
+    """``codes:`` as ``{code: label}``; codes are kept as written ("01" is not "1")."""
+    if raw is None:
+        return None
+    if not isinstance(raw, dict) or not raw:
+        raise CurationError(f"{path.name}: {name}: codes must be a non-empty mapping of code to label")
+    out: dict[str, str] = {}
+    for code, label in raw.items():
+        if label is None or isinstance(label, (dict, list)) or not str(label).strip():
+            raise CurationError(f"{path.name}: {name}: code {code!r} needs a text label")
+        out[str(code).strip()] = str(label).strip()
+    return out
+
+
+@lru_cache(maxsize=1)
+def _inline_codelists() -> dict[str, dict[str, str]]:
+    """Every inline code table in the package's own curation, by codelist id.
+
+    Read from the shipped YAML rather than the catalog, so a fresh install
+    labels these columns with no catalog, lake or label-pack rebuild.
+    """
+    yaml = _require_yaml()
+    root = Path(__file__).resolve().parent.parent / "curation"
+    out: dict[str, dict[str, str]] = {}
+    for path in sorted(root.glob("variables/**/*.yml")):
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        system = str(data.get("system") or "")
+        for name, body in (data.get("variables") or {}).items():
+            if isinstance(body, dict) and body.get("codes"):
+                codes = _parse_codes(path, str(name), body["codes"])
+                if codes:
+                    out[curated_codelist_id(system, str(name))] = codes
+    return out
+
+
+def inline_codelist(codelist: str) -> dict[str, str] | None:
+    """The ``code -> label`` of a ``CURATED.`` codelist, or None."""
+    if not codelist.upper().startswith(CURATED_PREFIX):
+        return None
+    return _inline_codelists().get(codelist.upper())
 
 
 def parse_datasets_file(path: Path, data: dict[str, Any]) -> list[DatasetDoc]:
