@@ -382,6 +382,7 @@ variables:
 
       '
     code_system: external
+    codelist: CADGERBR
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
@@ -892,6 +893,7 @@ variables:
 
       '
     code_system: external
+    codelist: CADGERBR
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
@@ -960,11 +962,13 @@ variables:
     description: CNES code of the Estratégia Saúde da Família (ESF) unit that covers the patient's
       home area, recorded on RAAS home-care and psychosocial-care lines.
     code_system: external
+    codelist: CADGERBR
   CNES_EXEC:
     official_name: Código do SCNES do Estabelecimento de Saúde
     translated_name: Executing establishment's CNES code
     description: CNES code of the health establishment that filed this RAAS record.
     code_system: external
+    codelist: CADGERBR
   CNPJCPF:
     official_name: CNPJ do Estabelecimento executante
     translated_name: Executing establishment's CNPJ/CPF

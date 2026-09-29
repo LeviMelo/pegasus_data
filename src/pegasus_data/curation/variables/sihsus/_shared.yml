@@ -106,7 +106,8 @@ variables:
   CNES:
     official_name: Código CNES do estabelecimento
     translated_name: Establishment CNES code
-    code_system: internal
+    code_system: external
+    codelist: CADGERBR
     source: layout_doc
   CNPJ_MANT:
     official_name: CNPJ da mantenedora
@@ -895,6 +896,7 @@ variables:
     description: CNES code of the establishment that performed the act. Joins to CNES.ST as
       of the competência, not as of today.
     code_system: external
+    codelist: CADGERBR
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 5'

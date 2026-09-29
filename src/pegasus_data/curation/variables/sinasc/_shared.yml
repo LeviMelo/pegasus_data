@@ -144,6 +144,7 @@ variables:
     description: CNES code of the establishment where the birth happened. Filled only where
       LOCNASC says hospital or another health establishment, so blank on home births is structural.
     code_system: external
+    codelist: CADGERBR
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo CODESTAB'

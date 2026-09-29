@@ -212,6 +212,7 @@ variables:
 
       '
     code_system: external
+    codelist: CADGERBR
     source: layout_doc
     source_ref: DIC_DADOS_Hanseniase_v5.pdf, Tela de Acompanhamento, campo 5.
   MODODETECT:

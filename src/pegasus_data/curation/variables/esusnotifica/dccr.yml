@@ -410,6 +410,7 @@ variables:
 
       '
     code_system: external
+    codelist: CADGERBR
     source: web
     source_ref: https://datasus.saude.gov.br/wp-content/uploads/2023/10/Guia-para-notificacao-de-doenca-de-Chagas-cronica-DCC_02_10_23.pdf
     notes: 'Not listed in either DATASUS dictionary for this dataset; the meaning above
@@ -912,6 +913,7 @@ variables:
 
       '
     code_system: external
+    codelist: CADGERBR
     source: inferred
     reasoning: 'LAB_ + CNES decomposition, alongside the ficha''s own CNES field
       (notifying establishment, esus.yml) which likewise carries an establishment

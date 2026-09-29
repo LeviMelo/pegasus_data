@@ -5210,6 +5210,7 @@ variables:
     - NHEUNIDADE
     - NHE_NIVEL_MUN
     - UNIDANET
+    - CADGERBR
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "6. Unidade de saúde ou outra fonte notificadora | co_unidade_notificacao
       | number(8,0) | Nome completo e código da unidade de saúde (ou outra fonte notificadora)

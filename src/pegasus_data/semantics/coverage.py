@@ -96,21 +96,26 @@ def measure(store: Catalog, systems: list[str] | None = None) -> list[FieldCover
                 share = decision["share"]
                 observed = decision["observed"]
                 reason = decision["reason"]
+            # Whether a field is CODED is the curation's call. TabWin's .DEF
+            # files also bind continuous fields to band tables (DTOBITO to
+            # epidemiological weeks, PESO to weight bands): groupings for
+            # tabulation, not codes, so they never make a field "undecoded".
             coded = doc is not None and doc.code_system in ("internal", "external")
-            if decision is not None and codelists:
+            if doc is None:
+                coding = "unknown"
+            elif not coded:
+                coding = "not_coded"
+            elif decision is None:
+                coding = "unmeasured"  # no sample measured it (failed, empty or inconclusive)
+            elif codelists:
                 if share is None:
                     coding = "unmeasured"
                 elif share >= DECODED:
                     coding = "decoded"
                 else:
                     coding = "partial"
-            elif coded or (decision is not None and decision["basis"] == "none"
-                           and reason != "no codelist is bound to this field"):
-                coding = "undecoded"
-            elif doc is not None:
-                coding = "not_coded"
             else:
-                coding = "unknown"
+                coding = "undecoded"
             rows.append(FieldCoverage(
                 system, str(fam["series"] or ""), str(fam["family_id"]), field, int(fam["files"] or 0),
                 description, source, coding, codelists, share, observed, reason,

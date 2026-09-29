@@ -110,3 +110,4 @@ last, comes first.
 | [ADR-0083](docs/decisions/ADR-0083-a-remote-duckdb-is-described-by-range.md) | 2026-09-29 | A remote DuckDB database is described by ranged reads; its tables are members | active | amends ADR-0077 |
 | [ADR-0084](docs/decisions/ADR-0084-presentation-is-one-declarative-step.md) | 2026-09-29 | How a result reads is one declarative step, applied last; the default reads "Masculino (1)" under "Sexo (SEXO)" | active | amends ADR-0063, ADR-0073 |
 | [ADR-0085](docs/decisions/ADR-0085-meaning-is-measured-for-every-field.md) | 2026-09-29 | Meaning is measured for every field of every family, against a total standard | active |  |
+| [ADR-0086](docs/decisions/ADR-0086-registries-come-from-the-owners-current-kit.md) | 2026-09-29 | Registries come from their owner's current kit, on first use; a coded column that nothing decodes is visibly undecoded | active | amends ADR-0063, ADR-0084 |

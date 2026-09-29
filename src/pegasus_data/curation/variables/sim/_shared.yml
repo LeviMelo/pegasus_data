@@ -281,7 +281,8 @@ variables:
     official_name: Estabelecimento
     translated_name: Establishment
     description: CNES code of the establishment where the death occurred.
-    code_system: internal
+    code_system: external
+    codelist: CADGERBR
     source: layout_doc
   CODIFICADO:
     official_name: Informa se formulário foi codificado

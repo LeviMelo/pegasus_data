@@ -82,6 +82,7 @@ variables:
 
       '
     code_system: external
+    codelist: CADGERBR
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
       -> "CIH [2008-2010].DEF", line "LHospital BR (CNES),CNES ,FANTASIA ,CADGERBR.DBF".

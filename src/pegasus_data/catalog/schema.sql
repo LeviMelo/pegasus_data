@@ -738,6 +738,19 @@ CREATE TABLE IF NOT EXISTS label_bindings (
   PRIMARY KEY (system, family_id, field_name)
 );
 
+-- ADR-0085: every code observed in a family's samples that its chosen table
+-- does not decode. The work list for "every code translatable".
+CREATE TABLE IF NOT EXISTS label_gaps (
+  system      TEXT NOT NULL,
+  family_id   TEXT NOT NULL,
+  field_name  TEXT NOT NULL,
+  code        TEXT NOT NULL,
+  row_count   INTEGER NOT NULL,
+  codelists   TEXT,
+  measured_at TEXT NOT NULL,
+  PRIMARY KEY (system, family_id, field_name, code)
+);
+
 -- Typed semantic edges compiled from reviewable curation. Flat field bindings
 -- remain evidence during migration; these rows say what KIND of operation a
 -- mapping performs, so a roll-up cannot compete with an identity label.

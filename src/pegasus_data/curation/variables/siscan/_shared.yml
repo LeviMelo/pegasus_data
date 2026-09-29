@@ -223,6 +223,7 @@ variables:
     code_system: external
     codelists:
     - TB_LAB
+    - CADGERBR
     source: def
     source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
       (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip
@@ -762,6 +763,7 @@ variables:
     description: CNES code of the service provider (the laboratory) that issued the exam report,
       as opposed to the unit that collected it.
     code_system: external
+    codelist: CADGERBR
     source: layout_doc
     source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
       "Prestador do serviço"
@@ -942,6 +944,7 @@ variables:
     description: CNES code of the health unit where the sample was collected (typically primary
       care), as opposed to the laboratory that read it.
     code_system: external
+    codelist: CADGERBR
     source: layout_doc
     source_ref: Nota Técnica 2 SISCAN - Citopatológico do colo do útero — http://tabnet.datasus.gov.br/cgi/SISCAN/doc/nota_tecnica_2_cito_colo_atend.pdf,
       "Unidade de saúde"

@@ -359,7 +359,17 @@ def read_reference_table(
     the lookup is refused by default. Foreign-system mappings are available only
     inside an explicit ``borrowed_label_policy(True)`` scope.
     """
+    from ..registry import is_registry
+    from ..registry import lookup as registry_lookup
     from ..semantics.curation import inline_codelist
+
+    if is_registry(table_id):
+        # A registry (CADGER*: establishment names) comes from the system's own
+        # CURRENT kit, fetched once and cached; the pack's partial copy is
+        # older and incomplete (ADR-0086).
+        registry = registry_lookup(table_id, system)
+        if registry is not None:
+            return registry
 
     inline = inline_codelist(table_id)
     if inline is not None:

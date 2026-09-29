@@ -380,11 +380,42 @@ def compile_bindings(
                     })
                 decision = LabelBinding(**{**_as_dict(decision), "sample": tuple(used)})
                 record(store, system, family_id, name, decision)
+                _record_gaps(store, system, family_id, name, decision, values, load)
                 counts["fields"] += 1
                 counts[decision.basis if decision.conclusive else "deferred"] += 1
         finally:
             store.close()
     return counts
+
+
+def _record_gaps(
+    store: Catalog,
+    system: str,
+    family_id: str,
+    field_name: str,
+    decision: LabelBinding,
+    values: Mapping[str, int],
+    load: Callable[[str], Mapping[str, str] | None],
+) -> None:
+    """Every observed code the decided tables do not decode (ADR-0085)."""
+    store.execute(
+        "DELETE FROM label_gaps WHERE system = ? AND family_id = ? AND field_name = ?",
+        (system, family_id, field_name),
+    )
+    if not decision.codelists or not values:
+        return
+    decoded: set[str] = set()
+    for codelist in decision.codelists:
+        decoded.update((load(codelist) or {}).keys())
+    missing = [(code, n) for code, n in values.items() if code not in decoded]
+    if not missing:
+        return
+    now = utcnow()
+    store.executemany(
+        "INSERT OR REPLACE INTO label_gaps (system, family_id, field_name, code, row_count, codelists, measured_at) "
+        "VALUES (?,?,?,?,?,?,?)",
+        [(system, family_id, field_name, code, n, ",".join(decision.codelists), now) for code, n in missing],
+    )
 
 
 def _as_dict(binding: LabelBinding) -> dict[str, Any]:

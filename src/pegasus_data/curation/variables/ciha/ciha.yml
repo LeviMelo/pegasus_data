@@ -70,6 +70,7 @@ variables:
 
       '
     code_system: external
+    codelist: CADGERBR
     notes: 'The catalog binds CNES to per-state establishment cadastre tables (CADGER + UF
       suffix, e.g. CADGERBA for Bahia) rather than one national table - use the table matching
       the record''s state to resolve a CNES code to the establishment''s name and attributes.

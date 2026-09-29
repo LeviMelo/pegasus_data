@@ -69,7 +69,8 @@ variables:
       performs it rather than the one that reports it.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CADGERBR
     source: layout_doc
     source_ref: 'CNES - Informe Técnico 2017-06 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/Doc/IT_CNES_1706.pdf

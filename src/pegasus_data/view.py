@@ -602,6 +602,11 @@ class _Selection:
     unlabelled: bool = False
 
 
+def _coded(doc: object) -> bool:
+    """The curation says this column holds codes (not numbers, dates or text)."""
+    return doc is not None and getattr(doc, "code_system", None) in ("internal", "external")
+
+
 def _select_codelists(
     name: str,
     column: pa.ChunkedArray,
@@ -915,9 +920,14 @@ def _render_table(
         )
         if selection.unlabelled:
             # Selection decided this column cannot be labelled and has already
-            # said why. Emit it as filed.
+            # said why. Emit it as filed, with an EMPTY label companion when the
+            # curation says the column is coded, so the presentation shows its
+            # codes as undecoded ("9 (?)") rather than as plain values (ADR-0085).
             columns.append(column)
             names.append(name)
+            if _coded(doc):
+                columns.append(pa.nulls(len(column), type=pa.string()))
+                names.append(f"{name}{LABEL_SUFFIX}")
             continue
         codelists = selection.codelists
         codelist = codelists[0] if codelists else None
@@ -944,6 +954,10 @@ def _render_table(
                 report.unlabelled.append(name)
             columns.append(column)
             names.append(name)
+            if mode != "code" and codelist is None and _coded(doc):
+                # Coded, and nothing decodes it: visibly undecoded (ADR-0085).
+                columns.append(pa.nulls(len(column), type=pa.string()))
+                names.append(f"{name}{LABEL_SUFFIX}")
             continue
 
         lookup = _lookup(name.upper(), codelists)

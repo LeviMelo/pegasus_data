@@ -58,7 +58,8 @@ variables:
       brought into the analysis.
 
       '
-    code_system: internal
+    code_system: external
+    codelist: CADGERBR
     source: def
     source_ref: CNES_DIAGNOSTICO.CNV
     reasoning: C(7) CNES establishment code bound to CNES_DIAGNOSTICO.
@@ -70,7 +71,8 @@ variables:
       days is spent.
 
       '
-    code_system: internal
+    code_system: external
+    codelist: CADGERBR
     source: def
     source_ref: CNES_TRATAMENTO.CNV
     reasoning: C(7) CNES establishment code bound to CNES_TRATAMENTO.

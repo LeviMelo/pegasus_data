@@ -683,6 +683,7 @@ variables:
       those of the month, so joining today's CNES to a 2015 admission answers a different
       question.
     code_system: external
+    codelist: CADGERBR
     source: layout_doc
     source_ref: '[IT-CNES] IT_CNES_1706.txt (DATASUS, Informe Técnico CNES 2017-06), §2 Layout
       dos Arquivos de CNES, campo CNES'
