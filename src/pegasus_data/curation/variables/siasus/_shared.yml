@@ -124,7 +124,8 @@ variables:
       because a bariatric admission often carries several billed procedures.
 
       '
-    code_system: internal
+    code_system: external
+    codelist: SIGTAP
     source: def
     source_ref: PROC_AIH.CNV
     reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 2.
@@ -132,7 +133,8 @@ variables:
     official_name: Terceiro procedimento da AIH
     translated_name: AIH procedure 3
     description: A third hospital procedure on the same admission. See AB_PRCAIH2.
-    code_system: internal
+    code_system: external
+    codelist: SIGTAP
     source: def
     source_ref: PROC_AIH.CNV
     reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 3.
@@ -144,7 +146,8 @@ variables:
       SIH and SIA.
 
       '
-    code_system: internal
+    code_system: external
+    codelist: SIGTAP
     source: def
     source_ref: PROC_CB.CNV
     reasoning: C(10) SIGTAP procedure code bound to PROC_CB and the SIGTAP table.
@@ -719,9 +722,8 @@ variables:
       table - a real classification maintained outside DATASUS''s own invention).
 
       '
-    codelists:
-    - TB_SIGTAW
     code_system: external
+    codelist: SIGTAP
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
@@ -1251,12 +1253,19 @@ variables:
       showing it also resolves against SIGTAP''s group/subgroup/form hierarchy tables.
 
       '
-    codelists:
-    - TB_FORMA
-    - TB_GRUPO
-    - TB_SIGTAW
-    - TB_SUBGR
     code_system: external
+    codelist: SIGTAP
+    derived:
+    - name: PA_PROC_ID_grupo
+      from: [PA_PROC_ID]
+      hierarchy: SIGTAP
+      digits: 2
+      rule: the SIGTAP group of the procedure (04 = Procedimentos cirurgicos), ADR-0092
+    - name: PA_PROC_ID_subgrupo
+      from: [PA_PROC_ID]
+      hierarchy: SIGTAP
+      digits: 4
+      rule: the SIGTAP subgroup (0411 = Cirurgia obstetrica), ADR-0092
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'

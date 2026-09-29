@@ -505,6 +505,7 @@ variables:
 
       '
     code_system: external
+    codelist: SIGTAP
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
       -> "CIH [2008-2010].DEF", section "PROCEDIMENTO", binding PROC_REA to TB_SIGTAP.DBF

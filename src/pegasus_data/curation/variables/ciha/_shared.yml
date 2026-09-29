@@ -61,6 +61,7 @@ variables:
       reported so the Ministry sees the whole picture; the column carries SIH's meaning on
       a population SIH does not cover.
     code_system: external
+    codelist: SIGTAP
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, campo PROC_REA'

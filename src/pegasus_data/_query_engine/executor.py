@@ -38,11 +38,13 @@ def _final_projection(table: pa.Table, spec: QuerySpec) -> pa.Table:
     if spec.select is None:
         keep = list(table.column_names)
     else:
-        wanted = set(spec.select)
-        keep = [name for name in table.column_names if name in wanted]
+        # Case-insensitive: the planner upper-cases select=, and a curated
+        # derived column keeps its own spelling (IDADE_anos, PROC_REA_grupo).
+        wanted = {str(item).upper() for item in spec.select}
+        keep = [name for name in table.column_names if name.upper() in wanted]
         keep += [
             name for name in table.column_names
-            if name.endswith("_label") and name.removesuffix("_label") in wanted
+            if name.endswith("_label") and name.removesuffix("_label").upper() in wanted
         ]
         keep += [name for name in table.column_names if any(name.startswith(f"{item.field}_") for item in spec.dimensions)]
         keep += [name for name in table.column_names if name.endswith(("_resolved", "_resolution_status"))]
@@ -286,7 +288,8 @@ def query(
     # materialised partition that contributed rows. Preserve the declared union
     # schema rather than letting physical availability shorten the projection.
     for field_name in query_plan.spec.select or ():
-        if field_name not in table.column_names and field_name in report.structural_absence:
+        present = {name.upper() for name in table.column_names}
+        if str(field_name).upper() not in present and field_name in report.structural_absence:
             table = table.append_column(field_name, pa.nulls(table.num_rows))
     table = _final_projection(table, query_plan.spec)
     metadata = dict(table.schema.metadata or {})

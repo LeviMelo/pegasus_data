@@ -10,7 +10,8 @@ variables:
     official_name: Quarto procedimento da AIH
     translated_name: AIH procedure 4
     description: A fourth hospital procedure, on the follow-up dataset. See AB_PRCAIH2.
-    code_system: internal
+    code_system: external
+    codelist: SIGTAP
     source: def
     source_ref: PROC_AIH.CNV
     reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 4.
@@ -18,7 +19,8 @@ variables:
     official_name: Quinto procedimento da AIH
     translated_name: AIH procedure 5
     description: A fifth hospital procedure. See AB_PRCAIH2.
-    code_system: internal
+    code_system: external
+    codelist: SIGTAP
     source: def
     source_ref: PROC_AIH.CNV
     reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 5.
@@ -26,7 +28,8 @@ variables:
     official_name: Sexto procedimento da AIH
     translated_name: AIH procedure 6
     description: A sixth hospital procedure. See AB_PRCAIH2.
-    code_system: internal
+    code_system: external
+    codelist: SIGTAP
     source: def
     source_ref: PROC_AIH.CNV
     reasoning: C(10) SIGTAP procedure code bound to PROC_AIH, slot 6.

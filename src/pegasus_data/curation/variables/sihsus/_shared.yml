@@ -756,6 +756,21 @@ variables:
     description: SIGTAP code of the main procedure actually performed, and the field that
       determines payment. Use this, not PROC_SOLIC, to describe what was done.
     code_system: external
+    codelists:
+    - SIGTAP
+    - TPROC  # SIH's 8-digit table before SIGTAP (1992-2007); widths never collide
+    - PROC
+    derived:
+    - name: PROC_REA_grupo
+      from: [PROC_REA]
+      hierarchy: SIGTAP
+      digits: 2
+      rule: the SIGTAP group of the procedure (04 = Procedimentos cirurgicos), ADR-0092
+    - name: PROC_REA_subgrupo
+      from: [PROC_REA]
+      hierarchy: SIGTAP
+      digits: 4
+      rule: the SIGTAP subgroup (0411 = Cirurgia obstetrica), ADR-0092
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 24'
@@ -765,6 +780,10 @@ variables:
     description: SIGTAP code of the procedure originally requested when the AIH was authorised.
       Differs from PROC_REA whenever the plan changed after admission.
     code_system: external
+    codelists:
+    - SIGTAP
+    - TPROC  # SIH's 8-digit table before SIGTAP (1992-2007); widths never collide
+    - PROC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 23'
@@ -883,6 +902,10 @@ variables:
     description: SIGTAP code of this specific professional act. Eight characters in the older
       era and ten in the newer, so it decodes against two tables and pooling them needs both.
     code_system: external
+    codelists:
+    - SIGTAP
+    - TPROC  # SIH's 8-digit table before SIGTAP (1992-2007); widths never collide
+    - PROC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 13'
@@ -1075,6 +1098,10 @@ variables:
     description: SIGTAP code of the AIH's main procedure, repeated on every act row of that
       AIH. Group by SP_NAIH or filter SP_U_AIH before treating it as one-per-admission.
     code_system: external
+    codelists:
+    - SIGTAP
+    - TPROC  # SIH's 8-digit table before SIGTAP (1992-2007); widths never collide
+    - PROC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 7'

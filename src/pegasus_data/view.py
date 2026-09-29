@@ -548,6 +548,31 @@ class IcdLabels(dict):  # type: ignore[type-arg]
         return default
 
 
+class SigtapLabels(dict):  # type: ignore[type-arg]
+    """SIGTAP labels that fall back from a procedure to its form, subgroup, group.
+
+    A 10-digit procedure missing from the table (created after the kit, or
+    retired before it) still belongs to its form of organisation (6 digits),
+    subgroup (4) and group (2): "Parto — forma 041101 (procedimento 0411019999
+    não consta da tabela SIGTAP)". The canonical SIGTAP table carries every
+    level, so the parents are in this mapping (ADR-0092).
+    """
+
+    _LEVELS = ((6, "forma de organização"), (4, "subgrupo"), (2, "grupo"))
+
+    def get(self, key: object, default: object = None) -> object:
+        found = super().get(key)
+        if found is not None:
+            return found
+        code = str(key).strip()
+        if len(code) == 10 and code.isdigit():
+            for width, name in self._LEVELS:
+                parent = super().get(code[:width])
+                if parent is not None:
+                    return f"{parent} — {name} {code[:width]} (procedimento {code} não consta da tabela SIGTAP)"
+        return default
+
+
 def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
     """Exact width or no match (§6.2).
 
@@ -648,6 +673,24 @@ def _lookup_key(table: pa.Table, doc: object, column: pa.Array) -> pa.Array:
     parts = [table.column(k).combine_chunks().cast(pa.string()) for k in key]
     joined = pc.binary_join_element_wise(*parts, "")
     return joined.combine_chunks() if hasattr(joined, "combine_chunks") else joined
+
+
+def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object) -> pa.Array | None:
+    """``label (prefix)`` for the first ``digits`` of each code, or None if unknown."""
+    if digits <= 0:
+        return None
+    try:
+        table = read_reference_table(lake, classification)
+    except (FileNotFoundError, OSError):
+        return None
+    names = dict(zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True))
+    values = codes.to_pylist() if hasattr(codes, "to_pylist") else list(codes)  # type: ignore[union-attr]
+    out: list[str | None] = []
+    for v in values:
+        prefix = str(v).strip()[:digits] if v is not None else ""
+        label = names.get(prefix) if len(prefix) == digits else None
+        out.append(f"{label} ({prefix})" if label else None)
+    return pa.array(out, type=pa.string())
 
 
 def _coded(doc: object) -> bool:
@@ -928,6 +971,8 @@ def _render_table(
             # ICD-10 is a defined hierarchy: a subcategory the classification
             # does not list still belongs to its category (ADR-0089).
             merged = IcdLabels(merged)
+        elif any(str(c).upper() == "SIGTAP" for c in codelists):
+            merged = SigtapLabels(merged)
         lookups[key] = merged
         return merged or None
 
@@ -1212,6 +1257,18 @@ def _apply_derived(
                         f"{', '.join(absent)} was not loaded — add it to columns= "
                         f"(it is dropped again unless you asked for it)"
                     )
+                continue
+            hierarchy = recipe.get("hierarchy")
+            if hierarchy:
+                # A level of a hierarchical classification as its own dimension:
+                # PROC_REA's SIGTAP group, "Procedimentos cirurgicos (04)", which
+                # is what "was this a surgery" means (ADR-0092).
+                derived_column = _hierarchy_level(
+                    lake, str(hierarchy), int(recipe.get("digits") or 0), source.column(inputs[0])
+                )
+                if derived_column is not None:
+                    rendered = rendered.append_column(column_name, derived_column)
+                    report.derived_added.append(column_name)
                 continue
             # One age converter for the whole package (`_age.years_column`),
             # chosen by the encoding the recipe declares. This used to read the

@@ -746,7 +746,12 @@ def fetch(
             raise PartialFetchError(fetch_report, fetch_report.excluded)
 
         if columns:
-            missing = [c for c in columns if c not in table.column_names]
+            from .semantics.curation import load_variable_docs
+
+            derived_names = set(_derived_inputs(load_variable_docs(pipeline.catalog, system)))
+            missing = [
+                c for c in columns if c not in table.column_names and str(c).upper() not in derived_names
+            ]
             if missing:
                 # Not a warning. A column silently absent from the result is how
                 # an analysis quietly loses a variable and never notices.
@@ -1120,6 +1125,17 @@ def _strata_for(
     return ids or None
 
 
+def _derived_inputs(docs: Mapping[str, Any]) -> dict[str, tuple[str, ...]]:
+    """``DERIVED NAME (upper) -> input columns`` for every curated recipe."""
+    out: dict[str, tuple[str, ...]] = {}
+    for doc in docs.values():
+        for recipe in getattr(doc, "derived", None) or []:
+            name = str(recipe.get("name") or "").upper()
+            if name:
+                out[name] = tuple(str(c).upper() for c in (recipe.get("from") or []))
+    return out
+
+
 def _keep_columns(
     catalog: Catalog, report: FetchReport, columns: Sequence[str] | None
 ) -> frozenset[str] | None:
@@ -1139,6 +1155,12 @@ def _keep_columns(
         docs = load_variable_docs(catalog, report.system or "")
     except Exception:  # noqa: BLE001 - no docs is not a reason to lose columns
         return frozenset(keep)
+    # A requested DERIVED column (IDADE_anos, PROC_REA_grupo) is made from its
+    # recipe's inputs, which is what has to be read (ADR-0092).
+    derived_inputs = _derived_inputs(docs)
+    for name in list(keep):
+        for source in derived_inputs.get(name, ()):
+            keep.add(source)
     for name in list(keep):
         doc = docs.get(name)
         if doc is None:

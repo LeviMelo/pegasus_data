@@ -116,3 +116,4 @@ last, comes first.
 | [ADR-0089](docs/decisions/ADR-0089-icd-codes-fall-back-to-their-category.md) | 2026-09-29 | An ICD-10 code the classification does not list is labelled by its category, and says so | active | amends ADR-0087 |
 | [ADR-0090](docs/decisions/ADR-0090-a-record-can-name-its-own-code.md) | 2026-09-29 | A record can name its own code; a label's inputs survive a narrow select | active | amends ADR-0087, ADR-0088 |
 | [ADR-0091](docs/decisions/ADR-0091-value-overlap-is-not-a-source.md) | 2026-09-29 | A binding inferred from value overlap is not a source of meaning | active |  |
+| [ADR-0092](docs/decisions/ADR-0092-sigtap-is-canonical-and-hierarchies-are-dimensions.md) | 2026-09-29 | SIGTAP is canonical, its hierarchy is a dimension, and derived columns can be selected | active | amends ADR-0087, ADR-0089 |
