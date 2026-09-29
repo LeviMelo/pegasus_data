@@ -31,10 +31,13 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 
-def _patterns() -> list[str]:
+@functools.lru_cache(maxsize=1)
+def _patterns() -> tuple[str, ...]:
+    """Read once per process: it was re-read from the ontology YAML on every
+    codelist check, 1,344 times in a year's query (ADR-0097)."""
     from .labelpack import codelist_roles
 
-    return [p.upper() for p in codelist_roles().get("registry", [])]
+    return tuple(p.upper() for p in codelist_roles().get("registry", []))
 
 
 #: Legal entities by CNPJ, derived from the establishment registry (ADR-0093).

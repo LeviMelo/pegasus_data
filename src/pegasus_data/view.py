@@ -962,7 +962,14 @@ def _select_codelists(
             series = str(row[0]["series"] or "").upper() if row else ""
         except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
             series = ""
-    counts = Counter(str(v).strip() for v in column.to_pylist() if v is not None and str(v).strip())
+    # Counted in Arrow: a year of a file is a million cells and a few dozen
+    # distinct codes (ADR-0097).
+    trimmed = pc.utf8_trim_whitespace(pc.cast(column, pa.string()))
+    trimmed = pc.filter(trimmed, pc.and_(pc.is_valid(trimmed), pc.not_equal(trimmed, "")))
+    tallied = pc.value_counts(trimmed)
+    counts = Counter(dict(zip(
+        tallied.field("values").to_pylist(), tallied.field("counts").to_pylist(), strict=True
+    )))
     seen = set(counts)
     decision = decide(
         system=system, family_id=family_id, series=series, field_name=name, doc=doc,

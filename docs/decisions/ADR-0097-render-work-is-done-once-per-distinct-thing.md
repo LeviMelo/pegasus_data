@@ -38,7 +38,10 @@
   entry. Registry parquet reads are cached on the file's mtime
   (`registry._read`).
 - **Presentation formats per distinct (code, label) pair**
-  (`presentation._render_value`).
+  (`presentation._render_value`). The pairs are dictionary-encoded in Arrow and
+  expanded back with `take`. Codelist selection counts observed values with
+  `value_counts`, and registry name patterns are read once
+  (`registry._patterns`).
 - **A field's own tables label it first; `label_via` fills the rest.** Its own
   tables name the value itself, such as a CNPJ's legal name or a documented
   sentinel. `PA_CNPJMNT`, `AP_CNPJMNT` and `CNPJMNT` declare all zeros as
@@ -49,15 +52,13 @@
 | query (live home) | before | after |
 |---|---:|---:|
 | SIASUS-ACF 2023-01 | 43 s | 15 s |
-| SIASUS-ACF 2023, files cached, second query in the process | 104 s | 26 s |
-| the same, first query in a fresh process | — | 54 s |
+| SIASUS-ACF 2023, files cached, second query in the process | 104 s | 16.7 s |
+| the same, first query in a fresh process | — | 35 s |
 
 The two warm runs return identical tables (`Table.equals`). The fresh
 process's extra time is one-time work: the curation reload that followed
-the YAML edits, and cold caches. A year is still not "seconds". What remains
-is per-group codelist selection (`_select_codelists` → `label_bindings.decide`)
-and the vintaged kit tables, keyed per month because their windows can turn
-over mid-year.
+the YAML edits, and cold caches. What remains is per-group binding decisions
+(`label_bindings.decide`, `relations_for`) and catalog reads.
 
 **Also seen in this run.** Maintainer CNPJs now read "UNIVERSIDADE DO ESTADO
 DO RIO DE JANEIRO (33540014000157)" and "Sem mantenedora (0000000000000)",

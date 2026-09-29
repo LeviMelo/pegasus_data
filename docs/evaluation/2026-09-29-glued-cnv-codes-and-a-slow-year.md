@@ -52,7 +52,7 @@ counts, and how far does each defect reach?
 | ACF 2023-01, before | 43 s | YAML parsing, 25 s |
 | ACF 2023-01, after | 15 s | reference maps |
 | ACF 2023 cached, before | 104 s | maps rebuilt 492×; per-row presentation |
-| ACF 2023 cached, after | 26 s | per-group codelist selection |
+| ACF 2023 cached, after | 16.7 s | per-group binding decisions |
 
 Both warm runs return the same table (`Table.equals`).
 

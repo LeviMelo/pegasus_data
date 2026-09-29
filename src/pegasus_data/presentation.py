@@ -116,17 +116,27 @@ def _render_values(
 ) -> pa.Array:
     """``shown`` replaces the code printed beside a label (a municipality's
     6-digit code by its 7-digit IBGE code); the label lookup already happened."""
-    codes_py = [shown.get(c, c) if shown and c is not None else c for c in codes.to_pylist()]
-    labels_py = labels.to_pylist()
-    # Formatted once per distinct (code, label), not once per row: a year of a
-    # 38-column file is 1.4 million cells and a few thousand distinct pairs.
-    memo: dict[tuple[object, object], str | None] = {}
-    out: list[str | None] = []
-    for pair in zip(codes_py, labels_py, strict=True):
-        if pair not in memo:
-            memo[pair] = _render_value(pair[0], pair[1], p)
-        out.append(memo[pair])
-    return pa.array(out, type=pa.string())
+    # Formatted once per distinct (code, label), in Arrow up to that point: a
+    # year of a 38-column file is 1.4 million cells and a few thousand
+    # distinct pairs (ADR-0097). \x01 stands for null; neither byte occurs in
+    # a code or a label.
+    import pyarrow.compute as pc
+
+    codes_s = pc.fill_null(pc.cast(codes, pa.string()), "\x01")
+    labels_s = pc.fill_null(pc.cast(labels, pa.string()), "\x01")
+    pairs = pc.binary_join_element_wise(codes_s, labels_s, "\x00")
+    if isinstance(pairs, pa.ChunkedArray):
+        pairs = pairs.combine_chunks()
+    encoded = pc.dictionary_encode(pairs)
+    shown_values: list[str | None] = []
+    for pair in encoded.dictionary.to_pylist():
+        code, _, label = pair.partition("\x00")
+        code_v = None if code == "\x01" else code
+        label_v = None if label == "\x01" else label
+        if shown and code_v is not None:
+            code_v = shown.get(code_v, code_v)
+        shown_values.append(_render_value(code_v, label_v, p))
+    return pc.take(pa.array(shown_values, type=pa.string()), encoded.indices)
 
 
 def _render_value(code: object, label: object, p: Presentation) -> str | None:

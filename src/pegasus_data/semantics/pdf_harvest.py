@@ -106,8 +106,8 @@ _DANGLING = frozenset(
 #: Column spill: the description and "Características" cells run on after the
 #: value list, so a label swallows them unless it is cut here.
 _SPILL = re.compile(
-    r"\s+(?:Campo|Preenchimento|Obrigat[oó]rio|N[aã]o\s+obrigat|"
-    r"Informa[cç][aã]o|Somente|Ver|Tabela)",
+    r"\s+(?:Campo\b|Preenchimento\b|Obrigat[oó]rio\b|N[aã]o\s+obrigat|"
+    r"Informa[cç][aã]o\b|Somente\b|Ver\b|Tabela\b)",
     re.I,
 )
 
