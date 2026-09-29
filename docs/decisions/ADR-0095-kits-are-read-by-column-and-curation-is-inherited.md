@@ -88,11 +88,16 @@ table. A short result now carries a `PartialSourceWarning`, and
   63 of them are bound by curation (SIA `PA_RACACOR` and `PA_MOTSAI`; SINASC
   `LOCNASC`, `RACACORMAE` and `CONSULTAS`; CNES `SERAP*`; SINAN dengue signs).
   The rebuilt maintainer catalog never re-ingested their sources.
-- **Decision.** `build_label_pack(carry_from=)` keeps every codelist the catalog
-  no longer holds from the pack it replaces; a codelist is lost only to a newer
-  reading of it.
-- **Result.** 2,355 codelists, up from 2,238, with 0 lost and 361 carried
-  forward. The dropped codes are the old parser's junk: `L` (a header flag),
+- **Decision.** `build_label_pack(carry_from=)`, CLI `labelpack --carry-from`,
+  keeps from the pack it replaces every **(codelist, validity window)** the
+  catalog no longer holds. A window is lost only to a newer reading of it.
+  - A first version carried whole codelists only. It lost SIH `COBRANCA`'s and
+    `NACIONAL`'s current windows, because the catalog still reads their
+    1992–2007 windows from the historical kits and the current kit has neither
+    table. That version left the SIH discharge reason `12` and nationality
+    `010` undecoded on a fresh home, as the fresh-home sweep showed.
+- **Result.** Built with `--carry-from data/probes/labels_2026-08-23.parquet`:
+  0 codelists lost, 367 carried forward. The dropped codes are the old parser's junk: `L` (a header flag),
   `BRANCOS` and `opcional` (comment text), and the glued readings.
 - **Check.** On a new, empty home, `query("SIASUS-ACF", period="2023-01")` reads
   `AP_MOTSAI` "ALTA COM PREVISÃO DE RETORNO … (15)" and `AP_CATEND` "OUTROS TIPOS

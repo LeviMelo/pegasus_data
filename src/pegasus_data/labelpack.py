@@ -214,7 +214,7 @@ def build_label_pack(
     dataset — shipping those would double the file to no one's benefit.
 
     ``carry_from`` (default: the pack the package ships now) keeps every
-    codelist the catalog no longer holds. A rebuilt maintainer catalog that
+    codelist window the catalog no longer holds. A rebuilt maintainer catalog that
     never re-ingested a source (community transcriptions, older layouts) would
     otherwise delete 63 curated codelists from every fresh install (SIA
     ``PA_RACACOR``, SINASC ``LOCNASC``; 2026-09-29). A pack only loses a
@@ -378,8 +378,18 @@ def build_label_pack(
     prior_path = Path(carry_from) if carry_from else Path(__file__).parent / "resources" / PACK_NAME
     if prior_path.exists():
         prior = pq.read_table(prior_path)
-        have = set(table.column("codelist").to_pylist())
-        keep_prior = pa.array([c not in have for c in prior.column("codelist").to_pylist()], pa.bool_())
+        # Per (codelist, validity window), not per codelist: SIH's COBRANCA is
+        # still read from the 1992-2007 kits, but its CURRENT window came from
+        # a source the catalog no longer holds, and keying on the name alone
+        # dropped discharge code 12 from every current admission.
+        def windows(t: pa.Table) -> list[tuple[str, str, str]]:
+            return list(zip(
+                t.column("codelist").to_pylist(), t.column("valid_from").to_pylist(),
+                t.column("valid_to").to_pylist(), strict=True,
+            ))
+
+        have = set(windows(table))
+        keep_prior = pa.array([w not in have for w in windows(prior)], pa.bool_())
         carried = prior.filter(keep_prior).select(table.column_names).cast(table.schema)
         if carried.num_rows:
             report.carried_forward = sorted(set(carried.column("codelist").to_pylist()))

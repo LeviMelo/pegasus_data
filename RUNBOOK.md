@@ -78,7 +78,7 @@ $PD download --system SIHSUS                                   # maintainer: raw
 | population | `population` | IBGE series |
 | curation into the catalog | `curate` | 4 s |
 | the seed and the manifest | `python scripts/build_resources.py pegasus_data_home/_catalog/catalog.sqlite` | 20 s; after `crawl`, `inventory`, `schemas`, `families`, `curate` (ADR-0067) |
-| the label pack | `labelpack` | after `semantics` |
+| the label pack | `labelpack` (`--carry-from <old pack>` when the default, the shipped pack, is not the last good one) | after `semantics`; keeps windows the catalog lacks (ADR-0095) |
 | an aggregate | `aggregate-build <recipe>` | base cuboid under the data home |
 | everything | `all` | empty directory to lake |
 

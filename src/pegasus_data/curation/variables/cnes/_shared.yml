@@ -1067,6 +1067,12 @@ variables:
       sphere, private for profit, private non-profit and their subdivisions. The field to
       use for public/private splits, not NATUREZA.
     code_system: internal
+    # The detailed CONCLA table first. The kit's NATJUR.CNV maps every code to its
+    # CONCLA group ("3. Entidades sem Fins Lucrativos") and names natures newer
+    # than the detailed table (3301, 2021) at group level, with the "3." showing it.
+    codelists:
+    - NAT_JUR
+    - NATJUR
     source: layout_doc
     source_ref: '[IT-CNES] IT_CNES_1706.txt (DATASUS, Informe Técnico CNES 2017-06), §2 Layout
       dos Arquivos de CNES, campo NAT_JUR'

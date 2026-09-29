@@ -1048,6 +1048,10 @@ def labelpack_cmd(
     out: Annotated[Path, typer.Option("--out", help="Where to write the pack")] = Path(
         "src/pegasus_data/resources/labels.parquet"
     ),
+    carry_from: Annotated[
+        Path | None,
+        typer.Option("--carry-from", help="Pack whose windows the catalog lacks are kept (default: the shipped one)"),
+    ] = None,
     as_json: JsonOpt = False,
 ) -> None:
     """Rebuild the label pack the package ships.
@@ -1060,7 +1064,7 @@ def labelpack_cmd(
 
     pipeline = _pipeline(root)
     try:
-        report = build_label_pack(pipeline.catalog, out)
+        report = build_label_pack(pipeline.catalog, out, carry_from=carry_from)
         counts = dict(report.counts)
         _emit(counts, as_json, "label pack")
         if report.held_back and not as_json:
