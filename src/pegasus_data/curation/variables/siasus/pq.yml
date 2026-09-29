@@ -1,0 +1,123 @@
+# SIA.PQ — APAC de Pacientes de Quimioterapia (legacy)
+# APAC - Pacientes Quimioterapia
+#
+# A pre-2008 chemotherapy-patient tracking file (def_path
+# "PQ- APAC - Pacientes Quimioterapia.def", TAB_SIA archives covering
+# 1999-11..2007-12). Superseded by the current AQ series (APAC de
+# Quimioterapia, sections 3.4.4 of the 2019 Informe Técnico); PQ carries the
+# same clinical concepts under an older, unprefixed-in-part field layout that
+# the .DEF files document only for a schema whose field names differ in
+# places from this catalog's PQ family (e.g. the .DEF has PAQ_MUNRES,
+# PAQ_SEXO, PAQ_PRIPAL rather than this schema's PAQ_MUNPCN, PAQ_SEXOPC, and
+# has no PAQ_PRIPAL counterpart at all) — schema drift across the PQ file's
+# own lifetime. Where the .DEF gives an exact field-name match its display
+# name and lookup are used directly (source: def); where it does not, the
+# description below is derived only from the field name's own abbreviation
+# against the pattern used throughout SIA (CONDIC/GESTAO/CODUNI/DATREF
+# header block, PCN/PC for paciente) and against the parallel, better
+# documented AQ series, and is flagged as such rather than bound to a
+# codelist without confirmation (CLAUDE.md §6).
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  PAQ_CONDIC:
+    official_name: Tipo de Gestão
+    translated_name: Management-type code
+    description: Marks the SUS management arrangement (state- vs. municipality-managed)
+      under which the establishment is accredited for this APAC, the same CONDIC concept
+      documented elsewhere in SIA (e.g. AP_CONDIC).
+    code_system: internal
+    codelists: [TPGESTAO, TPGEST_C]
+    source: def
+    source_ref: '[DEF-PQ] "PQ- APAC - Pacientes Quimioterapia.def" (TAB_SIA_199911-200307.zip
+      and TAB_SIA_200308-200712.zip), field PAQ_CONDIC, display_name "Tipo de Gestão",
+      lookup TPGESTAO.CNV / TPGEST_C.CNV.'
+  PAQ_GESTAO:
+    official_name: Gestor - BR
+    translated_name: Managing UF+municipality IBGE code
+    description: IBGE UF+municipality code of the manager (gestor) responsible for the
+      establishment, the same AP_GESTAO concept documented elsewhere in SIA.
+    code_system: external
+    codelist: MUNICBR
+    source: def
+    source_ref: '[DEF-PQ] "PQ- APAC - Pacientes Quimioterapia.def" (TAB_SIA_199911-200307.zip),
+      field PAQ_GESTAO, display_name "Gestor - BR", lookup MUNICBR.CNV.'
+  PAQ_CODUNI:
+    official_name: UPS Código (per-state lookup)
+    translated_name: Executing establishment code
+    description: Code of the establishment that executed the chemotherapy authorisation.
+      The .DEF resolves it through one lookup table per state (UPS-U<UF>.CNV in the
+      1999-2003 archive, CNESU<UF>.CNV in the 2003-2007 one) rather than one national
+      table — a legacy, pre-unified-CNES establishment coding scheme, unlike the CADGERBR
+      table used by the current AQ/AP_CODUNI fields.
+    code_system: external
+    source: def
+    source_ref: '[DEF-PQ] "PQ- APAC - Pacientes Quimioterapia.def" (TAB_SIA_199911-200307.zip),
+      field PAQ_CODUNI, display_name "UPS Codigo <UF>", 27 per-state lookups
+      (UPS-UAC.CNV .. UPS-UTO.CNV); TAB_SIA_200308-200712.zip replaces these with
+      CNESU<UF>.CNV per state.'
+    notes: 'Not bound to a single codelist here because the lookup is genuinely per-state
+      in this legacy file, not a modelling gap; do not conflate with CADGERBR, which is
+      the unified table used elsewhere in SIA/CNES.
+
+      '
+  PAQ_DATREF:
+    official_name: Mês/Ano Atendimento
+    translated_name: Care reference month/year
+    description: Year-month competência this chemotherapy record refers to, split into
+      month and year lookups in the .DEF (Mês Atendimento / Ano Atendimento).
+    code_system: none
+    codelists: [MA_99_03, ANO99_03, AM_0803, AM2C0803, ANO_0803]
+    source: def
+    source_ref: '[DEF-PQ] "PQ- APAC - Pacientes Quimioterapia.def", field PAQ_DATREF,
+      display_name "Mês Atendimento" (MA_99_03.CNV / AM_0803.CNV / AM2C0803.CNV) and "Ano
+      Atendimento" (ANO99_03.CNV / ANO_0803.CNV) across the two TAB_SIA archive periods.'
+    notes: 'These are TabNet''s own date-axis lookups (month/year labels for tabulation),
+      the same kind of binding flagged as SPURIOUS-BINDING elsewhere in this system for
+      date fields (e.g. AP_CMP''s note in _shared.yml) rather than a coded vocabulary of
+      the field''s own values; the raw field itself is a competência period, not a
+      category.
+
+      '
+  PAQ_MUNPCN:
+    official_name: Município de residência do paciente
+    translated_name: Patient's home municipality IBGE code
+    description: IBGE municipality code of where the patient lives. The .DEF for this file
+      documents a same-purpose field under the name PAQ_MUNRES ("Munic.Res.Paciente",
+      MUNICBR.CNV) rather than PAQ_MUNPCN; treated as the same concept under a renamed
+      field, matching AP_MUNPCN elsewhere in SIA, but not confirmed identical byte-for-byte
+      to the documented PAQ_MUNRES.
+    code_system: external
+    codelist: MUNICBR
+    source: def
+    source_ref: '[DEF-PQ] "PQ- APAC - Pacientes Quimioterapia.def", field PAQ_MUNRES,
+      display_name "Munic.Res.Paciente", lookup MUNICBR.CNV — the .DEF''s field name for
+      this schema variant differs from this dataset''s PAQ_MUNPCN.'
+    notes: Name mismatch between the .DEF (PAQ_MUNRES) and this schema (PAQ_MUNPCN);
+      treated as the same field under schema drift, not verified.
+  PAQ_SEXOPC:
+    official_name: Sexo do paciente
+    translated_name: Patient's sex
+    description: The patient's sex. The .DEF for this file documents the same concept
+      under the shorter field name PAQ_SEXO ("Sexo", SEXO.CNV) rather than PAQ_SEXOPC;
+      treated as the same field under schema drift, matching the SEXO codelist used
+      throughout SIA.
+    code_system: internal
+    codelist: SEXO
+    source: def
+    source_ref: '[DEF-PQ] "PQ- APAC - Pacientes Quimioterapia.def", field PAQ_SEXO,
+      display_name "Sexo", lookup SEXO.CNV — the .DEF''s field name for this schema
+      variant differs from this dataset''s PAQ_SEXOPC.'
+    notes: Name mismatch between the .DEF (PAQ_SEXO) and this schema (PAQ_SEXOPC); treated
+      as the same field under schema drift, not verified.
+  PAQ_DIAGPR:
+    official_name: CID Principal
+    translated_name: Primary ICD code
+    description: ICD code for the main diagnosis justifying the chemotherapy APAC,
+      paralleling AP_CIDPRI/AQ_CID10 elsewhere in SIA.
+    code_system: external
+    codelist: CID
+    source: def
+    source_ref: '[DEF-PQ] "PQ- APAC - Pacientes Quimioterapia.def", field PAQ_DIAGPR,
+      display_name "CID Principal", lookup CID.CNV.'

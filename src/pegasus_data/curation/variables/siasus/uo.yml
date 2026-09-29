@@ -1,0 +1,72 @@
+# SIA.UO — a complementary Ultrassonografia com Doppler Obstétrico/serviço
+# de apoio diagnóstico production file (UDO_-prefixed fields)
+#
+# No .DEF file for this series was found among the def_variables entries
+# captured for SIASUS (the def_path list covers APAC_*, RAAS, Atencao
+# Domiciliar, Producao_Ambulatorial and the legacy OP/PC/PF/PQ/PR chronic-care
+# files, but nothing named UO/UDO), and informe_dump.txt (the 2019 Informe
+# Técnico) documents only the APAC laudo types and BPA-I, not this series.
+# Web lookup could not be completed this session (WebSearch/WebFetch were
+# unavailable — server-side classifier outage). The four header fields
+# (UDO_CONDIC/UDO_GESTAO/UDO_CODUNI/UDO_DATREF) are the same
+# CONDIC/GESTAO/CODUNI/DATREF header block documented for other unprefixed
+# and AP_-prefixed SIA production files (see CONDIC/GESTAO in
+# siasus/_shared.yml, CODUNI in siasus/bi.yml) and are described by that
+# analogy. The remaining ~74 fields follow a repeating
+# <MODALITY><SUFFIX> pattern (a monetary/quantity code, SLR=valor/SLQ=
+# quantidade by apparent prefix, then per-provider MN/CGC/RZ triples =
+# município/CNPJ/razão social) whose specific modality abbreviations
+# (RAD, LC, TAC, RM, APC, PC, US, MN, PR, ME, QT, and the SLR/SLQ suffix
+# codes SIM/PLA/ARF/COM/MOL/BLP/ARM/PRE/CDU/LDU/CFL) could not be confirmed
+# against any source reviewed this session. Per CLAUDE.md §6 (never guess a
+# code's meaning), these are left undecoded rather than guessed, with only
+# the visible structural pattern noted.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  UDO_CONDIC:
+    official_name: Sigla do Tipo de Gestão
+    translated_name: Management-type code
+    description: The same management-arrangement code as CONDIC/AP_CONDIC/PA_CONDIC
+      elsewhere in SIA, marking whether the establishment is accredited under state or
+      municipal management.
+    code_system: internal
+    codelists: [TP_GESTAO, TP_GEST_C]
+    source: layout_doc
+    source_ref: 'By analogy with CONDIC (siasus/_shared.yml), sourced there from
+      ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
+      section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18.'
+    notes: No UO-specific layout document was found; this entry is by analogy with the
+      identical CONDIC header field documented for other SIA production files, not
+      independently confirmed for UO.
+  UDO_GESTAO:
+    official_name: Gestor - BR
+    translated_name: Managing UF+municipality IBGE code
+    description: IBGE UF+municipality code of the manager (gestor) responsible for the
+      establishment, the same GESTAO/AP_GESTAO concept documented elsewhere in SIA.
+    code_system: external
+    codelist: MUNICBR
+    source: layout_doc
+    notes: No UO-specific layout document was found; this entry is by analogy with GESTAO
+      (siasus/_shared.yml) and PAQ_GESTAO (siasus/pq.yml, sourced from a .DEF binding to
+      MUNICBR.CNV), not independently confirmed for UO.
+  UDO_CODUNI:
+    official_name: Código da Unidade (CNES)
+    translated_name: Executing establishment's CNES code
+    description: CNES code of the establishment that produced this record, the same CODUNI
+      concept documented elsewhere in SIA (e.g. siasus/bi.yml's CODUNI, AP_CODUNI).
+    code_system: external
+    codelist: CADGERBR
+    source: layout_doc
+    notes: No UO-specific layout document was found; this entry is by analogy with CODUNI
+      elsewhere in SIA, not independently confirmed for UO.
+  UDO_DATREF:
+    official_name: Data de referência (competência)
+    translated_name: Reference competence (year-month)
+    description: The year-month competência this record refers to, the same DATREF concept
+      documented for PAQ_DATREF (siasus/pq.yml).
+    code_system: none
+    source: layout_doc
+    notes: No UO-specific layout document was found; this entry is by analogy with
+      PAQ_DATREF, not independently confirmed for UO.

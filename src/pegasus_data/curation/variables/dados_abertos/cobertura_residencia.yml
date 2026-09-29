@@ -1,0 +1,88 @@
+# DADOS_ABERTOS.COBERTURA_RESIDENCIA — vaccination coverage, aggregated by
+# patient residence (/dissemin/publicos/Dados_Abertos/SIPNIBD/Cobertura_Residencia.parquet)
+#
+# The coverage-rate counterpart to doses_residencia.yml's dose counts: one row
+# per year/UF/municipality/immunobiologic giving the doses applied, the
+# population denominator and the resulting coverage rate, computed against
+# the patient's municipality of residence rather than the vaccination site.
+# Same source and methodology basis as doses_residencia.yml (SI-PNI/RNDS,
+# residence taken from the citizen's CNS-registered address); no field-level
+# data dictionary for this exact parquet extract was found this session.
+system: DADOS_ABERTOS
+asserted_by: pegasus_data
+
+variables:
+  CO_ANO:
+    official_name: Ano
+    translated_name: Year
+    description: Calendar year the coverage figure is computed for.
+    code_system: none
+    source: web
+    source_ref: 'Ministério da Saúde, vaccination-by-residence panel family
+      (infoms.saude.gov.br/extensions/SEIDIGI_DEMAS_VACINACAO_CALENDARIO_NACIONAL_COBERTURA_RESIDENCIA);
+      field meaning inferred from name (CO_ = código, here a year), not from a
+      field-level dictionary.'
+  CO_UF:
+    official_name: Código da Unidade da Federação
+    translated_name: State (UF) code
+    description: IBGE code of the state of the patient's residence.
+    code_system: external
+    codelist: UF_BR
+    source: web
+    source_ref: Same panel family as CO_ANO; field meaning inferred from name and from the
+      panel's stated breakdown "por Unidade da Federação, município e estabelecimento de
+      saúde."
+  CO_MUNICIPIO:
+    official_name: Código do município
+    translated_name: Municipality IBGE code
+    description: IBGE code of the patient's municipality of residence, matching the
+      denominator population (NU_POPULACAO) used for the coverage rate on the same row.
+    code_system: external
+    codelist: BR_MUNICIPALFA
+    source: web
+    source_ref: 'Ministério da Saúde, "Cobertura Vacinal Infantil - Residência" panel
+      description (infoms.saude.gov.br): "considerando a informação do endereço
+      cadastrado no Cartão Nacional de Saúde (CNS) do cidadão, por Unidade da Federação,
+      município e estabelecimento de saúde."'
+  QT_DOSE:
+    official_name: Quantidade de doses
+    translated_name: Dose count (numerator)
+    description: Number of doses applied, counted toward this coverage figure — the
+      numerator of NU_TAXA_COBERTURA.
+    code_system: none
+    source: layout_doc
+  NU_POPULACAO:
+    official_name: População
+    translated_name: Population (denominator)
+    description: Denominator population used to compute the coverage rate — typically the
+      target age cohort's estimated population for the municipality and year, though the
+      exact population-estimate source (IBGE projection vs. another basis) was not
+      confirmed for this specific field.
+    code_system: none
+    source: layout_doc
+    notes: 'UNCONFIRMED (2026-09-29): which population estimate underlies this figure
+      (e.g. IBGE''s municipal population projections, as used for coverage denominators
+      generally) was not verified against a field-level dictionary for this file.
+
+      '
+  NU_TAXA_COBERTURA:
+    official_name: Taxa de cobertura vacinal
+    translated_name: Vaccination coverage rate
+    description: Vaccination coverage rate — QT_DOSE over NU_POPULACAO, expressed as
+      DATASUS coverage panels typically do (a percentage), for this
+      year/UF/municipality/immunobiologic combination and residence-based population.
+    code_system: none
+    source: layout_doc
+    notes: A stored, published rate — not something to recompute from other columns
+      without checking whether this figure already applies DATASUS's own rounding or
+      capping conventions (coverage rates are sometimes capped or flagged above 100%
+      in DATASUS panels; not confirmed either way for this field).
+  DT_CARGA:
+    official_name: Data de carga
+    translated_name: Load (ETL) date
+    description: Date this row was loaded/refreshed into the open-data extract — an
+      artefact of the publishing pipeline, not a clinical or reporting date.
+    code_system: none
+    source: web
+    source_ref: 'Ministério da Saúde vaccination-by-residence panel description
+      (infoms.saude.gov.br): "atualizado diariamente."'

@@ -1,0 +1,642 @@
+# SIHSUS.BASE_AIH1 — a derived, one-row-per-AIH staging table
+# (/dissemin/publicos/SIHSUS/base_aih1.duck, table stg_aih).
+#
+# Its own layout is not published anywhere in sources/ (informe_dump.txt and
+# IT_SIHSUS_1603.txt cover only SIA's APAC/BPA-I layouts and SIH's RD*.dbf /
+# SP*.dbf layouts respectively), and web lookup could not be completed this
+# session (WebSearch/WebFetch were unavailable — server-side classifier
+# outage). Field names here follow a "co_/dt_/qt_/vl_/nu_" renaming
+# convention distinct from DATASUS's own RD*.dbf/SP*.dbf field names, so
+# most fields below are identified by matching this dataset's name and
+# position against the corresponding RD*.dbf/SP*.dbf field documented in
+# IT_SIHSUS_1603.txt (system SIHSUS, §2/§3) — same definition, renamed
+# column. Where no such correspondence could be established with confidence,
+# the field is left undecoded rather than guessed (CLAUDE.md §6).
+system: SIHSUS
+asserted_by: pegasus_data
+variables:
+  DT_COMPET:
+    official_name: Competência (ano/mês de processamento)
+    translated_name: Processing competence (year-month)
+    description: The competência this AIH was processed/paid under, as a single date-like
+      value. Corresponds to RD*.dbf's ANO_CMPT (year) and MES_CMPT (month) combined; the
+      competência is when DATASUS processed and paid the AIH, not when the patient was
+      admitted or discharged.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 2 ANO_CMPT + SEQ 3 MÊS_CMPT; combined into one field
+      in this derived dataset.'
+    notes: 'No layout document for BASE_AIH1 itself was found; the correspondence to
+      ANO_CMPT/MES_CMPT is inferred from the field name and position, not confirmed
+      against a published BASE_AIH1 layout.
+
+      '
+  CO_TIPO_AIH:
+    official_name: Identificação do tipo da AIH
+    translated_name: AIH type
+    description: Whether this is an ordinary AIH or a continuation of a long stay (AIH
+      tipo 5). Corresponds to RD*.dbf's IDENT. Long-stay continuations repeat the patient
+      across several AIH records, so counting AIHs overcounts admissions unless this is
+      filtered.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 7 IDENT ''Identificação do tipo da AIH'''
+    notes: Renamed column for RD*.dbf's IDENT; no BASE_AIH1 layout document was found to
+      confirm the correspondence beyond name and position.
+  NU_AIH:
+    official_name: Número da AIH
+    translated_name: Hospital admission authorisation number
+    description: Identifier of the AIH (Autorização de Internação Hospitalar) — the billing
+      authorisation, which is what a row of this dataset is. Corresponds to RD*.dbf's N_AIH.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 6 N_AIH ''Número da AIH'''
+  NU_SEQUENCIA_AIH_CONT:
+    official_name: Sequencial de longa permanência
+    translated_name: Long-stay sequence number
+    description: Position of this AIH within a chain of type-5 long-stay continuations.
+      Corresponds to RD*.dbf's SEQ_AIH5. Non-zero means the record continues an earlier
+      one, so counting rows overcounts admissions.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 67 SEQ_AIH5 ''Sequencial de longa permanência''.'
+  CO_MUNICIPIO_GESTOR:
+    official_name: Município Gestor
+    translated_name: Managing municipality
+    description: IBGE municipality code of the municipality that manages the SUS network
+      under which this AIH was processed. Corresponds to RD*.dbf's UF_ZI.
+    code_system: external
+    codelist: BR_MUNICIPALFA
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 1 UF_ZI ''Município Gestor''.'
+  CO_GESTAO:
+    official_name: Gestão
+    translated_name: Type of health-system management
+    description: Which sphere of government held gestão plena (full management authority)
+      over the SUS network that processed this AIH at the time of billing. Corresponds to
+      RD*.dbf's GESTAO field (printed DESTAO in the layout table, a known typo — see the
+      already-curated GESTAO entry in sihsus/_shared.yml).
+    code_system: internal
+    codelist: GESTAO
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 46 DESTAO ''Indica o tipo de gestão do hospital''.'
+  CO_ESTABELECIMENTO:
+    official_name: Código CNES do estabelecimento
+    translated_name: Establishment CNES code
+    description: CNES code of the establishment that billed the admission. Corresponds to
+      RD*.dbf's CNES.
+    code_system: external
+    codelist: CADGERBR
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 75 CNES ''Código CNES do hospital''.'
+  CO_MANTENEDORA:
+    official_name: CNPJ da mantenedora
+    translated_name: Maintaining body tax number
+    description: Tax number of the body that maintains the establishment. Corresponds to
+      RD*.dbf's CNPJ_MANT.
+    code_system: external
+    codelist: CNPJ_BR
+    label_via: {column: CO_ESTABELECIMENTO, table: CADGERBR, field: maintainer}
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 76 CNPJ_MANT ''CNPJ da mantenedora''.'
+  CO_NAT_JURIDICA:
+    official_name: Natureza jurídica do Estabelecimento
+    translated_name: Establishment legal nature (CONCLA)
+    description: Legal nature of the establishment under CONCLA. Corresponds to RD*.dbf's
+      NAT_JUR.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 45 NAT_JUR ''Natureza jurídica do Estabelecimento,
+      conforme a Comissão Nacional de Classificação - CONCLA''.'
+  CO_MUNICIPIO_ESTAB:
+    official_name: Município do Estabelecimento
+    translated_name: Municipality of the establishment
+    description: IBGE municipality code of the hospital that billed the admission.
+      Corresponds to RD*.dbf's MUNIC_MOV.
+    code_system: external
+    codelist: BR_MUNICIPALFA
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 49 MUNIC_MOV ''Município do Estabelecimento''.'
+  CO_MUNICIPIO_RESID:
+    official_name: Município de Residência do Paciente
+    translated_name: Municipality of residence
+    description: IBGE municipality code of where the patient lives. Corresponds to
+      RD*.dbf's MUNIC_RES.
+    code_system: external
+    codelist: BR_MUNICIPALFA
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 9 MUNIC_RES ''Município de Residência do Paciente''.'
+    notes: 'CO_MUNICIPIO_RESID and CO_MUNICIPIO_ESTAB answer different questions and are
+      routinely confused; see the equivalent note on MUNIC_RES/MUNIC_MOV in _shared.yml.
+
+      '
+  DT_NASCIMENTO:
+    official_name: Data de nascimento do paciente
+    translated_name: Patient date of birth
+    description: Patient's date of birth. Corresponds to RD*.dbf's NASC.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 10 NASC ''Data de nascimento do paciente
+      (aaaammdd)''.'
+  CO_SEXO_SIH:
+    official_name: Sexo do paciente
+    translated_name: Sex
+    description: Patient's sex as recorded on the AIH. Corresponds to RD*.dbf's SEXO, bound
+      to SIH's own SEXO codelist (see sihsus/_shared.yml's SEXO entry for the codes and the
+      per-system-keying rationale).
+    code_system: internal
+    codelist: SEXO
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 11 SEXO ''Sexo do paciente''.'
+  CO_IDADE_SIH:
+    official_name: Unidade de medida da idade
+    translated_name: Age unit
+    description: The age unit of RD*.dbf's COD_IDADE (2 dias, 3 meses, 4 anos, 5 anos
+      acima de 100), carried into this export beside NU_IDADE_ANOS.
+    code_system: internal
+    notes: 'Not keyed with NU_IDADE_ANOS as SIH''s COD_IDADE is with IDADE (ADR-0095):
+      the export names it "idade em anos", and if it is years rather than SIH''s raw
+      IDADE the pair would read a 5-day-old as "0 dias". Unverified until a sample of
+      the 12 GB base_aih1.duck is read (2026-09-29).'
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 50 COD_IDADE ''Unidade de medida da idade''.'
+  NU_IDADE_ANOS:
+    official_name: Idade
+    translated_name: Age
+    description: Age of the patient, in the unit given by CO_IDADE_SIH. Corresponds to
+      RD*.dbf's IDADE; NOT interpretable alone — see the NOT-interpretable-alone warning
+      already recorded on IDADE in sihsus/_shared.yml. Despite the "NU_IDADE_ANOS" name
+      (suggesting years), the value follows CO_IDADE_SIH's unit, exactly like IDADE follows
+      COD_IDADE.
+    code_system: none
+    depends_on: [CO_IDADE_SIH]
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 51 IDADE ''Idade''.'
+    notes: 'NOT interpretable alone, same caveat as IDADE: a value here is only years if
+      CO_IDADE_SIH says so.
+
+      '
+  CO_COR_RACA:
+    official_name: Raça/Cor do paciente
+    translated_name: Race/colour
+    description: Patient's race or colour as self-declared under the IBGE categories.
+      Corresponds to RD*.dbf's RACA_COR; codes differ between SIH and SINASC (see the
+      RACA_COR entry in sihsus/_shared.yml).
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 84 RACA_COR ''Raça/Cor do paciente''.'
+  DT_INTERNACAO:
+    official_name: Data de internação
+    translated_name: Admission date
+    description: Date of admission. Corresponds to RD*.dbf's DI_INTER (documented as
+      DT_INTER in sihsus/_shared.yml).
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 39 DI_INTER ''Data de internação no formato
+      aaammdd''.'
+  CO_CARATER_ATEND:
+    official_name: Caráter da internação
+    translated_name: Admission character
+    description: Whether the admission was elective, urgent, an accident at work, or
+      another circumstance. Corresponds to RD*.dbf's CAR_INT.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 56 CAR_INT ''Caráter da internação''.'
+  CO_PROCEDIMENTO_SOLIC:
+    official_name: Procedimento solicitado
+    translated_name: Procedure requested
+    description: SIGTAP code of the procedure originally requested when the AIH was
+      authorised. Corresponds to RD*.dbf's PROC_SOLIC; differs from
+      CO_PROCEDIMENTO_REALIZ whenever the plan changed after admission.
+    code_system: external
+    codelists: [SIGTAP, TPROC, PROC]
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 23 PROC_SOLIC ''Procedimento solicitado''.'
+  CO_LEITO:
+    official_name: Especialidade do Leito
+    translated_name: Bed speciality
+    description: Speciality of the bed the patient occupied (clinical, surgical, obstetric,
+      paediatric, psychiatric and so on). Corresponds to RD*.dbf's ESPEC, a property of the
+      bed, not of the diagnosis or the treating professional.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 4 ESPEC ''Especialidade do Leito''.'
+    notes: 'Medium confidence: ESPEC is the only bed-related code field in RD*.dbf, but its
+      documented name ("especialidade do leito") is not literally "leito" (bed) as
+      CO_LEITO''s own name suggests. No BASE_AIH1 layout document was found to confirm this
+      is the same field rather than a distinct bed-identifier column.
+
+      '
+  CO_MOTIVO_SAIDA:
+    official_name: Motivo de Saída/Permanência
+    translated_name: Discharge or stay reason
+    description: How the admission ended — discharge, transfer, death, or continued stay.
+      Corresponds to RD*.dbf's COBRANCA.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 43 COBRANCA ''Motivo de Saída/Permanência''.'
+  CO_PROCEDIMENTO_REALIZ:
+    official_name: Procedimento realizado
+    translated_name: Procedure performed
+    description: SIGTAP code of the main procedure actually performed, and the field that
+      determines payment. Corresponds to RD*.dbf's PROC_REA.
+    code_system: external
+    codelists: [SIGTAP, TPROC, PROC]
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 24 PROC_REA ''Procedimento realizado''.'
+  CO_COMPLEXIDADE:
+    official_name: Complexidade
+    translated_name: Care complexity
+    description: Complexity tier of the care — basic, medium or high. Corresponds to
+      RD*.dbf's COMPLEX.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 80 COMPLEX ''Complexidade''.'
+  QT_DIAS_PERM:
+    official_name: Dias de Permanência
+    translated_name: Length of stay in days
+    description: Recorded length of stay. Corresponds to RD*.dbf's DIAS_PERM.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 52 DIAS_PERM ''Dias de Permanência''.'
+  CO_TIPO_UTI:
+    official_name: Tipo de UTI utilizada
+    translated_name: ICU type
+    description: Which kind of intensive care unit the patient used. Corresponds to
+      RD*.dbf's MARCA_UTI. Zero means no ICU on this AIH.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 16 MARCA_UTI ''Indica qual o tipo de UTI utilizada
+      pelo paciente''.'
+  QT_DIAS_UTI:
+    official_name: Quantidade de diárias em unidade intermediária (per layout text)
+    translated_name: ICU days for the admission
+    description: Number of ICU days for the whole admission. Corresponds to RD*.dbf's
+      UTI_INT_TO — distinct from UTI_MES_TO, the ICU days billed within one competência
+      month (see sihsus/_shared.yml if UTI_MES_TO/UTI_INT_TO are curated there).
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 20 UTI_INT_TO ''Quantidade de diárias em unidade
+      intermediaria''.'
+    notes: 'The source document''s own description text says "unidade intermediária" for
+      a UTI_ (ICU)-prefixed field, which reads as a copy/paste artifact in DATASUS''s own
+      documentation (contrast UTI_MES_TO ''Quantidade de dias de UTI no mês'', worded
+      correctly) rather than a claim that this field is about intermediate-care beds; MARCA_UCI/CO_TIPO_UI
+      is the field that documents intermediate-care (UCI) type. Quoted here exactly as the
+      source states it.
+
+      '
+  CO_TIPO_UI:
+    official_name: Tipo de UCI utilizada pelo paciente
+    translated_name: Intermediate care unit type
+    description: Which kind of intermediate care unit (UCI) the patient used. Corresponds
+      to RD*.dbf's MARCA_UCI. Zero means none.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 95 MARCA_UCI ''Tipo de UCI utilizada pelo
+      paciente''.'
+  QT_DIAS_ACOMP:
+    official_name: Quantidade de diárias de acompanhante
+    translated_name: Companion days
+    description: Days billed for a companion staying with the patient. Corresponds to
+      RD*.dbf's DIAR_ACOM.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 21 DIAR_ACOM ''Quantidade de diárias de
+      acompanhante''.'
+  CO_DIAG_PRINCIPAL:
+    official_name: Código do diagnóstico principal
+    translated_name: Principal diagnosis
+    description: CID-10 code for the condition that motivated the admission. Corresponds to
+      RD*.dbf's DIAG_PRINC; see sihsus/_shared.yml's DIAG_PRINC entry for the CID-9/CID-10
+      vintage note.
+    code_system: external
+    codelists: [ICD10, CID9_01, CID9_02, CID9_03, CID9_04, CID9_05, CID9_06, CID9_07,
+      CID9_08, CID9_09, CID9_10, CID9_11, CID9_12, CID9_13, CID9_14, CID9_15, CID9_16,
+      CID9_17]
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 41 DIAG_PRINC ''Código do diagnóstico principal
+      (CID10)''.'
+  CO_DIAG_SECUNDARIO_1:
+    official_name: Diagnóstico secundário 1
+    translated_name: Secondary diagnosis 1
+    description: ICD-10 code of secondary diagnosis 1. Corresponds to RD*.dbf's DIAGSEC1.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 96 DIAGSEC1.'
+  CO_DIAG_SECUNDARIO_2:
+    official_name: Diagnóstico secundário 2
+    translated_name: Secondary diagnosis 2
+    description: ICD-10 code of secondary diagnosis 2. Corresponds to RD*.dbf's DIAGSEC2.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 97 DIAGSEC2.'
+  CO_DIAG_SECUNDARIO_3:
+    official_name: Diagnóstico secundário 3
+    translated_name: Secondary diagnosis 3
+    description: ICD-10 code of secondary diagnosis 3. Corresponds to RD*.dbf's DIAGSEC3.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 98 DIAGSEC3.'
+  CO_DIAG_SECUNDARIO_4:
+    official_name: Diagnóstico secundário 4
+    translated_name: Secondary diagnosis 4
+    description: ICD-10 code of secondary diagnosis 4. Corresponds to RD*.dbf's DIAGSEC4.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 99 DIAGSEC4.'
+  CO_DIAG_SECUNDARIO_5:
+    official_name: Diagnóstico secundário 5
+    translated_name: Secondary diagnosis 5
+    description: ICD-10 code of secondary diagnosis 5. Corresponds to RD*.dbf's DIAGSEC5.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 100 DIAGSEC5.'
+  CO_DIAG_SECUNDARIO_6:
+    official_name: Diagnóstico secundário 6
+    translated_name: Secondary diagnosis 6
+    description: ICD-10 code of secondary diagnosis 6. Corresponds to RD*.dbf's DIAGSEC6.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 101 DIAGSEC6.'
+  CO_DIAG_SECUNDARIO_7:
+    official_name: Diagnóstico secundário 7
+    translated_name: Secondary diagnosis 7
+    description: ICD-10 code of secondary diagnosis 7. Corresponds to RD*.dbf's DIAGSEC7.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 102 DIAGSEC7.'
+  CO_DIAG_SECUNDARIO_8:
+    official_name: Diagnóstico secundário 8
+    translated_name: Secondary diagnosis 8
+    description: ICD-10 code of secondary diagnosis 8. Corresponds to RD*.dbf's DIAGSEC8.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 103 DIAGSEC8.'
+  CO_DIAG_SECUNDARIO_9:
+    official_name: Diagnóstico secundário 9
+    translated_name: Secondary diagnosis 9
+    description: ICD-10 code of secondary diagnosis 9. Corresponds to RD*.dbf's DIAGSEC9.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 104 DIAGSEC9.'
+  CO_TIPO_DIAG_1:
+    official_name: Tipo de diagnóstico secundário 1
+    translated_name: Secondary diagnosis 1 type
+    description: Code for the kind/classification of secondary diagnosis 1 (e.g. which CID
+      vintage or role it carries). Corresponds to RD*.dbf's TPDISEC1.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 105 TPDISEC1.'
+  CO_TIPO_DIAG_2:
+    official_name: Tipo de diagnóstico secundário 2
+    translated_name: Secondary diagnosis 2 type
+    description: Code for the kind/classification of secondary diagnosis 2. Corresponds to
+      RD*.dbf's TPDISEC2.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 107 TPDISEC2.'
+  CO_TIPO_DIAG_3:
+    official_name: Tipo de diagnóstico secundário 3
+    translated_name: Secondary diagnosis 3 type
+    description: Code for the kind/classification of secondary diagnosis 3. Corresponds to
+      RD*.dbf's TPDISEC3.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 108 TPDISEC3.'
+  CO_TIPO_DIAG_4:
+    official_name: Tipo de diagnóstico secundário 4
+    translated_name: Secondary diagnosis 4 type
+    description: Code for the kind/classification of secondary diagnosis 4. Corresponds to
+      RD*.dbf's TPDISEC4.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 109 TPDISEC4.'
+  CO_TIPO_DIAG_5:
+    official_name: Tipo de diagnóstico secundário 5
+    translated_name: Secondary diagnosis 5 type
+    description: Code for the kind/classification of secondary diagnosis 5. Corresponds to
+      RD*.dbf's TPDISEC5.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 110 TPDISEC5.'
+  CO_TIPO_DIAG_6:
+    official_name: Tipo de diagnóstico secundário 6
+    translated_name: Secondary diagnosis 6 type
+    description: Code for the kind/classification of secondary diagnosis 6. Corresponds to
+      RD*.dbf's TPDISEC6.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 111 TPDISEC6.'
+  CO_TIPO_DIAG_7:
+    official_name: Tipo de diagnóstico secundário 7
+    translated_name: Secondary diagnosis 7 type
+    description: Code for the kind/classification of secondary diagnosis 7. Corresponds to
+      RD*.dbf's TPDISEC7.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 112 TPDISEC7.'
+  CO_TIPO_DIAG_8:
+    official_name: Tipo de diagnóstico secundário 8
+    translated_name: Secondary diagnosis 8 type
+    description: Code for the kind/classification of secondary diagnosis 8. Corresponds to
+      RD*.dbf's TPDISEC8.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 113 TPDISEC8.'
+  CO_TIPO_DIAG_9:
+    official_name: Tipo de diagnóstico secundário 9
+    translated_name: Secondary diagnosis 9 type
+    description: Code for the kind/classification of secondary diagnosis 9. Corresponds to
+      RD*.dbf's TPDISEC9.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 114 TPDISEC9.'
+  CO_DIAG_OBITO:
+    official_name: CID da morte
+    translated_name: Cause of death ICD code
+    description: ICD-10 code of the cause of death where the patient died. Corresponds to
+      RD*.dbf's CID_MORTE. Zeros where the patient survived.
+    code_system: external
+    codelist: ICD10
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 79 CID_MORTE ''CID da morte''.'
+  CO_FINANCIAMENTO:
+    official_name: Tipo de financiamento
+    translated_name: Funding type
+    description: Which funding stream paid — the general ceiling, FAEC for strategic
+      procedures, or another. Corresponds to RD*.dbf's FINANC.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 81 FINANC ''Tipo de financiamento''.'
+  CO_RUBRICA:
+    official_name: Rubrica
+    translated_name: Budget line
+    description: Budget line the spend was booked against. Corresponds to RD*.dbf's
+      RUBRICA. Documented as Zerado (always zero) from Jan/2008 onward.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 47 RUBRICA ''Zerado''.'
+  CO_REGRA_CONTRAT:
+    official_name: Regra contratual
+    translated_name: Contract rule
+    description: Contract rule under which the establishment billed. Corresponds to
+      RD*.dbf's REGCT.
+    code_system: internal
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 83 REGCT ''Regra contratual''.'
+  VL_SERVICO_HOSPITALAR:
+    official_name: Valor de serviços hospitalares
+    translated_name: Hospital-services value (BRL)
+    description: Monetary value of hospital services on this AIH, in reais. Corresponds to
+      RD*.dbf's VAL_SH.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 25 VAL_SH ''Valor de serviços hospitalares''.'
+  VL_SH_FEDERAL:
+    official_name: Valor do complemento federal de serviços hospitalares
+    translated_name: Federal hospital-services top-up (BRL)
+    description: Federal-government top-up to the hospital-services value, already included
+      in VL_AIH's total. Corresponds to RD*.dbf's VAL_SH_FED.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
+      (table numbering continues into RD*.dbf''s value fields), SEQ 90 VAL_SH_FED ''Valor
+      do complemento federal de serviços hospitalares. Está incluído no valor total da
+      AIH''.'
+    notes: 'Already included in VL_AIH; summing it alongside VL_AIH double-counts the
+      top-up.
+
+      '
+  VL_SH_GESTOR:
+    official_name: Valor do complemento do gestor de serviços hospitalares
+    translated_name: Manager (state/municipal) hospital-services top-up (BRL)
+    description: State-or-municipal-manager top-up to the hospital-services value, already
+      included in VL_AIH's total. Corresponds to RD*.dbf's VAL_SH_GES.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 92 VAL_SH_GES ''Valor do complemento do gestor
+      (estadual ou municipal) de serviços hospitalares. Está incluído no valor total da
+      AIH''.'
+    notes: Already included in VL_AIH; do not sum alongside it.
+  VL_SERVICO_PROFISSIONAL:
+    official_name: Valor de serviços profissionais
+    translated_name: Professional-services value (BRL)
+    description: Monetary value of professional (physician/team) services on this AIH, in
+      reais. Corresponds to RD*.dbf's VAL_SP.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 26 VAL_SP ''Valor de serviços profissionais''.'
+  VL_SP_FEDERAL:
+    official_name: Valor do complemento federal de serviços profissionais
+    translated_name: Federal professional-services top-up (BRL)
+    description: Federal-government top-up to the professional-services value, already
+      included in VL_AIH's total. Corresponds to RD*.dbf's VAL_SP_FED.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 91 VAL_SP_FED ''Valor do complemento federal de
+      serviços profissionais. Está incluído no valor total da AIH''.'
+    notes: Already included in VL_AIH; do not sum alongside it.
+  VL_SP_GESTOR:
+    official_name: Valor do complemento do gestor de serviços profissionais
+    translated_name: Manager (state/municipal) professional-services top-up (BRL)
+    description: State-or-municipal-manager top-up to the professional-services value,
+      already included in VL_AIH's total. Corresponds to RD*.dbf's VAL_SP_GES.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 93 VAL_SP_GES ''Valor do complemento do gestor
+      (estadual ou municipal) de serviços profissionais. Está incluído no valor total da
+      AIH''.'
+    notes: Already included in VL_AIH; do not sum alongside it.
+  VL_AIH:
+    official_name: Valor total da AIH
+    translated_name: Total AIH value (BRL)
+    description: Total monetary value of the whole AIH, in reais. Corresponds to RD*.dbf's
+      VAL_TOT.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 36 VAL_TOT ''Valor total da AIH''.'
+  VL_UTI:
+    official_name: Valor de UTI
+    translated_name: ICU value (BRL)
+    description: Monetary value billed for ICU stay on this AIH. Corresponds to RD*.dbf's
+      VAL_UTI.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 37 VAL_UTI ''Valor de UTI''.'
+  VL_UI:
+    official_name: Valor de UCI
+    translated_name: Intermediate-care (UCI) value (BRL)
+    description: Monetary value billed for intermediate-care (UCI) stay on this AIH.
+      Corresponds to RD*.dbf's VAL_UCI.
+    code_system: none
+    source: layout_doc
+    source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
+      Layout dos arquivos RD*.dbf, SEQ 94 VAL_UCI ''Valor de UCI''.'

@@ -1,0 +1,220 @@
+# DADOS_ABERTOS.DOSES_RESIDENCIA — vaccine doses applied, aggregated by
+# patient residence (/dissemin/publicos/Dados_Abertos/SIPNIBD/Doses_Residencia.parquet)
+#
+# A SI-PNI (Sistema de Informação do Programa Nacional de Imunizações) open-
+# data extract, not a SIA/SIASUS file (ADR-0095's DADOS_ABERTOS-inherits-
+# SIASUS-curation note is about a different DADOS_ABERTOS series; this one is
+# vaccination, curated on its own). It counts doses grouped by the patient's
+# residence municipality (from the CNS-registered address), by year/month,
+# strategy, immunobiologic, dose, age, race and sex — the residence-based
+# counterpart to the "doses aplicadas" panels that count by application site.
+# Sourced from the national vaccination panel description (Ministério da
+# Saúde, "Cobertura Vacinal Infantil - Residência" / "Cobertura Vacinal
+# COVID-19 - Residência", infoms.saude.gov.br), which documents the panel
+# family this file belongs to as: source system SI-PNI/RNDS (Rede Nacional
+# de Dados em Saúde), residence taken from the citizen's CNS-registered
+# address, updated regularly. No field-level data dictionary for this exact
+# parquet extract (as opposed to the larger 60-variable per-dose "Doses
+# aplicadas pelo PNI" open dataset) was found on dadosabertos.saude.gov.br
+# this session — the dictionary resource exists there but is served through a
+# JS-rendered "Explorar" link this session's tools could not follow to a
+# direct file. Field meanings below are inferred from the fields' own names
+# against DATASUS's standard co_/ds_/sg_/nu_/qt_/dt_ prefix conventions
+# (código/descrição/sigla/número/quantidade/data) and against the larger
+# PNI open dataset's known field families, and are flagged where this
+# inference is not independently confirmed.
+system: DADOS_ABERTOS
+asserted_by: pegasus_data
+
+variables:
+  nu_ano:
+    official_name: Ano
+    translated_name: Year
+    description: Calendar year the row's dose count is attributed to.
+    code_system: none
+    source: web
+    source_ref: 'Ministério da Saúde, vaccination-by-residence panel family
+      (infoms.saude.gov.br/extensions/SEIDIGI_DEMAS_VACINACAO_CALENDARIO_NACIONAL_COBERTURA_RESIDENCIA);
+      field meaning inferred from name (nu_ = número), not from a field-level dictionary.'
+  nu_mes:
+    official_name: Mês
+    translated_name: Month
+    description: Calendar month the row's dose count is attributed to.
+    code_system: none
+    source: web
+    source_ref: Same panel family as nu_ano; field meaning inferred from name.
+  co_municipio:
+    official_name: Código do município
+    translated_name: Municipality IBGE code
+    description: IBGE code of the patient's municipality of residence — this file's own
+      "_Residencia" naming and the panel family's stated methodology (coverage/doses
+      counted by the address registered on the citizen's CNS) both point to residence
+      rather than site of vaccination.
+    code_system: external
+    codelist: BR_MUNICIPALFA
+    source: web
+    source_ref: 'Ministério da Saúde, "Cobertura Vacinal Infantil - Residência" panel
+      description (infoms.saude.gov.br): "considerando a informação do endereço
+      cadastrado no Cartão Nacional de Saúde (CNS) do cidadão, por Unidade da Federação,
+      município e estabelecimento de saúde."'
+  co_estrategia:
+    official_name: Código da estratégia de vacinação
+    translated_name: Vaccination strategy code
+    description: Which vaccination strategy the dose was administered under — bloqueio
+      (outbreak-response ring vaccination), campanha indiscriminada or seletiva
+      (indiscriminate/selective campaign), especial (special), intensificação
+      (intensification), monitoramento rápido de cobertura vacinal, rotina (routine),
+      privado (private-service) or soroterapia (serum therapy).
+    code_system: internal
+    source: web
+    source_ref: 'WebSearch summary of SI-PNI strategy documentation, 2026-09-29: "Strategy
+      refers to the vaccination method such as blockade, indiscriminate campaign,
+      selective campaign, special, intensification, rapid monitoring of vaccine
+      coverage, routine, private service, or serotherapy."'
+    notes: 'The exact numeric/text codes mapped to each of these named strategies were
+      not confirmed this session (no .CNV or dictionary entry was found for this field in
+      the local catalog, and the source above names the categories without giving their
+      codes); the category list is asserted, the code-to-label mapping is not.
+
+      '
+  co_imuno:
+    official_name: Código do imunobiológico
+    translated_name: Immunobiologic code
+    description: Which of the ~47 immunobiologicals (vaccines, sera, immunoglobulins) in
+      the national vaccination calendar this dose count is for. Paired with ds_imuno and
+      sg_imuno on the same row, which is why no codelist is bound here — the file
+      carries its own label inline.
+    code_system: internal
+    source: web
+    source_ref: 'Ministério da Saúde PNI dataset description (dadosabertos.saude.gov.br,
+      "Doses aplicadas pelo Programa Nacional de Imunizações"): "47 imunobiológicos
+      disponibilizados pelo SUS: 30 vacinas, 13 soros e 4 imunoglobulinas."'
+    notes: 'Self-labelling: ds_imuno (description) and sg_imuno (abbreviation) are carried
+      on the same row, so a query does not need an external codelist to read co_imuno —
+      but per CLAUDE.md §6 the raw code is still preserved, not discarded, alongside the
+      label.
+
+      '
+  ds_imuno:
+    official_name: Descrição do imunobiológico
+    translated_name: Immunobiologic description
+    description: Human-readable name of the immunobiologic identified by co_imuno (e.g.
+      a vaccine's full name), carried inline on the same row.
+    code_system: none
+    source: layout_doc
+    notes: Inferred from the ds_ (descrição) prefix convention used throughout DATASUS
+      open-data field names; no field-level dictionary was found to confirm the exact
+      wording used.
+  sg_imuno:
+    official_name: Sigla do imunobiológico
+    translated_name: Immunobiologic abbreviation
+    description: Short abbreviation/acronym for the immunobiologic identified by co_imuno
+      (e.g. a vaccine's short code), carried inline on the same row.
+    code_system: none
+    source: layout_doc
+    notes: Inferred from the sg_ (sigla) prefix convention used throughout DATASUS
+      open-data field names; no field-level dictionary was found to confirm the exact
+      values used.
+  co_dose:
+    official_name: Código da dose
+    translated_name: Dose code
+    description: Which dose in the multidose schedule this count reports — dose única,
+      1ª-4ª dose, reforço (booster), and so on, the same DOSE concept documented for the
+      older PNI system's DOSE field (pni/_shared.yml), but under this file's own code
+      space. Paired with ds_dose on the same row.
+    code_system: internal
+    source: web
+    source_ref: By analogy with PNI's DOSE field (pni/_shared.yml, DOSE.CNV) and the ds_
+      dose-description column on the same row; no field-level dictionary specific to this
+      file's own dose codes was found.
+    notes: Self-labelling via ds_dose, but the raw code is preserved per CLAUDE.md §6; not
+      bound to PNI's own DOSE.CNV codelist since the code space was not confirmed
+      identical.
+  ds_dose:
+    official_name: Descrição da dose
+    translated_name: Dose description
+    description: Human-readable label for the dose identified by co_dose, carried inline
+      on the same row.
+    code_system: none
+    source: layout_doc
+    notes: Inferred from the ds_ prefix convention; not independently confirmed against a
+      field-level dictionary.
+  nu_idade:
+    official_name: Idade
+    translated_name: Age
+    description: Patient's age in whole years at the time of vaccination. Unlike the
+      older PNI system's FX_ETARIA (a coded age bracket), this field's nu_ (número)
+      prefix and the presence of a separate co_racacor/co_sexo breakdown suggest a single
+      raw age value rather than a band, but the unit (years vs. some other unit) was not
+      independently confirmed.
+    code_system: none
+    source: layout_doc
+    notes: 'UNCONFIRMED (2026-09-29): unit assumed to be years by convention (nu_idade is
+      the standard DATASUS open-data name for age-in-years), not verified against a
+      field-level dictionary for this file.
+
+      '
+  co_racacor:
+    official_name: Raça/Cor
+    translated_name: Race/colour code
+    description: Patient's race or colour as self-declared, under the standard Brazilian
+      IBGE/SUS categories (Branca, Preta, Parda, Amarela, Indígena) used throughout
+      DATASUS systems, but this field's own code values and width were not confirmed
+      against a field-level dictionary for this file, so no codelist is bound.
+    code_system: internal
+    source: layout_doc
+    notes: 'UNCONFIRMED (2026-09-29): the category set is asserted by the standard SUS
+      convention, but the exact code-to-label mapping used in this specific file (which
+      may differ in code width or ordering from another system''s RACA_COR, per
+      CLAUDE.md §6''s per-system-keying rule) is not confirmed, so it is left unbound to a
+      codelist.
+
+      '
+  co_sexo:
+    official_name: Sexo
+    translated_name: Sex code
+    description: Patient's sex as recorded for the vaccination. The specific code values
+      used in this file were not confirmed against a field-level dictionary, so no
+      codelist is bound (per-system keying, CLAUDE.md §6).
+    code_system: internal
+    source: layout_doc
+    notes: 'UNCONFIRMED (2026-09-29): not bound to another system''s SEXO codelist
+      without confirming this file uses the same code space.
+
+      '
+  qt_dose:
+    official_name: Quantidade de doses
+    translated_name: Dose count
+    description: Number of doses applied for this combination of year, month,
+      municipality, strategy, immunobiologic, dose, age, race and sex — this is an
+      aggregate/count column, not a per-dose record; the file's grain is one row per
+      combination of dimensions, not one row per vaccination.
+    code_system: none
+    source: layout_doc
+  sg_sistema_origem:
+    official_name: Sigla do sistema de origem
+    translated_name: Source-system abbreviation
+    description: Abbreviation of which upstream system supplied this record (e.g. SIPNI
+      for the legacy web system, or RNDS/e-SUS for records that flow through the
+      Rede Nacional de Dados em Saúde) — the panel family this file belongs to states its
+      data source as SI-PNI and RNDS.
+    code_system: internal
+    source: web
+    source_ref: 'Ministério da Saúde vaccination-by-residence panel description
+      (infoms.saude.gov.br): "A fonte de dados é exclusivamente a Rede Nacional de Dados
+      em Saúde (RNDS)."'
+    notes: 'UNCONFIRMED (2026-09-29): the exact abbreviation values this field takes were
+      not found; only the plausible set of source systems (SIPNI, RNDS/e-SUS) is noted.
+
+      '
+  dt_carga:
+    official_name: Data de carga
+    translated_name: Load (ETL) date
+    description: Date this row was loaded/refreshed into the open-data extract — an
+      artefact of the publishing pipeline, not a clinical date. The panel family this
+      file belongs to is described as updated regularly (daily, for the COVID-19
+      variant).
+    code_system: none
+    source: web
+    source_ref: 'Ministério da Saúde vaccination-by-residence panel description
+      (infoms.saude.gov.br): "atualizado diariamente."'
