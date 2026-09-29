@@ -22,6 +22,7 @@ mistaken for having read the data.
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
@@ -56,6 +57,8 @@ ARCHIVE_READABLE = (".zip",)
 #: hold the footer's length and the magic "PAR1". SIPNI's 1.2 GB exports are
 #: censused from their last 256 KB (ADR-0077).
 PARQUET_TAIL = 256 * 1024
+#: A zipped DuckDB export is fetched whole to describe it only up to this size.
+SMALL_DUCK_ZIP_BYTES = 64 * 1024 * 1024
 
 #: First ask. Covers every header measured on this tree (the widest, a
 #: 113-column SIH-RD file, needs about 3.7 KB) with room to spare.
@@ -237,6 +240,38 @@ def run_census(
             census.signatures.add(signature)
             census.read += 1
             continue
+        if extension == ".duck.zip" and int(target.get("size") or 0) <= SMALL_DUCK_ZIP_BYTES:
+            # Deflate cannot be read by range, and a DuckDB catalog sits deep in
+            # the file, so a zipped database is described only when small
+            # enough to fetch whole (ADR-0083).
+            try:
+                data = fetch_prefix(path, int(target.get("size") or 0))
+                census.bytes_fetched += len(data)
+                header, member, _ = _header_in_duckdb_zip(catalog, path, data)
+            except Exception as exc:  # noqa: BLE001 - one bad database is not the census
+                census.unreadable += 1
+                census.errors.append((path, f"{type(exc).__name__}: {exc}"))
+                continue
+            signature = persist_header(catalog, stratum_id=str(target["stratum_id"]), path=path, header=header)
+            catalog.execute("UPDATE strata SET sampled_member = ? WHERE stratum_id = ?",
+                            (member, str(target["stratum_id"])))
+            census.signatures.add(signature)
+            census.read += 1
+            continue
+        if extension == ".duck" and fetch_range is not None:
+            try:
+                header, member, fetched = _header_in_duckdb(catalog, path, int(target.get("size") or 0), fetch_range)
+                census.bytes_fetched += fetched
+            except Exception as exc:  # noqa: BLE001 - one bad database is not the census
+                census.unreadable += 1
+                census.errors.append((path, f"{type(exc).__name__}: {exc}"))
+                continue
+            signature = persist_header(catalog, stratum_id=str(target["stratum_id"]), path=path, header=header)
+            catalog.execute("UPDATE strata SET sampled_member = ? WHERE stratum_id = ?",
+                            (member, str(target["stratum_id"])))
+            census.signatures.add(signature)
+            census.read += 1
+            continue
         if extension == ".exe" and int(target.get("size") or 0) <= SMALL_ARCHIVE_BYTES:
             try:
                 data = archive_cache.get(path) or fetch_prefix(path, int(target.get("size") or SMALL_ARCHIVE_BYTES))
@@ -346,6 +381,59 @@ def _header_in_archive(data: bytes) -> TableHeader:
                 body = archive.read(member)
                 return _parquet_header(body, len(body))
     raise HeaderUnreadable("no DBF, DBC, CSV or Parquet member in the archive")
+
+
+def _header_in_duckdb_zip(catalog: Catalog, path: str, data: bytes) -> tuple[TableHeader, str, int]:
+    """A small zipped DuckDB database, fetched whole: unzip to a temp file, read it."""
+    import io
+    import tempfile
+    import zipfile
+
+    with zipfile.ZipFile(io.BytesIO(data)) as zf, tempfile.TemporaryDirectory() as tmp:
+        member = next(n for n in zf.namelist() if n.lower().endswith(".duck"))
+        local = zf.extract(member, tmp)
+        size = os.path.getsize(local)
+
+        def _local_range(_path: str, offset: int, length: int) -> bytes:
+            with open(local, "rb") as f:
+                f.seek(offset)
+                return f.read(length)
+
+        return _header_in_duckdb(catalog, path, size, _local_range)
+
+
+def _header_in_duckdb(
+    catalog: Catalog, path: str, size: int, fetch_range: Callable[[str, int, int], bytes]
+) -> tuple[TableHeader, str, int]:
+    """A remote DuckDB database: every table recorded as a member, the largest read.
+
+    Dimension tables (``dim_*``) are the database's own code tables and are
+    recorded with role ``reference``; the fact table is the data (ADR-0083).
+    """
+    from ..decode.duckdb_remote import remote_duckdb_tables
+    from ..decode.header import HeaderField
+
+    tables, fetched = remote_duckdb_tables(lambda off, n: fetch_range(path, off, n), size)
+    if not tables:
+        raise HeaderUnreadable("the database has no tables")
+    catalog.executemany(
+        "INSERT OR IGNORE INTO archive_members (archive_path, member, member_size, member_role, container) "
+        "VALUES (?,?,?,?, 'duckdb')",
+        [(path, t.name, t.estimated_rows, "reference" if t.name.lower().startswith("dim_") else "data")
+         for t in tables],
+    )
+    # The fact table, not the largest: apac_ab.duck's establishment dimension
+    # (dim_cadger, 679,026 rows) outnumbers its facts (fat_apac_ab, 306,886).
+    facts = [t for t in tables if not t.name.lower().startswith("dim_")] or tables
+    fact = max(facts, key=lambda t: t.estimated_rows)
+    fields = [
+        HeaderField(name=c.upper(), type_code="N" if dtype.startswith(("DECIMAL", "INT", "BIGINT", "DOUBLE")) else "C",
+                    width=0, decimals=0)
+        for c, dtype in fact.columns
+    ]
+    header = TableHeader(fields=fields, declared_records=fact.estimated_rows, header_length=0,
+                         record_length=0, version=0)
+    return header, fact.name, fetched
 
 
 def _parquet_header(tail: bytes, size: int) -> TableHeader:

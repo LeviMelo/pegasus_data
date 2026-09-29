@@ -107,3 +107,4 @@ last, comes first.
 | [ADR-0080](docs/decisions/ADR-0080-a-code-belongs-to-its-form.md) | 2026-09-28 | A code belongs to its form; per-form alternatives are chosen per family, never merged | active | amends ADR-0072, ADR-0079 |
 | [ADR-0081](docs/decisions/ADR-0081-every-file-header-is-read-and-a-publication-is-read-once.md) | 2026-09-28 | Every file's header is read, and a publication is read once whatever its layout or tree | active | amends ADR-0020, ADR-0068, ADR-0071, ADR-0078 |
 | [ADR-0082](docs/decisions/ADR-0082-one-label-decision-and-reads-never-hold-the-catalog.md) | 2026-09-28 | One label decision for query and compile; reads never hold the catalog | active | amends ADR-0072, ADR-0080 |
+| [ADR-0083](docs/decisions/ADR-0083-a-remote-duckdb-is-described-by-range.md) | 2026-09-29 | A remote DuckDB database is described by ranged reads; its tables are members | active | amends ADR-0077 |
