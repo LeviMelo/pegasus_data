@@ -2,7 +2,7 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. Last rewritten 2026-09-29, evening.
+`DECISIONS.md`. Last rewritten 2026-09-29, night.
 
 ## Where the project is
 
@@ -51,6 +51,28 @@ another.
     exports (22).
 - **Sweep tools.** `scripts/sweep_undecoded.py` lists undecoded values over 16
   datasets. `scripts/def_evidence.py` lists what each `.DEF` offers for them.
+
+## Linking datasets (ADR-0100 to ADR-0103)
+
+- **One establishment registry.** Typed identifiers: only a valid CNPJ is
+  stored, a CPF is never stored or resolved, and no identifier appears in any
+  name or label (ADR-0102). The registry also holds maintainers,
+  inclusion/exclusion dates, 107,438 health teams (INE) and the federal
+  university hospitals.
+- **CNES ↔ CNPJ** reads the registry first, then older kits' claims.
+  - SIH AC 2023-01: 4,160 of 4,165 resolved, and every one confirmed by the
+    admission's own `CGC_HOSP`.
+  - The reverse direction works; it resolved nothing before.
+- **The 2008 procedure break is bridged** by the official Tabela Unificada
+  map, one-to-one only. 96.3% of SIH AC 2005 admissions reach a SIGTAP
+  procedure, and the SIGTAP group/subgroup dimensions are continuous.
+- **Pre-2006 occupations** decode from SIM/SINASC's own `OCUPA` table.
+- **SIA's 2001–2007 establishment codes** are keyed by the file's state
+  (`SIA_UPS_BR`).
+- **In progress:** the ranged census of every legacy APAC archive's members,
+  then inventory → strata → families → seed (`data/logs/rebuild-members.ps1`).
+  Membership was assumed from one archive per state-year. It listed tables
+  that most archives lack, and missed EX, PC and AC for 2003–2006.
 
 ## Coverage now
 
