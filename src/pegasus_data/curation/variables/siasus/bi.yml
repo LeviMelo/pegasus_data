@@ -30,7 +30,8 @@ variables:
     description: CNPJ of the organisation that received payment for this production
       line via credit cession (a different entity than the executing establishment),
       or all zeros when no cession applies.
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
   CNSPROF:
     official_name: Número do CNS (Cartão Nacional de Saúde) do profissional de saúde
       executante

@@ -1561,7 +1561,8 @@ variables:
       own operating entity rather than a distinct backup-service partner.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Measured constant "63602940000170" across both non-null rows in
       UDAC0201.DBF; the same CNPJ recurs as entity 1 of the UDI_PC, UDI_RD and UDI_US
@@ -1578,7 +1579,8 @@ variables:
       entity was recorded.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Measured constant "00000000000000" across both non-null rows, the
       standard DATASUS zero-fill for an empty CNPJ slot. Reviewed 2026-09-28: no
@@ -1759,7 +1761,8 @@ variables:
       rows, one branch of the Rio Branco general hospital group named in UDI_HGRZ1.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'HG reads Hospital Geral; the paired UDI_HGRZ1 values ("HOSP.DE CLINICAS
       DE RIO BRANCO", "HOSP.GERAL DE CLINICAS DE R BRANCO") are general-hospital names,
@@ -1775,7 +1778,8 @@ variables:
       — FUNDHACRE''s own CNPJ again, rather than a distinct second hospital.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Constant "63602940000170" across both rows, matching UDI_APCGC1''s value
       and UDI_HGRZ2''s paired "FUNDHACRE". Reviewed 2026-09-28: no documentation found
@@ -1857,7 +1861,8 @@ variables:
       since the state has no transplant centre of its own.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'HTP reads Hospital para Transplante; the paired UDI_HTPRZ value, "HOSP.
       DE BASE DO DISTRITO FEDERAL", and UDI_HTPMN''s municipality code 530010
@@ -1995,7 +2000,8 @@ variables:
       neither the FUNDHACRE/hospital entities seen elsewhere in this record.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'LAA reads Laboratório de Análises; paired UDI_LAARZ names ("SAERB",
       "QUILAB/ C. SIMAO SILVA") read as commercial lab/service providers, distinct from
@@ -2047,7 +2053,8 @@ variables:
       testing happens at that same out-of-state hospital.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'LHC reads Laboratório de HistoCompatibilidade; the CNPJ, municipality
       (530010, Brasília) and legal name ("HOSP. DE BASE DO DISTRITO FEDERAL") are
@@ -2095,7 +2102,8 @@ variables:
       distinct vendors, one per Acre unit (49351786000180 and 01092701000160).
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Paired UDI_MEDRZ names ("BAXTER HOSPITALAR LTDA", a major dialysis
       solutions and equipment manufacturer, and "CONCISE COM.APAR.E EQUIP.ELET.LTDA", an
@@ -2144,7 +2152,8 @@ variables:
       maintenance contract. Two distinct contractors, one per Acre unit.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'MTA reads manutenção; paired UDI_MTARZ names ("SAERB", "FLUIDTECH" — the
       latter literally "fluid technology") read as water-system/ equipment maintenance
@@ -2229,7 +2238,8 @@ variables:
       fills the AP, HG-slot-2, RD and US "entity 1" positions throughout this record.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Measured constant, identical to UDI_APCGC1''s value and paired with
       UDI_PCRZ1''s "FUNDHACRE". Reviewed 2026-09-28: no documentation found (searched
@@ -2245,7 +2255,8 @@ variables:
       paired here with "Laboratório Central de Saúde Pública" (LACEN) in UDI_PCRZ2.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Measured constant across both rows; paired UDI_PCRZ2 names the state
       public-health reference laboratory, plausibly consulted for the water and
@@ -2434,7 +2445,8 @@ variables:
       UDI_PCCGC1 and UDI_USCGC1''s entity-1 slots throughout this record.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Measured constant, identical to UDI_APCGC1/UDI_PCCGC1; paired UDI_RDRZ1
       "FUNDHACRE". Reviewed 2026-09-28: no documentation found (searched APAC_JUL07.doc
@@ -2449,7 +2461,8 @@ variables:
       left at the all-zero placeholder for the other.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'One non-null value shared with UDI_HGCGC1''s CNPJ root and UDI_PCCGC2''s
       exact value; the other row is the standard empty-slot placeholder. Reviewed
@@ -2530,7 +2543,8 @@ variables:
       as its AP, PC and RD entity-1 slots.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Measured constant, identical to UDI_APCGC1/UDI_PCCGC1/UDI_RDCGC1.
       Reviewed 2026-09-28: no documentation found (searched APAC_JUL07.doc and the 2014
@@ -2544,7 +2558,8 @@ variables:
       Acre unit — both rows carry the all-zero placeholder.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Measured constant "00000000000000" across both rows, the standard
       empty-slot fill. Reviewed 2026-09-28: no documentation found (searched

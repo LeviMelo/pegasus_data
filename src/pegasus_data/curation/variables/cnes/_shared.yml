@@ -696,7 +696,8 @@ variables:
       recurs across many CNES establishment records belonging to the same network.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: web
     source_ref: '[PCDAS] "CNPJ da mantenedora do estabelecimento"'
     notes: An organizational tax identifier, not a personal one — pass through unmodified.

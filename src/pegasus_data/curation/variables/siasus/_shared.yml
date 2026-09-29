@@ -342,7 +342,8 @@ variables:
       of a maintained network).
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
@@ -999,7 +1000,8 @@ variables:
       none, on the unprefixed BPA-I/RAAS layouts.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions

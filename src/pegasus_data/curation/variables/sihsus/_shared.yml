@@ -65,6 +65,7 @@ variables:
     description: Brazilian tax identifier of the establishment that billed the admission.
       Joins to CNES via the CNES↔CNPJ crosswalk; CNES is the surer key where both exist.
     code_system: external
+    codelist: CNPJ_BR
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 5'
@@ -120,6 +121,7 @@ variables:
       or a foundation — which differs from CGC_HOSP where the hospital is run by a larger
       entity.
     code_system: external
+    codelist: CNPJ_BR
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 76'

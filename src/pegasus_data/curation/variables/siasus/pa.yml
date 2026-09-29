@@ -190,7 +190,8 @@ variables:
       file, or zeros when it has none.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
@@ -204,10 +205,11 @@ variables:
       rather than being an open-ended identifier.
 
       '
+    code_system: external
     codelists:
     - CESSAO
     - S_FORNEC
-    code_system: external
+    - CNPJ_BR
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'

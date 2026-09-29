@@ -17,7 +17,8 @@ variables:
       the older CGC.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: def
     source_ref: '[DEF-SP] display_name "Hospital BR(CNPJ)" for SP_CGCHOSP (DATASUS
       also ships the identical binding per state, e.g. "Hospital AC(CNPJ)", "Hospital

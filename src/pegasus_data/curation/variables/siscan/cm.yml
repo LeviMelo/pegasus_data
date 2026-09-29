@@ -39,7 +39,8 @@ variables:
       passes through unmodified, an identifier not a label.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: inferred
     reasoning: 'Follows CNES-style cadastro naming (CNPJ_MAN identifies the mantenedora entity);
       the sampled file path CMAC*.dbc under SISMAMA/Dados matches the Cadastro Mantenedora

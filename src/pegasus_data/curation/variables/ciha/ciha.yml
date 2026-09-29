@@ -27,7 +27,8 @@ variables:
     description: 'CNPJ of the public health consortium (consórcio público) that is the
       source of payment for the care reported, filled only when the remuneration source
       is 13 - Consórcio Público and zero-filled otherwise.'
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     source: layout_doc
     source_ref: 'Layout da interface texto do CIHA01 (DATASUS, atualizado 06/2024) —
       http://ciha.datasus.gov.br/documentos/documentos_ciha1.php (local:
@@ -51,7 +52,8 @@ variables:
       CNES-coded units.
 
       '
-    code_system: none
+    code_system: external
+    codelist: CNPJ_BR
     notes: 'Organizational tax id, not personal data. It is a real-world identifier (per the
       project''s code_system rule, identifiers are filed under "none" rather than "external"
       alongside dates/counts/free text), and combined with CNES/MUNIC_MOV it pins down a specific

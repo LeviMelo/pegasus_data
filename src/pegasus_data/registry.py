@@ -36,9 +36,13 @@ def _patterns() -> list[str]:
     return [p.upper() for p in codelist_roles().get("registry", [])]
 
 
+#: Legal entities by CNPJ, derived from the establishment registry (ADR-0093).
+CNPJ_TABLE = "CNPJ_BR"
+
+
 def is_registry(codelist: str) -> bool:
     name = codelist.upper()
-    return any(fnmatch.fnmatch(name, p) for p in _patterns())
+    return name == CNPJ_TABLE or any(fnmatch.fnmatch(name, p) for p in _patterns())
 
 
 def _cache_dir(system: str) -> Path:
@@ -126,6 +130,7 @@ def build(system: str, *, refresh: bool = False) -> dict[str, int]:
                 tables[name] = pa.table({
                     "code": [r["CNES"] for r in rows],
                     "label": [_label(r) for r in rows],
+                    "legal": [re.sub(r"^CNPJ [0-9./-]+-", "", (r.get("RAZ_SOCI") or "").strip()) or None for r in rows],
                     "cnpj": [r.get("CPF_CNPJ") for r in rows],
                     "municipality": [r.get("CODUFMUN") for r in rows],
                     "included": [r.get("DATAINCL") for r in rows],
@@ -134,6 +139,15 @@ def build(system: str, *, refresh: bool = False) -> dict[str, int]:
     states = [t for n, t in tables.items() if n.startswith("CADGER") and len(n) == 8]
     if states:
         tables["CADGERBR"] = pa.concat_tables(states, promote_options="default")
+        # CNPJ -> legal name, for the fields that carry a legal entity rather
+        # than an establishment (CIH CGC_HOSP, SIA PA_CNPJMNT). ONLY 14-digit
+        # CNPJs: an 11-digit CPF is a person and is never resolved to a name.
+        legal: dict[str, str] = {}
+        for r in tables["CADGERBR"].select(["cnpj", "legal"]).to_pylist():
+            cnpj = str(r["cnpj"] or "").strip()
+            if len(cnpj) == 14 and cnpj.isdigit() and r["legal"]:
+                legal.setdefault(cnpj, str(r["legal"]))
+        tables[CNPJ_TABLE] = pa.table({"code": list(legal), "label": list(legal.values())})
     out_dir.mkdir(parents=True, exist_ok=True)
     for group, table in tables.items():
         pq.write_table(table, out_dir / f"{group}.parquet", compression="zstd")
@@ -143,7 +157,7 @@ def build(system: str, *, refresh: bool = False) -> dict[str, int]:
 #: Which system's kit carries a registry. The establishment registry is
 #: CNES's: SIH's .DEF names CADGERAL, but TAB_SIH.zip does not contain it
 #: (measured 2026-09-29: SIH's kit holds one registry table, CIH's none).
-OWNER = {"CADGER": "CNES", "UNIDTOTAL": "CNES"}
+OWNER = {"CADGER": "CNES", "UNIDTOTAL": "CNES", CNPJ_TABLE: "CNES"}
 
 
 def owner_of(codelist: str, system: str | None) -> str | None:
