@@ -27,6 +27,7 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
+from functools import lru_cache
 from typing import Any, Literal
 
 import pyarrow as pa
@@ -107,8 +108,15 @@ def _plain(code: str) -> str:
     return "".join(ch for ch in code if ch.isalnum()).upper()
 
 
-def _render_values(codes: pa.ChunkedArray | pa.Array, labels: pa.ChunkedArray | pa.Array, p: Presentation) -> pa.Array:
-    codes_py = codes.to_pylist()
+def _render_values(
+    codes: pa.ChunkedArray | pa.Array,
+    labels: pa.ChunkedArray | pa.Array,
+    p: Presentation,
+    shown: Mapping[str, str] | None = None,
+) -> pa.Array:
+    """``shown`` replaces the code printed beside a label (a municipality's
+    6-digit code by its 7-digit IBGE code); the label lookup already happened."""
+    codes_py = [shown.get(c, c) if shown and c is not None else c for c in codes.to_pylist()]
     labels_py = labels.to_pylist()
     out: list[str | None] = []
     for code, label in zip(codes_py, labels_py, strict=True):
@@ -159,7 +167,8 @@ def present(
         column = table.column(name)
         base = name[: -len(LABEL_SUFFIX)] if is_label else name
         if not is_label and f"{name}{LABEL_SUFFIX}" in raw and not p.companions and not p.codes_only:
-            column = _render_values(column, table.column(f"{name}{LABEL_SUFFIX}"), p)
+            municipal = name.upper() in getattr(names, "municipal", frozenset())
+            column = _render_values(column, table.column(f"{name}{LABEL_SUFFIX}"), p, _ibge7() if municipal else None)
         pt, en = (names or {}).get(base.upper(), (None, None))
         documented = (en or pt) if p.language == "en" else (pt or en)
         header = p.names.format(name=documented or base, code=base) if documented else base
@@ -175,14 +184,39 @@ def present(
     return pa.Table.from_arrays(columns, names=unique)
 
 
-def documented_names(store: Any, system: str) -> dict[str, tuple[str | None, str | None]]:
-    """``COLUMN -> (official_name, translated_name)`` from the curation."""
+class ColumnNames(dict):  # type: ignore[type-arg]
+    """``COLUMN -> (official_name, translated_name)``, plus which columns hold
+    municipality codes (their shown code is the 7-digit IBGE code)."""
+
+    municipal: frozenset[str] = frozenset()
+
+
+#: Tables whose codes are municipalities (DATASUS files the 6-digit form).
+_MUNICIPAL_TABLES = ("BR_MUNIC", "MUNIC")
+
+
+def documented_names(store: Any, system: str) -> ColumnNames:
+    """The curated names of a system's columns, and its municipality columns."""
     from .semantics.curation import load_variable_docs
 
-    return {
-        name: (doc.official_name, doc.translated_name)
-        for name, doc in load_variable_docs(store, system).items()
-    }
+    docs = load_variable_docs(store, system)
+    out = ColumnNames({name: (doc.official_name, doc.translated_name) for name, doc in docs.items()})
+    out.municipal = frozenset(
+        name for name, doc in docs.items()
+        if any(str(c).upper().startswith(_MUNICIPAL_TABLES) for c in [doc.codelist, *doc.codelists] if c)
+    )
+    return out
 
 
-__all__ = ["LABEL_SUFFIX", "PRESETS", "Presentation", "documented_names", "present", "resolve"]
+@lru_cache(maxsize=1)
+def _ibge7() -> dict[str, str]:
+    """6-digit DATASUS municipality code -> 7-digit IBGE code (with check digit)."""
+    from importlib.resources import files as _files
+
+    import pyarrow.parquet as pq
+
+    t = pq.read_table(str(_files("pegasus_data.resources") / "municipalities.parquet"), columns=["code6", "code7"])
+    return dict(zip(t.column("code6").to_pylist(), t.column("code7").to_pylist(), strict=True))
+
+
+__all__ = ["LABEL_SUFFIX", "PRESETS", "ColumnNames", "Presentation", "documented_names", "present", "resolve"]

@@ -69,3 +69,15 @@ Both are addressed by the coverage work that follows.
 **What would reverse it.** Users who mostly feed results into code rather
 than read them. The default preset would then become `analysis`, and nothing
 else would change.
+
+**Amended 2026-09-29 (user):** a municipality shows its **7-digit IBGE code**:
+"Maceió, AL (2704302)". DATASUS files the 6-digit code, which is the 7-digit
+code minus its check digit, so the 7-digit code carries strictly more.
+- **Which columns.** A column is treated as a municipality when its curated
+  codelist is a municipality table (`presentation.documented_names`, which
+  carries a `municipal` set).
+- **Special codes.** DATASUS's own codes (`000000` Ignorado ou exterior, the
+  per-state "município ignorado") have no IBGE equivalent and are shown as
+  filed.
+- **The canonical form is unchanged.** The `analysis` preset keeps the filed
+  code.
