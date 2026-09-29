@@ -1,0 +1,72 @@
+## ADR-0095: A `.CNV` is read by its columns; a republishing system inherits curation; the age unit is keyed with the age
+
+**Date:** 2026-09-29. **Status:** active. **Amends:** ADR-0088.
+
+**Context.** A live query of the open-data APAC for fistula creation
+(`DADOS_ABERTOS-APAC_ACF`, 2023, 36,817 rows) found four defects.
+- **Codes glued to their labels.**
+  - A `.CNV` is fixed-width. When a label fills its field, the code starts at
+    the expression column with no space before it: `MOTSAIPE.CNV` line 6 reads
+    `… ACOMPAN. DO PACIENT15`.
+  - The parser required a space before the column and otherwise split on
+    whitespace, so the dictionary held `PACIENT15`, `ASSIST41` and, in
+    `CARAT_AT`, `…(AGENT.FIS./QUIM.06`. Discharge reasons 15 and 41 and
+    attendance character 06 never decoded.
+  - Re-parsing every `.CNV` of the 36 ingested kits (7,952 files) changes
+    **43,916 category lines**. SIASUS has 40,420 of them, including 3,237
+    establishment names in `CNESNSP1.CNV`, 2,070 procedures in `PROC1199.CNV`
+    and 1,230 occupations in `CBO2002.CNV`. SINASC has 2,138, SIM 1,181 and
+    SINAN 131. Artifact: `data/probes/cnv_abutting_codes.json`.
+- **A re-read `.CNV` did not replace its old reading.** On re-ingestion only a
+  kit's DBF code tables were superseded. `.CNV` rows cite `kit!CNV/X.CNV:<line>`,
+  which matched neither pattern, so a parser fix would have left `PACIENT15`
+  beside `15`.
+- **The open-data exports were undescribed.** `Dados_Abertos/APAC_SIA/*.duck.zip`
+  carry SIA's own `AB_*`, `AP_*` and `ACF_*` columns. They are curated under
+  SIASUS, so 218 DADOS_ABERTOS family-fields measured as undescribed.
+- **Units without their values.**
+  - `AP_COIDADE`, SIH/CIH/CIHA `COD_IDADE` and SIA `TPIDADEPAC` hold only the
+    age *unit* (2 days, 3 months, 4 years, 5 years past 100).
+  - The kits' `.DEF` reads the unit together with the 2-digit age that follows
+    it, and `IDADEDET.CNV` names the 3-character pair: `463` = 63 anos,
+    `205` = 5 dias. SIH's curation had recorded that "no DATASUS codelist of
+    time units" exists, but this is that codelist.
+- **The ACF flags.** The kit tabulates `ACF_DUPLEX` and the other flags with
+  `SIMNAO2.CNV` (1/0), but the data hold S/N, as the APAC layout defines them
+  (`APA_DUPLEX … (S-Sim, N-Não)`). Nothing decoded.
+
+**Decision.**
+- **Trust the column when a label abuts it** (`cnv_parser._code_abuts_label`).
+  The column wins only if the text starting there is a match expression whose
+  first code has the header's declared width. An overflowing label that
+  pushes prose past the column (`medico02.CNV`) still takes the existing
+  fallbacks.
+- **Re-ingestion supersedes `.CNV` readings.** Kit members and loose `.CNV`
+  files are superseded like DBF tables, matching `…:<line>` as well
+  (`dictionary.supersede_source`).
+- **`curation.INHERITS`.** A system that republishes another's fields inherits
+  that system's curation, and its own entries win. The only entry is
+  DADOS_ABERTOS ← SIASUS.
+  - `read_reference_table` falls back to the parent system's copy of a
+    codelist. This is declared ownership, not cross-system borrowing, which
+    stays off.
+  - The vaccination exports (`DOSES_*`, `COBERTURA_*`) are not SIA and inherit
+    nothing.
+- **Key the unit with the age.** `key: [<unit>, <age>]` with `IDADEDET` on the
+  four unit fields (ADR-0088's relation), so a row reads "63 anos (463)".
+- **The ACF flags decode S/N from the layout** (inline `codes:`).
+  `ACF_FREMIT` is a 1–4 grade with no documented anchors, so it is a
+  measurement (`code_system: none`), not a code.
+- **Not decoded, because no source gives the codes:**
+  - `AP_TPATEN` 12: `TP_ATEND.CNV` lists 00–06;
+  - `AP_TIPPRE` 00: every ACF row, and absent from `TIPOPRES`;
+  - `AP_UFNACIO` `10`: two characters in a 3-character field, and never
+    padded (CLAUDE.md §6).
+
+  They read `code (?)`.
+
+**Related change.** `query()` takes `allow_partial` (CLI `--allow-partial`).
+The fetch layer's own error told the caller to pass it, but `query()`
+hard-coded `False`, so one unreadable file out of 3,768 refused the whole
+table. A short result now carries a `PartialSourceWarning`, and
+`report.source_report.excluded` names the files.

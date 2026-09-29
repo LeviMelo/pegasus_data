@@ -812,8 +812,29 @@ def system_spellings(system: str) -> list[str]:
     return sorted({asked, str(node.code).upper(), *(str(a).upper() for a in node.crawled_as)})
 
 
+#: A system whose files republish another system's fields inherits that
+#: system's curation; its own entries win. DATASUS's open-data DuckDB exports
+#: of the APACs (Dados_Abertos/APAC_SIA) carry SIA's own AB_*, AP_*, ACF_*
+#: columns (ADR-0095).
+INHERITS: dict[str, tuple[str, ...]] = {"DADOS_ABERTOS": ("SIASUS",)}
+
+
 def load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str, VariableDoc]:
-    """Curated docs keyed by field name, for the renderer and the doc generator."""
+    """Curated docs keyed by field name, for the renderer and the doc generator.
+
+    Inherited systems (``INHERITS``) fill in fields the system does not curate.
+    """
+    if system and str(system).upper() in INHERITS:
+        merged: dict[str, VariableDoc] = {}
+        for parent in INHERITS[str(system).upper()]:
+            merged.update(_load_variable_docs(catalog, parent))
+        merged.update(_load_variable_docs(catalog, system))
+        return merged
+    return _load_variable_docs(catalog, system)
+
+
+def _load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str, VariableDoc]:
+    """The docs curated for exactly this system."""
     clause, params = "", []
     if system:
         names = system_spellings(system)

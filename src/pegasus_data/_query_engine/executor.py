@@ -16,6 +16,7 @@ from ..crosswalk import EnrichmentRequest, enrich_cnes, enrich_cnpj
 from .filters import _filter_source_period, _with_competence, _with_source_resolution
 from .model import (
     CrosswalkAmbiguityWarning,
+    PartialSourceWarning,
     QueryReport,
     QuerySpec,
     StructuralSchemaWarning,
@@ -75,6 +76,7 @@ def query(
     time_policy: Literal["adapt", "strict"] = "adapt",
     allow_unbounded: bool = False,
     max_download: int | None = 1024**3,
+    allow_partial: bool = False,
     return_report: bool = False,
     root: str | Path | None = None,
     settings: Settings | None = None,
@@ -210,13 +212,24 @@ def query(
                 derived=labels,
                 provenance=True,
                 on_missing_column="null_fill",
-                allow_partial=False,
+                # A file that would not download or open is a recorded gap
+                # (report.excluded), never a silent absence; accepting a short
+                # table is the caller's explicit choice.
+                allow_partial=allow_partial,
                 max_bytes=None,  # the budget is max_download, checked above on NEW bytes
                 settings=resolved,
                 report=True,
             )
             tables.append(_with_competence(fetched_table, fetched_report))
             source_reports.append(fetched_report)
+            if not fetched_report.is_complete:
+                gaps = sum(len(v) for v in fetched_report.excluded.values())
+                message = (
+                    f"{gaps} source file(s) for {fetch_year} did not contribute; the table is short "
+                    f"(report.source_report.excluded names them)"
+                )
+                report.warnings.append(message)
+                warnings.warn(message, PartialSourceWarning, stacklevel=2)
     if not tables:
         raise FileNotFoundError("the retrieval plan found neither complete local coverage nor fetchable years")
     table = tables[0] if len(tables) == 1 else pa.concat_tables(tables, promote_options="default")

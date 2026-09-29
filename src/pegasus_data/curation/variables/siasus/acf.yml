@@ -29,9 +29,13 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
-    reasoning: Bound to SIMNAO2; DUPLEX names the duplex scan.
+    # The data hold S/N as the layout defines; the kit's SIMNAO2.CNV codes
+    # 1/0 and decodes none of it (ADR-0095).
+    codes: {"S": "Sim", "N": "Não"}
+    source: layout_doc
+    source_ref: '"Layout da interface texto do APAC e do SIA - layout INTERNO" (DATASUS/SIA,
+      11/04/2014) — local: sources/apac_layout.txt, Confecção de Fístula part,
+      APA_DUPLEX ''Duplex prévio (S-Sim, N-Não)'''
   ACF_FLEBIT:
     official_name: Flebite
     translated_name: Phlebitis
@@ -40,15 +44,21 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
-    reasoning: Bound to SIMNAO2; FLEBIT reads flebite.
+    # The data hold S/N as the layout defines; the kit's SIMNAO2.CNV codes
+    # 1/0 and decodes none of it (ADR-0095).
+    codes: {"S": "Sim", "N": "Não"}
+    source: layout_doc
+    source_ref: '"Layout da interface texto do APAC e do SIA - layout INTERNO" (DATASUS/SIA,
+      11/04/2014) — local: sources/apac_layout.txt, Confecção de Fístula part,
+      APA_FLEBIT ''Flebites (S-Sim, N-Não)'''
   ACF_FREMIT:
     official_name: Frêmito
     translated_name: Thrill
     description: 'Thrill (frêmito, the vibration felt by touch) along the arteriovenous
       fistula path, graded 1 to 4 in the capture layout rather than a yes/no flag.'
-    code_system: internal
+    # A grade, not a code: the layout gives the scale (1 a 4) and no anchor
+    # for either end, so the value is shown as recorded (ADR-0095).
+    code_system: none
     source: layout_doc
     source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -65,9 +75,13 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
-    reasoning: Bound to SIMNAO2; HEMATO reads hematoma.
+    # The data hold S/N as the layout defines; the kit's SIMNAO2.CNV codes
+    # 1/0 and decodes none of it (ADR-0095).
+    codes: {"S": "Sim", "N": "Não"}
+    source: layout_doc
+    source_ref: '"Layout da interface texto do APAC e do SIA - layout INTERNO" (DATASUS/SIA,
+      11/04/2014) — local: sources/apac_layout.txt, Confecção de Fístula part,
+      APA_HEMATO ''Hematomas (S-Sim, N-Não)'''
   ACF_PREFAV:
     official_name: Fístula arteriovenosa prévia
     translated_name: Previous fistula
@@ -76,9 +90,13 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
-    reasoning: Bound to SIMNAO2; PREFAV reads prévia fístula arteriovenosa.
+    # The data hold S/N as the layout defines; the kit's SIMNAO2.CNV codes
+    # 1/0 and decodes none of it (ADR-0095).
+    codes: {"S": "Sim", "N": "Não"}
+    source: layout_doc
+    source_ref: '"Layout da interface texto do APAC e do SIA - layout INTERNO" (DATASUS/SIA,
+      11/04/2014) — local: sources/apac_layout.txt, Confecção de Fístula part,
+      APA_PREFAV ''FAV prévia (S-Sim, N-Não)'''
   ACF_PULSO:
     official_name: Pulso arterial palpável
     translated_name: Palpable arterial pulse
@@ -88,9 +106,13 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
-    reasoning: Bound to SIMNAO2; PULSO reads pulso.
+    # The data hold S/N as the layout defines; the kit's SIMNAO2.CNV codes
+    # 1/0 and decodes none of it (ADR-0095).
+    codes: {"S": "Sim", "N": "Não"}
+    source: layout_doc
+    source_ref: '"Layout da interface texto do APAC e do SIA - layout INTERNO" (DATASUS/SIA,
+      11/04/2014) — local: sources/apac_layout.txt, Confecção de Fístula part,
+      APA_PULSO ''Presença de pulso (S-Sim, N-Não)'''
   ACF_USOCAT:
     official_name: Uso de cateter
     translated_name: Catheter in use
@@ -100,9 +122,13 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
-    reasoning: Bound to SIMNAO2; USOCAT reads uso de cateter.
+    # The data hold S/N as the layout defines; the kit's SIMNAO2.CNV codes
+    # 1/0 and decodes none of it (ADR-0095).
+    codes: {"S": "Sim", "N": "Não"}
+    source: layout_doc
+    source_ref: '"Layout da interface texto do APAC e do SIA - layout INTERNO" (DATASUS/SIA,
+      11/04/2014) — local: sources/apac_layout.txt, Confecção de Fístula part,
+      APA_USOCAT ''Uso do cateter venoso ou outros acessos venosos prévios (S-Sim, N-Não)'''
   ACF_VEIAVI:
     official_name: Veia visível
     translated_name: Visible vein
@@ -111,9 +137,13 @@ variables:
 
       '
     code_system: internal
-    source: def
-    source_ref: SIMNAO2.CNV
-    reasoning: Bound to SIMNAO2; VEIAVI reads veia visível.
+    # The data hold S/N as the layout defines; the kit's SIMNAO2.CNV codes
+    # 1/0 and decodes none of it (ADR-0095).
+    codes: {"S": "Sim", "N": "Não"}
+    source: layout_doc
+    source_ref: '"Layout da interface texto do APAC e do SIA - layout INTERNO" (DATASUS/SIA,
+      11/04/2014) — local: sources/apac_layout.txt, Confecção de Fístula part,
+      APA_VEIAVI ''Veia visível (S-Sim, N-Não)'''
   ACF_VEIDIA:
     official_name: Diâmetro da veia
     translated_name: Vein diameter

@@ -403,9 +403,11 @@ variables:
       very young patients) rather than the age value itself.
 
       '
-    codelists:
-    - IDADE18
-    - IDADEDET
+    # The unit alone says little; TabWin's .DEF reads it with the 2-digit age
+    # that follows it (APAC_*.DEF 'Idade detalhada', AP_COIDADE width 3), and
+    # IDADEDET names the pair: 463 = 63 anos, 205 = 5 dias (ADR-0095).
+    codelist: IDADEDET
+    key: [AP_COIDADE, AP_NUIDADE]
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -537,7 +539,9 @@ variables:
       when AP_RACACOR = 05 (Indigena).
 
       '
-    code_system: external
+    code_system: internal
+    # The SIA kit's own ETNIA.CNV (Portaria SAS 508/2010, Anexo I), 4 digits.
+    codelist: ETNIA
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
@@ -1369,10 +1373,12 @@ variables:
       the patient''s date of birth - the BPA-I/RAAS analogue of AP_COIDADE.
 
       '
-    codelists:
-    - IDADE18
-    - IDADEDET
     code_system: internal
+    # The unit digit and IDADEPAC's two digits form one code, the way the
+    # kit's .DEF reads them and the system's own IDADEDET.CNV names them:
+    # 463 = 63 anos, 205 = 5 dias, 312 = 11 meses (ADR-0095).
+    codelist: IDADEDET
+    key: [TPIDADEPAC, IDADEPAC]
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions

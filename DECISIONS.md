@@ -119,3 +119,4 @@ last, comes first.
 | [ADR-0092](docs/decisions/ADR-0092-sigtap-is-canonical-and-hierarchies-are-dimensions.md) | 2026-09-29 | SIGTAP is canonical, its hierarchy is a dimension, and derived columns can be selected | active | amends ADR-0087, ADR-0089 |
 | [ADR-0093](docs/decisions/ADR-0093-naturality-cnpj-and-the-coded-label-invariant.md) | 2026-09-29 | Naturality and CNPJs decode from canonical tables; every coded column leaves with a label companion | active | amends ADR-0086, ADR-0087 |
 | [ADR-0094](docs/decisions/ADR-0094-a-label-reached-through-another-column.md) | 2026-09-29 | A label can be reached through another column of the row | active | amends ADR-0090, ADR-0093 |
+| [ADR-0095](docs/decisions/ADR-0095-kits-are-read-by-column-and-curation-is-inherited.md) | 2026-09-29 | A `.CNV` is read by its columns; a republishing system inherits curation; the age unit is keyed with the age | active | amends ADR-0088 |

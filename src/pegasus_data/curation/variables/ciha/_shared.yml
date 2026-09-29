@@ -15,11 +15,17 @@ variables:
     official_name: Unidade de medida da idade
     translated_name: Age unit
     description: Which unit the IDADE field is in — minutes, hours, days, months or years.
-      IDADE is meaningless without it, and no codelist for the unit exists in any source,
-      so the pair is carried raw. CIHA records care NOT funded by SUS, reported so the Ministry
+      IDADE is meaningless without it. The pair is one code in the kit's IDADEDET.CNV (463 =
+      63 anos), and decodes through it (ADR-0095; this said no codelist existed until
+      2026-09-29). CIHA records care NOT funded by SUS, reported so the Ministry
       sees the whole picture; the column carries SIH's meaning on a population SIH does not
       cover.
     code_system: internal
+    # The unit digit and IDADE's two digits form one code, the way the
+    # kit's .DEF reads them and the system's own IDADEDET.CNV names them:
+    # 463 = 63 anos, 205 = 5 dias, 312 = 11 meses (ADR-0095).
+    codelist: IDADEDET
+    key: [COD_IDADE, IDADE]
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, campo COD_IDADE'

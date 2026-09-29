@@ -396,6 +396,38 @@ def read_reference_table(
     competencia: int | None = None,
     code_width: int | None = None,
 ) -> pa.Table:
+    """``_read_reference_table``, falling back to the systems this one inherits.
+
+    A system that republishes another's fields (``curation.INHERITS``:
+    DADOS_ABERTOS carries SIASUS's APAC columns) decodes them against the
+    parent's own copy when it ships none (ADR-0095). Declared inheritance is
+    not borrowing: it names the one system the field belongs to.
+    """
+    from ..semantics.curation import INHERITS
+
+    kwargs = {"valid_from": valid_from, "year": year, "competencia": competencia, "code_width": code_width}
+    parents = INHERITS.get(str(system).upper(), ()) if system else ()
+    try:
+        return _read_reference_table(lake_root, table_id, system=system, **kwargs)  # type: ignore[arg-type]
+    except FileNotFoundError:
+        for parent in parents:
+            try:
+                return _read_reference_table(lake_root, table_id, system=parent, **kwargs)  # type: ignore[arg-type]
+            except FileNotFoundError:
+                continue
+        raise
+
+
+def _read_reference_table(
+    lake_root: str | Path,
+    table_id: str,
+    *,
+    system: str | None = None,
+    valid_from: str | None = None,
+    year: int | None = None,
+    competencia: int | None = None,
+    code_width: int | None = None,
+) -> pa.Table:
     """Load one reference table, optionally the vintage covering a given year.
 
     Asking for a ``year`` picks the window that contains it, which is the whole

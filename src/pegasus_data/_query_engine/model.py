@@ -26,6 +26,10 @@ class CrosswalkAmbiguityWarning(UserWarning):
     pass
 
 
+class PartialSourceWarning(UserWarning):
+    """Some selected source files did not contribute; the table is short."""
+
+
 @dataclass(frozen=True, slots=True)
 class Period:
     start: int

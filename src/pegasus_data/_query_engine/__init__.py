@@ -12,6 +12,7 @@ from .model import (
     CrosswalkAmbiguityWarning,
     DimensionRequest,
     Geography,
+    PartialSourceWarning,
     Period,
     QueryPlan,
     QueryReport,
@@ -25,6 +26,6 @@ from .planner import plan
 __all__ = [
     "Adaptation", "CrosswalkAmbiguityWarning", "DimensionRequest", "Geography",
     "Period", "QueryPlan", "QueryReport", "QuerySpec", "SemanticFallbackWarning",
-    "StructuralSchemaWarning", "TimeResolutionWarning",
+    "StructuralSchemaWarning", "TimeResolutionWarning", "PartialSourceWarning",
     "plan", "query",
 ]

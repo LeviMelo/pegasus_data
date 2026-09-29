@@ -228,8 +228,11 @@ def supersede_source(catalog: Catalog, prefixes: Sequence[str]) -> int:
     removed = 0
     for prefix in prefixes:
         cursor = catalog.execute(
-            "DELETE FROM dictionary WHERE source_ref = ? OR source_ref LIKE ? || ' %'",
-            (prefix, prefix),
+            # A .CNV row cites its line (``kit!CNV/MOTSAIPE.CNV:6``), a table
+            # row its column resolution (``kit!TABLE (cols …)``).
+            "DELETE FROM dictionary WHERE source_ref = ? OR source_ref LIKE ? || ' %' "
+            "OR source_ref LIKE ? || ':%'",
+            (prefix, prefix, prefix),
         )
         removed += cursor.rowcount or 0
     if removed:

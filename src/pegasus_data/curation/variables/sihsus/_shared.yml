@@ -139,13 +139,19 @@ variables:
     official_name: Unidade de medida da idade
     translated_name: Age unit
     description: The unit in which IDADE is expressed.
-    code_system: none
+    code_system: internal
+    # The unit digit and IDADE's two digits form one code, the way the
+    # kit's .DEF reads them and the system's own IDADEDET.CNV names them:
+    # 463 = 63 anos, 205 = 5 dias, 312 = 11 meses (ADR-0095).
+    codelist: IDADEDET
+    key: [COD_IDADE, IDADE]
     modifies: IDADE
     source: layout_doc
     notes: 'Unit codes, from the USP SIH dictionary (sources/sih_batch/usp_dict.txt): 0 ignored,
       2 days, 3 months, 4 years; 5 is 100 + IDADE years (_age.py). IDADE_anos decodes the pair
-      (2026-09-28). Still no DATASUS codelist of time units, so the column itself carries no
-      label. The earlier note follows. Six distinct values are observed (0,1,2,3,4,5 — the instruction
+      (2026-09-28). CORRECTED 2026-09-29: the column does have a DATASUS codelist.
+      IDADEDET.CNV is keyed on this unit digit followed by IDADE (463 = 63 anos), so the
+      pair now decodes through key: (ADR-0095); what follows said otherwise. The earlier note follows. Six distinct values are observed (0,1,2,3,4,5 — the instruction
       expected five), and no codelist of time units exists in the 4.0M dictionary rows ingested
       so far. The .DEF files bind this column to IDADEPUB, IDADEBAS, IDADEDET and IDADE18,
       all of which are TabNet age-BAND axes with 3-character codes labelled ''< 1 ano'' —

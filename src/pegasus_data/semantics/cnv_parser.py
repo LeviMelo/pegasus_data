@@ -142,6 +142,29 @@ def _expression_column(lines: list[str]) -> int | None:
     return column if hits >= max(2, 0.6 * sum(starts.values())) else None
 
 
+def _code_abuts_label(line: str, column: int, width: int | None) -> bool:
+    """Does a label that fills its whole field run straight into the code?
+
+    A ``.CNV`` truncates a long label to its field, so the code then starts at
+    the expression column with no space before it: ``MOTSAIPE.CNV`` reads
+    ``ALTA COM PREVISÃO DE RETORNO P/ ACOMPAN. DO PACIENT15``. Splitting on
+    whitespace took ``PACIENT15`` as the code, and discharge reason 15 never
+    decoded (nor ``41``, nor ``CARAT_AT``'s ``06``). The column is trusted
+    here only when what starts at it is an expression whose first code has the
+    header's declared width, so an overflowing label (``medico02.CNV``) still
+    falls through to the checks below.
+    """
+    if width is None:
+        return False
+    text = line[column:]
+    if not text or text[0].isspace():
+        return False
+    head = text.split()[0]
+    if not _is_expression(head):
+        return False
+    return len(re.split(r"[,\-]", head)[0]) == width
+
+
 def _plausible_header(count: str, width: str) -> bool:
     """Do these two numbers look like a category count and a code width?
 
@@ -263,7 +286,9 @@ def parse_cnv_bytes(
         if len(tokens) == 1:
             out.warnings.append(f"line {line_no}: no match expression")
             continue
-        if expr_col is not None and len(line) > expr_col and line[expr_col - 1 : expr_col] in (" ", ""):
+        if expr_col is not None and len(line) > expr_col and (
+            line[expr_col - 1 : expr_col] in (" ", "") or _code_abuts_label(line, expr_col, width)
+        ):
             # Collapse the column padding: a .CNV is a fixed-width layout, so the
             # run of spaces inside 'JI-PARANÁ               A' is alignment, not
             # part of the name.

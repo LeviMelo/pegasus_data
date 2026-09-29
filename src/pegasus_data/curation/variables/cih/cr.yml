@@ -128,9 +128,11 @@ variables:
       IDADE is meaningless without it, and reading IDADE as years alone mis-scales every infant
       record.'
     code_system: internal
-    codelists:
-    - IDADEDET
-    - IDADE18
+    # The unit digit and IDADE's two digits form one code, the way the
+    # kit's .DEF reads them and the system's own IDADEDET.CNV names them:
+    # 463 = 63 anos, 205 = 5 dias, 312 = 11 meses (ADR-0095).
+    codelist: IDADEDET
+    key: [COD_IDADE, IDADE]
     depends_on:
     - IDADE
     source: def

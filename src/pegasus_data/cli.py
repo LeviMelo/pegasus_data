@@ -1310,6 +1310,9 @@ def query_cmd(
     allow_unbounded: Annotated[
         bool, typer.Option("--allow-unbounded", help="Permit a query with no --period (every year on the server)")
     ] = False,
+    allow_partial: Annotated[
+        bool, typer.Option("--allow-partial", help="Accept a short table when a source file will not download or open")
+    ] = False,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
@@ -1338,7 +1341,8 @@ def query_cmd(
             # the presentation is applied to it once, below.
             table, report = run_query(
                 dataset, period=span, geography=geography, select=select, present="analysis",
-                allow_unbounded=allow_unbounded, settings=settings, return_report=True,
+                allow_unbounded=allow_unbounded, allow_partial=allow_partial, settings=settings,
+                return_report=True,
             )
     except (DatasetUnknown, NothingPublished, ValueError, FileNotFoundError) as exc:
         console.print(f"[red]{exc}[/red]")

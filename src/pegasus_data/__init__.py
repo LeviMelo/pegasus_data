@@ -80,6 +80,7 @@ _EXPORTS: dict[str, str] = {
     "Geography": "._query_engine",
     "TimeResolutionWarning": "._query_engine",
     "StructuralSchemaWarning": "._query_engine",
+    "PartialSourceWarning": "._query_engine",
     "SemanticFallbackWarning": "._query_engine",
     "CrosswalkAmbiguityWarning": "._query_engine",
     "enrichment": ".crosswalk",
@@ -110,6 +111,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from ._query_engine import (
         CrosswalkAmbiguityWarning,
         Geography,
+        PartialSourceWarning,
         Period,
         QueryPlan,
         QueryReport,

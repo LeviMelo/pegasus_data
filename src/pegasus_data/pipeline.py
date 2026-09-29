@@ -343,7 +343,10 @@ class Pipeline:
             # ones because the corrected codes differ from the mistaken ones.
             superseded += supersede_source(
                 self.catalog,
-                [f"{kit.kit_path}!{table_id}" for table_id in kit.code_tables],
+                # The .CNV members too: a parser fix changes their codes
+                # (`PACIENT15` -> `15`, ADR-0095), and the stale reading
+                # would otherwise stay beside the corrected one.
+                [f"{kit.kit_path}!{member}" for member in (*kit.code_tables, *kit.cnvs)],
             )
             merged = persist_entries(self.catalog, entries)
             persist_bindings(self.catalog, bindings)
@@ -403,6 +406,10 @@ class Pipeline:
                 loose_defs += 1
 
         if loose_entries:
+            superseded += supersede_source(
+                self.catalog, sorted(path for path in loose_fetched if path.lower().endswith(".cnv"))
+            )
+            counts["superseded_rows"] = superseded
             merged = persist_entries(self.catalog, loose_entries)
             counts["dictionary_entries"] = int(counts["dictionary_entries"]) + merged["inserted"]
             counts["conflicts"] = int(counts["conflicts"]) + merged["conflicts"]
