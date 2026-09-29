@@ -155,6 +155,7 @@ variables:
 
       '
     code_system: external
+    codelist: ICD10
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
       -> "CIH [2008-2010].DEF", section "CID-10 Prim.", binding DIAG_PRINC to CID10CAP.CNV,
@@ -176,6 +177,7 @@ variables:
 
       '
     code_system: external
+    codelist: ICD10
     source: def
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/CIH/200801_201012/Auxiliar/TAB_CIH.zip
       -> "CIH [2008-2010].DEF", section "CID-10 Sec.", binding DIAG_SECUN to the same family

@@ -73,6 +73,7 @@ variables:
     description: ICD-10 code of an associated condition contributing to the admission, distinct
       from the principal diagnosis and from the cause of death.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 78'
@@ -82,6 +83,7 @@ variables:
     description: ICD-10 code of the cause of death where the patient died. Zeros where the
       patient survived, so it is constant in most extracts.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 79'
@@ -91,6 +93,7 @@ variables:
     description: ICD-10 code of a notifiable condition identified during the admission, which
       triggers a parallel SINAN notification.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 62'
@@ -190,6 +193,7 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 96'
@@ -200,6 +204,7 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 97'
@@ -210,6 +215,7 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 98'
@@ -220,6 +226,7 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 99'
@@ -230,6 +237,7 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 100'
@@ -240,6 +248,7 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 101'
@@ -250,6 +259,7 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 102'
@@ -260,6 +270,7 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 103'
@@ -270,6 +281,7 @@ variables:
       DIAG_SECUN from 201501 and do not exist before it, so a series crossing that date shows
       comorbidity appearing suddenly — a change in the record, not in the patients.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 104'
@@ -282,7 +294,7 @@ variables:
       '
     code_system: external
     codelists:
-    - CID10
+    - ICD10
     - CID9_01
     - CID9_02
     - CID9_03
@@ -325,7 +337,7 @@ variables:
     description: CID-10 code for a secondary diagnosis, without the dot.
     code_system: external
     codelists:
-    - CID10
+    - ICD10
     - CID9_01
     - CID9_02
     - CID9_03
@@ -879,6 +891,7 @@ variables:
     description: ICD-10 principal diagnosis carried on the act row, repeated from the parent
       AIH.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 33'
@@ -887,6 +900,7 @@ variables:
     translated_name: Secondary ICD code
     description: ICD-10 secondary diagnosis carried on the act row.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 34'

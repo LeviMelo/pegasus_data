@@ -30,6 +30,7 @@ variables:
       the dot. CIHA records care NOT funded by SUS, reported so the Ministry sees the whole
       picture; the column carries SIH's meaning on a population SIH does not cover.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, campo DIAG_PRINC'

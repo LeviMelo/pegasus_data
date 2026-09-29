@@ -176,7 +176,7 @@ variables:
 
       '
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: inferred
     reasoning: 'C(4) CID-10 code bound to CID_COM, whose labels are conditions such as
       hipertensão arterial sistêmica and diabetes mellitus. Reviewed 2026-09-28: no
@@ -188,7 +188,7 @@ variables:
     translated_name: Comorbidity 2
     description: Second comorbidity, as a CID-10 code. See AP_CID_C1.
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: inferred
     reasoning: 'C(4) CID-10 code bound to CID_COM, slot 2 of five. Reviewed 2026-09-28:
       no documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC
@@ -199,7 +199,7 @@ variables:
     translated_name: Comorbidity 3
     description: Third comorbidity, as a CID-10 code. See AP_CID_C1.
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: inferred
     reasoning: 'C(4) CID-10 code bound to CID_COM, slot 3 of five. Reviewed 2026-09-28:
       no documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC
@@ -210,7 +210,7 @@ variables:
     translated_name: Comorbidity 4
     description: Fourth comorbidity, as a CID-10 code. See AP_CID_C1.
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: inferred
     reasoning: 'C(4) CID-10 code bound to CID_COM, slot 4 of five. Reviewed 2026-09-28:
       no documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC
@@ -221,7 +221,7 @@ variables:
     translated_name: Comorbidity 5
     description: Fifth comorbidity, as a CID-10 code. See AP_CID_C1.
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: inferred
     reasoning: 'C(4) CID-10 code bound to CID_COM, slot 5 of five. Reviewed 2026-09-28:
       no documentation found (searched Informe Técnico SIASUS 2019-07 and the APAC
@@ -235,6 +235,7 @@ variables:
 
       '
     code_system: external
+    codelist: ICD10
     source: inferred
     reasoning: 'Declared C(4), the CID-10 subcategory width, and CID_CO names it as the
       comorbidity''s code alongside the AP_COMORB flag. Reviewed 2026-09-28: no
@@ -337,7 +338,7 @@ variables:
     translated_name: Primary diagnosis
     description: The principal CID-10 diagnosis on the follow-up authorisation.
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: layout_doc
     source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
       (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:
@@ -348,7 +349,7 @@ variables:
     translated_name: Secondary diagnosis
     description: The secondary CID-10 diagnosis, beside CO_CIDPRIM.
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: layout_doc
     source_ref: '''Layout da interface texto do APAC e do SIA - layout INTERNO''
       (DATASUS/SIA, 11/04/2014) — local: sources/layout_interno.pdf (text:

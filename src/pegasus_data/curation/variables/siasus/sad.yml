@@ -25,7 +25,7 @@ variables:
     translated_name: Diagnosis
     description: CID-10 diagnosis recorded on the home care action.
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: layout_doc
     source_ref: 'Informe Técnico SIASUS 2019-07 (DATASUS) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,

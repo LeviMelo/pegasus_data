@@ -252,9 +252,8 @@ variables:
       AP_CIDSEC (secondary).
 
       '
-    codelists:
-    - S_CID
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
@@ -266,9 +265,8 @@ variables:
     description: 'ICD-10 code for the main diagnosis justifying the APAC, from the S_CID codelist.
 
       '
-    codelists:
-    - S_CID
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
@@ -281,9 +279,8 @@ variables:
       and AP_CIDCAS (associated cause).
 
       '
-    codelists:
-    - S_CID
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
@@ -940,17 +937,15 @@ variables:
     description: ICD-10 code for a comorbidity or associated condition recorded alongside
       the principal diagnosis (CIDPRI) on the RAAS record.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   CIDPRI:
     official_name: CID Principal
     translated_name: Primary ICD-10 code
     description: 'ICD-10 code for the main diagnosis on a BPA-Individualizado record.
 
       '
-    codelists:
-    - S_CID
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions

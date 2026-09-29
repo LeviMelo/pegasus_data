@@ -476,6 +476,13 @@ def _tokenize(value: str, rule: Mapping[str, Any]) -> list[str]:
     ]
 
 
+def _strip_code(label: str, code: str) -> str:
+    """A label without a leading copy of its own code ("I64 Acidente…" -> "Acidente…")."""
+    head, _, rest = label.partition(" ")
+    plain = lambda x: "".join(ch for ch in x if ch.isalnum()).upper()  # noqa: E731
+    return rest.strip(" -–") if rest and plain(head) == plain(code) else label
+
+
 def _render_multi_valued(
     column: pa.Array, rule: Mapping[str, Any], lookup: Mapping[str, str]
 ) -> tuple[list[str | None], list[list[str]], list[int]]:
@@ -500,10 +507,11 @@ def _render_multi_valued(
         for token in tokens:
             label = lookup.get(token)
             if label is None:
+                # Kept, and visibly undecoded (ADR-0086).
                 misses += 1
-                pieces.append(token)
+                pieces.append(f"{token} (?)")
             else:
-                pieces.append(f"{token} {label}")
+                pieces.append(f"{_strip_code(label, token)} ({token})")
         rendered.append(TOKEN_JOIN.join(pieces) if pieces else None)
         code_lists.append(tokens)
         unmatched.append(misses)

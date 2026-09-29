@@ -119,9 +119,8 @@ variables:
       AP_CIDCAS for APAC- originated records.
 
       '
-    codelists:
-    - S_CID
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
@@ -132,11 +131,8 @@ variables:
       for rows originating from an APAC or a BPA-I (see PA_DOCORIG).
 
       '
-    codelists:
-    - CID
-    - CID10GRUPOC
-    - S_CID
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
@@ -147,10 +143,8 @@ variables:
       for APAC-originated rows.
 
       '
-    codelists:
-    - CID
-    - S_CID
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'

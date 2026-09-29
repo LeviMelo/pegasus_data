@@ -13,8 +13,7 @@ variables:
     description: ICD-10 code for the tumour's anatomical site (topography) that justifies
       this chemotherapy APAC.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AQ_CIDINI1:
     official_name: CID 1º Tratamento anterior
     translated_name: CID of 1st prior treatment
@@ -22,24 +21,21 @@ variables:
       cancer treatment (only filled when AQ_TRANTE=S), paired with the start date in
       AQ_DTINI1.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AQ_CIDINI2:
     official_name: CID 2º Tratamento anterior
     translated_name: CID of 2nd prior treatment
     description: ICD-10 diagnosis associated with the patient's second previously-received
       cancer treatment, paired with the start date in AQ_DTINI2.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AQ_CIDINI3:
     official_name: CID 3º Tratamento anterior
     translated_name: CID of 3rd prior treatment
     description: ICD-10 diagnosis associated with the patient's third previously-received
       cancer treatment, paired with the start date in AQ_DTINI3.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AQ_CONTTR:
     official_name: Continuidade do tratamento (S = Sim; N = Não)
     translated_name: Treatment continuity

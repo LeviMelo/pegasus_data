@@ -328,6 +328,11 @@ def flag_mixed_width_tables(catalog: Catalog, tables: Sequence[ReferenceTable]) 
 # Re-exported so every existing caller keeps working.
 
 
+#: Standard classifications served from one canonical table for every system
+#: (ADR-0087): name -> file under pegasus_data/resources.
+CLASSIFICATIONS: dict[str, str] = {"ICD10": "icd10.parquet"}
+
+
 def read_reference_table(
     lake_root: str | Path,
     table_id: str,
@@ -363,6 +368,16 @@ def read_reference_table(
     from ..registry import lookup as registry_lookup
     from ..semantics.curation import inline_codelist
 
+    canonical = CLASSIFICATIONS.get(table_id.upper())
+    if canonical is not None:
+        # A published standard classification, one table for every system
+        # (ADR-0087): DATASUS's official ICD-10 with full descriptions, where
+        # each system's own .CNV carries "N03.9 NE".
+        from importlib.resources import files as _files
+
+        import pyarrow.parquet as _pq
+
+        return _pq.read_table(str(_files("pegasus_data.resources") / canonical), columns=["code", "label"])
     if is_registry(table_id):
         # A registry (CADGER*: establishment names) comes from the system's own
         # CURRENT kit, fetched once and cached; the pack's partial copy is

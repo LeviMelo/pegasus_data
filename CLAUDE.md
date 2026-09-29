@@ -129,7 +129,7 @@ Missing is not zero; a file that would not open is a recorded gap, not an absenc
 A missing column raises; an empty result must never look legitimate.
 Labels are joined by validity window, never frozen into the lake.
 Widths are matched exactly; never pad or truncate a code to make a join succeed.
-A codelist is always keyed by its system.
+A system's own codelist is keyed by its system; a standard (ICD-10) is one canonical table.
 Sentinels are per field; there is no global sentinel rule.
 Never discard the raw value when writing a label.
 Never resolve a source conflict silently; record both claims.

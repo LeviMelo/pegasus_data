@@ -132,7 +132,7 @@ variables:
       '
     code_system: external
     codelists:
-    - CID10
+    - ICD10
     - CID9WHO
     vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
       both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
@@ -162,7 +162,7 @@ variables:
       '
     code_system: external
     codelists:
-    - CID10
+    - ICD10
     - CID9WHO
     vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
       both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
@@ -190,6 +190,7 @@ variables:
     description: ICD-10 underlying cause held before the death was investigated. Compare with
       CAUSABAS to see what the investigation changed.
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'Estrutura do SIM para o CD (CGIAE/SVS, atualizado 12/2019) —
       ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DOCS/Estrutura_SIM_para_CD.pdf
@@ -927,6 +928,13 @@ variables:
     description: Which source the death investigation drew on — a maternal or infant mortality
       committee, a home visit, a health record, database linkage, the SVO or the IML, or several.
     code_system: internal
+    # The dictionary writes 5 and 6 as the acronyms "S V O" and "I M L"; the
+    # expansions are the services those acronyms name in the same document's
+    # description ("SVO ou IML").
+    codes: {'1': Comitê de Morte Materna e/ou Infantil, '2': Visita domiciliar / Entrevista família,
+      '3': Estabelecimento de Saúde / Prontuário, '4': Relacionado com outros bancos de dados,
+      '5': SVO (Serviço de Verificação de Óbitos), '6': IML (Instituto Médico Legal), '7': Outra fonte,
+      '8': Múltiplas fontes, '9': Ignorado}
     source: layout_doc
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo FONTEINV'
@@ -1105,7 +1113,7 @@ variables:
       '
     code_system: external
     codelists:
-    - CID10
+    - ICD10
     - CID9WHO
     vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
       both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
@@ -1141,7 +1149,7 @@ variables:
     description: Antecedent cause leading to the condition in line A.
     code_system: external
     codelists:
-    - CID10
+    - ICD10
     - CID9WHO
     vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
       both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
@@ -1173,7 +1181,7 @@ variables:
     description: Antecedent cause leading to the condition in line B.
     code_system: external
     codelists:
-    - CID10
+    - ICD10
     - CID9WHO
     vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
       both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
@@ -1205,7 +1213,7 @@ variables:
     description: The underlying cause as written by the physician.
     code_system: external
     codelists:
-    - CID10
+    - ICD10
     - CID9WHO
     vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
       both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998
@@ -1244,7 +1252,7 @@ variables:
       '
     code_system: external
     codelists:
-    - CID10
+    - ICD10
     - CID9WHO
     vintage_note: 'SIM ran on CID-9 until the CID-10 changeover and the FTP tree still carries
       both: SIM/CID9 spans 1979-1998 and SIM/CID10 spans 1996-2024, so they OVERLAP for 1996-1998

@@ -100,13 +100,7 @@ variables:
 
       '
     code_system: external
-    codelist: CID10_01
-    codelists:
-    - CID10GRUPO
-    - CID10GRUPOC
-    - CID10GRUPOS
-    - CID10CAC
-    - CID10CAP
+    codelist: ICD10
     notes: 'The extra codelists beyond CID10_01 are chapter/group/category groupings TabNet
       derives from the same ICD-10 code for tabulation axes, not alternate codings of the
       field itself.

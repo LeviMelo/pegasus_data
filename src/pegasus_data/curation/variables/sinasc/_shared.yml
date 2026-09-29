@@ -114,7 +114,7 @@ variables:
       '
     code_system: external
     codelists:
-    - CID1017
+    - ICD10
     - ECLAMC
     multi_valued: true
     token_rule:

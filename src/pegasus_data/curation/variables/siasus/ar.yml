@@ -12,56 +12,49 @@ variables:
     description: ICD-10 code for the tumour's anatomical site (topography) that justifies
       this radiotherapy APAC.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AR_CIDINI1:
     official_name: CID 1º Tratamento anterior
     translated_name: CID of 1st prior treatment
     description: ICD-10 diagnosis associated with the patient's first previously-received
       cancer treatment, paired with the start date in AR_DTINI1.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AR_CIDINI2:
     official_name: CID 2º Tratamento anterior
     translated_name: CID of 2nd prior treatment
     description: ICD-10 diagnosis associated with the patient's second previously-received
       cancer treatment, paired with the start date in AR_DTINI2.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AR_CIDINI3:
     official_name: CID 3º Tratamento anterior
     translated_name: CID of 3rd prior treatment
     description: ICD-10 diagnosis associated with the patient's third previously-received
       cancer treatment, paired with the start date in AR_DTINI3.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AR_CIDTR1:
     official_name: CID Topográfico 1º
     translated_name: Topographic CID for radiation field 1
     description: ICD-10 topography code for the first radiation field/target planned
       on this APAC.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AR_CIDTR2:
     official_name: CID Topográfico 2º
     translated_name: Topographic CID for radiation field 2
     description: ICD-10 topography code for the second radiation field/target planned
       on this APAC.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AR_CIDTR3:
     official_name: CID Topográfico 3º
     translated_name: Topographic CID for radiation field 3
     description: ICD-10 topography code for the third radiation field/target planned
       on this APAC.
     code_system: external
-    codelists:
-    - S_CID
+    codelist: ICD10
   AR_CONTTR:
     official_name: Continuidade do tratamento (S = Sim; N = Não)
     translated_name: Treatment continuity

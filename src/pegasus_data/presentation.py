@@ -24,6 +24,7 @@ persistent default (``pegasus-data config set presentation <preset>``).
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from typing import Any, Literal
@@ -96,6 +97,12 @@ def _render_values(codes: pa.ChunkedArray | pa.Array, labels: pa.ChunkedArray | 
             out.append(p.unlabelled.format(code=code, label=""))
         else:
             text = str(label)
+            tail = re.search(r"\(([A-Z0-9]{3,})\)$", text)
+            if " | " in text or text.endswith(" (?)") or (tail and tail.group(1) in str(code) and tail.group(1) != str(code)):
+                # A multi-valued column already writes each token as
+                # "label (code)"; appending the raw string would repeat them.
+                out.append(text)
+                continue
             # Many tables already write the code into the label: BR_MUNICIPALFA
             # "120001 Acrelândia, AC", CID-10 "O80.0 Parto espontaneo cefalico"
             # for O800. Do not print it twice when the template shows the code.

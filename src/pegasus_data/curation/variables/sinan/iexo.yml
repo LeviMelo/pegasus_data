@@ -115,6 +115,7 @@ variables:
 
       '
     code_system: external
+    codelist: ICD10
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET – Intoxicação Exógena v6 (26/02/2026) — sources/txt/intoxicacao-exogena__DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026_tables.txt (DIC_DADOS_Intoxicacao_Exogena_v6, portalsinan.saude.gov.br), campo 66 (Se intoxicação confirmada, qual o diagnóstico (CID-10))'
   INTOX_CHUM:

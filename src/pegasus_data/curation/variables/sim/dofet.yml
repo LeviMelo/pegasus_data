@@ -18,8 +18,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - CID1017
+    codelist: ICD10
     source: inferred
     asserted_by: pegasus_data
     reasoning: '[ESTRUTURA-SIM] documents the base field LINHAA (no suffix) at position
@@ -45,8 +44,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - CID1017
+    codelist: ICD10
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Same basis as LINHAA_O: base field LINHAB is documented at
@@ -65,8 +63,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - CID1017
+    codelist: ICD10
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Same basis as LINHAA_O: base field LINHAC is documented at
@@ -84,8 +81,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - CID1017
+    codelist: ICD10
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Same basis as LINHAA_O: base field LINHAD is documented at
@@ -104,8 +100,7 @@ variables:
 
       '
     code_system: external
-    codelists:
-    - CID1017
+    codelist: ICD10
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Same basis as LINHAA_O: base field LINHAII is documented at

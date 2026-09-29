@@ -19,6 +19,8 @@ Each row is classified:
     ``not_coded``  the curation says the values are numbers, dates or text;
     ``decoded``    every observed code has a label;
     ``partial``    some observed codes have none (``share`` < 1);
+    ``opaque``     every code has a label, but some labels are themselves codes
+                   ("05", "A1"): decoded in form, not in meaning;
     ``undecoded``  coded, and no table decodes it;
     ``unmeasured`` coded and bound, but no sample was read to measure it;
     ``unknown``    no curation entry says whether it is coded.
@@ -52,6 +54,8 @@ class FieldCoverage:
     share: float | None
     observed: int | None
     reason: str | None
+    missing_codes: int = 0
+    opaque_codes: int = 0
 
 
 def measure(store: Catalog, systems: list[str] | None = None) -> list[FieldCoverage]:
@@ -70,6 +74,14 @@ def measure(store: Catalog, systems: list[str] | None = None) -> list[FieldCover
             "SELECT family_id, field_name, codelists, basis, share, observed, reason FROM label_bindings"
         )
     }
+    gaps: dict[tuple[str, str], dict[str, int]] = {}
+    try:
+        for g in store.query(
+            "SELECT family_id, field_name, kind, COUNT(*) AS n FROM label_gaps GROUP BY 1, 2, 3"
+        ):
+            gaps.setdefault((str(g["family_id"]), str(g["field_name"]).upper()), {})[str(g["kind"])] = int(g["n"])
+    except Exception:  # noqa: BLE001 - a catalog without label_gaps measures without them
+        gaps = {}
     docs_by_system: dict[str, dict[str, Any]] = {}
     rows: list[FieldCoverage] = []
     for fam in families:
@@ -111,14 +123,17 @@ def measure(store: Catalog, systems: list[str] | None = None) -> list[FieldCover
                 if share is None:
                     coding = "unmeasured"
                 elif share >= DECODED:
-                    coding = "decoded"
+                    opaque = gaps.get((str(fam["family_id"]), field), {}).get("opaque", 0)
+                    coding = "opaque" if opaque else "decoded"
                 else:
                     coding = "partial"
             else:
                 coding = "undecoded"
+            field_gaps = gaps.get((str(fam["family_id"]), field), {})
             rows.append(FieldCoverage(
                 system, str(fam["series"] or ""), str(fam["family_id"]), field, int(fam["files"] or 0),
                 description, source, coding, codelists, share, observed, reason,
+                field_gaps.get("missing", 0), field_gaps.get("opaque", 0),
             ))
     return rows
 
@@ -128,7 +143,7 @@ def summarise(rows: list[FieldCoverage]) -> list[dict[str, Any]]:
     by_system: dict[str, dict[str, Counter[str]]] = defaultdict(lambda: {"description": Counter(), "coding": Counter()})
     seen: set[tuple[str, str]] = set()
     worst: dict[tuple[str, str], tuple[str, str]] = {}
-    rank = {"undecoded": 0, "unknown": 1, "partial": 2, "unmeasured": 3, "decoded": 4, "not_coded": 5}
+    rank = {"undecoded": 0, "unknown": 1, "partial": 2, "opaque": 3, "unmeasured": 4, "decoded": 5, "not_coded": 6}
     for r in rows:
         key = (r.system, r.field_name)
         # A field counts once per system, at its WORST state across families.
@@ -145,7 +160,7 @@ def summarise(rows: list[FieldCoverage]) -> list[dict[str, Any]]:
         out.append({
             "system": system, "fields": sum(d.values()),
             "documented": d["documented"], "inferred": d["inferred"], "missing": d["missing"],
-            "decoded": c["decoded"], "partial": c["partial"], "undecoded": c["undecoded"],
+            "decoded": c["decoded"], "opaque": c["opaque"], "partial": c["partial"], "undecoded": c["undecoded"],
             "unmeasured": c["unmeasured"], "unknown": c["unknown"], "not_coded": c["not_coded"],
         })
     return out

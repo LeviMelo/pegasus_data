@@ -21,7 +21,7 @@ variables:
 
       '
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Acidente de Trabalho Grave v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20Acidente%20Trabalho%20Grave/DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf,
       campo 54 (Código da causa do acidente CID 10, de V01 a Y98)
@@ -33,7 +33,7 @@ variables:
 
       '
     code_system: external
-    codelist: cid10
+    codelist: ICD10
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Acidente de Trabalho Grave v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20Acidente%20Trabalho%20Grave/DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf,
       campo 64 (Diagnóstico da lesão CID 10)

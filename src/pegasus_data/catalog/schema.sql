@@ -748,6 +748,8 @@ CREATE TABLE IF NOT EXISTS label_gaps (
   row_count   INTEGER NOT NULL,
   codelists   TEXT,
   measured_at TEXT NOT NULL,
+  kind        TEXT NOT NULL DEFAULT 'missing',  -- 'missing': no label; 'opaque': a label that is itself a code
+  label       TEXT,                             -- the opaque label, for review
   PRIMARY KEY (system, family_id, field_name, code)
 );
 

@@ -29,6 +29,7 @@ the table audits every column.
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -397,25 +398,59 @@ def _record_gaps(
     values: Mapping[str, int],
     load: Callable[[str], Mapping[str, str] | None],
 ) -> None:
-    """Every observed code the decided tables do not decode (ADR-0085)."""
+    """Every observed code the decided tables leave untranslated (ADR-0085).
+
+    Two kinds: ``missing``, where no table has the code, and ``opaque``, where
+    the label it gets is itself a code ("05", "16eeee AP", "52 .. Junho" for a
+    YYYYMM). An opaque label is not a translation, and counting it as one
+    hid the problem the user saw in CNES.
+    """
     store.execute(
         "DELETE FROM label_gaps WHERE system = ? AND family_id = ? AND field_name = ?",
         (system, family_id, field_name),
     )
     if not decision.codelists or not values:
         return
-    decoded: set[str] = set()
+    labels: dict[str, str] = {}
     for codelist in decision.codelists:
-        decoded.update((load(codelist) or {}).keys())
-    missing = [(code, n) for code, n in values.items() if code not in decoded]
-    if not missing:
-        return
+        for code, label in (load(codelist) or {}).items():
+            labels.setdefault(code, label)
+    rows = []
     now = utcnow()
-    store.executemany(
-        "INSERT OR REPLACE INTO label_gaps (system, family_id, field_name, code, row_count, codelists, measured_at) "
-        "VALUES (?,?,?,?,?,?,?)",
-        [(system, family_id, field_name, code, n, ",".join(decision.codelists), now) for code, n in missing],
-    )
+    joined = ",".join(decision.codelists)
+    for code, n in values.items():
+        label = labels.get(code)
+        if label is None:
+            rows.append((system, family_id, field_name, code, n, joined, now, "missing", None))
+        elif is_opaque(code, label):
+            rows.append((system, family_id, field_name, code, n, joined, now, "opaque", label))
+    if rows:
+        store.executemany(
+            "INSERT OR REPLACE INTO label_gaps (system, family_id, field_name, code, row_count, codelists, "
+            "measured_at, kind, label) VALUES (?,?,?,?,?,?,?,?,?)",
+            rows,
+        )
+
+
+_WORD = re.compile(r"[A-Za-zÀ-ÿ]{3,}")
+_REPEATED = re.compile(r"^(.)\1+$")
+
+
+def is_opaque(code: str, label: str) -> bool:
+    """A label that does not say what the code means.
+
+    It has no real word left once the code and any placeholder runs
+    ("eeee", "xxx") are removed: "05", "A1", "16eeee", "201 .. 202". A label
+    whose words are there ("Ignorado", "16eeee AP - gestão estadual Amapá")
+    is meaningful, though the second is also noisy.
+    """
+    text = label.strip()
+    if not text:
+        return True
+    words = [w for w in _WORD.findall(text) if not _REPEATED.match(w.lower())]
+    plain_code = "".join(ch for ch in code if ch.isalnum()).upper()
+    words = [w for w in words if w.upper() != plain_code]
+    return not words
 
 
 def _as_dict(binding: LabelBinding) -> dict[str, Any]:

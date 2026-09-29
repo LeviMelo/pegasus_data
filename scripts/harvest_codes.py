@@ -40,6 +40,10 @@ OUT_DIR = ROOT / "src" / "pegasus_data" / "curation" / "codes"
 #: Other systems' dictionaries in the same tabular layout: file -> (system, series).
 OTHER_DICTIONARIES: dict[str, tuple[str, tuple[str, ...]]] = {
     "sources/DIC_DADOS_RESP.pdf": ("RESP", ("RESP",)),
+    # svs.aids.gov.br/daent/cgiae/coesv/sistemas-informacao/sim/documentacao/
+    "sources/dicionario-de-dados-SIM-tabela-DO.pdf": (
+        "SIM", ("DO", "DOEXT", "DOFET", "DOINF", "DOMAT", "DOR", "DOREXT", "DORIG"),
+    ),
 }
 
 #: Dictionary PDF (a substring of its file name) -> the SINAN series it documents.
@@ -101,15 +105,30 @@ _CODE = re.compile(
 _DBF = re.compile(r"^[A-Z][A-Z0-9_]{1,10}$")
 
 
+#: "M,1 – masculino" (SIM): several codes, one label.
+_ALIASES = re.compile(r"^\s*((?:[0-9A-Z]{1,3},)+[0-9A-Z]{1,3})\s*[–\-—=]\s*(.*?)\s*$")
+
+
 def _categories(cell: str) -> dict[str, str]:
     codes: dict[str, str] = {}
+    aliases: dict[str, list[str]] = {}
     last: str | None = None
     # "1-Sim; 2-Não; 9-Ignorado" on one line is several codes, and the PDF
-    # text sometimes glues the next code to a label ("epidemiológico 3Clínico").
+    # text sometimes glues the next code to a label ("epidemiológico 3Clínico",
+    # "domicílio 4 – via pública").
+    cell = re.sub(r"(\b\d{1,2})\s*\n\s*([–—-])", r"\1 \2", cell)  # "4\n– via pública"
     cell = re.sub(r"(?<=[a-zà-ú)])\s*(\d{1,2})(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-zà-ú])", r"\n\1 ", cell)
+    cell = re.sub(r"(?<=[a-zà-ú)])\s+(\d{1,2})\s*[–—]\s+", r"\n\1 – ", cell)
     for raw in re.split(r"\n|;", cell):
         line = raw.strip()
         if not line:
+            continue
+        a = _ALIASES.match(line)
+        if a:
+            names = a.group(1).split(",")
+            last = names[0]
+            codes[last] = a.group(2)
+            aliases[last] = names[1:]
             continue
         m = _CODE.match(line)
         code = (m.group(1) or m.group(2)) if m else None
@@ -122,6 +141,9 @@ def _categories(cell: str) -> dict[str, str]:
         else:
             return {}  # prose before any code: not a code list
     out = {k: re.sub(r"\s+", " ", v).strip(" .;") for k, v in codes.items()}
+    for first, others in aliases.items():
+        for other in others:
+            out.setdefault(other, out[first])
     return out if all(out.values()) else {}
 
 
@@ -142,6 +164,19 @@ def _parse_row(row: list[str]) -> tuple[str, dict[str, str]] | None:
     cells (``| SEXO | | | Caractere (1) | | | 1-Masculino ... |``).
     """
     cells = [c.replace("\n", " ").strip() for c in row]
+    # SIM's dictionary: | 12- Situação Conjugal | ESTCIV | Caracter | 1 | categories | … |
+    # (type and width in separate cells, the DBF name just before the type).
+    for i, cell in enumerate(cells[:-2]):
+        if cell.lower() in ("caracter", "caractere", "numérico", "numerico", "char") and cells[i + 1].isdigit():
+            width = int(cells[i + 1])
+            name = cells[i - 1] if i > 0 else ""
+            following = [row[k] for k in range(i + 2, len(row)) if row[k].strip()]
+            if not following or not _DBF.fullmatch(name):
+                return None
+            codes = _categories(following[0])
+            if len(codes) < 2 or any(len(c) > width for c in codes):
+                return None
+            return name, codes
     for i, cell in enumerate(cells):
         m = _WIDTH.search(cell) if len(cell) < 25 else None
         if not m:
