@@ -509,6 +509,7 @@ variables:
       plus three codes for a stage recorded only as unspecified. Collapsing to broad levels
       must handle those three or lose them.
     code_system: internal
+    codes: {"00": "Sem escolaridade", "01": "Fundamental I incompleto", "02": "Fundamental I completo", "03": "Fundamental II incompleto", "04": "Fundamental II completo", "05": "Ensino médio incompleto", "06": "Ensino médio completo", "07": "Superior incompleto", "08": "Superior completo", "09": "Ignorado", "10": "Fundamental I incompleto ou inespecífico", "11": "Fundamental II incompleto ou inespecífico", "12": "Ensino médio incompleto ou inespecífico"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo ESCMAEAGR1'
@@ -757,6 +758,7 @@ variables:
 
       '
     code_system: internal
+    codes: {"1": "Não fez pré-natal", "2": "Inadequado", "3": "Intermediário", "4": "Adequado", "5": "Mais que adequado", "6": "Não classificado (consultas ou mês de início do pré-natal nulo ou ignorado)"}
     codelists:
     - KOTELCHUCK
     depends_on:
@@ -965,6 +967,7 @@ variables:
 
       '
     code_system: internal
+    codes: {"0": "Nulípara", "1": "Multípara", "9": "Ignorado"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "PARIDADE | Caracter 1 | 0-nulípara; 1 multipara; 9- ignorado
       | Variável calculada pelo sistema"; [EVOL-1996-2019] row 68 "Define se é a primeira
@@ -1186,6 +1189,7 @@ variables:
 
       '
     code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     codelists:
     - DNNOVA
     source: layout_doc
@@ -1208,6 +1212,7 @@ variables:
 
       '
     code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "STDNNOVA | Caracter 1 | 1 – SIM; 0 – NÃO | Status de DN
       Nova | Campo interno do sistema"
@@ -1302,6 +1307,7 @@ variables:
 
       '
     code_system: internal
+    codes: {"1": "CNES (cadastro do estabelecimento)", "2": "CRM (registro no Conselho Regional de Medicina)", "3": "COREN (registro no Conselho Regional de Enfermagem)", "4": "RG (carteira de identidade)", "5": "CPF"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "Tipo documento | TPDOCRESP | Caracter 1 | 1 - CNES, 2 -
       CRM, 3 - COREN, 4 - RG, 5 - CPF | Tipo de documento do responsável pelo preenchimento

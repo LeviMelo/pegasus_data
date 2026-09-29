@@ -518,6 +518,32 @@ def _render_multi_valued(
     return rendered, code_lists, unmatched
 
 
+class IcdLabels(dict):  # type: ignore[type-arg]
+    """ICD-10 labels that fall back from a subcategory to its category.
+
+    SIM writes ``R969`` and ``I100``: subcategories CID-10 does not list (R96
+    and I10 are not subdivided). The category still says what the death was.
+    The label says so rather than passing the category off as the code:
+    "Hipertensão essencial (primária) — categoria I10 (subcategoria I10.0 não
+    consta da CID-10)". Only for ICD-10, whose hierarchy is defined: a prefix of
+    a CBO code is not its parent (§6.2).
+    """
+
+    def get(self, key: object, default: object = None) -> object:
+        found = super().get(key)
+        if found is not None:
+            return found
+        code = str(key).strip().upper()
+        if len(code) == 4 and code[:3].isalnum() and code[3] != "X":
+            category = super().get(code[:3]) or super().get(f"{code[:3]}X")
+            if category is not None:
+                return (
+                    f"{category} — categoria {code[:3]} "
+                    f"(subcategoria {code[:3]}.{code[3]} não consta da CID-10)"
+                )
+        return default
+
+
 def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
     """Exact width or no match (§6.2).
 
@@ -894,6 +920,10 @@ def _render_table(
                 f"{field_name}: labelled from {len(codelists) - len(missing)} of "
                 f"{len(codelists)} bound tables; missing {', '.join(missing)}"
             )
+        if any(str(c).upper() == "ICD10" for c in codelists):
+            # ICD-10 is a defined hierarchy: a subcategory the classification
+            # does not list still belongs to its category (ADR-0089).
+            merged = IcdLabels(merged)
         lookups[key] = merged
         return merged or None
 

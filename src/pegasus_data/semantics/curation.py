@@ -239,7 +239,12 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
             depends_on = [depends_on]
         codes = _parse_codes(path, str(name), body.get("codes"))
         codelist = _first_codelist(body)
-        if codes and not codelist:
+        extra_codelists = _extra_codelists(body)
+        if codes:
+            # Inline codes are the column's own table and come first; a table
+            # it was also bound to stays as a fallback (ADR-0079).
+            if codelist:
+                extra_codelists = [codelist, *extra_codelists]
             codelist = curated_codelist_id(str(system), str(name))
         if codes and code_system in (None, "none"):
             code_system = "internal"
@@ -252,7 +257,7 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
                 description=_clean(body.get("description")),
                 code_system=code_system,
                 codelist=codelist,
-                codelists=_extra_codelists(body),
+                codelists=extra_codelists,
                 multi_valued=bool(body.get("multi_valued", False)),
                 token_rule=token_rule,
                 depends_on=[str(d).upper() for d in depends_on],
