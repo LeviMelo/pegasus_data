@@ -28,6 +28,7 @@ both provenances, because a conflict is a finding.
 from __future__ import annotations
 
 import fnmatch
+import os
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import PurePosixPath
@@ -225,14 +226,34 @@ def supersede_source(catalog: Catalog, prefixes: Sequence[str]) -> int:
     """
     if not prefixes:
         return 0
+    # One indexed range read over the prefixes' common span, not one LIKE scan
+    # per artifact: a kit has hundreds of .CNV members, and per-member LIKE
+    # deletes over a multi-million-row dictionary made re-reading ONE kit take
+    # 45 minutes (2026-09-29).
+    wanted = set(prefixes)
+    span = os.path.commonprefix(sorted(wanted))
+    rows = catalog.query(
+        "SELECT rowid AS rid, source_ref FROM dictionary WHERE source_ref >= ? AND source_ref < ?",
+        (span, span + "\U0010ffff"),
+    )
+    doomed: list[int] = []
+    for row in rows:
+        ref = str(row["source_ref"])
+        # A .CNV row cites its line (``kit!CNV/MOTSAIPE.CNV:6``), a table row its
+        # column resolution (``kit!TABLE (cols …)``).
+        artifact = ref
+        for cut in (":", " "):
+            head, sep, _ = ref.rpartition(cut) if cut == ":" else ref.partition(cut)
+            if sep and head in wanted:
+                artifact = head
+                break
+        if artifact in wanted:
+            doomed.append(int(row["rid"]))
     removed = 0
-    for prefix in prefixes:
+    for start in range(0, len(doomed), 500):
+        chunk = doomed[start:start + 500]
         cursor = catalog.execute(
-            # A .CNV row cites its line (``kit!CNV/MOTSAIPE.CNV:6``), a table
-            # row its column resolution (``kit!TABLE (cols …)``).
-            "DELETE FROM dictionary WHERE source_ref = ? OR source_ref LIKE ? || ' %' "
-            "OR source_ref LIKE ? || ':%'",
-            (prefix, prefix, prefix),
+            f"DELETE FROM dictionary WHERE rowid IN ({','.join('?' * len(chunk))})", chunk
         )
         removed += cursor.rowcount or 0
     if removed:

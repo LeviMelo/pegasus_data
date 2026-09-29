@@ -380,6 +380,8 @@ CREATE INDEX IF NOT EXISTS ix_dict_family ON dictionary (family_id, field_name);
 -- index above starts with `system`, so that count could not seek and scanned
 -- all 19.9M rows -- 5.4 seconds per call, ~60 calls to plan a single family.
 CREATE INDEX IF NOT EXISTS ix_dict_group_label ON dictionary (value_group, value_label);
+-- Re-reading a kit supersedes its previous reading by source_ref range (ADR-0095).
+CREATE INDEX IF NOT EXISTS ix_dict_source ON dictionary (source_ref);
 
 -- A .CNV is a *codelist*, not a column: SEXO.CNV maps 1→Masculino without
 -- saying which column uses it, and several columns legitimately share one

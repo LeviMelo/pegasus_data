@@ -43,7 +43,9 @@
   fallbacks.
 - **Re-ingestion supersedes `.CNV` readings.** Kit members and loose `.CNV`
   files are superseded like DBF tables, matching `…:<line>` as well
-  (`dictionary.supersede_source`).
+  (`dictionary.supersede_source`). It reads the kit's `source_ref` range once through
+  an index (`ix_dict_source`) and deletes by rowid: a first version issued one
+  `LIKE` delete per member, and re-reading the CIHA kit took 45 minutes.
 - **`curation.INHERITS`.** A system that republishes another's fields inherits
   that system's curation, and its own entries win. The only entry is
   DADOS_ABERTOS ← SIASUS.
