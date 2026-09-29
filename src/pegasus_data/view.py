@@ -953,6 +953,18 @@ def _render_table(
             continue
 
         doc = docs.get(name.upper())
+        sibling = getattr(doc, "label_from", None) if doc is not None else None
+        if sibling and sibling in table.schema.names:
+            # The record names its own code (ADR-0090): no table to choose.
+            named = pc.utf8_trim(table.column(sibling).combine_chunks().cast(pa.string()), characters=" ")
+            named = pc.if_else(pc.equal(named, ""), pa.scalar(None, pa.string()), named)
+            columns.append(column)
+            names.append(name)
+            columns.append(named)
+            names.append(f"{name}{LABEL_SUFFIX}")
+            report.labelled.append(name)
+            report.codelist_used[name] = f"column {sibling}"
+            continue
         # The value a table is keyed by. Usually the column itself; for a code
         # that only means something with another column (CNES CLASS_SR, keyed
         # by SERV_ESP + CLASS_SR in S_CLASSEN), the concatenation (ADR-0088).

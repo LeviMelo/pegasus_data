@@ -353,7 +353,9 @@ def _states() -> pa.Table:
 
 #: Standard classifications served from one canonical table for every system
 #: (ADR-0087): name -> file under pegasus_data/resources.
-CLASSIFICATIONS: dict[str, str] = {"ICD10": "icd10.parquet", "CBO2002": "cbo2002.parquet"}
+CLASSIFICATIONS: dict[str, str] = {
+    "ICD10": "icd10.parquet", "CBO2002": "cbo2002.parquet", "BANCO_BR": "banks.parquet",
+}
 
 
 def read_reference_table(

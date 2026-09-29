@@ -14,6 +14,7 @@ variables:
 
       '
     code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: def
     source_ref: AMB_HOSP.CNV
     reasoning: AMB reads ambulatorial and NSUS não SUS; bound to the AMB_HOSP codelist.

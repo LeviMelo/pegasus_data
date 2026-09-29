@@ -114,3 +114,4 @@ last, comes first.
 | [ADR-0087](docs/decisions/ADR-0087-standard-classifications-are-canonical-and-labels-must-mean.md) | 2026-09-29 | A standard classification is one canonical table for every system, and a label must say what the code means | active | amends ADR-0079, ADR-0080, ADR-0085 |
 | [ADR-0088](docs/decisions/ADR-0088-a-code-that-needs-another-column-is-keyed-by-both.md) | 2026-09-29 | A code that means something only with another column is keyed by both; labels shed the codes embedded in them | active | amends ADR-0084, ADR-0087 |
 | [ADR-0089](docs/decisions/ADR-0089-icd-codes-fall-back-to-their-category.md) | 2026-09-29 | An ICD-10 code the classification does not list is labelled by its category, and says so | active | amends ADR-0087 |
+| [ADR-0090](docs/decisions/ADR-0090-a-record-can-name-its-own-code.md) | 2026-09-29 | A record can name its own code; a label's inputs survive a narrow select | active | amends ADR-0087, ADR-0088 |

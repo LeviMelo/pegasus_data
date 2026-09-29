@@ -81,6 +81,7 @@ variables:
       is an authorized/offered activity (that is tracked separately via the AP0#CV0#
       service flags).
     code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 93
@@ -365,6 +366,7 @@ variables:
       341 Itau Unibanco) of the bank holding the establishment's account, on the Estabelecimentos
       (ST) record. A nationally standardized bank code, kept beside CO_AGENC and C_CORREN.
     code_system: external
+    codelist: BANCO_BR  # Banco Central, Participantes do STR (ADR-0087)
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 25
@@ -456,6 +458,7 @@ variables:
       three legacy bed categories - cirurgico, clinico, complementar - counted by QTLEITP1/QTLEITP2/QTLEITP3
       (outside this batch, ST SEQ 54-56). An existence flag, not a total.
     code_system: internal
+    codes: {"1": "Sim", "0": "Não"}
     source: layout_doc
     source_ref: IT_CNES_1706.pdf (CNES - Informe Tecnico 2017-06), ftp://ftp.datasus.gov.br/dissemin/publicos/CNES/200508_/doc/IT_CNES_1706.pdf,
       Sec 2.1 Layout dos arquivos de Estabelecimentos (ST*.dbf), SEQ 57

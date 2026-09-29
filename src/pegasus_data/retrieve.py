@@ -54,6 +54,7 @@ from .normalize.engine import NormalizePlan, build_plan, normalize_table
 from .normalize.geo import MunicipalityIndex
 from .ontology import Ontology
 from .pipeline import Pipeline
+from .presentation import LABEL_SUFFIX
 from .progress import ItemTimeout, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
 from .view import RenderReport
@@ -769,8 +770,12 @@ def fetch(
             from .normalize.engine import PROVENANCE_COLUMNS
 
             internal = set(PROVENANCE_COLUMNS) if provenance else {"_source_path"}
+            # What a requested column's LABEL is made from (a composite key's
+            # parts, a naming sibling, a unit) survives until rendering and is
+            # dropped after it (ADR-0090).
+            render_needs = set(_keep_columns(pipeline.catalog, fetch_report, columns) or ()) - requested
             keep = [
-                c for c in table.column_names if c in requested or c in internal
+                c for c in table.column_names if c in requested or c in internal or c in render_needs
             ]
             table = table.select(keep)
 
@@ -825,6 +830,13 @@ def fetch(
             )
         fetch_report.render = render_report
         fetch_report.rows = rendered.num_rows
+        if columns:
+            helpers = set(_keep_columns(pipeline.catalog, fetch_report, columns) or ()) - set(columns)
+            if helpers:
+                rendered = rendered.select([
+                    c for c in rendered.column_names
+                    if c not in helpers and not (c.endswith(LABEL_SUFFIX) and c[: -len(LABEL_SUFFIX)] in helpers)
+                ])
 
         # ORDER MATTERS. Provenance is dropped first so it never appears in the
         # dictionary or gets renamed; the dictionary is built next, against the
@@ -1139,6 +1151,13 @@ def _keep_columns(
                 keep.add(str(source).upper())
         if doc.modifies:
             keep.add(str(doc.modifies).upper())
+        # The columns its LABEL is made from: a composite key's parts (ADR-0088)
+        # and a sibling that names it (ADR-0090). Without them a narrow select=
+        # showed CNES ID_SEGM as undecoded while the full query named it.
+        for part in (getattr(doc, "key", None) or []):
+            keep.add(str(part).upper())
+        if getattr(doc, "label_from", None):
+            keep.add(str(doc.label_from).upper())
     # And anything that MODIFIES a requested column (a unit beside a duration).
     for name, doc in docs.items():
         if doc.modifies and str(doc.modifies).upper() in keep:
