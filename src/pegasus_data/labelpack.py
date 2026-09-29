@@ -109,6 +109,8 @@ class LabelPackReport:
     shared_across_systems: int = 0
     bytes_out: int = 0
     largest: list[tuple[str, int]] = field(default_factory=list)
+    #: Codelists the catalog no longer holds, kept from the previous pack.
+    carried_forward: list[str] = field(default_factory=list)
 
     @property
     def counts(self) -> dict[str, Any]:
@@ -123,6 +125,7 @@ class LabelPackReport:
             "crosswalk_rows": self.crosswalk_rows,
             "dropped_useless": self.dropped_useless,
             "shared_across_systems": self.shared_across_systems,
+            "carried_forward": len(self.carried_forward),
             "megabytes": round(self.bytes_out / 2**20, 2),
         }
 
@@ -202,12 +205,20 @@ def build_label_pack(
     out: str | Path,
     *,
     only_bound: bool = True,
+    carry_from: str | Path | None = None,
 ) -> LabelPackReport:
     """Write the distilled label pack, and return what it contains.
 
     ``only_bound`` keeps just the codelists something is bound to. The tree
     carries 7,356 reference tables and 5,041 of them decode no column in any
     dataset — shipping those would double the file to no one's benefit.
+
+    ``carry_from`` (default: the pack the package ships now) keeps every
+    codelist the catalog no longer holds. A rebuilt maintainer catalog that
+    never re-ingested a source (community transcriptions, older layouts) would
+    otherwise delete 63 curated codelists from every fresh install (SIA
+    ``PA_RACACOR``, SINASC ``LOCNASC``; 2026-09-29). A pack only loses a
+    codelist when a newer reading of it replaces it.
     """
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -364,6 +375,15 @@ def build_label_pack(
             "valid_to": pa.array(vt_c, pa.string()),
         }
     )
+    prior_path = Path(carry_from) if carry_from else Path(__file__).parent / "resources" / PACK_NAME
+    if prior_path.exists():
+        prior = pq.read_table(prior_path)
+        have = set(table.column("codelist").to_pylist())
+        keep_prior = pa.array([c not in have for c in prior.column("codelist").to_pylist()], pa.bool_())
+        carried = prior.filter(keep_prior).select(table.column_names).cast(table.schema)
+        if carried.num_rows:
+            report.carried_forward = sorted(set(carried.column("codelist").to_pylist()))
+            table = pa.concat_tables([table, carried])
     # Sorted by codelist so that a single-codelist read touches one or two row
     # groups. Without this the reader has to scan the whole pack, which is what
     # made the first version cost 1.3 GB of RAM.

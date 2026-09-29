@@ -361,8 +361,6 @@ variables:
     - CID9_16
     - CID9_17
     - S_CID
-      CID9_08, CID9_09, CID9_10, CID9_11, CID9_12, CID9_13, CID9_14, CID9_15, CID9_16,
-      CID9_17]
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 41 DIAG_PRINC ''Código do diagnóstico principal

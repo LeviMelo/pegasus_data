@@ -80,3 +80,20 @@ The fetch layer's own error told the caller to pass it, but `query()`
 hard-coded `False`, so one unreadable file out of 3,768 refused the whole
 table. A short result now carries a `PartialSourceWarning`, and
 `report.source_report.excluded` names the files.
+
+**The label pack (added the same day).**
+- **The shipped pack predated all of this.** `resources/labels.parquet` was built
+  on 2026-08-23, so every fresh install decoded from it.
+- **A rebuild from the corrected catalog would have dropped 368 codelists.**
+  63 of them are bound by curation (SIA `PA_RACACOR` and `PA_MOTSAI`; SINASC
+  `LOCNASC`, `RACACORMAE` and `CONSULTAS`; CNES `SERAP*`; SINAN dengue signs).
+  The rebuilt maintainer catalog never re-ingested their sources.
+- **Decision.** `build_label_pack(carry_from=)` keeps every codelist the catalog
+  no longer holds from the pack it replaces; a codelist is lost only to a newer
+  reading of it.
+- **Result.** 2,355 codelists, up from 2,238, with 0 lost and 361 carried
+  forward. The dropped codes are the old parser's junk: `L` (a header flag),
+  `BRANCOS` and `opcional` (comment text), and the glued readings.
+- **Check.** On a new, empty home, `query("SIASUS-ACF", period="2023-01")` reads
+  `AP_MOTSAI` "ALTA COM PREVISÃO DE RETORNO … (15)" and `AP_CATEND` "OUTROS TIPOS
+  LESÕES/ENVENENAMENTOS … (06)".
