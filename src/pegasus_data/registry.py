@@ -23,6 +23,7 @@ re-reads the kit.
 from __future__ import annotations
 
 import fnmatch
+import functools
 import warnings
 from pathlib import Path
 
@@ -181,4 +182,12 @@ def lookup(codelist: str, system: str | None) -> pa.Table | None:
         except Exception as exc:  # noqa: BLE001 - no registry is a gap, not a crash
             warnings.warn(f"{codelist}: registry unavailable ({type(exc).__name__}: {exc})", stacklevel=2)
             return None
-    return pq.read_table(path) if path.exists() else None
+    return _read(str(path), path.stat().st_mtime_ns) if path.exists() else None
+
+
+@functools.lru_cache(maxsize=16)
+def _read(path: str, mtime_ns: int) -> pa.Table:
+    """One registry file per version, per process: an Arrow table is immutable,
+    and the 692,004-row CADGERBR was re-read for every month of a query
+    (ADR-0097)."""
+    return pq.read_table(path)

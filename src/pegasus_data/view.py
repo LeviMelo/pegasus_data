@@ -474,8 +474,65 @@ def _contradictions_uncached(
     return seen
 
 
+class CodeMap(dict):  # type: ignore[type-arg]
+    """A merged ``code -> label`` map that knows its code widths (§6.2)."""
+
+    widths: frozenset[int] = frozenset()
+
+
+def _merged_lookup(
+    lake: Path, codelists: tuple[str, ...], system: str | None, year: int | None, competencia: int | None,
+) -> tuple[Mapping[str, str], list[str]]:
+    """Every table bound to a field, merged in authority order, once per process.
+
+    It was rebuilt for every render group, and a group is a month: merging the
+    692,004-row registry twelve times was 16 million ``setdefault`` calls in a
+    year's query (ADR-0097). Tables with no vintages drop the year from the key.
+    """
+    if all(_vintage_free(c) for c in codelists):
+        year = competencia = None
+    versions = tuple(_reference_version(Path(lake), c) for c in codelists)
+    return _cached_merged_lookup(str(lake), codelists, system, year, competencia, versions)
+
+
+@lru_cache(maxsize=512)
+def _cached_merged_lookup(
+    lake: str, codelists: tuple[str, ...], system: str | None, year: int | None,
+    competencia: int | None, versions: tuple[tuple[int, ...], ...],
+) -> tuple[Mapping[str, str], list[str]]:
+    missing: list[str] = []
+    maps: list[Mapping[str, str]] = []
+    for codelist in codelists:
+        try:
+            maps.append(_lookup_map(
+                Path(lake), codelist, system=system, year=year, competencia=competencia, code_width=None,
+            ))
+        except FileNotFoundError:
+            missing.append(codelist)
+    merged: dict[str, str]
+    if len(maps) == 1:
+        merged = CodeMap(maps[0])
+    else:
+        # Later tables must not clobber a higher-authority one: the first wins.
+        merged = CodeMap()
+        for mapping in reversed(maps):
+            merged.update(mapping)
+    if any(str(c).upper() == "ICD10" for c in codelists):
+        # ICD-10 is a defined hierarchy: a subcategory the classification does
+        # not list still belongs to its category (ADR-0089).
+        merged = IcdLabels(merged)
+    elif any(str(c).upper() == "SIGTAP" for c in codelists):
+        merged = SigtapLabels(merged)
+    elif len(codelists) == 1 and str(codelists[0]).upper() in PATH_CODELISTS:
+        name = str(codelists[0]).upper()
+        merged = PathLabels(merged, table=name, segment=PATH_CODELISTS[name])
+    merged.widths = frozenset(len(code) for code in merged)  # type: ignore[attr-defined]
+    return merged, missing
+
+
 def _widths(lookup: Mapping[str, str]) -> set[int]:
-    return {len(code) for code in lookup}
+    known = getattr(lookup, "widths", None)
+    return set(known) if known else {len(code) for code in lookup}
 
 
 def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, list[str]]:
@@ -1109,23 +1166,7 @@ def _render_table(
         key = (tuple(codelists), system, year, width)
         if key in lookups:
             return lookups[key] or None
-        merged: dict[str, str] = {}
-        missing: list[str] = []
-        for codelist in codelists:
-            try:
-                # Later tables must not clobber a higher-authority one, so an
-                # existing key wins.
-                for code, label in _lookup_map(
-                    lake,
-                    codelist,
-                    system=system,
-                    year=year,
-                    competencia=competencia,
-                    code_width=width,
-                ).items():
-                    merged.setdefault(code, label)
-            except FileNotFoundError:
-                missing.append(codelist)
+        merged, missing = _merged_lookup(lake, tuple(codelists), system, year, competencia)
         if not merged:
             names = ", ".join(repr(c) for c in codelists)
             message = f"{field_name}: no reference table for {names} in the lake"
@@ -1138,15 +1179,6 @@ def _render_table(
                 f"{field_name}: labelled from {len(codelists) - len(missing)} of "
                 f"{len(codelists)} bound tables; missing {', '.join(missing)}"
             )
-        if any(str(c).upper() == "ICD10" for c in codelists):
-            # ICD-10 is a defined hierarchy: a subcategory the classification
-            # does not list still belongs to its category (ADR-0089).
-            merged = IcdLabels(merged)
-        elif any(str(c).upper() == "SIGTAP" for c in codelists):
-            merged = SigtapLabels(merged)
-        elif len(codelists) == 1 and str(codelists[0]).upper() in PATH_CODELISTS:
-            name = str(codelists[0]).upper()
-            merged = PathLabels(merged, table=name, segment=PATH_CODELISTS[name])
         lookups[key] = merged
         return merged or None
 
