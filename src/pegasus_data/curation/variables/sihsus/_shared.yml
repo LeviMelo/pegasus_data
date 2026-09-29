@@ -121,6 +121,7 @@ variables:
       or a foundation — which differs from CGC_HOSP where the hospital is run by a larger
       entity.
     code_system: external
+    label_via: {column: CNES, table: CADGERBR, field: maintainer}  # the row's establishment's mantenedora (ADR-0094)
     codelist: CNPJ_BR
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2

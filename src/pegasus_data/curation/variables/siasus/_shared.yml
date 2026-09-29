@@ -343,6 +343,7 @@ variables:
 
       '
     code_system: external
+    label_via: {column: AP_CODUNI, table: CADGERBR, field: maintainer}  # the row's establishment's mantenedora (ADR-0094)
     codelist: CNPJ_BR
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -1001,6 +1002,7 @@ variables:
 
       '
     code_system: external
+    label_via: {column: CODUNI, table: CADGERBR, field: maintainer}  # the row's establishment's mantenedora (ADR-0094)
     codelist: CNPJ_BR
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,

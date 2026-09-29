@@ -580,6 +580,7 @@ CREATE TABLE IF NOT EXISTS variable_docs (
   per_form        INTEGER DEFAULT 0, -- codelists are per-form alternatives (ADR-0080)
   lookup_key      TEXT,              -- JSON list: columns concatenated into the lookup key (ADR-0088)
   label_from      TEXT,              -- a sibling column whose value names this code (ADR-0090)
+  label_via       TEXT,              -- JSON {column, table, field}: named through another column (ADR-0094)
   PRIMARY KEY (system, field_name)
 );
 CREATE INDEX IF NOT EXISTS ix_variable_docs_source ON variable_docs (source);

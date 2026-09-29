@@ -1180,6 +1180,9 @@ def _keep_columns(
             keep.add(str(part).upper())
         if getattr(doc, "label_from", None):
             keep.add(str(doc.label_from).upper())
+        via = getattr(doc, "label_via", None)
+        if via and via.get("column"):
+            keep.add(str(via["column"]).upper())
     # And anything that MODIFIES a requested column (a unit beside a duration).
     for name, doc in docs.items():
         if doc.modifies and str(doc.modifies).upper() in keep:

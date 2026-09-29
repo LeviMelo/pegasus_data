@@ -97,6 +97,11 @@ class VariableDoc:
     #: A column of the same row that NAMES this code: CNES-EP files IDEQUIPE
     #: beside NOME_EQP, ID_AREA beside NOMEAREA (ADR-0090).
     label_from: str | None = None
+    #: A label reached THROUGH another column of the row: SIH CNPJ_MANT is the
+    #: maintainer of the row's establishment, named by the registry's
+    #: ``maintainer`` for the row's CNES: {column: CNES, table: CADGERBR,
+    #: field: maintainer} (ADR-0094).
+    label_via: dict[str, str] | None = None
 
     def as_row(self) -> tuple[object, ...]:
         return (
@@ -112,6 +117,7 @@ class VariableDoc:
             self.asserted_by, utcnow(), self.reasoning, int(self.per_form),
             json.dumps(self.key) if self.key else None,
             self.label_from,
+            json.dumps(self.label_via) if self.label_via else None,
         )
 
 
@@ -277,6 +283,7 @@ def parse_variable_file(path: Path, data: dict[str, Any]) -> list[VariableDoc]:
                 per_form=bool(body.get("per_form", False)),
                 key=[str(k).upper() for k in (body.get("key") or [])],
                 label_from=(str(body["label_from"]).upper() if body.get("label_from") else None),
+                label_via=({k: str(v) for k, v in body["label_via"].items()} if body.get("label_via") else None),
             )
         )
     return out
@@ -628,8 +635,8 @@ def _replace_variable_docs(catalog: Catalog, docs: Sequence[VariableDoc]) -> Non
         INSERT INTO variable_docs (system, field_name, official_name, translated_name,
             description, code_system, codelist, multi_valued, token_rule, depends_on,
             modifies, derived, notes, vintage_note, source, source_ref, asserted_by,
-            asserted_at, reasoning, per_form, lookup_key, label_from)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            asserted_at, reasoning, per_form, lookup_key, label_from, label_via)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(system, field_name) DO UPDATE SET
             official_name=excluded.official_name, translated_name=excluded.translated_name,
             description=excluded.description, code_system=excluded.code_system,
@@ -640,7 +647,7 @@ def _replace_variable_docs(catalog: Catalog, docs: Sequence[VariableDoc]) -> Non
             source=excluded.source, source_ref=excluded.source_ref,
             asserted_by=excluded.asserted_by, asserted_at=excluded.asserted_at,
             reasoning=excluded.reasoning, per_form=excluded.per_form, lookup_key=excluded.lookup_key,
-            label_from=excluded.label_from
+            label_from=excluded.label_from, label_via=excluded.label_via
         """,
         [d.as_row() for d in docs],
     )
@@ -837,6 +844,7 @@ def load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str,
             per_form=bool(r["per_form"]),
             key=json.loads(r["lookup_key"]) if r["lookup_key"] else [],
             label_from=r["label_from"],
+            label_via=json.loads(r["label_via"]) if r["label_via"] else None,
         )
         doc = out[str(r["field_name"])]
         if doc.codelist and doc.codelist.upper().startswith(CURATED_PREFIX):

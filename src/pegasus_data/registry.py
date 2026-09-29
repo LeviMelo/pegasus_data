@@ -131,6 +131,8 @@ def build(system: str, *, refresh: bool = False) -> dict[str, int]:
                     "code": [r["CNES"] for r in rows],
                     "label": [_label(r) for r in rows],
                     "legal": [re.sub(r"^CNPJ [0-9./-]+-", "", (r.get("RAZ_SOCI") or "").strip()) or None for r in rows],
+                    # The establishment's maintainer (mantenedora), by name.
+                    "maintainer": [(r.get("RSOC_MAN") or "").strip() or None for r in rows],
                     "cnpj": [r.get("CPF_CNPJ") for r in rows],
                     "municipality": [r.get("CODUFMUN") for r in rows],
                     "included": [r.get("DATAINCL") for r in rows],

@@ -697,6 +697,7 @@ variables:
 
       '
     code_system: external
+    label_via: {column: CNES, table: CADGERBR, field: maintainer}  # the row's establishment's mantenedora (ADR-0094)
     codelist: CNPJ_BR
     source: web
     source_ref: '[PCDAS] "CNPJ da mantenedora do estabelecimento"'

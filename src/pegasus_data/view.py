@@ -675,6 +675,20 @@ def _lookup_key(table: pa.Table, doc: object, column: pa.Array) -> pa.Array:
     return joined.combine_chunks() if hasattr(joined, "combine_chunks") else joined
 
 
+def _label_via(lake: Path, system: str, keys: object, via: Mapping[str, str]) -> pa.Array | None:
+    """The ``field`` of ``table``'s row for each value of ``column`` (ADR-0094)."""
+    try:
+        table = read_reference_table(lake, str(via["table"]), system=system)
+    except (FileNotFoundError, OSError, KeyError):
+        return None
+    field_name = str(via.get("field") or "label")
+    if field_name not in table.column_names:
+        return None
+    names = dict(zip(table.column("code").to_pylist(), table.column(field_name).to_pylist(), strict=True))
+    values = keys.to_pylist() if hasattr(keys, "to_pylist") else list(keys)  # type: ignore[union-attr]
+    return pa.array([names.get(str(k).strip()) if k is not None else None for k in values], type=pa.string())
+
+
 def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object) -> pa.Array | None:
     """``label (prefix)`` for the first ``digits`` of each code, or None if unknown."""
     if digits <= 0:
@@ -1014,6 +1028,17 @@ def _render_table(
             report.labelled.append(name)
             report.codelist_used[name] = f"column {sibling}"
             continue
+        via = getattr(doc, "label_via", None) if doc is not None else None
+        if via and str(via.get("column", "")).upper() in table.schema.names:
+            named_via = _label_via(lake, system, table.column(str(via["column"]).upper()), via)
+            if named_via is not None:
+                columns.append(column)
+                names.append(name)
+                columns.append(named_via)
+                names.append(f"{name}{LABEL_SUFFIX}")
+                report.labelled.append(name)
+                report.codelist_used[name] = f"{via.get('table')}.{via.get('field')} via {via.get('column')}"
+                continue
         # The value a table is keyed by. Usually the column itself; for a code
         # that only means something with another column (CNES CLASS_SR, keyed
         # by SERV_ESP + CLASS_SR in S_CLASSEN), the concatenation (ADR-0088).
