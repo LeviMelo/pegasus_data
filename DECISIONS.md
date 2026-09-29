@@ -126,3 +126,4 @@ last, comes first.
 | [ADR-0099](docs/decisions/ADR-0099-an-opaque-label-is-replaced-by-its-documented-meaning.md) | 2026-09-29 | A label that restates a code, or drops its unit, is replaced by the documented meaning | active | amends ADR-0085, ADR-0087 |
 | [ADR-0100](docs/decisions/ADR-0100-one-establishment-registry-typed-identifiers-and-the-crosswalk-reads-it.md) | 2026-09-29 | One establishment registry with typed identifiers; the CNES ↔ CNPJ crosswalk and the name enrichment read it | active | amends ADR-0086, ADR-0093, ADR-0094 |
 | [ADR-0101](docs/decisions/ADR-0101-classification-changes-are-bridged-by-the-official-maps.md) | 2026-09-29 | A change of classification is bridged by the official map, and only where the map is one-to-one | active | amends ADR-0092 |
+| [ADR-0102](docs/decisions/ADR-0102-no-identifier-inside-a-label.md) | 2026-09-29 | No CNPJ or CPF inside a label, wherever the label comes from | active | amends ADR-0100 |

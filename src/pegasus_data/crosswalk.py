@@ -11,6 +11,9 @@ from typing import Any
 import pyarrow as pa
 
 from ._vintage import SourceVintage, source_vintages, window_covers, window_overlaps
+from .identifiers import valid_cnpj
+
+__all__ = ["EnrichmentReport", "EnrichmentRequest", "enrich_cnes", "enrich_cnpj", "enrichment", "valid_cnpj"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -189,20 +192,6 @@ def _covering(available: object, vintage: object) -> set[str]:
 
 def _digits(value: object) -> str:
     return re.sub(r"\D", "", str(value or ""))
-
-
-def valid_cnpj(value: object) -> bool:
-    digits = _digits(value)
-    if len(digits) != 14 or len(set(digits)) == 1:
-        return False
-    numbers = [int(char) for char in digits]
-    for length in (12, 13):
-        weights = list(range(length - 7, 1, -1)) + list(range(9, 1, -1))
-        remainder = sum(n * w for n, w in zip(numbers[:length], weights, strict=True)) % 11
-        check = 0 if remainder < 2 else 11 - remainder
-        if numbers[length] != check:
-            return False
-    return True
 
 
 #: A record's own CNPJ for its establishment, by layout: compared with the

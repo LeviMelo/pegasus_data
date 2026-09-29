@@ -44,6 +44,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from .catalog.store import Catalog
+from .identifiers import ID_PREFIX
 from .persist.reference import read_reference_table
 from .semantics.curation import VariableDoc, load_variable_docs
 
@@ -368,6 +369,9 @@ def _map_from_table(table: pa.Table) -> dict[str, str]:
     # last line win.
     codes = pc.cast(table.column("code"), pa.string())
     labels = pc.cast(table.column("label"), pa.string())
+    # No CNPJ or CPF inside a label (ADR-0102): DATASUS's registry tables glue
+    # them onto names, CPFs of sole practitioners among them.
+    labels = pc.replace_substring_regex(labels, pattern=ID_PREFIX.pattern, replacement="")
     keep = pc.and_(
         pc.and_(pc.is_valid(codes), pc.is_valid(labels)),
         pc.not_equal(pc.utf8_trim_whitespace(labels), ""),

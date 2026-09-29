@@ -45,6 +45,7 @@ from pathlib import Path
 from typing import Any
 
 from .catalog.store import Catalog
+from .identifiers import strip_identifier
 from .persist.decisions import historical_labels, note_pack_fallback
 
 __all__ = [
@@ -277,6 +278,9 @@ def build_label_pack(
         label, cnpj = _split_packed(label)
         if cnpj:
             crosswalk.add(_crosswalk_tuple(row, group, code, cnpj))
+        # Any identifier still at the front (a bare CNPJ, a CPF) never reaches
+        # a label (ADR-0102); a person's CPF is not even kept as a claim.
+        label = strip_identifier(label) or ""
         if not _useful(code, label):
             report.dropped_useless += 1
             continue
@@ -391,6 +395,15 @@ def build_label_pack(
         have = set(windows(table))
         keep_prior = pa.array([w not in have for w in windows(prior)], pa.bool_())
         carried = prior.filter(keep_prior).select(table.column_names).cast(table.schema)
+        import pyarrow.compute as pc
+
+        from .identifiers import ID_PREFIX
+
+        carried = carried.set_column(
+            carried.column_names.index("label"), "label",
+            pc.replace_substring_regex(carried["label"], pattern=ID_PREFIX.pattern, replacement=""),
+        )
+        carried = carried.filter(pc.not_equal(pc.utf8_trim_whitespace(carried["label"]), ""))
         if carried.num_rows:
             report.carried_forward = sorted(set(carried.column("codelist").to_pylist()))
             table = pa.concat_tables([table, carried])

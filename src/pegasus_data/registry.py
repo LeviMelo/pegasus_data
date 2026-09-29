@@ -31,6 +31,8 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from .identifiers import strip_identifier, valid_cnpj
+
 
 @functools.lru_cache(maxsize=1)
 def _patterns() -> tuple[str, ...]:
@@ -179,14 +181,8 @@ def _current(out_dir: Path) -> bool:
 _UFS = frozenset(
     ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"]
 )
-#: ``CNPJ 00.000.000/0000-00-NAME`` and ``CPF 981.489.152/53-NAME``: an
-#: identifier the source glued to the front of a name.
-_ID_PREFIX = re.compile(r"^(?:CNPJ|CPF)\s+[0-9A-Z./-]+-\s*")
-
-
 def _clean_name(value: object) -> str | None:
-    text = _ID_PREFIX.sub("", str(value or "").strip()).strip()
-    return text or None
+    return strip_identifier(value)
 
 
 def _establishments(raw: pa.Table) -> pa.Table:
@@ -197,8 +193,6 @@ def _establishments(raw: pa.Table) -> pa.Table:
     and is never stored or resolved, and zeros mean none. No identifier is
     left in a name.
     """
-    from .crosswalk import valid_cnpj
-
     rows = raw.to_pylist()
     kinds, cnpjs = [], []
     for r in rows:
