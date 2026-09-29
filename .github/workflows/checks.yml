@@ -2,7 +2,8 @@ name: checks
 
 on:
   push:
-    branches: [main]
+    # The repository's branch is `master`; `main` alone meant pushes ran no CI.
+    branches: [master, main]
   pull_request:
 
 jobs:
@@ -32,16 +33,16 @@ jobs:
       - name: Lint
         run: ruff check src/ tests/ scripts/
 
+      - name: Documents are consistent
+        run: python scripts/check_docs.py
+
       - name: Tests
         # Offline by default. Nothing here reaches ftp.datasus.gov.br.
         run: pytest -q
 
       - name: Types
-        # NOT blocking, and deliberately so rather than silently. mypy reports
-        # 116 findings on this tree, essentially all `dict[str, object]` values
-        # that need a per-site annotation; none is a known defect. The number is
-        # recorded in CONTRIBUTING.md so it can be ratcheted down rather than
-        # rediscovered. Make this step blocking when it reaches zero.
+        # NOT blocking: mypy reported 157 findings on 2026-09-28, mostly
+        # `dict[str, object]` values needing per-site annotations.
         continue-on-error: true
         run: mypy src/pegasus_data
 
