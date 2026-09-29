@@ -328,6 +328,39 @@ def _lookup_map_uncached(
         competencia=competencia,
         code_width=code_width,
     )
+    # A vintaged kit table asked for month by month is usually the same table
+    # twelve times: built once per distinct content (ADR-0097).
+    digest = _content_digest(table)
+    known = _MAPS_BY_CONTENT.get((codelist, digest))
+    if known is not None:
+        return known
+    built = _map_from_table(table)
+    if len(_MAPS_BY_CONTENT) > 512:
+        _MAPS_BY_CONTENT.clear()
+    _MAPS_BY_CONTENT[(codelist, digest)] = built
+    return built
+
+
+#: ``(codelist, content digest) -> code -> label`` (see ``_lookup_map_uncached``).
+_MAPS_BY_CONTENT: dict[tuple[str, bytes], dict[str, str]] = {}
+
+
+def _content_digest(table: pa.Table) -> bytes:
+    """A digest of a reference table's codes and labels, from Arrow's buffers."""
+    import hashlib
+
+    h = hashlib.blake2b(digest_size=16)
+    for name in ("code", "label"):
+        column = pc.cast(table.column(name), pa.string()).combine_chunks()
+        h.update(str(len(column)).encode())
+        for buffer in column.buffers():
+            if buffer is not None:
+                h.update(memoryview(buffer))
+    return h.digest()
+
+
+def _map_from_table(table: pa.Table) -> dict[str, str]:
+    """``code -> label``: last line wins, and blank labels are dropped."""
     # Nulls and blanks are dropped in Arrow, before 700,000 registry rows
     # become Python strings; order is kept, so the dict below still lets the
     # last line win.

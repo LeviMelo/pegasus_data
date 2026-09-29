@@ -33,6 +33,9 @@
   - `_lookup_map` filters nulls and blanks before conversion, keeping
     last-line-wins.
   - `_label_via` is an `index_in`/`take` join.
+- **A vintaged kit table's map is built once per distinct content**
+  (`view._content_digest`): asked for month by month, it is usually the same
+  table twelve times, and the packed copy carries no windows to key on.
 - **A field's merged map is built once per process** (`view._merged_lookup`).
   It carries its code widths, and a single-table field is not copied entry by
   entry. Registry parquet reads are cached on the file's mtime
@@ -52,8 +55,8 @@
 | query (live home) | before | after |
 |---|---:|---:|
 | SIASUS-ACF 2023-01 | 43 s | 15 s |
-| SIASUS-ACF 2023, files cached, second query in the process | 104 s | 16.7 s |
-| the same, first query in a fresh process | — | 35 s |
+| SIASUS-ACF 2023, files cached, second query in the process | 104 s | 15.2 s |
+| the same, first query in a fresh process | — | 25 s |
 
 The two warm runs return identical tables (`Table.equals`). The fresh
 process's extra time is one-time work: the curation reload that followed
