@@ -15,6 +15,9 @@ variables:
 
       '
     code_system: external
+    # The team registry in the SIA kit (DBF/INE_EQUIPE_BR: 107,438 teams, CHAVE ->
+    # name), 10 digits as the column (ADR-0100).
+    codelist: INE_EQUIPE_BR
     source: web
     source_ref: 'wiki.saude.gov.br/cnes "Cadastro de Equipes" - INE defined as the
       team''s national identification code

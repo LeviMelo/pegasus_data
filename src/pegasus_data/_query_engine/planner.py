@@ -93,12 +93,14 @@ def plan(
     hidden = {"_source_path", "year", "_competencia", "_source_resolution"}
     hidden.update(item.field for item in spec.dimensions)
     for item in spec.enrichments:
+        # Only the column the route reads is required. The record's own
+        # identifier, when the layout has one, is compared if present
+        # (crosswalk.OWN_CNPJ_FIELDS); requiring a column named CNPJ made
+        # enrich=["CNPJ"] fail on every SIH query (ADR-0100).
         if item.target == "CNPJ":
             hidden.add((item.from_field or "CNES").upper())
-            hidden.add("CNPJ")
         elif item.target == "CNES":
             hidden.add((item.from_field or "CNPJ").upper())
-            hidden.add("CNES")
         elif item.target in CNES_ATTRIBUTE_FIELDS or item.target == "CNES.ESTABLISHMENT_NAME":
             hidden.add((item.from_field or "CNES").upper())
         else:
@@ -109,11 +111,9 @@ def plan(
     required_set.update(
         "cnes_registry" for item in spec.enrichments if item.target in CNES_ATTRIBUTE_FIELDS
     )
-    required_set.update(
-        "cnes_names"
-        for item in spec.enrichments
-        if item.target == "CNES.ESTABLISHMENT_NAME"
-    )
+    # CNES.ESTABLISHMENT_NAME needs no built resource: without the monthly
+    # history (cnes_names) it answers from the current registry and says so
+    # (ADR-0100).
     required = tuple(sorted(required_set))
     resource_period = (
         (spec.period.start, spec.period.end) if spec.period is not None else None

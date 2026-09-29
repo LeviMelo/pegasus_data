@@ -212,8 +212,11 @@ def _enrich_cnes_name(
         raise KeyError(f"{source_field}: required source field for CNES registry enrichment")
     from .._resources import ResourceManager
 
-    path = ResourceManager(settings).ensure("cnes_names").path
     source_codes = {str(value or "").strip() for value in table[source_field].to_pylist()}
+    try:
+        path = ResourceManager(settings).ensure("cnes_names").path
+    except FileNotFoundError:
+        return _enrich_cnes_name_current(table, request, source_field, source_codes)
     competences = (
         table["_competencia"].to_pylist()
         if "_competencia" in table.column_names
@@ -285,6 +288,45 @@ def _enrich_cnes_name(
     name = _enrichment_output_name(request)
     output = _append_or_replace(table, name, values)
     output = _append_or_replace(output, f"{name}_resolution_status", statuses)
+    return output, report
+
+
+def _enrich_cnes_name_current(
+    table: pa.Table, request: EnrichmentRequest, source_field: str, source_codes: set[str]
+) -> tuple[pa.Table, EnrichmentReport]:
+    """The establishment's name from the current CNES registry (ADR-0100).
+
+    Used when the monthly history (``cnes_names``, built from CNES-ST) has not
+    been built. It is the same registry that labels CNES columns, and each row
+    says ``current_registry``: an establishment renamed since the record is
+    named as it is now.
+    """
+    import pyarrow.compute as pc
+
+    from ..registry import lookup
+
+    registry = lookup("CADGERBR", "CNES")
+    names: dict[str, str] = {}
+    if registry is not None:
+        hit = registry.filter(pc.is_in(registry["code"], value_set=pa.array(sorted(source_codes), pa.string())))
+        names = {str(c): str(n) for c, n in zip(hit["code"].to_pylist(), hit["label"].to_pylist(), strict=True) if n}
+    report = EnrichmentReport(
+        request.target, source_field, f"{source_field}→CNES registry name (current)",
+        rows_before=table.num_rows, rows_after=table.num_rows,
+    )
+    values: list[str | None] = []
+    statuses: list[str] = []
+    for code in table[source_field].to_pylist():
+        name = names.get(str(code or "").strip())
+        values.append(name)
+        statuses.append("current_registry" if name else "unresolved")
+        if name:
+            report.matched += 1
+        else:
+            report.unmatched += 1
+    output_name = _enrichment_output_name(request)
+    output = _append_or_replace(table, output_name, values)
+    output = _append_or_replace(output, f"{output_name}_resolution_status", statuses)
     return output, report
 
 

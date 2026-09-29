@@ -384,3 +384,19 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - What the pre-2021 files carried is not measurable from today's tree
   (OQ-56).
 
+### The CNES establishment registry in the TabWin kit (measured 2026-09-29)
+
+- **What it is.** `TAB_CNES.zip` ships `DBF/CADGER<UF>.dbf`, one table per
+  state: 692,004 establishments. Columns: `CNES`, `CPF_CNPJ`, `FANTASIA`,
+  `RAZ_SOCI`, `RSOC_MAN` (maintainer), address, `REGSAUDE`, `CODUFMUN`,
+  `EXCLUIDO`, `DATAINCL`, `DATAEXCL` (`99991231` = not excluded), and
+  `NATUREZA`.
+- **`CPF_CNPJ` is 14 characters but not always a CNPJ.** 372,831 are CNPJs,
+  170,203 are **CPFs zero-padded to 14 digits** (sole practitioners), and
+  148,967 are zeros. Only the CNPJ check digits tell them apart.
+- **`RAZ_SOCI` glues the identifier onto the name:** `CNPJ 00.000.000/0000-00-NAME`,
+  `CPF 981.489.152/53-NAME`.
+- **The team registry is in the SIA kit, not the CNES kit.**
+  `TAB_SIA.zip!DBF/INE_EQUIPE_<UF>.dbf` and `INE_EQUIPE_BR.dbf` (107,438
+  teams) map `CHAVE` (the 10-digit INE) to `DS_REGRA` (the team's name).
+  `TAB_CNES.zip!DBF/EQUIPE.dbf` holds the 64 team TYPES.

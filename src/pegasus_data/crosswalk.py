@@ -78,7 +78,11 @@ def _crosswalk_slice(
     for optional in ("valid_from", "valid_to", "source_codelist", "codelist"):
         if optional in names and optional not in columns:
             columns.append(optional)
-    expression = ds.field(key_field).isin(sorted(codes))
+    # The pack writes CNPJs punctuated (14.354.955/0001-51); the question comes
+    # in digits. Asking for digits alone matched nothing, so CNPJ->CNES never
+    # resolved a row (ADR-0100).
+    wanted = set(codes) | ({_punctuated(c) for c in codes if len(c) == 14} if reverse else set())
+    expression = ds.field(key_field).isin(sorted(wanted))
     known: list[int] = []
     for value in vintages:
         if isinstance(value, SourceVintage):
@@ -106,7 +110,7 @@ def _crosswalk_slice(
         if codelist_name in table.column_names
         else [""] * table.num_rows
     )
-    out: dict[str, list[tuple[str, str, str, str]]] = {}
+    out: dict[str, list[tuple[str, str, str, str]]] = _registry_slice(codes, reverse=reverse)
     for key, value, lo, hi, codelist in zip(
         table[key_field].to_pylist(),
         table[value_field].to_pylist(),
@@ -115,10 +119,72 @@ def _crosswalk_slice(
         codelists,
         strict=True,
     ):
-        out.setdefault(str(key).strip(), []).append(
-            (str(value), str(lo or ""), str(hi or ""), str(codelist))
+        key_text = _digits(key) if reverse else str(key).strip()
+        value_text = str(value).strip() if reverse else _digits(value)
+        if not reverse and not valid_cnpj(value_text):
+            continue  # 4,065 pack rows glue a digit of the name on (…/0007-85-4)
+        if reverse and not valid_cnpj(key_text):
+            continue
+        out.setdefault(key_text, []).append(
+            (value_text, str(lo or ""), str(hi or ""), str(codelist))
         )
     return out
+
+
+def _punctuated(cnpj: str) -> str:
+    return f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"
+
+
+#: The source tag of a claim read from the establishment registry.
+REGISTRY_SOURCE = "registry:CADGERBR"
+
+
+def _registry_slice(codes: set[str], *, reverse: bool) -> dict[str, list[tuple[str, str, str, str]]]:
+    """CNES <-> CNPJ from the establishment registry (ADR-0100).
+
+    The registry's ``cnpj`` is a column checked against the CNPJ check digits,
+    not text parsed out of a name, and each establishment carries the dates it
+    entered and left the registry, which bound the claim. A registry that
+    cannot be had contributes nothing; the pack's claims still apply.
+    """
+    import pyarrow.compute as pc
+
+    from .registry import lookup
+
+    try:
+        table = lookup("CADGERBR", "CNES")
+    except Exception:  # noqa: BLE001 - no registry is a gap, not a crash
+        table = None
+    if table is None or "cnpj" not in table.column_names or not codes:
+        return {}
+    key = "cnpj" if reverse else "code"
+    table = table.filter(pc.is_in(table[key], value_set=pa.array(sorted(codes), pa.string())))
+    table = table.filter(pc.is_valid(table["cnpj"]))
+    out: dict[str, list[tuple[str, str, str, str]]] = {}
+    for code, cnpj, included, excluded in zip(
+        table["code"].to_pylist(), table["cnpj"].to_pylist(),
+        table["included"].to_pylist(), table["excluded"].to_pylist(), strict=True,
+    ):
+        lo = str(included or "")[:6]
+        hi = str(excluded or "")[:6]
+        hi = "" if hi.startswith("9999") else hi
+        k, v = (cnpj, code) if reverse else (code, cnpj)
+        out.setdefault(str(k), []).append((str(v), lo, hi, REGISTRY_SOURCE))
+    return out
+
+
+def _covering(available: object, vintage: object) -> set[str]:
+    """The claims whose window covers the vintage: the registry's when it has one.
+
+    The registry is DATASUS's current record, with dates; the pack's claims are
+    older kits' snapshots with no windows, so they speak only where the
+    registry does not.
+    """
+    claims = list(available or ())
+    registry = {v for v, lo, hi, src in claims if src == REGISTRY_SOURCE and window_covers(lo, hi, vintage)}
+    if registry:
+        return registry
+    return {v for v, lo, hi, src in claims if src != REGISTRY_SOURCE and window_covers(lo, hi, vintage)}
 
 
 def _digits(value: object) -> str:
@@ -139,11 +205,17 @@ def valid_cnpj(value: object) -> bool:
     return True
 
 
+#: A record's own CNPJ for its establishment, by layout: compared with the
+#: crosswalk's answer when present (SIH/CIH hospital CGC_HOSP, APAC and BPA-I
+#: executing establishment).
+OWN_CNPJ_FIELDS = ("CNPJ", "CGC_HOSP", "AP_CNPJCPF", "CNPJCPF", "PA_CNPJCPF")
+
+
 def enrich_cnpj(
     table: pa.Table,
     *,
     from_field: str = "CNES",
-    raw_field: str = "CNPJ",
+    raw_field: str | None = None,
     as_field: str = "CNPJ_resolved",
     explode: bool = False,
     resource_path: str | Path | None = None,
@@ -152,6 +224,7 @@ def enrich_cnpj(
     if from_field not in table.column_names:
         raise KeyError(f"{from_field}: required source field for CNES→CNPJ enrichment")
     source_values = table[from_field].to_pylist()
+    raw_field = raw_field or next((f for f in OWN_CNPJ_FIELDS if f in table.column_names), None)
     raw_values = table[raw_field].to_pylist() if raw_field in table.column_names else [None] * table.num_rows
     vintages = source_vintages(table)
     rows = _crosswalk_slice(
@@ -167,10 +240,7 @@ def enrich_cnpj(
         zip(source_values, raw_values, vintages, strict=True)
     ):
         available = rows.get(str(source or "").strip(), ())
-        candidates = {
-            cnpj for cnpj, lo, hi, _source in available
-            if window_covers(lo, hi, vintage)
-        }
+        candidates = _covering(available, vintage)
         coarse_ambiguity = bool(
             vintage is not None
             and not vintage.exact
@@ -259,10 +329,7 @@ def enrich_cnes(
         zip(source_values, raw_values, vintages, strict=True)
     ):
         available = reverse.get(_digits(cnpj), ())
-        candidates = {
-            cnes for cnes, lo, hi, _source in available
-            if window_covers(lo, hi, vintage)
-        }
+        candidates = _covering(available, vintage)
         coarse_ambiguity = bool(
             vintage is not None
             and not vintage.exact

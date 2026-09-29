@@ -29,6 +29,11 @@
 - **`CNPJ_BR`, a legal entity's name by CNPJ,** is derived from the
   establishment registry (`RAZ_SOCI` without its `CNPJ …-` prefix). It is
   built with the registry cache: 515,946 CNPJs, only 14-digit.
+  **Corrected 2026-09-29 (ADR-0100):** the 14-digit filter was not enough.
+  158,043 of those 515,946 keys were not CNPJs: `CPF_CNPJ` holds CPFs
+  zero-padded to 14 digits, so persons' CPFs were resolved to their names.
+  `CNPJ_BR` now keeps only identifiers that pass the CNPJ check digits
+  (357,903).
   - An 11-digit **CPF is never resolved to a name**: it is a person's
     identifier, passed through unmodified (CLAUDE.md §6).
   - Mixed CPF/CNPJ fields (`PA_CNPJCPF`, `CPF_CNPJ`) stay unbound.

@@ -577,6 +577,9 @@ variables:
     description: CNES code of the specific care team (e.g. an ESF or NASF team) that carried
       out the action, used to attribute production to a team rather than just an establishment.
     code_system: external
+    # The team registry in the SIA kit (DBF/INE_EQUIPE_BR: 107,438 teams, CHAVE ->
+    # name), 10 digits as the column (ADR-0100).
+    codelist: INE_EQUIPE_BR
   PA_MNDIF:
     official_name: Municipio de residencia diferente do estabelecimento
     translated_name: Patient-vs-establishment municipality mismatch flag

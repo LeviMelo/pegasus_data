@@ -319,7 +319,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
   `write_table`, `load_population`, `load_reference`.
 - `retrieve.py`: `fetch()`, DATASUS to a table in one call; the de facto read engine.
 - `view.py`: rendering into the canonical form: codelist selection, `_label` companions, derived columns.
-- `registry.py`: registries (establishment names, `CADGER*`) from their owner's current TabWin kit, fetched once and cached (ADR-0086).
+- `registry.py`: registries from their owner's current TabWin kit, fetched once and cached (ADR-0086): the typed establishment registry (`CADGERBR`: names, maintainer, valid CNPJ only, inclusion/exclusion dates), `CNPJ_BR`, teams (`INE_EQUIPE_BR`, SIASUS kit) and `HUF_*` (ADR-0100). The single source of establishment identity.
 - `presentation.py`: how a result reads, applied last: value and header templates, presets, language (ADR-0084).
 - `render_groups.py`: groups files by vintage and system before rendering.
 - `representations.py`: deduplicates the same publication delivered twice.
@@ -328,7 +328,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `capabilities.py`: what a client may do with a built aggregate.
 - `suggest.py`: recipe suggestions.
 - `geography.py`: health-region memberships and the geography graph.
-- `crosswalk.py`: CNES↔CNPJ enrichment.
+- `crosswalk.py`: CNES↔CNPJ enrichment. Reads the registry first (windows from inclusion to exclusion), then the label pack's historical claims where the registry is silent; compares with the record's own CNPJ when the layout has one (ADR-0100).
 - `providers.py`: optional attribute providers (CNES names).
 - `_age.py`: age in fractional years from measured unit tables (ADR-0070), and age bands.
 - `_vintage.py`: vintage resolution helpers.
