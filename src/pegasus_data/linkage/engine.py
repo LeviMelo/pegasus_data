@@ -153,12 +153,13 @@ class LinkNotViable(RuntimeError):
     returns it anyway for study.
     """
 
-    def __init__(self, result: LinkResult) -> None:
+    def __init__(self, result: Any) -> None:
         self.result = result
-        passes = "; ".join(f"{p.name}: {p.pairs} pairs, {p.control_pairs} by chance" for p in result.passes)
+        summary = result.summary()
+        chance = summary.get("chance_percent", summary.get("estimated_fdr_percent"))
         super().__init__(
-            f"{result.spec} is not viable here (chance {result.chance_percent}%, "
-            f"validations {result.validations}); passes: {passes}. "
+            f"{summary['spec']} is not viable here (chance {chance}%, "
+            f"validations {summary['validations']}, {summary['pairs']} pairs). "
             "Pass allow_not_viable=True to inspect the pairs."
         )
 
@@ -298,9 +299,10 @@ def link(
     period: object,
     geography: object,
     right_period: object = None,
+    method: str = "deterministic",
     allow_not_viable: bool = False,
     **query_kwargs: Any,
-) -> LinkResult:
+) -> Any:
     """Link two datasets under the declared spec ``name`` (``curation/links.yml``).
 
     Both sides are read through :func:`query` at ``period`` and ``geography``
@@ -309,6 +311,10 @@ def link(
     and a report of every pass, its negative control, the held-out validations
     and the verdict. A linkage that is not viable raises
     :class:`LinkNotViable` unless ``allow_not_viable=True``.
+
+    ``method="probabilistic"`` runs the spec's probabilistic block
+    (ADR-0111): evidence in bits learned from the data, a threshold set by the
+    measured false-match rate; its pairs carry their score in bits.
 
     Example::
 
@@ -320,6 +326,16 @@ def link(
         spec = load_links()[name]
     except KeyError:
         raise KeyError(f"no link spec {name!r}; declared: {sorted(load_links())}") from None
+    if method == "probabilistic":
+        from .probabilistic import link_probabilistic
+
+        result = link_probabilistic(name, period=period, geography=geography, right_period=right_period,
+                                    **query_kwargs)
+        if result.verdict == "not viable" and not allow_not_viable:
+            raise LinkNotViable(result)
+        return result
+    if method != "deterministic":
+        raise ValueError(f"method must be 'deterministic' or 'probabilistic', not {method!r}")
     left = role_table(spec.left.dataset, period=period, geography=geography,
                       roles=_roles_needed(spec, "left"), **query_kwargs)
     right = role_table(spec.right.dataset, period=right_period or period, geography=geography,

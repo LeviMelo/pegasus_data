@@ -34,18 +34,24 @@ keys:
     members:
       - dataset: SIH.RD
         column: N_AIH
-        rows_per_key: one
+        rows_per_key: many
+        measured: >
+          measured 2026-09-30 (OQ-20): nearly one row per AIH, and every repeat is explained by the AIH type (IDENT, ADR-0108). SP 2023-01: 210,225 rows on 210,161 AIHs; the 56 repeated AIHs all carry a long-stay part (IDENT 5) and one admission date: types (1, 5) 39, (5, 5) 9, (1, 5, 5) 8. AC 2023, the whole year: 20 AIHs repeat, 53 extra rows (0.09%), all a principal plus long-stay parts ((1, 5, 5, 5) 14), each within one monthly file. RD 2023 carries types 1 and 5 only (no 3, "continuação"). Count admissions as distinct N_AIH, not rows.
         note: the admission itself, one row per AIH
       - dataset: SIH.SP
         column: SP_NAIH
         rows_per_key: many
+        measured: >
+          measured 2026-09-30: SP 2023-01, 3,469,842 acts on 210,161 AIHs (16.5 per AIH, up to 258); every RD AIH has SP rows.
         note: >
           one row per professional act billed inside the admission. Joining SP to
           RD and counting rows counts services, not admissions, and inflates the
           count several-fold.
       - dataset: SIH.RJ
         column: N_AIH
-        rows_per_key: one
+        rows_per_key: many
+        measured: >
+          measured 2026-09-30: nearly one. SP 2023-01: 11,599 rows on 11,588 AIHs, 10 repeated: 8 involve a long-stay part (IDENT 5), 2 are the same principal AIH (1, 1) presented twice.
         note: >
           rejected claims. An AIH here generally did NOT become an RD row, so
           this is not a subset of RD but its complement.
@@ -142,15 +148,21 @@ keys:
     members:
       - dataset: SIA.AQ
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: many
+        measured: >
+          measured 2026-09-30: SP 2023-01, 80,069 rows on 74,756 APACs, 4,551 (6.1%) with 2–3 rows; the repeats differ in AP_CMP and AP_TPAPAC: one authorisation presented for more than one competence in the same file.
         note: chemotherapy
       - dataset: SIA.AR
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: one
+        measured: >
+          measured 2026-09-30: SP 2023-01, 2,723 rows, 2,723 APACs.
         note: radiotherapy
       - dataset: SIA.AM
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: many
+        measured: >
+          measured 2026-09-30: SP 2023-01, 1,065,659 rows on 1,048,509 APACs, 14,028 with 2–3 rows.
         note: medication
       - dataset: SIA.AN
         column: AP_AUTORIZ
@@ -161,19 +173,29 @@ keys:
         rows_per_key: unmeasured
       - dataset: SIA.ABO
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: many
+        measured: >
+          measured 2026-09-30: SP 2023-01, 760 rows on 754 APACs, 6 repeated.
       - dataset: SIA.ACF
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: one
+        measured: >
+          measured 2026-09-30: SP 2023-01, 498 rows, 498 APACs.
       - dataset: SIA.AD
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: many
+        measured: >
+          measured 2026-09-30: SP 2023-01, 69,397 rows on 68,671 APACs, 623 repeated.
       - dataset: SIA.AMP
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: one
+        measured: >
+          measured 2026-09-30: SP 2023-01, 642 rows, 642 APACs.
       - dataset: SIA.ATD
         column: AP_AUTORIZ
-        rows_per_key: unmeasured
+        rows_per_key: many
+        measured: >
+          measured 2026-09-30: SP 2023-01, 27,285 rows on 27,042 APACs, 198 repeated.
 
 # Joins people ask for that are NOT declared here, and why.
 #

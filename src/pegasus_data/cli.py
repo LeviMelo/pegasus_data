@@ -1295,6 +1295,9 @@ def link_cmd(
     period: Annotated[str | None, typer.Option("--period", "-p", help="2022, 2022-01, or 2020..2022")] = None,
     geography: Annotated[str | None, typer.Option("--geo", "-g", help="AC, or AC,RR, or BR")] = None,
     out: Annotated[Path | None, typer.Option("--out", "-o", help="Write the pairs (parquet or csv)")] = None,
+    method: Annotated[
+        str, typer.Option("--method", "-m", help="deterministic (exact passes) | probabilistic (ADR-0111)")
+    ] = "deterministic",
     allow_not_viable: Annotated[
         bool, typer.Option("--allow-not-viable", help="Return the pairs of a linkage that fails its verdict")
     ] = False,
@@ -1325,7 +1328,7 @@ def link_cmd(
     geo: object = [g.strip() for g in geography.split(",")] if "," in geography else geography.strip()
     try:
         with console.status(f"linking {spec}…"):
-            result = link(spec, period=span, geography=geo, allow_not_viable=allow_not_viable,
+            result = link(spec, period=span, geography=geo, method=method, allow_not_viable=allow_not_viable,
                           allow_partial=allow_partial, settings=_settings(root))
     except LinkNotViable as exc:
         _emit(exc.result.summary(), as_json, f"link {spec}: NOT VIABLE")
@@ -1333,7 +1336,9 @@ def link_cmd(
     except (KeyError, DatasetUnknown, NothingPublished, ValueError) as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=1) from exc
-    _emit(result.summary(), as_json, f"link {spec}")
+    summary = result.summary()
+    summary.pop("models", None) if not as_json else None
+    _emit(summary, as_json, f"link {spec} ({method})")
     if out:
         import pyarrow.csv as pacsv
         import pyarrow.parquet as pq

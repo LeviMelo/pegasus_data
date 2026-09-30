@@ -78,10 +78,10 @@ spec's `probabilistic` block (`compare`, `blocks`, `target_fdr`):
 
 | link | scope | deterministic | probabilistic |
 |---|---|---|---|
-| SIM infant deaths → SINASC | RR | 117 (59.7%) | 174 (88.8%), est. FDR 0.0%, plurality agrees 98.1% |
-| | AC | 132 (64.1%) | 198 (96.1%), 0.0%, plurality 99.4% |
-| SINASC deliveries → SIH admission | RR | 8,846, chance 1.9% | 8,578 (66.2%), est. FDR 0.83%, obstetric diagnosis 96.0% |
-| | AC | 10,003, 0.55% | 10,041 (70.0%), 0.71%, obstetric 99.2% |
+| SIM infant deaths → SINASC | RR | 117 (59.7%) | 152 (77.6%), est. FDR 0.0% (0 control pairs; 95% upper bound 2.4%), plurality agrees 98.7% |
+| | AC | 132 (64.1%) | 173 (84.0%), 0.0% (0; upper bound 2.1%), plurality 100% |
+| SINASC deliveries → SIH admission | RR | 8,846, chance 1.9% | 8,577 (66.2%), est. FDR 0.83% (71 control pairs; upper bound 1.04%), obstetric diagnosis 96.0% |
+| | AC | 10,003, 0.55% | 10,035 (70.0%), 0.65%, obstetric 99.2% |
 
 - **Infant deaths.** Every deterministic pair is kept. The learned weight
   channel explains the gain: the weight on the death certificate equals the
@@ -100,6 +100,17 @@ spec's `probabilistic` block (`compare`, `blocks`, `target_fdr`):
   fall on the admission's first day in 61–65% of anchor pairs (u 0.3%), on
   the second in 22–26%, and later in 7–9%. With that evidence the target is
   met.
+
+**Corrected the same day.** The first figures for infant deaths (RR 174,
+AC 198) came from a u sample of 2,000 left × 100 right records, drawn
+unseeded. Two draws of AC gave 198 and 173. u now comes from 200,000 random
+pairs over up to 50,000 distinct records per side, seeded: repeatable, and
+the figures above are from it. The SIH-death figures moved by less than one
+pair per thousand (RR 1,245; threshold 11.1 bits, est. FDR 0.64%, 8 control
+pairs, upper bound 1.27%). Every result now reports its control count above
+the threshold and a 95% upper bound (Poisson) on the false-match rate,
+because a small left side (a state's infant deaths) rests the estimate on
+very few coincidences.
 
 **Consequences.** The deterministic passes stay: they are the anchors'
 source and the baseline. Next: the travel flows as evidence for residence ↔ facility, typo-variant

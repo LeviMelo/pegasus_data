@@ -8,6 +8,7 @@ the property a column states, not the column:
     python scripts/linkage_study.py channels SIASUS-PS 2022
     python scripts/linkage_study.py flows SIH-RD 2022
     python scripts/linkage_study.py coverage 2022-01
+    python scripts/linkage_study.py joins 2023-01 SP
 
 ``bits``: how much identifying information each role carries (entropy), how
 much combinations carry together (joint entropy), the share of records a key
@@ -264,6 +265,43 @@ def coverage(period: str) -> dict[str, Any]:
     return out
 
 
+def joins(period: str, uf: str) -> dict[str, Any]:
+    """Rows per key for every member of curation/joins.yml's AIH and APAC keys (OQ-20)."""
+    import yaml
+
+    from pegasus_data import query
+    from pegasus_data.retrieve import NothingPublished
+
+    spec = yaml.safe_load((ROOT / "src" / "pegasus_data" / "curation" / "joins.yml").read_text(encoding="utf-8"))
+    out: dict[str, Any] = {"period": period, "uf": uf, "keys": {}}
+    for key in ("AIH", "APAC"):
+        members = {}
+        for member in spec["keys"][key]["members"]:
+            dataset, column = member["dataset"].replace(".", "-"), member["column"]
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    table = query(dataset, period=period, geography=uf, select=[column], present="codes",
+                                  allow_partial=True)
+            except (NothingPublished, KeyError, ValueError) as exc:
+                members[member["dataset"]] = {"declared": member["rows_per_key"], "error": type(exc).__name__}
+                continue
+            con = duckdb.connect()
+            con.register("t", table)
+            rows, keys, top, multi = q(con, f"""WITH g AS (SELECT "{column}" k, count(*) c FROM t
+                                          WHERE "{column}" IS NOT NULL GROUP BY 1)
+                                          SELECT sum(c), count(*), max(c), sum(CASE WHEN c > 1 THEN 1 ELSE 0 END) FROM g""")[0]
+            members[member["dataset"]] = {
+                "declared": member["rows_per_key"], "rows": rows, "keys": keys,
+                "rows_per_key_mean": round(rows / keys, 3) if keys else None, "max": top,
+                "keys_with_several_rows": multi,
+                "measured": None if not keys else ("one" if multi == 0 else "many"),
+            }
+            print(f"  {key} {member['dataset']}: {members[member['dataset']]}", flush=True)
+        out["keys"][key] = members
+    return out
+
+
 def main() -> int:
     study = sys.argv[1]
     OUT.mkdir(parents=True, exist_ok=True)
@@ -271,6 +309,9 @@ def main() -> int:
     if study == "coverage":
         dataset, period = "CIHA+SIH-RD", sys.argv[2]
         result = coverage(period)
+    elif study == "joins":
+        dataset, period = f"joins-{sys.argv[3]}", sys.argv[2]
+        result = joins(period, sys.argv[3])
     else:
         dataset, period = sys.argv[2].upper(), sys.argv[3]
         dataset_roles(dataset)  # an undeclared dataset fails before anything downloads

@@ -73,6 +73,8 @@ class ProbabilisticResult:
     control_candidates: int = 0
     threshold_bits: float | None = None
     estimated_fdr_percent: float | None = None
+    control_above_threshold: int = 0
+    fdr_upper95_percent: float | None = None
     validations: dict[str, Any] = field(default_factory=dict)
     verdict: str = "not viable"
 
@@ -83,7 +85,9 @@ class ProbabilisticResult:
             "control_candidates": self.control_candidates, "threshold_bits": self.threshold_bits,
             "pairs": self.pairs.num_rows,
             "linked_share": round(self.pairs.num_rows / self.left_records, 4) if self.left_records else 0.0,
-            "estimated_fdr_percent": self.estimated_fdr_percent, "validations": self.validations,
+            "estimated_fdr_percent": self.estimated_fdr_percent,
+            "control_pairs_above_threshold": self.control_above_threshold,
+            "fdr_upper95_percent": self.fdr_upper95_percent, "validations": self.validations,
             "verdict": self.verdict, "models": [m.as_dict() for m in self.models],
         }
 
@@ -200,10 +204,19 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     # u: random pairs.
     lcols = ", ".join(_q(c.left) for c in prob.compare)
     rsel = ", ".join(dict.fromkeys(_q(role) for c in prob.compare for role in c.right_roles))
+    # 200,000 random pairs over up to 50,000 distinct records per side, paired
+    # by position with a stride: diverse on both sides and repeatable. A
+    # 2,000 x 100 rectangle rested u on 100 right records, and one AC run
+    # moved from 198 to 173 pairs between two draws (2026-09-30).
     random_rows = _as_values(con.execute(f"""
+        WITH l AS (SELECT {lcols}, row_number() OVER () - 1 AS i
+                   FROM (SELECT * FROM L USING SAMPLE reservoir(50000 ROWS) REPEATABLE (107))),
+             r AS (SELECT {rsel}, row_number() OVER () - 1 AS i
+                   FROM (SELECT * FROM R USING SAMPLE reservoir(50000 ROWS) REPEATABLE (107))),
+             n AS (SELECT (SELECT count(*) FROM l) AS nl, (SELECT count(*) FROM r) AS nr),
+             g AS (SELECT k % n.nl AS li, (k * 7919) % n.nr AS ri FROM range({RANDOM_PAIRS}) t(k), n)
         SELECT {", ".join("l." + _q(c.left) for c in prob.compare)}, {_right_cols(prob.compare)}
-        FROM (SELECT {lcols} FROM L USING SAMPLE 2000 ROWS) l
-        CROSS JOIN (SELECT {rsel} FROM R USING SAMPLE 100 ROWS) r""").fetchall())
+        FROM g JOIN l ON l.i = g.li JOIN r ON r.i = g.ri""").fetchall())
     k = len(prob.compare)
     models: list[FieldModel] = []
     for i, comp in enumerate(prob.compare):
@@ -231,9 +244,19 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     con.execute("CREATE OR REPLACE TEMP TABLE linked AS SELECT l, r FROM pairs")
     validations = validate(con, spec)
     fdr_percent = round(100.0 * fdr, 2) if fdr is not None else None
+    # The estimate rests on few control pairs when the left side is small (a
+    # state's infant deaths): say how few, and the 95% upper bound (Poisson on
+    # the control count, over the real pairs kept).
+    control_kept = sum(1 for *_x, s in control_best if t is not None and s >= t)
+    upper = None
+    if kept:
+        from scipy.stats import chi2
+
+        upper = round(100.0 * (chi2.ppf(0.975, 2 * (control_kept + 1)) / 2) / len(kept), 2)
     verdict = judge(len(kept), fdr_percent, validations)
     return ProbabilisticResult(spec.name, n_left, n_right, pairs, models, len(real), len(control),
-                               round(t, 2) if t is not None else None, fdr_percent, validations, verdict)
+                               round(t, 2) if t is not None else None, fdr_percent, control_kept, upper,
+                               validations, verdict)
 
 
 def link_probabilistic(name: str, *, period: object, geography: object, right_period: object = None,
