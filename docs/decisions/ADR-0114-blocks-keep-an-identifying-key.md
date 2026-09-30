@@ -44,3 +44,21 @@
   A one-digit typo earns ~5 bits where equality earns ~13, so such pairs stay
   below the 1% threshold, and the extra candidates only add runner-ups. The
   spec does not use it; OQ-63 records what evidence would lift typo pairs.
+
+**Amendment (2026-09-30): a block must be selective at the scale it runs.**
+- **The national infant-death run ran out of memory.** DuckDB exhausted
+  25 GiB building candidates. The birth-date-only block met about 7,000 births
+  a day for each of 28,217 deaths: about 200 million pairs. The newborn spec's
+  birth date + sex block would have met about 3,500 per admission.
+- **Such candidates can never be accepted.** Among thousands of same-day
+  births, no pair can be a clear best on the date alone (ADR-0113). Wherever
+  another field also agrees, a tighter block finds the pair.
+- **Blocks now keep the date plus sex and one more field.**
+  - Infant deaths: birth date + sex + residence, weight or mother's age; birth
+    date + residence + weight. The two blocks without a date are kept.
+  - Newborns: birth date + sex + residence; birth date + hospital.
+- **Evidence** (2022, probabilistic):
+  - infant deaths: RR 139 and AC 163 pairs, unchanged; SE 410 of 436, viable;
+  - newborns: RR 19, unchanged; SE 406 → 410, viable; AC 57 → 68, use with
+    caution. AC's threshold fell to 2.08 bits with fewer control candidates,
+    and its perinatal check to 73.5%.

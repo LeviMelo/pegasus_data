@@ -79,8 +79,14 @@ links:
         - [deceased.residence, mother.residence]
         - [death.birth_weight, birth.weight]
         - [death.maternal_age, mother.age]
+      # A birth date alone met ~7,000 births a day nationally (~200M candidates,
+      # out of memory); none of them can be a clear best on the date alone, so
+      # each date block keeps sex and one more field (ADR-0114, amended).
       blocks:
-        - [[deceased.birth_date, baby.birth_date]]
+        - [[deceased.birth_date, baby.birth_date], [deceased.sex, baby.sex], [deceased.residence, mother.residence]]
+        - [[deceased.birth_date, baby.birth_date], [deceased.sex, baby.sex], [death.birth_weight, birth.weight]]
+        - [[deceased.birth_date, baby.birth_date], [deceased.sex, baby.sex], [death.maternal_age, mother.age]]
+        - [[deceased.birth_date, baby.birth_date], [deceased.residence, mother.residence], [death.birth_weight, birth.weight]]
         - [[deceased.residence, mother.residence], [death.birth_weight, birth.weight]]
         - [[deceased.residence, mother.residence], [deceased.sex, baby.sex], [death.maternal_age, mother.age]]
       target_fdr: 0.01
@@ -185,8 +191,10 @@ links:
       # and sex alone paired every newborn admission with every birth at the
       # same maternity hospital (tens of millions of candidates in RR) and adds
       # no identifying evidence (2026-09-30).
+      # Birth date and sex alone met ~3,500 births per admission nationally; a baby
+      # born elsewhere is found through the residence (ADR-0114, amended).
       blocks:
-        - [[patient.birth_date, baby.birth_date], [patient.sex, baby.sex]]
+        - [[patient.birth_date, baby.birth_date], [patient.sex, baby.sex], [patient.residence, mother.residence]]
         - [[patient.birth_date, baby.birth_date], [admission.facility, birth.facility]]
       target_fdr: 0.01
 
