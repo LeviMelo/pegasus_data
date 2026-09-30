@@ -351,6 +351,31 @@ def _states() -> pa.Table:
     return pa.table({"code": list(names), "label": list(names.values())})
 
 
+#: IBGE's seven-digit municipality codes (ADR-0118).
+MUNIC_BR7 = "MUNIC_BR7"
+
+
+@functools.lru_cache(maxsize=1)
+def _municipalities7() -> pa.Table:
+    """Seven-digit IBGE municipality code -> "Name, UF" (ADR-0118).
+
+    DATASUS's own tables are six digits. Older SINAN files write the full IBGE
+    code with its check digit (LTAN 2003: 28,338 of 28,441 are current IBGE
+    codes), which exact-width matching rightly left undecoded against them.
+    The current division: a renamed municipality reads its current name.
+    """
+    from importlib.resources import files as _files
+
+    import pyarrow.parquet as _pq
+
+    rows = _pq.read_table(
+        str(_files("pegasus_data.resources") / "municipalities.parquet"),
+        columns=["code7", "name", "uf_sigla"],
+    ).to_pylist()
+    return pa.table({"code": [str(r["code7"]) for r in rows],
+                     "label": [f"{r['name']}, {r['uf_sigla']}" for r in rows]})
+
+
 #: SIA's pre-2008 establishments, keyed by state + code (ADR-0103).
 SIA_UPS_TABLE = "SIA_UPS_BR"
 _UF_CODES = (
@@ -493,6 +518,8 @@ def _read_reference_table(
         return _states()
     if table_id.upper() == "CIR_BR":
         return _health_regions()
+    if table_id.upper() == MUNIC_BR7:
+        return _municipalities7()
     if table_id.upper() == SIA_UPS_TABLE:
         return _legacy_sia_establishments(lake_root, year=year, competencia=competencia)
     canonical = CLASSIFICATIONS.get(table_id.upper())

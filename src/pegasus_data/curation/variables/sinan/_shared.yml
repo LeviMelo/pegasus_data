@@ -2957,6 +2957,7 @@ variables:
 
       '
     codelist: BR_MUNICIPALFA
+    codelists: [MUNIC_BR7]  # 7-digit IBGE codes (ADR-0118)
     code_system: external
     source: inferred
     reasoning: 'CON_INF_MU/CON_INF_UF appear only in 2000-2006 records of CHAG, DENG, LEIV,
@@ -3632,19 +3633,19 @@ variables:
   DS_TRANS1:
     official_name: Município de transmissão (1)
     translated_name: Municipality of transmission (1)
-    description: 'IBGE municipality code for a candidate place where transmission or infection
-      occurred. First of up to three parallel slots (DS_TRANS1-3), following the same repeated-instance
-      pattern as DS_MUN_1-3 and CO_UF_1-3 elsewhere in SINAN.
+    description: 'First of three parallel slots (DS_TRANS1-3) about transmission. No document
+      defines them. The only values observed are free text, not municipality codes: "ÔNIBUS" and
+      "Sem De" (SINAN-EXAN 2022), and the slots are empty in every other slice measured (EXAN
+      2018, FTIF 2015 and 2020).
 
       '
-    codelist: BR_MUNICIPALFA
-    code_system: external
-    source: inferred
-    reasoning: 'Declared width C6 matches the standard 6-digit IBGE municipality code, not
-      free text; the 1/2/3 suffix mirrors other SINAN "up to three locations" field families.
-      Reviewed 2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan Online
-      dictionaries in sources/dic_text, the Notificação Individual dictionary, TAB_SINANNET
-      .DEF files and the web).'
+    code_system: none
+    source: manual
+    asserted_by: pegasus_data
+    reasoning: 'Measured 2026-09-30 (EVALUATION 2026-09-30, inferred bindings audited). The
+      description of 2026-09-28 (source inferred) read the slot as an IBGE municipality code
+      bound to BR_MUNICIPALFA; the only values ever observed are text, so the binding was
+      removed. The name (Município de transmissão) is the project''s, not a document''s.'
   DS_TRANS2:
     official_name: Município de transmissão (2)
     translated_name: Municipality of transmission (2)
@@ -3653,8 +3654,7 @@ variables:
       case.
 
       '
-    codelist: BR_MUNICIPALFA
-    code_system: external
+    code_system: none
     source: inferred
     reasoning: 'Same evidence as DS_TRANS1; distinguished only by ordinal position. Reviewed
       2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan Online dictionaries
@@ -3668,8 +3668,7 @@ variables:
       case.
 
       '
-    codelist: BR_MUNICIPALFA
-    code_system: external
+    code_system: none
     source: inferred
     reasoning: 'Same evidence as DS_TRANS1; distinguished only by ordinal position. Reviewed
       2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan Online dictionaries

@@ -13,12 +13,18 @@ variables:
     description: 'CID-10 code(s) entered on Line A of the death certificate (the direct/terminal
       cause of death) as originally recorded, before any automatic recoding/reselection.
       Seen only in DOFET files in this batch, where the observed codes are almost entirely
-      ICD-10 Chapter XVI "P" perinatal codes (e.g. "P20.9", written with the ICD dagger-asterisk
-      "*" prefix) — expected for fetal deaths.
+      ICD-10 Chapter XVI "P" perinatal codes (e.g. "*P209"; each code is preceded by "*", the
+      separator SIM uses in its certificate lines) — expected for fetal deaths.
 
       '
     code_system: external
     codelist: ICD10
+    # One cell holds several codes, each preceded by '*' (as SIM-DO's LINHAA);
+    # measured SIM-DOFET 2014: *P209, *P072*Q899 (EVALUATION 2026-09-30, bindings audited).
+    multi_valued: true
+    token_rule:
+      delimiter: '*'
+      width: 4
     source: inferred
     asserted_by: pegasus_data
     reasoning: '[ESTRUTURA-SIM] documents the base field LINHAA (no suffix) at position
@@ -30,9 +36,10 @@ variables:
       CID-10 codes. Reviewed 2026-09-28: no documentation found (searched Estrutura do
       SIM 2025 and 12/2019, the positional Estrutura do SIM, Estrutura_SIM_Anterior.pdf,
       MORT98.HLP; the field is not listed in any of them).'
-    notes: 'The leading "*" is ICD-10''s own dagger-asterisk notation for an asterisk
-      (manifestation) code, not a data artefact — do not strip it before treating the
-      rest as a plain CID-10 code.
+    notes: 'The "*" before each code is the separator SIM uses between the codes of one
+      certificate line (its layout documents LINHAA''s codes the same way), not ICD-10''s
+      asterisk: that follows a manifestation code (G01*), and P20.9 is none. Corrected
+      2026-09-30 from an earlier note that read it as ICD notation.
 
       '
   LINHAB_O:
@@ -45,6 +52,12 @@ variables:
       '
     code_system: external
     codelist: ICD10
+    # One cell holds several codes, each preceded by '*' (as SIM-DO's LINHAA);
+    # measured SIM-DOFET 2014: *P209, *P072*Q899 (EVALUATION 2026-09-30, bindings audited).
+    multi_valued: true
+    token_rule:
+      delimiter: '*'
+      width: 4
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Same basis as LINHAA_O: base field LINHAB is documented at
@@ -64,6 +77,12 @@ variables:
       '
     code_system: external
     codelist: ICD10
+    # One cell holds several codes, each preceded by '*' (as SIM-DO's LINHAA);
+    # measured SIM-DOFET 2014: *P209, *P072*Q899 (EVALUATION 2026-09-30, bindings audited).
+    multi_valued: true
+    token_rule:
+      delimiter: '*'
+      width: 4
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Same basis as LINHAA_O: base field LINHAC is documented at
@@ -82,6 +101,12 @@ variables:
       '
     code_system: external
     codelist: ICD10
+    # One cell holds several codes, each preceded by '*' (as SIM-DO's LINHAA);
+    # measured SIM-DOFET 2014: *P209, *P072*Q899 (EVALUATION 2026-09-30, bindings audited).
+    multi_valued: true
+    token_rule:
+      delimiter: '*'
+      width: 4
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Same basis as LINHAA_O: base field LINHAD is documented at
@@ -101,6 +126,12 @@ variables:
       '
     code_system: external
     codelist: ICD10
+    # One cell holds several codes, each preceded by '*' (as SIM-DO's LINHAA);
+    # measured SIM-DOFET 2014: *P209, *P072*Q899 (EVALUATION 2026-09-30, bindings audited).
+    multi_valued: true
+    token_rule:
+      delimiter: '*'
+      width: 4
     source: inferred
     asserted_by: pegasus_data
     reasoning: 'Same basis as LINHAA_O: base field LINHAII is documented at

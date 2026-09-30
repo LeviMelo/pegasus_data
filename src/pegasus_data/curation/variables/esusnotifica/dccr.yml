@@ -909,7 +909,8 @@ variables:
     description: 'Meant to identify, by CNES code, the laboratory that ran the exam
       for this Chagas-disease notification (DCCR ficha) — paired with the exam-result
       columns (EIE_IGG, PCR, etc). Declared N(1,0), far too narrow for a real 7-digit
-      CNES code.
+      CNES code. Measured 2026-09-30: all 21,834 values in the three published files
+      (2023-2025) are 0; it identifies no laboratory, and 0 stays undecoded.
 
       '
     code_system: external

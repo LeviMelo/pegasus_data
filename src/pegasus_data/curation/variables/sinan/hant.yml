@@ -301,6 +301,7 @@ variables:
 
       '
     codelist: BR_MUNICIPALFA
+    codelists: [MUNIC_BR7]  # 7-digit IBGE codes (ADR-0118)
     code_system: external
     source: inferred
     reasoning: 'HANT form; numeric width N7 matches the standard 7-digit IBGE municipality code rather than a 1-character clinical-sign flag, despite the CLI_ prefix shared with the sign checkboxes. Reviewed 2026-09-28: no documentation found (the column exists only in 1999-2006 SINAN Windows files; searched the SINAN NET Hantavirose v5 dictionary, local TabNet files and the web, and no SINAN Windows hantavirus dictionary is published).'
@@ -410,6 +411,7 @@ variables:
 
       '
     codelist: BR_MUNICIPALFA
+    codelists: [MUNIC_BR7]  # 7-digit IBGE codes (ADR-0118)
     code_system: external
     source: inferred
     reasoning: 'CONF_ = confirmação, INF = infecção, M = município; N7 numeric width matches an IBGE municipality code, and infection-site municipality is a standard field in zoonotic-disease investigation. Reviewed 2026-09-28: no documentation found (the column exists only in 1999-2006 SINAN Windows files; searched the SINAN NET Hantavirose v5 dictionary, local TabNet files and the web, and no SINAN Windows hantavirus dictionary is published).'

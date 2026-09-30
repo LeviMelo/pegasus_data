@@ -168,6 +168,7 @@ variables:
 
       '
     codelist: BR_MUNICIPALFA
+    codelists: [MUNIC_BR7]  # 7-digit IBGE codes (ADR-0118)
     code_system: external
     source: inferred
     reasoning: 'LTAN form; CON_ context prefix with MUNICI reading "município"; C12 text

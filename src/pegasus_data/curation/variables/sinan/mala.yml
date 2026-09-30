@@ -378,6 +378,7 @@ variables:
 
       '
     codelist: BR_MUNICIPALFA
+    codelists: [MUNIC_BR7]  # 7-digit IBGE codes (ADR-0118)
     code_system: external
     source: inferred
     reasoning: 'C7 matches a 7-digit IBGE municipality code; M_+TRANSFU reads município da

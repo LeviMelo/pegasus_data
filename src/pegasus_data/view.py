@@ -256,7 +256,7 @@ def _vintage_free(codelist: str) -> bool:
 
     name = codelist.upper()
     return (
-        name in CLASSIFICATIONS or name in ("UF_BR", "CIR_BR") or is_registry(name)
+        name in CLASSIFICATIONS or name in ("UF_BR", "CIR_BR", "MUNIC_BR7") or is_registry(name)
         or inline_codelist(codelist) is not None
     )
 
