@@ -170,11 +170,23 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - only 387 CIHA admissions (0.18%) match an SIH admission;
   - residence is missing in 18% of CIHA admissions;
   - RR published no CIHA for the month.
-- **CIHA's `MUNIC_RES` is mostly the hospital's municipality.** Where filled,
-  it equals `MUNIC_MOV` in 92–100% of admissions (June 2022: SP 94.6% of
-  77,000, MG 92.3%, BA 92.9%, PR 92.5%, SE 100%), against 71.8% in SIH for
-  SP. It is "ignorado" in 12–51% of admissions (SE 49% in 2022). It does not
-  reliably say where the patient lives (2026-09-30).
+- **CIHA's `MUNIC_RES` on deliveries is mostly the hospital's municipality.**
+  - **The test.** 2022 births were linked to CIHA deliveries without
+    residence as a key. Where SINASC places the mother outside the hospital's
+    municipality, CIHA records the hospital's municipality in 85–100% of
+    cases (SP 85.0% of 22,788; MG 89.7%; PR 86.0%; BA 84.5%; SE 330 of 330)
+    and her SINASC residence in 0–15%.
+  - **SINASC by contrast** places 35–63% of these mothers in the hospital's
+    municipality.
+  - **Aggregate match.** Across all admissions, a filled `MUNIC_RES` equals
+    `MUNIC_MOV` in 92–100% (June 2022), against 71.8% in SIH for SP.
+  - **Untested beyond deliveries.** The match rate alone would also fit
+    patients living near private hospitals, so other admission types are not
+    established.
+  - **Unfilled.** The field is "ignorado" in 12–51% of admissions (SE 49% in
+    2022).
+  - **Source.** The layout says only "Município de residência" (2026-09-30;
+    corrected the same day from a claim first based on the match rate alone).
 - **SIH-RD is nearly one row per AIH.** A long admission is billed as a
   principal AIH (IDENT 1) plus long-stay parts (IDENT 5) under one number
   (SP 2023-01: 56 of 210,161). RD 2023 carries types 1 and 5 only. Count

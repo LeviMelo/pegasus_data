@@ -118,3 +118,4 @@ in.
 | 2026-09-30 | [Catch-all ranges: which observed codes a TabWin residual range was decoding](docs/evaluation/2026-09-30-catch-all-ranges.md) | live (`scripts/catchall_audit.py`, fresh home) |
 | 2026-09-30 | [Health pass: 1990s SIH diagnoses, warnings about out-of-period tables, and code lists that exist nowhere](docs/evaluation/2026-09-30-health-pass-sih-diagnoses-and-dangling-tables.md) | live (fresh home), curation scan |
 | 2026-09-30 | [Private-sector links (CIHA) and what CIHA's "residence" really holds](docs/evaluation/2026-09-30-private-sector-links-and-ciha-residence.md) | live (`link`, fresh home) |
+| 2026-09-30 | [CIHA's residence field tested against SINASC (linked deliveries, six states)](docs/evaluation/2026-09-30-ciha-residence-tested-against-sinasc.md) | live (`scripts/ciha_residence_check.py`, fresh and national homes) |

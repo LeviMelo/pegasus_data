@@ -85,7 +85,6 @@ datasets:
       patient.birth_date: {column: NASC, type: date, format: YYYYMMDD}
       patient.sex: {column: SEXO, type: sex}
       patient.residence: {column: MUNIC_RES, type: municipality}
-      patient.age_years: {column: IDADE_anos, type: number}
       admission.start: {column: DT_ATEND, type: date, format: YYYYMMDD}
       admission.end: {column: DT_SAIDA, type: date, format: YYYYMMDD}
       admission.facility: {column: CNES, type: facility}

@@ -31,6 +31,14 @@ links. The residence check followed from a validation that looked wrong.
 - **Residence agrees only 35–60% in SE.** The CIHA pairs' residence agrees
   with SIM or SINASC in 35–60% of them, against 86–95% on the SIH links.
 
+> **Correction (2026-09-30).** The conclusion below was first drawn from the
+> match rate alone. A match rate cannot separate "the field holds the hospital"
+> from "private patients live near their hospitals", and no source supported
+> the first reading. It was then tested against SINASC on linked deliveries:
+> [CIHA's residence field tested against SINASC](2026-09-30-ciha-residence-tested-against-sinasc.md).
+> That test supports the conclusion for deliveries and limits its scope. The
+> wording in the curation and in DATA_SOURCES now follows the test.
+
 **The residence field.** Where it is filled, CIHA `MUNIC_RES` equals the
 hospital's municipality:
 

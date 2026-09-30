@@ -3,7 +3,8 @@
 A birth record (SINASC) is the spine. The links in ``curation/links.yml``
 attach to it:
 
-* the mother's delivery admission (``sinasc_births_to_delivery_admission``);
+* the mother's delivery admission, SUS (``sinasc_births_to_delivery_admission``)
+  or not (``sinasc_births_to_ciha_delivery``);
 * the baby's own admissions in its first 28 days
   (``sih_neonatal_admissions_to_sinasc``);
 * the baby's death before one year (``sim_infant_deaths_to_sinasc``);
@@ -28,6 +29,7 @@ from .engine import LinkNotViable, link
 from .roles import role_table
 
 DELIVERY = "sinasc_births_to_delivery_admission"
+DELIVERY_PRIVATE = "sinasc_births_to_ciha_delivery"
 NEONATAL = "sih_neonatal_admissions_to_sinasc"
 INFANT_DEATH = "sim_infant_deaths_to_sinasc"
 MATERNAL_DEATH = "sim_maternal_deaths_to_admission"
@@ -107,11 +109,27 @@ def timeline(birth_id: str, *, period: object, geography: object, method: str = 
     delivery_ids = [(r, b) for l_id, r, b in delivery_pairs if l_id == group[0]]
     for adm_id, bits in delivery_ids:
         a = admissions.get(adm_id) or {}
-        events.append({"kind": "delivery admission", "date": _iso(a.get("admission.start")), "end": _iso(a.get("admission.end")),
+        events.append({"kind": "delivery admission", "system": "SIH", "date": _iso(a.get("admission.start")),
+                       "end": _iso(a.get("admission.end")),
                        "record": adm_id, "facility": _facility(a.get("admission.facility")),
                        "link": {"spec": DELIVERY, "method": method, "bits": bits},
                        "details": {"diagnosis": a.get("admission.diagnosis"), "procedure": a.get("admission.procedure"),
                                    "ended_in_death": a.get("admission.death") == "1"}})
+    # The private sector's twin: a delivery in a non-SUS hospital is in CIHA.
+    private_pairs, verdict = _pairs(DELIVERY_PRIVATE, method, period, geography)
+    if not private_pairs and verdict != "viable":
+        not_viable[DELIVERY_PRIVATE] = verdict
+    private = [(r, b) for l_id, r, b in private_pairs if l_id == group[0]]
+    if private:
+        ciha = _records("CIHA", period, geography)
+        for adm_id, bits in private:
+            a = ciha.get(adm_id) or {}
+            events.append({"kind": "delivery admission", "system": "CIHA", "date": _iso(a.get("admission.start")),
+                           "end": _iso(a.get("admission.end")), "record": adm_id,
+                           "facility": _facility(a.get("admission.facility")),
+                           "link": {"spec": DELIVERY_PRIVATE, "method": method, "bits": bits},
+                           "details": {"diagnosis": a.get("admission.diagnosis"), "procedure": a.get("admission.procedure"),
+                                       "payer": a.get("admission.payer"), "ended_in_death": a.get("admission.death") == "1"}})
 
     neonatal_pairs, verdict = _pairs(NEONATAL, method, period, geography)
     if not neonatal_pairs and verdict != "viable":

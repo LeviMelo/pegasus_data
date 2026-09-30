@@ -253,12 +253,15 @@ variables:
   MUNIC_RES:
     official_name: Município de residência
     translated_name: Municipality of patient residence
-    description: '"Município de residência" - by the layout, the 6-digit IBGE code of the municipality
-      where the PATIENT lived. In the files it is mostly the hospital''s municipality: where it is
-      filled, it equals MUNIC_MOV in 92-100% of admissions (June 2022: SP 94.6%, MG 92.3%,
-      PR 92.5%, SE 100%) against 71.8% in SIH for SP, and it is "ignorado" in 12-51% of them.
-      Do not read it as residence without checking (DATA_SOURCES; EVALUATION 2026-09-30,
-      private-sector links).
+    description: '"Município de residência" (layout) - the 6-digit IBGE code of the municipality
+      where the PATIENT lived. Measured on 2022 deliveries linked to SINASC (residence not a
+      linkage key): where SINASC places the mother outside the hospital''s municipality, CIHA
+      still records the hospital''s municipality (MUNIC_MOV) in 85-100% of cases (SP 85.0% of
+      22,788; MG 89.7% of 11,075; SE 330 of 330) and her SINASC residence in 0-15%. On
+      deliveries the field is therefore mostly the place of care, sometimes the real residence,
+      and a record does not say which. Other admission types and years are untested (the
+      aggregate match with MUNIC_MOV is 92-100% where filled). It is "ignorado" in 12-51% of
+      admissions. EVALUATION 2026-09-30, CIHA residence tested against SINASC.
 
       '
     codelist: BR_MUNICIPALFA
