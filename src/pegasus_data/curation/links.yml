@@ -178,6 +178,9 @@ links:
         - [patient.sex, baby.sex]
         - [admission.facility, birth.facility]
         - [patient.residence, mother.residence]
+        # ICD-10's P07 codes state the baby's weight or gestation (ADR-0117).
+        - [admission.diagnoses, birth.weight, {kind: icd_birth_weight}]
+        - [admission.diagnoses, birth.gestation_weeks, {kind: icd_gestation}]
       # Every block keeps the baby's birth date. A block of hospital, residence
       # and sex alone paired every newborn admission with every birth at the
       # same maternity hospital (tens of millions of candidates in RR) and adds

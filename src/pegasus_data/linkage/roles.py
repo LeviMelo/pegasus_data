@@ -33,7 +33,7 @@ from ..semantics.curation import read_yaml
 ROLES_FILE = Path(__file__).resolve().parent.parent / "curation" / "roles.yml"
 RECORD_ID = ("_blob_sha256", "_row")
 _FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYYMM": "%Y%m"}
-_TYPES = {"date", "month", "sex", "municipality", "facility", "integer", "number", "code", "label"}
+_TYPES = {"date", "month", "sex", "municipality", "facility", "integer", "number", "code", "codes", "label"}
 
 
 @dataclass(frozen=True, slots=True)
@@ -44,6 +44,8 @@ class Role:
     format: str | None = None
     #: label -> canonical category, for `label` roles that name a shared concept
     categories: tuple[tuple[str, str], ...] = ()
+    #: further columns a `codes` role gathers (every diagnosis of an admission)
+    also: tuple[str, ...] = ()
 
     @property
     def entity(self) -> str:
@@ -78,7 +80,8 @@ def load_roles() -> dict[str, DatasetRoles]:
                 for canonical, variants in (spec.get("categories") or {}).items()
                 for variant in variants
             )
-            roles[name] = Role(name, str(spec["column"]), kind, fmt, categories)
+            roles[name] = Role(name, str(spec["column"]), kind, fmt, categories,
+                               tuple(str(c) for c in spec.get("also") or ()))
         out[str(dataset).upper()] = DatasetRoles(str(dataset).upper(), str(body.get("record", "")), roles)
     return out
 
@@ -139,6 +142,13 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
         variants = pa.array([v for v, _ in role.categories], pa.string())
         canonical = pa.array([c for _, c in role.categories], pa.string())
         return pc.take(canonical, pc.index_in(text, value_set=variants))
+    if role.type == "codes":
+        # Every code the record carries, space-separated: the diagnoses of an
+        # admission are one piece of evidence wherever they were written.
+        parts = [raw] + [_strings(table.column(c)) for c in role.also if c in table.column_names]
+        parts = [pc.fill_null(p, "") for p in parts]
+        joined = pc.utf8_trim_whitespace(pc.binary_join_element_wise(*parts, " "))
+        return pc.if_else(pc.equal(joined, ""), pa.scalar(None, pa.string()), joined)
     return raw  # code
 
 
@@ -162,7 +172,7 @@ def role_table(
     wanted = [spec.roles[name] for name in (roles or list(spec.roles))]
     # Only the columns the roles read: a national year of SIH-RD is about 12
     # million rows of 113 columns, and linkage needs a dozen of them.
-    select = sorted({role.column for role in wanted})
+    select = sorted({col for role in wanted for col in (role.column, *role.also)})
     table = query(
         dataset, period=period, geography=geography, select=select, present="analysis",
         provenance="all", **query_kwargs,

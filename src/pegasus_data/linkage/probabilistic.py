@@ -57,8 +57,10 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
     # (ADR-0115); the right side is a list [start, end] for an interval.
     compare = tuple(
         Comparison(str(item[0]), "..".join(item[1]), "interval") if isinstance(item[1], list)
-        else Comparison(str(item[0]), str(item[1]), left_roles[str(item[0])].type,
-                        given=str(item[2]["given"]) if len(item) > 2 else None,
+        else Comparison(str(item[0]), str(item[1]),
+                        str(item[2]["kind"]) if len(item) > 2 and "kind" in item[2]
+                        else left_roles[str(item[0])].type,
+                        given=str(item[2]["given"]) if len(item) > 2 and "given" in item[2] else None,
                         given_side=str(item[2].get("side", "right")) if len(item) > 2 else "right")
         for item in body["compare"]
     )
@@ -357,7 +359,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     models: list[FieldModel] = []
     for i, comp in enumerate(prob.compare):
         u, n_u = _distribution(random_levels[i])
-        others = [c for c in prob.compare if c is not comp]
+        others = [c for c in prob.compare if c is not comp and c.is_key]
         anchor_sql, _ = _anchor_sql(others, prob.control_role, shift=False)
         control_sql, has_control = _anchor_sql(others, prob.control_role, shift=True)
         n_anchor = con.execute(f"SELECT count(*) FROM ({anchor_sql})").fetchone()[0]

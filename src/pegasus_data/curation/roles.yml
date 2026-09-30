@@ -19,6 +19,8 @@
 #            facility  7-digit CNES code
 #            integer   a count or measure (grams, years)
 #            code      the raw code, compared exactly (ICD-10, procedure, AIH number)
+#            codes     every code in `column` and the `also` columns, space-separated
+#                      (all of an admission's diagnoses)
 #            label     the decoded label, lower-cased; with `categories` (canonical -> the
 #                      spellings each system uses) it becomes the canonical category, and a
 #                      label outside the map is missing. SIM writes "cesáreo", SINASC
@@ -76,6 +78,7 @@ datasets:
       admission.facility_municipality: {column: MUNIC_MOV, type: municipality}
       admission.death: {column: MORTE, type: code}
       admission.diagnosis: {column: DIAG_PRINC, type: code}
+      admission.diagnoses: {column: DIAG_PRINC, also: [DIAG_SECUN, DIAGSEC1, DIAGSEC2, DIAGSEC3, DIAGSEC4, DIAGSEC5, DIAGSEC6, DIAGSEC7, DIAGSEC8, DIAGSEC9], type: codes}
       admission.procedure: {column: PROC_REA, type: code}
       admission.aih: {column: N_AIH, type: code}
 

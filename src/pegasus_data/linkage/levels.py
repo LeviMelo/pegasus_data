@@ -118,6 +118,31 @@ def _levels_municipality_given(a: pa.Array, b: pa.Array, place: pa.Array, side: 
     return out
 
 
+#: ICD-10's definitions (P07.0 "birth weight 999 g or less", P07.1 "1000-2499 g",
+#: P07.2 "less than 28 completed weeks", P07.3 "28 completed weeks or more but
+#: less than 37"); the codes, not a tuned band.
+_ICD_SIZE = {
+    "icd_birth_weight": (("P070", 0, 999), ("P071", 1000, 2499), 2500, "g"),
+    "icd_gestation": (("P072", 0, 27), ("P073", 28, 36), 37, "weeks"),
+}
+
+
+def _levels_icd_size(kind: str, codes: pa.Array, measure: pa.Array) -> np.ndarray:
+    """An admission's diagnoses against a birth's weight or weeks (ADR-0117)."""
+    (c1, lo1, hi1), (c2, lo2, hi2), low_below, unit = _ICD_SIZE[kind]
+    text = pc.fill_null(codes, "")
+    has1 = pc.match_substring(text, c1).to_numpy(zero_copy_only=False)
+    has2 = pc.match_substring(text, c2).to_numpy(zero_copy_only=False)
+    missing = pc.or_(pc.is_null(codes), pc.is_null(measure)).to_numpy(zero_copy_only=False)
+    v = pc.fill_null(pc.cast(measure, pa.int64()), -1).to_numpy(zero_copy_only=False)
+    out = np.where(v < low_below, f"no size code, under {low_below} {unit}",
+                   f"no size code, {low_below} {unit} or more").astype(object)
+    out[has2] = np.where((v[has2] >= lo2) & (v[has2] <= hi2), f"{c2}, fits", f"{c2}, does not fit")
+    out[has1] = np.where((v[has1] >= lo1) & (v[has1] <= hi1), f"{c1}, fits", f"{c1}, does not fit")
+    out[missing] = MISSING
+    return out
+
+
 def _days(x: pa.Array) -> np.ndarray:
     return pc.fill_null(pc.cast(pc.cast(x, pa.date32()), pa.int32()), 0).to_numpy(zero_copy_only=False).astype(np.int64)
 
@@ -153,6 +178,8 @@ def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array],
     ``given`` is one record's value of a conditioning role (the place of care,
     for a municipality), carried by ``given_side``.
     """
+    if kind in _ICD_SIZE:
+        return _levels_icd_size(kind, a, b)  # type: ignore[arg-type]
     if kind == "municipality" and given is not None:
         return _levels_municipality_given(a, b, given, given_side)  # type: ignore[arg-type]
     if kind == "interval":

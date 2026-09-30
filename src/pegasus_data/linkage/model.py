@@ -36,6 +36,10 @@ nothing:
   different state
 - integer (grams, weeks, years): equal · within 1% · within 10% · a digit
   dropped or added · other
+- icd_birth_weight, icd_gestation (an admission's diagnoses against a birth's
+  weight or weeks, by ICD-10's own definitions of P07.0-P07.3; ADR-0117): the
+  code present and the measure inside it · present and outside · absent and the
+  measure low · absent and not low
 - interval (a date against start..end): inside on the first day · on the
   second day · later · one day outside · within a week outside · other
 """
@@ -47,6 +51,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 MISSING = "missing"
+#: A code list against a measurement: evidence, never a join key (ADR-0117).
+ICD_SIZE_KINDS = ("icd_birth_weight", "icd_gestation")
 _PAD = {"7": "84", "8": "795", "9": "86", "4": "751", "5": "8462", "6": "953", "1": "42", "2": "5130", "3": "62", "0": "2"}
 
 
@@ -61,6 +67,11 @@ class Comparison:
     @property
     def name(self) -> str:
         return f"{self.left} ~ {self.right}" + (f" | {self.given_side}.{self.given}" if self.given else "")
+
+    @property
+    def is_key(self) -> bool:
+        """Whether equality on it can join records (anchors, blocks)."""
+        return self.kind not in ICD_SIZE_KINDS
 
     @property
     def right_roles(self) -> tuple[str, ...]:
@@ -87,11 +98,15 @@ class FieldModel:
             return 0.0
         m = self.m.get(level, 0.0)
         u = self.u.get(level, 0.0)
+        seen = m > 0.0
         # Laplace-style floors: a level never seen among anchors (or controls)
         # is rare, not impossible; the floor is half an observation.
         m = max(m, 0.5 / max(self.anchors, 1))
         u = max(u, 0.5 / max(self.controls, 1))
-        return math.log2(m / u)
+        bits = math.log2(m / u)
+        # A level no anchor showed cannot count FOR a match: its floor exceeded
+        # a rarer u and scored "P07.2, does not fit" +2.04 bits (ADR-0117).
+        return bits if seen else min(bits, 0.0)
 
     def as_dict(self) -> dict[str, Any]:
         levels = sorted(set(self.m) | set(self.u))
@@ -123,4 +138,4 @@ def threshold_for(real: list[float], control: list[float], target: float) -> tup
     return best_t, best_fdr
 
 
-__all__ = ["MISSING", "Comparison", "FieldModel", "threshold_for"]
+__all__ = ["ICD_SIZE_KINDS", "MISSING", "Comparison", "FieldModel", "threshold_for"]
