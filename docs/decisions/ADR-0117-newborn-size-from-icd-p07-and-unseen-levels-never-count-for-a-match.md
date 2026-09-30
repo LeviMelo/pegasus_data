@@ -18,7 +18,7 @@ of OQ-62.
     - P07.1: 13.0 → 1.95 candidates on average;
     - P07.0: 9.6 → 0.86;
     - P07.3: 13.1 → 2.5;
-    - unique candidates: 21 → about 119.
+    - unique candidates: 21 → 118.
 - **A smoothing flaw.** The smoothing floor gave a level never seen among
   anchors half an observation. Where chance was rarer still, such a level
   earned positive bits: "P07.2, does not fit" scored +2.04 in RR.
