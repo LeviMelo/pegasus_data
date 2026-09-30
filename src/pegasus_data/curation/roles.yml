@@ -35,7 +35,7 @@ datasets:
       birth.date: {column: DTNASC, type: date, format: DDMMYYYY}
       birth.facility: {column: CODESTAB, type: facility}
       birth.weight: {column: PESO, type: integer}
-      birth.place: {column: LOCNASC, type: label, categories: {hospital: [hospital], "other health facility": ["outros estabelecimentos de saúde", "outro estabelecimento de saúde"], home: ["domicílio"], street: ["via pública"], other: [outros]}}
+      birth.place: {column: LOCNASC, type: label, categories: {hospital: [hospital], "other health facility": ["outros estabelecimentos de saúde", "outro estabelecimento de saúde"], home: ["domicílio"], street: ["via pública"], "indigenous village": ["aldeia indígena"], other: [outros]}}
       birth.delivery: {column: PARTO, type: label, categories: {vaginal: [vaginal], cesarean: ["cesáreo", "cesário", "cesárea"]}}
       birth.plurality: {column: GRAVIDEZ, type: label, categories: {single: ["única", "unica"], twins: [dupla], "triplets or more": ["tripla e mais", "tripla e+", "tripla ou mais"]}}
       birth.gestation_weeks: {column: SEMAGESTAC, type: integer}
@@ -52,7 +52,7 @@ datasets:
       deceased.age_years: {column: IDADE_anos, type: number}
       death.date: {column: DTOBITO, type: date, format: DDMMYYYY}
       death.facility: {column: CODESTAB, type: facility}
-      death.place: {column: LOCOCOR, type: label, categories: {hospital: [hospital], "other health facility": ["outros estabelecimentos de saúde", "outro estabelecimento de saúde"], home: ["domicílio"], street: ["via pública"], other: [outros]}}
+      death.place: {column: LOCOCOR, type: label, categories: {hospital: [hospital], "other health facility": ["outros estabelecimentos de saúde", "outro estabelecimento de saúde"], home: ["domicílio"], street: ["via pública"], "indigenous village": ["aldeia indígena"], other: [outros]}}
       death.kind: {column: TIPOBITO, type: label}
       death.cause: {column: CAUSABAS, type: code}
       death.birth_weight: {column: PESO, type: integer}

@@ -37,3 +37,22 @@ measured under the linkage plan, workstream B).
 
 **Result.** SIH-RD AC 2023-01: `IDENT` "AIH Principal (1)" 4,164, "AIH de
 Longa Permanência (5)" 1.
+
+**Amended 2026-09-30: the audit, and a label that was wrong.**
+`scripts/catchall_audit.py` runs the sweep's slices and lists the observed
+codes that no bound table names individually and that render with a
+residual label only through a range. A code decoded meaningfully by another
+table's range is excluded (SIH `SEXO` 3 "Feminino"), and so is the
+conventional all-9 "ignorado".
+
+Two columns remain:
+- **SINASC `LOCNASC` 5 read "Ignorado"** through the kit's "5–9 Ignorado". The
+  2019 structure defines 5 as *Aldeia indígena*; SIM's `LOCOCOR` numbers
+  places differently (5 outros, 6 aldeia). The column is now curated from
+  the structure alone, and 6–8 stay undecoded. Births the old label called
+  "Ignorado": AC 2022 369, Brazil 2022 1,966.
+- **CNES-PF `UFMUNRES` 000000** reads "Ignorado ou exterior". The all-zero
+  residence is the conventional unknown, so it is kept.
+
+Artifact: `data/probes/catchall_audit.json`; EVALUATION 2026-09-30, "Catch-all
+ranges".

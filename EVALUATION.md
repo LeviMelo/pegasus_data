@@ -115,3 +115,4 @@ in.
 | 2026-09-30 | [The deterministic baseline reproduces omnisus's RR 2022 linkage to the pair](docs/evaluation/2026-09-30-deterministic-baseline-reproduces-omnisus.md) | live (`linkage.engine.link`, fresh home) |
 | 2026-09-30 | [Pre-merge live run: every scenario and every declared dataset, before `redesign` became `master`](docs/evaluation/2026-09-30-pre-merge-live-run.md) | live (`scripts/live.py --all --fresh`) |
 | 2026-09-30 | [National linkage measurements: bits of identity, error channels, travel flows, SIH/CIHA coverage, join grains](docs/evaluation/2026-09-30-national-linkage-measurements.md) | live (`scripts/linkage_study.py`, national) |
+| 2026-09-30 | [Catch-all ranges: which observed codes a TabWin residual range was decoding](docs/evaluation/2026-09-30-catch-all-ranges.md) | live (`scripts/catchall_audit.py`, fresh home) |

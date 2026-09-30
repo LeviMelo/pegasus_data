@@ -749,6 +749,11 @@ class IcdLabels(dict):  # type: ignore[type-arg]
         code = str(key).strip().upper()
         if len(code) == 4 and code[:3].isalnum() and code[3] != "X":
             category = super().get(code[:3]) or super().get(f"{code[:3]}X")
+            if category is not None and code[3] == ".":
+                # "A16." is the category with its subcategory left blank, not
+                # a subcategory missing from ICD-10 (SINAN-TB: 1,513 records in
+                # TUBEBR20, 2,289 in TUBEBR25; DATA_SOURCES §1.9).
+                return f"{category} — categoria {code[:3]} (subcategoria não informada)"
             if category is not None:
                 return (
                     f"{category} — categoria {code[:3]} "

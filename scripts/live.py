@@ -322,6 +322,45 @@ def s_sweep() -> dict[str, Any]:
             "failures": failed, "skips": skipped, "results": results}
 
 
+def s_linkage() -> dict[str, Any]:
+    """Record linkage as a person would run it (ADR-0107): the three spine links on RR 2022, both
+    methods, freshly computed; each must be viable, and the report must carry its error."""
+    from pegasus_data import link
+
+    out: dict[str, Any] = {}
+    for spec in ("sih_deaths_to_sim", "sim_infant_deaths_to_sinasc", "sinasc_births_to_delivery_admission"):
+        for method in ("deterministic", "probabilistic"):
+            t = time.perf_counter()
+            result = link(spec, period="2022", geography="RR", method=method, refresh=True, persist=False,
+                          allow_not_viable=True)
+            s = result.summary()
+            s.pop("models", None)
+            out[f"{spec}/{method}"] = {
+                "seconds": round(time.perf_counter() - t, 1), "left": s["left_records"], "pairs": s["pairs"],
+                "linked_share": s["linked_share"], "verdict": s["verdict"],
+                "error": s.get("chance_percent", s.get("estimated_fdr_percent")),
+                "upper95": s.get("chance_upper95_percent", s.get("fdr_upper95_percent")),
+                "validations": {k: v["agreement_percent"] for k, v in s["validations"].items()},
+            }
+            if s["verdict"] != "viable":
+                raise AssertionError(f"{spec}/{method} is {s['verdict']} on RR 2022: {out[f'{spec}/{method}']}")
+    return out
+
+
+def s_timeline() -> dict[str, Any]:
+    """The pregnancy timeline behind pegasus_view's Linha do tempo: a birth with a linked infant death."""
+    from pegasus_data.linkage.timeline import notable_births, timeline
+
+    births = notable_births(period="2022", geography="RR", method="probabilistic", limit=5)
+    if not births:
+        raise AssertionError("no birth with linked events on RR 2022")
+    one = timeline(births[0]["birth"], period="2022", geography="RR", method="probabilistic")
+    kinds = [e["kind"] for e in one["events"]]
+    if "birth" not in kinds or len(kinds) < 2:
+        raise AssertionError(f"timeline has no linked event: {kinds}")
+    return {"notable": len(births), "events": kinds, "not_viable": one["not_viable"]}
+
+
 SCENARIOS = {
     "metadata": s_metadata,
     "sih_rd": s_sih_rd,
@@ -336,6 +375,8 @@ SCENARIOS = {
     "sih_2016": s_sih_2016,
     "sia_sp_parts": s_sia_sp_parts,
     "age": s_age,
+    "linkage": s_linkage,
+    "timeline": s_timeline,
     "sweep": s_sweep,
 }
 

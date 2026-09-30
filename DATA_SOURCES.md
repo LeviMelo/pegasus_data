@@ -179,6 +179,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   Every approved admission has its professional acts, and no act lacks its
   admission (2026-09-30).
 
+- **SINAN publishes each disease-year in exactly one of `DADOS/FINAIS` and
+  `DADOS/PRELIM`** (catalog, 2026-09-30):
+  - 1,100 files, 58 diseases, no disease-year in both;
+  - 13 diseases exist only as preliminary: AIDA, AIDC, EXAN, HEPA, HIVA,
+    HIVC, HIVE, HIVG, SIFA, SIFC, SIFG, SRC, VARC;
+  - the last final year differs by disease, from 2018 to 2025;
+  - a preliminary year is revised afterwards (omnisus reports final files
+    rewritten with 2026 dates; not re-checked here).
+
 ### 1.8 Schema generations (header census, 2026-08-19, F §3g)
 
 | series | generations | columns | span |
@@ -230,6 +239,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **CNES installation grid**: `QTINST07` and `QTINST08` are the male and
   unsegregated rest rooms of the emergency block, not consulting rooms and
   beds; beds are `QTLEITP1`–`QTLEITP3` (2026-08-30, F §3y).
+
+- **SINAN tuberculosis files are years of diagnosis, not of notification.**
+  - `TUBEBR20`: all 86,160 records have `DT_DIAG` in 2020, while `NU_ANO`
+    spans 2020–2023 (2,915 in 2021).
+  - `TUBEBR25`: all 112,482 in 2025, 1,513 with `NU_ANO` 2026.
+- **`ID_AGRAVO` "A16." in SINAN-TB** (1,513 in TUBEBR20, 2,289 in TUBEBR25) is
+  category A16 with the subcategory left blank. It reads as the category with
+  "subcategoria não informada", not as a code missing from ICD-10
+  (2026-09-30).
 
 ### 1.10 Identifiers in public files (2026-08-21, F §3j)
 

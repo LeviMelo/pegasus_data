@@ -824,9 +824,11 @@ variables:
 
       '
     code_system: internal
-    codelists:
-    - LOCNASC
-    - LOCOCOR
+    # From the 2019 structure, which the files follow. The kit's LOCNASC.CNV is older and
+    # labels 5-9 "Ignorado", so births in indigenous villages read "Ignorado" (AC 2022: 369);
+    # SIM's LOCOCOR numbers places differently (5 outros, 6 aldeia). No table behind:
+    # 6-8 stay visibly undecoded (ADR-0108).
+    codes: {"1": "Hospital", "2": "Outros estabelecimentos de saúde", "3": "Domicílio", "4": "Outros", "5": "Aldeia indígena", "9": "Ignorado"}
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] "Local de ocorrência | LOCNASC | Caracter 1 | 1 – Hospital;
       2 – Outros estabelecimentos de saúde; 3 – Domicílio; 4 – Outros; 5 - Aldeia Indígena;
