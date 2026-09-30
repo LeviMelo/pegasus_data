@@ -1,10 +1,10 @@
 """Comparison levels on whole Arrow arrays (ADR-0111).
 
-The same levels as the scalar comparators in ``model.py``, vectorised: a
-national candidate set is tens of millions of pairs, which a Python loop
-cannot score. ``levels(kind, a, b)`` agrees with ``comparator(kind)(a, b)``
-value for value; the agreement was checked on synthetic typos of every kind
-when this module was written (EVALUATION 2026-09-30, national runs).
+The levels of every comparison type (listed in ``model.py``), computed on whole
+arrays: a national candidate set is tens of millions of pairs, which a Python
+loop cannot score. This is the one definition; it replaced scalar comparators
+it was checked equal to on synthetic typos of every kind (EVALUATION 2026-09-30,
+national runs).
 """
 
 from __future__ import annotations
@@ -95,6 +95,28 @@ def _levels_municipality(a: pa.Array, b: pa.Array) -> np.ndarray:
     return out
 
 
+def _levels_municipality_given(a: pa.Array, b: pa.Array, place: pa.Array) -> np.ndarray:
+    """Residence against residence, knowing where the right record was cared for.
+
+    Two records agreeing on the hospital's own municipality is weak evidence
+    where residence is often written as the place of care; agreeing elsewhere
+    is strong; and a right residence equal to the place of care may be the
+    hospital written in, so a true pair can disagree there. m and u of each
+    level are learned, so the data decide how much each is worth.
+    """
+    out = _levels_municipality(a, b)
+    known = ~pc.is_null(place).to_numpy(zero_copy_only=False)
+    at_a = pc.fill_null(pc.equal(a, place), False).to_numpy(zero_copy_only=False)
+    at_b = pc.fill_null(pc.equal(b, place), False).to_numpy(zero_copy_only=False)
+    usable = known & (out != MISSING)
+    eq = usable & (out == "equal")
+    out[eq & at_a] = "equal, at the place of care"
+    out[eq & ~at_a] = "equal, elsewhere"
+    out[usable & ~(out == "equal, at the place of care") & ~(out == "equal, elsewhere") & at_b] = (
+        "right is the place of care")
+    return out
+
+
 def _days(x: pa.Array) -> np.ndarray:
     return pc.fill_null(pc.cast(pc.cast(x, pa.date32()), pa.int32()), 0).to_numpy(zero_copy_only=False).astype(np.int64)
 
@@ -123,8 +145,15 @@ def _levels_exact(a: pa.Array, b: pa.Array) -> np.ndarray:
     return out
 
 
-def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array]) -> np.ndarray:
-    """The level of every pair; ``b`` is ``(start, end)`` for an interval."""
+def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array],
+           given: pa.Array | None = None) -> np.ndarray:
+    """The level of every pair; ``b`` is ``(start, end)`` for an interval.
+
+    ``given`` is the right record's value of a conditioning role (the place of
+    care, for a municipality).
+    """
+    if kind == "municipality" and given is not None:
+        return _levels_municipality_given(a, b, given)  # type: ignore[arg-type]
     if kind == "interval":
         start, end = b  # type: ignore[misc]
         return _levels_interval(a, start, end)

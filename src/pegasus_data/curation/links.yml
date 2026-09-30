@@ -111,7 +111,7 @@ links:
         - [mother.birth_date, patient.birth_date]
         - [birth.facility, admission.facility]
         - [birth.date, [admission.start, admission.end]]
-        - [mother.residence, patient.residence]
+        - [mother.residence, patient.residence, {given: admission.facility_municipality}]
       # Every block keeps the mother's birth date. A block of hospital + day in
       # the stay + residence pairs each birth with every woman in the ward that
       # day: harmless in RR, hundreds of millions of candidates nationally
@@ -241,7 +241,7 @@ links:
         - [mother.birth_date, patient.birth_date]
         - [birth.facility, admission.facility]
         - [birth.date, [admission.start, admission.end]]
-        - [mother.residence, patient.residence]
+        - [mother.residence, patient.residence, {given: admission.facility_municipality}]
       blocks:
         - [[mother.birth_date, patient.birth_date], [birth.facility, admission.facility]]
         - [[mother.birth_date, patient.birth_date], [birth.date, [admission.start, admission.end]]]

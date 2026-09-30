@@ -334,8 +334,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `linkage/`: record linkage across systems (ADR-0107; `docs/plans/linkage.md`).
 - `linkage/roles.py`: records as normalised roles (`curation/roles.yml`), with record identity `(_blob_sha256, _row)` (ADR-0109).
 - `linkage/engine.py`: deterministic linkage from `curation/links.yml`: 1:1 passes over what is left, a negative control per pass, held-out validations, verdicts (ADR-0110).
-- `linkage/model.py`: comparison levels by role type and evidence in bits; the false-match threshold (ADR-0111).
-- `linkage/levels.py`: the comparison levels on whole Arrow arrays, identical to the scalar comparators in `linkage/model.py`, for national candidate sets (ADR-0111).
+- `linkage/model.py`: comparisons (optionally conditioned on a right-side role, ADR-0115), evidence in bits per level, the false-match threshold (ADR-0111).
+- `linkage/levels.py`: the one definition of comparison levels, on whole Arrow arrays (national candidate sets; ADR-0111, ADR-0115).
 - `linkage/store.py`: link runs kept in the lake, keyed by spec content, method and scope, reused by `link()` (ADR-0112).
 - `linkage/timeline.py`: one pregnancy as linked events from the spine links; served by `serve/` behind `--allow-records` (ADR-0112).
 - `linkage/probabilistic.py`: probabilistic linkage: m from leave-one-field-out anchors, u from random pairs, a 400-day control, 1:1 resolution (ADR-0111).

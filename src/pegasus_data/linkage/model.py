@@ -30,7 +30,10 @@ nothing:
 - date: equal · one digit, adjacent key · one digit, other key · neighbouring
   digits swapped · day and month swapped · year off by one · other
 - sex, code, label, facility: equal · different
-- municipality: equal · same state · different state
+- municipality: equal · same state · different state; conditioned on the place
+  of care (``given``, EVALUATION 2026-09-30, residence given the place of care):
+  equal, at the place of care · equal, elsewhere · right is the place of care ·
+  same state · different state
 - integer (grams, weeks, years): equal · within 1% · within 10% · a digit
   dropped or added · other
 - interval (a date against start..end): inside on the first day · on the
@@ -43,96 +46,8 @@ import math
 from dataclasses import dataclass, field
 from typing import Any
 
-import duckdb
-import pyarrow as pa
-
 MISSING = "missing"
 _PAD = {"7": "84", "8": "795", "9": "86", "4": "751", "5": "8462", "6": "953", "1": "42", "2": "5130", "3": "62", "0": "2"}
-
-
-def _adjacent(x: str, y: str) -> bool:
-    return y in _PAD.get(x, "") or (x.isdigit() and y.isdigit() and abs(int(x) - int(y)) == 1)
-
-
-def compare_date(a: Any, b: Any) -> str:
-    if a is None or b is None:
-        return MISSING
-    sa, sb = a.strftime("%d%m%Y"), b.strftime("%d%m%Y")
-    if sa == sb:
-        return "equal"
-    diff = [i for i in range(8) if sa[i] != sb[i]]
-    if len(diff) == 1:
-        return "one digit, adjacent key" if _adjacent(sa[diff[0]], sb[diff[0]]) else "one digit, other key"
-    if len(diff) == 2 and diff[1] == diff[0] + 1 and sa[diff[0]] == sb[diff[1]] and sa[diff[1]] == sb[diff[0]]:
-        return "neighbouring digits swapped"
-    if sa[:2] == sb[2:4] and sa[2:4] == sb[:2] and sa[4:] == sb[4:]:
-        return "day and month swapped"
-    if sa[:4] == sb[:4] and abs(int(sa[4:]) - int(sb[4:])) == 1:
-        return "year off by one"
-    return "other"
-
-
-def compare_integer(a: Any, b: Any) -> str:
-    if a is None or b is None:
-        return MISSING
-    if a == b:
-        return "equal"
-    hi = max(abs(a), abs(b)) or 1
-    rel = abs(a - b) / hi
-    if rel <= 0.01:
-        return "within 1%"
-    if rel <= 0.10:
-        return "within 10%"
-    sa, sb = str(a), str(b)
-    if abs(len(sa) - len(sb)) == 1:
-        longer, shorter = (sa, sb) if len(sa) > len(sb) else (sb, sa)
-        if any(longer[:i] + longer[i + 1:] == shorter for i in range(len(longer))):
-            return "digit dropped or added"
-    return "other"
-
-
-def compare_municipality(a: Any, b: Any) -> str:
-    if a is None or b is None:
-        return MISSING
-    if a == b:
-        return "equal"
-    return "same state" if str(a)[:2] == str(b)[:2] else "different state"
-
-
-def compare_interval(a: Any, b: Any) -> str:
-    """A date against an interval (start, end): the birth day inside the admission."""
-    if a is None or b is None or b[0] is None or b[1] is None:
-        return MISSING
-    start, end = b
-    if start <= a <= end:
-        # Where in the stay: a delivery admission usually starts on the birth
-        # day or the day before, while a coincidental stay is uniform.
-        offset = (a - start).days
-        return "inside, first day" if offset == 0 else "inside, second day" if offset == 1 else "inside, later"
-    gap = (start - a).days if a < start else (a - end).days
-    if gap <= 1:
-        return "one day outside"
-    if gap <= 7:
-        return "within a week outside"
-    return "other"
-
-
-def compare_exact(a: Any, b: Any) -> str:
-    if a is None or b is None:
-        return MISSING
-    return "equal" if a == b else "different"
-
-
-COMPARATORS = {
-    "date": compare_date,
-    "integer": compare_integer,
-    "municipality": compare_municipality,
-    "interval": compare_interval,
-}
-
-
-def comparator(kind: str):
-    return COMPARATORS.get(kind, compare_exact)
 
 
 @dataclass(frozen=True, slots=True)
@@ -140,14 +55,16 @@ class Comparison:
     left: str
     right: str          # a role, or "start..end" for an interval
     kind: str
+    given: str | None = None   # a right-side role the levels are conditioned on
 
     @property
     def name(self) -> str:
-        return f"{self.left} ~ {self.right}"
+        return f"{self.left} ~ {self.right}" + (f" | {self.given}" if self.given else "")
 
     @property
     def right_roles(self) -> tuple[str, ...]:
-        return tuple(self.right.split("..")) if self.kind == "interval" else (self.right,)
+        roles = tuple(self.right.split("..")) if self.kind == "interval" else (self.right,)
+        return roles + ((self.given,) if self.given else ())
 
 
 @dataclass
@@ -178,38 +95,6 @@ class FieldModel:
                                 "bits": round(self.bits(lv), 2)} for lv in levels}}
 
 
-def level_distribution(pairs: list[tuple[Any, Any]], cmp) -> tuple[dict[str, float], int]:
-    counts: dict[str, int] = {}
-    usable = 0
-    for a, b in pairs:
-        lv = cmp(a, b)
-        if lv == MISSING:
-            continue
-        usable += 1
-        counts[lv] = counts.get(lv, 0) + 1
-    return ({k: v / usable for k, v in counts.items()} if usable else {}), usable
-
-
-def fetch_pairs(con: duckdb.DuckDBPyConnection, pairs_sql: str, comp: Comparison) -> list[tuple[Any, Any]]:
-    """Values of one comparison for the pairs a query returns (columns l, r)."""
-    return con.execute(f"""
-        SELECT l."{comp.left}", r."{comp.right}"
-        FROM ({pairs_sql}) p
-        JOIN (SELECT DISTINCT ON (_id) * FROM L) l ON l._id = p.l
-        JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = p.r""").fetchall()
-
-
-def score(models: list[FieldModel], left_row: dict[str, Any], right_row: dict[str, Any]) -> tuple[float, dict[str, str]]:
-    total = 0.0
-    levels: dict[str, str] = {}
-    for fm in models:
-        c = fm.comparison
-        lv = comparator(c.kind)(left_row.get(c.left), right_row.get(c.right))
-        levels[c.name] = lv
-        total += fm.bits(lv)
-    return total, levels
-
-
 def threshold_for(real: list[float], control: list[float], target: float) -> tuple[float | None, float | None]:
     """The lowest score at which the estimated false-match rate is at most `target`.
 
@@ -233,11 +118,4 @@ def threshold_for(real: list[float], control: list[float], target: float) -> tup
     return best_t, best_fdr
 
 
-def as_table(rows: list[dict[str, Any]]) -> pa.Table:
-    return pa.Table.from_pylist(rows) if rows else pa.table({"l": pa.array([], pa.string()),
-                                                             "r": pa.array([], pa.string()),
-                                                             "bits": pa.array([], pa.float64())})
-
-
-__all__ = ["Comparison", "FieldModel", "compare_date", "compare_integer", "compare_municipality",
-           "comparator", "level_distribution", "score", "threshold_for"]
+__all__ = ["MISSING", "Comparison", "FieldModel", "threshold_for"]

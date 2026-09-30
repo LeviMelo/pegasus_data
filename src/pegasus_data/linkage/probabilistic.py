@@ -53,10 +53,13 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
         raise KeyError(f"link spec {name!r} declares no probabilistic block")
     spec = load_links()[name]
     left_roles = dataset_roles(spec.left.dataset).roles
+    # A comparison is [left, right] or [left, right, {given: right_role}]; the
+    # right side is a list [start, end] for an interval.
     compare = tuple(
-        Comparison(str(a), "..".join(b), "interval") if isinstance(b, list)
-        else Comparison(str(a), str(b), left_roles[str(a)].type)
-        for a, b in body["compare"]
+        Comparison(str(item[0]), "..".join(item[1]), "interval") if isinstance(item[1], list)
+        else Comparison(str(item[0]), str(item[1]), left_roles[str(item[0])].type,
+                        given=str(item[2]["given"]) if len(item) > 2 else None)
+        for item in body["compare"]
     )
     # A block key is [left, right] or [left, right, "typo"]: the typo form also
     # matches the left date through its plausible mistypings (typo_variants).
@@ -215,7 +218,8 @@ def _batch_levels(batch: pa.RecordBatch, compare) -> list[np.ndarray]:
         if c.kind == "interval":
             out.append(levels(c.kind, a, (batch.column(f"v{i}_r0"), batch.column(f"v{i}_r1"))))
         else:
-            out.append(levels(c.kind, a, batch.column(f"v{i}_r0")))
+            out.append(levels(c.kind, a, batch.column(f"v{i}_r0"),
+                              batch.column(f"v{i}_r1") if c.given else None))
     return out
 
 
