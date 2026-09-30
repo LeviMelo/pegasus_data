@@ -123,3 +123,4 @@ in.
 | 2026-09-30 | [The omnisus facts, measured on our data (SIM minutes, TABPAIS, CLASSI_FIN, ORIGEM, RR June 2022)](docs/evaluation/2026-09-30-omnisus-facts-verified.md) | live (fresh and national homes), catalog |
 | 2026-09-30 | [Newborn admissions linked with ICD-10 P07 evidence (ADR-0117)](docs/evaluation/2026-09-30-newborn-admissions-with-p07-evidence.md) | live (`scripts/neonatal_size_codes.py`, `link(refresh=True)`, fresh home) |
 | 2026-09-30 | [The 73 inferred code-table bindings, measured](docs/evaluation/2026-09-30-inferred-bindings-audited.md) | live (fresh home) |
+| 2026-09-30 | [National linkage, 2022: all seven links under the current engine; CIHA residence on deaths](docs/evaluation/2026-09-30-national-linkage-2022.md) | live (`pegasus-data link --refresh`, national home; `scripts/ciha_residence_check.py --deaths`) |

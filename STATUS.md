@@ -41,22 +41,32 @@ continues on branch **`linkage`**: record linkage across systems, planned in
   - viable in SE: newborn admissions → SINASC, 406 pairs (ADR-0117). RR and
     AC certify only with caution; 89% of newborn admissions carry no size
     code (OQ-62);
-  - not certifiable per state: maternal deaths (too few);
+  - not certifiable per state: maternal deaths (too few), but viable
+    nationally;
   - CIHA (non-SUS) deaths → SIM and births → CIHA deliveries: viable in SE.
     The timeline shows non-SUS deliveries.
   
   omnisus's RR study is reproduced to the pair.
-- **National, deterministic, 2022:**
-  - SIH in-hospital deaths → SIM: 513,956 of 605,542 (84.9%), 0.1% chance;
-  - infant deaths → SINASC: 20,909 of 28,217 (74.1%), 1.19% chance, viable.
+- **National, 2022: all seven links viable** under the current engine
+  (probabilistic; EVALUATION 2026-09-30 "National linkage, 2022"):
 
-  The probabilistic national runs are being recomputed under the current
-  engine (`link --refresh`), then extended to the newborn, maternal and CIHA
-  links.
-- **CIHA's residence field**, tested against SINASC on linked deliveries: it
-  records the hospital's municipality for 85–100% of mothers who live
-  elsewhere (EVALUATION 2026-09-30). The first version of this claim rested on
-  a match rate alone and was corrected after the user challenged it.
+  | link | pairs | FDR upper 95% |
+  |---|---|---|
+  | SIH deaths → SIM | 545,135 of 605,542 (90.0%) | 0.24% |
+  | deliveries → SIH | 1,505,192 of 2,520,744 (59.7%) | 0.49% |
+  | infant deaths → SINASC | 23,848 of 28,217 (84.5%) | 0.17% |
+  | newborn admissions → SINASC | 67,340 of 389,471 (17.3%) | 1.07% |
+  | maternal deaths → SIH | 845 of 1,640 (51.5%) | 1.71% |
+  | CIHA deaths → SIM | 55,983 of 98,211 (57.0%) | 0.25% |
+  | births → CIHA deliveries | 193,335 (7.7% of births) | 0.95% |
+
+  Deterministic, for comparison: SIH deaths 84.9%, infant deaths 74.1%,
+  deliveries 60.1%.
+- **CIHA's residence field** records the hospital's municipality for
+  85–100% of mothers and 85–92% of deceased who live elsewhere, tested against
+  SINASC and SIM on linked pairs (EVALUATION 2026-09-30, two entries). The
+  first version of this claim rested on a match rate alone and was corrected
+  after the user challenged it.
 - **Surfaces.**
   - `link(method=…)`, `role_table()`, `pegasus-data link`;
   - results persisted in `<lake>/links/` and reused (ADR-0112);

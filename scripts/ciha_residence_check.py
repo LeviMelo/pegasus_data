@@ -1,6 +1,7 @@
 """Does CIHA's MUNIC_RES record where the patient lives?
 
 Usage: python scripts/ciha_residence_check.py UF [UF ...]
+       python scripts/ciha_residence_check.py --deaths PAIRS.parquet UF [UF ...]
 
 Births linked deterministically to CIHA delivery admissions (keys: the
 mother's birth date, the hospital, the day; residence is not a key) carry two
@@ -9,6 +10,11 @@ CIHA's. If private-hospital mothers simply live where their hospitals are,
 SINASC shows it too; if CIHA's field holds the hospital's municipality, the two
 diverge exactly where SINASC places the mother elsewhere.
 EVALUATION 2026-09-30, "CIHA's residence field tested against SINASC".
+
+``--deaths`` does the same for CIHA deaths linked to SIM (a stored
+``ciha_deaths_to_sim`` pairs file; SIM's residence is the comparison). Run it
+under the data home that produced the pairs, since record ids are blob-scoped.
+EVALUATION 2026-09-30, "National linkage, 2022".
 """
 
 from __future__ import annotations
@@ -20,6 +26,7 @@ from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.compute as pc
+import pyarrow.parquet  # noqa: F401  (pa.parquet)
 
 from pegasus_data import link, role_table
 
@@ -69,14 +76,56 @@ def check(uf: str) -> dict[str, object]:
     return c
 
 
-def main(ufs: list[str]) -> None:
-    warnings.simplefilter("ignore")
+def check_deaths(pairs_path: str, ufs: list[str]) -> dict[str, dict[str, int]]:
+    pairs = pa.parquet.read_table(pairs_path)
+    links = list(zip(pairs.column("l").to_pylist(), pairs.column("r").to_pylist(), strict=True))
+    sim = role_table("SIM-DO", period="2022", geography="BR", allow_partial=True)
+    simres = dict(zip(_ids(sim), sim.column("deceased.residence").to_pylist(), strict=True))
+    del sim
     out = {}
     for uf in ufs:
+        ci = role_table("CIHA", period="2022", geography=uf, allow_partial=True)
+        ciha = dict(zip(_ids(ci), zip(ci.column("patient.residence").to_pylist(),
+                                      ci.column("admission.facility_municipality").to_pylist(), strict=True),
+                        strict=True))
+        c = dict.fromkeys(["pairs", "ciha_filled", "ciha_eq_sim", "sim_eq_hosp", "sim_elsewhere",
+                           "elsewhere_ciha_eq_hosp", "elsewhere_ciha_eq_sim"], 0)
+        for left, right in links:
+            if left not in ciha or right not in simres:
+                continue
+            cres, hosp = ciha[left]
+            s = simres[right]
+            if s is None or hosp is None:
+                continue
+            c["pairs"] += 1
+            if cres in UNFILLED:
+                continue
+            s6, h6, c6 = str(s)[:6], str(hosp)[:6], str(cres)[:6]
+            c["ciha_filled"] += 1
+            c["ciha_eq_sim"] += c6 == s6
+            c["sim_eq_hosp"] += s6 == h6
+            if s6 != h6:
+                c["sim_elsewhere"] += 1
+                c["elsewhere_ciha_eq_hosp"] += c6 == h6
+                c["elsewhere_ciha_eq_sim"] += c6 == s6
+        out[uf] = c
+        print(uf, json.dumps(c), flush=True)
+    return out
+
+
+def main(args: list[str]) -> None:
+    warnings.simplefilter("ignore")
+    OUT.mkdir(parents=True, exist_ok=True)
+    if args and args[0] == "--deaths":
+        out = check_deaths(args[1], args[2:])
+        (OUT / f"ciha_death_residence_{'_'.join(args[2:])}.json").write_text(json.dumps(out, indent=1),
+                                                                             encoding="utf-8")
+        return
+    out = {}
+    for uf in args:
         out[uf] = check(uf)
         print(uf, json.dumps(out[uf]), flush=True)
-    OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / f"ciha_residence_test_{'_'.join(ufs)}.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
+    (OUT / f"ciha_residence_test_{'_'.join(args)}.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
 
 
 if __name__ == "__main__":

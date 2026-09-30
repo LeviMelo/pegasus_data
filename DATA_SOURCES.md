@@ -170,7 +170,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - only 387 CIHA admissions (0.18%) match an SIH admission;
   - residence is missing in 18% of CIHA admissions;
   - RR published no CIHA for the month.
-- **CIHA's `MUNIC_RES` on deliveries is mostly the hospital's municipality.**
+- **CIHA's `MUNIC_RES` on deliveries and deaths is mostly the hospital's
+  municipality.**
   - **The test.** 2022 births were linked to CIHA deliveries without
     residence as a key. Where SINASC places the mother outside the hospital's
     municipality, CIHA records the hospital's municipality in 85–100% of
@@ -180,9 +181,14 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     municipality.
   - **Aggregate match.** Across all admissions, a filled `MUNIC_RES` equals
     `MUNIC_MOV` in 92–100% (June 2022), against 71.8% in SIH for SP.
-  - **Untested beyond deliveries.** The match rate alone would also fit
-    patients living near private hospitals, so other admission types are not
-    established.
+  - **Deaths, the same test** (CIHA deaths linked to SIM nationally, SIM's
+    residence as the comparison; EVALUATION 2026-09-30 "National linkage,
+    2022"). Where SIM places the deceased elsewhere, CIHA records the
+    hospital's municipality in SP 85.1% of 5,653, MG 91.9% of 2,143 and SE
+    14 of 14.
+  - **Untested beyond deliveries and deaths.** The match rate alone would
+    also fit patients living near private hospitals, so other admission types
+    are not established.
   - **Unfilled.** The field is "ignorado" in 12–51% of admissions (SE 49% in
     2022).
   - **Source.** The layout says only "Município de residência" (2026-09-30;
