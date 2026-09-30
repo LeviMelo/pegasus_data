@@ -20,6 +20,10 @@ class _Capabilities:
     lake_years: tuple[int, ...]
     fetch_years: tuple[int, ...]
     year_resolutions: tuple[tuple[int, str], ...]
+    #: ``geography="BR"`` on a dataset published only per state: the states
+    #: that stand for the nation. Empty when a national file exists (SIM's
+    #: DOBR, SINASC's DNBR) or BR was not asked.
+    national_ufs: tuple[str, ...] = ()
 
 
 def compile_capability_payload() -> dict[str, Any]:
@@ -185,6 +189,13 @@ def _capabilities(
         measured_uf = any(value not in {"", "BR"} for value in observed_geo)
         physical_uf = measured_uf or (declared_physical_uf and not observed_geo)
         wanted_ufs = set(geography.ufs) if physical_uf and geography else set()
+        national_ufs: tuple[str, ...] = ()
+        if wanted_ufs == {"BR"} and not any(value.upper() == "BR" for value in observed_geo):
+            # The nation, for a dataset DATASUS publishes only per state, is
+            # every state. `geography="BR"` on SIH-RD raised NothingPublished
+            # (2026-09-30) although all 27 states were there.
+            national_ufs = tuple(sorted({value.upper() for value in observed_geo if value not in {"", "BR"}}))
+            wanted_ufs = set(national_ufs)
         if wanted_ufs:
             relevant = [row for row in relevant if str(row.get("geo_code") or "").upper() in wanted_ufs]
 
@@ -230,7 +241,7 @@ def _capabilities(
         strategy = "hybrid" if lake_years and fetch_years else "lake" if lake_years else "fetch"
         return _Capabilities(
             overall, physical_uf, strategy,
-            tuple(lake_years), tuple(fetch_years), tuple(resolutions),
+            tuple(lake_years), tuple(fetch_years), tuple(resolutions), national_ufs,
         )
     finally:
         store.close()

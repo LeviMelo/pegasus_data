@@ -56,6 +56,13 @@ def _final_projection(table: pa.Table, spec: QuerySpec) -> pa.Table:
             if name in enrichment_names
             or any(name.startswith(f"{base}_") for base in enrichment_names)
         ]
+        if spec.provenance == "all":
+            # Provenance is a promise about every row, not a column to select:
+            # with `select=` it silently vanished (2026-09-30), and record
+            # linkage needs `_blob_sha256` and `_row` on every row (ADR-0107).
+            from ..normalize.engine import PROVENANCE_COLUMNS
+
+            keep += [name for name in table.column_names if name in PROVENANCE_COLUMNS]
         keep = list(dict.fromkeys(keep))
     if spec.provenance != "all":
         keep = [name for name in keep if not name.startswith("_") and name != "year"]

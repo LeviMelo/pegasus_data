@@ -65,6 +65,25 @@ def table_metrics(table: Any) -> dict[str, Any]:
         present = [(r, lb) for r, lb in zip(raw, lab, strict=False) if r is not None and str(r).strip()]
         if present:
             coverage[base] = round(sum(1 for _, lb in present if lb is not None) / len(present), 4)
+    if not coverage:
+        # The readable presentation (the default since ADR-0084) has no
+        # companions: a coded cell reads "Label (code)", or "code (?)" when no
+        # table decodes it. Counting the companion columns alone measured 0
+        # labelled columns on every default query (2026-09-30).
+        import pyarrow.compute as pc
+
+        for name in names:
+            col = table.column(name)
+            if not pa.types.is_string(col.type) and not pa.types.is_large_string(col.type):
+                continue
+            filled = pc.drop_null(col)
+            if len(filled) == 0:
+                continue
+            coded = pc.sum(pc.match_substring_regex(filled, r"\([^()]*\)$")).as_py() or 0
+            if coded < 0.9 * len(filled):
+                continue
+            undecoded = pc.sum(pc.ends_with(filled, " (?)")).as_py() or 0
+            coverage[name] = round(1 - undecoded / len(filled), 4)
     return {
         "type": type(table).__name__,
         "rows": table.num_rows,

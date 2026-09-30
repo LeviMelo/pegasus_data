@@ -631,9 +631,16 @@ variables:
       continuations repeat the patient across several AIH records, so counting AIHs overcounts
       admissions unless this is filtered.
     code_system: internal
+    # The kit's IDENT.CNV is a TabWin grouping (1 Normal, 5 Longa permanência, every other
+    # code "Outras/ignorado"), which hides a continuation AIH. The hospitals' input layout
+    # names the types: SISAIH01 IDENT_AIH "01-AIH Principal / 03-AIH de Continuação /
+    # 05-AIH de Longa Permanencia" (sources/Layout_SISAIH01.txt, seq 9), written here with
+    # RD's one-character width. Any other code stays visibly undecoded (ADR-0108).
+    codes: {"1": "AIH Principal", "3": "AIH de Continuação", "5": "AIH de Longa Permanência"}
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
-      Layout dos arquivos RD*.dbf, SEQ 7'
+      Layout dos arquivos RD*.dbf, SEQ 7; Layout da interface texto do SISAIH01 (2009-02),
+      seq 9 IDENT_AIH'
   IND_VDRL:
     official_name: Indica exame VDRL
     translated_name: VDRL test indicator

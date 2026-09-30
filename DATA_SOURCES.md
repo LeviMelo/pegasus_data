@@ -140,6 +140,23 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (2026-08-30, F §3w).
 - SIM publishes 27 per-state files plus a consolidated `DOBR` file for the same
   year (commit `2e85e97`, 2026-08-30).
+- **Listed but not retrievable.** `SINAN/DADOS/PRELIM/CHAGBR25.dbc` was
+  republished 2026-09-28 10:23 at 502,836 bytes (515,731 before). On
+  2026-09-30, LIST and SIZE answer, but RETR refuses it three times running
+  with `550 The parameter is incorrect`. The library reports it as a gap
+  ("could not be fetched or decoded"), never as zero cases.
+- **Datasets published per state have no national file** (SIH, CIHA, SIA,
+  CNES). `geography="BR"` reads every state for them; for SIM and SINASC it
+  reads the national file (ADR-0109).
+- **CIHA mixes admissions with outpatient records.** SP 2023-01, 580,210
+  records by `MODALIDADE`:
+  - 86,920 admissions (02);
+  - 430,210 individualised outpatient (01);
+  - 63,080 consolidated outpatient (00).
+  
+  16.4% of the records have an ignored residence ("Município ignorado"). In
+  AC 2023-01 every record's residence is 120000, the ignored code. RR
+  published no CIHA for 2023-01.
 
 ### 1.8 Schema generations (header census, 2026-08-19, F §3g)
 

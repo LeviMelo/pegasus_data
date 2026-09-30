@@ -80,6 +80,12 @@ def plan(
                 )
             adaptations.append(adaptation)
     physical_uf = spec.geography.ufs if spec.geography and has_uf_axis else ()
+    if capabilities.national_ufs:
+        physical_uf = capabilities.national_ufs
+        adaptations.append(Adaptation(
+            "geography", "BR", ",".join(physical_uf),
+            "DATASUS publishes this dataset per state only; the nation is read as every state",
+        ))
     if spec.geography and spec.geography.municipality:
         raise ValueError(
             "geography selects source publications only; municipality is not a "
