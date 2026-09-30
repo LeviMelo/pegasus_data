@@ -72,6 +72,18 @@ links:
       - {name: delivery type agrees, left: death.delivery, right: birth.delivery}
       - {name: plurality agrees, left: death.plurality, right: birth.plurality}
       - {name: gestational weeks within 2, left: death.gestation_weeks, right: birth.gestation_weeks, tolerance: 2}
+    probabilistic:
+      compare:
+        - [deceased.birth_date, baby.birth_date]
+        - [deceased.sex, baby.sex]
+        - [deceased.residence, mother.residence]
+        - [death.birth_weight, birth.weight]
+        - [death.maternal_age, mother.age]
+      blocks:
+        - [[deceased.birth_date, baby.birth_date]]
+        - [[deceased.residence, mother.residence], [death.birth_weight, birth.weight]]
+        - [[deceased.residence, mother.residence], [deceased.sex, baby.sex], [death.maternal_age, mother.age]]
+      target_fdr: 0.01
 
   sinasc_births_to_delivery_admission:
     description: >
@@ -94,3 +106,14 @@ links:
     validate:
       - {name: obstetric diagnosis (ICD-10 chapter XV), sql: "r.\"admission.diagnosis\" LIKE 'O%'"}
       - {name: residence agrees, left: mother.residence, right: patient.residence}
+    probabilistic:
+      compare:
+        - [mother.birth_date, patient.birth_date]
+        - [birth.facility, admission.facility]
+        - [birth.date, [admission.start, admission.end]]
+        - [mother.residence, patient.residence]
+      blocks:
+        - [[mother.birth_date, patient.birth_date], [birth.facility, admission.facility]]
+        - [[birth.facility, admission.facility], [birth.date, [admission.start, admission.end]], [mother.residence, patient.residence]]
+        - [[mother.birth_date, patient.birth_date], [birth.date, [admission.start, admission.end]]]
+      target_fdr: 0.01

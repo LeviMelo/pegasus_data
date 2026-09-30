@@ -50,8 +50,14 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
         raise KeyError(f"link spec {name!r} declares no probabilistic block")
     spec = load_links()[name]
     left_roles = dataset_roles(spec.left.dataset).roles
-    compare = tuple(Comparison(str(a), str(b), left_roles[str(a)].type) for a, b in body["compare"])
-    blocks = tuple(tuple((str(a), str(b)) for a, b in block) for block in body["blocks"])
+    compare = tuple(
+        Comparison(str(a), "..".join(b), "interval") if isinstance(b, list)
+        else Comparison(str(a), str(b), left_roles[str(a)].type)
+        for a, b in body["compare"]
+    )
+    blocks = tuple(
+        tuple((str(a), "..".join(b) if isinstance(b, list) else str(b)) for a, b in block) for block in body["blocks"]
+    )
     return ProbabilisticSpec(compare, blocks, float(body.get("target_fdr", 0.01)),
                              str(body.get("control_role") or spec.control_role))
 
@@ -87,10 +93,24 @@ def _shifted_left(con: duckdb.DuckDBPyConnection, role: str, days: int) -> None:
         SELECT * REPLACE (CAST({_q(role)} + INTERVAL {days} DAY AS DATE) AS {_q(role)}) FROM L""")
 
 
+def _condition(a: str, b: str) -> str:
+    if ".." in b:
+        start, end = b.split("..")
+        return f"l.{_q(a)} BETWEEN r.{_q(start)} AND r.{_q(end)}"
+    return f"l.{_q(a)} = r.{_q(b)}"
+
+
+def _right_cols(compare) -> str:
+    return ", ".join(
+        f"struct_pack(s := r.{_q(c.right_roles[0])}, e := r.{_q(c.right_roles[1])})" if c.kind == "interval"
+        else f"r.{_q(c.right)}" for c in compare
+    )
+
+
 def _candidates(con: duckdb.DuckDBPyConnection, left_view: str, blocks) -> str:
     parts = []
     for block in blocks:
-        cond = " AND ".join(f"l.{_q(a)} = r.{_q(b)}" for a, b in block)
+        cond = " AND ".join(_condition(a, b) for a, b in block)
         notnull = " AND ".join(f"l.{_q(a)} IS NOT NULL" for a, _ in block)
         parts.append(f"SELECT DISTINCT l._id AS l, r._id AS r FROM {left_view} l JOIN R r ON {cond} WHERE {notnull}")
     return " UNION ".join(parts)
@@ -98,12 +118,17 @@ def _candidates(con: duckdb.DuckDBPyConnection, left_view: str, blocks) -> str:
 
 def _values(con, left_view: str, pairs_sql: str, compare) -> list[tuple]:
     lcols = ", ".join(f"l.{_q(c.left)}" for c in compare)
-    rcols = ", ".join(f"r.{_q(c.right)}" for c in compare)
-    return con.execute(f"""
+    rcols = _right_cols(compare)
+    return _as_values(con.execute(f"""
         SELECT p.l, p.r, {lcols}, {rcols}
         FROM ({pairs_sql}) p
         JOIN (SELECT DISTINCT ON (_id) * FROM {left_view}) l ON l._id = p.l
-        JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = p.r""").fetchall()
+        JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = p.r""").fetchall())
+
+
+def _as_values(rows: list[tuple]) -> list[tuple]:
+    """Interval structs arrive as dicts; the comparator takes (start, end)."""
+    return [tuple((v["s"], v["e"]) if isinstance(v, dict) else v for v in row) for row in rows]
 
 
 def _score_rows(rows: list[tuple], models: list[FieldModel]) -> list[tuple[str, str, float]]:
@@ -134,46 +159,51 @@ def _one_to_one(scored: list[tuple[str, str, float]], threshold: float) -> list[
 
 
 def _anchors(con, comp: Comparison, others: list[Comparison], control_role: str) -> tuple[list[tuple], int, int]:
-    """Pairs linked 1:1 on every other comparison; their control; the left-out field's values."""
-    keys = [(c.left, c.right) for c in others]
-    date_keys = [c for c in others if c.kind == "date"]
+    """Pairs linked 1:1 on every other comparison; their control; the left-out field's values.
+
+    A pair is kept when each of its records has exactly one partner under the
+    join, which is the 1:1 rule of the deterministic engine and also works for
+    an interval (a birth day BETWEEN an admission's start and end).
+    """
+    date_keys = [c for c in others if c.kind in ("date", "interval")]
     shift_role = control_role if any(c.left == control_role for c in others) else (date_keys[0].left if date_keys else None)
 
     def join_sql(shift: bool) -> str:
-        lk = []
-        for i, (a, _b) in enumerate(keys):
-            expr = _q(a)
-            if shift and a == shift_role:
-                expr = f"CAST({_q(a)} + INTERVAL 7 DAY AS DATE)"
-            lk.append(f"{expr} AS k_{i}")
-        rk = [f"{_q(b)} AS k_{i}" for i, (_a, b) in enumerate(keys)]
-        kn = ", ".join(f"k_{i}" for i in range(len(keys)))
-        nn = " AND ".join(f"k_{i} IS NOT NULL" for i in range(len(keys)))
-        return f"""WITH a AS (SELECT DISTINCT _id, {', '.join(lk)} FROM L), b AS (SELECT DISTINCT _id, {', '.join(rk)} FROM R),
-                   ua AS (SELECT * FROM a WHERE {nn} QUALIFY count(*) OVER (PARTITION BY {kn}) = 1),
-                   ub AS (SELECT * FROM b WHERE {nn} QUALIFY count(*) OVER (PARTITION BY {kn}) = 1)
-                   SELECT ua._id AS l, ub._id AS r FROM ua JOIN ub USING ({kn})"""
+        left = "L"
+        if shift and shift_role:
+            left = f"(SELECT * REPLACE (CAST({_q(shift_role)} + INTERVAL 7 DAY AS DATE) AS {_q(shift_role)}) FROM L)"
+        cond = " AND ".join(_condition(c.left, c.right) for c in others)
+        notnull = " AND ".join(f"l.{_q(c.left)} IS NOT NULL" for c in others)
+        return f"""WITH j AS (SELECT DISTINCT l._id AS l, r._id AS r FROM {left} l
+                             JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON {cond} WHERE {notnull})
+                   SELECT l, r FROM j
+                   QUALIFY count(*) OVER (PARTITION BY l) = 1 AND count(*) OVER (PARTITION BY r) = 1"""
 
     real_sql = join_sql(False)
     n_real = con.execute(f"SELECT count(*) FROM ({real_sql})").fetchone()[0]
     n_control = con.execute(f"SELECT count(*) FROM ({join_sql(True)})").fetchone()[0] if shift_role else 0
-    rows = con.execute(f"""
-        SELECT l.{_q(comp.left)}, r.{_q(comp.right)} FROM ({real_sql}) p
+    rows = _as_values(con.execute(f"""
+        SELECT l.{_q(comp.left)}, {_right_cols([comp])} FROM ({real_sql}) p
         JOIN (SELECT DISTINCT ON (_id) * FROM L) l ON l._id = p.l
-        JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = p.r""").fetchall()
+        JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = p.r""").fetchall())
     return rows, n_real, n_control
 
 
 def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, right: pa.Table) -> ProbabilisticResult:
+    from dataclasses import replace as _replace
+
     con = duckdb.connect()
-    n_left = _prepare(con, "L", left, spec.left)
-    n_right = _prepare(con, "R", right, spec.right)
+    # An interval is compared as an interval here: the deterministic engine's
+    # one-row-per-day explosion is its way of making "inside" an equality.
+    n_left = _prepare(con, "L", left, _replace(spec.left, explode_days=None))
+    n_right = _prepare(con, "R", right, _replace(spec.right, explode_days=None))
     # u: random pairs.
     lcols = ", ".join(_q(c.left) for c in prob.compare)
-    rcols = ", ".join(_q(c.right) for c in prob.compare)
-    random_rows = con.execute(f"""
-        SELECT {lcols}, {rcols} FROM (SELECT {lcols} FROM L USING SAMPLE 2000 ROWS) l
-        CROSS JOIN (SELECT {rcols} FROM R USING SAMPLE 100 ROWS) r""").fetchall()
+    rsel = ", ".join(dict.fromkeys(_q(role) for c in prob.compare for role in c.right_roles))
+    random_rows = _as_values(con.execute(f"""
+        SELECT {", ".join("l." + _q(c.left) for c in prob.compare)}, {_right_cols(prob.compare)}
+        FROM (SELECT {lcols} FROM L USING SAMPLE 2000 ROWS) l
+        CROSS JOIN (SELECT {rsel} FROM R USING SAMPLE 100 ROWS) r""").fetchall())
     k = len(prob.compare)
     models: list[FieldModel] = []
     for i, comp in enumerate(prob.compare):
@@ -214,7 +244,7 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
     spec = load_links()[name]
     prob = load_probabilistic(name)
     left_roles = sorted(set(_roles_needed(spec, "left")) | {c.left for c in prob.compare})
-    right_roles = sorted(set(_roles_needed(spec, "right")) | {c.right for c in prob.compare})
+    right_roles = sorted(set(_roles_needed(spec, "right")) | {r for c in prob.compare for r in c.right_roles})
     left = role_table(spec.left.dataset, period=period, geography=geography, roles=left_roles, **query_kwargs)
     right = role_table(spec.right.dataset, period=right_period or period, geography=geography,
                        roles=right_roles, **query_kwargs)

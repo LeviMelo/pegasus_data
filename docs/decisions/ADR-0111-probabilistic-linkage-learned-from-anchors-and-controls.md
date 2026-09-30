@@ -74,7 +74,33 @@ spec's `probabilistic` block (`compare`, `blocks`, `target_fdr`):
 - **Validation holds.** Died in hospital 99.9% (RR) and 99.6% (AC); residence
   agrees 85.5% and 91.2%. Verdict: viable in both.
 
+**Result, the two other spine links (RR and AC 2022).**
+
+| link | scope | deterministic | probabilistic |
+|---|---|---|---|
+| SIM infant deaths → SINASC | RR | 117 (59.7%) | 174 (88.8%), est. FDR 0.0%, plurality agrees 98.1% |
+| | AC | 132 (64.1%) | 198 (96.1%), 0.0%, plurality 99.4% |
+| SINASC deliveries → SIH admission | RR | 8,846, chance 1.9% | 8,578 (66.2%), est. FDR 0.83%, obstetric diagnosis 96.0% |
+| | AC | 10,003, 0.55% | 10,041 (70.0%), 0.71%, obstetric 99.2% |
+
+- **Infant deaths.** Every deterministic pair is kept. The learned weight
+  channel explains the gain: the weight on the death certificate equals the
+  birth record's in 74% of anchor pairs, is within 10% in 13.6%, and is a
+  dropped or added digit in 2.5% (+5.3 bits). The anchors are few (81–112
+  per field in RR), so these channels are estimates to be refined nationally.
+- **Deliveries needed a comparison type.** A birth day against the
+  admission's interval, with levels by where in the stay the birth falls. In
+  RR a 1% false-match rate first proved infeasible: one maternity hospital
+  and one city carry nearly no evidence, and the deterministic run's own
+  control measures 1.9% there. The model then refused every threshold but
+  the top one (3 pairs) rather than exceed its target: the refusal worked as
+  designed.
+  
+  The position in the stay separates true from coincidental pairs. Births
+  fall on the admission's first day in 61–65% of anchor pairs (u 0.3%), on
+  the second in 22–26%, and later in 7–9%. With that evidence the target is
+  met.
+
 **Consequences.** The deterministic passes stay: they are the anchors'
-source and the baseline. Next: comparison types for intervals (a birth inside
-an admission), the travel flows as evidence for residence ↔ facility, and
-typo-variant blocks from the measured channels.
+source and the baseline. Next: the travel flows as evidence for residence ↔ facility, typo-variant
+blocks from the measured channels, and national runs.

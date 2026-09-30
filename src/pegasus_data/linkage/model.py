@@ -33,6 +33,8 @@ nothing:
 - municipality: equal · same state · different state
 - integer (grams, weeks, years): equal · within 1% · within 10% · a digit
   dropped or added · other
+- interval (a date against start..end): inside on the first day · on the
+  second day · later · one day outside · within a week outside · other
 """
 
 from __future__ import annotations
@@ -97,6 +99,24 @@ def compare_municipality(a: Any, b: Any) -> str:
     return "same state" if str(a)[:2] == str(b)[:2] else "different state"
 
 
+def compare_interval(a: Any, b: Any) -> str:
+    """A date against an interval (start, end): the birth day inside the admission."""
+    if a is None or b is None or b[0] is None or b[1] is None:
+        return MISSING
+    start, end = b
+    if start <= a <= end:
+        # Where in the stay: a delivery admission usually starts on the birth
+        # day or the day before, while a coincidental stay is uniform.
+        offset = (a - start).days
+        return "inside, first day" if offset == 0 else "inside, second day" if offset == 1 else "inside, later"
+    gap = (start - a).days if a < start else (a - end).days
+    if gap <= 1:
+        return "one day outside"
+    if gap <= 7:
+        return "within a week outside"
+    return "other"
+
+
 def compare_exact(a: Any, b: Any) -> str:
     if a is None or b is None:
         return MISSING
@@ -107,6 +127,7 @@ COMPARATORS = {
     "date": compare_date,
     "integer": compare_integer,
     "municipality": compare_municipality,
+    "interval": compare_interval,
 }
 
 
@@ -117,12 +138,16 @@ def comparator(kind: str):
 @dataclass(frozen=True, slots=True)
 class Comparison:
     left: str
-    right: str
+    right: str          # a role, or "start..end" for an interval
     kind: str
 
     @property
     def name(self) -> str:
         return f"{self.left} ~ {self.right}"
+
+    @property
+    def right_roles(self) -> tuple[str, ...]:
+        return tuple(self.right.split("..")) if self.kind == "interval" else (self.right,)
 
 
 @dataclass
