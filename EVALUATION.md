@@ -116,3 +116,4 @@ in.
 | 2026-09-30 | [Pre-merge live run: every scenario and every declared dataset, before `redesign` became `master`](docs/evaluation/2026-09-30-pre-merge-live-run.md) | live (`scripts/live.py --all --fresh`) |
 | 2026-09-30 | [National linkage measurements: bits of identity, error channels, travel flows, SIH/CIHA coverage, join grains](docs/evaluation/2026-09-30-national-linkage-measurements.md) | live (`scripts/linkage_study.py`, national) |
 | 2026-09-30 | [Catch-all ranges: which observed codes a TabWin residual range was decoding](docs/evaluation/2026-09-30-catch-all-ranges.md) | live (`scripts/catchall_audit.py`, fresh home) |
+| 2026-09-30 | [Health pass: 1990s SIH diagnoses, warnings about out-of-period tables, and code lists that exist nowhere](docs/evaluation/2026-09-30-health-pass-sih-diagnoses-and-dangling-tables.md) | live (fresh home), curation scan |
