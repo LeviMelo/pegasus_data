@@ -64,6 +64,7 @@ from pegasus_data import info, explore, search
 
 info()                    # the twenty systems
 info("SIH.RD")            # one dataset: what one row is, coverage, schema generations, gotchas
+info("SIM.DO.IDADE")      # one variable: its meaning and where that meaning comes from (a layout, or "INFERRED … unverified")
 explore("SIH.RD")         # years, states, files and bytes on the server, offline
 explore("SIH.RD", year=2023, uf="SP")   # the files themselves, with sizes
 search("raça")            # columns about race: RACACOR, CS_RACA, RACA_COR …

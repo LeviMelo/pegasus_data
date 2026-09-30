@@ -140,3 +140,4 @@ last, comes first.
 | [ADR-0113](docs/decisions/ADR-0113-ambiguity-margin-and-verdicts-on-the-upper-bound.md) | 2026-09-30 | A probabilistic pair must be each side's clear best, and a verdict is judged on the 95% upper bound of its chance rate | active | amends ADR-0107, ADR-0111 |
 | [ADR-0114](docs/decisions/ADR-0114-blocks-keep-an-identifying-key.md) | 2026-09-30 | Every candidate block keeps an identifying key; typo-variant blocks exist and are used only where they add links | active | part of ADR-0107, ADR-0111 |
 | [ADR-0115](docs/decisions/ADR-0115-residence-scored-given-the-place-of-care.md) | 2026-09-30 | Residence is scored given the place of care: agreement away from the hospital weighs more than agreement at it | active | part of ADR-0111 |
+| [ADR-0116](docs/decisions/ADR-0116-info-shows-the-standing-of-each-description.md) | 2026-09-30 | `info()` shows where each variable's description comes from; an inferred one reads as unverified | active |  |

@@ -82,6 +82,31 @@ class Info:
         if what:
             out.append("")
             out.extend("  " + line for line in _wrap(what, 76))
+        if self.kind == "variable" and what:
+            out.extend(self._source_lines())
+        return out
+
+    #: How far a description can be trusted, by the rung it came from. An
+    #: inferred description printed like a documented one reads as fact
+    #: (ORIGEM was one, and wrong; EVALUATION 2026-09-30, omnisus facts).
+    _SOURCE_STANDING = {
+        "layout_doc": "a DATASUS record layout or dictionary",
+        "def": "a TabWin definition file (.DEF)",
+        "web": "a published document found on the web",
+        "manual": "stated by the project, from a measurement or a review of the documents",
+        "inferred": "INFERRED by the project: no document describes this field; unverified",
+    }
+
+    def _source_lines(self) -> list[str]:
+        source = str(self.evidence.get("source") or "")
+        standing = self._SOURCE_STANDING.get(source, source) if source else "not recorded"
+        out = ["", f"  source: {standing}"]
+        reasoning = self.evidence.get("reasoning")
+        if reasoning and source in ("manual", "inferred"):
+            lines = _wrap(str(reasoning), 72)
+            out.extend("    " + line for line in lines[:8])
+            if len(lines) > 8:
+                out.append("    ...")
         return out
 
     def _coverage_lines(self) -> list[str]:
