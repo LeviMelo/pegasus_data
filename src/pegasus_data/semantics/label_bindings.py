@@ -529,7 +529,11 @@ def decide(
     observed = {str(k) for k in counts}
     total = sum(counts.values())
     if doc is not None and getattr(doc, "codes", None):
-        return LabelBinding((str(doc.codelist),), "curated", observed=len(observed),  # type: ignore[attr-defined]
+        # The column's own table first; a table it was also bound to stays as
+        # the fallback (ADR-0079). Returning the inline table alone left
+        # PA_UFDIF's 0/1 undecoded once its measured 9 was written (ADR-0105).
+        chain = (str(doc.codelist), *(str(c) for c in getattr(doc, "codelists", None) or ()))  # type: ignore[attr-defined]
+        return LabelBinding(chain, "curated", observed=len(observed), candidates=len(chain),
                             reason="inline code table in the curation")
     if series:
         harvested = harvested_codelist(system, series, field_name)

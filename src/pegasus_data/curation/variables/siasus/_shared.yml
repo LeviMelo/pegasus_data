@@ -781,11 +781,14 @@ variables:
       municipal vs. private contracted, etc.).
 
       '
+    code_system: internal
+    # 00 on every record from 2016 on (SIA-PA AC: filled with 20/40/50/61 in 2008 and
+    # 2012, all 00 in 2016 and 2023): the field stopped being filled (ADR-0105).
+    codes: {"00": "Não preenchido"}
     codelists:
     - ESFERA
     - ESFERA_C
     - TIPOPRES
-    code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 3.4.1 (Layout do arquivo de Laudos Diversos: ADUFAAMM.DBF), p.6 — identical
@@ -1379,6 +1382,9 @@ variables:
 
       '
     code_system: internal
+    # 00 on every record from 2016 on (SIA-PA AC: filled with 20/40/50/61 in 2008 and
+    # 2012, all 00 in 2016 and 2023): the field stopped being filled (ADR-0105).
+    codes: {"00": "Não preenchido"}
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 5.2 (Layout do arquivo de BPA-I: BIUFAAMM.DBF), p.17-18 — same field names/definitions

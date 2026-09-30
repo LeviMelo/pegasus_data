@@ -330,7 +330,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `capabilities.py`: what a client may do with a built aggregate.
 - `suggest.py`: recipe suggestions.
 - `geography.py`: health-region memberships and the geography graph.
-- `identifiers.py`: what a CNPJ and a CPF are (check digits), and keeping them out of every label (ADR-0102).
+- `identifiers.py`: what a CNPJ and a CPF are (check digits), and what a label may not begin with: an identifier (ADR-0102) or TabWin's order mark (`LABEL_PREFIX`, ADR-0105).
 - `crosswalk.py`: CNES↔CNPJ enrichment. Reads the registry first (windows from inclusion to exclusion), then the label pack's historical claims where the registry is silent; compares with the record's own CNPJ when the layout has one (ADR-0100).
 - `providers.py`: optional attribute providers (CNES names).
 - `_age.py`: age in fractional years from measured unit tables (ADR-0070), and age bands.

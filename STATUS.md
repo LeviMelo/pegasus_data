@@ -89,14 +89,16 @@ another.
 ## Open fronts
 
 - **Undecoded because no source names them:**
-  - SIH `TPDISEC*` `0`, `GESTOR_TP`, `SP_DES_*`, `SP_U_AIH`;
-  - SIA `TIPPRE` `00`, `AP_TPATEN` `12`, `PA_CODOCO`;
+  - SIH `GESTOR_TP`;
+  - SIA `AP_TPATEN` `12`;
   - CNES `TP_PREST` `99`, bank codes `71X`/`002`, `ID_AREA`/`ID_SEGM`
     placeholders;
   - SINASC `CODPAISRES` `1`, `KOTELCHUCK` `9`, `TPDOCRESP` `0`;
   - SINAN meningitis quadros (OQ-59).
 
-  Each reads `code (?)`.
+  Each reads `code (?)`. SIH `TPDISEC*` `0`, `SP_DES_*`, `SP_U_AIH` and SIA
+  `TIPPRE` `00`, `UFDIF`/`MNDIF` `9`, `PA_CODOCO` were settled by measurement
+  against other columns of the same record (ADR-0105).
 - **Undescribed:**
   - SIA UO's 74 modality fields and PQ's 14 name-only fields (no layout
     found);

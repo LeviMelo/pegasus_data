@@ -1056,16 +1056,22 @@ variables:
       from the establishment's side. Pairs with SP_DES_PAC, which records the same fact from
       the patient's side; the two are populated independently and can disagree.
     code_system: internal
+    # Measured, SIH-SP SP 2023-01 (3.47M rows): 1 exactly when the state of SP_M_PAC
+    # differs from the state of SP_M_HOSP (ADR-0105).
+    codes: {"0": "Mesma UF do hospital", "1": "UF de residência diferente da do hospital"}
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 21'
   SP_DES_PAC:
     official_name: Indica UF de residência diferente
-    translated_name: Cross-state patient flag
-    description: Flags an admission where the patient travelled in from another state, recorded
-      from the patient's side. Pairs with SP_DES_HOS; compare SP_M_PAC against SP_M_HOSP to
-      measure the travel directly rather than trusting either flag.
+    translated_name: Cross-municipality patient flag
+    description: Flags an admission whose patient lives in another municipality than the
+      hospital's (measured; the layout repeats SP_DES_HOS's name). Pairs with SP_DES_HOS, the
+      state-level flag; SP_M_PAC against SP_M_HOSP gives the travel directly.
     code_system: internal
+    # Measured, SIH-SP SP 2023-01: 1 when SP_M_PAC differs from SP_M_HOSP (municipality;
+    # 77 exceptions in 3.47M). The layout gives it SP_DES_HOS's text; the data says otherwise (ADR-0105).
+    codes: {"0": "Mesmo município do hospital", "1": "Município de residência diferente do do hospital"}
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 22'
@@ -1252,6 +1258,9 @@ variables:
       whose rows are professional acts — without it every AIH appears once per act performed
       on it.
     code_system: internal
+    # "Contabiliza a AIH sem repetições" (IT SIH 2016-03). Measured: every AIH has a row with 1,
+    # 210,105 of 210,161 exactly one (SIH-SP SP 2023-01, ADR-0105).
+    codes: {"1": "Registro que conta a AIH", "0": "Registro adicional da mesma AIH"}
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 36'
@@ -1281,6 +1290,10 @@ variables:
       stay. The distinction that separates comorbidity from complication, and it is meaningless
       without DIAGSEC1.
     code_system: internal
+    # SIH's TP_DIAGSEC names 1 and 2. 0 appears exactly when DIAGSEC is 0000: in AC and SP
+    # 2023-01, 214,390 admissions, no exception (ADR-0105; microdatasus treats it as empty).
+    codes: {"0": "Sem diagnóstico secundário", "1": "Preexistente", "2": "Adquirido"}
+    codelist: TP_DIAGSEC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 105'
@@ -1291,6 +1304,10 @@ variables:
       stay. The distinction that separates comorbidity from complication, and it is meaningless
       without DIAGSEC2.
     code_system: internal
+    # SIH's TP_DIAGSEC names 1 and 2. 0 appears exactly when DIAGSEC is 0000: in AC and SP
+    # 2023-01, 214,390 admissions, no exception (ADR-0105; microdatasus treats it as empty).
+    codes: {"0": "Sem diagnóstico secundário", "1": "Preexistente", "2": "Adquirido"}
+    codelist: TP_DIAGSEC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 106'
@@ -1301,6 +1318,10 @@ variables:
       stay. The distinction that separates comorbidity from complication, and it is meaningless
       without DIAGSEC3.
     code_system: internal
+    # SIH's TP_DIAGSEC names 1 and 2. 0 appears exactly when DIAGSEC is 0000: in AC and SP
+    # 2023-01, 214,390 admissions, no exception (ADR-0105; microdatasus treats it as empty).
+    codes: {"0": "Sem diagnóstico secundário", "1": "Preexistente", "2": "Adquirido"}
+    codelist: TP_DIAGSEC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 107'
@@ -1311,6 +1332,10 @@ variables:
       stay. The distinction that separates comorbidity from complication, and it is meaningless
       without DIAGSEC4.
     code_system: internal
+    # SIH's TP_DIAGSEC names 1 and 2. 0 appears exactly when DIAGSEC is 0000: in AC and SP
+    # 2023-01, 214,390 admissions, no exception (ADR-0105; microdatasus treats it as empty).
+    codes: {"0": "Sem diagnóstico secundário", "1": "Preexistente", "2": "Adquirido"}
+    codelist: TP_DIAGSEC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 108'
@@ -1321,6 +1346,10 @@ variables:
       stay. The distinction that separates comorbidity from complication, and it is meaningless
       without DIAGSEC5.
     code_system: internal
+    # SIH's TP_DIAGSEC names 1 and 2. 0 appears exactly when DIAGSEC is 0000: in AC and SP
+    # 2023-01, 214,390 admissions, no exception (ADR-0105; microdatasus treats it as empty).
+    codes: {"0": "Sem diagnóstico secundário", "1": "Preexistente", "2": "Adquirido"}
+    codelist: TP_DIAGSEC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 109'
@@ -1331,6 +1360,10 @@ variables:
       stay. The distinction that separates comorbidity from complication, and it is meaningless
       without DIAGSEC6.
     code_system: internal
+    # SIH's TP_DIAGSEC names 1 and 2. 0 appears exactly when DIAGSEC is 0000: in AC and SP
+    # 2023-01, 214,390 admissions, no exception (ADR-0105; microdatasus treats it as empty).
+    codes: {"0": "Sem diagnóstico secundário", "1": "Preexistente", "2": "Adquirido"}
+    codelist: TP_DIAGSEC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 110'
@@ -1341,6 +1374,10 @@ variables:
       stay. The distinction that separates comorbidity from complication, and it is meaningless
       without DIAGSEC7.
     code_system: internal
+    # SIH's TP_DIAGSEC names 1 and 2. 0 appears exactly when DIAGSEC is 0000: in AC and SP
+    # 2023-01, 214,390 admissions, no exception (ADR-0105; microdatasus treats it as empty).
+    codes: {"0": "Sem diagnóstico secundário", "1": "Preexistente", "2": "Adquirido"}
+    codelist: TP_DIAGSEC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 111'
@@ -1351,6 +1388,10 @@ variables:
       stay. The distinction that separates comorbidity from complication, and it is meaningless
       without DIAGSEC8.
     code_system: internal
+    # SIH's TP_DIAGSEC names 1 and 2. 0 appears exactly when DIAGSEC is 0000: in AC and SP
+    # 2023-01, 214,390 admissions, no exception (ADR-0105; microdatasus treats it as empty).
+    codes: {"0": "Sem diagnóstico secundário", "1": "Preexistente", "2": "Adquirido"}
+    codelist: TP_DIAGSEC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 112'
@@ -1361,6 +1402,10 @@ variables:
       stay. The distinction that separates comorbidity from complication, and it is meaningless
       without DIAGSEC9.
     code_system: internal
+    # SIH's TP_DIAGSEC names 1 and 2. 0 appears exactly when DIAGSEC is 0000: in AC and SP
+    # 2023-01, 214,390 admissions, no exception (ADR-0105; microdatasus treats it as empty).
+    codes: {"0": "Sem diagnóstico secundário", "1": "Preexistente", "2": "Adquirido"}
+    codelist: TP_DIAGSEC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 113'

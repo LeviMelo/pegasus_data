@@ -109,3 +109,4 @@ in.
 | 2026-09-29 | [Description and decoding coverage after the kit rebuild: undecoded 240 → 34, missing descriptions 441 → 130](docs/evaluation/2026-09-29-coverage-after-the-kit-rebuild.md) | maintainer (`pegasus-data meaning`) |
 | 2026-09-29 | [The mapping tables: CNES ↔ CNPJ checked against each record's own CNPJ, the team registry, and the 2008 procedure bridge](docs/evaluation/2026-09-29-mapping-tables-cnes-cnpj-teams-and-the-2008-bridge.md) | live (`query(enrich=…)`), `scripts/registry_fields.py` |
 | 2026-09-29 | [SIA's 2001–2007 APAC archives: members measured by ranged header reads, and their establishments named by state](docs/evaluation/2026-09-29-legacy-apac-archives-members-measured.md) | maintainer census; live (new home) |
+| 2026-09-29 | [Measured code meanings: SIH secondary-diagnosis type, SIH-SP travel flags, SIA residence and occurrence codes](docs/evaluation/2026-09-29-measured-code-meanings.md) | live (new home) |

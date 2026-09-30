@@ -262,9 +262,11 @@ variables:
       flags applied during the audit/critique pipeline).
 
       '
-    codelists:
-    - CODOCO
     code_system: internal
+    # TabWin reads PA_CODOCO with the PA_FLQT beside it; CODOCO.CNV is keyed by the pair (1K
+    # APROVADO TOTALMENTE). SIA-PA AC 2023-01: 95,414 of 95,414 rows keyed (ADR-0105).
+    codelist: CODOCO
+    key: [PA_CODOCO, PA_FLQT]
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
@@ -587,10 +589,13 @@ variables:
       0 = mesmo municipio, 1 = municipio diferente, per the layout table.
 
       '
+    code_system: internal
+    # 9 appears exactly when PA_MUNPCN is 999999 (SIA-PA AC 2023-01, 21,398 of 21,398 rows,
+    # ADR-0105); 0/1 as the layout defines them, the kit's INVASAO behind.
+    codes: {"0": "Mesmo município do estabelecimento", "1": "Município de residência diferente do do estabelecimento", "9": "Município de residência ignorado"}
     codelists:
     - INVASAO
     - PA_MNDIF
-    code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
@@ -893,6 +898,10 @@ variables:
       concept as AP_TIPPRE.
 
       '
+    code_system: internal
+    # 00 on every record from 2016 on (SIA-PA AC: filled with 20/40/50/61 in 2008 and
+    # 2012, all 00 in 2016 and 2023): the field stopped being filled (ADR-0105).
+    codes: {"00": "Não preenchido"}
     codelists:
     - ESFERA
     - ESFERA_C
@@ -900,7 +909,6 @@ variables:
     - PUBPRCOL
     - RETENCAO
     - RETENC_C
-    code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
@@ -954,8 +962,11 @@ variables:
       executing establishment (PA_UFMUN); 1 if they differ, i.e. the patient crossed a state
       line for care.
     code_system: internal
-    # The kit's INVASAO, as PA_MNDIF and AP_UFDIF use (ADR-0098).
+    # 9 appears exactly when PA_MUNPCN is 999999 (SIA-PA AC 2023-01, 21,398 of 21,398 rows,
+    # ADR-0105); 0/1 as the layout defines them, the kit's INVASAO behind.
+    codes: {"0": "Mesma UF do estabelecimento", "1": "UF de residência diferente da do estabelecimento", "9": "Município de residência ignorado"}
     codelist: INVASAO
+    # The kit's INVASAO, as PA_MNDIF and AP_UFDIF use (ADR-0098).
   PA_UFMUN:
     official_name: UF+Municipio do estabelecimento
     translated_name: Establishment's municipality IBGE code

@@ -6,13 +6,18 @@ registry tables glue both onto the front of names: ``CNPJ 04.034.526/0013-87-
 UNIDADE MISTA …``, ``000.026.159/91-ARNOLDO …`` (a CPF). 558,043 label rows of
 the 2026-09 label pack began with one (ADR-0102). Every label map strips them
 here, and so does the pack build.
+
+TabWin's own row-order and indent marks are stripped with them: ``2 ....
+Acrelândia``, ``099 .. Outros transtornos do ouvido``, ``..Dezembro/2017``
+(98,667 pack labels; ADR-0105). They order rows in TabWin's pick list and mean
+nothing about the code.
 """
 
 from __future__ import annotations
 
 import re
 
-__all__ = ["ID_PREFIX", "strip_identifier", "valid_cnpj", "valid_cpf"]
+__all__ = ["ID_PREFIX", "LABEL_PREFIX", "strip_identifier", "strip_label_prefix", "valid_cnpj", "valid_cpf"]
 
 #: An identifier, optionally named, at the start of a label:
 #: ``CNPJ 00.000.000/0000-00-``, ``CPF 981.489.152/53-``,
@@ -20,6 +25,22 @@ __all__ = ["ID_PREFIX", "strip_identifier", "valid_cnpj", "valid_cpf"]
 ID_PREFIX = re.compile(
     r"^\s*(?:CNPJ|CPF)?\s*\d{2,3}\.[0-9A-Z]{3}\.[0-9A-Z]{3}[/.]\d{2,4}(?:-\d{2})?\s*-\s*"
 )
+
+
+#: What a label may carry before its text: an identifier, or TabWin's row order
+#: and indent (``NNN ..``, ``....``). One pattern, so every label map and the
+#: pack build strip the same things.
+LABEL_PREFIX = re.compile(
+    r"^(?:\s*(?:[0-9A-Za-z]{1,3}\s+)?\.{2,}\s*|" + ID_PREFIX.pattern.removeprefix("^") + ")"
+)
+
+
+def strip_label_prefix(label: object) -> str | None:
+    """The label without a leading identifier or TabWin order mark; None if nothing is left."""
+    if label is None:
+        return None
+    text = LABEL_PREFIX.sub("", str(label)).strip()
+    return text or None
 
 
 def strip_identifier(label: object) -> str | None:
