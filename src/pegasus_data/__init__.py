@@ -90,6 +90,10 @@ _EXPORTS: dict[str, str] = {
     "PublishedEmpty": ".retrieve",
     "DownloadBudgetExceeded": ".retrieve",
     "FilterHasNoAxis": ".retrieve",
+    "link": ".linkage.engine",
+    "LinkResult": ".linkage.engine",
+    "LinkNotViable": ".linkage.engine",
+    "role_table": ".linkage.roles",
 }
 
 __all__ = ["Settings", "load_settings", "__version__", *sorted(_EXPORTS)]

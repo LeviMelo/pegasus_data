@@ -357,3 +357,42 @@ several times its real risk (ADR-0055).
 codes and labels sent apart) and holds no logic; `/records` is off unless the
 server starts with `--allow-records`. *Prevents:* the frontend growing a branch
 per dataset, and identifiable rows exposed on a network by default.
+
+## Record linkage
+
+**Record identity.** `(_blob_sha256, _row)`: the content hash of the source
+file and the record's ordinal in it, counted before any filtering. Survives
+re-downloads because the blob store is content-addressed. *Prevents:* a link
+that points at "row 12 of today's query" (ADR-0107).
+
+**Role.** The property a column states about an entity, `<entity>.<property>`:
+SINASC `DTNASCMAE` is `mother.birth_date`; SIH `NASC` is `patient.birth_date`.
+Declared in `curation/roles.yml` with a type that says how the value is
+normalised. *Prevents:* comparing columns by name, and linking a baby to its
+mother's admission because both carry "a birth date" (ADR-0109).
+
+**Link spec.** A declared linkage in `curation/links.yml`: two sides, passes,
+the negative control and held-out validations. *Prevents:* a linkage that
+exists only in a notebook and cannot be re-run at another scope (ADR-0110).
+
+**Pass.** One 1:1 join on one key, in a cascade from strictest to loosest; each
+pass sees only the records earlier passes left unlinked. *Prevents:* a loose
+key claiming records a strict key would have linked correctly.
+
+**Negative control.** The same pass over the same remaining records, with one
+key deliberately shifted (a birth date by 7 days). Every pair it finds is a
+coincidence, so its count estimates the chance pairs in the real pass.
+*Prevents:* mistaking coincidences for links; two linkages with similar raw
+counts can be 0.1% and 58% chance.
+
+**Chance rate.** Control pairs as a percentage of real pairs, per pass and over
+the kept passes. *Prevents:* reporting a link count without its error.
+
+**Verdict.** Viable (every kept pass ≤ 5% chance, best held-out agreement
+≥ 90%), use with caution (≤ 20%, ≥ 75%), not viable; fixed before any result
+(ADR-0107). *Prevents:* thresholds tuned to make a result look good.
+
+**Bits of identity.** The entropy of a key: how many yes/no questions it
+answers. Singling out one of N records takes log2(N) bits; a key short of that
+leaves collisions. *Prevents:* building a linkage that cannot be unique in
+principle (ADR-0107).

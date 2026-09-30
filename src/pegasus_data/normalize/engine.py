@@ -49,7 +49,11 @@ from .geo import MunicipalityIndex, to_seven_digit, uf_array
 from .time import SOURCE_EPI_WEEK_FIELDS, epi_week_array, parse_date_array
 from .types import arrow_type_for, cast_boolean, cast_numeric
 
-PROVENANCE_COLUMNS = ("_source_path", "_blob_sha256", "_ingested_at", "_schema_signature")
+#: ``_row`` is the record's ordinal in its source member, counted before any
+#: filtering: with ``_blob_sha256`` (content-addressed) and the member in
+#: ``_source_path`` it is a permanent record identity, which record linkage
+#: needs to point at (ADR-0107).
+PROVENANCE_COLUMNS = ("_source_path", "_blob_sha256", "_row", "_ingested_at", "_schema_signature")
 
 
 @dataclass(slots=True)
@@ -313,7 +317,8 @@ def normalize_batch(batch: pa.RecordBatch, plan: NormalizePlan) -> pa.RecordBatc
 
 
 def add_provenance(
-    batch: pa.RecordBatch, *, source_path: str, blob_sha256: str, schema_signature: str
+    batch: pa.RecordBatch, *, source_path: str, blob_sha256: str, schema_signature: str,
+    first_row: int = 0,
 ) -> pa.RecordBatch:
     n = batch.num_rows
     stamp = utcnow()
@@ -335,6 +340,7 @@ def add_provenance(
     extra = {
         "_source_path": _constant(source_path),
         "_blob_sha256": _constant(blob_sha256),
+        "_row": pa.array(range(first_row, first_row + n), type=pa.int64()),
         "_ingested_at": _constant(stamp),
         "_schema_signature": _constant(schema_signature),
     }
@@ -352,6 +358,7 @@ def normalize_table(
     with_provenance: bool = True,
 ) -> Iterator[pa.RecordBatch]:
     """Stream a decoded table through the plan, batch by batch."""
+    first_row = 0
     for batch in table.batches():
         out = normalize_batch(batch, plan)
         if with_provenance:
@@ -360,7 +367,9 @@ def normalize_table(
                 source_path=table.source_id,
                 blob_sha256=blob_sha256,
                 schema_signature=plan.schema_signature,
+                first_row=first_row,
             )
+        first_row += batch.num_rows
         yield out
 
 

@@ -1289,6 +1289,62 @@ def translate_file(
     )
 
 
+@app.command(name="link", rich_help_panel="EXTRACT")
+def link_cmd(
+    spec: Annotated[str | None, typer.Argument(help="A link spec from curation/links.yml; omit to list them")] = None,
+    period: Annotated[str | None, typer.Option("--period", "-p", help="2022, 2022-01, or 2020..2022")] = None,
+    geography: Annotated[str | None, typer.Option("--geo", "-g", help="AC, or AC,RR, or BR")] = None,
+    out: Annotated[Path | None, typer.Option("--out", "-o", help="Write the pairs (parquet or csv)")] = None,
+    allow_not_viable: Annotated[
+        bool, typer.Option("--allow-not-viable", help="Return the pairs of a linkage that fails its verdict")
+    ] = False,
+    allow_partial: Annotated[
+        bool, typer.Option("--allow-partial", help="Accept a side short of a file that will not download or open")
+    ] = False,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Link records about the same person across two datasets (ADR-0107, ADR-0110).
+
+    'pegasus-data link sih_deaths_to_sim --period 2022 --geo RR'. Prints every
+    pass with its negative control (the same join with a birth date shifted by
+    a week: its pairs are coincidences), the held-out validations and the
+    verdict. A linkage that is not viable exits 1 unless --allow-not-viable.
+    """
+    from .linkage.engine import LinkNotViable, link, load_links
+    from .retrieve import DatasetUnknown, NothingPublished
+
+    specs = load_links()
+    if not spec:
+        _emit({name: s.description for name, s in specs.items()}, as_json, "link specs")
+        return
+    if not period or not geography:
+        console.print("[red]--period and --geo are required[/red]")
+        raise typer.Exit(code=2)
+    span: object = tuple(part.strip() for part in period.split("..")) if ".." in period else period.strip()
+    geo: object = [g.strip() for g in geography.split(",")] if "," in geography else geography.strip()
+    try:
+        with console.status(f"linking {spec}…"):
+            result = link(spec, period=span, geography=geo, allow_not_viable=allow_not_viable,
+                          allow_partial=allow_partial, settings=_settings(root))
+    except LinkNotViable as exc:
+        _emit(exc.result.summary(), as_json, f"link {spec}: NOT VIABLE")
+        raise typer.Exit(code=1) from exc
+    except (KeyError, DatasetUnknown, NothingPublished, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    _emit(result.summary(), as_json, f"link {spec}")
+    if out:
+        import pyarrow.csv as pacsv
+        import pyarrow.parquet as pq
+
+        if out.suffix.lower() == ".csv":
+            pacsv.write_csv(result.pairs, out)
+        else:
+            pq.write_table(result.pairs, out)
+        console.print(f"[green]wrote[/green] {out}  ({result.pairs.num_rows:,} pairs)")
+
+
 @app.command(name="query", rich_help_panel="EXTRACT")
 def query_cmd(
     dataset: Annotated[str, typer.Argument(help="Dataset: SIH.RD, SIM.DO, SINASC.DN (SIH-RD works too)")],

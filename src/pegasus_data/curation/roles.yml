@@ -1,0 +1,110 @@
+# Roles: which column states which property of which entity (ADR-0107, ADR-0109).
+#
+# Record linkage compares records from different systems. A column is compared
+# through the property it states, never by its name: SINASC's DTNASCMAE and
+# SIH's NASC are both a birth date, but only SIH's is the patient's own; in a
+# delivery admission the patient is the mother, so SINASC's mother and SIH's
+# patient are the same person. A plain synonym list would get this wrong.
+#
+# Each dataset names the kind of record it holds (`record`) and, for each role,
+# `<entity>.<property>`:
+#   column   the column as filed
+#   type     how the value is normalised before comparison:
+#            date      a calendar date, parsed with `format` (DDMMYYYY or YYYYMMDD)
+#            month     a competence month, `format` YYYYMM, as its first day
+#            sex       M or F, read from the column's decoded label (each system
+#                      codes sex differently: SIH 1/3, SIM and SINASC 1/2, SIA M/F)
+#            municipality  6-digit IBGE code without check digit; a value whose
+#                      label says it is ignored is missing, not a place
+#            facility  7-digit CNES code
+#            integer   a count or measure (grams, years)
+#            code      the raw code, compared exactly (ICD-10, procedure, AIH number)
+#            label     the decoded label, lower-cased; with `categories` (canonical -> the
+#                      spellings each system uses) it becomes the canonical category, and a
+#                      label outside the map is missing. SIM writes "cesáreo", SINASC
+#                      "cesário": compared as text they disagreed in 54% of linked pairs.
+# Missing is missing: an unparseable date, an ignored municipality or a sex
+# other than M/F becomes null and contributes no evidence, never a guess.
+
+datasets:
+  SINASC-DN:
+    record: birth
+    roles:
+      baby.birth_date: {column: DTNASC, type: date, format: DDMMYYYY}
+      baby.sex: {column: SEXO, type: sex}
+      birth.date: {column: DTNASC, type: date, format: DDMMYYYY}
+      birth.facility: {column: CODESTAB, type: facility}
+      birth.weight: {column: PESO, type: integer}
+      birth.place: {column: LOCNASC, type: label, categories: {hospital: [hospital], "other health facility": ["outros estabelecimentos de saúde", "outro estabelecimento de saúde"], home: ["domicílio"], street: ["via pública"], other: [outros]}}
+      birth.delivery: {column: PARTO, type: label, categories: {vaginal: [vaginal], cesarean: ["cesáreo", "cesário", "cesárea"]}}
+      birth.plurality: {column: GRAVIDEZ, type: label, categories: {single: ["única", "unica"], twins: [dupla], "triplets or more": ["tripla e mais", "tripla e+", "tripla ou mais"]}}
+      birth.gestation_weeks: {column: SEMAGESTAC, type: integer}
+      mother.birth_date: {column: DTNASCMAE, type: date, format: DDMMYYYY}
+      mother.age: {column: IDADEMAE, type: integer}
+      mother.residence: {column: CODMUNRES, type: municipality}
+
+  SIM-DO:
+    record: death
+    roles:
+      deceased.birth_date: {column: DTNASC, type: date, format: DDMMYYYY}
+      deceased.sex: {column: SEXO, type: sex}
+      deceased.residence: {column: CODMUNRES, type: municipality}
+      deceased.age_years: {column: IDADE_anos, type: number}
+      death.date: {column: DTOBITO, type: date, format: DDMMYYYY}
+      death.facility: {column: CODESTAB, type: facility}
+      death.place: {column: LOCOCOR, type: label, categories: {hospital: [hospital], "other health facility": ["outros estabelecimentos de saúde", "outro estabelecimento de saúde"], home: ["domicílio"], street: ["via pública"], other: [outros]}}
+      death.kind: {column: TIPOBITO, type: label}
+      death.cause: {column: CAUSABAS, type: code}
+      death.birth_weight: {column: PESO, type: integer}
+      death.maternal_age: {column: IDADEMAE, type: integer}
+      death.pregnancy: {column: OBITOGRAV, type: label}
+      death.puerperium: {column: OBITOPUERP, type: label}
+      death.delivery: {column: PARTO, type: label, categories: {vaginal: [vaginal], cesarean: ["cesáreo", "cesário", "cesárea"]}}
+      death.plurality: {column: GRAVIDEZ, type: label, categories: {single: ["única", "unica"], twins: [dupla], "triplets or more": ["tripla e mais", "tripla e+", "tripla ou mais"]}}
+      death.gestation_weeks: {column: SEMAGESTAC, type: integer}
+
+  SIH-RD:
+    record: admission
+    roles:
+      patient.birth_date: {column: NASC, type: date, format: YYYYMMDD}
+      patient.sex: {column: SEXO, type: sex}
+      patient.residence: {column: MUNIC_RES, type: municipality}
+      patient.age_years: {column: IDADE_anos, type: number}
+      admission.start: {column: DT_INTER, type: date, format: YYYYMMDD}
+      admission.end: {column: DT_SAIDA, type: date, format: YYYYMMDD}
+      admission.facility: {column: CNES, type: facility}
+      admission.facility_municipality: {column: MUNIC_MOV, type: municipality}
+      admission.death: {column: MORTE, type: code}
+      admission.diagnosis: {column: DIAG_PRINC, type: code}
+      admission.procedure: {column: PROC_REA, type: code}
+      admission.aih: {column: N_AIH, type: code}
+
+  CIHA:
+    record: admission
+    roles:
+      patient.birth_date: {column: NASC, type: date, format: YYYYMMDD}
+      patient.sex: {column: SEXO, type: sex}
+      patient.residence: {column: MUNIC_RES, type: municipality}
+      patient.age_years: {column: IDADE_anos, type: number}
+      admission.start: {column: DT_ATEND, type: date, format: YYYYMMDD}
+      admission.end: {column: DT_SAIDA, type: date, format: YYYYMMDD}
+      admission.facility: {column: CNES, type: facility}
+      admission.facility_municipality: {column: MUNIC_MOV, type: municipality}
+      admission.death: {column: MORTE, type: code}
+      admission.diagnosis: {column: DIAG_PRINC, type: code}
+      admission.procedure: {column: PROC_REA, type: code}
+      admission.modality: {column: MODALIDADE, type: code}
+      admission.payer: {column: FONTE, type: code}
+
+  SIASUS-PS:
+    record: care_episode
+    roles:
+      patient.id: {column: CNS_PAC, type: code}
+      patient.birth_date: {column: DTNASC, type: date, format: YYYYMMDD}
+      patient.sex: {column: SEXOPAC, type: sex}
+      patient.residence: {column: MUNPAC, type: municipality}
+      care.facility: {column: CNES_EXEC, type: facility}
+      care.month: {column: DT_ATEND, type: month, format: YYYYMM}
+      care.start: {column: INICIO, type: date, format: YYYYMMDD}
+      care.end: {column: FIM, type: date, format: YYYYMMDD}
+      treatment.start: {column: DT_INICIO, type: date, format: YYYYMMDD}

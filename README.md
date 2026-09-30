@@ -145,6 +145,32 @@ means stored as mergeable states) that roll up through health regions, states
 and the country without touching microdata. `serve/` exposes them over HTTP to
 the companion frontend (`../pegasus_view`).
 
+### Linking records across systems
+
+The public files carry no common person identifier, so records about the
+same person are linked through what they state about that person and a shared
+event. Every linkage reports its own error.
+
+```python
+from pegasus_data import link, role_table
+
+result = link("sih_deaths_to_sim", period=2022, geography="RR")   # a LinkResult
+result.summary()   # pairs per pass, chance pairs from the negative control, validations, verdict
+result.pairs       # record ids (file hash:row) on each side, and the pass that linked them
+```
+
+- **The declared links** are in `curation/links.yml`:
+  - in-hospital deaths → death certificates;
+  - infant deaths → birth records;
+  - births → the mother's delivery admission.
+- **Roles.** `role_table(dataset, …)` gives any dataset's records as the
+  properties they state (`mother.birth_date`, `patient.sex`), normalised
+  (`curation/roles.yml`).
+- **Refusal.** A linkage that is not viable raises `LinkNotViable` instead of
+  returning pairs.
+- **Command line:** `pegasus-data link sih_deaths_to_sim --period 2022 --geo
+  RR`. The method is in ADR-0107, ADR-0110 and ADR-0111.
+
 ---
 
 ## The data model

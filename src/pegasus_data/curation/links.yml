@@ -1,0 +1,96 @@
+# Link specs (ADR-0107, ADR-0110). Each links records of two datasets through
+# roles (curation/roles.yml). A spec is data, reviewed like the curation:
+#
+#   left / right   dataset, and an optional SQL `where` over its roles (quoted
+#                  names: "admission.death"); `group` makes one record per group
+#                  (the live births of one delivery); `explode_days` turns an
+#                  interval into one row per day [start role, end role, new role]
+#   passes         strictest first; each key pairs a left role with a right role
+#   control        the left role shifted for the negative control, and by how
+#                  many days
+#   validate       held-out checks on the linked pairs: two roles that should
+#                  agree (optionally within `tolerance`), or an `sql` condition
+#                  over l.* and r.*
+#
+# The first three reproduce omnisus's deterministic study (EVALUATION
+# 2026-09-30) so both projects can be checked against each other.
+
+links:
+  sih_deaths_to_sim:
+    description: >
+      Admissions that ended in death (SIH-RD MORTE = 1) to the death certificate.
+      The shared event is the day: the discharge date is the death date.
+    left: {dataset: SIH-RD, where: "\"admission.death\" = '1'"}
+    right: {dataset: SIM-DO}
+    passes:
+      - name: birth date, sex, death day, hospital
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
+               [admission.end, death.date], [admission.facility, death.facility]]
+      - name: birth date, sex, death day
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
+               [admission.end, death.date]]
+      - name: birth date, sex, residence, hospital
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
+               [patient.residence, deceased.residence], [admission.facility, death.facility]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      - {name: residence agrees, left: patient.residence, right: deceased.residence}
+      - {name: died in hospital, sql: "r.\"death.place\" = 'hospital'"}
+    probabilistic:
+      compare:
+        - [patient.birth_date, deceased.birth_date]
+        - [patient.sex, deceased.sex]
+        - [admission.end, death.date]
+        - [admission.facility, death.facility]
+        - [patient.residence, deceased.residence]
+      blocks:
+        - [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
+        - [[admission.end, death.date], [admission.facility, death.facility]]
+        - [[admission.end, death.date], [patient.residence, deceased.residence], [patient.sex, deceased.sex]]
+      target_fdr: 0.01
+
+  sim_infant_deaths_to_sinasc:
+    description: >
+      Deaths before one year of life, of children born in the death's year, to
+      their birth record. Both files are organised by residence, so almost every
+      such death should have a birth: the linked share approximates sensitivity.
+    left:
+      dataset: SIM-DO
+      where: >
+        year("deceased.birth_date") = year("death.date")
+        AND "death.date" - "deceased.birth_date" < 365
+    right: {dataset: SINASC-DN}
+    passes:
+      - name: birth date, sex, residence, weight
+        keys: [[deceased.birth_date, baby.birth_date], [deceased.sex, baby.sex],
+               [deceased.residence, mother.residence], [death.birth_weight, birth.weight]]
+      - name: birth date, sex, residence, mother's age
+        keys: [[deceased.birth_date, baby.birth_date], [deceased.sex, baby.sex],
+               [deceased.residence, mother.residence], [death.maternal_age, mother.age]]
+    control: {role: deceased.birth_date, shift_days: 7}
+    validate:
+      - {name: delivery type agrees, left: death.delivery, right: birth.delivery}
+      - {name: plurality agrees, left: death.plurality, right: birth.plurality}
+      - {name: gestational weeks within 2, left: death.gestation_weeks, right: birth.gestation_weeks, tolerance: 2}
+
+  sinasc_births_to_delivery_admission:
+    description: >
+      A birth to the mother's delivery admission. In a delivery AIH the patient
+      is the mother, and SINASC records her birth date; the birth day falls
+      inside the admission. The live births of one mother, one day, one hospital
+      are one delivery (twins link once).
+    left:
+      dataset: SINASC-DN
+      group: [mother.birth_date, birth.facility, birth.date]
+    right:
+      dataset: SIH-RD
+      where: "\"patient.sex\" = 'F'"
+      explode_days: [admission.start, admission.end, admission.day]
+    passes:
+      - name: mother's birth date, hospital, day inside the admission
+        keys: [[mother.birth_date, patient.birth_date], [birth.facility, admission.facility],
+               [birth.date, admission.day]]
+    control: {role: mother.birth_date, shift_days: 7}
+    validate:
+      - {name: obstetric diagnosis (ICD-10 chapter XV), sql: "r.\"admission.diagnosis\" LIKE 'O%'"}
+      - {name: residence agrees, left: mother.residence, right: patient.residence}
