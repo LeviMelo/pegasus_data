@@ -192,9 +192,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (SP 2023-01: 56 of 210,161). RD 2023 carries types 1 and 5 only. Count
   admissions as distinct `N_AIH`.
 - **SIH-SP and SIH-RD hold the same AIHs, competence by competence.** 2023-01:
-  AC 4,164 = 4,164, SP 210,161 = 210,161, each set equal to the other.
-  Every approved admission has its professional acts, and no act lacks its
-  admission (2026-09-30).
+  AC 4,164 = 4,164, SP 210,161 = 210,161, each set equal to the other
+  (these two state-months checked; 2026-09-30).
 
 - **SINAN publishes each disease-year in exactly one of `DADOS/FINAIS` and
   `DADOS/PRELIM`** (catalog, 2026-09-30):
@@ -257,7 +256,8 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   unsegregated rest rooms of the emergency block, not consulting rooms and
   beds; beds are `QTLEITP1`–`QTLEITP3` (2026-08-30, F §3y).
 
-- **SINAN tuberculosis files are years of diagnosis, not of notification.**
+- **SINAN tuberculosis files are years of diagnosis, not of notification**
+  (two files checked):
   - `TUBEBR20`: all 86,160 records have `DT_DIAG` in 2020, while `NU_ANO`
     spans 2020–2023 (2,915 in 2021).
   - `TUBEBR25`: all 112,482 in 2025, 1,513 with `NU_ANO` 2026.

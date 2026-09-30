@@ -42,11 +42,17 @@ unnoticed.
   Unificada):
   - 000000 is on 45,511 of 46,933 acts, and 23,103 of them are procedures
     SIGTAP ties to a service (lab exams 0202…);
-  - 000000 therefore means the service was not filled in, not that none was
-    required;
+  - for those, the service is missing; the other 22,408 are procedures SIGTAP
+    ties to no service, where "none required" fits equally;
   - non-zero values agree with SIGTAP's relation in 1,361 of 1,422.
-- **Curated.** "Serviço/classificação não informado", with `S_CLASSEN` behind
-  it.
+- **Curated.** "Nenhum serviço/classificação registrado", with `S_CLASSEN`
+  behind it.
+
+  > **Correction (2026-09-30).** This was first curated as "não informado",
+  > concluding that 000000 means the service was not filled in. That holds
+  > only for the 23,103 acts whose procedure requires a service. The label now
+  > claims neither reading (user's challenge on unsupported claims; see
+  > [CIHA's residence field tested against SINASC](2026-09-30-ciha-residence-tested-against-sinasc.md)).
 - **A regression the curation caused, then fixed.** The inline code made the
   chain two tables, and S_CLASSEN's path naming (ADR-0096) applied only to a
   lone table, so `126000` (service 126, no classification, 56 acts) became
