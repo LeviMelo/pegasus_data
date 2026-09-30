@@ -372,6 +372,12 @@ variables:
     - CID9_15
     - CID9_16
     - CID9_17
+    # ICD-9's supplementary V-codes, written 20NNNN in SIH (205400 = V54.0): bound after
+    # the chapters (SIH AC 1995-01, 6 of 7 undecoded diagnoses; 2026-09-30).
+    - CID9_SUP
+    # DATASUS's own list of invalid CID-9 codes: 618080 reads "Código inválido - fora da
+    # CID" rather than (?) (SIH AC 1995-01).
+    - CID9XINV
     - S_CID
     vintage_note: 'SIH spans the CID-9/CID-10 changeover and the older era is still in the
       data: 426 of the 1,590 distinct values observed for this column are 6-digit numeric
@@ -418,6 +424,12 @@ variables:
     - CID9_15
     - CID9_16
     - CID9_17
+    # ICD-9's supplementary V-codes, written 20NNNN in SIH (205400 = V54.0): bound after
+    # the chapters (SIH AC 1995-01, 6 of 7 undecoded diagnoses; 2026-09-30).
+    - CID9_SUP
+    # DATASUS's own list of invalid CID-9 codes: 618080 reads "Código inválido - fora da
+    # CID" rather than (?) (SIH AC 1995-01).
+    - CID9XINV
     - S_CID
     vintage_note: 'Same CID-9/CID-10 span as DIAG_PRINC; both classifications are bound and
       exact matching selects per row. See that entry for the measurement.
@@ -840,7 +852,6 @@ variables:
     codelists:
     - SIGTAP
     - TPROC  # SIH's 8-digit table before SIGTAP (1992-2007); widths never collide
-    - PROC
     derived:
     # bridge: H reads a pre-2008 SIH procedure through the official Tabela Unificada
     # (rl_procedimento_sia_sih) as the SIGTAP procedure that replaced it, so these
@@ -873,7 +884,6 @@ variables:
     codelists:
     - SIGTAP
     - TPROC  # SIH's 8-digit table before SIGTAP (1992-2007); widths never collide
-    - PROC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 23'
@@ -995,7 +1005,6 @@ variables:
     codelists:
     - SIGTAP
     - TPROC  # SIH's 8-digit table before SIGTAP (1992-2007); widths never collide
-    - PROC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 13'
@@ -1212,7 +1221,6 @@ variables:
     codelists:
     - SIGTAP
     - TPROC  # SIH's 8-digit table before SIGTAP (1992-2007); widths never collide
-    - PROC
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 7'

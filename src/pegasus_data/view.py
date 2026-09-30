@@ -227,6 +227,22 @@ def _reference_version(lake_root: Path, codelist: str) -> tuple[int, ...]:
     return tuple(stamps)
 
 
+@lru_cache(maxsize=1)
+def _packed_codelists() -> frozenset[str]:
+    """Every code list the shipped label pack holds, in any validity window."""
+    import pyarrow.parquet as pq
+
+    path = Path(__file__).resolve().parent / "resources" / "labels.parquet"
+    if not path.exists():
+        return frozenset()
+    return frozenset(str(v).upper() for v in pq.read_table(path, columns=["codelist"]).column(0).unique().to_pylist())
+
+
+def _exists_anywhere(lake_root: Path, codelist: str) -> bool:
+    """Does any version of this table exist, whatever the period asked?"""
+    return codelist.upper() in _packed_codelists() or bool(_reference_version(lake_root, codelist))
+
+
 def _vintage_free(codelist: str) -> bool:
     """Is this table one version for every year?
 
@@ -1335,10 +1351,16 @@ def _render_table(
             report.warnings.append(message)
             report.unlabelled.append(field_name)
         elif missing:
-            report.warnings.append(
-                f"{field_name}: labelled from {len(codelists) - len(missing)} of "
-                f"{len(codelists)} bound tables; missing {', '.join(missing)}"
-            )
+            # A table with no version for this period is not missing: ICD-9's
+            # chapter files end in 1997, and every SIH query of 2022 warned that
+            # seventeen of them were "missing" (2026-09-30). Only a table that
+            # exists in no window at all is worth saying.
+            absent = [c for c in missing if not _exists_anywhere(Path(lake), c)]
+            if absent:
+                report.warnings.append(
+                    f"{field_name}: labelled from {len(codelists) - len(missing)} of "
+                    f"{len(codelists)} bound tables; no version at all of {', '.join(absent)}"
+                )
         lookups[key] = merged
         return merged or None
 

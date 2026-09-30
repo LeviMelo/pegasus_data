@@ -360,6 +360,12 @@ variables:
     - CID9_15
     - CID9_16
     - CID9_17
+    # ICD-9's supplementary V-codes, written 20NNNN in SIH (205400 = V54.0): bound after
+    # the chapters (SIH AC 1995-01, 6 of 7 undecoded diagnoses; 2026-09-30).
+    - CID9_SUP
+    # DATASUS's own list of invalid CID-9 codes: 618080 reads "Código inválido - fora da
+    # CID" rather than (?) (SIH AC 1995-01).
+    - CID9XINV
     - S_CID
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
