@@ -61,3 +61,11 @@ a table the project already held:
 
 **Result.** Undecoded columns 32 → 21, cells 134,293 → 48,763 on the fresh-home sweep; see EVALUATION, 2026-09-29, "Measured sentinels and national
 fallbacks".
+
+**Amended the same day.** The first version of the positional rule dropped the
+blanks (`A O` → `AO`). omnisus's SP run reported both forms, and SIA-PS SP
+2023-01 confirms it: `AO` 15,221 rows, `A O` 7. The parser now keeps the kit's
+code as written (trimmed at its ends). The label pack refuses any code with an
+inner blank (`labelpack._useful`, a guard against parse residue), so `TP_DROGA`'s
+curation names both `AO` and `A O` inline, the kit's table behind them. SIA-PS
+SP 2023-01: all 8 values decode (89,766 filled rows).

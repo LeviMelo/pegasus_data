@@ -312,10 +312,11 @@ def parse_cnv_bytes(
             # A positional code field: ``TP_DROGA.CNV`` writes the substances as
             # letters in fixed places (``A  ``, ``A O``, `` CO``). A token split
             # read ``A O`` as code ``O`` labelled "Alcool e Outras Drogas A" —
-            # the same code as "Outras Drogas" (ADR-0106). The files store the
-            # letters without the blanks (``AO``), so the blanks are dropped.
+            # the same code as "Outras Drogas" (ADR-0106). The code is the field
+            # as written, trimmed at its ends: SIA-PS SP 2023-01 holds ``A O`` (7
+            # rows) beside ``AO`` (15,221), which the curation names.
             field = line[positional - width : positional]
-            code = "".join(field.split())
+            code = field.strip()
             label = " ".join(line[tokens[0].end() : positional - width].split())
             if code and label:
                 out.categories.append(CnvCategory(

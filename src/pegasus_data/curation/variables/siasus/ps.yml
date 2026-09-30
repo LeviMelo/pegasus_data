@@ -30,5 +30,10 @@ variables:
       crack, or another drug — DATASUS spells these three codes out explicitly in the
       layout document.'
     code_system: internal
+    # The kit's TP_DROGA.CNV writes the substances as letters in fixed places (A O).
+    # The files mostly omit the blank: SIA-PS SP 2023-01 holds AO 15,221 times and
+    # A O 7 times (ADR-0106). The label pack refuses codes with an inner blank, so the
+    # kit's own A O is written here too.
+    codes: {"AO": "Alcool e Outras Drogas", "A O": "Alcool e Outras Drogas"}
     codelists:
     - TP_DROGA
