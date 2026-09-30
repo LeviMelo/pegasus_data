@@ -6125,19 +6125,26 @@ variables:
   ORIGEM:
     official_name: Origem do registro
     translated_name: Record origin
-    description: 'Flags which source system the AIDS notification record came from - current
-      SINAN entry versus a case migrated from Brazil''s earlier, separate AIDS surveillance
-      database (SI-AIDS), reflecting that historical system merger. Shared identically across
-      the adult and pediatric AIDS forms.
+    description: 'The origin of the record, in the adult and pediatric AIDS files. No document
+      defines its codes. Measured, SINAN-AIDA 2024 (21,096 records): 1 on 10,474, 3 on 9,042,
+      2 on 1,580. The 10,622 records with 2 or 3 have no ID_AGRAVO, no notification date,
+      notification type or notifying geography, and no EVOLUCAO; every record with 1 but one
+      is an ordinary B24 notification. Records with 2 or 3 are therefore not ordinary SINAN
+      notifications; what they are is not established.
 
       '
     code_system: none
-    source: inferred
-    reasoning: 'ORIGEM = origem; values skew overwhelmingly to one code with two rare alternates,
-      consistent with "current system" vs. legacy-migration flags; the field appears identically
-      in both AIDA and AIDC schemas. Reviewed 2026-09-28: no documentation found (searched
-      the SINAN NET v5 and Sinan Online dictionaries in sources/dic_text, the Notificação Individual
-      dictionary, TAB_SINANNET .DEF files and the web).'
+    source: manual
+    asserted_by: pegasus_data
+    reasoning: 'Measured 2026-09-30 (EVALUATION 2026-09-30, omnisus facts verified), matching
+      omnisus''s counts for AIDABR24 exactly. An earlier description (2026-09-28, source
+      inferred) read the codes as "current SINAN versus migrated from SI-AIDS" with two rare
+      alternates; the alternates are half the 2024 file and no document supports that reading,
+      so it was withdrawn. Unverified hypothesis: records found by linking other systems (SIM
+      deaths, laboratory or dispensation registers) rather than notified. A document defining
+      ORIGEM, or linking these records to SIM, would test it. Searched without result: the
+      SINAN NET v5 and Sinan Online dictionaries, the Notificação Individual dictionary,
+      TAB_SINANNET .DEF files and the web (2026-09-28).'
   OUTRAS:
     official_name: Drogas - Outras
     translated_name: Non-standard TB drug used

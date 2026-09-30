@@ -264,7 +264,30 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - **`ID_AGRAVO` "A16." in SINAN-TB** (1,513 in TUBEBR20, 2,289 in TUBEBR25) is
   category A16 with the subcategory left blank. It reads as the category with
   "subcategoria não informada", not as a code missing from ICD-10
-  (2026-09-30).
+  (2026-09-30). The same holds for `A50.` in congenital syphilis: 614 of
+  26,515 records in SINAN-SIFC 2022 (`A509` the rest).
+- **SINAN-HANS files carry no `CLASSI_FIN`** (0 of 26 files; catalog
+  2026-09-30). The notification dictionary's Anexo I
+  (`sources/dic_notif_indiv.txt`) says a leprosy notification enters as
+  "Confirmado", a category "atribuída pelo sistema", and becomes "Descartado"
+  only for diagnostic error. Fifteen other SINAN datasets also lack the column
+  in every file (ACBI, ACGR, ANIM, ANTR, CANC, DERM, ESQU, LERD, LTAN, PAIR,
+  PNEU, TUBE, AIDA, AIDC, ESPO); CHAG, DENG, HANT, LEIV, LEPT and MALA carry
+  it in only some files.
+- **Half of `AIDABR24` is not ordinary notifications.** 10,622 of 21,096
+  records have `ORIGEM` 2 or 3, and none of them has `ID_AGRAVO`, a
+  notification date, a notification type, a notifying geography or
+  `EVOLUCAO`. The other 10,474 have `ORIGEM` 1, and all but one are `B24`
+  notifications. No document defines `ORIGEM` (2026-09-30; omnisus's counts
+  reproduced exactly).
+- **SIH-RD RR 2022-06 is short at the source**: 668 AIHs, against 4,372 in
+  May and 4,134 in July. The file is 50,318 bytes, against 252,712–368,638
+  for the state's other 2022 months. Linkage and counts for RR 2022 lack most
+  of June's admissions (2026-09-30).
+- **The SIM `IDADE` TabWin table reads 000–099 as "Ignorado".** The data put
+  minutes there (ADR-0070). Brazil 2022 has 2,598 deaths with unit 0, all
+  quantities 1–59, and 2,537 of them died on their birth day. The curation
+  labels 001–099 as minutes; the table still labels `000`, which is unfilled.
 
 ### 1.10 Identifiers in public files (2026-08-21, F §3j)
 
@@ -292,6 +315,10 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - Many tables write the code into the label (`BR_MUNICIPALFA`: `120001 →
   '120001 Acrelândia, AC'`) (F §3k).
 - A `.CNV` expands ranges: one "Brasília" rule is 10,000 codes (ARCH §22.7).
+- **SIM's `TABPAIS` names three codes twice**, in both the CID-9 and CID-10
+  kits: 044 Camboja and Laos, 073 Eire and Irlanda, 081 Falkland and
+  Malvinas. The first pair is two countries. The country labels keep both
+  names (2026-09-30).
 
 ### 2.2 `.DEF` grammar (F §1 V3)
 

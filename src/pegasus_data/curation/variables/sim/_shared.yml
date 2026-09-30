@@ -1031,6 +1031,12 @@ variables:
 
       '
     code_system: internal
+    # 001-099 are minutes (ADR-0070, measured against DTNASC/DTOBITO; Brazil 2022:
+    # 2,598 deaths with unit 0, 2,537 of them on the birth day). The TabWin IDADE table
+    # reads the whole range 000-099 as "Ignorado"; that range stays the fallback, and
+    # still labels 000, which is unfilled (EVALUATION 2026-09-30, omnisus facts).
+    codes: {"001": "1 minuto", "002": "2 minutos", "003": "3 minutos", "004": "4 minutos", "005": "5 minutos", "006": "6 minutos", "007": "7 minutos", "008": "8 minutos", "009": "9 minutos", "010": "10 minutos", "011": "11 minutos", "012": "12 minutos", "013": "13 minutos", "014": "14 minutos", "015": "15 minutos", "016": "16 minutos", "017": "17 minutos", "018": "18 minutos", "019": "19 minutos", "020": "20 minutos", "021": "21 minutos", "022": "22 minutos", "023": "23 minutos", "024": "24 minutos", "025": "25 minutos", "026": "26 minutos", "027": "27 minutos", "028": "28 minutos", "029": "29 minutos", "030": "30 minutos", "031": "31 minutos", "032": "32 minutos", "033": "33 minutos", "034": "34 minutos", "035": "35 minutos", "036": "36 minutos", "037": "37 minutos", "038": "38 minutos", "039": "39 minutos", "040": "40 minutos", "041": "41 minutos", "042": "42 minutos", "043": "43 minutos", "044": "44 minutos", "045": "45 minutos", "046": "46 minutos", "047": "47 minutos", "048": "48 minutos", "049": "49 minutos", "050": "50 minutos", "051": "51 minutos", "052": "52 minutos", "053": "53 minutos", "054": "54 minutos", "055": "55 minutos", "056": "56 minutos", "057": "57 minutos", "058": "58 minutos", "059": "59 minutos", "060": "60 minutos", "061": "61 minutos", "062": "62 minutos", "063": "63 minutos", "064": "64 minutos", "065": "65 minutos", "066": "66 minutos", "067": "67 minutos", "068": "68 minutos", "069": "69 minutos", "070": "70 minutos", "071": "71 minutos", "072": "72 minutos", "073": "73 minutos", "074": "74 minutos", "075": "75 minutos", "076": "76 minutos", "077": "77 minutos", "078": "78 minutos", "079": "79 minutos", "080": "80 minutos", "081": "81 minutos", "082": "82 minutos", "083": "83 minutos", "084": "84 minutos", "085": "85 minutos", "086": "86 minutos", "087": "87 minutos", "088": "88 minutos", "089": "89 minutos", "090": "90 minutos", "091": "91 minutos", "092": "92 minutos", "093": "93 minutos", "094": "94 minutos", "095": "95 minutos", "096": "96 minutos", "097": "97 minutos", "098": "98 minutos", "099": "99 minutos"}
+    codelist: IDADE
     source: layout_doc
     derived:
     - name: IDADE_anos

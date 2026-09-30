@@ -253,6 +253,29 @@ def _wrap(text: str, width: int) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
+def _refresh_curation(catalog_path: Path) -> None:
+    """Bring the catalog's curated text up to the shipped curation before reading it."""
+    if not Path(catalog_path).exists():
+        return
+    try:
+        from .ontology import CURATION
+        from .semantics.curation import curation_is_current, ensure_current
+
+        reader = _Store(catalog_path, read_only=True)
+        try:
+            if curation_is_current(reader, CURATION):
+                return
+        finally:
+            reader.close()
+        writer = _Store(catalog_path)
+        try:
+            ensure_current(writer, CURATION)
+        finally:
+            writer.close()
+    except Exception:  # noqa: BLE001 - a locked catalog still answers, with what it has
+        return
+
+
 def info(
     target: str | None = None,
     *,
@@ -269,6 +292,7 @@ def info(
     it is unambiguous.
     """
     cfg = settings or load_settings(root=Path(root) if root else None)
+    _refresh_curation(cfg.catalog_path)
     store = _Store(cfg.catalog_path, read_only=True)
     onto = Ontology.load()
     try:

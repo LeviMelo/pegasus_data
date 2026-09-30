@@ -501,6 +501,20 @@ def note_curation_loaded(catalog: Catalog, root: Path) -> None:
     )
 
 
+def ensure_current(catalog: Catalog, root: Path) -> dict[str, object] | None:
+    """Load the shipped curation when it changed since this catalog last loaded it.
+
+    Returns what was loaded, or None when the catalog was already current. Every
+    reader of curated text goes through here: ``fetch`` did, ``info`` did not,
+    and printed a dataset's superseded gotchas until the next query (2026-09-30).
+    """
+    if curation_is_current(catalog, root):
+        return None
+    loaded = load_curation(catalog, root)
+    note_curation_loaded(catalog, root)
+    return loaded
+
+
 def load_curation(catalog: Catalog, root: Path) -> dict[str, object]:
     """Seed the catalog from ``curation/``. Replaces what the files own.
 

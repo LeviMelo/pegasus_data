@@ -120,3 +120,4 @@ in.
 | 2026-09-30 | [Private-sector links (CIHA) and what CIHA's "residence" really holds](docs/evaluation/2026-09-30-private-sector-links-and-ciha-residence.md) | live (`link`, fresh home) |
 | 2026-09-30 | [CIHA's residence field tested against SINASC (linked deliveries, six states)](docs/evaluation/2026-09-30-ciha-residence-tested-against-sinasc.md) | live (`scripts/ciha_residence_check.py`, fresh and national homes) |
 | 2026-09-30 | [Residence scored given the place of care (ADR-0115)](docs/evaluation/2026-09-30-residence-given-the-place-of-care.md) | live (`link(refresh=True)`, fresh home) |
+| 2026-09-30 | [The omnisus facts, measured on our data (SIM minutes, TABPAIS, CLASSI_FIN, ORIGEM, RR June 2022)](docs/evaluation/2026-09-30-omnisus-facts-verified.md) | live (fresh and national homes), catalog |

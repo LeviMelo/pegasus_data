@@ -49,7 +49,8 @@ datasets:
     what_one_row_is: one notification of occupational exposure to biological material
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 81 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_ACGR:
     system: SINAN
@@ -62,7 +63,8 @@ datasets:
     what_one_row_is: one notification of serious work-related accident
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 81 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_ANIM:
     system: SINAN
@@ -75,7 +77,8 @@ datasets:
     what_one_row_is: one notification of venomous animal accident
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 74 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_ANTR:
     system: SINAN
@@ -88,7 +91,8 @@ datasets:
     what_one_row_is: one notification of human anti-rabies care
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 81 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_CANC:
     system: SINAN
@@ -101,7 +105,8 @@ datasets:
     what_one_row_is: one notification of work-related cancer
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 77 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_CHAG:
     system: SINAN
@@ -114,7 +119,8 @@ datasets:
     what_one_row_is: one notification of acute Chagas disease
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation,
+        including discarded, in 73 of 101 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_CHIK:
     system: SINAN
@@ -153,7 +159,8 @@ datasets:
     what_one_row_is: one notification of dengue
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation,
+        including discarded, in 82 of 110 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_DERM:
     system: SINAN
@@ -166,7 +173,8 @@ datasets:
     what_one_row_is: one notification of work-related dermatosis
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 81 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_DIFT:
     system: SINAN
@@ -192,7 +200,8 @@ datasets:
     what_one_row_is: one notification of schistosomiasis
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 77 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_FMAC:
     system: SINAN
@@ -231,7 +240,8 @@ datasets:
     what_one_row_is: one notification of hantavirus infection
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation,
+        including discarded, in 74 of 103 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_HEPA:
     system: SINAN
@@ -270,7 +280,8 @@ datasets:
     what_one_row_is: one notification of visceral leishmaniasis
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation,
+        including discarded, in 76 of 104 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_LEPT:
     system: SINAN
@@ -283,7 +294,8 @@ datasets:
     what_one_row_is: one notification of leptospirosis
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation,
+        including discarded, in 80 of 108 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_LERD:
     system: SINAN
@@ -296,7 +308,8 @@ datasets:
     what_one_row_is: one notification of repetitive strain / work-related musculoskeletal disorder
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 81 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_LTAN:
     system: SINAN
@@ -309,7 +322,8 @@ datasets:
     what_one_row_is: one notification of cutaneous leishmaniasis
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 104 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_MALA:
     system: SINAN
@@ -322,7 +336,8 @@ datasets:
     what_one_row_is: one notification of malaria
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation,
+        including discarded, in 74 of 86 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_MENI:
     system: SINAN
@@ -348,7 +363,8 @@ datasets:
     what_one_row_is: one notification of noise-induced hearing loss, work-related
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 81 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_PEST:
     system: SINAN
@@ -387,7 +403,8 @@ datasets:
     what_one_row_is: one notification of work-related pneumoconiosis
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 81 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_RAIV:
     system: SINAN
@@ -491,7 +508,8 @@ datasets:
     what_one_row_is: one notification of tuberculosis
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 97 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_ZIKA:
     system: SINAN
@@ -527,7 +545,8 @@ datasets:
     what_one_row_is: one AIDS case notified in a patient aged 13 or over
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 18 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - AIDS in adults and in children are separate datasets with different case definitions. Pooling them silently mixes two definitions.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_AIDC:
@@ -539,7 +558,8 @@ datasets:
     what_one_row_is: one AIDS case notified in a child under 13
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 18 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - The paediatric case definition differs from the adult one and the transmission route is usually vertical, so these rows are not interchangeable with AIDA.
   SINAN_BOTU:
     system: SINAN
@@ -582,7 +602,8 @@ datasets:
     what_one_row_is: one notified case of sporotrichosis
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification, not a confirmed case. These files carry no CLASSI_FIN column
+        (0 of 10 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Notifiable only in some states and only recently, so a national series understates it and the understatement varies by state.
   SINAN_EXAN:
     system: SINAN
@@ -604,7 +625,10 @@ datasets:
     what_one_row_is: one notified case of leprosy
     unit_of_analysis: notification
     gotchas:
-      - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
+      - A row is a notification. These files carry no CLASSI_FIN column (0 of 26 files, catalog
+        2026-09-30). By the notification dictionary's Anexo I (sources/dic_notif_indiv.txt), a
+        leprosy notification enters as confirmed, a category the system assigns, and becomes
+        discarded only for diagnostic error (tp_administrativa 5).
       - The operational classification sets the treatment regimen and its length, so a case and its outcome are separated by months to years.
   SINAN_HIVA:
     system: SINAN
