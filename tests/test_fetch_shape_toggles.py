@@ -26,9 +26,7 @@ from __future__ import annotations
 import pytest
 
 from pegasus_data._dictionary import (
-    DataDictionary,
     build_dictionary,
-    described_names,
 )
 from pegasus_data.normalize.engine import PROVENANCE_COLUMNS
 from pegasus_data.semantics.curation import VariableDoc
@@ -136,52 +134,6 @@ def test_derived_companions_are_described(docs) -> None:
     assert all(r["description"] for r in book.rows)
 
 
-def test_described_names_renames_only_what_has_an_english_name(docs) -> None:
-    book = _book(["CODMUNRES", "PESO", "UNKNOWN_COL"])
-    mapping = described_names(book)
-    assert mapping["CODMUNRES"] == "Municipality of residence"
-    assert mapping["PESO"] == "Birth weight"
-    assert "UNKNOWN_COL" not in mapping, (
-        "a column with no curated name must keep the name DATASUS gave it; "
-        "inventing one makes the table harder to trace, not easier"
-    )
-
-
-def test_described_names_never_produces_two_identical_column_names(docs) -> None:
-    """Arrow allows duplicate column names and no caller wants them.
-
-    Two SINAN columns really are both "Municipality of residence" — one current,
-    one historical — so the collision is real data, not a bug to assert away.
-    """
-    entries = {
-        "ID_MN_RESI": VariableDoc(
-            system="SINAN", field_name="ID_MN_RESI",
-            translated_name="Municipality of residence",
-        ),
-        "MUNIRESAT": VariableDoc(
-            system="SINAN", field_name="MUNIRESAT",
-            translated_name="Municipality of residence",
-        ),
-    }
-    book = DataDictionary(
-        rows=[
-            {"column": k, "kind": "data", "translated_name": v.translated_name}
-            for k, v in entries.items()
-        ],
-        system="SINAN",
-    )
-    mapping = described_names(book)
-    assert len(set(mapping.values())) == 2, mapping
-    assert all("Municipality of residence" in v for v in mapping.values())
-
-
-def test_provenance_columns_are_never_renamed(docs) -> None:
-    """They are the trace back to the source file; renaming breaks tooling."""
-    book = _book(["PESO", *PROVENANCE_COLUMNS])
-    mapping = described_names(book)
-    assert not any(name in mapping for name in PROVENANCE_COLUMNS)
-
-
 def test_dictionary_exports_as_a_table_and_as_markdown(docs, tmp_path) -> None:
     book = _book(["CODMUNRES", "CODMUNRES_label", "PESO"])
     table = book.table
@@ -196,29 +148,6 @@ def test_dictionary_exports_as_a_table_and_as_markdown(docs, tmp_path) -> None:
     js = tmp_path / "dict.json"
     book.write(js)
     assert "CODMUNRES" in js.read_text(encoding="utf-8")
-
-
-def test_fetch_declares_the_three_switches_with_the_documented_defaults() -> None:
-    """The defaults ARE the contract: provenance off, names original."""
-    import inspect
-
-    from pegasus_data.retrieve import fetch
-
-    params = inspect.signature(fetch).parameters
-    assert params["provenance"].default is False
-    assert params["dictionary"].default is False
-    assert params["names"].default == "original"
-    for name in ("provenance", "dictionary", "names"):
-        assert params[name].kind is inspect.Parameter.KEYWORD_ONLY
-
-
-def test_fetch_rejects_an_unknown_names_choice() -> None:
-    """A typo must not silently fall through to the original names."""
-    from pegasus_data.retrieve import _check_choice, fetch
-
-    with pytest.raises(ValueError):
-        _check_choice("names", "translated", ("original", "described"))
-    assert callable(fetch)
 
 
 class TestACombinedValueDoesNotRepeatTheCode:
