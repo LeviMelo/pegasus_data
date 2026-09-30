@@ -61,9 +61,15 @@ def extensions(catalog: Path, known: set[str]) -> dict[str, tuple[str, str]]:
     if not catalog.exists():
         return {}
     con = sqlite3.connect(f"file:{catalog}?mode=ro", uri=True)
-    best: dict[str, str] = {}
-    for code, label in con.execute(
-        "SELECT value_raw, value_label FROM dictionary "
+    # Several kits name the same code; a .CNV often glues synonyms onto a
+    # label ("MEDICO CLINICO  CLINICO GERAL MEDICO CLINICO GERAL MEDICO" for
+    # 223115) while CNES's DBF has it as a column ("Médico clínico"). A DBF
+    # label wins, then an accented one, the most common, the shorter (ADR-0104).
+    from collections import Counter
+
+    seen: dict[str, Counter] = {}
+    for code, label, source in con.execute(
+        "SELECT value_raw, value_label, source FROM dictionary "
         "WHERE upper(value_group) IN ('CBO', 'CBO2002', 'CBO_02', 'OCUPACAO', 'MEDIC_02') "
         "AND value_label IS NOT NULL"
     ):
@@ -72,10 +78,14 @@ def extensions(catalog: Path, known: set[str]) -> dict[str, tuple[str, str]]:
         # (CNES 2231F9, 5152A1) where CBO has none.
         if not re.fullmatch(r"[0-9A-Z]{6}", code) or code in known:
             continue
-        text = re.sub(r"^\d{4}[-.]?\d{2}\s+", "", str(label).strip())
-        if len(text) > len(best.get(code, "")):
-            best[code] = text
-    return {c: (lbl, "datasus extension") for c, lbl in best.items()}
+        text = re.sub(r"\s+", " ", re.sub(r"^\d{4}[-.]?\d{2}\s+", "", str(label).strip()))
+        seen.setdefault(code, Counter())[(source == "dbf_lookup", text)] += 1
+    best = {
+        # ... and of two spellings of one text, the accented ("Médico clínico").
+        code: max(counts.items(), key=lambda kv: (kv[0][0], not kv[0][1].isascii(), kv[1], -len(kv[0][1])))[0][1]
+        for code, counts in seen.items()
+    }
+    return {c: (lbl, "not in the current CBO 2002") for c, lbl in best.items()}
 
 
 def main() -> int:

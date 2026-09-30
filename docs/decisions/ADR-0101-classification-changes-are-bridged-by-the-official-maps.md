@@ -18,10 +18,10 @@
   old code with exactly one successor, 31 have two, and 128 have none.
 
 **Decision.**
-- **The map ships** as `resources/sigtap_bridge.parquet` (old code, `A`/`H`,
+- **The map ships** (since ADR-0104 in `resources/bridges.parquet`, with the other bridges; first as `sigtap_bridge.parquet`) (old code, `A`/`H`,
   old name, SIGTAP code, competence), written by `scripts/build_sigtap.py`
   from the Tabela Unificada zip.
-- **A derived recipe may declare `bridge: A|H`** (`view.sigtap_bridged`). A
+- **A derived recipe may declare `bridge: A|H`** (`view.bridged`). A
   10-digit code is itself; an old code becomes its successor only when the
   official map names exactly one, and is null otherwise. The bridge never
   chooses between successors.

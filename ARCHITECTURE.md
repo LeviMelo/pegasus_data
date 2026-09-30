@@ -159,7 +159,7 @@ local state (`blobs`, `fetches`, `lake_partitions`, `build_outcomes`,
 | `labels.parquet` (30 MB) | 3.65M codelist rows as code ranges, by system and vintage | `labelpack.py`, `persist/reference.py` fallback, `geography.py` |
 | `labels_crosswalk.parquet` (11 MB) | historical CNES↔CNPJ claims from older kits; the registry answers first (ADR-0100) | `crosswalk.py` |
 | `icd10`, `cbo2002`, `sigtap`, `banks`, `countries` `.parquet` | canonical classifications, one table for every system (ADR-0087) | `persist/reference.py` |
-| `sigtap_bridge.parquet` | the official map from pre-2008 SIA/SIH procedures to SIGTAP (ADR-0101) | `view.sigtap_bridged` |
+| `bridges.parquet` | every classification bridge: pre-2008 SIA/SIH procedures → SIGTAP (official), CBO 1994 → CBO 2002 (CNES's measured 2007 conversion, then MTE's) (ADR-0101, ADR-0104) | `view.bridged`; built by `scripts/build_bridges.py` |
 | `geography.parquet`, `municipalities.parquet` | health-region memberships | `geography.py`, `_aggregate.py` |
 | `query_capabilities.json`, `manifest.json` | compiled capabilities; the resource manifest with checksums | `_query_engine/capabilities.py`, `_resources.py`, `serve/` |
 

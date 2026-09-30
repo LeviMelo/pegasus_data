@@ -983,45 +983,59 @@ def _label_via(lake: Path, system: str, keys: object, via: Mapping[str, str]) ->
     return pc.take(pc.cast(table.column(field_name), pa.string()), at).combine_chunks()
 
 
+#: A recipe's short names for bridges, and the classification each lands in.
+BRIDGE_NAMES = {"A": "SIGTAP_A", "H": "SIGTAP_H"}
+BRIDGE_TARGETS = {"SIGTAP_A": ("SIGTAP", 10), "SIGTAP_H": ("SIGTAP", 10), "CBO94": ("CBO2002", 6)}
+#: A claim crosses when it holds for this share of the evidence or more.
+BRIDGE_UNIQUE = 0.95
+
+
 @lru_cache(maxsize=1)
-def _bridge_table() -> dict[tuple[str, str], tuple[str, ...]]:
-    """``(old code, A|H) -> SIGTAP codes`` from the official Tabela Unificada."""
+def _bridges() -> dict[tuple[str, str], tuple[tuple[str, float], ...]]:
+    """``(bridge, old code) -> ((new code, strength), …)``, strongest first."""
     from importlib.resources import files
 
     import pyarrow.parquet as _pq
 
-    path = files("pegasus_data.resources") / "sigtap_bridge.parquet"
     try:
-        table = _pq.read_table(str(path))
+        table = _pq.read_table(str(files("pegasus_data.resources") / "bridges.parquet"))
     except (FileNotFoundError, OSError):
         return {}
-    out: dict[tuple[str, str], set[str]] = {}
-    for old, kind, new in zip(
-        table["old_code"].to_pylist(), table["old_system"].to_pylist(), table["sigtap_code"].to_pylist(), strict=True
+    out: dict[tuple[str, str], list[tuple[str, float]]] = {}
+    for bridge, old, new, strength in zip(
+        table["bridge"].to_pylist(), table["old_code"].to_pylist(),
+        table["new_code"].to_pylist(), table["strength"].to_pylist(), strict=True,
     ):
-        out.setdefault((str(old), str(kind)), set()).add(str(new))
-    return {k: tuple(sorted(v)) for k, v in out.items()}
+        out.setdefault((str(bridge), str(old)), []).append((str(new), float(strength)))
+    return {k: tuple(sorted(v, key=lambda x: -x[1])) for k, v in out.items()}
 
 
-def sigtap_bridged(codes: object, system_kind: str) -> pa.Array:
-    """Each procedure as a SIGTAP code (ADR-0101).
+def bridged(codes: object, bridge: str) -> pa.Array:
+    """Each code in the classification that replaced its own (ADR-0101, ADR-0104).
 
-    A 10-digit code already is one. An old 8-digit SIA (``A``) or SIH (``H``)
-    code becomes the SIGTAP procedure the official table says replaced it,
-    when exactly one did; with several (98 old codes) or none it stays null
-    rather than choosing.
+    A code already of the target's width is itself. A code of the replaced
+    classification crosses when one claim holds for ``BRIDGE_UNIQUE`` of the
+    evidence (the official link, or the share of professionals DATASUS moved);
+    otherwise it stays null rather than choosing.
     """
-    bridge = _bridge_table()
+    name = BRIDGE_NAMES.get(bridge.upper(), bridge.upper())
+    _target, width = BRIDGE_TARGETS.get(name, ("", 0))
+    table = _bridges()
     values = codes.to_pylist() if hasattr(codes, "to_pylist") else list(codes)  # type: ignore[union-attr]
     out: list[str | None] = []
     for v in values:
         code = str(v).strip() if v is not None else ""
-        if len(code) == 10 and code.isdigit():
+        if width and len(code) == width:
             out.append(code)
             continue
-        targets = bridge.get((code, system_kind), ())
-        out.append(targets[0] if len(targets) == 1 else None)
+        claims = table.get((name, code), ())
+        out.append(claims[0][0] if claims and claims[0][1] >= BRIDGE_UNIQUE else None)
     return pa.array(out, type=pa.string())
+
+
+def bridge_target(bridge: str) -> str:
+    """The classification a bridge lands in (SIGTAP, CBO2002)."""
+    return BRIDGE_TARGETS.get(BRIDGE_NAMES.get(bridge.upper(), bridge.upper()), ("SIGTAP", 0))[0]
 
 
 def _labelled_codes(lake: Path, classification: str, codes: object) -> pa.Array | None:
@@ -1660,10 +1674,10 @@ def _apply_derived(
                 # Across the 2008 change of classification: an old SIA/SIH
                 # procedure becomes the SIGTAP procedure that replaced it, when
                 # exactly one did (ADR-0101).
-                codes_in = sigtap_bridged(codes_in, str(bridge))
+                codes_in = bridged(codes_in, str(bridge))
             hierarchy = recipe.get("hierarchy")
             if bridge and not hierarchy:
-                derived_column = _labelled_codes(lake, "SIGTAP", codes_in)
+                derived_column = _labelled_codes(lake, str(recipe.get("to") or bridge_target(str(bridge))), codes_in)
                 if derived_column is not None:
                     rendered = rendered.append_column(column_name, derived_column)
                     report.derived_added.append(column_name)

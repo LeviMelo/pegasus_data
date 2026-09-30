@@ -128,3 +128,4 @@ last, comes first.
 | [ADR-0101](docs/decisions/ADR-0101-classification-changes-are-bridged-by-the-official-maps.md) | 2026-09-29 | A change of classification is bridged by the official map, and only where the map is one-to-one | active | amends ADR-0092 |
 | [ADR-0102](docs/decisions/ADR-0102-no-identifier-inside-a-label.md) | 2026-09-29 | No CNPJ or CPF inside a label, wherever the label comes from | active | amends ADR-0100 |
 | [ADR-0103](docs/decisions/ADR-0103-legacy-sia-establishments-by-state-and-archive-members-measured.md) | 2026-09-29 | SIA's pre-2008 establishment codes are keyed by the file's state, and a multi-table archive's members are measured, not assumed | active | amends ADR-0077, ADR-0088, ADR-0098 |
+| [ADR-0104](docs/decisions/ADR-0104-cbo-1994-bridged-by-the-conversion-datasus-applied.md) | 2026-09-29 | CBO 1994 is bridged to CBO 2002 by the conversion DATASUS applied, measured, and all bridges are one resource | active | amends ADR-0101 |

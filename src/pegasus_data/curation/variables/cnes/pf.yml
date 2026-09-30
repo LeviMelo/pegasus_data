@@ -25,6 +25,16 @@ variables:
     notes: The catalog also surfaces low-confidence bindings to narrower medical-only
       codelists (e.g. MEDICOS/MEDIC_02/NIVSUPER); CBO covers all occupations at a CNES-registered
       establishment, not physicians only.
+    derived:
+    # CNES moved from CBO 1994 to CBO 2002 in August 2007. The bridge is the
+    # conversion DATASUS applied to the registered professionals (measured on
+    # 493,609 of them), MTE's official conversion for other CBO 94 codes, and only
+    # where one target holds for 95% or more (ADR-0104).
+    - name: CBO_2002
+      from: [CBO]
+      bridge: CBO94
+      to: CBO2002
+      rule: the occupation in CBO 2002 across the 2007 change (06105 MEDICOS EM GERAL = 223115), ADR-0104
   CBOUNICO:
     official_name: Registro unico do Codigo da especialidade do profissional
     translated_name: Unique CPF+CBO marker
