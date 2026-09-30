@@ -27,6 +27,7 @@ from typing import Any
 import duckdb
 import numpy as np
 import pyarrow as pa
+import pyarrow.compute as pc
 
 from ..semantics.curation import read_yaml
 from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, upper95, validate
@@ -57,8 +58,15 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
         else Comparison(str(a), str(b), left_roles[str(a)].type)
         for a, b in body["compare"]
     )
+    # A block key is [left, right] or [left, right, "typo"]: the typo form also
+    # matches the left date through its plausible mistypings (typo_variants).
     blocks = tuple(
-        tuple((str(a), "..".join(b) if isinstance(b, list) else str(b)) for a, b in block) for block in body["blocks"]
+        tuple(
+            (str(key[0]), "..".join(key[1]) if isinstance(key[1], list) else str(key[1]))
+            + (("typo",) if len(key) > 2 and key[2] == "typo" else ())
+            for key in block
+        )
+        for block in body["blocks"]
     )
     return ProbabilisticSpec(compare, blocks, float(body.get("target_fdr", 0.01)),
                              str(body.get("control_role") or spec.control_role))
@@ -106,12 +114,84 @@ def _condition(a: str, b: str) -> str:
     return f"l.{_q(a)} = r.{_q(b)}"
 
 
+def typo_variants(dates: pa.Array) -> tuple[np.ndarray, pa.Array]:
+    """Plausible mistypings of each date, as (row index, variant date).
+
+    From the error channel measured on SIA's encrypted CNS (EVALUATION
+    2026-09-30, national linkage measurements): one digit replaced by a key
+    adjacent to it on the numeric keypad or top row (60% of one-digit errors),
+    two neighbouring digits swapped, and day and month exchanged. A variant
+    that is not a calendar date is dropped, and so is the original.
+    """
+    from .levels import _ADJ, _digits
+
+    digits = _digits(dates)
+    valid = digits[:, 0] >= 0
+    rows_all, texts = [], []
+    base = np.nonzero(valid)[0]
+    d = digits[base]
+    for pos in range(8):
+        for new in range(10):
+            hit = _ADJ[d[:, pos].clip(0), new] & (d[:, pos] != new)
+            if hit.any():
+                v = d[hit].copy()
+                v[:, pos] = new
+                rows_all.append(base[hit])
+                texts.append(v)
+    for pos in range(7):
+        differ = d[:, pos] != d[:, pos + 1]
+        if differ.any():
+            v = d[differ].copy()
+            v[:, [pos, pos + 1]] = v[:, [pos + 1, pos]]
+            rows_all.append(base[differ])
+            texts.append(v)
+    swap = (d[:, 0:2] != d[:, 2:4]).any(axis=1)
+    if swap.any():
+        v = d[swap].copy()
+        v[:, 0:4] = np.concatenate([v[:, 2:4], v[:, 0:2]], axis=1)
+        rows_all.append(base[swap])
+        texts.append(v)
+    if not rows_all:
+        return np.zeros(0, dtype=np.int64), pa.array([], pa.date32())
+    rows = np.concatenate(rows_all)
+    grid = np.concatenate(texts)
+    strings = ["".join(map(str, r)) for r in grid]
+    parsed = pc.cast(pc.strptime(pa.array(strings), format="%d%m%Y", unit="s", error_is_null=True), pa.date32())
+    keep = pc.is_valid(parsed).to_numpy(zero_copy_only=False)
+    return rows[keep], parsed.filter(pa.array(keep))
+
+
+def _typo_view(con: duckdb.DuckDBPyConnection, left_view: str, role: str) -> str:
+    """A temp table of (_id, variant) for one date role of one left view."""
+    name = f"typo_{left_view}_{abs(hash(role)) % 10**8}"
+    exists = con.execute(f"SELECT count(*) FROM information_schema.tables WHERE table_name = '{name}'").fetchone()[0]
+    if not exists:
+        base = con.execute(f"SELECT DISTINCT _id, {_q(role)} AS d FROM {left_view} WHERE {_q(role)} IS NOT NULL").fetch_arrow_table()
+        idx, variants = typo_variants(base.column("d").combine_chunks())
+        table = pa.table({"_id": base.column("_id").take(pa.array(idx)), "v": variants})
+        con.register(f"{name}_src", table)
+        con.execute(f"CREATE TEMP TABLE {name} AS SELECT * FROM {name}_src")
+        con.unregister(f"{name}_src")
+    return name
+
+
 def _candidates(con: duckdb.DuckDBPyConnection, left_view: str, blocks) -> str:
     parts = []
     for block in blocks:
-        cond = " AND ".join(_condition(a, b) for a, b in block)
-        notnull = " AND ".join(f"l.{_q(a)} IS NOT NULL" for a, _ in block)
-        parts.append(f"SELECT DISTINCT l._id AS l, r._id AS r FROM {left_view} l JOIN R r ON {cond} WHERE {notnull}")
+        typo = [k for k in block if len(k) > 2]
+        conds, notnull, joins = [], [], ""
+        for key in block:
+            a, b = key[0], key[1]
+            if len(key) > 2:
+                view = _typo_view(con, left_view, a)
+                joins = f" JOIN {view} tv ON tv._id = l._id"
+                conds.append(f"tv.v = r.{_q(b)}")
+            else:
+                conds.append(_condition(a, b))
+                notnull.append(f"l.{_q(a)} IS NOT NULL")
+        where = f" WHERE {' AND '.join(notnull)}" if notnull else ""
+        del typo
+        parts.append(f"SELECT DISTINCT l._id AS l, r._id AS r FROM {left_view} l{joins} JOIN R r ON {' AND '.join(conds)}{where}")
     return " UNION ".join(parts)
 
 

@@ -112,9 +112,15 @@ links:
         - [birth.facility, admission.facility]
         - [birth.date, [admission.start, admission.end]]
         - [mother.residence, patient.residence]
+      # Every block keeps the mother's birth date. A block of hospital + day in
+      # the stay + residence pairs each birth with every woman in the ward that
+      # day: harmless in RR, hundreds of millions of candidates nationally
+      # (2026-09-30). A typo-variant block on the mother's birth date was measured
+      # and left out: a one-digit typo earns ~5 bits against ~13 for equality, so
+      # such pairs stay under the 1% threshold, and the extra candidates only
+      # add runner-ups (RR 8,447 -> 8,444, AC 10,128 -> 9,969; ADR-0114).
       blocks:
         - [[mother.birth_date, patient.birth_date], [birth.facility, admission.facility]]
-        - [[birth.facility, admission.facility], [birth.date, [admission.start, admission.end]], [mother.residence, patient.residence]]
         - [[mother.birth_date, patient.birth_date], [birth.date, [admission.start, admission.end]]]
       target_fdr: 0.01
 
