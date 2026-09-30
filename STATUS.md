@@ -12,7 +12,7 @@ fast-forwarded into `master` on 2026-09-30, locally (not pushed). Work
 continues on branch **`linkage`**: record linkage across systems, planned in
 `docs/plans/linkage.md` (ADR-0107).
 
-## Record linkage (branch `linkage`, ADR-0107 to ADR-0114)
+## Record linkage (branch `linkage`, ADR-0107 to ADR-0117)
 
 - **Foundations.**
   - Record identity `(_blob_sha256, _row)` on every row.
@@ -29,16 +29,34 @@ continues on branch **`linkage`**: record linkage across systems, planned in
     verdicts use the 95% upper bound, so ties and small samples are refused.
   - **ADR-0114:** every block keeps an identifying key; typo-variant blocks
     exist and are used only where they add links.
-- **Five spine links, RR and AC 2022:**
-  - viable: SIH deaths → SIM, infant deaths → SINASC, deliveries → SIH;
+  - **ADR-0115:** residence is scored given the place of care. Agreement
+    away from the hospital weighs about 4.7 bits; at it, 0.5–1.9 bits.
+  - **ADR-0117:**
+    - a newborn admission's ICD-10 P07 codes weigh against the birth's
+      weight and weeks;
+    - a level no anchor showed never counts for a match.
+- **Five spine links and two private-sector links, 2022:**
+  - viable (RR, AC): SIH deaths → SIM, infant deaths → SINASC, deliveries →
+    SIH;
+  - viable in SE: newborn admissions → SINASC, 406 pairs (ADR-0117). RR and
+    AC certify only with caution; 89% of newborn admissions carry no size
+    code (OQ-62);
   - not certifiable per state: maternal deaths (too few);
-  - not identifiable with what SIH records about a newborn: neonatal
-    admissions (OQ-62).
+  - CIHA (non-SUS) deaths → SIM and births → CIHA deliveries: viable in SE.
+    The timeline shows non-SUS deliveries.
   
   omnisus's RR study is reproduced to the pair.
-- **National.** SIH in-hospital deaths → SIM, 2022: 513,956 of 605,542 linked
-  (84.9%), deterministic, 0.1% chance. Probabilistic national runs are in
-  progress.
+- **National, deterministic, 2022:**
+  - SIH in-hospital deaths → SIM: 513,956 of 605,542 (84.9%), 0.1% chance;
+  - infant deaths → SINASC: 20,909 of 28,217 (74.1%), 1.19% chance, viable.
+
+  The probabilistic national runs are being recomputed under the current
+  engine (`link --refresh`), then extended to the newborn, maternal and CIHA
+  links.
+- **CIHA's residence field**, tested against SINASC on linked deliveries: it
+  records the hospital's municipality for 85–100% of mothers who live
+  elsewhere (EVALUATION 2026-09-30). The first version of this claim rested on
+  a match rate alone and was corrected after the user challenged it.
 - **Surfaces.**
   - `link(method=…)`, `role_table()`, `pegasus-data link`;
   - results persisted in `<lake>/links/` and reused (ADR-0112);
@@ -56,7 +74,16 @@ continues on branch **`linkage`**: record linkage across systems, planned in
   - SINASC `LOCNASC` 5 is *Aldeia indígena* (1,966 births in 2022 read
     "Ignorado");
   - SIH `IDENT` from the layout;
-  - SIH-SP `SERV_CLA` 000000 = not filled in;
+  - SIH-SP `SERV_CLA` 000000 reads "Nenhum serviço/classificação
+    registrado" (missing only where the procedure requires a service);
+  - SIM `IDADE` 001–099 are minutes (the TabWin table said "Ignorado": 2,598
+    deaths in 2022);
+  - SIM `TABPAIS` codes named twice keep both names;
+  - `CLASSI_FIN` texts corrected for 22 SINAN datasets that lack it in some
+    or all files;
+  - SINAN `ORIGEM` described from measurement, not inference;
+  - `info()` marks each description's source; 504 inferred ones read as
+    unverified (ADR-0116, OQ-64);
   - 1990s SIH V-codes decoded;
   - national queries of per-state datasets;
   - provenance under `select=`;
