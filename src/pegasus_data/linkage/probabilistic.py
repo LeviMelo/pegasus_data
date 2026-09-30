@@ -25,11 +25,13 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import duckdb
+import numpy as np
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
 from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, validate
-from .model import Comparison, FieldModel, comparator, level_distribution, threshold_for
+from .levels import levels
+from .model import MISSING, Comparison, FieldModel, threshold_for
 from .roles import dataset_roles, role_table
 
 CONTROL_SHIFT_DAYS = 400
@@ -104,13 +106,6 @@ def _condition(a: str, b: str) -> str:
     return f"l.{_q(a)} = r.{_q(b)}"
 
 
-def _right_cols(compare) -> str:
-    return ", ".join(
-        f"struct_pack(s := r.{_q(c.right_roles[0])}, e := r.{_q(c.right_roles[1])})" if c.kind == "interval"
-        else f"r.{_q(c.right)}" for c in compare
-    )
-
-
 def _candidates(con: duckdb.DuckDBPyConnection, left_view: str, blocks) -> str:
     parts = []
     for block in blocks:
@@ -120,77 +115,106 @@ def _candidates(con: duckdb.DuckDBPyConnection, left_view: str, blocks) -> str:
     return " UNION ".join(parts)
 
 
-def _values(con, left_view: str, pairs_sql: str, compare) -> list[tuple]:
-    lcols = ", ".join(f"l.{_q(c.left)}" for c in compare)
-    rcols = _right_cols(compare)
-    return _as_values(con.execute(f"""
-        SELECT p.l, p.r, {lcols}, {rcols}
+def _select_values(left_view: str, pairs_sql: str, compare) -> str:
+    """SQL returning l, r and every compared value, one column per role."""
+    lcols = [f'l.{_q(c.left)} AS "v{i}_l"' for i, c in enumerate(compare)]
+    rcols = []
+    for i, c in enumerate(compare):
+        for j, role in enumerate(c.right_roles):
+            rcols.append(f'r.{_q(role)} AS "v{i}_r{j}"')
+    return f"""SELECT p.l, p.r, {", ".join(lcols + rcols)}
         FROM ({pairs_sql}) p
         JOIN (SELECT DISTINCT ON (_id) * FROM {left_view}) l ON l._id = p.l
-        JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = p.r""").fetchall())
+        JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = p.r"""
 
 
-def _as_values(rows: list[tuple]) -> list[tuple]:
-    """Interval structs arrive as dicts; the comparator takes (start, end)."""
-    return [tuple((v["s"], v["e"]) if isinstance(v, dict) else v for v in row) for row in rows]
-
-
-def _score_rows(rows: list[tuple], models: list[FieldModel]) -> list[tuple[str, str, float]]:
-    k = len(models)
-    cmps = [comparator(m.comparison.kind) for m in models]
+def _batch_levels(batch: pa.RecordBatch, compare) -> list[np.ndarray]:
     out = []
-    for row in rows:
-        total = 0.0
-        for i, fm in enumerate(models):
-            total += fm.bits(cmps[i](row[2 + i], row[2 + k + i]))
-        out.append((row[0], row[1], total))
+    for i, c in enumerate(compare):
+        a = batch.column(f"v{i}_l")
+        if c.kind == "interval":
+            out.append(levels(c.kind, a, (batch.column(f"v{i}_r0"), batch.column(f"v{i}_r1"))))
+        else:
+            out.append(levels(c.kind, a, batch.column(f"v{i}_r0")))
     return out
 
 
-def _one_to_one(scored: list[tuple[str, str, float]], threshold: float) -> list[tuple[str, str, float]]:
+def _distribution(lv: np.ndarray) -> tuple[dict[str, float], int]:
+    usable = lv[lv != MISSING]
+    if not len(usable):
+        return {}, 0
+    names, counts = np.unique(usable.astype(str), return_counts=True)
+    return {str(n): c / len(usable) for n, c in zip(names, counts, strict=True)}, int(len(usable))
+
+
+def _bits_of(fm: FieldModel, lv: np.ndarray) -> np.ndarray:
+    names, inverse = np.unique(lv.astype(str), return_inverse=True)
+    return np.array([fm.bits(str(n)) for n in names])[inverse]
+
+
+def _score_stream(con, sql: str, compare, models: list[FieldModel]) -> tuple[list, list, np.ndarray]:
+    """Scores of every candidate pair, streamed in batches; only positive scores are kept."""
+    ls: list = []
+    rs: list = []
+    scores: list[np.ndarray] = []
+    for batch in con.execute(sql).fetch_record_batch(1_000_000):
+        if not batch.num_rows:
+            continue
+        total = np.zeros(batch.num_rows)
+        for fm, lv in zip(models, _batch_levels(batch, compare), strict=True):
+            total += _bits_of(fm, lv)
+        keep = np.nonzero(total > 0)[0]
+        if len(keep):
+            ls.extend(pa.array(batch.column("l")).take(pa.array(keep)).to_pylist())
+            rs.extend(pa.array(batch.column("r")).take(pa.array(keep)).to_pylist())
+            scores.append(total[keep])
+    return ls, rs, (np.concatenate(scores) if scores else np.zeros(0))
+
+
+def _one_to_one(ls: list, rs: list, scores: np.ndarray, threshold: float) -> list[tuple[str, str, float]]:
     used_l: set[str] = set()
     used_r: set[str] = set()
     kept = []
-    for l_id, r_id, s in sorted(scored, key=lambda x: -x[2]):
+    for i in np.argsort(-scores, kind="stable"):
+        s = scores[i]
         if s < threshold:
             break
+        l_id, r_id = ls[i], rs[i]
         if l_id in used_l or r_id in used_r:
             continue
         used_l.add(l_id)
         used_r.add(r_id)
-        kept.append((l_id, r_id, s))
+        kept.append((l_id, r_id, float(s)))
     return kept
 
 
-def _anchors(con, comp: Comparison, others: list[Comparison], control_role: str) -> tuple[list[tuple], int, int]:
-    """Pairs linked 1:1 on every other comparison; their control; the left-out field's values.
+def _anchor_sql(others: list[Comparison], control_role: str, shift: bool) -> tuple[str, bool]:
+    """Pairs linked 1:1 on every other comparison (or their control).
 
     A pair is kept when each of its records has exactly one partner under the
-    join, which is the 1:1 rule of the deterministic engine and also works for
-    an interval (a birth day BETWEEN an admission's start and end).
+    join: the 1:1 rule of the deterministic engine, which also works for an
+    interval (a birth day BETWEEN an admission's start and end).
     """
     date_keys = [c for c in others if c.kind in ("date", "interval")]
     shift_role = control_role if any(c.left == control_role for c in others) else (date_keys[0].left if date_keys else None)
+    left = "L"
+    if shift:
+        if not shift_role:
+            return "", False
+        left = f"(SELECT * REPLACE (CAST({_q(shift_role)} + INTERVAL 7 DAY AS DATE) AS {_q(shift_role)}) FROM L)"
+    cond = " AND ".join(_condition(c.left, c.right) for c in others)
+    notnull = " AND ".join(f"l.{_q(c.left)} IS NOT NULL" for c in others)
+    return f"""WITH j AS (SELECT DISTINCT l._id AS l, r._id AS r FROM {left} l
+                         JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON {cond} WHERE {notnull})
+               SELECT l, r FROM j
+               QUALIFY count(*) OVER (PARTITION BY l) = 1 AND count(*) OVER (PARTITION BY r) = 1""", True
 
-    def join_sql(shift: bool) -> str:
-        left = "L"
-        if shift and shift_role:
-            left = f"(SELECT * REPLACE (CAST({_q(shift_role)} + INTERVAL 7 DAY AS DATE) AS {_q(shift_role)}) FROM L)"
-        cond = " AND ".join(_condition(c.left, c.right) for c in others)
-        notnull = " AND ".join(f"l.{_q(c.left)} IS NOT NULL" for c in others)
-        return f"""WITH j AS (SELECT DISTINCT l._id AS l, r._id AS r FROM {left} l
-                             JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON {cond} WHERE {notnull})
-                   SELECT l, r FROM j
-                   QUALIFY count(*) OVER (PARTITION BY l) = 1 AND count(*) OVER (PARTITION BY r) = 1"""
 
-    real_sql = join_sql(False)
-    n_real = con.execute(f"SELECT count(*) FROM ({real_sql})").fetchone()[0]
-    n_control = con.execute(f"SELECT count(*) FROM ({join_sql(True)})").fetchone()[0] if shift_role else 0
-    rows = _as_values(con.execute(f"""
-        SELECT l.{_q(comp.left)}, {_right_cols([comp])} FROM ({real_sql}) p
-        JOIN (SELECT DISTINCT ON (_id) * FROM L) l ON l._id = p.l
-        JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = p.r""").fetchall())
-    return rows, n_real, n_control
+def _levels_of(con, sql: str, compare) -> list[np.ndarray]:
+    table = con.execute(sql).fetch_arrow_table()
+    if not table.num_rows:
+        return [np.array([], dtype=object) for _ in compare]
+    return _batch_levels(table.combine_chunks().to_batches()[0], compare)
 
 
 def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, right: pa.Table) -> ProbabilisticResult:
@@ -201,47 +225,47 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     # one-row-per-day explosion is its way of making "inside" an equality.
     n_left = _prepare(con, "L", left, _replace(spec.left, explode_days=None))
     n_right = _prepare(con, "R", right, _replace(spec.right, explode_days=None))
-    # u: random pairs.
-    lcols = ", ".join(_q(c.left) for c in prob.compare)
-    rsel = ", ".join(dict.fromkeys(_q(role) for c in prob.compare for role in c.right_roles))
-    # 200,000 random pairs over up to 50,000 distinct records per side, paired
-    # by position with a stride: diverse on both sides and repeatable. A
-    # 2,000 x 100 rectangle rested u on 100 right records, and one AC run
+    # u: 200,000 random pairs over up to 50,000 distinct records per side,
+    # paired by position with a stride: diverse on both sides and repeatable.
+    # A 2,000 x 100 rectangle rested u on 100 right records, and one AC run
     # moved from 198 to 173 pairs between two draws (2026-09-30).
-    random_rows = _as_values(con.execute(f"""
-        WITH l AS (SELECT {lcols}, row_number() OVER () - 1 AS i
-                   FROM (SELECT * FROM L USING SAMPLE reservoir(50000 ROWS) REPEATABLE (107))),
-             r AS (SELECT {rsel}, row_number() OVER () - 1 AS i
-                   FROM (SELECT * FROM R USING SAMPLE reservoir(50000 ROWS) REPEATABLE (107))),
+    random_pairs = f"""
+        WITH l AS (SELECT _id, row_number() OVER () - 1 AS i
+                   FROM (SELECT DISTINCT _id FROM L USING SAMPLE reservoir(50000 ROWS) REPEATABLE (107))),
+             r AS (SELECT _id, row_number() OVER () - 1 AS i
+                   FROM (SELECT DISTINCT _id FROM R USING SAMPLE reservoir(50000 ROWS) REPEATABLE (107))),
              n AS (SELECT (SELECT count(*) FROM l) AS nl, (SELECT count(*) FROM r) AS nr),
              g AS (SELECT k % n.nl AS li, (k * 7919) % n.nr AS ri FROM range({RANDOM_PAIRS}) t(k), n)
-        SELECT {", ".join("l." + _q(c.left) for c in prob.compare)}, {_right_cols(prob.compare)}
-        FROM g JOIN l ON l.i = g.li JOIN r ON r.i = g.ri""").fetchall())
-    k = len(prob.compare)
+        SELECT l._id AS l, r._id AS r FROM g JOIN l ON l.i = g.li JOIN r ON r.i = g.ri"""
+    random_levels = _levels_of(con, _select_values("L", random_pairs, prob.compare), prob.compare)
     models: list[FieldModel] = []
     for i, comp in enumerate(prob.compare):
-        cmp = comparator(comp.kind)
-        u, n_u = level_distribution([(row[i], row[k + i]) for row in random_rows], cmp)
+        u, n_u = _distribution(random_levels[i])
         others = [c for c in prob.compare if c is not comp]
-        anchor_rows, n_anchor, n_anchor_control = _anchors(con, comp, others, prob.control_role)
-        m, n_m = level_distribution(anchor_rows, cmp)
+        anchor_sql, _ = _anchor_sql(others, prob.control_role, shift=False)
+        control_sql, has_control = _anchor_sql(others, prob.control_role, shift=True)
+        n_anchor = con.execute(f"SELECT count(*) FROM ({anchor_sql})").fetchone()[0]
+        n_anchor_control = con.execute(f"SELECT count(*) FROM ({control_sql})").fetchone()[0] if has_control else 0
+        m, n_m = _distribution(_levels_of(con, _select_values("L", anchor_sql, [comp]), [comp])[0])
         fm = FieldModel(comp, m, u, anchors=n_m, controls=n_u)
         fm.m_source = {"anchors": n_anchor, "anchor_control": n_anchor_control}  # type: ignore[attr-defined]
         models.append(fm)
-    # Candidates, real and control.
-    real_rows = _values(con, "L", _candidates(con, "L", prob.blocks), prob.compare)
+    # Candidates, real and control, scored as they stream.
+    rl, rr, rscore = _score_stream(con, _select_values("L", _candidates(con, "L", prob.blocks), prob.compare),
+                                   prob.compare, models)
     _shifted_left(con, prob.control_role, CONTROL_SHIFT_DAYS)
-    control_rows = _values(con, "LS", _candidates(con, "LS", prob.blocks), prob.compare)
-    real = _score_rows(real_rows, models)
-    control = _score_rows(control_rows, models)
+    cl, cr, cscore = _score_stream(con, _select_values("LS", _candidates(con, "LS", prob.blocks), prob.compare),
+                                   prob.compare, models)
     # Threshold on 1:1-resolved scores, so real and control are counted alike.
-    real_best = _one_to_one(real, float("-inf"))
-    control_best = _one_to_one(control, float("-inf"))
+    real_best = _one_to_one(rl, rr, rscore, float("-inf"))
+    control_best = _one_to_one(cl, cr, cscore, float("-inf"))
     t, fdr = threshold_for([s for *_x, s in real_best], [s for *_x, s in control_best], prob.target_fdr)
-    kept = _one_to_one(real, t) if t is not None else []
-    pairs = pa.table({"l": [x[0] for x in kept], "r": [x[1] for x in kept],
+    kept = _one_to_one(rl, rr, rscore, t) if t is not None else []
+    pairs = pa.table({"l": pa.array([x[0] for x in kept], pa.string()),
+                      "r": pa.array([x[1] for x in kept], pa.string()),
                       "bits": pa.array([round(x[2], 3) for x in kept], pa.float64())})
-    con.execute("CREATE OR REPLACE TEMP TABLE linked AS SELECT l, r FROM pairs")
+    con.register("pairs_view", pairs)
+    con.execute("CREATE OR REPLACE TEMP TABLE linked AS SELECT l, r FROM pairs_view")
     validations = validate(con, spec)
     fdr_percent = round(100.0 * fdr, 2) if fdr is not None else None
     # The estimate rests on few control pairs when the left side is small (a
@@ -254,7 +278,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
 
         upper = round(100.0 * (chi2.ppf(0.975, 2 * (control_kept + 1)) / 2) / len(kept), 2)
     verdict = judge(len(kept), fdr_percent, validations)
-    return ProbabilisticResult(spec.name, n_left, n_right, pairs, models, len(real), len(control),
+    return ProbabilisticResult(spec.name, n_left, n_right, pairs, models, len(rscore), len(cscore),
                                round(t, 2) if t is not None else None, fdr_percent, control_kept, upper,
                                validations, verdict)
 
