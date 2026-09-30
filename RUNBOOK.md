@@ -109,6 +109,6 @@ is `master`, so pushes currently run no CI (STATUS).
 | task | command |
 |---|---|
 | list the declared links | `pegasus-data link` |
-| run one (reused from the lake when already run) | `pegasus-data link sih_deaths_to_sim --period 2022 --geo RR [--method probabilistic] [--out pairs.parquet]` |
+| run one (reused from the lake when already run) | `pegasus-data link sih_deaths_to_sim --period 2022 --geo RR [--method probabilistic] [--out pairs.parquet] [--refresh]` (`--refresh` recomputes past a stored run) |
 | national measurements | `python scripts/linkage_study.py bits|channels|flows <dataset> <period>`, `coverage <period>`, `joins <period> <uf>` |
 | serve link reports and timelines | `python -m pegasus_data.serve --port 8000 --allow-records` (timelines are microdata) |

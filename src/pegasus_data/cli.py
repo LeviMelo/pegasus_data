@@ -1304,6 +1304,9 @@ def link_cmd(
     allow_partial: Annotated[
         bool, typer.Option("--allow-partial", help="Accept a side short of a file that will not download or open")
     ] = False,
+    refresh: Annotated[
+        bool, typer.Option("--refresh", help="Recompute even when a stored run of this spec and scope exists")
+    ] = False,
     root: RootOpt = None,
     as_json: JsonOpt = False,
 ) -> None:
@@ -1329,7 +1332,7 @@ def link_cmd(
     try:
         with console.status(f"linking {spec}…"):
             result = link(spec, period=span, geography=geo, method=method, allow_not_viable=allow_not_viable,
-                          allow_partial=allow_partial, settings=_settings(root))
+                          allow_partial=allow_partial, refresh=refresh, settings=_settings(root))
     except LinkNotViable as exc:
         _emit(exc.result.summary(), as_json, f"link {spec}: NOT VIABLE")
         raise typer.Exit(code=1) from exc
