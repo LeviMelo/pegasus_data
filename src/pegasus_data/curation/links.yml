@@ -42,7 +42,7 @@ links:
         - [patient.sex, deceased.sex]
         - [admission.end, death.date]
         - [admission.facility, death.facility]
-        - [patient.residence, deceased.residence]
+        - [patient.residence, deceased.residence, {given: admission.facility_municipality, side: left}]
       blocks:
         - [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
         - [[admission.end, death.date], [admission.facility, death.facility]]
@@ -211,7 +211,7 @@ links:
         - [patient.sex, deceased.sex]
         - [admission.end, death.date]
         - [admission.facility, death.facility]
-        - [patient.residence, deceased.residence]
+        - [patient.residence, deceased.residence, {given: admission.facility_municipality, side: left}]
       blocks:
         - [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
         - [[admission.end, death.date], [admission.facility, death.facility]]

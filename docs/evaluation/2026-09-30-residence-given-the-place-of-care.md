@@ -55,6 +55,18 @@ RR pairs, after against before:
   against 3.7%), and why is not established. Marginal pairs near a threshold
   are expected to be less clean than the average pair.
 
+**Death links, hospital on the left side** (`side: left`):
+
+| link | before | after | kept / added / removed (hospital deaths in SIM) | residence weights (bits) |
+|---|---|---|---|---|
+| SIH deaths AC | 1,373, 0.44% | 1,371, 0.36% (upper 0.85%) | 1,369 / 2 (2) / 4 (4) | elsewhere +4.82 · at place +1.28 · left is place −2.87 |
+| SIH deaths RR | 1,241, 0.81% | 1,239, 0.48% (upper 1.05%) | 1,237 / 2 (2) / 4 (3) | +4.73 · +0.45 · −1.77 |
+| CIHA deaths SE | 248, 0% | 248, 0% (upper 1.49%) | unchanged | at place +1.17 · left is place −0.87 |
+| CIHA deaths AC | 43, 0% | 43, 0% (upper 8.58%) | unchanged | +1.05 · −2.05 |
+
+Death day and hospital already identify most deaths, so residence changes little
+there. The estimated false-match rate falls slightly.
+
 **Changed:** ADR-0115; both delivery specs in `curation/links.yml`;
 `linkage/levels.py`, `linkage/model.py` (scalar comparators removed),
 `linkage/probabilistic.py`.

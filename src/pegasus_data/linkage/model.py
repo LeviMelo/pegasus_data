@@ -31,9 +31,9 @@ nothing:
   digits swapped · day and month swapped · year off by one · other
 - sex, code, label, facility: equal · different
 - municipality: equal · same state · different state; conditioned on the place
-  of care (``given``, EVALUATION 2026-09-30, residence given the place of care):
-  equal, at the place of care · equal, elsewhere · right is the place of care ·
-  same state · different state
+  of care carried by one side (``given``, ADR-0115): equal, at the place of
+  care · equal, elsewhere · <that side> is the place of care · same state ·
+  different state
 - integer (grams, weeks, years): equal · within 1% · within 10% · a digit
   dropped or added · other
 - interval (a date against start..end): inside on the first day · on the
@@ -55,16 +55,21 @@ class Comparison:
     left: str
     right: str          # a role, or "start..end" for an interval
     kind: str
-    given: str | None = None   # a right-side role the levels are conditioned on
+    given: str | None = None   # a role the levels are conditioned on (the place of care)
+    given_side: str = "right"  # the record that carries it: "left" or "right"
 
     @property
     def name(self) -> str:
-        return f"{self.left} ~ {self.right}" + (f" | {self.given}" if self.given else "")
+        return f"{self.left} ~ {self.right}" + (f" | {self.given_side}.{self.given}" if self.given else "")
 
     @property
     def right_roles(self) -> tuple[str, ...]:
-        roles = tuple(self.right.split("..")) if self.kind == "interval" else (self.right,)
-        return roles + ((self.given,) if self.given else ())
+        return tuple(self.right.split("..")) if self.kind == "interval" else (self.right,)
+
+    def side_roles(self, side: str) -> tuple[str, ...]:
+        """Every role this comparison reads from one side."""
+        own = (self.left,) if side == "left" else self.right_roles
+        return own + ((self.given,) if self.given and self.given_side == side else ())
 
 
 @dataclass

@@ -95,25 +95,26 @@ def _levels_municipality(a: pa.Array, b: pa.Array) -> np.ndarray:
     return out
 
 
-def _levels_municipality_given(a: pa.Array, b: pa.Array, place: pa.Array) -> np.ndarray:
-    """Residence against residence, knowing where the right record was cared for.
+def _levels_municipality_given(a: pa.Array, b: pa.Array, place: pa.Array, side: str) -> np.ndarray:
+    """Residence against residence, knowing where one side's record was cared for.
 
     Two records agreeing on the hospital's own municipality is weak evidence
     where residence is often written as the place of care; agreeing elsewhere
-    is strong; and a right residence equal to the place of care may be the
-    hospital written in, so a true pair can disagree there. m and u of each
-    level are learned, so the data decide how much each is worth.
+    is strong; and a residence equal to the place of care on the side that
+    carries it may be the hospital written in, so a true pair can disagree
+    there. m and u of each level are learned, so the data decide how much each
+    is worth (ADR-0115).
     """
     out = _levels_municipality(a, b)
     known = ~pc.is_null(place).to_numpy(zero_copy_only=False)
     at_a = pc.fill_null(pc.equal(a, place), False).to_numpy(zero_copy_only=False)
     at_b = pc.fill_null(pc.equal(b, place), False).to_numpy(zero_copy_only=False)
+    at_own = at_b if side == "right" else at_a
     usable = known & (out != MISSING)
     eq = usable & (out == "equal")
     out[eq & at_a] = "equal, at the place of care"
     out[eq & ~at_a] = "equal, elsewhere"
-    out[usable & ~(out == "equal, at the place of care") & ~(out == "equal, elsewhere") & at_b] = (
-        "right is the place of care")
+    out[usable & ~eq & at_own] = f"{side} is the place of care"
     return out
 
 
@@ -146,14 +147,14 @@ def _levels_exact(a: pa.Array, b: pa.Array) -> np.ndarray:
 
 
 def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array],
-           given: pa.Array | None = None) -> np.ndarray:
+           given: pa.Array | None = None, given_side: str = "right") -> np.ndarray:
     """The level of every pair; ``b`` is ``(start, end)`` for an interval.
 
-    ``given`` is the right record's value of a conditioning role (the place of
-    care, for a municipality).
+    ``given`` is one record's value of a conditioning role (the place of care,
+    for a municipality), carried by ``given_side``.
     """
     if kind == "municipality" and given is not None:
-        return _levels_municipality_given(a, b, given)  # type: ignore[arg-type]
+        return _levels_municipality_given(a, b, given, given_side)  # type: ignore[arg-type]
     if kind == "interval":
         start, end = b  # type: ignore[misc]
         return _levels_interval(a, start, end)

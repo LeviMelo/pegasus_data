@@ -1,6 +1,6 @@
 ## ADR-0115: Residence is scored given the place of care
 
-**Date:** 2026-09-30. **Status:** active. **Part of:** ADR-0111; answers part of OQ-63.
+**Date:** 2026-09-30. **Status:** active. **Part of:** ADR-0111; answers the residence part of OQ-63.
 
 **Context.**
 - **Residence scored alone.** The probabilistic engine scored residence
@@ -16,8 +16,8 @@
   SINASC). A pooled level cannot express any of this.
 
 **Decision.**
-- **A comparison may be conditioned on a right-side role.** It is written
-  `[left, right, {given: role}]`.
+- **A comparison may be conditioned on a role of either record.** It is
+  written `[left, right, {given: role, side: left|right}]` (right by default).
 - **For a municipality compared given the place of care,** the levels are:
   - equal, at the place of care;
   - equal, elsewhere;
@@ -65,5 +65,13 @@
 - Where residence is written as the hospital (CIHA SE), agreement on it
   counts for little (+0.68 bits) and disagreement barely counts against
   (−0.27).
-- The death link (`sih_deaths_to_sim`) has the hospital on its *left* side.
-  Conditioning on a left-side role is not implemented; OQ-63 keeps it.
+- **The condition can sit on either side** (`side: left`). It is applied to
+  both death links, whose hospital is on the SIH or CIHA side. They barely
+  change, because death day and hospital already carry most of the evidence:
+  - SIH AC 1,373 → 1,371 pairs, estimated FDR 0.44% → 0.36%;
+  - SIH RR 1,241 → 1,239, 0.81% → 0.48%;
+  - CIHA SE and AC unchanged (248 and 43);
+  - weights ordered as on deliveries (equal elsewhere +4.7–4.8 bits, at the
+    place of care +0.45–1.28);
+  - the 2–4 added and removed pairs per state are hospital deaths in SIM,
+    except one removed pair in RR.

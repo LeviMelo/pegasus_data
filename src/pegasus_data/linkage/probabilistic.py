@@ -53,12 +53,13 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
         raise KeyError(f"link spec {name!r} declares no probabilistic block")
     spec = load_links()[name]
     left_roles = dataset_roles(spec.left.dataset).roles
-    # A comparison is [left, right] or [left, right, {given: right_role}]; the
-    # right side is a list [start, end] for an interval.
+    # A comparison is [left, right] or [left, right, {given: role, side: left|right}]
+    # (ADR-0115); the right side is a list [start, end] for an interval.
     compare = tuple(
         Comparison(str(item[0]), "..".join(item[1]), "interval") if isinstance(item[1], list)
         else Comparison(str(item[0]), str(item[1]), left_roles[str(item[0])].type,
-                        given=str(item[2]["given"]) if len(item) > 2 else None)
+                        given=str(item[2]["given"]) if len(item) > 2 else None,
+                        given_side=str(item[2].get("side", "right")) if len(item) > 2 else "right")
         for item in body["compare"]
     )
     # A block key is [left, right] or [left, right, "typo"]: the typo form also
@@ -205,6 +206,8 @@ def _select_values(left_view: str, pairs_sql: str, compare) -> str:
     for i, c in enumerate(compare):
         for j, role in enumerate(c.right_roles):
             rcols.append(f'r.{_q(role)} AS "v{i}_r{j}"')
+        if c.given:
+            rcols.append(f'{c.given_side[0]}.{_q(c.given)} AS "v{i}_g"')
     return f"""SELECT p.l, p.r, {", ".join(lcols + rcols)}
         FROM ({pairs_sql}) p
         JOIN (SELECT DISTINCT ON (_id) * FROM {left_view}) l ON l._id = p.l
@@ -219,7 +222,7 @@ def _batch_levels(batch: pa.RecordBatch, compare) -> list[np.ndarray]:
             out.append(levels(c.kind, a, (batch.column(f"v{i}_r0"), batch.column(f"v{i}_r1"))))
         else:
             out.append(levels(c.kind, a, batch.column(f"v{i}_r0"),
-                              batch.column(f"v{i}_r1") if c.given else None))
+                              batch.column(f"v{i}_g") if c.given else None, c.given_side))
     return out
 
 
@@ -399,8 +402,8 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
 
     spec = load_links()[name]
     prob = load_probabilistic(name)
-    left_roles = sorted(set(_roles_needed(spec, "left")) | {c.left for c in prob.compare})
-    right_roles = sorted(set(_roles_needed(spec, "right")) | {r for c in prob.compare for r in c.right_roles})
+    left_roles = sorted(set(_roles_needed(spec, "left")) | {r for c in prob.compare for r in c.side_roles("left")})
+    right_roles = sorted(set(_roles_needed(spec, "right")) | {r for c in prob.compare for r in c.side_roles("right")})
     left = role_table(spec.left.dataset, period=period, geography=geography, roles=left_roles, **query_kwargs)
     right = role_table(spec.right.dataset, period=right_period or period, geography=geography,
                        roles=right_roles, **query_kwargs)
