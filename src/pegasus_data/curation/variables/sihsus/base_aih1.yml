@@ -227,7 +227,7 @@ variables:
       authorised. Corresponds to RD*.dbf's PROC_SOLIC; differs from
       CO_PROCEDIMENTO_REALIZ whenever the plan changed after admission.
     code_system: external
-    codelists: [SIGTAP, TPROC, PROC]
+    codelists: [SIGTAP, TPROC]
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 23 PROC_SOLIC ''Procedimento solicitado''.'
@@ -262,7 +262,7 @@ variables:
     description: SIGTAP code of the main procedure actually performed, and the field that
       determines payment. Corresponds to RD*.dbf's PROC_REA.
     code_system: external
-    codelists: [SIGTAP, TPROC, PROC]
+    codelists: [SIGTAP, TPROC]
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 24 PROC_REA ''Procedimento realizado''.'
