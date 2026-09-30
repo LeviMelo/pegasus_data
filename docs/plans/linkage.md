@@ -151,9 +151,10 @@ for one year; evaluation entry per link; verdict recorded.
 - API: `link(...)` returning links + report; `query(..., linked=...)` adding
   the other side's columns; linked cohorts in `aggregate`.
 - CLI: `pegasus-data link …`.
-- HTTP (`serve/`): `/links/{spec}` and a person-timeline endpoint; the
-  frontend (`../pegasus_view`) timeline view of one pregnancy. The contract
-  change is made in both repositories or not at all (CLAUDE.md §4).
+- HTTP (`serve/`): `/links` and the person-timeline routes. The frontend
+  (`../pegasus_view`) is a separate project and out of scope here (user,
+  2026-09-30); a linkage module was drafted there on its own `linkage` branch
+  before that instruction and is left for the user to keep or discard.
 - `scripts/live.py`: linkage scenarios.
 
 **A7. Beyond the spine (later, same engine).** Deaths after discharge
@@ -237,7 +238,7 @@ ADR or a curation change with its measurement.
 | A1 | done: record identity, roles; join grains measured except AN, AB, MT (OQ-20) | ADR-0109, EVALUATION national measurements |
 | A2 | done: bits (4 datasets), channels, flows, coverage, national 2022 | EVALUATION 2026-09-30 national linkage measurements |
 | A3 | done: omnisus RR 2022 reproduced to the pair | EVALUATION 2026-09-30 |
-| A4 | deterministic done; probabilistic done for the three spine links (interval comparisons, repeatable u, FDR upper bound); travel-flow evidence and typo-variant blocks next | ADR-0110, ADR-0111 |
-| A5 | three spine links viable on AC/RR (both methods); national runs next; maternal and fetal deaths, neonatal admissions to declare | ADR-0110, ADR-0111 |
-| A6 | `link(method=)`, `role_table()`, CLI `link --method` done; serve/ and timeline pending | README |
-| B | survey done; IDENT fixed; DBC, DEMAS checked; remaining facts and catch-all audit open | EVALUATION 2026-09-30 (omnisus), ADR-0108 |
+| A4 | deterministic and probabilistic done (vectorised, clear-best margin, upper-bound verdicts); travel-flow evidence and typo-variant blocks next (OQ-63) | ADR-0110, ADR-0111, ADR-0113 |
+| A5 | five spine links declared; three viable on AC/RR, maternal and neonatal not certifiable per state (ADR-0113); national deterministic SIH deaths → SIM 84.9% at 0.1%; national probabilistic to recompute | ADR-0110 to ADR-0113 |
+| A6 | done: `link(method=)`, `role_table()`, CLI `link --method`, serve/ `/links` and timeline routes, live scenarios `linkage`, `timeline`; frontend out of scope | README, ADR-0112 |
+| B | survey done; IDENT and LOCNASC fixed; catch-all audit run; DBC, DEMAS, SIM subsets, SIH-SP/RD, SINAN FINAIS/PRELIM and TB checked; remaining facts open | EVALUATION 2026-09-30 (omnisus, catch-all), ADR-0108 |
