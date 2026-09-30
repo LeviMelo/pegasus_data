@@ -38,7 +38,7 @@ snapshot, 41 MB).
             labelpack.py, catalog/seed.py: the shipped snapshot
               │
  layers     discovery/ → acquire/ → decode/ → normalize/ → persist/
-            inventory/  profile/  semantics/  sources/  catalog/ (SQLite, the memory)
+            inventory/  profile/  semantics/  sources/  linkage/  catalog/ (SQLite, the memory)
 ```
 
 The **ingest half** (discovery → acquire → decode → normalize → persist, with
@@ -331,6 +331,11 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `suggest.py`: recipe suggestions.
 - `geography.py`: health-region memberships and the geography graph.
 - `identifiers.py`: what a CNPJ and a CPF are (check digits), and what a label may not begin with: an identifier (ADR-0102) or TabWin's order mark (`LABEL_PREFIX`, ADR-0105).
+- `linkage/`: record linkage across systems (ADR-0107; `docs/plans/linkage.md`).
+- `linkage/roles.py`: records as normalised roles (`curation/roles.yml`), with record identity `(_blob_sha256, _row)` (ADR-0109).
+- `linkage/engine.py`: deterministic linkage from `curation/links.yml`: 1:1 passes over what is left, a negative control per pass, held-out validations, verdicts (ADR-0110).
+- `linkage/model.py`: comparison levels by role type and evidence in bits; the false-match threshold (ADR-0111).
+- `linkage/probabilistic.py`: probabilistic linkage: m from leave-one-field-out anchors, u from random pairs, a 400-day control, 1:1 resolution (ADR-0111).
 - `crosswalk.py`: CNES↔CNPJ enrichment. Reads the registry first (windows from inclusion to exclusion), then the label pack's historical claims where the registry is silent; compares with the record's own CNPJ when the layout has one (ADR-0100).
 - `providers.py`: optional attribute providers (CNES names).
 - `_age.py`: age in fractional years from measured unit tables (ADR-0070), and age bands.

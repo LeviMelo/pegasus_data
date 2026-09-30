@@ -2,16 +2,45 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. Last rewritten 2026-09-29, night.
+`DECISIONS.md`. Last rewritten 2026-09-30.
 
 ## Where the project is
 
-Development resumed on 2026-09-28 on branch `redesign`. The first day made the
-read path deliver meaning, with one door (`query()`) and measured sampling
-(ADR-0061 to ADR-0082). The second day (ADR-0083 to ADR-0099) went after the
-standing instruction that every variable be described and every code
-translatable, by meaningful labels rather than one opaque code standing in for
-another.
+`redesign` (2026-09-28 to 09-30: meaning on the read path, every variable
+described and code translatable, ADR-0061 to ADR-0106) was live-verified and
+fast-forwarded into `master` on 2026-09-30, locally (not pushed). Work
+continues on branch **`linkage`**: record linkage across systems, planned in
+`docs/plans/linkage.md` (ADR-0107).
+
+## Record linkage (branch `linkage`, ADR-0107 to ADR-0111)
+
+- **Record identity.** Every decoded row carries `_row`; `(_blob_sha256,
+  _row)` is permanent (ADR-0107).
+- **Roles** (`curation/roles.yml`, `linkage/roles.py`) for SINASC, SIM, SIH-RD,
+  CIHA and SIA-PS: records as normalised properties of entities; categories
+  make SIM's "cesáreo" and SINASC's "cesário" one value (ADR-0109).
+- **Deterministic engine** (`curation/links.yml`, `linkage/engine.py`): 1:1
+  passes over what is left, a negative control per pass, held-out validations,
+  verdicts fixed in advance (ADR-0110).
+  - omnisus's RR 2022 study is reproduced to the pair (EVALUATION 2026-09-30).
+  - Every declared link is viable on AC and RR.
+- **Probabilistic engine** (`linkage/model.py`, `linkage/probabilistic.py`):
+  - evidence in bits;
+  - each field's error channel learned from leave-one-field-out anchors;
+  - the threshold set by the measured false-match rate (ADR-0111).
+  
+  SIH deaths → SIM, RR 2022: 92.9% linked at an estimated 0.72% false-match
+  rate, against 88.2% deterministic. The extra pairs are birth-date typos and
+  sex miscoding, and all of them died in hospital.
+- **Surfaces.** `link()`, `role_table()`, `LinkNotViable`, and `pegasus-data
+  link`.
+- **National measurements** (`scripts/linkage_study.py`), bits of identity:
+  - births 2022, 2,561,922 records: baby's birth date + sex + mother's
+    residence + mother's birth date makes 97.9% unique;
+  - deaths 2022, 1,544,266 records: birth date + sex + residence + death date,
+    99.8%.
+
+  Error channels, travel flows and SIH/CIHA coverage are running.
 
 ## Done (live-verified)
 
@@ -114,8 +143,9 @@ another.
 
 ## Waiting on the user
 
-- **Publishing.** `redesign` is not pushed (CLAUDE.md §4). Platform wheels for
-  the compiled DBC engine (ADR-0074).
+- **Publishing.** `master` (fast-forwarded to `redesign`) and `linkage` are
+  not pushed (CLAUDE.md §4). Platform wheels for the compiled DBC engine
+  (ADR-0074).
 
 ## Tests and checks
 
