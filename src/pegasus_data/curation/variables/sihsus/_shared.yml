@@ -955,8 +955,14 @@ variables:
     official_name: Serviço/Classificação
     translated_name: Service and classification
     description: Service and classification code of the act, identifying the specialised service
-      that delivered it.
+      that delivered it. 000000 means it was not filled in, not that none was required.
     code_system: internal
+    # Measured, SIH-SP AC 2023-01 against SIGTAP's rl_procedimento_servico: 000000 is on
+    # 45,511 of 46,933 acts, 23,103 of them for procedures SIGTAP ties to a service (lab
+    # exams 0202...), so it is "not informed", not "no service required". Non-zero values
+    # agree with SIGTAP's relation in 1,361 of 1,422 (2026-09-30).
+    codes: {"000000": "Serviço/classificação não informado"}
+    codelist: S_CLASSEN
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §3
       Layout dos arquivos SP*.dbf, SEQ 32'

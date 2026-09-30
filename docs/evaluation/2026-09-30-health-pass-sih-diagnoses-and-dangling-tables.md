@@ -35,3 +35,20 @@ live FTP. Plan workstream C.
 query are both things a person sees. The first hides meaning; the second
 teaches them to ignore warnings, so the real one, a dangling table, went
 unnoticed.
+
+**Added the same day: SIH-SP `SERV_CLA` 000000, OQ-61's largest value.**
+- **Measured against SIGTAP.** SIH-SP AC 2023-01 was compared with SIGTAP's
+  procedure → service relation (`rl_procedimento_servico` in the Tabela
+  Unificada):
+  - 000000 is on 45,511 of 46,933 acts, and 23,103 of them are procedures
+    SIGTAP ties to a service (lab exams 0202…);
+  - 000000 therefore means the service was not filled in, not that none was
+    required;
+  - non-zero values agree with SIGTAP's relation in 1,361 of 1,422.
+- **Curated.** "Serviço/classificação não informado", with `S_CLASSEN` behind
+  it.
+- **A regression the curation caused, then fixed.** The inline code made the
+  chain two tables, and S_CLASSEN's path naming (ADR-0096) applied only to a
+  lone table, so `126000` (service 126, no classification, 56 acts) became
+  undecoded. The path behaviour now holds behind a column's inline codes.
+  `SERV_CLA`: 0 undecoded.

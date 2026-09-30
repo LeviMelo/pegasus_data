@@ -578,9 +578,14 @@ def _cached_merged_lookup(
         merged = IcdLabels(merged)
     elif any(str(c).upper() == "SIGTAP" for c in codelists):
         merged = SigtapLabels(merged)
-    elif len(codelists) == 1 and str(codelists[0]).upper() in PATH_CODELISTS:
-        name = str(codelists[0]).upper()
-        merged = PathLabels(merged, table=name, segment=PATH_CODELISTS[name])
+    else:
+        # A path table keeps its path behaviour behind a column's own inline
+        # codes: SIH-SP SERV_CLA curates 000000 ahead of S_CLASSEN, and 126000
+        # (service 126, no classification) stopped being named by its service
+        # when the chain became two tables (2026-09-30).
+        tables = [str(c).upper() for c in codelists if not str(c).upper().startswith("CURATED.")]
+        if len(tables) == 1 and tables[0] in PATH_CODELISTS:
+            merged = PathLabels(merged, table=tables[0], segment=PATH_CODELISTS[tables[0]])
     merged.widths = frozenset(len(code) for code in merged)  # type: ignore[attr-defined]
     return merged, missing
 
