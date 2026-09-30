@@ -164,7 +164,15 @@ def notable_births(*, period: object, geography: object, method: str = "probabil
             counts.setdefault(key, {}).setdefault(spec, 0)
             counts[key][spec] += 1
     ranked = sorted(counts.items(), key=lambda kv: (-(INFANT_DEATH in kv[1]), -sum(kv[1].values())))
-    return [{"birth": rid, "links": links} for rid, links in ranked[:limit]]
+    births = _records("SINASC-DN", period, geography)
+    out = []
+    for rid, links in ranked[:limit]:
+        r = births.get(rid) or {}
+        facility = _facility(r.get("birth.facility"))
+        out.append({"birth": rid, "links": links, "date": _iso(r.get("birth.date")), "sex": r.get("baby.sex"),
+                    "weight_g": r.get("birth.weight"), "gestation_weeks": r.get("birth.gestation_weeks"),
+                    "facility": facility})
+    return out
 
 
 __all__ = ["notable_births", "timeline"]

@@ -174,6 +174,7 @@ class LinkResult:
     validations: dict[str, dict[str, float | int | None]] = field(default_factory=dict)
     chance_percent: float | None = None
     verdict: str = "not viable"
+    chance_upper95_percent: float | None = None
 
     @property
     def linked_share(self) -> float:
@@ -184,6 +185,7 @@ class LinkResult:
             "spec": self.spec, "left_records": self.left_records, "right_records": self.right_records,
             "pairs": self.pairs.num_rows, "linked_share": round(self.linked_share, 4),
             "passes": [vars(p) for p in self.passes], "chance_percent": self.chance_percent,
+            "chance_upper95_percent": self.chance_upper95_percent,
             "validations": self.validations, "verdict": self.verdict,
         }
 
@@ -253,8 +255,9 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
     chance = round(100.0 * kept_control / kept_pairs, 2) if kept_pairs else None
     validations = validate(con, spec)
     worst_pass = max((r.chance_percent or 0.0) for r in reports if r.kept) if any(r.kept for r in reports) else None
-    verdict = judge(kept_pairs, worst_pass, validations)
-    return LinkResult(spec.name, n_left, n_right, pairs, reports, validations, chance, verdict)
+    upper = upper95(kept_control, kept_pairs)
+    verdict = judge(kept_pairs, worst_pass, validations, upper)
+    return LinkResult(spec.name, n_left, n_right, pairs, reports, validations, chance, verdict, upper)
 
 
 def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec) -> dict[str, dict[str, float | int | None]]:
@@ -280,12 +283,32 @@ def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec) -> dict[str, dict[s
     return validations
 
 
-def judge(pairs: int, worst_chance: float | None, validations: dict[str, dict[str, float | int | None]]) -> str:
-    """The verdict fixed before any result (ADR-0107)."""
+def upper95(control: int, pairs: int) -> float | None:
+    """95% upper bound, in percent, of a chance rate of `control` coincidences
+    among `pairs` pairs (exact Poisson bound on the control count)."""
+    if not pairs:
+        return None
+    from scipy.stats import chi2
+
+    return round(100.0 * (chi2.ppf(0.975, 2 * (control + 1)) / 2) / pairs, 2)
+
+
+def judge(
+    pairs: int,
+    worst_chance: float | None,
+    validations: dict[str, dict[str, float | int | None]],
+    upper: float | None = None,
+) -> str:
+    """The verdict fixed before any result (ADR-0107), judged on the 95% upper
+    bound of the chance rate when one is given (ADR-0113): 13 maternal deaths
+    with no control pair read "0% chance" and were called viable, with a bound
+    of 28%."""
     agreement = [float(v["agreement_percent"]) for v in validations.values() if v["agreement_percent"] is not None]
     best = max(agreement) if agreement else None
     if not pairs or best is None or worst_chance is None:
         return "not viable"
+    if upper is not None:
+        worst_chance = max(worst_chance, upper)
     if worst_chance <= VIABLE[0] and best >= VIABLE[1]:
         return "viable"
     if worst_chance <= CAUTION[0] and best >= CAUTION[1]:

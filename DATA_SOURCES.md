@@ -140,6 +140,12 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (2026-08-30, F §3w).
 - SIM publishes 27 per-state files plus a consolidated `DOBR` file for the same
   year (commit `2e85e97`, 2026-08-30).
+- **SIM's DOINF, DOMAT and DOEXT are copies of DO rows** (checked nationally
+  for 2022, 2026-09-30, after omnisus reported it for RR and SP). Every row
+  equals a DO row on all 87 shared columns: DOINF 32,257 of 32,257, DOMAT
+  1,370 of 1,370, DOEXT 152,945 of 152,945. DOFET (27,394) matches none; it
+  is the separate register of fetal deaths. Adding a subset to DO
+  double-counts deaths.
 - **Listed but not retrievable.** `SINAN/DADOS/PRELIM/CHAGBR25.dbc` was
   republished 2026-09-28 10:23 at 502,836 bytes (515,731 before). On
   2026-09-30, LIST and SIZE answer, but RETR refuses it three times running
@@ -168,6 +174,10 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   principal AIH (IDENT 1) plus long-stay parts (IDENT 5) under one number
   (SP 2023-01: 56 of 210,161). RD 2023 carries types 1 and 5 only. Count
   admissions as distinct `N_AIH`.
+- **SIH-SP and SIH-RD hold the same AIHs, competence by competence.** 2023-01:
+  AC 4,164 = 4,164, SP 210,161 = 210,161, each set equal to the other.
+  Every approved admission has its professional acts, and no act lacks its
+  admission (2026-09-30).
 
 ### 1.8 Schema generations (header census, 2026-08-19, F §3g)
 

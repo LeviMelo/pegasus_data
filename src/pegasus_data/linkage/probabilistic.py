@@ -29,7 +29,7 @@ import numpy as np
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
-from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, validate
+from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, upper95, validate
 from .levels import levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
 from .roles import dataset_roles, role_table
@@ -171,20 +171,49 @@ def _score_stream(con, sql: str, compare, models: list[FieldModel]) -> tuple[lis
     return ls, rs, (np.concatenate(scores) if scores else np.zeros(0))
 
 
+#: A record is linked only when its best candidate beats the runner-up by
+#: this much evidence, on both sides: log2(19) bits, the best at least 95%
+#: likely between the two. Without it, a birth date + sex + hospital shared
+#: by ~15 newborns a day in one maternity hospital was resolved by picking one
+#: of them, and a negative control cannot see that error: the true baby IS
+#: among the candidates (RR 2022, 3,294 "viable" pairs; ADR-0113).
+AMBIGUITY_MARGIN_BITS = float(np.log2(19))
+
+
 def _one_to_one(ls: list, rs: list, scores: np.ndarray, threshold: float) -> list[tuple[str, str, float]]:
-    used_l: set[str] = set()
-    used_r: set[str] = set()
+    """Pairs that are each side's clear best, at or above the threshold.
+
+    A pair is kept when, among its left record's candidates, it scores at
+    least AMBIGUITY_MARGIN_BITS above the next, and the same holds among its
+    right record's candidates. Candidates below zero never reach here, so a
+    lone candidate is compared with nothing and passes.
+    """
+    if not len(scores):
+        return []
+    order = np.argsort(-scores, kind="stable")
+    best_l: dict[str, tuple[float, int]] = {}
+    second_l: dict[str, float] = {}
+    best_r: dict[str, tuple[float, int]] = {}
+    second_r: dict[str, float] = {}
+    for i in order:
+        s = float(scores[i])
+        for side, best, second in ((ls[i], best_l, second_l), (rs[i], best_r, second_r)):
+            if side not in best:
+                best[side] = (s, int(i))
+            elif side not in second:
+                second[side] = s
     kept = []
-    for i in np.argsort(-scores, kind="stable"):
-        s = scores[i]
+    for l_id, (s, i) in best_l.items():
         if s < threshold:
-            break
-        l_id, r_id = ls[i], rs[i]
-        if l_id in used_l or r_id in used_r:
             continue
-        used_l.add(l_id)
-        used_r.add(r_id)
-        kept.append((l_id, r_id, float(s)))
+        r_id = rs[i]
+        if best_r.get(r_id, (None, -1))[1] != i:
+            continue
+        if s - second_l.get(l_id, float("-inf")) < AMBIGUITY_MARGIN_BITS:
+            continue
+        if s - second_r.get(r_id, float("-inf")) < AMBIGUITY_MARGIN_BITS:
+            continue
+        kept.append((l_id, r_id, s))
     return kept
 
 
@@ -272,12 +301,8 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     # state's infant deaths): say how few, and the 95% upper bound (Poisson on
     # the control count, over the real pairs kept).
     control_kept = sum(1 for *_x, s in control_best if t is not None and s >= t)
-    upper = None
-    if kept:
-        from scipy.stats import chi2
-
-        upper = round(100.0 * (chi2.ppf(0.975, 2 * (control_kept + 1)) / 2) / len(kept), 2)
-    verdict = judge(len(kept), fdr_percent, validations)
+    upper = upper95(control_kept, len(kept))
+    verdict = judge(len(kept), fdr_percent, validations, upper)
     return ProbabilisticResult(spec.name, n_left, n_right, pairs, models, len(rscore), len(cscore),
                                round(t, 2) if t is not None else None, fdr_percent, control_kept, upper,
                                validations, verdict)
