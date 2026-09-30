@@ -234,10 +234,10 @@ ADR or a curation change with its measurement.
 | phase | state | record |
 |---|---|---|
 | A0 | done | ADR-0107, GLOSSARY "Record linkage" |
-| A1 | record identity, roles done; same-key joins (OQ-20) open | ADR-0109 |
-| A2 | bits (SINASC, SIM national) done; SIH, CIHA, channels, flows, coverage running | `data/probes/linkage/` |
+| A1 | done: record identity, roles; join grains measured except AN, AB, MT (OQ-20) | ADR-0109, EVALUATION national measurements |
+| A2 | done: bits (4 datasets), channels, flows, coverage, national 2022 | EVALUATION 2026-09-30 national linkage measurements |
 | A3 | done: omnisus RR 2022 reproduced to the pair | EVALUATION 2026-09-30 |
-| A4 | deterministic engine done; probabilistic v1 done (SIH deaths → SIM) | ADR-0110, ADR-0111 |
-| A5 | three spine links viable on AC/RR; national pending | ADR-0110 |
-| A6 | `link()`, `role_table()`, CLI `link` done; serve/ and timeline pending | README |
-| B | survey done; IDENT fixed; DBC and DEMAS checks done | EVALUATION 2026-09-30 (omnisus), ADR-0108 |
+| A4 | deterministic done; probabilistic done for the three spine links (interval comparisons, repeatable u, FDR upper bound); travel-flow evidence and typo-variant blocks next | ADR-0110, ADR-0111 |
+| A5 | three spine links viable on AC/RR (both methods); national runs next; maternal and fetal deaths, neonatal admissions to declare | ADR-0110, ADR-0111 |
+| A6 | `link(method=)`, `role_table()`, CLI `link --method` done; serve/ and timeline pending | README |
+| B | survey done; IDENT fixed; DBC, DEMAS checked; remaining facts and catch-all audit open | EVALUATION 2026-09-30 (omnisus), ADR-0108 |

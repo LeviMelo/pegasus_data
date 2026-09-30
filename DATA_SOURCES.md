@@ -157,6 +157,17 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   16.4% of the records have an ignored residence ("Município ignorado"). In
   AC 2023-01 every record's residence is 120000, the ignored code. RR
   published no CIHA for 2023-01.
+- **CIHA completes SIH's admissions** (June 2022, national, EVALUATION
+  2026-09-30):
+  - CIHA: 215,649 admissions against SIH's 1,034,013, about 17% of the two
+    together;
+  - only 387 CIHA admissions (0.18%) match an SIH admission;
+  - residence is missing in 18% of CIHA admissions;
+  - RR published no CIHA for the month.
+- **SIH-RD is nearly one row per AIH.** A long admission is billed as a
+  principal AIH (IDENT 1) plus long-stay parts (IDENT 5) under one number
+  (SP 2023-01: 56 of 210,161). RD 2023 carries types 1 and 5 only. Count
+  admissions as distinct `N_AIH`.
 
 ### 1.8 Schema generations (header census, 2026-08-19, F §3g)
 
