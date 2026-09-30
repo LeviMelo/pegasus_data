@@ -103,3 +103,12 @@ Frozen procedure: `docs/history/RELEASING.md`. Publishing to PyPI is an
 outward action and needs the user's explicit go-ahead (CLAUDE.md §4). CI
 (`.github/workflows/checks.yml`) triggers on pushes to `main`, but the branch
 is `master`, so pushes currently run no CI (STATUS).
+
+## Record linkage (ADR-0107 to ADR-0112)
+
+| task | command |
+|---|---|
+| list the declared links | `pegasus-data link` |
+| run one (reused from the lake when already run) | `pegasus-data link sih_deaths_to_sim --period 2022 --geo RR [--method probabilistic] [--out pairs.parquet]` |
+| national measurements | `python scripts/linkage_study.py bits|channels|flows <dataset> <period>`, `coverage <period>`, `joins <period> <uf>` |
+| serve link reports and timelines | `python -m pegasus_data.serve --port 8000 --allow-records` (timelines are microdata) |

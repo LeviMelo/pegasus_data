@@ -429,6 +429,62 @@ def create_app(
             headers={"Cache-Control": "public, max-age=31536000, immutable"},
         )
 
+    # ----------------------------------------------------------- linkage
+
+    @app.get(f"{API}/links")
+    def links() -> dict[str, Any]:
+        """Declared link specs and every stored run's report (ADR-0112).
+
+        Reports are aggregate facts about a linkage (pairs, chance, validations,
+        verdict) and are always served; the pairs themselves are microdata.
+        """
+        from ..linkage import store
+        from ..linkage.engine import load_links
+
+        specs = [
+            {"name": name, "description": s.description, "left": s.left.dataset, "right": s.right.dataset,
+             "passes": [p.name for p in s.passes]}
+            for name, s in load_links().items()
+        ]
+        return {"specs": specs, "runs": store.runs(settings)}
+
+    @app.get(f"{API}/links/timeline")
+    def timeline_notable(
+        period: str = Query(...),
+        geography: str = Query(...),
+        method: str = Query("probabilistic"),
+        limit: int = Query(30, ge=1, le=200),
+    ):
+        """Births with the most linked events, to open a timeline from. Microdata."""
+        if not allow_records:
+            return _error(403, "timelines are microdata; start the server with --allow-records")
+        from ..linkage.timeline import notable_births
+
+        try:
+            return {"period": period, "geography": geography, "method": method,
+                    "births": notable_births(period=period, geography=geography, method=method, limit=limit)}
+        except Exception as exc:  # noqa: BLE001 - surfaced to the caller as 400
+            return _error(400, f"{type(exc).__name__}: {exc}")
+
+    @app.get(f"{API}/links/timeline/{{birth}}")
+    def timeline_one(
+        birth: str,
+        period: str = Query(...),
+        geography: str = Query(...),
+        method: str = Query("probabilistic"),
+    ):
+        """One pregnancy: a birth and the events linked to it. Microdata."""
+        if not allow_records:
+            return _error(403, "timelines are microdata; start the server with --allow-records")
+        from ..linkage.timeline import timeline
+
+        try:
+            return timeline(birth, period=period, geography=geography, method=method)
+        except KeyError as exc:
+            return _error(404, str(exc))
+        except Exception as exc:  # noqa: BLE001 - surfaced to the caller as 400
+            return _error(400, f"{type(exc).__name__}: {exc}")
+
     # ----------------------------------------------------------- records
 
     @app.get(f"{API}/records")

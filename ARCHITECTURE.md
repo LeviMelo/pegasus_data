@@ -336,6 +336,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `linkage/engine.py`: deterministic linkage from `curation/links.yml`: 1:1 passes over what is left, a negative control per pass, held-out validations, verdicts (ADR-0110).
 - `linkage/model.py`: comparison levels by role type and evidence in bits; the false-match threshold (ADR-0111).
 - `linkage/levels.py`: the comparison levels on whole Arrow arrays, identical to the scalar comparators in `linkage/model.py`, for national candidate sets (ADR-0111).
+- `linkage/store.py`: link runs kept in the lake, keyed by spec content, method and scope, reused by `link()` (ADR-0112).
+- `linkage/timeline.py`: one pregnancy as linked events from the spine links; served by `serve/` behind `--allow-records` (ADR-0112).
 - `linkage/probabilistic.py`: probabilistic linkage: m from leave-one-field-out anchors, u from random pairs, a 400-day control, 1:1 resolution (ADR-0111).
 - `crosswalk.py`: CNES↔CNPJ enrichment. Reads the registry first (windows from inclusion to exclusion), then the label pack's historical claims where the registry is silent; compares with the record's own CNPJ when the layout has one (ADR-0100).
 - `providers.py`: optional attribute providers (CNES names).

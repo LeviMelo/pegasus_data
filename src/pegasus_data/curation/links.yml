@@ -117,3 +117,66 @@ links:
         - [[birth.facility, admission.facility], [birth.date, [admission.start, admission.end]], [mother.residence, patient.residence]]
         - [[mother.birth_date, patient.birth_date], [birth.date, [admission.start, admission.end]]]
       target_fdr: 0.01
+
+  sim_maternal_deaths_to_admission:
+    description: >
+      Deaths from obstetric causes (ICD-10 chapter O) to the woman's SIH
+      admission that ended in them. The reverse of sih_deaths_to_sim, restricted
+      to maternal deaths, so a death outside hospital or without an SUS
+      admission stays unlinked.
+    left: {dataset: SIM-DO, where: "\"death.cause\" LIKE 'O%' AND \"deceased.sex\" = 'F'"}
+    right: {dataset: SIH-RD, where: "\"patient.sex\" = 'F'"}
+    passes:
+      - name: birth date, death day, hospital
+        keys: [[deceased.birth_date, patient.birth_date], [death.date, admission.end],
+               [death.facility, admission.facility]]
+      - name: birth date, death day
+        keys: [[deceased.birth_date, patient.birth_date], [death.date, admission.end]]
+    control: {role: deceased.birth_date, shift_days: 7}
+    validate:
+      - {name: admission ended in death, sql: "r.\"admission.death\" = '1'"}
+      - {name: obstetric admission diagnosis, sql: "r.\"admission.diagnosis\" LIKE 'O%'"}
+      - {name: residence agrees, left: deceased.residence, right: patient.residence}
+    probabilistic:
+      compare:
+        - [deceased.birth_date, patient.birth_date]
+        - [death.date, admission.end]
+        - [death.facility, admission.facility]
+        - [deceased.residence, patient.residence]
+      blocks:
+        - [[deceased.birth_date, patient.birth_date]]
+        - [[death.date, admission.end], [death.facility, admission.facility]]
+      target_fdr: 0.01
+
+  sih_neonatal_admissions_to_sinasc:
+    description: >
+      Admissions of babies in their first 28 days (the patient is the baby) to
+      their birth record: the baby's birth date and sex, the mother's residence,
+      and usually the hospital of birth.
+    left: {dataset: SIH-RD, where: "\"patient.age_years\" < 0.0767 AND \"admission.start\" - \"patient.birth_date\" <= 28"}
+    right: {dataset: SINASC-DN}
+    passes:
+      - name: birth date, sex, hospital, residence
+        keys: [[patient.birth_date, baby.birth_date], [patient.sex, baby.sex],
+               [admission.facility, birth.facility], [patient.residence, mother.residence]]
+      - name: birth date, sex, residence
+        keys: [[patient.birth_date, baby.birth_date], [patient.sex, baby.sex],
+               [patient.residence, mother.residence]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      - {name: perinatal diagnosis (ICD-10 chapter XVI), sql: "r.\"birth.place\" = 'hospital' AND l.\"admission.diagnosis\" LIKE 'P%'"}
+      - {name: born in the admitting hospital, left: admission.facility, right: birth.facility}
+    probabilistic:
+      compare:
+        - [patient.birth_date, baby.birth_date]
+        - [patient.sex, baby.sex]
+        - [admission.facility, birth.facility]
+        - [patient.residence, mother.residence]
+      # Every block keeps the baby's birth date. A block of hospital, residence
+      # and sex alone paired every newborn admission with every birth at the
+      # same maternity hospital (tens of millions of candidates in RR) and adds
+      # no identifying evidence (2026-09-30).
+      blocks:
+        - [[patient.birth_date, baby.birth_date], [patient.sex, baby.sex]]
+        - [[patient.birth_date, baby.birth_date], [admission.facility, birth.facility]]
+      target_fdr: 0.01

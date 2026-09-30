@@ -301,6 +301,8 @@ def link(
     right_period: object = None,
     method: str = "deterministic",
     allow_not_viable: bool = False,
+    refresh: bool = False,
+    persist: bool = True,
     **query_kwargs: Any,
 ) -> Any:
     """Link two datasets under the declared spec ``name`` (``curation/links.yml``).
@@ -316,31 +318,47 @@ def link(
     (ADR-0111): evidence in bits learned from the data, a threshold set by the
     measured false-match rate; its pairs carry their score in bits.
 
+    Results are kept in the lake (``<lake>/links/<spec>/``) and reused for the
+    same spec content, method and scope; ``refresh=True`` recomputes, and
+    ``persist=False`` keeps nothing.
+
     Example::
 
         result = link("sih_deaths_to_sim", period=2022, geography="RR")
         result.summary()["verdict"]     # 'viable'
         result.pairs                    # l, r, pass
     """
+    from ..config import load_settings
+    from . import store
+
     try:
         spec = load_links()[name]
     except KeyError:
         raise KeyError(f"no link spec {name!r}; declared: {sorted(load_links())}") from None
+    if method not in ("deterministic", "probabilistic"):
+        raise ValueError(f"method must be 'deterministic' or 'probabilistic', not {method!r}")
+    settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    key = store.run_key(name, method, period if right_period is None else (period, right_period), geography)
+    if not refresh:
+        stored = store.load(settings, key)
+        if stored is not None:
+            result: Any = store.StoredResult(name, stored[0], stored[1])
+            if result.verdict == "not viable" and not allow_not_viable:
+                raise LinkNotViable(result)
+            return result
     if method == "probabilistic":
         from .probabilistic import link_probabilistic
 
         result = link_probabilistic(name, period=period, geography=geography, right_period=right_period,
                                     **query_kwargs)
-        if result.verdict == "not viable" and not allow_not_viable:
-            raise LinkNotViable(result)
-        return result
-    if method != "deterministic":
-        raise ValueError(f"method must be 'deterministic' or 'probabilistic', not {method!r}")
-    left = role_table(spec.left.dataset, period=period, geography=geography,
-                      roles=_roles_needed(spec, "left"), **query_kwargs)
-    right = role_table(spec.right.dataset, period=right_period or period, geography=geography,
-                       roles=_roles_needed(spec, "right"), **query_kwargs)
-    result = run(spec, left, right)
+    else:
+        left = role_table(spec.left.dataset, period=period, geography=geography,
+                          roles=_roles_needed(spec, "left"), **query_kwargs)
+        right = role_table(spec.right.dataset, period=right_period or period, geography=geography,
+                           roles=_roles_needed(spec, "right"), **query_kwargs)
+        result = run(spec, left, right)
+    if persist:
+        store.save(settings, key, result.pairs, result.summary())
     if result.verdict == "not viable" and not allow_not_viable:
         raise LinkNotViable(result)
     return result
