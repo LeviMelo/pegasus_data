@@ -186,3 +186,63 @@ links:
         - [[patient.birth_date, baby.birth_date], [patient.sex, baby.sex]]
         - [[patient.birth_date, baby.birth_date], [admission.facility, birth.facility]]
       target_fdr: 0.01
+
+  ciha_deaths_to_sim:
+    description: >
+      Non-SUS admissions that ended in death (CIHA MORTE = 1, admissions only) to
+      the death certificate: the private-sector twin of sih_deaths_to_sim, so
+      together they cover deaths in every hospital that reports.
+    left: {dataset: CIHA, where: "\"admission.death\" = '1' AND \"admission.modality\" = '02'"}
+    right: {dataset: SIM-DO}
+    passes:
+      - name: birth date, sex, death day, hospital
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
+               [admission.end, death.date], [admission.facility, death.facility]]
+      - name: birth date, sex, death day
+        keys: [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex],
+               [admission.end, death.date]]
+    control: {role: patient.birth_date, shift_days: 7}
+    validate:
+      - {name: died in hospital, sql: "r.\"death.place\" = 'hospital'"}
+      - {name: residence agrees, left: patient.residence, right: deceased.residence}
+    probabilistic:
+      compare:
+        - [patient.birth_date, deceased.birth_date]
+        - [patient.sex, deceased.sex]
+        - [admission.end, death.date]
+        - [admission.facility, death.facility]
+        - [patient.residence, deceased.residence]
+      blocks:
+        - [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
+        - [[admission.end, death.date], [admission.facility, death.facility]]
+      target_fdr: 0.01
+
+  sinasc_births_to_ciha_delivery:
+    description: >
+      A birth to the mother's delivery admission in a non-SUS hospital (CIHA): the
+      private-sector twin of sinasc_births_to_delivery_admission.
+    left:
+      dataset: SINASC-DN
+      group: [mother.birth_date, birth.facility, birth.date]
+    right:
+      dataset: CIHA
+      where: "\"patient.sex\" = 'F' AND \"admission.modality\" = '02'"
+      explode_days: [admission.start, admission.end, admission.day]
+    passes:
+      - name: mother's birth date, hospital, day inside the admission
+        keys: [[mother.birth_date, patient.birth_date], [birth.facility, admission.facility],
+               [birth.date, admission.day]]
+    control: {role: mother.birth_date, shift_days: 7}
+    validate:
+      - {name: obstetric diagnosis (ICD-10 chapter XV), sql: "r.\"admission.diagnosis\" LIKE 'O%'"}
+      - {name: residence agrees, left: mother.residence, right: patient.residence}
+    probabilistic:
+      compare:
+        - [mother.birth_date, patient.birth_date]
+        - [birth.facility, admission.facility]
+        - [birth.date, [admission.start, admission.end]]
+        - [mother.residence, patient.residence]
+      blocks:
+        - [[mother.birth_date, patient.birth_date], [birth.facility, admission.facility]]
+        - [[mother.birth_date, patient.birth_date], [birth.date, [admission.start, admission.end]]]
+      target_fdr: 0.01

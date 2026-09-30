@@ -170,6 +170,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   - only 387 CIHA admissions (0.18%) match an SIH admission;
   - residence is missing in 18% of CIHA admissions;
   - RR published no CIHA for the month.
+- **CIHA's `MUNIC_RES` is mostly the hospital's municipality.** Where filled,
+  it equals `MUNIC_MOV` in 92–100% of admissions (June 2022: SP 94.6% of
+  77,000, MG 92.3%, BA 92.9%, PR 92.5%, SE 100%), against 71.8% in SIH for
+  SP. It is "ignorado" in 12–51% of admissions (SE 49% in 2022). It does not
+  reliably say where the patient lives (2026-09-30).
 - **SIH-RD is nearly one row per AIH.** A long admission is billed as a
   principal AIH (IDENT 1) plus long-stay parts (IDENT 5) under one number
   (SP 2023-01: 56 of 210,161). RD 2023 carries types 1 and 5 only. Count

@@ -253,8 +253,12 @@ variables:
   MUNIC_RES:
     official_name: Município de residência
     translated_name: Municipality of patient residence
-    description: '"Município de residência" - the 6-digit IBGE code of the municipality where
-      the PATIENT lived, as declared at the visit. Not where care was given - that is MUNIC_MOV.
+    description: '"Município de residência" - by the layout, the 6-digit IBGE code of the municipality
+      where the PATIENT lived. In the files it is mostly the hospital''s municipality: where it is
+      filled, it equals MUNIC_MOV in 92-100% of admissions (June 2022: SP 94.6%, MG 92.3%,
+      PR 92.5%, SE 100%) against 71.8% in SIH for SP, and it is "ignorado" in 12-51% of them.
+      Do not read it as residence without checking (DATA_SOURCES; EVALUATION 2026-09-30,
+      private-sector links).
 
       '
     codelist: BR_MUNICIPALFA
