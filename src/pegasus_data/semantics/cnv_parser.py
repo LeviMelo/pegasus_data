@@ -147,6 +147,25 @@ def _expression_column(lines: list[str]) -> int | None:
     return column if hits >= max(2, 0.6 * sum(starts.values())) else None
 
 
+def _positional_column(lines: list[str], width: int | None) -> int | None:
+    """The column of the comma that ends a fixed-width code field, if every line has one.
+
+    Only for a file whose expression column could not be inferred and whose
+    lines all end ``<code field>,`` at one column with blanks inside the field:
+    a code that is a set of positions, not a token.
+    """
+    if not width or width < 2 or not lines:
+        return None
+    ends = {len(line.rstrip()) - 1 for line in lines}
+    if len(ends) != 1 or any(not line.rstrip().endswith(",") for line in lines):
+        return None
+    column = ends.pop()
+    fields = [line[column - width : column] for line in lines]
+    if not any(" " in field.strip() or field != field.strip() for field in fields):
+        return None
+    return column
+
+
 def _code_abuts_label(line: str, column: int, width: int | None) -> bool:
     """Does a label that fills its whole field run straight into the code?
 
@@ -281,6 +300,7 @@ def parse_cnv_bytes(
     ]
 
     expr_col = _expression_column([ln for _, ln in body])
+    positional = _positional_column([ln for _, ln in body], width) if expr_col is None else None
     out = CnvFile(name, source_ref, declared, width, encoding=encoding)
 
     for offset, (line_no, line) in enumerate(body):
@@ -288,6 +308,21 @@ def parse_cnv_bytes(
         if not tokens:
             continue
         sequence = tokens[0].group()
+        if positional is not None and width:
+            # A positional code field: ``TP_DROGA.CNV`` writes the substances as
+            # letters in fixed places (``A  ``, ``A O``, `` CO``). A token split
+            # read ``A O`` as code ``O`` labelled "Alcool e Outras Drogas A" —
+            # the same code as "Outras Drogas" (ADR-0106). The files store the
+            # letters without the blanks (``AO``), so the blanks are dropped.
+            field = line[positional - width : positional]
+            code = "".join(field.split())
+            label = " ".join(line[tokens[0].end() : positional - width].split())
+            if code and label:
+                out.categories.append(CnvCategory(
+                    order=offset, sequence=sequence, label=label, expression=code,
+                    line_no=line_no, codes=[code], unexpanded=[],
+                ))
+                continue
         if len(tokens) == 1:
             out.warnings.append(f"line {line_no}: no match expression")
             continue

@@ -698,6 +698,9 @@ variables:
       '
     code_system: external
     label_via: {column: CNES, table: CADGERBR, field: maintainer}  # the row's establishment's mantenedora (ADR-0094)
+    # All zeros exactly when NIV_DEP is 1 (individual): CNES-ST AC 2023-01, 735 of 735; every
+    # NIV_DEP 3 row holds a valid CNPJ (543 of 543). Not a CNPJ, so not in CNPJ_BR (ADR-0106).
+    codes: {"00000000000000": "Sem mantenedora (estabelecimento individual)"}
     codelist: CNPJ_BR
     source: web
     source_ref: '[PCDAS] "CNPJ da mantenedora do estabelecimento"'
@@ -1298,6 +1301,10 @@ variables:
       [PCDAS] "Healthcare provider type (30-99 range)"
 
       '
+    # 99 on every row from 2016 (CNES-ST AC: 20/22/40/50/60/61 in 2008 and 2012; 99 on 777,
+    # 918 and 1,278 of as many rows in 2016, 2020, 2023): the field stopped being filled.
+    # NAT_JUR carries the legal nature since (ADR-0106).
+    codes: {"99": "Não preenchido"}
     codelists:
     - TIPOPRES
   TP_UNID:

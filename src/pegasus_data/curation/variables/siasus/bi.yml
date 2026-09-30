@@ -31,6 +31,8 @@ variables:
       line via credit cession (a different entity than the executing establishment),
       or all zeros when no cession applies.
     code_system: external
+    # 68,541 of 68,554 rows of SIA-BI AC 2023-01 (ADR-0106).
+    codes: {"00000000000000": "Sem cessão de crédito"}
     codelist: CNPJ_BR
   CNSPROF:
     official_name: Número do CNS (Cartão Nacional de Saúde) do profissional de saúde

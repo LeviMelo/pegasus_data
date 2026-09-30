@@ -543,9 +543,14 @@ variables:
   GESTOR_COD:
     official_name: Motivo de autorização da AIH pelo Gestor
     translated_name: Manager authorisation reason
-    description: Why the manager authorised the AIH, used where authorisation needed a stated
-      justification.
+    description: Which of the AIH's rules (length of stay, age, quantity, CBO, CNS, ...) the
+      manager lifted; the kit's LIBGESTOR names each combination. 00000 lifts none.
     code_system: internal
+    # 00000 is not in LIBGESTOR, whose codes are combinations of lifted rules; it is on every
+    # AIH without a manager's authorisation and on 20,488 of 35,223 with one (SIH-RD SP
+    # 2023-01, ADR-0106).
+    codes: {"00000": "Nenhuma regra liberada pelo gestor"}
+    codelist: LIBGESTOR
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 71'
@@ -568,9 +573,15 @@ variables:
       Layout dos arquivos RD*.dbf, SEQ 74'
   GESTOR_TP:
     official_name: Tipo de gestor
-    translated_name: Manager type
-    description: Whether the authorising manager is state or municipal.
+    translated_name: Manager authorisation recorded
+    description: Whether a health manager's authorisation is recorded on the AIH. The layout
+      names it "tipo de gestor" and gives no table; the data shows 1 exactly when the
+      manager's CPF (GESTOR_CPF) is filled, and the lifted-rule code (GESTOR_COD) is non-zero
+      only under 1. It does not say whether the manager is state or municipal.
     code_system: internal
+    # SIH-RD 2023-01: AC 4,165 rows and SP 210,225, no exception: 1 with GESTOR_CPF filled
+    # (171; 35,223), 0 with it empty (3,994; 175,002); no other value (ADR-0106).
+    codes: {"0": "Sem autorização do gestor registrada", "1": "Autorização do gestor registrada"}
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 72'

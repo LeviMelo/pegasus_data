@@ -828,9 +828,12 @@ variables:
     translated_name: Contract-rule code
     description: Code identifying the contractual rule under which the establishment's production
       is financed. Identifies the agreement, not its terms.
+    # The SIA kit's REGRA_C/PA_REGCT stop short of 7114 (SIA-PA AC 2023-01: 835 rows); the
+    # national REGRAS table names it (ADR-0106).
     codelists:
     - REGRA_C
     - PA_REGCT
+    - REGRAS
     code_system: internal
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
@@ -944,8 +947,11 @@ variables:
       (e.g. hospital, basic health unit, outpatient clinic), drawn from the CNES establishment-type
       table.
     code_system: internal
+    # SIA's copy of TP_ESTAB lacks 85 (Centro de imunização, SIA-PA AC 2023-01: 151 rows);
+    # CNES's own unit-type table has it (ADR-0106).
     codelists:
     - TP_ESTAB
+    - TP_UNID
   PA_TRANSF:
     official_name: Indicador de Transferência
     translated_name: Transfer indicator

@@ -88,17 +88,15 @@ another.
 
 ## Open fronts
 
-- **Undecoded because no source names them:**
-  - SIH `GESTOR_TP`;
-  - SIA `AP_TPATEN` `12`;
-  - CNES `TP_PREST` `99`, bank codes `71X`/`002`, `ID_AREA`/`ID_SEGM`
-    placeholders;
-  - SINASC `CODPAISRES` `1`, `KOTELCHUCK` `9`, `TPDOCRESP` `0`;
-  - SINAN meningitis quadros (OQ-59).
-
-  Each reads `code (?)`. SIH `TPDISEC*` `0`, `SP_DES_*`, `SP_U_AIH` and SIA
-  `TIPPRE` `00`, `UFDIF`/`MNDIF` `9`, `PA_CODOCO` were settled by measurement
-  against other columns of the same record (ADR-0105).
+- **Undecoded because no source names them** (OQ-61; fresh-home sweep, 21
+  columns and 48,763 cells, from 52 and 560,585 the same morning): largest SIH-SP
+  `SERV_CLA` `000000`; SIA-AQ/AR histology grade and `AQ_TRANTE`; SIA-PS
+  nationality and ethnicity; CNES bank codes and placeholders; SINASC
+  `TPDOCRESP` `0`; SINAN-HANS `9`s; SINAN meningitis quadros (OQ-59). Each
+  reads `code (?)`. Settled by measurement against other columns of the same
+  record: SIH `TPDISEC*`, `SP_DES_*`, `SP_U_AIH`, `GESTOR_TP`/`GESTOR_COD`;
+  SIA `TIPPRE`, `UFDIF`/`MNDIF` `9`, `PA_CODOCO`; CNES `TP_PREST` `99`,
+  all-zero `CNPJ_MAN`/`CNPJ_CC`; SINASC `CODPAISRES` (ADR-0105, ADR-0106).
 - **Undescribed:**
   - SIA UO's 74 modality fields and PQ's 14 name-only fields (no layout
     found);

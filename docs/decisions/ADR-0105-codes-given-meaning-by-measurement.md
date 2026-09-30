@@ -52,7 +52,10 @@
 - Not given a meaning, for want of evidence: SIH `GESTOR_TP`, SINASC
   `CODPAISRES` 1, `KOTELCHUCK` 9, `TPDOCRESP` 0 (neither the structure document
   nor microdatasus defines them; no pattern against other columns). They stay
-  visibly undecoded (OPEN_QUESTIONS).
+  visibly undecoded (OPEN_QUESTIONS). *Corrected the same day (ADR-0106):* the
+  kit's `KOTELCHUCK.CNV` does define 9, hidden by the inline table until the
+  fallback fix above; `CODPAISRES` 1 and `GESTOR_TP` were settled by
+  measurement. `TPDOCRESP` 0 stays undecoded.
 
 **Result, new home (`~/pegasus_fresh`), commit after 9679c8a.**
 - SIA-PA AC 2023-01 (95,414 rows): `PA_CODOCO` "APROVADO TOTALMENTE (K)"

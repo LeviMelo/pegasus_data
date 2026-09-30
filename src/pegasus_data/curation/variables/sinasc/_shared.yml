@@ -228,9 +228,12 @@ variables:
   CODPAISRES:
     official_name: Código do país de residência
     translated_name: Country of residence
-    description: Country code where the mother lives abroad. Filled instead of, not alongside,
-      a Brazilian municipality.
+    description: Country of the mother's residence. In the files it is 1 (Brasil) beside a
+      Brazilian residence municipality; a foreign code would take TABPAIS's numbering.
     code_system: external
+    # The files hold 1, not TABPAIS's 800: 1 on 70,754 of 70,754 filled rows of SINASC 2022
+    # AC, RR and MS (and AC 2012), each with a Brazilian residence municipality (ADR-0106).
+    codes: {"1": "Brasil"}
     codelist: NATURALIDADE  # SIM TABPAIS: 800 Brasil, 8xx states, others countries (ADR-0093)
     source: layout_doc
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
@@ -772,6 +775,10 @@ variables:
 
       '
     code_system: internal
+    # Two sources disagree on "not classified": the 2019 structure says 6, the kit's
+    # KOTELCHUCK.CNV says 9. The files hold 9 (SINASC 2022 AC, RR, MS: 3,697 rows, each
+    # with MESPRENAT null/99 or a start month beside CONSULTAS 1/9) and never 6. Both
+    # claims stay: the layout's table first, the kit's 9 behind it (ADR-0106).
     codes: {"1": "Não fez pré-natal", "2": "Inadequado", "3": "Intermediário", "4": "Adequado", "5": "Mais que adequado", "6": "Não classificado (consultas ou mês de início do pré-natal nulo ou ignorado)"}
     codelists:
     - KOTELCHUCK
