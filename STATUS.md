@@ -12,35 +12,55 @@ fast-forwarded into `master` on 2026-09-30, locally (not pushed). Work
 continues on branch **`linkage`**: record linkage across systems, planned in
 `docs/plans/linkage.md` (ADR-0107).
 
-## Record linkage (branch `linkage`, ADR-0107 to ADR-0111)
+## Record linkage (branch `linkage`, ADR-0107 to ADR-0114)
 
-- **Record identity.** Every decoded row carries `_row`; `(_blob_sha256,
-  _row)` is permanent (ADR-0107).
-- **Roles** (`curation/roles.yml`, `linkage/roles.py`) for SINASC, SIM, SIH-RD,
-  CIHA and SIA-PS: records as normalised properties of entities; categories
-  make SIM's "cesáreo" and SINASC's "cesário" one value (ADR-0109).
-- **Deterministic engine** (`curation/links.yml`, `linkage/engine.py`): 1:1
-  passes over what is left, a negative control per pass, held-out validations,
-  verdicts fixed in advance (ADR-0110).
-  - omnisus's RR 2022 study is reproduced to the pair (EVALUATION 2026-09-30).
-  - Every declared link is viable on AC and RR.
-- **Probabilistic engine** (`linkage/model.py`, `linkage/probabilistic.py`):
-  - evidence in bits;
-  - each field's error channel learned from leave-one-field-out anchors;
-  - the threshold set by the measured false-match rate (ADR-0111).
+- **Foundations.**
+  - Record identity `(_blob_sha256, _row)` on every row.
+  - Roles for SINASC, SIM, SIH-RD, CIHA and SIA-PS, normalised through our
+    own labels, with categories where systems spell a concept differently
+    (ADR-0109).
+- **Two engines** (`curation/links.yml`), sharing the negative control,
+  held-out validations and verdicts fixed in advance:
+  - **deterministic** (ADR-0110);
+  - **probabilistic** (ADR-0111): evidence in bits, error channels learned
+    from leave-one-field-out anchors, u from 200,000 random pairs, threshold
+    by measured false-match rate, vectorised for national candidate sets.
+  - **ADR-0113:** a pair must be each side's clear best (log2(19) bits), and
+    verdicts use the 95% upper bound, so ties and small samples are refused.
+  - **ADR-0114:** every block keeps an identifying key; typo-variant blocks
+    exist and are used only where they add links.
+- **Five spine links, RR and AC 2022:**
+  - viable: SIH deaths → SIM, infant deaths → SINASC, deliveries → SIH;
+  - not certifiable per state: maternal deaths (too few);
+  - not identifiable with what SIH records about a newborn: neonatal
+    admissions (OQ-62).
   
-  SIH deaths → SIM, RR 2022: 92.9% linked at an estimated 0.72% false-match
-  rate, against 88.2% deterministic. The extra pairs are birth-date typos and
-  sex miscoding, and all of them died in hospital.
-- **Surfaces.** `link()`, `role_table()`, `LinkNotViable`, and `pegasus-data
-  link`.
-- **National measurements** (`scripts/linkage_study.py`), bits of identity:
-  - births 2022, 2,561,922 records: baby's birth date + sex + mother's
-    residence + mother's birth date makes 97.9% unique;
-  - deaths 2022, 1,544,266 records: birth date + sex + residence + death date,
-    99.8%.
-
-  Error channels, travel flows and SIH/CIHA coverage are running.
+  omnisus's RR study is reproduced to the pair.
+- **National.** SIH in-hospital deaths → SIM, 2022: 513,956 of 605,542 linked
+  (84.9%), deterministic, 0.1% chance. Probabilistic national runs are in
+  progress.
+- **Surfaces.**
+  - `link(method=…)`, `role_table()`, `pegasus-data link`;
+  - results persisted in `<lake>/links/` and reused (ADR-0112);
+  - `serve/` routes `/links` and `/links/timeline` (timelines behind
+    `--allow-records`);
+  - live scenarios `linkage` and `timeline`.
+  - The frontend is out of scope (user, 2026-09-30).
+- **National measurements** (EVALUATION 2026-09-30):
+  - bits of identity for SINASC, SIM, SIH, CIHA;
+  - SIA error channels (59.9% of one-digit date errors on adjacent keys);
+  - travel flows by care type (oncology 46% in its own municipality);
+  - SIH ∪ CIHA nearly disjoint (0.18% overlap);
+  - join grains (OQ-20).
+- **Meaning fixes found on the way:**
+  - SINASC `LOCNASC` 5 is *Aldeia indígena* (1,966 births in 2022 read
+    "Ignorado");
+  - SIH `IDENT` from the layout;
+  - SIH-SP `SERV_CLA` 000000 = not filled in;
+  - 1990s SIH V-codes decoded;
+  - national queries of per-state datasets;
+  - provenance under `select=`;
+  - uncoded columns and out-of-period tables no longer warn.
 
 ## Done (live-verified)
 
