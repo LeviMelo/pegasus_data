@@ -110,5 +110,6 @@ is `master`, so pushes currently run no CI (STATUS).
 |---|---|
 | list the declared links | `pegasus-data link` |
 | run one (reused from the lake when already run) | `pegasus-data link sih_deaths_to_sim --period 2022 --geo RR [--method probabilistic] [--out pairs.parquet] [--refresh]` (`--refresh` recomputes past a stored run) |
+| discover which fields two datasets share people through (ADR-0119) | `pegasus-data link-discover SINASC-DN SIH-RD --period 2022 --geo RR [--top 10]`; every pair: `python scripts/link_discovery.py 2022 BR` (roles cached under `data/probes/linkage/discovery/cache/`) |
 | national measurements | `python scripts/linkage_study.py bits|channels|flows <dataset> <period>`, `coverage <period>`, `joins <period> <uf>` |
 | serve link reports and timelines | `python -m pegasus_data.serve --port 8000 --allow-records` (timelines are microdata) |

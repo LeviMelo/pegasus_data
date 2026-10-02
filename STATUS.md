@@ -62,6 +62,11 @@ continues on branch **`linkage`**: record linkage across systems, planned in
 
   Deterministic, for comparison: SIH deaths 84.9%, infant deaths 74.1%,
   deliveries 60.1%.
+- **Link discovery (ADR-0119).** Given only typed fields, a placebo-checked
+  search finds the hand-written keys of deliveries and in-hospital deaths
+  (SIH and CIHA) at 0.5–8% of the probabilistic yields. Infant deaths are
+  shared (z 49) but not isolable without numeric fields. Next: numeric
+  comparisons, impossibility rules, one link per pair at the widest scope.
 - **CIHA's residence field** records the hospital's municipality for
   85–100% of mothers and 85–92% of deceased who live elsewhere, tested against
   SINASC and SIM on linked pairs (EVALUATION 2026-09-30, two entries). The

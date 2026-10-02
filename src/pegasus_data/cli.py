@@ -1353,6 +1353,41 @@ def link_cmd(
         console.print(f"[green]wrote[/green] {out}  ({result.pairs.num_rows:,} pairs)")
 
 
+@app.command(name="link-discover", rich_help_panel="EXTRACT")
+def link_discover_cmd(
+    left: Annotated[str, typer.Argument(help="A dataset with roles (curation/roles.yml), e.g. SINASC-DN")],
+    right: Annotated[str, typer.Argument(help="The other dataset, e.g. SIH-RD")],
+    period: Annotated[str, typer.Option("--period", "-p", help="2022, or 2020..2022")],
+    geography: Annotated[str, typer.Option("--geo", "-g", help="AC, or AC,RR, or BR")],
+    top: Annotated[int, typer.Option("--top", help="How many keys to show")] = 10,
+    allow_partial: Annotated[
+        bool, typer.Option("--allow-partial", help="Accept a side short of a file that will not download or open")
+    ] = False,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Measure which fields carry people shared by two datasets (ADR-0119).
+
+    'pegasus-data link-discover SINASC-DN SIH-RD --period 2022 --geo RR'. Every
+    key built from type-compatible roles is counted against a placebo (left
+    dates shifted a week); keys are ranked by the pairs they isolate beyond
+    chance.
+    """
+    from .linkage.discover import discover_links
+    from .retrieve import DatasetUnknown, NothingPublished
+
+    span: object = tuple(part.strip() for part in period.split("..")) if ".." in period else period.strip()
+    geo: object = [g.strip() for g in geography.split(",")] if "," in geography else geography.strip()
+    try:
+        with console.status(f"discovering {left} ~ {right}…"):
+            results = discover_links(left, right, period=span, geography=geo, allow_partial=allow_partial,
+                                     settings=_settings(root))
+    except (KeyError, DatasetUnknown, NothingPublished, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    _emit([r.summary() for r in results[:top]], as_json, f"link discovery {left} ~ {right}")
+
+
 @app.command(name="query", rich_help_panel="EXTRACT")
 def query_cmd(
     dataset: Annotated[str, typer.Argument(help="Dataset: SIH.RD, SIM.DO, SINASC.DN (SIH-RD works too)")],

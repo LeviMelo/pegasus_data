@@ -44,6 +44,7 @@ datasets:
       mother.birth_date: {column: DTNASCMAE, type: date, format: DDMMYYYY}
       mother.age: {column: IDADEMAE, type: integer}
       mother.residence: {column: CODMUNRES, type: municipality}
+      birth.municipality: {column: CODMUNNASC, type: municipality}
 
   SIM-DO:
     record: death
@@ -54,6 +55,7 @@ datasets:
       deceased.age_years: {column: IDADE_anos, type: number}
       death.date: {column: DTOBITO, type: date, format: DDMMYYYY}
       death.facility: {column: CODESTAB, type: facility}
+      death.municipality: {column: CODMUNOCOR, type: municipality}
       death.place: {column: LOCOCOR, type: label, categories: {hospital: [hospital], "other health facility": ["outros estabelecimentos de saúde", "outro estabelecimento de saúde"], home: ["domicílio"], street: ["via pública"], "indigenous village": ["aldeia indígena"], other: [outros]}}
       death.kind: {column: TIPOBITO, type: label}
       death.cause: {column: CAUSABAS, type: code}

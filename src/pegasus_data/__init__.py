@@ -94,6 +94,7 @@ _EXPORTS: dict[str, str] = {
     "LinkResult": ".linkage.engine",
     "LinkNotViable": ".linkage.engine",
     "role_table": ".linkage.roles",
+    "discover_links": ".linkage.discover",
 }
 
 __all__ = ["Settings", "load_settings", "__version__", *sorted(_EXPORTS)]

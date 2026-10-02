@@ -169,6 +169,11 @@ result.pairs       # record ids (file hash:row) on each side, and the pass that 
   (`curation/roles.yml`).
 - **Refusal.** A linkage that is not viable raises `LinkNotViable` instead of
   returning pairs.
+- **Discovery.** `discover_links("SINASC-DN", "SIH-RD", period=2022,
+  geography="RR")` measures which fields two datasets share people through.
+  Every key built from type-compatible roles is counted against a placebo,
+  and the keys come back ranked by the pairs they isolate beyond chance
+  (ADR-0119). Command line: `pegasus-data link-discover`.
 - **Command line:** `pegasus-data link sih_deaths_to_sim --period 2022 --geo
   RR`. The method is in ADR-0107, ADR-0110 and ADR-0111.
 
