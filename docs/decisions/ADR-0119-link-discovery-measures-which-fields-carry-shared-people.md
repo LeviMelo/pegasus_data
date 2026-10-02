@@ -23,10 +23,13 @@ ADR-0110, ADR-0111.
 
 **Decision.**
 - **`linkage/discover.py` measures, for two datasets, every key built from
-  type-compatible role pairings** (date, sex, facility, municipality):
+  type-compatible role pairings** (date, sex, facility, municipality,
+  integer, label):
   - one or two date pairings;
   - with or without sex;
-  - with or without one place pairing.
+  - with or without one place pairing;
+  - with or without one attribute pairing (an integer or a label: weight,
+    weeks, age, delivery type).
 - **Each key is counted against a placebo:**
   - every left date in the key shifted by ±7 days, which keeps the weekday;
   - a true partner then disagrees, while chance agreement keeps its rate.
@@ -64,20 +67,20 @@ ADR-0110, ADR-0111.
 | SINASC → CIHA | the same | 188,145, 90× | 193,335 |
 | SIM → SIH | birth date + death inside the stay + same hospital; "most shared": death = discharge + sex + hospital | 502,724 isolated; 508,886 meet (placebo 1,120) | 545,135 |
 | SIM → CIHA | birth date + death inside the stay + sex + municipality | 55,492 isolated; 56,138 meet (placebo 446) | 55,983 |
-| SINASC → SIM | baby's birth date + sex + residence | shares people (z 49.3; 27,291 meet against 20,268) but isolates 2,856 | 23,848 infant deaths |
+| SINASC → SIM, date/sex/place | baby's birth date + sex + residence | shares people (z 49.3) but isolates 2,856 | 23,848 infant deaths |
+| SINASC → SIM, with attributes | baby's birth date + mother's residence + birth weight | 20,675 (52×) | 23,848 |
 
-- **In four of five pairs** the hand-written key is the key the data reveals,
-  at nearly the same yield. The probabilistic links run a little higher
+- **In all five pairs** the hand-written key is the key the data reveals, at
+  nearly the same yield. The probabilistic links run a little higher
   because they credit typing errors, which an exact key cannot.
-- **Infant deaths** show discovery's current limit. The comparable types can
-  say that the datasets share people, but not which birth a death is: about
-  a dozen same-day births share the key. The evidence that separates them is
-  numeric (weight, weeks, the mother's age), which discovery does not yet
-  compare.
+- **Infant deaths** needed an attribute. Date, sex and place show that the
+  datasets share people but cannot say which of a dozen same-day births a
+  death is. Allowed integers and labels, discovery picks birth weight on its
+  own.
 
 **Consequences.**
-- **Numeric comparisons next:** weight, weeks and age with tolerance, so a
-  key can isolate infants.
+- **Tolerance comparisons** (weight within grams) are a refinement; exact
+  equality already isolates most infant deaths.
 - **Hard impossibility rules before scoring.** Event order and the place of
   death (a home death cannot end an admission) are rules, not penalties.
 - **One link per pair and event, at the widest scope.** Subpopulations

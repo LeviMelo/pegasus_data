@@ -4,10 +4,12 @@ A link spec (``curation/links.yml``) asserts which event two datasets share and
 which field on one side means which field on the other. Discovery measures that
 instead of asserting it:
 
-1. Every role of a comparable type (date, sex, facility, municipality) on one
-   side is paired with every role of the same type on the other.
-2. A *key* is a combination of such pairings (one or two date pairings, with or
-   without sex and one place pairing). Records are grouped by the key on each
+1. Every role of a comparable type (date, sex, facility, municipality,
+   integer, label) on one side is paired with every role of the same type on
+   the other.
+2. A *key* is a combination of such pairings: one or two date pairings, with
+   or without sex, one place pairing and one attribute pairing (an integer or
+   a label: weight, weeks, age, delivery type). Integers compare exactly. Records are grouped by the key on each
    side. A left record *meets* the right side when its key value occurs
    there; a pair is *mutual* when the key value occurs exactly once on each
    side, so neither record has a look-alike (counting one side only inflates a
@@ -49,7 +51,11 @@ import pyarrow as pa
 
 from .roles import dataset_roles, role_table
 
-COMPARABLE = ("date", "sex", "facility", "municipality")
+COMPARABLE = ("date", "sex", "facility", "municipality", "integer", "label")
+#: Types that join a key only as one optional attribute (birth weight, weeks,
+#: the mother's age, delivery type): numerous pairings, most meaningless,
+#: which the placebo sorts out.
+ATTRIBUTE = ("integer", "label")
 SHIFT_DAYS = 7
 MAX_INTERVAL_DAYS = 60
 
@@ -116,7 +122,8 @@ def _keys(left: dict[str, str], right: dict[str, str]) -> list[tuple[tuple[str, 
     ]
     places: list[tuple[tuple[str, str], ...]] = [()] + [(p,) for p in pairs["facility"] + pairs["municipality"]]
     sexes: list[tuple[tuple[str, str], ...]] = [()] + [(s,) for s in pairs["sex"]]
-    return [d + s + p for d in date_sets for s in sexes for p in places]
+    attrs: list[tuple[tuple[str, str], ...]] = [()] + [(x,) for t in ATTRIBUTE for x in pairs[t]]
+    return [d + s + p + x for d in date_sets for s in sexes for p in places for x in attrs]
 
 
 def _intervals(types: dict[str, str]) -> list[str]:
