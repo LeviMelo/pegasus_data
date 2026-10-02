@@ -42,7 +42,7 @@ The yardstick is the national probabilistic link of the same pair (EVALUATION
 
 ## Findings
 
-- **Four of five keys are what the data reveals.**
+- **The hand-written keys are what the data reveals.**
   - The hand-written keys of deliveries (SIH and CIHA) and in-hospital
     deaths (SIH and CIHA) come first or near first among 72–240 measured
     keys.
@@ -62,9 +62,9 @@ The yardstick is the national probabilistic link of the same pair (EVALUATION
     the mother's age, delivery type, plurality: 2,016 keys), the best key
     pairs the baby's weight in SINASC with the weight SIM records for an
     infant death. It isolates 20,675 deaths at 52× chance, against the
-    hand-written link's 23,848.
-  - Exact equality of grams suffices for most: SIM's weight is usually
-    the birth declaration's.
+    hand-written link's 23,848 (13% fewer).
+  - Exact equality of grams isolates most of them. How often SIM's weight
+    differs from SINASC's for the same baby was not measured here.
 - **Uniqueness must be mutual.** Counting it from one side was tried first
   and gave a meaningless ratio (1.1): every newborn of a city and day
   "met" its one infant death.
