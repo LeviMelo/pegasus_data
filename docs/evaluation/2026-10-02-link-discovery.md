@@ -35,7 +35,7 @@ The yardstick is the national probabilistic link of the same pair (EVALUATION
 | SIM → CIHA | 1.54M / 20.5M | birth date + death inside the stay + sex + municipality | 55,492 (4.4×; 56,138 meet against 446) | 55,983 |
 | SINASC → SIM, date/sex/place only | 2.56M / 1.54M | baby's birth date + sex + residence | 2,856 (1.7×); shares people at z 49.3 (27,291 meet against 20,268) | 23,848 infant deaths |
 | SINASC → SIM, with attributes (2,016 keys) | 2.56M / 1.54M | baby's birth date + mother's residence + **birth weight** | 20,675 (52×) | 23,848 |
-| SIH → CIHA | 12.5M / 20.5M | still running at commit | — | none declared |
+| SIH → CIHA | 12.5M / 20.5M | stopped unfinished after about 4.5 h | — | none declared |
 
 **Roraima.** Births → SIH gave 8,604 excess against the hand-written link's
 8,577 pairs, with the same key.
@@ -76,8 +76,11 @@ The yardstick is the national probabilistic link of the same pair (EVALUATION
 
 ## Not done
 
-- **SIH → CIHA** was still running at commit. Earlier measurement found
-  0.18% of CIHA admissions matching SIH (DATA_SOURCES).
+- **SIH → CIHA was stopped unfinished** after about 4.5 hours (2026-10-02
+  ~06:45). Two large sides, both expanded to stay days, under 240 keys, cost
+  more than a laptop night. Earlier measurement found 0.18% of CIHA
+  admissions matching SIH (DATA_SOURCES), so little is expected. A run needs
+  pruning first: drop two-date keys whose single-date parts show no excess.
 - **Tolerance comparisons** (weight within grams, weeks within one) are not
   tried; exact equality already isolates most.
 - **Impossibility rules and widest-scope linking** are ADR-0119's
