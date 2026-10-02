@@ -65,8 +65,10 @@ continues on branch **`linkage`**: record linkage across systems, planned in
 - **Link discovery (ADR-0119).** Given only typed fields, a placebo-checked
   search finds the hand-written keys of deliveries and in-hospital deaths
   (SIH and CIHA) and infant deaths (through birth weight, which it picks on
-  its own) at 0.5–13% of the probabilistic yields. Next: impossibility rules,
-  one link per pair at the widest scope.
+  its own) at 0.5–13% of the probabilistic yields.
+- **Impossible pairs** (a death before the admission, a death at home) are
+  mostly recording errors in true pairs. They become learned, flagged
+  evidence, not rules. Next: one link per pair at the widest scope.
 - **CIHA's residence field** records the hospital's municipality for
   85–100% of mothers and 85–92% of deceased who live elsewhere, tested against
   SINASC and SIM on linked pairs (EVALUATION 2026-09-30, two entries). The

@@ -81,8 +81,17 @@ ADR-0110, ADR-0111.
 **Consequences.**
 - **Tolerance comparisons** (weight within grams) are a refinement; exact
   equality already isolates most infant deaths.
-- **Hard impossibility rules before scoring.** Event order and the place of
-  death (a home death cannot end an admission) are rules, not penalties.
+- **Impossibility is learned, flagged evidence, not a hard rule.** This
+  replaces "hard rules before scoring" (proposed 2026-10-01, amended
+  2026-10-02).
+  - Measured on the national links: the SIH-death pairs breaking event order
+    (1,557) or the place of death (1,612) agree on birth date and on hospital
+    or day of death. The field that makes them impossible is recorded with
+    error: month typos, deaths coded "home" or "other" on the day the stay
+    ended.
+  - A rule would delete mostly true pairs. These conditions become
+    comparisons with learned weights, and pairs breaking them are flagged
+    (EVALUATION 2026-10-02 "Impossible pairs").
 - **One link per pair and event, at the widest scope.** Subpopulations
   (maternal, infant) become filters on it; the infant year restriction goes.
 - **Held-out fields** (race first) are kept out of linking on purpose, to
