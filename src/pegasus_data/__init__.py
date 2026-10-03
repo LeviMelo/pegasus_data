@@ -37,6 +37,7 @@ _EXPORTS: dict[str, str] = {
     "describe": ".api",
     "load_population": ".api",
     "load_field": ".fields",
+    "race_reliability": ".quality",
     "load_reference": ".api",
     "FieldDescription": ".api",
     "MissingColumnError": ".api",

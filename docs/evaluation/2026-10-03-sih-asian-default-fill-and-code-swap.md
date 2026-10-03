@@ -75,3 +75,22 @@ other system's race.
   than half of the persons SIM or SINASC call black as brown.
   `race_settings.py` reports it; the direction (the clerk's checkbox or
   the source system) is not tested here.
+
+## The flag, built (ADR-0128)
+
+Measured over SIH-RD 2022 (`pegasus_linkage` lake), per (CNES, month of
+discharge), on the 43,945 hospital-months with 30 or more admissions. Share
+coded 04: median 0, 90th percentile 2.4%, 99th 25%, 99.9th 85%.
+
+| rule | hospital-months | hospitals | admissions |
+|---|---|---|---|
+| 04 > 50% (default fill) | 124 | 24 | 46,878 |
+| 03 < 1% and 04 > 10% (swap signature) | 236 | 50 | 47,572 |
+| either (`unreliable`) | 329 | 64 | 89,003 |
+| 04 in 10–50% otherwise (`suspect`) | 1,297 | 278 | 241,005 |
+
+`race_reliability()` on the 2022 query results:
+- **CE:** 495,883 `ok`, 15,853 `unreliable` (all CNES 2499363, whose rows
+  are 04 for 14,708 admissions), 3,881 `suspect`, 14,341 `too_few`.
+- **SP:** CNES 2705982 is `unreliable` 2022-01 to 2022-08, `suspect` in
+  2022-09 and `ok` from 2022-10.
