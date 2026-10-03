@@ -130,3 +130,4 @@ in.
 | 2026-10-02 | [Linkage speed, first pass: 58 → 9.2 min for the national SIH-deaths link, identical pairs](docs/evaluation/2026-10-02-linkage-speed-first-pass.md) | live (cProfile; national home) |
 | 2026-10-03 | [Entities from the national links: 2.39 million links merged into persons, 78 conflicts](docs/evaluation/2026-10-03-entities-from-national-links.md) | live (`build_entities`, national home) |
 | 2026-10-03 | [Value-specific chance agreement: tried, measured, removed (code kept in the entry)](docs/evaluation/2026-10-03-value-frequency-weighting-tried.md) | live (`scripts/link_scope_test.py`, national home) |
+| 2026-10-03 | [`build` reported a failed download as an empty success](docs/evaluation/2026-10-03-build-hid-a-failed-fetch.md) | live (`pegasus-data build`, SINASC 2021, national home) |

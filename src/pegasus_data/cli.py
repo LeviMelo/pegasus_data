@@ -1572,6 +1572,10 @@ def build(
                 rebuild=rebuild,
             )
         _emit(result.counts, as_json, "build")
+        if result.counts.get("errors"):
+            # A file that would not fetch or decode is a gap, not an empty
+            # success: say so in the exit status too.
+            raise typer.Exit(code=1)
     finally:
         pipeline.close()
 

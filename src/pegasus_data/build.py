@@ -421,6 +421,12 @@ class Builder:
                 grouped.setdefault((uf, year), []).append(m)
 
             digests = self.pipeline.fetcher.ensure([str(m["path"]) for m in selected])
+            # A file that could not be fetched is reported with its cause. The
+            # build used to say only "skipped" and exit 0 with no errors, so a
+            # failed download of DNBR2021 read as a successful empty build
+            # (2026-10-03).
+            fetch_stats = getattr(self.pipeline.fetcher, "last_stats", None)
+            stats.errors.extend((path, f"fetch: {error}") for path, error in getattr(fetch_stats, "errors", []))
             family_rows = 0
             family_parts = 0
             # Decoded vs matched, apart. A mismatched file WAS decoded; folding
