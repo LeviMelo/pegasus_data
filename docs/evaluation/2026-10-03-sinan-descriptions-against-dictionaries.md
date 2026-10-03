@@ -75,3 +75,9 @@ P1P2P3NE.CNV codelist uses 1–7.
   the dictionary, though a 1–4 codelist is bound;
 - `ANT_TRAUMA` lists no code 2.
 
+**Data checks** (CHAG and MENI 2022 through the mirror):
+- `TIT_IGG_S1`, `TIT_IGG_S2`, `TIT_IGM_S2` hold reciprocal titres 30–1280,
+  with 0 where none was recorded. They are now numeric, no codelist.
+- `ANT_TRAUMA` carries 1/2/9 (16,091 records of code 2, none of 3). The
+  dictionary's "3 = não" is the dictionary's error.
+

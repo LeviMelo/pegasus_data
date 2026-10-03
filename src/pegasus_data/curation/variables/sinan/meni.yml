@@ -342,10 +342,10 @@ variables:
     source: def
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no comorbidity flag; TRAUMA reads traumatismo.
-    description: Previous head injury or trauma (a pre-existing condition; a skull fracture
-      can leave a direct route from the nose to the meninges and cause recurrent bacterial meningitis).
-      The dictionary lists 1 yes, 3 no, 9 unknown, with no code 2, unlike every sibling ANT_
-      item (1/2/9); whether the data carry 2 or 3 for 'no' is unchecked.
+    description: 'Previous head injury or trauma (a skull fracture can leave a route from the
+      nose to the meninges and cause recurrent bacterial meningitis). The dictionary lists 1
+      yes, 3 no, 9 unknown, but the data use 1/2/9 like every sibling ANT_ item: MENI 2022 has
+      521 code 1, 16,091 code 2, 1,627 code 9, and no 3.'
   ANT_TRIPLI:
     official_name: Vacina tríplice
     translated_name: Triple vaccine

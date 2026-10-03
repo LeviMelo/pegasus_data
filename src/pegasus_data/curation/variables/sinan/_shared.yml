@@ -6916,9 +6916,6 @@ variables:
     translated_name: 'IgG serology titer/result, sample 1 (S1)
 
       '
-    code_system: internal
-    codelists:
-    - TIT_IGG_S1
     source: layout_doc
     source_ref: '[CHAG] http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
       — "50. EXAMES REALIZADOS Resultado da Imunofluorescência Indireta - IFI Título IgG S1
@@ -6934,12 +6931,12 @@ variables:
       name; casting to a single type across series will corrupt one of the two. Chagas (CHAG):
       1 reagente, 2 não-reagente, 3 inconclusivo, 4 não realizado. Spotted fever (FMAC): the
       titre itself, e.g. 1:80, filled only when the test was performed.'
-    description: First-sample IgG antibody titre, filled only when the matching IGG_S1 result
-      is reactive. On spotted fever (FMAC) a numeric titre (number(5)), filled unless the result
-      is 'not performed'; on acute Chagas a short text titre (varchar(5)), filled only when
-      IFI IgG S1 = 1. The Chagas dictionary prints the 1-4 result categories under this field,
-      but they are a copy of the result field's list, not a coding of the titre, so no categorical
-      label should be applied to it.
+    code_system: none
+    description: 'IgG antibody titre of the first sample (indirect immunofluorescence), as the
+      reciprocal dilution, filled only when the S1 IgG result is reagent; numeric on spotted
+      fever too. Measured in CHAG 2022 (5,194 notifications): reciprocal titres 30-1280 (80
+      and 160 the commonest), 0 where no titre was recorded; numbers, not codes, so no codelist
+      is bound.'
   TIT_IGG_S2:
     official_name: 'Resultado IFI/Sorologia — Título IgG, Amostra 2
 
@@ -6947,9 +6944,6 @@ variables:
     translated_name: 'IgG serology titer/result, sample 2 (S2)
 
       '
-    code_system: internal
-    codelists:
-    - TIT_IGG_S2
     source: layout_doc
     source_ref: '[CHAG] http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
       — "50. EXAMES REALIZADOS ... Título IgG S2 | ds_resultado_titulo_igg_s2 | varchar (5)
@@ -6961,11 +6955,11 @@ variables:
       '
     depends_on:
     - TIT_IGG_S1
-    description: Second-sample IgG antibody titre, filled only when the matching IGG_S2 result
-      is reactive (Chagas) or not 'not performed' (spotted fever), taken later to check for
-      seroconversion or a rising titre between paired sera. A text titre (varchar(5)) on Chagas,
-      a number on spotted fever; the 1-4 category list printed under the Chagas field is a copy
-      of the result field's list and does not code the titre.
+    code_system: none
+    description: 'IgG antibody titre of the second sample, as the reciprocal dilution, filled
+      only when the S2 IgG result is reagent; paired with S1 to see a rising titre. Measured
+      in CHAG 2022 (5,194 notifications): reciprocal titres 30-1280 (80 and 160 the commonest),
+      0 where no titre was recorded; numbers, not codes, so no codelist is bound.'
   TIT_IGM_S1:
     official_name: 'Resultado IFI/Sorologia — Título IgM, Amostra 1
 
@@ -6973,13 +6967,6 @@ variables:
     translated_name: 'IgM serology titer/result, sample 1 (S1)
 
       '
-    description: 'First-sample (S1) IgM serology result, the acute-phase antibody analogue
-      of TIT_IGG_S1. Same categorical-code (CHAG) vs numeric-titer (FMAC) duality.
-
-      '
-    code_system: internal
-    codelists:
-    - TIT_IGM_S1
     source: layout_doc
     source_ref: '[CHAG] http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
       — "50. EXAMES REALIZADOS Resultado da Imunofluorescência Indireta - IFI Título IgM S1
@@ -6989,6 +6976,11 @@ variables:
       | Informar títulos da S1 IgM | TIT_IGM_S1"
 
       '
+    code_system: none
+    description: 'IgM antibody titre of the first sample, as the reciprocal dilution, filled
+      only when the S1 IgM result is reagent. Measured in CHAG 2022 (5,194 notifications): reciprocal
+      titres 30-1280 (80 and 160 the commonest), 0 where no titre was recorded; numbers, not
+      codes, so no codelist is bound.'
   TIT_IGM_S2:
     official_name: 'Resultado IFI/Sorologia — Título IgM, Amostra 2
 
@@ -6996,9 +6988,6 @@ variables:
     translated_name: 'IgM serology titer/result, sample 2 (S2)
 
       '
-    code_system: internal
-    codelists:
-    - TIT_IGM_S2
     source: layout_doc
     source_ref: '[CHAG] http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
       — "50. EXAMES REALIZADOS ... Título IgM S2 | ds_resultado_titulo_igm_s2 | varchar (5)
@@ -7010,10 +6999,11 @@ variables:
       '
     depends_on:
     - TIT_IGM_S1
-    description: Second-sample IgM antibody titre, filled only when the matching IgM S2 result
-      is reactive (Chagas) or not 'not performed' (spotted fever); a text titre (varchar(5))
-      on Chagas and a number on spotted fever. The 1-4 list printed under the Chagas field is
-      a copy of the result field's categories, not a coding of the titre.
+    code_system: none
+    description: 'IgM antibody titre of the second sample, as the reciprocal dilution, filled
+      only when the S2 IgM result is reagent. Measured in CHAG 2022 (5,194 notifications): reciprocal
+      titres 30-1280 (80 and 160 the commonest), 0 where no titre was recorded; numbers, not
+      codes, so no codelist is bound.'
   TOSSE:
     official_name: Tosse
     translated_name: Clinical sign — cough
