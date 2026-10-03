@@ -15,6 +15,7 @@ import threading
 import time
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
+from datetime import UTC
 
 from ..catalog.store import Catalog
 from ..discovery.ftp_client import FtpClient
@@ -151,7 +152,32 @@ class Fetcher:
         #: Set when an FTP transfer failed and the mirror served the file: the
         #: rest of this fetcher's paths try the mirror first, instead of
         #: spending ~95 s of FTP retries each on a data channel that is down.
-        self.mirror_first = False
+        #: A new fetcher inherits it from the data home's own fetch history,
+        #: so every query of an outage does not first wait out the FTP again.
+        self.mirror_first = self._outage_recent()
+
+    #: How recent a mirror-served fetch must be for a new fetcher to go to the
+    #: mirror first.
+    MIRROR_FIRST_WINDOW_S = 30 * 60
+
+    def _outage_recent(self) -> bool:
+        """Was the data home's latest fetch served by the mirror, within the window?"""
+        from datetime import datetime
+
+        try:
+            rows = self.catalog.query(
+                "SELECT serving_method, fetched_at FROM fetches ORDER BY fetched_at DESC LIMIT 1")
+        except Exception:  # noqa: BLE001 - an old or empty catalog has no history
+            return False
+        if not rows or not str(rows[0]["serving_method"] or "").startswith("mirror:"):
+            return False
+        try:
+            when = datetime.fromisoformat(str(rows[0]["fetched_at"]).replace("Z", "+00:00"))
+        except ValueError:
+            return False
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=UTC)
+        return (datetime.now(UTC) - when).total_seconds() <= self.MIRROR_FIRST_WINDOW_S
 
     # ------------------------------------------------------------------ policy
 

@@ -42,3 +42,13 @@ Rows and money equal the agent's direct reading of the `.dbc` files.
 - **Decoding `.dbc` is slower than reading CSV,** and the time is spent
   locally rather than on the wire.
 - **A cached copy is never refetched in another format.**
+
+**Amendment, the same day: an outage is remembered across queries.** The
+fetcher's switch to the mirror after an FTP failure (ADR-0122) lived only
+for one fetcher. Every query of the outage therefore first waited out the
+FTP data channel (about 30 s per query, 90 s per year of SIH Acre). A new
+fetcher now starts mirror-first when the data home's latest fetch was
+served by the mirror within the last 30 minutes (`fetches.serving_method`).
+SIH-RD Acre 2012 on a fresh home: 51,253 AIH in 6.7 s, against 96–99 s for
+2008 and 2011 before.
+
