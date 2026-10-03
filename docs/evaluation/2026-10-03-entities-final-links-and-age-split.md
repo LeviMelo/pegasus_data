@@ -69,3 +69,49 @@
 
 This answers the age question left open by EVALUATION 2026-10-03
 "Entities from the national links".
+
+## A direct link for infant admissions after 28 days: not identifiable (measured)
+
+The 2,580 older-infant pairs found only through deaths raised the question of
+a direct link. A spec (`sih_infant_admissions_to_sinasc`) was tried:
+- SIH admissions 28–364 days after the birth, against SINASC 2021–2022;
+- comparing the baby's birth date, sex and the mother's residence;
+- national 2022.
+
+| | |
+|---|---|
+| left records | 262,354 |
+| right records | 5,239,023 |
+| candidates | 5,392,722 |
+| anchors, birth date (left out; sex + residence remain) | 0 |
+| anchors, residence (left out; birth date + sex remain) | 0 |
+| anchors, sex | 23,156 |
+| pairs | 0, not viable |
+
+Leave-one-field-out anchors need the other fields to identify a person on
+their own. Sex and residence pick out no one, and birth date and sex are
+shared by about 3,500 babies a day nationally. Three weak fields cannot
+calibrate one another.
+
+The spec was removed rather than kept unviable. Two ways forward remain:
+- borrow these fields' error channels from the newborn link, which measures
+  the same three comparisons (theory §2.3, channels by field kind);
+- rely on the routes through deaths, as entities already do.
+
+**Borrowing the newborn link's channels, tried the same day.** The spec
+declared `channels_from: sih_neonatal_admissions_to_sinasc`, with m shrunk
+toward the newborn link's stored national m and u its own.
+- **The bits:** birth date equal +8.88, residence equal +7.29, sex equal
+  +0.86. A perfect agreement is about 17 bits.
+- **Result:** 10,523,003 candidates, no threshold reaching the 1% target, 0
+  pairs.
+- **Why:** the placebo (a baby born 400 days later, same municipality, same
+  sex) agrees as completely as a true partner, and in a small municipality
+  both are unique, so neither the clear-best rule nor the threshold separates
+  them.
+
+A direct link from SIH to SINASC for infants past 28 days is **not
+identifiable from SIH's fields** at the project's error target. The
+mechanism and the spec were both withdrawn, leaving no unused code. The
+older-infant pairs come through the death route (entities), where the death
+certificate carries the evidence.
