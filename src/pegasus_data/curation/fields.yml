@@ -4,7 +4,9 @@
 # (https://servicodados.ibge.gov.br/api/v3/agregados), at municipality level.
 #
 # Each entry names IBGE's own table and variable, as its metadata
-# (`/agregados/<table>/metadados`) states them, and the unit. Only totals are
+# (`/agregados/<table>/metadados`) states them, and the unit. `classification`
+# picks one category of a classification ({classification id: category id});
+# a classification left out is IBGE's Total. Only totals are
 # stored: a per-capita figure is computed at use, over POPSVS, never stored
 # (CLAUDE.md: stored aggregates are sums and counts, never finished means).
 #
@@ -40,3 +42,105 @@ fields:
     unit: R$ thousand, current prices
     what: Gross value added of agriculture and livestock.
     years: 2002-2023
+
+  # Census 2022 (Censo Demográfico). One year; the numerator and its
+  # denominator are separate fields so a share is computed at use.
+
+  households:
+    table: 6805
+    variable: 381
+    unit: households
+    what: Occupied permanent private households (domicílios particulares permanentes ocupados), Census 2022.
+    years: 2022
+
+  households_sewer_network:
+    table: 6805
+    variable: 381
+    classification: {11558: 46290}
+    unit: households
+    what: >
+      Occupied households whose sewage goes to the general or storm network,
+      or to a septic tank connected to it (rede geral, rede pluvial ou fossa
+      ligada à rede). Over `households`.
+    years: 2022
+
+  households_without_bathroom:
+    table: 6805
+    variable: 381
+    classification: {11558: 92861}
+    unit: households
+    what: Occupied households with neither bathroom nor toilet. Over `households`.
+    years: 2022
+
+  households_water_network:
+    table: 6803
+    variable: 381
+    classification: {1821: 72144}
+    unit: households
+    what: >
+      Occupied households connected to the general water network and using it
+      as the main supply. Over `households`.
+    years: 2022
+
+  households_waste_collected:
+    table: 6892
+    variable: 381
+    classification: {67: 2520}
+    unit: households
+    what: Occupied households whose waste is collected (at the door or by skip). Over `households`.
+    years: 2022
+
+  persons_15_plus:
+    table: 9542
+    variable: 950
+    unit: persons
+    what: Persons aged 15 or more, Census 2022.
+    years: 2022
+
+  persons_15_plus_literate:
+    table: 9542
+    variable: 950
+    classification: {59: 1023}
+    unit: persons
+    what: Persons aged 15 or more who can read and write a simple note. Over `persons_15_plus`.
+    years: 2022
+
+  population_white:
+    table: 9605
+    variable: 93
+    classification: {86: 2776}
+    unit: persons
+    what: Resident population declared white (branca), Census 2010 and 2022. Over POPSVS or the census total.
+    years: 2010, 2022
+
+  population_black:
+    table: 9605
+    variable: 93
+    classification: {86: 2777}
+    unit: persons
+    what: Resident population declared black (preta), Census 2010 and 2022.
+    years: 2010, 2022
+
+  population_asian:
+    table: 9605
+    variable: 93
+    classification: {86: 2778}
+    unit: persons
+    what: Resident population declared of Asian origin (amarela), Census 2010 and 2022.
+    years: 2010, 2022
+
+  population_brown:
+    table: 9605
+    variable: 93
+    classification: {86: 2779}
+    unit: persons
+    what: Resident population declared brown (parda), Census 2010 and 2022.
+    years: 2010, 2022
+
+  population_indigenous:
+    table: 9605
+    variable: 93
+    classification: {86: 2780}
+    unit: persons
+    what: Resident population declared indigenous (indígena), Census 2010 and 2022.
+    years: 2010, 2022

@@ -145,3 +145,4 @@ in.
 | 2026-10-03 | [Geography from TabNet and IPEA; context fields from IBGE](docs/evaluation/2026-10-03-geography-tabnet-ipea-and-fields.md) | live (TabNet, IPEA, IBGE APIs; maintainer home) |
 | 2026-10-03 | [Contested health regions against TabNet's current table](docs/evaluation/2026-10-03-health-region-conflicts-against-tabnet.md) | measurement (geography pack; TabNet territorial table) |
 | 2026-10-03 | [IBGE's regions across 31 years of territorial divisions: no municipality ever moved](docs/evaluation/2026-10-03-ibge-regions-across-vintages.md) | measurement (IBGE DTB 1994-2025; geography pack) |
+| 2026-10-03 | [Census fields: sanitation, literacy and population by race (2010, 2022)](docs/evaluation/2026-10-03-census-2022-fields.md) | live (IBGE aggregates API; fresh home) |

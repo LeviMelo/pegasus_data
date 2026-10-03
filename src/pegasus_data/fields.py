@@ -35,12 +35,25 @@ def declared_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
 
 
 def _years(text: str) -> list[int]:
-    lo, _, hi = str(text).partition("-")
-    return list(range(int(lo), int(hi or lo) + 1))
+    """``2002-2023`` (a span) or ``2010, 2022`` (census years)."""
+    out: list[int] = []
+    for part in str(text).split(","):
+        lo, _, hi = part.strip().partition("-")
+        out.extend(range(int(lo), int(hi or lo) + 1))
+    return out
 
 
-def _fetch(table: int, variable: int, year: int, timeout: float = 180.0) -> list[dict[str, Any]]:
+def _classification(spec: dict[str, Any]) -> str:
+    """IBGE's ``classificacao`` parameter: ``59[1023]|2[6794]``; omitted ones are its Total."""
+    chosen = spec.get("classification") or {}
+    return "|".join(f"{k}[{v}]" for k, v in chosen.items())
+
+
+def _fetch(table: int, variable: int, year: int, classification: str = "",
+           timeout: float = 180.0) -> list[dict[str, Any]]:
     url = API.format(table=table, period=year, variable=variable)
+    if classification:
+        url += f"&classificacao={classification}"
     with urllib.request.urlopen(url, timeout=timeout) as response:
         body = response.read()
     if body[:2] == bytes((0x1F, 0x8B)):
@@ -67,7 +80,8 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
         written = 0
         statuses: dict[str, int] = {}
         for year in wanted:
-            series = _fetch(int(spec["table"]), int(spec["variable"]), year)
+            chosen = _classification(spec)
+            series = _fetch(int(spec["table"]), int(spec["variable"]), year, chosen)
             code7, values, status = [], [], []
             for item in series:
                 raw = str(item["serie"].get(str(year), "")).strip()
@@ -84,7 +98,8 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
                 "value": pa.array(values, pa.float64()),
                 "status": pa.array(status, pa.string()),
                 "unit": pa.array([str(spec["unit"])] * len(code7), pa.string()),
-                "source": pa.array([f"IBGE agregados {spec['table']} v{spec['variable']}"] * len(code7), pa.string()),
+                "source": pa.array([f"IBGE agregados {spec['table']} v{spec['variable']}"
+                                    + (f" c{chosen}" if chosen else "")] * len(code7), pa.string()),
             })
             target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
             target.mkdir(parents=True, exist_ok=True)
