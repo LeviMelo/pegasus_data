@@ -25,35 +25,60 @@ for _d in range(10):
             _ADJ[_d, _e] = True
 
 
-def _digits(dates: pa.Array) -> np.ndarray:
-    """Dates as an (n, 8) array of DDMMYYYY digits; a missing row is all -1.
-
-    Calendar arithmetic on the whole array: formatting each date as text in
-    Python cost a third of a link's time (profile, 2026-10-02).
-    """
+def _days_of(dates: pa.Array) -> tuple[np.ndarray, np.ndarray]:
+    """Days since 1970 and the missing mask."""
     if isinstance(dates, pa.ChunkedArray):
         dates = dates.combine_chunks()
     missing = pc.is_null(dates).to_numpy(zero_copy_only=False)
     days = pc.fill_null(pc.cast(dates, pa.date32()), 0).cast(pa.int32()).to_numpy(zero_copy_only=False)
-    d64 = days.astype("datetime64[D]")
+    return days, missing
+
+
+def _digits_of_days(days: np.ndarray) -> np.ndarray:
+    """(n, 8) DDMMYYYY digits, computed once per distinct day and gathered:
+    candidate dates repeat (a block shares them), and the calendar arithmetic
+    per row was most of a date comparison's cost (profile 2026-10-03)."""
+    uniq, inverse = np.unique(days, return_inverse=True)
+    d64 = uniq.astype("datetime64[D]")
     months = d64.astype("datetime64[M]")
     year = d64.astype("datetime64[Y]").astype(np.int64) + 1970
     month = months.astype(np.int64) % 12 + 1
     day = (d64 - months).astype(np.int64) + 1
     arr = np.stack([day // 10, day % 10, month // 10, month % 10,
                     year // 1000 % 10, year // 100 % 10, year // 10 % 10, year % 10], axis=1).astype(np.int16)
+    return arr[inverse]
+
+
+def _digits(dates: pa.Array) -> np.ndarray:
+    """Dates as an (n, 8) array of DDMMYYYY digits; a missing row is all -1."""
+    days, missing = _days_of(dates)
+    arr = _digits_of_days(days)
     arr[missing] = -1
     return arr
 
 
 def _levels_date(a: pa.Array, b: pa.Array) -> np.ndarray:
-    da, db = _digits(a), _digits(b)
+    days_a, miss_a = _days_of(a)
+    days_b, miss_b = _days_of(b)
+    missing = miss_a | miss_b
+    n = len(days_a)
+    out = np.full(n, "other", dtype=object)
+    equal = (days_a == days_b) & ~missing
+    out[equal] = "equal"
+    # Only the unequal pairs need their digits compared.
+    rest = np.nonzero(~equal & ~missing)[0]
+    if len(rest):
+        out[rest] = _levels_date_digits(_digits_of_days(days_a[rest]), _digits_of_days(days_b[rest]))
+    out[missing] = MISSING
+    return out
+
+
+def _levels_date_digits(da: np.ndarray, db: np.ndarray) -> np.ndarray:
+    """Levels of unequal, non-missing date pairs, from their digits."""
     n = len(da)
     out = np.full(n, "other", dtype=object)
-    missing = (da[:, 0] < 0) | (db[:, 0] < 0)
     diff = da != db
     k = diff.sum(axis=1)
-    out[k == 0] = "equal"
     one = np.nonzero(k == 1)[0]
     if len(one):
         pos = diff[one].argmax(axis=1)
@@ -72,7 +97,6 @@ def _levels_date(a: pa.Array, b: pa.Array) -> np.ndarray:
     yb = db[:, 4] * 1000 + db[:, 5] * 100 + db[:, 6] * 10 + db[:, 7]
     yoff = (da[:, :4] == db[:, :4]).all(axis=1) & (np.abs(ya - yb) == 1)
     out[yoff & (out == "other")] = "year off by one"
-    out[missing] = MISSING
     return out
 
 
