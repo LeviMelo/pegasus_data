@@ -12,11 +12,28 @@ from ..providers import provider
 from .capabilities import _capabilities
 from .model import Adaptation, QueryPlan, RetrievalPlan, SemanticPlan, _spec
 
+#: What an establishment WAS at a record's competence, read from CNES.ST for
+#: that month (joins.yml warns that today's registry answers the wrong
+#: question for a 2015 admission). Every column is published in CNES.ST 2022;
+#: one a given year leaves empty resolves as ``not_recorded``, never as a value.
 CNES_ATTRIBUTE_FIELDS = {
     "CNES.NATURE": "NATUREZA",
     "CNES.LEGAL_NATURE": "NAT_JUR",
     "CNES.TYPE": "TP_UNID",
     "CNES.OWNERSHIP": "ESFERA_A",
+    "CNES.MANAGEMENT": "TPGESTAO",
+    "CNES.SUS_LINK": "VINC_SUS",
+    "CNES.PROVIDER_TYPE": "TP_PREST",
+    "CNES.CARE_LEVEL": "NIV_HIER",
+    "CNES.CLIENTELE": "CLIENTEL",
+    "CNES.HAS_HOSPITAL_BEDS": "LEITHOSP",
+    "CNES.SURGICAL_BEDS": "QTLEITP1",
+    "CNES.CLINICAL_BEDS": "QTLEITP2",
+    "CNES.COMPLEMENTARY_BEDS": "QTLEITP3",
+    "CNES.HAS_EMERGENCY": "URGEMERG",
+    "CNES.HAS_OBSTETRIC_CENTRE": "CENTROBS",
+    "CNES.HAS_NEONATAL_UNIT": "CENTRNEO",
+    "CNES.HAS_SURGICAL_CENTRE": "CENTRCIR",
 }
 
 def plan(
@@ -114,9 +131,9 @@ def plan(
     required_set = {
         "cnes_cnpj" for item in spec.enrichments if item.target in {"CNPJ", "CNES"}
     }
-    required_set.update(
-        "cnes_registry" for item in spec.enrichments if item.target in CNES_ATTRIBUTE_FIELDS
-    )
+    # CNES attributes are read from CNES.ST at each record's competence; they
+    # never needed the names resource (cnes_registry), and requiring it refused
+    # every attribute enrichment on an install without it (2026-10-03).
     # CNES.ESTABLISHMENT_NAME needs no built resource: without the monthly
     # history (cnes_names) it answers from the current registry and says so
     # (ADR-0100).

@@ -140,3 +140,4 @@ in.
 | 2026-10-03 | [Entities on the final 2022 links, and the admission-baby pairs by age](docs/evaluation/2026-10-03-entities-final-links-and-age-split.md) | live (`build_entities`, `scripts/route_pairs_by_age.py`; national home) |
 | 2026-10-03 | [Coverage by stratum: link rates vary, but mostly with the evidence, not with coverage](docs/evaluation/2026-10-03-coverage-by-stratum.md) | live (`scripts/link_coverage.py`; national home) |
 | 2026-10-03 | [Chance agreement (u) was sampling noise on its most important level](docs/evaluation/2026-10-03-chance-agreement-sampling-noise.md) | live (five draws per estimator; national home) |
+| 2026-10-03 | [Establishment attributes as of the record](docs/evaluation/2026-10-03-establishment-attributes-as-of-record.md) | live (SIH-RD SE 2022-01 with 8 CNES enrichments; national home) |

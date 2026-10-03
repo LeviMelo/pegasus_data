@@ -330,17 +330,17 @@ def _enrich_cnes_name_current(
     return output, report
 
 
+def _period_text(value: int) -> str:
+    return f"{value // 100:04d}-{value % 100:02d}"
+
+
 def _enrich_cnes_attribute(
     table: pa.Table,
     request: EnrichmentRequest,
     query_plan: QueryPlan,
     settings: Settings,
 ) -> tuple[pa.Table, EnrichmentReport]:
-    import pyarrow.dataset as ds
-
-    from ..api import Catalog as PublicCatalog
-    from ..api import scan
-    from ..render_groups import render_groups, split_by_year_column
+    import pyarrow.compute as pc
 
     source_field = (request.from_field or "CNES").upper()
     if source_field not in table.column_names:
@@ -349,43 +349,27 @@ def _enrich_cnes_attribute(
     source_codes = {
         str(value or "").strip() for value in table[source_field].to_pylist()
     }
-    from .._resources import ResourceManager
+    # CNES.ST through the one door to data (ADR-0073), at the query's own
+    # period and geography: the lake when it is built, the publications
+    # otherwise. A lake-only scan refused every enrichment until someone had
+    # built the national CNES.ST lake by hand (2026-10-03).
+    from .executor import query as _query
 
-    ResourceManager(settings).ensure(
-        "cnes_registry",
-        period=(
-            (query_plan.spec.period.start, query_plan.spec.period.end)
-            if query_plan.spec.period
-            else None
-        ),
+    period = query_plan.spec.period
+    registry = _query(
+        "CNES-ST",
+        period=(_period_text(period.start), _period_text(period.end)) if period else None,
+        geography=list(query_plan.spec.geography.ufs) if query_plan.spec.geography else None,
+        select=["CNES", registry_field, "COMPETEN"],
+        present="analysis" if query_plan.spec.labels else "codes",
+        settings=settings,
+        allow_partial=True,
     )
-    catalog = PublicCatalog(settings=settings)
-    try:
-        registry = scan(
-            "CNES",
-            "ST",
-            uf=None,
-            years=query_plan.retrieval.years or None,
-            columns=["CNES", registry_field, "COMPETEN"],
-            where=ds.field("CNES").isin(sorted(source_codes)),
-            on_missing_column="null_fill",
-            catalog=catalog,
-        ).to_table()
-        registry = _with_registry_competence(
-            registry, "COMPETEN" if "COMPETEN" in registry.column_names else None
-        )
-        if query_plan.spec.labels:
-            registry, _render_report = render_groups(
-                split_by_year_column(registry, query_plan.retrieval.years),
-                store=catalog.store,
-                lake_root=settings.lake_dir,
-                system="CNES",
-                profile="audit",
-                companions=False,
-                derived=False,
-            )
-    finally:
-        catalog.close()
+    registry = registry.filter(pc.is_in(pc.cast(registry["CNES"], pa.string()),
+                                        value_set=pa.array(sorted(source_codes), pa.string())))
+    registry = _with_registry_competence(
+        registry, "COMPETEN" if "COMPETEN" in registry.column_names else None
+    )
     label_field = f"{registry_field}_label"
     lookup: dict[tuple[str, int | None], set[tuple[object, object]]] = {}
     registry_competence = (
@@ -427,8 +411,14 @@ def _enrich_cnes_attribute(
             value, label = next(iter(candidates))
             values.append(value)
             labels.append(label)
-            statuses.append("matched")
-            report.matched += 1
+            if value is None or str(value).strip() == "":
+                # The establishment is in CNES.ST that month but the attribute
+                # is empty (ESFERA_A in 2022): not a value, and not "matched".
+                statuses.append("not_recorded")
+                report.unmatched += 1
+            else:
+                statuses.append("matched")
+                report.matched += 1
         elif len(candidates) > 1:
             values.append(None)
             labels.append(None)
