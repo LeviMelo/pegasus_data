@@ -74,6 +74,7 @@ def main(spec: str, period: str, geo: str, pairs_path: str) -> None:
     bl, br = best_two(ls), best_two(rs)
     kept = set(zip(result.pairs.column("l").to_pylist(), result.pairs.column("r").to_pylist(), strict=True))
     fates: Counter = Counter()
+    examples: list = []
     margins: list = []
     for l_, r_ in zip(wanted.column("l").to_pylist(), wanted.column("r").to_pylist(), strict=True):
         if (l_, r_) in kept:
@@ -94,13 +95,18 @@ def main(spec: str, period: str, geo: str, pairs_path: str) -> None:
             fates["right record has a better candidate"] += 1
         elif len(bl[a]) > 1 and scores[k] - scores[bl[a][1]] < P.AMBIGUITY_MARGIN_BITS:
             fates["left runner-up within the margin"] += 1
+            if len(examples) < 40:
+                k2 = bl[a][1]
+                examples.append({"l": l_, "r": r_, "bits": round(float(scores[k]), 2),
+                                 "runner_up_r": seen["R"][int(rs[k2])].as_py(), "runner_up_bits": round(float(scores[k2]), 2)})
         elif len(br[b]) > 1 and scores[k] - scores[br[b][1]] < P.AMBIGUITY_MARGIN_BITS:
             fates["right runner-up within the margin"] += 1
         else:
             fates["unexplained"] += 1
     out = {"spec": spec, "scope": f"{geo} {period}", "pairs": wanted.num_rows, "threshold": t,
            "fates": dict(fates.most_common()),
-           "below_threshold_by": np.percentile(margins, [5, 25, 50, 75, 95]).round(2).tolist() if margins else []}
+           "below_threshold_by": np.percentile(margins, [5, 25, 50, 75, 95]).round(2).tolist() if margins else [],
+           "left_margin_examples": examples}
     print(json.dumps(out, indent=1), flush=True)
     (OUT / f"pair_fate_{spec}_{geo}_{period}.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
 

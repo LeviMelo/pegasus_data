@@ -47,8 +47,6 @@ links:
         - [admission.end, death.date]
         - [admission.facility, death.facility]
         - [patient.residence, deceased.residence, {given: admission.facility_municipality, side: left}]
-        - [admission.start, death.date, {kind: order}]        # a death before the stay began (ADR-0121)
-        - [admission.death, death.place, {kind: joint}]       # where SIM says the death happened
       blocks:
         - [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
         - [[admission.end, death.date], [admission.facility, death.facility]]
@@ -165,8 +163,6 @@ links:
         - [death.date, admission.end]
         - [death.facility, admission.facility]
         - [deceased.residence, patient.residence]
-        - [death.date, admission.start, {kind: order}]        # ADR-0121
-        - [death.place, admission.death, {kind: joint}]
       blocks:
         - [[deceased.birth_date, patient.birth_date]]
         - [[death.date, admission.end], [death.facility, admission.facility]]
@@ -245,8 +241,6 @@ links:
         - [admission.end, death.date]
         - [admission.facility, death.facility]
         - [patient.residence, deceased.residence, {given: admission.facility_municipality, side: left}]
-        - [admission.start, death.date, {kind: order}]        # a death before the stay began (ADR-0121)
-        - [admission.death, death.place, {kind: joint}]       # where SIM says the death happened
       blocks:
         - [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
         - [[admission.end, death.date], [admission.facility, death.facility]]

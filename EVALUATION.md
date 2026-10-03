@@ -138,3 +138,4 @@ in.
 | 2026-10-03 | [Error channels per setting: the scope test](docs/evaluation/2026-10-03-error-channels-per-setting.md) | live (`scripts/link_scope_test.py`, national home) |
 | 2026-10-03 | [Performance pass: linkage 6.5x, role builds 1.9x, lake builds 1.9x, every output identical](docs/evaluation/2026-10-03-performance-pass.md) | live (cProfile; old-vs-new comparisons; national home) |
 | 2026-10-03 | [Entities on the final 2022 links, and the admission-baby pairs by age](docs/evaluation/2026-10-03-entities-final-links-and-age-split.md) | live (`build_entities`, `scripts/route_pairs_by_age.py`; national home) |
+| 2026-10-03 | [Coverage by stratum: link rates vary, but mostly with the evidence, not with coverage](docs/evaluation/2026-10-03-coverage-by-stratum.md) | live (`scripts/link_coverage.py`; national home) |

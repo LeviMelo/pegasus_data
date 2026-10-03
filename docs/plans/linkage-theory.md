@@ -409,3 +409,15 @@ Measured while building T1–T5. Each item corrects or sharpens a section above.
   allow a setting whose output does not depend on the person.
 - **Engineering.** Estimating u from the real candidates must count levels
   batch by batch: materialised, the newborn link's candidates took 40 GB.
+- **§2.2, impossibility must not re-read a compared field.** The order
+  comparison (admission start to death date) charged a second time for a
+  death-date typo the date comparison had already scored. It dropped 3,859
+  true SIH-death pairs to a runner-up inside the clear-best margin. Removed
+  from the death specs (ADR-0121, amended). The place of death, compared
+  nowhere else, stays.
+- **§3.1, the coverage prior is not identified from link rates.** Strata
+  with low link rates are mostly strata missing evidence: infant deaths
+  without plurality also lack weight (88%) and mother's age (80%). A prior
+  learned from link rates would penalise records twice for the same
+  missing fields. Coverage has to be measured independently of the link,
+  or not used (EVALUATION 2026-10-03 "Coverage by stratum").

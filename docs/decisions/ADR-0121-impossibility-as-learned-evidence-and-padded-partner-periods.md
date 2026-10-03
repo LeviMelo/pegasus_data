@@ -89,3 +89,38 @@ infant deaths".
 - **A padded spec costs the extra year's partner records.** The national
   partner search reads them by key, so the run time grows with the candidates
   rather than with the file.
+
+**Amendment, the same night: both comparisons double-counted evidence
+already in the death specs, and are removed from them. The kinds stay; the
+padding stays.**
+- **What the national relink showed.** `sih_deaths_to_sim` lost 5,569
+  pairs. `scripts/link_pair_fate.py` on them: 3,859 had a runner-up inside
+  the clear-best margin, and 1,044 fell below the threshold.
+- **The order comparison re-read the death date.**
+  - In all 40 runner-up examples, the dropped pair is the same person
+    (birth date, sex, hospital, residence) with a one-digit typo in the
+    death date's month (discharge 2022-03-18, death recorded 2022-02-18).
+  - The date comparison already scores that typo. The order comparison
+    found "death before the admission" and charged −4 to −7 bits again.
+  - The runner-up was another person who died in that hospital on the
+    discharge day.
+- **The place-of-death comparison re-read the facility.**
+  - Without the order comparison, the place comparison alone kept 545,245
+    pairs: fewer than with both (548,033) and fewer than with neither
+    (551,181).
+  - m comes from anchors that require the facility codes to agree. A death
+    SIM places in "another health facility" carries another facility's
+    code, so it is almost never an anchor: m came out 0.0003, against
+    about 1% of the kept pairs.
+  - Place and facility are two readings of one fact.
+- **The rule:** a comparison may only read fields that no other comparison
+  of the spec reads, and whose agreement is not implied by another
+  comparison's anchors.
+- **What remains:**
+  - the `order` and `joint` kinds, for fields that meet that rule;
+  - the padded partner period (infant deaths 23,845 → 25,982; newborns
+    67,340 → 79,272);
+  - the death specs back to their previous comparisons;
+  - the maternal gain (870 → 1,058) withdrawn with them. Its FDR upper
+    bound had risen from 0.42% to 1.61%, and its "admission ended in death"
+    check had stopped being held out.
