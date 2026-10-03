@@ -305,7 +305,7 @@ question they answer; the overlap is §5's first rows.
 | attach more to it | `enrichment`, `memberships` | `EnrichmentRequest`, `MembershipSet`, `Membership` |
 | what is this | `info`, `explore`, `describe`, `availability`, `field_available`, `field_coverage`, `search`, `compendium`, `gaps`, `questions`, `DataDictionary`, `Ontology` | `Info`, `Exploration`, `FieldDescription`, `Availability`, `FieldWindow`, `CompendiumReport`, `Gaps`, `OpenQuestions` |
 | aggregate it | `aggregate`, `build_aggregate` | `AggregateSpec`, `AggregateReport` |
-| reference data | `load_population`, `load_reference` | |
+| reference data | `load_population`, `load_reference`, `load_field` | |
 | the local store | `resource_manager`, `Settings`, `load_settings` | `ResourceManager`, `ResourceStatus` |
 
 ---
@@ -321,6 +321,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
   `write_table`, `load_population`, `load_reference`.
 - `retrieve.py`: `fetch()`, DATASUS to a table in one call; the de facto read engine.
 - `view.py`: rendering into the canonical form: codelist selection, `_label` companions, derived columns.
+- `fields.py`: context fields, IBGE's municipal statistics declared in `curation/fields.yml`, read into `<lake>/fields/` (ADR-0127).
 - `registry.py`: registries from their owner's current TabWin kit, fetched once and cached (ADR-0086): the typed establishment registry (`CADGERBR`: names, maintainer, valid CNPJ only, inclusion/exclusion dates), `CNPJ_BR`, teams (`INE_EQUIPE_BR`, SIASUS kit) and `HUF_*` (ADR-0100). The single source of establishment identity.
 - `presentation.py`: how a result reads, applied last: value and header templates, presets, language (ADR-0084).
 - `render_groups.py`: groups files by vintage and system before rendering.
@@ -461,6 +462,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `sources/tabnet.py`: TabNet over HTTP. Its current territorial tables
   (health macroregion, current health regions) feed the geography pack, and
   `tabulate` asks TabNet for a published table to check a figure against.
+- `sources/ipea_amc.py`: minimum comparable areas from IPEA's geobr (Ehrl 2017),
+  read from the GeoPackage's attributes alone, for the geography pack.
 
 ---
 

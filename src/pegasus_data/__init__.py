@@ -36,6 +36,7 @@ except PackageNotFoundError:  # pragma: no cover - direct, uninstalled source ch
 _EXPORTS: dict[str, str] = {
     "describe": ".api",
     "load_population": ".api",
+    "load_field": ".fields",
     "load_reference": ".api",
     "FieldDescription": ".api",
     "MissingColumnError": ".api",

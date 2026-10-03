@@ -171,8 +171,8 @@ def geography(
 
     DATASUS's TabWin tables in the label pack (health regions per system and the
     rest of the health-service geography), IBGE's Localidades API (territorial
-    identity) and TabNet's current territorial tables (health macroregion, the
-    current health regions). Maintainer step; the result ships as
+    identity), TabNet's current territorial tables (health macroregion, the
+    current health regions) and IPEA's comparable areas. Maintainer step; the result ships as
     ``resources/geography.parquet``.
     """
     from importlib.resources import files
@@ -185,8 +185,24 @@ def geography(
     with console.status("compiling geography…"):
         result = build_geography_pack(
             target, ibge=fetch_municipalities(), tabnet_cache=settings.root / "registries" / "tabnet",
+            ipea_cache=settings.root / "registries" / "ipea_amc",
         )
     _emit(result, as_json, "geography")
+
+
+@app.command(rich_help_panel="PIPELINE")
+def fields(
+    name: Annotated[list[str] | None, typer.Option("--name", help="A declared field (curation/fields.yml); default all")] = None,
+    years: Annotated[str | None, typer.Option("--years", help="e.g. 2019-2021")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Read IBGE's municipal statistics (curation/fields.yml) into lake/fields/."""
+    from .fields import build_fields
+
+    with console.status("reading IBGE…"):
+        result = build_fields(_settings(root), names=name, years=_parse_years(years))
+    _emit(result, as_json, "fields")
 
 
 adjudicate_app = typer.Typer(

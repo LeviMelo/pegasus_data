@@ -189,6 +189,31 @@ tabnet_classifications:
     authority: DATASUS TabNet (current)
     verified: {municipalities: 5606, members: 446, measured: 2026-10-03}
 
+# Minimum comparable areas (AMC): the smallest sets of municipalities whose
+# combined territory is the same at both ends of the period, so a long series
+# rolled up to them is not broken by municipalities splitting off. IPEA's geobr
+# (https://www.ipea.gov.br/geobr/), generated with the routine of Ehrl (2017),
+# Estudos Econômicos 47(1). Municipalities created after 2010 belong to none.
+ipea_classifications:
+
+  comparable_area_1980_2010:
+    start_year: 1980
+    what: AMC for 1980-2010; the span of SIM, which starts in 1979.
+    authority: IPEA (geobr), Ehrl (2017)
+    verified: {municipalities: 5566, members: 3829, measured: 2026-10-03}
+
+  comparable_area_1991_2010:
+    start_year: 1991
+    what: AMC for 1991-2010; the span of SIH, which starts in 1992.
+    authority: IPEA (geobr), Ehrl (2017)
+    verified: {municipalities: 5565, members: 4298, measured: 2026-10-03}
+
+  comparable_area_2000_2010:
+    start_year: 2000
+    what: AMC for 2000-2010.
+    authority: IPEA (geobr), Ehrl (2017)
+    verified: {municipalities: 5565, members: 5476, measured: 2026-10-03}
+
 # Classifications that exist on the tree and are NOT compiled, with the measured
 # reason. Excluding them is a statement about the evidence, not about the
 # geography: a municipality does belong to a health macroregion, and DATASUS
@@ -202,14 +227,16 @@ excluded:
       66% of municipalities are assigned differently-named macroregions by
       different systems, and 220 rows carry no member code at all. Compiling this
       would mean picking one system's answer for two-thirds of Brazil.
+      Superseded 2026-10-03 (ADR-0126): health_macroregion now comes from
+      TabNet's current table (tabnet_classifications).
 
   MSAUDBR:
     wanted_as: health_macroregion
     measured: {municipalities: 27653, name_conflicts: 1080}
     reason: >
       The other candidate for the same classification, and it conflicts on 4%.
-      Neither macroregion table is usable, so PEGASUS SHIPS NO HEALTH-MACROREGION
-      MAPPING. This is an open gap, not an oversight.
+      Neither kit table is usable; the macroregion comes from TabNet's current
+      table instead (ADR-0126).
 
   RSAUDBR:
     wanted_as: regional_de_saude

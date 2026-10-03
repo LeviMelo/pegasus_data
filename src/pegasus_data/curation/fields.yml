@@ -1,0 +1,42 @@
+# Context fields: properties of a place and a year that are not health events
+# (PegaSUS's "field" kind, docs/history/: a property of place-time, beside
+# flows and stocks). Read from IBGE's aggregates API
+# (https://servicodados.ibge.gov.br/api/v3/agregados), at municipality level.
+#
+# Each entry names IBGE's own table and variable, as its metadata
+# (`/agregados/<table>/metadados`) states them, and the unit. Only totals are
+# stored: a per-capita figure is computed at use, over POPSVS, never stored
+# (CLAUDE.md: stored aggregates are sums and counts, never finished means).
+#
+# IBGE's markers are kept as a status beside the value: "-" is a true zero;
+# ".." not applicable, "..." not available and "X" suppressed for disclosure
+# are null with their reason, never zero.
+
+fields:
+
+  gdp:
+    table: 5938
+    variable: 37
+    unit: R$ thousand, current prices
+    what: >
+      Produto Interno Bruto a preços correntes, the municipality's GDP for the
+      year (IBGE, Produto Interno Bruto dos Municípios, reference 2010).
+    years: 2002-2023
+    verified: {year: 2021, municipalities: 5570, total_thousand_reais: 9012142031, measured: 2026-10-03}
+
+  gross_value_added_public_administration:
+    table: 5938
+    variable: 525
+    unit: R$ thousand, current prices
+    what: >
+      Gross value added of public administration, defence, public education
+      and health and social security: the weight of the public sector in the
+      municipal economy.
+    years: 2002-2023
+
+  gross_value_added_agriculture:
+    table: 5938
+    variable: 513
+    unit: R$ thousand, current prices
+    what: Gross value added of agriculture and livestock.
+    years: 2002-2023

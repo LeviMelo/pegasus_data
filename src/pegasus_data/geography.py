@@ -207,13 +207,17 @@ def classifications(root: Path | None = None, *, authority: str | None = None
             for k, v in (data.get("ibge_classifications") or {}).items()}
     tabnet = {k: {**v, "authority": "tabnet"}
               for k, v in (data.get("tabnet_classifications") or {}).items()}
+    ipea = {k: {**v, "authority": "ipea"}
+            for k, v in (data.get("ipea_classifications") or {}).items()}
     if authority == "datasus":
         return datasus
     if authority == "ibge":
         return ibge
     if authority == "tabnet":
         return tabnet
-    return {**datasus, **ibge, **tabnet}
+    if authority == "ipea":
+        return ipea
+    return {**datasus, **ibge, **tabnet, **ipea}
 
 
 def excluded(root: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -281,6 +285,22 @@ def _tabnet_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[s
     return rows, report
 
 
+def _ipea_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[str, ...]], dict[str, dict[str, int]]]:
+    """Comparable-area memberships (``ipea_classifications``), one per period."""
+    from .sources.ipea_amc import comparable_areas, fetch
+
+    rows: list[tuple[str, ...]] = []
+    report: dict[str, dict[str, int]] = {}
+    for name, body in classifications(root, authority="ipea").items():
+        start = int(body["start_year"])
+        members = comparable_areas(fetch(start, cache_dir))
+        for code7, amc, label in members:
+            rows.append((code7[:6], name, "", amc, label, f"ipea:geobr/amc/{start}-2010", "", "", "ipea"))
+        report[name] = {"municipalities": len(members), "members": len({a for _, a, _ in members}),
+                        "rows": len(members), "contested": 0, "authority": "ipea"}
+    return rows, report
+
+
 def build_geography_pack(
     out_path: str | Path,
     *,
@@ -288,6 +308,7 @@ def build_geography_pack(
     root: Path | None = None,
     ibge: Any = None,
     tabnet_cache: str | Path | None = None,
+    ipea_cache: str | Path | None = None,
 ) -> dict[str, Any]:
     """Compile the membership pack out of the shipped label pack.
 
@@ -370,6 +391,10 @@ def build_geography_pack(
         added, tabnet_report = _tabnet_rows(root, tabnet_cache)
         rows.extend(added)
         report.update(tabnet_report)
+    if ipea_cache is not None:
+        added, ipea_report = _ipea_rows(root, ipea_cache)
+        rows.extend(added)
+        report.update(ipea_report)
 
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)

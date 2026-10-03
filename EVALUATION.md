@@ -142,3 +142,4 @@ in.
 | 2026-10-03 | [Chance agreement (u) was sampling noise on its most important level](docs/evaluation/2026-10-03-chance-agreement-sampling-noise.md) | live (five draws per estimator; national home) |
 | 2026-10-03 | [Establishment attributes as of the record](docs/evaluation/2026-10-03-establishment-attributes-as-of-record.md) | live (SIH-RD SE 2022-01 with 8 CNES enrichments; national home) |
 | 2026-10-03 | [Which population series the Ministry's tables divide by: POPSVS, measured against TabNet](docs/evaluation/2026-10-03-population-series-against-tabnet.md) | live (TabNet tabulation; local population series) |
+| 2026-10-03 | [Geography from TabNet and IPEA; context fields from IBGE](docs/evaluation/2026-10-03-geography-tabnet-ipea-and-fields.md) | live (TabNet, IPEA, IBGE APIs; maintainer home) |
