@@ -497,6 +497,21 @@ def _anchor_sql(others: list[Comparison], control_role: str, shift: bool) -> tup
         if not shift_role:
             return "", False
         left = f"(SELECT * REPLACE (CAST({_q(shift_role)} + INTERVAL 7 DAY AS DATE) AS {_q(shift_role)}) FROM L)"
+    if all(".." not in c.right for c in others):
+        # Equality keys: a record has exactly one partner exactly when the
+        # other side's group of its key has one record. Grouping each side
+        # avoids the join of every record to every member of its key group:
+        # leaving the birth date out of the newborn link joined each admission
+        # to every birth of its sex in its hospital, and held the process at
+        # 18 GB (2026-10-03). Same pairs as the join below.
+        lk = ", ".join(f"{_q(c.left)} AS k{i}" for i, c in enumerate(others))
+        rk = ", ".join(f"{_q(c.right)} AS k{i}" for i, c in enumerate(others))
+        lnn = " AND ".join(f"{_q(c.left)} IS NOT NULL" for c in others)
+        rnn = " AND ".join(f"{_q(c.right)} IS NOT NULL" for c in others)
+        on = " AND ".join(f"lg.k{i} = rg.k{i}" for i in range(len(others)))
+        return f"""WITH lg AS (SELECT {lk}, count(*) AS n, min(_id) AS id FROM {left} WHERE {lnn} GROUP BY ALL),
+                        rg AS (SELECT {rk}, count(*) AS n, min(_id) AS id FROM R WHERE {rnn} GROUP BY ALL)
+                   SELECT lg.id AS l, rg.id AS r FROM lg JOIN rg ON {on} WHERE lg.n = 1 AND rg.n = 1""", True
     cond = " AND ".join(_condition(c.left, c.right) for c in others)
     notnull = " AND ".join(f"l.{_q(c.left)} IS NOT NULL" for c in others)
     return f"""WITH j AS (SELECT DISTINCT l._id AS l, r._id AS r FROM {left} l
