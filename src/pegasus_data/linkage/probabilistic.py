@@ -48,7 +48,7 @@ import pyarrow.compute as pc
 
 from ..semantics.curation import read_yaml
 from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, upper95, validate
-from .levels import levels
+from .levels import Levels, levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
 from .roles import dataset_roles, record_ids, role_table
 
@@ -302,6 +302,8 @@ def _factorize(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Integer codes and the distinct values, in one hash pass (no sort, no
     copy to fixed-width strings: np.unique on object arrays was a fifth of a
     link's time, profile 2026-10-03)."""
+    if isinstance(values, Levels):
+        return values.codes, np.asarray(values.names, dtype=object)
     codes, names = pd.factorize(values, use_na_sentinel=False)
     return codes, np.asarray(names, dtype=object)
 
@@ -309,7 +311,7 @@ def _factorize(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 def _counts(lv: np.ndarray) -> dict[str, int]:
     codes, names = _factorize(lv)
     n = np.bincount(codes, minlength=len(names))
-    return {str(k): int(c) for k, c in zip(names, n, strict=True) if str(k) != MISSING}
+    return {str(k): int(c) for k, c in zip(names, n, strict=True) if c and str(k) != MISSING}
 
 
 def _distribution(lv: np.ndarray) -> tuple[dict[str, float], int]:
@@ -635,7 +637,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
             reference = {lv: float(v["m"]) for lv, v in ref.get("levels", {}).items()} if ref else m
             settings_ = np.asarray(pc.fill_null(anchors.column("s"), "").to_numpy(zero_copy_only=False),
                                    dtype=object)
-            per_setting.append(_by_setting(comp, anchor_levels, settings_, reference, pooled))
+            per_setting.append(_by_setting(comp, anchor_levels.strings(), settings_, reference, pooled))
         else:
             per_setting.append({})
     # Settings with anchors on every comparison get their own channels; the

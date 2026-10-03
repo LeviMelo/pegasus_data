@@ -9,6 +9,8 @@ national runs).
 
 from __future__ import annotations
 
+from typing import NamedTuple
+
 import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -57,81 +59,161 @@ def _digits(dates: pa.Array) -> np.ndarray:
     return arr
 
 
-def _levels_date(a: pa.Array, b: pa.Array) -> np.ndarray:
+class Levels(NamedTuple):
+    """The level of every pair, as small integer codes into ``names``.
+
+    Millions of pairs share a dozen levels: Python strings per pair cost an
+    object array, a factorise and a sort for every comparison (a quarter of
+    a link's time, profile 2026-10-03). Codes are gathered instead.
+    """
+
+    codes: np.ndarray
+    names: tuple[str, ...]
+
+    def strings(self) -> np.ndarray:
+        """The levels as strings (for small samples: anchors, tests)."""
+        return np.asarray(self.names, dtype=object)[self.codes] if len(self.codes) else np.zeros(0, dtype=object)
+
+
+class _Build:
+    """Codes filled by mask, one name at a time, like the string arrays were."""
+
+    __slots__ = ("codes", "names", "_index")
+
+    def __init__(self, n: int, default: str) -> None:
+        self.codes = np.zeros(n, dtype=np.int16)
+        self.names: list[str] = [default]
+        self._index = {default: 0}
+
+    def code(self, name: str) -> int:
+        idx = self._index.get(name)
+        if idx is None:
+            idx = self._index[name] = len(self.names)
+            self.names.append(name)
+        return idx
+
+    def set(self, mask: np.ndarray, name: str) -> None:
+        self.codes[mask] = self.code(name)
+
+    def is_(self, name: str) -> np.ndarray:
+        idx = self._index.get(name)
+        return self.codes == idx if idx is not None else np.zeros(len(self.codes), dtype=bool)
+
+    def put(self, rows: np.ndarray, sub: Levels) -> None:
+        """Write another result's levels into ``rows``."""
+        remap = np.array([self.code(n) for n in sub.names], dtype=np.int16)
+        self.codes[rows] = remap[sub.codes]
+
+    def done(self) -> Levels:
+        return Levels(self.codes, tuple(self.names))
+
+
+def _levels_date(a: pa.Array, b: pa.Array) -> Levels:
     days_a, miss_a = _days_of(a)
     days_b, miss_b = _days_of(b)
     missing = miss_a | miss_b
-    n = len(days_a)
-    out = np.full(n, "other", dtype=object)
+    out = _Build(len(days_a), "other")
     equal = (days_a == days_b) & ~missing
-    out[equal] = "equal"
+    out.set(equal, "equal")
     # Only the unequal pairs need their digits compared.
     rest = np.nonzero(~equal & ~missing)[0]
     if len(rest):
-        out[rest] = _levels_date_digits(_digits_of_days(days_a[rest]), _digits_of_days(days_b[rest]))
-    out[missing] = MISSING
-    return out
+        out.put(rest, _levels_date_digits(_digits_of_days(days_a[rest]), _digits_of_days(days_b[rest])))
+    out.set(missing, MISSING)
+    return out.done()
 
 
-def _levels_date_digits(da: np.ndarray, db: np.ndarray) -> np.ndarray:
+def _levels_date_digits(da: np.ndarray, db: np.ndarray) -> Levels:
     """Levels of unequal, non-missing date pairs, from their digits."""
-    n = len(da)
-    out = np.full(n, "other", dtype=object)
+    out = _Build(len(da), "other")
     diff = da != db
     k = diff.sum(axis=1)
     one = np.nonzero(k == 1)[0]
     if len(one):
         pos = diff[one].argmax(axis=1)
-        x, y = da[one, pos], db[one, pos]
-        out[one] = np.where(_ADJ[x, y], "one digit, adjacent key", "one digit, other key")
+        adjacent = _ADJ[da[one, pos], db[one, pos]]
+        out.set(one[adjacent], "one digit, adjacent key")
+        out.set(one[~adjacent], "one digit, other key")
     two = np.nonzero(k == 2)[0]
     if len(two):
         p0 = diff[two].argmax(axis=1)
         p1 = 7 - diff[two][:, ::-1].argmax(axis=1)
         swapped = (p1 == p0 + 1) & (da[two, p0] == db[two, p1]) & (da[two, p1] == db[two, p0])
-        out[two[swapped]] = "neighbouring digits swapped"
+        out.set(two[swapped], "neighbouring digits swapped")
     dm = ((da[:, 0:2] == db[:, 2:4]).all(axis=1) & (da[:, 2:4] == db[:, 0:2]).all(axis=1)
           & (da[:, 4:] == db[:, 4:]).all(axis=1) & (k > 0))
-    out[dm & (out == "other")] = "day and month swapped"
+    out.set(dm & out.is_("other"), "day and month swapped")
     ya = da[:, 4] * 1000 + da[:, 5] * 100 + da[:, 6] * 10 + da[:, 7]
     yb = db[:, 4] * 1000 + db[:, 5] * 100 + db[:, 6] * 10 + db[:, 7]
     yoff = (da[:, :4] == db[:, :4]).all(axis=1) & (np.abs(ya - yb) == 1)
-    out[yoff & (out == "other")] = "year off by one"
+    out.set(yoff & out.is_("other"), "year off by one")
+    return out.done()
+
+
+def _ndigits(v: np.ndarray) -> np.ndarray:
+    """Decimal digits of non-negative integers (0 has one)."""
+    n = np.ones(len(v), dtype=np.int64)
+    x = v // 10
+    while (x > 0).any():
+        n += x > 0
+        x //= 10
+    return n
+
+
+def _digit_dropped(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Whether one number is the other with one digit dropped, as the
+    decimal strings would say: removing the digit at each position (from the
+    right) of the longer number, for at most 19 positions, not per row."""
+    out = np.zeros(len(x), dtype=bool)
+    nonneg = (x >= 0) & (y >= 0)
+    nx, ny = _ndigits(np.where(nonneg, x, 0)), _ndigits(np.where(nonneg, y, 0))
+    cand = nonneg & (np.abs(nx - ny) == 1)
+    longer = np.where(nx > ny, x, y)
+    shorter = np.where(nx > ny, y, x)
+    width = np.maximum(nx, ny)
+    for k in range(int(width[cand].max()) if cand.any() else 0):
+        p = 10 ** k
+        dropped = (longer // (p * 10)) * p + longer % p
+        out |= cand & (k < width) & (dropped == shorter)
+    # A negative value keeps the string test ("-" is a character there).
+    for j in np.nonzero(~nonneg & (x != y))[0]:
+        a, b = str(x[j]), str(y[j])
+        if abs(len(a) - len(b)) == 1:
+            lg, sh = (a, b) if len(a) > len(b) else (b, a)
+            out[j] = any(lg[:i] + lg[i + 1:] == sh for i in range(len(lg)))
     return out
 
 
-def _levels_integer(a: pa.Array, b: pa.Array) -> np.ndarray:
+def _levels_integer(a: pa.Array, b: pa.Array) -> Levels:
     missing = pc.or_(pc.is_null(a), pc.is_null(b)).to_numpy(zero_copy_only=False)
     va = pc.fill_null(pc.cast(a, pa.int64()), -1).to_numpy(zero_copy_only=False)
     vb = pc.fill_null(pc.cast(b, pa.int64()), -1).to_numpy(zero_copy_only=False)
-    out = np.full(len(va), "other", dtype=object)
+    out = _Build(len(va), "other")
     hi = np.maximum(np.maximum(np.abs(va), np.abs(vb)), 1)
     rel = np.abs(va - vb) / hi
-    out[rel <= 0.10] = "within 10%"
-    out[rel <= 0.01] = "within 1%"
-    out[va == vb] = "equal"
-    rest = np.nonzero((out == "other") & ~missing)[0]
-    for j in rest:
-        x, y = str(va[j]), str(vb[j])
-        if abs(len(x) - len(y)) == 1:
-            longer, shorter = (x, y) if len(x) > len(y) else (y, x)
-            if any(longer[:i] + longer[i + 1:] == shorter for i in range(len(longer))):
-                out[j] = "digit dropped or added"
-    out[missing] = MISSING
-    return out
+    out.set(rel <= 0.10, "within 10%")
+    out.set(rel <= 0.01, "within 1%")
+    out.set(va == vb, "equal")
+    rest = np.nonzero(out.is_("other") & ~missing)[0]
+    if len(rest):
+        out.set(rest[_digit_dropped(va[rest], vb[rest])], "digit dropped or added")
+    out.set(missing, MISSING)
+    return out.done()
 
 
-def _levels_municipality(a: pa.Array, b: pa.Array) -> np.ndarray:
+def _levels_municipality(a: pa.Array, b: pa.Array) -> Levels:
     missing = pc.or_(pc.is_null(a), pc.is_null(b)).to_numpy(zero_copy_only=False)
     eq = pc.fill_null(pc.equal(a, b), False).to_numpy(zero_copy_only=False)
-    same = pc.fill_null(pc.equal(pc.utf8_slice_codeunits(a, 0, 2), pc.utf8_slice_codeunits(b, 0, 2)), False)
-    out = np.where(eq, "equal", np.where(same.to_numpy(zero_copy_only=False), "same state", "different state"))
-    out = out.astype(object)
-    out[missing] = MISSING
-    return out
+    same = pc.fill_null(pc.equal(pc.utf8_slice_codeunits(a, 0, 2), pc.utf8_slice_codeunits(b, 0, 2)),
+                        False).to_numpy(zero_copy_only=False)
+    out = _Build(len(eq), "different state")
+    out.set(same, "same state")
+    out.set(eq, "equal")
+    out.set(missing, MISSING)
+    return out.done()
 
 
-def _levels_municipality_given(a: pa.Array, b: pa.Array, place: pa.Array, side: str) -> np.ndarray:
+def _levels_municipality_given(a: pa.Array, b: pa.Array, place: pa.Array, side: str) -> Levels:
     """Residence against residence, knowing where one side's record was cared for.
 
     Two records agreeing on the hospital's own municipality is weak evidence
@@ -141,17 +223,19 @@ def _levels_municipality_given(a: pa.Array, b: pa.Array, place: pa.Array, side: 
     there. m and u of each level are learned, so the data decide how much each
     is worth (ADR-0115).
     """
-    out = _levels_municipality(a, b)
+    base = _levels_municipality(a, b)
+    out = _Build(len(base.codes), base.names[0])
+    out.put(np.arange(len(base.codes)), base)
     known = ~pc.is_null(place).to_numpy(zero_copy_only=False)
     at_a = pc.fill_null(pc.equal(a, place), False).to_numpy(zero_copy_only=False)
     at_b = pc.fill_null(pc.equal(b, place), False).to_numpy(zero_copy_only=False)
     at_own = at_b if side == "right" else at_a
-    usable = known & (out != MISSING)
-    eq = usable & (out == "equal")
-    out[eq & at_a] = "equal, at the place of care"
-    out[eq & ~at_a] = "equal, elsewhere"
-    out[usable & ~eq & at_own] = f"{side} is the place of care"
-    return out
+    usable = known & ~out.is_(MISSING)
+    eq = usable & out.is_("equal")
+    out.set(eq & at_a, "equal, at the place of care")
+    out.set(eq & ~at_a, "equal, elsewhere")
+    out.set(usable & ~eq & at_own, f"{side} is the place of care")
+    return out.done()
 
 
 #: ICD-10's definitions (P07.0 "birth weight 999 g or less", P07.1 "1000-2499 g",
@@ -163,7 +247,7 @@ _ICD_SIZE = {
 }
 
 
-def _levels_icd_size(kind: str, codes: pa.Array, measure: pa.Array) -> np.ndarray:
+def _levels_icd_size(kind: str, codes: pa.Array, measure: pa.Array) -> Levels:
     """An admission's diagnoses against a birth's weight or weeks (ADR-0117)."""
     (c1, lo1, hi1), (c2, lo2, hi2), low_below, unit = _ICD_SIZE[kind]
     text = pc.fill_null(codes, "")
@@ -171,55 +255,60 @@ def _levels_icd_size(kind: str, codes: pa.Array, measure: pa.Array) -> np.ndarra
     has2 = pc.match_substring(text, c2).to_numpy(zero_copy_only=False)
     missing = pc.or_(pc.is_null(codes), pc.is_null(measure)).to_numpy(zero_copy_only=False)
     v = pc.fill_null(pc.cast(measure, pa.int64()), -1).to_numpy(zero_copy_only=False)
-    out = np.where(v < low_below, f"no size code, under {low_below} {unit}",
-                   f"no size code, {low_below} {unit} or more").astype(object)
-    out[has2] = np.where((v[has2] >= lo2) & (v[has2] <= hi2), f"{c2}, fits", f"{c2}, does not fit")
-    out[has1] = np.where((v[has1] >= lo1) & (v[has1] <= hi1), f"{c1}, fits", f"{c1}, does not fit")
-    out[missing] = MISSING
-    return out
+    out = _Build(len(v), f"no size code, {low_below} {unit} or more")
+    out.set(v < low_below, f"no size code, under {low_below} {unit}")
+    fits2 = (v >= lo2) & (v <= hi2)
+    out.set(has2 & fits2, f"{c2}, fits")
+    out.set(has2 & ~fits2, f"{c2}, does not fit")
+    fits1 = (v >= lo1) & (v <= hi1)
+    out.set(has1 & fits1, f"{c1}, fits")
+    out.set(has1 & ~fits1, f"{c1}, does not fit")
+    out.set(missing, MISSING)
+    return out.done()
 
 
 def _days(x: pa.Array) -> np.ndarray:
     return pc.fill_null(pc.cast(pc.cast(x, pa.date32()), pa.int32()), 0).to_numpy(zero_copy_only=False).astype(np.int64)
 
 
-def _levels_interval(a: pa.Array, start: pa.Array, end: pa.Array) -> np.ndarray:
+def _levels_interval(a: pa.Array, start: pa.Array, end: pa.Array) -> Levels:
     missing = pc.or_(pc.or_(pc.is_null(a), pc.is_null(start)), pc.is_null(end)).to_numpy(zero_copy_only=False)
     ia, s, e = _days(a), _days(start), _days(end)
     inside = (ia >= s) & (ia <= e)
     gap = np.where(ia < s, s - ia, ia - e)
-    out = np.full(len(ia), "other", dtype=object)
-    out[~inside & (gap <= 7)] = "within a week outside"
-    out[~inside & (gap <= 1)] = "one day outside"
+    out = _Build(len(ia), "other")
+    out.set(~inside & (gap <= 7), "within a week outside")
+    out.set(~inside & (gap <= 1), "one day outside")
     off = ia - s
-    out[inside] = "inside, later"
-    out[inside & (off == 1)] = "inside, second day"
-    out[inside & (off == 0)] = "inside, first day"
-    out[missing] = MISSING
-    return out
+    out.set(inside, "inside, later")
+    out.set(inside & (off == 1), "inside, second day")
+    out.set(inside & (off == 0), "inside, first day")
+    out.set(missing, MISSING)
+    return out.done()
 
 
-def _levels_exact(a: pa.Array, b: pa.Array) -> np.ndarray:
+def _levels_exact(a: pa.Array, b: pa.Array) -> Levels:
     missing = pc.or_(pc.is_null(a), pc.is_null(b)).to_numpy(zero_copy_only=False)
     eq = pc.fill_null(pc.equal(a, b), False).to_numpy(zero_copy_only=False)
-    out = np.where(eq, "equal", "different").astype(object)
-    out[missing] = MISSING
-    return out
+    out = _Build(len(eq), "different")
+    out.set(eq, "equal")
+    out.set(missing, MISSING)
+    return out.done()
 
 
-def _levels_number_distance(a: pa.Array, b: pa.Array) -> np.ndarray:
+def _levels_number_distance(a: pa.Array, b: pa.Array) -> Levels:
     """How far apart two serial numbers are (an AIH and the one issued beside it)."""
     va = pc.cast(pc.if_else(pc.utf8_is_digit(pc.cast(a, pa.string())), pc.cast(a, pa.string()), None), pa.int64())
     vb = pc.cast(pc.if_else(pc.utf8_is_digit(pc.cast(b, pa.string())), pc.cast(b, pa.string()), None), pa.int64())
     missing = pc.or_(pc.is_null(va), pc.is_null(vb)).to_numpy(zero_copy_only=False)
     d = np.abs(pc.fill_null(va, 0).to_numpy(zero_copy_only=False) - pc.fill_null(vb, 0).to_numpy(zero_copy_only=False))
-    out = np.full(len(d), "other", dtype=object)
-    out[d <= 1000] = "within 1000"
-    out[d <= 100] = "within 100"
-    out[d <= 10] = "within 10"
-    out[d == 0] = "equal"
-    out[missing] = MISSING
-    return out
+    out = _Build(len(d), "other")
+    out.set(d <= 1000, "within 1000")
+    out.set(d <= 100, "within 100")
+    out.set(d <= 10, "within 10")
+    out.set(d == 0, "equal")
+    out.set(missing, MISSING)
+    return out.done()
 
 
 #: Bins of right minus left, in days, for ``order``: negative bins are the
@@ -230,29 +319,33 @@ _ORDER_BINS = ((-10**9, -366, "before by more than a year"), (-365, -29, "before
                (366, 10**9, "after by more than a year"))
 
 
-def _levels_order(a: pa.Array, b: pa.Array) -> np.ndarray:
+def _levels_order(a: pa.Array, b: pa.Array) -> Levels:
     """Where the right event falls relative to the left one, in day bins."""
     missing = pc.or_(pc.is_null(a), pc.is_null(b)).to_numpy(zero_copy_only=False)
     d = _days(b) - _days(a)
-    out = np.full(len(d), "", dtype=object)
+    out = _Build(len(d), "")
     for lo, hi, name in _ORDER_BINS:
-        out[(d >= lo) & (d <= hi)] = name
-    out[missing] = MISSING
-    return out
+        out.set((d >= lo) & (d <= hi), name)
+    out.set(missing, MISSING)
+    return out.done()
 
 
-def _levels_joint(a: pa.Array, b: pa.Array) -> np.ndarray:
+def _levels_joint(a: pa.Array, b: pa.Array) -> Levels:
     """The pair of values itself: one level per (left, right) combination."""
     sa, sb = pc.cast(a, pa.string()), pc.cast(b, pa.string())
     missing = pc.or_(pc.is_null(sa), pc.is_null(sb)).to_numpy(zero_copy_only=False)
-    out = pc.binary_join_element_wise(pc.fill_null(sa, ""), pc.fill_null(sb, ""), " / ").to_numpy(zero_copy_only=False)
-    out = out.astype(object)
-    out[missing] = MISSING
-    return out
+    joined = pc.binary_join_element_wise(pc.fill_null(sa, ""), pc.fill_null(sb, ""), " / ")
+    encoded = pc.dictionary_encode(joined).combine_chunks() if isinstance(joined, pa.ChunkedArray) \
+        else pc.dictionary_encode(joined)
+    out = _Build(len(missing), MISSING)
+    codes = np.array([out.code(str(n)) for n in encoded.dictionary.to_pylist()], dtype=np.int16)
+    out.codes = codes[encoded.indices.to_numpy(zero_copy_only=False)] if len(codes) else out.codes
+    out.set(missing, MISSING)
+    return out.done()
 
 
 def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array],
-           given: pa.Array | None = None, given_side: str = "right") -> np.ndarray:
+           given: pa.Array | None = None, given_side: str = "right") -> Levels:
     """The level of every pair; ``b`` is ``(start, end)`` for an interval.
 
     ``given`` is one record's value of a conditioning role (the place of care,
@@ -280,4 +373,4 @@ def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array],
     return _levels_exact(a, b)  # type: ignore[arg-type]
 
 
-__all__ = ["levels"]
+__all__ = ["Levels", "levels"]
