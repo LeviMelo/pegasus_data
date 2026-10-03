@@ -69,6 +69,20 @@ million hashed pairs, padded infant and newborn links; `data/logs/final_relink.d
 | births → CIHA deliveries | 195,566 (7.8%) | 0.99% | 4.0 |
 | SINAN dengue deaths → SIM | 503 (47.6%) | 1.74% | — |
 
+**National, 2021** (`data/logs/redo_2021.done`, after the SIH 2021 lake was
+completed with RDPR2106; CIHA is not on the mirror):
+
+| link | pairs | FDR upper 95% |
+|---|---|---|
+| SIH deaths → SIM | 699,995 (91.1%) | 0.97% |
+| deliveries → SIH | 1,601,762 (61.0%) | 0.66% |
+| infant deaths → SINASC | 25,909 (81.8%) | 0.87% |
+| newborn admissions → SINASC | 74,220 (19.4%) | 1.07% |
+| maternal deaths → SIH | 1,937 (56.8%) | 1.28% |
+| SINAN dengue deaths → SIM | 0 (not viable) | — |
+
+Entities 2021: 2,384,759 persons, 97 merges refused.
+
 **National, 2023** (`data/logs/relink_2023.done`; CIHA is not on the mirror):
 
 | link | pairs | FDR upper 95% |
