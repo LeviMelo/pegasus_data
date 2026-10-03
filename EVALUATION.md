@@ -136,3 +136,4 @@ in.
 | 2026-10-03 | [The national newborn link ran out of memory; u is now counted, not materialised](docs/evaluation/2026-10-03-newborn-link-memory.md) | live (national run; Sergipe old-vs-new comparison) |
 | 2026-10-03 | [SIH's excess "asian" is two hospital practices: a default fill, and SIM's numbering written in](docs/evaluation/2026-10-03-sih-asian-default-fill-and-code-swap.md) | live (`scripts/race_settings.py`, `scripts/race_code_swap.py`; national home) |
 | 2026-10-03 | [Error channels per setting: the scope test](docs/evaluation/2026-10-03-error-channels-per-setting.md) | live (`scripts/link_scope_test.py`, national home) |
+| 2026-10-03 | [Performance pass: linkage 6.5x, role builds 1.9x, lake builds 1.9x, every output identical](docs/evaluation/2026-10-03-performance-pass.md) | live (cProfile; old-vs-new comparisons; national home) |
