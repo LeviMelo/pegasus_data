@@ -160,6 +160,9 @@ Stored aggregates are sums and counts, never finished means.
   - A measurement is a few lines, added to an existing evaluation where one
     fits.
   - Documentation must not outweigh the code it describes.
+- **Dependencies (user, 2026-10-03).** Install what the job needs into the
+  `pegasus` environment and declare it in `pyproject.toml`. Never hand-roll a
+  weaker substitute to avoid a dependency.
 - **Documentation ships with the change, in the same commit.**
   - A decision is a new `docs/decisions/ADR-NNNN-<slug>.md` and a row in
     `DECISIONS.md`.

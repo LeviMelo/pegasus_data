@@ -144,3 +144,17 @@ fields:
     unit: persons
     what: Resident population declared indigenous (indígena), Census 2010 and 2022.
     years: 2010, 2022
+
+  # Weather, measured where a station stands (sources/inmet.py): one row per
+  # station and month, in the municipality whose IBGE boundary contains the
+  # station. No interpolation; a municipality without a station has no row.
+  climate:
+    source: inmet
+    unit: "mm (precipitation), °C (temperature): sums, counts and extremes"
+    what: >
+      Monthly precipitation (sum, readings) and air temperature (sum, readings,
+      maximum, minimum) of INMET's automatic (hourly, 2000 on) and
+      conventional (daily) stations, from the CC-BY-4.0 Zenodo mirror of
+      INMET's releases (record 14925215). A mean is sum / readings, at use.
+    years: 1961-2024
+

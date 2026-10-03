@@ -468,6 +468,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `sources/tabnet.py`: TabNet over HTTP. Its current territorial tables
   (health macroregion, current health regions) feed the geography pack, and
   `tabulate` asks TabNet for a published table to check a figure against.
+- `sources/inmet.py`: INMET stations (Zenodo mirror) placed in the municipality containing them; station-month sums, counts and extremes for the `climate` field.
 - `sources/ipea_amc.py`: minimum comparable areas from IPEA's geobr (Ehrl 2017),
   read from the GeoPackage's attributes alone, for the geography pack.
 

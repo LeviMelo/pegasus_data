@@ -76,6 +76,9 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
     for name, spec in declared_fields().items():
         if names and name not in names:
             continue
+        if spec.get("source") == "inmet":
+            report[name] = _build_climate(settings, name, years)
+            continue
         wanted = [y for y in _years(spec["years"]) if not years or y in years]
         written = 0
         statuses: dict[str, int] = {}
@@ -107,6 +110,37 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
             written += table.num_rows
         report[name] = {"years": len(wanted), "rows": written, "statuses": statuses}
     return report
+
+
+def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[str, Any]:
+    """Station-month climate placed in the municipality each station stands in (``sources.inmet``)."""
+    import pyarrow.compute as pc
+    import pyarrow.parquet as pq
+
+    from .sources.inmet import monthly, stations
+
+    cache = Path(settings.root) / "registries" / "inmet"
+    placed = {s["station_id"]: s for s in stations(cache) if s["municipality7"]}
+    table = monthly(cache, years)
+    ids = table.column("station_id").to_pylist()
+    code7 = [placed[i]["municipality7"] if i in placed else None for i in ids]
+    table = table.append_column("municipality7", pa.array(code7, pa.string()))
+    # Where the station's position came from and how it was placed, so an
+    # analysis can keep only catalogue positions (NOAA's older coordinates
+    # put 44 of 196 stations in a neighbouring municipality, 2026-10-03).
+    for key in ("coordinates_from", "placed_by"):
+        table = table.append_column(key, pa.array([placed[i][key] if i in placed else None for i in ids], pa.string()))
+    table = table.append_column("municipality", pc.utf8_slice_codeunits(table.column("municipality7"), 0, 6))
+    unplaced = int(pc.sum(pc.is_null(table.column("municipality7"))).as_py() or 0)
+    table = table.filter(pc.is_valid(table.column("municipality7")))
+    written = 0
+    for year in sorted(set(table.column("year").to_pylist())):
+        part = table.filter(pc.equal(table.column("year"), year)).drop_columns(["year"])
+        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
+        target.mkdir(parents=True, exist_ok=True)
+        pq.write_table(part, target / "part.parquet", compression="zstd")
+        written += part.num_rows
+    return {"rows": written, "stations_placed": len(placed), "station_months_unplaced": unplaced}
 
 
 def load_field(name: str, *, years: list[int] | int | None = None, settings: Any = None) -> pa.Table:
