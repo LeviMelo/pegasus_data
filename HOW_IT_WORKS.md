@@ -84,8 +84,8 @@ There are two halves.
    `plan(...).explain()` shows this without reading anything.
 3. **Fetch** (`retrieve.fetch`, internal):
    - select the files of the dataset's families for those coordinates, and one
-     representation per publication (`.dbc` over `.csv.zip`; the newest edition
-     when DATASUS republished one);
+     representation per publication: the cached copy, else the fewest bytes,
+     ADR-0133; the newest edition when DATASUS republished one;
    - download into the content-addressed blob cache;
    - decode in killable worker processes; normalise the types;
    - union the generations, with columns absent from a generation null
@@ -111,6 +111,25 @@ There are two halves.
   `aggregate()` rolls it up through health regions, states and the country.
 - **`serve/`.** Exposes built aggregates, their capabilities, population
   denominators and geography over HTTP for `../pegasus_view`.
+
+## 4b. Context and linkage
+
+- **Dimensions** (`query(dimensions=...)`) roll a code up:
+  - ICD chapters and the official concept lists through label-pack
+    codelists (ADR-0134);
+  - any municipality column through the geography pack (ADR-0130).
+- **Enrichment** (`query(enrich=...)`) reads CNES.ST at each record's month
+  (ADR-0125).
+- **Fields** (`fields.py`, `load_field`) are municipal context outside the
+  records: IBGE statistics, INMET climate by station-month, S2iD disasters.
+- **Places** (`geography.municipality_point`, `distance_km`) use the Census
+  2022 population centre.
+- **Rates** (`rates.age_standardised_rates`) divide queried records by
+  POPSVS, crude and age-standardised.
+- **Linkage** (`linkage/`, `link()`):
+  - specs in `curation/links.yml` compare roles (`curation/roles.yml`)
+    probabilistically, with error measured against a shifted placebo;
+  - `build_entities()` merges stored links into persons.
 
 ## 5. What is kept honest, and how
 
