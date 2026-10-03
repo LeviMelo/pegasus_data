@@ -416,6 +416,11 @@ variables:
     source: inferred
     reasoning: 'CONF_ = confirmação, INF = infecção, M = município; N7 numeric width matches an IBGE municipality code, and infection-site municipality is a standard field in zoonotic-disease investigation. Reviewed 2026-09-28: no documentation found (the column exists only in 1999-2006 SINAN Windows files; searched the SINAN NET Hantavirose v5 dictionary, local TabNet files and the web, and no SINAN Windows hantavirus dictionary is published).'
   CONF_INF_U:
+    notes: >
+      SINAN hantavirus 2006 layout, renamed COUFINF from 2007: the same variable, measured
+      by its values against the next layout's COUFINF (tv 0.81, Jaccard 0.75, no rival;
+      EVALUATION 2026-10-03 "Renamed columns", OQ-57). A query over both eras returns both
+      columns, each null in the other era.
     official_name: UF provável de infecção
     translated_name: State (UF) of probable infection
     description: 'State where the patient most likely acquired hantavirus infection,

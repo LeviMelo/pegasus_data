@@ -624,6 +624,10 @@ variables:
 
       '
   FIL_VIVOS:
+    vintage_note: >
+      SINASC 1994-1995 layout, renamed QTDFILVIVO from 1996: the same variable, measured
+      by its values (tv 0.81, runner-up 0.40; EVALUATION 2026-10-03 "Renamed columns",
+      OQ-57). A query over both eras returns both columns.
     official_name: Filhos nascidos vivos
     translated_name: Previous live births
     description: 'How many children this mother had previously borne alive, in the 1994–1995
@@ -1052,6 +1056,10 @@ variables:
     source_ref: '[ESTRUTURA-2019] Estrutura do SINASC (CGIAE/DASNT/SVS, atualizado 12/2019),
       vendored as sources/Estrutura_SINASC_2019.txt, campo QTDFILMORT'
   QTDFILVIVO:
+    notes: >
+      Earlier layouts carry this variable as FIL_VIVOS (SINASC, until 1995), measured by
+      its values (EVALUATION 2026-10-03 "Renamed columns", OQ-57). A query over both eras
+      returns both columns.
     official_name: Número de filhos vivos
     translated_name: Previous live births
     description: How many live-born children the mother had BEFORE this one. It does not include

@@ -3039,6 +3039,10 @@ variables:
     - CLASSI_FIN
     - ID_PAIS
   COUFINF:
+    notes: >
+      Earlier layouts carry this variable as CONF_INF_U (SINAN hantavirus, 2006), measured
+      by its values (EVALUATION 2026-10-03 "Renamed columns", OQ-57). A query over both
+      eras returns both columns.
     official_name: UF Provável da Fonte de Infecção
     translated_name: State of probable infection
     description: 'State where the patient is judged to have probably been infected. Auto-copied

@@ -149,3 +149,4 @@ in.
 | 2026-10-03 | [Municipality and procedure dimensions, checked against TabNet](docs/evaluation/2026-10-03-municipality-and-procedure-dimensions.md) | live (SIM-DO SE 2022, SIH-RD SE 2022-01; TabNet) |
 | 2026-10-03 | [Exact chance agreement on equality, national SIH deaths → SIM](docs/evaluation/2026-10-03-exact-chance-agreement.md) | live (national 2022 link, linkage home) |
 | 2026-10-03 | [SIH money is in one unit across every era (Acre, 1992–2023)](docs/evaluation/2026-10-03-sih-money-units-across-eras.md) | live (mirror microdata; TabNet) |
+| 2026-10-03 | [Renamed columns: what values can and cannot show](docs/evaluation/2026-10-03-renamed-columns.md) | live (93 layout boundaries sampled through the mirror; fresh home) |

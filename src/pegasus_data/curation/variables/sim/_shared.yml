@@ -861,6 +861,10 @@ variables:
 
       '
   FILHMORT:
+    vintage_note: >
+      SIM 1995 layout, renamed QTDFILMORT from 1996: the same variable, measured by its
+      values (tv 0.91 in DOINF, runner-up 0.55; EVALUATION 2026-10-03 "Renamed columns",
+      OQ-57). A query over both eras returns both columns.
     official_name: Filhos mortos
     translated_name: Mother's number of children who have died
     description: 'Number of the mother''s children who have died, not counting the deceased
@@ -886,6 +890,11 @@ variables:
 
       '
   FILHVIVOS:
+    notes: >
+      SIM 1995 layout, renamed QTDFILVIVO from 1996: the same variable, measured by its
+      values against the next layout's QTDFILVIVO (tv 0.89 against QTDFILVIVO in DOINF,
+      runner-up 0.55; 0.86 in DOEXT; EVALUATION 2026-10-03 "Renamed columns", OQ-57). A
+      query over both eras returns both columns, each null in the other era.
     official_name: Filhos vivos
     translated_name: Mother's number of living children
     description: 'The mother''s living children on the 1979-1995 layout, excluding the deceased
@@ -1648,6 +1657,10 @@ variables:
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo PARTO'
   PESO:
+    notes: >
+      Earlier layouts carry this variable as PESONASC (SIM, until 1995), measured by its
+      values (EVALUATION 2026-10-03 "Renamed columns", OQ-57). A query over both eras
+      returns both columns.
     official_name: Peso ao nascer
     translated_name: Birth weight
     description: Birth weight in grams, for fetal and infant deaths. Four digits, so values
@@ -1657,6 +1670,10 @@ variables:
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo PESO'
   PESONASC:
+    vintage_note: >
+      SIM 1995 layout, renamed PESO from 1996: the same variable, measured by its values
+      (tv 0.86 in DOINF, runner-up 0.08; EVALUATION 2026-10-03 "Renamed columns", OQ-57).
+      A query over both eras returns both columns.
     official_name: Peso ao nascer
     translated_name: Deceased's birth weight (grams)
     description: 'Birth weight of the deceased in grams, in the 1979–1995-vintage layout.
@@ -1677,6 +1694,10 @@ variables:
 
       '
   QTDFILMORT:
+    notes: >
+      Earlier layouts carry this variable as FILHMORT (SIM, until 1995), measured by its
+      values (EVALUATION 2026-10-03 "Renamed columns", OQ-57). A query over both eras
+      returns both columns.
     official_name: Número de perdas fetais/abortos
     translated_name: Fetal losses
     description: How many fetal losses or abortions the mother had. It EXCLUDES the death
@@ -1687,6 +1708,10 @@ variables:
     source_ref: '[ESTRUTURA-SIM] sim2025.txt — Estrutura do SIM (CGIAE/DASNT/SVS, atualizado
       07/2025), campo QTDFILMORT'
   QTDFILVIVO:
+    notes: >
+      Earlier layouts carry this variable as FILHVIVOS (SIM, until 1995), measured by its
+      values (EVALUATION 2026-10-03 "Renamed columns", OQ-57). A query over both eras
+      returns both columns.
     official_name: Número de filhos vivos
     translated_name: Live-born children
     description: How many live-born children the mother had, with 9 meaning ignored. A .DEF
