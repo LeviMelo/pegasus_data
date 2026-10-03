@@ -103,19 +103,32 @@ class KeyResult:
         }
 
 
+#: Properties never offered as identity evidence: a field under study is held
+#: out of linking, so links are not selected for agreeing on it
+#: (docs/plans/linkage-theory.md §5; race is measured across systems instead).
+HELD_OUT = ("race",)
+
+
 def _comparable(dataset: str) -> dict[str, str]:
     """Role -> type for the comparable roles, one role per source column."""
     seen: set[str] = set()
     out: dict[str, str] = {}
     for name, role in dataset_roles(dataset).roles.items():
+        if name.rsplit(".", 1)[-1] in HELD_OUT:
+            continue
         if role.type in COMPARABLE and role.column not in seen:
             seen.add(role.column)
             out[name] = role.type
     return out
 
 
+def _pairings(left: dict[str, str], right: dict[str, str]) -> dict[str, list[tuple[str, str]]]:
+    return {t: [(a, b) for a, ta in left.items() for b, tb in right.items() if ta == tb == t] for t in COMPARABLE}
+
+
 def _keys(left: dict[str, str], right: dict[str, str]) -> list[tuple[tuple[str, str], ...]]:
-    pairs = {t: [(a, b) for a, ta in left.items() for b, tb in right.items() if ta == tb == t] for t in COMPARABLE}
+    """Every key (exhaustive; ``discover_links(exhaustive=True)``)."""
+    pairs = _pairings(left, right)
     dates = pairs["date"]
     date_sets = [(d,) for d in dates] + [
         (d1, d2) for d1, d2 in itertools.combinations(dates, 2) if d1[0] != d2[0] and d1[1] != d2[1]
@@ -124,6 +137,32 @@ def _keys(left: dict[str, str], right: dict[str, str]) -> list[tuple[tuple[str, 
     sexes: list[tuple[tuple[str, str], ...]] = [()] + [(s,) for s in pairs["sex"]]
     attrs: list[tuple[tuple[str, str], ...]] = [()] + [(x,) for t in ATTRIBUTE for x in pairs[t]]
     return [d + s + p + x for d in date_sets for s in sexes for p in places for x in attrs]
+
+
+#: Staged search (default): how many date sets get sex and place added, and how
+#: many of the resulting keys get one attribute.
+TOP_DATE_SETS = 5
+TOP_KEYS_FOR_ATTRIBUTES = 3
+
+
+def _z(r: KeyResult) -> float:
+    """How far beyond chance a key's records meet the other side (Poisson z)."""
+    return (r.real_right_meets - r.placebo_right_meets) / (r.placebo_right_meets + 1) ** 0.5
+
+
+def _shares(r: KeyResult) -> bool:
+    """A key whose records meet the other side far beyond chance."""
+    return _z(r) >= 5 or r.excess_mutual > 0
+
+
+def _top(results: list[KeyResult], n: int) -> list[KeyResult]:
+    """The n strongest by sharing (z) and the n strongest by isolation (excess
+    mutual): a date set that shares people but cannot yet tell them apart
+    (birth date against birth date, where same-day births collide) is the one
+    an attribute completes, so ranking by isolation alone dropped it."""
+    by_z = sorted(results, key=_z, reverse=True)[:n]
+    by_mutual = sorted(results, key=lambda r: r.excess_mutual, reverse=True)[:n]
+    return list({r.key: r for r in by_z + by_mutual}.values())
 
 
 def _intervals(types: dict[str, str]) -> list[str]:
@@ -171,8 +210,15 @@ def _count(con: duckdb.DuckDBPyConnection, key: tuple[tuple[str, str], ...], lty
 
 
 def discover_links(left: str, right: str, *, period: object, geography: object,
-             tables: dict[str, pa.Table] | None = None, **query_kwargs: Any) -> list[KeyResult]:
-    """Measure every comparable key between two datasets; best keys first.
+                   tables: dict[str, pa.Table] | None = None, exhaustive: bool = False,
+                   **query_kwargs: Any) -> list[KeyResult]:
+    """Measure comparable keys between two datasets; best keys first.
+
+    The default search is staged: every single date pairing with sex and place;
+    pairs of the dates that shared people in any of those forms, the
+    TOP_DATE_SETS best of them with sex and place; one attribute added to the
+    TOP_KEYS_FOR_ATTRIBUTES best keys by sharing and by isolation. ``exhaustive=True``
+    measures every combination (SIH ~ CIHA: over 4.5 h unfinished, 2026-10-02).
 
     ``tables`` may carry already-loaded role tables (dataset -> table) so a
     sweep over several pairs reads each dataset once.
@@ -196,13 +242,40 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
             """)
         days[day] = view
         rt = {**rt, day: "date"}
-    results = []
-    for key in _keys(lt, rt):
-        c = _count(con, key, lt, days)
-        nl, nr, real_any, real_mutual, real_rm = c[0]
-        p_plus, p_minus = c[SHIFT_DAYS], c[-SHIFT_DAYS]
-        results.append(KeyResult(left, right, key, nl, nr, real_any, real_mutual,
-                                 (p_plus[2] + p_minus[2]) / 2, (p_plus[3] + p_minus[3]) / 2,
-                                 real_rm, (p_plus[4] + p_minus[4]) / 2))
-    results.sort(key=lambda r: r.excess_mutual, reverse=True)
+    measured: dict[tuple[tuple[str, str], ...], KeyResult] = {}
+
+    def measure(keys: list[tuple[tuple[str, str], ...]]) -> list[KeyResult]:
+        out = []
+        for key in keys:
+            if key in measured:
+                out.append(measured[key])
+                continue
+            c = _count(con, key, lt, days)
+            nl, nr, real_any, real_mutual, real_rm = c[0]
+            p_plus, p_minus = c[SHIFT_DAYS], c[-SHIFT_DAYS]
+            res = KeyResult(left, right, key, nl, nr, real_any, real_mutual,
+                            (p_plus[2] + p_minus[2]) / 2, (p_plus[3] + p_minus[3]) / 2,
+                            real_rm, (p_plus[4] + p_minus[4]) / 2)
+            measured[key] = res
+            out.append(res)
+        return out
+
+    if exhaustive:
+        measure(_keys(lt, rt))
+    else:
+        pairs = _pairings(lt, rt)
+        places = [()] + [(p,) for p in pairs["facility"] + pairs["municipality"]]
+        sexes = [()] + [(x,) for x in pairs["sex"]]
+        # Every single date pairing with sex and place: a date alone can share
+        # people invisibly (every 2022 birth "meets" some death) until a place
+        # is added, so nothing is cut before this stage.
+        first = measure([(d,) + s_ + p_ for d in pairs["date"] for s_ in sexes for p_ in places])
+        live = sorted({r.key[0] for r in first if _shares(r)})
+        doubles = [(d1, d2) for d1, d2 in itertools.combinations(live, 2) if d1[0] != d2[0] and d1[1] != d2[1]]
+        double_sets = _top([r for r in measure(doubles) if _shares(r)], TOP_DATE_SETS)
+        measure([r.key + s_ + p_ for r in double_sets for s_ in sexes for p_ in places])
+        best = _top([r for r in measured.values() if _shares(r)], TOP_KEYS_FOR_ATTRIBUTES)
+        attrs = [(x,) for t in ATTRIBUTE for x in pairs[t]]
+        measure([r.key + a_ for r in best for a_ in attrs])
+    results = sorted(measured.values(), key=lambda r: r.excess_mutual, reverse=True)
     return results
