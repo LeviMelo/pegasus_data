@@ -54,7 +54,7 @@ two describe the same population.
 - **February 1994 (RDAC9402) is absent from the mirror and from TabNet**
   alike.
 
-**Found on the way, and fixed separately.** `query("SIH.RD")` on a fresh
+**Found on the way, and fixed (ADR-0133).** `query("SIH.RD")` on a fresh
 home returned nothing for AC 2008 and 2010–2012, and one month of 2009. It
 planned the XML/CSV representations of those years, which the mirror does
 not hold, while the `.dbc` files are there.
@@ -63,3 +63,7 @@ not hold, while the `.dbc` files are there.
 unit correction. Before July 1994, money is in another currency and is not
 comparable without conversion; `US_TOT` is. A count of admissions that is
 to match TabNet excludes `IDENT` 5.
+
+**After ADR-0133** (fresh home, through the mirror):
+`query("SIH.RD", geography="AC")` gives 2008: 46,087 AIH and R$ 22,365,143.69;
+2011: 52,269 AIH and R$ 33,510,058.61. Both equal the direct `.dbc` reading.

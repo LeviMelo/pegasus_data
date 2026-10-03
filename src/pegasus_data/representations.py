@@ -93,6 +93,8 @@ def choose_representations(
         except Exception:  # pragma: no cover - compatibility with old read-only catalogs
             open_conflicts = set()
 
+    cached = _cached_paths(catalog, [str(row.get("path") or "") for rows_ in groups.values()
+                                     if len(rows_) > 1 for row in rows_])
     selected: list[dict[str, Any]] = []
     dropped: list[str] = []
     conflicts: list[str] = []
@@ -196,18 +198,48 @@ def choose_representations(
                 f"logical publication {logical!r} has conflicting representations; "
                 "runtime execution refused to avoid duplicate observations"
             )
-        winner = min(
-            candidates,
-            key=lambda row: (
-                DECODE_COST_RANK.get(str(row.get("container_format") or "unknown"), 99),
-                str(row.get("path") or ""),
-            ),
-        )
+        winner = min(candidates, key=lambda row: _wire_cost(row, cached))
         selected.append(winner)
         dropped.extend(
             str(row.get("path") or "") for row in candidates if row is not winner
         )
     return RepresentationSelection(tuple(selected), tuple(dropped), tuple(conflicts))
+
+
+def _wire_cost(row: Mapping[str, Any], cached: set[str]) -> tuple[int, int, int, str]:
+    """Bytes on the wire first, then decode cost (ADR-0133).
+
+    A copy already in the blob store costs nothing to fetch. Otherwise the
+    smaller file wins: SIH-RD Acre 2008-01 is 114 KB as ``.dbc``, 1.05 MB as
+    ``.csv`` and 5.1 MB as ``.xml``, and choosing by decode cost alone fetched
+    the CSV/XML copies, which the HTTPS mirror (ADR-0122) does not hold, so
+    those years came back empty while the FTP was down (2026-10-03).
+    """
+    path = str(row.get("path") or "")
+    size = row.get("size")
+    return (
+        0 if path in cached else 1,
+        int(size) if size is not None else 2**62,
+        DECODE_COST_RANK.get(str(row.get("container_format") or "unknown"), 99),
+        path,
+    )
+
+
+def _cached_paths(catalog: Catalog, paths: Sequence[str]) -> set[str]:
+    """Which of ``paths`` were fetched into the blob store before."""
+    if not paths:
+        return set()
+    out: set[str] = set()
+    unique = sorted(set(paths))
+    for start in range(0, len(unique), 500):
+        chunk = unique[start:start + 500]
+        marks = ",".join("?" for _ in chunk)
+        try:
+            out |= {str(r["source_path"]) for r in catalog.query(
+                f"SELECT DISTINCT source_path FROM fetches WHERE source_path IN ({marks})", tuple(chunk))}
+        except Exception:  # noqa: BLE001 - a catalog without fetch history ranks by size
+            return out
+    return out
 
 
 def _newest_edition(catalog: Catalog, candidates: Sequence[dict[str, Any]]) -> dict[str, Any] | None:
