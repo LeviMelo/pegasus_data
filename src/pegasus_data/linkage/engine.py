@@ -37,7 +37,7 @@ import duckdb
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
-from .roles import DUP_SQL, RECORD_ID_SQL, dataset_roles, role_table
+from .roles import DUP_SQL, RECORD_ID_SQL, connect, dataset_roles, role_table
 
 LINKS_FILE = Path(__file__).resolve().parent.parent / "curation" / "links.yml"
 CHANCE_DROP = 20.0
@@ -254,7 +254,7 @@ def _join(con: duckdb.DuckDBPyConnection, keys: tuple[tuple[str, str], ...], shi
 
 def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
     """Link two role tables under `spec`."""
-    con = duckdb.connect()
+    con = connect()
     n_left = _prepare(con, "L", left, spec.left)
     n_right = _prepare(con, "R", right, spec.right)
     con.execute("CREATE TEMP TABLE linked (l VARCHAR, r VARCHAR, pass VARCHAR)")

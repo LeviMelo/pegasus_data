@@ -25,6 +25,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+import duckdb
 import pyarrow as pa
 import pyarrow.compute as pc
 
@@ -32,6 +33,42 @@ from ..semantics.curation import read_yaml
 
 ROLES_FILE = Path(__file__).resolve().parent.parent / "curation" / "roles.yml"
 RECORD_ID = ("_blob_sha256", "_row")
+
+
+def connect() -> duckdb.DuckDBPyConnection:
+    """A DuckDB connection for linkage, bounded in memory.
+
+    DuckDB's default limit is 80% of RAM: the national newborn link's joins
+    grew one process to 25 GB on a 32 GB machine and started it paging
+    (2026-10-03). Capped at 40% of physical memory, a large join spills to
+    the work directory instead.
+    """
+    import os
+
+    from ..config import load_settings
+
+    con = duckdb.connect()
+    try:
+        total = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")  # type: ignore[attr-defined]
+    except (AttributeError, ValueError, OSError):
+        import ctypes
+
+        class _Mem(ctypes.Structure):
+            _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong),
+                        ("ullTotalPhys", ctypes.c_ulonglong), ("ullAvailPhys", ctypes.c_ulonglong),
+                        ("ullTotalPageFile", ctypes.c_ulonglong), ("ullAvailPageFile", ctypes.c_ulonglong),
+                        ("ullTotalVirtual", ctypes.c_ulonglong), ("ullAvailVirtual", ctypes.c_ulonglong),
+                        ("ullAvailExtendedVirtual", ctypes.c_ulonglong)]
+
+        mem = _Mem()
+        mem.dwLength = ctypes.sizeof(_Mem)
+        ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(mem))  # type: ignore[attr-defined]
+        total = int(mem.ullTotalPhys)
+    spill = load_settings().work_dir / "duckdb_spill"
+    spill.mkdir(parents=True, exist_ok=True)
+    con.execute(f"SET memory_limit = '{max(1, int(total * 0.4) // 2**30)}GB'")
+    con.execute(f"SET temp_directory = '{spill.as_posix()}'")
+    return con
 
 
 #: SQL for a record's identity over a relation with provenance columns; the
@@ -53,9 +90,8 @@ def record_ids(table: pa.Table) -> pa.Array:
                                            pc.cast(table.column("_row"), pa.string()), ":")
     if "_record_key" not in table.column_names:
         return fallback
-    import duckdb
 
-    con = duckdb.connect()
+    con = connect()
     con.register("t", pa.table({"_record_key": pc.cast(table.column("_record_key"), pa.string()),
                                 "_source_path": pc.cast(table.column("_source_path"), pa.string()),
                                 "_row": table.column("_row"),

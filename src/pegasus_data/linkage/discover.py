@@ -49,7 +49,7 @@ from typing import Any
 import duckdb
 import pyarrow as pa
 
-from .roles import dataset_roles, role_table
+from .roles import connect, dataset_roles, role_table
 
 COMPARABLE = ("date", "sex", "facility", "municipality", "integer", "label")
 #: Types that join a key only as one optional attribute (birth weight, weeks,
@@ -228,7 +228,7 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
     for ds, roles in ((left, lt), (right, rt)):
         if ds not in tables:
             tables[ds] = role_table(ds, period=period, geography=geography, roles=list(roles), **query_kwargs)
-    con = duckdb.connect()
+    con = connect()
     con.register("L", tables[left].select(list(lt)))
     con.register("R", tables[right].select(list(rt)))
     days: dict[str, str] = {}

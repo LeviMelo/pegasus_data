@@ -50,7 +50,7 @@ from ..semantics.curation import read_yaml
 from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, upper95, validate
 from .levels import Levels, levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
-from .roles import dataset_roles, record_ids, role_table
+from .roles import connect, dataset_roles, record_ids, role_table
 
 CONTROL_SHIFT_DAYS = 400
 RANDOM_PAIRS = 200_000
@@ -566,7 +566,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                       national: dict[str, Any] | None = None) -> ProbabilisticResult:
     from dataclasses import replace as _replace
 
-    con = duckdb.connect()
+    con = connect()
     setting_role = dataset_roles(spec.left.dataset).setting
     with_setting = bool(setting_role and setting_role in left.column_names)
     if with_setting:
@@ -697,7 +697,7 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
     if not items:
         return table
     ids = record_ids(table)
-    con = duckdb.connect()
+    con = connect()
     con.register("me", pa.table({"_k": ids, "_pos": pa.array(range(table.num_rows), pa.int64())}))
     for item in items:
         via = load_links()[item.via]

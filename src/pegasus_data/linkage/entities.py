@@ -25,12 +25,12 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
-import duckdb
 import numpy as np
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
 from .engine import LINKS_FILE, load_links
+from .roles import connect
 from .store import links_dir, run_key
 
 #: How many records of one kind a person can have. A kind is (dataset, role).
@@ -71,7 +71,7 @@ def _person_of_specs() -> dict[str, tuple[str, str, str, str]]:
 
 def _stored_edges(settings: Any, period: object, geography: object, method: str) -> pa.Table:
     """Every stored pair of the scope as one edge table."""
-    con = duckdb.connect()
+    con = connect()
     parts = []
     for name, (lds, lrole, rds, rrole) in _person_of_specs().items():
         key = run_key(name, method, period, geography)
@@ -159,7 +159,7 @@ def person_pairs(entities: Entities, left: tuple[str, str], right: tuple[str, st
 
     The links a spec would draw, plus those implied through other links.
     """
-    con = duckdb.connect()
+    con = connect()
     con.register("n", entities.nodes)
     return con.execute(f"""SELECT a.record AS l, b.record AS r, a.person FROM n a JOIN n b USING (person)
         WHERE a.dataset = '{left[0]}' AND a.role = '{left[1]}' AND b.dataset = '{right[0]}' AND b.role = '{right[1]}'
