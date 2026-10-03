@@ -154,3 +154,4 @@ in.
 | 2026-10-03 | [SINAN dengue deaths → SIM (national 2022)](docs/evaluation/2026-10-03-sinan-dengue-deaths-to-sim.md) | live (national probabilistic link) |
 | 2026-10-03 | [SINAN linkage potential: what the schemas offer, and what was measured](docs/evaluation/2026-10-03-sinan-linkage-potential.md) | schema census; live (national 2022 links) |
 | 2026-10-03 | [Climate field from INMET stations (station-month, placed by location)](docs/evaluation/2026-10-03-climate-field.md) | live (Zenodo mirror of INMET; NOAA ISD; IBGE mesh) |
+| 2026-10-03 | [Disasters field from S2iD (one row per municipal event, 1991–2025)](docs/evaluation/2026-10-03-disasters-field.md) | live (MIDR open data) |

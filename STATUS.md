@@ -157,6 +157,8 @@ OQ-64), 1990s SIH V-codes.
   - Census sanitation, literacy and population by race, for 2010 and 2022.
   - `climate`: INMET station-month precipitation and temperature, placed in
     the municipality each station stands in (1961–2025, 912 stations).
+  - `disasters`: S2iD's recorded events, 1991–2025 (76,190), with COBRADE
+    type and human damages.
 - **Units:** SIH money is in reais from 1995 on (OQ-21 resolved).
 - **Renamed columns:** five confirmed by values are curated (OQ-57
   narrowed).
@@ -250,8 +252,6 @@ OQ-64), 1990s SIH V-codes.
     found);
   - BASE_AIH1's 11 fields without an RD/SP twin;
   - its age pairing, unverified until a sample of the 12 GB file is read.
-- **Disasters (S2iD):** the 1991–2025 CSV is published, but MIDR's firewall
-  rejects every scripted download of it (OQ-67).
 - **Speed.** A cold process still spends most of its time in per-group
   binding decisions and catalog reads.
 - **Carried:**

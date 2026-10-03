@@ -79,6 +79,9 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
         if spec.get("source") == "inmet":
             report[name] = _build_climate(settings, name, years)
             continue
+        if spec.get("source") == "s2id":
+            report[name] = _build_disasters(settings, name, years)
+            continue
         wanted = [y for y in _years(spec["years"]) if not years or y in years]
         written = 0
         statuses: dict[str, int] = {}
@@ -141,6 +144,28 @@ def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[st
         pq.write_table(part, target / "part.parquet", compression="zstd")
         written += part.num_rows
     return {"rows": written, "stations_placed": len(placed), "station_months_unplaced": unplaced}
+
+
+def _build_disasters(settings: Any, name: str, years: list[int] | None) -> dict[str, Any]:
+    """S2iD's recorded disasters, one row per municipal event (``sources.s2id``)."""
+    import pyarrow.compute as pc
+    import pyarrow.parquet as pq
+
+    from .sources.s2id import events
+
+    table = events(Path(settings.root) / "registries" / "s2id")
+    undated = int(pc.sum(pc.is_null(table.column("year"))).as_py() or 0)
+    table = table.filter(pc.is_valid(table.column("year")))
+    written = 0
+    for year in sorted(set(table.column("year").to_pylist())):
+        if years and year not in years:
+            continue
+        part = table.filter(pc.equal(table.column("year"), year)).drop_columns(["year"])
+        target = Path(settings.lake_dir) / "fields" / name / f"year={int(year)}"
+        target.mkdir(parents=True, exist_ok=True)
+        pq.write_table(part, target / "part.parquet", compression="zstd")
+        written += part.num_rows
+    return {"rows": written, "undated": undated}
 
 
 def load_field(name: str, *, years: list[int] | int | None = None, settings: Any = None) -> pa.Table:

@@ -160,3 +160,15 @@ fields:
       sum / readings, at use.
     years: 1961-2024
 
+  # Disasters recorded in S2iD (sources/s2id.py): one row per municipal event.
+  disasters:
+    source: s2id
+    unit: events; people (human-damage counts as reported)
+    what: >
+      Events recorded in S2iD since 1991 (MIDR/SEDEC, the data behind Atlas
+      Digital de Desastres): IBGE municipality, event date, COBRADE code,
+      typology and group (climatological, hydrological, meteorological,
+      other), status (registered or federally recognised), and deaths,
+      injured, sick, homeless, displaced, missing and affected as reported.
+    years: 1991-2025
+
