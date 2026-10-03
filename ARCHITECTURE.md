@@ -379,6 +379,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 
 - `acquire/cache.py`: the content-addressed blob store.
 - `acquire/fetcher.py`: bounded-concurrency downloads, skipping unchanged files.
+  When an FTP transfer fails, it falls back to the mirror at the listed size,
+  recorded as `mirror:<url>` (ADR-0122).
 
 ### `catalog/`
 
@@ -401,7 +403,9 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 
 - `discovery/ftp_client.py`, `discovery/crawler.py`, `discovery/listing.py`,
   `discovery/reconcile.py`: §2.1.
-- `discovery/https_client.py`: probes for an HTTPS mirror (none exists).
+- `discovery/https_client.py`: the HTTPS transport. It probes DATASUS's own
+  hosts for a mirror (none exists) and serves the fetcher's fallback to the
+  third-party S3 mirror (ADR-0122).
 
 ### `inventory/`
 

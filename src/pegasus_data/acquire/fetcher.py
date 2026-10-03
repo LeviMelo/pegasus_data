@@ -33,15 +33,10 @@ from .cache import BlobStore
 #: copy has exactly that size; it is recorded as ``mirror:<url>``, never as an
 #: FTP fetch (ADR-0122). 8 of 8 files compared byte for byte were identical
 #: (2026-10-03); CIHA is not mirrored.
-MIRROR_BASE = "https://datasus-ftp-mirror.nyc3.digitaloceanspaces.com"
-FTP_ROOT = "/dissemin/publicos/"
+MIRROR_HOST = "datasus-ftp-mirror.nyc3.digitaloceanspaces.com"
+MIRROR_PREFIX = "/dissemin/publicos"
 
 
-def mirror_url(path: str) -> str | None:
-    return f"{MIRROR_BASE}/{path[len(FTP_ROOT):]}" if path.startswith(FTP_ROOT) else None
-
-
-@dataclass(slots=True)
 class FetchResult:
     path: str
     sha256: str | None
@@ -524,27 +519,19 @@ class Fetcher:
     def _from_mirror(self, path: str, staged, expected_size: int | None) -> tuple[int, str, str] | None:
         """The mirror's copy of ``path`` when, and only when, it has the size
         the DATASUS listing gives; streamed and hashed like an FTP transfer."""
-        import hashlib
-        import urllib.request
+        if expected_size is None:
+            return None
+        from ..discovery.https_client import HttpsClient
 
-        url = mirror_url(path)
-        if url is None or expected_size is None:
-            return None
-        digest = hashlib.sha256()
-        size = 0
-        try:
-            with urllib.request.urlopen(url, timeout=self.timeout) as resp, open(staged, "wb") as out:
-                while chunk := resp.read(1 << 16):
-                    out.write(chunk)
-                    digest.update(chunk)
-                    size += len(chunk)
-        except Exception:  # noqa: BLE001 - absent from the mirror, or unreachable: the gap stands
-            staged.unlink(missing_ok=True)
-            return None
-        if size != expected_size:
-            staged.unlink(missing_ok=True)
-            return None
-        return size, digest.hexdigest(), f"mirror:{url}"
+        with HttpsClient(MIRROR_HOST, timeout=self.timeout, strip_prefix=MIRROR_PREFIX) as mirror:
+            url = mirror.url(path)
+            if url is None:
+                return None
+            try:
+                size, digest = mirror.retrieve_to_file(path, staged, expected_size=expected_size)
+            except Exception:  # noqa: BLE001 - absent from the mirror, unreachable or the wrong size: the gap stands
+                return None
+        return size, digest, f"mirror:{url}"
 
     # ------------------------------------------------------------- convenience
 

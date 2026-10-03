@@ -10,6 +10,11 @@ the mirror was supposed to solve is solved instead by parsing the IIS MS-DOS
 ``LIST`` dialect (see ``listing.py``), which carries size and mtime directly, and
 by ``SIZE``/``MDTM`` per file.
 
+**2026-10-03:** a third-party mirror does exist, off DATASUS's hosts: an S3
+copy of ``/dissemin/publicos`` (``acquire.fetcher.MIRROR_HOST``), byte-identical on 8 of 8
+files compared. ``HttpsClient`` serves it to the fetcher when an FTP transfer
+fails (ADR-0122).
+
 This module keeps the probe as a *runnable check* rather than a settled opinion,
 because a mirror may appear later. ``probe_https_mirror`` writes its verdict into
 ``open_questions`` with the evidence attached, and ``HttpsClient`` is ready to
@@ -21,6 +26,7 @@ from __future__ import annotations
 import hashlib
 import socket
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import httpx
 
@@ -139,8 +145,11 @@ class HttpsClient:
     swapping transports is a one-line change if a mirror appears.
     """
 
-    def __init__(self, host: str, *, timeout: float = 60.0) -> None:
+    def __init__(self, host: str, *, timeout: float = 60.0, strip_prefix: str = "") -> None:
         self.host = host
+        #: The part of a DATASUS path the mirror leaves out (an S3 copy of
+        #: ``/dissemin/publicos`` keeps only what is below it).
+        self.strip_prefix = strip_prefix
         self._client = httpx.Client(
             timeout=timeout,
             follow_redirects=True,
@@ -156,13 +165,48 @@ class HttpsClient:
     def __exit__(self, *exc: object) -> None:
         self.close()
 
+    def url(self, path: str) -> str | None:
+        """Where the mirror keeps ``path``; None for a path outside what it copies."""
+        if self.strip_prefix:
+            if not path.startswith(self.strip_prefix):
+                return None
+            path = path[len(self.strip_prefix):]
+        return f"https://{self.host}/{path.lstrip('/')}"
+
     def stat(self, path: str) -> tuple[int | None, str | None]:
-        r = self._client.head(f"https://{self.host}{path}")
+        r = self._client.head(self.url(path) or "")
         r.raise_for_status()
         length = r.headers.get("content-length")
         return (int(length) if length else None), r.headers.get("last-modified")
 
     def retrieve(self, path: str) -> bytes:
-        r = self._client.get(f"https://{self.host}{path}")
+        r = self._client.get(self.url(path) or "")
         r.raise_for_status()
         return r.content
+
+    def retrieve_to_file(self, path: str, dest: Path, *, expected_size: int | None = None) -> tuple[int, str]:
+        """Stream ``path`` to ``dest``, hashing as it lands; returns (size, sha256).
+
+        The same contract as ``FtpClient.retrieve_to_file``: a file that ends at
+        a length other than ``expected_size`` is deleted and raises.
+        """
+        url = self.url(path)
+        if url is None:
+            raise FileNotFoundError(f"{path} is outside what https://{self.host} mirrors")
+        digest = hashlib.sha256()
+        size = 0
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with self._client.stream("GET", url) as r, open(dest, "wb") as out:
+                r.raise_for_status()
+                for chunk in r.iter_bytes(1 << 16):
+                    out.write(chunk)
+                    digest.update(chunk)
+                    size += len(chunk)
+        except BaseException:
+            dest.unlink(missing_ok=True)
+            raise
+        if expected_size is not None and size != expected_size:
+            dest.unlink(missing_ok=True)
+            raise ValueError(f"{url}: {size} bytes, the DATASUS listing says {expected_size}")
+        return size, digest.hexdigest()

@@ -286,6 +286,28 @@ def _distribution(lv: np.ndarray) -> tuple[dict[str, float], int]:
     return {str(n): c / len(usable) for n, c in zip(names, counts, strict=True)}, int(len(usable))
 
 
+def _distributions_stream(con, sql: str, compare) -> list[tuple[dict[str, float], int]]:
+    """Each comparison's level distribution over every row of ``sql``, counted
+    batch by batch. The real candidates of the newborn link are tens of
+    millions of rows with diagnosis lists; materialising them took the process
+    past 40 GB on a 32 GB machine (2026-10-03). Counting is exact and bounded."""
+    from collections import Counter
+
+    counts = [Counter() for _ in compare]
+    for batch in con.execute(sql).fetch_record_batch(1_000_000):
+        if not batch.num_rows:
+            continue
+        for k, lv in enumerate(_batch_levels(batch, compare)):
+            names, n = np.unique(lv.astype(str), return_counts=True)
+            counts[k].update(dict(zip(names.tolist(), n.tolist(), strict=True)))
+    out = []
+    for c in counts:
+        c.pop(MISSING, None)
+        total = sum(c.values())
+        out.append(({str(k): v / total for k, v in c.items()}, int(total)) if total else ({}, 0))
+    return out
+
+
 def _bits_of(fm: FieldModel, lv: np.ndarray) -> np.ndarray:
     names, inverse = np.unique(lv.astype(str), return_inverse=True)
     return np.array([fm.bits(str(n)) for n in names])[inverse]
@@ -490,13 +512,13 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                         | {prob.control_role})
     _shifted_left(con, left_dates, CONTROL_SHIFT_DAYS)
     evidence_only = [c for c in prob.compare if not c.is_key]
-    placebo_levels = (dict(zip([c.name for c in evidence_only],
-                               _levels_of(con, _select_values("L", _candidates(con, "L", prob.blocks), evidence_only),
-                                          evidence_only), strict=True))
-                      if evidence_only else {})
+    candidate_u = (dict(zip([c.name for c in evidence_only],
+                            _distributions_stream(con, _select_values("L", _candidates(con, "L", prob.blocks),
+                                                                      evidence_only), evidence_only), strict=True))
+                   if evidence_only else {})
     models: list[FieldModel] = []
     for i, comp in enumerate(prob.compare):
-        u, n_u = _distribution(placebo_levels[comp.name] if comp.name in placebo_levels else random_levels[i])
+        u, n_u = candidate_u[comp.name] if comp.name in candidate_u else _distribution(random_levels[i])
         others = [c for c in prob.compare if c is not comp and c.is_key]
         anchor_sql, _ = _anchor_sql(others, prob.control_role, shift=False)
         control_sql, has_control = _anchor_sql(others, prob.control_role, shift=True)
