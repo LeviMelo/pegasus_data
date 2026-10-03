@@ -306,4 +306,3 @@ links:
         - [[case.death_date, death.date], [case.sex, deceased.sex]]
       target_fdr: 0.01
       control_shift_days: 14   # every block uses the death day; 400 days leaves 2022
-

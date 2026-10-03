@@ -69,6 +69,19 @@ million hashed pairs, padded infant and newborn links; `data/logs/final_relink.d
 | births → CIHA deliveries | 195,566 (7.8%) | 0.99% | 4.0 |
 | SINAN dengue deaths → SIM | 503 (47.6%) | 1.74% | — |
 
+**National, 2023** (`data/logs/relink_2023.done`; CIHA is not on the mirror):
+
+| link | pairs | FDR upper 95% |
+|---|---|---|
+| SIH deaths → SIM | 539,575 (91.7%) | 1.01% |
+| deliveries → SIH | 1,524,602 (61.0%) | 0.69% |
+| infant deaths → SINASC | 26,102 (81.9%) | 0.74% |
+| newborn admissions → SINASC | 87,037 (21.3%) | 1.07% |
+| maternal deaths → SIH | 833 (51.9%) | 1.23% |
+| SINAN dengue deaths → SIM | 0 (not viable) | — |
+
+Entities 2023: 2,159,524 persons, 105 merges refused.
+
 - **Scope test:** the SE, RR and SP slices are identical to the national run
   (SP 133,471 of 133,471).
 - **Entities:** 2,418,661 persons, 99 merges refused.
@@ -113,9 +126,11 @@ OQ-64), 1990s SIH V-codes.
 - **A coverage prior,** only with coverage measured independently of the
   link (EVALUATION 2026-10-03 "Coverage by stratum").
 - **Other systems and years:**
-  - SINAN dengue deaths → SIM is done (no birth date: 47.6% linked);
-  - other SINAN agravos and SIA/APAC are not started;
-  - 2023 lakes are building.
+  - SINAN dengue deaths → SIM: 47.6% in 2022, not viable in 2023 (no
+    birth date);
+  - chemotherapy APAC deaths → SIM was tried and withdrawn: its date is not
+    the death date;
+  - 2023 is linked (above); other SINAN agravos are not started.
 
 ## Context around a record (2026-10-03)
 

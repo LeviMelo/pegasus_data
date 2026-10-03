@@ -25,3 +25,19 @@ age in whole years, residence and the notifying unit.
 - **`geography="BR"` on a nationally published dataset** reads its one
   publication instead of refusing.
 - **Dates may be given as `YYYY-MM-DD`** in roles.
+
+**2023:**
+- 1,192 deaths, 274,507 candidates;
+- **no threshold reaches the 1% target, so 0 pairs.** Without a birth date
+  this link is at the edge of identifiable: 2022 passed only at 29.5 bits.
+
+**Chemotherapy APAC deaths → SIM (2022, tried and withdrawn).** SIA-AQ
+`AP_OBITO` = 1 gives 11,036 deaths, with `AP_DTOCOR`, sex, age, residence
+and unit.
+- **The death-day pass agrees barely above chance:** 2,461 pairs against
+  1,480 in the placebo. `AP_DTOCOR` is mostly not the date SIM records as
+  the death.
+- **The probabilistic run finds no viable threshold.**
+- **The spec and its roles were removed.** APAC deaths reach SIM only
+  through another record.
+
