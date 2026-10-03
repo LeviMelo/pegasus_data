@@ -45,6 +45,12 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   2026-10-03 every passive data port (5539–5800) was dropped, while login,
   `CWD` and `SIZE` answered. Listings and downloads both failed. Record:
   `data/probes/ftp/data_channel.jsonl`.
+  - **Diagnosed at 17:25 the same day:** the route reaches DATASUS
+    (`189.28.137.254`), and only TCP 21 of `189.28.143.164` accepts
+    connections. Freshly advertised `PASV` ports time out at connect;
+    active mode is refused (`501`); `ftp2.datasus.gov.br` times out; ports
+    80 and 443 are closed. The passive range is filtered on DATASUS's side,
+    not by the client.
 - **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
   its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
   and ESUSNOTIFICA. It has no IBGE and no CIHA.
