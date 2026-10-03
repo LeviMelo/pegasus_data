@@ -254,6 +254,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   Acre under 2022 holds 3,687 admissions (7.44%) from 2021; `ANO_CMPT`/
   `MES_CMPT` are the billing competence (F §3p, second).
 - **Numbers are fixed-width text; a blank means absent** (F §3q, second).
+- **SIH money is in reais from 1995 on, with no centavos era** (Acre
+  1992–2023 against TabNet, 2026-10-03).
+  - 1992 is in cruzeiros, 1993 in cruzeiros reais, and 1994 mixes both
+    currencies (reais from July).
+  - `US_TOT` (dollars) is the comparable measure across 1994.
+- **TabNet's SIH "Internações" excludes long-stay continuation AIHs
+  (`IDENT` 5); its "Valor total" includes them.** Its Acre file for
+  September 2009 (`niac0909.dbf`) returns no table, so TabNet's 2009 Acre
+  total omits that month (2026-10-03).
 - **Sex codes differ by system**: SIHSUS `1`/`3`, SINASC `1`/`2`, SINAN
   `M`/`F`; thirteen systems ship a `SEXO.CNV` (F §3e). SIH's own table maps
   `1→Masculino`, `2→Feminino` and `3→Feminino` (`docs/history/DEFECTS.md`).
