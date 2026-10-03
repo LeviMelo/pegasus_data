@@ -1294,6 +1294,9 @@ def link_cmd(
     spec: Annotated[str | None, typer.Argument(help="A link spec from curation/links.yml; omit to list them")] = None,
     period: Annotated[str | None, typer.Option("--period", "-p", help="2022, 2022-01, or 2020..2022")] = None,
     geography: Annotated[str | None, typer.Option("--geo", "-g", help="AC, or AC,RR, or BR")] = None,
+    right_geography: Annotated[
+        str | None, typer.Option("--right-geo", help="Read the right side over another scope, e.g. BR (ADR-0120)")
+    ] = None,
     out: Annotated[Path | None, typer.Option("--out", "-o", help="Write the pairs (parquet or csv)")] = None,
     method: Annotated[
         str, typer.Option("--method", "-m", help="deterministic (exact passes) | probabilistic (ADR-0111)")
@@ -1331,8 +1334,9 @@ def link_cmd(
     geo: object = [g.strip() for g in geography.split(",")] if "," in geography else geography.strip()
     try:
         with console.status(f"linking {spec}…"):
-            result = link(spec, period=span, geography=geo, method=method, allow_not_viable=allow_not_viable,
-                          allow_partial=allow_partial, refresh=refresh, settings=_settings(root))
+            result = link(spec, period=span, geography=geo, right_geography=right_geography, method=method,
+                          allow_not_viable=allow_not_viable, allow_partial=allow_partial, refresh=refresh,
+                          settings=_settings(root))
     except LinkNotViable as exc:
         _emit(exc.result.summary(), as_json, f"link {spec}: NOT VIABLE")
         raise typer.Exit(code=1) from exc
