@@ -206,6 +206,32 @@ def _levels_integer(a: pa.Array, b: pa.Array) -> Levels:
     return out.done()
 
 
+#: Distance bands between two different municipalities' population centres
+#: (geography.municipality_point): a neighbour is evidence a far town is not.
+_DISTANCE_BANDS = ((25.0, "within 25 km"), (100.0, "within 100 km"))
+
+
+def _municipality_km(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Great-circle km between the population centres of codes ``a`` and ``b`` (NaN if unknown).
+
+    Each distinct code is looked up once; candidate batches run to millions
+    of pairs over a few thousand municipalities.
+    """
+    from ..geography import _points
+
+    points = _points()
+    codes, inverse = np.unique(np.concatenate([a, b]).astype(str), return_inverse=True)
+    rows = [points.get(c) for c in codes]
+    lon = np.radians(np.array([r["population_lon"] if r and r.get("population_lon") is not None else np.nan
+                               for r in rows], dtype=float))
+    lat = np.radians(np.array([r["population_lat"] if r and r.get("population_lat") is not None else np.nan
+                               for r in rows], dtype=float))
+    ia, ib = inverse[: len(a)], inverse[len(a):]
+    lon1, lat1, lon2, lat2 = lon[ia], lat[ia], lon[ib], lat[ib]
+    h = np.sin((lat2 - lat1) / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin((lon2 - lon1) / 2) ** 2
+    return 2 * 6371.0088 * np.arcsin(np.sqrt(h))
+
+
 def _levels_municipality(a: pa.Array, b: pa.Array) -> Levels:
     missing = pc.or_(pc.is_null(a), pc.is_null(b)).to_numpy(zero_copy_only=False)
     eq = pc.fill_null(pc.equal(a, b), False).to_numpy(zero_copy_only=False)
@@ -213,6 +239,16 @@ def _levels_municipality(a: pa.Array, b: pa.Array) -> Levels:
                         False).to_numpy(zero_copy_only=False)
     out = _Build(len(eq), "different state")
     out.set(same, "same state")
+    rest = np.nonzero(~eq & ~missing)[0]
+    if len(rest):
+        # Different municipalities, by how far apart their people live: a
+        # residence written as the neighbouring town is a common error, a
+        # distant one is not (OQ-63). Bands cross state lines.
+        av = pc.fill_null(a, "").to_numpy(zero_copy_only=False)[rest]
+        bv = pc.fill_null(b, "").to_numpy(zero_copy_only=False)[rest]
+        km = _municipality_km(av, bv)
+        for limit, name in reversed(_DISTANCE_BANDS):
+            out.set(rest[km <= limit], name)
     out.set(eq, "equal")
     out.set(missing, MISSING)
     return out.done()

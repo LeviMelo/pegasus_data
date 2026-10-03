@@ -158,3 +158,4 @@ in.
 | 2026-10-03 | [Municipality points: seat and population centre instead of polygon centroids](docs/evaluation/2026-10-03-municipality-points.md) | live (IBGE Localidades 2022, Census 2022 tracts) |
 | 2026-10-03 | [Age-standardised rates (direct, over POPSVS)](docs/evaluation/2026-10-03-age-standardised-rates.md) | live (SIM-DO SE 2022; POPSVS) |
 | 2026-10-03 | [SINAN descriptions against the official data dictionaries](docs/evaluation/2026-10-03-sinan-descriptions-against-dictionaries.md) | audit (dictionary texts; 46 variables corrected) |
+| 2026-10-03 | [Residence compared by distance between population centres](docs/evaluation/2026-10-03-residence-distance-bands.md) | live (national 2022 links, not stored) |
