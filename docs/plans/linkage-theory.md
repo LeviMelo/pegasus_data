@@ -421,3 +421,12 @@ Measured while building T1–T5. Each item corrects or sharpens a section above.
   learned from link rates would penalise records twice for the same
   missing fields. Coverage has to be measured independently of the link,
   or not used (EVALUATION 2026-10-03 "Coverage by stratum").
+- **§3.1, u for rare agreements must be estimated with care.**
+  - 200,000 random pairs left "birth date equal" (u about 5e-5, a dozen
+    occurrences) with 0.76 bits of noise between draws, enough to move
+    thousands of national pairs.
+  - u is now drawn over both whole sides by hashed index, deterministically,
+    from 10 million pairs: 0.024–0.035 bits.
+  - The exact alternative, u(equal) = Σ_v p_L(v) p_R(v) from marginal
+    frequencies, would remove the sampling entirely for equality levels
+    (not done; the typo levels would still need pairs).
