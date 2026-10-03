@@ -483,7 +483,8 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     # bits), and the placebo's candidates, born 400 days away, never did
     # either: AIH proximity depends on the day the placebo moves (2026-10-03).
     block_roles = {k[0] for block in prob.blocks for k in block}
-    left_dates = sorted({c.left for c in prob.compare if c.kind in ("date", "interval")}
+    left_dates = sorted({c.left for c in prob.compare if c.kind in ("date", "interval")
+                         or (c.kind == "order" and pa.types.is_date(left.schema.field(c.left).type))}
                         | {r for r in block_roles if r in left.column_names
                            and pa.types.is_date(left.schema.field(r).type)}
                         | {prob.control_role})
@@ -553,6 +554,7 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
     every slice's records); a record without a partner there gets null, which
     compares as missing (no evidence either way).
     """
+    from .._query_engine.model import _period
     from . import store
 
     if not items:
@@ -562,12 +564,19 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
     con.register("me", pa.table({"_k": ids, "_pos": pa.array(range(table.num_rows), pa.int64())}))
     for item in items:
         via = load_links()[item.via]
-        stored = store.load(settings, store.run_key(item.via, "probabilistic", period, geography))
-        if stored is None:
-            # The national link covers every slice's records (theory §3.2).
-            stored = store.load(settings, store.run_key(item.via, "probabilistic", period, "BR"))
-        if stored is None:
+        # One stored link per year of the period (a padded side spans two);
+        # each the scope's own, else the national one, which covers every
+        # slice's records (theory §3.2). A year with neither leaves its
+        # records without the inherited value: missing, not evidence.
+        found = []
+        for year in _period(period).years:
+            run = (store.load(settings, store.run_key(item.via, "probabilistic", str(year), geography))
+                   or store.load(settings, store.run_key(item.via, "probabilistic", str(year), "BR")))
+            if run is not None:
+                found.append(run[0].select(["l", "r"]))
+        if not found:
             raise FileNotFoundError(f"inherit: no stored {item.via} link for {geography} {period}; link it first")
+        stored = (pa.concat_tables(found),)
         mine, other, partner_ds = (("l", "r", via.right.dataset) if via.left.dataset == dataset
                                    else ("r", "l", via.left.dataset))
         partner = role_table(partner_ds, period=period, geography=geography, roles=[item.role], **query_kwargs)

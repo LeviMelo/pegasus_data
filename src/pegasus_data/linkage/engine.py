@@ -51,6 +51,7 @@ class Side:
     where: str = ""
     explode_days: tuple[str, str, str] | None = None  # (start role, end role, new role)
     group: tuple[str, ...] = ()                       # one record per group (a delivery)
+    pad_years: tuple[int, int] = (0, 0)               # years read before and after the left period
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,7 +88,23 @@ def _side(body: dict[str, Any]) -> Side:
         where=str(body.get("where") or ""),
         explode_days=tuple(explode) if explode else None,  # type: ignore[arg-type]
         group=tuple(body.get("group") or ()),
+        pad_years=tuple(int(x) for x in body.get("pad_years") or (0, 0)),  # type: ignore[arg-type]
     )
+
+
+def padded_period(period: object, side: Side) -> object:
+    """The period a side is read at: the left period widened by the side's
+    ``pad_years`` (a death in January of a baby born the December before has
+    its birth record in the previous year's file; linkage-theory §3.2)."""
+    before, after = side.pad_years
+    if not before and not after:
+        return period
+    from .._query_engine.model import _period
+
+    p = _period(period)
+    if p is None:
+        return period
+    return (str(p.start // 100 - before), str(p.end // 100 + after))
 
 
 @lru_cache(maxsize=1)
@@ -364,6 +381,8 @@ def link(
     if method not in ("deterministic", "probabilistic"):
         raise ValueError(f"method must be 'deterministic' or 'probabilistic', not {method!r}")
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    if right_period is None and spec.right.pad_years != (0, 0):
+        right_period = padded_period(period, spec.right)
     key = store.run_key(name, method, period if right_period is None else (period, right_period),
                         geography if right_geography is None else (geography, right_geography))
     if not refresh:

@@ -33,7 +33,18 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
 - `FEAT` reports `LANG EN*`, `UTF8`, `AUTH TLS;TLS-C;SSL;TLS-P;`, `PBSZ`,
   `PROT C;P;`, `HOST`, `SIZE`, `MDTM`, `REST STREAM`. Per-file metadata is
   available on demand, and interrupted transfers can resume.
-- Nothing answers on ports 80 or 443; there is no HTTPS mirror (ADR-0003).
+- Nothing answers on ports 80 or 443; DATASUS publishes no HTTPS mirror
+  (ADR-0003).
+- **A third-party mirror exists** (corrected 2026-10-03; this line used to
+  say there was none). It is
+  `https://datasus-ftp-mirror.nyc3.digitaloceanspaces.com/<path under
+  /dissemin/publicos>` (Raphael Saldanha). 8 of 8 files compared were
+  byte-identical to the FTP's. CIHA is not mirrored. The fetcher falls back
+  to it, size-checked (ADR-0122).
+- **The data channel can fail while the control channel works.** On
+  2026-10-03 every passive data port (5539–5800) was dropped, while login,
+  `CWD` and `SIZE` answered. Listings and downloads both failed. Record:
+  `data/probes/ftp/data_channel.jsonl`.
 - `/dissemin/publicos/uploads` returns `550 Access is denied` to both LIST and
   NLST: a server-side ACL (2026-08-19, F §3c). `SIHSUS/Doc` returns `550 The
   system cannot find the file specified`: it does not exist (F §1 V11).

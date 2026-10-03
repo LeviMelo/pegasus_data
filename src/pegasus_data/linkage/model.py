@@ -56,7 +56,11 @@ MISSING = "missing"
 #: A code list against a measurement: evidence, never a join key (ADR-0117).
 ICD_SIZE_KINDS = ("icd_birth_weight", "icd_gestation")
 #: Kinds that weigh evidence but cannot join records (anchors, blocks).
-EVIDENCE_ONLY_KINDS = (*ICD_SIZE_KINDS, "number_distance")
+#: ``order`` (the signed days from one event to another) and ``joint`` (the
+#: pair of categories, a confusion channel) carry impossibility as evidence:
+#: a death before the admission began, a death at home after a stay that ended
+#: in death, get the bits the anchors measured, never a hard veto (theory §2.2).
+EVIDENCE_ONLY_KINDS = (*ICD_SIZE_KINDS, "number_distance", "order", "joint")
 _PAD = {"7": "84", "8": "795", "9": "86", "4": "751", "5": "8462", "6": "953", "1": "42", "2": "5130", "3": "62", "0": "2"}
 
 

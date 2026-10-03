@@ -26,6 +26,20 @@ from ..progress import (
 )
 from .cache import BlobStore
 
+#: A public, byte-identical copy of /dissemin/publicos (Raphael Saldanha's S3
+#: mirror; https://rfsaldanha.github.io/data-projects/s3-datasus-ftp-mirror.html).
+#: Used only when the FTP transfer has failed, only for a file whose size the
+#: catalog's listing of the DATASUS server gives, and only when the mirror's
+#: copy has exactly that size; it is recorded as ``mirror:<url>``, never as an
+#: FTP fetch (ADR-0122). 8 of 8 files compared byte for byte were identical
+#: (2026-10-03); CIHA is not mirrored.
+MIRROR_BASE = "https://datasus-ftp-mirror.nyc3.digitaloceanspaces.com"
+FTP_ROOT = "/dissemin/publicos/"
+
+
+def mirror_url(path: str) -> str | None:
+    return f"{MIRROR_BASE}/{path[len(FTP_ROOT):]}" if path.startswith(FTP_ROOT) else None
+
 
 @dataclass(slots=True)
 class FetchResult:
@@ -138,6 +152,10 @@ class Fetcher:
         #: cache hits, failures and stale fallbacks instead of inferring them.
         self.last_stats: FetchStats | None = None
         self.last_stale: list[str] = []
+        #: Set when an FTP transfer failed and the mirror served the file: the
+        #: rest of this fetcher's paths try the mirror first, instead of
+        #: spending ~95 s of FTP retries each on a data channel that is down.
+        self.mirror_first = False
 
     # ------------------------------------------------------------------ policy
 
@@ -471,30 +489,62 @@ class Fetcher:
                 remote_modified = live_modified
         started = time.perf_counter()
         staged = self.blobs.staging_path(path)
-        try:
-            byte_size, digest = client.retrieve_to_file(
-                path, staged, expected_size=remote_size
-            )
-        except Exception as exc:
-            # The partial stays only if a retry could still use it; a failure
-            # that got here has already exhausted the retries.
-            staged.unlink(missing_ok=True)
-            error = f"{type(exc).__name__}: {exc}"
-            self.catalog.record_gap(path, kind="fetch", methods=("RETR",), error=error)
-            return FetchResult(path=path, sha256=None, byte_size=0, error=error)
+        served = self._from_mirror(path, staged, remote_size) if self.mirror_first else None
+        if served is None:
+            try:
+                byte_size, digest = client.retrieve_to_file(
+                    path, staged, expected_size=remote_size
+                )
+                served = (byte_size, digest, "ftp:RETR")
+            except Exception as exc:
+                # The partial stays only if a retry could still use it; a failure
+                # that got here has already exhausted the retries.
+                staged.unlink(missing_ok=True)
+                error = f"{type(exc).__name__}: {exc}"
+                served = self._from_mirror(path, staged, remote_size)
+                if served is None:
+                    self.catalog.record_gap(path, kind="fetch", methods=("RETR", "mirror"), error=error)
+                    return FetchResult(path=path, sha256=None, byte_size=0, error=error)
+                self.mirror_first = True
+        byte_size, digest, serving = served
         elapsed = (time.perf_counter() - started) * 1000
         digest = self.blobs.adopt(
             staged,
             digest,
             byte_size,
             source_path=path,
-            serving_method="ftp:RETR",
+            serving_method=serving,
             elapsed_ms=elapsed,
             remote_size=remote_size,
             remote_modified=remote_modified,
         )
         self.catalog.resolve_gap(path)
         return FetchResult(path=path, sha256=digest, byte_size=byte_size, elapsed_ms=elapsed)
+
+    def _from_mirror(self, path: str, staged, expected_size: int | None) -> tuple[int, str, str] | None:
+        """The mirror's copy of ``path`` when, and only when, it has the size
+        the DATASUS listing gives; streamed and hashed like an FTP transfer."""
+        import hashlib
+        import urllib.request
+
+        url = mirror_url(path)
+        if url is None or expected_size is None:
+            return None
+        digest = hashlib.sha256()
+        size = 0
+        try:
+            with urllib.request.urlopen(url, timeout=self.timeout) as resp, open(staged, "wb") as out:
+                while chunk := resp.read(1 << 16):
+                    out.write(chunk)
+                    digest.update(chunk)
+                    size += len(chunk)
+        except Exception:  # noqa: BLE001 - absent from the mirror, or unreachable: the gap stands
+            staged.unlink(missing_ok=True)
+            return None
+        if size != expected_size:
+            staged.unlink(missing_ok=True)
+            return None
+        return size, digest.hexdigest(), f"mirror:{url}"
 
     # ------------------------------------------------------------- convenience
 

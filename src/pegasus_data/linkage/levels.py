@@ -198,6 +198,35 @@ def _levels_number_distance(a: pa.Array, b: pa.Array) -> np.ndarray:
     return out
 
 
+#: Bins of right minus left, in days, for ``order``: negative bins are the
+#: right event before the left one.
+_ORDER_BINS = ((-10**9, -366, "before by more than a year"), (-365, -29, "before by 29-365 days"),
+               (-28, -8, "before by 8-28 days"), (-7, -1, "before by 1-7 days"), (0, 0, "same day"),
+               (1, 7, "after by 1-7 days"), (8, 28, "after by 8-28 days"), (29, 365, "after by 29-365 days"),
+               (366, 10**9, "after by more than a year"))
+
+
+def _levels_order(a: pa.Array, b: pa.Array) -> np.ndarray:
+    """Where the right event falls relative to the left one, in day bins."""
+    missing = pc.or_(pc.is_null(a), pc.is_null(b)).to_numpy(zero_copy_only=False)
+    d = _days(b) - _days(a)
+    out = np.full(len(d), "", dtype=object)
+    for lo, hi, name in _ORDER_BINS:
+        out[(d >= lo) & (d <= hi)] = name
+    out[missing] = MISSING
+    return out
+
+
+def _levels_joint(a: pa.Array, b: pa.Array) -> np.ndarray:
+    """The pair of values itself: one level per (left, right) combination."""
+    sa, sb = pc.cast(a, pa.string()), pc.cast(b, pa.string())
+    missing = pc.or_(pc.is_null(sa), pc.is_null(sb)).to_numpy(zero_copy_only=False)
+    out = pc.binary_join_element_wise(pc.fill_null(sa, ""), pc.fill_null(sb, ""), " / ").to_numpy(zero_copy_only=False)
+    out = out.astype(object)
+    out[missing] = MISSING
+    return out
+
+
 def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array],
            given: pa.Array | None = None, given_side: str = "right") -> np.ndarray:
     """The level of every pair; ``b`` is ``(start, end)`` for an interval.
@@ -220,6 +249,10 @@ def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array],
         return _levels_municipality(a, b)  # type: ignore[arg-type]
     if kind == "number_distance":
         return _levels_number_distance(a, b)  # type: ignore[arg-type]
+    if kind == "order":
+        return _levels_order(a, b)  # type: ignore[arg-type]
+    if kind == "joint":
+        return _levels_joint(a, b)  # type: ignore[arg-type]
     return _levels_exact(a, b)  # type: ignore[arg-type]
 
 

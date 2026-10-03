@@ -131,3 +131,5 @@ in.
 | 2026-10-03 | [Entities from the national links: 2.39 million links merged into persons, 78 conflicts](docs/evaluation/2026-10-03-entities-from-national-links.md) | live (`build_entities`, national home) |
 | 2026-10-03 | [Value-specific chance agreement: tried, measured, removed (code kept in the entry)](docs/evaluation/2026-10-03-value-frequency-weighting-tried.md) | live (`scripts/link_scope_test.py`, national home) |
 | 2026-10-03 | [`build` reported a failed download as an empty success](docs/evaluation/2026-10-03-build-hid-a-failed-fetch.md) | live (`pegasus-data build`, SINASC 2021, national home) |
+| 2026-10-03 | [The FTP data channel stopped answering; the mirror is byte-identical](docs/evaluation/2026-10-03-ftp-data-channel-down-mirror-identical.md) | live (ftplib/sockets probes, fetcher fallback; national home) |
+| 2026-10-03 | [Impossibility as learned evidence; padded infant deaths](docs/evaluation/2026-10-03-impossibility-as-learned-evidence.md) | live (`data/logs/impossibility_test.py`, Sergipe; national pending) |
