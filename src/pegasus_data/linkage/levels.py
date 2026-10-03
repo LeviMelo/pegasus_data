@@ -26,11 +26,23 @@ for _d in range(10):
 
 
 def _digits(dates: pa.Array) -> np.ndarray:
-    """Dates as an (n, 8) array of DDMMYYYY digits; a missing row is all -1."""
-    text = pc.fill_null(pc.strftime(pc.cast(dates, pa.timestamp("s")), format="%d%m%Y"), "--------")
-    joined = "".join(text.to_pylist()).encode("ascii")
-    arr = np.frombuffer(joined, dtype=np.uint8).reshape(len(text), 8).astype(np.int16) - 48
-    arr[arr < 0] = -1
+    """Dates as an (n, 8) array of DDMMYYYY digits; a missing row is all -1.
+
+    Calendar arithmetic on the whole array: formatting each date as text in
+    Python cost a third of a link's time (profile, 2026-10-02).
+    """
+    if isinstance(dates, pa.ChunkedArray):
+        dates = dates.combine_chunks()
+    missing = pc.is_null(dates).to_numpy(zero_copy_only=False)
+    days = pc.fill_null(pc.cast(dates, pa.date32()), 0).cast(pa.int32()).to_numpy(zero_copy_only=False)
+    d64 = days.astype("datetime64[D]")
+    months = d64.astype("datetime64[M]")
+    year = d64.astype("datetime64[Y]").astype(np.int64) + 1970
+    month = months.astype(np.int64) % 12 + 1
+    day = (d64 - months).astype(np.int64) + 1
+    arr = np.stack([day // 10, day % 10, month // 10, month % 10,
+                    year // 1000 % 10, year // 100 % 10, year // 10 % 10, year % 10], axis=1).astype(np.int16)
+    arr[missing] = -1
     return arr
 
 
