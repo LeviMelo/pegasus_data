@@ -400,6 +400,12 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   systems on 295 municipalities (46 by name), `RSAUDBR` on 2,612 (1,944 by
   name: two regionalisations under one name). `BR_MACSAUD` conflicts on 66%,
   `MSAUDBR` on 4%.
+- IBGE's yearly territorial divisions (DTB) on `geoftp.ibge.gov.br` (2026-10-03):
+  - publish meso- and microregions for 1994, 2000 and 2005–2022, and
+    immediate and intermediate regions for 2019–2025;
+  - no municipality's region code in any year differs from today's, and no
+    municipality left; only new ones appeared (4,974 in 1994; 5,571 now);
+  - 2001–2002 are not published, and 2003–2004 carry no regions.
 - The 46 `CIRBRN` contests left after scoping are all SIM against SINASC
   (2026-10-03, ADR-0129).
   - 33 are one region in two code schemes: SINASC's Santa Catarina table
