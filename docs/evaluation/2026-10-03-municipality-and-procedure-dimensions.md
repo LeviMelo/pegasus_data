@@ -28,10 +28,11 @@ SIM-DO SE 2022, 14,791 deaths, in 14 s:
 - **`capital` is null outside capitals,** as the old `CAPITAL` relation was.
 - **None contested.** SIM names its own table, so its claim is chosen.
 
-## Procedure roll-ups (ADR-0131)
+## Procedure roll-ups (ADR-0092's recipes; ADR-0131 withdrawn)
 
-SIH-RD SE 2022-01 (file RDSE2201), 8,512 AIH, 6.1 s for four dimensions.
-Every row resolved. Against TabNet (`sih/cnv/qise.def`, `qise2201.dbf`,
+SIH-RD SE 2022-01 (file RDSE2201), 8,512 AIH, read on a fresh home through
+the mirror. `select=["IDENT", "PROC_REA_grupo", "PROC_REA_subgrupo"]`,
+`present="codes"`. Against TabNet (`sih/cnv/qise.def`, `qise2201.dbf`,
 "Internações" by "Grupo procedimento"):
 
 | group | pegasus_data, all AIH | of which `IDENT` 5 (long stay) | pegasus_data without `IDENT` 5 | TabNet |
@@ -44,9 +45,15 @@ Every row resolved. Against TabNet (`sih/cnv/qise.def`, `qise2201.dbf`,
 
 - **Every group matches TabNet once continuation AIHs are excluded.**
   TabNet's "Internações" counts admissions; an `IDENT` 5 AIH continues one.
-  The dimension is right; the difference is the measure.
-- **Subgroups agree where read,** for example 0303 Tratamentos clínicos
-  (outras especialidades): 2,906 in TabNet.
+- **Subgroups match:** 0201: 5, 0209: 1, 0211: 4, 0301: 293, 0303: 2,906,
+  the same as TabNet.
+- **First done twice.** These counts were first made through nine new
+  `joins.yml` relations (ADR-0131), which matched too. That was a second
+  mechanism for a job ADR-0092's recipes already did, so it was withdrawn.
+- **Defect found while switching to the recipes.** Under
+  `present="codes"`, `select=["PROC_REA_grupo"]` (and `IDADE_anos`)
+  returned an all-null column under an upper-cased name. A selected derived
+  column is now built under every presentation, as a code there.
 
 ## Found on the way
 

@@ -1,45 +1,36 @@
-## ADR-0131: SIGTAP procedure hierarchy as dimensions, matched on leading characters only where the source's definition file does so
+## ADR-0131: SIGTAP hierarchy as joins.yml dimensions (withdrawn the same day: it duplicated ADR-0092)
 
-**Date:** 2026-10-03. **Status:** active.
+**Date:** 2026-10-03. **Status:** withdrawn. ADR-0092 stands, amended below.
 
-**Context.**
-- **No roll-up existed for procedures.** SIH `PROC_REA`, SIH-SP
-  `SP_PROCREA` and SIA `PA_PROC_ID` had labels (`TB_SIGTAP`) but nothing
-  above them.
-- **DATASUS's own definition files tabulate them by group, subgroup and
-  form of organisation.** They map the ten-character procedure code through
-  `TB_GRUPO.DBF` (2-character codes), `TB_SUBGR.DBF` (4) and `TB_FORMA.DBF`
-  (6):
-  - `TAB_SIH RD2008.DEF` lines 261–269;
-  - `SP2008.DEF` ("Grupo Proc. Principal");
-  - `TAB_SIA Producao_Ambulatorial.DEF` lines 80–88.
-- **How TabWin reads such a table.** It matches the field's leading
-  characters to the table's code width. SIGTAP's code is built that way:
-  group (2), subgroup (2), form of organisation (2), sequence (3), check
-  digit.
-- **The project's rule:** widths are matched exactly, and a code is never
-  truncated to make a join succeed.
+**What was done.** Nine `rollup_to` relations in `joins.yml` gave `PROC_REA`,
+`SP_PROCREA` and `PA_PROC_ID` a group, subgroup and form of organisation.
+They read the kits' `TB_GRUPO`, `TB_SUBGR` and `TB_FORMA` on the code's
+leading characters (`source_namespace: tabwin_leading`), citing DATASUS's
+definition files.
 
-**Decision.**
-1. **Nine `rollup_to` relations** in `joins.yml`: `procedure_group`,
-   `procedure_subgroup` and `procedure_form`, for `PROC_REA`, `SP_PROCREA`
-   and `PA_PROC_ID`, each citing its definition file.
-2. **`source_namespace: tabwin_leading`** marks a relation whose table
-   holds shorter codes than the field. Only such a relation is read on the
-   leading characters, and only when the table's codes have one width. Every
-   other relation keeps the exact match.
-   - `source_namespace` is persisted with the relation, so the catalog copy
-     keeps the rule.
-3. **CIHA is not declared.** It uses the same codes, but no CIHA definition
-   file was read.
+**Why it was withdrawn.** ADR-0092 already does the job, with a better
+source:
+- its derived-column recipes (`hierarchy: SIGTAP, digits: N`) add
+  `PROC_REA_grupo` and `PROC_REA_subgrupo` from the canonical SIGTAP table;
+- they bridge pre-2008 SIH codes to SIGTAP (ADR-0101).
+
+A second mechanism for the same job is a defect (CLAUDE §4). The relations
+and the leading-character reading were removed before anything depended on
+them.
+
+**What was kept, as amendments to ADR-0092:**
+1. **The form of organisation** (`digits: 6`) joins the recipes:
+   `PROC_REA_forma` and `PA_PROC_ID_forma`.
+2. **A derived column named in `select=` is built under every
+   presentation.** The codes presentation gives its code (`03`, `031001`).
+   Before, `present="codes"` turned derivations off, and
+   `select=["PROC_REA_grupo"]` returned an all-null column under an
+   upper-cased name, as did `IDADE_anos`. That column read like data.
+3. **Derived names compare case-insensitively** with the selection, since
+   the planner upper-cases it.
 
 **Evidence.** EVALUATION 2026-10-03 "Municipality and procedure
-dimensions": SIH-RD SE 2022-01, 8,512 AIH, every row resolved. Without
-the 51 long-stay continuation AIHs, the group counts equal TabNet's
-"Internações" by "Grupo procedimento" exactly: 10, 5,136, 3,293 and 22.
-
-**Consequences.**
-- **`dimensions=["PROC_REA.procedure_group"]`** gives "Procedimentos
-  clinicos", "Procedimentos cirurgicos" and the rest.
-- **The exception to exact widths is declared, cited and confined to the
-  relations that carry it.**
+dimensions": through the recipes, SIH-RD SE 2022-01 by group, without the
+51 long-stay continuation AIHs, equals TabNet's "Internações" by "Grupo
+procedimento" exactly (10, 5,136, 3,293, 22). Subgroups match too (0201: 5,
+0209: 1, 0211: 4, 0301: 293, 0303: 2,906).

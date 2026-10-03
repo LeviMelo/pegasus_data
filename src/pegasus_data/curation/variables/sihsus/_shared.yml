@@ -872,6 +872,12 @@ variables:
       hierarchy: SIGTAP
       digits: 4
       rule: the SIGTAP subgroup (0411 = Cirurgia obstetrica), ADR-0092, ADR-0101
+    - name: PROC_REA_forma
+      from: [PROC_REA]
+      bridge: H
+      hierarchy: SIGTAP
+      digits: 6
+      rule: the SIGTAP form of organisation (041101 = Parto, under Cirurgia obstetrica), ADR-0092
     source: layout_doc
     source_ref: '[IT-SIHSUS] IT_SIHSUS_1603.pdf (DATASUS, Informe Técnico SIH 2016-03), §2
       Layout dos arquivos RD*.dbf, SEQ 24'

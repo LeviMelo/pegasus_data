@@ -1087,18 +1087,28 @@ def bridge_target(bridge: str) -> str:
     return BRIDGE_TARGETS.get(BRIDGE_NAMES.get(bridge.upper(), bridge.upper()), ("SIGTAP", 0))[0]
 
 
-def _labelled_codes(lake: Path, classification: str, codes: object) -> pa.Array | None:
-    """``label (code)`` from a canonical classification, or None where unknown."""
+def _labelled_codes(lake: Path, classification: str, codes: object, *, as_code: bool = False) -> pa.Array | None:
+    """``label (code)`` from a canonical classification, or None where unknown.
+
+    ``as_code`` gives the code alone, for the codes presentation.
+    """
     try:
         table = read_reference_table(lake, classification)
     except (FileNotFoundError, OSError):
         return None
     names = dict(zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True))
+    if as_code:
+        return _per_distinct(codes, lambda v: v or None)
     return _per_distinct(codes, lambda v: f"{names[v]} ({v})" if v in names else (f"{v} (?)" if v else None))
 
 
-def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object) -> pa.Array | None:
-    """``label (prefix)`` for the first ``digits`` of each code, or None if unknown."""
+def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object,
+                     *, as_code: bool = False) -> pa.Array | None:
+    """``label (prefix)`` for the first ``digits`` of each code, or None if unknown.
+
+    ``as_code`` gives the prefix alone, still only where the classification
+    lists it, for the codes presentation.
+    """
     if digits <= 0:
         return None
     try:
@@ -1110,6 +1120,8 @@ def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object
     def one(v: object) -> str | None:
         prefix = str(v).strip()[:digits]
         label = names.get(prefix) if len(prefix) == digits else None
+        if as_code:
+            return prefix if label else None
         return f"{label} ({prefix})" if label else None
 
     return _per_distinct(codes, one)
@@ -1667,10 +1679,15 @@ def _render_table(
         columns, names = final_columns, final_names
     rendered_table = pa.Table.from_arrays(columns, names=names)
 
-    if settings_profile.derived:
+    # A derived column the caller names is built under every profile. The codes
+    # profile turned derived columns off, so `select=["PROC_REA_grupo"]` with
+    # present="codes" came back as an all-null column, which reads like data
+    # (2026-10-03). There it carries the code: the group "04", not its label.
+    named = isinstance(derived, (list, tuple, set)) and bool(derived)
+    if settings_profile.derived or named:
         rendered_table = _apply_derived(
             rendered_table, table, docs, bindings, lake, year, derived, report, store,
-            system, competencia,
+            system, competencia, as_code=codes_only,
         )
 
     # ONE warning, not one per finding. A wide dataset with many unresolved or
@@ -1699,19 +1716,22 @@ def _apply_derived(
     store: Catalog,
     system: str,
     competencia: int | None = None,
+    *,
+    as_code: bool = False,
 ) -> pa.Table:
     """Add the columns that resolve multi-column semantics into one usable value.
 
     Driven by ``depends_on``/``derived`` in the variable dictionary, so what can
     be derived is a statement in a curated file rather than a rule in the source.
     """
-    requested = set(wanted) if isinstance(wanted, (list, tuple, set)) else None
+    # Names compare case-insensitively: the planner upper-cases `select`.
+    requested = {str(w).upper() for w in wanted} if isinstance(wanted, (list, tuple, set)) else None
     for doc in docs.values():
         for recipe in doc.derived or []:
             column_name = str(recipe.get("name") or "")
             if not column_name or column_name in rendered.schema.names:
                 continue
-            if requested is not None and column_name not in requested:
+            if requested is not None and column_name.upper() not in requested:
                 continue
             inputs = [str(c).upper() for c in (recipe.get("from") or [])]
             if not inputs:
@@ -1722,7 +1742,7 @@ def _apply_derived(
                 # and used a narrow columns= projection got no column and no
                 # explanation, because its inputs were never read. Silence here
                 # is indistinguishable from "this derivation does not exist".
-                if requested is not None and column_name in requested:
+                if requested is not None and column_name.upper() in requested:
                     report.warnings.append(
                         f"{column_name}: cannot be derived because "
                         f"{', '.join(absent)} was not loaded — add it to columns= "
@@ -1738,7 +1758,8 @@ def _apply_derived(
                 codes_in = bridged(codes_in, str(bridge))
             hierarchy = recipe.get("hierarchy")
             if bridge and not hierarchy:
-                derived_column = _labelled_codes(lake, str(recipe.get("to") or bridge_target(str(bridge))), codes_in)
+                derived_column = _labelled_codes(lake, str(recipe.get("to") or bridge_target(str(bridge))), codes_in,
+                                                 as_code=as_code)
                 if derived_column is not None:
                     rendered = rendered.append_column(column_name, derived_column)
                     report.derived_added.append(column_name)
@@ -1748,7 +1769,7 @@ def _apply_derived(
                 # PROC_REA's SIGTAP group, "Procedimentos cirurgicos (04)", which
                 # is what "was this a surgery" means (ADR-0092).
                 derived_column = _hierarchy_level(
-                    lake, str(hierarchy), int(recipe.get("digits") or 0), codes_in
+                    lake, str(hierarchy), int(recipe.get("digits") or 0), codes_in, as_code=as_code
                 )
                 if derived_column is not None:
                     rendered = rendered.append_column(column_name, derived_column)

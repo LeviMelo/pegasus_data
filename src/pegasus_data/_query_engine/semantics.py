@@ -12,10 +12,6 @@ from ..crosswalk import EnrichmentReport, EnrichmentRequest
 from .model import QueryPlan, QueryReport, SemanticFallbackWarning
 from .planner import CNES_ATTRIBUTE_FIELDS
 
-#: ``source_namespace`` of a relation whose table holds shorter codes than the
-#: field, matched on the field's leading characters as TabWin does.
-TABWIN_LEADING = "tabwin_leading"
-
 
 def _apply_dimensions(
     table: pa.Table, query_plan: QueryPlan, report: QueryReport, settings: Settings
@@ -160,15 +156,9 @@ def _apply_dimensions(
                         for source_code, label in first.items()
                         if all(mapping.get(source_code) == label for mapping in mappings[1:])
                     }
-                text = str(code).strip() if code is not None else None
-                if text and relation.source_namespace == TABWIN_LEADING:
-                    # The source's own .DEF maps the field through a table of
-                    # shorter codes (RD2008.DEF: PROC_REA through TB_GRUPO);
-                    # TabWin matches the leading characters to the table's
-                    # code width. Only a relation that says so is read this way.
-                    widths = {len(k) for k in lookups[key]}
-                    text = text[:widths.pop()] if len(widths) == 1 else None
-                values.append(lookups[key].get(text) if text else None)
+                values.append(
+                    lookups[key].get(str(code).strip()) if code is not None else None
+                )
             name = f"{request.field}_{request.name}"
             output = output.append_column(name, pa.array(values, pa.string()))
             report.dimensions.append(

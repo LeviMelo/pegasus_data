@@ -176,6 +176,9 @@ def query(
         set(query_plan.spec.select or ()) | set(retrieval.hidden_dependencies)
     ) - SYNTHESISED_COLUMNS
     requested_columns = sorted(columns) if query_plan.spec.select is not None else None
+    # Derived columns travel with labels; under the codes presentation only the
+    # ones the caller selected are built, as codes (view._apply_derived).
+    derived: bool | list[str] = labels or list(query_plan.spec.select or [])
     tables: list[pa.Table] = []
     source_reports: list[Any] = []
     if retrieval.lake_years or (retrieval.source_strategy == "lake" and not retrieval.years):
@@ -198,7 +201,7 @@ def query(
                 uf=list(retrieval.physical_geography) or None,
                 years=retrieval.lake_years or None, columns=lake_columns,
                 labels=labels, profile="audit" if labels else "codes",
-                companions=False, derived=labels, on_missing_column="null_fill",
+                companions=False, derived=derived, on_missing_column="null_fill",
                 report=True, catalog=cat, _preserve_internal=True,
             )
             tables.append(_with_competence(local_table, local_report))
@@ -225,7 +228,7 @@ def query(
                 companions=False,
                 # Curated derivations (IDADE_anos) are declarations like labels
                 # are, so they travel with them.
-                derived=labels,
+                derived=derived,
                 provenance=True,
                 on_missing_column="null_fill",
                 # A file that would not download or open is a recorded gap

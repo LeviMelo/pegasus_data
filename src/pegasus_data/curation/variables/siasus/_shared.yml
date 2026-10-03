@@ -1294,6 +1294,11 @@ variables:
       hierarchy: SIGTAP
       digits: 4
       rule: the SIGTAP subgroup (0411 = Cirurgia obstetrica), ADR-0092
+    - name: PA_PROC_ID_forma
+      from: [PA_PROC_ID]
+      hierarchy: SIGTAP
+      digits: 6
+      rule: the SIGTAP form of organisation (041101 = Parto, under Cirurgia obstetrica), ADR-0092
     source: layout_doc
     source_ref: 'ftp://ftp.datasus.gov.br/dissemin/publicos/SIASUS/200801_/Doc/Informe_Tecnico_SIASUS_2019_07.pdf,
       section 2.3 (Layout do arquivo de Producao Ambulatorial: PAUFAAMM.DBF), p.3-5'
