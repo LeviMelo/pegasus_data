@@ -1031,16 +1031,13 @@ variables:
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Coletou material? – Outros)
   TP_LIQUOR:
-    official_name: Aspecto do líquor
-    translated_name: CSF appearance
-    description: 'How the CSF looked. Normal in botulism, which is what distinguishes
-      it from the meningitis and encephalitis that present with similar weakness.
-
-      '
+    official_name: 'Exames complementares: líquor'
+    translated_name: CSF examination performed
     code_system: internal
-    source: def
-    source_ref: LIQUOR.CNV
-    reasoning: Bound to LIQUOR, límpido/purulento/hemorrágico/turvo/xantocrômico.
+    description: 'Whether a cerebrospinal-fluid (líquor) examination was performed: 1 performed,
+      2 not performed.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Botulismo v5'
   TP_MOTORA:
     official_name: Neurocondução motora
     translated_name: Motor nerve conduction

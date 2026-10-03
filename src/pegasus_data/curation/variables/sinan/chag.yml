@@ -36,36 +36,32 @@ variables:
       and the web). The field appears only in the 2000-2006 CHAG files (pre-SINAN NET form),
       whose dictionary is not published.'
   ANT_UF_1:
-    official_name: UF de residência anterior 1
-    translated_name: Previous state of residence 1
-    description: 'A state the patient lived in previously. Chagas has a decades-long
-      latency and a sharply defined endemic geography, so residence history is what
-      locates where infection actually happened.
-
-      '
+    official_name: 'Deslocamento: UF 1'
+    translated_name: State travelled to in the 15 months before onset (1)
     code_system: internal
     codelist: UF_BR
-    source: def
-    source_ref: UFCCODIG.CNV
-    reasoning: C(2) state code; the first of three residence-history slots.
+    description: State the patient travelled to or frequented in the 15 months before symptom
+      onset (place 1; pairs with the municipality of the same slot).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Chagas v5'
   ANT_UF_2:
-    official_name: UF de residência anterior 2
-    translated_name: Previous state of residence 2
-    description: A second previous state of residence. See ANT_UF_1.
+    official_name: 'Deslocamento: UF 2'
+    translated_name: State travelled to in the 15 months before onset (2)
     code_system: internal
     codelist: UF_BR
-    source: def
-    source_ref: UFCCODIG.CNV
-    reasoning: C(2) state code; the second residence-history slot.
+    description: State the patient travelled to or frequented in the 15 months before symptom
+      onset (place 2; pairs with the municipality of the same slot).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Chagas v5'
   ANT_UF_3:
-    official_name: UF de residência anterior 3
-    translated_name: Previous state of residence 3
-    description: A third previous state of residence. See ANT_UF_1.
+    official_name: 'Deslocamento: UF 3'
+    translated_name: State travelled to in the 15 months before onset (3)
     code_system: internal
     codelist: UF_BR
-    source: def
-    source_ref: UFCCODIG.CNV
-    reasoning: C(2) state code; the third residence-history slot.
+    description: State the patient travelled to or frequented in the 15 months before symptom
+      onset (place 3; pairs with the municipality of the same slot).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Chagas v5'
   ARRITMIAS:
     official_name: Taquicardia persistente/Arritmias
     translated_name: Persistent tachycardia/arrhythmia

@@ -118,21 +118,20 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no flag; CONJUN reads conjuntival.
   CLI_CORDAO:
-    official_name: Adenomegalia cervical
-    translated_name: Cervical lymph node enlargement
-    description: Enlarged neck lymph nodes, the finding underlying the bull-neck appearance.
+    official_name: 'Localização da pseudomembrana: cordão umbilical'
+    translated_name: Pseudomembrane in the umbilical cord
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: A yes/no flag; CORDAO reads cordão ganglionar.
+    description: Whether the pseudomembrane (plaques) is located in the umbilical cord; filled
+      when pseudomembrane is present.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Difteria v5'
   CLI_EDEMAG:
-    official_name: Edema generalizado
-    translated_name: Generalised swelling
-    description: Generalised oedema, beyond the cervical swelling in CLI_PESCOC.
+    official_name: Edema ganglionar
+    translated_name: Glandular (lymph-node) oedema
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: A yes/no flag; EDEMAG reads edema generalizado.
+    description: Whether the patient had glandular (lymph-node) oedema.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Difteria v5'
   CLI_FARING:
     official_name: Placas na faringe
     translated_name: Membrane on the pharynx
@@ -164,13 +163,13 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no flag; NEFRIT reads nefrite.
   CLI_ORGAOS:
-    official_name: Lesão em outros órgãos
-    translated_name: Lesion in other organs
-    description: Diphtheritic lesion at a site the named flags do not cover.
+    official_name: 'Localização da pseudomembrana: órgãos genitais'
+    translated_name: Pseudomembrane in the genital organs
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: The residual site item of the lesion block.
+    description: Whether the pseudomembrane (plaques) is located in the genital organs; filled
+      when pseudomembrane is present.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Difteria v5'
   CLI_PALATO:
     official_name: Placas no palato
     translated_name: Membrane on the palate
@@ -188,19 +187,12 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no flag; PALIDE reads palidez.
   CLI_PARALB:
-    official_name: Paralisia do palato mole
-    translated_name: Palatal paralysis
-    description: 'Paralysis of the soft palate. Typically the first of the diphtheritic
-      neuropathies, causing a nasal voice and regurgitation.
-
-      '
+    official_name: 'Complicação: paralisia bilateral e simétrica das extremidades'
+    translated_name: Bilateral symmetric paralysis of the extremities
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: 'A yes/no flag; one of three CLI_PARAL items covering the toxic neuropathies
-      at different sites.
-
-      '
+    description: 'Complication: bilateral, symmetric paralysis of the extremities.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Difteria v5'
   CLI_PARALM:
     official_name: Paralisia de músculos respiratórios
     translated_name: Respiratory muscle paralysis
@@ -213,16 +205,12 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no flag; the respiratory member of the CLI_PARAL group.
   CLI_PARALP:
-    official_name: Paralisia periférica
-    translated_name: Peripheral paralysis
-    description: 'Peripheral paralysis, appearing weeks after the acute illness as
-      the toxin damages peripheral nerves.
-
-      '
+    official_name: 'Complicação: paralisia do palato'
+    translated_name: Soft-palate paralysis
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: A yes/no flag; the peripheral member of the CLI_PARAL group.
+    description: 'Complication: paralysis of the soft palate.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Difteria v5'
   CLI_PELE:
     official_name: Lesão cutânea
     translated_name: Skin lesion

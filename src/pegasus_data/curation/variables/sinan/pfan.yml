@@ -123,155 +123,125 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: ASSIME reads assimetria; C(1) flag in the clinical block.
   CLI_A_FMID:
-    official_name: Alteração de força no membro inferior direito
-    translated_name: Strength altered, right leg
-    description: Whether strength is abnormal in the right leg. See CLI_A_FMSD for
-      the naming.
+    official_name: 'Força muscular, fase aguda: MID'
+    translated_name: Muscle strength, acute phase, right leg
     code_system: internal
-    source: def
-    source_ref: DIMIAUSE.CNV
-    reasoning: Same A_F strength pattern at membro inferior direito.
+    description: 'Muscle strength of the right leg at the acute-phase examination: 1 decreased,
+      2 absent, 3 normal, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (field 45, Força muscular)'
   CLI_A_FMIE:
-    official_name: Alteração de força no membro inferior esquerdo
-    translated_name: Strength altered, left leg
-    description: Whether strength is abnormal in the left leg. See CLI_A_FMSD for the
-      naming.
+    official_name: 'Força muscular, fase aguda: MIE'
+    translated_name: Muscle strength, acute phase, left leg
     code_system: internal
-    source: def
-    source_ref: DIMIAUSE.CNV
-    reasoning: Same A_F strength pattern at membro inferior esquerdo.
+    description: 'Muscle strength of the left leg at the acute-phase examination: 1 decreased,
+      2 absent, 3 normal, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (field 45, Força muscular)'
   CLI_A_FMSD:
-    official_name: Alteração de força no membro superior direito
-    translated_name: Strength altered, right arm
-    description: 'Whether strength is abnormal in the right arm. This is the yes/no
-      companion to the graded CLI_F_MSD, and the two are recorded in different schema
-      generations of the form.
-
-      '
+    official_name: 'Força muscular, fase aguda: MSD'
+    translated_name: Muscle strength, acute phase, right arm
     code_system: internal
-    source: def
-    source_ref: DIMIAUSE.CNV
-    reasoning: 'CLI_A_ marks alteração and the trailing letter selects the modality
-      — F força, S sensibilidade, T tônus — followed by the site. The face and cervical
-      fields exist only for S and T, which is consistent: neither has a limb strength
-      grade.
-
-      '
+    description: 'Muscle strength of the right arm at the acute-phase examination: 1 decreased,
+      2 absent, 3 normal, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (field 45, Força muscular)'
   CLI_A_FMSE:
-    official_name: Alteração de força no membro superior esquerdo
-    translated_name: Strength altered, left arm
-    description: Whether strength is abnormal in the left arm. See CLI_A_FMSD for the
-      naming.
+    official_name: 'Força muscular, fase aguda: MSE'
+    translated_name: Muscle strength, acute phase, left arm
     code_system: internal
-    source: def
-    source_ref: DIMIAUSE.CNV
-    reasoning: Same A_F strength pattern at membro superior esquerdo.
+    description: 'Muscle strength of the left arm at the acute-phase examination: 1 decreased,
+      2 absent, 3 normal, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (field 45, Força muscular)'
   CLI_A_SMID:
-    official_name: Alteração de sensibilidade no membro inferior direito
-    translated_name: Sensation altered, right leg
-    description: Whether sensation is abnormal in the right leg. See CLI_A_SMSD.
+    official_name: 'Sensibilidade, fase aguda: MID'
+    translated_name: Sensation, acute phase, right leg
     code_system: internal
-    source: def
-    source_ref: DIMAUSPA.CNV
-    reasoning: Same A_S sensation pattern at membro inferior direito.
+    description: 'Sensation of the right leg at the acute-phase examination: 1 decreased, 2
+      absent, 3 normal, 4 paresthesia, 5 impaired, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Sensibilidade)'
   CLI_A_SMIE:
-    official_name: Alteração de sensibilidade no membro inferior esquerdo
-    translated_name: Sensation altered, left leg
-    description: Whether sensation is abnormal in the left leg. See CLI_A_SMSD.
+    official_name: 'Sensibilidade, fase aguda: MIE'
+    translated_name: Sensation, acute phase, left leg
     code_system: internal
-    source: def
-    source_ref: DIMAUSPA.CNV
-    reasoning: Same A_S sensation pattern at membro inferior esquerdo.
+    description: 'Sensation of the left leg at the acute-phase examination: 1 decreased, 2 absent,
+      3 normal, 4 paresthesia, 5 impaired, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Sensibilidade)'
   CLI_A_SMSD:
-    official_name: Alteração de sensibilidade no membro superior direito
-    translated_name: Sensation altered, right arm
-    description: 'Whether sensation is abnormal in the right arm. Sensation is the
-      discriminator that matters most here: poliomyelitis attacks motor neurons and
-      spares sensation, so preserved sensation with severe weakness argues for polio
-      and sensory loss argues against it.
-
-      '
+    official_name: 'Sensibilidade, fase aguda: MSD'
+    translated_name: Sensation, acute phase, right arm
     code_system: internal
-    source: def
-    source_ref: DIMAUSPA.CNV
-    reasoning: A_S is alteração de sensibilidade; see CLI_A_FMSD for the pattern.
+    description: 'Sensation of the right arm at the acute-phase examination: 1 decreased, 2
+      absent, 3 normal, 4 paresthesia, 5 impaired, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Sensibilidade)'
   CLI_A_SMSE:
-    official_name: Alteração de sensibilidade no membro superior esquerdo
-    translated_name: Sensation altered, left arm
-    description: Whether sensation is abnormal in the left arm. See CLI_A_SMSD for
-      why sensation matters.
+    official_name: 'Sensibilidade, fase aguda: MSE'
+    translated_name: Sensation, acute phase, left arm
     code_system: internal
-    source: def
-    source_ref: DIMAUSPA.CNV
-    reasoning: Same A_S sensation pattern at membro superior esquerdo.
+    description: 'Sensation of the left arm at the acute-phase examination: 1 decreased, 2 absent,
+      3 normal, 4 paresthesia, 5 impaired, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Sensibilidade)'
   CLI_A_S_FA:
-    official_name: Alteração de sensibilidade na face
-    translated_name: Sensation altered, face
-    description: 'Whether facial sensation is abnormal. The face has sensation and
-      tone fields but no strength grade, because facial weakness is captured separately
-      by CLI_FACE.
-
-      '
+    official_name: 'Sensibilidade, fase aguda: face'
+    translated_name: Sensation, acute phase, face
     code_system: internal
-    source: def
-    source_ref: DIMAUSPA.CNV
-    reasoning: A_S with the FA face suffix; the face lacks an A_F counterpart.
+    description: 'Facial sensation at the acute-phase examination: 1 decreased, 2 absent, 3
+      normal, 4 paresthesia, 5 impaired, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Sensibilidade)'
   CLI_A_TMID:
-    official_name: Alteração de tônus no membro inferior direito
-    translated_name: Tone altered, right leg
-    description: Whether tone is abnormal in the right leg. See CLI_A_TMSD.
+    official_name: 'Tônus muscular, fase aguda: MID'
+    translated_name: Muscle tone, acute phase, right leg
     code_system: internal
-    source: def
-    source_ref: DIMAUSAUN.CNV
-    reasoning: Same A_T tone pattern at membro inferior direito.
+    description: 'Muscle tone of the right leg at the acute-phase examination: 1 decreased,
+      2 absent, 3 normal, 4 increased, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Tônus muscular)'
   CLI_A_TMIE:
-    official_name: Alteração de tônus no membro inferior esquerdo
-    translated_name: Tone altered, left leg
-    description: Whether tone is abnormal in the left leg. See CLI_A_TMSD.
+    official_name: 'Tônus muscular, fase aguda: MIE'
+    translated_name: Muscle tone, acute phase, left leg
     code_system: internal
-    source: def
-    source_ref: DIMAUSAUN.CNV
-    reasoning: Same A_T tone pattern at membro inferior esquerdo.
+    description: 'Muscle tone of the left leg at the acute-phase examination: 1 decreased, 2
+      absent, 3 normal, 4 increased, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Tônus muscular)'
   CLI_A_TMSD:
-    official_name: Alteração de tônus no membro superior direito
-    translated_name: Tone altered, right arm
-    description: 'Whether muscle tone is abnormal in the right arm. Reduced tone is
-      what makes a paralysis flaccid, so this modality is the one that confirms the
-      syndrome rather than narrowing its cause.
-
-      '
+    official_name: 'Tônus muscular, fase aguda: MSD'
+    translated_name: Muscle tone, acute phase, right arm
     code_system: internal
-    source: def
-    source_ref: DIMAUSAUN.CNV
-    reasoning: A_T is alteração de tônus; see CLI_A_FMSD for the pattern.
+    description: 'Muscle tone of the right arm at the acute-phase examination: 1 decreased,
+      2 absent, 3 normal, 4 increased, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Tônus muscular)'
   CLI_A_TMSE:
-    official_name: Alteração de tônus no membro superior esquerdo
-    translated_name: Tone altered, left arm
-    description: Whether tone is abnormal in the left arm. See CLI_A_TMSD.
+    official_name: 'Tônus muscular, fase aguda: MSE'
+    translated_name: Muscle tone, acute phase, left arm
     code_system: internal
-    source: def
-    source_ref: DIMAUSAUN.CNV
-    reasoning: Same A_T tone pattern at membro superior esquerdo.
+    description: 'Muscle tone of the left arm at the acute-phase examination: 1 decreased, 2
+      absent, 3 normal, 4 increased, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Tônus muscular)'
   CLI_A_T_CE:
-    official_name: Alteração de tônus cervical
-    translated_name: Tone altered, neck
-    description: 'Whether neck tone is abnormal. The neck has a tone field but no sensation
-      field, and loss of neck tone is the sign that most often precedes respiratory
-      involvement.
-
-      '
+    official_name: 'Tônus muscular, fase aguda: cervical'
+    translated_name: Muscle tone, acute phase, neck
     code_system: internal
-    source: def
-    source_ref: DIMAUSAUN.CNV
-    reasoning: A_T with the CE cervical suffix; no A_S counterpart exists for the neck.
+    description: 'Cervical muscle tone at the acute-phase examination: 1 decreased, 2 absent,
+      3 normal, 4 increased, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Tônus muscular)'
   CLI_A_T_FA:
-    official_name: Alteração de tônus na face
-    translated_name: Tone altered, face
-    description: Whether facial tone is abnormal; the tone counterpart of CLI_A_S_FA.
+    official_name: 'Tônus muscular, fase aguda: face'
+    translated_name: Muscle tone, acute phase, face
     code_system: internal
-    source: def
-    source_ref: DIMAUSAUN.CNV
-    reasoning: A_T with the FA face suffix.
+    description: 'Facial muscle tone at the acute-phase examination: 1 decreased, 2 absent,
+      3 normal, 4 increased, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA (Tônus muscular)'
   CLI_BICD_N:
     official_name: Reflexo bicipital direito
     translated_name: Right biceps reflex
@@ -320,16 +290,13 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: CERVIC is cervical; C(1) sign flag beside the other sites.
   CLI_CONTAT:
-    official_name: Contato com caso semelhante
-    translated_name: Contact with a similar case
-    description: 'Whether the child had contact with another paralysis case. Clustering
-      is what turns single notifications into an outbreak investigation.
-
-      '
+    official_name: Contato ou ingestão de substâncias tóxicas
+    translated_name: Contact with or ingestion of toxic substances
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: CONTAT reads contato; standard epidemiological-link flag.
+    description: Whether the patient had contact with or ingested toxic substances (pesticides,
+      lead, mercury, medicines).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA'
   CLI_CON_ES:
     official_name: 'Contato ou ingestão de substâncias tóxicas - caso afirmativo, especifique'
     translated_name: 'Toxic substance contacted or ingested - specify'
@@ -379,28 +346,19 @@ variables:
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – Paralisia Flácida Aguda (rev. abr/2012) — sources/dic_text/pfa.txt (DIC_DADOS_PFA, portalsinan.saude.gov.br), campo 44 (Data do exame)'
   CLI_EXT_D:
-    official_name: Comprometimento de extremidade direita
-    translated_name: Right extremity involved
-    description: 'Whether the right extremity is affected. A coarse side flag recorded
-      alongside the limb-by-limb strength grading, and useful when the detailed grading
-      is left blank.
-
-      '
+    official_name: 'Reflexo cutâneo plantar: extensão D'
+    translated_name: Plantar reflex, extension, right
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: EXT_D reads extremidade direita; paired with CLI_EXT_E.
+    description: 'Plantar cutaneous reflex, extension response, right foot: 1-Sim 2-Não 9-Ignorado.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA'
   CLI_EXT_E:
-    official_name: Comprometimento de extremidade esquerda
-    translated_name: Left extremity involved
-    description: 'Whether the left extremity is affected. The left-side counterpart
-      of CLI_EXT_D; the pair is what makes asymmetry visible.
-
-      '
+    official_name: 'Reflexo cutâneo plantar: extensão E'
+    translated_name: Plantar reflex, extension, left
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: EXT_E reads extremidade esquerda.
+    description: 'Plantar cutaneous reflex, extension response, left foot: 1-Sim 2-Não 9-Ignorado.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA'
   CLI_FACE:
     official_name: Paralisia facial
     translated_name: Facial paralysis
@@ -564,29 +522,19 @@ variables:
     source_ref: DIMAUSAUN.CNV
     reasoning: PAT patelar with E esquerdo.
   CLI_PROGRE:
-    official_name: Progressão da paralisia
-    translated_name: Paralysis still progressing
-    description: 'Whether the deficit was still worsening at examination. A progressing
-      deficit means the exam is a snapshot of an unfinished process, and the 60-day
-      reassessment is what settles the final extent.
-
-      '
+    official_name: 'Deficiência motora: progressão após 3 dias'
+    translated_name: Motor deficit progressing beyond 3 days
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: PROGRE reads progressão; C(1) flag beside the direction flags.
+    description: Whether the motor deficit kept progressing more than 3 days after onset.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA'
   CLI_SINTOM:
-    official_name: Sintomas prévios
-    translated_name: Preceding symptoms
-    description: 'Whether the paralysis was preceded by other symptoms. A prodrome
-      of fever or gastrointestinal illness is typical of enteroviral infection and
-      helps date the exposure.
-
-      '
+    official_name: 'Sinais e sintomas: sintomas respiratórios'
+    translated_name: Respiratory symptoms
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: SINTOM is sintomas; a C(1) flag in the clinical history block.
+    description: Whether the patient had respiratory symptoms.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: PFA'
   CLI_TRID_N:
     official_name: Reflexo tricipital direito
     translated_name: Right triceps reflex

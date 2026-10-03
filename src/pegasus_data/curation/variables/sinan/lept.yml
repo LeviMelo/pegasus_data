@@ -476,45 +476,41 @@ variables:
     source_ref: Dicionário de Dados SINAN NET – Leptospirose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leptospirose/DIC_DADOS_Leptospirose_v5.pdf,
       Informações complementares, Município 4 (situação de risco)
   CO_UF_R1:
-    official_name: UF de residência anterior 1
-    translated_name: Previous state of residence 1
-    description: 'A state the patient lived in before notification. Four slots exist
-      because the disease''s incubation can span years, so residence history is what
-      locates the exposure rather than the diagnosis.
-
-      '
+    official_name: UF da situação de risco 1
+    translated_name: State of risk situation 1 (30 days before onset)
     code_system: internal
     codelist: UF_BR
-    source: def
-    source_ref: UFCCODIG.CNV
-    reasoning: C(2) state code; the first of four residence-history slots.
+    description: State where risk situation 1 occurred in the 30 days before first symptoms
+      (pairs with CO_MUN_R1).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Leptospirose v5'
   CO_UF_R2:
-    official_name: UF de residência anterior 2
-    translated_name: Previous state of residence 2
-    description: A second previous state of residence. See CO_UF_R1.
+    official_name: UF da situação de risco 2
+    translated_name: State of risk situation 2 (30 days before onset)
     code_system: internal
     codelist: UF_BR
-    source: def
-    source_ref: UFCCODIG.CNV
-    reasoning: C(2) state code; the second residence-history slot.
+    description: State where risk situation 2 occurred in the 30 days before first symptoms
+      (pairs with CO_MUN_R2).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Leptospirose v5'
   CO_UF_R3:
-    official_name: UF de residência anterior 3
-    translated_name: Previous state of residence 3
-    description: A third previous state of residence. See CO_UF_R1.
+    official_name: UF da situação de risco 3
+    translated_name: State of risk situation 3 (30 days before onset)
     code_system: internal
     codelist: UF_BR
-    source: def
-    source_ref: UFCCODIG.CNV
-    reasoning: C(2) state code; the third residence-history slot.
+    description: State where risk situation 3 occurred in the 30 days before first symptoms
+      (pairs with CO_MUN_R3).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Leptospirose v5'
   CO_UF_R4:
-    official_name: UF de residência anterior 4
-    translated_name: Previous state of residence 4
-    description: A fourth previous state of residence, the last slot the form offers.
+    official_name: UF da situação de risco 4
+    translated_name: State of risk situation 4 (30 days before onset)
     code_system: internal
     codelist: UF_BR
-    source: def
-    source_ref: UFCCODIG.CNV
-    reasoning: C(2) state code; the fourth residence-history slot.
+    description: State where risk situation 4 occurred in the 30 days before first symptoms
+      (pairs with CO_MUN_R4).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Leptospirose v5'
   CS_ZONA:
     official_name: Zona de residência
     translated_name: Residence zone

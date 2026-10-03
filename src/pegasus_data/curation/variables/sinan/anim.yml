@@ -239,16 +239,13 @@ variables:
 
       '
   CLI_VAGAIS:
-    official_name: Manifestações vagais
-    translated_name: Vagal signs
-    description: 'Vagal signs — sweating, nausea, slow pulse, hypotension. Typical
-      of phoneutrism and scorpion stings, especially in children.
-
-      '
+    official_name: Manifestações vagais (vômitos/diarreia)
+    translated_name: Vagal manifestations (vomiting, diarrhoea)
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: VAGAIS reads vagais, a systemic sign in the CLI_ block.
+    description: Whether vagal manifestations (vomiting, diarrhoea) were present among the systemic
+      signs.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Animais Peçonhentos v5'
   COM_APUTAC:
     official_name: Amputação
     translated_name: Amputation

@@ -2794,27 +2794,17 @@ variables:
     translated_name: 'Contact-with-case / exposure-type flag
 
       '
-    description: 'Where the patient met a similar suspected or confirmed case before symptom
-      onset, on the typhoid-fever form: 1 Domicílio through 8 Sem histórico de contato, 9
-      Ignorado.'
     code_system: internal
-    source: layout_doc
-    source_ref: '[FTIF] https://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf
-      — "33. Contato compatível com caso de febre tifóide (até 45 dias antes do início dos
-      sinais e sintomas) | tp_contato_caso_febre | varchar2(1) | 1. Domicílio 2. Vizinhança
-      3. Trabalho 4. Creche/escola 5. Posto de saúde/hospital 6. Outro Estado/Município 7.
-      Outros 8. Sem história de contato 9. Ignorado | CONTATO"; on the rabies form, [RAIV]
-      http://portalsinan.saude.gov.br/images/documentos/Agravos/Raiva/DIC_DADOS_Raiva_v5.pdf
-      — "33. Tipo de exposição ao vírus rábico Contato Indireto | st_exposicao_contato_indireto
-      | varchar(1) | 1. Sim 2. Não 9. Ignorado | Forma de exposição ao vírus da raiva | CONTATO"
-
-      '
     notes: 'Genuine cross-form collision, not a data-quality issue: width is C(1) in both
       series, but the code 1 means "household contact" in FTIF and "yes, indirect exposure"
       in RAIV. Treat CONTATO as two different columns that happen to share a name. The name
       is reused for an unrelated question on the human-rabies form, where it is a plain Sim/Não/Ignorado
       flag for indirect contact within the exposure checklist. The two value spaces are not
       comparable; do not pool CONTATO across FTIF and RAIV.'
+    description: 'Meaning depends on the file: contact with a similar case (FTIF), or indirect
+      contact as the type of exposure (RAIV).'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Febre Tifoide v5; Raiva v5'
   CON_AMBIEN:
     official_name: Ambiente da infecção
     translated_name: Setting of infection
@@ -3179,13 +3169,11 @@ variables:
   CS_CRISE:
     official_name: Crises de Contraturas
     translated_name: Contracture crises
-    description: 'Whether the patient had episodes of muscle-contracture crises, one of the
-      six clinical-sign checkboxes on the tetanus investigation form: yes, no, or unknown.
-
-      '
     code_system: internal
+    description: Whether the patient had crises of muscle contracture (tetanus files); in the
+      whooping-cough file (COQU), a noisy whoop at the end of a coughing fit.
     source: layout_doc
-    source_ref: portalsinan.saude.gov.br Tetano_Acidental_v5.pdf, campo 38 "Crises de Contraturas"
+    source_ref: 'SINAN data dictionary: Tétano v5; Coqueluche v5'
   CS_ESCOLAR:
     official_name: Escolaridade
     translated_name: Education level
@@ -6151,36 +6139,27 @@ variables:
   OUTRAS:
     official_name: Drogas - Outras
     translated_name: Non-standard TB drug used
-    description: 'Whether the tuberculosis patient''s regimen included a drug beyond the six
-      first-line drugs itemized just before it (rifampicin, isoniazid, pyrazinamide, ethambutol,
-      streptomycin, ethionamide). 1=Sim, 2=Não; Sim opens a free-text field naming it.
-
-      '
     code_system: internal
+    description: 'In the hepatitis file (HEPA): exposure to other risk situations and how long
+      ago, 1-Sim <6 months, 2-Sim >6 months, 3-Não, 9-Ignorado.'
     source: layout_doc
-    source_ref: DICIONARIO DE DADOS - SINAN NET - VERSAO 4.0 (Tuberculose), campo 47
+    source_ref: 'SINAN data dictionary: Hepatites Virais v5'
   OUTRO:
     official_name: Outro (Exames Realizados - Parasitológico Direto)
     translated_name: Other direct-parasitology result
-    description: 'Result of an extra, unnamed direct parasitological method used beyond the
-      fresh exam and Strout/microhematocrit tests to look for Trypanosoma cruzi in a Chagas
-      disease case: 1=positivo, 2=negativo, 3=não realizado.
-
-      '
     code_system: internal
+    description: 'Meaning depends on the file: another parasitological result (CHAG), another
+      immunological test (LEIV), or other signs and symptoms (RAIV).'
     source: layout_doc
-    source_ref: DIC_DADOS_Chagas_v5.pdf, campo 43
+    source_ref: 'SINAN data dictionary: Chagas v5, Leishmaniose Visceral v5, Raiva v5'
   OUTROS:
     official_name: Outros
     translated_name: Other stool-exam result
-    description: 'Result of a parasitological stool exam for schistosomiasis beyond the standard
-      Kato-Katz egg-detection method and Hoffman sedimentation test named in the two preceding
-      fields: 1=Positivo, 2=Negativo, 3=Não realizado.
-
-      '
     code_system: internal
+    description: 'Meaning depends on the file: another stool examination result (ESQU), or an
+      ''other signs and symptoms'' flag, 1-Sim 2-Não 9-Ignorado (LEIV, FMAC, PFAN).'
     source: layout_doc
-    source_ref: DIC_DADOS_Esquistossomose_v5.pdf, campo 36
+    source_ref: 'SINAN data dictionary: Esquistossomose, LV, Febre Maculosa, PFA v5'
   OUTRO_DES:
     official_name: Outro (especificar)
     translated_name: Free-text detail when "other" was checked

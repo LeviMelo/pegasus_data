@@ -16,27 +16,20 @@ variables:
     source_ref: Dicionário de Dados SINAN NET – Cólera v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Colera/DIC_DADOS_Colera_v5.pdf,
       campo 59 (Utilizou antibióticos – Caso afirmativo, qual)
   CS_ANTIB:
-    official_name: Uso de antibiótico
-    translated_name: Antibiotic given
-    description: 'Whether antibiotics were given. Secondary to rehydration in cholera:
-      they shorten shedding rather than save the patient.
-
-      '
+    official_name: Uso de antibiótico antes da coleta do material
+    translated_name: Antibiotic before specimen collection
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: ANTIB reads antibiótico; a yes/no flag.
+    description: Whether the patient took antibiotics before the specimen was collected (form
+      field 52).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Cólera v5'
   CS_ANTIB_T:
-    official_name: Antibiótico antes da coleta
-    translated_name: Antibiotic before sampling
-    description: 'Whether antibiotics preceded the specimen. They sterilise the culture,
-      so this is what a negative result must be read against.
-
-      '
+    official_name: Utilizou antibióticos (tratamento)
+    translated_name: Treated with antibiotics
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: A second antibiotic flag, tied to the specimen rather than treatment.
+    description: Whether the patient was treated with antibiotics (form field 58).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Cólera v5'
   CS_ASSINTO:
     official_name: Assintomático
     translated_name: Asymptomatic

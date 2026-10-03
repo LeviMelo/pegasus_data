@@ -406,16 +406,13 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: OBSERVACAO reads observação; a yes/no flag.
   POS_EXPOS:
-    official_name: Tratamento pós-exposição
-    translated_name: Post-exposure prophylaxis
-    description: 'Whether post-exposure prophylaxis was given after this contact —
-      the ordinary reason for an anti-rabies attendance.
-
-      '
+    official_name: Antecedente de tratamento antirrábico pós-exposição
+    translated_name: Previous post-exposure anti-rabies treatment
     code_system: internal
-    source: def
-    source_ref: SIM_NAO.CNV
-    reasoning: POS_EXPOS reads pós-exposição; a yes/no flag.
+    description: Whether the patient has a history of a previous, complete post-exposure anti-rabies
+      treatment, before this attendance.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Atendimento Antirrábico v5.1'
   PRE_EXPOS:
     official_name: Tratamento pré-exposição
     translated_name: Pre-exposure prophylaxis

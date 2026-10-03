@@ -166,27 +166,21 @@ variables:
     source_ref: Dicionário de Dados SINAN NET – Sífilis Congênita v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
       campo 57 (Teste não treponêmico – Líquor, Data)
   LABC_EVIDE:
-    official_name: Evidência radiológica
-    translated_name: Radiological evidence
-    description: 'Whether long-bone X-rays show the changes of congenital syphilis.
-      Often the only objective sign in a baby who looks well at birth.
-
-      '
+    official_name: Evidência de T. pallidum
+    translated_name: T. pallidum evidence on microscopy
     code_system: internal
-    source: def
-    source_ref: SIM_NAONRE.CNV
-    reasoning: Bound to SIM_NAONRE; EVIDE reads evidência.
+    description: Evidence of T. pallidum on microscopy of placenta, mucocutaneous lesions, umbilical
+      cord or necropsy material (dark field, direct immunofluorescence or another specific method).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Sífilis Congênita v5'
   LABC_IGG:
-    official_name: IgG da criança
-    translated_name: Infant IgG
-    description: 'The infant''s IgG. Crosses the placenta, so it reflects the mother
-      as much as the child and is the least decisive of the infant tests.
-
-      '
+    official_name: Teste treponêmico (após 18 meses)
+    translated_name: Treponemal test on the child (after 18 months)
     code_system: internal
-    source: def
-    source_ref: REAGE.CNV
-    reasoning: Bound to REAGE; the infant IgG marker.
+    description: Treponemal test on the child's peripheral blood (the test after 18 months of
+      age).
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Sífilis Congênita v5'
   LABC_LIQUO:
     official_name: Teste no líquor da criança
     translated_name: Infant CSF test
@@ -226,13 +220,13 @@ variables:
 
       '
   LABC_TITUL:
-    official_name: Titulação realizada
-    translated_name: Titration performed
-    description: Whether a titration was carried out at all, as against simple reactivity.
+    official_name: Titulação ascendente
+    translated_name: Rising non-treponemal titres
     code_system: internal
-    source: def
-    source_ref: SIM_NAONRE.CNV
-    reasoning: Bound to SIM_NAONRE, sim/não/não realizado.
+    description: 'Whether the child''s non-treponemal titres rose across the follow-up tests
+      (VDRL at 1, 3, 6, 12 and 18 months): 1 yes, 2 no, 3 not done, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Sífilis Congênita v5'
   LABC_TIT_1:
     official_name: Teste não treponêmico - Sangue periférico - Título
     translated_name: Infant blood titre
@@ -344,13 +338,13 @@ variables:
     source_ref: Dicionário de Dados SINAN NET – Sífilis Congênita v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
       campo 62 (Diagnóstico clínico da criança)
   TRA_DIAG_T:
-    official_name: Tratamento da criança
-    translated_name: Infant treated
-    description: Whether the infant was treated.
+    official_name: 'Diagnóstico radiológico da criança: alteração nos ossos longos'
+    translated_name: Long-bone changes on X-ray
     code_system: internal
-    source: def
-    source_ref: SIM_NAONRE.CNV
-    reasoning: Bound to SIM_NAONRE, in the treatment block.
+    description: 'Radiological diagnosis in the child: long-bone changes on X-ray (osteochondritis,
+      periostitis, sabre tibia and the like): 1 yes, 2 no, 3 not done, 9 ignored.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Sífilis Congênita v5 (field 61)'
   TRA_DT:
     official_name: Data do início do tratamento
     translated_name: Date of treatment
