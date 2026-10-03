@@ -343,3 +343,42 @@ links, such as small groups or rare outcomes.
 - **What a "setting" is.** Hospital, municipality, software, year: which
   level carries the systematic part is an empirical question, and the
   hierarchy lets the data choose.
+
+---
+
+## 11. What execution taught (2026-10-03; ADR-0120)
+
+Measured while building T1–T5. Each item corrects or sharpens a section above.
+
+- **§3.1, chance agreement.** u must be estimated on the population the
+  scores are compared within. Three defects had this one cause:
+  - **Value-specific u** from marginal frequencies double-counted what the
+    blocks already conditioned on, and was worse nationally (removed; code
+    kept in EVALUATION 2026-10-03).
+  - **A slice's own u** was not the nation's.
+  - **An evidence-only comparison's u** from random pairs (or from the
+    placebo, which moves the day) was far too small.
+  
+  The rule now:
+  - national u for a slice;
+  - the real candidates' u for evidence the blocks do not use.
+- **§3.4, the placebo.** It must break a pair on every identifying key.
+  Shifting only the birth date left true pairs reachable through other blocks,
+  and they sat at the threshold. Every left date is shifted now.
+- **§3.2, scope invariance holds in measurement.** A slice against the
+  national partner, with national u, pooled m and the national calibration,
+  reproduces the national run's pairs for that slice: SP 99.97%, SE 99.9%,
+  RR 99.9%.
+- **§3.3, the newborn example was optimistic in its first form.** The mother's
+  delivery admission carries no residence evidence beyond SINASC's. It does
+  carry one real signal: the hospital issues the mother's and the newborn's
+  AIHs close together (+4.2 bits within 10 numbers, +2.9 within 100). With
+  it, Sergipe's newborn link went from 410 to 828 pairs at FDR 0.36%. Routes
+  through deaths add a further 12.6% of admission–baby pairs nationally.
+- **§2.1, record identity is not yet stable.** The same record read from two
+  publications (SINASC's national and per-state files) has two identities
+  (OQ-65). Entities across publications need a content-based key.
+- **§5, settings as annotators: identifiability is the binding limit.** With
+  two settings per person, *which* system errs is not identified; contrasts
+  between settings against a common reference are. The hospitals that code
+  systematically (brown as asian; black as brown) are found robustly.
