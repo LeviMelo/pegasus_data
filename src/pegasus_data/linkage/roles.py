@@ -152,6 +152,45 @@ def _normalise(role: Role, table: pa.Table) -> pa.Array:
     return raw  # code
 
 
+def _cache_path(dataset: str, period: object, geography: object, settings: Any) -> Path | None:
+    """Where a dataset-scope's role table is kept, or None when no lake backs it.
+
+    The key fingerprints everything the table depends on: the scope, the role
+    declarations (roles.yml), this module's normalisation code, and every lake
+    partition file of the dataset (path, size, mtime). A rebuilt partition, an
+    edited role or a changed normaliser is a different key, so a stale table is
+    never served (docs/plans/linkage-theory.md §7, step T1).
+    """
+    import hashlib
+
+    from ..retrieve import parse_dataset
+
+    try:
+        system, series = parse_dataset(dataset)
+    except Exception:  # noqa: BLE001 - an unknown dataset is reported by the query itself
+        return None
+    lake = Path(settings.lake_dir) / system
+    files = sorted(lake.glob(f"{system}_{series}_*/**/*.parquet")) if lake.exists() else []
+    if not files:
+        return None
+    h = hashlib.sha256()
+    h.update(f"{dataset}|{period!r}|{geography!r}".encode())
+    h.update(ROLES_FILE.read_bytes())
+    h.update(Path(__file__).read_bytes())
+    for f in files:
+        st = f.stat()
+        h.update(f"{f.relative_to(lake)}|{st.st_size}|{st.st_mtime_ns}".encode())
+    return Path(settings.lake_dir) / "roles" / dataset / f"{h.hexdigest()[:20]}.parquet"
+
+
+def _subset(table: pa.Table, names: list[str]) -> pa.Table:
+    keep = ["_blob_sha256", "_row", "_source_path", *names]
+    absent = [r for r in absent_roles(table) if r in names]
+    meta = dict(table.schema.metadata or {})
+    meta[b"absent_roles"] = ",".join(absent).encode()
+    return table.select(keep).replace_schema_metadata(meta)
+
+
 def role_table(
     dataset: str,
     *,
@@ -165,17 +204,41 @@ def role_table(
     Roles whose column this scope does not carry come back null and are named
     in the table's metadata (``absent_roles``), so a caller that needs one can
     refuse rather than link on nothing.
+
+    Where the lake fully backs the scope, every role of the dataset is computed
+    once and kept under ``<lake>/roles/`` (``_cache_path``): labelling a
+    national file took 10-20 s and was repeated by every link that read it.
     """
-    from .._query_engine.executor import query
+    import pyarrow.parquet as pq
+
+    from ..config import load_settings
 
     spec = dataset_roles(dataset)
-    wanted = [spec.roles[name] for name in (roles or list(spec.roles))]
+    names = list(roles or spec.roles)
+    settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    path = _cache_path(dataset, period, geography, settings)
+    if path is not None and path.exists():
+        return _subset(pq.read_table(path), names)
+    full, strategy = _compute_roles(spec, list(spec.roles), period=period, geography=geography, **query_kwargs)
+    if path is not None and strategy == "lake":
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".tmp")
+        pq.write_table(full, tmp, compression="zstd")
+        tmp.replace(path)
+    return _subset(full, names)
+
+
+def _compute_roles(spec: DatasetRoles, names: list[str], *, period: object, geography: object,
+                   **query_kwargs: Any) -> tuple[pa.Table, str]:
+    from .._query_engine.executor import query
+
+    wanted = [spec.roles[name] for name in names]
     # Only the columns the roles read: a national year of SIH-RD is about 12
     # million rows of 113 columns, and linkage needs a dozen of them.
     select = sorted({col for role in wanted for col in (role.column, *role.also)})
-    table = query(
-        dataset, period=period, geography=geography, select=select, present="analysis",
-        provenance="all", **query_kwargs,
+    table, report = query(
+        spec.dataset, period=period, geography=geography, select=select, present="analysis",
+        provenance="all", return_report=True, **query_kwargs,
     )
     table = table.combine_chunks() if table.num_rows else table
     columns: dict[str, pa.Array] = {
@@ -193,7 +256,8 @@ def role_table(
     out = pa.table(columns)
     meta = {b"dataset": spec.dataset.encode(), b"record": spec.record.encode(),
             b"absent_roles": ",".join(absent).encode()}
-    return out.replace_schema_metadata(meta)
+    complete = getattr(report, "source_strategy", "") == "lake"
+    return out.replace_schema_metadata(meta), ("lake" if complete else "other")
 
 
 def absent_roles(table: pa.Table) -> list[str]:

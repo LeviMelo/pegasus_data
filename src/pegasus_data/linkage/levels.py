@@ -183,6 +183,21 @@ def _levels_exact(a: pa.Array, b: pa.Array) -> np.ndarray:
     return out
 
 
+def _levels_number_distance(a: pa.Array, b: pa.Array) -> np.ndarray:
+    """How far apart two serial numbers are (an AIH and the one issued beside it)."""
+    va = pc.cast(pc.if_else(pc.utf8_is_digit(pc.cast(a, pa.string())), pc.cast(a, pa.string()), None), pa.int64())
+    vb = pc.cast(pc.if_else(pc.utf8_is_digit(pc.cast(b, pa.string())), pc.cast(b, pa.string()), None), pa.int64())
+    missing = pc.or_(pc.is_null(va), pc.is_null(vb)).to_numpy(zero_copy_only=False)
+    d = np.abs(pc.fill_null(va, 0).to_numpy(zero_copy_only=False) - pc.fill_null(vb, 0).to_numpy(zero_copy_only=False))
+    out = np.full(len(d), "other", dtype=object)
+    out[d <= 1000] = "within 1000"
+    out[d <= 100] = "within 100"
+    out[d <= 10] = "within 10"
+    out[d == 0] = "equal"
+    out[missing] = MISSING
+    return out
+
+
 def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array],
            given: pa.Array | None = None, given_side: str = "right") -> np.ndarray:
     """The level of every pair; ``b`` is ``(start, end)`` for an interval.
@@ -203,6 +218,8 @@ def levels(kind: str, a: pa.Array, b: pa.Array | tuple[pa.Array, pa.Array],
         return _levels_integer(a, b)  # type: ignore[arg-type]
     if kind == "municipality":
         return _levels_municipality(a, b)  # type: ignore[arg-type]
+    if kind == "number_distance":
+        return _levels_number_distance(a, b)  # type: ignore[arg-type]
     return _levels_exact(a, b)  # type: ignore[arg-type]
 
 

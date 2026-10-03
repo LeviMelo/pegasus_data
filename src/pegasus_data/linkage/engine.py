@@ -322,6 +322,7 @@ def link(
     period: object,
     geography: object,
     right_period: object = None,
+    right_geography: object = None,
     method: str = "deterministic",
     allow_not_viable: bool = False,
     refresh: bool = False,
@@ -361,7 +362,8 @@ def link(
     if method not in ("deterministic", "probabilistic"):
         raise ValueError(f"method must be 'deterministic' or 'probabilistic', not {method!r}")
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
-    key = store.run_key(name, method, period if right_period is None else (period, right_period), geography)
+    key = store.run_key(name, method, period if right_period is None else (period, right_period),
+                        geography if right_geography is None else (geography, right_geography))
     if not refresh:
         stored = store.load(settings, key)
         if stored is not None:
@@ -373,15 +375,18 @@ def link(
         from .probabilistic import link_probabilistic
 
         result = link_probabilistic(name, period=period, geography=geography, right_period=right_period,
-                                    **query_kwargs)
+                                    right_geography=right_geography, **query_kwargs)
     else:
         left = role_table(spec.left.dataset, period=period, geography=geography,
                           roles=_roles_needed(spec, "left"), **query_kwargs)
-        right = role_table(spec.right.dataset, period=right_period or period, geography=geography,
-                           roles=_roles_needed(spec, "right"), **query_kwargs)
+        right = role_table(spec.right.dataset, period=right_period or period,
+                           geography=right_geography or geography, roles=_roles_needed(spec, "right"),
+                           **query_kwargs)
         result = run(spec, left, right)
     if persist:
         store.save(settings, key, result.pairs, result.summary())
+        if method == "probabilistic" and str(geography).upper() == "BR" and right_geography is None:
+            store.save_params(settings, name, result.summary(), f"BR {key.period}")
     if result.verdict == "not viable" and not allow_not_viable:
         raise LinkNotViable(result)
     return result

@@ -115,3 +115,25 @@ class StoredResult:
 
 
 __all__ = ["RunKey", "StoredResult", "links_dir", "load", "run_key", "runs", "save"]
+
+
+def _params_path(settings: Any, spec: str) -> Path:
+    return links_dir(settings) / "_params" / f"{spec}_{_spec_digest(spec)}.json"
+
+
+def save_params(settings: Any, spec: str, summary: dict[str, Any], scope: str) -> Path:
+    """A national run's error channels, threshold and calibration curve: the
+    reference a slice pools toward and decides with (linkage-theory §3.2)."""
+    path = _params_path(settings, spec)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    body = {"spec": spec, "scope": scope, "models": summary.get("models") or [],
+            "threshold_bits": summary.get("threshold_bits"), "calibration": summary.get("calibration") or {}}
+    path.write_text(json.dumps(body, indent=1), encoding="utf-8")
+    return path
+
+
+def load_params(settings: Any, spec: str) -> dict[str, Any] | None:
+    path = _params_path(settings, spec)
+    if not path.exists():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))

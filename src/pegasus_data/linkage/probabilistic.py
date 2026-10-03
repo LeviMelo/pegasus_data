@@ -17,6 +17,20 @@ Runs a link spec's ``probabilistic`` block (``curation/links.yml``):
 5. **Threshold** where the estimated false-match rate (control pairs over real
    pairs above it, both resolved 1:1) is at most ``target_fdr``; then 1:1
    resolution by descending score.
+
+Scope invariance (docs/plans/linkage-theory.md §3.2, step T2):
+
+- **The national partner side.** ``right_geography="BR"`` reads the right
+  side nationally, so a partner outside the slice is found and competitors are
+  the nation's.
+- **National calibration.** A slice decides with the national run's threshold
+  and match-probability curve (stored with its channels), not with a threshold
+  re-estimated from its own small placebo: that re-estimation was what still
+  differed between a slice and the nation (Roraima, 2026-10-03).
+- **Pooled error channels.** A run's m is shrunk toward the stored national m
+  of the same spec, by ``POOL_PSEUDO_ANCHORS`` pseudo-anchors: a state with
+  few anchors leans on the nation, a large one keeps its own. A national run
+  stores the reference (``<lake>/links/_params/``).
 """
 
 from __future__ import annotations
@@ -37,6 +51,24 @@ from .roles import dataset_roles, role_table
 
 CONTROL_SHIFT_DAYS = 400
 RANDOM_PAIRS = 200_000
+#: Weight of the national m against a run's own anchors (empirical-Bayes
+#: shrinkage with a fixed prior strength; a run with 200 anchors is half its own).
+POOL_PSEUDO_ANCHORS = 200
+
+
+@dataclass(frozen=True, slots=True)
+class Inherit:
+    """A role a record takes from its partner in another stored link (theory §3.3).
+
+    ``via`` is the stored link, ``role`` the partner's role, ``as_`` the name it
+    takes here. The newborn admission's baby inherits the AIH number of its
+    mother's delivery admission: evidence no single record carries.
+    """
+
+    side: str
+    via: str
+    role: str
+    as_: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,6 +77,7 @@ class ProbabilisticSpec:
     blocks: tuple[tuple[tuple[str, str], ...], ...]
     target_fdr: float = 0.01
     control_role: str = ""
+    inherit: tuple[Inherit, ...] = ()
 
 
 def load_probabilistic(name: str) -> ProbabilisticSpec:
@@ -74,8 +107,12 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
         )
         for block in body["blocks"]
     )
+    inherit = tuple(
+        Inherit(side, str(item["via"]), str(item["role"]), str(item["as"]))
+        for side in ("left", "right") for item in ((body.get("inherit") or {}).get(side) or [])
+    )
     return ProbabilisticSpec(compare, blocks, float(body.get("target_fdr", 0.01)),
-                             str(body.get("control_role") or spec.control_role))
+                             str(body.get("control_role") or spec.control_role), inherit)
 
 
 @dataclass
@@ -93,6 +130,8 @@ class ProbabilisticResult:
     fdr_upper95_percent: float | None = None
     validations: dict[str, Any] = field(default_factory=dict)
     verdict: str = "not viable"
+    threshold_source: str = "own"
+    calibration: dict[str, Any] = field(default_factory=dict)
 
     def summary(self) -> dict[str, Any]:
         return {
@@ -104,7 +143,8 @@ class ProbabilisticResult:
             "estimated_fdr_percent": self.estimated_fdr_percent,
             "control_pairs_above_threshold": self.control_above_threshold,
             "fdr_upper95_percent": self.fdr_upper95_percent, "validations": self.validations,
-            "verdict": self.verdict, "models": [m.as_dict() for m in self.models],
+            "verdict": self.verdict, "threshold_source": self.threshold_source,
+            "calibration": self.calibration, "models": [m.as_dict() for m in self.models],
         }
 
 
@@ -306,6 +346,51 @@ def _one_to_one(ls: list, rs: list, scores: np.ndarray, threshold: float) -> lis
     return kept
 
 
+def calibration(real: list[float], control: list[float], bin_bits: float = 1.0) -> dict[str, Any]:
+    """The local false-match rate by score bin (theory §6, T5).
+
+    At a score s the local false-match rate is the density of placebo pairs over
+    the density of real pairs (both resolved 1:1 the same way), per ``bin_bits``
+    bin, made non-increasing in the score by pool-adjacent-violators weighted by
+    the real count.
+    """
+    if not real:
+        return {"bin_bits": bin_bits, "bins": [], "rate": []}
+    r = np.floor(np.asarray(real) / bin_bits).astype(np.int64)
+    c = np.floor(np.asarray(control) / bin_bits).astype(np.int64) if control else np.zeros(0, np.int64)
+    bins = np.unique(r)[::-1]                       # descending score
+    rn = np.array([(r == b).sum() for b in bins], dtype=float)
+    cn = np.array([(c == b).sum() for b in bins], dtype=float)
+    blocks: list[list[float]] = []                  # [control, real, n_bins]
+    for ci, ri in zip(cn, rn, strict=True):
+        blocks.append([ci, ri, 1.0])
+        while len(blocks) > 1 and blocks[-2][0] / blocks[-2][1] > blocks[-1][0] / blocks[-1][1]:
+            x, y = blocks.pop(), blocks.pop()
+            blocks.append([x[0] + y[0], x[1] + y[1], x[2] + y[2]])
+    rate = np.concatenate([np.full(int(k), min(1.0, cc / rr)) for cc, rr, k in blocks])
+    return {"bin_bits": bin_bits, "bins": bins.tolist(), "rate": [round(float(x), 6) for x in rate]}
+
+
+def apply_calibration(scores: np.ndarray, curve: dict[str, Any]) -> np.ndarray:
+    """P(true match) of each score under a calibration curve: 1 - local false-match rate."""
+    if not len(scores) or not curve.get("bins"):
+        return np.zeros(len(scores))
+    bins = np.asarray(curve["bins"], dtype=np.int64)
+    rate = np.asarray(curve["rate"], dtype=float)
+    order = np.argsort(bins)
+    bins, rate = bins[order], rate[order]
+    s_bins = np.floor(np.asarray(scores) / float(curve["bin_bits"])).astype(np.int64)
+    # The nearest bin at or above (more conservative inside a gap), clamped to the range.
+    pos = np.clip(np.searchsorted(bins, s_bins, side="left"), 0, len(bins) - 1)
+    return 1.0 - rate[pos]
+
+
+def match_probability(scores: np.ndarray, real: list[float], control: list[float],
+                      bin_bits: float = 1.0) -> np.ndarray:
+    """P(true match) of each score, calibrated on this run's own placebo."""
+    return apply_calibration(scores, calibration(real, control, bin_bits))
+
+
 def _anchor_sql(others: list[Comparison], control_role: str, shift: bool) -> tuple[str, bool]:
     """Pairs linked 1:1 on every other comparison (or their control).
 
@@ -335,7 +420,24 @@ def _levels_of(con, sql: str, compare) -> list[np.ndarray]:
     return _batch_levels(table.combine_chunks().to_batches()[0], compare)
 
 
-def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, right: pa.Table) -> ProbabilisticResult:
+def _pool(fm: FieldModel, national: dict[str, Any] | None) -> FieldModel:
+    """Shrink a run's m toward the stored national m (POOL_PSEUDO_ANCHORS)."""
+    if not national or national.get("comparison") != fm.comparison.name:
+        return fm
+    n = fm.anchors
+    k = POOL_PSEUDO_ANCHORS
+    nat = {lv: float(v["m"]) for lv, v in national.get("levels", {}).items() if float(v.get("m", 0.0)) > 0}
+    if not nat:
+        return fm
+    levels_ = set(fm.m) | set(nat)
+    m = {lv: (n * fm.m.get(lv, 0.0) + k * nat.get(lv, 0.0)) / (n + k) for lv in levels_}
+    pooled = FieldModel(fm.comparison, m, fm.u, anchors=n + k, controls=fm.controls)
+    pooled.m_source = {**getattr(fm, "m_source", {}), "pooled_with_national": k}  # type: ignore[attr-defined]
+    return pooled
+
+
+def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, right: pa.Table,
+                      national: dict[str, Any] | None = None) -> ProbabilisticResult:
     from dataclasses import replace as _replace
 
     con = duckdb.connect()
@@ -367,7 +469,8 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
         m, n_m = _distribution(_levels_of(con, _select_values("L", anchor_sql, [comp]), [comp])[0])
         fm = FieldModel(comp, m, u, anchors=n_m, controls=n_u)
         fm.m_source = {"anchors": n_anchor, "anchor_control": n_anchor_control}  # type: ignore[attr-defined]
-        models.append(fm)
+        ref = next((d for d in ((national or {}).get("models") or []) if d.get("comparison") == comp.name), None)
+        models.append(_pool(fm, ref))
     # Candidates, real and control, scored as they stream.
     rl, rr, rscore = _score_stream(con, _select_values("L", _candidates(con, "L", prob.blocks), prob.compare),
                                    prob.compare, models)
@@ -378,10 +481,21 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     real_best = _one_to_one(rl, rr, rscore, float("-inf"))
     control_best = _one_to_one(cl, cr, cscore, float("-inf"))
     t, fdr = threshold_for([s for *_x, s in real_best], [s for *_x, s in control_best], prob.target_fdr)
+    curve = calibration([s for *_x, s in real_best], [s for *_x, s in control_best])
+    threshold_source = "own"
+    if national and national.get("threshold_bits") is not None and (national.get("calibration") or {}).get("bins"):
+        # A slice decides with the nation's threshold and curve (theory §3.2):
+        # its own placebo is too small to place a threshold reproducibly.
+        t, curve, threshold_source = float(national["threshold_bits"]), national["calibration"], "national"
+        real_at_t = sum(1 for *_x, s in real_best if s >= t)
+        fdr = sum(1 for *_x, s in control_best if s >= t) / real_at_t if real_at_t else None
     kept = _one_to_one(rl, rr, rscore, t) if t is not None else []
+    kept_scores = np.array([x[2] for x in kept])
+    p_match = apply_calibration(kept_scores, curve)
     pairs = pa.table({"l": pa.array([x[0] for x in kept], pa.string()),
                       "r": pa.array([x[1] for x in kept], pa.string()),
-                      "bits": pa.array([round(x[2], 3) for x in kept], pa.float64())})
+                      "bits": pa.array([round(x[2], 3) for x in kept], pa.float64()),
+                      "p_match": pa.array(np.round(p_match, 5), pa.float64())})
     con.register("pairs_view", pairs)
     con.execute("CREATE OR REPLACE TEMP TABLE linked AS SELECT l, r FROM pairs_view")
     validations = validate(con, spec)
@@ -394,22 +508,72 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     verdict = judge(len(kept), fdr_percent, validations, upper)
     return ProbabilisticResult(spec.name, n_left, n_right, pairs, models, len(rscore), len(cscore),
                                round(t, 2) if t is not None else None, fdr_percent, control_kept, upper,
-                               validations, verdict)
+                               validations, verdict, threshold_source, curve)
+
+
+def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: object, geography: object,
+               settings: Any, **query_kwargs: Any) -> pa.Table:
+    """Attach roles taken from each record's partner in stored links (``Inherit``).
+
+    The stored link of the same scope is used; a record without a partner there
+    gets null, which compares as missing (no evidence either way).
+    """
+    from . import store
+
+    if not items:
+        return table
+    ids = pc.binary_join_element_wise(pc.cast(table.column("_blob_sha256"), pa.string()),
+                                      pc.cast(table.column("_row"), pa.string()), ":")
+    con = duckdb.connect()
+    con.register("me", pa.table({"_k": ids, "_pos": pa.array(range(table.num_rows), pa.int64())}))
+    for item in items:
+        via = load_links()[item.via]
+        stored = store.load(settings, store.run_key(item.via, "probabilistic", period, geography))
+        if stored is None:
+            raise FileNotFoundError(f"inherit: no stored {item.via} link for {geography} {period}; link it first")
+        mine, other, partner_ds = (("l", "r", via.right.dataset) if via.left.dataset == dataset
+                                   else ("r", "l", via.left.dataset))
+        partner = role_table(partner_ds, period=period, geography=geography, roles=[item.role], **query_kwargs)
+        pid = pc.binary_join_element_wise(pc.cast(partner.column("_blob_sha256"), pa.string()),
+                                          pc.cast(partner.column("_row"), pa.string()), ":")
+        con.register("pairs", stored[0].select([mine, other]))
+        con.register("partner", pa.table({"_k": pid, "v": partner.column(item.role)}))
+        values = con.execute(f"""SELECT p.v FROM me LEFT JOIN pairs ON pairs.{mine} = me._k
+                                 LEFT JOIN partner p ON p._k = pairs.{other} ORDER BY me._pos""").fetch_arrow_table()
+        table = table.append_column(item.as_, values.column("v").combine_chunks())
+    return table
 
 
 def link_probabilistic(name: str, *, period: object, geography: object, right_period: object = None,
-                       **query_kwargs: Any) -> ProbabilisticResult:
-    """Link under ``name``'s probabilistic block, reading both sides through ``query``."""
+                       right_geography: object = None, **query_kwargs: Any) -> ProbabilisticResult:
+    """Link under ``name``'s probabilistic block, reading both sides through ``query``.
+
+    ``right_geography`` reads the right side over another scope: a state's
+    records against the nation's (``"BR"``), so a partner outside the state is
+    found and chance agreement is weighed nationally (step T2).
+    """
+    from ..config import load_settings
     from .engine import _roles_needed
+    from .store import load_params
 
     spec = load_links()[name]
     prob = load_probabilistic(name)
-    left_roles = sorted(set(_roles_needed(spec, "left")) | {r for c in prob.compare for r in c.side_roles("left")})
-    right_roles = sorted(set(_roles_needed(spec, "right")) | {r for c in prob.compare for r in c.side_roles("right")})
+    inherited = {i.as_ for i in prob.inherit}
+    left_roles = sorted((set(_roles_needed(spec, "left")) | {r for c in prob.compare for r in c.side_roles("left")})
+                        - inherited)
+    right_roles = sorted((set(_roles_needed(spec, "right")) | {r for c in prob.compare for r in c.side_roles("right")})
+                         - inherited)
+    settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
     left = role_table(spec.left.dataset, period=period, geography=geography, roles=left_roles, **query_kwargs)
-    right = role_table(spec.right.dataset, period=right_period or period, geography=geography,
-                       roles=right_roles, **query_kwargs)
-    return run_probabilistic(spec, prob, left, right)
+    left = _inherited(left, spec.left.dataset, [i for i in prob.inherit if i.side == "left"],
+                      period=period, geography=geography, settings=settings, **query_kwargs)
+    right_geo = right_geography or geography
+    right = role_table(spec.right.dataset, period=right_period or period,
+                       geography=right_geo, roles=right_roles, **query_kwargs)
+    right = _inherited(right, spec.right.dataset, [i for i in prob.inherit if i.side == "right"],
+                       period=right_period or period, geography=right_geo, settings=settings, **query_kwargs)
+    national = None if str(geography).upper() == "BR" and right_geography is None else load_params(settings, name)
+    return run_probabilistic(spec, prob, left, right, national)
 
 
 __all__ = ["ProbabilisticResult", "ProbabilisticSpec", "link_probabilistic", "load_probabilistic", "run_probabilistic"]

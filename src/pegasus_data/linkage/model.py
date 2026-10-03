@@ -42,6 +42,8 @@ nothing:
   measure low · absent and not low
 - interval (a date against start..end): inside on the first day · on the
   second day · later · one day outside · within a week outside · other
+- number_distance (two serial numbers, such as AIHs a hospital issues in
+  sequence): equal · within 10 · within 100 · within 1000 · other
 """
 
 from __future__ import annotations
@@ -53,6 +55,8 @@ from typing import Any
 MISSING = "missing"
 #: A code list against a measurement: evidence, never a join key (ADR-0117).
 ICD_SIZE_KINDS = ("icd_birth_weight", "icd_gestation")
+#: Kinds that weigh evidence but cannot join records (anchors, blocks).
+EVIDENCE_ONLY_KINDS = (*ICD_SIZE_KINDS, "number_distance")
 _PAD = {"7": "84", "8": "795", "9": "86", "4": "751", "5": "8462", "6": "953", "1": "42", "2": "5130", "3": "62", "0": "2"}
 
 
@@ -71,7 +75,7 @@ class Comparison:
     @property
     def is_key(self) -> bool:
         """Whether equality on it can join records (anchors, blocks)."""
-        return self.kind not in ICD_SIZE_KINDS
+        return self.kind not in EVIDENCE_ONLY_KINDS
 
     @property
     def right_roles(self) -> tuple[str, ...]:

@@ -195,6 +195,14 @@ links:
         # ICD-10's P07 codes state the baby's weight or gestation (ADR-0117).
         - [admission.diagnoses, birth.weight, {kind: icd_birth_weight}]
         - [admission.diagnoses, birth.gestation_weeks, {kind: icd_gestation}]
+        # The baby inherits its mother's delivery AIH (the stored delivery link):
+        # a hospital issues the mother's and the newborn's AIHs close together
+        # (13% within 100 against 3% for another mother there that day;
+        # docs/plans/linkage-theory.md §3.3, 2026-10-03).
+        - [admission.aih, mother.delivery_aih, {kind: number_distance}]
+      inherit:
+        right:
+          - {via: sinasc_births_to_delivery_admission, role: admission.aih, as: mother.delivery_aih}
       # Every block keeps the baby's birth date. A block of hospital, residence
       # and sex alone paired every newborn admission with every birth at the
       # same maternity hospital (tens of millions of candidates in RR) and adds
