@@ -62,3 +62,61 @@
   gets no `order` comparison (ADR-0121).
 - **National figures follow** when the national relink, with the specs
   applied, completes. Until then this entry rests on one state.
+
+## National, 2022 (the ADR-0121 relink, per-state channels in both runs)
+
+Stored runs compared pair by pair:
+- `lake/links/sih_deaths_to_sim/probabilistic_BR_2022_1cf164a9304d` is the
+  run without the new comparisons;
+- `…_6407dac6e930` is the run with them.
+
+| link | without | with | FDR upper 95% (with) |
+|---|---|---|---|
+| sih_deaths_to_sim | 551,181 | 548,033 | 1.03% |
+| sim_maternal_deaths_to_admission | 870 | 1,058 | 1.61% |
+| ciha_deaths_to_sim | 59,470 (one channel, before record numbering) | 60,720 | 1.03% |
+
+**`sih_deaths_to_sim`, the pairs that changed:**
+
+| | pairs | mean p_match | place of death; death against the stay |
+|---|---|---|---|
+| kept by both | 545,612 | 0.992 | 98.8% hospital; 95.4% on the discharge day |
+| dropped | 5,569 | 0.788 | 3,857 hospital, 882 other health facility, 444 home, 111 street, 275 other; 3,279 on the discharge day, 1,053 before the admission, 895 during the stay, 342 after discharge |
+| added | 2,421 | 0.410 | 2,365 hospital, 55 other health facility; 2,106 on the discharge day |
+
+**Reading.**
+- **The new evidence removes implausible links.** About 1,050 dropped
+  pairs had the death before the admission began, and about 830 had a death
+  outside any health facility after a stay that ended in death.
+- **It also drops 3,279 pairs that look like true ones:** death in hospital
+  on the discharge day. Only 36 of the dropped admissions found another
+  partner.
+  - The threshold moved from 21.34 to 18.19 bits, and the new levels
+    rescale scores. These pairs probably fell under the threshold or the
+    clear-best margin. Their scores under the new model were not stored, so
+    this is not confirmed.
+- **The added pairs are weak** (mean p_match 0.41).
+- **Not settled for this spec.** The scores of the dropped pairs under the
+  new model have to be examined before the order and place comparisons are
+  kept in `sih_deaths_to_sim`.
+- **For the maternal deaths the gain is clear in number** (+188 pairs). Its
+  held-out check "admission ended in death" is no longer held out, because
+  that field is now compared.
+
+## The padded partner period, national 2022
+
+- **`sim_infant_deaths_to_sinasc`, without its same-year filter, reading
+  SINASC 2021–2022:** 25,982 pairs (81.0% of about 32,080 infant deaths; the share as reported), FDR
+  upper 95% 0.79%.
+  - Before: 23,845 pairs (84.5% of 28,217 deaths of babies born in the
+    death's year), 0.17%.
+  - 2,137 more deaths reach their birth record; they are the deaths the
+    old filter excluded.
+- **`sih_neonatal_admissions_to_sinasc`, padded, inheriting the delivery
+  AIH:** 79,272 pairs (20.4%), FDR upper 95% 1.07%. Before: 67,340
+  (17.3%), 1.07%.
+- **Held-out checks:**
+  - infant deaths: delivery type agrees 97.74% (97.89%), plurality 99.0%
+    (98.96%), gestational weeks within 2: 87.08% (87.33%);
+  - newborns: born in the admitting hospital 99.99%, perinatal diagnosis
+    84.7%.

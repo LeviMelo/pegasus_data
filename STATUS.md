@@ -2,7 +2,7 @@
 
 What is true now. This file is rewritten in place, never appended to. Its
 history is in git; measurements are in `EVALUATION.md` and decisions in
-`DECISIONS.md`. Last rewritten 2026-09-30.
+`DECISIONS.md`. Last rewritten 2026-10-03.
 
 ## Where the project is
 
@@ -12,118 +12,85 @@ fast-forwarded into `master` on 2026-09-30, locally (not pushed). Work
 continues on branch **`linkage`**: record linkage across systems, planned in
 `docs/plans/linkage.md` (ADR-0107).
 
-## Record linkage (branch `linkage`, ADR-0107 to ADR-0117)
+## Record linkage (branch `linkage`, ADR-0107 to ADR-0124)
 
-- **Foundations.**
-  - Record identity `(_blob_sha256, _row)` on every row.
-  - Roles for SINASC, SIM, SIH-RD, CIHA and SIA-PS, normalised through our
-    own labels, with categories where systems spell a concept differently
-    (ADR-0109).
-- **Two engines** (`curation/links.yml`), sharing the negative control,
-  held-out validations and verdicts fixed in advance:
-  - **deterministic** (ADR-0110);
-  - **probabilistic** (ADR-0111): evidence in bits, error channels learned
-    from leave-one-field-out anchors, u from 200,000 random pairs, threshold
-    by measured false-match rate, vectorised for national candidate sets.
-  - **ADR-0113:** a pair must be each side's clear best (log2(19) bits), and
-    verdicts use the 95% upper bound, so ties and small samples are refused.
-  - **ADR-0114:** every block keeps an identifying key; typo-variant blocks
-    exist and are used only where they add links.
-  - **ADR-0115:** residence is scored given the place of care. Agreement
-    away from the hospital weighs about 4.7 bits; at it, 0.5–1.9 bits.
-  - **ADR-0117:**
-    - a newborn admission's ICD-10 P07 codes weigh against the birth's
-      weight and weeks;
-    - a level no anchor showed never counts for a match.
-- **Five spine links and two private-sector links, 2022:**
-  - viable (RR, AC): SIH deaths → SIM, infant deaths → SINASC, deliveries →
-    SIH;
-  - viable in SE: newborn admissions → SINASC, 406 pairs (ADR-0117). RR and
-    AC certify only with caution; 89% of newborn admissions carry no size
-    code (OQ-62);
-  - not certifiable per state: maternal deaths (too few), but viable
-    nationally;
-  - CIHA (non-SUS) deaths → SIM and births → CIHA deliveries: viable in SE.
-    The timeline shows non-SUS deliveries.
-  
-  omnisus's RR study is reproduced to the pair.
-- **National, 2022: all seven links viable** under the current engine
-  (probabilistic; EVALUATION 2026-09-30 "National linkage, 2022"):
+**The theory** (`docs/plans/linkage-theory.md`; accepted 2026-10-03; what
+executing it taught is in §11) is executed through T1–T5:
 
-  | link | pairs | FDR upper 95% |
-  |---|---|---|
-  | SIH deaths → SIM | 545,135 of 605,542 (90.0%) | 0.24% |
-  | deliveries → SIH | 1,505,192 of 2,520,744 (59.7%) | 0.49% |
-  | infant deaths → SINASC | 23,848 of 28,217 (84.5%) | 0.17% |
-  | newborn admissions → SINASC | 67,340 of 389,471 (17.3%) | 1.07% |
-  | maternal deaths → SIH | 845 of 1,640 (51.5%) | 1.71% |
-  | CIHA deaths → SIM | 55,983 of 98,211 (57.0%) | 0.25% |
-  | births → CIHA deliveries | 193,335 (7.7% of births) | 0.95% |
+- **T1, records and the lake.**
+  - Linkage reads the lake through role tables. They are cached per scope;
+    a national table is built state by state when the lake holds only state
+    partitions.
+  - A record's identity is the hash of its own fields, numbered for exact
+    duplicates within a file (ADR-0124). It is the same in the national and
+    the state publication.
+  - CIHA publishes 735,049 duplicate rows.
+- **T2, scope invariance.**
+  - A slice is linked against the national partner side, with national u,
+    error channels per state shrunk toward the nation's (ADR-0123), and the
+    national threshold and calibration.
+  - Measured: SE, RR and SP give exactly the national run's pairs (SP
+    133,476 of 133,476).
+- **Impossibility as learned evidence** (ADR-0121): event order and
+  category pairs as comparisons whose weight the data set.
+  - It gains maternal deaths (+188).
+  - For SIH deaths it drops 3,279 pairs that look true, which is unresolved
+    (EVALUATION 2026-10-03).
+- **Padded partner periods** (ADR-0121): infant deaths and newborn
+  admissions read SINASC one year back. Infant deaths: 23,845 → 25,982
+  pairs.
+- **T3, entities.**
+  - `build_entities()` merges links into persons, with uniqueness
+    constraints.
+  - The newborn link inherits the mother's delivery AIH, which doubled
+    Sergipe's pairs.
+- **T4, settings as annotators.** SIH's excess "asian" is two hospital
+  practices: a default fill (04 for everyone), and SIM's code for brown
+  written into SIH (one hospital, fixed in September 2022). Nothing is
+  relabelled (OQ-66).
+- **T5.** `p_match` on every pair (a calibrated local false-match rate);
+  `link_draws()`.
+- **Discovery** (ADR-0119): a placebo-checked search over typed fields finds
+  the hand-written keys. SIH and CIHA share 0.4% of persons.
 
-  Deterministic, for comparison: SIH deaths 84.9%, infant deaths 74.1%,
-  deliveries 60.1%.
-- **Link discovery (ADR-0119).** Given only typed fields, a placebo-checked
-  search finds the hand-written keys of deliveries and in-hospital deaths
-  (SIH and CIHA), and infant deaths through birth weight, which it picks on
-  its own. Staged by default: the same best key from 207 keys in 2 minutes
-  instead of 2,016 in 26. Race is held out.
-- **The linkage theory is being executed** (`docs/plans/linkage-theory.md`,
-  accepted 2026-10-03; ADR-0120; what execution taught is its §11):
-  - **T1, the lake.** Linkage reads the lake through cached role tables.
-    Records carry a content key (`_record_key`), the same whichever
-    publication is read (OQ-65).
-  - **T2, scope invariance.** A slice linked against the nation, with
-    national u, pooled m and the national calibration, reproduces the
-    national run's pairs (SP 99.97%).
-  - **The placebo shifts every left date.**
-  - **T3, entities.** `build_entities()` merges links into persons;
-    inherited evidence (`inherit:`) doubled Sergipe's newborn link (410 →
-    828 pairs, FDR 0.36%).
-  - **T4, settings as annotators.** Race is modelled per setting
-    (`annotators.py`).
-  - **T5, linkage error into analyses.** `p_match` on every pair;
-    `link_draws()`.
-  - **Running:** the national lake rebuild with record keys, the seven
-    national links, the scope test, entities, race, and SIH ~ CIHA discovery.
-- **Impossible pairs** (a death before the admission, a death at home) are
-  mostly recording errors in true pairs. They become learned, flagged
-  evidence, not rules.
-- **CIHA's residence field** records the hospital's municipality for
-  85–100% of mothers and 85–92% of deceased who live elsewhere, tested against
-  SINASC and SIM on linked pairs (EVALUATION 2026-09-30, two entries). The
-  first version of this claim rested on a match rate alone and was corrected
-  after the user challenged it.
-- **Surfaces.**
-  - `link(method=…)`, `role_table()`, `pegasus-data link`;
-  - results persisted in `<lake>/links/` and reused (ADR-0112);
-  - `serve/` routes `/links` and `/links/timeline` (timelines behind
-    `--allow-records`);
-  - live scenarios `linkage` and `timeline`.
-  - The frontend is out of scope (user, 2026-09-30).
-- **National measurements** (EVALUATION 2026-09-30):
-  - bits of identity for SINASC, SIM, SIH, CIHA;
-  - SIA error channels (59.9% of one-digit date errors on adjacent keys);
-  - travel flows by care type (oncology 46% in its own municipality);
-  - SIH ∪ CIHA nearly disjoint (0.18% overlap);
-  - join grains (OQ-20).
-- **Meaning fixes found on the way:**
-  - SINASC `LOCNASC` 5 is *Aldeia indígena* (1,966 births in 2022 read
-    "Ignorado");
-  - SIH `IDENT` from the layout;
-  - SIH-SP `SERV_CLA` 000000 reads "Nenhum serviço/classificação
-    registrado" (missing only where the procedure requires a service);
-  - SIM `IDADE` 001–099 are minutes (the TabWin table said "Ignorado": 2,598
-    deaths in 2022);
-  - SIM `TABPAIS` codes named twice keep both names;
-  - `CLASSI_FIN` texts corrected for 22 SINAN datasets that lack it in some
-    or all files;
-  - SINAN `ORIGEM` described from measurement, not inference;
-  - `info()` marks each description's source; 504 inferred ones read as
-    unverified (ADR-0116, OQ-64);
-  - 1990s SIH V-codes decoded;
-  - national queries of per-state datasets;
-  - provenance under `select=`;
-  - uncoded columns and out-of-period tables no longer warn.
+**National, 2022** (the latest runs: record keys, per-state channels,
+ADR-0121 specs):
+
+| link | pairs | FDR upper 95% | minutes |
+|---|---|---|---|
+| SIH deaths → SIM | 548,033 (90.5%) | 1.03% | 3.3 |
+| deliveries → SIH | 1,533,023 (60.8%) | 0.74% | 13.3 (before the speed-up) |
+| infant deaths → SINASC (2021 padded) | 25,982 (81.0%) | 0.79% | 4.8 |
+| newborn admissions → SINASC (2021 padded, inherited AIH) | 79,272 (20.4%) | 1.07% | 2.4 |
+| maternal deaths → SIH | 1,058 (64.5%) | 1.61% | 2.2 |
+| CIHA deaths → SIM | 60,720 (61.8%) | 1.03% | 7.9 (CIHA role table uncached; fixed) |
+| births → CIHA deliveries | 195,761 (7.8%) | 0.99% | 11.3 (same) |
+
+**Speed** (EVALUATION 2026-10-03 "Performance pass"), each change checked
+identical to the code it replaced:
+- the SP slice of SIH deaths takes 274.5 → 41.9 s;
+- a cold CIHA role build 26.2 → 14.2 s;
+- the lake build of CIHA 2022, 182 → 96 s;
+- linkage DuckDB is capped at 40% of RAM.
+
+**Data sources.**
+- The DATASUS FTP data channel has dropped every passive connection since
+  2026-10-03 (control still answers).
+- The fetcher falls back to a byte-identical public mirror, checked against
+  the listed size and recorded as `mirror:<url>` (ADR-0122).
+  `data/probes/ftp/data_channel.jsonl` records when the channel returns.
+
+**Meaning fixes found on the way** (unchanged): SINASC `LOCNASC` 5, SIH
+`IDENT`, SIH-SP `SERV_CLA` 000000, SIM `IDADE` minutes, `TABPAIS`,
+`CLASSI_FIN`, SINAN `ORIGEM`, inferred descriptions marked (ADR-0116,
+OQ-64), 1990s SIH V-codes.
+
+**Open in linkage:**
+- why the impossibility evidence drops 3,279 plausible SIH-death pairs
+  (`scripts/link_pair_fate.py`);
+- a coverage prior (coverage varies by stratum; not yet shown to add to
+  the evidence);
+- flagging unreliable race settings (OQ-66).
 
 ## Done (live-verified)
 

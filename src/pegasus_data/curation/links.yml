@@ -47,6 +47,8 @@ links:
         - [admission.end, death.date]
         - [admission.facility, death.facility]
         - [patient.residence, deceased.residence, {given: admission.facility_municipality, side: left}]
+        - [admission.start, death.date, {kind: order}]        # a death before the stay began (ADR-0121)
+        - [admission.death, death.place, {kind: joint}]       # where SIM says the death happened
       blocks:
         - [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
         - [[admission.end, death.date], [admission.facility, death.facility]]
@@ -55,16 +57,17 @@ links:
 
   sim_infant_deaths_to_sinasc:
     description: >
-      Deaths before one year of life, of children born in the death's year, to
+      Deaths before one year of life, to
       their birth record. Both files are organised by residence, so almost every
       such death should have a birth: the linked share approximates sensitivity.
     person: [deceased, baby]   # the same person on each side (linkage/entities.py)
     left:
       dataset: SIM-DO
       where: >
-        year("deceased.birth_date") = year("death.date")
-        AND "death.date" - "deceased.birth_date" < 365
-    right: {dataset: SINASC-DN}
+        "death.date" - "deceased.birth_date" < 365
+    # A baby who died in January may have been born the December before: the
+    # birth is in last year's file (ADR-0121; was a same-year filter).
+    right: {dataset: SINASC-DN, pad_years: [1, 0]}
     passes:
       - name: birth date, sex, residence, weight
         keys: [[deceased.birth_date, baby.birth_date], [deceased.sex, baby.sex],
@@ -162,6 +165,8 @@ links:
         - [death.date, admission.end]
         - [death.facility, admission.facility]
         - [deceased.residence, patient.residence]
+        - [death.date, admission.start, {kind: order}]        # ADR-0121
+        - [death.place, admission.death, {kind: joint}]
       blocks:
         - [[deceased.birth_date, patient.birth_date]]
         - [[death.date, admission.end], [death.facility, admission.facility]]
@@ -174,7 +179,7 @@ links:
       and usually the hospital of birth.
     person: [patient, baby]   # the same person on each side (linkage/entities.py)
     left: {dataset: SIH-RD, where: "\"patient.age_years\" < 0.0767 AND \"admission.start\" - \"patient.birth_date\" <= 28"}
-    right: {dataset: SINASC-DN}
+    right: {dataset: SINASC-DN, pad_years: [1, 0]}   # born in late December, admitted in January (ADR-0121)
     passes:
       - name: birth date, sex, hospital, residence
         keys: [[patient.birth_date, baby.birth_date], [patient.sex, baby.sex],
@@ -240,6 +245,8 @@ links:
         - [admission.end, death.date]
         - [admission.facility, death.facility]
         - [patient.residence, deceased.residence, {given: admission.facility_municipality, side: left}]
+        - [admission.start, death.date, {kind: order}]        # a death before the stay began (ADR-0121)
+        - [admission.death, death.place, {kind: joint}]       # where SIM says the death happened
       blocks:
         - [[patient.birth_date, deceased.birth_date], [patient.sex, deceased.sex]]
         - [[admission.end, death.date], [admission.facility, death.facility]]

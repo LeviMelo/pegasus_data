@@ -134,3 +134,14 @@ quarter of what is left).
   `linkage/identity.py`. While they lived in `roles.py`, which the cache
   key fingerprints, each edit to them tonight threw away every cached
   national table.
+- **Anchors by grouping.** The relaunched newborn link, sampled with
+  py-spy, was inside the anchor query: leaving the birth date out joined
+  each newborn admission to every birth of its sex in its hospital before
+  keeping the 1:1 pairs.
+  - With equality keys, a record has one partner exactly when the other
+    side's key group has one record. Each side is now grouped, and only
+    singleton groups are joined. Interval keys keep the join.
+  - SE SIH deaths: identical pairs and bits.
+  - **The national newborn link then ran in 2.4 minutes**
+    (`data/logs/after3.done`): 79,272 pairs, FDR upper 95% 1.07%. Before,
+    it had been stopped twice at 18–25 GB.
