@@ -11,7 +11,8 @@ import hashlib
 import json
 import uuid
 from collections.abc import Callable, Iterator, Mapping, Sequence
-from dataclasses import dataclass, field
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field, fields
 from pathlib import PurePosixPath
 from typing import Any
 
@@ -57,6 +58,16 @@ class BuildStats:
     errors: list[tuple[str, str]] = field(default_factory=list)
     representations_deduplicated: int = 0
     representation_conflicts: list[str] = field(default_factory=list)
+
+    def merge(self, other: BuildStats) -> None:
+        """Add another build's counts (a partition built on another thread)."""
+        for f in fields(other):
+            name, value = f.name, getattr(other, f.name)
+            mine = getattr(self, name)
+            if isinstance(mine, list):
+                mine.extend(value)
+            else:
+                setattr(self, name, mine + value)
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -135,6 +146,14 @@ class Builder:
             compression=self.settings.compression,
             row_group_size=self.settings.row_group_size,
         )
+
+    def _partition_workers(self) -> int:
+        """How many partitions build at once: as many as the decoder pool has
+        processes (decode_source sizes it the same way). In-process decoding
+        holds the GIL, so it stays one at a time."""
+        if not self.settings.decode_isolation:
+            return 1
+        return max(1, min(4, self.settings.fetch_concurrency))
 
     # ------------------------------------------------------------------ build
 
@@ -438,6 +457,7 @@ class Builder:
             schema_mismatch = 0
 
             plan_digest = plan_fingerprint(plan)
+            jobs = []
             for (uf, year), group in sorted(grouped.items()):
                 fingerprint = partition_fingerprint(plan_digest, group, digests)
                 if not rebuild and self.lake.partition_is_current(
@@ -450,19 +470,27 @@ class Builder:
                 ):
                     stats.partitions_reused += 1
                     continue
+                jobs.append((uf, year, group, fingerprint))
+
+            def build_one(job: tuple, family=family, family_id=family_id, plan=plan,
+                          digests=digests) -> tuple[_PartitionTally, BuildStats]:
+                uf, year, group, fingerprint = job
+                local = BuildStats()
                 tally = self._materialise_partition(
-                    family=family,
-                    family_id=family_id,
-                    plan=plan,
-                    uf=uf,
-                    year=year,
-                    group=group,
-                    digests=digests,
-                    registry=registry,
-                    fingerprint=fingerprint,
-                    stats=stats,
-                    on_file=on_file,
+                    family=family, family_id=family_id, plan=plan, uf=uf, year=year, group=group,
+                    digests=digests, registry=registry, fingerprint=fingerprint, stats=local, on_file=on_file,
                 )
+                return tally, local
+
+            # Partitions are independent (their own files, their own Parquet
+            # directory; the catalog serialises its writes): decode them on
+            # the decoder pool's processes at once. One at a time, a national
+            # SIH year took 298 s on a 20-core machine, decode-bound.
+            workers = self._partition_workers() if len(jobs) > 1 else 1
+            with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="partition") as pool:
+                results = list(pool.map(build_one, jobs))
+            for tally, local in results:
+                stats.merge(local)
                 undecoded += tally.undecoded
                 schema_mismatch += tally.mismatched
                 family_decoded += tally.decoded
