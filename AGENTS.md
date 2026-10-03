@@ -90,6 +90,14 @@ $PY scripts/live.py --list                        # the live scenarios (§5)
   is a defect; this project already has several (ARCHITECTURE §5).
 - **Carry the whole request.** Each instruction is done or reported as not
   done, with the reason.
+- **Never idle on a wait; work fronts in parallel** (user, 2026-10-03). While
+  a build, a national run or an agent is in progress, advance another task
+  that does not depend on it: other code, a measurement on data already at
+  hand, documentation of finished work. Disjoint fronts run concurrently
+  (detached processes, background agents). Before launching, check that the
+  process actually started, and watch it with a filter that catches
+  completion and failure alike, so a stalled or failed job is noticed rather
+  than waited on.
 - **Keep `../pegasus_view` working.** Its contract is `serve/` (`/health`,
   `/datasets`, `/datasets/{a}/capabilities`, `/population`, `/geo/membership`,
   `/records`). A change there is made in both repositories, or not at all.
