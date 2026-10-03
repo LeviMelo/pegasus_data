@@ -88,9 +88,13 @@ system's directory when the catalog has never seen that system
    - re-apply curation when the shipped YAML changed since the catalog was
      built (`_ensure_reference_tables`);
    - render labels (`render_groups.py` → `view.render_table`, §4).
-3. Back in the executor: `_query_engine/semantics.py` applies dimensions
-   (`MUNIC_RES.health_region`) and enrichments (CNES↔CNPJ, `crosswalk.py`), and
-   assembles a `QueryReport`. Labels are the renderer's, unfiltered (ADR-0061).
+3. Back in the executor: `_query_engine/semantics.py` applies dimensions and
+   enrichments (CNES↔CNPJ, `crosswalk.py`), and assembles a `QueryReport`.
+   - **Code roll-ups** (`CAUSABAS.chapter`) go through `joins.yml` relations
+     to label-pack codelists.
+   - **Municipality roll-ups** (`CODMUNRES.health_region_current`) go through
+     the membership pack, for any column `geography.yml` lists in
+     `municipality_fields` (ADR-0130). Labels are the renderer's, unfiltered (ADR-0061).
 
 `load()` and `scan()` (`api.py`) read the lake instead and render through the
 same `render_groups`.

@@ -213,9 +213,9 @@ not_established:
   - want: SIH delivery admissions linked to SINASC births
     proposed_key: none published
     finding: >
-      There is no shared key. Any link is probabilistic record linkage on
-      quasi-identifiers, which is a re-identification method rather than a join,
-      and is out of scope for this project.
+      There is no shared key, so it is not a join. It is a record linkage on the
+      properties both records state (curation/links.yml, `link()`), with its
+      error measured (ADR-0107, ADR-0111).
   - want: SISPRENATAL linked to SIH or SIA
     proposed_key: prenatal registration number / CNS
     finding: >
@@ -234,28 +234,11 @@ relations:
     target_type: municipality
     artifact: BR_MUNICIPALFA
     evidence: curated variable declaration
-  - system: SIHSUS
-    dataset: SIH.RD
-    field: MUNIC_RES
-    relation: rollup_to
-    target_type: health_region
-    target_name: health_region
-    # CIRBRN, not CIRAC. CIRAC is ACRE's 24-row slice of this classification and
-    # was declared here as the national roll-up, so
-    # `dimensions=["MUNIC_RES.health_region"]` resolved nothing outside Acre —
-    # Sao Paulo, Rio, Fortaleza and Belo Horizonte all came back unresolved.
-    # Same per-UF-table-applied-nationally defect as FINDINGS 3k, in relation
-    # form. CIRBRN carries 25,490 codes against CIRAC's 24.
-    artifact: CIRBRN
-    evidence: DATASUS TabNet dimension, explicitly a roll-up; national table
-  - system: SIHSUS
-    dataset: SIH.RD
-    field: MUNIC_RES
-    relation: attribute_of
-    target_type: capital_status
-    target_name: is_capital
-    artifact: CAPITAL
-    evidence: DATASUS TabNet dimension, explicitly an attribute
+  # Municipality roll-ups (health region, capital, IBGE regions, comparable
+  # areas) are not declared here: any column `geography.yml` names in
+  # `municipality_fields` rolls up to any classification of the membership
+  # pack. MUNIC_RES.health_region was a CIRBRN relation here and resolves
+  # through the pack now; MUNIC_RES.is_capital is MUNIC_RES.capital.
   - system: SIHSUS
     dataset: SIH.RD
     field: DIAG_PRINC
@@ -281,3 +264,131 @@ relations:
     source_namespace: CNES
     target_namespace: CNPJ
     evidence: compiled CADGER registry relation
+  # SIGTAP procedure hierarchy (2008 on; ADR-0131). CIHA uses the same
+  # codes but no CIHA definition file was read, so none is declared for it.
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: PROC_REA
+    relation: rollup_to
+    target_type: sigtap_group
+    target_name: procedure_group
+    artifact: TB_GRUPO
+    source_namespace: tabwin_leading
+    evidence: >
+      The system's own definition file tabulates PROC_REA through
+      TB_GRUPO.DBF (CO_GRUPO), and TabWin matches the code's leading
+      characters to the table's width (TAB_SIH RD2008.DEF lines 261-269). SIGTAP's code is
+      group (2), subgroup (2), form of organisation (2), sequence (3),
+      check digit.
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: PROC_REA
+    relation: rollup_to
+    target_type: sigtap_subgroup
+    target_name: procedure_subgroup
+    artifact: TB_SUBGR
+    source_namespace: tabwin_leading
+    evidence: >
+      The system's own definition file tabulates PROC_REA through
+      TB_SUBGR.DBF (CO_SUB_GRU), and TabWin matches the code's leading
+      characters to the table's width (TAB_SIH RD2008.DEF lines 261-269). SIGTAP's code is
+      group (2), subgroup (2), form of organisation (2), sequence (3),
+      check digit.
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: PROC_REA
+    relation: rollup_to
+    target_type: sigtap_form
+    target_name: procedure_form
+    artifact: TB_FORMA
+    source_namespace: tabwin_leading
+    evidence: >
+      The system's own definition file tabulates PROC_REA through
+      TB_FORMA.DBF (CO_FORMA), and TabWin matches the code's leading
+      characters to the table's width (TAB_SIH RD2008.DEF lines 261-269). SIGTAP's code is
+      group (2), subgroup (2), form of organisation (2), sequence (3),
+      check digit.
+  - system: SIHSUS
+    dataset: SIH.SP
+    field: SP_PROCREA
+    relation: rollup_to
+    target_type: sigtap_group
+    target_name: procedure_group
+    artifact: TB_GRUPO
+    source_namespace: tabwin_leading
+    evidence: >
+      The system's own definition file tabulates SP_PROCREA through
+      TB_GRUPO.DBF (CO_GRUPO), and TabWin matches the code's leading
+      characters to the table's width (TAB_SIH SP2008.DEF, "Grupo Proc. Principal"). SIGTAP's code is
+      group (2), subgroup (2), form of organisation (2), sequence (3),
+      check digit.
+  - system: SIHSUS
+    dataset: SIH.SP
+    field: SP_PROCREA
+    relation: rollup_to
+    target_type: sigtap_subgroup
+    target_name: procedure_subgroup
+    artifact: TB_SUBGR
+    source_namespace: tabwin_leading
+    evidence: >
+      The system's own definition file tabulates SP_PROCREA through
+      TB_SUBGR.DBF (CO_SUB_GRU), and TabWin matches the code's leading
+      characters to the table's width (TAB_SIH SP2008.DEF, "Grupo Proc. Principal"). SIGTAP's code is
+      group (2), subgroup (2), form of organisation (2), sequence (3),
+      check digit.
+  - system: SIHSUS
+    dataset: SIH.SP
+    field: SP_PROCREA
+    relation: rollup_to
+    target_type: sigtap_form
+    target_name: procedure_form
+    artifact: TB_FORMA
+    source_namespace: tabwin_leading
+    evidence: >
+      The system's own definition file tabulates SP_PROCREA through
+      TB_FORMA.DBF (CO_FORMA), and TabWin matches the code's leading
+      characters to the table's width (TAB_SIH SP2008.DEF, "Grupo Proc. Principal"). SIGTAP's code is
+      group (2), subgroup (2), form of organisation (2), sequence (3),
+      check digit.
+  - system: SIASUS
+    dataset: SIA.PA
+    field: PA_PROC_ID
+    relation: rollup_to
+    target_type: sigtap_group
+    target_name: procedure_group
+    artifact: TB_GRUPO
+    source_namespace: tabwin_leading
+    evidence: >
+      The system's own definition file tabulates PA_PROC_ID through
+      TB_GRUPO.DBF (CO_GRUPO), and TabWin matches the code's leading
+      characters to the table's width (TAB_SIA Producao_Ambulatorial.DEF lines 80-88). SIGTAP's code is
+      group (2), subgroup (2), form of organisation (2), sequence (3),
+      check digit.
+  - system: SIASUS
+    dataset: SIA.PA
+    field: PA_PROC_ID
+    relation: rollup_to
+    target_type: sigtap_subgroup
+    target_name: procedure_subgroup
+    artifact: TB_SUBGR
+    source_namespace: tabwin_leading
+    evidence: >
+      The system's own definition file tabulates PA_PROC_ID through
+      TB_SUBGR.DBF (CO_SUB_GRU), and TabWin matches the code's leading
+      characters to the table's width (TAB_SIA Producao_Ambulatorial.DEF lines 80-88). SIGTAP's code is
+      group (2), subgroup (2), form of organisation (2), sequence (3),
+      check digit.
+  - system: SIASUS
+    dataset: SIA.PA
+    field: PA_PROC_ID
+    relation: rollup_to
+    target_type: sigtap_form
+    target_name: procedure_form
+    artifact: TB_FORMA
+    source_namespace: tabwin_leading
+    evidence: >
+      The system's own definition file tabulates PA_PROC_ID through
+      TB_FORMA.DBF (CO_FORMA), and TabWin matches the code's leading
+      characters to the table's width (TAB_SIA Producao_Ambulatorial.DEF lines 80-88). SIGTAP's code is
+      group (2), subgroup (2), form of organisation (2), sequence (3),
+      check digit.

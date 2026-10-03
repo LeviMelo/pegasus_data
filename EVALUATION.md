@@ -146,3 +146,4 @@ in.
 | 2026-10-03 | [Contested health regions against TabNet's current table](docs/evaluation/2026-10-03-health-region-conflicts-against-tabnet.md) | measurement (geography pack; TabNet territorial table) |
 | 2026-10-03 | [IBGE's regions across 31 years of territorial divisions: no municipality ever moved](docs/evaluation/2026-10-03-ibge-regions-across-vintages.md) | measurement (IBGE DTB 1994-2025; geography pack) |
 | 2026-10-03 | [Census fields: sanitation, literacy and population by race (2010, 2022)](docs/evaluation/2026-10-03-census-2022-fields.md) | live (IBGE aggregates API; fresh home) |
+| 2026-10-03 | [Municipality and procedure dimensions, checked against TabNet](docs/evaluation/2026-10-03-municipality-and-procedure-dimensions.md) | live (SIM-DO SE 2022, SIH-RD SE 2022-01; TabNet) |

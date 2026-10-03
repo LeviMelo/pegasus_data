@@ -12,6 +12,10 @@ from ..crosswalk import EnrichmentReport, EnrichmentRequest
 from .model import QueryPlan, QueryReport, SemanticFallbackWarning
 from .planner import CNES_ATTRIBUTE_FIELDS
 
+#: ``source_namespace`` of a relation whose table holds shorter codes than the
+#: field, matched on the field's leading characters as TabWin does.
+TABWIN_LEADING = "tabwin_leading"
+
 
 def _apply_dimensions(
     table: pa.Table, query_plan: QueryPlan, report: QueryReport, settings: Settings
@@ -41,7 +45,8 @@ def _apply_dimensions(
             ]
             declared = [item for item in declared if item.target_name == request.name]
             if not declared:
-                raise KeyError(f"no declared dimension {request.field}.{request.name}")
+                output = _geography_dimension(output, request, query_plan.retrieval.system, report)
+                continue
             if request.field not in output.column_names:
                 raise KeyError(f"{request.field}: required dimension source is absent")
             codes = output[request.field].to_pylist()
@@ -50,8 +55,14 @@ def _apply_dimensions(
             values: list[object] = []
             artifacts: set[str] = set()
             unresolved_relation = 0
+            # The effective relations depend on the vintage only; resolving
+            # them per row queried the catalog for every month of every row.
+            effective_by_vintage: dict[object, list] = {}
             for code, vintage in zip(codes, vintages, strict=True):
-                if vintage is None:
+                vintage_key = (vintage.start, vintage.end) if vintage is not None else None
+                if vintage_key in effective_by_vintage:
+                    relations = effective_by_vintage[vintage_key]
+                elif vintage is None:
                     relations = [
                         item
                         for item in declared
@@ -92,6 +103,7 @@ def _apply_dimensions(
                     relations = list(monthly_relations[0]) if monthly_relations else []
                     if any(value != monthly_relations[0] for value in monthly_relations[1:]):
                         relations = []
+                effective_by_vintage[vintage_key] = relations
                 if len(relations) > 1:
                     raise KeyError(
                         f"multiple effective relations for {request.field}.{request.name} "
@@ -148,9 +160,15 @@ def _apply_dimensions(
                         for source_code, label in first.items()
                         if all(mapping.get(source_code) == label for mapping in mappings[1:])
                     }
-                values.append(
-                    lookups[key].get(str(code).strip()) if code is not None else None
-                )
+                text = str(code).strip() if code is not None else None
+                if text and relation.source_namespace == TABWIN_LEADING:
+                    # The source's own .DEF maps the field through a table of
+                    # shorter codes (RD2008.DEF: PROC_REA through TB_GRUPO);
+                    # TabWin matches the leading characters to the table's
+                    # code width. Only a relation that says so is read this way.
+                    widths = {len(k) for k in lookups[key]}
+                    text = text[:widths.pop()] if len(widths) == 1 else None
+                values.append(lookups[key].get(text) if text else None)
             name = f"{request.field}_{request.name}"
             output = output.append_column(name, pa.array(values, pa.string()))
             report.dimensions.append(
@@ -173,6 +191,69 @@ def _apply_dimensions(
         if catalog is not None:
             catalog.close()
     return output
+
+
+def _geography_dimension(table: pa.Table, request: object, system: str, report: QueryReport) -> pa.Table:
+    """A municipality column rolled up through the membership pack.
+
+    The field must be declared a municipality column for the system
+    (``geography.yml`` ``municipality_fields``) and the name a classification
+    of the pack. Vintage-exact as the codelist path is: the membership is
+    resolved for every month of the record's interval, and a month that
+    disagrees with another, or a classification the publishing systems
+    contest, yields null and is counted, never chosen.
+    """
+    from ..geography import classification_names, memberships, municipality_fields
+
+    field, name = request.field, request.name  # type: ignore[attr-defined]
+    if field.upper() not in municipality_fields(system) or name not in classification_names():
+        raise KeyError(f"no declared dimension {field}.{name}")
+    if field not in table.column_names:
+        raise KeyError(f"{field}: required dimension source is absent")
+    cache: dict[tuple[str, int | None], tuple[str | None, bool]] = {}
+
+    def at(code: str, month: int | None) -> tuple[str | None, bool]:
+        key = (code, month)
+        if key not in cache:
+            found = memberships(code, system=system, vintage=month)
+            member = next((m for m in found.memberships if m.classification == name), None)
+            cache[key] = (member.member_label if member else None,
+                          bool(member and member.contested))
+        return cache[key]
+
+    values: list[str | None] = []
+    unresolved = contested = 0
+    for code, vintage in zip(table[field].to_pylist(), source_vintages(table), strict=True):
+        text = str(code or "").strip()
+        if not text.isdigit() or len(text) not in (6, 7):
+            values.append(None)
+            unresolved += text != ""
+            continue
+        months = months_in(vintage) if vintage is not None else (None,)
+        answers = {at(text, month) for month in months}
+        if any(flag for _, flag in answers):
+            values.append(None)
+            contested += 1
+        elif len(answers) == 1:
+            label = next(iter(answers))[0]
+            values.append(label)
+            unresolved += label is None
+        else:
+            values.append(None)
+            unresolved += 1
+    table = table.append_column(f"{field}_{name}", pa.array(values, pa.string()))
+    report.dimensions.append({
+        "request": f"{field}.{name}", "relation": "membership pack (geography.parquet)",
+        "artifacts": ["geography.parquet"], "vintage": "every month of the source interval",
+        "unresolved_vintage_rows": unresolved, "contested_rows": contested,
+    })
+    for count, why in ((unresolved, "no membership for the code at its vintage"),
+                       (contested, "the publishing systems contest the membership; name the system's own table")):
+        if count:
+            message = f"{field}.{name}: {count} row(s): {why}; derived values are null"
+            report.warnings.append(message)
+            warnings.warn(message, SemanticFallbackWarning, stacklevel=3)
+    return table
 
 
 def _enrichment_output_name(request: EnrichmentRequest) -> str:

@@ -32,8 +32,10 @@ Row-level dimension derivation stays with
 ``_query_engine.semantics._apply_dimensions``, which is vintage-EXACT — it
 re-resolves the relation per competência, refuses when the effective relation
 differs across the months of an interval, and checks
-``packed_mapping_covers_interval`` before using a table. This module's window
-check is coarser and must never be used where that one applies.
+``packed_mapping_covers_interval`` before using a table. A municipality
+dimension read from this pack (``municipality_fields``) keeps that rule: it
+calls ``memberships`` for every month of the record's interval and yields
+nothing when the months disagree.
 
 The two agree because ``curation/geography.yml`` is the single authority for
 which codelist carries which classification, and
@@ -54,6 +56,8 @@ from pathlib import Path
 from typing import Any
 
 __all__ = [
+    "classification_names",
+    "municipality_fields",
     "Membership",
     "MembershipSet",
     "build_geography_pack",
@@ -185,6 +189,24 @@ def _curation_root(root: Path | None = None) -> Path:
     from .ontology import CURATION
 
     return CURATION
+
+
+def municipality_fields(system: str, root: Path | None = None) -> frozenset[str]:
+    """Columns of ``system`` whose values are municipality codes (``geography.yml``)."""
+    from .ontology import _read_yaml
+
+    data = _read_yaml(_curation_root(root) / "geography.yml") or {}
+    declared = data.get("municipality_fields") or {}
+    return frozenset(str(f).upper() for f in declared.get(str(system).upper(), ()) or ())
+
+
+def classification_names(pack_path: str | Path | None = None) -> frozenset[str]:
+    """The classifications the shipped membership pack holds."""
+    path = _pack_path(pack_path)
+    if path is None:
+        return frozenset()
+    table = _pack(str(path))
+    return frozenset(str(v) for v in table.column("classification").unique().to_pylist())
 
 
 def classifications(root: Path | None = None, *, authority: str | None = None

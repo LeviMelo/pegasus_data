@@ -277,3 +277,20 @@ excluded:
     reason: >
       17% conflict. BR_REGMETR carries the same classification at 1% and is
       compiled instead.
+
+# Columns whose values are municipality codes, per system. Any of them rolls up
+# to any classification above, in a query: dimensions=["CODMUNRES.health_region_current"].
+# Declared rather than read from the catalog's codelist bindings, which also
+# bind CONTADOR, CODINST, MED_QUIMIO and NM_MUNIC_H (a name) to municipality
+# tables (2026-10-03): a roll-up of a column that is not a municipality code
+# would put a counter in a region.
+municipality_fields:
+  SIM: [CODMUNRES, CODMUNOCOR, CODMUNNATU, CODMUNCART, COMUNSVOIM, MUNIRES, MUNIOCOR]
+  SINASC: [CODMUNRES, CODMUNNASC, CODMUNNATU, CODMUNCART]
+  SIHSUS: [MUNIC_RES, MUNIC_MOV, SP_M_HOSP, SP_M_PAC]
+  CIHA: [MUNIC_RES, MUNIC_MOV]
+  CIH: [MUNIC_RES, MUNIC_MOV]
+  SIASUS: [PA_UFMUN, PA_MUNPCN, AP_UFMUN, AP_MUNPCN]
+  CNES: [CODUFMUN]
+  SINAN: [ID_MUNICIP, ID_MN_RESI, COMUNINF]
+  RESP: [CODMUNRES, CODMUNNOT]
