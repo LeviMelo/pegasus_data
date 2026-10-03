@@ -54,7 +54,13 @@ from .model import MISSING, Comparison, FieldModel, threshold_for
 from .roles import dataset_roles, role_table
 
 CONTROL_SHIFT_DAYS = 400
-RANDOM_PAIRS = 200_000
+#: Random pairs for chance agreement (u). 200,000 pairs over 50,000-record
+#: reservoirs left "birth date equal" (u about 5e-5, a dozen occurrences) with
+#: 0.76 bits of sampling noise between seeds, enough to move thousands of
+#: national pairs at the threshold (2026-10-03). Drawn over the whole of both
+#: sides, 20 million pairs gave it 0.024 bits across five seeds (50 s); 10
+#: million halve the time for about 0.035 bits.
+RANDOM_PAIRS = 10_000_000
 #: Weight of the national m against a run's own anchors (empirical-Bayes
 #: shrinkage with a fixed prior strength; a run with 200 anchors is half its own).
 POOL_PSEUDO_ANCHORS = 200
@@ -520,13 +526,6 @@ def _anchor_sql(others: list[Comparison], control_role: str, shift: bool) -> tup
                QUALIFY count(*) OVER (PARTITION BY l) = 1 AND count(*) OVER (PARTITION BY r) = 1""", True
 
 
-def _levels_of(con, sql: str, compare) -> list[np.ndarray]:
-    table = con.execute(sql).fetch_arrow_table()
-    if not table.num_rows:
-        return [np.array([], dtype=object) for _ in compare]
-    return _batch_levels(table.combine_chunks().to_batches()[0], compare)
-
-
 def _by_setting(comp: Comparison, levels_: np.ndarray, settings: np.ndarray, reference: dict[str, float],
                 overall: FieldModel) -> dict[str, FieldModel]:
     """One channel per setting: the setting's anchors shrunk toward
@@ -596,19 +595,19 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     # 32-character ids and re-deduplicated the whole view (57% of a link's
     # time was SQL, profile 2026-10-03). The record ids come back at the end.
     ids = {name: _materialise(con, name) for name in ("L", "R")}
-    # u: 200,000 random pairs over up to 50,000 distinct records per side,
-    # paired by position with a stride: diverse on both sides and repeatable.
-    # A 2,000 x 100 rectangle rested u on 100 right records, and one AC run
-    # moved from 198 to 173 pairs between two draws (2026-09-30).
+    # u: RANDOM_PAIRS pairs drawn uniformly over both whole sides by hashing
+    # an index into the integer ids (0..n-1, ordered by record id): a function
+    # of the record sets alone, not of the order rows were scanned in, and
+    # counted batch by batch. It replaces 50,000-record reservoirs paired by a
+    # stride, whose draw moved with the row order.
     random_pairs = f"""
-        WITH l AS (SELECT _id, row_number() OVER () - 1 AS i
-                   FROM (SELECT DISTINCT _id FROM L USING SAMPLE reservoir(50000 ROWS) REPEATABLE (107))),
-             r AS (SELECT _id, row_number() OVER () - 1 AS i
-                   FROM (SELECT DISTINCT _id FROM R USING SAMPLE reservoir(50000 ROWS) REPEATABLE (107))),
-             n AS (SELECT (SELECT count(*) FROM l) AS nl, (SELECT count(*) FROM r) AS nr),
-             g AS (SELECT k % n.nl AS li, (k * 7919) % n.nr AS ri FROM range({RANDOM_PAIRS}) t(k), n)
-        SELECT l._id AS l, r._id AS r FROM g JOIN l ON l.i = g.li JOIN r ON r.i = g.ri"""
-    random_levels = _levels_of(con, _select_values("L", random_pairs, prob.compare), prob.compare)
+        WITH n AS (SELECT (SELECT count(*) FROM L) AS nl, (SELECT count(*) FROM R) AS nr)
+        SELECT CAST(hash(k, 1) % n.nl AS BIGINT) AS l, CAST(hash(k, 2) % n.nr AS BIGINT) AS r
+        FROM range({RANDOM_PAIRS}) t(k), n"""
+    # A slice decides with the nation's u (``_pool``): drawing its own is waste.
+    national_u = bool(national and national.get("models"))
+    random_u = ([({}, 0)] * len(prob.compare) if national_u
+                else _distributions_stream(con, _select_values("L", random_pairs, prob.compare), prob.compare))
     # An evidence-only comparison (an inherited AIH, a P07 code) learns its
     # chance agreement among the real candidates: the records the blocks put
     # beside a record (same hospital, same day), all but one of them
@@ -634,7 +633,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     models: list[FieldModel] = []
     per_setting: list[dict[str, FieldModel]] = []
     for i, comp in enumerate(prob.compare):
-        u, n_u = candidate_u[comp.name] if comp.name in candidate_u else _distribution(random_levels[i])
+        u, n_u = candidate_u[comp.name] if comp.name in candidate_u else random_u[i]
         others = [c for c in prob.compare if c is not comp and c.is_key]
         anchor_sql, _ = _anchor_sql(others, prob.control_role, shift=False)
         control_sql, has_control = _anchor_sql(others, prob.control_role, shift=True)
