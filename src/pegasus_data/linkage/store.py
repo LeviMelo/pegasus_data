@@ -34,8 +34,12 @@ def _spec_digest(name: str) -> str:
 
 
 def _scope(value: object) -> str:
+    """A scope as a file-name part; nested scopes (a period and its partner's
+    padded period) flatten: "2022-2021-2022". Formatting the inner tuple with
+    str() put quotes and parentheses in the file name, and a SQL read of it
+    failed (2026-10-03)."""
     if isinstance(value, (list, tuple)):
-        return "-".join(str(v) for v in value)
+        return "-".join(_scope(v) for v in value)
     return str(value)
 
 

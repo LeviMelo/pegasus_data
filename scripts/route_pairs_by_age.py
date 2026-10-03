@@ -42,20 +42,21 @@ def main(period: str, geo: str) -> None:
                   allow_not_viable=True, allow_partial=True).pairs
     sih = role_table("SIH-RD", period=period, geography=geo, roles=["admission.start", "admission.death"],
                      allow_partial=True)
-    births = role_table("SINASC-DN", period=period, geography=geo, roles=["baby.birth_date"], allow_partial=True)
+    # Births one year back too: the newborn and infant-death links read SINASC padded (ADR-0121).
+    births = role_table("SINASC-DN", period=(str(int(period) - 1), period), geography=geo, roles=["baby.birth_date"],
+                        allow_partial=True)
     con = duckdb.connect()
     con.register("p", pairs)
     con.register("d", direct.select(["l", "r"]))
     con.register("s", pa.table({"id": record_ids(sih), "start": sih.column("admission.start"),
                                 "death": sih.column("admission.death")}))
     con.register("b", pa.table({"id": record_ids(births), "born": births.column("baby.birth_date")}))
-    # Entity nodes are "dataset|role|record"; the record id is the last part.
     con.execute("""CREATE TEMP TABLE j AS
-        SELECT split_part(p.l, '|', 3) AS l, split_part(p.r, '|', 3) AS r,
+        SELECT p.l AS l, p.r AS r,
                d.l IS NOT NULL AS direct, s.death = '1' AS ended_in_death,
                CAST(s.start - b.born AS INTEGER) AS days
-        FROM p LEFT JOIN d ON d.l = split_part(p.l, '|', 3) AND d.r = split_part(p.r, '|', 3)
-        LEFT JOIN s ON s.id = split_part(p.l, '|', 3) LEFT JOIN b ON b.id = split_part(p.r, '|', 3)""")
+        FROM p LEFT JOIN d ON d.l = p.l AND d.r = p.r
+        LEFT JOIN s ON s.id = p.l LEFT JOIN b ON b.id = p.r""")
     total = con.execute("SELECT count(*), count(*) FILTER (WHERE direct) FROM j").fetchone()
     rows = con.execute(f"""SELECT CASE WHEN direct THEN 'direct' ELSE 'through other links' END AS route,
             {BANDS} AS age, ended_in_death, count(*) FROM j GROUP BY ALL ORDER BY 1, 2, 3""").fetchall()
