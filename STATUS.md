@@ -64,17 +64,30 @@ continues on branch **`linkage`**: record linkage across systems, planned in
   deliveries 60.1%.
 - **Link discovery (ADR-0119).** Given only typed fields, a placebo-checked
   search finds the hand-written keys of deliveries and in-hospital deaths
-  (SIH and CIHA) and infant deaths (through birth weight, which it picks on
-  its own) at 0.5–13% of the probabilistic yields.
-- **A unified theory of linkage is proposed** (`docs/plans/linkage-theory.md`,
-  for discussion). It covers latent entities, field-kind channels with
-  hierarchical parameters, a coverage prior with national frequencies (scope
-  invariance), collective resolution in which entities gain fields, discovery
-  as structure learning, race held out and modelled per setting, and an
-  end-to-end placebo. Nothing in it is decided.
+  (SIH and CIHA), and infant deaths through birth weight, which it picks on
+  its own. Staged by default: the same best key from 207 keys in 2 minutes
+  instead of 2,016 in 26. Race is held out.
+- **The linkage theory is being executed** (`docs/plans/linkage-theory.md`,
+  accepted 2026-10-03; ADR-0120; what execution taught is its §11):
+  - **T1, the lake.** Linkage reads the lake through cached role tables.
+    Records carry a content key (`_record_key`), the same whichever
+    publication is read (OQ-65).
+  - **T2, scope invariance.** A slice linked against the nation, with
+    national u, pooled m and the national calibration, reproduces the
+    national run's pairs (SP 99.97%).
+  - **The placebo shifts every left date.**
+  - **T3, entities.** `build_entities()` merges links into persons;
+    inherited evidence (`inherit:`) doubled Sergipe's newborn link (410 →
+    828 pairs, FDR 0.36%).
+  - **T4, settings as annotators.** Race is modelled per setting
+    (`annotators.py`).
+  - **T5, linkage error into analyses.** `p_match` on every pair;
+    `link_draws()`.
+  - **Running:** the national lake rebuild with record keys, the seven
+    national links, the scope test, entities, race, and SIH ~ CIHA discovery.
 - **Impossible pairs** (a death before the admission, a death at home) are
   mostly recording errors in true pairs. They become learned, flagged
-  evidence, not rules. Next: one link per pair at the widest scope.
+  evidence, not rules.
 - **CIHA's residence field** records the hospital's municipality for
   85–100% of mothers and 85–92% of deceased who live elsewhere, tested against
   SINASC and SIM on linked pairs (EVALUATION 2026-09-30, two entries). The
