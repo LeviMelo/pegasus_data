@@ -24,11 +24,15 @@ import json
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import PurePosixPath
+
+import pyarrow as pa
 
 from ..catalog.store import Catalog, utcnow
 from ..decode.archives import Archive
 from ..decode.dbf import read_dbf_bytes
+from ..textenc import CANDIDATE_ENCODINGS, best_effort_decode
 from .cnv_parser import CnvFile, parse_cnv_bytes
 from .def_parser import DefFile, parse_def_bytes
 
@@ -63,6 +67,61 @@ KNOWN_CODE_TABLES: dict[str, tuple[str, str, str]] = {
 #: CNV files whose codes are ICD-10 and therefore need the CID universe to expand
 #: their alphanumeric ranges (``A00-B99`` and friends).
 _ICD_CNV = re.compile(r"^CID(10|X|9)", re.I)
+_ICD9_CNV = re.compile(r"^CID9", re.I)
+
+
+def _redecode_text(table: pa.Table, payload: bytes) -> pa.Table:
+    """Decode each text value of a latin-1 read by the codepage it reads best in.
+
+    UNISAUSP.DBF (SISCOLO) holds most labels in cp1252 (``SÃO``) and some in
+    cp850 (``MÉDICO``, byte 0x90, undefined in cp1252). A file-level choice
+    garbled one or the other: 26 labels carried U+FFFD (2026-10-03). The
+    file's own best codepage is tried first, so it wins a tie.
+    """
+    _, file_encoding = best_effort_decode(payload[32:])
+    order = (file_encoding, *(e for e in CANDIDATE_ENCODINGS if e != file_encoding))
+
+    def one(value: object) -> object:
+        if not isinstance(value, str) or value.isascii():
+            return value
+        return best_effort_decode(value.encode("latin-1"), candidates=order)[0]
+
+    for i, column_field in enumerate(table.schema):
+        if pa.types.is_string(column_field.type) or pa.types.is_large_string(column_field.type):
+            column = pa.array([one(v) for v in table.column(i).to_pylist()], column_field.type)
+            table = table.set_column(i, column_field, column)
+    return table
+
+
+def _cnv_universe(table_id: str, kit_icd: frozenset[str]) -> frozenset[str] | None:
+    """The codes an alphanumeric range in this ``.CNV`` can expand against.
+
+    The kit's own ICD-10 table when it ships one, joined with the project's
+    canonical ICD-10 (ADR-0087). Before, a ``.CNV`` was given a universe only
+    when its name began ``CID``, and only from its own kit: the ICSAP lists
+    (``SENSIVEISATB*``), the avoidable-causes lists (``CID10-Evit*``) and the
+    mortality tabulation list (``CID10BR``) in a kit without ``CID10.DBF`` kept
+    every range unexpanded (OQ-28, 2026-10-03). An ICD-9 list gets no ICD-10
+    universe: its V and E codes would collide with ICD-10's chapters.
+    """
+    if _ICD9_CNV.match(table_id):
+        return None
+    canonical = _canonical_icd10()
+    universe = kit_icd | canonical
+    return universe or None
+
+
+@lru_cache(maxsize=1)
+def _canonical_icd10() -> frozenset[str]:
+    from importlib.resources import files
+
+    import pyarrow.parquet as pq
+
+    try:
+        table = pq.read_table(str(files("pegasus_data.resources") / "icd10.parquet"), columns=["code"])
+    except (FileNotFoundError, OSError):
+        return frozenset()
+    return frozenset(str(c) for c in table.column("code").to_pylist() if c)
 
 
 @dataclass(slots=True)
@@ -240,10 +299,13 @@ def parse_kit(data: bytes, *, kit_path: str, system: str | None = None) -> Parse
         table_id = _table_id(name)
         spec = _reference_name(table_id)
         try:
-            table = read_dbf_bytes(payload, path=kit_path, member=name).to_table()
+            # Read byte-for-byte (latin-1 maps every byte), then decode each
+            # text value on its own: a lookup can mix codepages by record.
+            table = read_dbf_bytes(payload, path=kit_path, member=name, encoding="latin-1").to_table()
         except Exception as exc:
             kit.warnings.append(f"{name}: dbf decode failed ({exc})")
             continue
+        table = _redecode_text(table, payload)
         columns = set(table.schema.names)
         if spec and spec[0] in columns:
             code_col, label_col = spec[0], spec[1]
@@ -288,7 +350,7 @@ def parse_kit(data: bytes, *, kit_path: str, system: str | None = None) -> Parse
     for name, payload in raw.items():
         if not name.lower().endswith(".cnv"):
             continue
-        universe = icd_universe if _ICD_CNV.match(_table_id(name)) else None
+        universe = _cnv_universe(_table_id(name), icd_universe)
         try:
             kit.cnvs[name] = parse_cnv_bytes(
                 payload, name=name, source_ref=f"{kit_path}!{name}", universe=universe or None

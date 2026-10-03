@@ -92,6 +92,9 @@ class CnvCategory:
     line_no: int
     codes: list[str] = field(default_factory=list)
     unexpanded: list[str] = field(default_factory=list)
+    #: In a tree ``.CNV`` (``CID10BR``, the ICSAP lists), the sequence of the
+    #: line this one sits under; None for a top-level line or a flat file.
+    parent: str | None = None
 
     @property
     def fully_expanded(self) -> bool:
@@ -127,6 +130,32 @@ class CnvFile:
         return [(expr, c) for c in self.categories for expr in c.unexpanded]
 
 
+def _expression_start(line: str) -> int | None:
+    """Where the trailing match expression of one line starts.
+
+    The expression may hold blanks around a range dash or a list comma:
+    ``A37 -A379`` (the ICSAP lists, the avoidable-causes lists). Taking the
+    last token's start put such lines four columns right of their neighbours,
+    no column won, and the whole file fell back to token splitting: code
+    ``-A379`` under label ``Coqueluche A37`` (2026-10-03). The run is extended
+    leftwards only while the suffix is still one expression, so a label word
+    never joins it.
+    """
+    tokens = list(_TOKEN.finditer(line))
+    if len(tokens) < 2:
+        return None
+    start = tokens[-1].start()
+    for token in reversed(tokens[1:-1]):
+        # A range or list writes at most one blank inside (``A37 -A379``);
+        # the label is set off by column padding. Without the gap test a label
+        # that is itself a code (``M480,``, IMPROV1.CNV) joined the expression.
+        if start - token.end() <= 1 and _is_expression(line[token.start():]):
+            start = token.start()
+        else:
+            break
+    return start
+
+
 def _expression_column(lines: list[str]) -> int | None:
     """Find the column where the match expression starts.
 
@@ -137,9 +166,9 @@ def _expression_column(lines: list[str]) -> int | None:
     """
     starts: Counter[int] = Counter()
     for line in lines:
-        tokens = list(_TOKEN.finditer(line))
-        if len(tokens) >= 2:
-            starts[tokens[-1].start()] += 1
+        start = _expression_start(line)
+        if start is not None:
+            starts[start] += 1
     if not starts:
         return None
     column, hits = starts.most_common(1)[0]
@@ -300,6 +329,8 @@ def parse_cnv_bytes(
     ]
 
     expr_col = _expression_column([ln for _, ln in body])
+    tree = _is_tree([ln for _, ln in body])
+    kinds = _tree_lines([ln for _, ln in body]) if tree else []
     positional = _positional_column([ln for _, ln in body], width) if expr_col is None else None
     out = CnvFile(name, source_ref, declared, width, encoding=encoding)
 
@@ -308,6 +339,15 @@ def parse_cnv_bytes(
         if not tokens:
             continue
         sequence = tokens[0].group()
+        parent: str | None = None
+        if tree and len(tokens) >= 3 and tokens[0].group().isdigit() and tokens[1].group().isdigit() \
+                and kinds[offset][0] == "child":
+            # A child line of a tree: ``  1   2  . 001 Doenças ...`` is line 2
+            # under line 1. The parent number is not part of the label. The
+            # second number must continue the sequence: ``    009  2002  ...``
+            # is a top-level line whose label is a year (ANOMES.CNV).
+            parent, sequence = tokens[0].group(), tokens[1].group()
+            tokens = tokens[1:]
         if positional is not None and width:
             # A positional code field: ``TP_DROGA.CNV`` writes the substances as
             # letters in fixed places (``A  ``, ``A O``, `` CO``). A token split
@@ -387,6 +427,10 @@ def parse_cnv_bytes(
         codes, unexpanded = expand_expression(
             expression, width=width, universe=universe, max_expansion=max_expansion
         )
+        if tree:
+            # TabWin indents a tree's levels with dots (``... 002 Cólera``):
+            # layout, not part of the name.
+            label = label.lstrip(". ").strip() or label
         out.categories.append(
             CnvCategory(
                 order=offset,
@@ -396,6 +440,7 @@ def parse_cnv_bytes(
                 line_no=line_no,
                 codes=codes,
                 unexpanded=unexpanded,
+                parent=parent,
             )
         )
 
@@ -403,6 +448,37 @@ def parse_cnv_bytes(
         out.warnings.append(
             f"header declares {declared} categories, {len(out.categories)} parsed"
         )
+    return out
+
+
+def _is_tree(lines: list[str]) -> bool:
+    """Is this a tree ``.CNV``, whose child lines open with the parent's number?
+
+    ``CID10BR``, ``CID9BR`` and the ICSAP lists write ``  1   2  . 001 ...``:
+    line 2, under line 1. A flat file's lines open with one sequence number.
+    The test is that most lines open with two numbers and that the second one
+    counts the lines, which a label starting with a number does not do.
+    """
+    children = sum(1 for kind, _ in _tree_lines(lines) if kind == "child")
+    return children >= max(2, 0.4 * len(lines))
+
+
+def _tree_lines(lines: list[str]) -> list[tuple[str, int | None]]:
+    """Each line as ("child", seq) or ("root", seq): a child line's second
+    number continues the running sequence (the previous line's plus one).
+    Relative, not positional: the avoidable-causes lists open with their
+    catch-all line numbered 102, so a child's number is its position minus one."""
+    out: list[tuple[str, int | None]] = []
+    previous: int | None = None
+    for line in lines:
+        two = re.match(r"^\s*(\d+)\s+(\d+)  \S", line)
+        if two and previous is not None and int(two.group(2)) == previous + 1:
+            previous = int(two.group(2))
+            out.append(("child", previous))
+            continue
+        one = re.match(r"^\s*(\d+)", line)
+        previous = int(one.group(1)) if one else previous
+        out.append(("root", previous))
     return out
 
 

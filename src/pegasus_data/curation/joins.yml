@@ -264,3 +264,71 @@ relations:
     source_namespace: CNES
     target_namespace: CNPJ
     evidence: compiled CADGER registry relation
+  # Official concept lists as dimensions (2026-10-03). Each artifact is the
+  # list as DATASUS ships it in its own TabWin kit, parsed with its ranges
+  # expanded against the canonical ICD-10 (OQ-28). The narrowest matching line
+  # wins (TabWin's last-match rule), so a code reaches its most specific item.
+  - system: SIM
+    dataset: SIM.DO
+    field: CAUSABAS
+    relation: rollup_to
+    target_type: icd_chapter
+    target_name: chapter
+    artifact: CID10CAP
+    evidence: SIM TabWin kit (OBITOS_CID10_TAB), chapter dimension
+  - system: SIM
+    dataset: SIM.DO
+    field: CAUSABAS
+    relation: rollup_to
+    target_type: mortality_tabulation_list
+    target_name: mortality_list
+    artifact: CID10BR
+    evidence: SIM TabWin kit, CID10BR.CNV, the Brazilian mortality tabulation list (Lista de Tabulação para Mortalidade CID-BR-10)
+  - system: SIM
+    dataset: SIM.DO
+    field: CAUSABAS
+    relation: rollup_to
+    target_type: avoidable_causes_under_5
+    target_name: avoidable_0_4
+    artifact: CID10-EVIT0A4
+    evidence: SIM TabWin kit, CID10-Evit0a4.cnv, avoidable causes of death under five
+  - system: SIM
+    dataset: SIM.DO
+    field: CAUSABAS
+    relation: rollup_to
+    target_type: avoidable_causes_5_74
+    target_name: avoidable_5_74
+    artifact: CID10-EVIT5A74
+    evidence: SIM TabWin kit, CID10-Evit5a74.cnv, avoidable causes of death aged 5 to 74
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: DIAG_PRINC
+    relation: rollup_to
+    target_type: icsap_group
+    target_name: icsap_group
+    artifact: SENSIVEISATB03
+    evidence: SIH TabWin kit, SENSIVEISATB03.CNV, the 19 groups of conditions sensitive to primary care (Portaria SAS/MS 221/2008)
+  - system: SIHSUS
+    dataset: SIH.RD
+    field: DIAG_PRINC
+    relation: rollup_to
+    target_type: icsap_condition
+    target_name: icsap_condition
+    artifact: SENSIVEISATB01
+    evidence: SIH TabWin kit, SENSIVEISATB01.CNV, the conditions within the ICSAP groups
+  - system: CIHA
+    dataset: "*"
+    field: DIAG_PRINC
+    relation: rollup_to
+    target_type: icd_chapter
+    target_name: chapter
+    artifact: CID10CAP
+    evidence: CIH TabWin kit, chapter dimension
+  - system: CIHA
+    dataset: "*"
+    field: DIAG_PRINC
+    relation: rollup_to
+    target_type: icsap_group
+    target_name: icsap_group
+    artifact: SENSIVEISATB03
+    evidence: CIH TabWin kit, SENSIVEISATB03.CNV (Portaria SAS/MS 221/2008)

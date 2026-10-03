@@ -146,6 +146,56 @@ means stored as mergeable states) that roll up through health regions, states
 and the country without touching microdata. `serve/` exposes them over HTTP to
 the companion frontend (`../pegasus_view`).
 
+### Context: dimensions, enrichment, geography, fields
+
+The record says what the source wrote; these add what it means and where it
+happened. All of it is labelled with its source, and a value the source does
+not hold comes back as `not_recorded`, never as a guess.
+
+```python
+from pegasus_data import query, memberships, load_field, load_population, race_reliability
+
+# Roll a code up a published hierarchy (curation/joins.yml): ICD-10 chapter,
+# the Ministry's mortality list, avoidable deaths, primary-care-sensitive admissions.
+deaths = query("SIM.DO", period=2022, geography="SE",
+               dimensions=["CAUSABAS.chapter", "CAUSABAS.avoidable_5_74",
+                           "CODMUNRES.health_region_current"])
+
+# The establishment as it was registered in the record's month (CNES.ST).
+admissions = query("SIH.RD", period="2022-01", geography="AL",
+                   enrich=["CNES.MANAGEMENT", "CNES.CARE_LEVEL", "CNES.HAS_NEONATAL_UNIT"],
+                   present="analysis")   # raw codes, which race_reliability reads
+
+memberships("280030").as_dict()      # health region, macroregion, comparable area, ...
+load_population(series="POPSVS", years=2022)  # the denominator the Ministry divides by (OQ-12)
+load_field("gdp", years=2021)        # IBGE municipal GDP and value added
+race_reliability(admissions)         # flags SIH hospital-months whose race code is unusable
+```
+
+- **Dimensions** roll a code up:
+  - **diagnoses** through TabWin concept lists (`.CNV`) read as trees;
+  - **procedures** through SIGTAP's group, subgroup and form of
+    organisation, as derived columns you select (`PROC_REA_grupo`,
+    `PROC_REA_subgrupo`, `PROC_REA_forma`; pre-2008 codes bridged);
+  - **any municipality column** of nine systems through any classification
+    of the geography pack (`CODMUNRES.health_region_current`,
+    `MUNIC_MOV.ibge_immediate_region`).
+
+  Each is joined by validity window. A code no table covers, or a membership
+  the systems contest, stays null and is counted in the report.
+- **Enrichment** reads `CNES.ST` at each record's competence: 17 attributes
+  (ADR-0125), plus `CNPJ` and the establishment's name.
+- **Geography** resolves a municipality to every unit it belongs to: IBGE
+  regions, health regions and macroregions (as of TabNet's current table),
+  and IPEA's comparable areas for 1980, 1991 and 2000 to 2010. Where systems
+  disagree the conflict is reported, not resolved. Build it with
+  `pegasus-data geography`.
+- **Fields** are municipal-year context from the IBGE aggregates API (GDP,
+  value added; Census sanitation, literacy and population by race), built
+  with `pegasus-data fields --name gdp --years 2010-2021`.
+- **Quality flags** say which values not to take at face value. SIH race
+  code 04 is a default or a swapped code in some hospitals (ADR-0128).
+
 ### Linking records across systems
 
 The public files carry no common person identifier, so records about the
