@@ -125,10 +125,10 @@ def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[st
     ids = table.column("station_id").to_pylist()
     code7 = [placed[i]["municipality7"] if i in placed else None for i in ids]
     table = table.append_column("municipality7", pa.array(code7, pa.string()))
-    # Where the station's position came from and how it was placed, so an
-    # analysis can keep only catalogue positions (NOAA's older coordinates
-    # put 44 of 196 stations in a neighbouring municipality, 2026-10-03).
-    for key in ("coordinates_from", "placed_by"):
+    # Where the station's position came from, how it was placed, and the
+    # municipality INMET itself registers it in, so an analysis can keep only
+    # positions it trusts and see where the two disagree (sources/inmet.py).
+    for key in ("coordinates_from", "placed_by", "inmet_municipality7"):
         table = table.append_column(key, pa.array([placed[i][key] if i in placed else None for i in ids], pa.string()))
     table = table.append_column("municipality", pc.utf8_slice_codeunits(table.column("municipality7"), 0, 6))
     unplaced = int(pc.sum(pc.is_null(table.column("municipality7"))).as_py() or 0)

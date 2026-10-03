@@ -156,7 +156,7 @@ OQ-64), 1990s SIH V-codes.
   - IBGE GDP and value added (ADR-0127);
   - Census sanitation, literacy and population by race, for 2010 and 2022.
   - `climate`: INMET station-month precipitation and temperature, placed in
-    the municipality each station stands in (1961–2025, 894 stations).
+    the municipality each station stands in (1961–2025, 912 stations).
 - **Units:** SIH money is in reais from 1995 on (OQ-21 resolved).
 - **Renamed columns:** five confirmed by values are curated (OQ-57
   narrowed).

@@ -155,6 +155,8 @@ fields:
       Monthly precipitation (sum, readings) and air temperature (sum, readings,
       maximum, minimum) of INMET's automatic (hourly, 2000 on) and
       conventional (daily) stations, from the CC-BY-4.0 Zenodo mirror of
-      INMET's releases (record 14925215). A mean is sum / readings, at use.
+      INMET's releases (record 14925215, checked identical to INMET's own
+      archive), positioned from INMET's station API first. A mean is
+      sum / readings, at use.
     years: 1961-2024
 
