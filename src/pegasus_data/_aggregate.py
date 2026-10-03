@@ -1158,8 +1158,16 @@ def aggregate(
     # monthly artifact coarsens it. Both sum along time, which a stock refuses.
     rolls_up_time = time_level is None or (
         time_level == "year" and spec.time_grain != "year")
+    # A stock with a declared time reducer (CNES beds: mean) is not summed
+    # along time: each month is totalled over the other axes, then the months
+    # are reduced (OQ-14). The reduction yields finished values only.
+    reduced = [m for m in chosen if rolls_up_time and "time" not in m.additive_over and m.time_reducer]
+    if reduced and not finalize:
+        raise AggregationRefused(
+            f"{[m.name for m in reduced]} reduce over time ({reduced[0].time_reducer}); a reduced "
+            "value is finished, not a state. Ask for months (by=[..., 'month']) to keep states.")
     for measure in chosen:
-        if rolls_up_time:
+        if rolls_up_time and measure not in reduced:
             check_rollup(measure, "time")
         if geography_level != _BASE_LEVEL:
             check_rollup(measure, "geography")
@@ -1254,6 +1262,10 @@ def aggregate(
         [m.name for m in chosen] if finalize
         else [c for m in chosen for c in m.state_columns()]
     )
+    if reduced:
+        result = _reduce_over_time(working, chosen, group_by, emit_as, TIME_KEY)
+        report.cells = result.num_rows
+        return (result, report) if return_report else result
     if key_names:
         aggregated = working.group_by(list(group_by)).aggregate(
             [(c, _ARROW_MERGE[_kind_of(chosen, c).name]) for c in state_columns])
@@ -1301,6 +1313,62 @@ def aggregate(
         )
     return (result, report) if return_report else result
 
+
+
+def _reduce_over_time(working: Any, chosen: Sequence[Measure], group_by: Sequence[str],
+                      emit_as: Mapping[str, str], month_key: str) -> Any:
+    """Total each month over the other axes, then reduce the months per cell.
+
+    ``mean`` is the mean over the months present, ``last`` the latest month,
+    ``max``/``min`` the extreme month. A measure that is additive over time
+    is summed over the months, as before.
+    """
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    keys = [*group_by, month_key]
+    states = [c for m in chosen for c in m.state_columns()]
+    monthly = working.group_by(keys).aggregate([(c, _ARROW_MERGE[_kind_of(chosen, c).name]) for c in states])
+    suffixed = {c: f"{c}_{_ARROW_MERGE[_kind_of(chosen, c).name]}" for c in states}
+    per_month: dict[str, Any] = {k: monthly.column(k) for k in keys}
+    for measure in chosen:
+        state = tuple(pc.fill_null(pc.cast(monthly.column(suffixed[c]), pa.float64()), 0.0)
+                      for c in measure.state_columns())
+        per_month[measure.name] = _finalize_column(measure, state)
+    table = pa.table(per_month)
+    if group_by:
+        reducers = []
+        for measure in chosen:
+            how = (measure.time_reducer or "sum") if "time" not in measure.additive_over else "sum"
+            if how == "last":
+                continue
+            reducers.append((measure.name, {"mean": "mean", "max": "max", "min": "min", "sum": "sum"}[how]))
+        out = table.group_by(list(group_by)).aggregate(reducers) if reducers else None
+        result: dict[str, Any] = {}
+        base = out if out is not None else table.group_by(list(group_by)).aggregate([])
+        for name in group_by:
+            result[emit_as[name]] = pc.cast(base.column(name), pa.string())
+        for measure in chosen:
+            how = (measure.time_reducer or "sum") if "time" not in measure.additive_over else "sum"
+            if how == "last":
+                latest = table.sort_by([(month_key, "descending")])
+                seen: dict[tuple, Any] = {}
+                for row in latest.select([*group_by, measure.name]).to_pylist():
+                    seen.setdefault(tuple(row[k] for k in group_by), row[measure.name])
+                result[measure.name] = pa.array([seen.get(tuple(r[k] for k in group_by))
+                                                 for r in base.select(list(group_by)).to_pylist()], pa.float64())
+            else:
+                agg = {"mean": "mean", "max": "max", "min": "min", "sum": "sum"}[how]
+                result[measure.name] = out.column(f"{measure.name}_{agg}")
+        return pa.table(result).sort_by([(emit_as[n], "ascending") for n in group_by])
+    values: dict[str, Any] = {}
+    for measure in chosen:
+        how = (measure.time_reducer or "sum") if "time" not in measure.additive_over else "sum"
+        column = table.sort_by([(month_key, "descending")]).column(measure.name)
+        values[measure.name] = [
+            column[0].as_py() if how == "last" and len(column) else
+            getattr(pc, {"mean": "mean", "max": "max", "min": "min", "sum": "sum"}.get(how, "sum"))(column).as_py()]
+    return pa.table({k: pa.array(v, pa.float64()) for k, v in values.items()})
 
 
 #: How each monoid's merge is spelled as a column aggregate. The mapping is
