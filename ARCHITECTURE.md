@@ -310,6 +310,7 @@ question they answer; the overlap is §5's first rows.
 | what is this | `info`, `explore`, `describe`, `availability`, `field_available`, `field_coverage`, `search`, `compendium`, `gaps`, `questions`, `DataDictionary`, `Ontology` | `Info`, `Exploration`, `FieldDescription`, `Availability`, `FieldWindow`, `CompendiumReport`, `Gaps`, `OpenQuestions` |
 | aggregate it | `aggregate`, `build_aggregate` | `AggregateSpec`, `AggregateReport` |
 | reference data | `load_population`, `load_reference`, `load_field` | |
+| places | `municipality_point`, `distance_km` (population centre by default) | |
 | how far to trust it | `race_reliability` | |
 | the local store | `resource_manager`, `Settings`, `load_settings` | `ResourceManager`, `ResourceStatus` |
 

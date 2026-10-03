@@ -152,6 +152,9 @@ OQ-64), 1990s SIH V-codes.
   - IBGE regions, correct for every year since 1994 (measured);
   - TabNet's current health regions and macroregions (ADR-0126, ADR-0129);
   - IPEA comparable areas.
+- **Places:** `municipality_point` and `distance_km` use the Census 2022
+  population centre, not the polygon centroid (EVALUATION 2026-10-03
+  "Municipality points").
 - **Fields** (`load_field`):
   - IBGE GDP and value added (ADR-0127);
   - Census sanitation, literacy and population by race, for 2010 and 2022.

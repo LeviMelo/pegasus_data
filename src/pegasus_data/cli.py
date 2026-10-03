@@ -187,6 +187,12 @@ def geography(
             target, ibge=fetch_municipalities(), tabnet_cache=settings.root / "registries" / "tabnet",
             ipea_cache=settings.root / "registries" / "ipea_amc",
         )
+        from .geography import POINTS_PACK_NAME, build_municipality_points, point_sources
+
+        sources = point_sources(settings.root / "registries" / "ibge_points")
+        result["points"] = build_municipality_points(
+            target.with_name(POINTS_PACK_NAME), localities=sources["localities.gpkg"],
+            tracts=sources["tracts.gpkg"], mesh=sources["mesh_max.json"])
     _emit(result, as_json, "geography")
 
 

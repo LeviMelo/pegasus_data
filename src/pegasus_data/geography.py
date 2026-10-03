@@ -56,6 +56,10 @@ from pathlib import Path
 from typing import Any
 
 __all__ = [
+    "build_municipality_points",
+    "point_sources",
+    "distance_km",
+    "municipality_point",
     "classification_names",
     "municipality_fields",
     "Membership",
@@ -715,3 +719,146 @@ def iter_pack(pack_path: str | Path | None = None) -> Iterable[Mapping[str, str]
     if path is None:
         return ()
     return _pack(str(path)).to_pylist()
+
+
+# --- Representative points --------------------------------------------------
+#
+# A polygon's centroid is a poor stand-in for where a municipality's people
+# are: for 2022 boundaries it lies a median 5.6 km from the seat, over 50 km
+# for 161 municipalities (Altamira: 407 km), and outside the municipality
+# itself for 55 (EVALUATION 2026-10-03 "Municipality points"). The points pack
+# keeps three per municipality:
+# - the seat, IBGE's Localidades 2022 point for the municipal seat;
+# - the population centre, the population-weighted median of the Census 2022
+#   tracts' points (a median, so a far district cannot drag it into empty land);
+# - the polygon centroid, kept only to measure against.
+
+POINTS_PACK_NAME = "municipality_points.parquet"
+_SEAT_CATEGORIES = ("Sede Municipal", "Capital Estadual", "Capital Federal")
+POINT_SOURCES = {
+    "localities.gpkg": ("https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/localidades/"
+                        "Localidades_do_Brasil/2022/Localidades_Brasil_gpkg.zip"),
+    "tracts.gpkg": ("https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/"
+                    "malha_com_atributos/setores/gpkg/BR/BR_setores_CD2022.gpkg"),
+    "mesh_max.json": ("https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo%2Bjson"
+                      "&qualidade=maxima&intrarregiao=municipio"),
+}
+
+
+def point_sources(cache_dir: str | Path) -> dict[str, Path]:
+    """The three IBGE files the points pack is built from, downloaded once into ``cache_dir``."""
+    import gzip
+    import io
+    import urllib.request
+    import zipfile
+
+    cache = Path(cache_dir)
+    cache.mkdir(parents=True, exist_ok=True)
+    out: dict[str, Path] = {}
+    for name, url in POINT_SOURCES.items():
+        target = cache / name
+        if not target.is_file():
+            with urllib.request.urlopen(url, timeout=7200) as response:
+                data = response.read()
+            if url.endswith(".zip"):
+                archive = zipfile.ZipFile(io.BytesIO(data))
+                data = archive.read(next(n for n in archive.namelist() if n.endswith(".gpkg")))
+            elif data[:2] == bytes((0x1F, 0x8B)):
+                data = gzip.decompress(data)
+            tmp = target.with_suffix(target.suffix + ".tmp")
+            tmp.write_bytes(data)
+            tmp.replace(target)
+        out[name] = target
+    return out
+
+
+def build_municipality_points(out_path: str | Path, *, localities: str | Path, tracts: str | Path,
+                              mesh: str | Path) -> dict[str, Any]:
+    """Write the points pack from IBGE's 2022 localities, Census 2022 tracts and municipal mesh."""
+    import geopandas as gpd
+    import pandas as pd
+
+    projected = "EPSG:5880"   # SIRGAS 2000 / Brazil Polyconic: metres
+    loc = gpd.read_file(localities)
+    seats = loc[loc["SCT_LOCALIDADE"].isin(_SEAT_CATEGORIES)][["CD_MUN", "geometry"]].drop_duplicates("CD_MUN")
+    seats = seats.set_index(seats["CD_MUN"].astype(str))["geometry"]
+    tr = gpd.read_file(tracts, columns=["CD_SETOR", "CD_MUN", "v0001"])
+    # A tract in several pieces is several rows, each repeating its population
+    # (5,595 rows over 468,099 tracts; the sum ran 949 thousand over the
+    # census). One row per tract, its pieces merged.
+    tr = tr.dissolve(by="CD_SETOR", aggfunc="first").reset_index()
+    tr["people"] = pd.to_numeric(tr["v0001"], errors="coerce").fillna(0)
+    centre = tr.to_crs(projected).geometry.representative_point()
+    tr["x"], tr["y"] = centre.x, centre.y
+    tr = tr[tr["people"] > 0]
+    # The population-weighted MEDIAN of the tracts' points, coordinate by
+    # coordinate. A weighted mean is pulled by a far district into empty land:
+    # Altamira's landed 94 km from the town, drawn by Castelo de Sonhos about
+    # 900 km south.
+    def _median(values: pd.Series, weights: pd.Series) -> float:
+        order = values.argsort()
+        v, w = values.iloc[order].to_numpy(), weights.iloc[order].to_numpy()
+        return float(v[(w.cumsum() >= w.sum() / 2).argmax()])
+
+    grouped = tr.groupby(tr["CD_MUN"].astype(str))
+    weighted = pd.DataFrame({
+        "x": grouped.apply(lambda g: _median(g["x"], g["people"])),
+        "y": grouped.apply(lambda g: _median(g["y"], g["people"])),
+        "people": grouped["people"].sum()})
+    population = gpd.GeoSeries(gpd.points_from_xy(weighted["x"], weighted["y"]),
+                               index=weighted.index, crs=projected).to_crs("EPSG:4674")
+    polygons = gpd.read_file(mesh)[["codarea", "geometry"]].set_crs("EPSG:4674", allow_override=True)
+    polygons = polygons.set_index(polygons["codarea"].astype(str))["geometry"]
+    centroids = polygons.to_crs(projected).centroid.to_crs("EPSG:4674")
+    codes = sorted(set(polygons.index) | set(seats.index))
+    frame = pd.DataFrame({"municipality7": codes})
+    frame["municipality"] = frame["municipality7"].str[:6]
+    for prefix, series in (("seat", seats), ("population", population), ("centroid", centroids)):
+        points = gpd.GeoSeries(series.reindex(codes).values, crs="EPSG:4674")
+        frame[f"{prefix}_lon"] = points.x.values
+        frame[f"{prefix}_lat"] = points.y.values
+    frame["population_2022"] = weighted["people"].reindex(codes).values
+    pts = {k: gpd.GeoSeries(gpd.points_from_xy(frame[f"{k}_lon"], frame[f"{k}_lat"]), crs="EPSG:4674").to_crs(projected)
+           for k in ("seat", "population", "centroid")}
+    frame["km_seat_to_population"] = (pts["seat"].distance(pts["population"]) / 1000).round(2)
+    frame["km_seat_to_centroid"] = (pts["seat"].distance(pts["centroid"]) / 1000).round(2)
+    frame.to_parquet(out_path, index=False)
+    return {"municipalities": len(frame), "with_seat": int(frame["seat_lon"].notna().sum()),
+            "with_population_centre": int(frame["population_lon"].notna().sum()),
+            "km_seat_to_population_median": float(frame["km_seat_to_population"].median()),
+            "km_seat_to_centroid_median": float(frame["km_seat_to_centroid"].median())}
+
+
+@lru_cache(maxsize=1)
+def _points() -> dict[str, dict[str, float]]:
+    from importlib.resources import files
+
+    import pyarrow.parquet as pq
+
+    path = Path(str(files("pegasus_data.resources") / POINTS_PACK_NAME))
+    if not path.exists():
+        return {}
+    rows = pq.read_table(path).to_pylist()
+    return {str(r["municipality"]): r for r in rows} | {str(r["municipality7"]): r for r in rows}
+
+
+def municipality_point(code: str, kind: str = "population") -> tuple[float, float] | None:
+    """(lon, lat) of a municipality: ``population`` (Census 2022 centre), ``seat`` or ``centroid``."""
+    if kind not in ("population", "seat", "centroid"):
+        raise ValueError("kind is population, seat or centroid")
+    row = _points().get(str(code).strip())
+    if not row or row.get(f"{kind}_lon") is None:
+        return None
+    return float(row[f"{kind}_lon"]), float(row[f"{kind}_lat"])
+
+
+def distance_km(a: str, b: str, kind: str = "population") -> float | None:
+    """Great-circle distance between two municipalities' points, in km (None when either is unknown)."""
+    import math
+
+    pa_, pb = municipality_point(a, kind), municipality_point(b, kind)
+    if pa_ is None or pb is None:
+        return None
+    lon1, lat1, lon2, lat2 = map(math.radians, (*pa_, *pb))
+    h = math.sin((lat2 - lat1) / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
+    return 2 * 6371.0088 * math.asin(math.sqrt(h))

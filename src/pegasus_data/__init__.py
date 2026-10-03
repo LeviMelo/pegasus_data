@@ -65,6 +65,8 @@ _EXPORTS: dict[str, str] = {
     "AggregateSpec": "._aggregate",
     "AggregateReport": "._aggregate",
     "memberships": ".geography",
+    "municipality_point": ".geography",
+    "distance_km": ".geography",
     "MembershipSet": ".geography",
     "Membership": ".geography",
     "compendium": "._compendium",

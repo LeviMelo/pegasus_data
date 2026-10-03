@@ -153,7 +153,8 @@ happened. All of it is labelled with its source, and a value the source does
 not hold comes back as `not_recorded`, never as a guess.
 
 ```python
-from pegasus_data import query, memberships, load_field, load_population, race_reliability
+from pegasus_data import (query, memberships, municipality_point, distance_km, load_field,
+                          load_population, race_reliability)
 
 # Roll a code up a published hierarchy (curation/joins.yml): ICD-10 chapter,
 # the Ministry's mortality list, avoidable deaths, primary-care-sensitive admissions.
@@ -167,6 +168,8 @@ admissions = query("SIH.RD", period="2022-01", geography="AL",
                    present="analysis")   # raw codes, which race_reliability reads
 
 memberships("280030").as_dict()      # health region, macroregion, comparable area, ...
+municipality_point("280030")         # (lon, lat): Census 2022 population centre, or kind="seat"
+distance_km("355030", "330455")      # 339.5 km, population centre to population centre
 load_population(series="POPSVS", years=2022)  # the denominator the Ministry divides by (OQ-12)
 load_field("gdp", years=2021)        # IBGE municipal GDP and value added
 race_reliability(admissions)         # flags SIH hospital-months whose race code is unusable
@@ -190,8 +193,9 @@ race_reliability(admissions)         # flags SIH hospital-months whose race code
   and IPEA's comparable areas for 1980, 1991 and 2000 to 2010. Where systems
   disagree the conflict is reported, not resolved. Build it with
   `pegasus-data geography`.
-- **Fields** are municipal-year context from the IBGE aggregates API (GDP,
-  value added; Census sanitation, literacy and population by race), built
+- **Fields** are municipal context: the IBGE aggregates API (GDP, value
+  added; Census sanitation, literacy and population by race), INMET climate
+  by station-month and S2iD disaster events, built
   with `pegasus-data fields --name gdp --years 2010-2021`.
 - **Quality flags** say which values not to take at face value. SIH race
   code 04 is a default or a swapped code in some hospitals (ADR-0128).
