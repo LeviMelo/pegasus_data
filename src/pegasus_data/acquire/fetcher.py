@@ -37,6 +37,7 @@ MIRROR_HOST = "datasus-ftp-mirror.nyc3.digitaloceanspaces.com"
 MIRROR_PREFIX = "/dissemin/publicos"
 
 
+@dataclass(slots=True)
 class FetchResult:
     path: str
     sha256: str | None
