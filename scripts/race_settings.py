@@ -27,7 +27,7 @@ import pyarrow as pa
 
 from pegasus_data.linkage.annotators import fit
 from pegasus_data.linkage.entities import build_entities
-from pegasus_data.linkage.roles import record_ids as _ids
+from pegasus_data.linkage.identity import record_ids as _ids
 from pegasus_data.linkage.roles import role_table
 
 OUT = Path(__file__).resolve().parents[1] / "data" / "probes" / "linkage"

@@ -30,7 +30,7 @@ import pyarrow as pa
 
 from ..semantics.curation import read_yaml
 from .engine import LINKS_FILE, load_links
-from .roles import connect
+from .identity import connect
 from .store import links_dir, run_key
 
 #: How many records of one kind a person can have. A kind is (dataset, role).

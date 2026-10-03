@@ -46,7 +46,8 @@ def main(spec: str, period: str, ufs: list[str]) -> None:
         con.register("sl", sl.pairs.select(["l", "r"]))
         # The national pairs whose left record the slice saw.
         from pegasus_data.linkage.engine import load_links
-        from pegasus_data.linkage.roles import record_ids, role_table
+        from pegasus_data.linkage.identity import record_ids
+        from pegasus_data.linkage.roles import role_table
 
         seen = role_table(load_links()[spec].left.dataset, period=period, geography=uf, roles=[],
                           allow_partial=True)

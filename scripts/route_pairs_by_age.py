@@ -25,7 +25,8 @@ import pyarrow as pa
 
 from pegasus_data import link
 from pegasus_data.linkage.entities import build_entities, person_pairs
-from pegasus_data.linkage.roles import record_ids, role_table
+from pegasus_data.linkage.identity import record_ids
+from pegasus_data.linkage.roles import role_table
 
 OUT = Path(__file__).resolve().parents[1] / "data" / "probes" / "linkage"
 BANDS = """CASE WHEN days IS NULL THEN 'unknown' WHEN days < 0 THEN 'admitted before birth (error)'

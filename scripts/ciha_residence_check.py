@@ -28,7 +28,7 @@ import pyarrow as pa
 import pyarrow.parquet  # noqa: F401  (pa.parquet)
 
 from pegasus_data import link, role_table
-from pegasus_data.linkage.roles import record_ids as _ids
+from pegasus_data.linkage.identity import record_ids as _ids
 
 OUT = Path(__file__).resolve().parents[1] / "data" / "probes" / "linkage"
 UNFILLED = {None, "", "000000", "999999"}

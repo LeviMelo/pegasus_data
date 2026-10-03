@@ -23,7 +23,8 @@ from functools import lru_cache
 from typing import Any
 
 from .engine import LinkNotViable, link
-from .roles import record_ids, role_table
+from .identity import record_ids
+from .roles import role_table
 
 DELIVERY = "sinasc_births_to_delivery_admission"
 DELIVERY_PRIVATE = "sinasc_births_to_ciha_delivery"

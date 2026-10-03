@@ -49,7 +49,8 @@ from typing import Any
 import duckdb
 import pyarrow as pa
 
-from .roles import connect, dataset_roles, role_table
+from .identity import connect
+from .roles import dataset_roles, role_table
 
 COMPARABLE = ("date", "sex", "facility", "municipality", "integer", "label")
 #: Types that join a key only as one optional attribute (birth weight, weeks,

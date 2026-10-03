@@ -37,7 +37,8 @@ import duckdb
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
-from .roles import DUP_SQL, RECORD_ID_SQL, connect, dataset_roles, role_table
+from .identity import DUP_SQL, RECORD_ID_SQL, connect
+from .roles import dataset_roles, role_table
 
 LINKS_FILE = Path(__file__).resolve().parent.parent / "curation" / "links.yml"
 CHANCE_DROP = 20.0

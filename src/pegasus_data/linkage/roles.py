@@ -25,80 +25,13 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-import duckdb
 import pyarrow as pa
 import pyarrow.compute as pc
 
 from ..semantics.curation import read_yaml
 
 ROLES_FILE = Path(__file__).resolve().parent.parent / "curation" / "roles.yml"
-RECORD_ID = ("_blob_sha256", "_row")
 
-
-def connect() -> duckdb.DuckDBPyConnection:
-    """A DuckDB connection for linkage, bounded in memory.
-
-    DuckDB's default limit is 80% of RAM: the national newborn link's joins
-    grew one process to 25 GB on a 32 GB machine and started it paging
-    (2026-10-03). Capped at 40% of physical memory, a large join spills to
-    the work directory instead.
-    """
-    import os
-
-    from ..config import load_settings
-
-    con = duckdb.connect()
-    try:
-        total = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")  # type: ignore[attr-defined]
-    except (AttributeError, ValueError, OSError):
-        import ctypes
-
-        class _Mem(ctypes.Structure):
-            _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong),
-                        ("ullTotalPhys", ctypes.c_ulonglong), ("ullAvailPhys", ctypes.c_ulonglong),
-                        ("ullTotalPageFile", ctypes.c_ulonglong), ("ullAvailPageFile", ctypes.c_ulonglong),
-                        ("ullTotalVirtual", ctypes.c_ulonglong), ("ullAvailVirtual", ctypes.c_ulonglong),
-                        ("ullAvailExtendedVirtual", ctypes.c_ulonglong)]
-
-        mem = _Mem()
-        mem.dwLength = ctypes.sizeof(_Mem)
-        ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(mem))  # type: ignore[attr-defined]
-        total = int(mem.ullTotalPhys)
-    spill = load_settings().work_dir / "duckdb_spill"
-    spill.mkdir(parents=True, exist_ok=True)
-    con.execute(f"SET memory_limit = '{max(1, int(total * 0.4) // 2**30)}GB'")
-    con.execute(f"SET temp_directory = '{spill.as_posix()}'")
-    return con
-
-
-#: SQL for a record's identity over a relation with provenance columns; the
-#: same rule as :func:`record_ids`. Exact duplicates within one source file
-#: are numbered by their row order (key, key#2, key#3...): CIHA 2022 publishes
-#: 735,049 rows identical to another row of the same file (131 among its
-#: deaths), and one key would have merged them. The n-th copy in the national
-#: file and in its state's file get the same identity.
-RECORD_ID_SQL = ("coalesce(_record_key || CASE WHEN _dup > 1 THEN '#' || CAST(_dup AS VARCHAR) ELSE '' END, "
-                 "_blob_sha256 || ':' || CAST(_row AS VARCHAR))")
-DUP_SQL = "row_number() OVER (PARTITION BY _source_path, _record_key ORDER BY _row) AS _dup"
-
-
-def record_ids(table: pa.Table) -> pa.Array:
-    """Each record's identity: its content key where the lake or decoder
-    stamped one (``_record_key``, OQ-65), numbered for exact duplicates within
-    a source file, else ``_blob_sha256:_row``."""
-    fallback = pc.binary_join_element_wise(pc.cast(table.column("_blob_sha256"), pa.string()),
-                                           pc.cast(table.column("_row"), pa.string()), ":")
-    if "_record_key" not in table.column_names:
-        return fallback
-
-    con = connect()
-    con.register("t", pa.table({"_record_key": pc.cast(table.column("_record_key"), pa.string()),
-                                "_source_path": pc.cast(table.column("_source_path"), pa.string()),
-                                "_row": table.column("_row"),
-                                "_blob_sha256": pc.cast(table.column("_blob_sha256"), pa.string()),
-                                "_pos": pa.array(range(table.num_rows), pa.int64())}))
-    return con.execute(f"SELECT {RECORD_ID_SQL} AS id FROM (SELECT *, {DUP_SQL} FROM t) ORDER BY _pos"
-                       ).fetch_arrow_table().column("id").combine_chunks()
 _FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYYMM": "%Y%m"}
 _TYPES = {"date", "month", "sex", "municipality", "facility", "integer", "number", "code", "codes", "label"}
 
@@ -243,7 +176,10 @@ def _cache_path(dataset: str, period: object, geography: object, settings: Any) 
     except Exception:  # noqa: BLE001 - an unknown dataset is reported by the query itself
         return None
     lake = Path(settings.lake_dir) / system
-    files = sorted(lake.glob(f"{system}_{series}_*/**/*.parquet")) if lake.exists() else []
+    # A system without series (CIHA) names its families CIHA_CIHA_<sig>: the
+    # glob read CIHA_None_* and CIHA's role table was never cached, so every
+    # CIHA link labelled 20 million rows again (2026-10-03).
+    files = sorted(lake.glob(f"{system}_{series or system}_*/**/*.parquet")) if lake.exists() else []
     if not files:
         return None
     h = hashlib.sha256()
@@ -258,7 +194,14 @@ def _cache_path(dataset: str, period: object, geography: object, settings: Any) 
     for f in files:
         st = f.stat()
         h.update(f"{f.relative_to(lake)}|{st.st_size}|{st.st_mtime_ns}".encode())
-    return Path(settings.lake_dir) / "roles" / dataset / f"{h.hexdigest()[:20]}.parquet"
+    return Path(settings.lake_dir) / "roles" / dataset / f"{_scope_slug(period, geography)}__{h.hexdigest()[:20]}.parquet"
+
+
+def _scope_slug(period: object, geography: object) -> str:
+    def part(v: object) -> str:
+        return "-".join(str(x) for x in v) if isinstance(v, (list, tuple)) else str(v)
+
+    return f"{part(period)}_{part(geography)}".replace("/", "-").replace(" ", "")
 
 
 def _subset(table: pa.Table, names: list[str]) -> pa.Table:
@@ -304,11 +247,52 @@ def role_table(
         tmp = path.with_suffix(".tmp")
         pq.write_table(full, tmp, compression="zstd")
         tmp.replace(path)
+        # The same scope under an older key can never be served again (its
+        # code or its lake files changed): 4.3 GB of them had piled up.
+        prefix = path.name.split("__", 1)[0] + "__"
+        for stale in path.parent.glob(f"{prefix}*.parquet"):
+            if stale != path:
+                stale.unlink(missing_ok=True)
     return _subset(full, names)
+
+
+def _state_partitions(dataset: str, geography: object, settings: Any) -> list[str]:
+    """The states to build a national role table from, one at a time: the
+    lake's per-state partitions of the dataset when it holds no national one.
+    Labelling a national SIH year at once held 12.5 million rows and took one
+    process past 14 GB (2026-10-03); a state at a time holds one state."""
+    from ..retrieve import parse_dataset
+
+    if str(geography).upper() != "BR":
+        return []
+    try:
+        system, series = parse_dataset(dataset)
+    except Exception:  # noqa: BLE001 - an unknown dataset is reported by the query itself
+        return []
+    lake = Path(settings.lake_dir) / system
+    ufs = {p.name.split("=", 1)[1] for p in lake.glob(f"{system}_{series or system}_*/*/uf=*") if p.is_dir()}
+    return [] if not ufs or "BR" in ufs else sorted(ufs)
 
 
 def _compute_roles(spec: DatasetRoles, names: list[str], *, period: object, geography: object,
                    **query_kwargs: Any) -> tuple[pa.Table, str]:
+    from ..config import load_settings
+
+    settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
+    states = _state_partitions(spec.dataset, geography, settings)
+    if not states:
+        return _compute_roles_one(spec, names, period=period, geography=geography, **query_kwargs)
+    parts = [_compute_roles_one(spec, names, period=period, geography=uf, **query_kwargs) for uf in states]
+    table = pa.concat_tables([t for t, _ in parts], promote_options="default")
+    absent = set.intersection(*(set(absent_roles(t)) for t, _ in parts))
+    meta = dict(parts[0][0].schema.metadata or {})
+    meta[b"absent_roles"] = ",".join(sorted(absent)).encode()
+    strategy = "lake" if all(s == "lake" for _, s in parts) else "other"
+    return table.replace_schema_metadata(meta), strategy
+
+
+def _compute_roles_one(spec: DatasetRoles, names: list[str], *, period: object, geography: object,
+                       **query_kwargs: Any) -> tuple[pa.Table, str]:
     from .._query_engine.executor import query
 
     wanted = [spec.roles[name] for name in names]
@@ -346,4 +330,4 @@ def absent_roles(table: pa.Table) -> list[str]:
     return [r for r in raw.split(",") if r]
 
 
-__all__ = ["RECORD_ID", "DatasetRoles", "Role", "absent_roles", "dataset_roles", "load_roles", "role_table"]
+__all__ = ["DatasetRoles", "Role", "absent_roles", "dataset_roles", "load_roles", "role_table"]

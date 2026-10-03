@@ -29,7 +29,8 @@ import pyarrow as pa
 
 from pegasus_data import link
 from pegasus_data.config import load_settings
-from pegasus_data.linkage.roles import record_ids, role_table
+from pegasus_data.linkage.identity import record_ids
+from pegasus_data.linkage.roles import role_table
 
 OUT = Path(__file__).resolve().parents[1] / "data" / "probes" / "linkage"
 DEFAULT = ["2499363", "7866801", "2705982", "7254628", "8015899", "2473046", "2362821", "2006197"]
@@ -91,7 +92,7 @@ def main(period: str, hospitals: list[str]) -> None:
 
 
 def _raw_id() -> str:
-    from pegasus_data.linkage.roles import RECORD_ID_SQL
+    from pegasus_data.linkage.identity import RECORD_ID_SQL
 
     return RECORD_ID_SQL
 

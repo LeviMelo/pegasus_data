@@ -48,9 +48,10 @@ import pyarrow.compute as pc
 
 from ..semantics.curation import read_yaml
 from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, upper95, validate
+from .identity import connect, record_ids
 from .levels import Levels, levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
-from .roles import connect, dataset_roles, record_ids, role_table
+from .roles import dataset_roles, role_table
 
 CONTROL_SHIFT_DAYS = 400
 RANDOM_PAIRS = 200_000
@@ -705,18 +706,22 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
         # each the scope's own, else the national one, which covers every
         # slice's records (theory §3.2). A year with neither leaves its
         # records without the inherited value: missing, not evidence.
-        found = []
+        found, years = [], []
         for year in _period(period).years:
             run = (store.load(settings, store.run_key(item.via, "probabilistic", str(year), geography))
                    or store.load(settings, store.run_key(item.via, "probabilistic", str(year), "BR")))
             if run is not None:
                 found.append(run[0].select(["l", "r"]))
+                years.append(str(year))
         if not found:
             raise FileNotFoundError(f"inherit: no stored {item.via} link for {geography} {period}; link it first")
         stored = (pa.concat_tables(found),)
+        # The partner is read only for the years a link exists: reading it over
+        # a padded period labelled a whole national year for nothing.
+        partner_period: object = years[0] if len(years) == 1 else (years[0], years[-1])
         mine, other, partner_ds = (("l", "r", via.right.dataset) if via.left.dataset == dataset
                                    else ("r", "l", via.left.dataset))
-        partner = role_table(partner_ds, period=period, geography=geography, roles=[item.role], **query_kwargs)
+        partner = role_table(partner_ds, period=partner_period, geography=geography, roles=[item.role], **query_kwargs)
         pid = record_ids(partner)
         con.register("pairs", stored[0].select([mine, other]))
         con.register("partner", pa.table({"_k": pid, "v": partner.column(item.role)}))
