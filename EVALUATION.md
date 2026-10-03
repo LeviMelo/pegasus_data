@@ -152,3 +152,4 @@ in.
 | 2026-10-03 | [Renamed columns: what values can and cannot show](docs/evaluation/2026-10-03-renamed-columns.md) | live (93 layout boundaries sampled through the mirror; fresh home) |
 | 2026-10-03 | [Official concept lists as dimensions, checked against TabNet](docs/evaluation/2026-10-03-official-concept-lists.md) | live (semantics and label pack rebuild; SIM SE 2022, SIH SE 2022-01; TabNet) |
 | 2026-10-03 | [SINAN dengue deaths → SIM (national 2022)](docs/evaluation/2026-10-03-sinan-dengue-deaths-to-sim.md) | live (national probabilistic link) |
+| 2026-10-03 | [SINAN linkage potential: what the schemas offer, and what was measured](docs/evaluation/2026-10-03-sinan-linkage-potential.md) | schema census; live (national 2022 links) |

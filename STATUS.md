@@ -130,7 +130,10 @@ OQ-64), 1990s SIH V-codes.
     birth date);
   - chemotherapy APAC deaths → SIM was tried and withdrawn: its date is not
     the death date;
-  - 2023 is linked (above); other SINAN agravos are not started.
+  - 2023 is linked (above);
+  - SINAN HIV/AIDS and congenital syphilis cannot be linked from public
+    fields: no birth date or facility (EVALUATION 2026-10-03 "SINAN
+    linkage potential").
 
 ## Context around a record (2026-10-03)
 
