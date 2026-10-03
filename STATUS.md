@@ -250,8 +250,8 @@ OQ-64), 1990s SIH V-codes.
     found);
   - BASE_AIH1's 11 fields without an RD/SP twin;
   - its age pairing, unverified until a sample of the 12 GB file is read.
-- **Disasters (S2iD):** no source is readable without a browser session
-  (OQ-67).
+- **Disasters (S2iD):** the 1991–2025 CSV is published, but MIDR's firewall
+  rejects every scripted download of it (OQ-67).
 - **Speed.** A cold process still spends most of its time in per-group
   binding decisions and catalog reads.
 - **Carried:**
