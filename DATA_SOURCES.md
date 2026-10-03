@@ -400,6 +400,13 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   systems on 295 municipalities (46 by name), `RSAUDBR` on 2,612 (1,944 by
   name: two regionalisations under one name). `BR_MACSAUD` conflicts on 66%,
   `MSAUDBR` on 4%.
+- The 46 `CIRBRN` contests left after scoping are all SIM against SINASC
+  (2026-10-03, ADR-0129).
+  - 33 are one region in two code schemes: SINASC's Santa Catarina table
+    writes UF plus two digits (`4214`), where SIM and TabNet write UF plus
+    three (`42014`).
+  - 13 are region changes, two vintages of the regionalisation. TabNet's
+    current table sides with SINASC in 11 and with SIM in 2.
 
 ## 3. Record layouts and other documentation
 
