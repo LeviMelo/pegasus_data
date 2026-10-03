@@ -183,7 +183,7 @@ Stored aggregates are sums and counts, never finished means.
 |---|---|
 | how the system runs, end to end | `HOW_IT_WORKS.md` |
 | current state and what is next | `STATUS.md` |
-| the plan of the branch in progress | `docs/plans/` (`linkage.md`: record linkage) |
+| the plan of the branch in progress | `docs/plans/` (`linkage.md`: record linkage; `linkage-theory.md`: the proposed unified theory) |
 | module boundaries, what overlaps, and the invariants | `ARCHITECTURE.md` |
 | accepted decisions and their evidence | `DECISIONS.md` (an index; one file per ADR under `docs/decisions/`) |
 | measurements and live runs | `EVALUATION.md` (an index; one file per entry under `docs/evaluation/`) |

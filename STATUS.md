@@ -66,6 +66,12 @@ continues on branch **`linkage`**: record linkage across systems, planned in
   search finds the hand-written keys of deliveries and in-hospital deaths
   (SIH and CIHA) and infant deaths (through birth weight, which it picks on
   its own) at 0.5–13% of the probabilistic yields.
+- **A unified theory of linkage is proposed** (`docs/plans/linkage-theory.md`,
+  for discussion). It covers latent entities, field-kind channels with
+  hierarchical parameters, a coverage prior with national frequencies (scope
+  invariance), collective resolution in which entities gain fields, discovery
+  as structure learning, race held out and modelled per setting, and an
+  end-to-end placebo. Nothing in it is decided.
 - **Impossible pairs** (a death before the admission, a death at home) are
   mostly recording errors in true pairs. They become learned, flagged
   evidence, not rules. Next: one link per pair at the widest scope.
