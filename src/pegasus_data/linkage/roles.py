@@ -156,7 +156,8 @@ def _cache_path(dataset: str, period: object, geography: object, settings: Any) 
     """Where a dataset-scope's role table is kept, or None when no lake backs it.
 
     The key fingerprints everything the table depends on: the scope, the role
-    declarations (roles.yml), this module's normalisation code, and every lake
+    declarations (roles.yml), the code that reads, renders and normalises the
+    rows, and every lake
     partition file of the dataset (path, size, mtime). A rebuilt partition, an
     edited role or a changed normaliser is a different key, so a stale table is
     never served (docs/plans/linkage-theory.md §7, step T1).
@@ -176,7 +177,12 @@ def _cache_path(dataset: str, period: object, geography: object, settings: Any) 
     h = hashlib.sha256()
     h.update(f"{dataset}|{period!r}|{geography!r}".encode())
     h.update(ROLES_FILE.read_bytes())
-    h.update(Path(__file__).read_bytes())
+    # The code that reads and renders the rows, not only this normaliser: a fix
+    # in the lake read (derived inputs, 2026-10-03) must invalidate the tables.
+    package = Path(__file__).resolve().parent.parent
+    for source in (Path(__file__), package / "api.py", package / "retrieve.py", package / "view.py",
+                   package / "_query_engine" / "executor.py", package / "_query_engine" / "filters.py"):
+        h.update(source.read_bytes())
     for f in files:
         st = f.stat()
         h.update(f"{f.relative_to(lake)}|{st.st_size}|{st.st_mtime_ns}".encode())

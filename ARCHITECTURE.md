@@ -342,6 +342,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `linkage/discover.py`: link discovery: every key from type-compatible roles counted against a week-shifted placebo; `discover_links()`, `pegasus-data link-discover` (ADR-0119).
 - `linkage/entities.py`: stored links merged into persons (union-find over (record, person role), strongest evidence first, refusing merges that break a person constraint); `build_entities()`, `person_pairs()`, `pegasus-data link-entities` (docs/plans/linkage-theory.md §3.3).
 - `linkage/annotators.py`: settings as annotators. Dawid–Skene EM over persons classified by several settings (a latent consensus class, a confusion matrix per setting), optionally hierarchical (a hospital shrunk toward its system); race and other clerk-recorded categories (docs/plans/linkage-theory.md §5, T4).
+- `linkage/uncertainty.py`: linkage error into analyses: `p_match` weights, `link_draws()` (plausible link sets from the match probabilities), Rubin's rules (docs/plans/linkage-theory.md §6, T5).
 - `crosswalk.py`: CNES↔CNPJ enrichment. Reads the registry first (windows from inclusion to exclusion), then the label pack's historical claims where the registry is silent; compares with the record's own CNPJ when the layout has one (ADR-0100).
 - `providers.py`: optional attribute providers (CNES names).
 - `_age.py`: age in fractional years from measured unit tables (ADR-0070), and age bands.

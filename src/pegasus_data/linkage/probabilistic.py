@@ -10,10 +10,10 @@ Runs a link spec's ``probabilistic`` block (``curation/links.yml``):
    levels are its error channel, measured without assuming it.
 3. **Candidates** from several blocking keys (intrinsic roles; geography never
    filters), each pair scored as the sum of its fields' bits.
-4. **Control.** The same candidate generation and scoring with the left birth
-   date shifted by 400 days. A year, a month and a day all change, so a true
-   match compares as "other" and never earns typo credit; what the control
-   still scores high is coincidence.
+4. **Control.** The same candidate generation and scoring with every left
+   date (birth and event dates) shifted by 400 days. A year, a month and a day
+   all change, so no block reaches a true partner and no date earns typo
+   credit; what the control still scores high is coincidence.
 5. **Threshold** where the estimated false-match rate (control pairs over real
    pairs above it, both resolved 1:1) is at most ``target_fdr``; then 1:1
    resolution by descending score.
@@ -27,9 +27,11 @@ Scope invariance (docs/plans/linkage-theory.md §3.2, step T2):
   and match-probability curve (stored with its channels), not with a threshold
   re-estimated from its own small placebo: that re-estimation was what still
   differed between a slice and the nation (Roraima, 2026-10-03).
-- **Pooled error channels.** A run's m is shrunk toward the stored national m
-  of the same spec, by ``POOL_PSEUDO_ANCHORS`` pseudo-anchors: a state with
-  few anchors leans on the nation, a large one keeps its own. A national run
+- **Pooled error channels, national chance agreement.** A run's m is shrunk
+  toward the stored national m of the same spec, by ``POOL_PSEUDO_ANCHORS``
+  pseudo-anchors: a state with few anchors leans on the nation, a large one
+  keeps its own. Its u is the nation's: a slice's random pairs are not a
+  random sample of Brazil. A national run
   stores the reference (``<lake>/links/_params/``).
 """
 
@@ -148,9 +150,17 @@ class ProbabilisticResult:
         }
 
 
-def _shifted_left(con: duckdb.DuckDBPyConnection, role: str, days: int) -> None:
-    con.execute(f"""CREATE OR REPLACE TEMP VIEW LS AS
-        SELECT * REPLACE (CAST({_q(role)} + INTERVAL {days} DAY AS DATE) AS {_q(role)}) FROM L""")
+def _shifted_left(con: duckdb.DuckDBPyConnection, roles: list[str], days: int) -> None:
+    """The placebo's left side: EVERY compared or blocking date shifted.
+
+    Shifting only the birth date left a pair reachable through another block
+    (death day + hospital): the true partner came back into the placebo, short
+    only of the birth date's bits, and sat at the threshold (national 23.22
+    against 23.35; a Sergipe slice 23.9, half its pairs; 2026-10-03). Every
+    date moves, so no block can reach a true partner.
+    """
+    replaced = ", ".join(f"CAST({_q(r)} + INTERVAL {days} DAY AS DATE) AS {_q(r)}" for r in roles)
+    con.execute(f"CREATE OR REPLACE TEMP VIEW LS AS SELECT * REPLACE ({replaced}) FROM L")
 
 
 def _condition(a: str, b: str) -> str:
@@ -431,7 +441,14 @@ def _pool(fm: FieldModel, national: dict[str, Any] | None) -> FieldModel:
         return fm
     levels_ = set(fm.m) | set(nat)
     m = {lv: (n * fm.m.get(lv, 0.0) + k * nat.get(lv, 0.0)) / (n + k) for lv in levels_}
-    pooled = FieldModel(fm.comparison, m, fm.u, anchors=n + k, controls=fm.controls)
+    # Chance agreement is the nation's, not the slice's: random pairs of a
+    # state's records against the nation share a residence far less often than
+    # two random Brazilians (SE: u 0.00067 against 0.0056), which put a slice's
+    # scores on another scale than the national threshold (2026-10-03).
+    nat_u = {lv: float(v["u"]) for lv, v in national.get("levels", {}).items()}
+    u = {**fm.u, **nat_u} if nat_u else fm.u
+    pooled = FieldModel(fm.comparison, m, u, anchors=n + k,
+                        controls=max(fm.controls, int(national.get("controls") or 0)))
     pooled.m_source = {**getattr(fm, "m_source", {}), "pooled_with_national": k}  # type: ignore[attr-defined]
     return pooled
 
@@ -458,9 +475,27 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
              g AS (SELECT k % n.nl AS li, (k * 7919) % n.nr AS ri FROM range({RANDOM_PAIRS}) t(k), n)
         SELECT l._id AS l, r._id AS r FROM g JOIN l ON l.i = g.li JOIN r ON r.i = g.ri"""
     random_levels = _levels_of(con, _select_values("L", random_pairs, prob.compare), prob.compare)
+    # An evidence-only comparison (an inherited AIH, a P07 code) learns its
+    # chance agreement among the real candidates: the records the blocks put
+    # beside a record (same hospital, same day), all but one of them
+    # non-matches, so u is slightly overstated (conservative). Random pairs
+    # across the country almost never had nearby AIHs ("within 100" earned +15
+    # bits), and the placebo's candidates, born 400 days away, never did
+    # either: AIH proximity depends on the day the placebo moves (2026-10-03).
+    block_roles = {k[0] for block in prob.blocks for k in block}
+    left_dates = sorted({c.left for c in prob.compare if c.kind in ("date", "interval")}
+                        | {r for r in block_roles if r in left.column_names
+                           and pa.types.is_date(left.schema.field(r).type)}
+                        | {prob.control_role})
+    _shifted_left(con, left_dates, CONTROL_SHIFT_DAYS)
+    evidence_only = [c for c in prob.compare if not c.is_key]
+    placebo_levels = (dict(zip([c.name for c in evidence_only],
+                               _levels_of(con, _select_values("L", _candidates(con, "L", prob.blocks), evidence_only),
+                                          evidence_only), strict=True))
+                      if evidence_only else {})
     models: list[FieldModel] = []
     for i, comp in enumerate(prob.compare):
-        u, n_u = _distribution(random_levels[i])
+        u, n_u = _distribution(placebo_levels[comp.name] if comp.name in placebo_levels else random_levels[i])
         others = [c for c in prob.compare if c is not comp and c.is_key]
         anchor_sql, _ = _anchor_sql(others, prob.control_role, shift=False)
         control_sql, has_control = _anchor_sql(others, prob.control_role, shift=True)
@@ -474,7 +509,6 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     # Candidates, real and control, scored as they stream.
     rl, rr, rscore = _score_stream(con, _select_values("L", _candidates(con, "L", prob.blocks), prob.compare),
                                    prob.compare, models)
-    _shifted_left(con, prob.control_role, CONTROL_SHIFT_DAYS)
     cl, cr, cscore = _score_stream(con, _select_values("LS", _candidates(con, "LS", prob.blocks), prob.compare),
                                    prob.compare, models)
     # Threshold on 1:1-resolved scores, so real and control are counted alike.
@@ -515,8 +549,9 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
                settings: Any, **query_kwargs: Any) -> pa.Table:
     """Attach roles taken from each record's partner in stored links (``Inherit``).
 
-    The stored link of the same scope is used; a record without a partner there
-    gets null, which compares as missing (no evidence either way).
+    The stored link of the same scope is used, else the national one (it covers
+    every slice's records); a record without a partner there gets null, which
+    compares as missing (no evidence either way).
     """
     from . import store
 
@@ -529,6 +564,9 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
     for item in items:
         via = load_links()[item.via]
         stored = store.load(settings, store.run_key(item.via, "probabilistic", period, geography))
+        if stored is None:
+            # The national link covers every slice's records (theory §3.2).
+            stored = store.load(settings, store.run_key(item.via, "probabilistic", period, "BR"))
         if stored is None:
             raise FileNotFoundError(f"inherit: no stored {item.via} link for {geography} {period}; link it first")
         mine, other, partner_ds = (("l", "r", via.right.dataset) if via.left.dataset == dataset

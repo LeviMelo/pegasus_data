@@ -1030,6 +1030,20 @@ def load(
             columns=columns,
         )
         wanted: list[str] | None = list(columns) if columns else None
+        if wanted and derived:
+            # A curated derived column (IDADE_anos from IDADE and COD_IDADE) is
+            # computed at render from its inputs, so a projection naming only the
+            # derived column must also read them. fetch() does this
+            # (_keep_columns); load() did not, and the age every newborn and
+            # infant link filters on came back absent over a built lake
+            # (2026-10-03: 0 newborn admissions, link "not viable").
+            from .retrieve import _derived_inputs
+            from .semantics.curation import load_variable_docs
+
+            upper = {str(c).upper() for c in wanted}
+            for name, sources in _derived_inputs(load_variable_docs(store, system)).items():
+                if name in upper:
+                    wanted += [s for s in sources if s not in upper and s not in wanted]
         tables, structurally_absent = _read_generations(
             cat,
             families,

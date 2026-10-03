@@ -1,6 +1,6 @@
 """Scope invariance test (docs/plans/linkage-theory.md §3.2, step T2).
 
-Usage: python scripts/link_scope_test.py SPEC PERIOD UF [UF ...]
+Usage: python scripts/link_scope_test.py SPEC PERIOD UF [UF ...] [--reuse-national]
 
 Links SPEC nationally (left and right BR), then each UF's left records against
 the national right side, and compares each slice's pairs with the national
@@ -26,7 +26,9 @@ OUT = Path(__file__).resolve().parents[1] / "data" / "probes" / "linkage"
 def main(spec: str, period: str, ufs: list[str]) -> None:
     warnings.simplefilter("ignore")
     t0 = time.time()
-    national = link(spec, period=period, geography="BR", method="probabilistic", refresh=True,
+    reuse = "--reuse-national" in ufs
+    ufs = [u for u in ufs if u != "--reuse-national"]
+    national = link(spec, period=period, geography="BR", method="probabilistic", refresh=not reuse,
                     allow_partial=True, allow_not_viable=True)
     out = {"national": {"seconds": round(time.time() - t0, 1), **{k: v for k, v in national.summary().items()
                                                                      if k != "models"}}}
@@ -34,6 +36,7 @@ def main(spec: str, period: str, ufs: list[str]) -> None:
           flush=True)
     con = duckdb.connect()
     con.register("nat", national.pairs.select(["l", "r"]))
+    out["national"]["reused"] = reuse
     for uf in ufs:
         t0 = time.time()
         sl = link(spec, period=period, geography=uf, right_geography="BR", method="probabilistic", refresh=True,

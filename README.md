@@ -179,6 +179,10 @@ result.pairs       # record ids (file hash:row) on each side, and the pass that 
   person two birth records or two deaths. `person_pairs(...)` lists any two
   kinds of record of one person, including pairs joined only through other
   links. Command line: `pegasus-data link-entities`.
+- **Uncertainty.** Probabilistic pairs carry `p_match`, the calibrated
+  probability that the pair is true. `link_draws(pairs, n=20)` yields
+  plausible link sets for multiple imputation; combine the analyses with
+  `linkage.uncertainty.combine` (Rubin's rules).
 - **Command line:** `pegasus-data link sih_deaths_to_sim --period 2022 --geo
   RR`. The method is in ADR-0107, ADR-0110 and ADR-0111.
 
