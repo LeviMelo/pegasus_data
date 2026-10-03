@@ -25,10 +25,12 @@ variables:
   PAR_ANTIDU:
     official_name: 'Fez uso de profilaxia anti-retroviral durante o parto'
     translated_name: 'Antiretroviral prophylaxis during delivery'
-    description: 'Whether antiretroviral prophylaxis was given to the woman during delivery.'
     code_system: 'internal'
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – Gestante HIV — sources/dic_text/gestante-hiv__DIC_DADOS_Gestante_HIV_v5.txt (DIC_DADOS_Gestante_HIV_v5.pdf, portalsinan.saude.gov.br), campo 45 (Fez uso de profilaxia anti-retroviral durante o parto)'
+    description: Whether antiretroviral prophylaxis was given to the woman during delivery (1
+      yes, 2 no, 9 unknown). Asked only when HIV was not first diagnosed after delivery and
+      the delivery type is not 'não se aplica' (4); a blank is therefore not an absence of prophylaxis.
   PAR_DT_PAR:
     official_name: Data do parto
     translated_name: Date of delivery

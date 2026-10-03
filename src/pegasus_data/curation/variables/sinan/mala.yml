@@ -101,17 +101,15 @@ variables:
   AT_ATIVIDA:
     official_name: Atividade exercida no momento da provável infecção
     translated_name: Activity being performed at likely infection
-    description: 'What the patient was doing when likely exposed to malaria — agriculture,
-      ranching, domestic work, tourism, gold-mining (garimpo), plant harvesting, hunting/fishing,
-      road/dam construction, mining, traveling, or other — profiling occupational/environmental
-      transmission risk.
-
-      '
     code_system: internal
     codelists:
     - AT_ATIVIDA
     source: web
     source_ref: https://github.com/rfsaldanha/microdatasus/blob/7109ec2c42cf/R/process_sinan_malaria.R#AT_ATIVIDA
+    description: 'Main activity in the last 15 days, taken as the one probably involved in the
+      transmission: agriculture, ranching, domestic work, tourism, gold-mining (garimpo), plant
+      harvesting, hunting/fishing, road/dam construction, mining, traveller, other; 99 unknown.
+      It profiles occupational and environmental transmission risk.'
   AT_LAMINA:
     official_name: Tipo de lâmina
     translated_name: Type of slide

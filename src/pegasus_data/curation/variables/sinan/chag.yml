@@ -206,16 +206,15 @@ variables:
   CON_TRIAT:
     official_name: Contato com triatomíneo
     translated_name: Contact with triatomine bug (vector)
-    description: 'Whether the patient had contact with a triatomine ("barbeiro") bug,
-      the classic Chagas disease vector, before symptom onset.
-
-      '
     code_system: internal
     codelists:
     - CON_TRIAT
-    source: web
-    source_ref: https://github.com/rfsaldanha/microdatasus/blob/7109ec2c42cf/R/process_sinan_chagas.R#CON_TRIAT
     notes: Coded 1=Sim, 2=Não, 3=Não se aplica.
+    description: Whether triatomine (barbeiro) vector control was carried out as a response
+      to the case (1 yes, 2 no, 3 not applicable, 9 unknown); one of the 'measures taken' items,
+      alongside BIOSSEG, FISCALIZA and MED_OUTRO. It is not a history of contact with the bug.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Chagas'
   DOSAGEM:
     official_name: Dosagem do medicamento
     translated_name: Drug dosage

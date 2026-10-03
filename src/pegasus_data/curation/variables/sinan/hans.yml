@@ -32,14 +32,13 @@ variables:
   BACILOSCOP:
     official_name: Baciloscopia
     translated_name: Skin-smear microscopy result
-    description: 'Result of the skin-smear microscopy for M. leprae bacilli at leprosy
-      diagnosis: a positive smear classifies the case as multibacillary even when its
-      clinical form looks paucibacillary.
-
-      '
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Hanseniase_v5.pdf, campo 40 (Baciloscopia)
+    description: 'Result of the skin-smear microscopy for M. leprae bacilli at leprosy diagnosis
+      (1 positive, 2 negative, 3 not performed, 9 unknown): a positive smear classifies the
+      case as multibacillary even when its clinical form looks paucibacillary. The dictionary
+      flags the DBF name for renaming from BACILOSCOP.'
   CLASSATUAL:
     official_name: Classificação operacional atual
     translated_name: Current operational classification (leprosy)

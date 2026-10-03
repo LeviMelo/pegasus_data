@@ -201,14 +201,13 @@ variables:
   IMUNO_DIRE:
     official_name: Imunofluorescência direta
     translated_name: Direct immunofluorescence
-    description: 'Direct immunofluorescence on animal brain tissue. The standard rabies
-      test, and a positive result makes the exposed person''s full course mandatory.
-
-      '
     code_system: internal
-    source: def
-    source_ref: POSNEGINNRE.CNV
-    reasoning: Bound to POSNEGINNRE, positive/negative/inconclusive/not done.
+    description: Direct immunofluorescence test for rabies virus antigen on the notified human
+      case's specimen (1 positive, 2 negative, 3 inconclusive, 4 not performed); the standard
+      rapid rabies test, and a positive result confirms the case. It is a laboratory result
+      of the human case on the human-rabies form, not a test on an animal's brain.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Raiva Humana'
   IMUNO_INDI:
     official_name: Prova biológica
     translated_name: Biological test

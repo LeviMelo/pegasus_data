@@ -557,15 +557,9 @@ variables:
   TRA_OUTR_N:
     official_name: Outro medicamento utilizado
     translated_name: Other drug used
-    description: 'Which alternative drug was used — pentavalent antimonial, amphotericin
-      B, pentamidine, or another. Amphotericin is the escalation when antimonials fail
-      or are contraindicated.
-
-      '
     code_system: internal
-    source: def
-    source_ref: ANTIMO1.CNV
-    reasoning: 'Bound to ANTIMO1, whose values are antimonial pentavalente, anfotericina
-      B, pentamidina and outras.
-
-      '
+    description: The drug used after failure of the initial antimonial treatment (1 amphotericin
+      B, 2 pentamidine, 3 other, 4 not applicable); asked only when the initial drug was pentavalent
+      antimonial. Amphotericin is the escalation when antimonials fail or are contraindicated.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: LTA'

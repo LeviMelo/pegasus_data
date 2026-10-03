@@ -177,14 +177,14 @@ variables:
   CLI_MIOLIT:
     official_name: Mioanálise ou mialgia
     translated_name: Muscle breakdown
-    description: 'Muscle breakdown. The hallmark of crotalic envenoming, and the mechanism
-      by which it destroys the kidneys — which is why COM_RENAL sits downstream.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO.CNV
     reasoning: MIOLIT reads miólise, a systemic sign in the CLI_ block.
+    description: Myolytic or haemolytic systemic manifestations (muscle pain, anaemia, dark
+      urine), asked only when systemic manifestations = 1 (1 yes, 2 no, 9 unknown). Muscle breakdown
+      is the hallmark of crotalic envenoming and the route to kidney injury, which is why COM_RENAL
+      sits downstream.
   CLI_NECROS:
     official_name: Necrose local
     translated_name: Local necrosis
@@ -310,14 +310,13 @@ variables:
   COM_NECROS:
     official_name: Necrose como complicação
     translated_name: Necrosis as a complication
-    description: 'Necrosis appearing as a complication, distinct from CLI_NECROS which
-      records it as a presenting sign.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO.CNV
     reasoning: NECROS in the COM_ complications block, against CLI_NECROS at presentation.
+    description: Extensive necrosis as a local complication (1 yes, 2 no, 9 unknown), asked
+      only when local complications = 1; distinct from CLI_NECROS, which records necrosis as
+      a presenting sign.
   COM_RENAL:
     official_name: Insuficiência renal aguda
     translated_name: Acute kidney injury

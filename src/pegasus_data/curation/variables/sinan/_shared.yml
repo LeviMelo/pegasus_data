@@ -1574,17 +1574,16 @@ variables:
   CLI_ANEMIA:
     official_name: Anemia
     translated_name: Clinical sign — anemia
-    description: 'Anaemia in the child (1 yes, 2 no, 9 unknown): on the AIDS/HIV child forms
-      the CDC-adapted criterion ''anaemia for more than 30 days''; on the congenital syphilis
-      form anaemia on physical examination.
-
-      '
     code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS criança — https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf,
       campo 45 (Critério CDC adaptado – anemia por mais de 30 dias); Dicionário de Dados SINAN
       NET v5.0 – Sífilis Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
       sinais clínicos da criança – anemia (nome SINAN-W)
+    description: 'Anaemia in the child (1 yes, 2 no, 9 unknown): on the AIDS/HIV child forms
+      the CDC-adapted criterion ''anaemia for more than 30 days''; on the congenital syphilis
+      form anaemia on physical examination, where 3 means not applicable (for example abortion
+      or stillbirth), not missing.'
   CLI_CANDIA:
     official_name: Candidose oral resistente ao tratamento
     translated_name: Oral candidiasis resistant to treatment
@@ -2161,16 +2160,15 @@ variables:
   CLI_ESPLEN:
     official_name: Esplenomegalia
     translated_name: Clinical sign — splenomegaly
-    description: 'Enlarged spleen in the child (1 yes, 2 no, 9 unknown), a CDC-adapted AIDS
-      criterion and a sign on the congenital syphilis form.
-
-      '
     code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – AIDS criança — https://portalsinan.saude.gov.br/images/documentos/Agravos/AidsCrianca/DIC_DADOS_Aids_crianca_v5.pdf,
       campo 45 (Critério CDC adaptado – esplenomegalia); Dicionário de Dados SINAN NET v5.0
       – Sífilis Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
       sinais clínicos da criança – esplenomegalia (nome SINAN-W)
+    description: Enlarged spleen in the child (1 yes, 2 no, 9 unknown), a CDC-adapted AIDS criterion
+      and a sign on the congenital syphilis form; on the syphilis form 3 means not applicable
+      (for example abortion or stillbirth), not missing.
   CLI_FEBRE:
     official_name: Febre
     translated_name: Fever (clinical finding)
@@ -2272,11 +2270,6 @@ variables:
   CLI_ICTERI:
     official_name: Icterícia
     translated_name: Clinical sign — jaundice
-    description: 'Clinical-sign-present flag for jaundice, in this batch''s leptospirose and
-      sífilis-congênita symptom checklists — distinct from the plain ICTERICIA column used
-      elsewhere in this system.
-
-      '
     code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Leptospirose — portalsinan.saude.gov.br,
@@ -2284,6 +2277,10 @@ variables:
       campo 36 (Sinais e sintomas – icterícia); Dicionário de Dados SINAN NET v5.0 – Sífilis
       Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
       sinais clínicos da criança – icterícia (nome SINAN-W)
+    description: Jaundice sign flag (1 yes, 2 no, 9 unknown) in the leptospirosis and congenital
+      syphilis symptom checklists; on the congenital syphilis form 3 means not applicable (for
+      example abortion or stillbirth). Distinct from the plain ICTERICIA column used elsewhere
+      in this system.
   CLI_INFCIT:
     official_name: '45. Critério CDC — Infecção por Citomegalovírus (<1 Mês de Idade)
 
@@ -2476,14 +2473,13 @@ variables:
   CLI_OUTRO:
     official_name: Outros sinais/sintomas
     translated_name: Other clinical finding
-    description: 'Whether the child had other signs or symptoms on examination not listed on
-      the form (1 yes, 2 no, 9 unknown).
-
-      '
     code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Sífilis Congênita — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
       sinais clínicos da criança – outros (nome SINAN-W CLI_OUTRO)
+    description: Whether the child had other signs or symptoms on examination not listed on
+      the form (1 yes, 2 no, 3 not applicable, for example abortion or stillbirth, 9 unknown);
+      the free-text name is in SIN_OUTR_E, enabled only when this is 1.
   CLI_OUTROS:
     official_name: Sinais e sintomas – outros
     translated_name: Clinical sign — other (unlisted), masculine form
@@ -2537,14 +2533,6 @@ variables:
     translated_name: 'Pseudomembrane / pseudoparalysis sign
 
       '
-    description: 'Two different classic signs under one name: on the diphtheria form it marks
-      presence of a pseudomembrane (the throat membrane diphtheria is named for); on the congenital-syphilis
-      form it marks "pseudoparalisia" (Parrot''s pseudoparalysis — painful periostitis that
-      makes an infant hold a limb still, a classic congenital-syphilis sign). The congenital-syphilis
-      source document explicitly confirms the DBF name is unchanged from the older SINAN-W
-      system.
-
-      '
     code_system: internal
     codelists:
     - SIM_NAO
@@ -2564,6 +2552,11 @@ variables:
       SIFC without checking the agravo conflates two different diseases'' physical signs.
 
       '
+    description: 'Two different classic signs under one name (1 yes, 2 no, 9 unknown): on the
+      diphtheria form the presence of a pseudomembrane; on the congenital-syphilis form ''pseudoparalisia''
+      (Parrot''s pseudoparalysis, painful periostitis that makes an infant hold a limb still),
+      where 3 means not applicable (for example abortion or stillbirth). The DBF name is unchanged
+      from the older SINAN-W system.'
   CLI_PULMAO:
     official_name: Candidose de traqueia, brônquios ou pulmões
     translated_name: Candidiasis of trachea, bronchi or lungs
@@ -5406,15 +5399,14 @@ variables:
   LAB_UREIA:
     official_name: Ureia
     translated_name: Blood urea
-    description: 'Result of a blood-urea test, a biochemistry marker monitored to detect the
-      acute kidney injury that hantavirus pulmonary syndrome and severe leptospirosis (Weil
-      disease) can cause.
-
-      '
     code_system: none
     source: web
     source_ref: scielo.iec.gov.br/scieloOrg S1679-49742011000400013, hantavirus laboratory
       monitoring
+    description: Whether urea and creatinine were raised on the blood panel in a hantavirus
+      case (1 yes, 2 no, 3 not performed, 9 unknown); filled only if a blood sample was drawn
+      (AM_SANGUE = 1). A coded yes/no finding, not a numeric urea value; it flags the renal
+      injury that hantavirus pulmonary syndrome and severe leptospirosis can cause.
   LACO:
     official_name: Prova do laço positiva
     translated_name: Tourniquet test positive
@@ -6014,9 +6006,6 @@ variables:
   NU_IDADE_N:
     official_name: Idade
     translated_name: Age, coded
-    description: 'Age at first symptoms, packed as four digits: the first is the unit — 1
-      hour, 2 day, 3 month, 4 year — and the last three the magnitude. 3009 is nine months,
-      4018 is eighteen years. Read as a plain integer it mis-scales every infant record.'
     code_system: none
     source: layout_doc
     source_ref: '[DIC-NOTIF-IND] "10. Idade | nu_idade | number(4) | A composição da variável
@@ -6037,6 +6026,11 @@ variables:
       — expect a SPURIOUS-BINDING? report for code_system 'none' against these bindings, same
       pattern as a date field bound to ANOS/MESES. Taken at DT_SIN_PRI, or at DT_NASC where
       no symptom date is recorded.
+    description: 'Age, packed as four digits: the first is the unit (1 hour, 2 day, 3 month,
+      4 year) and the last three the magnitude; 3009 is nine months, 4018 is eighteen years.
+      It is computed from the birth date against the form''s reference date (first symptoms
+      on most forms, date of occurrence on the violence form); without a birth date it is the
+      declared or apparent age. Read as a plain integer it mis-scales every infant record.'
   NU_LOTE_H:
     official_name: Número do Lote de Transferência Horizontal
     translated_name: Horizontal-transfer batch number
@@ -6922,9 +6916,6 @@ variables:
     translated_name: 'IgG serology titer/result, sample 1 (S1)
 
       '
-    description: 'First-sample IgG serology, whose KIND of value depends on the form: a category
-      on acute Chagas disease, a raw antibody titre on spotted fever. Same name, different
-      type — a numeric read succeeds on one and silently corrupts the other.'
     code_system: internal
     codelists:
     - TIT_IGG_S1
@@ -6943,16 +6934,17 @@ variables:
       name; casting to a single type across series will corrupt one of the two. Chagas (CHAG):
       1 reagente, 2 não-reagente, 3 inconclusivo, 4 não realizado. Spotted fever (FMAC): the
       titre itself, e.g. 1:80, filled only when the test was performed.'
+    description: First-sample IgG antibody titre, filled only when the matching IGG_S1 result
+      is reactive. On spotted fever (FMAC) a numeric titre (number(5)), filled unless the result
+      is 'not performed'; on acute Chagas a short text titre (varchar(5)), filled only when
+      IFI IgG S1 = 1. The Chagas dictionary prints the 1-4 result categories under this field,
+      but they are a copy of the result field's list, not a coding of the titre, so no categorical
+      label should be applied to it.
   TIT_IGG_S2:
     official_name: 'Resultado IFI/Sorologia — Título IgG, Amostra 2
 
       '
     translated_name: 'IgG serology titer/result, sample 2 (S2)
-
-      '
-    description: 'Second-sample (S2) analogue of TIT_IGG_S1, taken later to check for seroconversion/rising
-      titer between paired sera. Same CHAG-categorical-code vs FMAC-numeric-titer duality
-      applies.
 
       '
     code_system: internal
@@ -6969,6 +6961,11 @@ variables:
       '
     depends_on:
     - TIT_IGG_S1
+    description: Second-sample IgG antibody titre, filled only when the matching IGG_S2 result
+      is reactive (Chagas) or not 'not performed' (spotted fever), taken later to check for
+      seroconversion or a rising titre between paired sera. A text titre (varchar(5)) on Chagas,
+      a number on spotted fever; the 1-4 category list printed under the Chagas field is a copy
+      of the result field's list and does not code the titre.
   TIT_IGM_S1:
     official_name: 'Resultado IFI/Sorologia — Título IgM, Amostra 1
 
@@ -6999,9 +6996,6 @@ variables:
     translated_name: 'IgM serology titer/result, sample 2 (S2)
 
       '
-    description: 'Second-sample (S2) analogue of TIT_IGM_S1.
-
-      '
     code_system: internal
     codelists:
     - TIT_IGM_S2
@@ -7016,6 +7010,10 @@ variables:
       '
     depends_on:
     - TIT_IGM_S1
+    description: Second-sample IgM antibody titre, filled only when the matching IgM S2 result
+      is reactive (Chagas) or not 'not performed' (spotted fever); a text titre (varchar(5))
+      on Chagas and a number on spotted fever. The 1-4 list printed under the Chagas field is
+      a copy of the result field's categories, not a coding of the titre.
   TOSSE:
     official_name: Tosse
     translated_name: Clinical sign — cough
@@ -7211,13 +7209,13 @@ variables:
   TRATAMENTO:
     official_name: Data do início do tratamento
     translated_name: Treatment start date
-    description: 'Date the patient began treatment for the notified disease (visceral leishmaniasis
-      or tuberculosis), required to fall on or after the notification date.
-
-      '
     code_system: none
+    description: 'Form-dependent field: on visceral leishmaniasis the date the patient began
+      treatment (on or after the notification date); on tuberculosis it is NOT a date but the
+      type of entry (1 new case, 2 relapse, 3 re-entry after abandonment, 4 unknown, 5 transfer,
+      6 post-mortem), the treatment start date being DT_INIC_TR.'
     source: layout_doc
-    source_ref: DIC_DADOS_LV_v5.pdf, campo 38 (DBF TRATAMENTO)
+    source_ref: 'SINAN data dictionary: several agravos'
   TRA_ANTIBI:
     official_name: 'Tratamento com Antibiótico
 
@@ -7243,14 +7241,15 @@ variables:
   TRA_ESQUEM:
     official_name: Esquema de tratamento
     translated_name: Treatment regimen
-    description: 'Malaria drug regimen given, coded by infecting Plasmodium species and drug
-      combination, e.g. chloroquine 3 days plus primaquine 7 days for P. vivax; code 99 is
-      another regimen chosen by the physician.
-
-      '
     code_system: internal
     source: web
     source_ref: github.com/rfsaldanha/microdatasus, process_sinan_malaria.R#TRA_ESQUEM
+    description: 'Treatment-regimen field with a different meaning per form. Malaria: the drug
+      regimen given, coded by Plasmodium species and combination, e.g. chloroquine 3 days plus
+      primaquine 7 days for P. vivax; code 99 is another regimen chosen by the physician. Congenital
+      syphilis: adequacy of the mother''s treatment (1 adequate, 2 inadequate, 3 not done, 9
+      unknown), adequate meaning a regimen right for the clinical stage, started more than 30
+      days before delivery, with the partner treated.'
   TRA_MUNICI:
     official_name: Município onde se realiza o tratamento
     translated_name: Treatment municipality

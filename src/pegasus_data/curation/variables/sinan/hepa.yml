@@ -466,14 +466,14 @@ variables:
   RES_HBSAG:
     official_name: Resultado do HBsAg
     translated_name: HBsAg result
-    description: 'The HBsAg result as carried in a second field, beside AGHBS. Schema
-      generations of this form record the same marker twice, so read whichever is populated.
-
-      '
     code_system: internal
-    source: def
-    source_ref: HEPREAG.CNV
-    reasoning: Bound to HEPREAG; a duplicate of the AGHBS marker.
+    description: HBsAg result of the serology done at the blood bank or testing centre (CTA)
+      that referred the patient (field 44; 1 reactive, 2 non-reactive, 3 inconclusive, 4 not
+      performed, 9 unknown); filled only when BANCOSANGU is 1 or 2. It is a different test from
+      AGHBS, the HBsAg result of the investigation (field 46); the two are not alternative copies
+      of one marker.
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Hepatites Virais'
   RE_ANTIHBC:
     official_name: Resultado da sorologia do banco de sangue ou CTA - Anti-HBc total
     translated_name: Blood bank/CTA serology - total anti-HBc
@@ -518,14 +518,12 @@ variables:
   TP_SOROHCV:
     official_name: Sorologia para hepatite C
     translated_name: Hepatitis C serology
-    description: 'The hepatitis C serology result on the coded scale. Confirming current
-      infection needs the genotype or a viral load, which is why GEN_VHC exists.
-
-      '
     code_system: internal
-    source: def
-    source_ref: HEPREAG.CNV
-    reasoning: Bound to HEPREAG; the coded hepatitis C serology.
+    description: 'Result of the HCV-RNA molecular test (1 reactive, 2 non-reactive, 3 inconclusive,
+      4 not performed): detectable RNA confirms current hepatitis C infection, and when reactive
+      the genotype field GEN_VHC is enabled. It is not the antibody serology, which is ANTIHCV.'
+    source: layout_doc
+    source_ref: 'SINAN data dictionary: Hepatites Virais'
   TRANSFUSAO:
     official_name: Transfusão de sangue
     translated_name: Blood transfusion

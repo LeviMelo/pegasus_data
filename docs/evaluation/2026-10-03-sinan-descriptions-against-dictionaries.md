@@ -46,3 +46,32 @@ Examples:
 - Cholera `CS_ANTIB` and `CS_ANTIB_T` were swapped.
 - The `_shared` fields `CS_CRISE`, `OUTRO`, `OUTROS`, `OUTRAS` and `CONTATO`
   mean different things per agravo; their descriptions now say which.
+
+**Second pass:** the 150 rule-flagged "incomplete" entries, read by hand
+(`data/probes/curation/sinan_incomplete_review.json`).
+
+| verdict | entries |
+|---|---|
+| false alarm | 58 |
+| misaligned (the text belonged to a neighbouring field) | 36 |
+| add | 44 |
+| contradicts | 12 |
+
+**Applied:** the 56 add and contradicts entries, plus `CLI_FLE_D`. The
+contradictions were checked against the raw text first. Among them:
+- `TRATAMENTO` on TB is the type of entry, not a date;
+- `CON_TRIAT` is triatomine control done, not patient contact;
+- `RES_HBSAG` is the referral-service serology;
+- `TP_SOROHCV` is HCV-RNA;
+- `IMUNO_DIRE` is the human case's own immunofluorescence;
+- the PFA plantar-reflex fields were wrongly read as movement.
+
+**Recorded as a source conflict, not resolved:** `LAB_RES_F1`. The 2012
+dictionary codes vaccine-type, wild-type and PVDV classes 01–13; the
+P1P2P3NE.CNV codelist uses 1–7.
+
+**Left for data checks:**
+- the Chagas titre fields (`TIT_IGG_S*`, `TIT_IGM_S2`) are text titres in
+  the dictionary, though a 1–4 codelist is bound;
+- `ANT_TRAUMA` lists no code 2.
+

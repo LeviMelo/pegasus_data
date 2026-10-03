@@ -299,15 +299,15 @@ variables:
   DEF_AUDITI:
     official_name: Deficiência auditiva
     translated_name: Hearing disability
-    description: 'Whether the victim has a hearing disability. Relevant to whether
-      the victim could call for help or give an account, which is why it is asked separately
-      from the visual item.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: DEF_AUDITI reads deficiência auditiva.
+    description: Whether the victim has a hearing disability. Relevant to whether the victim
+      could call for help or give an account, which is why it is asked separately from the visual
+      item. Asked only when DEF_TRANS (any disability or disorder) is 1; if DEF_TRANS is 2 or
+      9 the system fills 8, not applicable, so 8 means no disability or disorder at all, not
+      missing.
   DEF_ESPEC:
     official_name: Outras deficiências/síndromes (especificar)
     translated_name: Disability specification
@@ -323,34 +323,36 @@ variables:
   DEF_FISICA:
     official_name: Deficiência física
     translated_name: Physical disability
-    description: 'Whether the victim has a physical disability. Recorded because dependence
-      on a carer is itself a risk factor, and the carer often appears in the REL_ block
-      as the aggressor.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: DEF_FISICA reads deficiência física, in the disability block.
+    description: Whether the victim has a physical disability. Recorded because dependence on
+      a carer is itself a risk factor, and the carer often appears in the REL_ block as the
+      aggressor. Asked only when DEF_TRANS (any disability or disorder) is 1; if DEF_TRANS is
+      2 or 9 the system fills 8, not applicable, so 8 means no disability or disorder at all,
+      not missing.
   DEF_MENTAL:
     official_name: Deficiência intelectual
     translated_name: Intellectual disability
-    description: 'Whether the victim has an intellectual disability. Distinct from
-      TRAN_MENT, which is a mental disorder rather than a disability.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: DEF_MENTAL is the intellectual disability item, paired against TRAN_MENT.
+    description: Whether the victim has an intellectual disability. Distinct from TRAN_MENT,
+      which is a mental disorder rather than a disability. Asked only when DEF_TRANS (any disability
+      or disorder) is 1; if DEF_TRANS is 2 or 9 the system fills 8, not applicable, so 8 means
+      no disability or disorder at all, not missing.
   DEF_OUT:
     official_name: Outra deficiência ou transtorno
     translated_name: Other disability or disorder
-    description: Any disability or disorder the named items do not cover.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: The OUT residual item closing the disability block.
+    description: Any disability or disorder the named items do not cover. Asked only when DEF_TRANS
+      (any disability or disorder) is 1; if DEF_TRANS is 2 or 9 the system fills 8, not applicable,
+      so 8 means no disability or disorder at all, not missing.
   DEF_TRANS:
     official_name: Pessoa com deficiência ou transtorno
     translated_name: Has a disability or disorder
@@ -368,11 +370,13 @@ variables:
   DEF_VISUAL:
     official_name: Deficiência visual
     translated_name: Visual disability
-    description: Whether the victim has a visual disability.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: DEF_VISUAL reads deficiência visual.
+    description: Whether the victim has a visual disability. Asked only when DEF_TRANS (any
+      disability or disorder) is 1; if DEF_TRANS is 2 or 9 the system fills 8, not applicable,
+      so 8 means no disability or disorder at all, not missing.
   DELEG:
     official_name: Delegacia
     translated_name: Police station
@@ -593,15 +597,15 @@ variables:
   IDENT_GEN:
     official_name: Identidade de gênero
     translated_name: Gender identity
-    description: 'The victim''s gender identity, recorded as travesti, transexual woman
-      or transexual man. Present so that violence against transgender people is countable
-      rather than invisible in a form that otherwise records only sex.
-
-      '
     code_system: internal
     source: def
     source_ref: IDENTGENVIOL.CNV
     reasoning: Bound to IDENTGENVIOL, whose values are travesti and transexual mulher/homem.
+    description: The victim's gender identity, recorded as travesti, transexual woman or transexual
+      man. Present so that violence against transgender people is countable rather than invisible
+      in a form that otherwise records only sex. Mandatory from 10 years of age; for patients
+      aged 9 or younger the code is 8, not applicable, which is not a missing value. 'Travesti'
+      is not accepted when the recorded sex is female.
   ID_MN_OCOR:
     official_name: Município de ocorrência
     translated_name: Municipality where it occurred
@@ -734,10 +738,6 @@ variables:
   ORIENT_SEX:
     official_name: Orientação sexual
     translated_name: Sexual orientation
-    description: 'The victim''s sexual orientation. Added so that violence motivated
-      by it can be counted; read with VIOL_MOTIV, which records the motive itself.
-
-      '
     code_system: internal
     source: def
     source_ref: ORIENTSEXVIOL.CNV
@@ -745,6 +745,10 @@ variables:
       and bissexual.
 
       '
+    description: The victim's sexual orientation. Added so that violence motivated by it can
+      be counted; read with VIOL_MOTIV, which records the motive itself. Mandatory from 10 years
+      of age; for patients aged 9 or younger the code is 8, not applicable, which is not a missing
+      value.
   OUT_VEZES:
     official_name: Ocorreu outras vezes
     translated_name: Happened before
@@ -792,87 +796,88 @@ variables:
   PROC_ABORT:
     official_name: Aborto previsto em lei
     translated_name: Legal abortion provided
-    description: 'Whether an abortion permitted by law was provided. Brazilian law
-      allows it after rape, and this field records whether the health service delivered
-      what the law allows.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: ABORT with the procedures block; the legal-abortion item.
+    description: Whether an abortion permitted by law was provided. Brazilian law allows it
+      after rape, and this field records whether the health service delivered what the law allows.
+      Asked only when sexual violence (VIOL_SEXU) = 1; otherwise the system fills 8, not applicable,
+      so 8 is not 'no'.
   PROC_CONTR:
     official_name: Contracepção de emergência
     translated_name: Emergency contraception given
-    description: 'Whether emergency contraception was given. Time-limited like the
-      HIV prophylaxis, and the same interval against DT_OCOR measures the service.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: CONTR reads contracepção, an item of the procedures block.
+    description: Whether emergency contraception was given. Time-limited like the HIV prophylaxis,
+      and the same interval against DT_OCOR measures the service. Asked only when sexual violence
+      (VIOL_SEXU) = 1; otherwise the system fills 8, not applicable (and for male sex), so 8
+      is not 'no'.
   PROC_DST:
     official_name: Profilaxia de DST
     translated_name: STI prophylaxis given
-    description: 'Whether prophylaxis against sexually transmitted infections was given.
-      The PROC_ block records what the service actually did, and is therefore a measure
-      of the service rather than of the violence.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: PROC_ marks procedimento realizado; DST is doenças sexualmente transmissíveis.
+    description: Whether prophylaxis against sexually transmitted infections was given. The
+      PROC_ block records what the service actually did, and is therefore a measure of the service
+      rather than of the violence. Asked only when sexual violence (VIOL_SEXU) = 1; otherwise
+      the system fills 8, not applicable, so 8 is not 'no'.
   PROC_HEPB:
     official_name: Profilaxia de hepatite B
     translated_name: Hepatitis B prophylaxis given
-    description: Whether hepatitis B prophylaxis was given, alongside the HIV and STI
-      items.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: HEPB is hepatite B, an item of the procedures block.
+    description: Whether hepatitis B prophylaxis was given, alongside the HIV and STI items.
+      Asked only when sexual violence (VIOL_SEXU) = 1; otherwise the system fills 8, not applicable,
+      so 8 is not 'no'.
   PROC_HIV:
     official_name: Profilaxia de HIV
     translated_name: HIV prophylaxis given
-    description: 'Whether HIV post-exposure prophylaxis was given. Effective only within
-      72 hours, so this field read against DT_OCOR is a direct measure of whether the
-      service reached the victim in time.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: HIV prophylaxis item within the procedures block.
+    description: Whether HIV post-exposure prophylaxis was given. Effective only within 72 hours,
+      so this field read against DT_OCOR is a direct measure of whether the service reached
+      the victim in time. Asked only when sexual violence (VIOL_SEXU) = 1; otherwise the system
+      fills 8, not applicable, so 8 is not 'no'.
   PROC_SANG:
     official_name: Coleta de sangue
     translated_name: Blood collected
-    description: 'Whether blood was collected. Serves both baseline serology and forensic
-      evidence, which is why it sits beside the specimen items rather than the prophylaxis
-      ones.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: SANG reads sangue, a specimen item in the procedures block.
+    description: Whether blood was collected. Serves both baseline serology and forensic evidence,
+      which is why it sits beside the specimen items rather than the prophylaxis ones. Asked
+      only when sexual violence (VIOL_SEXU) = 1; otherwise the system fills 8, not applicable,
+      so 8 is not 'no'.
   PROC_SEMEN:
     official_name: Coleta de sêmen
     translated_name: Semen collected
-    description: Whether semen was collected as forensic evidence.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: SEMEN is the specimen; an evidence item in the procedures block.
+    description: Whether semen was collected as forensic evidence. Asked only when sexual violence
+      (VIOL_SEXU) = 1; otherwise the system fills 8, not applicable (the dictionary lists no
+      code 9 here), so 8 is not 'no'.
   PROC_VAGIN:
     official_name: Coleta de secreção vaginal
     translated_name: Vaginal secretion collected
-    description: Whether vaginal secretion was collected as forensic evidence.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: VAGIN is secreção vaginal, an evidence item in the procedures block.
+    description: Whether vaginal secretion was collected as forensic evidence. Asked only when
+      sexual violence (VIOL_SEXU) = 1; otherwise the system fills 8, not applicable (and for
+      male sex), so 8 is not 'no'.
   REDE_EDUCA:
     official_name: Rede de educação
     translated_name: Education network
@@ -902,15 +907,14 @@ variables:
   REL_CAT:
     official_name: Emissão de CAT
     translated_name: Work accident report issued
-    description: 'Whether a Comunicação de Acidente de Trabalho was issued. The formal
-      occupational notification, which carries social-security consequences that a
-      health notification alone does not.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: CAT is the Comunicação de Acidente de Trabalho, following REL_TRAB.
+    description: Whether a Comunicação de Acidente de Trabalho was issued. The formal occupational
+      notification, which carries social-security consequences that a health notification alone
+      does not. Asked only when the violence is work-related (REL_TRAB = 1); otherwise the system
+      fills 8, not applicable, so 8 is not 'no CAT issued'.
   REL_CONHEC:
     official_name: Agressor era conhecido
     translated_name: Aggressor was an acquaintance
@@ -1133,14 +1137,13 @@ variables:
   SEX_ASSEDI:
     official_name: Assédio sexual
     translated_name: Sexual harassment
-    description: 'Whether the sexual violence was harassment. The SEX_ block subdivides
-      VIOL_SEXU and its items are not exclusive.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: SEX_ subdivides the sexual violence flag; ASSEDI is assédio.
+    description: Whether the sexual violence was harassment. The SEX_ block subdivides VIOL_SEXU
+      and its items are not exclusive. Asked only when sexual violence (VIOL_SEXU) = 1; otherwise
+      the system fills 8, not applicable, so 8 is not 'no'.
   SEX_ESPEC:
     official_name: Se ocorreu violência sexual, qual tipo? – outro (especificar)
     translated_name: Sexual violence detail (free text)
@@ -1156,37 +1159,41 @@ variables:
   SEX_ESTUPR:
     official_name: Estupro
     translated_name: Rape
-    description: Whether the sexual violence was rape, the category that triggers the
-      PROC_ prophylaxis block.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: ESTUPR reads estupro, an item of the sexual violence block.
+    description: Whether the sexual violence was rape, the category that triggers the PROC_
+      prophylaxis block. Asked only when sexual violence (VIOL_SEXU) = 1; otherwise the system
+      fills 8, not applicable, so 8 is not 'no'.
   SEX_EXPLO:
     official_name: Exploração sexual
     translated_name: Sexual exploitation
-    description: Whether the case involved sexual exploitation, distinct from the trafficking
-      flag VIOL_TRAF.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: EXPLO reads exploração, an item of the sexual violence block.
+    description: Whether the case involved sexual exploitation, distinct from the trafficking
+      flag VIOL_TRAF. Asked only when sexual violence (VIOL_SEXU) = 1; otherwise the system
+      fills 8, not applicable, so 8 is not 'no'.
   SEX_OUTRO:
     official_name: Outra violência sexual
     translated_name: Other sexual violence
-    description: Any sexual violence the named items do not cover.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: The OUTRO residual item closing the sexual violence block.
+    description: Any sexual violence the named items do not cover. Asked only when sexual violence
+      (VIOL_SEXU) = 1; otherwise the system fills 8, not applicable, so 8 is not 'no'.
   SEX_PORNO:
     official_name: Pornografia infantil
     translated_name: Child pornography
-    description: Whether the case involved child pornography.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: PORNO reads pornografia, an item of the sexual violence block.
+    description: Whether the case involved child pornography. Asked only when sexual violence
+      (VIOL_SEXU) = 1; otherwise the system fills 8, not applicable, so 8 is not 'no'.
   SEX_PUDOR:
     official_name: Atentado violento ao pudor
     translated_name: Indecent assault
@@ -1214,35 +1221,35 @@ variables:
   SIT_CONJUG:
     official_name: Situação conjugal
     translated_name: Marital status
-    description: 'The victim''s marital status. Recorded because intimate-partner violence
-      is the dominant pattern for adult women, and this field with the REL_ block is
-      what identifies it.
-
-      '
     code_system: internal
     source: def
     source_ref: SIT_CONJUG.CNV
     reasoning: Bound to SIT_CONJUG, whose values are solteiro, casado, viúvo, separado.
+    description: The victim's marital status. Recorded because intimate-partner violence is
+      the dominant pattern for adult women, and this field with the REL_ block is what identifies
+      it. For patients aged 9 or younger the code is 8, not applicable, which is not a missing
+      value.
   TRAN_COMP:
     official_name: Transtorno de comportamento
     translated_name: Behavioural disorder
-    description: Whether the victim has a behavioural disorder, recorded apart from
-      TRAN_MENT.
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: TRAN_COMP reads transtorno de comportamento.
+    description: Whether the victim has a behavioural disorder, recorded apart from TRAN_MENT.
+      Asked only when DEF_TRANS (any disability or disorder) is 1; if DEF_TRANS is 2 or 9 the
+      system fills 8, not applicable, so 8 means no disability or disorder at all, not missing.
   TRAN_MENT:
     official_name: Transtorno mental
     translated_name: Mental disorder
-    description: 'Whether the victim has a diagnosed mental disorder. A disorder, not
-      a disability — DEF_MENTAL covers the latter.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO_VIOL.CNV
     reasoning: TRAN_ marks transtorno as against DEF_ for deficiência.
+    description: Whether the victim has a diagnosed mental disorder. A disorder, not a disability
+      — DEF_MENTAL covers the latter. Asked only when DEF_TRANS (any disability or disorder)
+      is 1; if DEF_TRANS is 2 or 9 the system fills 8, not applicable, so 8 means no disability
+      or disorder at all, not missing.
   VIOL_ESPEC:
     official_name: Outros tipos de violência (especificar)
     translated_name: Violence type, specify (free text)
@@ -1304,11 +1311,6 @@ variables:
   VIOL_MOTIV:
     official_name: Motivação da violência
     translated_name: Motive
-    description: 'The suspected motive — sexism, homophobia or transphobia, racism,
-      religious intolerance, xenophobia, generational conflict, homelessness, disability.
-      One code, so an episode with several motives records only one.
-
-      '
     code_system: internal
     source: def
     source_ref: MOTIVOVIOL.CNV
@@ -1316,6 +1318,11 @@ variables:
       transfobia, racismo, intolerância religiosa, xenofobia and similar.
 
       '
+    description: 'The motive of the violence, as the characteristic of the victim it relates
+      to (two-digit code): 01 sexism, 02 homophobia/lesbophobia/biphobia/transphobia, 03 racism,
+      04 religious intolerance, 05 xenophobia, 06 generational conflict, 07 homelessness, 08
+      disability, 09 other, 88 not applicable, 99 unknown. One code, so an episode with several
+      motives records only one.'
   VIOL_NEGLI:
     official_name: Negligência ou abandono
     translated_name: Neglect or abandonment

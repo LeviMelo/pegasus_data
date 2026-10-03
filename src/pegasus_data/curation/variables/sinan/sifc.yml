@@ -249,14 +249,13 @@ variables:
   LAB_CONF:
     official_name: Teste treponêmico
     translated_name: Treponemal test
-    description: 'The confirmatory treponemal test. Stays reactive for life, so it
-      confirms that infection occurred but says nothing about whether it is active.
-
-      '
     code_system: internal
     source: def
     source_ref: REAGE.CNV
     reasoning: Bound to REAGE; the confirmatory test beside the non-treponemal one.
+    description: The confirmatory treponemal test done on the mother at delivery or curettage
+      (1 reactive, 2 non-reactive, 3 not performed, 9 unknown). It stays reactive for life,
+      so it confirms that infection occurred but says nothing about whether it is active.
   LAB_DT3:
     official_name: Data da coleta teste não treponêmico no parto/curetagem
     translated_name: Date of test at delivery
@@ -280,15 +279,14 @@ variables:
   LAB_TITU_2:
     official_name: Resultado teste não treponêmico no parto/curetagem - Título
     translated_name: Titre at delivery
-    description: 'The numeric titre at delivery. The titre, not merely reactivity,
-      is what distinguishes active infection from a serological scar, and comparing
-      it with the infant''s is the core of the diagnosis.
-
-      '
     code_system: none
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Sífilis Congênita v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/SifilisCongenita/DIC_DADOS_Sifilis_Congenita_v5.pdf,
       campo 41 (Resultado teste não treponêmico no parto/curetagem – Título)
+    description: The mother's non-treponemal (VDRL) titre at delivery or curettage, a number;
+      filled only when LAB_PARTO = 1 (reactive), so blank means not applicable, not missing.
+      The titre, not merely reactivity, distinguishes active infection from a serological scar,
+      and comparing it with the infant's is the core of the diagnosis.
   LESOES:
     official_name: Presença de sinais e sintomas - Lesões cutâneas
     translated_name: Skin/mucosal lesions (clinical sign)

@@ -338,14 +338,14 @@ variables:
   ANT_TRAUMA:
     official_name: Traumatismo craniano
     translated_name: Head injury
-    description: 'Previous head injury. A skull fracture can leave a direct route from
-      the nose to the meninges and cause recurrent bacterial meningitis.
-
-      '
     code_system: internal
     source: def
     source_ref: SIM_NAO.CNV
     reasoning: A yes/no comorbidity flag; TRAUMA reads traumatismo.
+    description: Previous head injury or trauma (a pre-existing condition; a skull fracture
+      can leave a direct route from the nose to the meninges and cause recurrent bacterial meningitis).
+      The dictionary lists 1 yes, 3 no, 9 unknown, with no code 2, unlike every sibling ANT_
+      item (1/2/9); whether the data carry 2 or 3 for 'no' is unchecked.
   ANT_TRIPLI:
     official_name: Vacina tríplice
     translated_name: Triple vaccine
