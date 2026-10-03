@@ -80,13 +80,25 @@ def _redecode_text(table: pa.Table, payload: bytes) -> pa.Table:
     double-encoded (cp1252 text read as cp850 and saved again) is undone when
     that reads better.
     """
-    _, file_encoding = best_effort_decode(payload[32:])
+    # The file's codepage as the DBF reader sniffs it (from its records), not
+    # from the raw bytes after byte 32, whose field descriptors swayed it to
+    # cp1252 and turned SIH/CIHA S_CID's "NÃO" into "NÇO" (870 labels, 2026-10-03).
+    from ..decode.dbf import DbfHeader, _sniff_encoding
+
+    file_encoding = _sniff_encoding(payload, DbfHeader(memoryview(payload)))
     order = (file_encoding, *(e for e in CANDIDATE_ENCODINGS if e != file_encoding))
 
     def one(value: object) -> object:
         if not isinstance(value, str) or value.isascii():
             return value
-        raw = value.encode("latin-1")
+        # SIGTAP's tables write a non-breaking separator as the byte pair C7 A8,
+        # always between words or trailing ("DE<C7A8>MEDIDAS"); read in any
+        # codepage it is a stray glyph (212 labels, 2026-10-03). It is a space.
+        # No whitespace collapsing here: in latin-1 byte A0 reads as a no-break
+        # space, but it is cp850's "á" (CID10 "espástica" became "esp stica").
+        raw = value.encode("latin-1").replace(bytes((0xC7, 0xA8)), b" ")
+        if raw.isascii():
+            return raw.decode("ascii")
         text, _ = best_effort_decode(raw, candidates=order)
         # UNISAUPR is written twice over: "Saúde" read as cp850 ("Sa·de") and
         # saved as cp1252. No single codepage reads it; undoing that one step

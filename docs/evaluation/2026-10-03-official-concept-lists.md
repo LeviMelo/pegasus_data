@@ -73,3 +73,24 @@ Result:
 - a few SP labels hold bytes that no codepage reads as Portuguese
   ("BµSICA SAéDE", bytes E6 82). They are left as decoded.
 
+**Label pack after per-value decoding of every kit's DBF lookups**
+(`semantics` full rebuild, then SIHSUS/SIASUS/CIHA/CIH re-ingested).
+Against the last committed pack (d74bcbd):
+
+| | committed | now |
+|---|---|---|
+| labels with U+FFFD | 26 | 0 |
+| "NÇO"/"SÇO" misreads | 300 | 175 |
+| SIGTAP stray separator (`Ã¿`/`Ǩ`) | 64 | 22 |
+
+Every label that differs is a fix: 62 in CID10 ("ExposiþÒo Ó fumaþa" →
+"Exposição à fumaça") and 212 in TB_SIGTAP.
+
+Two regressions were caught on the way and fixed before this pack:
+- **The file codepage came from the wrong bytes.** It was guessed from the
+  bytes after the header instead of from the DBF's records, which turned 870
+  S_CID "NÃO" into "NÇO". It is now the DBF reader's own sniff.
+- **Whitespace collapsing ate a letter.** Collapsing whitespace treated
+  cp850's "á" (byte A0) as a no-break space ("esp stica"); collapsing was
+  removed.
+
