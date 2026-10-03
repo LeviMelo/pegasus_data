@@ -194,7 +194,9 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
     """Register one side as a view with an `_id` per record (or per group)."""
     con.register(f"{name}_raw", table)
     where = f"WHERE {side.where}" if side.where else ""
-    base = f"SELECT *, _blob_sha256 || ':' || CAST(_row AS VARCHAR) AS _id FROM {name}_raw {where}"
+    key = "_record_key, " if "_record_key" in table.column_names else ""
+    base = (f"SELECT *, coalesce({key}_blob_sha256 || ':' || CAST(_row AS VARCHAR)) AS _id "
+            f"FROM {name}_raw {where}")
     if side.group:
         # One record stands for its group (the live births of one delivery):
         # the smallest id, with the group's size kept for validation.

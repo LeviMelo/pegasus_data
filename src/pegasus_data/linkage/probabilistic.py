@@ -49,7 +49,7 @@ from ..semantics.curation import read_yaml
 from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, upper95, validate
 from .levels import levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
-from .roles import dataset_roles, role_table
+from .roles import dataset_roles, record_ids, role_table
 
 CONTROL_SHIFT_DAYS = 400
 RANDOM_PAIRS = 200_000
@@ -557,8 +557,7 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
 
     if not items:
         return table
-    ids = pc.binary_join_element_wise(pc.cast(table.column("_blob_sha256"), pa.string()),
-                                      pc.cast(table.column("_row"), pa.string()), ":")
+    ids = record_ids(table)
     con = duckdb.connect()
     con.register("me", pa.table({"_k": ids, "_pos": pa.array(range(table.num_rows), pa.int64())}))
     for item in items:
@@ -572,8 +571,7 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
         mine, other, partner_ds = (("l", "r", via.right.dataset) if via.left.dataset == dataset
                                    else ("r", "l", via.left.dataset))
         partner = role_table(partner_ds, period=period, geography=geography, roles=[item.role], **query_kwargs)
-        pid = pc.binary_join_element_wise(pc.cast(partner.column("_blob_sha256"), pa.string()),
-                                          pc.cast(partner.column("_row"), pa.string()), ":")
+        pid = record_ids(partner)
         con.register("pairs", stored[0].select([mine, other]))
         con.register("partner", pa.table({"_k": pid, "v": partner.column(item.role)}))
         values = con.execute(f"""SELECT p.v FROM me LEFT JOIN pairs ON pairs.{mine} = me._k

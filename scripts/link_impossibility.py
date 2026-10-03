@@ -18,9 +18,9 @@ from pathlib import Path
 
 import duckdb
 import pyarrow as pa
-import pyarrow.compute as pc
 
 from pegasus_data.config import load_settings
+from pegasus_data.linkage.roles import record_ids as _ids
 from pegasus_data.linkage.roles import role_table
 
 OUT = Path(__file__).resolve().parents[1] / "data" / "probes" / "linkage"
@@ -56,9 +56,6 @@ ROLES = {
 }
 
 
-def _ids(t: pa.Table) -> pa.Array:
-    return pc.binary_join_element_wise(pc.cast(t.column("_blob_sha256"), pa.string()),
-                                       pc.cast(t.column("_row"), pa.string()), ":")
 
 
 def main(period: str, geo: str) -> None:

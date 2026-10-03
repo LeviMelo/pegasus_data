@@ -51,9 +51,30 @@ from .types import arrow_type_for, cast_boolean, cast_numeric
 
 #: ``_row`` is the record's ordinal in its source member, counted before any
 #: filtering: with ``_blob_sha256`` (content-addressed) and the member in
-#: ``_source_path`` it is a permanent record identity, which record linkage
-#: needs to point at (ADR-0107).
-PROVENANCE_COLUMNS = ("_source_path", "_blob_sha256", "_row", "_ingested_at", "_schema_signature")
+#: ``_source_path`` it identifies the record *in that publication* (ADR-0107).
+#: ``_record_key`` identifies the record whatever publication it was read from:
+#: the MD5 of its own fields. SINASC publishes the same births in a national
+#: file and per-state files, and a birth had two identities, one per file
+#: (OQ-65; 2026-10-03: all 28,524 Sergipe births hash identically in both).
+PROVENANCE_COLUMNS = ("_source_path", "_blob_sha256", "_row", "_ingested_at", "_schema_signature", "_record_key")
+
+
+def record_keys(batch: pa.RecordBatch) -> pa.Array:
+    """The content key of each record: MD5 over its fields in name order.
+
+    Companion label columns and provenance are left out, so the key depends
+    only on what the source published for the record. A null is hashed as a
+    distinct marker, never as an empty string.
+    """
+    import duckdb
+
+    names = sorted(n for n in batch.schema.names if not n.startswith("_") and not n.endswith("_label"))
+    if not names:
+        return pa.nulls(batch.num_rows, pa.string())
+    parts = ", ".join(f'coalesce(CAST("{n}" AS VARCHAR), chr(0))' for n in names)
+    con = duckdb.connect()
+    con.register("b", pa.Table.from_batches([batch.select(names)]))
+    return con.execute(f"SELECT md5(concat_ws('|', {parts})) AS k FROM b").fetch_arrow_table().column("k").combine_chunks()
 
 
 @dataclass(slots=True)
@@ -343,6 +364,7 @@ def add_provenance(
         "_row": pa.array(range(first_row, first_row + n), type=pa.int64()),
         "_ingested_at": _constant(stamp),
         "_schema_signature": _constant(schema_signature),
+        "_record_key": record_keys(batch),
     }
     return pa.RecordBatch.from_arrays(
         list(batch.columns) + list(extra.values()),

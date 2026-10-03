@@ -25,18 +25,15 @@ import warnings
 from pathlib import Path
 
 import pyarrow as pa
-import pyarrow.compute as pc
 import pyarrow.parquet  # noqa: F401  (pa.parquet)
 
 from pegasus_data import link, role_table
+from pegasus_data.linkage.roles import record_ids as _ids
 
 OUT = Path(__file__).resolve().parents[1] / "data" / "probes" / "linkage"
 UNFILLED = {None, "", "000000", "999999"}
 
 
-def _ids(t: pa.Table) -> list[str]:
-    return pc.binary_join_element_wise(t.column("_blob_sha256"),
-                                       pc.cast(t.column("_row"), pa.string()), ":").to_pylist()
 
 
 def check(uf: str) -> dict[str, object]:

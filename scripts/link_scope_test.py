@@ -17,6 +17,7 @@ import warnings
 from pathlib import Path
 
 import duckdb
+import pyarrow as pa
 
 from pegasus_data import link
 
@@ -45,12 +46,12 @@ def main(spec: str, period: str, ufs: list[str]) -> None:
         con.register("sl", sl.pairs.select(["l", "r"]))
         # The national pairs whose left record the slice saw.
         from pegasus_data.linkage.engine import load_links
-        from pegasus_data.linkage.roles import role_table
+        from pegasus_data.linkage.roles import record_ids, role_table
 
         seen = role_table(load_links()[spec].left.dataset, period=period, geography=uf, roles=[],
                           allow_partial=True)
-        con.register("seen", seen)
-        con.execute("CREATE OR REPLACE TEMP TABLE ids AS SELECT concat(_blob_sha256, ':', _row) AS id FROM seen")
+        con.register("seen", pa.table({"id": record_ids(seen)}))
+        con.execute("CREATE OR REPLACE TEMP TABLE ids AS SELECT id FROM seen")
         nat_n = con.execute("SELECT count(*) FROM nat WHERE l IN (SELECT id FROM ids)").fetchone()[0]
         same = con.execute("SELECT count(*) FROM sl JOIN nat USING (l, r)").fetchone()[0]
         only_slice = con.execute("SELECT count(*) FROM sl ANTI JOIN nat USING (l, r)").fetchone()[0]

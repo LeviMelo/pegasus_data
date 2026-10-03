@@ -22,11 +22,8 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Any
 
-import pyarrow as pa
-import pyarrow.compute as pc
-
 from .engine import LinkNotViable, link
-from .roles import role_table
+from .roles import record_ids, role_table
 
 DELIVERY = "sinasc_births_to_delivery_admission"
 DELIVERY_PRIVATE = "sinasc_births_to_ciha_delivery"
@@ -43,9 +40,8 @@ def _scope(value: object) -> object:
 def _records(dataset: str, period: object, geography: object) -> dict[str, dict[str, Any]]:
     """Every record of a scope by id, as its roles (cached per process)."""
     table = role_table(dataset, period=period, geography=geography, allow_partial=True)
-    ids = pc.binary_join_element_wise(table.column("_blob_sha256"),
-                                      pc.cast(table.column("_row"), pa.string()), ":")
-    rows = table.drop_columns(["_blob_sha256", "_row"]).to_pylist()
+    ids = record_ids(table)
+    rows = table.drop_columns([c for c in ("_blob_sha256", "_row", "_record_key") if c in table.column_names]).to_pylist()
     return dict(zip(ids.to_pylist(), rows, strict=True))
 
 

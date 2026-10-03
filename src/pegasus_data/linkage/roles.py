@@ -32,6 +32,16 @@ from ..semantics.curation import read_yaml
 
 ROLES_FILE = Path(__file__).resolve().parent.parent / "curation" / "roles.yml"
 RECORD_ID = ("_blob_sha256", "_row")
+
+
+def record_ids(table: pa.Table) -> pa.Array:
+    """Each record's identity: its content key where the lake or decoder
+    stamped one (``_record_key``, OQ-65), else ``_blob_sha256:_row``."""
+    fallback = pc.binary_join_element_wise(pc.cast(table.column("_blob_sha256"), pa.string()),
+                                           pc.cast(table.column("_row"), pa.string()), ":")
+    if "_record_key" not in table.column_names:
+        return fallback
+    return pc.coalesce(pc.cast(table.column("_record_key"), pa.string()), fallback)
 _FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYYMM": "%Y%m"}
 _TYPES = {"date", "month", "sex", "municipality", "facility", "integer", "number", "code", "codes", "label"}
 
@@ -190,7 +200,8 @@ def _cache_path(dataset: str, period: object, geography: object, settings: Any) 
 
 
 def _subset(table: pa.Table, names: list[str]) -> pa.Table:
-    keep = ["_blob_sha256", "_row", "_source_path", *names]
+    keep = ["_blob_sha256", "_row", "_source_path", *(["_record_key"] if "_record_key" in table.column_names else []),
+            *names]
     absent = [r for r in absent_roles(table) if r in names]
     meta = dict(table.schema.metadata or {})
     meta[b"absent_roles"] = ",".join(absent).encode()
@@ -252,6 +263,8 @@ def _compute_roles(spec: DatasetRoles, names: list[str], *, period: object, geog
         "_row": table.column("_row"),
         "_source_path": pc.cast(table.column("_source_path"), pa.string()),
     }
+    if "_record_key" in table.column_names:
+        columns["_record_key"] = pc.cast(table.column("_record_key"), pa.string())
     absent: list[str] = []
     for role in wanted:
         if role.column not in table.column_names:

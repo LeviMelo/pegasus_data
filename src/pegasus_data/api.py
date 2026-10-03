@@ -722,7 +722,7 @@ def describe(
 #: column dropped it as absent, so a query over a built lake lost record
 #: identity (2026-10-03).
 LAKE_COLUMNS: frozenset[str] = frozenset(
-    {"year", "uf", "_source_path", "_blob_sha256", "_row", "_ingested_at", "_schema_signature"}
+    {"year", "uf", "_source_path", "_blob_sha256", "_row", "_ingested_at", "_schema_signature", "_record_key"}
 )
 
 
