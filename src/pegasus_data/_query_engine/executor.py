@@ -183,11 +183,20 @@ def query(
         from ..api import load
 
         cat = PublicCatalog(settings=resolved)
+        # Provenance is a promise about every row on both paths: the fetch path
+        # asks for it (provenance=True below); the lake stores it, but a
+        # projection that names only the selected fields dropped it, and a
+        # linkage over a built lake had no record identity (2026-10-03).
+        lake_columns = requested_columns
+        if lake_columns is not None and query_plan.spec.provenance == "all":
+            from ..normalize.engine import PROVENANCE_COLUMNS
+
+            lake_columns = sorted(set(lake_columns) | set(PROVENANCE_COLUMNS))
         try:
             local_table, local_report = load(
                 retrieval.system, retrieval.series,
                 uf=list(retrieval.physical_geography) or None,
-                years=retrieval.lake_years or None, columns=requested_columns,
+                years=retrieval.lake_years or None, columns=lake_columns,
                 labels=labels, profile="audit" if labels else "codes",
                 companions=False, derived=labels, on_missing_column="null_fill",
                 report=True, catalog=cat, _preserve_internal=True,

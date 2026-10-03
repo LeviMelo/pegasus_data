@@ -716,7 +716,14 @@ def describe(
 #: Structural columns every lake partition carries, whatever the source schema
 #: held. Hive partition keys, written by the build rather than decoded from a
 #: file, so they never appear in `schema_presence`.
-LAKE_COLUMNS: frozenset[str] = frozenset({"year", "uf"})
+#: Columns of the lake rather than fields of a source schema: the Hive
+#: partitions, and the provenance every normalised row carries
+#: (normalize/engine.PROVENANCE_COLUMNS). A projection naming a provenance
+#: column dropped it as absent, so a query over a built lake lost record
+#: identity (2026-10-03).
+LAKE_COLUMNS: frozenset[str] = frozenset(
+    {"year", "uf", "_source_path", "_blob_sha256", "_row", "_ingested_at", "_schema_signature"}
+)
 
 
 def _resolve_generations(

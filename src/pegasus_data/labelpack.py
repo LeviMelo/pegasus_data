@@ -41,6 +41,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from functools import lru_cache
+from itertools import compress
 from pathlib import Path
 from typing import Any
 
@@ -825,6 +826,30 @@ def _codelist_runs(codelist: str) -> tuple:
     )
 
 
+@lru_cache(maxsize=256)
+def _run_windows(codelist: str) -> tuple[tuple[tuple[str, str], ...], tuple[int, ...]]:
+    """The distinct validity windows of a codelist, and each run's window index.
+
+    A monthly dataset asks for every codelist under twelve competencias; testing
+    each run's window per request was a Python loop over the whole codelist
+    every time (2026-10-03: 2.5 of 16 s rendering one state-year of SIH).
+    """
+    windows: dict[tuple[str, str], int] = {}
+    index = []
+    for run in _codelist_runs(codelist):
+        key = (str(run[5] or ""), str(run[6] or ""))
+        index.append(windows.setdefault(key, len(windows)))
+    return tuple(windows), tuple(index)
+
+
+@lru_cache(maxsize=4096)
+def _dated_runs(codelist: str, span_lo: int, span_hi: int) -> tuple:
+    """The runs whose window covers the span, in the codelist's own order."""
+    windows, index = _run_windows(codelist)
+    covering = {i for i, (lo, hi) in enumerate(windows) if covers(lo, hi, span_lo, span_hi)}
+    return tuple(compress(_codelist_runs(codelist), (i in covering for i in index)))
+
+
 @lru_cache(maxsize=512)
 def _expand_runs(chosen: tuple, code_width: int | None):
     """Expand code ranges into a lookup table, once per distinct row selection.
@@ -910,7 +935,7 @@ def _read_packed(
             if competencia is not None
             else (int(year) * 100 + 1, int(year) * 100 + 12)  # type: ignore[arg-type]
         )
-        dated = [r for r in runs if covers(str(r[5] or ""), str(r[6] or ""), span_lo, span_hi)]
+        dated = _dated_runs(codelist, span_lo, span_hi)
         if dated:
             runs = dated
         elif not has_windows and _is_historical(asked) and policy == "refuse":
