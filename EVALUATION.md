@@ -126,3 +126,4 @@ in.
 | 2026-09-30 | [National linkage, 2022: all seven links under the current engine; CIHA residence on deaths](docs/evaluation/2026-09-30-national-linkage-2022.md) | live (`pegasus-data link --refresh`, national home; `scripts/ciha_residence_check.py --deaths`) |
 | 2026-10-02 | [Link discovery, national 2022: the data reveals the hand-written keys](docs/evaluation/2026-10-02-link-discovery.md) | live (`scripts/link_discovery.py`, national home) |
 | 2026-10-02 | [Impossible pairs in the national links: mostly recording errors, not false links](docs/evaluation/2026-10-02-impossible-pairs-measured.md) | live (`scripts/link_impossibility.py`, national home) |
+| 2026-10-02 | [Race for the same person across systems (linked pairs, national 2022)](docs/evaluation/2026-10-02-race-across-systems.md) | live (`scripts/race_across_systems.py`, national home) |

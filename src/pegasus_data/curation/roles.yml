@@ -45,6 +45,8 @@ datasets:
       mother.age: {column: IDADEMAE, type: integer}
       mother.residence: {column: CODMUNRES, type: municipality}
       birth.municipality: {column: CODMUNNASC, type: municipality}
+      baby.race: {column: RACACOR, type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: ["indígena"]}}
+      mother.race: {column: RACACORMAE, type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: ["indígena"]}}
 
   SIM-DO:
     record: death
@@ -56,6 +58,7 @@ datasets:
       death.date: {column: DTOBITO, type: date, format: DDMMYYYY}
       death.facility: {column: CODESTAB, type: facility}
       death.municipality: {column: CODMUNOCOR, type: municipality}
+      deceased.race: {column: RACACOR, type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: ["indígena"]}}
       death.place: {column: LOCOCOR, type: label, categories: {hospital: [hospital], "other health facility": ["outros estabelecimentos de saúde", "outro estabelecimento de saúde"], home: ["domicílio"], street: ["via pública"], "indigenous village": ["aldeia indígena"], other: [outros]}}
       death.kind: {column: TIPOBITO, type: label}
       death.cause: {column: CAUSABAS, type: code}
@@ -73,6 +76,7 @@ datasets:
       patient.birth_date: {column: NASC, type: date, format: YYYYMMDD}
       patient.sex: {column: SEXO, type: sex}
       patient.residence: {column: MUNIC_RES, type: municipality}
+      patient.race: {column: RACA_COR, type: label, categories: {white: [branca], black: [preta], brown: [parda], asian: [amarela], indigenous: ["indígena"]}}
       patient.age_years: {column: IDADE_anos, type: number}
       admission.start: {column: DT_INTER, type: date, format: YYYYMMDD}
       admission.end: {column: DT_SAIDA, type: date, format: YYYYMMDD}
