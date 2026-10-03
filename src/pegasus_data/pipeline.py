@@ -350,6 +350,10 @@ class Pipeline:
             )
             merged = persist_entries(self.catalog, entries)
             persist_bindings(self.catalog, bindings)
+            # Its unexpanded range rules too: they were only ever appended, so
+            # every re-reading added a copy and a parser fix left the stale
+            # rule beside the right one (20,375 rows for 2,851 distinct, 2026-10-03).
+            self.catalog.execute("DELETE FROM dictionary_rules WHERE source_ref LIKE ?", (f"{kit.kit_path}!%",))
             rule_count = persist_rules(self.catalog, rules, system=system)
             counts["kits_ingested"] = int(counts["kits_ingested"]) + 1
             counts["dictionary_entries"] = int(counts["dictionary_entries"]) + merged["inserted"]
