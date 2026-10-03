@@ -42,6 +42,7 @@ from typing import Any
 
 import duckdb
 import numpy as np
+import pandas as pd
 import pyarrow as pa
 import pyarrow.compute as pc
 
@@ -166,7 +167,17 @@ def _shifted_left(con: duckdb.DuckDBPyConnection, roles: list[str], days: int) -
     date moves, so no block can reach a true partner.
     """
     replaced = ", ".join(f"CAST({_q(r)} + INTERVAL {days} DAY AS DATE) AS {_q(r)}" for r in roles)
-    con.execute(f"CREATE OR REPLACE TEMP VIEW LS AS SELECT * REPLACE ({replaced}) FROM L")
+    con.execute(f"CREATE OR REPLACE TEMP TABLE LS AS SELECT * REPLACE ({replaced}) FROM L")
+
+
+def _materialise(con: duckdb.DuckDBPyConnection, name: str) -> pa.Array:
+    """Replace the view ``name`` by a table whose ``_id`` is 0..n-1; returns
+    the record ids, indexed by that integer."""
+    con.execute(f"""CREATE TEMP TABLE {name}_t AS
+        SELECT * EXCLUDE (_id), _id AS _sid, CAST(row_number() OVER (ORDER BY _id) - 1 AS BIGINT) AS _id
+        FROM (SELECT DISTINCT ON (_id) * FROM {name})""")
+    con.execute(f"CREATE OR REPLACE TEMP VIEW {name} AS SELECT * FROM {name}_t")
+    return con.execute(f"SELECT _sid FROM {name}_t ORDER BY _id").fetch_arrow_table().column("_sid").combine_chunks()
 
 
 def _condition(a: str, b: str) -> str:
@@ -271,8 +282,8 @@ def _select_values(left_view: str, pairs_sql: str, compare, setting: bool = Fals
         lcols.append('l."_setting" AS s')
     return f"""SELECT p.l, p.r, {", ".join(lcols + rcols)}
         FROM ({pairs_sql}) p
-        JOIN (SELECT DISTINCT ON (_id) * FROM {left_view}) l ON l._id = p.l
-        JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = p.r"""
+        JOIN {left_view} l ON l._id = p.l
+        JOIN R r ON r._id = p.r"""
 
 
 def _batch_levels(batch: pa.RecordBatch, compare) -> list[np.ndarray]:
@@ -287,12 +298,26 @@ def _batch_levels(batch: pa.RecordBatch, compare) -> list[np.ndarray]:
     return out
 
 
+def _factorize(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Integer codes and the distinct values, in one hash pass (no sort, no
+    copy to fixed-width strings: np.unique on object arrays was a fifth of a
+    link's time, profile 2026-10-03)."""
+    codes, names = pd.factorize(values, use_na_sentinel=False)
+    return codes, np.asarray(names, dtype=object)
+
+
+def _counts(lv: np.ndarray) -> dict[str, int]:
+    codes, names = _factorize(lv)
+    n = np.bincount(codes, minlength=len(names))
+    return {str(k): int(c) for k, c in zip(names, n, strict=True) if str(k) != MISSING}
+
+
 def _distribution(lv: np.ndarray) -> tuple[dict[str, float], int]:
-    usable = lv[lv != MISSING]
-    if not len(usable):
+    counts = _counts(lv)
+    total = sum(counts.values())
+    if not total:
         return {}, 0
-    names, counts = np.unique(usable.astype(str), return_counts=True)
-    return {str(n): c / len(usable) for n, c in zip(names, counts, strict=True)}, int(len(usable))
+    return {k: c / total for k, c in counts.items()}, int(total)
 
 
 def _distributions_stream(con, sql: str, compare) -> list[tuple[dict[str, float], int]]:
@@ -307,8 +332,7 @@ def _distributions_stream(con, sql: str, compare) -> list[tuple[dict[str, float]
         if not batch.num_rows:
             continue
         for k, lv in enumerate(_batch_levels(batch, compare)):
-            names, n = np.unique(lv.astype(str), return_counts=True)
-            counts[k].update(dict(zip(names.tolist(), n.tolist(), strict=True)))
+            counts[k].update(_counts(lv))
     out = []
     for c in counts:
         c.pop(MISSING, None)
@@ -318,19 +342,20 @@ def _distributions_stream(con, sql: str, compare) -> list[tuple[dict[str, float]
 
 
 def _bits_of(fm: FieldModel, lv: np.ndarray) -> np.ndarray:
-    names, inverse = np.unique(lv.astype(str), return_inverse=True)
-    return np.array([fm.bits(str(n)) for n in names])[inverse]
+    codes, names = _factorize(lv)
+    return np.array([fm.bits(str(n)) for n in names])[codes]
 
 
 def _score_stream(con, sql: str, compare, models: list[FieldModel],
-                  by_setting: dict[str, list[FieldModel]] | None = None) -> tuple[list, list, np.ndarray]:
+                  by_setting: dict[str, list[FieldModel]] | None = None
+                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Scores of every candidate pair, streamed in batches; only positive scores are kept.
 
     With ``by_setting``, each pair is scored with its left record's setting's
     channels (the ``s`` column); a record without a known setting uses ``models``.
     """
-    ls: list = []
-    rs: list = []
+    ls: list[np.ndarray] = []
+    rs: list[np.ndarray] = []
     scores: list[np.ndarray] = []
     for batch in con.execute(sql).fetch_record_batch(1_000_000):
         if not batch.num_rows:
@@ -338,21 +363,24 @@ def _score_stream(con, sql: str, compare, models: list[FieldModel],
         total = np.zeros(batch.num_rows)
         level_arrays = _batch_levels(batch, compare)
         if by_setting and "s" in batch.schema.names:
-            setting = np.asarray(pc.fill_null(batch.column("s"), "").to_numpy(zero_copy_only=False), dtype=object)
-            for value in np.unique(setting):
-                rows = np.nonzero(setting == value)[0]
-                chosen = by_setting.get(str(value), models)
-                for fm, lv in zip(chosen, level_arrays, strict=True):
-                    total[rows] += _bits_of(fm, lv[rows])
+            s_codes, s_names = _factorize(np.asarray(
+                pc.fill_null(batch.column("s"), "").to_numpy(zero_copy_only=False), dtype=object))
+            chosen = [by_setting.get(str(v), models) for v in s_names]
+            for k, lv in enumerate(level_arrays):
+                codes, names = _factorize(lv)
+                matrix = np.array([[ms[k].bits(str(n)) for n in names] for ms in chosen])
+                total += matrix[s_codes, codes]
         else:
             for fm, lv in zip(models, level_arrays, strict=True):
                 total += _bits_of(fm, lv)
         keep = np.nonzero(total > 0)[0]
         if len(keep):
-            ls.extend(pa.array(batch.column("l")).take(pa.array(keep)).to_pylist())
-            rs.extend(pa.array(batch.column("r")).take(pa.array(keep)).to_pylist())
+            ls.append(batch.column("l").to_numpy()[keep])
+            rs.append(batch.column("r").to_numpy()[keep])
             scores.append(total[keep])
-    return ls, rs, (np.concatenate(scores) if scores else np.zeros(0))
+    if not scores:
+        return np.zeros(0, np.int64), np.zeros(0, np.int64), np.zeros(0)
+    return np.concatenate(ls), np.concatenate(rs), np.concatenate(scores)
 
 
 #: A record is linked only when its best candidate beats the runner-up by
@@ -364,41 +392,47 @@ def _score_stream(con, sql: str, compare, models: list[FieldModel],
 AMBIGUITY_MARGIN_BITS = float(np.log2(19))
 
 
-def _one_to_one(ls: list, rs: list, scores: np.ndarray, threshold: float) -> list[tuple[str, str, float]]:
+def _best_two(key: np.ndarray, rank: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Per candidate: is it its key's best (lowest rank), and the rank of the
+    key's runner-up (or -1). ``rank`` orders candidates by descending score,
+    ties broken stably."""
+    order = np.lexsort((rank, key))
+    k = key[order]
+    first = np.ones(len(k), bool)
+    first[1:] = k[1:] != k[:-1]
+    is_best = np.zeros(len(key), bool)
+    is_best[order[first]] = True
+    second = np.full(len(key), -1, np.int64)
+    has_second = np.zeros(len(k), bool)
+    has_second[:-1] = first[:-1] & ~first[1:]
+    second[order[has_second]] = order[np.nonzero(has_second)[0] + 1]
+    return is_best, second
+
+
+def _one_to_one(ls: np.ndarray, rs: np.ndarray, scores: np.ndarray, threshold: float
+                ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Pairs that are each side's clear best, at or above the threshold.
 
     A pair is kept when, among its left record's candidates, it scores at
     least AMBIGUITY_MARGIN_BITS above the next, and the same holds among its
     right record's candidates. Candidates below zero never reach here, so a
-    lone candidate is compared with nothing and passes.
+    lone candidate is compared with nothing and passes. Vectorised over
+    integer ids (the dict loop was 9% of a link, profile 2026-10-03).
     """
     if not len(scores):
-        return []
+        return np.zeros(0, np.int64), np.zeros(0, np.int64), np.zeros(0)
     order = np.argsort(-scores, kind="stable")
-    best_l: dict[str, tuple[float, int]] = {}
-    second_l: dict[str, float] = {}
-    best_r: dict[str, tuple[float, int]] = {}
-    second_r: dict[str, float] = {}
-    for i in order:
-        s = float(scores[i])
-        for side, best, second in ((ls[i], best_l, second_l), (rs[i], best_r, second_r)):
-            if side not in best:
-                best[side] = (s, int(i))
-            elif side not in second:
-                second[side] = s
-    kept = []
-    for l_id, (s, i) in best_l.items():
-        if s < threshold:
-            continue
-        r_id = rs[i]
-        if best_r.get(r_id, (None, -1))[1] != i:
-            continue
-        if s - second_l.get(l_id, float("-inf")) < AMBIGUITY_MARGIN_BITS:
-            continue
-        if s - second_r.get(r_id, float("-inf")) < AMBIGUITY_MARGIN_BITS:
-            continue
-        kept.append((l_id, r_id, s))
-    return kept
+    rank = np.empty(len(scores), np.int64)
+    rank[order] = np.arange(len(scores))
+    best_l, second_l = _best_two(np.asarray(ls), rank)
+    best_r, second_r = _best_two(np.asarray(rs), rank)
+    gap_l = np.where(second_l >= 0, scores - scores[np.maximum(second_l, 0)], np.inf)
+    gap_r = np.where(second_r >= 0, scores - scores[np.maximum(second_r, 0)], np.inf)
+    keep = (best_l & best_r & (scores >= threshold)
+            & (gap_l >= AMBIGUITY_MARGIN_BITS) & (gap_r >= AMBIGUITY_MARGIN_BITS))
+    idx = np.nonzero(keep)[0]
+    idx = idx[np.argsort(rank[idx])]
+    return np.asarray(ls)[idx], np.asarray(rs)[idx], scores[idx]
 
 
 def calibration(real: list[float], control: list[float], bin_bits: float = 1.0) -> dict[str, Any]:
@@ -463,7 +497,7 @@ def _anchor_sql(others: list[Comparison], control_role: str, shift: bool) -> tup
     cond = " AND ".join(_condition(c.left, c.right) for c in others)
     notnull = " AND ".join(f"l.{_q(c.left)} IS NOT NULL" for c in others)
     return f"""WITH j AS (SELECT DISTINCT l._id AS l, r._id AS r FROM {left} l
-                         JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON {cond} WHERE {notnull})
+                         JOIN R r ON {cond} WHERE {notnull})
                SELECT l, r FROM j
                QUALIFY count(*) OVER (PARTITION BY l) = 1 AND count(*) OVER (PARTITION BY r) = 1""", True
 
@@ -540,6 +574,10 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     # one-row-per-day explosion is its way of making "inside" an equality.
     n_left = _prepare(con, "L", left, _replace(spec.left, explode_days=None))
     n_right = _prepare(con, "R", right, _replace(spec.right, explode_days=None))
+    # Each side once, as a table keyed by an integer: every later query joined
+    # 32-character ids and re-deduplicated the whole view (57% of a link's
+    # time was SQL, profile 2026-10-03). The record ids come back at the end.
+    ids = {name: _materialise(con, name) for name in ("L", "R")}
     # u: 200,000 random pairs over up to 50,000 distinct records per side,
     # paired by position with a stride: diverse on both sides and repeatable.
     # A 2,000 x 100 rectangle rested u on 100 right records, and one AC run
@@ -568,9 +606,12 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                         | {prob.control_role})
     _shifted_left(con, left_dates, CONTROL_SHIFT_DAYS)
     evidence_only = [c for c in prob.compare if not c.is_key]
+    # The candidate pairs, real and placebo, built once each.
+    con.execute(f"CREATE TEMP TABLE C AS {_candidates(con, 'L', prob.blocks)}")
+    con.execute(f"CREATE TEMP TABLE CS AS {_candidates(con, 'LS', prob.blocks)}")
     candidate_u = (dict(zip([c.name for c in evidence_only],
-                            _distributions_stream(con, _select_values("L", _candidates(con, "L", prob.blocks),
-                                                                      evidence_only), evidence_only), strict=True))
+                            _distributions_stream(con, _select_values("L", "SELECT l, r FROM C", evidence_only),
+                                                  evidence_only), strict=True))
                    if evidence_only else {})
     models: list[FieldModel] = []
     per_setting: list[dict[str, FieldModel]] = []
@@ -603,39 +644,38 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                    for key in set.intersection(*(set(ps) for ps in per_setting))}
                   if with_setting and per_setting and all(per_setting) else {})
     # Candidates, real and control, scored as they stream.
-    rl, rr, rscore = _score_stream(con, _select_values("L", _candidates(con, "L", prob.blocks), prob.compare,
+    rl, rr, rscore = _score_stream(con, _select_values("L", "SELECT l, r FROM C", prob.compare,
                                                        setting=with_setting), prob.compare, models, by_setting)
-    cl, cr, cscore = _score_stream(con, _select_values("LS", _candidates(con, "LS", prob.blocks), prob.compare,
+    cl, cr, cscore = _score_stream(con, _select_values("LS", "SELECT l, r FROM CS", prob.compare,
                                                        setting=with_setting), prob.compare, models, by_setting)
     # Threshold on 1:1-resolved scores, so real and control are counted alike.
-    real_best = _one_to_one(rl, rr, rscore, float("-inf"))
-    control_best = _one_to_one(cl, cr, cscore, float("-inf"))
-    t, fdr = threshold_for([s for *_x, s in real_best], [s for *_x, s in control_best], prob.target_fdr)
-    curve = calibration([s for *_x, s in real_best], [s for *_x, s in control_best])
+    real_scores = _one_to_one(rl, rr, rscore, float("-inf"))[2]
+    control_scores = _one_to_one(cl, cr, cscore, float("-inf"))[2]
+    t, fdr = threshold_for(real_scores.tolist(), control_scores.tolist(), prob.target_fdr)
+    curve = calibration(real_scores.tolist(), control_scores.tolist())
     threshold_source = "own"
     if national and national.get("threshold_bits") is not None and (national.get("calibration") or {}).get("bins"):
         # A slice decides with the nation's threshold and curve (theory §3.2):
         # its own placebo is too small to place a threshold reproducibly.
         t, curve, threshold_source = float(national["threshold_bits"]), national["calibration"], "national"
-        real_at_t = sum(1 for *_x, s in real_best if s >= t)
-        fdr = sum(1 for *_x, s in control_best if s >= t) / real_at_t if real_at_t else None
-    kept = _one_to_one(rl, rr, rscore, t) if t is not None else []
-    kept_scores = np.array([x[2] for x in kept])
+        real_at_t = int((real_scores >= t).sum())
+        fdr = int((control_scores >= t).sum()) / real_at_t if real_at_t else None
+    kl, kr, kept_scores = (_one_to_one(rl, rr, rscore, t) if t is not None
+                           else (np.zeros(0, np.int64), np.zeros(0, np.int64), np.zeros(0)))
     p_match = apply_calibration(kept_scores, curve)
-    pairs = pa.table({"l": pa.array([x[0] for x in kept], pa.string()),
-                      "r": pa.array([x[1] for x in kept], pa.string()),
-                      "bits": pa.array([round(x[2], 3) for x in kept], pa.float64()),
+    pairs = pa.table({"l": ids["L"].take(pa.array(kl)), "r": ids["R"].take(pa.array(kr)),
+                      "bits": pa.array(np.round(kept_scores, 3), pa.float64()),
                       "p_match": pa.array(np.round(p_match, 5), pa.float64())})
-    con.register("pairs_view", pairs)
-    con.execute("CREATE OR REPLACE TEMP TABLE linked AS SELECT l, r FROM pairs_view")
+    con.register("linked_ids", pa.table({"l": pa.array(kl, pa.int64()), "r": pa.array(kr, pa.int64())}))
+    con.execute("CREATE OR REPLACE TEMP TABLE linked AS SELECT l, r FROM linked_ids")
     validations = validate(con, spec)
     fdr_percent = round(100.0 * fdr, 2) if fdr is not None else None
     # The estimate rests on few control pairs when the left side is small (a
     # state's infant deaths): say how few, and the 95% upper bound (Poisson on
     # the control count, over the real pairs kept).
-    control_kept = sum(1 for *_x, s in control_best if t is not None and s >= t)
-    upper = upper95(control_kept, len(kept))
-    verdict = judge(len(kept), fdr_percent, validations, upper)
+    control_kept = int((control_scores >= t).sum()) if t is not None else 0
+    upper = upper95(control_kept, len(kl))
+    verdict = judge(len(kl), fdr_percent, validations, upper)
     return ProbabilisticResult(spec.name, n_left, n_right, pairs, models, len(rscore), len(cscore),
                                round(t, 2) if t is not None else None, fdr_percent, control_kept, upper,
                                validations, verdict, threshold_source, curve, by_setting)
