@@ -1169,9 +1169,23 @@ def load_population(
 
         dataset = pads.dataset(directory, format="parquet", partitioning="hive")
         expression = None
-        if uf is not None and "uf" in dataset.schema.names:
+        if uf is not None:
             ufs = [uf] if isinstance(uf, str) else list(uf)
-            expression = pads.field("uf").isin(ufs)
+            if "uf" in dataset.schema.names:
+                expression = pads.field("uf").isin(ufs)
+            elif "municipality" in dataset.schema.names:
+                # POPSVS carries no uf column: the state is the municipality
+                # code's first two digits. The filter used to be skipped here,
+                # so uf="SE" returned the whole country (2026-10-03).
+                from .geography import _uf_codes
+
+                codes = _uf_codes(ufs)
+                field_ = pads.field("municipality")
+                for code in codes:
+                    clause = (field_ >= code * 100000) & (field_ < (code + 1) * 100000)
+                    expression = clause if expression is None else (expression | clause)
+            else:
+                raise ValueError(f"population series {series!r} has neither uf nor municipality to filter by")
         if years is not None and "year" in dataset.schema.names:
             year_filter = pads.field("year").isin(list(years))
             expression = year_filter if expression is None else (expression & year_filter)

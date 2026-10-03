@@ -311,6 +311,7 @@ question they answer; the overlap is §5's first rows.
 | aggregate it | `aggregate`, `build_aggregate` | `AggregateSpec`, `AggregateReport` |
 | reference data | `load_population`, `load_reference`, `load_field` | |
 | places | `municipality_point`, `distance_km` (population centre by default) | |
+| rates | `age_standardised_rates` (direct, WHO 2000 or Brazil 2022) | |
 | how far to trust it | `race_reliability` | |
 | the local store | `resource_manager`, `Settings`, `load_settings` | `ResourceManager`, `ResourceStatus` |
 
@@ -327,6 +328,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
   `write_table`, `load_population`, `load_reference`.
 - `retrieve.py`: `fetch()`, DATASUS to a table in one call; the de facto read engine.
 - `view.py`: rendering into the canonical form: codelist selection, `_label` companions, derived columns.
+- `rates.py`: crude and directly age-standardised rates of queried records over POPSVS.
 - `quality.py`: where a field's values cannot be taken at face value, measured from the data: `race_reliability` (ADR-0128).
 - `fields.py`: context fields, IBGE's municipal statistics declared in `curation/fields.yml`, read into `<lake>/fields/` (ADR-0127).
 - `registry.py`: registries from their owner's current TabWin kit, fetched once and cached (ADR-0086): the typed establishment registry (`CADGERBR`: names, maintainer, valid CNPJ only, inclusion/exclusion dates), `CNPJ_BR`, teams (`INE_EQUIPE_BR`, SIASUS kit) and `HUF_*` (ADR-0100). The single source of establishment identity.

@@ -156,3 +156,4 @@ in.
 | 2026-10-03 | [Climate field from INMET stations (station-month, placed by location)](docs/evaluation/2026-10-03-climate-field.md) | live (Zenodo mirror of INMET; NOAA ISD; IBGE mesh) |
 | 2026-10-03 | [Disasters field from S2iD (one row per municipal event, 1991–2025)](docs/evaluation/2026-10-03-disasters-field.md) | live (MIDR open data) |
 | 2026-10-03 | [Municipality points: seat and population centre instead of polygon centroids](docs/evaluation/2026-10-03-municipality-points.md) | live (IBGE Localidades 2022, Census 2022 tracts) |
+| 2026-10-03 | [Age-standardised rates (direct, over POPSVS)](docs/evaluation/2026-10-03-age-standardised-rates.md) | live (SIM-DO SE 2022; POPSVS) |

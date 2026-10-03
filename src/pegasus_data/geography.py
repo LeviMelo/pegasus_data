@@ -862,3 +862,23 @@ def distance_km(a: str, b: str, kind: str = "population") -> float | None:
     lon1, lat1, lon2, lat2 = map(math.radians, (*pa_, *pb))
     h = math.sin((lat2 - lat1) / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
     return 2 * 6371.0088 * math.asin(math.sqrt(h))
+
+
+def _uf_codes(ufs: list[str]) -> list[int]:
+    """IBGE state codes for sigla or numeric codes (``"SE"`` or ``"28"`` -> 28)."""
+    from importlib.resources import files
+
+    import pyarrow.parquet as pq
+
+    table = pq.read_table(str(files("pegasus_data.resources") / "municipalities.parquet"),
+                          columns=["uf_code", "uf_sigla"])
+    by_sigla = dict(zip(table.column("uf_sigla").to_pylist(), table.column("uf_code").to_pylist(), strict=True))
+    out = []
+    for uf in ufs:
+        text = str(uf).strip().upper()
+        code = by_sigla.get(text, text)
+        if not str(code).isdigit():
+            raise KeyError(f"unknown state {uf!r}")
+        out.append(int(code))
+    return sorted(set(out))
+

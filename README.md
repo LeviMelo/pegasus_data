@@ -154,7 +154,7 @@ not hold comes back as `not_recorded`, never as a guess.
 
 ```python
 from pegasus_data import (query, memberships, municipality_point, distance_km, load_field,
-                          load_population, race_reliability)
+                          load_population, race_reliability, age_standardised_rates)
 
 # Roll a code up a published hierarchy (curation/joins.yml): ICD-10 chapter,
 # the Ministry's mortality list, avoidable deaths, primary-care-sensitive admissions.
@@ -173,6 +173,7 @@ distance_km("355030", "330455")      # 339.5 km, population centre to population
 load_population(series="POPSVS", years=2022)  # the denominator the Ministry divides by (OQ-12)
 load_field("gdp", years=2021)        # IBGE municipal GDP and value added
 race_reliability(admissions)         # flags SIH hospital-months whose race code is unusable
+age_standardised_rates(deaths, year=2022, uf="SE")   # crude and WHO-standardised rate per 100,000
 ```
 
 - **Dimensions** roll a code up:

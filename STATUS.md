@@ -272,7 +272,7 @@ OQ-64), 1990s SIH V-codes.
 - **Speed.** A cold process still spends most of its time in per-group
   binding decisions and catalog reads.
 - **Carried:**
-  - distinct-count measures and age-standardised rates;
+  - distinct-count measures;
   - moving `tools/` into the package;
   - mypy;
   - splitting `cli`, `retrieve` and `view`.
