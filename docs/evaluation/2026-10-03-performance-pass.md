@@ -78,7 +78,20 @@ other national links of the ADR-0121 relink, on the same code, took
   SIH and CIHA. The key stays broad: a stale role table would be a silent
   error. The cold build is now 1.9x faster instead.
 
-**What remains** (SP slice after the changes, about 40 s under the
+5. **Levels as integer codes** (`levels.Levels`, commit after `5e6dd13`).
+   - Every level kind writes int16 codes into a list of names through one
+     builder, instead of a Python string per pair.
+   - `_levels_integer`'s per-row "digit dropped or added" loop is
+     vectorised over digit positions. A negative value keeps the string
+     test.
+   - **Checked:** every kind is identical to the string version on 2
+     million random pairs plus integer edge cases (zero, a removal leaving
+     a leading zero, negatives). Each kind is 1.5–8x faster, and the
+     factorise after it costs nothing.
+   - **End to end:** SIH deaths SE and SP give identical pairs and bits.
+     SE takes 5.7–6.0 s against 6.8 s.
+
+**What remained before change 5** (SP slice, about 40 s under the
 profiler):
 - levels 14 s, of which dates 7.4 s;
 - SQL 7.8 s;
