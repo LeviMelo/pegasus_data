@@ -458,6 +458,9 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 
 - `sources/sigtap.py`, `sources/demas_api.py`, `sources/ibge.py`,
   `sources/ibge_localidades.py`, `sources/community.py`: secondary sources.
+- `sources/tabnet.py`: TabNet over HTTP. Its current territorial tables
+  (health macroregion, current health regions) feed the geography pack, and
+  `tabulate` asks TabNet for a published table to check a figure against.
 
 ---
 

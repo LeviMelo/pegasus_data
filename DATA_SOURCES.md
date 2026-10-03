@@ -45,6 +45,13 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   2026-10-03 every passive data port (5539–5800) was dropped, while login,
   `CWD` and `SIZE` answered. Listings and downloads both failed. Record:
   `data/probes/ftp/data_channel.jsonl`.
+- **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
+  its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
+  and ESUSNOTIFICA. It has no IBGE and no CIHA.
+- **TabNet's web side is another first-party source over HTTP.**
+  `http://tabnet.datasus.gov.br/cgi/territorio/<table>.cnv` serves the
+  current territorial tables its tabulations use, and `tabcgi.exe?<def>`
+  answers a tabulation (`sources/tabnet.py`).
 - `/dissemin/publicos/uploads` returns `550 Access is denied` to both LIST and
   NLST: a server-side ACL (2026-08-19, F §3c). `SIHSUS/Doc` returns `550 The
   system cannot find the file specified`: it does not exist (F §1 V11).
@@ -436,6 +443,15 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   (UF-level projections 2000–2070, which complement rather than supersede
   POPSVS) (F §1 V7, V8). Which series backs the Ministry's published rates is
   open (OQ-12).
+
+- **The Ministry's tables divide by POPSVS** (2026-10-03). TabNet's
+  population form (`ibge/cnv/popsvs2024br.def`, "Estudo de Estimativas
+  Populacionais por Município, Idade e Sexo 2000-2025", RIPSA/CGIAE) reads
+  `IBGE/POPSVS`. Its 2022 equals the local POPSVS in all 27 states:
+  210,862,983. OQ-12 is settled.
+- **`POPTBR22.zip` and `POPTBR23.zip` hold the national table and its 27
+  per-state parts**; other years hold the national table alone. Reading every
+  member double-counts (fixed in the population build).
 
 ### 6.2 Localidades API (audit headed 2026-08-23, committed 2026-08-27; IBGE-L §2–§3)
 

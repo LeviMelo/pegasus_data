@@ -205,11 +205,15 @@ def classifications(root: Path | None = None, *, authority: str | None = None
                for k, v in (data.get("classifications") or {}).items()}
     ibge = {k: {**v, "authority": "ibge"}
             for k, v in (data.get("ibge_classifications") or {}).items()}
+    tabnet = {k: {**v, "authority": "tabnet"}
+              for k, v in (data.get("tabnet_classifications") or {}).items()}
     if authority == "datasus":
         return datasus
     if authority == "ibge":
         return ibge
-    return {**datasus, **ibge}
+    if authority == "tabnet":
+        return tabnet
+    return {**datasus, **ibge, **tabnet}
 
 
 def excluded(root: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -243,12 +247,47 @@ def _ibge_rows(municipalities) -> tuple[list[tuple[str, ...]], dict[str, int]]:
     return rows, {k: len(v) for k, v in counted.items()}
 
 
+def _tabnet_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[str, ...]], dict[str, dict[str, int]]]:
+    """Memberships from TabNet's current territorial tables (``tabnet_classifications``).
+
+    One table per classification and no per-system copies, so nothing to scope
+    away: a municipality has one current macroregion. A catch-all range
+    ("Ignorado - BR") is not a membership and is skipped, as are rows whose
+    label carries no member code.
+    """
+    from .semantics.cnv_parser import parse_cnv
+    from .sources.tabnet import fetch_territorial
+
+    rows: list[tuple[str, ...]] = []
+    report: dict[str, dict[str, int]] = {}
+    for name, body in classifications(root, authority="tabnet").items():
+        table_name = str(body["table"])
+        cnv = parse_cnv(fetch_territorial(table_name, cache_dir))
+        members: set[str] = set()
+        municipalities: set[str] = set()
+        for category in cnv.categories:
+            if len(category.codes) != 1 or not re.fullmatch(r"\d{6}", category.codes[0]):
+                continue
+            parsed = _MEMBER.match(category.label)
+            if not parsed:
+                continue
+            municipality = category.codes[0]
+            rows.append((municipality, name, "", parsed.group(1), parsed.group(2),
+                         f"tabnet:territorio/{table_name}.cnv", "", "", "tabnet"))
+            members.add(parsed.group(1))
+            municipalities.add(municipality)
+        report[name] = {"municipalities": len(municipalities), "members": len(members),
+                        "rows": len(municipalities), "contested": 0, "authority": "tabnet"}
+    return rows, report
+
+
 def build_geography_pack(
     out_path: str | Path,
     *,
     labels_path: str | Path | None = None,
     root: Path | None = None,
     ibge: Any = None,
+    tabnet_cache: str | Path | None = None,
 ) -> dict[str, Any]:
     """Compile the membership pack out of the shipped label pack.
 
@@ -327,6 +366,10 @@ def build_geography_pack(
         for name, count in seen_classes.items():
             report[name] = {"municipalities": count, "rows": count, "contested": 0,
                             "authority": "ibge"}
+    if tabnet_cache is not None:
+        added, tabnet_report = _tabnet_rows(root, tabnet_cache)
+        rows.extend(added)
+        report.update(tabnet_report)
 
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)

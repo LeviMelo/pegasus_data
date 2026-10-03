@@ -575,7 +575,22 @@ class Builder:
                             settings=self.settings,
                             row_limit=registry.row_limit,
                         )
-                        for table in outcome.tables:
+                        tables = list(outcome.tables)
+                        # POPTBR22.zip and POPTBR23.zip hold the national table
+                        # POPTBR22.dbf AND its 27 per-state parts; reading every
+                        # member counted each municipality twice (2022 total
+                        # 406,161,512, 2026-10-03). The member named as the
+                        # archive is the national table; the rest partition it.
+                        archive = PurePosixPath(path).stem.upper()
+                        national = [t for t in tables
+                                    if t.member and PurePosixPath(t.member).stem.upper() == archive]
+                        if national and len(tables) > len(national):
+                            notes.append(
+                                f"{path}: read {national[0].member} only; "
+                                f"{len(tables) - len(national)} per-state members partition it"
+                            )
+                            tables = national
+                        for table in tables:
                             arrow = ibge.canonicalize(table.to_table())
                             arrow = ibge.coerce_numeric(
                                 arrow, ["year", "population", "age", "municipality"]

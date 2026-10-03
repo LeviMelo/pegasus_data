@@ -155,6 +155,40 @@ ibge_classifications:
       identical to MICROBR: 558 groups against 558, none assigned differently.
     status: legacy
 
+# Classifications read from TabNet's CURRENT territorial tables
+# (http://tabnet.datasus.gov.br/cgi/territorio/<table>.cnv), the tables the
+# Ministry's own population tabulations classify by today
+# (ibge/cnv/popsvs2024br.def). One table per classification, no per-system
+# copies, so no conflicts to scope away; and no vintage: they are today's.
+tabnet_classifications:
+
+  health_macroregion:
+    table: br_macsaud
+    what: >
+      Macrorregião de Saúde, the tier above the health region, as the Ministry's
+      TabNet assigns it today. Settles OQ-9: the kits' BR_MACSAUD copies name a
+      different macroregion for 66% of municipalities depending on the system.
+    authority: DATASUS TabNet (current)
+    verified:
+      municipalities: 5606
+      members: 124
+      measured: 2026-10-03
+      note: >
+        5,569 of IBGE's 5,570 municipalities, plus 36 codes for the Federal
+        District's administrative regions (5300xx), which DATASUS codes as
+        municipalities. Alta Floresta D'Oeste (110001) is absent from TabNet's
+        table and stays without a macroregion rather than being given one.
+
+  health_region_current:
+    table: br_regsaud
+    what: >
+      Região de Saúde (CIR) as TabNet assigns it today: one current
+      regionalisation for system-neutral roll-ups. `health_region` keeps each
+      system's own CIRBRN assignment, which is what reconciles with that
+      system's TabNet totals.
+    authority: DATASUS TabNet (current)
+    verified: {municipalities: 5606, members: 446, measured: 2026-10-03}
+
 # Classifications that exist on the tree and are NOT compiled, with the measured
 # reason. Excluding them is a statement about the evidence, not about the
 # geography: a municipality does belong to a health macroregion, and DATASUS

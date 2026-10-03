@@ -161,6 +161,34 @@ def resources_build(
     _emit(result, as_json, f"built {name}")
 
 
+@app.command(rich_help_panel="PIPELINE")
+def geography(
+    out: Annotated[str | None, typer.Option("--out", help="Where to write the pack (default: the package's resources)")] = None,
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Compile the supramunicipal membership pack from its three authorities.
+
+    DATASUS's TabWin tables in the label pack (health regions per system and the
+    rest of the health-service geography), IBGE's Localidades API (territorial
+    identity) and TabNet's current territorial tables (health macroregion, the
+    current health regions). Maintainer step; the result ships as
+    ``resources/geography.parquet``.
+    """
+    from importlib.resources import files
+
+    from .geography import GEOGRAPHY_PACK_NAME, build_geography_pack
+    from .sources.ibge_localidades import fetch_municipalities
+
+    settings = _settings(root)
+    target = Path(out) if out else Path(str(files("pegasus_data.resources") / GEOGRAPHY_PACK_NAME))
+    with console.status("compiling geography…"):
+        result = build_geography_pack(
+            target, ibge=fetch_municipalities(), tabnet_cache=settings.root / "registries" / "tabnet",
+        )
+    _emit(result, as_json, "geography")
+
+
 adjudicate_app = typer.Typer(
     name="adjudicate",
     help="Inspect evidence for unresolved semantics and apply reviewed decisions.",
