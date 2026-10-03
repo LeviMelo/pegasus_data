@@ -174,6 +174,11 @@ result.pairs       # record ids (file hash:row) on each side, and the pass that 
   Every key built from type-compatible roles is counted against a placebo,
   and the keys come back ranked by the pairs they isolate beyond chance
   (ADR-0119). Command line: `pegasus-data link-discover`.
+- **Persons.** `build_entities(period=2022, geography="BR")` merges every
+  stored link of a scope into persons, refusing a merge that would give one
+  person two birth records or two deaths. `person_pairs(...)` lists any two
+  kinds of record of one person, including pairs joined only through other
+  links. Command line: `pegasus-data link-entities`.
 - **Command line:** `pegasus-data link sih_deaths_to_sim --period 2022 --geo
   RR`. The method is in ADR-0107, ADR-0110 and ADR-0111.
 

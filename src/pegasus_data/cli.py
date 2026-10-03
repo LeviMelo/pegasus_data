@@ -1388,6 +1388,32 @@ def link_discover_cmd(
     _emit([r.summary() for r in results[:top]], as_json, f"link discovery {left} ~ {right}")
 
 
+@app.command(name="link-entities", rich_help_panel="EXTRACT")
+def link_entities_cmd(
+    period: Annotated[str, typer.Option("--period", "-p", help="The scope of stored links, e.g. 2022")],
+    geography: Annotated[str, typer.Option("--geo", "-g", help="The scope of stored links, e.g. BR")],
+    method: Annotated[str, typer.Option("--method", "-m", help="probabilistic | deterministic")] = "probabilistic",
+    root: RootOpt = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """Merge the stored links of a scope into persons (docs/plans/linkage-theory.md §3.3).
+
+    'pegasus-data link-entities --period 2022 --geo BR'. Reports persons by
+    number of records, and per link how many of its pairs were merged, were
+    already one person through other links, or were refused because the merge
+    would give one person two birth records or two deaths.
+    """
+    from .linkage.entities import build_entities
+
+    try:
+        with console.status("merging links into persons…"):
+            entities = build_entities(period=period, geography=geography, method=method, settings=_settings(root))
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    _emit(entities.summary(), as_json, f"entities {geography} {period}")
+
+
 @app.command(name="query", rich_help_panel="EXTRACT")
 def query_cmd(
     dataset: Annotated[str, typer.Argument(help="Dataset: SIH.RD, SIM.DO, SINASC.DN (SIH-RD works too)")],

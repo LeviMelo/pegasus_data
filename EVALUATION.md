@@ -128,3 +128,4 @@ in.
 | 2026-10-02 | [Impossible pairs in the national links: mostly recording errors, not false links](docs/evaluation/2026-10-02-impossible-pairs-measured.md) | live (`scripts/link_impossibility.py`, national home) |
 | 2026-10-02 | [Race for the same person across systems (linked pairs, national 2022)](docs/evaluation/2026-10-02-race-across-systems.md) | live (`scripts/race_across_systems.py`, national home) |
 | 2026-10-02 | [Linkage speed, first pass: 58 → 9.2 min for the national SIH-deaths link, identical pairs](docs/evaluation/2026-10-02-linkage-speed-first-pass.md) | live (cProfile; national home) |
+| 2026-10-03 | [Entities from the national links: 2.39 million links merged into persons, 78 conflicts](docs/evaluation/2026-10-03-entities-from-national-links.md) | live (`build_entities`, national home) |

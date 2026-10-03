@@ -8,6 +8,9 @@
 #   passes         strictest first; each key pairs a left role with a right role
 #   control        the left role shifted for the negative control, and by how
 #                  many days
+#   person         [left person, right person]: the role prefix naming, on each
+#                  side, the person both records are about (a delivery's mother
+#                  is the admission's patient); entities.py merges links on it
 #   validate       held-out checks on the linked pairs: two roles that should
 #                  agree (optionally within `tolerance`), or an `sql` condition
 #                  over l.* and r.*
@@ -20,6 +23,7 @@ links:
     description: >
       Admissions that ended in death (SIH-RD MORTE = 1) to the death certificate.
       The shared event is the day: the discharge date is the death date.
+    person: [patient, deceased]   # the same person on each side (linkage/entities.py)
     left: {dataset: SIH-RD, where: "\"admission.death\" = '1'"}
     right: {dataset: SIM-DO}
     passes:
@@ -54,6 +58,7 @@ links:
       Deaths before one year of life, of children born in the death's year, to
       their birth record. Both files are organised by residence, so almost every
       such death should have a birth: the linked share approximates sensitivity.
+    person: [deceased, baby]   # the same person on each side (linkage/entities.py)
     left:
       dataset: SIM-DO
       where: >
@@ -97,6 +102,7 @@ links:
       is the mother, and SINASC records her birth date; the birth day falls
       inside the admission. The live births of one mother, one day, one hospital
       are one delivery (twins link once).
+    person: [mother, patient]   # the same person on each side (linkage/entities.py)
     left:
       dataset: SINASC-DN
       group: [mother.birth_date, birth.facility, birth.date]
@@ -136,6 +142,7 @@ links:
       admission that ended in them. The reverse of sih_deaths_to_sim, restricted
       to maternal deaths, so a death outside hospital or without an SUS
       admission stays unlinked.
+    person: [deceased, patient]   # the same person on each side (linkage/entities.py)
     left: {dataset: SIM-DO, where: "\"death.cause\" LIKE 'O%' AND \"deceased.sex\" = 'F'"}
     right: {dataset: SIH-RD, where: "\"patient.sex\" = 'F'"}
     passes:
@@ -165,6 +172,7 @@ links:
       Admissions of babies in their first 28 days (the patient is the baby) to
       their birth record: the baby's birth date and sex, the mother's residence,
       and usually the hospital of birth.
+    person: [patient, baby]   # the same person on each side (linkage/entities.py)
     left: {dataset: SIH-RD, where: "\"patient.age_years\" < 0.0767 AND \"admission.start\" - \"patient.birth_date\" <= 28"}
     right: {dataset: SINASC-DN}
     passes:
@@ -203,6 +211,7 @@ links:
       Non-SUS admissions that ended in death (CIHA MORTE = 1, admissions only) to
       the death certificate: the private-sector twin of sih_deaths_to_sim, so
       together they cover deaths in every hospital that reports.
+    person: [patient, deceased]   # the same person on each side (linkage/entities.py)
     left: {dataset: CIHA, where: "\"admission.death\" = '1' AND \"admission.modality\" = '02'"}
     right: {dataset: SIM-DO}
     passes:
@@ -232,6 +241,7 @@ links:
     description: >
       A birth to the mother's delivery admission in a non-SUS hospital (CIHA): the
       private-sector twin of sinasc_births_to_delivery_admission.
+    person: [mother, patient]   # the same person on each side (linkage/entities.py)
     left:
       dataset: SINASC-DN
       group: [mother.birth_date, birth.facility, birth.date]

@@ -340,6 +340,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `linkage/timeline.py`: one pregnancy as linked events from the spine links; served by `serve/` behind `--allow-records` (ADR-0112).
 - `linkage/probabilistic.py`: probabilistic linkage: m from leave-one-field-out anchors, u from random pairs, a 400-day control, 1:1 resolution (ADR-0111).
 - `linkage/discover.py`: link discovery: every key from type-compatible roles counted against a week-shifted placebo; `discover_links()`, `pegasus-data link-discover` (ADR-0119).
+- `linkage/entities.py`: stored links merged into persons (union-find over (record, person role), strongest evidence first, refusing merges that break a person constraint); `build_entities()`, `person_pairs()`, `pegasus-data link-entities` (docs/plans/linkage-theory.md §3.3).
 - `crosswalk.py`: CNES↔CNPJ enrichment. Reads the registry first (windows from inclusion to exclusion), then the label pack's historical claims where the registry is silent; compares with the record's own CNPJ when the layout has one (ADR-0100).
 - `providers.py`: optional attribute providers (CNES names).
 - `_age.py`: age in fractional years from measured unit tables (ADR-0070), and age bands.
