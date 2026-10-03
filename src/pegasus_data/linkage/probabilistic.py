@@ -134,6 +134,9 @@ class ProbabilisticResult:
     verdict: str = "not viable"
     threshold_source: str = "own"
     calibration: dict[str, Any] = field(default_factory=dict)
+    #: The error channels per setting (the state that publishes the left
+    #: record), each shrunk toward the national channel (ADR-0123).
+    models_by_setting: dict[str, list[FieldModel]] = field(default_factory=dict)
 
     def summary(self) -> dict[str, Any]:
         return {
@@ -147,6 +150,9 @@ class ProbabilisticResult:
             "fdr_upper95_percent": self.fdr_upper95_percent, "validations": self.validations,
             "verdict": self.verdict, "threshold_source": self.threshold_source,
             "calibration": self.calibration, "models": [m.as_dict() for m in self.models],
+            "models_by_setting": {key: [{"comparison": m.comparison.name, "anchors": m.anchors,
+                                         "m": {k: round(v, 5) for k, v in m.m.items()}} for m in ms]
+                                  for key, ms in sorted(self.models_by_setting.items())},
         }
 
 
@@ -251,8 +257,9 @@ def _candidates(con: duckdb.DuckDBPyConnection, left_view: str, blocks) -> str:
     return " UNION ".join(parts)
 
 
-def _select_values(left_view: str, pairs_sql: str, compare) -> str:
-    """SQL returning l, r and every compared value, one column per role."""
+def _select_values(left_view: str, pairs_sql: str, compare, setting: bool = False) -> str:
+    """SQL returning l, r and every compared value, one column per role
+    (and ``s``, the left record's setting, when asked)."""
     lcols = [f'l.{_q(c.left)} AS "v{i}_l"' for i, c in enumerate(compare)]
     rcols = []
     for i, c in enumerate(compare):
@@ -260,6 +267,8 @@ def _select_values(left_view: str, pairs_sql: str, compare) -> str:
             rcols.append(f'r.{_q(role)} AS "v{i}_r{j}"')
         if c.given:
             rcols.append(f'{c.given_side[0]}.{_q(c.given)} AS "v{i}_g"')
+    if setting:
+        lcols.append('l."_setting" AS s')
     return f"""SELECT p.l, p.r, {", ".join(lcols + rcols)}
         FROM ({pairs_sql}) p
         JOIN (SELECT DISTINCT ON (_id) * FROM {left_view}) l ON l._id = p.l
@@ -313,8 +322,13 @@ def _bits_of(fm: FieldModel, lv: np.ndarray) -> np.ndarray:
     return np.array([fm.bits(str(n)) for n in names])[inverse]
 
 
-def _score_stream(con, sql: str, compare, models: list[FieldModel]) -> tuple[list, list, np.ndarray]:
-    """Scores of every candidate pair, streamed in batches; only positive scores are kept."""
+def _score_stream(con, sql: str, compare, models: list[FieldModel],
+                  by_setting: dict[str, list[FieldModel]] | None = None) -> tuple[list, list, np.ndarray]:
+    """Scores of every candidate pair, streamed in batches; only positive scores are kept.
+
+    With ``by_setting``, each pair is scored with its left record's setting's
+    channels (the ``s`` column); a record without a known setting uses ``models``.
+    """
     ls: list = []
     rs: list = []
     scores: list[np.ndarray] = []
@@ -322,8 +336,17 @@ def _score_stream(con, sql: str, compare, models: list[FieldModel]) -> tuple[lis
         if not batch.num_rows:
             continue
         total = np.zeros(batch.num_rows)
-        for fm, lv in zip(models, _batch_levels(batch, compare), strict=True):
-            total += _bits_of(fm, lv)
+        level_arrays = _batch_levels(batch, compare)
+        if by_setting and "s" in batch.schema.names:
+            setting = np.asarray(pc.fill_null(batch.column("s"), "").to_numpy(zero_copy_only=False), dtype=object)
+            for value in np.unique(setting):
+                rows = np.nonzero(setting == value)[0]
+                chosen = by_setting.get(str(value), models)
+                for fm, lv in zip(chosen, level_arrays, strict=True):
+                    total[rows] += _bits_of(fm, lv[rows])
+        else:
+            for fm, lv in zip(models, level_arrays, strict=True):
+                total += _bits_of(fm, lv)
         keep = np.nonzero(total > 0)[0]
         if len(keep):
             ls.extend(pa.array(batch.column("l")).take(pa.array(keep)).to_pylist())
@@ -452,6 +475,34 @@ def _levels_of(con, sql: str, compare) -> list[np.ndarray]:
     return _batch_levels(table.combine_chunks().to_batches()[0], compare)
 
 
+def _by_setting(comp: Comparison, levels_: np.ndarray, settings: np.ndarray, reference: dict[str, float],
+                overall: FieldModel) -> dict[str, FieldModel]:
+    """One channel per setting: the setting's anchors shrunk toward
+    ``reference`` (the national m) with POOL_PSEUDO_ANCHORS pseudo-anchors.
+
+    The national run shrinks toward its own m and a slice toward the stored
+    national m, so a state's channel is the same whichever run estimates it
+    (theory §2.3). SP's own anchors gave a different-state residence -7.9
+    bits against -6.5 nationally; scored with one national channel, the
+    national run and the SP slice disagreed on 578 pairs (2026-10-03).
+    """
+    k = POOL_PSEUDO_ANCHORS
+    usable = levels_ != MISSING
+    out: dict[str, FieldModel] = {}
+    for value in np.unique(settings[usable]):
+        if not value:
+            continue
+        mine = levels_[usable & (settings == value)]
+        names, counts = np.unique(mine.astype(str), return_counts=True)
+        own = dict(zip(names.tolist(), counts.tolist(), strict=True))
+        n = len(mine)
+        m = {lv: (own.get(lv, 0) + k * reference.get(lv, 0.0)) / (n + k) for lv in set(own) | set(reference)}
+        fm = FieldModel(comp, m, overall.u, anchors=n + k, controls=overall.controls)
+        fm.m_source = {"setting_anchors": n, "pooled_with": k}  # type: ignore[attr-defined]
+        out[str(value)] = fm
+    return out
+
+
 def _pool(fm: FieldModel, national: dict[str, Any] | None) -> FieldModel:
     """Shrink a run's m toward the stored national m (POOL_PSEUDO_ANCHORS)."""
     if not national or national.get("comparison") != fm.comparison.name:
@@ -480,6 +531,11 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     from dataclasses import replace as _replace
 
     con = duckdb.connect()
+    setting_role = dataset_roles(spec.left.dataset).setting
+    with_setting = bool(setting_role and setting_role in left.column_names)
+    if with_setting:
+        left = left.append_column("_setting",
+                                  pc.utf8_slice_codeunits(pc.cast(left.column(setting_role), pa.string()), 0, 2))
     # An interval is compared as an interval here: the deterministic engine's
     # one-row-per-day explosion is its way of making "inside" an equality.
     n_left = _prepare(con, "L", left, _replace(spec.left, explode_days=None))
@@ -517,6 +573,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                                                                       evidence_only), evidence_only), strict=True))
                    if evidence_only else {})
     models: list[FieldModel] = []
+    per_setting: list[dict[str, FieldModel]] = []
     for i, comp in enumerate(prob.compare):
         u, n_u = candidate_u[comp.name] if comp.name in candidate_u else _distribution(random_levels[i])
         others = [c for c in prob.compare if c is not comp and c.is_key]
@@ -524,16 +581,32 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
         control_sql, has_control = _anchor_sql(others, prob.control_role, shift=True)
         n_anchor = con.execute(f"SELECT count(*) FROM ({anchor_sql})").fetchone()[0]
         n_anchor_control = con.execute(f"SELECT count(*) FROM ({control_sql})").fetchone()[0] if has_control else 0
-        m, n_m = _distribution(_levels_of(con, _select_values("L", anchor_sql, [comp]), [comp])[0])
+        anchors = con.execute(_select_values("L", anchor_sql, [comp], setting=with_setting)).fetch_arrow_table()
+        anchor_levels = (_batch_levels(anchors.combine_chunks().to_batches()[0], [comp])[0] if anchors.num_rows
+                         else np.array([], dtype=object))
+        m, n_m = _distribution(anchor_levels)
         fm = FieldModel(comp, m, u, anchors=n_m, controls=n_u)
         fm.m_source = {"anchors": n_anchor, "anchor_control": n_anchor_control}  # type: ignore[attr-defined]
         ref = next((d for d in ((national or {}).get("models") or []) if d.get("comparison") == comp.name), None)
-        models.append(_pool(fm, ref))
+        pooled = _pool(fm, ref)
+        models.append(pooled)
+        if with_setting and anchors.num_rows:
+            reference = {lv: float(v["m"]) for lv, v in ref.get("levels", {}).items()} if ref else m
+            settings_ = np.asarray(pc.fill_null(anchors.column("s"), "").to_numpy(zero_copy_only=False),
+                                   dtype=object)
+            per_setting.append(_by_setting(comp, anchor_levels, settings_, reference, pooled))
+        else:
+            per_setting.append({})
+    # Settings with anchors on every comparison get their own channels; the
+    # rest score with the overall ones.
+    by_setting = ({key: [ps[key] for ps in per_setting]
+                   for key in set.intersection(*(set(ps) for ps in per_setting))}
+                  if with_setting and per_setting and all(per_setting) else {})
     # Candidates, real and control, scored as they stream.
-    rl, rr, rscore = _score_stream(con, _select_values("L", _candidates(con, "L", prob.blocks), prob.compare),
-                                   prob.compare, models)
-    cl, cr, cscore = _score_stream(con, _select_values("LS", _candidates(con, "LS", prob.blocks), prob.compare),
-                                   prob.compare, models)
+    rl, rr, rscore = _score_stream(con, _select_values("L", _candidates(con, "L", prob.blocks), prob.compare,
+                                                       setting=with_setting), prob.compare, models, by_setting)
+    cl, cr, cscore = _score_stream(con, _select_values("LS", _candidates(con, "LS", prob.blocks), prob.compare,
+                                                       setting=with_setting), prob.compare, models, by_setting)
     # Threshold on 1:1-resolved scores, so real and control are counted alike.
     real_best = _one_to_one(rl, rr, rscore, float("-inf"))
     control_best = _one_to_one(cl, cr, cscore, float("-inf"))
@@ -565,7 +638,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     verdict = judge(len(kept), fdr_percent, validations, upper)
     return ProbabilisticResult(spec.name, n_left, n_right, pairs, models, len(rscore), len(cscore),
                                round(t, 2) if t is not None else None, fdr_percent, control_kept, upper,
-                               validations, verdict, threshold_source, curve)
+                               validations, verdict, threshold_source, curve, by_setting)
 
 
 def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: object, geography: object,
@@ -626,8 +699,9 @@ def link_probabilistic(name: str, *, period: object, geography: object, right_pe
     spec = load_links()[name]
     prob = load_probabilistic(name)
     inherited = {i.as_ for i in prob.inherit}
-    left_roles = sorted((set(_roles_needed(spec, "left")) | {r for c in prob.compare for r in c.side_roles("left")})
-                        - inherited)
+    setting = dataset_roles(spec.left.dataset).setting
+    left_roles = sorted((set(_roles_needed(spec, "left")) | {r for c in prob.compare for r in c.side_roles("left")}
+                         | ({setting} if setting else set())) - inherited)
     right_roles = sorted((set(_roles_needed(spec, "right")) | {r for c in prob.compare for r in c.side_roles("right")})
                          - inherited)
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))

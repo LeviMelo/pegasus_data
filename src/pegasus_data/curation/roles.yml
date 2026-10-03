@@ -27,10 +27,17 @@
 #                      "cesário": compared as text they disagreed in 54% of linked pairs.
 # Missing is missing: an unparseable date, an ignored municipality or a sex
 # other than M/F becomes null and contributes no evidence, never a guess.
+#
+# `setting` names the municipality role whose state is the unit that publishes
+# a record: DATASUS files SIM (DORES) and SINASC (DNRES) by residence, SIH and
+# CIHA by the hospital's municipality. Linkage estimates its error channels per
+# setting, shrunk toward the national ones, so a state's slice and the national
+# run score a record with the same channel (ADR-0123).
 
 datasets:
   SINASC-DN:
     record: birth
+    setting: mother.residence
     roles:
       baby.birth_date: {column: DTNASC, type: date, format: DDMMYYYY}
       baby.sex: {column: SEXO, type: sex}
@@ -50,6 +57,7 @@ datasets:
 
   SIM-DO:
     record: death
+    setting: deceased.residence
     roles:
       deceased.birth_date: {column: DTNASC, type: date, format: DDMMYYYY}
       deceased.sex: {column: SEXO, type: sex}
@@ -72,6 +80,7 @@ datasets:
 
   SIH-RD:
     record: admission
+    setting: admission.facility_municipality
     roles:
       patient.birth_date: {column: NASC, type: date, format: YYYYMMDD}
       patient.sex: {column: SEXO, type: sex}
@@ -90,6 +99,7 @@ datasets:
 
   CIHA:
     record: admission
+    setting: admission.facility_municipality
     roles:
       patient.birth_date: {column: NASC, type: date, format: YYYYMMDD}
       patient.sex: {column: SEXO, type: sex}

@@ -378,7 +378,34 @@ Measured while building T1–T5. Each item corrects or sharpens a section above.
 - **§2.1, record identity is not yet stable.** The same record read from two
   publications (SINASC's national and per-state files) has two identities
   (OQ-65). Entities across publications need a content-based key.
+  Done 2026-10-03 (ADR-0124): `_record_key`, numbered for CIHA's exact
+  duplicates.
 - **§5, settings as annotators: identifiability is the binding limit.** With
   two settings per person, *which* system errs is not identified; contrasts
   between settings against a common reference are. The hospitals that code
   systematically (brown as asian; black as brown) are found robustly.
+
+**Later the same night (ADR-0121 to ADR-0124):**
+
+- **§2.3, channels per setting are needed for scope invariance, not only
+  for accuracy.** With record keys, the SP slice disagreed with the
+  national run on 578 of 134,059 pairs. Every one of them was a channel
+  difference: with the national m forced, the slice reproduced all 134,059.
+  - SP's recording differs from Brazil's. A residence in the same state
+    but another municipality: −1.07 bits in SP, −0.05 nationally.
+  - Both runs now estimate m per state, shrunk toward the national m
+    (ADR-0123).
+- **§2.2, impossibility as learned evidence works, and its weight is
+  data-set.** Sergipe: a death at home after a stay that ended in death,
+  −9.4 bits (no anchor showed it); a death before the stay began, −3.7 to
+  −7.2 bits (ADR-0121).
+- **§3.2, the padded partner period.** Infant deaths and newborn admissions
+  read SINASC one year back, and inherited evidence follows per year
+  (ADR-0121).
+- **§5, the SIH "asian" is two mechanisms, both properties of the
+  setting.** Some hospitals give 04 to everyone, which is a default, not a
+  classification. One wrote SIM's code for brown until a fix in
+  September–October 2022 (EVALUATION 2026-10-03). The annotator model must
+  allow a setting whose output does not depend on the person.
+- **Engineering.** Estimating u from the real candidates must count levels
+  batch by batch: materialised, the newborn link's candidates took 40 GB.

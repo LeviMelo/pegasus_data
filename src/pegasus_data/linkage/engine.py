@@ -37,7 +37,7 @@ import duckdb
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
-from .roles import dataset_roles, role_table
+from .roles import DUP_SQL, RECORD_ID_SQL, dataset_roles, role_table
 
 LINKS_FILE = Path(__file__).resolve().parent.parent / "curation" / "links.yml"
 CHANCE_DROP = 20.0
@@ -211,9 +211,13 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
     """Register one side as a view with an `_id` per record (or per group)."""
     con.register(f"{name}_raw", table)
     where = f"WHERE {side.where}" if side.where else ""
-    key = "_record_key, " if "_record_key" in table.column_names else ""
-    base = (f"SELECT *, coalesce({key}_blob_sha256 || ':' || CAST(_row AS VARCHAR)) AS _id "
-            f"FROM {name}_raw {where}")
+    if "_record_key" in table.column_names:
+        # The identity rule of roles.record_ids; numbered before the side's
+        # filter, so a record's number does not depend on the spec.
+        base = (f"SELECT * EXCLUDE (_dup), {RECORD_ID_SQL} AS _id FROM (SELECT *, {DUP_SQL} FROM {name}_raw) "
+                f"{where}")
+    else:
+        base = f"SELECT *, _blob_sha256 || ':' || CAST(_row AS VARCHAR) AS _id FROM {name}_raw {where}"
     if side.group:
         # One record stands for its group (the live births of one delivery):
         # the smallest id, with the group's size kept for validation.

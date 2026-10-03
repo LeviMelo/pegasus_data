@@ -34,14 +34,35 @@ ROLES_FILE = Path(__file__).resolve().parent.parent / "curation" / "roles.yml"
 RECORD_ID = ("_blob_sha256", "_row")
 
 
+#: SQL for a record's identity over a relation with provenance columns; the
+#: same rule as :func:`record_ids`. Exact duplicates within one source file
+#: are numbered by their row order (key, key#2, key#3...): CIHA 2022 publishes
+#: 735,049 rows identical to another row of the same file (131 among its
+#: deaths), and one key would have merged them. The n-th copy in the national
+#: file and in its state's file get the same identity.
+RECORD_ID_SQL = ("coalesce(_record_key || CASE WHEN _dup > 1 THEN '#' || CAST(_dup AS VARCHAR) ELSE '' END, "
+                 "_blob_sha256 || ':' || CAST(_row AS VARCHAR))")
+DUP_SQL = "row_number() OVER (PARTITION BY _source_path, _record_key ORDER BY _row) AS _dup"
+
+
 def record_ids(table: pa.Table) -> pa.Array:
     """Each record's identity: its content key where the lake or decoder
-    stamped one (``_record_key``, OQ-65), else ``_blob_sha256:_row``."""
+    stamped one (``_record_key``, OQ-65), numbered for exact duplicates within
+    a source file, else ``_blob_sha256:_row``."""
     fallback = pc.binary_join_element_wise(pc.cast(table.column("_blob_sha256"), pa.string()),
                                            pc.cast(table.column("_row"), pa.string()), ":")
     if "_record_key" not in table.column_names:
         return fallback
-    return pc.coalesce(pc.cast(table.column("_record_key"), pa.string()), fallback)
+    import duckdb
+
+    con = duckdb.connect()
+    con.register("t", pa.table({"_record_key": pc.cast(table.column("_record_key"), pa.string()),
+                                "_source_path": pc.cast(table.column("_source_path"), pa.string()),
+                                "_row": table.column("_row"),
+                                "_blob_sha256": pc.cast(table.column("_blob_sha256"), pa.string()),
+                                "_pos": pa.array(range(table.num_rows), pa.int64())}))
+    return con.execute(f"SELECT {RECORD_ID_SQL} AS id FROM (SELECT *, {DUP_SQL} FROM t) ORDER BY _pos"
+                       ).fetch_arrow_table().column("id").combine_chunks()
 _FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYYMM": "%Y%m"}
 _TYPES = {"date", "month", "sex", "municipality", "facility", "integer", "number", "code", "codes", "label"}
 
@@ -67,6 +88,7 @@ class DatasetRoles:
     dataset: str
     record: str
     roles: dict[str, Role] = field(default_factory=dict)
+    setting: str | None = None   # the municipality role whose state publishes the record
 
 
 @lru_cache(maxsize=1)
@@ -92,7 +114,11 @@ def load_roles() -> dict[str, DatasetRoles]:
             )
             roles[name] = Role(name, str(spec["column"]), kind, fmt, categories,
                                tuple(str(c) for c in spec.get("also") or ()))
-        out[str(dataset).upper()] = DatasetRoles(str(dataset).upper(), str(body.get("record", "")), roles)
+        setting = body.get("setting")
+        if setting is not None and (setting not in roles or roles[setting].type != "municipality"):
+            raise ValueError(f"roles.yml: {dataset}: setting {setting!r} is not a municipality role")
+        out[str(dataset).upper()] = DatasetRoles(str(dataset).upper(), str(body.get("record", "")), roles,
+                                                 str(setting) if setting else None)
     return out
 
 

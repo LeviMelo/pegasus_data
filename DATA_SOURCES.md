@@ -252,6 +252,12 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   `1→Masculino`, `2→Feminino` and `3→Feminino` (`docs/history/DEFECTS.md`).
 - **Race/colour codes differ**: Parda is `03` in SIHSUS.RACACOR, `3` in
   SIHSUS.RACA_COR, `4` in SINASC (ARCH §14.3).
+- **SIH `RACA_COR` 04 is not always "amarela"** (2026-10-03). In some
+  hospitals it is a default given to almost everyone (CNES 2499363, CE:
+  90–97% of admissions every month of 2022, whites included). In others it
+  is SIM's code for brown written into SIH's field (CNES 2705982, SP: 03
+  unused until 2022-08, then 11–17% from 2022-10). Linked to SIM and
+  SINASC, 16,252 of 908,601 persons brown there are asian in SIH (OQ-66).
 - **ICD revisions coexist**: SIM `CAUSABAS` holds ICD-9 before 1996 (338 of
   386 shape failures in a 5,000 sample); SIH writes CID-9 as 6-digit numerics
   (426 of 1,590 distinct `DIAG_PRINC`). CID-9 and CID-10 code spaces share no

@@ -87,6 +87,8 @@ measured as it was built (EVALUATION 2026-10-03, entries named below).
   national file and per-state files. A birth read from one has a different
   `_blob_sha256:_row` than from the other, so links and entities computed on
   one do not join the other. A content-based record key is needed (OQ-65).
+  **Resolved 2026-10-03 by ADR-0124:** `_record_key`, numbered for exact
+  duplicates within a file.
 - **Hospital-level settings and the asian coding.** Seven hospitals record
   most brown persons as asian, two of them about 89%. Code mixing is the
   hypothesis; confirming it at its source (hospital software) is outside the
