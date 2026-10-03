@@ -31,11 +31,13 @@ executing it taught is in §11) is executed through T1–T5:
     national threshold and calibration.
   - Measured: SE, RR and SP give exactly the national run's pairs (SP
     133,476 of 133,476).
-- **Impossibility as learned evidence** (ADR-0121): event order and
-  category pairs as comparisons whose weight the data set.
-  - It gains maternal deaths (+188).
-  - For SIH deaths it drops 3,279 pairs that look true, which is unresolved
-    (EVALUATION 2026-10-03).
+- **Impossibility as learned evidence** (ADR-0121): the `order` and `joint`
+  comparison kinds exist, but are not used in the death specs. There, both
+  re-read a field another comparison already uses:
+  - the order comparison read the death date, charging a month typo twice;
+  - the place comparison read the facility.
+  Together they dropped thousands of true SIH-death pairs
+  (`scripts/link_pair_fate.py`).
 - **Padded partner periods** (ADR-0121): infant deaths and newborn
   admissions read SINASC one year back. Infant deaths: 23,845 → 25,982
   pairs.
@@ -53,18 +55,24 @@ executing it taught is in §11) is executed through T1–T5:
 - **Discovery** (ADR-0119): a placebo-checked search over typed fields finds
   the hand-written keys. SIH and CIHA share 0.4% of persons.
 
-**National, 2022** (the latest runs: record keys, per-state channels,
-ADR-0121 specs):
+**National, 2022** (final runs: record keys, per-state channels, u from 10
+million hashed pairs, padded infant and newborn links; `data/logs/final_relink.done`):
 
 | link | pairs | FDR upper 95% | minutes |
 |---|---|---|---|
-| SIH deaths → SIM | 548,033 (90.5%) | 1.03% | 3.3 |
-| deliveries → SIH | 1,533,023 (60.8%) | 0.74% | 13.3 (before the speed-up) |
-| infant deaths → SINASC (2021 padded) | 25,982 (81.0%) | 0.79% | 4.8 |
-| newborn admissions → SINASC (2021 padded, inherited AIH) | 79,272 (20.4%) | 1.07% | 2.4 |
-| maternal deaths → SIH | 1,058 (64.5%) | 1.61% | 2.2 |
-| CIHA deaths → SIM | 60,720 (61.8%) | 1.03% | 7.9 (CIHA role table uncached; fixed) |
-| births → CIHA deliveries | 195,761 (7.8%) | 0.99% | 11.3 (same) |
+| SIH deaths → SIM | 551,005 (91.0%) | 1.03% | 2.4 |
+| deliveries → SIH | 1,529,614 (60.7%) | 0.74% | 7.4 |
+| infant deaths → SINASC (2021 padded) | 25,939 (80.9%) | 0.79% | 2.6 |
+| newborn admissions → SINASC (2021 padded, inherited AIH) | 79,048 (20.3%) | 1.07% | 5.4 |
+| maternal deaths → SIH | 877 (53.5%) | 1.80% | 2.6 |
+| CIHA deaths → SIM | 59,506 (60.6%) | 1.08% | 2.6 |
+| births → CIHA deliveries | 195,566 (7.8%) | 0.99% | 4.0 |
+
+- **Scope test:** the SE, RR and SP slices are identical to the national run
+  (SP 133,471 of 133,471).
+- **Entities:** 2,418,661 persons, 99 merges refused.
+- **Admission–baby pairs only through other links:** 9,919, of which 7,324
+  are newborns under 28 days and 2,580 older infants.
 
 **Speed** (EVALUATION 2026-10-03 "Performance pass"), each change checked
 identical to the code it replaced:
@@ -86,11 +94,12 @@ identical to the code it replaced:
 OQ-64), 1990s SIH V-codes.
 
 **Open in linkage:**
-- why the impossibility evidence drops 3,279 plausible SIH-death pairs
-  (`scripts/link_pair_fate.py`);
-- a coverage prior (coverage varies by stratum; not yet shown to add to
-  the evidence);
-- flagging unreliable race settings (OQ-66).
+- flagging unreliable race settings (OQ-66);
+- a link for infant admissions beyond 28 days (2,580 found only through
+  deaths);
+- u(equal) exactly from marginal frequencies (theory §11);
+- a coverage prior, only with coverage measured independently of the link
+  (EVALUATION 2026-10-03 "Coverage by stratum").
 
 ## Done (live-verified)
 
