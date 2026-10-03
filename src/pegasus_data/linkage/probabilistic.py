@@ -554,6 +554,41 @@ def _by_setting(comp: Comparison, levels_: np.ndarray, settings: np.ndarray, ref
     return out
 
 
+#: Kinds whose "equal" level is plain equality of the two values, so its
+#: chance rate is countable from each side's value frequencies.
+_EXACT_EQUAL_KINDS = frozenset({"exact", "date", "municipality", "integer", "number_distance"})
+
+
+def _exact_equal(con: duckdb.DuckDBPyConnection, comp, u: dict[str, float]) -> dict[str, float]:
+    """u with its "equal" level counted exactly: Σ_v n_L(v) n_R(v) / (n_L n_R).
+
+    Sampled pairs left a rare agreement (a birth date, u about 5e-5) with
+    0.024 bits of noise at 10 million pairs; counting removes it (theory §11).
+    The other levels keep their sampled shares of the rest. Over non-missing
+    pairs, as the sample's distribution is. Not for a comparison conditioned
+    on another role (residence given the place of care), whose "equal" is
+    split by that role, nor an interval.
+    """
+    if comp.kind not in _EXACT_EQUAL_KINDS or comp.given or len(comp.right_roles) != 1:
+        return u
+    left, right = _q(comp.left), _q(comp.right_roles[0])
+    try:
+        n_l, n_r, agree = con.execute(f"""
+            WITH a AS (SELECT {left} AS v, count(*) AS c FROM L WHERE {left} IS NOT NULL GROUP BY 1),
+                 b AS (SELECT {right} AS v, count(*) AS c FROM R WHERE {right} IS NOT NULL GROUP BY 1)
+            SELECT (SELECT sum(c) FROM a), (SELECT sum(c) FROM b),
+                   (SELECT sum(a.c * b.c) FROM a JOIN b ON a.v = b.v)""").fetchone()
+    except duckdb.Error:
+        return u
+    if not n_l or not n_r:
+        return u
+    exact = float(agree or 0) / (float(n_l) * float(n_r))
+    sampled = u.get("equal", 0.0)
+    rest = (1.0 - exact) / (1.0 - sampled) if sampled < 1.0 else 0.0
+    out = {**{lv: p * rest for lv, p in u.items()}, "equal": exact}
+    return {lv: p for lv, p in out.items() if p > 0}
+
+
 def _pool(fm: FieldModel, national: dict[str, Any] | None) -> FieldModel:
     """Shrink a run's m toward the stored national m (POOL_PSEUDO_ANCHORS)."""
     if not national or national.get("comparison") != fm.comparison.name:
@@ -608,6 +643,9 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
     national_u = bool(national and national.get("models"))
     random_u = ([({}, 0)] * len(prob.compare) if national_u
                 else _distributions_stream(con, _select_values("L", random_pairs, prob.compare), prob.compare))
+    if not national_u:
+        random_u = [(_exact_equal(con, c, u), n) if u else (u, n)
+                    for c, (u, n) in zip(prob.compare, random_u, strict=True)]
     # An evidence-only comparison (an inherited AIH, a P07 code) learns its
     # chance agreement among the real candidates: the records the blocks put
     # beside a record (same hospital, same day), all but one of them

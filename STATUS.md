@@ -97,7 +97,6 @@ OQ-64), 1990s SIH V-codes.
 - flagging unreliable race settings (OQ-66);
 - a link for infant admissions beyond 28 days (2,580 found only through
   deaths);
-- u(equal) exactly from marginal frequencies (theory §11);
 - a coverage prior, only with coverage measured independently of the link
   (EVALUATION 2026-10-03 "Coverage by stratum").
 

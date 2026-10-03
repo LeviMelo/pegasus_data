@@ -428,5 +428,6 @@ Measured while building T1–T5. Each item corrects or sharpens a section above.
   - u is now drawn over both whole sides by hashed index, deterministically,
     from 10 million pairs: 0.024–0.035 bits.
   - The exact alternative, u(equal) = Σ_v p_L(v) p_R(v) from marginal
-    frequencies, would remove the sampling entirely for equality levels
-    (not done; the typo levels would still need pairs).
+    frequencies, is done (ADR-0132). It removes the sampling for equality
+    levels; the typo levels still need pairs. National SIH deaths: 551,012
+    pairs against 551,005.
