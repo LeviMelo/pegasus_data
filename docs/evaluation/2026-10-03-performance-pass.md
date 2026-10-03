@@ -101,3 +101,36 @@ profiler):
 The next step would be level functions returning integer codes instead of
 strings, which removes the factorise and the object-array fills (about a
 quarter of what is left).
+
+## Memory and the role cache (later the same night)
+
+- **DuckDB's default memory limit is 80% of RAM.**
+  - The relink's newborn link reached 25 GB in one process on this 32 GB
+    machine, and was stopped before it paged.
+  - Every linkage connection now comes from `identity.connect()`: capped at
+    40% of physical memory, spilling to `<work>/duckdb_spill`.
+- **The cap was not the whole story.**
+  - A memory sampler on the SP newborn link: the process passed 14 GB while
+    building a national SIH role table from cold, labelling all 12.5 million
+    rows in one query. It got there through `_inherited`, which read the
+    mother's delivery AIH over the padded period (2021–2022), although only
+    2022 has a stored delivery link.
+  - **National role tables are now built state by state** when the lake
+    holds the dataset only per state (SIH, CIHA). SIH 2022: 174 s, peak
+    8.7 GB, the same 12,520,914 rows as the single-query table (compared
+    as a multiset).
+  - **`_inherited` reads the partner only for the years a stored link
+    exists.**
+- **CIHA's role table was never cached.**
+  - The cache glob was `{system}_{series}_*`, and CIHA has no series, so
+    it read `CIHA_None_*` and matched nothing.
+  - Every CIHA link relabelled 20 million rows. That is why the CIHA links
+    took 7.9 and 11.3 minutes in the relink. Fixed.
+- **Superseded cache files are removed.** They had accumulated to 4.3 GB,
+  eight national SIH tables among them. Files are now named by scope, and
+  writing one deletes the same scope's older keys: 46 MB remained.
+- **Editing the record-identity rule no longer invalidates the cache.**
+  `record_ids`, `RECORD_ID_SQL` and `connect` moved to
+  `linkage/identity.py`. While they lived in `roles.py`, which the cache
+  key fingerprints, each edit to them tonight threw away every cached
+  national table.
