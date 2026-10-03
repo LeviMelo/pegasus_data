@@ -82,23 +82,61 @@ identical to the code it replaced:
 - linkage DuckDB is capped at 40% of RAM.
 
 **Data sources.**
-- The DATASUS FTP data channel has dropped every passive connection since
-  2026-10-03 (control still answers).
-- The fetcher falls back to a byte-identical public mirror, checked against
-  the listed size and recorded as `mirror:<url>` (ADR-0122).
+- **The DATASUS FTP data channel** has dropped every passive connection
+  since 2026-10-03; control still answers.
   `data/probes/ftp/data_channel.jsonl` records when the channel returns.
+- **The fetcher falls back to a byte-identical public mirror,** checked
+  against the listed size and recorded as `mirror:<url>` (ADR-0122).
+  - A new fetcher starts mirror-first when the home's latest fetch came from
+    the mirror within 30 minutes.
+  - Of equivalent copies, the cached or smallest one is read (ADR-0133).
+    SIH 2008–2014 had fetched CSV/XML copies the mirror lacks.
+- **TabNet over HTTP** is a first-party source:
+  - the current territorial tables;
+  - tabulations used to check every count below.
 
 **Meaning fixes found on the way** (unchanged): SINASC `LOCNASC` 5, SIH
 `IDENT`, SIH-SP `SERV_CLA` 000000, SIM `IDADE` minutes, `TABPAIS`,
 `CLASSI_FIN`, SINAN `ORIGEM`, inferred descriptions marked (ADR-0116,
 OQ-64), 1990s SIH V-codes.
 
+- **Race reliability** (ADR-0128). `race_reliability()` flags SIH
+  hospital-months whose code 04 is a default or SIM's brown: 329
+  hospital-months in 64 hospitals in 2022.
+- **Exact chance agreement** (ADR-0132). u(equal) is counted from value
+  frequencies: national SIH deaths gives 551,012 pairs, against 551,005.
+
 **Open in linkage:**
-- flagging unreliable race settings (OQ-66);
-- a link for infant admissions beyond 28 days (2,580 found only through
-  deaths);
-- a coverage prior, only with coverage measured independently of the link
-  (EVALUATION 2026-10-03 "Coverage by stratum").
+- **Infant admissions beyond 28 days:** not identifiable directly (measured);
+  they are reached through deaths.
+- **A coverage prior,** only with coverage measured independently of the
+  link (EVALUATION 2026-10-03 "Coverage by stratum").
+- **Other systems and years:** SINAN → SIM and SIA/APAC → SIM/SIH are not
+  started, and the links cover 2022 only.
+
+## Context around a record (2026-10-03)
+
+- **Dimensions** (`query(dimensions=...)`):
+  - **official concept lists** (ADR-0134): `CAUSABAS.mortality_list`,
+    `avoidable_0_4` and `avoidable_5_74`; `DIAG_PRINC.icsap_group` and
+    `icsap_condition`; ICD chapters. SIM SE 2022 matches TabNet by cause.
+  - **any municipality column of nine systems,** through any classification
+    of the geography pack (ADR-0130);
+  - **SIGTAP group, subgroup and form** as derived columns (ADR-0092;
+    ADR-0131 withdrawn as a duplicate). SIH SE 2022-01 matches TabNet
+    exactly.
+- **Enrichment:** 17 CNES attributes, read as of the record's month
+  (ADR-0125).
+- **Geography:**
+  - IBGE regions, correct for every year since 1994 (measured);
+  - TabNet's current health regions and macroregions (ADR-0126, ADR-0129);
+  - IPEA comparable areas.
+- **Fields** (`load_field`):
+  - IBGE GDP and value added (ADR-0127);
+  - Census sanitation, literacy and population by race, for 2010 and 2022.
+- **Units:** SIH money is in reais from 1995 on (OQ-21 resolved).
+- **Renamed columns:** five confirmed by values are curated (OQ-57
+  narrowed).
 
 ## Done (live-verified)
 
@@ -189,12 +227,14 @@ OQ-64), 1990s SIH V-codes.
     found);
   - BASE_AIH1's 11 fields without an RD/SP twin;
   - its age pairing, unverified until a sample of the 12 GB file is read.
-- **Renamed columns** across layouts (OQ-57).
+- **Renamed columns** whose coding changed with the name, and whether to
+  merge confirmed renames at read time (OQ-57).
+- **Disasters (S2iD):** no source is readable without a browser session
+  (OQ-67).
 - **Speed.** A cold process still spends most of its time in per-group
   binding decisions and catalog reads.
 - **Carried:**
   - distinct-count measures and age-standardised rates;
-  - health macroregions;
   - moving `tools/` into the package;
   - mypy;
   - splitting `cli`, `retrieve` and `view`.

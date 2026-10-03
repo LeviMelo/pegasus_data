@@ -31,6 +31,9 @@ _PT_ACCENTS = set("áâãàéêíóôõúüçÁÂÃÀÉÊÍÓÔÕÚÜÇºª")
 #: reverse: box drawing, block elements, and the odd Icelandic/Nordic letters.
 _IMPLAUSIBLE = set("│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀░▒▓■▬")
 _IMPLAUSIBLE |= set("ÞþÐðÝýÏïÌìÙùÛûËëÆæØøÅåÑñ¤¦¨¯´¸")
+#: Currency and typographic signs a misread leaves in a name (cp850 Ñ read
+#: as cp1252 gives ¥; Á gives µ): never in Portuguese administrative text.
+_IMPLAUSIBLE |= set("¥µ¶¢£")
 
 
 def decode_score(text: str) -> float:

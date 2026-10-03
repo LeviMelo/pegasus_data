@@ -155,6 +155,11 @@ Stored aggregates are sums and counts, never finished means.
   remove what it replaces, and check for dead code (`scripts/codehealth.py`).
   New capability goes in `src/` behind the API and a CLI command, not in
   `scripts/` or `tools/`.
+- **Weight (user, 2026-10-03).** Commit in batches, not per increment.
+  - An ADR is only for a final decision.
+  - A measurement is a few lines, added to an existing evaluation where one
+    fits.
+  - Documentation must not outweigh the code it describes.
 - **Documentation ships with the change, in the same commit.**
   - A decision is a new `docs/decisions/ADR-NNNN-<slug>.md` and a row in
     `DECISIONS.md`.

@@ -52,3 +52,11 @@ TabNet population tables hold. Its 2022 equals TabNet's in every state.
 SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos and ESUSNOTIFICA. It
 carries no `IBGE/` and no `CIHA/`, so population series and CIHA files cannot
 be fetched while the FTP data channel is down.
+
+**POPTCU rebuilt on the repo home** (`pegasus-data population --series
+POPTCU`). One row per municipality: 5,570 in each of 2021–2024.
+- 2021: 213,317,639.
+- 2022: 203,080,756, the Census 2022 count; the double count is gone.
+- 2023: 203,080,756 again, as published.
+- 2024: 212,583,750.
+

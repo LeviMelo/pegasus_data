@@ -59,3 +59,17 @@ CID-BR-10", deaths by residence). TabNet's total is 14,791, equal to ours.
 - ICSAP flags 1,115 AIH (13.1%): "15. Infecção no rim e trato urinário"
   154, "12. Doenças cerebrovasculares" 138, "11. Insuficiência cardíaca"
   113.
+
+**SISCOLO facility names** (`UNISAU??`, the same rebuild plus a SISCAN
+re-ingest). `tabkit` now decodes each lookup value by itself:
+- by the best-reading codepage;
+- or by undoing one cp1252→cp850 double encoding, when that reads better.
+
+Result:
+- the 26 labels with U+FFFD are gone, across the whole pack;
+- 272 labels changed, e.g. "PAM PARQUE NA€åES/SUMAR�" → "PAM PARQUE
+  NAÇÕES/SUMARÉ" and "Sa·de" → "Saúde";
+- `¥µ¶¢£` now count as misreads in `textenc`, which kept "SEÑORA";
+- a few SP labels hold bytes that no codepage reads as Portuguese
+  ("BµSICA SAéDE", bytes E6 82). They are left as decoded.
+

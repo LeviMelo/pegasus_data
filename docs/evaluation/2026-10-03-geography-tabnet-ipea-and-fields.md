@@ -53,3 +53,12 @@ before its rebuild):
 - **GDP 2021 sums to R$ 9,012,142,031 thousand,** Brazil's official GDP for
   2021. This checks that the municipal series adds up to the national one.
 - Aracaju 2021: R$ 18,405,678 thousand.
+
+**The shipped pack rebuilt** (`pegasus-data geography`, after the
+2026-10-03 label pack; `data/logs/geography_rebuild.json`):
+- `health_macroregion`: 5,606 municipalities, 124 members;
+- `health_region_current`: 5,606, 446;
+- `comparable_area_1980/1991/2000_2010`: 5,566 / 5,565 / 5,565
+  municipalities, in 3,829 / 4,298 / 5,476 areas;
+- none contested.
+

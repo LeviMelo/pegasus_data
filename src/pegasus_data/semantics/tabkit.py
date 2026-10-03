@@ -32,7 +32,7 @@ import pyarrow as pa
 from ..catalog.store import Catalog, utcnow
 from ..decode.archives import Archive
 from ..decode.dbf import read_dbf_bytes
-from ..textenc import CANDIDATE_ENCODINGS, best_effort_decode
+from ..textenc import CANDIDATE_ENCODINGS, best_effort_decode, decode_score
 from .cnv_parser import CnvFile, parse_cnv_bytes
 from .def_parser import DefFile, parse_def_bytes
 
@@ -76,7 +76,9 @@ def _redecode_text(table: pa.Table, payload: bytes) -> pa.Table:
     UNISAUSP.DBF (SISCOLO) holds most labels in cp1252 (``SÃO``) and some in
     cp850 (``MÉDICO``, byte 0x90, undefined in cp1252). A file-level choice
     garbled one or the other: 26 labels carried U+FFFD (2026-10-03). The
-    file's own best codepage is tried first, so it wins a tie.
+    file's own best codepage is tried first, so it wins a tie. A value
+    double-encoded (cp1252 text read as cp850 and saved again) is undone when
+    that reads better.
     """
     _, file_encoding = best_effort_decode(payload[32:])
     order = (file_encoding, *(e for e in CANDIDATE_ENCODINGS if e != file_encoding))
@@ -84,13 +86,32 @@ def _redecode_text(table: pa.Table, payload: bytes) -> pa.Table:
     def one(value: object) -> object:
         if not isinstance(value, str) or value.isascii():
             return value
-        return best_effort_decode(value.encode("latin-1"), candidates=order)[0]
+        raw = value.encode("latin-1")
+        text, _ = best_effort_decode(raw, candidates=order)
+        # UNISAUPR is written twice over: "Saúde" read as cp850 ("Sa·de") and
+        # saved as cp1252. No single codepage reads it; undoing that one step
+        # does ("Sa·de" -> "Saúde", "IvaiporÒ" -> "Ivaiporã"). It is taken
+        # only when it reads better as Portuguese than every direct decoding.
+        try:
+            undone = raw.decode("cp1252").encode("cp850").decode("cp1252")
+        except (UnicodeDecodeError, UnicodeEncodeError):
+            return text
+        return undone if _label_score(undone) > _label_score(text) else text
 
     for i, column_field in enumerate(table.schema):
         if pa.types.is_string(column_field.type) or pa.types.is_large_string(column_field.type):
             column = pa.array([one(v) for v in table.column(i).to_pylist()], column_field.type)
             table = table.set_column(i, column_field, column)
     return table
+
+
+#: "à" is a word of its own in Portuguese (the crasis), never inside one: a
+#: mid-word À is a codepage misread ("SaÀde" for "Saúde").
+_MIDWORD_A_GRAVE = re.compile(r"(?<=[^\W\d_])[Àà](?=[^\W\d_])")
+
+
+def _label_score(text: str) -> float:
+    return decode_score(text) - 3.0 * len(_MIDWORD_A_GRAVE.findall(text))
 
 
 def _cnv_universe(table_id: str, kit_icd: frozenset[str]) -> frozenset[str] | None:
