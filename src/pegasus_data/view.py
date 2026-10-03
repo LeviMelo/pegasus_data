@@ -894,6 +894,26 @@ def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
     return pc.take(mapped, encoded.indices)
 
 
+def _per_distinct(codes: object, fn: Callable[[object], str | None]) -> pa.Array:
+    """``fn`` of every value, computed once per distinct value and expanded by
+    index; a null stays null. A file is a million cells and a few dozen
+    distinct codes: the row loops this replaced were most of a role table's
+    build (CIHA PR 2022, 1.4M rows: 35 of 40 s in rendering, 2026-10-03)."""
+    if not isinstance(codes, (pa.Array, pa.ChunkedArray)):
+        return pa.array([None if v is None else fn(v) for v in codes], type=pa.string())  # type: ignore[union-attr]
+    column = codes.combine_chunks() if isinstance(codes, pa.ChunkedArray) else codes
+    encoded = pc.dictionary_encode(column)
+    mapped = pa.array([None if u is None else fn(u) for u in encoded.dictionary.to_pylist()], type=pa.string())
+    return mapped.take(encoded.indices)
+
+
+def _distinct(column: object) -> list:
+    """The distinct non-null values of a column (Arrow does the pass)."""
+    if isinstance(column, (pa.Array, pa.ChunkedArray)):
+        return [v for v in pc.unique(column).to_pylist() if v is not None]
+    return list({v for v in column if v is not None})  # type: ignore[union-attr]
+
+
 def _check_width(
     field_name: str, codelist: str, column: pa.Array, lookup: Mapping[str, str]
 ) -> str | None:
@@ -907,7 +927,7 @@ def _check_width(
     table_widths = _widths(lookup)
     if len(table_widths) < 2:
         return None
-    observed = {len(str(v).strip()) for v in column.to_pylist() if v is not None}
+    observed = {len(str(v).strip()) for v in _distinct(column)}
     if not observed:
         return None
     unmatched = observed - table_widths
@@ -1047,16 +1067,19 @@ def bridged(codes: object, bridge: str) -> pa.Array:
     name = BRIDGE_NAMES.get(bridge.upper(), bridge.upper())
     _target, width = BRIDGE_TARGETS.get(name, ("", 0))
     table = _bridges()
-    values = codes.to_pylist() if hasattr(codes, "to_pylist") else list(codes)  # type: ignore[union-attr]
-    out: list[str | None] = []
-    for v in values:
-        code = str(v).strip() if v is not None else ""
+
+    def one(v: object) -> str | None:
+        code = str(v).strip()
         if width and len(code) == width:
-            out.append(code)
-            continue
+            return code
         claims = table.get((name, code), ())
-        out.append(claims[0][0] if claims and claims[0][1] >= BRIDGE_UNIQUE else None)
-    return pa.array(out, type=pa.string())
+        return claims[0][0] if claims and claims[0][1] >= BRIDGE_UNIQUE else None
+
+    empty = table.get((name, ""), ())
+    out = _per_distinct(codes, one)
+    if empty and empty[0][1] >= BRIDGE_UNIQUE:   # a null read as "" before; keep that
+        out = pc.fill_null(out, empty[0][0])
+    return out
 
 
 def bridge_target(bridge: str) -> str:
@@ -1071,10 +1094,7 @@ def _labelled_codes(lake: Path, classification: str, codes: object) -> pa.Array 
     except (FileNotFoundError, OSError):
         return None
     names = dict(zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True))
-    values = codes.to_pylist() if hasattr(codes, "to_pylist") else list(codes)  # type: ignore[union-attr]
-    return pa.array(
-        [f"{names[v]} ({v})" if v in names else (f"{v} (?)" if v else None) for v in values], type=pa.string()
-    )
+    return _per_distinct(codes, lambda v: f"{names[v]} ({v})" if v in names else (f"{v} (?)" if v else None))
 
 
 def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object) -> pa.Array | None:
@@ -1086,13 +1106,13 @@ def _hierarchy_level(lake: Path, classification: str, digits: int, codes: object
     except (FileNotFoundError, OSError):
         return None
     names = dict(zip(table.column("code").to_pylist(), table.column("label").to_pylist(), strict=True))
-    values = codes.to_pylist() if hasattr(codes, "to_pylist") else list(codes)  # type: ignore[union-attr]
-    out: list[str | None] = []
-    for v in values:
-        prefix = str(v).strip()[:digits] if v is not None else ""
+
+    def one(v: object) -> str | None:
+        prefix = str(v).strip()[:digits]
         label = names.get(prefix) if len(prefix) == digits else None
-        out.append(f"{label} ({prefix})" if label else None)
-    return pa.array(out, type=pa.string())
+        return f"{label} ({prefix})" if label else None
+
+    return _per_distinct(codes, one)
 
 
 def _coded(doc: object) -> bool:
@@ -1535,7 +1555,7 @@ def _render_table(
         # A table that disagrees with itself cannot render this column. Refusing
         # is the whole point: an unlabelled code is visibly unfinished, and a
         # confidently wrong label is not.
-        observed = {str(v).strip() for v in key_column.to_pylist() if v is not None}
+        observed = {str(v).strip() for v in _distinct(key_column)}
         try:
             disagreements = {}
             for bound in codelists:
