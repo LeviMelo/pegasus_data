@@ -186,6 +186,11 @@ def _digit_dropped(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
 def _levels_integer(a: pa.Array, b: pa.Array) -> Levels:
     missing = pc.or_(pc.is_null(a), pc.is_null(b)).to_numpy(zero_copy_only=False)
+    # Ages in fractional years (IDADE_anos) compare as whole years.
+    if pa.types.is_floating(a.type):
+        a = pc.floor(a)
+    if pa.types.is_floating(b.type):
+        b = pc.floor(b)
     va = pc.fill_null(pc.cast(a, pa.int64()), -1).to_numpy(zero_copy_only=False)
     vb = pc.fill_null(pc.cast(b, pa.int64()), -1).to_numpy(zero_copy_only=False)
     out = _Build(len(va), "other")

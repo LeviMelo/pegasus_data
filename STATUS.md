@@ -67,6 +67,7 @@ million hashed pairs, padded infant and newborn links; `data/logs/final_relink.d
 | maternal deaths → SIH | 877 (53.5%) | 1.80% | 2.6 |
 | CIHA deaths → SIM | 59,506 (60.6%) | 1.08% | 2.6 |
 | births → CIHA deliveries | 195,566 (7.8%) | 0.99% | 4.0 |
+| SINAN dengue deaths → SIM | 503 (47.6%) | 1.74% | — |
 
 - **Scope test:** the SE, RR and SP slices are identical to the national run
   (SP 133,471 of 133,471).
@@ -111,8 +112,10 @@ OQ-64), 1990s SIH V-codes.
   they are reached through deaths.
 - **A coverage prior,** only with coverage measured independently of the
   link (EVALUATION 2026-10-03 "Coverage by stratum").
-- **Other systems and years:** SINAN → SIM and SIA/APAC → SIM/SIH are not
-  started, and the links cover 2022 only.
+- **Other systems and years:**
+  - SINAN dengue deaths → SIM is done (no birth date: 47.6% linked);
+  - other SINAN agravos and SIA/APAC are not started;
+  - 2023 lakes are building.
 
 ## Context around a record (2026-10-03)
 

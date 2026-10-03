@@ -108,6 +108,13 @@ def plan(
             "geography selects source publications only; municipality is not a "
             "declared publication coordinate for this dataset"
         )
+    elif spec.geography and spec.geography.ufs == ("BR",) and not has_uf_axis:
+        # The nation of a dataset published nationally (SINAN) is its one
+        # publication: nothing to select, and nothing to refuse.
+        adaptations.append(Adaptation(
+            "geography", "BR", "",
+            "DATASUS publishes this dataset nationally only; BR is the whole publication",
+        ))
     elif spec.geography and spec.geography.ufs and not has_uf_axis:
         raise ValueError(
             "requested UF is not a source/publication partition for this dataset; "

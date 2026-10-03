@@ -88,6 +88,11 @@ class ProbabilisticSpec:
     target_fdr: float = 0.01
     control_role: str = ""
     inherit: tuple[Inherit, ...] = ()
+    #: How far the placebo moves every left date. 400 days suits a birth date;
+    #: a link blocked only on an event date of the year (a death day) needs a
+    #: shift that stays inside the partner's period, or the placebo finds no
+    #: one and the error estimate is empty (SINAN dengue deaths, 2026-10-03).
+    control_shift_days: int = CONTROL_SHIFT_DAYS
 
 
 def load_probabilistic(name: str) -> ProbabilisticSpec:
@@ -122,7 +127,8 @@ def load_probabilistic(name: str) -> ProbabilisticSpec:
         for side in ("left", "right") for item in ((body.get("inherit") or {}).get(side) or [])
     )
     return ProbabilisticSpec(compare, blocks, float(body.get("target_fdr", 0.01)),
-                             str(body.get("control_role") or spec.control_role), inherit)
+                             str(body.get("control_role") or spec.control_role), inherit,
+                             int(body.get("control_shift_days", CONTROL_SHIFT_DAYS)))
 
 
 @dataclass
@@ -659,7 +665,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
                         | {r for r in block_roles if r in left.column_names
                            and pa.types.is_date(left.schema.field(r).type)}
                         | {prob.control_role})
-    _shifted_left(con, left_dates, CONTROL_SHIFT_DAYS)
+    _shifted_left(con, left_dates, prob.control_shift_days)
     evidence_only = [c for c in prob.compare if not c.is_key]
     # The candidate pairs, real and placebo, built once each.
     con.execute(f"CREATE TEMP TABLE C AS {_candidates(con, 'L', prob.blocks)}")

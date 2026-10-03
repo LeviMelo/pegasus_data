@@ -32,7 +32,7 @@ from ..semantics.curation import read_yaml
 
 ROLES_FILE = Path(__file__).resolve().parent.parent / "curation" / "roles.yml"
 
-_FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYYMM": "%Y%m"}
+_FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYY-MM-DD": "%Y-%m-%d", "YYYYMM": "%Y%m"}
 _TYPES = {"date", "month", "sex", "municipality", "facility", "integer", "number", "code", "codes", "label"}
 
 

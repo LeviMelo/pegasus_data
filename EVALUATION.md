@@ -151,3 +151,4 @@ in.
 | 2026-10-03 | [SIH money is in one unit across every era (Acre, 1992–2023)](docs/evaluation/2026-10-03-sih-money-units-across-eras.md) | live (mirror microdata; TabNet) |
 | 2026-10-03 | [Renamed columns: what values can and cannot show](docs/evaluation/2026-10-03-renamed-columns.md) | live (93 layout boundaries sampled through the mirror; fresh home) |
 | 2026-10-03 | [Official concept lists as dimensions, checked against TabNet](docs/evaluation/2026-10-03-official-concept-lists.md) | live (semantics and label pack rebuild; SIM SE 2022, SIH SE 2022-01; TabNet) |
+| 2026-10-03 | [SINAN dengue deaths → SIM (national 2022)](docs/evaluation/2026-10-03-sinan-dengue-deaths-to-sim.md) | live (national probabilistic link) |

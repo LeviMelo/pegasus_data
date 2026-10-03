@@ -10,7 +10,7 @@
 # `<entity>.<property>`:
 #   column   the column as filed
 #   type     how the value is normalised before comparison:
-#            date      a calendar date, parsed with `format` (DDMMYYYY or YYYYMMDD)
+#            date      a calendar date, parsed with `format` (DDMMYYYY, YYYYMMDD or YYYY-MM-DD)
 #            month     a competence month, `format` YYYYMM, as its first day
 #            sex       M or F, read from the column's decoded label (each system
 #                      codes sex differently: SIH 1/3, SIM and SINASC 1/2, SIA M/F)
@@ -113,6 +113,18 @@ datasets:
       admission.procedure: {column: PROC_REA, type: code}
       admission.modality: {column: MODALIDADE, type: code}
       admission.payer: {column: FONTE, type: code}
+
+  SINAN-DENG:
+    record: notification
+    roles:
+      case.sex: {column: CS_SEXO, type: sex}
+      case.residence: {column: ID_MN_RESI, type: municipality}
+      case.age_years: {column: IDADE_anos, type: number}
+      case.onset: {column: DT_SIN_PRI, type: date, format: YYYY-MM-DD}
+      case.outcome: {column: EVOLUCAO, type: code}
+      case.death_date: {column: DT_OBITO, type: date, format: YYYY-MM-DD}
+      notification.facility: {column: ID_UNIDADE, type: facility}
+      notification.municipality: {column: ID_MUNICIP, type: municipality}
 
   SIASUS-PS:
     record: care_episode

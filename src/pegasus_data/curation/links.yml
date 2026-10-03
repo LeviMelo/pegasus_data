@@ -276,3 +276,34 @@ links:
         - [[mother.birth_date, patient.birth_date], [birth.facility, admission.facility]]
         - [[mother.birth_date, patient.birth_date], [birth.date, [admission.start, admission.end]]]
       target_fdr: 0.01
+
+  sinan_dengue_deaths_to_sim:
+    description: >
+      Dengue notifications closed as death by dengue (SINAN EVOLUCAO = 2) to
+      the death certificate. SINAN carries no birth date since the LGPD
+      rewrite, so the shared event is the death day, with residence, sex and
+      age. The certificate's own cause (dengue, A90-A97) is held out as the
+      check.
+    person: [case, deceased]
+    left: {dataset: SINAN-DENG, where: "\"case.outcome\" = '2'"}
+    right: {dataset: SIM-DO}
+    passes:
+      - name: death day, residence, sex
+        keys: [[case.death_date, death.date], [case.residence, deceased.residence], [case.sex, deceased.sex]]
+    control: {role: case.death_date, shift_days: 7}
+    validate:
+      - {name: certificate cause is dengue, sql: "r.\"death.cause\" BETWEEN 'A90' AND 'A97Z'"}
+      - {name: age within a year, sql: "abs(l.\"case.age_years\" - r.\"deceased.age_years\") <= 1.5"}
+    probabilistic:
+      compare:
+        - [case.death_date, death.date]
+        - [case.sex, deceased.sex]
+        - [case.age_years, deceased.age_years, {kind: integer}]
+        - [case.residence, deceased.residence]
+        - [notification.facility, death.facility]
+      blocks:
+        - [[case.death_date, death.date], [case.residence, deceased.residence]]
+        - [[case.death_date, death.date], [case.sex, deceased.sex]]
+      target_fdr: 0.01
+      control_shift_days: 14   # every block uses the death day; 400 days leaves 2022
+
