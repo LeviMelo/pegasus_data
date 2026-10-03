@@ -93,6 +93,23 @@ def _side(body: dict[str, Any]) -> Side:
     )
 
 
+def stored_key(name: str, method: str, period: object, geography: object, *,
+               right_period: object = None, right_geography: object = None) -> Any:
+    """The key a run of ``name`` is stored under: the scope, and the partner's
+    scope when it differs, including a side's padded period. Every reader of
+    stored runs (entities, inheritance) must use it: computing the key from the
+    left scope alone missed every padded spec, and entities lost the infant
+    deaths and newborns without a word (2026-10-03)."""
+    from . import store
+
+    if right_period is None:
+        spec = load_links()[name]
+        if spec.right.pad_years != (0, 0):
+            right_period = padded_period(period, spec.right)
+    return store.run_key(name, method, period if right_period is None else (period, right_period),
+                         geography if right_geography is None else (geography, right_geography))
+
+
 def padded_period(period: object, side: Side) -> object:
     """The period a side is read at: the left period widened by the side's
     ``pad_years`` (a death in January of a baby born the December before has
@@ -388,8 +405,7 @@ def link(
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
     if right_period is None and spec.right.pad_years != (0, 0):
         right_period = padded_period(period, spec.right)
-    key = store.run_key(name, method, period if right_period is None else (period, right_period),
-                        geography if right_geography is None else (geography, right_geography))
+    key = stored_key(name, method, period, geography, right_period=right_period, right_geography=right_geography)
     if not refresh:
         stored = store.load(settings, key)
         if stored is not None:
@@ -418,4 +434,4 @@ def link(
     return result
 
 
-__all__ = ["LinkNotViable", "LinkResult", "LinkSpec", "PassReport", "link", "load_links", "run"]
+__all__ = ["LinkNotViable", "LinkResult", "LinkSpec", "PassReport", "link", "load_links", "run", "stored_key"]

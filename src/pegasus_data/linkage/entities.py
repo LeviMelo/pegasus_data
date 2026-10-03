@@ -29,9 +29,9 @@ import numpy as np
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
-from .engine import LINKS_FILE, load_links
+from .engine import LINKS_FILE, load_links, stored_key
 from .identity import connect
-from .store import links_dir, run_key
+from .store import links_dir
 
 #: How many records of one kind a person can have. A kind is (dataset, role).
 AT_MOST_ONE = {("SINASC-DN", "baby"), ("SIM-DO", "deceased")}
@@ -74,7 +74,7 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str)
     con = connect()
     parts = []
     for name, (lds, lrole, rds, rrole) in _person_of_specs().items():
-        key = run_key(name, method, period, geography)
+        key = stored_key(name, method, period, geography)
         path = links_dir(settings) / name / f"{key.stem}.parquet"
         if not path.exists():
             continue

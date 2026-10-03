@@ -47,7 +47,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from ..semantics.curation import read_yaml
-from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, upper95, validate
+from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, stored_key, upper95, validate
 from .identity import connect, record_ids
 from .levels import Levels, levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
@@ -723,8 +723,8 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
         # records without the inherited value: missing, not evidence.
         found, years = [], []
         for year in _period(period).years:
-            run = (store.load(settings, store.run_key(item.via, "probabilistic", str(year), geography))
-                   or store.load(settings, store.run_key(item.via, "probabilistic", str(year), "BR")))
+            run = (store.load(settings, stored_key(item.via, "probabilistic", str(year), geography))
+                   or store.load(settings, stored_key(item.via, "probabilistic", str(year), "BR")))
             if run is not None:
                 found.append(run[0].select(["l", "r"]))
                 years.append(str(year))
