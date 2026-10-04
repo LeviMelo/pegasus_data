@@ -18,7 +18,7 @@ import math
 import pyarrow as pa
 import pytest
 
-from pegasus_data._aggregate import _accumulate, _finalize_column, _lift_columns
+from pegasus_data._aggregate import _accumulate, _finalize_column, _lift_columns, _merge_cells
 from pegasus_data.measures import MAX, MIN, Measure
 
 pytestmark = pytest.mark.filterwarnings("ignore")
@@ -41,10 +41,14 @@ class TestAccumulate:
     def _cells(self, kind, values):
         table = pa.table({"VALUE": values})
         keyed = {"geo": pa.array(["A"] * len(values)), "time": pa.array(["202201"] * len(values))}
-        spec = type("Spec", (), {"measures": [_measure(kind)]})()
-        cells: dict = {}
+        measure = _measure(kind)
+        spec = type("Spec", (), {"measures": [measure], "state_columns": lambda self: measure.state_columns()})()
+        cells: list = []
         _accumulate(cells, table, keyed, spec)
-        return cells
+        merged = _merge_cells(cells, ("geo", "time"), spec)
+        return {(g, t): {"extreme": (v,)} for g, t, v in zip(
+            merged.column("geo").to_pylist(), merged.column("time").to_pylist(),
+            merged.column(measure.state_columns()[0]).to_pylist(), strict=True)}
 
     def test_min_reduces_by_min_not_sum(self) -> None:
         cells = self._cells(MIN, ["5", "2", "9"])
