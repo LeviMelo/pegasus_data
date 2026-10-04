@@ -34,7 +34,7 @@ import zipfile
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from ..semantics.dictionary import DictionaryEntry, persist_entries
 
 HOST = "ftp2.datasus.gov.br"
@@ -209,7 +209,7 @@ def entries_from_export(
 
 
 def ingest(
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     competencias: Sequence[str] | None = None,
     latest: int = 1,

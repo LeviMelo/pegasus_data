@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import pyarrow as pa
 
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
     from .config import Settings
 
 __all__ = ["Gaps", "OpenQuestions", "gaps", "questions"]
@@ -70,7 +70,7 @@ class OpenQuestions(_Answer):
 
 
 def _open(catalog, root, settings):
-    from .catalog.store import Catalog as Store
+    from .catalog.store import CatalogStore as Store
     from .config import load_settings
 
     if catalog is not None:
@@ -85,7 +85,7 @@ def gaps(
     *,
     limit: int = 30,
     max_coverage: float = 0.5,
-    catalog: Catalog | None = None,
+    catalog: CatalogStore | None = None,
     root: str | Path | None = None,
     settings: Settings | None = None,
 ) -> Gaps:
@@ -115,7 +115,7 @@ def questions(
     key: str | None = None,
     *,
     unresolved_only: bool = False,
-    catalog: Catalog | None = None,
+    catalog: CatalogStore | None = None,
     root: str | Path | None = None,
     settings: Settings | None = None,
 ) -> OpenQuestions:

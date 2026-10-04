@@ -332,7 +332,7 @@ def _capabilities_uncached(
 ) -> Capability:
     """The projection itself; `capabilities` is the cached front door."""
     from ._aggregate import ArtifactMissing, artifact_dir, spec_named
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
     from .config import load_settings
     from .geography import DENOMINATOR_COMPATIBLE_ROLES, classifications
     from .semantics.curation import semantics_for
@@ -379,7 +379,7 @@ def _capabilities_uncached(
     # --- dimensions -----------------------------------------------------
     support = dict(manifest.get("support") or {})
     dimensions: list[Dimension] = []
-    with Catalog(resolved.catalog_path) as store:
+    with CatalogStore(resolved.catalog_path) as store:
         docs_system = (semantics.system or "").upper()
         try:
             from .semantics.curation import load_variable_docs

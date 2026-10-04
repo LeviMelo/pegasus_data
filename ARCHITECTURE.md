@@ -165,7 +165,7 @@ local state (`blobs`, `fetches`, `lake_partitions`, `build_outcomes`,
 | `icd10`, `cbo2002`, `sigtap`, `banks`, `countries` `.parquet` | canonical classifications, one table for every system (ADR-0087) | `persist/reference.py` |
 | `bridges.parquet` | every classification bridge: pre-2008 SIA/SIH procedures → SIGTAP (official), CBO 1994 → CBO 2002 (CNES's measured 2007 conversion, then MTE's) (ADR-0101, ADR-0104) | `view.bridged`; built by `scripts/build_bridges.py` |
 | `geography.parquet`, `municipalities.parquet` | health-region memberships | `geography.py`, `_aggregate.py` |
-| `query_capabilities.json`, `manifest.json` | compiled capabilities; the resource manifest with checksums | `_query_engine/capabilities.py`, `_resources.py`, `serve/` |
+| `publication_coverage.json`, `manifest.json` | compiled publication coverage; the resource manifest with checksums | `_query_engine/coverage.py`, `_resources.py`, `serve/` |
 
 Built by `scripts/build_resources.py` (the seed and the manifest) and the
 `labelpack` command (labels).
@@ -282,8 +282,8 @@ the milestone that removes the duplicate; an ADR is written when it is done.
 | describe a thing | `info`, `describe`, `explore`, `DataDictionary`, `compendium`, `search`, `availability` | M3: kept as questions, backed by one catalog |
 | decide a file's system | `inventory/naming.py`, `inventory/systems.py`, `ontology.py` | examined in M3 |
 | convert an age | ~~`view._derive_age_years`~~ | **done** (ADR-0070): `_age.years_column` only, fractional years from measured units |
-| query capabilities | `capabilities.py` (aggregate artifacts) and `_query_engine/capabilities.py` (publication coverage) | rename in M3 |
-| a `Catalog` | `api.Catalog` (public facade) and `catalog/store.Catalog` | rename in M3 |
+| query capabilities | ~~two modules named `capabilities`~~ | **done** (2026-10-04): `capabilities.py` is what a client may do with an aggregate; `_query_engine/coverage.py` (and `publication_coverage.json`) is what DATASUS publishes |
+| a `Catalog` | ~~`api.Catalog` and `catalog/store.Catalog`~~ | **done** (2026-10-04): `Catalog` is the public door; the SQLite store is `catalog/store.CatalogStore` |
 | re-export the query engine | ~~three layers~~ | **done** (ADR-0073): `_query_engine/` only |
 | stock time reducers | ~~refused in `measures.py`, implemented in `tools/export_workbook.py`~~ | **done** (2026-10-04): `_aggregate` reduces a stock over time (OQ-14); the workbook (`workbook.py`, `pegasus-data workbook`) calls it |
 
@@ -294,8 +294,11 @@ Also known, not duplicates:
 - ~~`ontology.py` hardcodes `CURATION`, so `PEGASUS_CURATION_DIR` is ignored by
   every `Ontology.load()` call~~: every reader resolves it through
   `config.curation_root()` (2026-10-04).
-- Rendering writes adjudication rows into the catalog, with failures silenced
-  (`view.py`, `representations.py`).
+- ~~Rendering writes adjudication rows into the catalog, with failures silenced
+  (`view.py`, `representations.py`)~~: a query reads stored label decisions
+  without writing (`decide(persist=False)`), and representation conflicts are
+  derived on every call; the `representation_conflicts` table is dropped
+  (2026-10-04).
 
 ---
 
@@ -386,7 +389,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `_query_engine/executor.py`: `query()`.
 - `_query_engine/filters.py`: publication-period filters.
 - `_query_engine/semantics.py`: dimensions, enrichments, the `label_of` gate.
-- `_query_engine/capabilities.py`: which datasets `query` can serve.
+- `_query_engine/coverage.py`: which datasets `query` can serve.
 
 ### `acquire/`
 

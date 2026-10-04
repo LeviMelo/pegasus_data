@@ -28,7 +28,7 @@ from typing import Any
 import httpx
 import pyarrow as pa
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 from ..config import DEMAS_BASE_URL, DEMAS_SWAGGER_PATH
 
 #: Endpoints the companion research plan actually needs, with why. Kept here so a
@@ -180,7 +180,7 @@ def parse_spec(spec: dict[str, Any]) -> list[Endpoint]:
     return out
 
 
-def persist_spec(catalog: Catalog, spec: dict[str, Any], endpoints: Sequence[Endpoint]) -> int:
+def persist_spec(catalog: CatalogStore, spec: dict[str, Any], endpoints: Sequence[Endpoint]) -> int:
     version = str((spec.get("info") or {}).get("version") or "unknown")
     catalog.executemany(
         """
@@ -299,7 +299,7 @@ def rows_to_table(rows: Sequence[dict[str, Any]]) -> pa.Table:
     return pa.table(columns)
 
 
-def reconciliation_targets(catalog: Catalog) -> list[dict[str, object]]:
+def reconciliation_targets(catalog: CatalogStore) -> list[dict[str, object]]:
     """FTP systems and API endpoints covering the same base (§11 design rule)."""
     out: list[dict[str, object]] = []
     for system, path in RECONCILIATION_PAIRS:

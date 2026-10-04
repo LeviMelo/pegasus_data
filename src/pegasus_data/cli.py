@@ -26,7 +26,7 @@ from rich.console import Console
 from rich.table import Table
 
 from .build import Builder
-from .catalog.store import Catalog, _declared_columns, _schema_sql
+from .catalog.store import CatalogStore, _declared_columns, _schema_sql
 from .config import Settings, load_settings
 from .pipeline import Pipeline, StageResult
 from .verify import run_all, summarise
@@ -225,7 +225,7 @@ def adjudicate_show(
 ) -> None:
     from .semantics.relations import adjudication_evidence
 
-    store = Catalog(_settings(root).catalog_path)
+    store = CatalogStore(_settings(root).catalog_path)
     try:
         _emit(adjudication_evidence(store, key), as_json, key)
     finally:
@@ -237,7 +237,7 @@ def adjudicate_export(key: str, out: Path, root: RootOpt = None) -> None:
     """Write a compact JSON evidence package suitable for human/AI review."""
     from .semantics.relations import adjudication_evidence
 
-    store = Catalog(_settings(root).catalog_path)
+    store = CatalogStore(_settings(root).catalog_path)
     try:
         payload = adjudication_evidence(store, key)
         out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -269,7 +269,7 @@ def adjudicate_apply(
         target_namespace=body.get("target_namespace"),
         evidence=json.dumps(body.get("evidence", []), ensure_ascii=False),
     )
-    store = Catalog(_settings(root).catalog_path)
+    store = CatalogStore(_settings(root).catalog_path)
     try:
         adjudicate(store, key, relation, by=by)
     finally:
@@ -481,7 +481,7 @@ def curate(
     from .semantics.curation import CurationError, coverage_by_rung, load_curation
 
     settings = _settings(root)
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         if accept:
             existing = store.query("SELECT key, status FROM open_questions WHERE key = ?", (accept,))
@@ -654,7 +654,7 @@ def community(
     from .sources.community import ingest as ingest_community
 
     settings = _settings(root)
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         with console.status("fetching community codings…"):
             result = ingest_community(store, systems=system, commit=commit)
@@ -680,7 +680,7 @@ def sigtap(
     from .sources.sigtap import SigtapUnavailable, ingest
 
     settings = _settings(root)
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         with console.status("fetching SIGTAP…"):
             result = ingest(store, competencias=competencia, latest=latest)
@@ -710,7 +710,7 @@ def icd_quality(
     from .semantics.icd import flag_suspect_bindings, measure_icd_columns, persist_token_rules
 
     settings = _settings(root)
-    store = Catalog(settings.catalog_path, read_only=not write)
+    store = CatalogStore(settings.catalog_path, read_only=not write)
     try:
         measured = measure_icd_columns(store, settings.lake_dir, systems=system)
         if not measured:
@@ -748,7 +748,7 @@ def prefix_adjudicate(
     from .inventory.systems import adjudicate_prefix
 
     settings = _settings(root)
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         _emit(adjudicate_prefix(store, prefix, system), as_json, "prefix adjudicated")
         console.print("[yellow]Re-run 'pegasus-data inventory' to re-derive the affected strata.[/yellow]")
@@ -774,7 +774,7 @@ def catalog_rebuild(
     does for you.
     """
     settings = _settings(root)
-    catalog = Catalog(settings.catalog_path, strict_schema=False)
+    catalog = CatalogStore(settings.catalog_path, strict_schema=False)
     try:
         declared = set(_declared_columns(_schema_sql()).get(table, {}))
         existing = [r[1] for r in catalog.query(f"PRAGMA table_info({table})")]
@@ -998,11 +998,11 @@ def meaning(
     """
     import pyarrow as pa
 
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
     from .semantics.coverage import as_records, measure, summarise
 
     settings = _settings(root)
-    store = Catalog(settings.catalog_path, read_only=True)
+    store = CatalogStore(settings.catalog_path, read_only=True)
     try:
         rows = measure(store, system)
     finally:
@@ -1175,7 +1175,7 @@ def tree(
 ) -> None:
     """Show the crawled FTP tree: directories, file counts and the bytes behind them."""
     settings = _settings(root)
-    store = Catalog(settings.catalog_path, read_only=settings.catalog_path.exists())
+    store = CatalogStore(settings.catalog_path, read_only=settings.catalog_path.exists())
     try:
         base = settings.base_path.rstrip("/")
         rows = store.query(
@@ -1229,7 +1229,7 @@ def findings(
 ) -> None:
     """Everything measured that contradicted an assumption, resolved and open."""
     settings = _settings(root)
-    store = Catalog(settings.catalog_path, read_only=settings.catalog_path.exists())
+    store = CatalogStore(settings.catalog_path, read_only=settings.catalog_path.exists())
     try:
         clause = " WHERE status = 'open'" if open_only else ""
         rows = [
@@ -1329,12 +1329,12 @@ def translate_file(
             table, result = translate_table(
                 path, system=system, year=year, profile="audit", root=root, report=True
             )
-        from .catalog.store import Catalog
+        from .catalog.store import CatalogStore
         from .presentation import documented_names
         from .presentation import present as apply_presentation
 
         settings = _settings(root)
-        store = Catalog(settings.catalog_path, read_only=True)
+        store = CatalogStore(settings.catalog_path, read_only=True)
         try:
             table = apply_presentation(
                 table, present or settings.presentation, names=documented_names(store, system.upper())  # type: ignore[arg-type]
@@ -1560,13 +1560,13 @@ def query_cmd(
 
     labelled = sum(1 for c in table.column_names if c.endswith("_label"))
     from ._dictionary import describe_table
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
     from .presentation import documented_names
     from .presentation import present as apply_presentation
     from .retrieve import parse_dataset
 
     system = parse_dataset(dataset)[0]
-    store = Catalog(settings.catalog_path, read_only=True)
+    store = CatalogStore(settings.catalog_path, read_only=True)
     try:
         if dictionary_out:
             _, book = describe_table(store, system, table, dataset=dataset)
@@ -1746,7 +1746,7 @@ def demas(
 def report(root: RootOpt = None, as_json: JsonOpt = False) -> None:
     """Coverage, dictionary_coverage, and the open questions."""
     settings = _settings(root)
-    from .catalog.store import Catalog as Store
+    from .catalog.store import CatalogStore as Store
     from .inventory.strata import coverage_by_system
     from .inventory.systems import low_trust_prefixes
     from .semantics.dictionary import conflicts_report
@@ -1839,7 +1839,7 @@ def questions(
 ) -> None:
     """Show the [V] list with resolutions and the evidence behind them."""
     settings = _settings(root)
-    from .catalog.store import Catalog as Store
+    from .catalog.store import CatalogStore as Store
 
     store = Store(settings.catalog_path, read_only=settings.catalog_path.exists())
     try:
@@ -1885,7 +1885,7 @@ def gaps(
     exactly what is not, and what it would take to close each one.
     """
     settings = _settings(root)
-    from .catalog.store import Catalog as Store
+    from .catalog.store import CatalogStore as Store
     from .semantics.gaps import distinct_field_gaps, find_gaps, persist_gaps, summarise_gaps
 
     writable = persist
@@ -1988,7 +1988,7 @@ def verify(
 ) -> None:
     """Run the §12 regression assertions."""
     settings = _settings(root)
-    from .catalog.store import Catalog as Store
+    from .catalog.store import CatalogStore as Store
 
     store = Store(settings.catalog_path, read_only=settings.catalog_path.exists())
     try:

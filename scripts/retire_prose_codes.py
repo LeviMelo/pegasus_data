@@ -21,7 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from pegasus_data.catalog.store import Catalog  # noqa: E402
+from pegasus_data.catalog.store import CatalogStore  # noqa: E402
 from pegasus_data.config import load_settings  # noqa: E402
 
 WHERE = "LENGTH(value_raw) > 12 AND value_raw GLOB '*[A-Za-z]*[ ]*'"
@@ -34,7 +34,7 @@ def main() -> int:
     args = parser.parse_args()
 
     settings = load_settings(root=Path(args.root) if args.root else None)
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         doomed = store.query(
             f"SELECT system, value_group, value_raw FROM dictionary WHERE {WHERE}"

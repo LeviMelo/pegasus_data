@@ -39,7 +39,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
     from .view import RenderReport
 
 __all__ = ["Group", "merge_reports", "render_groups", "split_by_year_column", "split_by_source"]
@@ -191,7 +191,7 @@ def split_by_source(
 def render_groups(
     groups: Iterable[Group],
     *,
-    store: Catalog,
+    store: CatalogStore,
     lake_root: str | Path,
     system: str,
     profile: str | Any = "analysis",

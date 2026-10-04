@@ -27,7 +27,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.dataset as ds
 
-from .catalog.store import Catalog as _Store
+from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
 from .normalize.engine import MissingColumnError
 from .persist.duck import DuckLake

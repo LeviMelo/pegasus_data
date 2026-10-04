@@ -116,3 +116,7 @@ Recount over every column present in data: 84 coded columns still reach no table
 - `CO_DIAG_EXTERNO` is ICD-10 chapter XX on the 9,790 filled rows.
 - `CO_STATUS` is "Aprovada" on all of them.
 - `QT_AIH` is 1 on every row, `QT_INTERNACAO` 0 on 1,986 rows, `QT_OBITO` 1 on 4,363.
+
+**Queries no longer write the catalog (ARCHITECTURE §5).** `scripts/live.py` runs `sih_2016`, `sinan_tube`, `sinan_deng` and `sih_rd` against the mirror (`data/probes/live/2026-10-04-readpath`), and `sih_rd` and `sinan_tube` again after the renames (`…-readpath2`). All are ok with the same rows and labelled counts as before. Across the second run the live catalog's `label_bindings` stayed at 16,394 rows with the same latest `decided_at`, and `representation_conflicts` is dropped. The DuckDB `fetch_arrow_table` deprecation warning is gone.
+
+The import of every module also found `linkage.store` and `linkage.entities` broken by the curation-resolver commit (`LINKS_FILE` removed), now fixed.

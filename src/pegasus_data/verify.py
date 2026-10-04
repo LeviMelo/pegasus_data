@@ -35,7 +35,7 @@ from typing import Any
 
 import pyarrow.parquet as pq
 
-from .catalog.store import Catalog
+from .catalog.store import CatalogStore
 from .config import Settings
 
 #: The prior scan's headline counts, used as regression floors.
@@ -74,7 +74,7 @@ def _skip(check: Check, reason: str) -> Check:
 # --------------------------------------------------------------------- checks
 
 
-def check_blob_dedup(catalog: Catalog, settings: Settings) -> Check:
+def check_blob_dedup(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.1 — a file fetched twice produces one blob; the catalog records both."""
     c = Check("content-addressed cache deduplicates", 1)
     rows = catalog.query(
@@ -98,7 +98,7 @@ def check_blob_dedup(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_crawl_coverage(catalog: Catalog, settings: Settings) -> Check:
+def check_crawl_coverage(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.2 — re-crawl reproduces ≥124,810 files; every gap is a row, not a log line."""
     c = Check("crawl reproduces the prior inventory, with metadata", 2)
     total = catalog.count("files")
@@ -143,7 +143,7 @@ def check_crawl_coverage(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_apac_recovered(catalog: Catalog, settings: Settings) -> Check:
+def check_apac_recovered(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.3 — SIASUS/APAC appears as a family with a real schema."""
     c = Check("APAC self-extracting archives are recovered", 3)
     exe_files = catalog.count("files", "LOWER(extension) = '.exe' AND path LIKE '%/SIASUS/APAC/%'")
@@ -184,7 +184,7 @@ def check_apac_recovered(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_sih_generations(catalog: Catalog, settings: Settings) -> Check:
+def check_sih_generations(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.4 — SIH-RD resolves to its schema generations (see the module docstring)."""
     c = Check("SIH-RD resolves to its schema generations", 4)
     rows = catalog.query(
@@ -236,7 +236,7 @@ def check_sih_generations(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_format_collapse(catalog: Catalog, settings: Settings) -> Check:
+def check_format_collapse(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.4 — multi-format republication collapses into representations, not families."""
     c = Check("multi-format republication collapses into one family", 4)
     rows = catalog.query(
@@ -261,7 +261,7 @@ def check_format_collapse(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_dictionary_coverage(catalog: Catalog, settings: Settings) -> Check:
+def check_dictionary_coverage(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.5 — coverage is reported per system; CID and the small codelists decode."""
     c = Check("dictionary coverage is a reportable number", 5)
     entries = catalog.count("dictionary")
@@ -317,7 +317,7 @@ def check_dictionary_coverage(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_field_decoding(catalog: Catalog, settings: Settings) -> Check:
+def check_field_decoding(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.5 — SEXO, RACA_COR and IDENT decode from ``.CNV``."""
     c = Check("categorical fields decode from .CNV", 5)
     from .semantics.dictionary import lookup
@@ -338,7 +338,7 @@ def check_field_decoding(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_detectors(catalog: Catalog, settings: Settings) -> Check:
+def check_detectors(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.6 — NU_IDADE is no longer ICD; DIAG_PRINC still is; both carry evidence."""
     c = Check("distributional detectors separate age from diagnosis", 6)
     age_rows = catalog.query(
@@ -400,7 +400,7 @@ def check_detectors(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_retired_column_flagged(catalog: Catalog, settings: Settings) -> Check:
+def check_retired_column_flagged(catalog: CatalogStore, settings: Settings) -> Check:
     """The corrected DIAG_SECUN assertion (see the module docstring)."""
     c = Check("retired-but-present columns are flagged", 6)
     rows = catalog.query(
@@ -427,7 +427,7 @@ def check_retired_column_flagged(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_lake(catalog: Catalog, settings: Settings) -> Check:
+def check_lake(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.7 — the lake is queryable in DuckDB, with labels, at a fraction of raw size."""
     c = Check("lake is queryable with decoded labels", 7)
     partitions = catalog.count("lake_partitions")
@@ -521,7 +521,7 @@ def check_lake(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_population(catalog: Catalog, settings: Settings) -> Check:
+def check_population(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.8 — POPSVS loads with age × sex; POPTCU is flagged unusable for standardisation."""
     c = Check("population series carry their own limits", 8)
     rows = catalog.query("SELECT * FROM population_series")
@@ -553,7 +553,7 @@ def check_population(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_demas(catalog: Catalog, settings: Settings) -> Check:
+def check_demas(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.9 — swagger persisted; the crosswalk and one health endpoint land."""
     c = Check("DEMAS spec persisted and endpoints ingested", 9)
     endpoints = catalog.count("api_endpoints")
@@ -579,7 +579,7 @@ def check_demas(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_describe(catalog: Catalog, settings: Settings) -> Check:
+def check_describe(catalog: CatalogStore, settings: Settings) -> Check:
     """§12.10 — describe() returns labels, coverage and provenance."""
     c = Check("describe() answers the user-facing question", 10)
     if catalog.count("ledger") == 0:
@@ -626,7 +626,7 @@ def check_describe(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_build_accounted(catalog: Catalog, settings: Settings) -> Check:
+def check_build_accounted(catalog: CatalogStore, settings: Settings) -> Check:
     """§3 — every family a build selected produced rows, or recorded why not.
 
     The zero-row bug passed the entire suite. A stale ``family_files`` link pointed
@@ -705,7 +705,7 @@ def _label_agrees(code: str, stored: str, allowed: set[str]) -> bool:
     return tail.strip() in allowed
 
 
-def check_stored_labels_agree(catalog: Catalog, settings: Settings) -> Check:
+def check_stored_labels_agree(catalog: CatalogStore, settings: Settings) -> Check:
     """§C — no label written into the lake contradicts its own binding.
 
     The render path once merged thirteen systems' ``SEXO.CNV`` into one lookup in
@@ -809,7 +809,7 @@ def check_stored_labels_agree(catalog: Catalog, settings: Settings) -> Check:
 _CODE_LOOKS_LIKE_PROSE = 12
 
 
-def check_codes_are_codes(catalog: Catalog, settings: Settings) -> Check:
+def check_codes_are_codes(catalog: CatalogStore, settings: Settings) -> Check:
     """No codelist has its code and label columns the wrong way round.
 
     A lookup table shipped as a DBF does not say which of its columns is the key,
@@ -894,7 +894,7 @@ def check_codes_are_codes(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_ontology_exhaustive(catalog: Catalog, settings: Settings) -> Check:
+def check_ontology_exhaustive(catalog: CatalogStore, settings: Settings) -> Check:
     """Every DATA file on the tree reaches a declared dataset.
 
     This is the assertion the whole project is judged on. The point of the crawl
@@ -949,7 +949,7 @@ def check_ontology_exhaustive(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_every_dataset_says_what_a_row_is(catalog: Catalog, settings: Settings) -> Check:
+def check_every_dataset_says_what_a_row_is(catalog: CatalogStore, settings: Settings) -> Check:
     """Every declared dataset states what one row IS and its unit of analysis.
 
     Check 17 proves every file reaches a dataset. This proves every dataset
@@ -1020,7 +1020,7 @@ def check_every_dataset_says_what_a_row_is(catalog: Catalog, settings: Settings)
     return c
 
 
-def check_join_keys_exist(catalog: Catalog, settings: Settings) -> Check:
+def check_join_keys_exist(catalog: CatalogStore, settings: Settings) -> Check:
     """Every column a declared join key names is really in that dataset.
 
     ``joins.yml`` is the one place the project asserts how datasets connect, and
@@ -1116,7 +1116,7 @@ def check_join_keys_exist(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-def check_bound_codelists_decode(catalog: Catalog, settings: Settings) -> Check:
+def check_bound_codelists_decode(catalog: CatalogStore, settings: Settings) -> Check:
     """No binding measured to decode nothing is still offered to a caller.
 
     ``.DEF`` claims a codelist explains a column, generously: it declares
@@ -1194,7 +1194,7 @@ def check_bound_codelists_decode(catalog: Catalog, settings: Settings) -> Check:
     return c
 
 
-CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
+CHECKS: tuple[Callable[[CatalogStore, Settings], Check], ...] = (
     check_blob_dedup,
     check_crawl_coverage,
     check_apac_recovered,
@@ -1218,7 +1218,7 @@ CHECKS: tuple[Callable[[Catalog, Settings], Check], ...] = (
 )
 
 
-def run_all(catalog: Catalog, settings: Settings, *, only: Sequence[int] | None = None) -> list[Check]:
+def run_all(catalog: CatalogStore, settings: Settings, *, only: Sequence[int] | None = None) -> list[Check]:
     out: list[Check] = []
     for fn in CHECKS:
         check = fn(catalog, settings)

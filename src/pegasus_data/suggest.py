@@ -73,7 +73,7 @@ def suggest(
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
     from .config import load_settings
     from .retrieve import fetch
     from .semantics.curation import semantics_for
@@ -108,7 +108,7 @@ def suggest(
     time_parts = [str(f) for f in (time_body.get("fields") or ())]
 
     docs: dict[str, dict[str, str]] = {}
-    catalog = Catalog(resolved.catalog_path)
+    catalog = CatalogStore(resolved.catalog_path)
     try:
         system = str(getattr(semantics, "system", "") or "").upper()
         for row in catalog.query(

@@ -1500,7 +1500,7 @@ def _is_multi_valued(dataset: str, field_name: str) -> bool:
     single-character CRITERIO refuse every roll-up over it. The same lesson
     SEXO taught the reference tables, replayed on a boolean.
     """
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
     from .config import load_settings
 
     try:
@@ -1515,7 +1515,7 @@ def _is_multi_valued(dataset: str, field_name: str) -> bool:
             system = str(getattr(semantics, "system", "") or "").upper()
         except Exception:  # noqa: BLE001 - no semantics, fall back to any row
             pass
-        catalog = Catalog(settings.catalog_path, read_only=True)
+        catalog = CatalogStore(settings.catalog_path, read_only=True)
         try:
             if system:
                 rows = list(catalog.query(

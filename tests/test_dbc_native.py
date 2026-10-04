@@ -29,7 +29,7 @@ def _one_real_blob():
     """A real SIH file from the lake, or None on a machine without one."""
     try:
         from pegasus_data.acquire.cache import BlobStore
-        from pegasus_data.catalog.store import Catalog
+        from pegasus_data.catalog.store import CatalogStore
         from pegasus_data.config import load_settings
 
         # The suite's conftest points settings at an isolated tmp root; the
@@ -40,7 +40,7 @@ def _one_real_blob():
         settings = load_settings(root=root)
         if not settings.catalog_path.is_file():
             return None
-        catalog = Catalog(settings.catalog_path, read_only=True)
+        catalog = CatalogStore(settings.catalog_path, read_only=True)
         try:
             rows = catalog.query(
                 "SELECT sha256 AS d FROM fetches WHERE source_path LIKE '%.dbc' LIMIT 1")

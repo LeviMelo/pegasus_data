@@ -82,7 +82,7 @@ def _stored_edges(settings: Any, period: object, geography: object, method: str)
                                  '{rds}' AS rds, '{rrole}' AS rrole, r, bits FROM '{path.as_posix()}'""")
     if not parts:
         raise FileNotFoundError("no stored links for this scope: run link() first")
-    return con.execute(" UNION ALL ".join(parts) + " ORDER BY bits DESC").fetch_arrow_table()
+    return con.execute(" UNION ALL ".join(parts) + " ORDER BY bits DESC").to_arrow_table()
 
 
 def build_entities(*, period: object, geography: object, method: str = "probabilistic",
@@ -163,7 +163,7 @@ def person_pairs(entities: Entities, left: tuple[str, str], right: tuple[str, st
     con.register("n", entities.nodes)
     return con.execute(f"""SELECT a.record AS l, b.record AS r, a.person FROM n a JOIN n b USING (person)
         WHERE a.dataset = '{left[0]}' AND a.role = '{left[1]}' AND b.dataset = '{right[0]}' AND b.role = '{right[1]}'
-    """).fetch_arrow_table()
+    """).to_arrow_table()
 
 
 __all__ = ["Entities", "build_entities", "person_pairs"]

@@ -32,7 +32,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 
 #: `.DEF` usage markers. `I` is *Incremento* — a quantity TabNet sums. Everything
 #: else is a tabulation axis: something to group or filter by.
@@ -83,7 +83,7 @@ def _describe(name: str, usage: str, others: list[str]) -> str:
 
 
 def document_from_def(
-    catalog: Catalog, *, systems: list[str] | None = None, overwrite: bool = False
+    catalog: CatalogStore, *, systems: list[str] | None = None, overwrite: bool = False
 ) -> DefNameReport:
     """Fill ``field_documentation`` from the names ``.DEF`` files already gave.
 

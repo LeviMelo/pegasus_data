@@ -25,7 +25,7 @@ from dataclasses import dataclass, field
 import pyarrow as pa
 import pyarrow.compute as pc
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from ..config import UF_NUMERIC
 
 __all__ = ["MunicipalityIndex", "check_digit", "validate_check_digit", "to_seven_digit", "uf_from_code"]
@@ -88,7 +88,7 @@ class MunicipalityIndex:
         return hashlib.sha256(encoded).hexdigest()
 
     @classmethod
-    def from_catalog(cls, catalog: Catalog) -> MunicipalityIndex:
+    def from_catalog(cls, catalog: CatalogStore) -> MunicipalityIndex:
         rows = catalog.query(
             """
             SELECT value_raw, value_label, source_ref FROM dictionary

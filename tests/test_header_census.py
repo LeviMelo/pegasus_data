@@ -18,7 +18,7 @@ import struct
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.decode.header import (
     HeaderUnreadable,
     prefix_bytes_needed,
@@ -106,7 +106,7 @@ class TestItRefusesRatherThanGuesses:
 
 
 class TestCensus:
-    def _stratum(self, catalog: Catalog, path="/a/RDAC1401.dbc"):
+    def _stratum(self, catalog: CatalogStore, path="/a/RDAC1401.dbc"):
         catalog.execute(
             "INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path, "
             "sample_status) VALUES ('S1','SIHSUS','RD',2014,1,?, 'pending')",
@@ -114,7 +114,7 @@ class TestCensus:
         )
         return {"stratum_id": "S1", "path": path, "extension": ".dbc", "size": 1000}
 
-    def test_a_census_records_the_schema_and_its_fields(self, catalog: Catalog):
+    def test_a_census_records_the_schema_and_its_fields(self, catalog: CatalogStore):
         target = self._stratum(catalog)
         data = make_header(SIH_LIKE)
         census = run_census(catalog, lambda _p, _n: data, [target])
@@ -122,7 +122,7 @@ class TestCensus:
         assert catalog.count("schema_header_facts") == 5
         assert catalog.count("schema_presence") == 5
 
-    def test_it_shares_the_signature_the_families_stage_uses(self, catalog: Catalog):
+    def test_it_shares_the_signature_the_families_stage_uses(self, catalog: CatalogStore):
         """The census must land on the same family a profiled sample would."""
         from pegasus_data.inventory.families import schema_signature
 
@@ -132,7 +132,7 @@ class TestCensus:
         row = catalog.query("SELECT schema_signature FROM strata WHERE stratum_id='S1'")[0]
         assert row["schema_signature"] == expected
 
-    def test_it_widens_the_request_once_when_the_header_says_so(self, catalog: Catalog):
+    def test_it_widens_the_request_once_when_the_header_says_so(self, catalog: CatalogStore):
         target = self._stratum(catalog)
         # Wider than FIRST_PREFIX (8 KB), so the first ask genuinely cannot
         # hold the descriptor array and the file's own header_length is what
@@ -151,7 +151,7 @@ class TestCensus:
         assert len(asked) == 2 and asked[1] > asked[0], "asked again, larger"
 
     def test_a_format_needing_another_route_is_counted_apart_from_a_failure(
-        self, catalog: Catalog
+        self, catalog: CatalogStore
     ):
         """A zip is not a broken DBF, and the two want different responses."""
         target = {**self._stratum(catalog), "extension": ".zip"}
@@ -159,7 +159,7 @@ class TestCensus:
         assert census.not_header_readable == 1
         assert census.unreadable == 0 and census.read == 0
 
-    def test_a_csv_header_is_read_from_its_first_line(self, catalog: Catalog):
+    def test_a_csv_header_is_read_from_its_first_line(self, catalog: CatalogStore):
         """DATASUS republishes whole systems as CSV, where no DBF exists."""
         target = {**self._stratum(catalog), "extension": ".csv"}
         census = run_census(
@@ -174,13 +174,13 @@ class TestCensus:
         }
         assert names == {"CO_UF", "NO_MUNICIP", "QT_POP"}
 
-    def test_a_csv_with_no_header_row_is_refused(self, catalog: Catalog):
+    def test_a_csv_with_no_header_row_is_refused(self, catalog: CatalogStore):
         """Naming columns after one row's values is worse than no schema."""
         target = {**self._stratum(catalog), "extension": ".csv"}
         census = run_census(catalog, lambda _p, _n: b"x" * 80 + b";y\n", [target])
         assert census.read == 0 and census.unreadable == 1
 
-    def test_one_unreadable_file_does_not_end_the_census(self, catalog: Catalog):
+    def test_one_unreadable_file_does_not_end_the_census(self, catalog: CatalogStore):
         catalog.execute(
             "INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path, "
             "sample_status) VALUES ('S2','SIHSUS','RD',2015,1,'/a/b.dbc','pending')"
@@ -198,14 +198,14 @@ class TestCensus:
         assert census.read == 1 and census.unreadable == 1
         assert census.errors and "/a/b.dbc" in census.errors[0][0]
 
-    def test_the_census_reports_what_it_cost(self, catalog: Catalog):
+    def test_the_census_reports_what_it_cost(self, catalog: CatalogStore):
         target = self._stratum(catalog)
         data = make_header(SIH_LIKE)
         census = run_census(catalog, lambda _p, n: data[:n], [target])
         assert census.bytes_fetched == len(data)
         assert census.as_dict()["distinct_signatures"] == 1
 
-    def test_a_header_read_does_not_claim_the_stratum_was_profiled(self, catalog: Catalog):
+    def test_a_header_read_does_not_claim_the_stratum_was_profiled(self, catalog: CatalogStore):
         """'We know the columns' must never read as 'we know the values'."""
         target = self._stratum(catalog)
         run_census(catalog, lambda _p, _n: make_header(SIH_LIKE), [target])
@@ -215,7 +215,7 @@ class TestCensus:
 
 
 class TestPersistHeaderIsIdempotent:
-    def test_reading_the_same_header_twice_changes_nothing(self, catalog: Catalog):
+    def test_reading_the_same_header_twice_changes_nothing(self, catalog: CatalogStore):
         catalog.execute(
             "INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path, "
             "sample_status) VALUES ('S1','SIHSUS','RD',2014,1,'/a/x.dbc','pending')"
@@ -230,7 +230,7 @@ class TestPersistHeaderIsIdempotent:
 class TestTheCensusDoesNotDisableProfiling:
     """The cheap stage must not cancel the expensive one that knows more."""
 
-    def test_a_census_read_stratum_is_still_waiting_to_be_profiled(self, catalog: Catalog):
+    def test_a_census_read_stratum_is_still_waiting_to_be_profiled(self, catalog: CatalogStore):
         from pegasus_data.inventory.strata import sample_plan
 
         catalog.execute(
@@ -245,7 +245,7 @@ class TestTheCensusDoesNotDisableProfiling:
             "reading a header is not profiling; the stratum still needs its data read"
         )
 
-    def test_a_profiled_stratum_is_not_reoffered(self, catalog: Catalog):
+    def test_a_profiled_stratum_is_not_reoffered(self, catalog: CatalogStore):
         from pegasus_data.inventory.strata import sample_plan
 
         catalog.execute(

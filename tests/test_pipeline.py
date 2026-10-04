@@ -1,4 +1,4 @@
-"""Catalog behaviour, the blob store, verification checks, and the CLI surface."""
+"""CatalogStore behaviour, the blob store, verification checks, and the CLI surface."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import pytest
 from typer.testing import CliRunner
 
 from pegasus_data.acquire.cache import BlobStore, sha256_bytes
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.cli import app
 from pegasus_data.config import Settings
 from pegasus_data.verify import run_all, summarise
@@ -17,7 +17,7 @@ from tests.conftest import make_dbf
 
 
 class TestCatalogStore:
-    def test_migrates_and_reports_its_tables(self, catalog: Catalog):
+    def test_migrates_and_reports_its_tables(self, catalog: CatalogStore):
         counts = catalog.table_counts()
         for required in (
             "files", "coverage_gaps", "strata", "families", "representations",
@@ -25,7 +25,7 @@ class TestCatalogStore:
         ):
             assert required in counts
 
-    def test_first_seen_survives_a_recrawl(self, catalog: Catalog):
+    def test_first_seen_survives_a_recrawl(self, catalog: CatalogStore):
         row = {"path": "/x/a.dbc", "directory": "/x", "filename": "a.dbc", "size": 1}
         catalog.upsert_files([row])
         first = catalog.query("SELECT first_seen FROM files")[0]["first_seen"]
@@ -34,12 +34,12 @@ class TestCatalogStore:
         assert after["first_seen"] == first
         assert after["size"] == 2
 
-    def test_a_known_size_is_not_overwritten_by_a_null(self, catalog: Catalog):
+    def test_a_known_size_is_not_overwritten_by_a_null(self, catalog: CatalogStore):
         catalog.upsert_files([{"path": "/x/a", "directory": "/x", "filename": "a", "size": 99}])
         catalog.upsert_files([{"path": "/x/a", "directory": "/x", "filename": "a"}])
         assert catalog.query("SELECT size FROM files")[0]["size"] == 99
 
-    def test_gaps_accumulate_attempts_and_can_resolve(self, catalog: Catalog):
+    def test_gaps_accumulate_attempts_and_can_resolve(self, catalog: CatalogStore):
         catalog.record_gap("/x/dir", methods=("list", "nlst"), error="550")
         catalog.record_gap("/x/dir", methods=("list",), error="550 again")
         assert catalog.query("SELECT attempts FROM coverage_gaps")[0]["attempts"] == 2
@@ -47,7 +47,7 @@ class TestCatalogStore:
         catalog.resolve_gap("/x/dir")
         assert catalog.open_gaps() == []
 
-    def test_open_questions_round_trip(self, catalog: Catalog):
+    def test_open_questions_round_trip(self, catalog: CatalogStore):
         catalog.note_question("V1", area="discovery", question="does X hold?")
         catalog.resolve_question("V1", resolution="no", evidence='{"probe": 1}')
         row = catalog.query("SELECT * FROM open_questions WHERE key='V1'")[0]
@@ -55,7 +55,7 @@ class TestCatalogStore:
 
 
 class TestBlobStore:
-    def test_identical_bytes_produce_one_blob_and_two_fetches(self, settings: Settings, catalog: Catalog):
+    def test_identical_bytes_produce_one_blob_and_two_fetches(self, settings: Settings, catalog: CatalogStore):
         store = BlobStore(settings.blobs_dir, catalog)
         payload = b"some bytes"
         a = store.put_bytes(payload, source_path="/x/a")
@@ -66,7 +66,7 @@ class TestBlobStore:
         assert catalog.query("SELECT fetch_count FROM blobs")[0]["fetch_count"] == 2
 
     def test_changed_content_creates_a_second_blob_for_the_same_path(
-        self, settings: Settings, catalog: Catalog
+        self, settings: Settings, catalog: CatalogStore
     ):
         """DATASUS republishes old competências silently; the hash is the signal."""
         store = BlobStore(settings.blobs_dir, catalog)
@@ -75,7 +75,7 @@ class TestBlobStore:
         assert catalog.count("blobs") == 2
         assert store.known_for("/x/a") == sha256_bytes(b"v2")
 
-    def test_materialize_gives_a_usable_suffix(self, settings: Settings, catalog: Catalog):
+    def test_materialize_gives_a_usable_suffix(self, settings: Settings, catalog: CatalogStore):
         store = BlobStore(settings.blobs_dir, catalog)
         digest = store.put_bytes(b"payload", source_path="/x/a.dbf")
         path = store.materialize(digest, ".dbf", work_dir=settings.work_dir)
@@ -84,7 +84,7 @@ class TestBlobStore:
 
 class TestVerify:
     def test_every_check_reports_a_status_on_an_empty_catalog(
-        self, catalog: Catalog, settings: Settings
+        self, catalog: CatalogStore, settings: Settings
     ):
         checks = run_all(catalog, settings)
         assert len(checks) >= 10
@@ -93,7 +93,7 @@ class TestVerify:
         assert summary["fail"] == 0, "an empty catalog has nothing to fail, only to skip"
         assert summary["ok"] is True
 
-    def test_a_scoped_crawl_skips_the_whole_tree_floor(self, catalog: Catalog, settings: Settings):
+    def test_a_scoped_crawl_skips_the_whole_tree_floor(self, catalog: CatalogStore, settings: Settings):
         catalog.upsert_files(
             [
                 {"path": f"/dissemin/publicos/X/f{i}.dbc", "directory": "/dissemin/publicos/X",
@@ -106,7 +106,7 @@ class TestVerify:
         assert check.status == "skip"
         assert check.evidence["whole_tree_crawl"] is False
 
-    def test_checks_carry_evidence(self, catalog: Catalog, settings: Settings):
+    def test_checks_carry_evidence(self, catalog: CatalogStore, settings: Settings):
         for check in run_all(catalog, settings):
             assert isinstance(check.evidence, dict)
             assert check.detail

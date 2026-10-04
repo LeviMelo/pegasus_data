@@ -58,9 +58,9 @@ class LocalCnesRegistryProvider:
                     self.name, "Ministério da Saúde / CNES", period, False, None,
                     "monthly registry snapshot", "CNES",
                 )
-            from .catalog.store import Catalog
+            from .catalog.store import CatalogStore
 
-            store = Catalog(settings.catalog_path, read_only=True)
+            store = CatalogStore(settings.catalog_path, read_only=True)
             try:
                 family_rows = store.query(
                     "SELECT family_id FROM families WHERE system='CNES' AND series='ST'"
@@ -172,9 +172,9 @@ class LocalCnesNamesProvider:
             available = False
             estimate = path.stat().st_size if path.is_file() else None
         if estimate is None and settings.catalog_path.is_file():
-            from .catalog.store import Catalog
+            from .catalog.store import CatalogStore
 
-            store = Catalog(settings.catalog_path, read_only=True)
+            store = CatalogStore(settings.catalog_path, read_only=True)
             try:
                 row = store.query(
                     "SELECT COUNT(*) count FROM dictionary WHERE value_group LIKE 'CADGER%'"

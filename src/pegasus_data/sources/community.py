@@ -29,7 +29,7 @@ import re
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from ..semantics.dictionary import DictionaryEntry, persist_entries
 
 MICRODATASUS_REPO = "https://github.com/rfsaldanha/microdatasus"
@@ -157,7 +157,7 @@ def entries_from_source(
 
 
 def ingest(
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     systems: Sequence[str] | None = None,
     commit: str | None = None,

@@ -18,12 +18,12 @@ import pytest
 
 from pegasus_data.acquire.cache import BlobStore
 from pegasus_data.acquire.fetcher import REFRESH_POLICIES, Fetcher, FetchResult
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 
 
 @pytest.fixture
 def store(tmp_path):
-    catalog = Catalog(tmp_path / "c.sqlite")
+    catalog = CatalogStore(tmp_path / "c.sqlite")
     blobs = BlobStore(tmp_path / "blobs", catalog)
     yield catalog, blobs
     catalog.close()

@@ -47,7 +47,7 @@ from typing import Any
 
 import pyarrow as pa
 
-from .catalog.store import Catalog
+from .catalog.store import CatalogStore
 from .config import Settings, load_settings
 from .decode.registry import ReaderRegistry
 from .normalize.engine import NormalizePlan, build_plan, normalize_table
@@ -358,7 +358,7 @@ _AXIS_AS_COLUMN = {
 
 
 def axis_refusal(
-    catalog: Catalog,
+    catalog: CatalogStore,
     system: str,
     series: str | None,
     *,
@@ -437,7 +437,7 @@ def _reject_unresolvable(system: str, series: str | None) -> None:
 
 
 def _check_axes(
-    catalog: Catalog,
+    catalog: CatalogStore,
     spec: str,
     system: str,
     series: str | None,
@@ -515,7 +515,7 @@ DEFAULT_MAX_EAGER_BYTES = 4 * 1024**3
 
 
 def _sensitive_columns(
-    catalog: Catalog, system: str, present: Sequence[str]
+    catalog: CatalogStore, system: str, present: Sequence[str]
 ) -> dict[str, str]:
     """Columns in this answer the ledger calls direct personal identifiers.
 
@@ -990,7 +990,7 @@ def _ensure_reference_tables(pipeline: Pipeline, report: FetchReport) -> None:
     )
 
 
-def _families(catalog: Catalog, system: str, series: str | None) -> list[dict[str, Any]]:
+def _families(catalog: CatalogStore, system: str, series: str | None) -> list[dict[str, Any]]:
     """Every family belonging to this dataset, resolved through the ontology.
 
     An exact ``series = ?`` match is wrong here, and measurably so. ``series`` is
@@ -1155,7 +1155,7 @@ def _derived_inputs(docs: Mapping[str, Any]) -> dict[str, tuple[str, ...]]:
 
 
 def _keep_columns(
-    catalog: Catalog, report: FetchReport, columns: Sequence[str] | None
+    catalog: CatalogStore, report: FetchReport, columns: Sequence[str] | None
 ) -> frozenset[str] | None:
     """The requested columns plus what is needed to render or derive them.
 
@@ -1211,7 +1211,7 @@ def _keep_columns(
 
 
 def _select_files(
-    catalog: Catalog,
+    catalog: CatalogStore,
     families: Sequence[Mapping[str, Any]],
     *,
     report: FetchReport,

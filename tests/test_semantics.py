@@ -7,7 +7,7 @@ import zipfile
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.semantics.cnv_parser import expand_expression, parse_cnv_bytes
 from pegasus_data.semantics.def_parser import parse_def_bytes
 from pegasus_data.semantics.dictionary import (
@@ -181,7 +181,7 @@ class TestKit:
         assert all(e.field_name is None for e in entries)  # codelists, not columns
         assert ("SEXO", "SEXO") in {(b.field_name, b.codelist) for b in bindings}
 
-    def test_persist_then_lookup_through_the_binding(self, catalog: Catalog):
+    def test_persist_then_lookup_through_the_binding(self, catalog: CatalogStore):
         kit = parse_kit(self._kit(), kit_path="/x/TAB_TEST.zip", system="SIHSUS")
         entries, bindings, _ = entries_from_kit(kit)
         persist_kit(catalog, kit)
@@ -193,7 +193,7 @@ class TestKit:
 
 
 class TestDictionaryMerge:
-    def test_conflicting_claims_are_recorded_not_resolved(self, catalog: Catalog):
+    def test_conflicting_claims_are_recorded_not_resolved(self, catalog: CatalogStore):
         from pegasus_data.semantics.dictionary import DictionaryEntry
 
         a = DictionaryEntry(
@@ -211,7 +211,7 @@ class TestDictionaryMerge:
         conflict = catalog.query("SELECT claim_a, claim_b FROM dictionary_conflicts")[0]
         assert {conflict["claim_a"], conflict["claim_b"]} == {"Masculino", "Homem"}
 
-    def test_different_eras_coexist_without_conflict(self, catalog: Catalog):
+    def test_different_eras_coexist_without_conflict(self, catalog: CatalogStore):
         from pegasus_data.semantics.dictionary import DictionaryEntry
 
         old = DictionaryEntry(
@@ -228,7 +228,7 @@ class TestDictionaryMerge:
         assert result["conflicts"] == 0
         assert catalog.count("dictionary") == 2
 
-    def test_granular_codelist_beats_a_specialised_subset(self, catalog: Catalog):
+    def test_granular_codelist_beats_a_specialised_subset(self, catalog: CatalogStore):
         from pegasus_data.semantics.dictionary import DictionaryEntry
 
         broad = [
@@ -254,7 +254,7 @@ class TestDictionaryMerge:
 
 
 class TestLedger:
-    def test_incremento_makes_a_field_additive(self, catalog: Catalog):
+    def test_incremento_makes_a_field_additive(self, catalog: CatalogStore):
         from pegasus_data.semantics.ledger import build_ledger, persist_ledger
 
         catalog.executemany(
@@ -282,7 +282,7 @@ class TestLedger:
         # A diagnosis code is never summable, whatever its distribution looks like.
         assert by_field["DIAG_PRINC"].aggregation == "non_summable"
 
-    def test_sentinels_come_from_the_field_not_a_global_rule(self, catalog: Catalog):
+    def test_sentinels_come_from_the_field_not_a_global_rule(self, catalog: CatalogStore):
         from pegasus_data.semantics.dictionary import DictionaryEntry
         from pegasus_data.semantics.ledger import _sentinels_for
 
@@ -377,7 +377,7 @@ class TestPdfHarvest:
         assert all(e.confidence < 0.6 for e in entries)
         assert all(e.authority > 0 for e in entries)
 
-    def test_a_cnv_claim_beats_a_pdf_claim(self, catalog: Catalog, monkeypatch):
+    def test_a_cnv_claim_beats_a_pdf_claim(self, catalog: CatalogStore, monkeypatch):
         from pegasus_data.semantics.dictionary import DictionaryEntry
 
         persist_entries(
@@ -614,7 +614,7 @@ class TestASourceSupersedesItsOwnReading:
     current.
     """
 
-    def _row(self, catalog: Catalog, code: str, label: str, ref: str) -> None:
+    def _row(self, catalog: CatalogStore, code: str, label: str, ref: str) -> None:
         catalog.execute(
             "INSERT INTO dictionary (system, value_group, field_name, value_raw, "
             "value_label, source, source_ref, confidence) "
@@ -622,12 +622,12 @@ class TestASourceSupersedesItsOwnReading:
             (code, label, ref),
         )
 
-    def test_a_re_read_removes_what_the_same_artifact_said_before(self, catalog: Catalog):
+    def test_a_re_read_removes_what_the_same_artifact_said_before(self, catalog: CatalogStore):
         self._row(catalog, "AUX. DE TEC. DE PECUARIA", "031", "kit.zip!TABOCUP (columns inferred: DESCRICAO->CODIGO)")
         assert supersede_source(catalog, ["kit.zip!TABOCUP"]) == 1
         assert catalog.count("dictionary") == 0
 
-    def test_it_matches_the_artifact_not_the_whole_source_ref(self, catalog: Catalog):
+    def test_it_matches_the_artifact_not_the_whole_source_ref(self, catalog: CatalogStore):
         """The tail says HOW the columns were resolved, and that is exactly what
         changes when a parser improves. Keying on it makes every fix invisible."""
         self._row(catalog, "X", "1", "kit.zip!TABOCUP (columns inferred: DESCRICAO->CODIGO)")
@@ -635,14 +635,14 @@ class TestASourceSupersedesItsOwnReading:
         supersede_source(catalog, ["kit.zip!TABOCUP"])
         assert catalog.count("dictionary") == 0
 
-    def test_a_different_artifact_is_left_alone(self, catalog: Catalog):
+    def test_a_different_artifact_is_left_alone(self, catalog: CatalogStore):
         self._row(catalog, "A", "1", "kit.zip!TABOCUP")
         self._row(catalog, "B", "2", "kit.zip!CID10")
         supersede_source(catalog, ["kit.zip!TABOCUP"])
         rows = catalog.query("SELECT source_ref FROM dictionary")
         assert [r["source_ref"] for r in rows] == ["kit.zip!CID10"]
 
-    def test_a_table_whose_name_merely_starts_the_same_survives(self, catalog: Catalog):
+    def test_a_table_whose_name_merely_starts_the_same_survives(self, catalog: CatalogStore):
         """TABOCUP must not take TABOCUPACAO with it."""
         self._row(catalog, "A", "1", "kit.zip!TABOCUP")
         self._row(catalog, "B", "2", "kit.zip!TABOCUPACAO")
@@ -650,11 +650,11 @@ class TestASourceSupersedesItsOwnReading:
         rows = catalog.query("SELECT source_ref FROM dictionary")
         assert [r["source_ref"] for r in rows] == ["kit.zip!TABOCUPACAO"]
 
-    def test_nothing_to_supersede_is_not_an_error(self, catalog: Catalog):
+    def test_nothing_to_supersede_is_not_an_error(self, catalog: CatalogStore):
         assert supersede_source(catalog, []) == 0
         assert supersede_source(catalog, ["never-read.zip!X"]) == 0
 
-    def test_it_is_recorded_in_the_event_log(self, catalog: Catalog):
+    def test_it_is_recorded_in_the_event_log(self, catalog: CatalogStore):
         self._row(catalog, "A", "1", "kit.zip!TABOCUP")
         supersede_source(catalog, ["kit.zip!TABOCUP"])
         assert catalog.count("events", "stage = 'semantics'") >= 1

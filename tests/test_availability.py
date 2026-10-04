@@ -16,11 +16,11 @@ from __future__ import annotations
 import pytest
 
 from pegasus_data._availability import FieldWindow, availability, field_available
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.config import Settings
 
 
-def _seed(catalog: Catalog) -> None:
+def _seed(catalog: CatalogStore) -> None:
     """SIH.RD in miniature: a column arrives, one year is never decoded.
 
     2005 and 2006 carry two columns; 2008 carries a third. 2007 has a published
@@ -60,7 +60,7 @@ def _seed(catalog: Catalog) -> None:
 
 @pytest.fixture
 def seeded(settings: Settings) -> Settings:
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         _seed(store)
     finally:

@@ -20,12 +20,12 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.config import Settings
 from pegasus_data.semantics.bindings import measure_bindings, working_bindings
 
 
-def _bind(catalog: Catalog, field: str, codelist: str) -> None:
+def _bind(catalog: CatalogStore, field: str, codelist: str) -> None:
     catalog.execute(
         "INSERT INTO field_codelists (system, family_id, field_name, codelist,"
         " source, source_ref, confidence) VALUES (?,?,?,?,?,?,?)",
@@ -33,7 +33,7 @@ def _bind(catalog: Catalog, field: str, codelist: str) -> None:
     )
 
 
-def _seed(catalog: Catalog) -> None:
+def _seed(catalog: CatalogStore) -> None:
     """SEXO holds 1 and 3. SEXOBR defines both; ANOMES defines neither."""
     catalog.execute(
         "INSERT OR REPLACE INTO families (family_id, system, series, schema_signature,"
@@ -62,7 +62,7 @@ def _seed(catalog: Catalog) -> None:
 
 @pytest.fixture
 def seeded(settings: Settings):
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         _seed(store)
         yield store
@@ -141,7 +141,7 @@ class TestItMeasuresRatherThanDeletes:
 class TestAColumnWithNoWorkingBinding:
     def test_it_is_counted(self, settings) -> None:
         """Reported as undecodable, which is honest, rather than mislabelled."""
-        store = Catalog(settings.catalog_path)
+        store = CatalogStore(settings.catalog_path)
         try:
             _seed(store)
             store.execute("DELETE FROM field_codelists WHERE codelist='SEXOBR'")

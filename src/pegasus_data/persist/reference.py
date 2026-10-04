@@ -47,7 +47,7 @@ import pyarrow.compute as pc
 import pyarrow.dataset as pads
 import pyarrow.parquet as pq
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from .decisions import (
     borrowed_tables,
     collecting,
@@ -107,7 +107,7 @@ class ReferenceTable:
         return "current"
 
 
-def is_hierarchical(catalog: Catalog, codelist: str) -> bool:
+def is_hierarchical(catalog: CatalogStore, codelist: str) -> bool:
     """Whether a codelist should be joined rather than flattened into labels."""
     name = codelist.upper()
     if any(name.startswith(prefix) for prefix in HIERARCHICAL_TABLES):
@@ -120,7 +120,7 @@ def is_hierarchical(catalog: Catalog, codelist: str) -> bool:
 
 def _materialise_reference_tables(
     staging: Path,
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     compression: str,
     systems: Sequence[str] | None,
@@ -234,7 +234,7 @@ def _materialise_reference_tables(
 
 
 def write_reference_tables(
-    catalog: Catalog,
+    catalog: CatalogStore,
     lake_root: str | Path,
     *,
     compression: str = "zstd",
@@ -291,7 +291,7 @@ def write_reference_tables(
     return written
 
 
-def flag_mixed_width_tables(catalog: Catalog, tables: Sequence[ReferenceTable]) -> int:
+def flag_mixed_width_tables(catalog: CatalogStore, tables: Sequence[ReferenceTable]) -> int:
     """Record any reference table that merges two code widths.
 
     Not a defect in the ingestion — it is what the kit ships — but a hazard the
@@ -687,7 +687,7 @@ def _read_reference_table(
     return table
 
 
-def register_reference_tables(catalog: Catalog, tables: Sequence[ReferenceTable]) -> int:
+def register_reference_tables(catalog: CatalogStore, tables: Sequence[ReferenceTable]) -> int:
     catalog.executemany(
         """
         INSERT INTO lake_datasets (dataset, system, series, family_ids, description)
@@ -753,7 +753,7 @@ def available_tables(lake_root: str | Path) -> list[dict[str, object]]:
 BLANK_LABEL_THRESHOLD = 0.9
 
 
-def flag_unlabelled_codelists(catalog: Catalog) -> list[dict[str, object]]:
+def flag_unlabelled_codelists(catalog: CatalogStore) -> list[dict[str, object]]:
     """Report codelists whose labels are overwhelmingly empty.
 
     These are not sparse tables — they are *failed column selections*. A DBF

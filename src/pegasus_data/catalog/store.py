@@ -402,7 +402,7 @@ def _missing_columns(
     return missing
 
 
-class Catalog:
+class CatalogStore:
     """A connection to the catalog database.
 
     Thread-safe for the access pattern the pipeline uses: many worker threads
@@ -618,7 +618,7 @@ class Catalog:
                 pass
             self.conn.close()
 
-    def __enter__(self) -> Catalog:
+    def __enter__(self) -> CatalogStore:
         return self
 
     def __exit__(self, *exc: object) -> None:

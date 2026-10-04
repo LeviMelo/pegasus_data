@@ -33,7 +33,7 @@ from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from typing import Any
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from .curation import load_variable_docs
 
 #: A share at or above this is "decoded": rounding in the stored share only.
@@ -58,7 +58,7 @@ class FieldCoverage:
     opaque_codes: int = 0
 
 
-def measure(store: Catalog, systems: list[str] | None = None) -> list[FieldCoverage]:
+def measure(store: CatalogStore, systems: list[str] | None = None) -> list[FieldCoverage]:
     """One row per (family, field), for every family in the catalog."""
     wanted = {s.upper() for s in systems} if systems else None
     families = store.query(

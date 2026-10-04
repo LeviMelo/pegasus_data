@@ -50,7 +50,6 @@ SEED_TABLES: tuple[str, ...] = (
     "families",
     "family_files",
     "representations",
-    "representation_conflicts",
     "schema_presence",
     "schema_header_facts",
     "schema_drift",
@@ -109,11 +108,11 @@ def install_seed(target: Path) -> bool:
 def export_seed(source: Path, target: Path) -> dict[str, int]:
     """Write the seed from a maintainer catalog. Returns rows per table.
 
-    The seed's schema is created by :class:`Catalog` itself, so it is always
+    The seed's schema is created by :class:`CatalogStore` itself, so it is always
     the current ``schema.sql`` and a user's first open needs no migration.
     Rows are copied by the columns both sides have.
     """
-    from .store import Catalog
+    from .store import CatalogStore
 
     target.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="pegasus_seed_") as work:
@@ -121,7 +120,7 @@ def export_seed(source: Path, target: Path) -> dict[str, int]:
         previous = os.environ.get("PEGASUS_SEED")
         os.environ["PEGASUS_SEED"] = "0"  # an empty schema, not a seeded one
         try:
-            Catalog(db).close()
+            CatalogStore(db).close()
         finally:
             if previous is None:
                 os.environ.pop("PEGASUS_SEED", None)

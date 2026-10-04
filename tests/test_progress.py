@@ -20,7 +20,7 @@ import time
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.progress import (
     Heartbeat,
     ItemTimeout,
@@ -63,7 +63,7 @@ class TestItemWatchdog:
 
 
 class TestTimeoutsAreRecorded:
-    def test_an_abandoned_item_lands_in_coverage_gaps(self, catalog: Catalog):
+    def test_an_abandoned_item_lands_in_coverage_gaps(self, catalog: CatalogStore):
         record_timeout(
             catalog, stage="profile", item="/a/RDAC1401.dbc", seconds=1200,
             state="stratum SIHSUS|RD|AC|2014",
@@ -72,7 +72,7 @@ class TestTimeoutsAreRecorded:
         assert row["kind"] == "timeout"
         assert "abandoned" in row["last_error"]
 
-    def test_the_last_known_state_is_kept(self, catalog: Catalog):
+    def test_the_last_known_state_is_kept(self, catalog: CatalogStore):
         """What it was doing is the whole value of the record."""
         record_timeout(
             catalog, stage="profile", item="/a/x.dbc", seconds=60, state="stratum S1"
@@ -80,7 +80,7 @@ class TestTimeoutsAreRecorded:
         row = catalog.query("SELECT * FROM coverage_gaps WHERE path = '/a/x.dbc'")[0]
         assert "stratum S1" in row["last_error"]
 
-    def test_it_is_queryable_as_a_gap_like_any_other(self, catalog: Catalog):
+    def test_it_is_queryable_as_a_gap_like_any_other(self, catalog: CatalogStore):
         """A timeout is 'we know we do not have this, and why' — same as a gap."""
         record_timeout(catalog, stage="profile", item="/a/y.dbc", seconds=60)
         assert catalog.count("coverage_gaps", "kind = 'timeout' AND resolved = 0") == 1
@@ -127,7 +127,7 @@ class TestHeartbeat:
 class TestFetcherCannotDeadlock:
     """A4 — the two hangs found by thread-dumping a wedged run."""
 
-    def _fetcher(self, catalog: Catalog, tmp_path, **kw):
+    def _fetcher(self, catalog: CatalogStore, tmp_path, **kw):
         from pegasus_data.acquire.cache import BlobStore
         from pegasus_data.acquire.fetcher import Fetcher
 
@@ -136,7 +136,7 @@ class TestFetcherCannotDeadlock:
             concurrency=2, timeout=1, max_retries=1, **kw,
         )
 
-    def test_an_unreachable_host_returns_instead_of_hanging(self, catalog: Catalog, tmp_path):
+    def test_an_unreachable_host_returns_instead_of_hanging(self, catalog: CatalogStore, tmp_path):
         """Every worker failing to connect used to deadlock the whole stage.
 
         The first fix had each failed worker DRAIN the shared queue and mark
@@ -156,7 +156,7 @@ class TestFetcherCannotDeadlock:
         assert stats.fetched == 0
 
     def test_a_lost_worker_does_not_fail_paths_it_never_touched(
-        self, catalog: Catalog, tmp_path
+        self, catalog: CatalogStore, tmp_path
     ):
         """`failed` counts PATHS. A worker that never held one cannot fail it."""
         fetcher = self._fetcher(catalog, tmp_path, stall_timeout=30, heartbeat_interval=60)
@@ -165,12 +165,12 @@ class TestFetcherCannotDeadlock:
         assert not stats.errors, "a worker that held no path failed no path"
         assert any(path == "<connect>" for path, _ in stats.diagnostics)
 
-    def test_an_unreachable_host_is_reported_not_swallowed(self, catalog: Catalog, tmp_path):
+    def test_an_unreachable_host_is_reported_not_swallowed(self, catalog: CatalogStore, tmp_path):
         fetcher = self._fetcher(catalog, tmp_path, stall_timeout=30, heartbeat_interval=60)
         stats = fetcher.fetch_many(["/a/1.dbc"])
         assert stats.diagnostics, "the worker diagnostic has to survive"
 
-    def test_an_empty_batch_is_not_a_stall(self, catalog: Catalog, tmp_path):
+    def test_an_empty_batch_is_not_a_stall(self, catalog: CatalogStore, tmp_path):
         assert self._fetcher(catalog, tmp_path).fetch_many([]).requested == 0
 
 
@@ -222,7 +222,7 @@ class TestStalledSocketRaises:
 
 
 class TestGuardedLoop:
-    def test_a_stalled_stage_gives_up_rather_than_spinning(self, catalog: Catalog):
+    def test_a_stalled_stage_gives_up_rather_than_spinning(self, catalog: CatalogStore):
         from pegasus_data.progress import guarded
 
         lines: list[str] = []
@@ -236,7 +236,7 @@ class TestGuardedLoop:
         assert seen == [1], "it stops once nothing has completed within the deadline"
         assert any("STALLED" in line for line in lines)
 
-    def test_a_healthy_stage_yields_everything(self, catalog: Catalog):
+    def test_a_healthy_stage_yields_everything(self, catalog: CatalogStore):
         from pegasus_data.progress import guarded
 
         seen = [

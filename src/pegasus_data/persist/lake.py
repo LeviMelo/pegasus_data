@@ -26,7 +26,7 @@ import pyarrow as pa
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 from .staging import staged_file, staged_tree
 
 _SAFE = re.compile(r"[^A-Za-z0-9_.=-]+")
@@ -53,7 +53,7 @@ class Lake:
     def __init__(
         self,
         root: str | Path,
-        catalog: Catalog | None = None,
+        catalog: CatalogStore | None = None,
         *,
         compression: str = "zstd",
         row_group_size: int = 256 * 1024,
@@ -347,7 +347,7 @@ class Lake:
         if missing:
             raise KeyError(
                 f"columns not present in the lake for {family_id}: {missing}. "
-                "Check the schema generation with Catalog.coverage()."
+                "Check the schema generation with CatalogStore.coverage()."
             )
         # DEDUPED, order preserved. A column can arrive both because the caller
         # asked for it and because rendering needs it — `year` is both — and

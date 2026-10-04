@@ -809,11 +809,6 @@ CREATE TABLE IF NOT EXISTS adjudication_items (
 -- Presumptive representation equivalence is safe only while the evidence
 -- agrees. An open conflict disables preferred-representation collapse for the
 -- affected publication so disagreement cannot silently discard a source.
-CREATE TABLE IF NOT EXISTS representation_conflicts (
-  logical_id      TEXT PRIMARY KEY,
-  representations TEXT NOT NULL,       -- JSON paths/formats compared
-  evidence        TEXT,
-  status          TEXT NOT NULL DEFAULT 'open', -- open|adjudicated|dismissed
-  noted_at        TEXT NOT NULL,
-  resolved_at     TEXT
-);
+-- representation_conflicts was dropped 2026-10-04: conflicts are derived on
+-- every read (representations.py) and never stored.
+DROP TABLE IF EXISTS representation_conflicts;

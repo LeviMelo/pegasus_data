@@ -36,7 +36,7 @@ from dataclasses import dataclass, field
 import pyarrow as pa
 import pyarrow.compute as pc
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 from ..decode.base import DecodedTable
 from ..semantics.dictionary import (
     DictionaryCache,
@@ -74,7 +74,7 @@ def record_keys(batch: pa.RecordBatch) -> pa.Array:
     parts = ", ".join(f'coalesce(CAST("{n}" AS VARCHAR), chr(0))' for n in names)
     con = duckdb.connect()
     con.register("b", pa.Table.from_batches([batch.select(names)]))
-    return con.execute(f"SELECT md5(concat_ws('|', {parts})) AS k FROM b").fetch_arrow_table().column("k").combine_chunks()
+    return con.execute(f"SELECT md5(concat_ws('|', {parts})) AS k FROM b").to_arrow_table().column("k").combine_chunks()
 
 
 @dataclass(slots=True)
@@ -171,7 +171,7 @@ def plan_fingerprint(plan: NormalizePlan) -> str:
 
 
 def build_plan(
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     family_id: str,
     municipalities: MunicipalityIndex | None = None,
@@ -430,7 +430,7 @@ class MissingColumnError(KeyError):
         )
 
 
-def require_columns(catalog: Catalog, family_id: str, columns: Sequence[str]) -> None:
+def require_columns(catalog: CatalogStore, family_id: str, columns: Sequence[str]) -> None:
     """Fail loudly when a requested column is absent from this generation."""
     row = catalog.query(
         "SELECT system, series, schema_signature FROM families WHERE family_id = ?", (family_id,)

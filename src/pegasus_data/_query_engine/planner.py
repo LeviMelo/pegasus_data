@@ -9,7 +9,7 @@ from typing import Literal
 from ..config import Settings, load_settings
 from ..crosswalk import EnrichmentRequest
 from ..providers import provider
-from .capabilities import _capabilities
+from .coverage import _coverage
 from .model import Adaptation, QueryPlan, RetrievalPlan, SemanticPlan, _spec
 
 #: What an establishment WAS at a record's competence, read from CNES.ST for
@@ -62,7 +62,7 @@ def plan(
     )
     resolved = settings or load_settings(root=Path(root) if root else None)
     system, series = parse_dataset(dataset)
-    capabilities = _capabilities(
+    capabilities = _coverage(
         resolved, system, series, years=spec.period.years if spec.period else (),
         geography=spec.geography,
     )
@@ -151,7 +151,7 @@ def plan(
     requirements = tuple(
         provider(name).describe(resolved, resource_period) for name in required
     )
-    from .capabilities import download_estimate
+    from .coverage import download_estimate
 
     estimate = download_estimate(
         resolved, system, series, capabilities.fetch_years, dict(year_months), physical_uf

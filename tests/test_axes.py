@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.config import Settings
 from pegasus_data.ontology import DatasetAxes
 
@@ -69,7 +69,7 @@ class TestMeasuringTheAxes:
         assert "year" in message
 
 
-def _seed_national(catalog: Catalog) -> None:
+def _seed_national(catalog: CatalogStore) -> None:
     """SIM.DOFET as it really is: national files, a year, no state, no month."""
     catalog.upsert_files(
         [
@@ -90,7 +90,7 @@ def _seed_national(catalog: Catalog) -> None:
 
 @pytest.fixture
 def national(settings: Settings) -> Settings:
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         _seed_national(store)
     finally:
@@ -102,7 +102,7 @@ class TestTheOntologyMeasuresTheCatalog:
     def test_it_reads_the_axes_off_file_facts(self, national) -> None:
         from pegasus_data.ontology import Ontology
 
-        store = Catalog(national.catalog_path, read_only=True)
+        store = CatalogStore(national.catalog_path, read_only=True)
         try:
             axes = Ontology.load().axes(store.conn)
         finally:

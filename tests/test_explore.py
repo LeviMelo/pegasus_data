@@ -18,11 +18,11 @@ from __future__ import annotations
 import pytest
 
 from pegasus_data._explore import explore
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 
 
 def add_file(
-    catalog: Catalog,
+    catalog: CatalogStore,
     path: str,
     *,
     system: str = "SIHSUS",
@@ -47,7 +47,7 @@ def add_file(
 
 @pytest.fixture
 def crawled(settings):
-    catalog = Catalog(settings.catalog_path)
+    catalog = CatalogStore(settings.catalog_path)
     add_file(catalog, "/p/RDAL2301.dbc", size=2 * 2**20)
     add_file(catalog, "/p/RDAL2302.dbc", yyyymm=202302, size=2 * 2**20)
     add_file(catalog, "/p/RDSP2401.dbc", uf="SP", year=2024, yyyymm=202401, size=8 * 2**20)
@@ -110,7 +110,7 @@ class TestCoverageIsChronological:
     def test_years_read_in_order_not_by_volume(self, settings):
         """A missing year is the thing people look for, and it only shows up
         when the years are in order."""
-        catalog = Catalog(settings.catalog_path)
+        catalog = CatalogStore(settings.catalog_path)
         add_file(catalog, "/p/a.dbc", year=2020, size=9 * 2**20)
         add_file(catalog, "/p/b.dbc", year=2018, size=2**20)
         add_file(catalog, "/p/c.dbc", year=2019, size=2**20)
@@ -151,7 +151,7 @@ class TestItDoesNotPretendToKnow:
         self, settings, monkeypatch
     ):
         # An empty catalog, and no seed (the suite disables it, ADR-0067).
-        Catalog(settings.catalog_path).close()
+        CatalogStore(settings.catalog_path).close()
         with pytest.raises(FileNotFoundError, match="lists no files"):
             explore(settings=settings)
 

@@ -20,7 +20,7 @@ import json
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from .dictionary import all_codelist_names, codelists_for, match_codelist_by_name
 
 #: Semantic verdicts that do not want a codelist at all. A date has no code
@@ -85,7 +85,7 @@ class Gap:
 
 
 def find_gaps(
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     systems: Sequence[str] | None = None,
     max_coverage: float = 0.5,
@@ -253,7 +253,7 @@ def distinct_field_gaps(gaps: Sequence[Gap]) -> list[dict[str, object]]:
     return out
 
 
-def persist_gaps(catalog: Catalog, gaps: Sequence[Gap]) -> int:
+def persist_gaps(catalog: CatalogStore, gaps: Sequence[Gap]) -> int:
     """Record the gap list as open questions so it survives the run."""
     for entry in distinct_field_gaps(gaps)[:200]:
         catalog.note_question(

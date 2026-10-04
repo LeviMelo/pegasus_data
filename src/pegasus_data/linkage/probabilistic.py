@@ -190,7 +190,7 @@ def _materialise(con: duckdb.DuckDBPyConnection, name: str) -> pa.Array:
         SELECT * EXCLUDE (_id), _id AS _sid, CAST(row_number() OVER (ORDER BY _id) - 1 AS BIGINT) AS _id
         FROM (SELECT DISTINCT ON (_id) * FROM {name})""")
     con.execute(f"CREATE OR REPLACE TEMP VIEW {name} AS SELECT * FROM {name}_t")
-    return con.execute(f"SELECT _sid FROM {name}_t ORDER BY _id").fetch_arrow_table().column("_sid").combine_chunks()
+    return con.execute(f"SELECT _sid FROM {name}_t ORDER BY _id").to_arrow_table().column("_sid").combine_chunks()
 
 
 def _condition(a: str, b: str) -> str:
@@ -252,7 +252,7 @@ def _typo_view(con: duckdb.DuckDBPyConnection, left_view: str, role: str) -> str
     name = f"typo_{left_view}_{abs(hash(role)) % 10**8}"
     exists = con.execute(f"SELECT count(*) FROM information_schema.tables WHERE table_name = '{name}'").fetchone()[0]
     if not exists:
-        base = con.execute(f"SELECT DISTINCT _id, {_q(role)} AS d FROM {left_view} WHERE {_q(role)} IS NOT NULL").fetch_arrow_table()
+        base = con.execute(f"SELECT DISTINCT _id, {_q(role)} AS d FROM {left_view} WHERE {_q(role)} IS NOT NULL").to_arrow_table()
         idx, variants = typo_variants(base.column("d").combine_chunks())
         table = pa.table({"_id": base.column("_id").take(pa.array(idx)), "v": variants})
         con.register(f"{name}_src", table)
@@ -683,7 +683,7 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
         control_sql, has_control = _anchor_sql(others, prob.control_role, shift=True)
         n_anchor = con.execute(f"SELECT count(*) FROM ({anchor_sql})").fetchone()[0]
         n_anchor_control = con.execute(f"SELECT count(*) FROM ({control_sql})").fetchone()[0] if has_control else 0
-        anchors = con.execute(_select_values("L", anchor_sql, [comp], setting=with_setting)).fetch_arrow_table()
+        anchors = con.execute(_select_values("L", anchor_sql, [comp], setting=with_setting)).to_arrow_table()
         anchor_levels = (_batch_levels(anchors.combine_chunks().to_batches()[0], [comp])[0] if anchors.num_rows
                          else np.array([], dtype=object))
         m, n_m = _distribution(anchor_levels)
@@ -784,7 +784,7 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
         con.register("pairs", stored[0].select([mine, other]))
         con.register("partner", pa.table({"_k": pid, "v": partner.column(item.role)}))
         values = con.execute(f"""SELECT p.v FROM me LEFT JOIN pairs ON pairs.{mine} = me._k
-                                 LEFT JOIN partner p ON p._k = pairs.{other} ORDER BY me._pos""").fetch_arrow_table()
+                                 LEFT JOIN partner p ON p._k = pairs.{other} ORDER BY me._pos""").to_arrow_table()
         table = table.append_column(item.as_, values.column("v").combine_chunks())
     return table
 

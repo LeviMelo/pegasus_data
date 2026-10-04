@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Sequence
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from .naming import (
     ParsedName,
     apply_convention,
@@ -52,7 +52,7 @@ def _descriptive_tails(parsed_by_path: dict[str, ParsedName], by_directory: dict
 
 
 def build_inventory(
-    catalog: Catalog, *, base_path: str = "/dissemin/publicos", systems: Sequence[str] | None = None
+    catalog: CatalogStore, *, base_path: str = "/dissemin/publicos", systems: Sequence[str] | None = None
 ) -> dict[str, int]:
     """Parse every known file, infer per-directory date conventions, persist facts."""
     # Only files that are actually present. A file marked gone must not go on
@@ -234,7 +234,7 @@ def build_inventory(
     }
 
 
-def inventory_summary(catalog: Catalog) -> list[dict[str, object]]:
+def inventory_summary(catalog: CatalogStore) -> list[dict[str, object]]:
     rows = catalog.query(
         """
         SELECT system,

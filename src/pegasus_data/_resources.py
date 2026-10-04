@@ -239,10 +239,10 @@ class ResourceManager:
         """
         wanted = str(name).upper().replace("-", "_")
         if wanted in {"CNES_NAMES", "CNES_NAME"}:
-            from .catalog.store import Catalog, utcnow
+            from .catalog.store import CatalogStore, utcnow
             from .labelpack import build_cnes_registry_pack
 
-            store = Catalog(self.settings.catalog_path)
+            store = CatalogStore(self.settings.catalog_path)
             try:
                 rows, bytes_out = build_cnes_registry_pack(
                     store, self.local_dir / "cnes_registry.parquet", years=years

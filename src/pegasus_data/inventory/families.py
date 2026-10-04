@@ -29,7 +29,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from .naming import member_kind, member_name_for
 
 #: Cheapest-to-read first. Parquet's footer is a map and its row groups are
@@ -160,7 +160,7 @@ def _path_glob(paths: Iterable[str]) -> str:
     return f"{common}/**"
 
 
-def build_families(catalog: Catalog) -> list[Family]:
+def build_families(catalog: CatalogStore) -> list[Family]:
     """Assemble families from every stratum whose schema is known.
 
     A family is ``(system, series, schema_signature)``, and the signature is the
@@ -276,7 +276,7 @@ def build_families(catalog: Catalog) -> list[Family]:
     return sorted(families.values(), key=lambda f: (f.system, f.series or "", -len(f.paths)))
 
 
-def persist_families(catalog: Catalog, families: Sequence[Family]) -> int:
+def persist_families(catalog: CatalogStore, families: Sequence[Family]) -> int:
     keep = {f.family_id for f in families}
     stale = [
         (r["family_id"],)
@@ -366,7 +366,7 @@ def persist_families(catalog: Catalog, families: Sequence[Family]) -> int:
     return len(families)
 
 
-def generations(catalog: Catalog, system: str, series: str) -> list[dict[str, object]]:
+def generations(catalog: CatalogStore, system: str, series: str) -> list[dict[str, object]]:
     """The distinct schema generations of one series, oldest first.
 
     This is the query that answers the SIH-RD regression: three generations at

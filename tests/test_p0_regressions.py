@@ -15,7 +15,7 @@ import pytest
 
 from pegasus_data.acquire.fetcher import Fetcher, FetchResult
 from pegasus_data.api import _by_vintage, _merge_reports
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.persist.lake import Lake
 from pegasus_data.view import RenderReport
 
@@ -126,7 +126,7 @@ class TestP0_4_OneAxisPolicyForBothPaths:
     def test_the_policy_returns_a_refusal_rather_than_raising(self, settings) -> None:
         from pegasus_data.retrieve import axis_refusal
 
-        store = Catalog(settings.catalog_path)
+        store = CatalogStore(settings.catalog_path)
         try:
             store.upsert_files(
                 [{"path": f"/d/DOFET{y}.dbc", "directory": "/d",

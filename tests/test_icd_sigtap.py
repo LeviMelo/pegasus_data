@@ -14,7 +14,7 @@ import zipfile
 
 import pyarrow as pa
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.persist.reference import register_reference_tables, write_reference_tables
 from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
 from pegasus_data.semantics.icd import (
@@ -106,7 +106,7 @@ class TestQualityClassification:
 
 
 class TestSuspectBindings:
-    def test_a_near_zero_match_rate_is_reported_as_a_finding(self, catalog: Catalog):
+    def test_a_near_zero_match_rate_is_reported_as_a_finding(self, catalog: CatalogStore):
         """IBGE's IDADE holds age bands and was bound to CID10 by a shape detector."""
         q = measure_column(
             ["2559", "1524", "2559", "1524"], system="IBGE", field_name="IDADE"
@@ -117,11 +117,11 @@ class TestSuspectBindings:
         )[0]
         assert "IDADE" in row["question"]
 
-    def test_a_healthy_column_is_not_flagged(self, catalog: Catalog):
+    def test_a_healthy_column_is_not_flagged(self, catalog: CatalogStore):
         q = measure_column(["A419", "E119"], system="SIM", field_name="CAUSABAS")
         assert flag_suspect_bindings(catalog, [q]) == 0
 
-    def test_an_empty_measurement_is_not_flagged(self, catalog: Catalog):
+    def test_an_empty_measurement_is_not_flagged(self, catalog: CatalogStore):
         assert flag_suspect_bindings(catalog, [ColumnQuality("SIM", "X")]) == 0
 
 
@@ -153,7 +153,7 @@ class TestWidthRuling:
 class TestMultipleCodelistsPerField:
     """SP_ATOPROF is 8 characters in one era and 10 in another."""
 
-    def test_both_tables_label_their_own_width(self, settings, catalog: Catalog):
+    def test_both_tables_label_their_own_width(self, settings, catalog: CatalogStore):
         persist_entries(
             catalog,
             [
@@ -255,7 +255,7 @@ class TestSourceAuthority:
 
 
 class TestCepIsSettled:
-    def test_the_ruling_is_recorded_as_resolved_not_open(self, catalog: Catalog, tmp_path):
+    def test_the_ruling_is_recorded_as_resolved_not_open(self, catalog: CatalogStore, tmp_path):
         """A settled 'no' that keeps showing as unfinished work is worse than no answer."""
         from pegasus_data.semantics.curation import load_curation
 
@@ -266,7 +266,7 @@ class TestCepIsSettled:
         assert row["status"] == "resolved"
         assert "município" in row["resolution"]
 
-    def test_cod_idade_stays_open_with_what_would_close_it(self, catalog: Catalog, tmp_path):
+    def test_cod_idade_stays_open_with_what_would_close_it(self, catalog: CatalogStore, tmp_path):
         from pegasus_data.semantics.curation import load_curation
 
         load_curation(catalog, tmp_path / "empty")

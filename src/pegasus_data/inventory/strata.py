@@ -22,7 +22,7 @@ import hashlib
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 
 
 @dataclass(slots=True)
@@ -111,7 +111,7 @@ def build_strata(rows: Iterable[dict[str, object]]) -> list[Stratum]:
     return sorted(groups.values(), key=lambda s: (s.system, s.series or "", s.year or 0))
 
 
-def persist_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
+def persist_strata(catalog: CatalogStore, strata: Sequence[Stratum]) -> int:
     catalog.executemany(
         """
         INSERT INTO strata (stratum_id, system, series, year, file_count, sampled_path, sample_status)
@@ -173,7 +173,7 @@ def persist_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
     return len(strata)
 
 
-def sample_plan(catalog: Catalog, *, systems: Sequence[str] | None = None, only_pending: bool = True) -> list[dict[str, object]]:
+def sample_plan(catalog: CatalogStore, *, systems: Sequence[str] | None = None, only_pending: bool = True) -> list[dict[str, object]]:
     """The list of files to fetch and profile: one per stratum."""
     clauses = ["sampled_path IS NOT NULL"]
     params: list[object] = []
@@ -196,7 +196,7 @@ def sample_plan(catalog: Catalog, *, systems: Sequence[str] | None = None, only_
     return [dict(r) for r in rows]
 
 
-def coverage_by_system(catalog: Catalog) -> list[dict[str, object]]:
+def coverage_by_system(catalog: CatalogStore) -> list[dict[str, object]]:
     rows = catalog.query(
         """
         SELECT system,
@@ -216,7 +216,7 @@ def coverage_by_system(catalog: Catalog) -> list[dict[str, object]]:
 
 
 def prune_orphan_strata(
-    catalog: Catalog, keep: set[str], *, systems: Sequence[str] | None = None
+    catalog: CatalogStore, keep: set[str], *, systems: Sequence[str] | None = None
 ) -> int:
     """Drop strata that the current file facts no longer produce.
 
@@ -255,7 +255,7 @@ def _census_rank(path: str) -> int:
     return 2
 
 
-def expand_archive_strata(catalog: Catalog, strata: Sequence[Stratum]) -> int:
+def expand_archive_strata(catalog: CatalogStore, strata: Sequence[Stratum]) -> int:
     """One stratum per member kind of a multi-table archive, over all its files.
 
     SIA's 2001-2007 APAC archives (``ACAC0201.EXE``) each carry seven tables

@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import pyarrow as pa
 
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
 
 __all__ = ["DataDictionary", "build_dictionary"]
 
@@ -182,7 +182,7 @@ def _kind(name: str, label_suffix: str, raw_names: set[str]) -> str:
 
 
 def build_dictionary(
-    catalog: Catalog,
+    catalog: CatalogStore,
     system: str,
     column_names: list[str],
     *,
@@ -313,7 +313,7 @@ _PROVENANCE_PROSE = {
 
 
 def describe_table(
-    catalog: Catalog, system: str, table: Any, *, dataset: str = ""
+    catalog: CatalogStore, system: str, table: Any, *, dataset: str = ""
 ) -> tuple[Any, DataDictionary]:
     """The table's dictionary, built on its DATASUS names; optionally renamed.
 

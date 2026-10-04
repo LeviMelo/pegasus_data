@@ -56,10 +56,10 @@ class TestCuratedDocsReachTheLoader:
     def test_docs_filed_under_the_crawled_name_are_found_by_the_declared_one(
         self, settings
     ) -> None:
-        from pegasus_data.catalog.store import Catalog
+        from pegasus_data.catalog.store import CatalogStore
         from pegasus_data.semantics.curation import load_variable_docs
 
-        store = Catalog(settings.catalog_path)
+        store = CatalogStore(settings.catalog_path)
         try:
             store.execute(
                 "INSERT INTO variable_docs (system, field_name, official_name,"
@@ -84,10 +84,10 @@ class TestCuratedDocsReachTheLoader:
     ) -> None:
         """The expansion must not degrade into an unfiltered query — that would
         hand SINASC's meaning to a SIH column."""
-        from pegasus_data.catalog.store import Catalog
+        from pegasus_data.catalog.store import CatalogStore
         from pegasus_data.semantics.curation import load_variable_docs
 
-        store = Catalog(settings.catalog_path)
+        store = CatalogStore(settings.catalog_path)
         try:
             store.execute(
                 "INSERT INTO variable_docs (system, field_name, description, source,"

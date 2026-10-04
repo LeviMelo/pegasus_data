@@ -10,13 +10,13 @@ import pegasus_data as pg
 
 
 def _catalogue_publications(settings, publications, *, covered=()) -> None:
-    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.catalog.store import CatalogStore
     from pegasus_data.inventory.families import family_id_for, schema_signature
 
     fields = ["ANO_CMPT", "MES_CMPT", "MUNIC_RES", "MUNIC_MOV", "VALUE"]
     signature = schema_signature(fields)
     family = family_id_for("SIHSUS", "RD", signature)
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         store.execute(
             "INSERT INTO families (family_id, system, series, schema_signature, field_count) "
@@ -122,13 +122,13 @@ def test_period_parser_refuses_reverse_interval() -> None:
 
 def test_annual_publication_adapts_without_filtering_event_dates(settings) -> None:
     from pegasus_data._query_engine.filters import _filter_source_period
-    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.catalog.store import CatalogStore
     from pegasus_data.inventory.families import family_id_for, schema_signature
 
     fields = ["DTOBITO", "VALUE"]
     signature = schema_signature(fields)
     family = family_id_for("SIM", "DO", signature)
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         store.execute(
             "INSERT INTO families (family_id, system, series, schema_signature, field_count) "
@@ -303,14 +303,14 @@ def test_equivalent_representation_keeps_local_completeness(settings) -> None:
 
 
 def test_archive_member_is_part_of_local_completeness(settings) -> None:
-    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.catalog.store import CatalogStore
     from pegasus_data.inventory.families import family_id_for, schema_signature
 
     signature = schema_signature(["VALUE"])
     family = family_id_for("SIHSUS", "RD", signature)
     logical = "SIHSUS|RD|AL|2301"
     path = "/p/KIT.exe"
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         store.execute(
             "INSERT INTO families (family_id, system, series, schema_signature, field_count) "
@@ -385,10 +385,10 @@ def test_cnes_registry_enrichment_does_not_inherit_fact_geography(
 
     import pegasus_data.api as api
     from pegasus_data._query_engine.semantics import _enrich_cnes_attribute
-    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.catalog.store import CatalogStore
     from pegasus_data.crosswalk import EnrichmentRequest
 
-    Catalog(settings.catalog_path).close()
+    CatalogStore(settings.catalog_path).close()
     registry_root = settings.lake_dir / "CNES"
     registry_root.mkdir(parents=True)
     pq.write_table(pa.table({"sentinel": [1]}), registry_root / "part.parquet")

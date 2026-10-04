@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.semantics.curation import (
     CurationError,
     coverage_by_rung,
@@ -53,7 +53,7 @@ def _write(tmp_path, name: str, body: str):
 
 
 class TestLoading:
-    def test_it_loads_variables_and_their_relationships(self, catalog: Catalog, tmp_path):
+    def test_it_loads_variables_and_their_relationships(self, catalog: CatalogStore, tmp_path):
         root = _write(tmp_path, "sihsus_rd.yml", SIH)
         result = load_curation(catalog, root)
         assert result["variables"] == 3
@@ -62,7 +62,7 @@ class TestLoading:
         assert docs["COD_IDADE"].modifies == "IDADE"
         assert docs["IDADE"].derived[0]["name"] == "IDADE_anos"
 
-    def test_a_curated_codelist_binds_at_full_authority(self, catalog: Catalog, tmp_path):
+    def test_a_curated_codelist_binds_at_full_authority(self, catalog: CatalogStore, tmp_path):
         """SOURCE_AUTHORITY['manual'] = 0 was unreachable before this."""
         load_curation(catalog, _write(tmp_path, "sihsus_rd.yml", SIH))
         row = catalog.query("SELECT * FROM field_codelists WHERE field_name = 'DIAG_PRINC'")[0]
@@ -70,14 +70,14 @@ class TestLoading:
         assert row["confidence"] == 1.0
         assert row["codelist"] == "CID10"
 
-    def test_reloading_is_idempotent(self, catalog: Catalog, tmp_path):
+    def test_reloading_is_idempotent(self, catalog: CatalogStore, tmp_path):
         root = _write(tmp_path, "sihsus_rd.yml", SIH)
         load_curation(catalog, root)
         load_curation(catalog, root)
         assert catalog.count("variable_docs") == 3
         assert catalog.count("field_codelists", "source = 'manual'") == 1
 
-    def test_deleting_an_entry_removes_it(self, catalog: Catalog, tmp_path):
+    def test_deleting_an_entry_removes_it(self, catalog: CatalogStore, tmp_path):
         """The file is the source of truth, not a set of suggestions."""
         root = _write(tmp_path, "sihsus_rd.yml", SIH)
         load_curation(catalog, root)
@@ -86,11 +86,11 @@ class TestLoading:
         load_curation(catalog, root)
         assert set(load_variable_docs(catalog)) == {"DIAG_PRINC"}
 
-    def test_an_absent_directory_is_not_an_error(self, catalog: Catalog, tmp_path):
+    def test_an_absent_directory_is_not_an_error(self, catalog: CatalogStore, tmp_path):
         result = load_curation(catalog, tmp_path / "nope")
         assert result["variables"] == 0
 
-    def test_prefix_overrides_reach_the_learned_map(self, catalog: Catalog, tmp_path):
+    def test_prefix_overrides_reach_the_learned_map(self, catalog: CatalogStore, tmp_path):
         root = tmp_path / "curation"
         root.mkdir()
         (root / "systems.yml").write_text("prefix_systems:\n  CM: SISCAN\n", encoding="utf-8")
@@ -99,7 +99,7 @@ class TestLoading:
         assert row["system"] == "SISCAN"
         assert row["agreement"] == 1.0
 
-    def test_dataset_prose_is_loaded(self, catalog: Catalog, tmp_path):
+    def test_dataset_prose_is_loaded(self, catalog: CatalogStore, tmp_path):
         root = tmp_path / "curation"
         root.mkdir()
         (root / "datasets.yml").write_text(
@@ -115,7 +115,7 @@ class TestLoading:
 class TestItRefusesToLaunder:
     """An inferred description presented as documented is the failure mode."""
 
-    def test_inferred_without_reasoning_is_rejected(self, catalog: Catalog, tmp_path):
+    def test_inferred_without_reasoning_is_rejected(self, catalog: CatalogStore, tmp_path):
         root = _write(
             tmp_path,
             "x.yml",
@@ -125,7 +125,7 @@ class TestItRefusesToLaunder:
         with pytest.raises(CurationError, match="reasoning"):
             load_curation(catalog, root)
 
-    def test_inferred_with_reasoning_is_accepted(self, catalog: Catalog, tmp_path):
+    def test_inferred_with_reasoning_is_accepted(self, catalog: CatalogStore, tmp_path):
         root = _write(
             tmp_path,
             "x.yml",
@@ -135,12 +135,12 @@ class TestItRefusesToLaunder:
         load_curation(catalog, root)
         assert load_variable_docs(catalog)["LINHAA"].reasoning.startswith("measured")
 
-    def test_an_assertion_needs_an_author(self, catalog: Catalog, tmp_path):
+    def test_an_assertion_needs_an_author(self, catalog: CatalogStore, tmp_path):
         root = _write(tmp_path, "x.yml", "system: SIM\nvariables:\n  FOO:\n    source: manual\n")
         with pytest.raises(CurationError, match="asserted_by"):
             load_curation(catalog, root)
 
-    def test_multi_valued_needs_a_token_rule(self, catalog: Catalog, tmp_path):
+    def test_multi_valued_needs_a_token_rule(self, catalog: CatalogStore, tmp_path):
         root = _write(
             tmp_path,
             "x.yml",
@@ -149,12 +149,12 @@ class TestItRefusesToLaunder:
         with pytest.raises(CurationError, match="token_rule"):
             load_curation(catalog, root)
 
-    def test_an_unknown_source_is_rejected(self, catalog: Catalog, tmp_path):
+    def test_an_unknown_source_is_rejected(self, catalog: CatalogStore, tmp_path):
         root = _write(tmp_path, "x.yml", "system: SIM\nvariables:\n  FOO:\n    source: vibes\n")
         with pytest.raises(CurationError, match="vibes"):
             load_curation(catalog, root)
 
-    def test_a_bad_code_system_is_rejected(self, catalog: Catalog, tmp_path):
+    def test_a_bad_code_system_is_rejected(self, catalog: CatalogStore, tmp_path):
         root = _write(
             tmp_path,
             "x.yml",
@@ -163,7 +163,7 @@ class TestItRefusesToLaunder:
         with pytest.raises(CurationError, match="code_system"):
             load_curation(catalog, root)
 
-    def test_a_broken_file_loads_nothing(self, catalog: Catalog, tmp_path):
+    def test_a_broken_file_loads_nothing(self, catalog: CatalogStore, tmp_path):
         """All or nothing: a half-applied file describes a state no file describes."""
         root = _write(tmp_path, "a.yml", SIH)
         _write(tmp_path, "b.yml", "system: SIM\nvariables:\n  FOO:\n    source: vibes\n")
@@ -173,7 +173,7 @@ class TestItRefusesToLaunder:
 
 
 class TestCoverage:
-    def test_coverage_counts_only_observed_fields(self, catalog: Catalog, tmp_path):
+    def test_coverage_counts_only_observed_fields(self, catalog: CatalogStore, tmp_path):
         """A document describing columns nobody has seen is not coverage."""
         catalog.execute(
             "INSERT INTO families (family_id, system, series, schema_signature) "
@@ -191,7 +191,7 @@ class TestCoverage:
         assert row["documented"] == 2, "COD_IDADE is curated but never observed"
         assert row["via_layout_doc"] == 2
 
-    def test_every_rung_is_a_column_even_at_zero(self, catalog: Catalog):
+    def test_every_rung_is_a_column_even_at_zero(self, catalog: CatalogStore):
         catalog.execute(
             "INSERT INTO families (family_id, system, series, schema_signature) "
             "VALUES ('f','SIM','DO','sig')"

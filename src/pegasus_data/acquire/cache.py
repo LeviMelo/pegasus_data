@@ -24,7 +24,7 @@ import uuid
 from collections.abc import Iterator
 from pathlib import Path
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -45,7 +45,7 @@ def sha256_file(path: Path, *, chunk: int = 1 << 20) -> str:
 class BlobStore:
     """A sha256-keyed store on the local filesystem."""
 
-    def __init__(self, root: str | Path, catalog: Catalog | None = None) -> None:
+    def __init__(self, root: str | Path, catalog: CatalogStore | None = None) -> None:
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
         self.catalog = catalog

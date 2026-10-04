@@ -15,7 +15,7 @@ from pathlib import Path
 import pyarrow as pa
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.config import Settings
 from pegasus_data.inventory.families import family_id_for, schema_signature
 from pegasus_data.persist.lake import Lake
@@ -68,14 +68,14 @@ def settings(tmp_path: Path) -> Settings:
 
 
 @pytest.fixture
-def catalog(settings: Settings) -> Catalog:
-    cat = Catalog(settings.catalog_path)
+def catalog(settings: Settings) -> CatalogStore:
+    cat = CatalogStore(settings.catalog_path)
     yield cat
     cat.close()
 
 
 @pytest.fixture
-def fresh_catalog(tmp_path: Path) -> Catalog:
+def fresh_catalog(tmp_path: Path) -> CatalogStore:
     """A second, empty catalog — the machine that never crawled anything.
 
     What a bundle is *for*: this one has no files, no profiles and no network,
@@ -83,7 +83,7 @@ def fresh_catalog(tmp_path: Path) -> Catalog:
     """
     other = Settings(root=tmp_path / "elsewhere")
     other.ensure_dirs()
-    cat = Catalog(other.catalog_path)
+    cat = CatalogStore(other.catalog_path)
     yield cat
     cat.close()
 
@@ -135,7 +135,7 @@ def sample_dbf() -> bytes:
 # makes the missing-column policy and generation-scoped scanning testable.
 
 @pytest.fixture
-def built_lake(settings: Settings, catalog: Catalog) -> tuple[Settings, Catalog, str]:
+def built_lake(settings: Settings, catalog: CatalogStore) -> tuple[Settings, CatalogStore, str]:
     """A miniature SIH-RD with two schema generations and a decoded SEXO."""
     fields_old = ["MUNIC_RES", "SEXO", "DIAG_SECUN", "VAL_TOT"]
     fields_new = ["MUNIC_RES", "SEXO", "DIAGSEC1", "VAL_TOT"]
@@ -302,7 +302,7 @@ class FakeBlobs:
 @pytest.fixture
 def seeded(settings, monkeypatch):
     """A catalog that already knows one SIH-RD family across two states/years."""
-    catalog = Catalog(settings.catalog_path)
+    catalog = CatalogStore(settings.catalog_path)
     catalog.execute(
         "INSERT INTO families (family_id, system, series, schema_signature, field_count) "
         "VALUES ('F1','SIHSUS','RD',?,3)",

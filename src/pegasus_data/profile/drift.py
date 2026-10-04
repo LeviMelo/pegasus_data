@@ -18,7 +18,7 @@ import re
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 
 
 @dataclass(slots=True)
@@ -37,7 +37,7 @@ class DriftReport:
         return len(self.signatures)
 
 
-def analyse_drift(catalog: Catalog) -> list[DriftReport]:
+def analyse_drift(catalog: CatalogStore) -> list[DriftReport]:
     rows = catalog.query(
         """
         SELECT system, series, stratum_id, year, schema_signature
@@ -83,7 +83,7 @@ def analyse_drift(catalog: Catalog) -> list[DriftReport]:
     return reports
 
 
-def persist_drift(catalog: Catalog, reports: list[DriftReport]) -> int:
+def persist_drift(catalog: CatalogStore, reports: list[DriftReport]) -> int:
     """Replace the drift picture. ``analyse_drift`` always reads the whole catalog,
     so anything not in ``reports`` is a (system, series) that no longer exists —
     after a prefix adjudication, say, which moved CM from SIHSUS to SISCAN. Left in
@@ -138,7 +138,7 @@ class RenameCandidate:
     new_signatures: list[str] = field(default_factory=list)
 
 
-def detect_renames(catalog: Catalog) -> list[RenameCandidate]:
+def detect_renames(catalog: CatalogStore) -> list[RenameCandidate]:
     """Find fields that vanish while a numbered family with a related stem appears.
 
     Deliberately conservative and *evidence-only*: this records a candidate for a
@@ -193,7 +193,7 @@ def detect_renames(catalog: Catalog) -> list[RenameCandidate]:
     return out
 
 
-def persist_renames(catalog: Catalog, candidates: list[RenameCandidate]) -> int:
+def persist_renames(catalog: CatalogStore, candidates: list[RenameCandidate]) -> int:
     """Replace the rename candidates wholesale.
 
     ``detect_renames`` recomputes from scratch over every series, so this table's
@@ -220,7 +220,7 @@ def persist_renames(catalog: Catalog, candidates: list[RenameCandidate]) -> int:
     return len(rows)
 
 
-def field_availability(catalog: Catalog, system: str, series: str, field_name: str) -> dict[str, object]:
+def field_availability(catalog: CatalogStore, system: str, series: str, field_name: str) -> dict[str, object]:
     """Where a field exists and where it does not — the loader's guard rail."""
     row = catalog.query(
         "SELECT signatures_json FROM schema_drift WHERE system=? AND series=?", (system, series)

@@ -118,9 +118,9 @@ class Exploration:
 
 def _from_catalog(settings: Settings) -> tuple[list[dict[str, Any]], str | None] | None:
     """The map: the catalog, which a fresh install seeds from the package (ADR-0067)."""
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
 
-    store = Catalog(settings.catalog_path, read_only=True)
+    store = CatalogStore(settings.catalog_path, read_only=True)
     try:
         if not store.count("files", "gone_at IS NULL"):
             return None

@@ -21,7 +21,7 @@ from pathlib import Path
 import duckdb
 import pyarrow as pa
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 
 _SAFE_NAME = re.compile(r"[^a-z0-9_]+")
 
@@ -37,7 +37,7 @@ class DuckLake:
     def __init__(
         self,
         lake_root: str | Path,
-        catalog: Catalog | None = None,
+        catalog: CatalogStore | None = None,
         *,
         database: str = ":memory:",
         read_only: bool = False,
@@ -49,7 +49,7 @@ class DuckLake:
 
     def close(self) -> None:
         self.conn.close()
-        # `open_lake()` attaches the Catalog it opened here. Without this the
+        # `open_lake()` attaches the CatalogStore it opened here. Without this the
         # DuckDB connection closed and the catalog connection did not, leaving
         # it with no reachable owner — one leaked per open_lake() call.
         owned = getattr(self, "_owned_catalog", None)
@@ -136,7 +136,7 @@ class DuckLake:
 
     def query(self, statement: str, params: Sequence[object] | None = None) -> pa.Table:
         """Run SQL and return a materialised Arrow table."""
-        return self.conn.execute(statement, list(params or [])).fetch_arrow_table()
+        return self.conn.execute(statement, list(params or [])).to_arrow_table()
 
     def tables(self) -> list[str]:
         rows = self.conn.execute(

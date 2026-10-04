@@ -134,10 +134,10 @@ def test_relation_validity_selects_historical_artifact(monkeypatch) -> None:
 
 
 def test_adjudicated_temporal_history_survives_catalog_reopen(tmp_path) -> None:
-    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.catalog.store import CatalogStore
 
     path = tmp_path / "temporal.sqlite"
-    store = Catalog(path)
+    store = CatalogStore(path)
     old = SemanticRelation(
         "SIHSUS", "SIH.RD", "DIAG_PRINC", RelationType.ROLLUP_TO,
         "chapter", "chapter", "CID_OLD", valid_to="201012",
@@ -151,7 +151,7 @@ def test_adjudicated_temporal_history_survives_catalog_reopen(tmp_path) -> None:
     assert store.count("semantic_relations") == 2
     store.close()
 
-    reopened = Catalog(path)
+    reopened = CatalogStore(path)
     try:
         assert relations_for(
             "SIHSUS", "SIH.RD", "DIAG_PRINC",

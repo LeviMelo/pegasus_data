@@ -8,7 +8,7 @@ unattributable claim §13 forbids, and it would go stale silently.
 
 from __future__ import annotations
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from ..profile.detectors import ReferenceSets
 
 #: Which ``code_tables`` entries feed which reference set. Table ids come from
@@ -21,7 +21,7 @@ _TABLE_PREFIXES: dict[str, tuple[str, ...]] = {
 }
 
 
-def _codes_for(catalog: Catalog, prefixes: tuple[str, ...]) -> tuple[frozenset[str], str | None]:
+def _codes_for(catalog: CatalogStore, prefixes: tuple[str, ...]) -> tuple[frozenset[str], str | None]:
     codes: set[str] = set()
     provenance: str | None = None
     for prefix in prefixes:
@@ -40,7 +40,7 @@ def _codes_for(catalog: Catalog, prefixes: tuple[str, ...]) -> tuple[frozenset[s
     return frozenset(codes), provenance
 
 
-def _municipalities(catalog: Catalog) -> tuple[frozenset[str], str | None]:
+def _municipalities(catalog: CatalogStore) -> tuple[frozenset[str], str | None]:
     """Municipality codes, taken from the ``MUNICBR`` codelist in the TAB kits.
 
     The dictionary holds them as six-digit codes because that is what DATASUS
@@ -59,7 +59,7 @@ def _municipalities(catalog: Catalog) -> tuple[frozenset[str], str | None]:
     return frozenset(c for c in codes if c.isdigit()), provenance
 
 
-def load_reference_sets(catalog: Catalog) -> ReferenceSets:
+def load_reference_sets(catalog: CatalogStore) -> ReferenceSets:
     """Build the detectors' reference sets from whatever the catalog knows."""
     icd10, icd_ref = _codes_for(catalog, _TABLE_PREFIXES["icd10"])
     procedures, proc_ref = _codes_for(catalog, _TABLE_PREFIXES["procedures"])
@@ -84,7 +84,7 @@ def load_reference_sets(catalog: Catalog) -> ReferenceSets:
     )
 
 
-def reference_summary(catalog: Catalog) -> dict[str, object]:
+def reference_summary(catalog: CatalogStore) -> dict[str, object]:
     refs = load_reference_sets(catalog)
     return {
         "icd10": {"size": len(refs.icd10), "source": refs.provenance.get("icd10")},

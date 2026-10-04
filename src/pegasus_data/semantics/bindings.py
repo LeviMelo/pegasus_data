@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 
 
 @dataclass(slots=True)
@@ -50,7 +50,7 @@ class BindingReport:
         }
 
 
-def measure_bindings(catalog: Catalog) -> BindingReport:
+def measure_bindings(catalog: CatalogStore) -> BindingReport:
     """Record, per binding, the share of observed values the codelist decodes.
 
     Three grouped scans and a join in memory. The alternative — asking per
@@ -125,7 +125,7 @@ def measure_bindings(catalog: Catalog) -> BindingReport:
 
 
 def working_bindings(
-    catalog: Catalog, system: str
+    catalog: CatalogStore, system: str
 ) -> dict[str, list[str]]:
     """Bindings for a system, best first, with the ones known dead removed.
 

@@ -123,10 +123,10 @@ class TestTransformFingerprint:
 class TestPartitionIsCurrent:
     def test_a_catalog_row_alone_is_not_enough_evidence(self, tmp_path):
         """A deleted lake with a surviving catalog must not look fully built."""
-        from pegasus_data.catalog.store import Catalog
+        from pegasus_data.catalog.store import CatalogStore
         from pegasus_data.persist.lake import Lake
 
-        catalog = Catalog(tmp_path / "catalog.sqlite")
+        catalog = CatalogStore(tmp_path / "catalog.sqlite")
         lake = Lake(tmp_path / "lake", catalog)
         catalog.execute(
             "INSERT INTO lake_partitions (family_id, schema_signature, uf, year, "
@@ -149,10 +149,10 @@ class TestPartitionIsCurrent:
         catalog.close()
 
     def test_an_unknown_partition_is_never_current(self, tmp_path):
-        from pegasus_data.catalog.store import Catalog
+        from pegasus_data.catalog.store import CatalogStore
         from pegasus_data.persist.lake import Lake
 
-        catalog = Catalog(tmp_path / "catalog.sqlite")
+        catalog = CatalogStore(tmp_path / "catalog.sqlite")
         lake = Lake(tmp_path / "lake", catalog)
         assert not lake.partition_is_current(
             system="SIHSUS", family_id="nope", schema_signature="sig",

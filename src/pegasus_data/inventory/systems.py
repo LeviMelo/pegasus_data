@@ -25,7 +25,7 @@ from collections import Counter, defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 
 #: Below this level of agreement a prefix is not treated as identifying a system:
 #: it is genuinely ambiguous and the path stays authoritative for it.
@@ -76,7 +76,7 @@ def learn_prefix_systems(
     return sorted(out, key=lambda p: (-p.file_count, p.series_prefix))
 
 
-def persist_prefix_systems(catalog: Catalog, learned: Sequence[PrefixSystem]) -> dict[str, int]:
+def persist_prefix_systems(catalog: CatalogStore, learned: Sequence[PrefixSystem]) -> dict[str, int]:
     """Store the map. An established answer is **held**, not relearned.
 
     This is the whole point of the map, and the reason it is not simply recomputed
@@ -139,7 +139,7 @@ def persist_prefix_systems(catalog: Catalog, learned: Sequence[PrefixSystem]) ->
     return {"written": written, "contradictions": contradictions}
 
 
-def load_prefix_systems(catalog: Catalog) -> dict[str, PrefixSystem]:
+def load_prefix_systems(catalog: CatalogStore) -> dict[str, PrefixSystem]:
     return {
         str(r["series_prefix"]): PrefixSystem(
             series_prefix=str(r["series_prefix"]),
@@ -179,7 +179,7 @@ def resolve_system(
 
 
 def record_disagreements(
-    catalog: Catalog, rows: Sequence[tuple[str, str | None, str, str, str]]
+    catalog: CatalogStore, rows: Sequence[tuple[str, str | None, str, str, str]]
 ) -> int:
     """Persist filename-vs-path disagreements as findings."""
     return catalog.executemany(
@@ -196,7 +196,7 @@ def record_disagreements(
     )
 
 
-def disagreement_summary(catalog: Catalog) -> list[dict[str, object]]:
+def disagreement_summary(catalog: CatalogStore) -> list[dict[str, object]]:
     return [
         dict(r)
         for r in catalog.query(
@@ -211,7 +211,7 @@ def disagreement_summary(catalog: Catalog) -> list[dict[str, object]]:
     ]
 
 
-def low_trust_prefixes(catalog: Catalog) -> list[dict[str, object]]:
+def low_trust_prefixes(catalog: CatalogStore) -> list[dict[str, object]]:
     """Prefixes the name-first rule will not use, ranked by how much they carry.
 
     A prefix is low-trust when it is genuinely ambiguous (agreement below
@@ -258,7 +258,7 @@ def low_trust_prefixes(catalog: Catalog) -> list[dict[str, object]]:
     return sorted(rows, key=lambda r: (-int(r["files"]), str(r["series_prefix"])))
 
 
-def adjudicate_prefix(catalog: Catalog, prefix: str, system: str) -> dict[str, object]:
+def adjudicate_prefix(catalog: CatalogStore, prefix: str, system: str) -> dict[str, object]:
     """Settle a held contradiction by deciding what a prefix means.
 
     :func:`persist_prefix_systems` deliberately refuses to relearn an established

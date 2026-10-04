@@ -18,7 +18,7 @@ from typing import Any
 
 import pyarrow as pa
 
-from .catalog.store import Catalog, utcnow
+from .catalog.store import CatalogStore, utcnow
 from .config import Settings
 from .decode.registry import ReaderRegistry
 from .normalize.engine import (
@@ -139,7 +139,7 @@ class Builder:
     def __init__(self, pipeline: Pipeline) -> None:
         self.pipeline = pipeline
         self.settings: Settings = pipeline.settings
-        self.catalog: Catalog = pipeline.catalog
+        self.catalog: CatalogStore = pipeline.catalog
         self.lake = Lake(
             self.settings.lake_dir,
             self.catalog,
@@ -815,7 +815,7 @@ def schema_fit(field_names: Sequence[str], plan: NormalizePlan) -> tuple[str, ..
     return None
 
 
-def _year_from_path(catalog: Catalog, path: str) -> int | None:
+def _year_from_path(catalog: CatalogStore, path: str) -> int | None:
     rows = catalog.query("SELECT year FROM file_facts WHERE path = ?", (path,))
     return int(rows[0]["year"]) if rows and rows[0]["year"] is not None else None
 

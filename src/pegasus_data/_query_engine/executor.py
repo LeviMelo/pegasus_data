@@ -335,10 +335,10 @@ def query(
 
 def _presented(table: pa.Table, presentation: Any, query_plan: Any, settings: Settings) -> pa.Table:
     """Apply the presentation with the curated names of this dataset's system."""
-    from ..catalog.store import Catalog
+    from ..catalog.store import CatalogStore
     from ..presentation import documented_names, present
 
-    store = Catalog(settings.catalog_path, read_only=True)
+    store = CatalogStore(settings.catalog_path, read_only=True)
     try:
         names = documented_names(store, query_plan.retrieval.system)
     finally:

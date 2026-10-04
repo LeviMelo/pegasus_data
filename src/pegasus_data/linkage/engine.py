@@ -282,7 +282,7 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
     con.execute("CREATE TEMP TABLE linked (l VARCHAR, r VARCHAR, pass VARCHAR)")
     reports: list[PassReport] = []
     for p in spec.passes:
-        real = con.execute(f"SELECT * FROM ({_join(con, p.keys, None)})").fetch_arrow_table()
+        real = con.execute(f"SELECT * FROM ({_join(con, p.keys, None)})").to_arrow_table()
         control = con.execute(
             f"SELECT count(*) FROM ({_join(con, p.keys, (spec.control_role, spec.control_shift_days))})"
         ).fetchone()[0]
@@ -294,7 +294,7 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
             con.register("_new", real)
             con.execute("INSERT INTO linked SELECT l, r, ? FROM _new", [p.name])
             con.unregister("_new")
-    pairs = con.execute("SELECT * FROM linked").fetch_arrow_table()
+    pairs = con.execute("SELECT * FROM linked").to_arrow_table()
     kept_pairs = sum(r.pairs for r in reports if r.kept)
     kept_control = sum(r.control_pairs for r in reports if r.kept)
     chance = round(100.0 * kept_control / kept_pairs, 2) if kept_pairs else None

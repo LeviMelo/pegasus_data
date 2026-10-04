@@ -76,7 +76,7 @@ def record_ids(table: pa.Table) -> pa.Array:
                                 "_blob_sha256": pc.cast(table.column("_blob_sha256"), pa.string()),
                                 "_pos": pa.array(range(table.num_rows), pa.int64())}))
     return con.execute(f"SELECT {RECORD_ID_SQL} AS id FROM (SELECT *, {DUP_SQL} FROM t) ORDER BY _pos"
-                       ).fetch_arrow_table().column("id").combine_chunks()
+                       ).to_arrow_table().column("id").combine_chunks()
 
 
 __all__ = ["DUP_SQL", "RECORD_ID_SQL", "connect", "record_ids"]

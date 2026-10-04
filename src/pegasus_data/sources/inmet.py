@@ -146,7 +146,7 @@ def monthly(cache_dir: str | Path, years: list[int] | None = None) -> Any:
                    max({tmax}) AS temperature_c_max, min({tmin}) AS temperature_c_min
               FROM read_parquet('{path}') {where}
              GROUP BY ALL""")
-    return con.execute(" UNION ALL ".join(parts)).fetch_arrow_table()
+    return con.execute(" UNION ALL ".join(parts)).to_arrow_table()
 
 
 def _wsi_municipality(wsi: object) -> str | None:

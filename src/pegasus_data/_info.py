@@ -30,7 +30,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .catalog.store import Catalog as _Store
+from .catalog.store import CatalogStore as _Store
 from .config import Settings, load_settings
 from .ontology import DatasetNode, Ontology, SystemNode
 

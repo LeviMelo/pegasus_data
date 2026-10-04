@@ -22,7 +22,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 
 
 @dataclass(slots=True)
@@ -68,7 +68,7 @@ class Reconciliation:
         return not (self.new or self.changed or self.moved or self.gone)
 
 
-def snapshot(catalog: Catalog, prefixes: Sequence[str] | None = None) -> dict[str, FileState]:
+def snapshot(catalog: CatalogStore, prefixes: Sequence[str] | None = None) -> dict[str, FileState]:
     """What the catalog knows now, to compare the crawl against."""
     if prefixes:
         rows = []
@@ -111,7 +111,7 @@ def classify(before: FileState | None, size: int | None, modified: str | None) -
     return "unchanged"
 
 
-def mark_gone(catalog: Catalog, directory: str, seen_paths: set[str]) -> list[str]:
+def mark_gone(catalog: CatalogStore, directory: str, seen_paths: set[str]) -> list[str]:
     """Mark files absent from a **successfully listed** directory as gone.
 
     Only ever called on a directory whose listing succeeded — that is the whole
@@ -133,7 +133,7 @@ def mark_gone(catalog: Catalog, directory: str, seen_paths: set[str]) -> list[st
 
 
 def detect_moves(
-    catalog: Catalog,
+    catalog: CatalogStore,
     gone_paths: Sequence[str],
     run_id: str,
     *,
@@ -248,7 +248,7 @@ def detect_moves(
     return moves
 
 
-def persist_reconciliation(catalog: Catalog, run_id: str, report: Reconciliation) -> None:
+def persist_reconciliation(catalog: CatalogStore, run_id: str, report: Reconciliation) -> None:
     # Through write(), which owns the lock: committing the shared connection
     # from outside it could commit ANOTHER thread's half-done transaction,
     # defeating write()'s rollback-on-error atomicity.
@@ -267,7 +267,7 @@ def persist_reconciliation(catalog: Catalog, run_id: str, report: Reconciliation
         )
 
 
-def recent_reconciliations(catalog: Catalog, limit: int = 10) -> list[dict[str, object]]:
+def recent_reconciliations(catalog: CatalogStore, limit: int = 10) -> list[dict[str, object]]:
     return [
         dict(r)
         for r in catalog.query(

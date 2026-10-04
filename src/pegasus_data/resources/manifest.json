@@ -47,8 +47,8 @@
       "rows": 1774993,
       "sha256": "9a4877d84e79e2362c2059bc5f532b3b38e3eb9482b079483f0990ce0e1ccb5d"
     },
-    "query_capabilities": {
-      "file": "query_capabilities.json",
+    "publication_coverage": {
+      "file": "publication_coverage.json",
       "tier": "A",
       "bytes": 1128,
       "rows": 5,

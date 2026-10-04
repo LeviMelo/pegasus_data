@@ -16,7 +16,7 @@ from .planner import CNES_ATTRIBUTE_FIELDS
 def _apply_dimensions(
     table: pa.Table, query_plan: QueryPlan, report: QueryReport, settings: Settings
 ) -> pa.Table:
-    from ..catalog.store import Catalog
+    from ..catalog.store import CatalogStore
     from ..labelpack import (
         packed_mapping_covers_interval,
         packed_mapping_is_time_invariant,
@@ -26,7 +26,7 @@ def _apply_dimensions(
 
     output = table
     dataset_code = f"{query_plan.retrieval.system}.{query_plan.retrieval.series or '*'}"
-    catalog = Catalog(settings.catalog_path, read_only=True) if settings.catalog_path.is_file() else None
+    catalog = CatalogStore(settings.catalog_path, read_only=True) if settings.catalog_path.is_file() else None
     try:
         for request in query_plan.spec.dimensions:
             declared = [

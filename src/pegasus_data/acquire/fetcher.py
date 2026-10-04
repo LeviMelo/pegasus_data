@@ -17,7 +17,7 @@ from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from ..discovery.ftp_client import FtpClient
 from ..progress import (
     DEFAULT_HEARTBEAT,
@@ -112,7 +112,7 @@ class Fetcher:
 
     def __init__(
         self,
-        catalog: Catalog,
+        catalog: CatalogStore,
         blobs: BlobStore,
         *,
         host: str,

@@ -24,7 +24,7 @@ from __future__ import annotations
 import pyarrow as pa
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.normalize.engine import MissingColumnError
 from pegasus_data.retrieve import (
     DatasetUnknown,
@@ -219,7 +219,7 @@ class TestRendering:
         outranked that ruling. Once a changed curation reaches an existing
         catalog, the ruling wins, which is the point of the ruling.
         """
-        catalog = Catalog(settings.catalog_path)
+        catalog = CatalogStore(settings.catalog_path)
         catalog.execute(
             "INSERT INTO dictionary (system, value_group, field_name, value_raw, "
             "value_label, source, source_ref, confidence) "
@@ -249,7 +249,7 @@ class TestRendering:
         it would put the wrong sex on a large share of admissions while looking
         entirely convincing.
         """
-        catalog = Catalog(settings.catalog_path)
+        catalog = CatalogStore(settings.catalog_path)
         for code, label in (("1", "Masculino"), ("3", "Feminino")):
             catalog.execute(
                 "INSERT INTO dictionary (system, value_group, field_name, value_raw, "
@@ -322,7 +322,7 @@ class TestOffline:
         assert before.render.labelled, "the shipped pack labelled nothing"
 
         # The bundle arrives on a memory stick. No network is touched.
-        target = Catalog(settings.catalog_path)
+        target = CatalogStore(settings.catalog_path)
         unpack(target, bundle)
         target.close()
 
@@ -554,7 +554,7 @@ class TestItCannotHangSilently:
         monkeypatch.setattr(retrieve, "_decode_one", hang)
         with pytest.raises(NothingPublished):
             fetch("SIH-RD", uf="SP", settings=settings)
-        catalog = Catalog(settings.catalog_path)
+        catalog = CatalogStore(settings.catalog_path)
         try:
             assert catalog.count("coverage_gaps", "kind = 'timeout'") == 1
         finally:

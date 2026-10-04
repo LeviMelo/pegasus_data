@@ -28,7 +28,7 @@ from pathlib import Path, PurePosixPath
 
 import pyarrow as pa
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 from ..decode.archives import Archive
 from ..decode.dbf import read_dbf_bytes
 from ..textenc import CANDIDATE_ENCODINGS, best_effort_decode, decode_score
@@ -430,7 +430,7 @@ def parser_fingerprint() -> str:
 # ------------------------------------------------------------------ persistence
 
 
-def persist_kit(catalog: Catalog, kit: ParsedKit, *, sha256: str | None = None) -> dict[str, int]:
+def persist_kit(catalog: CatalogStore, kit: ParsedKit, *, sha256: str | None = None) -> dict[str, int]:
     counts = kit.counts
     catalog.executemany(
         """
@@ -532,7 +532,7 @@ KIT_PATTERNS: tuple[str, ...] = (
 LOOSE_DICTIONARY_PATTERNS: tuple[str, ...] = ("*.def", "*.cnv", "*.DEF", "*.CNV")
 
 
-def find_kits(catalog: Catalog, *, systems: Sequence[str] | None = None) -> list[str]:
+def find_kits(catalog: CatalogStore, *, systems: Sequence[str] | None = None) -> list[str]:
     """Candidate kit archives already known to the catalog."""
     rows = catalog.query("SELECT path FROM files WHERE gone_at IS NULL")
     out: list[str] = []
@@ -553,7 +553,7 @@ def find_kits(catalog: Catalog, *, systems: Sequence[str] | None = None) -> list
     return sorted(set(out))
 
 
-def find_loose_dictionaries(catalog: Catalog, *, systems: Sequence[str] | None = None) -> list[str]:
+def find_loose_dictionaries(catalog: CatalogStore, *, systems: Sequence[str] | None = None) -> list[str]:
     """Uncompressed ``.DEF``/``.CNV`` files, the cheapest place to start (§14.3)."""
     rows = catalog.query(
         "SELECT path FROM files WHERE LOWER(extension) IN ('.def', '.cnv') "

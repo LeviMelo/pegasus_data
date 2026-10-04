@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.labelpack import (
     _role_of,
     _split_packed,
@@ -78,7 +78,7 @@ class TestRunsAreMergedOnlyWhereTheyAreRuns:
         assert _successor("0001") == "0002"
 
 
-def _seed(catalog: Catalog) -> None:
+def _seed(catalog: CatalogStore) -> None:
     rows = [
         ("SIHSUS", "SEXO", "1", "Masculino"),
         ("SIHSUS", "SEXO", "3", "Feminino"),
@@ -106,7 +106,7 @@ def _seed(catalog: Catalog) -> None:
 
 @pytest.fixture
 def built(settings, tmp_path):
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         _seed(store)
         report = build_label_pack(store, tmp_path / "labels.parquet")

@@ -20,7 +20,7 @@ def test_resource_manifest_accounts_for_every_packaged_runtime_artifact(tmp_path
     resources = Path(__file__).parents[1] / "src" / "pegasus_data" / "resources"
     assert status.schema_version == RESOURCE_SCHEMA_VERSION
     packaged = {path.name for path in resources.glob("*.parquet")}
-    packaged |= {"query_capabilities.json", "catalog_seed.sqlite.gz"}
+    packaged |= {"publication_coverage.json", "catalog_seed.sqlite.gz"}
     assert {Path(item.path).name for item in status.resources} == packaged | {
         "CNES", "cnes_registry.parquet"
     }
@@ -29,10 +29,10 @@ def test_resource_manifest_accounts_for_every_packaged_runtime_artifact(tmp_path
 
 
 def test_query_capabilities_are_compiled_from_curation() -> None:
-    from pegasus_data._query_engine.capabilities import compile_capability_payload
+    from pegasus_data._query_engine.coverage import compile_capability_payload
 
     resources = Path(__file__).parents[1] / "src" / "pegasus_data" / "resources"
-    compiled = json.loads((resources / "query_capabilities.json").read_text(encoding="utf-8"))
+    compiled = json.loads((resources / "publication_coverage.json").read_text(encoding="utf-8"))
     assert compiled == compile_capability_payload()
     assert all("time" not in body and "geography" not in body for body in compiled["datasets"].values())
 
@@ -58,10 +58,10 @@ def test_ontology_refuses_two_datasets_claiming_one_alias() -> None:
 
 
 def test_optional_cnes_name_registry_builds_from_catalog_evidence(settings) -> None:
-    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.catalog.store import CatalogStore
     from pegasus_data.providers import provider
 
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         persist_entries(
             store,
@@ -97,10 +97,10 @@ def test_optional_cnes_name_registry_builds_from_catalog_evidence(settings) -> N
 
 
 def test_optional_name_coverage_does_not_fill_holes_between_built_years(settings) -> None:
-    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.catalog.store import CatalogStore
     from pegasus_data.providers import provider
 
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         persist_entries(
             store,
@@ -124,10 +124,10 @@ def test_optional_name_coverage_does_not_fill_holes_between_built_years(settings
 
 
 def test_name_build_refuses_to_infer_coverage_from_record_windows(settings) -> None:
-    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.catalog.store import CatalogStore
     from pegasus_data.providers import provider
 
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         persist_entries(
             store,
@@ -149,9 +149,9 @@ def test_name_build_refuses_to_infer_coverage_from_record_windows(settings) -> N
 
 
 def test_optional_resource_accepts_independently_newer_content_version(settings) -> None:
-    from pegasus_data.catalog.store import Catalog
+    from pegasus_data.catalog.store import CatalogStore
 
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         persist_entries(
             store,
@@ -181,7 +181,7 @@ def test_capability_compiler_rejects_duplicate_source_declarations(
     tmp_path, monkeypatch
 ) -> None:
     import pegasus_data.ontology as ontology
-    from pegasus_data._query_engine.capabilities import compile_capability_payload
+    from pegasus_data._query_engine.coverage import compile_capability_payload
 
     curation = tmp_path / "curation"
     datasets = curation / "datasets"

@@ -24,7 +24,7 @@ from pathlib import Path, PurePosixPath
 
 from .acquire.cache import BlobStore
 from .acquire.fetcher import Fetcher
-from .catalog.store import Catalog
+from .catalog.store import CatalogStore
 from .config import Settings
 from .decode.registry import ReaderRegistry
 from .discovery.crawler import Crawler
@@ -168,10 +168,10 @@ class StageResult:
 class Pipeline:
     """Holds the shared objects every stage needs."""
 
-    def __init__(self, settings: Settings, catalog: Catalog | None = None) -> None:
+    def __init__(self, settings: Settings, catalog: CatalogStore | None = None) -> None:
         self.settings = settings
         settings.ensure_dirs()
-        self.catalog = catalog or Catalog(settings.catalog_path)
+        self.catalog = catalog or CatalogStore(settings.catalog_path)
         self.blobs = BlobStore(settings.blobs_dir, self.catalog)
         self.fetcher = Fetcher(
             self.catalog,

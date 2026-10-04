@@ -37,7 +37,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 from ..inventory.naming import UF_CODES
 
 #: Below this share of observed codes, no candidate is the column's codelist.
@@ -160,7 +160,7 @@ def weigh(
 # ------------------------------------------------------------------ storage
 
 
-def stored(store: Catalog, system: str, family_id: str, field_name: str) -> LabelBinding | None:
+def stored(store: CatalogStore, system: str, family_id: str, field_name: str) -> LabelBinding | None:
     try:
         rows = store.query(
             "SELECT * FROM label_bindings WHERE system=? AND family_id=? AND field_name=?",
@@ -186,7 +186,7 @@ def stored(store: Catalog, system: str, family_id: str, field_name: str) -> Labe
     )
 
 
-def record(store: Catalog, system: str, family_id: str, field_name: str, binding: LabelBinding) -> None:
+def record(store: CatalogStore, system: str, family_id: str, field_name: str, binding: LabelBinding) -> None:
     """Persist a conclusive decision. A read-only catalog, or thin evidence,
     keeps it for this call only."""
     if store.read_only or not binding.conclusive:
@@ -208,7 +208,7 @@ def record(store: Catalog, system: str, family_id: str, field_name: str, binding
 
 
 def resolve(
-    store: Catalog | None,
+    store: CatalogStore | None,
     system: str,
     family_id: str,
     field_name: str,
@@ -230,7 +230,7 @@ def resolve(
 # ------------------------------------------------------------------ compile
 
 
-def _samples(store: Catalog, family_id: str, per_family: int) -> list[dict[str, Any]]:
+def _samples(store: CatalogStore, family_id: str, per_family: int) -> list[dict[str, Any]]:
     """The cheapest files of a family, from as many different states as asked."""
     rows = store.query(
         """
@@ -291,7 +291,7 @@ def compile_bindings(
     # The plan is read first and the catalog released: `fetch` opens the same
     # catalog to write, and a connection held open across it made every sample
     # wait out the lock timeout (the first compile, 2026-09-28).
-    planner = Catalog(settings.catalog_path, read_only=True)
+    planner = CatalogStore(settings.catalog_path, read_only=True)
     try:
         where = "WHERE system IN ({})".format(",".join("?" * len(systems))) if systems else ""
         plan = [
@@ -308,7 +308,7 @@ def compile_bindings(
 
     done: set[str] = set()
     if resume:
-        reader = Catalog(settings.catalog_path, read_only=True)
+        reader = CatalogStore(settings.catalog_path, read_only=True)
         try:
             done = {str(r["family_id"]) for r in reader.query("SELECT DISTINCT family_id FROM label_bindings")}
         except Exception:  # noqa: BLE001 - no table yet, nothing done
@@ -362,7 +362,7 @@ def compile_bindings(
             continue
         counts["families"] += 1
         year = int(samples[0]["year"])
-        store = Catalog(settings.catalog_path)
+        store = CatalogStore(settings.catalog_path)
         try:
             candidates_by_field = _bindings(store, system, family_id)
             docs = load_variable_docs(store, system)
@@ -408,7 +408,7 @@ def compile_bindings(
 
 @lru_cache(maxsize=32)
 def _keyed_docs_cached(catalog_path: str, system: str) -> dict[str, tuple[str, ...]]:
-    store = Catalog(Path(catalog_path), read_only=True)
+    store = CatalogStore(Path(catalog_path), read_only=True)
     try:
         from .curation import load_variable_docs
 
@@ -423,7 +423,7 @@ def _keyed_docs(settings: Any, system: str) -> dict[str, tuple[str, ...]]:
 
 
 def _record_gaps(
-    store: Catalog,
+    store: CatalogStore,
     system: str,
     family_id: str,
     field_name: str,
@@ -518,11 +518,16 @@ def decide(
     candidates: Sequence[str],
     counts: Mapping[str, int],
     load: Callable[[str], Mapping[str, str] | None],
-    store: Catalog | None = None,
+    store: CatalogStore | None = None,
     vintage: int | None = None,
     use_stored: bool = True,
+    persist: bool = True,
 ) -> LabelBinding:
     """The label decision for one column of one family, best evidence first.
+
+    ``persist=False`` reads stored decisions but never writes one: a query
+    weighs the rows it happened to read, and a read must not change what the
+    next build decides (ARCHITECTURE §5, 2026-10-04).
 
     1. ``codes:`` written in the curation for this column (ADR-0079);
     2. the family's own form dictionary, when it decodes >= 95% of the ROWS
@@ -598,6 +603,6 @@ def decide(
         if found is not None:
             return found
     decision = weigh(field_name, pool, observed, load)
-    if use_stored and store is not None and family_id:
+    if persist and use_stored and store is not None and family_id:
         record(store, system, family_id, field_name, decision)
     return decision

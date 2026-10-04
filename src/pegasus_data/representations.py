@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
 
-from .catalog.store import Catalog, utcnow
+from .catalog.store import CatalogStore
 from .inventory.families import DECODE_COST_RANK
 
 
@@ -22,7 +22,7 @@ class RepresentationConflictError(RuntimeError):
     """A logical publication has contradictory physical candidates."""
 
 
-def _majority_layout(catalog: Catalog, editions: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
+def _majority_layout(catalog: CatalogStore, editions: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
     """Of editions in DIFFERENT layouts, those in the layout most of the dataset uses.
 
     SINASC publishes Roraima 1995 as DNRRR1995.dbc under 1994_1995/Dados and
@@ -47,7 +47,7 @@ def _majority_layout(catalog: Catalog, editions: Sequence[Mapping[str, Any]]) ->
 
 
 def choose_representations(
-    catalog: Catalog,
+    catalog: CatalogStore,
     rows: Sequence[Mapping[str, Any]],
     *,
     on_conflict: str = "error",
@@ -69,29 +69,9 @@ def choose_representations(
         member = str(row.get("member") or "")
         groups.setdefault((logical, member), []).append(row)
 
-    # A stored conflict gates only when its evidence cannot be recomputed here
-    # (row counts or schemas measured at decode). One this selector derived
-    # itself ("multiple objects of the same format") is re-evaluated every time:
-    # gating on it kept SINAN-TUBE 2022 refused after the rule that wrote it was
-    # fixed (live run 2026-09-28).
-    logical_ids = sorted({key[0] for key in groups})
+    # Conflicts are derived here, from catalog facts re-read on every call; a
+    # read never writes them back (ARCHITECTURE §5, 2026-10-04).
     open_conflicts: set[str] = set()
-    if logical_ids:
-        marks = ",".join("?" for _ in logical_ids)
-        try:
-            open_conflicts = {
-                str(row["logical_id"])
-                for row in catalog.query(
-                    f"SELECT logical_id FROM representation_conflicts "
-                    f"WHERE status = 'open' AND logical_id IN ({marks}) "
-                    # Only evidence measured at decode (row counts) gates from
-                    # storage; formats, sizes and schemas are re-derived here.
-                    f"AND evidence LIKE '%row counts%'",
-                    tuple(logical_ids),
-                )
-            }
-        except Exception:  # pragma: no cover - compatibility with old read-only catalogs
-            open_conflicts = set()
 
     cached = _cached_paths(catalog, [str(row.get("path") or "") for rows_ in groups.values()
                                      if len(rows_) > 1 for row in rows_])
@@ -168,35 +148,7 @@ def choose_representations(
         }
         if len(signatures) > 1:
             contradictions.append("contradictory schema signatures")
-        if contradictions and logical not in open_conflicts:
-            import json
-
-            try:
-                with catalog.write() as conn:
-                    conn.execute(
-                        "INSERT INTO representation_conflicts "
-                        "(logical_id, representations, evidence, status, noted_at) "
-                        "VALUES (?,?,?,?,?) ON CONFLICT(logical_id) DO NOTHING",
-                        (
-                            logical,
-                            json.dumps(
-                                [
-                                    {
-                                        "path": row.get("path"),
-                                        "format": row.get("container_format"),
-                                        "size": row.get("size"),
-                                    }
-                                    for row in candidates
-                                ],
-                                sort_keys=True,
-                            ),
-                            "; ".join(contradictions) + " claim one logical publication",
-                            "open",
-                            utcnow(),
-                        ),
-                    )
-            except Exception:  # pragma: no cover - read-only catalogs still refuse
-                pass
+        if contradictions:
             open_conflicts.add(logical)
         if logical in open_conflicts:
             conflicts.append(logical)
@@ -234,7 +186,7 @@ def _wire_cost(row: Mapping[str, Any], cached: set[str]) -> tuple[int, int, int,
     )
 
 
-def _cached_paths(catalog: Catalog, paths: Sequence[str]) -> set[str]:
+def _cached_paths(catalog: CatalogStore, paths: Sequence[str]) -> set[str]:
     """Which of ``paths`` were fetched into the blob store before."""
     if not paths:
         return set()
@@ -269,7 +221,7 @@ def _exports_behind_native(candidates: Sequence[dict[str, Any]], unreachable: se
     return [row for row in candidates if _representation_kind(row) not in NATIVE_KINDS]
 
 
-def _unreachable_paths(catalog: Catalog, paths: Sequence[str]) -> set[str]:
+def _unreachable_paths(catalog: CatalogStore, paths: Sequence[str]) -> set[str]:
     """Which of ``paths`` failed to download from every source and have not since."""
     out: set[str] = set()
     unique = sorted(set(paths))
@@ -285,7 +237,7 @@ def _unreachable_paths(catalog: Catalog, paths: Sequence[str]) -> set[str]:
     return out
 
 
-def _newest_edition(catalog: Catalog, candidates: Sequence[dict[str, Any]]) -> dict[str, Any] | None:
+def _newest_edition(catalog: CatalogStore, candidates: Sequence[dict[str, Any]]) -> dict[str, Any] | None:
     """The most recently modified candidate, when the server dates them apart.
 
     Only a same-format revision is resolved this way; ``None`` (no dates, or a

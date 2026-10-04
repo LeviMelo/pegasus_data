@@ -33,7 +33,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 from .cnv_parser import CnvFile
 from .tabkit import ParsedKit
 
@@ -203,7 +203,7 @@ def entries_from_loose_cnv(cnv: CnvFile, *, system: str | None) -> list[Dictiona
 # --------------------------------------------------------------------- merging
 
 
-def supersede_source(catalog: Catalog, prefixes: Sequence[str]) -> int:
+def supersede_source(catalog: CatalogStore, prefixes: Sequence[str]) -> int:
     """Forget what a source said last time, before it says it again.
 
     The dictionary merges claims from many sources by authority, which is right:
@@ -265,7 +265,7 @@ def supersede_source(catalog: Catalog, prefixes: Sequence[str]) -> int:
     return removed
 
 
-def persist_entries(catalog: Catalog, entries: Sequence[DictionaryEntry]) -> dict[str, int]:
+def persist_entries(catalog: CatalogStore, entries: Sequence[DictionaryEntry]) -> dict[str, int]:
     """Insert entries, recording genuine conflicts instead of resolving silently.
 
     The incoming batch goes into a temp table and everything else is a join.
@@ -393,7 +393,7 @@ def persist_entries(catalog: Catalog, entries: Sequence[DictionaryEntry]) -> dic
     return {"inserted": max(0, inserted), "conflicts": len(conflicts)}
 
 
-def persist_bindings(catalog: Catalog, bindings: Sequence[CodelistBinding]) -> int:
+def persist_bindings(catalog: CatalogStore, bindings: Sequence[CodelistBinding]) -> int:
     return catalog.executemany(
         """
         INSERT INTO field_codelists (system, family_id, field_name, codelist, source, source_ref, confidence)
@@ -409,7 +409,7 @@ def persist_bindings(catalog: Catalog, bindings: Sequence[CodelistBinding]) -> i
 
 
 def persist_rules(
-    catalog: Catalog, rules: Iterable[tuple[str, str, str, str]], *, system: str | None
+    catalog: CatalogStore, rules: Iterable[tuple[str, str, str, str]], *, system: str | None
 ) -> int:
     rows = [
         (
@@ -428,7 +428,7 @@ def persist_rules(
     )
 
 
-def bind_codelists_to_fields(catalog: Catalog) -> int:
+def bind_codelists_to_fields(catalog: CatalogStore) -> int:
     """Populate ``field_codelists`` from every ``.DEF`` declaration seen so far.
 
     Replaces the ``def``-sourced bindings rather than adding to them, and touches
@@ -476,7 +476,7 @@ class DictionaryCache:
     it is memoised rather than re-queried.
     """
 
-    def __init__(self, catalog: Catalog) -> None:
+    def __init__(self, catalog: CatalogStore) -> None:
         self.catalog = catalog
         self._codelists: dict[tuple[str | None, str], list[str]] = {}
         self._values: dict[tuple[str | None, str], dict[str, str]] = {}
@@ -542,7 +542,7 @@ AUTHORITATIVE_BINDING_SOURCES = ("def", "manual", "layout_doc")
 
 
 def _codelists_for(
-    catalog: Catalog, *, system: str | None, field_name: str, include_candidates: bool = False
+    catalog: CatalogStore, *, system: str | None, field_name: str, include_candidates: bool = False
 ) -> list[str]:
     clause = ""
     params: list[object] = [field_name, system, system]
@@ -576,7 +576,7 @@ def _codelists_for(
     return [str(r["codelist"]) for r in rows]
 
 
-def binding_sources(catalog: Catalog, *, system: str | None, field_name: str) -> dict[str, str]:
+def binding_sources(catalog: CatalogStore, *, system: str | None, field_name: str) -> dict[str, str]:
     """``codelist -> the source that bound it``, so a consumer can weigh it."""
     return {
         str(r["codelist"]): str(r["source"])
@@ -592,7 +592,7 @@ def binding_sources(catalog: Catalog, *, system: str | None, field_name: str) ->
 
 
 def codelists_for(
-    catalog: Catalog, *, system: str | None, field_name: str, cache: DictionaryCache | None = None
+    catalog: CatalogStore, *, system: str | None, field_name: str, cache: DictionaryCache | None = None
 ) -> list[str]:
     """Codelists a ``.DEF`` binds to this field. Empty means genuinely unbound."""
     if cache is not None:
@@ -601,7 +601,7 @@ def codelists_for(
 
 
 def lookup(
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     system: str | None,
     field_name: str,
@@ -662,7 +662,7 @@ def lookup(
 
 
 def codelist_stats(
-    catalog: Catalog, codelists: Sequence[str], *, system: str | None = None
+    catalog: CatalogStore, codelists: Sequence[str], *, system: str | None = None
 ) -> list[dict[str, object]]:
     if not codelists:
         return []
@@ -712,7 +712,7 @@ def codelist_stats(
 
 
 def most_granular_codelist(
-    catalog: Catalog,
+    catalog: CatalogStore,
     codelists: Sequence[str],
     *,
     system: str | None = None,
@@ -761,7 +761,7 @@ def most_granular_codelist(
 
 
 def observed_values(
-    catalog: Catalog, *, family_id: str, field_name: str, schema_signature: str
+    catalog: CatalogStore, *, family_id: str, field_name: str, schema_signature: str
 ) -> dict[str, int]:
     rows = catalog.query(
         """
@@ -809,7 +809,7 @@ def _fold(text: str) -> str:
     )
 
 
-def corroborate_semantic_bindings(catalog: Catalog) -> int:
+def corroborate_semantic_bindings(catalog: CatalogStore) -> int:
     """Promote a semantic-match binding that a record layout independently names.
 
     A distributional membership rate on its own is an inference, and §13 keeps
@@ -861,7 +861,7 @@ def corroborate_semantic_bindings(catalog: Catalog) -> int:
     )
 
 
-def bind_by_semantic_type(catalog: Catalog) -> int:
+def bind_by_semantic_type(catalog: CatalogStore) -> int:
     """Record reference tables the detectors think a field belongs to.
 
     ``DIAG_PRINC`` is the motivating case: TabNet's ``.DEF`` binds it to the
@@ -912,7 +912,7 @@ def bind_by_semantic_type(catalog: Catalog) -> int:
 
 
 def rollups_for(
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     system: str | None,
     field_name: str,
@@ -956,7 +956,7 @@ def rollups_for(
 
 
 def codelist_coverage(
-    catalog: Catalog,
+    catalog: CatalogStore,
     codelists: Sequence[str],
     observed: Mapping[str, int],
     *,
@@ -1004,7 +1004,7 @@ def codelist_coverage(
     return {codelist: hits.get(codelist, 0) / total for codelist in codelists}
 
 
-def codelist_values(catalog: Catalog, codelist: str, *, system: str | None = None) -> dict[str, str]:
+def codelist_values(catalog: CatalogStore, codelist: str, *, system: str | None = None) -> dict[str, str]:
     # Same sargability point as `codelist_coverage`: an OR over the indexed
     # leading column turns a seek into a full scan.
     if system:
@@ -1022,7 +1022,7 @@ def codelist_values(catalog: Catalog, codelist: str, *, system: str | None = Non
 
 
 def apply_rules(
-    catalog: Catalog, *, system: str | None, field_name: str, values: Sequence[str]
+    catalog: CatalogStore, *, system: str | None, field_name: str, values: Sequence[str]
 ) -> dict[str, str]:
     """Resolve values that only an unexpanded range covers, e.g. ``A00-B99``."""
     codelists = codelists_for(catalog, system=system, field_name=field_name) or [field_name]
@@ -1048,7 +1048,7 @@ def apply_rules(
 
 
 def coverage_for_field(
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     family_id: str,
     field_name: str,
@@ -1090,7 +1090,7 @@ def coverage_for_field(
     return (covered / total if total else 0.0), len(rows), decoded_distinct
 
 
-def all_codelist_names(catalog: Catalog) -> list[str]:
+def all_codelist_names(catalog: CatalogStore) -> list[str]:
     """Every codelist name, once. Hoist this out of any loop over fields.
 
     ``SELECT DISTINCT value_group FROM dictionary`` is a full scan of a table
@@ -1106,7 +1106,7 @@ def all_codelist_names(catalog: Catalog) -> list[str]:
 
 
 def match_codelist_by_name(
-    catalog: Catalog, field_name: str, *, names: Sequence[str] | None = None
+    catalog: CatalogStore, field_name: str, *, names: Sequence[str] | None = None
 ) -> list[str]:
     """Codelists whose name matches a field name — a *candidate*, not a binding.
 
@@ -1126,7 +1126,7 @@ def match_codelist_by_name(
     )
 
 
-def conflicts_report(catalog: Catalog, limit: int = 50) -> list[dict[str, object]]:
+def conflicts_report(catalog: CatalogStore, limit: int = 50) -> list[dict[str, object]]:
     rows = catalog.query(
         """
         SELECT system, field_name AS scope, value_raw, claim_a, source_a, claim_b, source_b

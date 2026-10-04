@@ -14,11 +14,11 @@ recorded as structural.
 
 from __future__ import annotations
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.normalize.engine import MissingColumnError
 
 
-def _two_generations(catalog: Catalog) -> None:
+def _two_generations(catalog: CatalogStore) -> None:
     """One family that carries X, one that does not."""
     for family_id, signature, fields in (
         ("OLD", "sig_old", ["ID", "ANO"]),
@@ -38,7 +38,7 @@ def _two_generations(catalog: Catalog) -> None:
 
 class TestTheExceptionIsInformative:
     def test_it_names_every_generation_that_lacks_the_column(self, tmp_path):
-        catalog = Catalog(tmp_path / "c.sqlite")
+        catalog = CatalogStore(tmp_path / "c.sqlite")
         _two_generations(catalog)
         rows = catalog.query(
             "SELECT f.family_id AS fam, sp.field_name AS fld FROM families f "

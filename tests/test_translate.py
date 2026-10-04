@@ -19,7 +19,7 @@ import pyarrow as pa
 import pytest
 
 from pegasus_data._translate import TranslationImpossible, translate
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.persist.reference import register_reference_tables, write_reference_tables
 from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
 
@@ -27,7 +27,7 @@ from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
 @pytest.fixture
 def dictionary(settings):
     """A catalog that knows SEXO, and nothing else about the world."""
-    catalog = Catalog(settings.catalog_path)
+    catalog = CatalogStore(settings.catalog_path)
     persist_entries(
         catalog,
         [
@@ -117,7 +117,7 @@ class TestItRefusesToGuess:
         `read_reference_table` falls back to it. Refusing here meant translate()
         was the one path that could not use what the wheel carries.
         """
-        Catalog(settings.catalog_path).close()
+        CatalogStore(settings.catalog_path).close()
         out = translate(SAMPLE, system="SIHSUS", settings=settings)
         assert out.num_rows == SAMPLE.num_rows, "the table must survive intact"
 

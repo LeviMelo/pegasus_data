@@ -11,7 +11,7 @@ import json
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from ..decode.base import DecodedTable
 from ..inventory.families import schema_signature
 from .accumulators import FieldAccumulator, FieldStats
@@ -74,7 +74,7 @@ def profile_table(
 
 
 def persist_profile(
-    catalog: Catalog,
+    catalog: CatalogStore,
     profile: TableProfile,
     *,
     family_id: str,
@@ -151,7 +151,7 @@ def persist_profile(
 
 
 def record_stratum_schema(
-    catalog: Catalog,
+    catalog: CatalogStore,
     stratum_id: str,
     *,
     schema_sig: str,
@@ -173,7 +173,7 @@ def record_stratum_schema(
 
 
 def record_decode_attempts(
-    catalog: Catalog, path: str, attempts: Sequence[tuple[str, bool, str | None]], member: str = ""
+    catalog: CatalogStore, path: str, attempts: Sequence[tuple[str, bool, str | None]], member: str = ""
 ) -> None:
     catalog.executemany(
         """

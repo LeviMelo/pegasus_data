@@ -18,7 +18,7 @@ from __future__ import annotations
 import pytest
 import yaml
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.ontology import CURATION
 from pegasus_data.semantics.curation import (
     curation_fingerprint,
@@ -62,14 +62,14 @@ class TestTheFingerprint:
 
 class TestItReloadsOnlyWhenItShould:
     def test_a_fresh_catalog_is_not_current(self, tmp_path) -> None:
-        store = Catalog(tmp_path / "c.sqlite")
+        store = CatalogStore(tmp_path / "c.sqlite")
         try:
             assert curation_is_current(store, CURATION) is False
         finally:
             store.close()
 
     def test_after_loading_it_is_current(self, tmp_path) -> None:
-        store = Catalog(tmp_path / "c.sqlite")
+        store = CatalogStore(tmp_path / "c.sqlite")
         try:
             load_curation(store, CURATION)
             note_curation_loaded(store, CURATION)
@@ -79,7 +79,7 @@ class TestItReloadsOnlyWhenItShould:
 
     def test_a_changed_curation_is_no_longer_current(self, tmp_path, curation_copy) -> None:
         """The whole point: an existing catalog notices new meanings."""
-        store = Catalog(tmp_path / "c.sqlite")
+        store = CatalogStore(tmp_path / "c.sqlite")
         try:
             load_curation(store, curation_copy)
             note_curation_loaded(store, curation_copy)
@@ -100,7 +100,7 @@ class TestItReloadsOnlyWhenItShould:
             store.close()
 
     def test_noting_twice_keeps_one_row(self, tmp_path) -> None:
-        store = Catalog(tmp_path / "c.sqlite")
+        store = CatalogStore(tmp_path / "c.sqlite")
         try:
             note_curation_loaded(store, CURATION)
             note_curation_loaded(store, CURATION)

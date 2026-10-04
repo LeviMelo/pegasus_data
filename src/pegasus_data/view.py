@@ -43,7 +43,7 @@ from typing import Any, Literal
 import pyarrow as pa
 import pyarrow.compute as pc
 
-from .catalog.store import Catalog
+from .catalog.store import CatalogStore
 from .identifiers import LABEL_PREFIX
 from .persist.reference import read_reference_table
 from .semantics.curation import VariableDoc, load_variable_docs
@@ -406,7 +406,7 @@ def _map_from_table(table: pa.Table) -> dict[str, str]:
 def codelist_levels(
     field: str,
     *,
-    store: Catalog,
+    store: CatalogStore,
     lake_root: str | Path,
     system: str,
     family_id: str | None = None,
@@ -595,7 +595,7 @@ def _widths(lookup: Mapping[str, str]) -> set[int]:
     return set(known) if known else {len(code) for code in lookup}
 
 
-def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, list[str]]:
+def _bindings(store: CatalogStore, system: str, family_id: str | None) -> dict[str, list[str]]:
     """``field -> codelists``, best authority first.
 
     **One table per field unless a curated entry names more.** A ``.DEF`` binds a
@@ -1162,7 +1162,7 @@ def _select_codelists(
     report: RenderReport,
     strict: bool,
     lookup_one: Callable[[str, int | None], dict[str, str] | None],
-    store: Catalog | None = None,
+    store: CatalogStore | None = None,
     system: str = "",
     family_id: str = "",
     vintage: int | None = None,
@@ -1201,7 +1201,7 @@ def _select_codelists(
     decision = decide(
         system=system, family_id=family_id, series=series, field_name=name, doc=doc,
         candidates=candidates, counts=counts, load=lambda cl: lookup_one(cl, None),
-        store=store, vintage=vintage,
+        store=store, vintage=vintage, persist=False,
     )
     if decision.basis == "curated" and decision.codelists:
         return _Selection(codelists=list(decision.codelists), share=decision.share)
@@ -1293,7 +1293,7 @@ def _report_reference_decisions(
 def render_table(
     table: pa.Table,
     *,
-    store: Catalog,
+    store: CatalogStore,
     lake_root: str | Path,
     system: str,
     family_id: str | None = None,
@@ -1336,7 +1336,7 @@ def render_table(
 def _render_table(
     table: pa.Table,
     *,
-    store: Catalog,
+    store: CatalogStore,
     lake_root: str | Path,
     system: str,
     family_id: str | None = None,
@@ -1734,7 +1734,7 @@ def _apply_derived(
     year: int | None,
     wanted: bool | Sequence[str] | None,
     report: RenderReport,
-    store: Catalog,
+    store: CatalogStore,
     system: str,
     competencia: int | None = None,
     *,

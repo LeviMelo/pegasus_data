@@ -41,7 +41,7 @@ from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Any, TypeVar
 
-from .catalog.store import Catalog
+from .catalog.store import CatalogStore
 
 T = TypeVar("T")
 
@@ -215,7 +215,7 @@ def run_with_timeout(
 
 
 def record_timeout(
-    catalog: Catalog, *, stage: str, item: str, seconds: float, state: str = ""
+    catalog: CatalogStore, *, stage: str, item: str, seconds: float, state: str = ""
 ) -> None:
     """Write an abandoned item into ``coverage_gaps`` so it is queryable.
 
@@ -231,7 +231,7 @@ def record_timeout(
 
 
 def guarded(
-    catalog: Catalog,
+    catalog: CatalogStore,
     stage: str,
     items: Sequence[T] | Iterable[T],
     *,

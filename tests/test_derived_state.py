@@ -16,7 +16,7 @@ from __future__ import annotations
 import pyarrow as pa
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.persist.lake import Lake
 
 
@@ -25,7 +25,7 @@ def _batch(n: int, tag: str) -> pa.RecordBatch:
 
 
 @pytest.fixture
-def lake(settings, catalog: Catalog) -> Lake:
+def lake(settings, catalog: CatalogStore) -> Lake:
     return Lake(settings.lake_dir, catalog=catalog, compression="zstd", row_group_size=1000)
 
 
@@ -33,7 +33,7 @@ class TestPartitionsAreReplaced:
     ARGS = {"system": "SIHSUS", "family_id": "fam1", "schema_signature": "sig113",
             "uf": "AC", "year": 2024}
 
-    def test_a_rebuild_replaces_rather_than_duplicates(self, lake: Lake, catalog: Catalog):
+    def test_a_rebuild_replaces_rather_than_duplicates(self, lake: Lake, catalog: CatalogStore):
         lake.write_batches([_batch(10, "old")], source_paths=["/a"], **self.ARGS)
         lake.write_batches([_batch(10, "new")], source_paths=["/a"], **self.ARGS)
 
@@ -41,7 +41,7 @@ class TestPartitionsAreReplaced:
         assert table.num_rows == 10, "the rebuild must supersede, not accumulate"
         assert set(table.column("tag").to_pylist()) == {"new"}
 
-    def test_the_catalog_agrees_with_the_disk(self, lake: Lake, catalog: Catalog):
+    def test_the_catalog_agrees_with_the_disk(self, lake: Lake, catalog: CatalogStore):
         lake.write_batches([_batch(10, "old")], source_paths=["/a"], **self.ARGS)
         lake.write_batches([_batch(4, "new")], source_paths=["/a"], **self.ARGS)
 
@@ -60,7 +60,7 @@ class TestPartitionsAreReplaced:
         assert lake.dataset("SIHSUS", "fam1").to_table().num_rows == 1
         assert first >= 1
 
-    def test_other_partitions_are_untouched(self, lake: Lake, catalog: Catalog):
+    def test_other_partitions_are_untouched(self, lake: Lake, catalog: CatalogStore):
         lake.write_batches([_batch(10, "ac")], source_paths=["/a"], **{**self.ARGS, "uf": "AC"})
         lake.write_batches([_batch(7, "sp")], source_paths=["/b"], **{**self.ARGS, "uf": "SP"})
         lake.write_batches([_batch(3, "ac2")], source_paths=["/a"], **{**self.ARGS, "uf": "AC"})
@@ -69,7 +69,7 @@ class TestPartitionsAreReplaced:
 
 
 class TestOrphanedFamiliesTakeTheirDerivedStateWithThem:
-    def test_everything_keyed_on_a_family_is_pruned(self, catalog: Catalog):
+    def test_everything_keyed_on_a_family_is_pruned(self, catalog: CatalogStore):
         from pegasus_data.inventory.families import persist_families
 
         for table, cols, vals in (
@@ -97,7 +97,7 @@ class TestOrphanedFamiliesTakeTheirDerivedStateWithThem:
 
 
 class TestWithdrawalPropagates:
-    def test_a_retired_series_stops_reporting_drift(self, catalog: Catalog):
+    def test_a_retired_series_stops_reporting_drift(self, catalog: CatalogStore):
         from pegasus_data.profile.drift import persist_drift
 
         catalog.execute(
@@ -107,7 +107,7 @@ class TestWithdrawalPropagates:
         persist_drift(catalog, [])
         assert catalog.count("schema_drift", "system='SIHSUS' AND series='CM'") == 0
 
-    def test_a_field_that_stops_looking_renamed_is_withdrawn(self, catalog: Catalog):
+    def test_a_field_that_stops_looking_renamed_is_withdrawn(self, catalog: CatalogStore):
         from pegasus_data.profile.drift import persist_renames
 
         catalog.execute(
@@ -117,7 +117,7 @@ class TestWithdrawalPropagates:
         persist_renames(catalog, [])
         assert catalog.count("field_renames") == 0
 
-    def test_a_withdrawn_def_binding_disappears(self, catalog: Catalog):
+    def test_a_withdrawn_def_binding_disappears(self, catalog: CatalogStore):
         from pegasus_data.semantics.dictionary import bind_codelists_to_fields
 
         catalog.execute(
@@ -134,7 +134,7 @@ class TestWithdrawalPropagates:
             "withdrawing def bindings must not touch another source's output"
         )
 
-    def test_a_field_no_longer_profiled_leaves_the_ledger(self, catalog: Catalog):
+    def test_a_field_no_longer_profiled_leaves_the_ledger(self, catalog: CatalogStore):
         from pegasus_data.semantics.ledger import persist_ledger
 
         catalog.execute(

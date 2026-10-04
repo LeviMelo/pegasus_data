@@ -63,5 +63,5 @@ def race_reliability(table: pa.Table, *, race: str = "RACA_COR", facility: str =
                     WHEN hm.asian > 0.5 OR (hm.brown < 0.01 AND hm.asian > 0.10) THEN 'unreliable'
                     WHEN hm.asian > 0.10 THEN 'suspect'
                     ELSE 'ok' END AS flag
-        FROM r JOIN hm USING (cnes, ym) ORDER BY r.i""").fetch_arrow_table().column("flag")
+        FROM r JOIN hm USING (cnes, ym) ORDER BY r.i""").to_arrow_table().column("flag")
     return table.append_column(f"{race}_reliability", flags)

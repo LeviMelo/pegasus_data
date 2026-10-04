@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from ..catalog.store import Catalog, _semantic_relation_id, utcnow
+from ..catalog.store import CatalogStore, _semantic_relation_id, utcnow
 from ..config import curation_root
 
 
@@ -88,12 +88,12 @@ def relations_for(
     field: str,
     *,
     relation_type: RelationType | str | None = None,
-    catalog: Catalog | None = None,
+    catalog: CatalogStore | None = None,
     vintage: int | str | None = None,
 ) -> list[SemanticRelation]:
     """Resolve shipped declarations plus local reviewed overrides.
 
-    Catalog decisions win on the relation identity they share with compiled
+    CatalogStore decisions win on the relation identity they share with compiled
     curation. Explicit legacy ``variable_docs.codelist`` rows are exposed as a
     migration bridge to ``label_of``; heuristic/ranked bindings are not.
     """
@@ -286,7 +286,7 @@ def _store_relation(conn: Any, item: SemanticRelation, *, authority: str) -> Non
     )
 
 
-def seed_relations(catalog: Catalog, root: Path | None = None) -> int:
+def seed_relations(catalog: CatalogStore, root: Path | None = None) -> int:
     """Synchronize refreshable curated compiler output, preserving local truth."""
     relations = load_relations(root)
     with catalog.write() as conn:
@@ -301,7 +301,7 @@ def seed_relations(catalog: Catalog, root: Path | None = None) -> int:
 
 
 def ensure_adjudication_item(
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     kind: str,
     system: str,
@@ -332,7 +332,7 @@ def ensure_adjudication_item(
     return key
 
 
-def adjudication_evidence(catalog: Catalog, key: str) -> dict[str, Any]:
+def adjudication_evidence(catalog: CatalogStore, key: str) -> dict[str, Any]:
     rows = catalog.query("SELECT * FROM adjudication_items WHERE key = ?", (key,))
     if not rows:
         raise KeyError(key)
@@ -347,7 +347,7 @@ def adjudication_evidence(catalog: Catalog, key: str) -> dict[str, Any]:
     return result
 
 
-def adjudicate(catalog: Catalog, key: str, decision: SemanticRelation, *, by: str) -> None:
+def adjudicate(catalog: CatalogStore, key: str, decision: SemanticRelation, *, by: str) -> None:
     seed = asdict(decision)
     seed["relation_type"] = decision.relation_type.value
     seed["authority"] = "local"

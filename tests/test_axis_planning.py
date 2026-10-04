@@ -22,12 +22,12 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.config import Settings
 from pegasus_data.ontology import Ontology
 
 
-def _seed(catalog: Catalog, rows) -> None:
+def _seed(catalog: CatalogStore, rows) -> None:
     """rows: (path, system, series_prefix, geo_code, year, normalized_date).
 
     ``normalized_date`` decides the month axis — six characters or more means
@@ -73,7 +73,7 @@ def tree(settings: Settings) -> Settings:
     is the point: a narrowed scan that leaked rows between datasets would show
     up as one borrowing the other's axes.
     """
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         _seed(
             store,
@@ -102,7 +102,7 @@ class TestItAgreesWithTheFullSweep:
     def test_every_declared_dataset_gets_the_same_answer(self, tree) -> None:
         """The whole safety case for narrowing the query, over all 131 codes."""
         onto = Ontology.load()
-        store = Catalog(tree.catalog_path, read_only=True)
+        store = CatalogStore(tree.catalog_path, read_only=True)
         try:
             full = onto.axes(store.conn)
             for code in sorted(set(full) | set(onto.datasets)):
@@ -112,7 +112,7 @@ class TestItAgreesWithTheFullSweep:
 
     def test_a_national_dataset_still_has_no_state_axis(self, tree) -> None:
         onto = Ontology.load()
-        store = Catalog(tree.catalog_path, read_only=True)
+        store = CatalogStore(tree.catalog_path, read_only=True)
         try:
             axes = onto.axes_for(store.conn, "SIM.DOFET")
         finally:
@@ -122,7 +122,7 @@ class TestItAgreesWithTheFullSweep:
 
     def test_a_state_split_dataset_keeps_all_three(self, tree) -> None:
         onto = Ontology.load()
-        store = Catalog(tree.catalog_path, read_only=True)
+        store = CatalogStore(tree.catalog_path, read_only=True)
         try:
             axes = onto.axes_for(store.conn, "SIH.RD")
         finally:
@@ -134,7 +134,7 @@ class TestItAgreesWithTheFullSweep:
         """`axes().get()` returned None for these; the narrow path must too, or
         every caller's `if axes is None` branch changes meaning."""
         onto = Ontology.load()
-        store = Catalog(tree.catalog_path, read_only=True)
+        store = CatalogStore(tree.catalog_path, read_only=True)
         try:
             assert onto.axes_for(store.conn, "CNES.ST") is None
             assert onto.axes_for(store.conn, "NOT.ADATASET") is None
@@ -149,7 +149,7 @@ class TestItDoesNotDropRepublishedFiles:
         files carry a DIFFERENT `system` value, so a scan narrowed to the
         DECLARED system would silently drop them and report half the files.
         """
-        store = Catalog(settings.catalog_path)
+        store = CatalogStore(settings.catalog_path)
         try:
             _seed(
                 store,
@@ -160,7 +160,7 @@ class TestItDoesNotDropRepublishedFiles:
             store.close()
 
         onto = Ontology.load()
-        store = Catalog(settings.catalog_path, read_only=True)
+        store = CatalogStore(settings.catalog_path, read_only=True)
         try:
             assert onto.bind("DADOS_ABERTOS", "DOFET").dataset == "SIM.DOFET", (
                 "fixture assumption: the series-only fallback binds this"
@@ -203,7 +203,7 @@ class TestItStopsScanningTheWholeTree:
         """The point of the change, asserted on what SQLite was asked to do
         rather than on a stopwatch, which would be flaky in CI."""
         onto = Ontology.load()
-        store = Catalog(tree.catalog_path, read_only=True)
+        store = CatalogStore(tree.catalog_path, read_only=True)
         try:
             counted: list[int] = []
 

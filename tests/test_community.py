@@ -13,7 +13,7 @@ liability.
 
 from __future__ import annotations
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.semantics.dictionary import (
     SOURCE_AUTHORITY,
     DictionaryEntry,
@@ -134,7 +134,7 @@ class TestItCannotOutrankFirstParty:
     def test_it_still_beats_a_guess(self):
         assert SOURCE_AUTHORITY["community"] < SOURCE_AUTHORITY["inferred"]
 
-    def test_a_cnv_label_survives_a_contradicting_community_one(self, catalog: Catalog):
+    def test_a_cnv_label_survives_a_contradicting_community_one(self, catalog: CatalogStore):
         """The whole safety argument, exercised rather than asserted."""
         persist_entries(catalog, [
             DictionaryEntry(system="SIASUS", value_raw="M", value_label="Masculino",
@@ -156,7 +156,7 @@ class TestItCannotOutrankFirstParty:
 
 
 class TestIngest:
-    def test_it_persists_entries_and_binds_the_fields(self, catalog: Catalog):
+    def test_it_persists_entries_and_binds_the_fields(self, catalog: CatalogStore):
         result = ingest(catalog, source=_source(**{"process_sia.R": SIA_R}))
         assert result["pairs"] == 4
         assert catalog.count("dictionary", "source = 'community'") == 4
@@ -166,18 +166,18 @@ class TestIngest:
         }
         assert bound == {"PA_SEXO", "PA_FLIDADE"}
 
-    def test_the_binding_carries_the_commit_too(self, catalog: Catalog):
+    def test_the_binding_carries_the_commit_too(self, catalog: CatalogStore):
         ingest(catalog, source=_source(**{"process_sia.R": SIA_R}))
         row = catalog.query("SELECT source_ref FROM field_codelists WHERE source='community'")[0]
         assert "7109ec2c42cf" in row["source_ref"]
 
-    def test_reingesting_the_same_commit_is_idempotent(self, catalog: Catalog):
+    def test_reingesting_the_same_commit_is_idempotent(self, catalog: CatalogStore):
         source = _source(**{"process_sia.R": SIA_R})
         ingest(catalog, source=source)
         ingest(catalog, source=source)
         assert catalog.count("dictionary", "source = 'community'") == 4
 
-    def test_it_reports_what_it_took_from_where(self, catalog: Catalog):
+    def test_it_reports_what_it_took_from_where(self, catalog: CatalogStore):
         result = ingest(catalog, source=_source(**{"process_sia.R": SIA_R}))
         assert result["by_system"] == {"SIASUS": 4}
         assert result["commit"].startswith("7109ec2c")

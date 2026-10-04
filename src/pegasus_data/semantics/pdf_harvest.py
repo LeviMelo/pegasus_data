@@ -28,7 +28,7 @@ import re
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from .dictionary import DEFAULT_CONFIDENCE, DictionaryEntry
 
 #: A layout-table row: ``SEXO      1  C  Sexo do paciente``
@@ -391,7 +391,7 @@ def documentation_rows(
     ]
 
 
-def known_field_names(catalog: Catalog) -> list[str]:
+def known_field_names(catalog: CatalogStore) -> list[str]:
     """Columns this catalog has actually seen, from profiles and ``.DEF`` files."""
     rows = catalog.query(
         """

@@ -26,7 +26,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 
 #: A dotless ICD-10 code: a letter, two digits, then an optional fourth
 #: character. ``J189``, ``A419``, ``I10X`` — the trailing X is DATASUS padding a
@@ -230,7 +230,7 @@ def measure_column(
 
 
 def measure_icd_columns(
-    catalog: Catalog,
+    catalog: CatalogStore,
     lake_root: str | Path | None = None,
     *,
     codelist: str = "CID10",
@@ -320,7 +320,7 @@ def measure_icd_columns(
     return sorted(out, key=lambda q: (-q.values_examined, q.field_name))
 
 
-def persist_token_rules(catalog: Catalog, measured: Sequence[ColumnQuality]) -> int:
+def persist_token_rules(catalog: CatalogStore, measured: Sequence[ColumnQuality]) -> int:
     """Write inferred token rules into the variable dictionary, as ``inferred``.
 
     Never overwrites a curated entry: a rule someone asserted in ``curation/``
@@ -365,7 +365,7 @@ def persist_token_rules(catalog: Catalog, measured: Sequence[ColumnQuality]) -> 
 SUSPECT_BINDING_THRESHOLD = 0.10
 
 
-def flag_suspect_bindings(catalog: Catalog, measured: Sequence[ColumnQuality]) -> int:
+def flag_suspect_bindings(catalog: CatalogStore, measured: Sequence[ColumnQuality]) -> int:
     """Record columns whose bound codelist does not fit what they contain.
 
     The distributional detectors bind on shape, and shape is not identity: IBGE's

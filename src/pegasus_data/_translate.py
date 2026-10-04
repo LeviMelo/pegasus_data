@@ -157,9 +157,9 @@ def translate(
         raise TranslationImpossible("the table has no rows to label")
 
     resolved = settings or load_settings(root=Path(root) if root else None)
-    from .catalog.store import Catalog
+    from .catalog.store import CatalogStore
 
-    store = Catalog(resolved.catalog_path, read_only=True)
+    store = CatalogStore(resolved.catalog_path, read_only=True)
     try:
         # A fresh catalog is the seed: bindings and curation are already in it
         # (ADR-0067); labels come from the shipped pack when there is no dictionary.

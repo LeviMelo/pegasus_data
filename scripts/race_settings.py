@@ -57,7 +57,7 @@ def main(period: str, geo: str) -> None:
                          JOIN {name} x ON x.record = n.record WHERE n.dataset = '{ds}' AND n.role = '{prole}'""")
         print("loaded", ds, flush=True)
     con.execute("CREATE TABLE obs AS " + " UNION ALL ".join(parts))
-    model = fit(con.execute("SELECT person, setting, label FROM obs").fetch_arrow_table())
+    model = fit(con.execute("SELECT person, setting, label FROM obs").to_arrow_table())
     out = {"dawid_skene_by_system": model.summary()}
     print(json.dumps(out["dawid_skene_by_system"]["settings"], indent=1)[:3000], flush=True)
     # The asian hypothesis, by hospital: SIH says asian where SINASC or SIM (same person) says brown.
@@ -88,7 +88,7 @@ def main(period: str, geo: str) -> None:
         print(row, flush=True)
     # Hierarchical: each SIH hospital is a setting, shrunk toward SIH as a whole.
     hosp = con.execute("""SELECT person, CASE WHEN setting = 'SIH-RD' THEN 'SIH:' || coalesce(facility, '?')
-                          ELSE setting END AS setting, label FROM obs""").fetch_arrow_table()
+                          ELSE setting END AS setting, label FROM obs""").to_arrow_table()
     settings = set(hosp.column("setting").to_pylist())
     hm = fit(hosp, groups={x: "SIH-RD" for x in settings if x.startswith("SIH:")})
     cls = {c: i for i, c in enumerate(hm.classes)}

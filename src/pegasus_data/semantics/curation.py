@@ -34,7 +34,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 
 #: Rungs of evidence, best first (§4.5). Mirrors ``SOURCE_AUTHORITY`` but names
 #: the *documentation* sources rather than the value-label ones.
@@ -481,7 +481,7 @@ def _fingerprint(root: str) -> str:
     return digest.hexdigest()
 
 
-def curation_is_current(catalog: Catalog, root: Path) -> bool:
+def curation_is_current(catalog: CatalogStore, root: Path) -> bool:
     """Has THIS curation already been loaded into THIS catalog?
 
     The check used to be ``variable_docs is empty``, which is true exactly once
@@ -496,7 +496,7 @@ def curation_is_current(catalog: Catalog, root: Path) -> bool:
     return bool(rows) and str(rows[0]["fingerprint"]) == curation_fingerprint(root)
 
 
-def note_curation_loaded(catalog: Catalog, root: Path) -> None:
+def note_curation_loaded(catalog: CatalogStore, root: Path) -> None:
     catalog.execute(
         "INSERT INTO curation_state (id, fingerprint, applied_at) VALUES (1,?,?)"
         " ON CONFLICT(id) DO UPDATE SET fingerprint = excluded.fingerprint,"
@@ -505,7 +505,7 @@ def note_curation_loaded(catalog: Catalog, root: Path) -> None:
     )
 
 
-def ensure_current(catalog: Catalog, root: Path) -> dict[str, object] | None:
+def ensure_current(catalog: CatalogStore, root: Path) -> dict[str, object] | None:
     """Load the shipped curation when it changed since this catalog last loaded it.
 
     Returns what was loaded, or None when the catalog was already current. Every
@@ -519,7 +519,7 @@ def ensure_current(catalog: Catalog, root: Path) -> dict[str, object] | None:
     return loaded
 
 
-def load_curation(catalog: Catalog, root: Path) -> dict[str, object]:
+def load_curation(catalog: CatalogStore, root: Path) -> dict[str, object]:
     """Seed the catalog from ``curation/``. Replaces what the files own.
 
     Curated rows are *replaced* rather than merged, for the same reason every
@@ -638,7 +638,7 @@ UNRESOLVED: tuple[tuple[str, str, str, str, str], ...] = (
 )
 
 
-def _record_open_gaps(catalog: Catalog) -> None:
+def _record_open_gaps(catalog: CatalogStore) -> None:
     for key, area, question, procedure, blocking in UNRESOLVED:
         catalog.note_question(
             key, area=area, question=question,
@@ -646,7 +646,7 @@ def _record_open_gaps(catalog: Catalog) -> None:
         )
 
 
-def _record_settled_rulings(catalog: Catalog) -> None:
+def _record_settled_rulings(catalog: CatalogStore) -> None:
     """Write the settled decisions in, already resolved."""
     for key, area, question, resolution in SETTLED:
         catalog.note_question(
@@ -659,7 +659,7 @@ def _record_settled_rulings(catalog: Catalog) -> None:
         catalog.resolve_question(key, resolution=resolution, evidence="curation: settled ruling")
 
 
-def _replace_variable_docs(catalog: Catalog, docs: Sequence[VariableDoc]) -> None:
+def _replace_variable_docs(catalog: CatalogStore, docs: Sequence[VariableDoc]) -> None:
     keep = {(d.system, d.field_name) for d in docs}
     stale = [
         (r["system"], r["field_name"])
@@ -693,7 +693,7 @@ def _replace_variable_docs(catalog: Catalog, docs: Sequence[VariableDoc]) -> Non
     )
 
 
-def _replace_dataset_docs(catalog: Catalog, docs: Sequence[DatasetDoc]) -> None:
+def _replace_dataset_docs(catalog: CatalogStore, docs: Sequence[DatasetDoc]) -> None:
     keep = {d.dataset_id for d in docs}
     stale = [
         (r["dataset_id"],)
@@ -718,7 +718,7 @@ def _replace_dataset_docs(catalog: Catalog, docs: Sequence[DatasetDoc]) -> None:
     )
 
 
-def _seed_field_codelists(catalog: Catalog, docs: Sequence[VariableDoc]) -> int:
+def _seed_field_codelists(catalog: CatalogStore, docs: Sequence[VariableDoc]) -> int:
     """A curated ``codelist:`` is a binding at the highest authority.
 
     This is the point of ``SOURCE_AUTHORITY['manual'] = 0``: a person who has read
@@ -745,7 +745,7 @@ def _seed_field_codelists(catalog: Catalog, docs: Sequence[VariableDoc]) -> int:
     )
 
 
-def _apply_prefix_overrides(catalog: Catalog, mapping: dict[str, str]) -> int:
+def _apply_prefix_overrides(catalog: CatalogStore, mapping: dict[str, str]) -> int:
     """Manual overrides for the learned prefix map, at full agreement.
 
     The learned map holds its answer on purpose. A file that names the answer is
@@ -768,7 +768,7 @@ def _apply_prefix_overrides(catalog: Catalog, mapping: dict[str, str]) -> int:
 # ------------------------------------------------------------------- coverage
 
 
-def coverage_by_rung(catalog: Catalog) -> list[dict[str, object]]:
+def coverage_by_rung(catalog: CatalogStore) -> list[dict[str, object]]:
     """Variables documented per system, by which rung of evidence supplied them.
 
     The denominator is fields the catalog has actually observed, not fields some
@@ -859,7 +859,7 @@ def system_spellings(system: str) -> list[str]:
 INHERITS: dict[str, tuple[str, ...]] = {"DADOS_ABERTOS": ("SIASUS",)}
 
 
-def load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str, VariableDoc]:
+def load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict[str, VariableDoc]:
     """Curated docs keyed by field name, for the renderer and the doc generator.
 
     Inherited systems (``INHERITS``) fill in fields the system does not curate.
@@ -873,7 +873,7 @@ def load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str,
     return _load_variable_docs(catalog, system)
 
 
-def _load_variable_docs(catalog: Catalog, system: str | None = None) -> dict[str, VariableDoc]:
+def _load_variable_docs(catalog: CatalogStore, system: str | None = None) -> dict[str, VariableDoc]:
     """The docs curated for exactly this system."""
     clause, params = "", []
     if system:

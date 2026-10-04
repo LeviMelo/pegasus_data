@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.ontology import Ontology, canonical_series
 from pegasus_data.retrieve import _families
 
@@ -167,7 +167,7 @@ class TestFamilyResolution:
     itself as preventing.
     """
 
-    def test_collects_every_spelling_of_one_dataset(self, catalog: Catalog) -> None:
+    def test_collects_every_spelling_of_one_dataset(self, catalog: CatalogStore) -> None:
         sig = "0" * 64
         catalog.execute(
             "INSERT INTO families (family_id, system, series, schema_signature, field_count) "
@@ -188,7 +188,7 @@ class TestFamilyResolution:
         found = {f["family_id"] for f in _families(catalog, "SIASUS", "PA")}
         assert found == {"f1", "f2"}, "the filename-spelled family must come along"
 
-    def test_a_bare_system_takes_everything(self, catalog: Catalog) -> None:
+    def test_a_bare_system_takes_everything(self, catalog: CatalogStore) -> None:
         sig = "0" * 64
         for fid, series in (("g1", "RD"), ("g2", "RJ")):
             catalog.execute(
@@ -213,7 +213,7 @@ class TestSchemaGenerations:
     years either side of the boundary can be pooled.
     """
 
-    def _seed(self, catalog: Catalog) -> None:
+    def _seed(self, catalog: CatalogStore) -> None:
         for sig, fields in (
             ("a" * 64, ["ID", "SEXO"]),
             ("b" * 64, ["ID", "SEXO", "IDADE"]),
@@ -225,7 +225,7 @@ class TestSchemaGenerations:
                     (sig, name, order),
                 )
 
-    def test_groups_by_signature_not_family(self, catalog: Catalog) -> None:
+    def test_groups_by_signature_not_family(self, catalog: CatalogStore) -> None:
         from pegasus_data._info import _generations
 
         self._seed(catalog)
@@ -241,7 +241,7 @@ class TestSchemaGenerations:
         assert gens[0]["span"] == "2001–2004", "the span covers both families"
         assert gens[0]["families"] == 2
 
-    def test_reports_added_and_dropped(self, catalog: Catalog) -> None:
+    def test_reports_added_and_dropped(self, catalog: CatalogStore) -> None:
         from pegasus_data._info import _generations
 
         self._seed(catalog)
@@ -257,7 +257,7 @@ class TestSchemaGenerations:
         assert gens[1]["added"] == ["IDADE"]
         assert gens[1]["dropped"] == []
 
-    def test_empty_is_empty(self, catalog: Catalog) -> None:
+    def test_empty_is_empty(self, catalog: CatalogStore) -> None:
         from pegasus_data._info import _generations
 
         assert _generations(catalog, []) == []

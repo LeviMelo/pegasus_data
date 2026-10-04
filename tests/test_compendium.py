@@ -18,11 +18,11 @@ import sqlite3
 import pytest
 
 from pegasus_data._compendium import compendium
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.config import Settings
 
 
-def _seed(catalog: Catalog) -> None:
+def _seed(catalog: CatalogStore) -> None:
     """A minimal SIH-shaped catalog: two generations, two states, two years."""
     sig_a, sig_b = "a" * 64, "b" * 64
     catalog.upsert_files(
@@ -67,7 +67,7 @@ def _seed(catalog: Catalog) -> None:
 
 @pytest.fixture
 def seeded(settings: Settings) -> Settings:
-    store = Catalog(settings.catalog_path)
+    store = CatalogStore(settings.catalog_path)
     try:
         _seed(store)
     finally:
@@ -193,7 +193,7 @@ class TestRepublicationDoesNotDoubleCountColumns:
     """
 
     @staticmethod
-    def _seed_two_trees(catalog: Catalog) -> None:
+    def _seed_two_trees(catalog: CatalogStore) -> None:
         sig = "c" * 64
         paths = [
             "/dissemin/publicos/SIASUS/ABAC2201.dbc",
@@ -228,7 +228,7 @@ class TestRepublicationDoesNotDoubleCountColumns:
             )
 
     def test_a_column_is_counted_once_per_dataset(self, settings, tmp_path) -> None:
-        store = Catalog(settings.catalog_path)
+        store = CatalogStore(settings.catalog_path)
         try:
             self._seed_two_trees(store)
         finally:

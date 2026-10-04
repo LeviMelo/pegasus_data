@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.discovery.reconcile import (
     FileState,
     classify,
@@ -21,7 +21,7 @@ from pegasus_data.inventory.systems import (
 )
 
 
-def _file(catalog: Catalog, path: str, *, size=100, modified="2024-01-01T00:00:00+00:00"):
+def _file(catalog: CatalogStore, path: str, *, size=100, modified="2024-01-01T00:00:00+00:00"):
     catalog.upsert_files(
         [
             {
@@ -70,7 +70,7 @@ class TestPrefixSystems:
         learned = learn_prefix_systems([("XX", "A")] * 10 + [("XX", "B")] * 10)
         assert not learned[0].trustworthy
 
-    def test_the_name_wins_over_the_path_once_the_prefix_is_known(self, catalog: Catalog):
+    def test_the_name_wins_over_the_path_once_the_prefix_is_known(self, catalog: CatalogStore):
         persist_prefix_systems(catalog, learn_prefix_systems([("RD", "SIHSUS")] * 500))
         learned = load_prefix_systems(catalog)
         # DATASUS reorganises and RD files turn up under a new tree.
@@ -80,14 +80,14 @@ class TestPrefixSystems:
         assert resolved == "SIHSUS", "identity must survive the move"
         assert disagreement == "SIHSUS_NOVO", "and the disagreement is a finding"
 
-    def test_an_untrusted_prefix_leaves_the_path_authoritative(self, catalog: Catalog):
+    def test_an_untrusted_prefix_leaves_the_path_authoritative(self, catalog: CatalogStore):
         persist_prefix_systems(catalog, learn_prefix_systems([("ZZ", "A"), ("ZZ", "B")]))
         resolved, disagreement = resolve_system(
             series_prefix="ZZ", system_by_path="SIHSUS", learned=load_prefix_systems(catalog)
         )
         assert resolved == "SIHSUS" and disagreement is None
 
-    def test_an_established_mapping_is_held_against_a_reorganisation(self, catalog: Catalog):
+    def test_an_established_mapping_is_held_against_a_reorganisation(self, catalog: CatalogStore):
         """The property the whole design rests on.
 
         If the map were relearned each crawl, a wholesale move would teach it the
@@ -101,7 +101,7 @@ class TestPrefixSystems:
         assert stats["contradictions"] == 1
         assert catalog.count("open_questions", "key LIKE 'inventory.prefix_system_changed:%'") == 1
 
-    def test_agreeing_evidence_refreshes_the_counts(self, catalog: Catalog):
+    def test_agreeing_evidence_refreshes_the_counts(self, catalog: CatalogStore):
         persist_prefix_systems(catalog, learn_prefix_systems([("RD", "SIHSUS")] * 10))
         persist_prefix_systems(catalog, learn_prefix_systems([("RD", "SIHSUS")] * 500))
         assert load_prefix_systems(catalog)["RD"].file_count == 500
@@ -125,7 +125,7 @@ class TestClassify:
 
 
 class TestGoneAt:
-    def test_a_successful_listing_that_omits_a_file_marks_it_gone(self, catalog: Catalog):
+    def test_a_successful_listing_that_omits_a_file_marks_it_gone(self, catalog: CatalogStore):
         _file(catalog, "/d/a.dbc")
         _file(catalog, "/d/b.dbc")
         vanished = mark_gone(catalog, "/d", {"/d/a.dbc"})
@@ -134,21 +134,21 @@ class TestGoneAt:
         assert rows["/d/a.dbc"] is None
         assert rows["/d/b.dbc"] is not None
 
-    def test_seeing_a_file_again_clears_the_gone_mark(self, catalog: Catalog):
+    def test_seeing_a_file_again_clears_the_gone_mark(self, catalog: CatalogStore):
         _file(catalog, "/d/a.dbc")
         mark_gone(catalog, "/d", set())
         assert catalog.query("SELECT gone_at FROM files")[0]["gone_at"] is not None
         _file(catalog, "/d/a.dbc")
         assert catalog.query("SELECT gone_at FROM files")[0]["gone_at"] is None
 
-    def test_a_gone_file_leaves_the_snapshot(self, catalog: Catalog):
+    def test_a_gone_file_leaves_the_snapshot(self, catalog: CatalogStore):
         _file(catalog, "/d/a.dbc")
         mark_gone(catalog, "/d", set())
         assert snapshot(catalog) == {}
 
 
 class TestMoveDetection:
-    def test_same_fingerprint_in_a_new_directory_is_a_move(self, catalog: Catalog):
+    def test_same_fingerprint_in_a_new_directory_is_a_move(self, catalog: CatalogStore):
         _file(catalog, "/old/RDAL2401.dbc", size=500, modified="2024-02-01T00:00:00+00:00")
         _file(catalog, "/new/RDAL2401.dbc", size=500, modified="2024-02-01T00:00:00+00:00")
         gone = mark_gone(catalog, "/old", set())
@@ -156,12 +156,12 @@ class TestMoveDetection:
         assert moves == [("/old/RDAL2401.dbc", "/new/RDAL2401.dbc", "filename+size+mtime")]
         assert catalog.count("file_moves") == 1
 
-    def test_a_genuine_deletion_is_not_reported_as_a_move(self, catalog: Catalog):
+    def test_a_genuine_deletion_is_not_reported_as_a_move(self, catalog: CatalogStore):
         _file(catalog, "/old/RDAL2401.dbc")
         gone = mark_gone(catalog, "/old", set())
         assert detect_moves(catalog, gone, "run1") == []
 
-    def test_an_ambiguous_match_is_left_unrecorded(self, catalog: Catalog):
+    def test_an_ambiguous_match_is_left_unrecorded(self, catalog: CatalogStore):
         """Two identical candidates mean the fingerprint does not identify it."""
         _file(catalog, "/old/X.dbc", size=10, modified="t")
         _file(catalog, "/a/X.dbc", size=10, modified="t")
@@ -170,7 +170,7 @@ class TestMoveDetection:
         assert detect_moves(catalog, gone, "run1") == []
         assert catalog.count("file_moves") == 0
 
-    def test_a_different_size_is_not_a_move(self, catalog: Catalog):
+    def test_a_different_size_is_not_a_move(self, catalog: CatalogStore):
         _file(catalog, "/old/X.dbc", size=10, modified="t")
         _file(catalog, "/new/X.dbc", size=999, modified="t")
         gone = mark_gone(catalog, "/old", set())
@@ -178,7 +178,7 @@ class TestMoveDetection:
 
 
 class TestFailedListingSafety:
-    def test_nothing_marks_files_gone_without_a_successful_listing(self, catalog: Catalog):
+    def test_nothing_marks_files_gone_without_a_successful_listing(self, catalog: CatalogStore):
         """The safety property: one dropped connection must not read as deletion.
 
         `mark_gone` is only ever reached from the success path in the crawler; a
@@ -206,7 +206,7 @@ class TestSurvivingAReorganisation:
     NEW = "/dissemin/publicos/SIH_NOVO/Dados"
     NAMES = [f"RDAC24{m:02d}.dbc" for m in range(1, 13)]
 
-    def _crawl(self, catalog: Catalog, directory: str) -> None:
+    def _crawl(self, catalog: CatalogStore, directory: str) -> None:
         catalog.upsert_files(
             [
                 {
@@ -219,7 +219,7 @@ class TestSurvivingAReorganisation:
         )
         catalog.upsert_directories([{"path": directory, "file_count": len(self.NAMES)}])
 
-    def test_identity_strata_and_lineage_all_survive(self, catalog: Catalog):
+    def test_identity_strata_and_lineage_all_survive(self, catalog: CatalogStore):
         from pegasus_data.inventory.build import build_inventory
 
         self._crawl(catalog, self.OLD)
@@ -248,7 +248,7 @@ class TestSurvivingAReorganisation:
         assert catalog.count("system_disagreements") == 12
         assert catalog.count("files", "gone_at IS NOT NULL") == 12
 
-    def test_a_gone_file_does_not_drive_inference(self, catalog: Catalog):
+    def test_a_gone_file_does_not_drive_inference(self, catalog: CatalogStore):
         """Old and new paths coexist after a move; counting both breaks the map.
 
         With both present every prefix looks evenly split between two systems,
@@ -274,7 +274,7 @@ class TestRenameDetection:
     OLD = "/dissemin/publicos/SIHSUS/200801_/Dados"
     NEW = "/dissemin/publicos/SIHSUS/2024/01"
 
-    def test_a_rename_is_detected_at_low_confidence(self, catalog: Catalog):
+    def test_a_rename_is_detected_at_low_confidence(self, catalog: CatalogStore):
         _file(catalog, f"{self.OLD}/RDAC2401.dbc", size=4242, modified="2024-02-01T00:00:00+00:00")
         since = "2024-06-01T00:00:00+00:00"
         _file(catalog, f"{self.NEW}/RD_AC_2401.dbc", size=4242, modified="2024-02-01T00:00:00+00:00")
@@ -292,7 +292,7 @@ class TestRenameDetection:
         assert row["evidence"] == "size+mtime"
         assert (row["renamed_from"], row["renamed_to"]) == ("RDAC2401.dbc", "RD_AC_2401.dbc")
 
-    def test_a_stable_filename_still_wins_as_high_confidence(self, catalog: Catalog):
+    def test_a_stable_filename_still_wins_as_high_confidence(self, catalog: CatalogStore):
         _file(catalog, f"{self.OLD}/RDAC2401.dbc")
         _file(catalog, f"{self.NEW}/RDAC2401.dbc")
         gone = mark_gone(catalog, self.OLD, set())
@@ -301,7 +301,7 @@ class TestRenameDetection:
         assert row["confidence"] == "high"
         assert row["renamed_from"] is None
 
-    def test_an_ambiguous_rename_is_left_unrecorded(self, catalog: Catalog):
+    def test_an_ambiguous_rename_is_left_unrecorded(self, catalog: CatalogStore):
         """Two candidates share the fingerprint, so it identifies neither."""
         _file(catalog, f"{self.OLD}/RDAC2401.dbc", size=4242)
         _file(catalog, f"{self.NEW}/RD_AC_2401.dbc", size=4242)
@@ -310,7 +310,7 @@ class TestRenameDetection:
         assert detect_moves(catalog, gone, "run1", since="2000-01-01T00:00:00+00:00") == []
         assert catalog.count("file_moves") == 0
 
-    def test_an_old_file_is_not_a_rename_target(self, catalog: Catalog):
+    def test_an_old_file_is_not_a_rename_target(self, catalog: CatalogStore):
         """Only files that arrived in THIS crawl are eligible.
 
         Without the arrival window, a vanished file matches any long-standing
@@ -325,7 +325,7 @@ class TestRenameDetection:
         gone = mark_gone(catalog, self.OLD, set())
         assert detect_moves(catalog, gone, "run1", since="2024-06-01T00:00:00+00:00") == []
 
-    def test_a_partial_fingerprint_is_never_enough_for_a_rename(self, catalog: Catalog):
+    def test_a_partial_fingerprint_is_never_enough_for_a_rename(self, catalog: CatalogStore):
         """Size without mtime is not a fingerprint, however unique it looks."""
         _file(catalog, f"{self.OLD}/RDAC2401.dbc", size=4242, modified=None)
         _file(catalog, f"{self.NEW}/RD_AC_2401.dbc", size=4242, modified=None)
@@ -336,7 +336,7 @@ class TestRenameDetection:
 class TestLogicalIdIsNotUnique:
     """2b: multi-format republication means many paths share one identity."""
 
-    def test_logical_id_is_many_to_one(self, catalog: Catalog):
+    def test_logical_id_is_many_to_one(self, catalog: CatalogStore):
         base = "/dissemin/publicos/SIHSUS/200801_/Dados"
         for suffix in (".dbc", ".dbf", ".csv", ".xml"):
             _file(catalog, f"{base}/RDAC2401{suffix}")
@@ -377,16 +377,16 @@ class TestMigrationRefusal:
         "last_seen TEXT NOT NULL, gone_at TEXT"
     )
 
-    def test_a_changed_column_type_refuses_to_open(self, catalog: Catalog):
+    def test_a_changed_column_type_refuses_to_open(self, catalog: CatalogStore):
         from pegasus_data.catalog.store import CatalogSchemaError
 
         path = catalog.path
         catalog.close()
         self._break_files_table(path, f"CREATE TABLE files ({self.HEALTHY.format(size='TEXT')})")
         with pytest.raises(CatalogSchemaError, match="files.size"):
-            Catalog(path)
+            CatalogStore(path)
 
-    def test_a_changed_primary_key_refuses_to_open(self, catalog: Catalog):
+    def test_a_changed_primary_key_refuses_to_open(self, catalog: CatalogStore):
         from pegasus_data.catalog.store import CatalogSchemaError
 
         path = catalog.path
@@ -399,15 +399,15 @@ class TestMigrationRefusal:
             "last_seen TEXT NOT NULL, gone_at TEXT)",
         )
         with pytest.raises(CatalogSchemaError, match="primary key"):
-            Catalog(path)
+            CatalogStore(path)
 
-    def test_rebuild_repairs_it_and_keeps_the_rows(self, catalog: Catalog):
+    def test_rebuild_repairs_it_and_keeps_the_rows(self, catalog: CatalogStore):
         path = catalog.path
         _file(catalog, "/a/RDAC2401.dbc", size=4242)
         catalog.close()
         self._break_files_table(path, f"CREATE TABLE files ({self.HEALTHY.format(size='TEXT')})")
 
-        repair = Catalog(path, strict_schema=False)
+        repair = CatalogStore(path, strict_schema=False)
         # The broken table was created empty, so seed it the way a real catalog
         # would have been populated before the schema drifted underneath it.
         repair.execute(
@@ -418,11 +418,11 @@ class TestMigrationRefusal:
         repair.close()
         assert result["rows_after"] == 1
 
-        reopened = Catalog(path)  # strict: would raise if the rebuild missed
+        reopened = CatalogStore(path)  # strict: would raise if the rebuild missed
         assert reopened.count("files") == 1
         reopened.close()
 
-    def test_additive_changes_still_migrate_silently(self, catalog: Catalog):
+    def test_additive_changes_still_migrate_silently(self, catalog: CatalogStore):
         """The refusal must not swallow the case that already worked."""
         import sqlite3
 
@@ -434,7 +434,7 @@ class TestMigrationRefusal:
         raw.execute("ALTER TABLE files DROP COLUMN logical_id")
         raw.commit()
         raw.close()
-        reopened = Catalog(path)
+        reopened = CatalogStore(path)
         assert "logical_id" in {r[1] for r in reopened.query("PRAGMA table_info(files)")}
         assert reopened.count("files") == 1
         reopened.close()
@@ -443,7 +443,7 @@ class TestMigrationRefusal:
 class TestMassDisappearanceGuard:
     """2e: a crawl withdrawing most of the catalog is a fault, not an update."""
 
-    def _populate(self, catalog: Catalog, n: int, directory="/d") -> None:
+    def _populate(self, catalog: CatalogStore, n: int, directory="/d") -> None:
         catalog.upsert_files(
             [
                 {
@@ -457,7 +457,7 @@ class TestMassDisappearanceGuard:
             ]
         )
 
-    def _crawler(self, catalog: Catalog, **kw):
+    def _crawler(self, catalog: CatalogStore, **kw):
         from pegasus_data.discovery.crawler import Crawler
 
         c = Crawler(catalog, host="example.invalid", **kw)
@@ -472,7 +472,7 @@ class TestMassDisappearanceGuard:
         s.reconciliation.gone_paths = [f"/d/f{i}.dbc" for i in range(gone)]
         return s
 
-    def test_mass_disappearance_raises(self, catalog: Catalog):
+    def test_mass_disappearance_raises(self, catalog: CatalogStore):
         from pegasus_data.discovery.crawler import MassDisappearance
 
         self._populate(catalog, 1000)
@@ -480,7 +480,7 @@ class TestMassDisappearanceGuard:
         with pytest.raises(MassDisappearance, match="50%"):
             crawler._guard_mass_disappearance(self._stats(500))
 
-    def test_it_records_the_evidence_before_raising(self, catalog: Catalog):
+    def test_it_records_the_evidence_before_raising(self, catalog: CatalogStore):
         from pegasus_data.discovery.crawler import MassDisappearance
 
         self._populate(catalog, 1000)
@@ -489,18 +489,18 @@ class TestMassDisappearanceGuard:
             crawler._guard_mass_disappearance(self._stats(500))
         assert catalog.count("open_questions", "key LIKE 'crawl.mass_disappearance%'") == 1
 
-    def test_ordinary_churn_passes(self, catalog: Catalog):
+    def test_ordinary_churn_passes(self, catalog: CatalogStore):
         self._populate(catalog, 1000)
         crawler = self._crawler(catalog)
         crawler._guard_mass_disappearance(self._stats(50))  # 5%
 
-    def test_a_small_catalog_is_exempt(self, catalog: Catalog):
+    def test_a_small_catalog_is_exempt(self, catalog: CatalogStore):
         """A fraction of a nearly-empty catalog means nothing."""
         self._populate(catalog, 10)
         crawler = self._crawler(catalog)
         crawler._guard_mass_disappearance(self._stats(9))
 
-    def test_accept_mass_gone_records_instead_of_failing(self, catalog: Catalog):
+    def test_accept_mass_gone_records_instead_of_failing(self, catalog: CatalogStore):
         self._populate(catalog, 1000)
         crawler = self._crawler(catalog, accept_mass_gone=True)
         crawler._guard_mass_disappearance(self._stats(500))

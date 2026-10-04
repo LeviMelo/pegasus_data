@@ -27,7 +27,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 from ..decode.header import (
     DEFAULT_PREFIX_BYTES,
     HeaderUnreadable,
@@ -92,7 +92,7 @@ class SchemaCensus:
 
 
 def census_targets(
-    catalog: Catalog,
+    catalog: CatalogStore,
     *,
     systems: Sequence[str] | None = None,
     only_missing: bool = True,
@@ -144,7 +144,7 @@ def census_targets(
 
 
 def persist_header(
-    catalog: Catalog, *, stratum_id: str, path: str, header: TableHeader
+    catalog: CatalogStore, *, stratum_id: str, path: str, header: TableHeader
 ) -> str:
     """Record the schema, keyed by the same signature the families stage uses.
 
@@ -205,7 +205,7 @@ def persist_header(
 
 
 def run_census(
-    catalog: Catalog,
+    catalog: CatalogStore,
     fetch_prefix: Callable[[str, int], bytes],
     targets: Sequence[dict[str, object]],
     *,
@@ -352,7 +352,7 @@ def run_census(
     return census
 
 
-def census_summary(catalog: Catalog) -> list[dict[str, object]]:
+def census_summary(catalog: CatalogStore) -> list[dict[str, object]]:
     """Schema generations per (system, series), from the census plus the samples."""
     return [
         dict(r)
@@ -398,7 +398,7 @@ def _header_in_archive(data: bytes) -> TableHeader:
     raise HeaderUnreadable("no DBF, DBC, CSV or Parquet member in the archive")
 
 
-def _header_in_duckdb_zip(catalog: Catalog, path: str, data: bytes | Path) -> tuple[TableHeader, str, int]:
+def _header_in_duckdb_zip(catalog: CatalogStore, path: str, data: bytes | Path) -> tuple[TableHeader, str, int]:
     """A zipped DuckDB database, fetched whole: unzip to a temp file, read it."""
     import io
     import tempfile
@@ -419,7 +419,7 @@ def _header_in_duckdb_zip(catalog: Catalog, path: str, data: bytes | Path) -> tu
 
 
 def _header_in_duckdb(
-    catalog: Catalog, path: str, size: int, fetch_range: Callable[[str, int, int], bytes]
+    catalog: CatalogStore, path: str, size: int, fetch_range: Callable[[str, int, int], bytes]
 ) -> tuple[TableHeader, str, int]:
     """A remote DuckDB database: every table recorded as a member, the largest read.
 
@@ -507,7 +507,7 @@ def _parquet_header(tail: bytes, size: int) -> TableHeader:
     return TableHeader(fields=fields, declared_records=0, header_length=0, record_length=0, version=0)
 
 
-def _header_in_lha(catalog: Catalog, path: str, data: bytes, target: dict[str, object]) -> tuple[TableHeader, str]:
+def _header_in_lha(catalog: CatalogStore, path: str, data: bytes, target: dict[str, object]) -> tuple[TableHeader, str]:
     """Open an LHA self-extracting archive; record every member; read one.
 
     The member read is the stratum's own: the one named in ``sampled_member``
@@ -552,7 +552,7 @@ FILE_CENSUS_EXTENSIONS = (".dbc", ".dbf")
 
 
 def file_census_targets(
-    catalog: Catalog, *, systems: Sequence[str] | None = None, limit: int | None = None
+    catalog: CatalogStore, *, systems: Sequence[str] | None = None, limit: int | None = None
 ) -> list[str]:
     clauses = [
         "f.gone_at IS NULL",
@@ -575,7 +575,7 @@ def file_census_targets(
 
 
 def run_file_census(
-    catalog: Catalog,
+    catalog: CatalogStore,
     connect: Callable[[], object],
     paths: Sequence[str],
     *,
@@ -584,7 +584,7 @@ def run_file_census(
 ) -> dict[str, int]:
     """Read every path's header on ``workers`` FTP connections; record each file's schema.
 
-    Catalog writes stay on this thread (SQLite); workers only fetch and parse.
+    CatalogStore writes stay on this thread (SQLite); workers only fetch and parse.
     """
     import threading
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -666,7 +666,7 @@ def run_file_census(
 # reads lists every member without downloading the 3.9 GB (ADR-0103).
 
 
-def archive_census_targets(catalog: Catalog, *, limit: int | None = None) -> list[str]:
+def archive_census_targets(catalog: CatalogStore, *, limit: int | None = None) -> list[str]:
     """Self-extracting LHA archives whose members were never listed."""
     sql = (
         "SELECT f.path FROM files f JOIN file_facts fa ON fa.path = f.path "
@@ -705,7 +705,7 @@ def list_lha_members(
 
 
 def run_archive_member_census(
-    catalog: Catalog,
+    catalog: CatalogStore,
     connect: Callable[[], object],
     paths: Sequence[str],
     *,

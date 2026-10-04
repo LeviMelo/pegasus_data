@@ -55,9 +55,9 @@ def search(
     hits: list[tuple[tuple[int, int], dict[str, object]]] = []
 
     if kind in (None, "variable", "dataset"):
-        from .catalog.store import Catalog
+        from .catalog.store import CatalogStore
 
-        store = Catalog(resolved.catalog_path, read_only=True)
+        store = CatalogStore(resolved.catalog_path, read_only=True)
         try:
             if kind in (None, "variable"):
                 for r in store.query(

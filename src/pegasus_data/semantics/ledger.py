@@ -29,7 +29,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 from .dictionary import (
     DictionaryCache,
     codelists_for,
@@ -81,7 +81,7 @@ class LedgerEntry:
     open_questions: list[str] = field(default_factory=list)
 
 
-def _official_names(catalog: Catalog) -> dict[tuple[str | None, str], str]:
+def _official_names(catalog: CatalogStore) -> dict[tuple[str | None, str], str]:
     """``(system, field) → the name a ``.DEF`` gives the field *itself*.
 
     Only declarations with no lookup are counted here. A declaration that names a
@@ -107,7 +107,7 @@ def _official_names(catalog: Catalog) -> dict[tuple[str | None, str], str]:
     return out
 
 
-def _layout_names(catalog: Catalog) -> dict[tuple[str | None, str], tuple[str, str]]:
+def _layout_names(catalog: CatalogStore) -> dict[tuple[str | None, str], tuple[str, str]]:
     """``(system, field) -> (description, source_ref)`` from the record layouts.
 
     This is the strongest answer to "what is this column called", stronger than
@@ -129,7 +129,7 @@ def _layout_names(catalog: Catalog) -> dict[tuple[str | None, str], tuple[str, s
     return out
 
 
-def _names_by_codelist(catalog: Catalog) -> dict[tuple[str | None, str, str], str]:
+def _names_by_codelist(catalog: CatalogStore) -> dict[tuple[str | None, str, str], str]:
     """``(system, field, codelist) → the display name declared for that pairing``."""
     out: dict[tuple[str | None, str, str], str] = {}
     for row in catalog.query(
@@ -145,7 +145,7 @@ def _names_by_codelist(catalog: Catalog) -> dict[tuple[str | None, str, str], st
     return out
 
 
-def _declared_measures(catalog: Catalog) -> set[tuple[str | None, str]]:
+def _declared_measures(catalog: CatalogStore) -> set[tuple[str | None, str]]:
     """Fields TabNet declares as *incrementos*, i.e. the Ministry sums them."""
     out: set[tuple[str | None, str]] = set()
     for row in catalog.query("SELECT system, field_name FROM def_variables WHERE usage = 'I'"):
@@ -155,7 +155,7 @@ def _declared_measures(catalog: Catalog) -> set[tuple[str | None, str]]:
 
 
 def _sentinels_for(
-    catalog: Catalog, system: str | None, field_name: str, cache: DictionaryCache | None = None
+    catalog: CatalogStore, system: str | None, field_name: str, cache: DictionaryCache | None = None
 ) -> list[str]:
     """Codes the dictionary itself labels as ignored/unknown, for this field only.
 
@@ -167,7 +167,7 @@ def _sentinels_for(
     return sorted({code for code, label in labels.items() if _IGNORED_LABEL.match(str(label or ""))})
 
 
-def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> list[LedgerEntry]:
+def build_ledger(catalog: CatalogStore, *, systems: Sequence[str] | None = None) -> list[LedgerEntry]:
     """Assemble the ledger from profiles, DEF declarations and the dictionary."""
     official = _official_names(catalog)
     measures = _declared_measures(catalog)
@@ -314,7 +314,7 @@ def build_ledger(catalog: Catalog, *, systems: Sequence[str] | None = None) -> l
 
 
 def persist_ledger(
-    catalog: Catalog, entries: Sequence[LedgerEntry], *, systems: Sequence[str] | None = None
+    catalog: CatalogStore, entries: Sequence[LedgerEntry], *, systems: Sequence[str] | None = None
 ) -> int:
     """Replace the ledger for the systems in scope.
 
@@ -383,7 +383,7 @@ def persist_ledger(
     return len(entries)
 
 
-def coverage_report(catalog: Catalog) -> list[dict[str, object]]:
+def coverage_report(catalog: CatalogStore) -> list[dict[str, object]]:
     """``dictionary_coverage`` per system — the headline number (§6.2)."""
     rows = catalog.query(
         """
@@ -402,7 +402,7 @@ def coverage_report(catalog: Catalog) -> list[dict[str, object]]:
     return [dict(r) for r in rows]
 
 
-def field_report(catalog: Catalog, system: str, family_id: str | None = None) -> list[dict[str, object]]:
+def field_report(catalog: CatalogStore, system: str, family_id: str | None = None) -> list[dict[str, object]]:
     clause = "system = ?"
     params: list[object] = [system]
     if family_id:

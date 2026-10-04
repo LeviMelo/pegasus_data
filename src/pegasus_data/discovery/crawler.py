@@ -21,7 +21,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
-from ..catalog.store import Catalog, utcnow
+from ..catalog.store import CatalogStore, utcnow
 from .ftp_client import FtpClient, ListingUnavailable
 from .listing import ListingEntry, normalize_path
 from .reconcile import (
@@ -85,7 +85,7 @@ class Crawler:
 
     def __init__(
         self,
-        catalog: Catalog,
+        catalog: CatalogStore,
         *,
         host: str,
         connections: int = 8,

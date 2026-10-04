@@ -36,7 +36,7 @@ from dataclasses import dataclass, field
 import pyarrow as pa
 import pyarrow.compute as pc
 
-from ..catalog.store import Catalog
+from ..catalog.store import CatalogStore
 
 #: Column aliases across vintages, mapped to the canonical name.
 CANONICAL_COLUMNS: dict[str, str] = {
@@ -171,7 +171,7 @@ def infer_series(path: str) -> str | None:
     return None
 
 
-def register_series(catalog: Catalog, series: PopulationSeries) -> None:
+def register_series(catalog: CatalogStore, series: PopulationSeries) -> None:
     catalog.executemany(
         """
         INSERT INTO population_series (series, authority, year_min, year_max, stratifications,
@@ -193,7 +193,7 @@ def register_series(catalog: Catalog, series: PopulationSeries) -> None:
     )
 
 
-def series_catalogue(catalog: Catalog) -> list[dict[str, object]]:
+def series_catalogue(catalog: CatalogStore) -> list[dict[str, object]]:
     rows = catalog.query("SELECT * FROM population_series ORDER BY series")
     out = []
     for r in rows:

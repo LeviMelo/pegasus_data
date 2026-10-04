@@ -12,7 +12,7 @@ from __future__ import annotations
 import pyarrow as pa
 import pytest
 
-from pegasus_data.catalog.store import Catalog
+from pegasus_data.catalog.store import CatalogStore
 from pegasus_data.persist.reference import register_reference_tables, write_reference_tables
 from pegasus_data.semantics.dictionary import DictionaryEntry, persist_entries
 from pegasus_data.view import (
@@ -27,7 +27,7 @@ from pegasus_data.view import (
 
 
 @pytest.fixture
-def rendered(settings, catalog: Catalog):
+def rendered(settings, catalog: CatalogStore):
     """A catalog with SEXO (internal), CID10 (external) and a unit column."""
     persist_entries(
         catalog,
@@ -220,7 +220,7 @@ class TestItNeverSilentlyReturnsUnlabelled:
             _, report = _render(rendered, render={"VAL_TOT": "label"})
         assert "VAL_TOT" in report.unlabelled
 
-    def test_a_missing_reference_table_is_reported(self, settings, catalog: Catalog):
+    def test_a_missing_reference_table_is_reported(self, settings, catalog: CatalogStore):
         catalog.execute(
             "INSERT INTO variable_docs (system, field_name, code_system, codelist, source) "
             "VALUES ('SIHSUS','SEXO','internal','NOT_MATERIALISED','manual')"
@@ -280,7 +280,7 @@ class TestContradictoryCodelists:
     would silently get the wrong sex.
     """
 
-    def _reference_with_conflict(self, settings, catalog: Catalog):
+    def _reference_with_conflict(self, settings, catalog: CatalogStore):
         """Write the reference table directly: the dictionary cannot hold this.
 
         `persist_entries` keys on (system, group, field, code, window), so it
@@ -312,7 +312,7 @@ class TestContradictoryCodelists:
         )
         return pa.table({"SEXO": pa.array(["1", "2"])})
 
-    def test_it_refuses_to_label_and_names_the_disagreement(self, settings, catalog: Catalog):
+    def test_it_refuses_to_label_and_names_the_disagreement(self, settings, catalog: CatalogStore):
         table = self._reference_with_conflict(settings, catalog)
         with pytest.warns(UserWarning, match="sources disagree"):
             out, report = render_table(
@@ -322,7 +322,7 @@ class TestContradictoryCodelists:
         assert "SEXO" in report.unlabelled
         assert any("Feminino" in w and "Masculino" in w for w in report.warnings)
 
-    def test_strict_raises(self, settings, catalog: Catalog):
+    def test_strict_raises(self, settings, catalog: CatalogStore):
         table = self._reference_with_conflict(settings, catalog)
         with pytest.raises(LabelUnavailable, match="disagree"):
             render_table(
@@ -330,7 +330,7 @@ class TestContradictoryCodelists:
             )
 
     def test_a_code_that_is_not_observed_does_not_block_the_column(
-        self, settings, catalog: Catalog
+        self, settings, catalog: CatalogStore
     ):
         """Only contradictions on codes the data actually contains matter."""
         self._reference_with_conflict(settings, catalog)
@@ -345,7 +345,7 @@ class TestContradictoryCodelists:
 class TestSystemScoping:
     """The contradiction was manufactured by merging systems (§C root cause)."""
 
-    def _two_systems(self, settings, catalog: Catalog):
+    def _two_systems(self, settings, catalog: CatalogStore):
         from pegasus_data.persist.reference import (
             register_reference_tables,
             write_reference_tables,
@@ -375,7 +375,7 @@ class TestSystemScoping:
                 (system,),
             )
 
-    def test_each_system_decodes_against_its_own_copy(self, settings, catalog: Catalog):
+    def test_each_system_decodes_against_its_own_copy(self, settings, catalog: CatalogStore):
         self._two_systems(settings, catalog)
         sih, _ = render_table(
             pa.table({"SEXO": pa.array(["3"])}),
@@ -388,7 +388,7 @@ class TestSystemScoping:
         assert sih.column("SEXO_label").to_pylist() == ["Feminino"], "SIH codes sex 1/3"
         assert dn.column("SEXO_label").to_pylist() == ["Feminino"], "SINASC codes sex 1/2"
 
-    def test_the_other_systems_codes_do_not_leak_in(self, settings, catalog: Catalog):
+    def test_the_other_systems_codes_do_not_leak_in(self, settings, catalog: CatalogStore):
         """SIHSUS has no '2', and must not borrow SINASC's meaning for it."""
         self._two_systems(settings, catalog)
         out, report = render_table(
@@ -404,7 +404,7 @@ class TestSystemScoping:
         assert report.constant.get("SEXO") == "2"
 
     def test_a_borrowed_table_is_used_when_the_system_ships_none(
-        self, settings, catalog: Catalog
+        self, settings, catalog: CatalogStore
     ):
         """Borrowing remains available, but only through an explicit policy."""
         from pegasus_data.persist.decisions import borrowed_label_policy
@@ -425,7 +425,7 @@ class TestSystemScoping:
         assert "SEXO" in report.borrowed
 
     def test_a_foreign_system_table_is_refused_by_default(
-        self, settings, catalog: Catalog
+        self, settings, catalog: CatalogStore
     ):
         self._two_systems(settings, catalog)
         catalog.execute(
@@ -453,7 +453,7 @@ class TestBindingChoiceIsDeterministic:
     reference table at all.
     """
 
-    def _bind(self, catalog: Catalog, *codelists: str) -> None:
+    def _bind(self, catalog: CatalogStore, *codelists: str) -> None:
         for codelist in codelists:
             catalog.execute(
                 "INSERT INTO field_codelists (system, family_id, field_name, codelist, "
@@ -479,21 +479,21 @@ class TestBindingChoiceIsDeterministic:
         assert not selection.unlabelled
         assert len(loaded) == 13, "every bound table is weighed"
 
-    def test_the_same_catalog_always_yields_the_same_binding(self, catalog: Catalog):
+    def test_the_same_catalog_always_yields_the_same_binding(self, catalog: CatalogStore):
         from pegasus_data.view import _bindings
 
         self._bind(catalog, "RETENCAO", "ATJURC", "NATJURC", "ESFERAJUR", "NATJUR")
         picks = {tuple(_bindings(catalog, "CNES", None)["NAT_JUR"]) for _ in range(8)}
         assert len(picks) == 1
 
-    def test_the_field_s_own_table_wins_the_tie(self, catalog: Catalog):
+    def test_the_field_s_own_table_wins_the_tie(self, catalog: CatalogStore):
         """NAT_JUR's table is NATJUR; the rest are roll-ups and neighbours."""
         from pegasus_data.view import _bindings
 
         self._bind(catalog, "RETENCAO", "ATJURC", "NATJURC", "ESFERAJUR", "NATJUR")
         assert _bindings(catalog, "CNES", None)["NAT_JUR"][0] == "NATJUR"
 
-    def test_confidence_still_outranks_a_name_match(self, catalog: Catalog):
+    def test_confidence_still_outranks_a_name_match(self, catalog: CatalogStore):
         """Affinity breaks ties; it does not overturn a better source."""
         from pegasus_data.view import _bindings
 
@@ -516,7 +516,7 @@ class TestReadingAReferenceTableThatFiltersToNothing:
     labelling gap it should have reported came back as a traceback instead.
     """
 
-    def _one_window(self, settings, catalog: Catalog):
+    def _one_window(self, settings, catalog: CatalogStore):
         """One codelist published in one window, long before the year asked for."""
         persist_entries(
             catalog,
@@ -532,7 +532,7 @@ class TestReadingAReferenceTableThatFiltersToNothing:
         register_reference_tables(catalog, write_reference_tables(catalog, settings.lake_dir))
 
     def test_a_year_outside_every_window_falls_back_instead_of_raising(
-        self, settings, catalog: Catalog
+        self, settings, catalog: CatalogStore
     ):
         from pegasus_data.persist.reference import read_reference_table
 
@@ -541,7 +541,7 @@ class TestReadingAReferenceTableThatFiltersToNothing:
         assert table.num_rows >= 0
 
     def test_a_code_width_nothing_matches_yields_an_empty_table(
-        self, settings, catalog: Catalog
+        self, settings, catalog: CatalogStore
     ):
         from pegasus_data.persist.reference import read_reference_table
 
@@ -552,7 +552,7 @@ class TestReadingAReferenceTableThatFiltersToNothing:
         assert table.num_rows == 0
 
     def test_two_narrowings_where_the_first_empties_the_table(
-        self, settings, catalog: Catalog
+        self, settings, catalog: CatalogStore
     ):
         """The exact crash: an empty table makes an empty mask, and an empty
         Python list infers the *null* type, which ``filter`` refuses. Every
@@ -565,7 +565,7 @@ class TestReadingAReferenceTableThatFiltersToNothing:
         )
         assert table.num_rows == 0
 
-    def test_an_unpublished_window_yields_an_empty_table(self, settings, catalog: Catalog):
+    def test_an_unpublished_window_yields_an_empty_table(self, settings, catalog: CatalogStore):
         from pegasus_data.persist.reference import read_reference_table
 
         self._one_window(settings, catalog)
@@ -593,7 +593,7 @@ class TestADeadBindingLosesToAWorkingOne:
             (field, codelist, confidence, decodes),
         )
 
-    def test_the_working_table_wins_even_at_lower_confidence(self, catalog: Catalog):
+    def test_the_working_table_wins_even_at_lower_confidence(self, catalog: CatalogStore):
         # ANOMES is the tabulation axis .DEF declared, at full confidence.
         self._bind(catalog, "DT_INTER", "ANOMES", confidence=0.9, decodes=0.0)
         self._bind(catalog, "DT_INTER", "DTINTER", confidence=0.5, decodes=0.8)
@@ -601,14 +601,14 @@ class TestADeadBindingLosesToAWorkingOne:
 
         assert _bindings(catalog, "SIHSUS", None)["DT_INTER"][0] == "DTINTER"
 
-    def test_a_dead_binding_is_still_offered_when_nothing_else_is(self, catalog: Catalog):
+    def test_a_dead_binding_is_still_offered_when_nothing_else_is(self, catalog: CatalogStore):
         """Excluding it would be a stronger claim than the measurement supports."""
         self._bind(catalog, "DT_INTER", "ANOMES", confidence=0.9, decodes=0.0)
         from pegasus_data.view import _bindings
 
         assert _bindings(catalog, "SIHSUS", None)["DT_INTER"][0] == "ANOMES"
 
-    def test_an_unmeasured_binding_is_not_treated_as_dead(self, catalog: Catalog):
+    def test_an_unmeasured_binding_is_not_treated_as_dead(self, catalog: CatalogStore):
         self._bind(catalog, "SEXO", "SEXO", confidence=0.9, decodes=None)
         self._bind(catalog, "SEXO", "OTHER", confidence=0.4, decodes=0.9)
         from pegasus_data.view import _bindings

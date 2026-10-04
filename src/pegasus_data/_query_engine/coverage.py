@@ -1,4 +1,4 @@
-"""Compiled and local publication/query capability resolution."""
+"""Which years, states and resolutions each dataset is published at, and where."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from .model import Geography
 
 
 @dataclass(frozen=True, slots=True)
-class _Capabilities:
+class _Coverage:
     resolution: str
     physical_uf: bool
     source_strategy: str
@@ -64,7 +64,7 @@ def _compiled_capability(
     """Return a shipped, reviewed capability declaration; never infer semantics."""
     from .._resources import ResourceManager
 
-    resource = ResourceManager(settings).ensure("query_capabilities")
+    resource = ResourceManager(settings).ensure("publication_coverage")
     payload = json.loads(Path(resource.path).read_text(encoding="utf-8"))
     for body in payload.get("datasets", {}).values():
         systems = {str(value).upper() for value in body.get("observed_systems", ())}
@@ -149,24 +149,24 @@ def _source_identities(
     return identities
 
 
-def _capabilities(
+def _coverage(
     settings: Settings,
     system: str,
     series: str | None,
     *,
     years: Sequence[int],
     geography: Geography | None,
-) -> _Capabilities:
+) -> _Coverage:
     """Resolve source-publication capabilities and exact local coverage."""
     from ..retrieve import _families
 
     declaration = _compiled_capability(settings, system, series)
     declared_physical_uf = bool((declaration or {}).get("physical_geography") == "uf")
     # The catalog always exists: a fresh one starts from the shipped seed (ADR-0067).
-    from ..catalog.store import Catalog
+    from ..catalog.store import CatalogStore
     from ..representations import choose_representations
 
-    store = Catalog(settings.catalog_path, read_only=True)
+    store = CatalogStore(settings.catalog_path, read_only=True)
     try:
         families = _families(store, system, series)
         ids = [str(item["family_id"]) for item in families]
@@ -240,7 +240,7 @@ def _capabilities(
             "mixed" if unique_resolutions else str((declaration or {}).get("publication_resolution") or "unknown")
         )
         strategy = "hybrid" if lake_years and fetch_years else "lake" if lake_years else "fetch"
-        return _Capabilities(
+        return _Coverage(
             overall, physical_uf, strategy,
             tuple(lake_years), tuple(fetch_years), tuple(resolutions), national_ufs,
         )
@@ -264,12 +264,12 @@ def download_estimate(
     """
     if not years:
         return 0, 0
-    from ..catalog.store import Catalog
+    from ..catalog.store import CatalogStore
     from ..representations import choose_representations
     from ..retrieve import _families, _month_of
 
     try:
-        store = Catalog(settings.catalog_path, read_only=True)
+        store = CatalogStore(settings.catalog_path, read_only=True)
     except FileNotFoundError:
         return None, None
     try:

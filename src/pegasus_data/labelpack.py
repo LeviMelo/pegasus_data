@@ -45,7 +45,7 @@ from itertools import compress
 from pathlib import Path
 from typing import Any
 
-from .catalog.store import Catalog
+from .catalog.store import CatalogStore
 from .identifiers import strip_label_prefix
 from .persist.decisions import historical_labels, note_pack_fallback
 
@@ -204,7 +204,7 @@ def _unescape_accents(label: str) -> str:
 
 
 def build_label_pack(
-    catalog: Catalog,
+    catalog: CatalogStore,
     out: str | Path,
     *,
     only_bound: bool = True,
@@ -485,7 +485,7 @@ def _crosswalk_tuple(row: Any, group: str, code: str, cnpj: str) -> tuple[str, s
     )
 
 
-def build_crosswalk_pack(catalog: Catalog, out: str | Path) -> int:
+def build_crosswalk_pack(catalog: CatalogStore, out: str | Path) -> int:
     """Compile the temporal CNES→CNPJ relation without rebuilding labels."""
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -986,7 +986,7 @@ def _read_packed(
 
 
 def build_cnes_registry_pack(
-    catalog: Catalog, out: str | Path, *, years: list[int] | None = None
+    catalog: CatalogStore, out: str | Path, *, years: list[int] | None = None
 ) -> tuple[int, int]:
     """Compile optional CNES establishment names as a temporal local resource.
 
