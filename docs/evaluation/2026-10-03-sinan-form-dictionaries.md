@@ -67,3 +67,5 @@ Culture of CSF reads Nenhum agente 13,182, Streptococos pneumoniae 476 + 11, Nei
 - **PFA (polio).** Items 55 and 84 are ICD-10 in dotted notation ("G61.0"), which the ICD lookup now reads as the dotless code. `ATE_HIPOTE` is bound to ICD-10. `LAB_E_D_1` (item 70) stores the list's own text, cut to 30 characters, and stays uncoded.
 
 Live check, PFAN 2023 (620 rows): `CON_DESCAR` reads Síndrome de Guillain-Barré (G61.0) 193, which was "G61.0 (?)" before.
+
+**Sinan Online classification.** CHIK and DENG declare `CLASSI_FIN` as VARCHAR(1) but list 5, 10, 11, 12 and 13. The width tolerance now also accepts over-width codes that form a consecutive run of their own. The regenerated harvest adds exactly these two tables. The fresh-home sweep had CHIK 2023 `CLASSI_FIN` undecoded on 238,240 rows (13 Chikungunya on 130,196, 5 Descartado on 108,044).

@@ -2525,6 +2525,14 @@ series:
         '3': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
   CHIK:
+    CLASSI_FIN:
+      codes:
+        '5': Descartado
+        '10': Dengue
+        '11': Dengue com sinais de alarme
+        '12': Dengue grave
+        '13': Chikungunya
+      source_ref: chikungunya__DIC_DADOS_ONLINE.pdf
     CRITERIO:
       codes:
         '1': Laboratório
@@ -2987,6 +2995,14 @@ series:
         '9': Ignorado
       source_ref: coqueluche__DIC_DADOS_Coqueluche_v5.pdf
   DENG:
+    CLASSI_FIN:
+      codes:
+        '5': Descartado
+        '10': Dengue
+        '11': Dengue com sinais de alarme
+        '12': Dengue grave
+        '13': Chikungunya
+      source_ref: dengue__DIC_DADOS_ONLINE.pdf
     CRITERIO:
       codes:
         '1': Laboratório

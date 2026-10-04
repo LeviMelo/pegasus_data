@@ -117,7 +117,7 @@ _TYPES = {"caracter", "caractere", "numérico", "numerico", "char"}
 
 
 def _fits(codes: dict[str, str], width: int) -> bool:
-    """Every code fits the declared width, or continues the run of those that do.
+    """Every code fits the declared width, or the rest form one consecutive run.
 
     TUBE ``SITUA_ENCE`` is declared varchar2(1) and lists 1 to 10; the kit's
     ``encerra.cnv`` agrees on 10 (2026-10-03). A parse of prose fails anyway:
@@ -130,7 +130,11 @@ def _fits(codes: dict[str, str], width: int) -> bool:
     if not fitting or not all(c.isdigit() for c in codes):
         return False
     top = max(int(c) for c in fitting)
-    return sorted(int(c) for c in over) == list(range(top + 1, top + 1 + len(over)))
+    run = sorted(int(c) for c in over)
+    # Continuing the run that fits (TUBE 1..10), or a run of its own: the
+    # Sinan Online CHIK/DENG classification is declared VARCHAR(1) and lists
+    # 5, then 10-13 (2026-10-03).
+    return run == list(range(run[0], run[0] + len(run))) and (run[0] == top + 1 or len(run) >= 2)
 
 
 def _categories(cell: str) -> dict[str, str]:
