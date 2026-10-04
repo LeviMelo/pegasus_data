@@ -28,10 +28,11 @@ class _Capabilities:
 
 def compile_capability_payload() -> dict[str, Any]:
     """Compile source-publication metadata from maintainer curation."""
-    from ..ontology import CURATION, _read_yaml
+    from ..config import curation_root
+    from ..ontology import _read_yaml
 
     datasets: dict[str, dict[str, Any]] = {}
-    for path in sorted((CURATION / "datasets").glob("*.yml")):
+    for path in sorted((curation_root() / "datasets").glob("*.yml")):
         for body in (_read_yaml(path).get("datasets") or {}).values():
             publication = body.get("source_publication") or {}
             code = str(publication.get("dataset") or "")

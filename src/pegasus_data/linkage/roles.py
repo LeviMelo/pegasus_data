@@ -30,7 +30,11 @@ import pyarrow.compute as pc
 
 from ..semantics.curation import read_yaml
 
-ROLES_FILE = Path(__file__).resolve().parent.parent / "curation" / "roles.yml"
+
+def roles_file() -> Path:
+    from ..config import curation_root
+
+    return curation_root() / "roles.yml"
 
 _FORMATS = {"DDMMYYYY": "%d%m%Y", "YYYYMMDD": "%Y%m%d", "YYYY-MM-DD": "%Y-%m-%d", "YYYYMM": "%Y%m"}
 _TYPES = {"date", "month", "sex", "municipality", "facility", "integer", "number", "code", "codes", "label"}
@@ -63,7 +67,7 @@ class DatasetRoles:
 @lru_cache(maxsize=1)
 def load_roles() -> dict[str, DatasetRoles]:
     """Every dataset's roles, validated: an unknown type or format is an error."""
-    data = read_yaml(ROLES_FILE)
+    data = read_yaml(roles_file())
     out: dict[str, DatasetRoles] = {}
     for dataset, body in (data.get("datasets") or {}).items():
         roles: dict[str, Role] = {}
@@ -184,7 +188,7 @@ def _cache_path(dataset: str, period: object, geography: object, settings: Any) 
         return None
     h = hashlib.sha256()
     h.update(f"{dataset}|{period!r}|{geography!r}".encode())
-    h.update(ROLES_FILE.read_bytes())
+    h.update(roles_file().read_bytes())
     # The code that reads and renders the rows, not only this normaliser: a fix
     # in the lake read (derived inputs, 2026-10-03) must invalidate the tables.
     package = Path(__file__).resolve().parent.parent

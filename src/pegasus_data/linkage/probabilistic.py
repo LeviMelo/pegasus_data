@@ -47,7 +47,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 from ..semantics.curation import read_yaml
-from .engine import LINKS_FILE, LinkSpec, _prepare, _q, judge, load_links, stored_key, upper95, validate
+from .engine import LinkSpec, _prepare, _q, judge, links_file, load_links, stored_key, upper95, validate
 from .identity import connect, record_ids
 from .levels import Levels, levels
 from .model import MISSING, Comparison, FieldModel, threshold_for
@@ -96,7 +96,7 @@ class ProbabilisticSpec:
 
 
 def load_probabilistic(name: str) -> ProbabilisticSpec:
-    body = (read_yaml(LINKS_FILE).get("links") or {})[name].get("probabilistic")
+    body = (read_yaml(links_file()).get("links") or {})[name].get("probabilistic")
     if not body:
         raise KeyError(f"link spec {name!r} declares no probabilistic block")
     spec = load_links()[name]

@@ -176,9 +176,9 @@ _ALL_UFS: tuple[str, ...] = (
 def _spec_root(root: Path | None = None) -> Path:
     if root is not None:
         return root
-    from .ontology import CURATION
+    from .config import curation_root
 
-    return CURATION / "aggregates"
+    return curation_root() / "aggregates"
 
 
 def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
@@ -956,13 +956,13 @@ def _fingerprint(spec: AggregateSpec, blob_digests: set[str], settings: Settings
     """
     from importlib.resources import files
 
-    from .ontology import CURATION
+    from .config import curation_root
     from .semantics.curation import curation_fingerprint
 
     digest = hashlib.blake2b(digest_size=16)
     digest.update(json.dumps(spec.fingerprint_payload(), sort_keys=True).encode())
     digest.update(ENGINE_VERSION.encode())
-    digest.update(curation_fingerprint(CURATION).encode())
+    digest.update(curation_fingerprint(curation_root()).encode())
     try:
         pack = Path(str(files("pegasus_data.resources") / "geography.parquet"))
         if pack.exists():

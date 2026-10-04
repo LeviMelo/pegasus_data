@@ -915,11 +915,11 @@ def _ensure_curation(pipeline: Pipeline, report: FetchReport) -> None:
     (2026-09-29).
     """
     try:
-        from .ontology import CURATION
+        from .config import curation_root
         from .semantics.curation import ensure_current
 
         first_time = not pipeline.catalog.count("variable_docs")
-        loaded = ensure_current(pipeline.catalog, CURATION)
+        loaded = ensure_current(pipeline.catalog, curation_root())
         if loaded is not None:
             report.warnings.append(
                 ("loaded the shipped curation on first use: " if first_time

@@ -190,9 +190,9 @@ def _fold(text: str) -> str:
 def _curation_root(root: Path | None = None) -> Path:
     if root is not None:
         return root
-    from .ontology import CURATION
+    from .config import curation_root
 
-    return CURATION
+    return curation_root()
 
 
 def municipality_fields(system: str, root: Path | None = None) -> frozenset[str]:

@@ -300,10 +300,10 @@ def capabilities(
     # an edited YAML must reach the descriptor without waiting for a rebuild.
     spec_mtime = 0
     try:
-        from .ontology import CURATION
+        from .config import curation_root
 
         spec_mtime = (
-            (CURATION / "aggregates" / f"{name}.yml").stat().st_mtime_ns
+            (curation_root() / "aggregates" / f"{name}.yml").stat().st_mtime_ns
         )
     except OSError:
         pass

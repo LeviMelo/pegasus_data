@@ -28,9 +28,10 @@ __all__ = ["build_fields", "declared_fields", "load_field"]
 
 
 def declared_fields(root: Path | None = None) -> dict[str, dict[str, Any]]:
+    from .config import curation_root
     from .ontology import _read_yaml
 
-    base = root or Path(__file__).resolve().parent / "curation"
+    base = root or curation_root()
     return dict((_read_yaml(base / "fields.yml") or {}).get("fields") or {})
 
 

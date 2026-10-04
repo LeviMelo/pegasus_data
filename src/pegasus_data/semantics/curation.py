@@ -343,7 +343,9 @@ def _inline_codelists() -> dict[str, dict[str, str]]:
     Read from the shipped YAML rather than the catalog, so a fresh install
     labels these columns with no catalog, lake or label-pack rebuild.
     """
-    root = Path(__file__).resolve().parent.parent / "curation"
+    from ..config import curation_root
+
+    root = curation_root()
     out: dict[str, dict[str, str]] = {}
     for path in sorted(root.glob("variables/**/*.yml")):
         data = read_yaml(path)
@@ -365,7 +367,9 @@ def _harvested_codelists() -> dict[str, dict[str, str]]:
     different codes on different forms (ADR-0079). Ids are
     ``CURATED.<SYSTEM>.<SERIES>.<FIELD>``.
     """
-    root = Path(__file__).resolve().parent.parent / "curation" / "codes"
+    from ..config import curation_root
+
+    root = curation_root() / "codes"
     out: dict[str, dict[str, str]] = {}
     for path in sorted(root.glob("*.yml")):
         data = read_yaml(path)
@@ -1064,9 +1068,9 @@ def _dataset_semantics(root: str) -> dict[str, DatasetSemantics]:
 
 def dataset_semantics(root: Path | None = None) -> dict[str, DatasetSemantics]:
     """Grain and semantic axes for every curated dataset, keyed by dataset_id."""
-    from ..ontology import CURATION
+    from ..config import curation_root
 
-    return dict(_dataset_semantics(str(root or CURATION)))
+    return dict(_dataset_semantics(str(root or curation_root())))
 
 
 def semantics_for(dataset: str, root: Path | None = None) -> DatasetSemantics | None:

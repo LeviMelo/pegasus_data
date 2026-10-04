@@ -275,3 +275,16 @@ def load_settings(**overrides: object) -> Settings:
             kwargs[setting_name] = cast(os.environ[env_name])
     kwargs.update({k: v for k, v in overrides.items() if v is not None})
     return Settings(**kwargs)  # type: ignore[arg-type]
+
+
+def curation_root() -> Path:
+    """The curation directory every reader uses: ``PEGASUS_CURATION_DIR`` (or the
+    placement config) when set, else the packaged copy.
+
+    Several modules built the packaged path themselves, so the override reached
+    only those that went through ``Settings`` (ARCHITECTURE §5, 2026-10-04).
+    """
+    from .locate import resolve_placement
+
+    decided = resolve_placement({})["curation"]
+    return Path(decided.value) if decided.value is not None else Path(__file__).resolve().parent / "curation"

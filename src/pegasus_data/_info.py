@@ -283,18 +283,18 @@ def _refresh_curation(catalog_path: Path) -> None:
     if not Path(catalog_path).exists():
         return
     try:
-        from .ontology import CURATION
+        from .config import curation_root
         from .semantics.curation import curation_is_current, ensure_current
 
         reader = _Store(catalog_path, read_only=True)
         try:
-            if curation_is_current(reader, CURATION):
+            if curation_is_current(reader, curation_root()):
                 return
         finally:
             reader.close()
         writer = _Store(catalog_path)
         try:
-            ensure_current(writer, CURATION)
+            ensure_current(writer, curation_root())
         finally:
             writer.close()
     except Exception:  # noqa: BLE001 - a locked catalog still answers, with what it has

@@ -43,8 +43,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-CURATION = Path(__file__).parent / "curation"
-
 #: Brazilian state codes plus BR, used to recognise a filename's UF segment.
 UFS = frozenset(
     {
@@ -473,7 +471,9 @@ class Ontology:
         thirteen times and paid 4.6 seconds re-parsing YAML that had not
         changed since the process started.
         """
-        root = curation_dir or CURATION
+        from .config import curation_root
+
+        root = curation_dir or curation_root()
         stamp = tuple(
             (str(f), f.stat().st_mtime_ns)
             for f in sorted(root.glob("*.yml")) + sorted((root / "datasets").glob("*.yml"))

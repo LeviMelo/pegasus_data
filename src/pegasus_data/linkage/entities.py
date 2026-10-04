@@ -29,7 +29,7 @@ import numpy as np
 import pyarrow as pa
 
 from ..semantics.curation import read_yaml
-from .engine import LINKS_FILE, load_links, stored_key
+from .engine import links_file, load_links, stored_key
 from .identity import connect
 from .store import links_dir
 
@@ -60,7 +60,7 @@ class Entities:
 
 def _person_of_specs() -> dict[str, tuple[str, str, str, str]]:
     """spec -> (left dataset, left person role, right dataset, right person role)."""
-    raw = read_yaml(LINKS_FILE).get("links") or {}
+    raw = read_yaml(links_file()).get("links") or {}
     out = {}
     for name, spec in load_links().items():
         person = (raw.get(name) or {}).get("person")

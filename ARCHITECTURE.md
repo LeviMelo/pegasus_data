@@ -291,8 +291,9 @@ Also known, not duplicates:
 - ~~`decode/_native/` compiled into the package with a hardcoded Visual
   Studio path~~: it builds into a per-user cache with discovered compilers
   (ADR-0074). Shipping it compiled in wheels awaits a publishing decision.
-- `ontology.py` hardcodes `CURATION`, so `PEGASUS_CURATION_DIR` is ignored by
-  every `Ontology.load()` call.
+- ~~`ontology.py` hardcodes `CURATION`, so `PEGASUS_CURATION_DIR` is ignored by
+  every `Ontology.load()` call~~: every reader resolves it through
+  `config.curation_root()` (2026-10-04).
 - Rendering writes adjudication rows into the catalog, with failures silenced
   (`view.py`, `representations.py`).
 

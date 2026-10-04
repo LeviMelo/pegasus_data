@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from ..catalog.store import Catalog, _semantic_relation_id, utcnow
-from ..ontology import CURATION
+from ..config import curation_root
 
 
 class RelationType(StrEnum):
@@ -47,7 +47,7 @@ def load_relations(root: Path | None = None) -> tuple[SemanticRelation, ...]:
     # timer tick, so two writes in quick succession can share one, and a
     # rewritten file would be served from the parse of its predecessor.
     # Reading a few kilobytes per call is nothing; the YAML parse is not.
-    path = (root or CURATION) / "joins.yml"
+    path = (root or curation_root()) / "joins.yml"
     try:
         text = path.read_text(encoding="utf-8")
     except OSError:

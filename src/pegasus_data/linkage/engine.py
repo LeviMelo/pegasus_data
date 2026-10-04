@@ -40,7 +40,11 @@ from ..semantics.curation import read_yaml
 from .identity import DUP_SQL, RECORD_ID_SQL, connect
 from .roles import dataset_roles, role_table
 
-LINKS_FILE = Path(__file__).resolve().parent.parent / "curation" / "links.yml"
+
+def links_file() -> Path:
+    from ..config import curation_root
+
+    return curation_root() / "links.yml"
 CHANCE_DROP = 20.0
 VIABLE = (5.0, 90.0)
 CAUTION = (20.0, 75.0)
@@ -127,7 +131,7 @@ def padded_period(period: object, side: Side) -> object:
 
 @lru_cache(maxsize=1)
 def load_links() -> dict[str, LinkSpec]:
-    data = read_yaml(LINKS_FILE)
+    data = read_yaml(links_file())
     out: dict[str, LinkSpec] = {}
     for name, body in (data.get("links") or {}).items():
         passes = tuple(

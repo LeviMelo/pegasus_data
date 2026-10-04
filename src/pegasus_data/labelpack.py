@@ -76,9 +76,10 @@ def codelist_roles() -> dict[str, list[str]]:
     classification from a directory: CID10 has one label per code and so does an
     establishment registry. The difference is what the code REFERS to.
     """
-    from .ontology import CURATION, _read_yaml
+    from .config import curation_root
+    from .ontology import _read_yaml
 
-    path = CURATION / "codelists.yml"
+    path = curation_root() / "codelists.yml"
     if not path.exists():  # pragma: no cover - shipped with the package
         return {}
     data = _read_yaml(path) or {}
