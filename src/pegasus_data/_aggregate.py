@@ -169,15 +169,17 @@ class AggregateSpec:
         }
 
 
-def _national_file(dataset: str, year: int, settings: Settings) -> bool:
-    """Whether DATASUS publishes this dataset-year as one national file."""
+def _physical_geography(dataset: str, year: int, settings: Settings) -> tuple[str, ...] | None:
+    """The publications a national read of this dataset-year selects: ("BR",)
+    for one national file, () for a dataset with no state axis, the states
+    otherwise; None when the year cannot be planned (per-state chunks)."""
     from ._query_engine.planner import plan
 
     try:
         retrieval = plan(dataset, period=str(year), geography="BR", settings=settings).retrieval
     except Exception:  # noqa: BLE001 - an unplannable year keeps the per-state chunks
-        return False
-    return tuple(retrieval.physical_geography or ()) == ("BR",)
+        return None
+    return tuple(retrieval.physical_geography or ())
 
 
 #: Every UF, for chunking a national build. Ordered by IBGE code so a build's
@@ -438,7 +440,6 @@ def build_aggregate(
     that is arithmetic: lift each row into accumulator state, group by the key
     tuple, merge.
     """
-    import pyarrow as pa
     import pyarrow.parquet as pq
 
     from ._availability import field_available
@@ -468,6 +469,18 @@ def build_aggregate(
     time_encoding = str(
         (semantics.time_bindings().get(spec.time_binding) or {}).get("encoding") or "")
     geography_field = geography_fields[0]
+    # Only the columns the recipe reads: a national SIM year is 87 columns,
+    # and holding all of them peaked a 2010-2023 build at 12.75 GB (2026-10-04).
+    derived_names = {d.name for d in ([spec.age] if spec.age is not None else []) + list(spec.band_dims)}
+    needed = sorted({
+        *geography_fields, *time_fields,
+        *(d for d in spec.dimensions if d not in derived_names),
+        *(f for f in (spec.age.fields if spec.age is not None else ())),
+        *(b.field_name for b in spec.band_dims),
+        *(f for m in spec.measures for f in m.source_fields),
+        *((event.status_column,) if event is not None and event.status_column else ()),
+        *(event.consolidation_key if event is not None else ()),
+    })
 
     report = AggregateReport(name=name)
     # Normalised the same way `fetch` reads it, so the manifest says what was
@@ -484,7 +497,8 @@ def build_aggregate(
             "download the whole publication history"
         )
 
-    cells: dict[tuple[str, ...], dict[str, tuple[float, ...]]] = {}
+    # One grouped Arrow table per chunk; merged once at the end (_merge_cells).
+    cells: list[Any] = []
     blob_digests: set[str] = set()
 
     # One chunk per (year, UF) rather than one per year.
@@ -502,8 +516,13 @@ def build_aggregate(
             return [(year, u) for year in sorted(wanted_years) for u in report.uf]
         # A year DATASUS publishes as one national file is read from it, not
         # from its 27 state files: the same records, read once (handoff §1.7).
-        return [(year, u) for year in sorted(wanted_years)
-                for u in (("BR",) if _national_file(spec.dataset, year, resolved) else _ALL_UFS)]
+        out: list[tuple[int, str | Sequence[str] | None]] = []
+        for year in sorted(wanted_years):
+            physical = _physical_geography(spec.dataset, year, resolved)
+            # SINAN publishes one national file and no state axis at all.
+            out.extend([(year, None)] if physical == () else [(year, "BR")] if physical == ("BR",)
+                       else [(year, u) for u in _ALL_UFS])
+        return out
 
     chunks = _chunks()
     national_fallback = not report.uf
@@ -516,6 +535,7 @@ def build_aggregate(
             table, fetch_report = _fetch(
                 spec.dataset, uf=chunk_uf, years=year, settings=resolved,
                 report=True, labels=False, provenance=True,
+                columns=needed, on_missing_column="null_fill",
             )
         except NothingPublished:
             # An empty (year, UF) chunk is DATA for the fallback below, not an
@@ -598,6 +618,7 @@ def build_aggregate(
             table, fetch_report = _fetch(
                 spec.dataset, uf=None, years=year, settings=resolved,
                 report=True, labels=False, provenance=True,
+                columns=needed, on_missing_column="null_fill",
             )
             report.rows_read += table.num_rows
             if event is not None:
@@ -626,26 +647,9 @@ def build_aggregate(
         )
 
     key_names = (GEOGRAPHY_KEY, TIME_KEY, *spec.dimensions)
-    ordered = sorted(cells)
-    data: dict[str, list[Any]] = {n: [] for n in key_names}
-    for measure in spec.measures:
-        for column in measure.state_columns():
-            data[column] = []
-    for key in ordered:
-        for position, column in enumerate(key_names):
-            data[column].append(key[position])
-        bucket = cells[key]
-        for measure in spec.measures:
-            state = bucket.get(measure.name) or measure.kind.identity()
-            for position, column in enumerate(measure.state_columns()):
-                data[column].append(float(state[position]))
-
-    arrow = pa.table({
-        **{n: pa.array(data[n], pa.string()) for n in key_names},
-        **{c: pa.array(data[c], pa.float64()) for c in spec.state_columns()},
-    })
+    arrow = _merge_cells(cells, key_names, spec)
     report.cells = arrow.num_rows
-    _flag_partial_periods(spec, semantics, report, wanted_years, data[TIME_KEY])
+    _flag_partial_periods(spec, semantics, report, wanted_years, arrow.column(TIME_KEY).to_pylist())
     report.fingerprint = _fingerprint(spec, blob_digests, resolved)
 
     target = artifact_dir(name, resolved)
@@ -697,37 +701,47 @@ def _to_number(column: Any, rows: int) -> Any:
     return pc.cast(cleaned, pa.float64(), safe=False)
 
 
-def _accumulate(cells: dict, table: Any, keyed: dict, spec: AggregateSpec) -> None:
-    """Lift, group and merge one chunk into the accumulating cells.
+def _reductions(spec: AggregateSpec) -> dict[str, str]:
+    """Each state column's merge: min/max for the extremes, a sum for every other kind."""
+    return {column: (measure.kind.name if measure.kind.name in ("min", "max") else "sum")
+            for measure in spec.measures for column in measure.state_columns()}
+
+
+def _accumulate(cells: list, table: Any, keyed: dict, spec: AggregateSpec) -> None:
+    """Lift and group one chunk; the chunks are merged once, by ``_merge_cells``.
 
     The merge is a commutative monoid, which is exactly why a national build can
-    be assembled a state at a time: the order chunks arrive in cannot change the
-    artifact, and neither can how they are divided.
+    be assembled a chunk at a time: the order chunks arrive in cannot change the
+    artifact, and neither can how they are divided. Each chunk stays an Arrow
+    table: merging a million cells a year through a Python dict was most of a
+    national cause-of-death build (2026-10-04).
     """
     import pyarrow as pa
+    import pyarrow.compute as pc
 
     lifted, state_names = _lift_columns(table, spec.measures)
-    # Each state column is reduced by ITS kind's operation. Hardcoding "sum"
-    # here silently turned a min/max cell into a total -- the monoid's merge is
-    # only a sum for the kinds whose merge IS addition.
-    reduction = {}
-    for measure in spec.measures:
-        for column in measure.state_columns():
-            reduction[column] = (
-                measure.kind.name if measure.kind.name in ("min", "max") else "sum")
+    reduction = _reductions(spec)
     grouped = pa.table({**keyed, **lifted}).group_by(list(keyed)).aggregate(
         [(name, reduction[name]) for name in state_names])
-    got = {n: grouped.column(n).to_pylist() for n in grouped.schema.names}
-    key_order = list(keyed)
-    for i in range(grouped.num_rows):
-        key = tuple(str(got[k][i]) for k in key_order)
-        bucket = cells.setdefault(key, {})
-        for measure in spec.measures:
-            state = tuple(float(got[f"{c}_{reduction[c]}"][i] or 0.0)
-                          for c in measure.state_columns())
-            prior = bucket.get(measure.name)
-            bucket[measure.name] = (
-                state if prior is None else measure.kind.merge(prior, state))
+    grouped = grouped.rename_columns(
+        [n if n in keyed else n.rsplit("_", 1)[0] for n in grouped.schema.names])
+    cells.append(pa.table({
+        **{k: pc.cast(grouped.column(k), pa.string()) for k in keyed},
+        **{c: pc.fill_null(pc.cast(grouped.column(c), pa.float64()), 0.0) for c in state_names},
+    }))
+
+
+def _merge_cells(cells: list, key_names: Sequence[str], spec: AggregateSpec) -> Any:
+    """The chunks' cells merged by the monoid, one row per key, sorted by key."""
+    import pyarrow as pa
+
+    reduction = _reductions(spec)
+    whole = pa.concat_tables(cells, promote_options="default")
+    merged = whole.group_by(list(key_names)).aggregate([(c, reduction[c]) for c in spec.state_columns()])
+    merged = merged.rename_columns(
+        [n if n in key_names else n.rsplit("_", 1)[0] for n in merged.schema.names])
+    merged = merged.select([*key_names, *spec.state_columns()])
+    return merged.sort_by([(k, "ascending") for k in key_names])
 
 
 def _key_columns(table: Any, geography_field: str, time_fields: Sequence[str],

@@ -155,7 +155,7 @@ things mean (`field_codelists`, `variable_docs`, `dataset_docs`,
 local state (`blobs`, `fetches`, `lake_partitions`, `build_outcomes`,
 `adjudication_items`). 47 tables.
 
-**The shipped snapshot** (`resources/`, in the wheel; 56.6 MB, budget 64 MiB):
+**The shipped snapshot** (`resources/`, in the wheel; 61.0 MiB on 2026-10-04 after the code structures and proximity graphs, from 56.6 MB; budget 64 MiB):
 
 | file | what | read by |
 |---|---|---|
@@ -340,7 +340,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `lookups.py`: code → label maps, read per vintage, cached per table version, merged in authority order, and applied at exact width (§6.2).
 - `rates.py`: crude and directly age-standardised rates of queried records over POPSVS.
 - `quality.py`: where a field's values cannot be taken at face value, measured from the data: `race_reliability` (ADR-0128).
-- `fields.py`: context fields, IBGE's municipal statistics declared in `curation/fields.yml`, read into `<lake>/fields/` (ADR-0127).
+- `fields.py`: context fields, IBGE's municipal statistics declared in `curation/fields.yml`, read into `<lake>/fields/` (ADR-0127). Also INMET climate, S2iD disasters, ANS plan beneficiaries (`sources/ans.py`) and INEP enrolment margins (`sources/inep.py`); every file source downloads through `sources.fetch_url` (browser agent, retries).
 - `registry.py`: registries from their owner's current TabWin kit, fetched once and cached (ADR-0086): the typed establishment registry (`CADGERBR`: names, maintainer, valid CNPJ only, inclusion/exclusion dates), `CNPJ_BR`, teams (`INE_EQUIPE_BR`, SIASUS kit) and `HUF_*` (ADR-0100). The single source of establishment identity.
 - `presentation.py`: how a result reads, applied last: value and header templates, presets, language (ADR-0084).
 - `render_groups.py`: groups files by vintage and system before rendering.

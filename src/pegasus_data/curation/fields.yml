@@ -172,3 +172,32 @@ fields:
       injured, sick, homeless, displaced, missing and affected as reported.
     years: 1991-2025
 
+  # Supplementary-health plan links (sources/ans.py), December of each year:
+  # the observed input to a SUS-dependent population (a modelled product,
+  # ADR-0139), never that population itself.
+  ans_beneficiaries:
+    source: ans
+    unit: active beneficiary links (vínculos), not persons
+    what: >
+      ANS's consolidated beneficiaries (informacoes_consolidadas_de_beneficiarios),
+      the December file of each year: active beneficiaries by municipality of
+      residence, sex, age band and plan coverage (Médico-hospitalar or
+      Odontológico). Someone with two plans counts twice.
+    years: 2021-2025
+    verified: {year: 2022, month: 12, medical_hospital: 50530569, equals: "ANS TabNet tabnet_02 Assistência Médica, 28 of 28 UF files", measured: 2026-10-04}
+
+  # Basic-education enrolments (sources/inep.py), the school census's
+  # published margins per municipality: an observation of the population by
+  # age, sex and race for the population account (ADR-0139), never a count of
+  # persons.
+  inep_enrolments:
+    source: inep
+    unit: enrolments (matrículas) in basic education, at the school's municipality
+    what: >
+      INEP's school census (microdados_ed_basica_<year>), one row per school since
+      the 2021 release, summed to the municipality: the total, and separately the
+      margins by sex, colour/race (with "not declared") and age band (0-3, 4-5,
+      6-10, 11-14, 15-17, 18+). The crossing of the three is not published.
+    years: 2021-2024
+    verified: {year: 2023, total: 47304632, municipalities: 5570, each_margin_sums_to_total: true, measured: 2026-10-04}
+

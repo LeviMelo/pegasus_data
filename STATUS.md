@@ -297,10 +297,10 @@ OQ-64), 1990s SIH V-codes.
 | 1 storage | **Done** (`docs/evaluation/2026-10-04-storage.md`): per-process DuckDB spill (6.7 GB freed), national-only role cache with derived states, `prune` (4.47 of 6.0 GB on the linkage home, dry run), national-only builds, `_row` delta. A 16-byte key, typed money and dates, and sorting were measured and not adopted (ADR-0124 amended). |
 | 2 roles | **Done for 16 datasets** (ADR-0137): 1,540 columns, 69 still draft with reasons. The person/event test on linked records: race agrees 0.72, event attributes 0.08–0.24. |
 | 3 event types | **Declared** (ADR-0137). SIM, SINASC and dengue probable cases equal TabNet 2022 in 27/27 states; SIH within 76 of 12.4 M (OQ-68). No confirmed-case rule for TUBE, HANS, SIF*, VIOL or ZIKA without a source. |
-| 4 aggregation | **Mechanisms done** (ADR-0138): event types in recipes, `CAUSABAS@category` tree roll-ups, `moments`, `field_overlap`, `data_version`. The national SIM 2010–2023 acceptance build is running (`data/probes/aggregate/sim_2010_2023.*`). |
+| 4 aggregation | **Done** (ADR-0138): national SIM 2010–2023, municipality × year × 18 ages × sex × ICD category: 10,974,296 cells, 18,878,605 deaths, 14/14 years = TabNet; 655 s and 11.4 GB peak (from 1,205 s and 15.1 GB). |
 | 5 code structures | **Done** except OQ-69: ICD10/SIGTAP/CBO2002/CNAE20 trees; CID-BR-10, ICD-10 lists 2 and 4, avoidable causes, ICSAP. Not served: the SIH morbidity list (no ICD mapping found), GBD (licence: the author's call), ICD-9 → ICD-10. |
 | 6 graphs | **Done** (ADR-0138): contiguity by border km, population distance, REGIC 2018 links and cities, areas, care flows (sum exactly to events). Travel time: later. |
-| 7 modelled tier | **Declared** (ADR-0139, `modelled.py`). The sources (INEP, CadÚnico, ANS, TSE, RAIS) and the models are phase 2–3, not started. |
+| 7 modelled tier | **Declared** (ADR-0139, `modelled.py`). Sources: ANS beneficiaries 2021–2025 (= ANS TabNet) and INEP enrolment margins 2021–2024 are fields. TSE needs a TSE–IBGE crosswalk; CadÚnico, RAIS and the models are not started. |
 
 ## Waiting on the user
 

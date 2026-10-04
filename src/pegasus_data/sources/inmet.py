@@ -33,9 +33,10 @@ from __future__ import annotations
 
 import json
 import re
-import urllib.request
 from pathlib import Path
 from typing import Any
+
+from . import fetch_url
 
 RECORD = "https://zenodo.org/api/records/14925215/files/{name}/content"
 INMET_STATIONS = "https://apitempo.inmet.gov.br/estacoes/{kind}"
@@ -62,10 +63,7 @@ def fetch(name: str, cache_dir: str | Path, *, timeout: float = 3000.0) -> Path:
     if target.is_file():
         return target
     target.parent.mkdir(parents=True, exist_ok=True)
-    request = urllib.request.Request(_SOURCES.get(name) or RECORD.format(name=name),
-                                     headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        data = response.read()
+    data = fetch_url(_SOURCES.get(name) or RECORD.format(name=name), timeout=timeout, agent=USER_AGENT)
     if data[:2] == bytes((0x1F, 0x8B)):   # IBGE sends gzip without saying so
         import gzip
 

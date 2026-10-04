@@ -20,9 +20,10 @@ at use.
 
 from __future__ import annotations
 
-import urllib.request
 from pathlib import Path
 from typing import Any
+
+from . import fetch_url
 
 DATASET = "https://dadosabertos.mdr.gov.br/dataset/1aabd419-5677-4fa2-a0e3-a1a3e1a42234/resource/{rid}/download"
 RESOURCES = {"events.csv": "1c8aac93-f874-4f07-9405-86a0398dadd6",
@@ -43,9 +44,7 @@ def fetch(name: str, cache_dir: str | Path, *, timeout: float = 1200.0) -> Path:
     if target.is_file():
         return target
     target.parent.mkdir(parents=True, exist_ok=True)
-    request = urllib.request.Request(DATASET.format(rid=RESOURCES[name]), headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        data = response.read()
+    data = fetch_url(DATASET.format(rid=RESOURCES[name]), timeout=timeout, agent=USER_AGENT)
     if data.lstrip().startswith(b"<html"):
         raise RuntimeError(f"MIDR returned a page, not {name}: {data[:120]!r}")
     tmp = target.with_suffix(target.suffix + ".tmp")

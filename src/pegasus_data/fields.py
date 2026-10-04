@@ -83,6 +83,12 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
         if spec.get("source") == "s2id":
             report[name] = _build_disasters(settings, name, years)
             continue
+        if spec.get("source") == "ans":
+            report[name] = _build_ans(settings, name, spec, years)
+            continue
+        if spec.get("source") == "inep":
+            report[name] = _build_inep(settings, name, spec, years)
+            continue
         wanted = [y for y in _years(spec["years"]) if not years or y in years]
         written = 0
         statuses: dict[str, int] = {}
@@ -114,6 +120,54 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
             written += table.num_rows
         report[name] = {"years": len(wanted), "rows": written, "statuses": statuses}
     return report
+
+
+def _build_ans(settings: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
+    """ANS beneficiaries of each year's December file (``sources.ans``)."""
+    import pyarrow.compute as pc
+    import pyarrow.parquet as pq
+
+    from .sources.ans import beneficiaries
+
+    cache = Path(settings.root) / "registries" / "ans"
+    written: dict[str, Any] = {}
+    for year in [y for y in _years(spec["years"]) if not years or y in years]:
+        table = beneficiaries(year, 12, cache)
+        n = table.num_rows
+        table = table.rename_columns(["municipality", "sex", "age_band", "coverage", "value", "file_uf"])
+        table = table.append_column("year", pa.array([year] * n, pa.int32()))
+        table = table.append_column("month", pa.array([12] * n, pa.int32()))
+        table = table.append_column("unit", pa.array([str(spec["unit"])] * n, pa.string()))
+        table = table.append_column("source", pa.array([f"ANS PDA-024 {year}-12"] * n, pa.string()))
+        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
+        target.mkdir(parents=True, exist_ok=True)
+        pq.write_table(table.drop_columns(["year"]), target / "part.parquet", compression="zstd")
+        medical = table.filter(pc.equal(table.column("coverage"), "Médico-hospitalar"))
+        written[str(year)] = {"rows": n, "medical_hospital": pc.sum(medical.column("value")).as_py()}
+    return written
+
+
+def _build_inep(settings: Any, name: str, spec: dict[str, Any], years: list[int] | None) -> dict[str, Any]:
+    """INEP school-census enrolment margins per municipality (``sources.inep``)."""
+    import pyarrow.compute as pc
+    import pyarrow.parquet as pq
+
+    from .sources.inep import enrolments
+
+    cache = Path(settings.root) / "registries" / "inep"
+    written: dict[str, Any] = {}
+    for year in [y for y in _years(spec["years"]) if not years or y in years]:
+        table = enrolments(year, cache)
+        n = table.num_rows
+        table = table.append_column("municipality", pc.utf8_slice_codeunits(table.column("municipality7"), 0, 6))
+        table = table.append_column("unit", pa.array([str(spec["unit"])] * n, pa.string()))
+        table = table.append_column("source", pa.array([f"INEP microdados_ed_basica_{year}"] * n, pa.string()))
+        target = Path(settings.lake_dir) / "fields" / name / f"year={year}"
+        target.mkdir(parents=True, exist_ok=True)
+        pq.write_table(table, target / "part.parquet", compression="zstd")
+        total = table.filter(pc.equal(table.column("margin"), "total"))
+        written[str(year)] = {"rows": n, "enrolments": pc.sum(total.column("value")).as_py()}
+    return written
 
 
 def _build_climate(settings: Any, name: str, years: list[int] | None) -> dict[str, Any]:

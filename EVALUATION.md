@@ -165,3 +165,4 @@ in.
 | 2026-10-04 | [Open questions pass: curation, join grain, linkage evidence, rebuild speed](docs/evaluation/2026-10-04-open-questions-pass.md) | live (joins, SE 2022 link) and audits |
 | 2026-10-04 | [Storage, measured: spill, role caches, blob pruning, lake encodings](docs/evaluation/2026-10-04-storage.md) | measurement (linkage home) and live (build/prune on the live home) |
 | 2026-10-04 | [A role for every column, and event types against TabNet](docs/evaluation/2026-10-04-roles-and-event-types.md) | live (national 2022, linkage home) and TabNet |
+| 2026-10-04 | [National cause-of-death aggregation 2010–2023; ANS and INEP as population sources](docs/evaluation/2026-10-04-aggregation-and-population-sources.md) | live (national SIM, three runs) and source checks (ANS TabNet, INEP margins) |
