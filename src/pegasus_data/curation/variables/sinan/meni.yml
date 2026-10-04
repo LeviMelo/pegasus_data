@@ -494,6 +494,21 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "LATEX líquor"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '14': Streptococos (sp, piogens, alfa, hemolitico, fecalis, agalactiae)
+      '28': Outras Bactérias
+      '43': Criptococos
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro X of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_AGSANG:
     official_name: LATEX Sangue/soro
     translated_name: Latex agglutination test - blood/serum
@@ -504,6 +519,21 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "LATEX Sangue/soro"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '14': Streptococos (sp, piogens, alfa, hemolitico, fecalis, agalactiae)
+      '28': Outras Bactérias
+      '43': Criptococos
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro X of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_ASPECT:
     official_name: Aspecto do líquor
     translated_name: CSF appearance
@@ -531,6 +561,25 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Bacterioscopia escarro"
+    codes:
+      '03': Diplococos Gram negativo
+      '3': Diplococos Gram negativo
+      '08': Diplococos Gram positivo
+      '8': Diplococos Gram positivo
+      '28': Outras Bactérias
+      '29': Bastonetes Gram positivo
+      '30': Bastonetes Gram negativo
+      '31': Bacilos Gram positivo
+      '32': Bacilos Gram negativo
+      '33': Cocos Gram positivo
+      '34': Cocos Gram negativo
+      '35': Diplobacilos Gram negativo
+      '36': Cocobacilos
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro VIII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_BCLESA:
     official_name: Bacterioscopia lesão petequial
     translated_name: Gram stain (bacterioscopy) - petechial lesion
@@ -541,6 +590,25 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Bacterioscopia lesão petequial"
+    codes:
+      '03': Diplococos Gram negativo
+      '3': Diplococos Gram negativo
+      '08': Diplococos Gram positivo
+      '8': Diplococos Gram positivo
+      '28': Outras Bactérias
+      '29': Bastonetes Gram positivo
+      '30': Bastonetes Gram negativo
+      '31': Bacilos Gram positivo
+      '32': Bacilos Gram negativo
+      '33': Cocos Gram positivo
+      '34': Cocos Gram negativo
+      '35': Diplobacilos Gram negativo
+      '36': Cocobacilos
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro VIII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_BCLIQU:
     official_name: Bacterioscopia líquor
     translated_name: Gram stain (bacterioscopy) - CSF
@@ -551,6 +619,25 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Bacterioscopia líquor"
+    codes:
+      '03': Diplococos Gram negativo
+      '3': Diplococos Gram negativo
+      '08': Diplococos Gram positivo
+      '8': Diplococos Gram positivo
+      '28': Outras Bactérias
+      '29': Bastonetes Gram positivo
+      '30': Bastonetes Gram negativo
+      '31': Bacilos Gram positivo
+      '32': Bacilos Gram negativo
+      '33': Cocos Gram positivo
+      '34': Cocos Gram negativo
+      '35': Diplobacilos Gram negativo
+      '36': Cocobacilos
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro VIII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_BCSANG:
     official_name: Bacterioscopia Sangue/soro
     translated_name: Gram stain (bacterioscopy) - blood/serum
@@ -560,6 +647,25 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Bacterioscopia Sangue/soro"
+    codes:
+      '03': Diplococos Gram negativo
+      '3': Diplococos Gram negativo
+      '08': Diplococos Gram positivo
+      '8': Diplococos Gram positivo
+      '28': Outras Bactérias
+      '29': Bastonetes Gram positivo
+      '30': Bastonetes Gram negativo
+      '31': Bacilos Gram positivo
+      '32': Bacilos Gram negativo
+      '33': Cocos Gram positivo
+      '34': Cocos Gram negativo
+      '35': Diplobacilos Gram negativo
+      '36': Cocobacilos
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro VIII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_CILIQU:
     official_name: CIE líquor
     translated_name: Counterimmunoelectrophoresis - CSF
@@ -571,6 +677,16 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "CIE líquor"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro IX of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_CISANG:
     official_name: CIE Sangue/soro
     translated_name: Counterimmunoelectrophoresis - blood/serum
@@ -580,6 +696,16 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "CIE Sangue/soro"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro IX of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_CLOR:
     official_name: Exame Quimiocitológico - Cloreto
     translated_name: CSF chemocytology - chloride
@@ -602,6 +728,19 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Cultura escarro"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '28': Outras bactérias
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro VII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_CTLESA:
     official_name: Cultura lesão petequial
     translated_name: Culture - petechial lesion
@@ -612,6 +751,19 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Cultura lesão petequial"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '28': Outras bactérias
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro VII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_CTLIQU:
     official_name: Cultura Líquor
     translated_name: Culture - CSF
@@ -622,6 +774,19 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Cultura Líquor"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '28': Outras bactérias
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro VII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_CTSANG:
     official_name: Cultura Sangue/soro
     translated_name: Culture - blood/serum
@@ -631,6 +796,19 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Cultura Sangue/soro"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '28': Outras bactérias
+      '51': Nenhum agente
+      '61': Não realizado
+      '62': Ignorado
+    notes: Quadro VII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_DTPUNC:
     official_name: Data da punção
     translated_name: Date of lumbar puncture
@@ -683,6 +861,24 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Isolamento viral fezes"
+    codes:
+      '37': Caxumba
+      '38': Sarampo
+      '39': Herpes Simples
+      '40': Varicela/Catapora/Herpes Zoster
+      '41': Rubéola
+      '55': Influenza
+      '56': Echovírus
+      '59': Outros Enterovírus
+      '63': Coxasackie
+      '70': Adenovírus
+      '71': Vírus do Nilo Ocidental
+      '72': Dengue
+      '73': Outros Arbovírus
+      '74': Outros vírus
+      '75': Não identificado
+    notes: Quadro XI of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_ISLIQU:
     official_name: Isolamento viral líquor
     translated_name: Viral isolation - CSF
@@ -693,6 +889,24 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "Isolamento viral líquor"
+    codes:
+      '37': Caxumba
+      '38': Sarampo
+      '39': Herpes Simples
+      '40': Varicela/Catapora/Herpes Zoster
+      '41': Rubéola
+      '55': Influenza
+      '56': Echovírus
+      '59': Outros Enterovírus
+      '63': Coxasackie
+      '70': Adenovírus
+      '71': Vírus do Nilo Ocidental
+      '72': Dengue
+      '73': Outros Arbovírus
+      '74': Outros vírus
+      '75': Não identificado
+    notes: Quadro XI of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_LEUCO:
     official_name: Exame Quimiocitológico - Leucócitos
     translated_name: CSF chemocytology - white blood cells
@@ -745,6 +959,38 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR escarro"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '28': Outras bactérias
+      '37': Caxumba
+      '38': Sarampo
+      '39': Herpes Simples
+      '40': Varicela/Catapora/Herpes Zoster
+      '41': Rubéola
+      '42': Outros fungos
+      '43': Cryptococcus/Torula
+      '48': Toxoplasma (Gondii, sp)
+      '51': Nenhum agente
+      '52': Outros Parasitas
+      '55': Influenza
+      '56': Echovírus
+      '59': Outros Enterovírus
+      '61': Não realizado
+      '62': Ignorado
+      '63': Coxasackie
+      '70': Adenovírus
+      '71': Vírus do Nilo Ocidental
+      '72': Dengue
+      '73': Outros Arbovírus
+      '74': Outros vírus
+      '75': Não identificado
+    notes: Quadro XII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_PCLESA:
     official_name: PCR lesão petequial
     translated_name: PCR - petechial lesion
@@ -755,6 +1001,38 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR lesão petequial"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '28': Outras bactérias
+      '37': Caxumba
+      '38': Sarampo
+      '39': Herpes Simples
+      '40': Varicela/Catapora/Herpes Zoster
+      '41': Rubéola
+      '42': Outros fungos
+      '43': Cryptococcus/Torula
+      '48': Toxoplasma (Gondii, sp)
+      '51': Nenhum agente
+      '52': Outros Parasitas
+      '55': Influenza
+      '56': Echovírus
+      '59': Outros Enterovírus
+      '61': Não realizado
+      '62': Ignorado
+      '63': Coxasackie
+      '70': Adenovírus
+      '71': Vírus do Nilo Ocidental
+      '72': Dengue
+      '73': Outros Arbovírus
+      '74': Outros vírus
+      '75': Não identificado
+    notes: Quadro XII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_PCLIQU:
     official_name: PCR líquor
     translated_name: PCR - CSF
@@ -764,6 +1042,38 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR líquor"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '28': Outras bactérias
+      '37': Caxumba
+      '38': Sarampo
+      '39': Herpes Simples
+      '40': Varicela/Catapora/Herpes Zoster
+      '41': Rubéola
+      '42': Outros fungos
+      '43': Cryptococcus/Torula
+      '48': Toxoplasma (Gondii, sp)
+      '51': Nenhum agente
+      '52': Outros Parasitas
+      '55': Influenza
+      '56': Echovírus
+      '59': Outros Enterovírus
+      '61': Não realizado
+      '62': Ignorado
+      '63': Coxasackie
+      '70': Adenovírus
+      '71': Vírus do Nilo Ocidental
+      '72': Dengue
+      '73': Outros Arbovírus
+      '74': Outros vírus
+      '75': Não identificado
+    notes: Quadro XII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_PCSANG:
     official_name: PCR Sangue/soro
     translated_name: PCR - blood/serum
@@ -773,6 +1083,38 @@ variables:
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Meningite_v5.pdf, campo 49 "PCR Sangue/soro"
+    codes:
+      '01': Neisseria meningitidis
+      '1': Neisseria meningitidis
+      '06': Haemophilus influenzae
+      '6': Haemophilus influenzae
+      '07': Streptococos pneumoniae
+      '7': Streptococos pneumoniae
+      '28': Outras bactérias
+      '37': Caxumba
+      '38': Sarampo
+      '39': Herpes Simples
+      '40': Varicela/Catapora/Herpes Zoster
+      '41': Rubéola
+      '42': Outros fungos
+      '43': Cryptococcus/Torula
+      '48': Toxoplasma (Gondii, sp)
+      '51': Nenhum agente
+      '52': Outros Parasitas
+      '55': Influenza
+      '56': Echovírus
+      '59': Outros Enterovírus
+      '61': Não realizado
+      '62': Ignorado
+      '63': Coxasackie
+      '70': Adenovírus
+      '71': Vírus do Nilo Ocidental
+      '72': Dengue
+      '73': Outros Arbovírus
+      '74': Outros vírus
+      '75': Não identificado
+    notes: Quadro XII of the dictionary annex. The field holds "o número da etiologia", and files write
+      it both as 07 and as 7, so each one-digit number is listed in both spellings; 0 is in no quadro.
   LAB_PROT:
     official_name: Exame Quimiocitológico - Proteínas
     translated_name: CSF chemocytology - protein

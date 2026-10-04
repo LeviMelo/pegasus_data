@@ -41,3 +41,23 @@ Examples:
 Live check, MENI 2023 (26,629 rows):
 - `CLA_SOROGR` reads B 219, C 193, Y 21, W135 18.
 - `CLA_ME_ETI` reads Cryptococcus 551.
+
+**Meningitis lab etiologies (OQ-59).** Quadros VII–XII are in the dictionary's own annex (`DIC_DADOS_Meningite_v5`, "ANEXOS"); the earlier searches missed it. The 18 `LAB_*` fields of item 49 now carry them as inline codes:
+
+| Quadro | Test | Fields |
+|---|---|---|
+| VII | culture | CT* |
+| VIII | bacterioscopy | BC* |
+| IX | CIE | CI* |
+| X | latex | AG* |
+| XI | viral isolation | IS* |
+| XII | PCR | PC* |
+
+Files write a one-digit number both padded and unpadded ("07" and "7"). The unpadded reading was tested against the final diagnosis, MENI 2023:
+- `LAB_CTLIQU` "7": 400 of 476 are pneumococcal meningitis (`CON_DIAGES` 10), as are 11 of 11 "07".
+- "1": 78 of 96 are meningococcal (02/03).
+- "6": 33 of 44 are Haemophilus (09).
+
+Both spellings are listed. "0" is in no quadro and stays undecoded.
+
+Culture of CSF reads Nenhum agente 13,182, Streptococos pneumoniae 476 + 11, Neisseria meningitidis 96 + 4.
