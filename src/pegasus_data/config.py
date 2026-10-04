@@ -124,6 +124,9 @@ class Settings:
     #: it is stale. Stated because the default is a real policy choice
     #: (reproducibility over currency) that used to be implicit.
     refresh: str = "catalog"
+    #: Size cap of the role-table cache under <lake>/roles/ (national tables
+    #: only); least recently used first out (linkage/roles.py).
+    role_cache_gb: float = 20.0
 
     #: How query() shows a result unless the call says otherwise: a preset
     #: ("readable", "analysis", "labels", "codes") or a mapping of overrides,

@@ -62,3 +62,8 @@ that pair stays as provenance.
 - **Stored links computed before the numbering are relinked.** The two CIHA
   links are in the ADR-0121 relink.
 - **Changing the numbering rule renames records.** It is fixed here.
+
+**Amendment (2026-10-04): the key's storage stays 32-character hex.**
+- **Measured.** Stored as 16 raw bytes it saves 2.5% of an SIH partition: zstd already brings the hex to about 17.5 bytes a row against 16 bytes of entropy.
+- **A 64-bit key** would save about half of the key's 29%. It would need collision detection over 300 million records, and its storage would differ from every stored link. Not adopted.
+- **Dropping the column and recomputing it on read** is not exact either: the key hashes decoded fields, the lake stores normalised ones, and 0 of 2.5 million rows matched (`docs/evaluation/2026-10-04-storage.md`).

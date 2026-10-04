@@ -20,30 +20,32 @@ def connect() -> duckdb.DuckDBPyConnection:
     grew one process to 25 GB on a 32 GB machine and started it paging
     (2026-10-03). Capped at 40% of physical memory, a large join spills to
     the work directory instead.
+
+    Each process spills into its own directory, and directories of processes
+    that no longer exist are removed first: one shared directory kept 6.7 GB
+    of a killed run's temp files for a day (2026-10-04).
     """
     import os
+    import shutil
+
+    import psutil
 
     from ..config import load_settings
 
     con = duckdb.connect()
-    try:
-        total = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")  # type: ignore[attr-defined]
-    except (AttributeError, ValueError, OSError):
-        import ctypes
-
-        class _Mem(ctypes.Structure):
-            _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong),
-                        ("ullTotalPhys", ctypes.c_ulonglong), ("ullAvailPhys", ctypes.c_ulonglong),
-                        ("ullTotalPageFile", ctypes.c_ulonglong), ("ullAvailPageFile", ctypes.c_ulonglong),
-                        ("ullTotalVirtual", ctypes.c_ulonglong), ("ullAvailVirtual", ctypes.c_ulonglong),
-                        ("ullAvailExtendedVirtual", ctypes.c_ulonglong)]
-
-        mem = _Mem()
-        mem.dwLength = ctypes.sizeof(_Mem)
-        ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(mem))  # type: ignore[attr-defined]
-        total = int(mem.ullTotalPhys)
-    spill = load_settings().work_dir / "duckdb_spill"
-    spill.mkdir(parents=True, exist_ok=True)
+    total = psutil.virtual_memory().total
+    root = load_settings().work_dir / "duckdb_spill"
+    root.mkdir(parents=True, exist_ok=True)
+    for stale in root.iterdir():
+        alive = stale.is_dir() and stale.name.isdigit() and psutil.pid_exists(int(stale.name))
+        if not alive:
+            # Loose files are the pre-2026-10-04 layout; a dead pid's directory is a crash's.
+            if stale.is_dir():
+                shutil.rmtree(stale, ignore_errors=True)
+            else:
+                stale.unlink(missing_ok=True)
+    spill = root / str(os.getpid())
+    spill.mkdir(exist_ok=True)
     con.execute(f"SET memory_limit = '{max(1, int(total * 0.4) // 2**30)}GB'")
     con.execute(f"SET temp_directory = '{spill.as_posix()}'")
     return con

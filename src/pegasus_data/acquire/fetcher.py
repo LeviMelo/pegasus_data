@@ -181,16 +181,36 @@ class Fetcher:
 
     # ------------------------------------------------------------------ policy
 
+    def known_current(self, paths: Sequence[str]) -> dict[str, str]:
+        """The digest each path is judged current at, without its bytes on disk.
+
+        A build asks this before fetching: a partition built from these exact
+        digests is reused, so a pruned blob is fetched again only when its
+        partition must be rewritten. Under ``refresh="remote"`` nothing is
+        judged without asking the server, so nothing is answered here.
+        """
+        if self.refresh == "remote":
+            return {}
+        out: dict[str, str] = {}
+        for path in paths:
+            digest = self._should_skip(path, require_blob=False)
+            if digest:
+                out[path] = str(digest)
+        return out
+
     def _should_skip(
         self,
         path: str,
         *,
         client: FtpClient | None = None,
         live: tuple[int | None, str | None] | None = None,
+        require_blob: bool = True,
     ) -> str | None:
         """Return an existing digest when the file is judged unchanged.
 
         Judged against what ``self.refresh`` names — see :data:`REFRESH_POLICIES`.
+        ``require_blob=False`` answers from the fetch history alone, for a blob
+        evicted after its lake partition was verified (``pegasus-data prune``).
         """
         rows = self.catalog.query(
             """
@@ -208,7 +228,7 @@ class Fetcher:
             return None
         row = rows[0]
         digest = row["sha"]
-        if not digest or not self.blobs.has(digest):
+        if not digest or (require_blob and not self.blobs.has(digest)):
             return None
         if self.refresh == "never":
             # Reproducibility over currency, stated outright: whatever is

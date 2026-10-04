@@ -421,6 +421,14 @@ class Builder:
                     str(m["member"] or ""),
                 ) in selected_units
             ]
+            if not ufs:
+                # A year DATASUS publishes as one national file is built from it
+                # alone: SIM and SINASC also publish every state's file, and
+                # building both stored each record twice (22,196 SIM rows were
+                # measured in both, 2026-10-04). Asking for states builds them.
+                national_years = {m["year"] for m in selected if str(m["geo_code"] or "") == "BR"}
+                selected = [m for m in selected
+                            if str(m["geo_code"] or "") == "BR" or m["year"] not in national_years]
             if max_files_per_family:
                 selected = selected[:max_files_per_family]
             if not selected:
@@ -439,7 +447,23 @@ class Builder:
                 year = int(m["year"]) if m["year"] is not None else 0
                 grouped.setdefault((uf, year), []).append(m)
 
-            digests = self.pipeline.fetcher.ensure([str(m["path"]) for m in selected])
+            plan_digest = plan_fingerprint(plan)
+            # Partitions already built from the files' current digests are
+            # reused before anything is fetched: after `pegasus-data prune` the
+            # bytes are gone, and checking a partition must not download them.
+            known = self.pipeline.fetcher.known_current([str(m["path"]) for m in selected])
+            current: set[tuple[str, int]] = set()
+            if not rebuild and len(known) == len(selected):
+                for (uf, year), group in grouped.items():
+                    if self.lake.partition_is_current(
+                        system=str(family["system"]), family_id=family_id,
+                        schema_signature=str(family["schema_signature"]), uf=uf, year=year,
+                        fingerprint=partition_fingerprint(plan_digest, group, known),
+                    ):
+                        current.add((uf, year))
+            stats.partitions_reused += len(current)
+            grouped = {key: group for key, group in grouped.items() if key not in current}
+            digests = self.pipeline.fetcher.ensure([str(m["path"]) for group in grouped.values() for m in group])
             # A file that could not be fetched is reported with its cause. The
             # build used to say only "skipped" and exit 0 with no errors, so a
             # failed download of DNBR2021 read as a successful empty build
@@ -456,7 +480,6 @@ class Builder:
             undecoded = 0
             schema_mismatch = 0
 
-            plan_digest = plan_fingerprint(plan)
             jobs = []
             for (uf, year), group in sorted(grouped.items()):
                 fingerprint = partition_fingerprint(plan_digest, group, digests)

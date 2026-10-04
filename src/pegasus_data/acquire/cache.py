@@ -275,6 +275,52 @@ class BlobStore:
                 total += p.stat().st_size
         return total
 
+    def prune_verified(self, lake_dir: Path, *, dry_run: bool = False) -> dict[str, int]:
+        """Delete the blobs whose every fetched path is held by a verified lake partition.
+
+        A partition is verified when its Parquet file exists and holds the row
+        count the catalog recorded when it was written. The catalog keeps the
+        blob's digest, size and source path, and the fetcher fetches a pruned
+        file again (verified by size, with the mirror as fallback, ADR-0122)
+        only if a partition built from it must be rewritten. The original DBC
+        bytes cannot be regenerated from the lake: a refetch reproduces them.
+        Kits, registries and files only ever read by a query belong to no
+        partition and are kept.
+        """
+        import json
+
+        import pyarrow.parquet as pq
+
+        if self.catalog is None:
+            raise RuntimeError("pruning needs the catalog that records what the lake was built from")
+        covered: set[str] = set()
+        uncovered: set[str] = set()
+        for row in self.catalog.query("SELECT relative_path, source_paths, row_count FROM lake_partitions"):
+            sources = set(json.loads(row["source_paths"] or "[]"))
+            path = Path(lake_dir) / str(row["relative_path"])
+            try:
+                verified = path.is_file() and pq.ParquetFile(path).metadata.num_rows == int(row["row_count"] or -1)
+            except Exception:  # noqa: BLE001 - an unreadable partition verifies nothing
+                verified = False
+            (covered if verified else uncovered).update(sources)
+        covered -= uncovered
+        by_blob: dict[str, set[str]] = {}
+        for row in self.catalog.query("SELECT DISTINCT sha256, source_path FROM fetches"):
+            by_blob.setdefault(str(row["sha256"]), set()).add(str(row["source_path"]))
+        out = {"blobs": 0, "bytes": 0, "kept": 0}
+        for digest, sources in by_blob.items():
+            path = self.path_for(digest)
+            if not path.is_file():
+                continue
+            if sources <= covered:
+                out["blobs"] += 1
+                out["bytes"] += path.stat().st_size
+                if not dry_run:
+                    path.unlink()
+            else:
+                out["kept"] += 1
+        return out
+
     def known_for(self, source_path: str) -> str | None:
         """The most recent digest fetched for a logical path, if any."""
         if self.catalog is None:

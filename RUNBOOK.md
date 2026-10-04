@@ -77,7 +77,8 @@ $PD download --system SIHSUS                                   # maintainer: raw
 | families | `families` | |
 | label bindings | `bindings` | one decision per family and field (ADR-0072); ~2 h for the tree |
 | code tables | `reference` | `lake/reference/` |
-| the lake | `build` | |
+| the lake | `build` | a year with a national file (SIM, SINASC) is built from it alone unless `--uf` names states |
+| free the downloaded files | `prune [--dry-run]` | deletes blobs whose every path is in a verified lake partition; refetched only for a rebuild. The DBC bytes cannot be regenerated from the lake |
 | population | `population` | IBGE series |
 | curation into the catalog | `curate` | 4 s |
 | the seed and the manifest | `python scripts/build_resources.py pegasus_data_home/_catalog/catalog.sqlite` | 20 s; after `crawl`, `inventory`, `schemas`, `families`, `curate` (ADR-0067) |

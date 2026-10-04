@@ -145,11 +145,16 @@ class Lake:
 
         def write_parquet(staged: Path) -> None:
             nonlocal rows_written
+            # `_row` counts up within each file: delta-encoded it is a few bits a
+            # row, against 4.6% of an SIH partition dictionary-encoded (measured
+            # 2026-10-04, SP 2022). Delta encoding excludes the dictionary.
+            sequential = [n for n in first.schema.names if n == "_row"]
             writer = pq.ParquetWriter(
                 staged,
                 first.schema,
                 compression=self.compression,
-                use_dictionary=True,
+                use_dictionary=[n for n in first.schema.names if n not in sequential],
+                column_encoding=dict.fromkeys(sequential, "DELTA_BINARY_PACKED"),
                 write_statistics=True,
                 version="2.6",
             )

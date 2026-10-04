@@ -349,7 +349,7 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
 - `geography.py`: health-region memberships and the geography graph.
 - `identifiers.py`: what a CNPJ and a CPF are (check digits), and what a label may not begin with: an identifier (ADR-0102) or TabWin's order mark (`LABEL_PREFIX`, ADR-0105).
 - `linkage/`: record linkage across systems (ADR-0107; `docs/plans/linkage.md`).
-- `linkage/roles.py`: records as normalised roles (`curation/roles.yml`), with their setting (ADR-0109, ADR-0123); role tables cached per scope under `<lake>/roles/`, national ones built state by state.
+- `linkage/roles.py`: records as normalised roles (`curation/roles.yml`), with their setting (ADR-0109, ADR-0123); national role tables of whole years cached under `<lake>/roles/` (states filtered by their partition `_uf`, multi-year periods as unions, LRU-capped by `role_cache_gb`), national ones built state by state.
 - `linkage/identity.py`: record identity (`_record_key`, numbered for exact duplicates; ADR-0124) and the memory-bounded DuckDB connection every linkage module uses.
 - `linkage/engine.py`: deterministic linkage from `curation/links.yml`: 1:1 passes over what is left, a negative control per pass, held-out validations, verdicts (ADR-0110).
 - `linkage/model.py`: comparisons (optionally conditioned on a right-side role, ADR-0115), evidence in bits per level, the false-match threshold (ADR-0111).

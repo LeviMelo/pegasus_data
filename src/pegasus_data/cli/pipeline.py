@@ -207,6 +207,29 @@ def prefix_adjudicate(
         store.close()
 
 
+@app.command(name="prune", rich_help_panel="MAINTENANCE")
+def prune(
+    root: RootOpt = None,
+    dry_run: Annotated[bool, typer.Option("--dry-run", help="Count what would go, delete nothing")] = False,
+    as_json: JsonOpt = False,
+) -> None:
+    """Delete downloaded files whose lake partitions are verified; refetched only if a rebuild needs them.
+
+    The catalog keeps each file's checksum, size and path. The original DATASUS
+    bytes cannot be regenerated from the lake; a refetch reproduces them. Kits,
+    registries and files no partition was built from are kept.
+    """
+    from ..acquire.cache import BlobStore
+
+    settings = _settings(root)
+    catalog = CatalogStore(settings.catalog_path)
+    try:
+        result = BlobStore(settings.blobs_dir, catalog).prune_verified(settings.lake_dir, dry_run=dry_run)
+        _emit(result, as_json, "prune (dry run)" if dry_run else "prune")
+    finally:
+        catalog.close()
+
+
 @app.command(name="catalog-rebuild", rich_help_panel="MAINTENANCE")
 def catalog_rebuild(
     table: Annotated[str, typer.Option("--table", help="Table to recreate from the shipped schema")],

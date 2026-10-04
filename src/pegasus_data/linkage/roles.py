@@ -20,6 +20,7 @@ the file it came from.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -232,33 +233,112 @@ def role_table(
     in the table's metadata (``absent_roles``), so a caller that needs one can
     refuse rather than link on nothing.
 
-    Where the lake fully backs the scope, every role of the dataset is computed
-    once and kept under ``<lake>/roles/`` (``_cache_path``): labelling a
-    national file took 10-20 s and was repeated by every link that read it.
+    Only NATIONAL tables of whole years are kept under ``<lake>/roles/``
+    (``_national_year``): labelling a national file took 10-20 s and was
+    repeated by every link that read it. A multi-year period is the union of
+    its years, and a state the rows of the national table that came from that
+    state's own publication (``_uf``). Caching every scope separately had
+    stored SIH-RD six times over, 2.2 GB (2026-10-04). A scope the cache
+    cannot answer exactly (a month, a nation published as one file) is
+    computed and not kept.
     """
-    import pyarrow.parquet as pq
-
     from ..config import load_settings
 
     spec = dataset_roles(dataset)
     names = list(roles or spec.roles)
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
-    path = _cache_path(dataset, period, geography, settings)
-    if path is not None and path.exists():
-        return _subset(pq.read_table(path), names)
-    full, strategy = _compute_roles(spec, list(spec.roles), period=period, geography=geography, **query_kwargs)
-    if path is not None and strategy == "lake":
-        path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = path.with_suffix(".tmp")
-        pq.write_table(full, tmp, compression="zstd")
-        tmp.replace(path)
-        # The same scope under an older key can never be served again (its
-        # code or its lake files changed): 4.3 GB of them had piled up.
-        prefix = path.name.split("__", 1)[0] + "__"
-        for stale in path.parent.glob(f"{prefix}*.parquet"):
-            if stale != path:
-                stale.unlink(missing_ok=True)
+    years, ufs = _whole_years(period), _ufs(geography)
+    if years and ufs:
+        parts = [_national_year(spec, year, settings, query_kwargs) for year in years]
+        if all(part is not None for part in parts):
+            table = pa.concat_tables([p for p in parts if p is not None], promote_options="default")
+            if ufs != ("BR",):
+                origin = table.column("_uf")
+                if pc.any(pc.equal(origin, "BR")).as_py():
+                    table = None  # one national file: its rows do not say which state published them
+                else:
+                    table = table.filter(pc.is_in(origin, value_set=pa.array(ufs)))
+            if table is not None:
+                return _subset(table, names)
+    full, _strategy = _compute_roles(spec, list(spec.roles), period=period, geography=geography, **query_kwargs)
     return _subset(full, names)
+
+
+def _whole_years(period: object) -> tuple[int, ...]:
+    """The years a period spans when it is whole years, else ()."""
+    from .._query_engine.model import _period
+
+    try:
+        span = _period(period)
+    except Exception:  # noqa: BLE001 - an unusual period is answered uncached
+        return ()
+    return span.years if span is not None and span.precision == "year" else ()
+
+
+def _ufs(geography: object) -> tuple[str, ...]:
+    values = list(geography) if isinstance(geography, (list, tuple)) else [geography]
+    out = tuple(sorted({str(v).strip().upper() for v in values if v is not None}))
+    if not out or any(len(v) != 2 or not v.isalpha() for v in out):
+        return ()
+    return ("BR",) if "BR" in out else out
+
+
+def _national_year(spec: DatasetRoles, year: int, settings: Any, query_kwargs: dict[str, Any]) -> pa.Table | None:
+    """The national role table of one year, from the cache or built and kept.
+
+    None when the lake does not back the whole nation for that year: a "BR"
+    table assembled from the few states a lake holds would have been cached
+    as the nation (2026-10-04).
+    """
+    import os
+
+    import pyarrow.parquet as pq
+
+    from .._query_engine.planner import plan
+
+    path = _cache_path(spec.dataset, str(year), "BR", settings)
+    if path is None:
+        return None
+    if path.exists():
+        os.utime(path)  # recency for the size cap
+        return pq.read_table(path)
+    kwargs = {k: v for k, v in query_kwargs.items() if k in ("settings", "root")}
+    try:
+        backed = plan(spec.dataset, period=str(year), geography="BR", **kwargs).retrieval.source_strategy == "lake"
+    except Exception:  # noqa: BLE001 - a scope that cannot be planned is not cached
+        return None
+    if not backed:
+        return None
+    full, strategy = _compute_roles(spec, list(spec.roles), period=str(year), geography="BR", **query_kwargs)
+    if strategy != "lake":
+        return None
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    pq.write_table(full, tmp, compression="zstd")
+    tmp.replace(path)
+    # The same scope under an older key can never be served again (its code
+    # or its lake files changed): 4.3 GB of them had piled up.
+    # So can a table of any other scope than one national year: the layout
+    # before 2026-10-04 kept states and multi-year periods beside the nation.
+    prefix = path.name.split("__", 1)[0] + "__"
+    for stale in path.parent.glob("*.parquet"):
+        national_year = re.fullmatch(r"\d{4}_BR", stale.name.split("__", 1)[0])
+        if stale != path and (stale.name.startswith(prefix) or not national_year):
+            stale.unlink(missing_ok=True)
+    _cap_cache(Path(settings.lake_dir) / "roles", float(getattr(settings, "role_cache_gb", 20.0)), keep=path)
+    return full
+
+
+def _cap_cache(root: Path, limit_gb: float, *, keep: Path) -> None:
+    """Delete the least recently used role tables until the cache fits."""
+    files = sorted(root.glob("*/*.parquet"), key=lambda f: f.stat().st_mtime)
+    total = sum(f.stat().st_size for f in files)
+    for f in files:
+        if total <= limit_gb * 2**30:
+            break
+        if f != keep:
+            total -= f.stat().st_size
+            f.unlink(missing_ok=True)
 
 
 def _state_partitions(dataset: str, geography: object, settings: Any) -> list[str]:
@@ -286,9 +366,13 @@ def _compute_roles(spec: DatasetRoles, names: list[str], *, period: object, geog
     settings = query_kwargs.get("settings") or load_settings(root=query_kwargs.get("root"))
     states = _state_partitions(spec.dataset, geography, settings)
     if not states:
-        return _compute_roles_one(spec, names, period=period, geography=geography, **query_kwargs)
+        table, strategy = _compute_roles_one(spec, names, period=period, geography=geography, **query_kwargs)
+        # Read from the scope's own publication(s): a state, or one national file.
+        origin = geography if isinstance(geography, str) and len(geography) == 2 else "BR"
+        return table.append_column("_uf", pa.array([str(origin).upper()] * table.num_rows, pa.string())), strategy
     parts = [_compute_roles_one(spec, names, period=period, geography=uf, **query_kwargs) for uf in states]
-    table = pa.concat_tables([t for t, _ in parts], promote_options="default")
+    tagged = [t.append_column("_uf", pa.array([uf] * t.num_rows, pa.string())) for (t, _), uf in zip(parts, states, strict=True)]
+    table = pa.concat_tables(tagged, promote_options="default")
     absent = set.intersection(*(set(absent_roles(t)) for t, _ in parts))
     meta = dict(parts[0][0].schema.metadata or {})
     meta[b"absent_roles"] = ",".join(sorted(absent)).encode()
