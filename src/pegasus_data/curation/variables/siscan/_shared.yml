@@ -952,10 +952,12 @@ variables:
   CO_US:
     official_name: Unidade de coleta (CNES)
     translated_name: Health unit code
-    description: CNES code of the health unit that collected the sample or requested the exam,
-      bound to the UnidSaude tables. The point of contact with the patient, distinct from
-      the provider that read it.
+    description: CNES code of the health unit that collected the sample or requested the exam.
+      The point of contact with the patient, distinct from the provider that read it.
     code_system: external
+    # The kit binds it to 29 per-state UnidSaude tables; 16,238 of 16,582 of their codes
+    # (AC, SP, BA, RJ) are CADGERBR codes of the same establishments (2026-10-03).
+    codelist: CADGERBR
     source: def
     source_ref: TabWin definitions CColo4.def, HColo4.def, CMAMA4.def, HMAMA4.def, MMAMA4.def
       (SISCOLO4/SISMAMA) — ftp://ftp.datasus.gov.br/dissemin/publicos/SISCAN/SISCOLO4/Auxiliar/TAB_SISCOLO4.zip

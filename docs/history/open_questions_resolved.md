@@ -66,3 +66,9 @@ Sources: `docs/history/FINDINGS.md` §1 (the brief's `[V]` list, V1–V11) and �
   - two groups of identical descriptions for genuinely repeated fields (`AB_T_PRC2`–`6`, `*_CONDIC`).
 
 Its 63 "contradictions" are banded coded counts (SINASC `CONSULTAS`) and PCE counts bound to codelists named "6"/"7". Those numbers were measure-line decimals that the DEF parser read as lookups, now fixed. |
+| 6 | **Which uncurated columns does the ranking refusal leave unlabelled?** Above `_MAX_CANDIDATES` (12) an uncurated column is now left as raw codes and an adjudication item is opened (ADR-0041). The audit HANDOFF §4.1 asked for (what actually decoded each column with a high bound-table count: `CNES`, `PROC_REA`, `DIAG_PRINC` with 114 tables, anything in SIA) was never run. | labels on those columns | list uncurated columns with more than 12 bound tables across systems; declare their decoder in curation or adjudicate | **resolved** (2026-10-03): run on the maintainer catalog. 126 (system, column) pairs have more than 12 bound tables; 106 have a curated decoder. Of the 20 that do not:
+- **16 occur in no published schema.** They are TabWin-only names: SINAN `CO_MU_*`, `CO_MUN_1..3`, `MUNCI_VAC`; SIM `COMUNPARTO`, `CODMUNASC`; CMD `CO_CNESCON`; CNES `COMENTARIO`.
+- **CNES `IDEQUIPE`/`ID_AREA`/`ID_SEGM`** are named by their own record (ADR-0090).
+- **SISCAN `CO_US`** is now bound to CADGERBR: 98% of its kit's UnidSaude codes are CADGERBR codes.
+- **SIA-PR `PAR_CODUNI`** is now curated with the rest of PR.
+- **SIA `PA_CODPRO`**, a pre-2008 procedure code with no layout, stays raw (row 60). |

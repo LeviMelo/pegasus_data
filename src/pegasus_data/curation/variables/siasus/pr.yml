@@ -1,0 +1,92 @@
+# SIA.PR — APAC de Pacientes de Radioterapia (legacy)
+# PR - APAC - Pacientes de Radioterapia
+#
+# The pre-2008 radiotherapy-patient file, a member of the 2001-2007 APAC
+# .exe archives (1,438 files). Superseded by the current AR series. The
+# .DEF ("PR- APAC  - Pacientes Radioterapia.def", TAB_SIA_199911-200307.zip
+# and TAB_SIA_200308-200712.zip) documents seven fields, two of them under
+# another name than this schema's (PAR_MUNRES, PAR_SEXO); the other
+# eighteen fields have no document (OPEN_QUESTIONS row 60), as for PQ.
+system: SIASUS
+asserted_by: pegasus_data
+
+variables:
+  PAR_CONDIC:
+    official_name: Tipo de Gestão
+    translated_name: Management-type code
+    description: The SUS management arrangement (state- or municipality-managed) under
+      which the establishment is accredited for this APAC, as AP_CONDIC elsewhere in SIA.
+    code_system: internal
+    codelists: [TPGESTAO, TPGEST_C]
+    source: def
+    source_ref: '[DEF-PR] "PR- APAC  - Pacientes Radioterapia.def" (TAB_SIA_199911-200307.zip
+      and TAB_SIA_200308-200712.zip), field PAR_CONDIC, "Tipo de Gestão", TPGESTAO.CNV /
+      TPGEST_C.CNV.'
+  PAR_GESTAO:
+    official_name: Gestor - BR
+    translated_name: Managing UF+municipality IBGE code
+    description: IBGE code of the manager (gestor) responsible for the establishment, as
+      AP_GESTAO elsewhere in SIA.
+    code_system: external
+    codelist: MUNICBR
+    source: def
+    source_ref: '[DEF-PR] "PR- APAC  - Pacientes Radioterapia.def", field PAR_GESTAO,
+      "Gestor - BR", MUNICBR.CNV.'
+  PAR_CODUNI:
+    official_name: UPS Código (per-state lookup)
+    translated_name: Executing establishment code
+    description: Code of the establishment that executed the radiotherapy authorisation,
+      unique only within its state. The .DEF resolves it through one table per state
+      (UPS-U<UF>.CNV to 2003-07, CNESU<UF>.CNV after).
+    code_system: external
+    # Keyed with the file's state, as PAQ_CODUNI (ADR-0103).
+    codelist: SIA_UPS_BR
+    key: ["@UF", PAR_CODUNI]
+    source: def
+    source_ref: '[DEF-PR] "PR- APAC  - Pacientes Radioterapia.def", field PAR_CODUNI,
+      "UPS Codigo <UF>", 27 per-state lookups (UPS-UAC.CNV .. UPS-UTO.CNV; CNESUAC.CNV ..
+      CNESUTO.CNV in TAB_SIA_200308-200712.zip).'
+  PAR_DATREF:
+    official_name: Mês/Ano Atendimento
+    translated_name: Care reference month/year
+    description: Year-month competência this radiotherapy record refers to.
+    code_system: none
+    source: def
+    source_ref: '[DEF-PR] "PR- APAC  - Pacientes Radioterapia.def", field PAR_DATREF,
+      "Mês Atendimento" (MA_99_03.CNV / AM_0803.CNV) and "Ano Atendimento" (ANO99_03.CNV /
+      ANO_0803.CNV).'
+    notes: The .DEF's month and year lookups are tabulation axes, not codes of the field.
+  PAR_MUNPCN:
+    official_name: Município de residência do paciente
+    translated_name: Patient's home municipality IBGE code
+    description: IBGE municipality code of where the patient lives. The .DEF names the
+      field PAR_MUNRES ("Munic.Res.Paciente"); this schema's PAR_MUNPCN is taken as the
+      same field, as AP_MUNPCN elsewhere in SIA.
+    code_system: external
+    codelist: MUNICBR
+    source: def
+    source_ref: '[DEF-PR] "PR- APAC  - Pacientes Radioterapia.def", field PAR_MUNRES,
+      "Munic.Res.Paciente", MUNICBR.CNV.'
+    notes: Name mismatch between the .DEF (PAR_MUNRES) and this schema (PAR_MUNPCN); the
+      same drift as PQ's PAQ_MUNRES/PAQ_MUNPCN, not verified.
+  PAR_SEXOPC:
+    official_name: Sexo do paciente
+    translated_name: Patient's sex
+    description: The patient's sex. The .DEF names the field PAR_SEXO ("Sexo").
+    code_system: internal
+    codelist: SEXO
+    source: def
+    source_ref: '[DEF-PR] "PR- APAC  - Pacientes Radioterapia.def", field PAR_SEXO, "Sexo",
+      SEXO.CNV.'
+    notes: Name mismatch between the .DEF (PAR_SEXO) and this schema (PAR_SEXOPC); the same
+      drift as PQ, not verified.
+  PAR_DIAGPR:
+    official_name: CID Principal
+    translated_name: Primary ICD code
+    description: ICD code of the main diagnosis justifying the radiotherapy APAC, as
+      AR_CID10 in the current series.
+    code_system: external
+    codelist: CID
+    source: def
+    source_ref: '[DEF-PR] "PR- APAC  - Pacientes Radioterapia.def", field PAR_DIAGPR,
+      "CID Principal", CID.CNV.'
