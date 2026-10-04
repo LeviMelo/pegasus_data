@@ -264,6 +264,38 @@ def structure_cmd(
           as_json, f"structure {name}")
 
 
+@app.command(name="graph", rich_help_panel="UNDERSTAND")
+def graph_cmd(
+    kind: Annotated[str, typer.Argument(help="contiguity, population_distance, regic_network, regic_health_basic, "
+                                             "regic_health_high, or a dataset for care flows (SIH-RD, CIHA, SIM-DO, SINASC-DN)")],
+    period: Annotated[str | None, typer.Option("--period", help="Care flows: the years counted")] = None,
+    geo: Annotated[str, typer.Option("--geo", help="Care flows: the publications read")] = "BR",
+    by: Annotated[str | None, typer.Option("--by", help="Care flows: a classifier, e.g. DIAG_PRINC")] = None,
+    level: Annotated[str | None, typer.Option("--level", help="Care flows: the classifier's tree level, e.g. chapter")] = None,
+    out: Annotated[Path | None, typer.Option("--out", help="Write the edge list as .csv or .parquet")] = None,
+    root: RootOpt = None,
+) -> None:
+    """A proximity graph between municipalities, as an edge list (from, to, weight, kind, vintage)."""
+    from ..proximity import FLOWS, care_flows, proximity_graph
+
+    if kind.upper() in FLOWS:
+        if period is None:
+            raise typer.BadParameter("care flows need --period")
+        table = care_flows(kind, period=period, geography=geo, by=by, level=level,
+                           settings=_settings(root))
+    else:
+        table = proximity_graph(kind)
+    if out is not None:
+        import pyarrow.csv as pacsv
+        import pyarrow.parquet as pq
+
+        (pq.write_table if out.suffix == ".parquet" else pacsv.write_csv)(table, out)
+        console.print(f"wrote {out} ({table.num_rows:,} edges)")
+        return
+    _emit({"edges": table.num_rows, "metadata": {k.decode(): v.decode() for k, v in (table.schema.metadata or {}).items()},
+           "first": table.slice(0, 5).to_pylist()}, False, f"graph {kind}")
+
+
 @app.command(name="info", rich_help_panel="UNDERSTAND")
 def info_cmd(
     target: Annotated[str | None, typer.Argument(help="System, dataset or variable: SIH, SIH-RD, SIH.RD")] = None,

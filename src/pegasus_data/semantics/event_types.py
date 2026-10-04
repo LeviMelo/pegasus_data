@@ -179,3 +179,38 @@ def count_events(
     if not by:
         return pa.table({"events": [events.num_rows]})
     return events.group_by(by).aggregate([([], "count_all")]).rename_columns([*by, "events"])
+
+
+def field_overlap(
+    dataset: str, name: str, a: dict[str, list[str]], b: dict[str, list[str]], *,
+    period: object, geography: object = "BR", **query_kwargs: Any,
+) -> dict[str, Any]:
+    """How much two fields over one event type share, measured from records.
+
+    A field is the events whose columns carry a code starting with one of the
+    listed prefixes: ``{"CAUSABAS": ["I21"]}`` or, for "any mention",
+    ``{"LINHAA": ["I21"], "LINHAB": ["I21"], ...}``. The overlap is the shared
+    events over the smaller field's events (DESIGN §3.5): two fields above 0.05
+    are never tested against each other as if independent.
+    """
+    from .._query_engine.executor import query
+
+    event = event_type(dataset, name)
+    columns = {c for c in (event.status_column, *event.consolidation_key, *a, *b) if c}
+    table = events_of(query(dataset, period=period, geography=geography, select=sorted(columns),
+                            present="codes", **query_kwargs), event)
+
+    def members(predicate: dict[str, list[str]]) -> pa.Array:
+        hit = pa.array([False] * table.num_rows)
+        for column, prefixes in predicate.items():
+            values = pc.utf8_upper(pc.cast(table.column(column), pa.string()))
+            for prefix in prefixes:
+                hit = pc.or_(hit, pc.fill_null(pc.starts_with(values, str(prefix).upper()), False))
+        return hit
+
+    in_a, in_b = members(a), members(b)
+    n_a, n_b = pc.sum(in_a).as_py() or 0, pc.sum(in_b).as_py() or 0
+    shared = pc.sum(pc.and_(in_a, in_b)).as_py() or 0
+    smaller = min(n_a, n_b)
+    return {"events": table.num_rows, "a": n_a, "b": n_b, "shared": shared,
+            "overlap": (shared / smaller) if smaller else None}

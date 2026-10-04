@@ -52,6 +52,11 @@ _EXPORTS: dict[str, str] = {
     "event_types": ".semantics.event_types",
     "count_events": ".semantics.event_types",
     "code_structure": ".semantics.code_structures",
+    "field_overlap": ".semantics.event_types",
+    "proximity_graph": ".proximity",
+    "municipality_areas": ".proximity",
+    "regic_cities": ".proximity",
+    "care_flows": ".proximity",
     "code_structures": ".semantics.code_structures",
     "Exploration": "._explore",
     "translate": "._translate",
@@ -154,6 +159,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     from .crosswalk import EnrichmentRequest, enrichment
     from .geography import Membership, MembershipSet, memberships
     from .ontology import Ontology
+    from .proximity import care_flows, municipality_areas, proximity_graph, regic_cities
     from .retrieve import (
         DatasetUnknown,
         DownloadBudgetExceeded,
@@ -163,7 +169,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
     )
     from .semantics.code_structures import code_structure, code_structures
     from .semantics.column_roles import roles
-    from .semantics.event_types import count_events, event_types
+    from .semantics.event_types import count_events, event_types, field_overlap
 
 
 def __getattr__(name: str) -> Any:

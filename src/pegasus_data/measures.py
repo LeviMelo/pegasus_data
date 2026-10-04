@@ -191,6 +191,32 @@ class _Mean(Kind):
 
 
 @dataclass(frozen=True, slots=True)
+class _Moments(Kind):
+    """(n, sum, sum of squares): a mark's exact, mergeable summary.
+
+    The mean and the variance of any union of cells follow from the summed
+    states (DESIGN §6.2 of PegaSUS: mark summaries are accumulator states);
+    `finalize` projects the mean, and `finalize=False` hands out the state.
+    """
+
+    def identity(self) -> State:
+        return (0.0, 0.0, 0.0)
+
+    def lift(self, value: Any) -> State:
+        number = _number(value)
+        return (0.0, 0.0, 0.0) if number is None else (1.0, number, number * number)
+
+    def merge(self, left: State, right: State) -> State:
+        return (left[0] + right[0], left[1] + right[1], left[2] + right[2])
+
+    def finalize(self, state: State) -> float | None:
+        return None if state[0] == 0 else state[1] / state[0]
+
+    def formula(self, measure: str) -> str:
+        return f"{measure}_sum / {measure}_n"
+
+
+@dataclass(frozen=True, slots=True)
 class _Ratio(Kind):
     """Numerator and denominator kept apart, so rates recombine correctly.
 
@@ -236,11 +262,12 @@ class _Extreme(Kind):
 COUNT = _Count(name="count", state_fields=("n",), needs_field=False)
 SUM = _Sum(name="sum", state_fields=("sum",))
 MEAN = _Mean(name="mean", state_fields=("n", "sum"))
+MOMENTS = _Moments(name="moments", state_fields=("n", "sum", "sumsq"))
 RATIO = _Ratio(name="ratio", state_fields=("num", "den"))
 MIN = _Extreme(name="min", state_fields=("min",))
 MAX = _Extreme(name="max", state_fields=("max",))
 
-_KINDS: dict[str, Kind] = {k.name: k for k in (COUNT, SUM, MEAN, RATIO, MIN, MAX)}
+_KINDS: dict[str, Kind] = {k.name: k for k in (COUNT, SUM, MEAN, MOMENTS, RATIO, MIN, MAX)}
 
 #: Asked for often and impossible to merge exactly. There is no bounded state
 #: and associative operation that yields an exact median of a union from

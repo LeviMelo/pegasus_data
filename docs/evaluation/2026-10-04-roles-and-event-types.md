@@ -39,3 +39,23 @@
 Probes: `$TEMP/accept/ours22.py`, `deng.py`; `$TEMP/rolecheck/agree.py`.
 
 **Code structures (handoff §5).** `code_trees.parquet`: ICD10 14,560 nodes (22 chapters, groups, categories, subcategories), SIGTAP 6,217, CBO2002 3,574, CNAE20 2,005; every node below the top level has a parent. `code_lists.parquet`: CID-BR-10 12,075 codes, ICD-10 lists 2 and 4, avoidable causes 0–4 and 5–74 (14,263 each), ICSAP groups 649 and conditions 644; no code sits in two items of one list. Spot check: I219 → I21 → I20-I25 → IX; I219 is CID-BR-10 "068.1 Infarto agudo do miocárdio", J45 is ICSAP "7. Asma". Not served: the morbidity list, GBD, ICD-9 → ICD-10 (OQ-69).
+
+**Proximity graphs (handoff §6).** Built in 75 s from the cached IBGE sources: the 2022 mesh, Census 2022 tracts and localities.
+- **Contiguity:** 33,006 directed edges over 5,568 municipalities. 1,022 are 0 km point contacts, and 2 municipalities have no neighbour, presumably the island municipalities.
+- **Population distance:** 167,419 edges (30 nearest plus neighbours).
+- **REGIC 2018:**
+  - edges: network 5,124, basic health 6,293, high-complexity health 6,429;
+  - cities: 4,899, covering all 5,570 municipalities.
+- **Areas:** Marabá 15,166 km² against IBGE's published 15,128.
+
+**Care flows** (linkage home, 2022) sum exactly to the events, with 0 unplaced:
+
+| dataset | edges | flowed | events |
+|---|---|---|---|
+| SIH-RD SE, by ICD chapter | 4,536 | 107,005 | 107,005 |
+| SINASC-DN BR | 37,417 | 2,561,922 | 2,561,922 |
+| SIM-DO BR | 56,244 | 1,544,266 | 1,544,266 |
+
+Every SIH diagnosis maps to a chapter.
+
+Probe: `$TEMP/accept/flows.py`.

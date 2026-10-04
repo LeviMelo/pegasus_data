@@ -1,0 +1,40 @@
+# Deaths by municipality of residence, year, 18 age bands, sex and underlying
+# cause: the field family PegaSUS scans first (handoff 2026-10-04 §4).
+#
+# Counted as the declared `death` event (TIPOBITO 2, ADR-0137), not as rows.
+# CAUSABAS is kept at its full code and rolls up the ICD-10 tree at query
+# time: `aggregate(..., by=["municipality", "year", "CAUSABAS@category"])`.
+
+name: sim_do_municipality_year_cause
+dataset: SIM-DO
+label: Óbitos por causa básica
+description: >
+  Deaths by the deceased's municipality of residence and year of death, with
+  sex, five-year age band (0-4 ... 85+) and underlying cause (CID-10).
+
+event_type: death
+geography_binding: residence
+time_binding: occurrence
+time_grain: year
+
+dimensions:
+  - SEXO
+  - CAUSABAS
+
+dimension_structures:
+  CAUSABAS: ICD10
+
+age_dimension:
+  encoding: sim
+  fields: [IDADE]
+  bands: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85]
+
+dimension_labels:
+  SEXO: Sexo
+  CAUSABAS: Causa básica (CID-10)
+
+measures:
+  deaths:
+    kind: count
+    label: Óbitos
+    unit: death

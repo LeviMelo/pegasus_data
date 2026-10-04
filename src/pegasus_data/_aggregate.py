@@ -119,6 +119,12 @@ class AggregateSpec:
     #: derivation as age minus the unit decoding. Tuple of
     #: `_age.NumericBandDimension`.
     band_dims: tuple[Any, ...] = ()
+    #: Count EVENTS of this declared type (``curation/datasets``, ADR-0137)
+    #: rather than rows: SIH's continuation AIHs are one hospitalisation.
+    event_type: str | None = None
+    #: ``dimension -> code structure`` (``code_structure()``), so a query can
+    #: roll a classifier up its tree: ``by=["CAUSABAS@category"]``.
+    dimension_structures: Mapping[str, str] = field(default_factory=dict)
 
     def measure_named(self, name: str) -> Measure:
         for item in self.measures:
@@ -140,6 +146,8 @@ class AggregateSpec:
             "time_binding": self.time_binding,
             "time_grain": self.time_grain,
             "dimensions": list(self.dimensions),
+            "event_type": self.event_type,
+            "dimension_structures": dict(self.dimension_structures),
             "band_dimensions": [
                 {"name": b.name, "field": b.field_name, "bands": list(b.bands)}
                 for b in self.band_dims
@@ -159,6 +167,17 @@ class AggregateSpec:
                 for m in self.measures
             ],
         }
+
+
+def _national_file(dataset: str, year: int, settings: Settings) -> bool:
+    """Whether DATASUS publishes this dataset-year as one national file."""
+    from ._query_engine.planner import plan
+
+    try:
+        retrieval = plan(dataset, period=str(year), geography="BR", settings=settings).retrieval
+    except Exception:  # noqa: BLE001 - an unplannable year keeps the per-state chunks
+        return False
+    return tuple(retrieval.physical_geography or ()) == ("BR",)
 
 
 #: Every UF, for chunking a national build. Ordered by IBGE code so a build's
@@ -217,6 +236,10 @@ def load_specs(root: Path | None = None) -> dict[str, AggregateSpec]:
             label=str(data.get("label") or ""),
             age=_parse_age(data.get("age_dimension")),
             band_dims=_parse_bands(data.get("band_dimensions")),
+            event_type=str(data["event_type"]) if data.get("event_type") else None,
+            dimension_structures={
+                str(k).upper(): str(v).upper() for k, v in (data.get("dimension_structures") or {}).items()
+            },
         )
         spec = out[name]
         # Every derived dimension joins the declared ones, carrying its own
@@ -427,6 +450,10 @@ def build_aggregate(
     resolved = settings or load_settings(root=Path(root) if root else None)
     spec = spec_named(name)
     semantics = _resolve_semantics(spec)
+    from .semantics.event_types import event_type as _event_type
+    from .semantics.event_types import events_of
+
+    event = _event_type(spec.dataset, spec.event_type) if spec.event_type else None
 
     # Refuse a measure the grain contradicts BEFORE reading anything: counting
     # rows on an establishment-month dataset counts establishment-months.
@@ -473,7 +500,10 @@ def build_aggregate(
     def _chunks() -> list[tuple[int, str | Sequence[str] | None]]:
         if report.uf:
             return [(year, u) for year in sorted(wanted_years) for u in report.uf]
-        return [(year, u) for year in sorted(wanted_years) for u in _ALL_UFS]
+        # A year DATASUS publishes as one national file is read from it, not
+        # from its 27 state files: the same records, read once (handoff §1.7).
+        return [(year, u) for year in sorted(wanted_years)
+                for u in (("BR",) if _national_file(spec.dataset, year, resolved) else _ALL_UFS)]
 
     chunks = _chunks()
     national_fallback = not report.uf
@@ -497,6 +527,8 @@ def build_aggregate(
                 continue
             raise
         report.rows_read += table.num_rows
+        if event is not None:
+            table = events_of(table, event)
         names = set(table.schema.names)
         missing = [f for f in (geography_field, *time_fields) if f not in names]
         if missing:
@@ -568,6 +600,8 @@ def build_aggregate(
                 report=True, labels=False, provenance=True,
             )
             report.rows_read += table.num_rows
+            if event is not None:
+                table = events_of(table, event)
             names = set(table.schema.names)
             if [f for f in (geography_field, *time_fields) if f not in names]:
                 continue
@@ -892,6 +926,9 @@ def _lift_columns(table: Any, measures: Sequence[Measure]) -> tuple[dict[str, An
                 out[first], out[second] = valid, filled
             else:
                 out[first], out[second] = filled, valid
+        elif measure.kind.name == "moments":
+            n, total, squares = columns
+            out[n], out[total], out[squares] = valid, filled, pc.multiply(filled, filled)
         elif measure.kind.name in ("min", "max"):
             # The fill is the kind's IDENTITY, not zero: a blank lifted to 0.0
             # would drag every minimum to nought and hand every maximum a floor.
@@ -1058,6 +1095,30 @@ def _classification_map(
     return mapping, tuple(contested)
 
 
+@lru_cache(maxsize=64)
+def _tree_pushforward(structure: str, level: str, codes: tuple[str, ...]) -> dict[str, str | None]:
+    """``code -> its ancestor at level`` in a code tree, or None off the tree.
+
+    SIM writes a 3-character category as ``I64X``; that filler is the category.
+    """
+    from .semantics.code_structures import code_structure
+
+    tree = code_structure(structure)
+    parent = dict(zip(tree.column("code").to_pylist(), tree.column("parent").to_pylist(), strict=True))
+    node_level = dict(zip(tree.column("code").to_pylist(), tree.column("level").to_pylist(), strict=True))
+    if level not in set(node_level.values()):
+        raise AggregationRefused(f"{structure} has no level {level!r}; it has {sorted(set(node_level.values()))}")
+    out: dict[str, str | None] = {}
+    for code in codes:
+        node: str | None = str(code).strip().upper().replace(".", "")
+        if node and len(node) == 4 and node.endswith("X") and node[:3] in node_level:
+            node = node[:3]
+        while node is not None and node in node_level and node_level[node] != level:
+            node = parent.get(node)
+        out[code] = node if node is not None and node_level.get(node) == level else None
+    return out
+
+
 def _time_pushforward(level: str, values: Sequence[str]) -> dict[str, str | None]:
     distinct = sorted({v for v in values if v})
     if level in ("month", "competencia", TIME_KEY):
@@ -1142,9 +1203,13 @@ def aggregate(
         None)
     time_level = next((level for level in levels if level in ("month", "year")), None)
     dimension_levels = [level for level in levels if level in spec.dimensions]
+    # `CAUSABAS@category`: a classifier rolled up its code tree (DESIGN §3.4).
+    tree_levels = [level for level in levels
+                   if "@" in level and level.split("@", 1)[0] in spec.dimensions]
     unknown = [
         level for level in levels
         if level not in (geography_level, time_level) and level not in dimension_levels
+        and level not in tree_levels
     ]
     if unknown:
         raise AggregationRefused(
@@ -1201,6 +1266,16 @@ def aggregate(
         if time_level else None
     )
     mapped_geo = _apply(geo_map, geo_column) if geo_map is not None else None
+    mapped_trees: dict[str, Any] = {}
+    for level in tree_levels:
+        dimension, tree_level = level.split("@", 1)
+        structure = spec.dimension_structures.get(dimension.upper())
+        if structure is None:
+            raise AggregationRefused(
+                f"{dimension} declares no code structure in {name!r}; add it to dimension_structures")
+        column = pc.cast(table.column(dimension), pa.string())
+        mapped_trees[level] = _apply(
+            _tree_pushforward(structure, tree_level, tuple(pc.unique(column).drop_null().to_pylist())), column)
     mapped_time = _apply(time_map, time_column) if time_map is not None else None
 
     filters = dict(where or {})
@@ -1219,6 +1294,7 @@ def aggregate(
         *([geography_level] if geography_level else ()),
         *([time_level] if time_level else ()),
         *dimension_levels,
+        *tree_levels,
     )
     # Grouping columns get internal names. `by=["municipality"]` and
     # `by=["month"]` would otherwise collide with the artifact's own key columns
@@ -1229,6 +1305,7 @@ def aggregate(
         *([GEO_TMP] if geography_level else ()),
         *([TIME_TMP] if time_level else ()),
         *dimension_levels,
+        *tree_levels,
     )
     emit_as = dict(zip(group_by, key_names, strict=True))
 
@@ -1247,8 +1324,21 @@ def aggregate(
                     unmapped_mass[measure.name] = float(total)
         keep = pc.and_(keep, pc.is_valid(mapped_geo))
 
+    for level, mapped in mapped_trees.items():
+        # A code the tree does not hold has no ancestor: its mass is reported,
+        # never folded into a neighbour.
+        lost = pc.and_(keep, pc.is_null(mapped))
+        if pc.any(lost).as_py():
+            for measure in chosen:
+                total = pc.sum(pc.filter(table.column(measure.state_columns()[0]), lost)).as_py() or 0.0
+                if total:
+                    unmapped_mass[f"{measure.name} ({level})"] = float(total)
+        keep = pc.and_(keep, pc.is_valid(mapped))
+
     keep = pc.fill_null(keep, False)
     working = table.filter(keep)
+    for level, mapped in mapped_trees.items():
+        working = working.append_column(level, pc.filter(mapped, keep))
     report.rows_read = working.num_rows
     if mapped_geo is not None and geography_level:
         working = working.append_column(GEO_TMP, pc.filter(mapped_geo, keep))
@@ -1303,6 +1393,10 @@ def aggregate(
         result = pa.table(
             {c: pa.array(out[c], pa.float64()) for c in value_columns})
     report.cells = result.num_rows
+    # The data version: a consumer caches by it (handoff §4).
+    result = result.replace_schema_metadata({
+        **(result.schema.metadata or {}), b"aggregate": name.encode(),
+        b"data_version": report.fingerprint.encode()})
     report.unmapped = {k: v for k, v in unmapped_mass.items() if v}
     if report.unmapped:
         report.warnings.append(
@@ -1374,7 +1468,7 @@ def _reduce_over_time(working: Any, chosen: Sequence[Measure], group_by: Sequenc
 #: How each monoid's merge is spelled as a column aggregate. The mapping is
 #: total because every kind here is a commutative monoid over numbers, which is
 #: exactly why the serve path needs no per-row arithmetic.
-_ARROW_MERGE = {"count": "sum", "sum": "sum", "mean": "sum", "ratio": "sum",
+_ARROW_MERGE = {"count": "sum", "sum": "sum", "mean": "sum", "moments": "sum", "ratio": "sum",
                 "min": "min", "max": "max"}
 
 
@@ -1397,8 +1491,8 @@ def _finalize_column(measure: Measure, state: tuple[Any, ...]) -> Any:
         # cannot carry -- an unobserved cell became a crash instead of a null.
         identity = measure.kind.identity()[0]
         return pc.if_else(pc.equal(state[0], identity), None, state[0])
-    if kind == "mean":
-        n, total = state
+    if kind in ("mean", "moments"):
+        n, total = state[0], state[1]
         return pc.if_else(pc.equal(n, 0.0), None, pc.divide(total, pc.if_else(
             pc.equal(n, 0.0), 1.0, n)))
     if kind == "ratio":
