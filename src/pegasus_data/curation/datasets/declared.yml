@@ -669,6 +669,19 @@ datasets:
 
   # --------------------------------------------------------------- others
   CIHA.CIHA:
+    event_types:
+      - name: hospitalisation
+        kind: hospitalisation
+        grain: one non-SUS hospitalisation
+        classifiers:
+          - {column: DIAG_PRINC, role: primary, structure: ICD10}
+          - {column: PROC_REA, role: alternative, structure: SIGTAP}
+        status:
+          column: MODALIDADE
+          values: ["02"]
+          evidence: >-
+            CIHA's own MODALIDADE table: 00 consolidated and 01 individual outpatient care,
+            02 INTERNAÇÕES (SE 2022: 4,685 of 21,740 rows).
     system: CIHA
     series: CIHA
     asserted_by: pegasus_data
@@ -813,6 +826,16 @@ datasets:
       - A subset of SIM.DO, not a separate collection. Pooling the two counts these deaths twice.
       - Undetermined-intent codes are not a residual to ignore; where they are common, homicide and suicide are correspondingly understated.
   SIM.DOFET:
+    event_types:
+      - name: foetal_death
+        kind: foetal_death
+        classifiers:
+          - {column: CAUSABAS, role: primary, structure: ICD10}
+          - {column: CAUSABAS_O, role: alternative, structure: ICD10}
+        status:
+          column: TIPOBITO
+          values: ["1"]
+          evidence: TIPOBITO 1 is a foetal death (SIM layout).
     system: SIM
     series: DOFET
     asserted_by: pegasus_data

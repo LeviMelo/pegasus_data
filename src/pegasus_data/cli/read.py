@@ -194,6 +194,52 @@ def compendium_cmd(
     console.print(str(report))
 
 
+@app.command(name="roles", rich_help_panel="UNDERSTAND")
+def roles_cmd(
+    dataset: Annotated[str, typer.Argument(help="A dataset: SIM-DO, SINASC-DN, SIH-RD, CIHA, SINAN-DENG ...")],
+    as_json: JsonOpt = False,
+) -> None:
+    """What each column of a dataset states: entity.property, value kind, and model role."""
+    from ..semantics.column_roles import roles as _roles
+
+    rows = _roles(dataset)
+    if as_json:
+        _emit(rows, True)
+        return
+    table = Table(title=f"roles of {dataset}")
+    for header in ("column", "role", "kind", "model", "name"):
+        table.add_column(header)
+    for row in rows:
+        mark = "" if row["reviewed"] else " (draft)"
+        table.add_row(row["column"], row["role"] + mark, row["kind"], row["model"], str(row["name"] or ""))
+    console.print(table)
+
+
+@app.command(name="events", rich_help_panel="UNDERSTAND")
+def events_cmd(
+    dataset: Annotated[str, typer.Argument(help="A dataset: SIH-RD, SIM-DO, SINASC-DN, CIHA, SINAN-DENG ...")],
+    as_json: JsonOpt = False,
+) -> None:
+    """The event types a dataset's rows become: classifiers, which rows count, how rows consolidate."""
+    from ..semantics.event_types import event_types as _event_types
+
+    rows = _event_types(dataset)
+    if as_json:
+        _emit(rows, True)
+        return
+    for row in rows:
+        classifiers = ", ".join(f"{c['column']} ({c['role']})" for c in row["classifiers"]) or "none"
+        status = row["status"]
+        console.print(f"[bold]{row['name']}[/bold] ({row['kind']}): {row['grain'] or ''}")
+        console.print(f"  classifiers: {classifiers}")
+        if status:
+            console.print(f"  counts rows with {status['column']} in {status['values']}")
+        if row["consolidation"]:
+            console.print(f"  one event per distinct {row['consolidation']['key']}")
+        if row["evidence"]:
+            console.print(f"  evidence: {row['evidence']}")
+
+
 @app.command(name="info", rich_help_panel="UNDERSTAND")
 def info_cmd(
     target: Annotated[str | None, typer.Argument(help="System, dataset or variable: SIH, SIH-RD, SIH.RD")] = None,

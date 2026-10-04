@@ -1,0 +1,1187 @@
+dataset: SINAN-MENI
+record: notification
+columns:
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    review: draft
+    name: Ano de Nascimento
+    years:
+    - 2007
+    - 2026
+    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional.'
+  ANT_AC:
+    role: patient.vaccine_meningococcal_ac
+    kind: category
+    model: dimension
+    name: Vacina contra meningococo A e C
+    years:
+    - 2007
+    - 2026
+  ANT_AIDS:
+    role: patient.history_aids
+    kind: category
+    model: dimension
+    name: Aids
+    years:
+    - 2007
+    - 2026
+  ANT_BC:
+    role: patient.vaccine_meningococcal_bc
+    kind: category
+    model: dimension
+    name: Vacina contra meningococo B e C
+    years:
+    - 2007
+    - 2026
+  ANT_BCG:
+    role: patient.vaccine_bcg
+    kind: category
+    model: dimension
+    name: Vacina BCG
+    years:
+    - 2007
+    - 2026
+  ANT_CONJ_C:
+    role: patient.vaccine_meningococcal_c_conjugate
+    kind: category
+    model: dimension
+    name: Vacina meningocócica conjugada C
+    years:
+    - 2007
+    - 2026
+  ANT_CONT_N:
+    role: case.contact_setting
+    kind: category
+    model: mark
+    name: Local do contato
+    years:
+    - 2007
+    - 2026
+  ANT_DOSES_:
+    role: patient.vaccine_meningococcal_bc_doses
+    kind: number
+    model: mark
+    name: Número de doses (polissacarídica B/C)
+    years:
+    - 2007
+    - 2026
+  ANT_DOSE_3:
+    role: patient.vaccine_meningococcal_ac_doses
+    kind: number
+    model: mark
+    name: Número de doses (polissacarídica A/C)
+    years:
+    - 2007
+    - 2026
+  ANT_DOSE_4:
+    role: patient.vaccine_bcg_doses
+    kind: number
+    model: mark
+    name: Número de doses (BCG)
+    years:
+    - 2007
+    - 2026
+  ANT_DOSE_5:
+    role: patient.vaccine_triple_viral_doses
+    kind: number
+    model: mark
+    name: Número de doses (tríplice viral)
+    years:
+    - 2007
+    - 2026
+  ANT_DOSE_7:
+    role: patient.vaccine_pneumococcal_doses
+    kind: number
+    model: mark
+    name: Número de doses (pneumococo)
+    years:
+    - 2007
+    - 2026
+  ANT_DOSE_C:
+    role: patient.vaccine_meningococcal_c_conjugate_doses
+    kind: number
+    model: mark
+    name: Número de doses (conjugada meningo C)
+    years:
+    - 2007
+    - 2026
+  ANT_DOSE_T:
+    role: patient.vaccine_hib_doses
+    kind: number
+    model: mark
+    name: Número de doses (hemófilo – tetravalente ou Hib)
+    years:
+    - 2007
+    - 2026
+  ANT_DTULT_:
+    role: patient.vaccine_meningococcal_bc_last_dose_date
+    kind: date
+    model: mark
+    name: Data da última dose (polissacarídica B/C)
+    years:
+    - 2007
+    - 2026
+  ANT_DTUL_3:
+    role: patient.vaccine_meningococcal_ac_last_dose_date
+    kind: date
+    model: mark
+    name: Data da última dose (polissacarídica A/C)
+    years:
+    - 2007
+    - 2026
+  ANT_DTUL_4:
+    role: patient.vaccine_bcg_last_dose_date
+    kind: date
+    model: mark
+    name: Data da última dose (BCG)
+    years:
+    - 2007
+    - 2026
+  ANT_DTUL_5:
+    role: patient.vaccine_triple_viral_last_dose_date
+    kind: date
+    model: mark
+    name: Data da última dose (tríplice viral)
+    years:
+    - 2007
+    - 2026
+  ANT_DTUL_7:
+    role: patient.vaccine_pneumococcal_last_dose_date
+    kind: date
+    model: mark
+    name: Data da última dose (pneumococo)
+    years:
+    - 2007
+    - 2026
+  ANT_DTUL_8:
+    role: patient.vaccine_other_last_dose_date
+    kind: date
+    model: mark
+    name: Data da última dose (outra)
+    years:
+    - 2007
+    - 2026
+  ANT_DTUL_C:
+    role: patient.vaccine_meningococcal_c_conjugate_last_dose_date
+    kind: date
+    model: mark
+    name: Data da última dose (conjugada meningo C)
+    years:
+    - 2007
+    - 2026
+  ANT_DTUL_T:
+    role: patient.vaccine_hib_last_dose_date
+    kind: date
+    model: mark
+    name: Data da última dose (hemófilo)
+    years:
+    - 2007
+    - 2026
+  ANT_HEMO_T:
+    role: patient.vaccine_hib
+    kind: category
+    model: dimension
+    name: Vacina contra Haemophilus influenzae b
+    years:
+    - 2007
+    - 2026
+  ANT_IMUNO:
+    role: patient.history_immunosuppression
+    kind: category
+    model: dimension
+    name: Imunodepressão
+    years:
+    - 2007
+    - 2026
+  ANT_INF_HO:
+    role: patient.history_hospital_infection
+    kind: category
+    model: dimension
+    name: Infecção hospitalar
+    years:
+    - 2007
+    - 2026
+  ANT_IRA:
+    role: patient.history_acute_respiratory_infection
+    kind: category
+    model: dimension
+    name: Infecção respiratória aguda
+    years:
+    - 2007
+    - 2026
+  ANT_OUTRA:
+    role: patient.vaccine_other
+    kind: category
+    model: dimension
+    name: Outra vacina
+    years:
+    - 2007
+    - 2026
+  ANT_OUTRO:
+    role: patient.history_other_condition
+    kind: category
+    model: dimension
+    name: Outra condição
+    years:
+    - 2007
+    - 2026
+  ANT_OUTR_D:
+    role: patient.history_other_condition_text
+    kind: text
+    model: excluded
+    name: Doenças pré-existentes (outro) – especificar
+    years:
+    - 2007
+    - 2026
+  ANT_OU_DE:
+    role: patient.vaccine_other_text
+    kind: text
+    model: excluded
+    name: Vacinação (outra) – especificar
+    years:
+    - 2007
+    - 2026
+  ANT_PNEUMO:
+    role: patient.vaccine_pneumococcal
+    kind: category
+    model: dimension
+    name: Pneumonia por Pneumocystis carinii (AIDS) / Vacinação pneumococo (Meningite)
+    years:
+    - 2007
+    - 2026
+    note: On the AIDS forms the same name is Pneumocystis pneumonia; on the meningitis form it is pneumococcal vaccination
+      (curation).
+  ANT_SECUND:
+    role: case.secondary_case
+    kind: category
+    model: mark
+    name: Caso secundário
+    years:
+    - 2007
+    - 2026
+  ANT_TRAUMA:
+    role: patient.history_head_trauma
+    kind: category
+    model: dimension
+    name: Traumatismo craniano
+    years:
+    - 2007
+    - 2026
+  ANT_TRIPLI:
+    role: patient.vaccine_triple_viral
+    kind: category
+    model: dimension
+    name: Vacina tríplice
+    years:
+    - 2007
+    - 2026
+  ANT_TUBE:
+    role: patient.history_tuberculosis
+    kind: category
+    model: dimension
+    name: Tuberculose
+    years:
+    - 2007
+    - 2026
+  ATE_HOSPIT:
+    role: case.hospitalized
+    kind: category
+    model: mark
+    name: 'Ocorreu Hospitalização
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  ATE_INTERN:
+    role: case.hospital_admission_date
+    kind: date
+    model: mark
+    name: 'Data da Internação
+
+      '
+    years:
+    - 2007
+    - 2026
+  ATE_MUNICI:
+    role: case.hospital_municipality
+    kind: place
+    model: where
+    name: Município do hospital
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2007
+    - 2026
+  ATE_UF_HOS:
+    role: case.hospital_state
+    kind: place
+    model: where
+    name: UF hospital
+    years:
+    - 2007
+    - 2026
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2007
+    - 2026
+  CLA_ME_ASS:
+    role: case.aseptic_meningitis_diagnosis
+    kind: category
+    model: mark
+    name: Se confirmado, especifique (meningite asséptica)
+    years:
+    - 2007
+    - 2026
+  CLA_ME_BAC:
+    role: case.other_bacterium
+    kind: category
+    model: mark
+    name: Se confirmado, especifique (meningite por outras bactérias)
+    years:
+    - 2007
+    - 2026
+  CLA_ME_ETI:
+    role: case.other_etiology_diagnosis
+    kind: category
+    model: mark
+    name: Se confirmado, especifique (meningite de outra etiologia)
+    years:
+    - 2007
+    - 2026
+  CLA_SOROGR:
+    role: case.serogroup
+    kind: category
+    model: mark
+    name: Se N. meningitidis, especificar sorogrupo
+    years:
+    - 2007
+    - 2026
+  CLI_ABAULA:
+    role: case.sign_bulging_fontanelle
+    kind: category
+    model: mark
+    name: Sinais e sintomas – abaulamento de fontanela
+    years:
+    - 2007
+    - 2026
+  CLI_CEFALE:
+    role: case.sign_headache
+    kind: category
+    model: mark
+    name: Cefaleia
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  CLI_COMA:
+    role: case.sign_coma
+    kind: category
+    model: mark
+    name: Sinais e sintomas – coma
+    years:
+    - 2007
+    - 2026
+  CLI_CONVUL:
+    role: case.sign_convulsions
+    kind: category
+    model: mark
+    name: Sinais e sintomas – convulsões
+    years:
+    - 2007
+    - 2026
+  CLI_ESPECI:
+    role: case.sign_other_text
+    kind: text
+    model: excluded
+    name: 'Sinais e Sintomas / Complicações — Outros (Especificar)
+
+      '
+    years:
+    - 2007
+    - 2026
+  CLI_FEBRE:
+    role: case.sign_fever
+    kind: category
+    model: mark
+    name: Febre
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  CLI_KERNIG:
+    role: case.sign_kernig_brudzinski
+    kind: category
+    model: mark
+    name: 'Sinais e Sintomas — Kernig/Brudzinski
+
+      '
+    codelists:
+    - AUSEPRES
+    years:
+    - 2007
+    - 2026
+  CLI_OUTRAS:
+    role: case.sign_other_manifestation
+    kind: category
+    model: mark
+    name: Outras (complicações/manifestações)
+    years:
+    - 2007
+    - 2026
+  CLI_PETEQU:
+    role: case.sign_petechiae
+    kind: category
+    model: mark
+    name: 'Sinais e Sintomas — Petéquias/Sufusões Hemorrágicas
+
+      '
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  CLI_RIGIDE:
+    role: case.sign_neck_stiffness
+    kind: category
+    model: mark
+    name: Sinais e sintomas – rigidez de nuca
+    years:
+    - 2007
+    - 2026
+  CLI_VOMITO:
+    role: case.sign_vomiting
+    kind: category
+    model: mark
+    name: Vômito
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  CON_DIAGES:
+    role: case.confirmed_form
+    kind: category
+    model: mark
+    name: Se confirmado, especifique
+    years:
+    - 2007
+    - 2026
+  CRITERIO:
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    name: Critério de Confirmação
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    years:
+    - 2007
+    - 2026
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2026
+  CS_FLXRET:
+    role: notification.return_flow
+    kind: category
+    model: excluded
+    name: Fluxo de Retorno
+    codelists:
+    - CS_FLXRET
+    years:
+    - 2007
+    - 2026
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2026
+  CS_MENING:
+    role: case.meningitis_subtype
+    kind: category
+    model: mark
+    review: draft
+    name: Classificação da meningite
+    years:
+    - 2007
+    - 2026
+    note: 'Meaning inferred (curation source: inferred): a single-character subtype code; its codes are unknown.'
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2007
+    - 2026
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2007
+    - 2026
+  DOENCA_TRA:
+    role: case.work_related
+    kind: category
+    model: mark
+    name: Doença Relacionada ao Trabalho
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2007
+    - 2026
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2026
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2026
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2007
+    - 2026
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2007
+    - 2026
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRS:
+    role: notification.transfer_date_health_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2007
+    - 2026
+  EVOLUCAO:
+    role: case.outcome
+    kind: category
+    model: mark
+    name: Evolução do Caso
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    years:
+    - 2007
+    - 2026
+  FLXRECEBI:
+    role: notification.return_flow_received
+    kind: category
+    model: excluded
+    name: Recebida por Fluxo de Retorno
+    years:
+    - 2007
+    - 2026
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2026
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2026
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2026
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2026
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2026
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2026
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2026
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2007
+    - 2026
+  LAB_AGLIQU:
+    role: case.lab_latex_csf
+    kind: category
+    model: mark
+    name: LATEX líquor
+    years:
+    - 2007
+    - 2026
+  LAB_AGSANG:
+    role: case.lab_latex_blood
+    kind: category
+    model: mark
+    name: LATEX Sangue/soro
+    years:
+    - 2007
+    - 2026
+  LAB_ASPECT:
+    role: case.lab_csf_appearance
+    kind: category
+    model: mark
+    name: Aspecto do líquor
+    years:
+    - 2007
+    - 2026
+  LAB_BCESCA:
+    role: case.lab_bacterioscopy_sputum
+    kind: category
+    model: mark
+    name: Bacterioscopia escarro
+    years:
+    - 2007
+    - 2026
+  LAB_BCLESA:
+    role: case.lab_bacterioscopy_petechial_lesion
+    kind: category
+    model: mark
+    name: Bacterioscopia lesão petequial
+    years:
+    - 2007
+    - 2026
+  LAB_BCLIQU:
+    role: case.lab_bacterioscopy_csf
+    kind: category
+    model: mark
+    name: Bacterioscopia líquor
+    years:
+    - 2007
+    - 2026
+  LAB_BCSANG:
+    role: case.lab_bacterioscopy_blood
+    kind: category
+    model: mark
+    name: Bacterioscopia Sangue/soro
+    years:
+    - 2007
+    - 2026
+  LAB_CILIQU:
+    role: case.lab_cie_csf
+    kind: category
+    model: mark
+    name: CIE líquor
+    years:
+    - 2007
+    - 2026
+  LAB_CISANG:
+    role: case.lab_cie_blood
+    kind: category
+    model: mark
+    name: CIE Sangue/soro
+    years:
+    - 2007
+    - 2026
+  LAB_CLOR:
+    role: case.lab_csf_chloride
+    kind: number
+    model: mark
+    name: Exame Quimiocitológico - Cloreto
+    years:
+    - 2007
+    - 2026
+  LAB_CTESCA:
+    role: case.lab_culture_sputum
+    kind: category
+    model: mark
+    name: Cultura escarro
+    years:
+    - 2007
+    - 2026
+  LAB_CTLESA:
+    role: case.lab_culture_petechial_lesion
+    kind: category
+    model: mark
+    name: Cultura lesão petequial
+    years:
+    - 2007
+    - 2026
+  LAB_CTLIQU:
+    role: case.lab_culture_csf
+    kind: category
+    model: mark
+    name: Cultura Líquor
+    years:
+    - 2007
+    - 2026
+  LAB_CTSANG:
+    role: case.lab_culture_blood
+    kind: category
+    model: mark
+    name: Cultura Sangue/soro
+    years:
+    - 2007
+    - 2026
+  LAB_DTPUNC:
+    role: case.lab_puncture_date
+    kind: date
+    model: mark
+    name: Data da punção
+    years:
+    - 2007
+    - 2026
+  LAB_EOSI:
+    role: case.lab_csf_eosinophils
+    kind: number
+    model: mark
+    name: Exame Quimiocitológico - Eosinófilos
+    years:
+    - 2007
+    - 2026
+  LAB_GLICO:
+    role: case.lab_csf_glucose
+    kind: number
+    model: mark
+    name: Exame Quimiocitológico - Glicose
+    years:
+    - 2007
+    - 2026
+  LAB_HEMA:
+    role: case.lab_csf_red_cells
+    kind: number
+    model: mark
+    name: Exame Quimiocitológico - Hemácias
+    years:
+    - 2007
+    - 2026
+  LAB_ISFEZE:
+    role: case.lab_viral_isolation_feces
+    kind: category
+    model: mark
+    name: Isolamento viral fezes
+    years:
+    - 2007
+    - 2026
+  LAB_ISLIQU:
+    role: case.lab_viral_isolation_csf
+    kind: category
+    model: mark
+    name: Isolamento viral líquor
+    years:
+    - 2007
+    - 2026
+  LAB_LEUCO:
+    role: case.lab_csf_leukocytes
+    kind: number
+    model: mark
+    name: Exame Quimiocitológico - Leucócitos
+    years:
+    - 2007
+    - 2026
+  LAB_LINFO:
+    role: case.lab_csf_lymphocytes
+    kind: number
+    model: mark
+    name: Exame Quimiocitológico - Linfócitos
+    years:
+    - 2007
+    - 2026
+  LAB_MONO:
+    role: case.lab_csf_monocytes
+    kind: number
+    model: mark
+    name: Exame Quimiocitológico - Monócitos
+    years:
+    - 2007
+    - 2026
+  LAB_NEUTRO:
+    role: case.lab_csf_neutrophils
+    kind: number
+    model: mark
+    name: Exame Quimiocitológico - Neutrófilos
+    years:
+    - 2007
+    - 2026
+  LAB_PCESCA:
+    role: case.lab_pcr_sputum
+    kind: category
+    model: mark
+    name: PCR escarro
+    years:
+    - 2007
+    - 2026
+  LAB_PCLESA:
+    role: case.lab_pcr_petechial_lesion
+    kind: category
+    model: mark
+    name: PCR lesão petequial
+    years:
+    - 2007
+    - 2026
+  LAB_PCLIQU:
+    role: case.lab_pcr_csf
+    kind: category
+    model: mark
+    name: PCR líquor
+    years:
+    - 2007
+    - 2026
+  LAB_PCSANG:
+    role: case.lab_pcr_blood
+    kind: category
+    model: mark
+    name: PCR Sangue/soro
+    years:
+    - 2007
+    - 2026
+  LAB_PROT:
+    role: case.lab_csf_protein
+    kind: number
+    model: mark
+    name: Exame Quimiocitológico - Proteínas
+    years:
+    - 2007
+    - 2026
+  LAB_PUNCAO:
+    role: case.lab_lumbar_puncture
+    kind: category
+    model: mark
+    name: Punção lombar realizada
+    years:
+    - 2007
+    - 2026
+  MED_DT_EVO:
+    role: case.outcome_date
+    kind: date
+    model: mark
+    name: Data da evolução
+    years:
+    - 2007
+    - 2026
+  MED_DT_QUI:
+    role: case.chemoprophylaxis_date
+    kind: date
+    model: mark
+    name: Se sim, data (Quimioprofilaxia)
+    years:
+    - 2007
+    - 2026
+  MED_NUCOMU:
+    role: case.contacts_count
+    kind: number
+    model: mark
+    name: Número de comunicantes
+    years:
+    - 2007
+    - 2026
+  MED_QUIMIO:
+    role: case.chemoprophylaxis
+    kind: category
+    model: mark
+    name: Realizada Quimioprofilaxia dos Comunicantes
+    years:
+    - 2007
+    - 2026
+  MIGRADO_W:
+    role: notification.migrated
+    kind: category
+    model: excluded
+    name: Migrado do SINAN Windows
+    codelists:
+    - MIGRADO
+    years:
+    - 2007
+    - 2026
+  NDUPLIC_N:
+    role: notification.duplicate_flag
+    kind: category
+    model: excluded
+    name: Não Listar/Não Contar (Duplicidade)
+    codelists:
+    - NDUPLIC_N
+    years:
+    - 2007
+    - 2026
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2007
+    - 2026
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2007
+    - 2026
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is
+      the derived IDADE_anos.
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2007
+    - 2026
+  NU_LOTE_I:
+    role: notification.batch_investigation
+    kind: identifier
+    model: excluded
+    name: Número do lote da transferência vertical da investigação
+    years:
+    - 2007
+    - 2026
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2007
+    - 2026
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2007
+    - 2026
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2007
+    - 2026
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+    note: 'State of residence: redundant with the first two digits of ID_MN_RESI (the stratum); kept as a dimension
+      because `residence_state` is not a population-account property name.'
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2026
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

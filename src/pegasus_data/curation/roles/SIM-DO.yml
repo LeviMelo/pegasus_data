@@ -1,0 +1,890 @@
+dataset: SIM-DO
+record: death
+columns:
+  ACIDTRAB:
+    role: death.work_related
+    kind: category
+    model: mark
+    name: Acidente do trabalho
+    years:
+    - 1996
+    - 2026
+  ALTCAUSA:
+    role: death.cause_altered
+    kind: category
+    model: mark
+    name: Alteração da causa
+    codelists:
+    - SIMNAO1
+    years:
+    - 2014
+    - 2026
+  ASSISTMED:
+    role: death.medical_care
+    kind: category
+    model: mark
+    name: Recebeu assistência médica
+    years:
+    - 1996
+    - 2026
+  ATESTADO:
+    role: death.certificate_codes
+    kind: text
+    model: mark
+    name: CIDs informados no atestado
+    years:
+    - 2014
+    - 2026
+    note: Raw 70-character string of the ICD codes as written on the certificate; not parsed.
+  ATESTANTE:
+    role: certifier.condition
+    kind: category
+    model: mark
+    name: Condição do médico atestante
+    years:
+    - 2001
+    - 2026
+  CAUSABAS:
+    role: death.cause
+    kind: code_tree
+    model: event_type
+    name: Causa básica do óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+  CAUSABAS_O:
+    role: death.original_underlying_cause
+    kind: code_tree
+    model: event_type
+    name: Causa básica original
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 2006
+    - 2026
+  CAUSAMAT:
+    role: death.maternal_external_cause
+    kind: category
+    model: mark
+    name: Causa externa associada a causa materna
+    years:
+    - 2011
+    - 2026
+  CB_PRE:
+    role: death.prior_underlying_cause
+    kind: code_tree
+    model: mark
+    name: Causa básica informada antes da resseleção (localidade)
+    codelists:
+    - ICD10
+    years:
+    - 2006
+    - 2026
+  CIRCOBITO:
+    role: death.violent_circumstance
+    kind: category
+    model: mark
+    name: Tipo de morte violenta
+    years:
+    - 1996
+    - 2026
+  CIRURGIA:
+    role: death.surgery
+    kind: category
+    model: mark
+    name: Realização de cirurgia
+    years:
+    - 1996
+    - 2026
+  CODBAIOCOR:
+    role: death.neighborhood
+    kind: place
+    model: mark
+    name: Código do bairro de ocorrência
+    years:
+    - 2006
+    - 2010
+    note: Locally assigned code; meaningless without CODMUNOCOR.
+  CODBAIRES:
+    role: deceased.residence_neighborhood
+    kind: place
+    model: mark
+    name: Código do bairro de residência
+    years:
+    - 1996
+    - 2010
+    note: Locally assigned code; meaningless without CODMUNRES.
+  CODCART:
+    role: death.registry_office
+    kind: identifier
+    model: link_only
+    name: Código do cartório
+    years:
+    - 2012
+    - 2013
+  CODESTAB:
+    role: death.facility
+    kind: institution
+    model: institution
+    name: Estabelecimento
+    codelists:
+    - CADGERBR
+    years:
+    - 2001
+    - 2026
+  CODIFICADO:
+    role: death.coded_flag
+    kind: category
+    model: excluded
+    name: Informa se formulário foi codificado
+    years:
+    - 2014
+    - 2026
+  CODMUNCART:
+    role: death.registry_municipality
+    kind: place
+    model: mark
+    name: Código do município do cartório
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 2012
+    - 2013
+  CODMUNNATU:
+    role: deceased.birth_municipality
+    kind: place
+    model: dimension
+    name: Código do município de naturalidade
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2014
+    - 2026
+  CODMUNOCOR:
+    role: death.municipality
+    kind: place
+    model: where
+    name: Município de ocorrência
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 1996
+    - 2026
+  CODMUNRES:
+    role: deceased.residence
+    kind: place
+    model: stratum
+    name: Município de residência
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 1996
+    - 2026
+  COMUNSVOIM:
+    role: death.svo_iml_municipality
+    kind: place
+    model: mark
+    name: Município do SVO ou IML
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2011
+    - 2026
+  CONTADOR:
+    role: death.counter
+    kind: identifier
+    model: excluded
+    name: Contador
+    years:
+    - 1996
+    - 2026
+  CRM:
+    role: certifier.crm
+    kind: identifier
+    model: link_only
+    name: CRM do médico atestante
+    years:
+    - 2014
+    - 2018
+  DIFDATA:
+    role: death.receipt_delay_days
+    kind: number
+    model: excluded
+    name: Diferença entre data do óbito e recebimento
+    years:
+    - 2012
+    - 2026
+    note: Computed difference between two dates; bookkeeping.
+  DTATESTADO:
+    role: death.certificate_date
+    kind: date
+    model: mark
+    name: Data do atestado
+    years:
+    - 2006
+    - 2026
+  DTCADASTRO:
+    role: death.registration_date
+    kind: date
+    model: when
+    name: Data do cadastro
+    years:
+    - 2006
+    - 2026
+  DTCADINF:
+    role: death.infant_investigation_registration_date
+    kind: date
+    model: mark
+    name: Data do cadastro da investigação de óbito infantil
+    years:
+    - 2009
+    - 2026
+  DTCADINV:
+    role: death.investigation_registration_date
+    kind: date
+    model: mark
+    name: Data do cadastro de investigação
+    years:
+    - 2009
+    - 2026
+  DTCONCASO:
+    role: death.case_conclusion_date
+    kind: date
+    model: mark
+    name: Data de conclusão do caso
+    years:
+    - 2012
+    - 2026
+  DTCONINV:
+    role: death.investigation_conclusion_date
+    kind: date
+    model: mark
+    name: Data da conclusão da investigação
+    years:
+    - 2012
+    - 2026
+  DTINVESTIG:
+    role: death.investigation_date
+    kind: date
+    model: mark
+    name: Data da investigação
+    years:
+    - 2006
+    - 2026
+  DTNASC:
+    role: deceased.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento
+    years:
+    - 1996
+    - 2026
+  DTOBITO:
+    role: death.date
+    kind: date
+    model: when
+    name: Data do Óbito
+    years:
+    - 1996
+    - 2026
+  DTRECEBIM:
+    role: death.receipt_date
+    kind: date
+    model: mark
+    name: Data do recebimento
+    years:
+    - 2006
+    - 2026
+  DTRECORIG:
+    role: death.original_receipt_date
+    kind: date
+    model: mark
+    name: Data do recebimento original
+    years:
+    - 2011
+    - 2013
+  DTRECORIGA:
+    role: death.original_receipt_date
+    kind: date
+    model: mark
+    name: Data do recebimento original (tratada)
+    years:
+    - 2011
+    - 2026
+    note: Treated version of DTRECORIG.
+  DTREGCART:
+    role: death.registry_date
+    kind: date
+    model: mark
+    name: Data do registro do cartório
+    years:
+    - 2012
+    - 2013
+  ESC:
+    role: deceased.education_years_band
+    kind: category
+    model: dimension
+    name: Escolaridade em anos
+    years:
+    - 1996
+    - 2026
+  ESC2010:
+    role: deceased.education_level_2010
+    kind: category
+    model: dimension
+    name: Escolaridade 2010 - nível
+    years:
+    - 2011
+    - 2026
+  ESCFALAGR1:
+    role: deceased.education_aggregated
+    kind: category
+    model: dimension
+    name: Escolaridade do falecido agregada
+    codelists:
+    - ESCAGR1
+    - ESCAGR2
+    years:
+    - 2012
+    - 2026
+  ESCMAE:
+    role: mother.education_years_band
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe em anos
+    years:
+    - 1996
+    - 2026
+  ESCMAE2010:
+    role: mother.education_level_2010
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe 2010 - nível
+    years:
+    - 2011
+    - 2026
+  ESCMAEAGR1:
+    role: mother.education_aggregated
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe agregada
+    years:
+    - 2012
+    - 2026
+  ESTABDESCR:
+    role: death.facility_description
+    kind: text
+    model: excluded
+    name: Descrição do estabelecimento
+    years:
+    - 2014
+    - 2026
+  ESTCIV:
+    role: deceased.marital_status
+    kind: category
+    model: dimension
+    name: Situação conjugal
+    years:
+    - 1996
+    - 2026
+  EXAME:
+    role: death.exam_performed
+    kind: category
+    model: mark
+    name: Realização de exame
+    years:
+    - 1996
+    - 2026
+  EXPDIFDATA:
+    role: death.export_delay_days
+    kind: number
+    model: excluded
+    name: Diferença de datas (exportação)
+    years:
+    - 2012
+    - 2012
+    note: Computed date difference (export); bookkeeping.
+  FONTE:
+    role: death.information_source
+    kind: category
+    model: mark
+    name: Fonte de informação
+    codelists:
+    - FONTINFO
+    - FONTE
+    years:
+    - 1996
+    - 2026
+  FONTEINV:
+    role: death.investigation_source
+    kind: category
+    model: mark
+    name: Fonte de investigação
+    years:
+    - 2006
+    - 2026
+  FONTES:
+    role: death.sources_consulted
+    kind: text
+    model: mark
+    name: Fontes consultadas
+    years:
+    - 2014
+    - 2026
+    note: Six positional S/X flags (interview, outpatient, record, SVO, IML, professional), not a number.
+  FONTESINF:
+    role: death.investigation_sources
+    kind: text
+    model: mark
+    review: draft
+    name: Fontes de investigação (combinado)
+    years:
+    - 2014
+    - 2026
+    note: 'Positional S/X flags; meaning inferred by pegasus_data from FONTES (source: inferred), not
+      documented by DATASUS.'
+  GESTACAO:
+    role: pregnancy.gestation_band
+    kind: category
+    model: mark
+    name: Semanas de gestação (formulário antigo)
+    years:
+    - 1996
+    - 2026
+  GRAVIDEZ:
+    role: birth.plurality
+    kind: category
+    model: mark
+    also:
+    - death.plurality
+    name: Tipo de gravidez
+    years:
+    - 1996
+    - 2026
+  HORAOBITO:
+    role: death.time
+    kind: number
+    model: mark
+    name: Hora do óbito
+    years:
+    - 2006
+    - 2026
+    note: Clock time packed as HHMM.
+  IDADE:
+    role: deceased.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    codelists:
+    - IDADE
+    years:
+    - 1996
+    - 2026
+    note: The age itself with its unit packed in the leading digit; deceased.age_years (IDADE_ANOS) is
+      the decoded stratum.
+  IDADEMAE:
+    role: mother.age
+    kind: number
+    model: mark
+    also:
+    - death.maternal_age
+    name: Idade da mãe
+    years:
+    - 1996
+    - 2026
+  LINHAA:
+    role: death.certificate_line_a
+    kind: code_tree
+    model: mark
+    name: Linha A da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+  LINHAB:
+    role: death.certificate_line_b
+    kind: code_tree
+    model: mark
+    name: Linha B da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+  LINHAC:
+    role: death.certificate_line_c
+    kind: code_tree
+    model: mark
+    name: Linha C da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+  LINHAD:
+    role: death.certificate_line_d
+    kind: code_tree
+    model: mark
+    name: Linha D da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+  LINHAII:
+    role: death.certificate_part_ii
+    kind: code_tree
+    model: mark
+    name: Linha II da declaração de óbito
+    codelists:
+    - ICD10
+    - CID9WHO
+    years:
+    - 1996
+    - 2026
+  LOCOCOR:
+    role: death.place
+    kind: category
+    model: mark
+    name: Local de ocorrência do óbito
+    years:
+    - 1996
+    - 2026
+  MORTEPARTO:
+    role: death.childbirth_relation_investigated
+    kind: category
+    model: mark
+    name: Morte em relação ao parto após investigação
+    years:
+    - 2009
+    - 2026
+  NATURAL:
+    role: deceased.birth_place
+    kind: place
+    model: dimension
+    name: Naturalidade
+    codelists:
+    - NATURALIDADE
+    years:
+    - 1996
+    - 2026
+  NECROPSIA:
+    role: death.autopsy
+    kind: category
+    model: mark
+    name: Necrópsia
+    years:
+    - 1996
+    - 2026
+  NUDIASINF:
+    role: death.investigation_days
+    kind: number
+    model: mark
+    review: draft
+    name: Day-count field, 2014 investigation-outcome block
+    years:
+    - 2014
+    - 2026
+    note: 'Three-digit day count, 2014 investigation block; which two dates it differences is not established
+      (curation, source: inferred).'
+  NUDIASOBCO:
+    role: death.days_to_investigation_conclusion
+    kind: number
+    model: mark
+    name: Dias entre óbito e conclusão da investigação
+    years:
+    - 2014
+    - 2026
+  NUDIASOBIN:
+    role: death.days_to_investigation
+    kind: number
+    model: mark
+    name: Número de dias óbito-investigação
+    years:
+    - 2012
+    - 2026
+  NUMERODN:
+    role: deceased.birth_declaration_number
+    kind: identifier
+    model: link_only
+    name: Número da Declaração de Nascido Vivo
+    years:
+    - 2009
+    - 2010
+  NUMEROLOTE:
+    role: death.batch_number
+    kind: number
+    model: excluded
+    name: Número do lote
+    years:
+    - 2014
+    - 2026
+  NUMREGCART:
+    role: death.registry_number
+    kind: identifier
+    model: link_only
+    name: Número do registro do cartório
+    years:
+    - 2012
+    - 2013
+  OBITOGRAV:
+    role: deceased.pregnancy_status
+    kind: category
+    model: dimension
+    also:
+    - death.pregnancy
+    name: Óbito na gravidez
+    years:
+    - 1996
+    - 2026
+  OBITOPARTO:
+    role: death.childbirth_relation
+    kind: category
+    model: mark
+    name: Morte em relação ao parto
+    years:
+    - 1996
+    - 2026
+  OBITOPUERP:
+    role: deceased.puerperium_status
+    kind: category
+    model: dimension
+    also:
+    - death.puerperium
+    name: Óbito no puerpério
+    years:
+    - 1996
+    - 2026
+  OCUP:
+    role: deceased.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação habitual
+    codelists:
+    - CBO2002
+    - OCUPA
+    years:
+    - 1996
+    - 2026
+  OCUPMAE:
+    role: mother.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação habitual da mãe
+    codelists:
+    - CBO2002
+    - OCUPA
+    years:
+    - 1996
+    - 2026
+  ORIGEM:
+    role: death.record_origin
+    kind: category
+    model: excluded
+    name: Origem do registro
+    years:
+    - 2009
+    - 2026
+  PARTO:
+    role: birth.delivery
+    kind: category
+    model: mark
+    also:
+    - death.delivery
+    name: Tipo de parto
+    years:
+    - 1996
+    - 2026
+  PESO:
+    role: birth.weight
+    kind: number
+    model: mark
+    also:
+    - death.birth_weight
+    name: Peso ao nascer
+    years:
+    - 1996
+    - 2026
+  QTDFILMORT:
+    role: pregnancy.previous_fetal_losses
+    kind: number
+    model: mark
+    name: Número de perdas fetais/abortos
+    years:
+    - 1996
+    - 2026
+  QTDFILVIVO:
+    role: pregnancy.previous_live_births
+    kind: number
+    model: mark
+    name: Número de filhos vivos
+    years:
+    - 1996
+    - 2026
+  RACACOR:
+    role: deceased.race
+    kind: category
+    model: stratum
+    name: Raça Cor
+    years:
+    - 1996
+    - 2026
+  SEMAGESTAC:
+    role: birth.gestation_weeks
+    kind: number
+    model: mark
+    also:
+    - death.gestation_weeks
+    name: Nº de semanas de gestação
+    years:
+    - 2012
+    - 2026
+  SERIESCFAL:
+    role: deceased.education_grade
+    kind: category
+    model: dimension
+    name: Série escolar do falecido
+    years:
+    - 2012
+    - 2026
+  SERIESCMAE:
+    role: mother.education_grade
+    kind: category
+    model: dimension
+    name: Série escolar da mãe
+    years:
+    - 2012
+    - 2026
+  SEXO:
+    role: deceased.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    years:
+    - 1996
+    - 2026
+  STCODIFICA:
+    role: death.coding_status
+    kind: category
+    model: excluded
+    name: Status de instalação codificadora
+    years:
+    - 2014
+    - 2026
+  STDOEPIDEM:
+    role: death.epidemiological_status
+    kind: category
+    model: excluded
+    name: Status de DO epidemiológica
+    years:
+    - 2011
+    - 2026
+  STDONOVA:
+    role: death.new_do_status
+    kind: category
+    model: excluded
+    name: Status de DO nova
+    years:
+    - 2011
+    - 2026
+  TIPOBITO:
+    role: death.kind
+    kind: category
+    model: event_type
+    name: Tipo do óbito
+    years:
+    - 1996
+    - 2026
+  TPASSINA:
+    role: certifier.signature_type
+    kind: category
+    model: mark
+    review: draft
+    name: Tipo de assinatura
+    years:
+    - 2006
+    - 2008
+    note: 'Meaning inferred from the name only; values undocumented (curation source: inferred).'
+  TPMORTEOCO:
+    role: death.pregnancy_relation
+    kind: category
+    model: mark
+    name: A morte ocorreu
+    years:
+    - 2012
+    - 2026
+  TPNIVELINV:
+    role: death.investigator_level
+    kind: category
+    model: mark
+    name: Tipo de nível investigador
+    years:
+    - 2014
+    - 2026
+  TPOBITOCOR:
+    role: death.timing_investigated
+    kind: category
+    model: mark
+    name: Momento do óbito após investigação
+    years:
+    - 2009
+    - 2026
+  TPPOS:
+    role: death.investigated
+    kind: category
+    model: mark
+    name: Óbito investigado
+    years:
+    - 2006
+    - 2026
+  TPRESGINFO:
+    role: death.information_recovery_type
+    kind: category
+    model: mark
+    name: Tipo de resgate de informação
+    years:
+    - 2014
+    - 2026
+  UFINFORM:
+    role: death.reporting_state
+    kind: place
+    model: excluded
+    name: UF informante
+    codelists:
+    - UF_BR
+    years:
+    - 2001
+    - 2010
+  VERSAOSCB:
+    role: death.cause_selector_version
+    kind: category
+    model: excluded
+    name: Versão do seletor de causa básica
+    years:
+    - 2014
+    - 2026
+  VERSAOSIST:
+    role: death.system_version
+    kind: category
+    model: excluded
+    name: Versão do sistema
+    years:
+    - 2014
+    - 2026
+  IDADE_ANOS:
+    role: deceased.age_years
+    kind: number
+    model: stratum
+    derived: true

@@ -1,0 +1,735 @@
+dataset: SINASC-DN
+record: birth
+columns:
+  APGAR1:
+    role: birth.apgar1
+    kind: number
+    model: mark
+    name: Índice de Apgar - 1º minuto
+    years:
+    - 1994
+    - 2026
+  APGAR5:
+    role: birth.apgar5
+    kind: number
+    model: mark
+    name: Índice de Apgar - 5º minuto
+    years:
+    - 1994
+    - 2026
+  AREA:
+    role: mother.residence_area
+    kind: place
+    model: mark
+    name: Área de residência
+    years:
+    - 1994
+    - 1995
+    note: 1994-1995 layout; assigned locally by state/municipality, not national.
+  BAIRRO_MAE:
+    role: mother.residence_neighborhood
+    kind: place
+    model: mark
+    name: Bairro de residência da mãe
+    years:
+    - 1994
+    - 1995
+    note: Locally assigned code; meaningless without CODMUNRES.
+  CARTORIO:
+    role: birth.registry_office
+    kind: identifier
+    model: link_only
+    name: Cartório
+    years:
+    - 1994
+    - 1995
+  CODANOMAL:
+    role: birth.anomaly_code
+    kind: code_tree
+    model: mark
+    name: Código da anomalia congênita (CID-10)
+    codelists:
+    - ICD10
+    - ECLAMC
+    years:
+    - 1996
+    - 2026
+  CODBAINASC:
+    role: birth.neighborhood
+    kind: place
+    model: mark
+    years:
+    - 2000
+    - 2009
+    note: Locally assigned code; meaningless without CODMUNNASC.
+  CODBAIRES:
+    role: mother.residence_neighborhood
+    kind: place
+    model: mark
+    years:
+    - 2000
+    - 2009
+    note: Locally assigned code; meaningless without CODMUNRES.
+  CODCART:
+    role: birth.registry_office
+    kind: identifier
+    model: link_only
+    years:
+    - 2010
+    - 2013
+  CODESTAB:
+    role: birth.facility
+    kind: institution
+    model: institution
+    name: Código CNES do estabelecimento
+    codelists:
+    - CADGERBR
+    years:
+    - 1994
+    - 2026
+  CODMUNCART:
+    role: birth.registry_municipality
+    kind: place
+    model: mark
+    years:
+    - 2013
+    - 2013
+  CODMUNNASC:
+    role: birth.municipality
+    kind: place
+    model: where
+    name: Município de ocorrência do nascimento (código)
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAIS
+    - CIRAC
+    - CIRACC
+    - CIRACN
+    - CIRAL
+    - CIRALC
+    years:
+    - 1994
+    - 2026
+  CODMUNNATU:
+    role: mother.birth_municipality
+    kind: place
+    model: dimension
+    name: Código do município de naturalidade da mãe
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2010
+    - 2026
+  CODMUNRES:
+    role: mother.residence
+    kind: place
+    model: stratum
+    name: Código do município de residência
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 1994
+    - 2026
+  CODOCUPMAE:
+    role: mother.occupation
+    kind: code_tree
+    model: dimension
+    name: Código de ocupação da mãe (CBO)
+    codelists:
+    - CBO2002
+    - OCUPA
+    years:
+    - 1996
+    - 2026
+  CODPAISRES:
+    role: mother.residence_country
+    kind: place
+    model: mark
+    name: Código do país de residência
+    codelists:
+    - NATURALIDADE
+    years:
+    - 2010
+    - 2026
+  CODUFNATU:
+    role: mother.birth_state
+    kind: place
+    model: dimension
+    name: Código da UF de naturalidade da mãe
+    codelists:
+    - UF_BR
+    years:
+    - 2013
+    - 2026
+  CONSPRENAT:
+    role: pregnancy.prenatal_visits
+    kind: number
+    model: mark
+    name: Número de consultas de pré-natal
+    years:
+    - 2010
+    - 2026
+  CONSULTAS:
+    role: pregnancy.prenatal_visits_band
+    kind: category
+    model: mark
+    name: Número de consultas de pré-natal (agrupado)
+    codelists:
+    - CONSULTAS
+    - CONSULT
+    years:
+    - 1996
+    - 2026
+  CONTADOR:
+    role: birth.counter
+    kind: identifier
+    model: excluded
+    name: Número identificador do registro
+    years:
+    - 1994
+    - 2026
+  CRITICA:
+    role: birth.quality_control_code
+    kind: category
+    model: excluded
+    name: Crítica
+    years:
+    - 1994
+    - 1995
+    note: Internal control code of the 1994-1995 layout; undocumented.
+  CRS_MAE:
+    role: mother.residence_health_region
+    kind: place
+    model: mark
+    name: CRS de residência da mãe
+    years:
+    - 1994
+    - 1995
+  CRS_OCOR:
+    role: birth.health_region
+    kind: place
+    model: mark
+    name: CRS de ocorrência
+    years:
+    - 1994
+    - 1995
+  DIFDATA:
+    role: birth.receipt_delay_days
+    kind: number
+    model: excluded
+    name: Diferença entre nascimento e recebimento
+    years:
+    - 2010
+    - 2026
+    note: Computed date difference; bookkeeping.
+  DTCADASTRO:
+    role: birth.registration_date
+    kind: date
+    model: when
+    name: Data do cadastro da DN
+    years:
+    - 1994
+    - 2026
+  DTDECLARAC:
+    role: birth.declaration_date
+    kind: date
+    model: mark
+    name: Data do preenchimento da declaração
+    years:
+    - 2014
+    - 2026
+  DTNASC:
+    role: baby.birth_date
+    kind: date
+    model: when
+    also:
+    - birth.date
+    name: Data do nascimento
+    years:
+    - 1994
+    - 2026
+  DTNASCMAE:
+    role: mother.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento da mãe
+    years:
+    - 2010
+    - 2026
+  DTRECEBIM:
+    role: birth.receipt_date
+    kind: date
+    model: mark
+    name: Data do último recebimento do lote
+    years:
+    - 2006
+    - 2026
+  DTRECORIG:
+    role: birth.original_receipt_date
+    kind: date
+    model: mark
+    years:
+    - 2010
+    - 2013
+  DTRECORIGA:
+    role: birth.original_receipt_date
+    kind: date
+    model: mark
+    name: Data de recebimento original calculada
+    years:
+    - 2014
+    - 2026
+    note: Calculated version of DTRECORIG.
+  DTREGCART:
+    role: birth.registry_date
+    kind: date
+    model: mark
+    years:
+    - 2010
+    - 2013
+  DTULTMENST:
+    role: pregnancy.last_menstrual_period_date
+    kind: date
+    model: mark
+    name: Data da última menstruação (DUM)
+    years:
+    - 2010
+    - 2026
+  ESCMAE:
+    role: mother.education_years_band
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe (DN antiga)
+    years:
+    - 1994
+    - 2026
+  ESCMAE2010:
+    role: mother.education_level_2010
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe 2010 - nível
+    years:
+    - 2012
+    - 2026
+  ESCMAEAGR1:
+    role: mother.education_aggregated
+    kind: category
+    model: dimension
+    name: Escolaridade da mãe agregada
+    years:
+    - 2013
+    - 2026
+  ESTCIVMAE:
+    role: mother.marital_status
+    kind: category
+    model: dimension
+    name: Situação conjugal da mãe
+    codelists:
+    - ESTCIVMAE
+    - ESTCIV
+    - SITCONJU
+    years:
+    - 1996
+    - 2026
+  ETNIA:
+    role: baby.ethnicity
+    kind: category
+    model: dimension
+    review: draft
+    name: Código para etnia indígena
+    years:
+    - 1994
+    - 1995
+    note: 1994-1995 layout, filled when RACACOR is indigenous; no codelist survives. Subject assumed to
+      be the newborn because it keys on RACACOR, which then described the newborn; not stated by the source.
+  FIL_ABORT:
+    role: pregnancy.previous_abortions
+    kind: number
+    model: mark
+    name: Abortos
+    years:
+    - 1994
+    - 1995
+  FIL_MORTOS:
+    role: pregnancy.previous_stillbirths
+    kind: number
+    model: mark
+    name: Filhos nascidos mortos
+    years:
+    - 1994
+    - 1995
+  FIL_VIVOS:
+    role: pregnancy.previous_live_births
+    kind: number
+    model: mark
+    name: Filhos nascidos vivos
+    years:
+    - 1994
+    - 1995
+  GESTACAO:
+    role: birth.gestation_band
+    kind: category
+    model: mark
+    name: Semanas de gestação agrupado
+    years:
+    - 1994
+    - 2026
+  GRAVIDEZ:
+    role: birth.plurality
+    kind: category
+    model: mark
+    name: Tipo de gravidez
+    years:
+    - 1994
+    - 2026
+  HORANASC:
+    role: birth.time
+    kind: number
+    model: mark
+    name: Hora do nascimento
+    years:
+    - 2006
+    - 2026
+    note: Clock time packed as HHMM.
+  IDADEMAE:
+    role: mother.age
+    kind: number
+    model: stratum
+    name: Idade da mãe
+    years:
+    - 1994
+    - 2026
+  IDADEPAI:
+    role: father.age
+    kind: number
+    model: mark
+    name: Idade do pai
+    years:
+    - 2010
+    - 2026
+    note: Adds entity `father`; no listed entity fits.
+  IDANOMAL:
+    role: birth.anomaly_flag
+    kind: category
+    model: mark
+    name: Anomalia congênita identificada
+    years:
+    - 2000
+    - 2026
+  KOTELCHUCK:
+    role: pregnancy.prenatal_adequacy
+    kind: category
+    model: mark
+    name: Índice de Kotelchuck — adequação da assistência pré-natal
+    codelists:
+    - KOTELCHUCK
+    years:
+    - 2014
+    - 2026
+  LOCNASC:
+    role: birth.place
+    kind: category
+    model: mark
+    name: Local de ocorrência do nascimento
+    years:
+    - 1994
+    - 2026
+  MESPRENAT:
+    role: pregnancy.prenatal_start_month
+    kind: category
+    model: mark
+    name: Mês de gestação em que iniciou o pré-natal
+    codelists:
+    - MEGEST
+    years:
+    - 2010
+    - 2026
+  NATURALMAE:
+    role: mother.birth_place
+    kind: place
+    model: dimension
+    name: Naturalidade da mãe
+    codelists:
+    - NATURALIDADE
+    years:
+    - 2010
+    - 2026
+  NUMEROLOTE:
+    role: birth.batch_number
+    kind: number
+    model: excluded
+    name: Número do lote
+    years:
+    - 2010
+    - 2026
+  NUMREGCART:
+    role: birth.registry_number
+    kind: identifier
+    model: link_only
+    years:
+    - 2010
+    - 2013
+  NUM_EXPORT:
+    role: birth.export_number
+    kind: number
+    model: excluded
+    name: Número de exportação
+    years:
+    - 1994
+    - 1995
+  ORIGEM:
+    role: birth.record_origin
+    kind: category
+    model: excluded
+    name: Banco de dados de origem
+    years:
+    - 2010
+    - 2026
+  PARIDADE:
+    role: pregnancy.parity
+    kind: category
+    model: mark
+    name: Paridade
+    years:
+    - 2014
+    - 2026
+  PARTO:
+    role: birth.delivery
+    kind: category
+    model: mark
+    name: Tipo de parto
+    years:
+    - 1994
+    - 2026
+  PESO:
+    role: birth.weight
+    kind: number
+    model: mark
+    name: Peso ao nascer
+    years:
+    - 1994
+    - 2026
+  PRE_NATAL:
+    role: pregnancy.prenatal_visits_band
+    kind: category
+    model: mark
+    name: Consultas de pré-natal
+    codelists:
+    - PRENATAL
+    years:
+    - 1994
+    - 1995
+    note: 1994-1995 banded prenatal history.
+  QTDFILMORT:
+    role: pregnancy.previous_fetal_losses
+    kind: number
+    model: mark
+    name: Número de perdas fetais e abortos
+    years:
+    - 1996
+    - 2026
+  QTDFILVIVO:
+    role: pregnancy.previous_live_births
+    kind: number
+    model: mark
+    name: Número de filhos vivos
+    years:
+    - 1996
+    - 2026
+  QTDGESTANT:
+    role: pregnancy.previous_pregnancies
+    kind: number
+    model: mark
+    name: Número de gestações anteriores
+    years:
+    - 2010
+    - 2026
+  QTDPARTCES:
+    role: pregnancy.previous_cesareans
+    kind: number
+    model: mark
+    name: Número de partos cesáreos anteriores
+    years:
+    - 2010
+    - 2026
+  QTDPARTNOR:
+    role: pregnancy.previous_vaginal_births
+    kind: number
+    model: mark
+    name: Número de partos vaginais anteriores
+    years:
+    - 2010
+    - 2026
+  RACACOR:
+    role: baby.race
+    kind: category
+    model: mark
+    name: Raça cor do recém nascido
+    years:
+    - 1994
+    - 2026
+  RACACORMAE:
+    role: mother.race
+    kind: category
+    model: stratum
+    name: Raça/cor da mãe
+    codelists:
+    - RACACORMAE
+    - RACA
+    years:
+    - 2010
+    - 2026
+  RACACORN:
+    role: baby.race
+    kind: category
+    model: mark
+    years:
+    - 2012
+    - 2013
+    note: Newborn race in 2012-2013 files; coalesce with RACACOR and RACACOR_RN for a series.
+  RACACOR_RN:
+    role: baby.race
+    kind: category
+    model: mark
+    years:
+    - 2011
+    - 2011
+    note: Newborn race in the 2011 files only; coalesce with RACACOR and RACACORN.
+  SEMAGESTAC:
+    role: birth.gestation_weeks
+    kind: number
+    model: mark
+    name: Nº de semanas de gestação
+    years:
+    - 2010
+    - 2026
+  SERIESCMAE:
+    role: mother.education_grade
+    kind: category
+    model: dimension
+    name: Série escolar da mãe
+    years:
+    - 2010
+    - 2026
+  SEXO:
+    role: baby.sex
+    kind: category
+    model: mark
+    name: Sexo do recém nascido
+    years:
+    - 1994
+    - 2026
+  STCESPARTO:
+    role: birth.cesarean_before_labor
+    kind: category
+    model: mark
+    name: A cesárea ocorreu antes do trabalho de parto iniciar?
+    codelists:
+    - STPARTO
+    years:
+    - 2010
+    - 2026
+  STDNEPIDEM:
+    role: birth.epidemiological_status
+    kind: category
+    model: excluded
+    name: Status de DN Epidemiológica
+    codelists:
+    - DNNOVA
+    years:
+    - 2010
+    - 2026
+  STDNNOVA:
+    role: birth.new_dn_status
+    kind: category
+    model: excluded
+    name: Status de DN Nova
+    years:
+    - 2010
+    - 2026
+  STTRABPART:
+    role: birth.labor_induced
+    kind: category
+    model: mark
+    name: O trabalho de parto foi induzido?
+    codelists:
+    - ANOMAL
+    years:
+    - 2010
+    - 2026
+  TPAPRESENT:
+    role: birth.presentation
+    kind: category
+    model: mark
+    name: Tipo de apresentação do recém-nascido
+    codelists:
+    - PARAPRE
+    years:
+    - 2010
+    - 2026
+  TPDOCRESP:
+    role: informant.document_type
+    kind: category
+    model: mark
+    name: Tipo do documento do responsável
+    years:
+    - 2014
+    - 2026
+  TPFUNCRESP:
+    role: informant.function
+    kind: category
+    model: mark
+    name: Tipo de função do responsável pelo preenchimento
+    codelists:
+    - TPFUNC
+    years:
+    - 2014
+    - 2026
+  TPMETESTIM:
+    role: birth.gestation_estimation_method
+    kind: category
+    model: mark
+    name: Método utilizado para estimar as semanas de gestação
+    codelists:
+    - TPMETODO
+    years:
+    - 2010
+    - 2026
+  TPNASCASSI:
+    role: birth.attendant
+    kind: category
+    model: mark
+    name: Nascimento assistido por
+    codelists:
+    - TPASSIST
+    years:
+    - 2013
+    - 2026
+  TPROBSON:
+    role: birth.robson_group
+    kind: category
+    model: mark
+    name: Código do Grupo de Robson
+    codelists:
+    - ROBSON
+    years:
+    - 2010
+    - 2026
+  UFINFORM:
+    role: birth.reporting_state
+    kind: place
+    model: excluded
+    name: UF informante
+    codelists:
+    - UF_BR
+    years:
+    - 1994
+    - 2009
+  VERSAOSIST:
+    role: birth.system_version
+    kind: category
+    model: excluded
+    name: Versão do sistema
+    years:
+    - 2010
+    - 2026

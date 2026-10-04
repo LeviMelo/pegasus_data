@@ -1,0 +1,331 @@
+dataset: SINAN-SIFG
+record: notification
+columns:
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2007
+    - 2025
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2025
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2025
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2007
+    - 2025
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2007
+    - 2025
+  DSMOTIVO:
+    role: treatment.partner_untreated_reason_text
+    kind: text
+    model: mark
+    note: Draft typing said number; curation says free text.
+    name: Outro motivo
+    years:
+    - 2007
+    - 2025
+  DSTITULO1:
+    role: pregnancy.prenatal_test_titre
+    kind: text
+    model: mark
+    note: Free-text titre (curation sifg.yml:21), e.g. 1:16; kept text.
+    name: Título
+    years:
+    - 2007
+    - 2025
+  DTTESTE1:
+    role: pregnancy.prenatal_test_date
+    kind: date
+    model: mark
+    name: Data do teste não treponêmico no pré-natal
+    years:
+    - 2007
+    - 2025
+  DT_DIAG:
+    role: case.diagnosis_date
+    kind: date
+    model: when
+    name: Data do Diagnóstico
+    years:
+    - 2007
+    - 2025
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2007
+    - 2025
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2025
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2025
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2007
+    - 2025
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2025
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2025
+  ID_REGIONA:
+    role: notification.region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2025
+  ID_RG_RESI:
+    role: patient.residence_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2007
+    - 2025
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2007
+    - 2025
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is
+      the derived IDADE_anos.
+    name: Idade
+    years:
+    - 2007
+    - 2025
+  PRE_MUNIRE:
+    role: pregnancy.prenatal_municipality
+    kind: place
+    model: mark
+    name: Município de realização do pré-natal
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2025
+  PRE_UFREL:
+    role: pregnancy.prenatal_state
+    kind: place
+    model: mark
+    name: UF de realização do pré-natal
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2025
+  SEM_DIAG:
+    role: case.diagnosis_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica do Diagnóstico
+    years:
+    - 2007
+    - 2025
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2025
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2025
+  TPCONFIRMA:
+    role: case.confirmatory_test
+    kind: category
+    model: mark
+    name: Teste confirmatório
+    years:
+    - 2007
+    - 2025
+  TPESQPAR:
+    role: treatment.partner_regimen
+    kind: category
+    model: mark
+    note: Draft typing said number; coded regimen per curation.
+    name: Esquema de tratamento prescrito ao parceiro
+    years:
+    - 2007
+    - 2025
+  TPESQUEMA:
+    role: treatment.regimen
+    kind: category
+    model: mark
+    name: Esquema de tratamento
+    years:
+    - 2007
+    - 2025
+  TPEVIDENCI:
+    role: case.clinical_stage
+    kind: category
+    model: mark
+    name: Classificação clínica
+    years:
+    - 2007
+    - 2025
+  TPMOTPARC:
+    role: treatment.partner_untreated_reason
+    kind: category
+    model: mark
+    note: Draft typing said number; coded reason per curation.
+    name: Motivo para o não tratamento do parceiro
+    years:
+    - 2007
+    - 2025
+  TPTESTE1:
+    role: case.first_test
+    kind: category
+    model: mark
+    name: Primeiro teste
+    years:
+    - 2007
+    - 2025
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2025
+  TRATPARC:
+    role: treatment.partner_treated
+    kind: category
+    model: mark
+    note: Draft typing said number; coded yes/no per curation.
+    name: Parceiro tratado concomitantemente à gestante
+    years:
+    - 2007
+    - 2025
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

@@ -1,0 +1,295 @@
+dataset: CIHA
+record: admission
+columns:
+  ANO_CMPT:
+    role: admission.processing_year
+    kind: date
+    model: mark
+    name: Ano de processamento
+    years:
+    - 2011
+    - 2026
+  CAR_INT:
+    role: admission.admission_character
+    kind: category
+    model: excluded
+    note: Reserved, empty in CIHA.
+    name: Caráter da internação (campo reservado, vazio na CIHA)
+    years:
+    - 2011
+    - 2026
+  CGC_CONSOR:
+    role: admission.payer_consortium_cnpj
+    kind: institution
+    model: mark
+    note: Filled only when FONTE is 13 (public consortium).
+    name: CNPJ da Fonte de Remuneração - Consórcios Públicos
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2011
+    - 2026
+  CGC_HOSP:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    name: CNPJ do Estabelecimento de Saúde
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2011
+    - 2026
+  CNES:
+    role: admission.facility
+    kind: institution
+    model: institution
+    name: Código CNES do estabelecimento
+    codelists:
+    - CADGERBR
+    years:
+    - 2011
+    - 2026
+  COBRANCA:
+    role: admission.discharge_reason
+    kind: category
+    model: mark
+    name: Motivo da cobrança
+    codelists:
+    - SAIDAPERM
+    years:
+    - 2011
+    - 2026
+  COD_IDADE:
+    role: patient.age_unit
+    kind: category
+    model: mark
+    note: Unit of IDADE; use IDADE_ANOS.
+    name: Unidade de medida da idade
+    codelists:
+    - IDADEDET
+    years:
+    - 2011
+    - 2026
+  DIAG_PRINC:
+    role: admission.diagnosis
+    kind: code_tree
+    model: event_type
+    name: Código do diagnóstico principal
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2011
+    - 2026
+  DIAG_SECUN:
+    role: admission.secondary_diagnosis
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário (CID-10)
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2011
+    - 2026
+  DIAS_PERM:
+    role: admission.length_of_stay
+    kind: number
+    model: mark
+    name: Dias de permanência
+    years:
+    - 2011
+    - 2026
+  DT_ATEND:
+    role: admission.start
+    kind: date
+    model: when
+    name: Data do atendimento
+    years:
+    - 2011
+    - 2026
+  DT_SAIDA:
+    role: admission.end
+    kind: date
+    model: when
+    name: Data de saída
+    years:
+    - 2011
+    - 2026
+  ESPEC:
+    role: admission.bed_specialty
+    kind: category
+    model: excluded
+    note: Reserved, empty in CIHA.
+    name: Especialidade (campo reservado, vazio na CIHA)
+    years:
+    - 2011
+    - 2026
+  FONTE:
+    role: admission.payer
+    kind: category
+    model: mark
+    name: Fonte da remuneração
+    codelists:
+    - FONTE
+    years:
+    - 2011
+    - 2026
+  GESTAO:
+    role: admission.management_type
+    kind: category
+    model: mark
+    name: Tipo de gestão
+    codelists:
+    - GESTAO
+    years:
+    - 2011
+    - 2026
+  HOMONIMO:
+    role: patient.homonym_flag
+    kind: category
+    model: excluded
+    note: Reserved, empty in CIHA.
+    name: Homônimo (campo reservado, vazio na CIHA)
+    years:
+    - 2011
+    - 2026
+  IDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    note: Value packs a unit given by COD_IDADE; IDADE_ANOS is the age stratum.
+    name: Idade
+    years:
+    - 2011
+    - 2026
+  MES_CMPT:
+    role: admission.processing_month
+    kind: date
+    model: mark
+    name: Mês de processamento
+    years:
+    - 2011
+    - 2026
+  MODALIDADE:
+    role: admission.modality
+    kind: category
+    model: mark
+    name: Modalidade do atendimento
+    codelists:
+    - MODALIDADE
+    years:
+    - 2011
+    - 2026
+  MORTE:
+    role: admission.death
+    kind: category
+    model: mark
+    name: Óbito (saída com morte)
+    codelists:
+    - MORTES
+    years:
+    - 2011
+    - 2026
+  MUNIC_MOV:
+    role: admission.facility_municipality
+    kind: place
+    model: where
+    name: Município do estabelecimento
+    codelists:
+    - BR_MUNICIPALFA
+    - BR_MUNICIP
+    - BR_REGIAO
+    - BR_MACSAUD
+    - BR_PNDR
+    - BR_CAPITAL
+    years:
+    - 2011
+    - 2026
+  MUNIC_RES:
+    role: patient.residence
+    kind: place
+    model: stratum
+    name: Município de residência
+    codelists:
+    - BR_MUNICIPALFA
+    - BR_MUNICIP
+    - BR_REGIAO
+    - BR_MACSAUD
+    - BR_PNDR
+    - BR_CAPITAL
+    years:
+    - 2011
+    - 2026
+  NACIONAL:
+    role: patient.nationality
+    kind: category
+    model: excluded
+    note: Reserved, empty in CIHA.
+    name: Nacionalidade (campo reservado, vazio na CIHA)
+    years:
+    - 2011
+    - 2026
+  NASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento do paciente
+    years:
+    - 2011
+    - 2026
+  NATUREZA:
+    role: facility.sus_relation
+    kind: category
+    model: mark
+    name: Natureza da relação com o SUS
+    codelists:
+    - NATUREZA
+    - NATUREZC
+    years:
+    - 2011
+    - 2026
+  PROC_REA:
+    role: admission.procedure
+    kind: code_tree
+    model: event_type
+    name: Procedimento realizado
+    codelists:
+    - SIGTAP
+    years:
+    - 2011
+    - 2026
+  QT_PROC:
+    role: admission.procedure_count
+    kind: number
+    model: mark
+    name: Quantidade de procedimento
+    years:
+    - 2011
+    - 2026
+  SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    codelists:
+    - SEXO
+    years:
+    - 2011
+    - 2026
+  UTI_INT_TO:
+    role: admission.intermediate_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias em unidade intermediária
+    years:
+    - 2011
+    - 2026
+  UTI_MES_TO:
+    role: admission.icu_days_month
+    kind: number
+    model: mark
+    name: Quantidade de dias de UTI no mês
+    years:
+    - 2011
+    - 2026

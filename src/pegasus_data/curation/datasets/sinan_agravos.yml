@@ -123,6 +123,19 @@ datasets:
         including discarded, in 73 of 101 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_CHIK:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
+      - name: case
+        kind: case
+        grain: one notification confirmed by the investigation
+        classifiers:
+          - {column: CLASSI_FIN, role: alternative}
+        status:
+          column: CLASSI_FIN
+          values: ["13"]
+          evidence: "the form's CLASSI_FIN (CLASSCHIK): 13 chikungunya, 5 discarded"
     system: SINAN
     series: CHIK
     official_name: Febre de chikungunya
@@ -149,6 +162,29 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_DENG:
+    event_types:
+      - name: probable_case
+        kind: probable_case
+        grain: a notification not discarded by the investigation (TabNet's "Casos Prováveis")
+        status:
+          column: CLASSI_FIN
+          exclude: ["5"]
+          evidence: >-
+            Every notification but the discarded (5); one still under investigation (blank) or
+            inconclusive (8) counts. 2022: 1,405,095 = TabNet dengbr22 "Casos Prováveis" by UF
+            de notificação, 27 of 27 states exact; DENGBR22 itself carries no code 5.
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
+      - name: case
+        kind: case
+        grain: one notification confirmed by the investigation
+        classifiers:
+          - {column: CLASSI_FIN, role: alternative}
+        status:
+          column: CLASSI_FIN
+          values: ["1", "2", "3", "4", "01", "02", "03", "04", "10", "11", "12"]
+          evidence: "the form's CLASSI_FIN: 1-4 the 2007-2013 dengue classes (CLASSDENG), 10-12 dengue, with alarm signs, severe (2014-); 5 discarded, 8 inconclusive, 13 chikungunya"
     system: SINAN
     series: DENG
     official_name: Dengue
@@ -257,6 +293,19 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_IEXO:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
+      - name: case
+        kind: case
+        grain: one notification confirmed by the investigation
+        classifiers:
+          - {column: CLASSI_FIN, role: alternative}
+        status:
+          column: CLASSI_FIN
+          values: ["1"]
+          evidence: "the form's CLASSI_FIN: 1 intoxicação confirmada; 2 exposição, 3 reação adversa, 4 diagnóstico diferencial, 5 síndrome de abstinência are not poisonings"
     system: SINAN
     series: IEXO
     official_name: Intoxicação exógena
@@ -284,6 +333,19 @@ datasets:
         including discarded, in 76 of 104 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_LEPT:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
+      - name: case
+        kind: case
+        grain: one notification confirmed by the investigation
+        classifiers:
+          - {column: CLASSI_FIN, role: alternative}
+        status:
+          column: CLASSI_FIN
+          values: ["1"]
+          evidence: "the form's CLASSI_FIN: 1 confirmado, 2 descartado"
     system: SINAN
     series: LEPT
     official_name: Leptospirose
@@ -340,6 +402,19 @@ datasets:
         including discarded, in 74 of 86 files (catalog 2026-09-30); the others do not carry it.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_MENI:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
+      - name: case
+        kind: case
+        grain: one notification confirmed by the investigation
+        classifiers:
+          - {column: CLASSI_FIN, role: alternative}
+        status:
+          column: CLASSI_FIN
+          values: ["1"]
+          evidence: "the form's CLASSI_FIN: 1 confirmado, 2 descartado"
     system: SINAN
     series: MENI
     official_name: Meningite
@@ -433,6 +508,10 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_SIFA:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: SIFA
     official_name: Sífilis adquirida
@@ -498,6 +577,10 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_TUBE:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: TUBE
     official_name: Tuberculose
@@ -512,6 +595,10 @@ datasets:
         (0 of 97 files, catalog 2026-09-30), so the outcome of investigation is not a field here.
       - Counting by DT_NOTIFIC measures reporting; counting by DT_SIN_PRI measures onset. They differ by weeks.
   SINAN_ZIKA:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: ZIKA
     official_name: Zika vírus
@@ -617,6 +704,10 @@ datasets:
       - This is a surveillance channel, not a disease. Most rows are investigated and discarded, which is the system working as designed.
       - Counting rows counts investigations. Confirmed measles is a subset identified by CLASSI_FIN.
   SINAN_HANS:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: HANS
     asserted_by: pegasus_data
@@ -718,6 +809,10 @@ datasets:
       - The unit is the event. These rows must never be added to person-level counts from other agravos.
       - The number of people involved is a field on the outbreak, not a count of rows.
   SINAN_SIFC:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: SIFC
     asserted_by: pegasus_data
@@ -729,6 +824,10 @@ datasets:
       - Read as a sentinel indicator. A congenital case implies an antenatal failure, so counts here measure prenatal care as much as infection.
       - Pairs with SIFG, which records the maternal case that should have prevented it.
   SINAN_SIFG:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: SIFG
     asserted_by: pegasus_data
@@ -772,6 +871,10 @@ datasets:
       - A row is a notification, not a confirmed case. CLASSI_FIN carries the outcome of investigation, including discarded.
       - Notification requirements changed once varicella vaccine entered the schedule, so the series is not comparable across that boundary.
   SINAN_VIOL:
+    event_types:
+      - name: notification
+        kind: notification
+        grain: one notification; a person notified twice is two
     system: SINAN
     series: VIOL
     asserted_by: pegasus_data

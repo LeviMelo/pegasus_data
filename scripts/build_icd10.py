@@ -14,7 +14,7 @@ Sources, best first:
    category gets that form too.
 
 Writes ``src/pegasus_data/resources/icd10.parquet`` with columns code, label,
-level (chapter, group, category, subcategory) and source.
+level (category, subcategory) and source. (Chapters and groups are not written here; the docstring said they were until 2026-10-04.)
 
     python scripts/build_icd10.py [catalog]
 """

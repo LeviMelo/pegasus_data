@@ -1,0 +1,1357 @@
+dataset: SINAN-VIOL
+record: notification
+columns:
+  AG_AMEACA:
+    role: case.means_threat
+    kind: category
+    model: mark
+    name: Ameaça
+    years:
+    - 2009
+    - 2025
+  AG_CORTE:
+    role: case.means_sharp_object
+    kind: category
+    model: mark
+    name: Objeto pérfuro-cortante
+    years:
+    - 2009
+    - 2025
+  AG_ENFOR:
+    role: case.means_hanging
+    kind: category
+    model: mark
+    name: Enforcamento
+    years:
+    - 2009
+    - 2025
+  AG_ENVEN:
+    role: case.means_poisoning
+    kind: category
+    model: mark
+    name: Envenenamento
+    years:
+    - 2009
+    - 2025
+  AG_ESPEC:
+    role: case.means_other_text
+    kind: text
+    model: excluded
+    name: Outro meio de agressão - especifique
+    years:
+    - 2009
+    - 2025
+  AG_FOGO:
+    role: case.means_firearm
+    kind: category
+    model: mark
+    name: Arma de fogo
+    years:
+    - 2009
+    - 2025
+  AG_FORCA:
+    role: case.means_physical_force
+    kind: category
+    model: mark
+    name: Força corporal ou espancamento
+    years:
+    - 2009
+    - 2025
+  AG_OBJETO:
+    role: case.means_blunt_object
+    kind: category
+    model: mark
+    name: Objeto contundente
+    years:
+    - 2009
+    - 2025
+  AG_OUTROS:
+    role: case.means_other
+    kind: category
+    model: mark
+    name: Outro meio de agressão
+    years:
+    - 2009
+    - 2025
+  AG_QUENTE:
+    role: case.means_hot_substance
+    kind: category
+    model: mark
+    name: Substância ou objeto quente
+    years:
+    - 2009
+    - 2025
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    review: draft
+    name: Ano de Nascimento
+    years:
+    - 2009
+    - 2025
+    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional.'
+  ASSIST_SOC:
+    role: case.referral_social_assistance
+    kind: category
+    model: mark
+    name: Assistência social
+    years:
+    - 2009
+    - 2025
+  ATEND_MULH:
+    role: case.referral_womens_services
+    kind: category
+    model: mark
+    name: Atendimento à mulher
+    years:
+    - 2009
+    - 2025
+  AUTOR_ALCO:
+    role: perpetrator.alcohol_suspected
+    kind: category
+    model: mark
+    name: Suspeita de uso de álcool pelo autor
+    years:
+    - 2009
+    - 2025
+  AUTOR_SEXO:
+    role: perpetrator.sex
+    kind: category
+    model: mark
+    name: Sexo do provável autor
+    years:
+    - 2009
+    - 2025
+  CICL_VID:
+    role: perpetrator.life_stage
+    kind: category
+    model: mark
+    name: Ciclo de vida do provável autor
+    years:
+    - 2009
+    - 2025
+  CIRC_LESAO:
+    role: case.injury_circumstance
+    kind: code_tree
+    model: mark
+    name: Circunstância da lesão
+    years:
+    - 2009
+    - 2025
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2009
+    - 2025
+  CONS_ABORT:
+    role: case.consequence_abortion
+    kind: category
+    model: mark
+    name: Aborto
+    years:
+    - 2009
+    - 2025
+  CONS_COMP:
+    role: case.consequence_behavioural_disorder
+    kind: category
+    model: mark
+    name: Transtorno de comportamento
+    years:
+    - 2009
+    - 2025
+  CONS_DST:
+    role: case.consequence_std
+    kind: category
+    model: mark
+    name: DST
+    years:
+    - 2009
+    - 2025
+  CONS_ESPEC:
+    role: case.consequence_other_text
+    kind: text
+    model: excluded
+    name: Consequências da ocorrência no momento da notificação – outros (especificar)
+    years:
+    - 2009
+    - 2025
+  CONS_ESTRE:
+    role: case.consequence_post_traumatic_stress
+    kind: category
+    model: mark
+    name: Estresse pós-traumático
+    years:
+    - 2009
+    - 2025
+  CONS_GRAV:
+    role: case.consequence_pregnancy
+    kind: category
+    model: mark
+    name: Gravidez
+    years:
+    - 2009
+    - 2025
+  CONS_IDO:
+    role: case.referral_elderly_council
+    kind: category
+    model: mark
+    name: Conselho do idoso
+    years:
+    - 2009
+    - 2025
+  CONS_MENT:
+    role: case.consequence_mental_disorder
+    kind: category
+    model: mark
+    name: Transtorno mental
+    years:
+    - 2009
+    - 2025
+  CONS_OUTR:
+    role: case.consequence_other
+    kind: category
+    model: mark
+    name: Outra consequência
+    years:
+    - 2009
+    - 2025
+  CONS_SUIC:
+    role: case.consequence_suicide_attempt
+    kind: category
+    model: mark
+    name: Tentativa de suicídio
+    years:
+    - 2009
+    - 2025
+  CONS_TUTEL:
+    role: case.referral_child_protection_council
+    kind: category
+    model: mark
+    name: Conselho tutelar
+    years:
+    - 2009
+    - 2025
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2009
+    - 2025
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2009
+    - 2025
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2009
+    - 2025
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2009
+    - 2025
+  DEFEN_PUBL:
+    role: case.referral_public_defender
+    kind: category
+    model: mark
+    name: Defensoria pública
+    years:
+    - 2009
+    - 2025
+  DEF_AUDITI:
+    role: patient.disability_hearing
+    kind: category
+    model: dimension
+    name: Deficiência auditiva
+    years:
+    - 2009
+    - 2025
+  DEF_ESPEC:
+    role: patient.disability_other_text
+    kind: text
+    model: excluded
+    name: Outras deficiências/síndromes (especificar)
+    years:
+    - 2009
+    - 2025
+  DEF_FISICA:
+    role: patient.disability_physical
+    kind: category
+    model: dimension
+    name: Deficiência física
+    years:
+    - 2009
+    - 2025
+  DEF_MENTAL:
+    role: patient.disability_intellectual
+    kind: category
+    model: dimension
+    name: Deficiência intelectual
+    years:
+    - 2009
+    - 2025
+  DEF_OUT:
+    role: patient.disability_other
+    kind: category
+    model: dimension
+    name: Outra deficiência ou transtorno
+    years:
+    - 2009
+    - 2025
+  DEF_TRANS:
+    role: patient.disability_any
+    kind: category
+    model: dimension
+    name: Pessoa com deficiência ou transtorno
+    years:
+    - 2009
+    - 2025
+  DEF_VISUAL:
+    role: patient.disability_visual
+    kind: category
+    model: dimension
+    name: Deficiência visual
+    years:
+    - 2009
+    - 2025
+  DELEG:
+    role: case.referral_police_station
+    kind: category
+    model: mark
+    name: Delegacia
+    years:
+    - 2009
+    - 2025
+  DELEG_CRIA:
+    role: case.referral_child_police_station
+    kind: category
+    model: mark
+    name: Delegacia de atendimento à criança
+    years:
+    - 2009
+    - 2025
+  DELEG_IDOS:
+    role: case.referral_elderly_police_station
+    kind: category
+    model: mark
+    name: Delegacia de atendimento ao idoso
+    years:
+    - 2009
+    - 2025
+  DELEG_MULH:
+    role: case.referral_womens_police_station
+    kind: category
+    model: mark
+    name: Delegacia de atendimento à mulher
+    years:
+    - 2009
+    - 2025
+  DIR_HUMAN:
+    role: case.referral_human_rights
+    kind: category
+    model: mark
+    name: Direitos humanos
+    years:
+    - 2009
+    - 2025
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2009
+    - 2025
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2009
+    - 2025
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2009
+    - 2025
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2009
+    - 2025
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data de Óbito
+    years:
+    - 2009
+    - 2025
+  DT_OCOR:
+    role: case.occurrence_date
+    kind: date
+    model: mark
+    name: Data da ocorrência da violência
+    years:
+    - 2009
+    - 2025
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2009
+    - 2025
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2009
+    - 2025
+  DT_TRANSRS:
+    role: notification.transfer_date_health_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2009
+    - 2025
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2009
+    - 2025
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2009
+    - 2025
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2009
+    - 2025
+  ENC_ABRIGO:
+    role: case.referral_shelter
+    kind: category
+    model: mark
+    name: Encaminhamento a abrigo
+    years:
+    - 2009
+    - 2025
+  ENC_CREAS:
+    role: case.referral_creas
+    kind: category
+    model: mark
+    name: Encaminhamento ao CREAS
+    years:
+    - 2009
+    - 2025
+  ENC_DEAM:
+    role: case.referral_deam
+    kind: category
+    model: mark
+    name: Encaminhamento à DEAM
+    years:
+    - 2009
+    - 2025
+  ENC_DELEG:
+    role: case.referral_police_station
+    kind: category
+    model: mark
+    name: Encaminhamento à delegacia
+    years:
+    - 2009
+    - 2025
+  ENC_DPCA:
+    role: case.referral_dpca
+    kind: category
+    model: mark
+    name: Encaminhamento à DPCA
+    years:
+    - 2009
+    - 2025
+  ENC_ESPEC:
+    role: case.referral_other_text
+    kind: text
+    model: excluded
+    name: Encaminhamento para outros setores – outros (especificar)
+    years:
+    - 2009
+    - 2025
+  ENC_IML:
+    role: case.referral_iml
+    kind: category
+    model: mark
+    name: Encaminhamento ao IML
+    years:
+    - 2009
+    - 2025
+  ENC_MPU:
+    role: case.referral_public_prosecutor
+    kind: category
+    model: mark
+    name: Encaminhamento para outros setores – Ministério Público
+    years:
+    - 2009
+    - 2025
+  ENC_MULHER:
+    role: case.referral_womens_reference_center
+    kind: category
+    model: mark
+    name: Encaminhamento ao centro de referência da mulher
+    years:
+    - 2009
+    - 2025
+  ENC_OUTR:
+    role: case.referral_other
+    kind: category
+    model: mark
+    name: Outro encaminhamento
+    years:
+    - 2009
+    - 2025
+  ENC_SAUDE:
+    role: case.referral_health_network
+    kind: category
+    model: mark
+    name: Encaminhamento na rede de saúde
+    years:
+    - 2009
+    - 2025
+  ENC_SENTIN:
+    role: case.referral_sentinel_service
+    kind: category
+    model: mark
+    name: Encaminhamento ao serviço sentinela
+    years:
+    - 2009
+    - 2025
+  ENC_TUTELA:
+    role: case.referral_child_protection_council
+    kind: category
+    model: mark
+    name: Encaminhamento ao conselho tutelar
+    years:
+    - 2009
+    - 2025
+  ENC_VARA:
+    role: case.referral_juvenile_court
+    kind: category
+    model: mark
+    name: Encaminhamento à vara da infância
+    years:
+    - 2009
+    - 2025
+  EVOLUCAO:
+    role: case.outcome
+    kind: category
+    model: mark
+    name: Evolução do Caso
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    years:
+    - 2009
+    - 2025
+  HORA_OCOR:
+    role: case.occurrence_time
+    kind: number
+    model: mark
+    name: Hora de ocorrência
+    years:
+    - 2009
+    - 2025
+    note: Time of day, HH:MM text (curation); not a quantity, no kind fits better.
+  IDENT_GEN:
+    role: patient.gender_identity
+    kind: category
+    model: dimension
+    name: Identidade de gênero
+    years:
+    - 2009
+    - 2025
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2009
+    - 2025
+  ID_MN_OCOR:
+    role: case.occurrence_municipality
+    kind: place
+    model: where
+    name: Município de ocorrência
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2009
+    - 2025
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2009
+    - 2025
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2009
+    - 2025
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2009
+    - 2025
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2009
+    - 2025
+  INFAN_JUV:
+    role: case.referral_juvenile_court
+    kind: category
+    model: mark
+    name: Vara da infância e juventude
+    years:
+    - 2009
+    - 2025
+  LESAO_CORP:
+    role: case.injury_body_part
+    kind: category
+    model: mark
+    name: Parte do corpo atingida
+    years:
+    - 2009
+    - 2025
+  LESAO_ESPE:
+    role: case.injury_nature_text
+    kind: text
+    model: excluded
+    name: Natureza da lesão – especificar
+    years:
+    - 2009
+    - 2025
+  LESAO_NAT:
+    role: case.injury_nature
+    kind: category
+    model: mark
+    name: Natureza da lesão
+    years:
+    - 2009
+    - 2025
+  LES_AUTOP:
+    role: case.self_inflicted
+    kind: category
+    model: mark
+    name: Lesão autoprovocada
+    years:
+    - 2009
+    - 2025
+  LOCAL_ESPE:
+    role: case.occurrence_setting_text
+    kind: text
+    model: excluded
+    name: Outro local de ocorrência - especifique
+    years:
+    - 2009
+    - 2025
+  LOCAL_OCOR:
+    role: case.occurrence_setting
+    kind: category
+    model: mark
+    name: Local de ocorrência
+    years:
+    - 2009
+    - 2025
+  MPU:
+    role: case.referral_public_prosecutor
+    kind: category
+    model: mark
+    name: Ministério Público
+    years:
+    - 2009
+    - 2025
+  NDUPLIC:
+    role: notification.duplicate_flag
+    kind: category
+    model: excluded
+    name: Não Listar/Não Contar
+    years:
+    - 2009
+    - 2025
+  NUM_ENVOLV:
+    role: case.persons_involved
+    kind: category
+    model: mark
+    name: Número de envolvidos
+    years:
+    - 2009
+    - 2025
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2009
+    - 2025
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2009
+    - 2025
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is
+      the derived IDADE_anos.
+  ORIENT_SEX:
+    role: patient.sexual_orientation
+    kind: category
+    model: dimension
+    name: Orientação sexual
+    years:
+    - 2009
+    - 2025
+  OUT_VEZES:
+    role: case.repeated
+    kind: category
+    model: mark
+    name: Ocorreu outras vezes
+    years:
+    - 2009
+    - 2025
+  PEN_ANAL:
+    role: case.penetration_anal
+    kind: category
+    model: mark
+    name: Penetração anal
+    years:
+    - 2009
+    - 2025
+  PEN_ORAL:
+    role: case.penetration_oral
+    kind: category
+    model: mark
+    name: Penetração oral
+    years:
+    - 2009
+    - 2025
+  PEN_VAGINA:
+    role: case.penetration_vaginal
+    kind: category
+    model: mark
+    name: Penetração vaginal
+    years:
+    - 2009
+    - 2025
+  PROC_ABORT:
+    role: case.procedure_legal_abortion
+    kind: category
+    model: mark
+    name: Aborto previsto em lei
+    years:
+    - 2009
+    - 2025
+  PROC_CONTR:
+    role: case.procedure_emergency_contraception
+    kind: category
+    model: mark
+    name: Contracepção de emergência
+    years:
+    - 2009
+    - 2025
+  PROC_DST:
+    role: case.procedure_std_prophylaxis
+    kind: category
+    model: mark
+    name: Profilaxia de DST
+    years:
+    - 2009
+    - 2025
+  PROC_HEPB:
+    role: case.procedure_hepatitis_b_prophylaxis
+    kind: category
+    model: mark
+    name: Profilaxia de hepatite B
+    years:
+    - 2009
+    - 2025
+  PROC_HIV:
+    role: case.procedure_hiv_prophylaxis
+    kind: category
+    model: mark
+    name: Profilaxia de HIV
+    years:
+    - 2009
+    - 2025
+  PROC_SANG:
+    role: case.procedure_blood_collection
+    kind: category
+    model: mark
+    name: Coleta de sangue
+    years:
+    - 2009
+    - 2025
+  PROC_SEMEN:
+    role: case.procedure_semen_collection
+    kind: category
+    model: mark
+    name: Coleta de sêmen
+    years:
+    - 2009
+    - 2025
+  PROC_VAGIN:
+    role: case.procedure_vaginal_secretion_collection
+    kind: category
+    model: mark
+    name: Coleta de secreção vaginal
+    years:
+    - 2009
+    - 2025
+  REDE_EDUCA:
+    role: case.referral_education_network
+    kind: category
+    model: mark
+    name: Rede de educação
+    years:
+    - 2009
+    - 2025
+  REDE_SAU:
+    role: case.referral_health_network
+    kind: category
+    model: mark
+    name: Rede de saúde
+    years:
+    - 2009
+    - 2025
+  REL_CAT:
+    role: case.cat_issued
+    kind: category
+    model: mark
+    name: Emissão de CAT
+    years:
+    - 2009
+    - 2025
+  REL_CONHEC:
+    role: perpetrator.relation_acquaintance
+    kind: category
+    model: mark
+    name: Agressor era conhecido
+    years:
+    - 2009
+    - 2025
+  REL_CONJ:
+    role: perpetrator.relation_spouse
+    kind: category
+    model: mark
+    name: Agressor foi o cônjuge
+    years:
+    - 2009
+    - 2025
+  REL_CUIDA:
+    role: perpetrator.relation_caregiver
+    kind: category
+    model: mark
+    name: Agressor foi o cuidador
+    years:
+    - 2009
+    - 2025
+  REL_DESCO:
+    role: perpetrator.relation_stranger
+    kind: category
+    model: mark
+    name: Agressor era desconhecido
+    years:
+    - 2009
+    - 2025
+  REL_ESPEC:
+    role: perpetrator.relation_other_text
+    kind: text
+    model: excluded
+    name: Relação com a pessoa atendida – outros (especificar)
+    years:
+    - 2009
+    - 2025
+  REL_EXCON:
+    role: perpetrator.relation_ex_spouse
+    kind: category
+    model: mark
+    name: Agressor foi o ex-cônjuge
+    years:
+    - 2009
+    - 2025
+  REL_EXNAM:
+    role: perpetrator.relation_ex_partner
+    kind: category
+    model: mark
+    name: Agressor foi o ex-namorado
+    years:
+    - 2009
+    - 2025
+  REL_FILHO:
+    role: perpetrator.relation_child
+    kind: category
+    model: mark
+    name: Agressor foi o filho
+    years:
+    - 2009
+    - 2025
+  REL_INST:
+    role: perpetrator.relation_institutional
+    kind: category
+    model: mark
+    name: Agressor era pessoa com relação institucional
+    years:
+    - 2009
+    - 2025
+  REL_IRMAO:
+    role: perpetrator.relation_sibling
+    kind: category
+    model: mark
+    name: Agressor foi o irmão
+    years:
+    - 2009
+    - 2025
+  REL_MAD:
+    role: perpetrator.relation_stepmother
+    kind: category
+    model: mark
+    name: Agressor foi a madrasta
+    years:
+    - 2009
+    - 2025
+  REL_MAE:
+    role: perpetrator.relation_mother
+    kind: category
+    model: mark
+    name: Agressor foi a mãe
+    years:
+    - 2009
+    - 2025
+  REL_NAMO:
+    role: perpetrator.relation_partner
+    kind: category
+    model: mark
+    name: Agressor foi o namorado
+    years:
+    - 2009
+    - 2025
+  REL_OUTROS:
+    role: perpetrator.relation_other
+    kind: category
+    model: mark
+    name: Outro vínculo
+    years:
+    - 2009
+    - 2025
+  REL_PAD:
+    role: perpetrator.relation_stepfather
+    kind: category
+    model: mark
+    name: Agressor foi o padrasto
+    years:
+    - 2009
+    - 2025
+  REL_PAI:
+    role: perpetrator.relation_father
+    kind: category
+    model: mark
+    name: Agressor foi o pai
+    years:
+    - 2009
+    - 2025
+  REL_PATRAO:
+    role: perpetrator.relation_employer
+    kind: category
+    model: mark
+    name: Agressor foi o patrão
+    years:
+    - 2009
+    - 2025
+  REL_POL:
+    role: perpetrator.relation_police
+    kind: category
+    model: mark
+    name: Agressor era policial ou agente da lei
+    years:
+    - 2009
+    - 2025
+  REL_PROPRI:
+    role: perpetrator.relation_self
+    kind: category
+    model: mark
+    name: A própria pessoa
+    years:
+    - 2009
+    - 2025
+  REL_SEXUAL:
+    role: patient.sexual_partner_sex
+    kind: category
+    model: dimension
+    review: draft
+    name: Vínculo sexual com o agressor
+    years:
+    - 2009
+    - 2025
+    note: 'Curation contradicts itself: official name says a sexual bond with the aggressor, description says whether
+      the victim''s sexual relationships are with men, women or both (SIM_NAO-style codelist REL_SEX_VIOL). Role
+      is provisional.'
+  REL_TRAB:
+    role: case.work_related
+    kind: category
+    model: mark
+    name: Violência relacionada ao trabalho
+    years:
+    - 2009
+    - 2025
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2009
+    - 2025
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2009
+    - 2025
+  SEX_ASSEDI:
+    role: case.sexual_violence_harassment
+    kind: category
+    model: mark
+    name: Assédio sexual
+    years:
+    - 2009
+    - 2025
+  SEX_ESPEC:
+    role: case.sexual_violence_other_text
+    kind: text
+    model: excluded
+    name: Se ocorreu violência sexual, qual tipo? – outro (especificar)
+    years:
+    - 2009
+    - 2025
+  SEX_ESTUPR:
+    role: case.sexual_violence_rape
+    kind: category
+    model: mark
+    name: Estupro
+    years:
+    - 2009
+    - 2025
+  SEX_EXPLO:
+    role: case.sexual_violence_exploitation
+    kind: category
+    model: mark
+    name: Exploração sexual
+    years:
+    - 2009
+    - 2025
+  SEX_OUTRO:
+    role: case.sexual_violence_other
+    kind: category
+    model: mark
+    name: Outra violência sexual
+    years:
+    - 2009
+    - 2025
+  SEX_PORNO:
+    role: case.sexual_violence_child_pornography
+    kind: category
+    model: mark
+    name: Pornografia infantil
+    years:
+    - 2009
+    - 2025
+  SEX_PUDOR:
+    role: case.sexual_violence_indecent_assault
+    kind: category
+    model: mark
+    name: Atentado violento ao pudor
+    years:
+    - 2009
+    - 2025
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2009
+    - 2025
+    note: 'State of residence: redundant with the first two digits of ID_MN_RESI (the stratum); kept as a dimension
+      because `residence_state` is not a population-account property name.'
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2009
+    - 2025
+  SG_UF_OCOR:
+    role: case.occurrence_state
+    kind: place
+    model: where
+    name: UF de ocorrência
+    years:
+    - 2009
+    - 2025
+  SIT_CONJUG:
+    role: patient.marital_status
+    kind: category
+    model: dimension
+    name: Situação conjugal
+    years:
+    - 2009
+    - 2025
+  TPUNINOT:
+    role: notification.facility_type
+    kind: category
+    model: mark
+    name: Tipo de Unidade Notificante
+    codelists:
+    - TIPOUNIDADE
+    years:
+    - 2009
+    - 2025
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2009
+    - 2025
+  TRAN_COMP:
+    role: patient.behavioural_disorder
+    kind: category
+    model: dimension
+    name: Transtorno de comportamento
+    years:
+    - 2009
+    - 2025
+  TRAN_MENT:
+    role: patient.mental_disorder
+    kind: category
+    model: dimension
+    name: Transtorno mental
+    years:
+    - 2009
+    - 2025
+  VIOL_ESPEC:
+    role: case.violence_other_text
+    kind: text
+    model: excluded
+    name: Outros tipos de violência (especificar)
+    years:
+    - 2009
+    - 2025
+  VIOL_FINAN:
+    role: case.violence_financial
+    kind: category
+    model: mark
+    name: Violência financeira ou econômica
+    years:
+    - 2009
+    - 2025
+  VIOL_FISIC:
+    role: case.violence_physical
+    kind: category
+    model: mark
+    name: Violência física
+    years:
+    - 2009
+    - 2025
+  VIOL_INFAN:
+    role: case.violence_child_labour
+    kind: category
+    model: mark
+    name: Tipo de violência – trabalho infantil
+    years:
+    - 2009
+    - 2025
+  VIOL_LEGAL:
+    role: case.violence_legal_intervention
+    kind: category
+    model: mark
+    name: Intervenção legal
+    years:
+    - 2009
+    - 2025
+  VIOL_MOTIV:
+    role: case.violence_motive
+    kind: category
+    model: mark
+    name: Motivação da violência
+    years:
+    - 2009
+    - 2025
+  VIOL_NEGLI:
+    role: case.violence_neglect
+    kind: category
+    model: mark
+    name: Negligência ou abandono
+    years:
+    - 2009
+    - 2025
+  VIOL_OUTR:
+    role: case.violence_other
+    kind: category
+    model: mark
+    name: Outra violência
+    years:
+    - 2009
+    - 2025
+  VIOL_PSICO:
+    role: case.violence_psychological
+    kind: category
+    model: mark
+    name: Violência psicológica ou moral
+    years:
+    - 2009
+    - 2025
+  VIOL_SEXU:
+    role: case.violence_sexual
+    kind: category
+    model: mark
+    name: Violência sexual
+    years:
+    - 2009
+    - 2025
+  VIOL_TORT:
+    role: case.violence_torture
+    kind: category
+    model: mark
+    name: Tortura
+    years:
+    - 2009
+    - 2025
+  VIOL_TRAF:
+    role: case.violence_trafficking
+    kind: category
+    model: mark
+    name: Tráfico de seres humanos
+    years:
+    - 2009
+    - 2025
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

@@ -1,0 +1,1679 @@
+dataset: SINAN-LEPT
+record: notification
+columns:
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    review: draft
+    name: Ano de Nascimento
+    years:
+    - 2000
+    - 2026
+    note: 'Meaning inferred (curation source: inferred): a 4-digit birth year. No population-account property name
+      fits a birth year, so model is provisional.'
+  ANT_ANIMAI:
+    role: case.prior_cases_animal
+    kind: category
+    model: mark
+    name: Casos Anteriores de Leptospirose... Casos Animais
+    years:
+    - 2000
+    - 2026
+  ANT_CB_CAI:
+    role: case.exposure_water_tank
+    kind: category
+    model: mark
+    name: Contato com caixa d'água
+    years:
+    - 2007
+    - 2026
+  ANT_CB_CAR:
+    role: case.exposure_carcass
+    kind: category
+    model: mark
+    review: draft
+    name: Antecedente - contato com carcaça de animal
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  ANT_CB_COR:
+    role: case.exposure_river
+    kind: category
+    model: mark
+    name: Situação de Risco - Rio, córrego, lagoa ou represa
+    years:
+    - 2000
+    - 2026
+  ANT_CB_CRI:
+    role: case.exposure_animal_keeping
+    kind: category
+    model: mark
+    name: Situação de Risco - Criação de animais
+    years:
+    - 2000
+    - 2026
+  ANT_CB_FOS:
+    role: case.exposure_sewage
+    kind: category
+    model: mark
+    name: Situação de Risco - Fossa, caixa de gordura ou esgoto
+    years:
+    - 2000
+    - 2026
+  ANT_CB_GRA:
+    role: case.exposure_livestock
+    kind: category
+    model: mark
+    name: Contato com criação de animais
+    years:
+    - 2007
+    - 2026
+  ANT_CB_LAM:
+    role: case.exposure_floodwater
+    kind: category
+    model: mark
+    name: Situação de Risco - Água ou lama de enchente
+    years:
+    - 2000
+    - 2026
+  ANT_CB_LAV:
+    role: case.exposure_washing
+    kind: category
+    model: mark
+    review: draft
+    name: Contato com água/lavagem em local de risco nos últimos 30 dias
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  ANT_CB_LIM:
+    role: case.exposure_drain_cleaning
+    kind: category
+    model: mark
+    review: draft
+    name: Antecedente de limpeza de bueiro/córrego
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  ANT_CB_LIX:
+    role: case.exposure_garbage
+    kind: category
+    model: mark
+    name: Situação de Risco - Lixo/Entulho
+    years:
+    - 2000
+    - 2026
+  ANT_CB_OUT:
+    role: case.exposure_other
+    kind: category
+    model: mark
+    name: Situação de Risco - Outras
+    years:
+    - 2000
+    - 2026
+  ANT_CB_PLA:
+    role: case.exposure_plantation
+    kind: category
+    model: mark
+    name: Contato com plantação
+    years:
+    - 2007
+    - 2026
+  ANT_CB_ROE:
+    role: case.exposure_rodents
+    kind: category
+    model: mark
+    name: Situação de Risco - Roedores diretamente
+    years:
+    - 2000
+    - 2026
+  ANT_CB_SIN:
+    role: case.exposure_cesspit
+    kind: category
+    model: mark
+    name: Contato com sinusite ou fossa
+    years:
+    - 2007
+    - 2026
+  ANT_CB_TER:
+    role: case.exposure_vacant_lot
+    kind: category
+    model: mark
+    name: Contato com terreno baldio
+    years:
+    - 2007
+    - 2026
+  ANT_DT_INV:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    review: draft
+    name: Data da investigação (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  ANT_HUMANO:
+    role: case.prior_cases_human
+    kind: category
+    model: mark
+    name: Casos Anteriores de Leptospirose... Casos Humanos
+    years:
+    - 2000
+    - 2026
+  ANT_OCUPAC:
+    role: case.occupational_exposure
+    kind: category
+    model: mark
+    review: draft
+    name: Antecedente ocupacional
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  ANT_OU_DES:
+    role: case.exposure_other_text
+    kind: text
+    model: excluded
+    name: Situações de risco - Outras (especificar)
+    years:
+    - 2007
+    - 2026
+  ATE_DT_ALT:
+    role: case.hospital_discharge_date
+    kind: date
+    model: mark
+    name: Data de Alta
+    years:
+    - 2000
+    - 2026
+  ATE_DT_INT:
+    role: case.hospital_admission_date
+    kind: date
+    model: mark
+    name: Data da internação
+    years:
+    - 2000
+    - 2026
+  ATE_HOSP:
+    role: case.hospitalized
+    kind: category
+    model: mark
+    name: Ocorreu hospitalização?
+    years:
+    - 2000
+    - 2026
+  ATE_MUNICI:
+    role: case.hospital_municipality
+    kind: place
+    model: where
+    name: Município do hospital
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2000
+    - 2026
+  ATE_UF:
+    role: case.hospital_state
+    kind: place
+    model: where
+    name: UF do hospital
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2026
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2007
+    - 2026
+  CLI_CARDIA:
+    role: case.sign_cardiac
+    kind: category
+    model: mark
+    name: Alterações cardíacas
+    years:
+    - 2000
+    - 2026
+  CLI_CEFALE:
+    role: case.sign_headache
+    kind: category
+    model: mark
+    name: Cefaleia
+    codelists:
+    - SIM_NAO
+    years:
+    - 2000
+    - 2026
+  CLI_CONGES:
+    role: case.sign_conjunctival_suffusion
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Congestão conjuntival
+    years:
+    - 2000
+    - 2026
+  CLI_DESC_O:
+    role: case.sign_other_text
+    kind: text
+    model: excluded
+    review: draft
+    name: Descrição de outro sinal/sintoma
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CLI_DIARRE:
+    role: case.sign_diarrhea
+    kind: category
+    model: mark
+    name: Diarreia
+    years:
+    - 2000
+    - 2026
+  CLI_DT_ATE:
+    role: case.first_care_date
+    kind: date
+    model: mark
+    name: Data de atendimento
+    years:
+    - 2000
+    - 2026
+  CLI_FEBRE:
+    role: case.sign_fever
+    kind: category
+    model: mark
+    name: Febre
+    codelists:
+    - SIM_NAO
+    years:
+    - 2000
+    - 2026
+  CLI_HEMOPU:
+    role: case.sign_pulmonary_hemorrhage
+    kind: category
+    model: mark
+    name: Hemorragia pulmonar
+    years:
+    - 2007
+    - 2026
+  CLI_HEMORR:
+    role: case.sign_other_hemorrhage
+    kind: category
+    model: mark
+    name: Outras hemorragias
+    years:
+    - 2000
+    - 2026
+  CLI_ICTERI:
+    role: case.sign_jaundice
+    kind: category
+    model: mark
+    name: Icterícia
+    years:
+    - 2000
+    - 2026
+  CLI_MENING:
+    role: case.sign_meningism
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Meningismo
+    years:
+    - 2000
+    - 2026
+  CLI_MIALGI:
+    role: case.sign_myalgia
+    kind: category
+    model: mark
+    name: Mialgia
+    years:
+    - 2000
+    - 2026
+  CLI_OTRDES:
+    role: case.sign_other_text
+    kind: text
+    model: excluded
+    name: Sinais e sintomas - Outros (especificar)
+    years:
+    - 2007
+    - 2026
+  CLI_OUTRAS:
+    role: case.sign_other_complication
+    kind: category
+    model: mark
+    name: Outras (complicações/manifestações)
+    years:
+    - 2000
+    - 2006
+  CLI_OUTROS:
+    role: case.sign_other
+    kind: category
+    model: mark
+    name: Sinais e sintomas – outros
+    years:
+    - 2007
+    - 2026
+  CLI_PANTUR:
+    role: case.sign_calf_pain
+    kind: category
+    model: mark
+    name: Sinais e sintomas - Dor na panturrilha
+    years:
+    - 2007
+    - 2026
+  CLI_PROST:
+    role: case.sign_prostration
+    kind: category
+    model: mark
+    name: Prostração
+    years:
+    - 2007
+    - 2026
+  CLI_RENAL:
+    role: case.sign_renal_failure
+    kind: category
+    model: mark
+    name: Insuficiência renal
+    years:
+    - 2000
+    - 2026
+  CLI_RESPIR:
+    role: case.sign_respiratory
+    kind: category
+    model: mark
+    name: Alterações respiratórias
+    years:
+    - 2000
+    - 2026
+  CLI_VOMITO:
+    role: case.sign_vomiting
+    kind: category
+    model: mark
+    name: Vômito
+    codelists:
+    - SIM_NAO
+    years:
+    - 2000
+    - 2026
+  COMUNINF:
+    role: case.infection_municipality
+    kind: place
+    model: where
+    name: Município Provável da Fonte de Infecção
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2007
+    - 2026
+  CON_ALIMEN:
+    role: case.exposure_contaminated_food
+    kind: category
+    model: mark
+    review: draft
+    name: Contato com alimento contaminado
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_AMBIEN:
+    role: case.infection_setting
+    kind: category
+    model: mark
+    name: Ambiente da infecção
+    years:
+    - 2000
+    - 2026
+  CON_ANIMAI:
+    role: case.exposure_animals
+    kind: category
+    model: mark
+    review: draft
+    name: Contato com animais
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_CLASSI:
+    role: case.classification
+    kind: category
+    model: event_type
+    review: draft
+    name: Classificação (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_CLAS_E:
+    role: case.exposure_classification
+    kind: category
+    model: mark
+    review: draft
+    name: Classificação da exposição
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_CRITER:
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    name: Critério de confirmação
+    years:
+    - 2000
+    - 2006
+  CON_DOENCA:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    review: draft
+    name: Doença (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_DT_ENC:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    review: draft
+    name: Data de encerramento (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_DT_OBI:
+    role: case.death_date
+    kind: date
+    model: mark
+    review: draft
+    name: Data do óbito (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_ENCHEN:
+    role: case.exposure_floodwater
+    kind: category
+    model: mark
+    review: draft
+    name: Contato com enchente
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_ENTULH:
+    role: case.exposure_rubble
+    kind: category
+    model: mark
+    review: draft
+    name: Contato com entulho
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_ESGOTO:
+    role: case.site_sewage
+    kind: category
+    model: mark
+    review: draft
+    name: Esgoto no local provável de infecção
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_EVOLUC:
+    role: case.outcome
+    kind: category
+    model: mark
+    review: draft
+    name: Evolução (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_INF_MU:
+    role: case.infection_municipality
+    kind: place
+    model: where
+    review: draft
+    name: Município provável de infecção (nome de campo legado)
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNIC_BR7
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_INF_PA:
+    role: case.infection_country
+    kind: place
+    model: where
+    review: draft
+    name: País de infecção
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_INF_UF:
+    role: case.infection_state
+    kind: place
+    model: where
+    review: draft
+    name: UF provável de infecção (nome de campo legado)
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_RIO:
+    role: case.exposure_river
+    kind: category
+    model: mark
+    review: draft
+    name: Contato com rio
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_ROEDOR:
+    role: case.site_rodents
+    kind: category
+    model: mark
+    review: draft
+    name: Sinais de roedores no local provável de infecção
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  CON_TERREN:
+    role: case.exposure_soil
+    kind: category
+    model: mark
+    review: draft
+    name: Contato com terreno alagado/contaminado
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  COPAISINF:
+    role: case.infection_country
+    kind: place
+    model: where
+    name: País Provável da Fonte de Infecção
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2026
+  COUFINF:
+    role: case.infection_state
+    kind: place
+    model: where
+    name: UF Provável da Fonte de Infecção
+    codelists:
+    - UF_BR
+    - UFCCODIG
+    - UFCODIGO
+    - UFCSIGLA
+    - UFSIGLA
+    years:
+    - 2007
+    - 2026
+  CO_MUN_R1:
+    role: case.risk_municipality_1
+    kind: place
+    model: mark
+    name: Município 1 (situação de risco)
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2026
+  CO_MUN_R2:
+    role: case.risk_municipality_2
+    kind: place
+    model: mark
+    name: Município 2 (situação de risco)
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2026
+  CO_MUN_R3:
+    role: case.risk_municipality_3
+    kind: place
+    model: mark
+    name: Município 3 (situação de risco)
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2026
+  CO_MUN_R4:
+    role: case.risk_municipality_4
+    kind: place
+    model: mark
+    name: Município 4 (situação de risco)
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2007
+    - 2026
+  CO_UF_R1:
+    role: case.risk_state_1
+    kind: place
+    model: mark
+    name: UF da situação de risco 1
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+  CO_UF_R2:
+    role: case.risk_state_2
+    kind: place
+    model: mark
+    name: UF da situação de risco 2
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+  CO_UF_R3:
+    role: case.risk_state_3
+    kind: place
+    model: mark
+    name: UF da situação de risco 3
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+  CO_UF_R4:
+    role: case.risk_state_4
+    kind: place
+    model: mark
+    name: UF da situação de risco 4
+    codelists:
+    - UF_BR
+    years:
+    - 2007
+    - 2026
+  CRITERIO:
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    name: Critério de Confirmação
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    years:
+    - 2007
+    - 2026
+  CS_ESCOLAR:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2000
+    - 2006
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2026
+  CS_FLXRET:
+    role: notification.return_flow
+    kind: category
+    model: excluded
+    name: Fluxo de Retorno
+    codelists:
+    - CS_FLXRET
+    years:
+    - 2007
+    - 2026
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2026
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2000
+    - 2026
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2000
+    - 2026
+  CS_ZONA:
+    role: patient.residence_zone
+    kind: category
+    model: dimension
+    name: Zona de residência
+    years:
+    - 2003
+    - 2003
+  DOENCA_TRA:
+    role: case.work_related
+    kind: category
+    model: mark
+    name: Doença Relacionada ao Trabalho
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  DTIMUNO:
+    role: case.lab_immunohistochemistry_date
+    kind: date
+    model: mark
+    name: Imunohistoquímica - Data da coleta
+    years:
+    - 2007
+    - 2026
+  DTISOLA:
+    role: case.lab_isolation_date
+    kind: date
+    model: mark
+    name: Isolamento - Data da coleta
+    years:
+    - 2007
+    - 2026
+  DTMICRO1:
+    role: case.lab_mat_date_1
+    kind: date
+    model: mark
+    name: Data da coleta - Micro 1ª amostra
+    years:
+    - 2007
+    - 2026
+  DTMICRO2:
+    role: case.lab_mat_date_2
+    kind: date
+    model: mark
+    name: Data da coleta - Micro 2ª amostra
+    years:
+    - 2007
+    - 2026
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    name: Data de Digitação
+    years:
+    - 2007
+    - 2026
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2026
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2026
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2000
+    - 2026
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data de Óbito
+    years:
+    - 2007
+    - 2026
+  DT_PCR:
+    role: case.lab_pcr_date
+    kind: date
+    model: mark
+    name: RT-PCR – Data da Coleta
+    years:
+    - 2007
+    - 2026
+  DT_RISCO1:
+    role: case.risk_date_1
+    kind: date
+    model: mark
+    name: Data 1 (situação de risco)
+    years:
+    - 2007
+    - 2026
+  DT_RISCO2:
+    role: case.risk_date_2
+    kind: date
+    model: mark
+    name: Data 2 (situação de risco)
+    years:
+    - 2007
+    - 2026
+  DT_RISCO3:
+    role: case.risk_date_3
+    kind: date
+    model: mark
+    name: Data 3 (situação de risco)
+    years:
+    - 2007
+    - 2026
+  DT_RISCO4:
+    role: case.risk_date_4
+    kind: date
+    model: mark
+    name: Data 4 (situação de risco)
+    years:
+    - 2007
+    - 2026
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2000
+    - 2026
+  DT_TRANSDM:
+    role: notification.transfer_date_municipal_district
+    kind: date
+    model: excluded
+    name: Data de Transferência do Distrito Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRM:
+    role: notification.transfer_date_municipal_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional Municipal
+    years:
+    - 2007
+    - 2026
+  DT_TRANSRS:
+    role: notification.transfer_date_health_regional
+    kind: date
+    model: excluded
+    name: Data de Transferência da Regional de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSE:
+    role: notification.transfer_date_state_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Estadual de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSSM:
+    role: notification.transfer_date_municipal_secretariat
+    kind: date
+    model: excluded
+    name: Data de Transferência da Secretaria Municipal de Saúde
+    years:
+    - 2007
+    - 2026
+  DT_TRANSUS:
+    role: notification.transfer_date_unit
+    kind: date
+    model: excluded
+    name: Data de Transferência da Unidade de Saúde
+    years:
+    - 2007
+    - 2026
+  EVOLUCAO:
+    role: case.outcome
+    kind: category
+    model: mark
+    name: Evolução do Caso
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    years:
+    - 2007
+    - 2026
+  FLXRECEBI:
+    role: notification.return_flow_received
+    kind: category
+    model: excluded
+    name: Recebida por Fluxo de Retorno
+    years:
+    - 2007
+    - 2026
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2026
+  ID_DG_NOT:
+    role: notification.dg_block_code
+    kind: identifier
+    model: excluded
+    review: draft
+    name: Identificador de notificação (bloco Dados Gerais)
+    years:
+    - 2000
+    - 2006
+    note: 'Unknown internal code (curation source: inferred).'
+  ID_DT_RESI:
+    role: notification.residence_date_code
+    kind: identifier
+    model: excluded
+    review: draft
+    name: Identificador - data de residência
+    years:
+    - 2002
+    - 2002
+    note: 'Unknown internal code, one file only (curation source: inferred).'
+  ID_EV_NOT:
+    role: notification.ev_block_code
+    kind: identifier
+    model: excluded
+    review: draft
+    name: Identificador de notificação (bloco Evolução/Notificação)
+    years:
+    - 2000
+    - 2006
+    note: 'Unknown internal code (curation source: inferred).'
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2000
+    - 2026
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2000
+    - 2026
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2026
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2000
+    - 2026
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2000
+    - 2026
+  ID_RG_RESI:
+    role: patient.residence_health_region
+    kind: place
+    model: dimension
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2000
+    - 2026
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2000
+    - 2026
+  IN_VINCULA:
+    role: notification.linked_followup
+    kind: category
+    model: excluded
+    name: Vinculação
+    years:
+    - 2000
+    - 2006
+  LAB_BD:
+    role: notification.lab_code
+    kind: identifier
+    model: excluded
+    review: draft
+    name: Laboratório - código de lote/banco
+    years:
+    - 2000
+    - 2006
+    note: 'Unknown lab code (curation source: inferred; BD undecodable).'
+  LAB_BI:
+    role: case.lab_bilirubin_direct
+    kind: number
+    model: mark
+    review: draft
+    name: Bilirrubina
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). Reading
+      BI as direct bilirubin is unconfirmed.'
+  LAB_BT:
+    role: case.lab_bilirubin_total
+    kind: number
+    model: mark
+    review: draft
+    name: Bilirrubina total
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_CREATI:
+    role: case.lab_creatinine
+    kind: number
+    model: mark
+    review: draft
+    name: Creatinina
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_DT_1:
+    role: case.lab_igm_elisa_date_1
+    kind: date
+    model: mark
+    name: Sorologia IgM - Elisa - Data da Coleta - 1ª amostra
+    years:
+    - 2000
+    - 2026
+  LAB_DT_2:
+    role: case.lab_igm_elisa_date_2
+    kind: date
+    model: mark
+    name: Sorologia IgM - Elisa - Data da Coleta - 2ª amostra
+    years:
+    - 2000
+    - 2026
+  LAB_DT_3:
+    role: case.lab_serology_date_3
+    kind: date
+    model: mark
+    review: draft
+    name: Data da coleta laboratorial 3
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_ELIS_1:
+    role: case.lab_igm_elisa_result_1
+    kind: category
+    model: mark
+    name: Sorologia IgM-Elisa - Resultado 1ª amostra
+    years:
+    - 2007
+    - 2026
+  LAB_ELIS_2:
+    role: case.lab_igm_elisa_result_2
+    kind: category
+    model: mark
+    name: Sorologia IgM-Elisa - Resultado 2ª amostra
+    years:
+    - 2007
+    - 2026
+  LAB_MACRO:
+    role: case.lab_macro_agglutination
+    kind: category
+    model: mark
+    review: draft
+    name: Soroaglutinação macroscópica
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_METODO:
+    role: case.lab_method
+    kind: category
+    model: mark
+    review: draft
+    name: Método do exame laboratorial
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_MET_D:
+    role: case.lab_method_text
+    kind: text
+    model: excluded
+    review: draft
+    name: Outro método laboratorial - descrição
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_MICRO:
+    role: case.lab_mat_result
+    kind: category
+    model: mark
+    review: draft
+    name: Resultado - microaglutinação
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_MICR_1:
+    role: case.lab_mat_result_1
+    kind: category
+    model: mark
+    name: Resultado MICRO aglutinação 1ª amostra
+    years:
+    - 2007
+    - 2026
+  LAB_MICR_2:
+    role: case.lab_mat_result_2
+    kind: category
+    model: mark
+    name: Resultado MICRO aglutinação 2ª amostra
+    years:
+    - 2007
+    - 2026
+  LAB_PLAQUE:
+    role: case.lab_platelets
+    kind: number
+    model: mark
+    review: draft
+    name: Plaquetas
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_POTASS:
+    role: case.lab_potassium
+    kind: number
+    model: mark
+    review: draft
+    name: Potássio sérico
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_R_1:
+    role: case.lab_serology_result_1
+    kind: number
+    model: mark
+    review: draft
+    name: Resultado da 1ª amostra
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
+      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+  LAB_R_2:
+    role: case.lab_serology_result_2
+    kind: number
+    model: mark
+    review: draft
+    name: Resultado laboratorial 2
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
+      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+  LAB_SOROAG:
+    role: case.lab_mat_performed
+    kind: category
+    model: mark
+    review: draft
+    name: Soroaglutinação microscópica
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_S_1:
+    role: case.lab_serology_serovar_titer_1
+    kind: number
+    model: mark
+    review: draft
+    name: Título sorológico - sorovar 1
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
+      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+  LAB_S_2:
+    role: case.lab_serology_result_2b
+    kind: number
+    model: mark
+    review: draft
+    name: Resultado da 2ª amostra
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
+      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+  LAB_S_3:
+    role: case.lab_serology_result_3
+    kind: number
+    model: mark
+    review: draft
+    name: Sorologia laboratorial 3
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
+      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+  LAB_S_4:
+    role: case.lab_serology_result_4
+    kind: number
+    model: mark
+    review: draft
+    name: Sorologia - amostra 4
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
+      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+  LAB_S_5:
+    role: case.lab_serology_serovar_titer_5
+    kind: number
+    model: mark
+    review: draft
+    name: Título sorológico - sorovar 5
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout). The curation
+      texts for LAB_R_*/LAB_S_* contradict each other on which is sample and which is serovar.'
+  LAB_TGO:
+    role: case.lab_tgo_elevated
+    kind: category
+    model: mark
+    review: draft
+    name: Resultado A - TGO
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred); the curation text for this column also mixes in hantavirose
+      wording.'
+  LAB_TGP:
+    role: case.lab_tgp_elevated
+    kind: category
+    model: mark
+    review: draft
+    name: Resultado A - TGP
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred); the curation text for this column also mixes in hantavirose
+      wording.'
+  LAB_UF:
+    role: case.lab_state
+    kind: place
+    model: mark
+    review: draft
+    name: UF do laboratório
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred; no documentation found for the 2000-2006 layout).'
+  LAB_UREIA:
+    role: case.lab_urea_elevated
+    kind: category
+    model: mark
+    review: draft
+    name: Ureia
+    years:
+    - 2000
+    - 2006
+    note: 'Meaning inferred (curation source: inferred); the curation text for this column also mixes in hantavirose
+      wording.'
+  MICRO1_S1:
+    role: case.mat_sample1_serovar_1
+    kind: category
+    model: mark
+    name: Micro 1ª Amostra - 1º Sorovar
+    years:
+    - 2007
+    - 2026
+  MICRO1_S_2:
+    role: case.mat_sample1_serovar_2
+    kind: category
+    model: mark
+    name: Micro 1ª Amostra - 2º Sorovar
+    years:
+    - 2007
+    - 2026
+  MICRO1_T_1:
+    role: case.mat_sample1_titer_1
+    kind: number
+    model: mark
+    name: Micro 1ª Amostra - título (1º sorovar)
+    years:
+    - 2007
+    - 2026
+  MICRO1_T_2:
+    role: case.mat_sample1_titer_2
+    kind: number
+    model: mark
+    name: Micro 1ª Amostra - título (2º sorovar)
+    years:
+    - 2007
+    - 2026
+  MICRO2_S1:
+    role: case.mat_sample2_serovar_1
+    kind: category
+    model: mark
+    name: Resultado 2ª Amostra - 1º Sorovar
+    years:
+    - 2007
+    - 2026
+  MICRO2_S_2:
+    role: case.mat_sample2_serovar_2
+    kind: category
+    model: mark
+    name: Resultado 2ª Amostra - 2º Sorovar
+    years:
+    - 2007
+    - 2026
+  MICRO2_T_1:
+    role: case.mat_sample2_titer_1
+    kind: number
+    model: mark
+    name: Micro 2ª Amostra - título (1º sorovar)
+    years:
+    - 2007
+    - 2026
+  MICRO2_T_2:
+    role: case.mat_sample2_titer_2
+    kind: number
+    model: mark
+    name: Micro 2ª Amostra - título (2º sorovar)
+    years:
+    - 2007
+    - 2026
+  MIGRADO_W:
+    role: notification.migrated
+    kind: category
+    model: excluded
+    name: Migrado do SINAN Windows
+    codelists:
+    - MIGRADO
+    years:
+    - 2007
+    - 2026
+  NDUPLIC:
+    role: notification.duplicate_flag
+    kind: category
+    model: excluded
+    name: Não Listar/Não Contar
+    years:
+    - 2000
+    - 2006
+  NDUPLIC_N:
+    role: notification.duplicate_flag
+    kind: category
+    model: excluded
+    name: Não Listar/Não Contar (Duplicidade)
+    codelists:
+    - NDUPLIC_N
+    years:
+    - 2007
+    - 2026
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    name: Ano da notificação
+    years:
+    - 2000
+    - 2026
+  NU_IDADE:
+    role: patient.age
+    kind: number
+    model: stratum
+    name: Idade
+    years:
+    - 2000
+    - 2006
+    note: 'Age packed as four digits: first digit the unit (1 hour, 2 day, 3 month, 4 year), last three the magnitude
+      (curation _shared.yml). The age itself, not a count of years. Same field as NU_IDADE_N, 2000-2006 layout name.'
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    name: Idade
+    years:
+    - 2007
+    - 2026
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is
+      the derived IDADE_anos.
+  NU_LOTE_H:
+    role: notification.batch_horizontal
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Horizontal
+    years:
+    - 2007
+    - 2026
+  NU_LOTE_I:
+    role: notification.batch_investigation
+    kind: identifier
+    model: excluded
+    name: Número do lote da transferência vertical da investigação
+    years:
+    - 2007
+    - 2026
+  NU_LOTE_V:
+    role: notification.batch_vertical
+    kind: identifier
+    model: excluded
+    name: Número do Lote de Transferência Vertical
+    years:
+    - 2007
+    - 2026
+  RES_IMUNO:
+    role: case.lab_immunohistochemistry_result
+    kind: category
+    model: mark
+    name: Imunohistoquímica - Resultado
+    years:
+    - 2007
+    - 2026
+  RES_ISOL:
+    role: case.lab_isolation_result
+    kind: category
+    model: mark
+    name: Isolamento - Resultado
+    years:
+    - 2007
+    - 2026
+  RES_PCR:
+    role: case.lab_pcr_result
+    kind: category
+    model: mark
+    name: RT-PCR - Resultado
+    years:
+    - 2007
+    - 2026
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2000
+    - 2026
+  SEM_PRI:
+    role: case.onset_epi_week
+    kind: number
+    model: mark
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2000
+    - 2026
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2026
+    note: 'State of residence: redundant with the first two digits of ID_MN_RESI (the stratum); kept as a dimension
+      because `residence_state` is not a population-account property name.'
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2026
+  TPAUTOCTO:
+    role: case.autochthonous
+    kind: category
+    model: mark
+    name: Caso é Autóctone da Residência?
+    codelists:
+    - AUTOCTONE
+    years:
+    - 2007
+    - 2026
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2026
+  IDADE_anos:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true
+    note: Fractional years derived from NU_IDADE_N by the query (ADR-0070).

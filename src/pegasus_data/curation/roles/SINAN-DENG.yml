@@ -1,0 +1,1822 @@
+dataset: SINAN-DENG
+record: notification
+columns:
+  ABDOMINAL:
+    role: case.sign_abdominal_pain
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Dor Abdominal
+    years:
+    - 2000
+    - 2006
+  ACIDO_PEPT:
+    role: patient.peptic_ulcer
+    kind: category
+    model: dimension
+    note: 'Pre-existing condition: a property of the person, not of this episode.'
+    name: Doença ácido-péptica
+    years:
+    - 2014
+    - 2026
+  ALRM_ABDOM:
+    role: case.alarm_abdominal_pain
+    kind: category
+    model: mark
+    name: Dor abdominal (sinal de alarme)
+    years:
+    - 2014
+    - 2026
+  ALRM_HEMAT:
+    role: case.alarm_hematocrit_rise
+    kind: category
+    model: mark
+    name: Aumento do hematócrito
+    years:
+    - 2014
+    - 2026
+  ALRM_HEPAT:
+    role: case.alarm_hepatomegaly
+    kind: category
+    model: mark
+    name: Hepatomegalia
+    years:
+    - 2014
+    - 2026
+  ALRM_HIPOT:
+    role: case.alarm_postural_hypotension
+    kind: category
+    model: mark
+    name: Hipotensão postural/lipotimia
+    years:
+    - 2014
+    - 2026
+  ALRM_LETAR:
+    role: case.alarm_lethargy
+    kind: category
+    model: mark
+    name: Letargia ou irritabilidade
+    years:
+    - 2014
+    - 2026
+  ALRM_LIQ:
+    role: case.alarm_fluid_accumulation
+    kind: category
+    model: mark
+    name: Acúmulo de líquidos
+    years:
+    - 2014
+    - 2026
+  ALRM_PLAQ:
+    role: case.alarm_platelet_drop
+    kind: category
+    model: mark
+    name: Queda abrupta de plaquetas
+    years:
+    - 2014
+    - 2026
+  ALRM_SANG:
+    role: case.alarm_mucosal_bleeding
+    kind: category
+    model: mark
+    name: Sangramento de mucosa/outras hemorragias
+    years:
+    - 2014
+    - 2026
+  ALRM_VOM:
+    role: case.alarm_persistent_vomiting
+    kind: category
+    model: mark
+    name: Vômitos persistentes
+    years:
+    - 2014
+    - 2026
+  AMOS_OUT:
+    role: case.other_sample_collected
+    kind: category
+    model: mark
+    note: Legacy 2000-2006; curation reads it as a C1 Sim/Nao flag, draft typed it text.
+    name: Amostra outra
+    years:
+    - 2000
+    - 2006
+  AMOS_PCR:
+    role: case.pcr_sampled
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Amostra para RT-PCR
+    years:
+    - 2000
+    - 2006
+  ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    note: Legacy 2000-2006 year; undocumented, read from the name and C4 width.
+    name: Ano
+    years:
+    - 2000
+    - 2006
+  ANO_NASC:
+    role: patient.birth_year
+    kind: number
+    model: mark
+    note: Birth year alone; birth_year is not a stratum property (STRATA lists birth_date and age_*).
+    name: Ano de Nascimento
+    years:
+    - 2007
+    - 2026
+  ANT_DT_INV:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006 name of DT_INVEST; draft typed it number.
+    name: Data da investigação (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  ARTRALGIA:
+    role: case.sign_arthralgia
+    kind: category
+    model: mark
+    name: Artralgia
+    years:
+    - 2000
+    - 2026
+  ARTRITE:
+    role: case.sign_arthritis
+    kind: category
+    model: mark
+    name: Sinais clínicos – Artrite
+    years:
+    - 2014
+    - 2026
+  ASCITE:
+    role: case.sign_ascites
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Ascite
+    years:
+    - 2000
+    - 2006
+  AUTO_IMUNE:
+    role: patient.autoimmune_disease
+    kind: category
+    model: dimension
+    name: Doenças auto-imunes
+    years:
+    - 2014
+    - 2026
+  CEFALEIA:
+    role: case.sign_headache
+    kind: category
+    model: mark
+    name: Cefaleia
+    codelists:
+    - SIM_NAO
+    years:
+    - 2000
+    - 2026
+  CHOQUE:
+    role: case.sign_shock
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Choque/Hipotensão
+    years:
+    - 2000
+    - 2006
+  CLASSI_FIN:
+    role: case.classification
+    kind: category
+    model: event_type
+    name: Classificação Final
+    codelists:
+    - CLASINTO
+    - CLASRC
+    - CLASSCHIK
+    - CLASSDENG
+    - CLASSFA
+    - CLASSHEPAT
+    years:
+    - 2007
+    - 2026
+  CLINC_CHIK:
+    role: case.chik_presentation
+    kind: category
+    model: mark
+    name: Apresentação clínica Chikungunya
+    years:
+    - 2014
+    - 2026
+  COMPLICA:
+    role: case.complications
+    kind: category
+    model: mark
+    name: Complicações
+    years:
+    - 2007
+    - 2026
+  COMUNINF:
+    role: case.infection_municipality
+    kind: place
+    model: mark
+    name: Município Provável da Fonte de Infecção
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICAC
+    - MUNICAL
+    - MUNICAM
+    - MUNICAP
+    - MUNICBA
+    - MUNICBR
+    years:
+    - 2007
+    - 2026
+  CONJUNTVIT:
+    role: case.sign_conjunctivitis
+    kind: category
+    model: mark
+    name: Sinais clínicos - Conjuntivite
+    years:
+    - 2014
+    - 2026
+  CON_CLASSI:
+    role: case.classification
+    kind: category
+    model: event_type
+    note: Legacy 2000-2006 predecessor of CLASSI_FIN.
+    name: Classificação (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_CRITER:
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    note: Legacy 2000-2006 predecessor of CRITERIO.
+    name: Critério de confirmação
+    years:
+    - 2000
+    - 2006
+  CON_DOENCA:
+    role: case.disease
+    kind: category
+    model: event_type
+    note: 'Legacy 2000-2006 conclusion block: the disease the investigation concluded; draft typed it number.'
+    name: Doença (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_DT_ENC:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006 name of DT_ENCERRA; draft typed it number.
+    name: Data de encerramento (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_DT_OBI:
+    role: case.death_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006 predecessor of DT_OBITO; draft typed it number.
+    name: Data do óbito (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_EVOLUC:
+    role: case.outcome
+    kind: category
+    model: mark
+    note: Legacy 2000-2006 predecessor of EVOLUCAO; draft typed it number.
+    name: Evolução (bloco de conclusão legado)
+    years:
+    - 2000
+    - 2006
+  CON_FHD:
+    role: case.fhd_grade
+    kind: category
+    model: mark
+    note: Legacy WHO 1997 DHF grade I-IV.
+    name: 'Classificação/Conduta — Grau da FHD
+
+      '
+    codelists:
+    - CON_FHD
+    years:
+    - 2000
+    - 2026
+  CON_INF_MU:
+    role: case.infection_municipality
+    kind: place
+    model: mark
+    note: Legacy 2000-2006 name.
+    name: Município provável de infecção (nome de campo legado)
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNIC_BR7
+    years:
+    - 2000
+    - 2006
+  CON_INF_PA:
+    role: case.infection_country
+    kind: place
+    model: mark
+    note: Legacy 2000-2006 name; draft typed it number, but it is a country code.
+    name: País de infecção
+    years:
+    - 2000
+    - 2006
+  CON_INF_UF:
+    role: case.infection_state
+    kind: place
+    model: mark
+    note: Legacy 2000-2006 name.
+    name: UF provável de infecção (nome de campo legado)
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2006
+  COPAISINF:
+    role: case.infection_country
+    kind: place
+    model: mark
+    name: País Provável da Fonte de Infecção
+    codelists:
+    - PAISNET
+    years:
+    - 2007
+    - 2026
+  COUFINF:
+    role: case.infection_state
+    kind: place
+    model: mark
+    name: UF Provável da Fonte de Infecção
+    codelists:
+    - UF_BR
+    - UFCCODIG
+    - UFCODIGO
+    - UFCSIGLA
+    - UFSIGLA
+    years:
+    - 2007
+    - 2026
+  CRITERIO:
+    role: case.confirmation_criterion
+    kind: category
+    model: mark
+    name: Critério de Confirmação
+    codelists:
+    - CONFDESC
+    - CONFDESCA
+    - CONFDESCB
+    - CONFDESCC
+    - CONFDESCDENG2011
+    - CONFDESCDIF
+    years:
+    - 2007
+    - 2026
+  CS_ESCOLAR:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    years:
+    - 2000
+    - 2006
+  CS_ESCOL_N:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Escolaridade
+    codelists:
+    - ESCOLARNET
+    years:
+    - 2007
+    - 2026
+  CS_FLXRET:
+    role: notification.return_flow_status
+    kind: category
+    model: excluded
+    name: Fluxo de Retorno
+    codelists:
+    - CS_FLXRET
+    years:
+    - 2007
+    - 2026
+  CS_GESTANT:
+    role: patient.pregnancy_status
+    kind: category
+    model: dimension
+    note: Trimester or not pregnant at notification; auto-filled 6 for males.
+    name: Gestante
+    codelists:
+    - GESTANTE
+    years:
+    - 2007
+    - 2026
+  CS_RACA:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor
+    codelists:
+    - RAÇA
+    years:
+    - 2000
+    - 2026
+  CS_SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    also:
+    - case.sex
+    name: Sexo
+    codelists:
+    - SEXO
+    years:
+    - 2000
+    - 2026
+  DENGUE:
+    role: case.dengue_flag
+    kind: category
+    model: mark
+    review: draft
+    note: 'Unresolved: single-letter checkbox in a rare legacy schema, meaning undocumented (curation infers it
+      from the column name only).'
+    name: Dengue
+    years:
+    - 2000
+    - 2006
+  DIABETES:
+    role: patient.diabetes
+    kind: category
+    model: dimension
+    name: Diabetes
+    codelists:
+    - SIM_NAO
+    years:
+    - 2014
+    - 2026
+  DIARREIA:
+    role: case.sign_diarrhea
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Diarreia
+    years:
+    - 2000
+    - 2006
+  DOENCA_TRA:
+    role: case.work_related
+    kind: category
+    model: mark
+    name: Doença Relacionada ao Trabalho
+    codelists:
+    - SIM_NAO
+    years:
+    - 2007
+    - 2026
+  DOR:
+    role: case.sign_pain
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Sinais e sintomas – Dor
+    years:
+    - 2000
+    - 2006
+  DOR_COSTAS:
+    role: case.sign_back_pain
+    kind: category
+    model: mark
+    name: Sinais clínicos - Dor nas costas
+    years:
+    - 2014
+    - 2026
+  DOR_RETRO:
+    role: case.sign_retroorbital_pain
+    kind: category
+    model: mark
+    name: Sinais clínicos - Dor retroorbital
+    years:
+    - 2014
+    - 2026
+  DT_ALRM:
+    role: case.alarm_onset_date
+    kind: date
+    model: mark
+    name: Dengue com sinais de alarme - Data de início dos sintomas
+    years:
+    - 2014
+    - 2026
+  DT_CHIK_S1:
+    role: case.chik_igm1_date
+    kind: date
+    model: mark
+    name: Exame sorológico (IgM) Chikungunya Soro 1 - Data da Coleta
+    years:
+    - 2014
+    - 2026
+  DT_CHIK_S2:
+    role: case.chik_igm2_date
+    kind: date
+    model: mark
+    name: Exame sorológico (IgM) Chikungunya Soro 2 - Data da Coleta
+    years:
+    - 2014
+    - 2026
+  DT_CHOQUE:
+    role: case.shock_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data do choque
+    years:
+    - 2000
+    - 2006
+  DT_COL_HE2:
+    role: case.blood_sample2_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data da coleta - Hemograma 2
+    years:
+    - 2000
+    - 2006
+  DT_COL_HEM:
+    role: case.blood_sample_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data da coleta de sangue
+    years:
+    - 2000
+    - 2006
+  DT_COL_PL2:
+    role: case.platelet_sample2_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data da 2ª coleta de plaquetas
+    years:
+    - 2000
+    - 2006
+  DT_COL_PLQ:
+    role: case.platelet_sample_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data de coleta de plaquetas
+    years:
+    - 2000
+    - 2006
+  DT_DIGITA:
+    role: notification.entry_date
+    kind: date
+    model: mark
+    note: Data-entry date; measures entry lag, not the clinical timeline.
+    name: Data de Digitação
+    years:
+    - 2007
+    - 2026
+  DT_DOSE:
+    role: case.vaccine_dose_date
+    kind: date
+    model: mark
+    name: Data da dose (vacina dengue)
+    years:
+    - 2000
+    - 2006
+  DT_ENCERRA:
+    role: notification.closing_date
+    kind: date
+    model: mark
+    name: Data de Encerramento
+    years:
+    - 2007
+    - 2026
+  DT_FEBRE:
+    role: case.fever_onset_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data do início da febre
+    years:
+    - 2000
+    - 2006
+  DT_GRAV:
+    role: case.severe_onset_date
+    kind: date
+    model: mark
+    name: Dengue grave - Data de início dos sintomas
+    years:
+    - 2014
+    - 2026
+  DT_INTERNA:
+    role: case.hospitalization_date
+    kind: date
+    model: mark
+    name: Data da internação
+    years:
+    - 2000
+    - 2026
+  DT_INVEST:
+    role: notification.investigation_date
+    kind: date
+    model: mark
+    name: Data da Investigação
+    years:
+    - 2007
+    - 2026
+  DT_NOTIFIC:
+    role: notification.date
+    kind: date
+    model: when
+    name: Data da Notificação
+    years:
+    - 2000
+    - 2026
+  DT_NS1:
+    role: case.ns1_date
+    kind: date
+    model: mark
+    name: Data da coleta do exame NS1
+    years:
+    - 2007
+    - 2026
+  DT_OBITO:
+    role: case.death_date
+    kind: date
+    model: mark
+    name: Data de Óbito
+    years:
+    - 2007
+    - 2026
+  DT_PCR:
+    role: case.pcr_date
+    kind: date
+    model: mark
+    name: RT-PCR – Data da Coleta
+    years:
+    - 2007
+    - 2026
+  DT_PRNT:
+    role: case.prnt_date
+    kind: date
+    model: mark
+    name: Exame PRNT - Data da Coleta
+    years:
+    - 2014
+    - 2026
+  DT_SIN_PRI:
+    role: case.onset
+    kind: date
+    model: when
+    name: Data dos Primeiros Sintomas / Data do Diagnóstico
+    years:
+    - 2000
+    - 2026
+  DT_SORO:
+    role: case.igm_date
+    kind: date
+    model: mark
+    name: Data da coleta da sorologia IgM
+    years:
+    - 2007
+    - 2026
+  DT_SORO1:
+    role: case.serum1_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data da coleta do 1º soro
+    years:
+    - 2000
+    - 2006
+  DT_SORO2:
+    role: case.serum2_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data da 2ª sorologia
+    years:
+    - 2000
+    - 2006
+  DT_SOROR1:
+    role: case.serology1_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data da 1ª sorologia
+    years:
+    - 2000
+    - 2006
+  DT_SOROR2:
+    role: case.serology2_date
+    kind: date
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Data da sorologia 2
+    years:
+    - 2000
+    - 2006
+  DT_VIRAL:
+    role: case.viral_isolation_date
+    kind: date
+    model: mark
+    name: Data da coleta para isolamento viral
+    years:
+    - 2007
+    - 2026
+  DURACAO:
+    role: case.duration
+    kind: number
+    model: mark
+    review: draft
+    note: 'Unresolved: the unit (days/weeks) and what is measured are undocumented.'
+    name: Duração
+    years:
+    - 2000
+    - 2006
+  EPISTAXE:
+    role: case.sign_epistaxis
+    kind: category
+    model: mark
+    name: 'Sinais e Sintomas — Epistaxe
+
+      '
+    codelists:
+    - EPISTAXE
+    years:
+    - 2000
+    - 2026
+  EVIDENCIA:
+    role: case.plasma_leakage_evidence
+    kind: category
+    model: mark
+    name: Evidência de extravasamento de plasma
+    years:
+    - 2007
+    - 2026
+  EVOLUCAO:
+    role: case.outcome
+    kind: category
+    model: mark
+    name: Evolução do Caso
+    codelists:
+    - ALTAOBIT
+    - CURAOBIT
+    - EVOACBIO
+    - EVOACGRA
+    - EVOCANCE
+    - EVODENG
+    years:
+    - 2007
+    - 2026
+  EXANTEMA:
+    role: case.sign_rash
+    kind: category
+    model: mark
+    name: Sinais clínicos – Exantema
+    years:
+    - 2000
+    - 2026
+  FEBRE:
+    role: case.sign_fever
+    kind: category
+    model: mark
+    name: Febre
+    codelists:
+    - SIM_NAO
+    years:
+    - 2000
+    - 2026
+  FLXRECEBI:
+    role: notification.received_by_return_flow
+    kind: category
+    model: excluded
+    name: Recebida por Fluxo de Retorno
+    years:
+    - 2007
+    - 2026
+  GENGIVO:
+    role: case.sign_gum_bleeding
+    kind: category
+    model: mark
+    name: 'Sinais e Sintomas — Gengivorragia
+
+      '
+    codelists:
+    - GENGIVO
+    years:
+    - 2000
+    - 2026
+  GRAV_AST:
+    role: case.severe_ast_alt
+    kind: category
+    model: mark
+    name: Dengue grave - AST/ALT >1.000
+    years:
+    - 2014
+    - 2026
+  GRAV_CONSC:
+    role: case.severe_consciousness
+    kind: category
+    model: mark
+    name: Dengue grave - Alteração da consciência
+    years:
+    - 2014
+    - 2026
+  GRAV_CONV:
+    role: case.severe_convergent_pressure
+    kind: category
+    model: mark
+    name: Dengue grave - PA convergente
+    years:
+    - 2014
+    - 2026
+  GRAV_ENCH:
+    role: case.severe_capillary_refill
+    kind: category
+    model: mark
+    name: Dengue grave - Tempo de enchimento capilar
+    years:
+    - 2014
+    - 2026
+  GRAV_EXTRE:
+    role: case.severe_cold_extremities
+    kind: category
+    model: mark
+    name: Dengue grave - Extremidades frias
+    years:
+    - 2014
+    - 2026
+  GRAV_HEMAT:
+    role: case.severe_hematemesis
+    kind: category
+    model: mark
+    name: Dengue grave - Hematêmese
+    years:
+    - 2014
+    - 2026
+  GRAV_HIPOT:
+    role: case.severe_hypotension
+    kind: category
+    model: mark
+    name: Dengue grave - Hipotensão arterial em fase tardia
+    years:
+    - 2014
+    - 2026
+  GRAV_INSUF:
+    role: case.severe_respiratory_failure
+    kind: category
+    model: mark
+    name: Dengue grave - Acúmulo de líquidos com insuficiência respiratória
+    years:
+    - 2014
+    - 2026
+  GRAV_MELEN:
+    role: case.severe_melena
+    kind: category
+    model: mark
+    name: Dengue grave - Melena
+    years:
+    - 2014
+    - 2026
+  GRAV_METRO:
+    role: case.severe_metrorrhagia
+    kind: category
+    model: mark
+    name: Dengue grave - Metrorragia volumosa
+    years:
+    - 2014
+    - 2026
+  GRAV_MIOC:
+    role: case.severe_myocarditis
+    kind: category
+    model: mark
+    name: Dengue grave - Miocardite
+    years:
+    - 2014
+    - 2026
+  GRAV_ORGAO:
+    role: case.severe_other_organs
+    kind: category
+    model: mark
+    name: Dengue grave - Outros órgãos
+    years:
+    - 2014
+    - 2026
+  GRAV_PULSO:
+    role: case.severe_weak_pulse
+    kind: category
+    model: mark
+    name: Dengue grave - Pulso débil ou indetectável
+    years:
+    - 2014
+    - 2026
+  GRAV_SANG:
+    role: case.severe_cns_bleeding
+    kind: category
+    model: mark
+    name: Dengue grave - Sangramento do SNC
+    years:
+    - 2014
+    - 2026
+  GRAV_TAQUI:
+    role: case.severe_tachycardia
+    kind: category
+    model: mark
+    name: Dengue grave - Taquicardia
+    years:
+    - 2014
+    - 2026
+  HEMATOLOG:
+    role: patient.hematologic_disease
+    kind: category
+    model: dimension
+    name: Doenças pré-existentes - Doenças hematológicas
+    years:
+    - 2014
+    - 2026
+  HEMATURA:
+    role: case.sign_hematuria
+    kind: category
+    model: mark
+    name: 'Sinais e Sintomas — Hematúria
+
+      '
+    codelists:
+    - HEMATURA
+    years:
+    - 2000
+    - 2026
+  HEMA_MAIOR:
+    role: case.hematocrit_max
+    kind: number
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Maior valor de hematócrito
+    years:
+    - 2000
+    - 2006
+  HEMA_MENOR:
+    role: case.hematocrit_min
+    kind: number
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Hematócrito menor
+    years:
+    - 2000
+    - 2006
+  HEPATO:
+    role: case.sign_hepatomegaly
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Hepatomegalia
+    years:
+    - 2000
+    - 2006
+  HEPATOPAT:
+    role: patient.liver_disease
+    kind: category
+    model: dimension
+    name: Doenças pré-existentes - Hepatopatias
+    years:
+    - 2014
+    - 2026
+  HIPERTENSA:
+    role: patient.hypertension
+    kind: category
+    model: dimension
+    name: Doenças pré-existentes - Hipertensão arterial
+    years:
+    - 2014
+    - 2026
+  HIPOTENSAO:
+    role: case.sign_postural_hypotension
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Hipotensão postural
+    years:
+    - 2000
+    - 2006
+  HISTOPA:
+    role: case.histopathology_result
+    kind: category
+    model: mark
+    note: Legacy 2000-2006 predecessor of HISTOPA_N.
+    name: Resultado do exame histopatológico
+    years:
+    - 2000
+    - 2006
+  HISTOPA_N:
+    role: case.histopathology_result
+    kind: category
+    model: mark
+    name: Histopatologia (resultado)
+    years:
+    - 2007
+    - 2026
+  HOSPITALIZ:
+    role: case.hospitalized
+    kind: category
+    model: mark
+    name: Ocorreu Hospitalização?
+    years:
+    - 2000
+    - 2026
+  ID_AGRAVO:
+    role: case.disease
+    kind: code_tree
+    model: event_type
+    note: An ordinary coded column (CID-10 based agravo list), not a record identifier; draft typed it identifier.
+    name: Agravo/doença
+    codelists:
+    - ICD10
+    - AGRAVONOTS
+    - AGRAVOSSURTO
+    - AGRAVSURT
+    - AGUDOSNET
+    - COMPNAC
+    - CRONICASNET
+    years:
+    - 2007
+    - 2026
+  ID_DG_NOT:
+    role: notification.general_block_id
+    kind: identifier
+    model: excluded
+    review: draft
+    note: 'Unresolved: undocumented internal code whose width differs across agravos (C1/C11/N1); excluded as presumed
+      bookkeeping.'
+    name: Identificador de notificação (bloco Dados Gerais)
+    years:
+    - 2000
+    - 2006
+  ID_EV_NOT:
+    role: notification.evolution_block_id
+    kind: identifier
+    model: excluded
+    review: draft
+    note: 'Unresolved: sibling of ID_DG_NOT, undocumented; excluded as presumed bookkeeping.'
+    name: Identificador de notificação (bloco Evolução/Notificação)
+    years:
+    - 2000
+    - 2006
+  ID_MN_RESI:
+    role: patient.residence
+    kind: place
+    model: stratum
+    also:
+    - case.residence
+    name: Município de Residência
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2000
+    - 2026
+  ID_MUNICIP:
+    role: notification.municipality
+    kind: place
+    model: where
+    name: Município de Notificação
+    codelists:
+    - BR_MUNICIPALFA
+    - CAPITAL
+    - CLUSTERBR
+    - MUFROPY
+    - MUNFRONT
+    - MUNFRONT_1
+    - MUNICAC
+    years:
+    - 2000
+    - 2026
+  ID_OCUPA_N:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    name: Ocupação
+    codelists:
+    - CBO2002
+    - OCUPANET
+    - SEMOCUPA
+    years:
+    - 2007
+    - 2026
+  ID_PAIS:
+    role: patient.residence_country
+    kind: place
+    model: dimension
+    name: País de Residência
+    codelists:
+    - PAISNET
+    years:
+    - 2000
+    - 2026
+  ID_REGIONA:
+    role: notification.health_region
+    kind: place
+    model: where
+    name: Regional de Saúde da Notificação
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2000
+    - 2026
+  ID_RG_RESI:
+    role: patient.residence_region
+    kind: place
+    model: dimension
+    note: Health region of residence, derived from ID_MN_RESI.
+    name: Regional de Saúde da Residência
+    codelists:
+    - REGIONET
+    - CIR_BR
+    years:
+    - 2000
+    - 2026
+  ID_UNIDADE:
+    role: notification.facility
+    kind: institution
+    model: institution
+    name: Unidade de Saúde Notificadora
+    codelists:
+    - AB
+    - NHE
+    - NHENIVEL
+    - NHEUNIDADE
+    - NHE_NIVEL_MUN
+    - UNIDANET
+    - CADGERBR
+    years:
+    - 2000
+    - 2026
+  IMUNOH:
+    role: case.immunohistochemistry_result
+    kind: category
+    model: mark
+    note: Legacy 2000-2006 predecessor of IMUNOH_N.
+    name: Resultado da imuno-histoquímica
+    years:
+    - 2000
+    - 2006
+  IMUNOH_N:
+    role: case.immunohistochemistry_result
+    kind: category
+    model: mark
+    name: Imunohistoquímica (resultado)
+    years:
+    - 2007
+    - 2026
+  INSUFICIEN:
+    role: case.sign_organ_failure
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Insuficiência de órgãos
+    years:
+    - 2000
+    - 2006
+  IN_AIDS:
+    role: case.aids_indication
+    kind: category
+    model: mark
+    review: draft
+    note: 'Unresolved: the curation describes the occupational-exposure meaning (source patient has AIDS); undocumented
+      for DENG.'
+    name: Indicação de AIDS
+    years:
+    - 2000
+    - 2006
+  IN_VINCULA:
+    role: notification.linked_flag
+    kind: category
+    model: excluded
+    note: Set by the system after the TB/HANS linking routine; of doubtful use for arboviruses.
+    name: Vinculação
+    years:
+    - 2000
+    - 2006
+  LACO:
+    role: case.sign_tourniquet_test
+    kind: category
+    model: mark
+    name: Prova do laço positiva
+    years:
+    - 2000
+    - 2026
+  LACO_N:
+    role: case.sign_tourniquet_test
+    kind: category
+    model: mark
+    note: Earlier-revision field of the tourniquet test; same meaning.
+    name: Prova do laço (revisão anterior)
+    years:
+    - 2007
+    - 2026
+  LEUCOPENIA:
+    role: case.sign_leukopenia
+    kind: category
+    model: mark
+    name: Sinais clínicos - Leucopenia
+    years:
+    - 2014
+    - 2026
+  MANIFESTA:
+    role: case.sign_hemorrhagic_manifestations
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Manifestações hemorrágicas
+    years:
+    - 2000
+    - 2006
+  MANI_HEMOR:
+    role: case.sign_hemorrhagic_manifestations
+    kind: category
+    model: mark
+    name: Manifestações Hemorrágicas
+    years:
+    - 2007
+    - 2026
+  MATERIAL:
+    role: case.specimen_type
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Material coletado
+    years:
+    - 2000
+    - 2006
+  METRO:
+    role: case.sign_metrorrhagia
+    kind: category
+    model: mark
+    name: 'Sinais e Sintomas — Metrorragia
+
+      '
+    codelists:
+    - METRO
+    years:
+    - 2000
+    - 2026
+  MIALGIA:
+    role: case.sign_myalgia
+    kind: category
+    model: mark
+    name: Sinais clínicos – Mialgia
+    years:
+    - 2000
+    - 2026
+  MIGRADO_W:
+    role: notification.migrated_flag
+    kind: category
+    model: excluded
+    name: Migrado do SINAN Windows
+    codelists:
+    - MIGRADO
+    years:
+    - 2007
+    - 2026
+  MIOCARDI:
+    role: case.sign_myocarditis
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Miocardite
+    years:
+    - 2000
+    - 2006
+  MUNICIPIO:
+    role: case.hospital_municipality
+    kind: place
+    model: mark
+    note: Only filled when HOSPITALIZ = 1.
+    name: Município (da hospitalização)
+    codelists:
+    - BR_MUNICIPALFA
+    years:
+    - 2000
+    - 2026
+  NAUSEA:
+    role: case.sign_nausea
+    kind: category
+    model: mark
+    name: Sinais clínicos – Náusea
+    years:
+    - 2014
+    - 2026
+  NAUSEAS:
+    role: case.sign_nausea
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Náuseas
+    years:
+    - 2000
+    - 2006
+  NDUPLIC:
+    role: notification.duplicate_flag
+    kind: category
+    model: excluded
+    note: Duplicate-review flag; a counting filter, not an analytical property.
+    name: Não Listar/Não Contar
+    years:
+    - 2000
+    - 2006
+  NDUPLIC_N:
+    role: notification.duplicate_flag
+    kind: category
+    model: excluded
+    note: Duplicate-review flag (2 = exclude from counts); a counting filter, not an analytical property.
+    name: Não Listar/Não Contar (Duplicidade)
+    codelists:
+    - NDUPLIC_N
+    years:
+    - 2007
+    - 2026
+  NU_ANO:
+    role: notification.year
+    kind: number
+    model: mark
+    note: Filled by the system from DT_NOTIFIC; not year of illness.
+    name: Ano da notificação
+    years:
+    - 2000
+    - 2026
+  NU_IDADE:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    note: Legacy 2000-2006 packed age, unit digit then value, same layout as NU_IDADE_N. The age stratum is the
+      derived IDADE_ANOS.
+    name: Idade
+    years:
+    - 2000
+    - 2006
+  NU_IDADE_N:
+    role: patient.age_coded
+    kind: number
+    model: mark
+    note: Age with its unit packed into the first digit (1 hours, 2 days, 3 months, 4 years); the age stratum is
+      the derived IDADE_anos.
+    name: Idade
+    years:
+    - 2007
+    - 2026
+  OCUPACAO:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    note: Legacy 2000-2006 field, undocumented, declared width varies (5 or 11) across files; coding scheme unverified,
+      code_tree assumed from ID_OCUPA_N.
+    name: Ocupação
+    years:
+    - 2000
+    - 2006
+  OUTROS:
+    role: case.sign_other_sign
+    kind: category
+    model: mark
+    review: draft
+    note: 'Unresolved: in other series OUTROS is an other-signs flag or a stool result; undocumented for DENG 2000-2006.'
+    name: Outros
+    years:
+    - 2000
+    - 2006
+  OUTROS_M:
+    role: case.sign_other_manifestation
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Outras manifestações
+    years:
+    - 2000
+    - 2006
+  OUTROS_M_D:
+    role: case.other_material_text
+    kind: text
+    model: excluded
+    note: Free text (specify-field paired with MATERIAL).
+    name: Outro material - descrição
+    years:
+    - 2000
+    - 2006
+  OUTRO_S:
+    role: case.sign_other_sign
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Outro sinal/sintoma
+    years:
+    - 2000
+    - 2006
+  OUTRO_S_D:
+    role: case.other_tissue_text
+    kind: text
+    model: excluded
+    note: Free text (specify-field paired with TECIDOS); draft typed it number.
+    name: Outro tecido - descrição
+    years:
+    - 2000
+    - 2006
+  PALQ_MAIOR:
+    role: case.platelets_max
+    kind: number
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Plaquetas maior
+    years:
+    - 2000
+    - 2006
+  PERICARDI:
+    role: case.sign_pericardial_effusion
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Derrame pericárdico
+    years:
+    - 2000
+    - 2006
+  PETEQUIAS:
+    role: case.sign_petechiae
+    kind: category
+    model: mark
+    name: Manifestações hemorrágicas – Petéquias
+    years:
+    - 2000
+    - 2026
+  PETEQUIA_N:
+    role: case.sign_petechiae
+    kind: category
+    model: mark
+    note: 2014+ field; PETEQUIAS is the 2000-2026 hemorrhagic-manifestation form.
+    name: Sinais clínicos - Petéquias
+    years:
+    - 2014
+    - 2026
+  PLAQ_MENOR:
+    role: case.platelets_min
+    kind: number
+    model: mark
+    name: 'Menor Contagem de Plaquetas
+
+      '
+    years:
+    - 2000
+    - 2026
+  PLASMATICO:
+    role: case.plasma_leakage
+    kind: category
+    model: mark
+    name: Extravasamento Plasmático
+    years:
+    - 2007
+    - 2026
+  PLEURAL:
+    role: case.sign_pleural_effusion
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Derrame pleural
+    years:
+    - 2000
+    - 2006
+  PROSTACAO:
+    role: case.sign_prostration
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Sinais e Sintomas - Prostração
+    years:
+    - 2000
+    - 2006
+  RENAL:
+    role: patient.chronic_kidney_disease
+    kind: category
+    model: dimension
+    name: Doenças pré-existentes - Doença renal crônica
+    years:
+    - 2014
+    - 2026
+  RESUL_NS1:
+    role: case.ns1_result
+    kind: category
+    model: mark
+    name: Exame NS1 - Resultado
+    years:
+    - 2007
+    - 2026
+  RESUL_OUT:
+    role: case.other_test_result
+    kind: category
+    model: mark
+    review: draft
+    note: 'Unresolved: catch-all result of an unnamed test, undocumented; draft typed it text.'
+    name: Resultado de outro exame
+    years:
+    - 2000
+    - 2006
+  RESUL_PCR:
+    role: case.pcr_result
+    kind: category
+    model: mark
+    note: Legacy 2000-2006 predecessor of RESUL_PCR_; draft typed it number.
+    name: Resultado do PCR
+    years:
+    - 2000
+    - 2006
+  RESUL_PCR_:
+    role: case.pcr_result
+    kind: category
+    model: mark
+    name: RT-PCR - Resultado
+    years:
+    - 2007
+    - 2026
+  RESUL_PRNT:
+    role: case.prnt_result
+    kind: category
+    model: mark
+    name: Resultado do Exame Sorológico (IgM) PRNT
+    years:
+    - 2014
+    - 2026
+  RESUL_SORO:
+    role: case.igm_result
+    kind: category
+    model: mark
+    name: Exame Sorológico (IgM) Dengue - Resultado
+    codelists:
+    - RESULTADO
+    years:
+    - 2007
+    - 2026
+  RESUL_VIRA:
+    role: case.viral_isolation_result
+    kind: category
+    model: mark
+    note: Legacy 2000-2006 predecessor of RESUL_VI_N; draft typed it number.
+    name: Resultado - isolamento viral
+    years:
+    - 2000
+    - 2006
+  RESUL_VI_N:
+    role: case.viral_isolation_result
+    kind: category
+    model: mark
+    name: Isolamento Viral - Resultado
+    years:
+    - 2007
+    - 2026
+  RES_CHIKS1:
+    role: case.chik_igm1_result
+    kind: category
+    model: mark
+    name: Resultado do Exame Sorológico (IgM) soro 1 para Chikungunya
+    years:
+    - 2014
+    - 2026
+  RES_CHIKS2:
+    role: case.chik_igm2_result
+    kind: category
+    model: mark
+    name: Resultado do Exame Sorológico (IgM) soro 2 para Chikungunya
+    years:
+    - 2014
+    - 2026
+  S1_IGG:
+    role: case.serology1_igg
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Resultado sorologia IgG - 1ª amostra
+    years:
+    - 2000
+    - 2006
+  S1_IGM:
+    role: case.serology1_igm
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Resultado sorologia IgM - 1ª amostra
+    years:
+    - 2000
+    - 2006
+  S1_TIT1:
+    role: case.serology1_titer
+    kind: number
+    model: mark
+    note: Legacy 2000-2006 antibody titer; undocumented, assumed numeric.
+    name: Título do 1º soro
+    years:
+    - 2000
+    - 2006
+  S2_IGG:
+    role: case.serology2_igg
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Resultado sorologia IgG - 2ª amostra
+    years:
+    - 2000
+    - 2006
+  S2_IGM:
+    role: case.serology2_igm
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; role read from the field name and width.
+    name: Resultado sorologia IgM - 2ª amostra
+    years:
+    - 2000
+    - 2006
+  S2_TIT1:
+    role: case.serology2_titer
+    kind: number
+    model: mark
+    note: Legacy 2000-2006 antibody titer; undocumented, assumed numeric.
+    name: Título da 2ª sorologia
+    years:
+    - 2000
+    - 2006
+  SANGRAM:
+    role: case.sign_bleeding
+    kind: category
+    model: mark
+    name: 'Sinais e Sintomas — Sangramento
+
+      '
+    codelists:
+    - SANGRAM
+    years:
+    - 2000
+    - 2026
+  SEM_NOT:
+    role: notification.epi_week
+    kind: number
+    model: mark
+    note: AAAASS, published by the source; never recomputed.
+    name: Semana Epidemiológica da Notificação
+    years:
+    - 2000
+    - 2026
+  SEM_PRI:
+    role: case.onset_week
+    kind: number
+    model: mark
+    note: AAAASS epidemiological week of onset, published by the source.
+    name: Semana Epidemiológica dos Primeiros Sintomas/Diagnóstico
+    years:
+    - 2000
+    - 2026
+  SG_UF:
+    role: patient.residence_state
+    kind: place
+    model: dimension
+    note: State level of ID_MN_RESI, the residence stratum.
+    name: UF de Residência
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2026
+  SG_UF_NOT:
+    role: notification.state
+    kind: place
+    model: where
+    name: UF de Notificação
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2026
+  SIN_OUT:
+    role: case.other_signs_text
+    kind: text
+    model: excluded
+    name: Outros sinais e sintomas
+    years:
+    - 2000
+    - 2006
+  SORO1:
+    role: case.serology1_result
+    kind: category
+    model: mark
+    note: Legacy 2000-2006; curation describes a result, draft typed it number.
+    name: Sorologia 1 - resultado
+    years:
+    - 2000
+    - 2006
+  SORO2:
+    role: case.serum2_collected
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Coleta do 2º soro
+    years:
+    - 2000
+    - 2006
+  SOROTIPO:
+    role: case.serotype
+    kind: category
+    model: mark
+    name: Sorotipo
+    years:
+    - 2007
+    - 2026
+  TECIDOS:
+    role: case.tissue_collected
+    kind: category
+    model: mark
+    note: Legacy 2000-2006, undocumented; draft typed it number, but its name and C1 width point to a coded flag.
+    name: Coleta de tecidos
+    years:
+    - 2000
+    - 2006
+  TECNICA:
+    role: case.test_technique_text
+    kind: text
+    model: excluded
+    note: Free-text method name per the curation (C20); undocumented. Draft typed it number.
+    name: Técnica utilizada
+    years:
+    - 2000
+    - 2006
+  TPAUTOCTO:
+    role: case.autochthonous
+    kind: category
+    model: mark
+    name: Caso é Autóctone da Residência?
+    codelists:
+    - AUTOCTONE
+    years:
+    - 2007
+    - 2026
+  TP_NOT:
+    role: notification.type
+    kind: category
+    model: mark
+    name: Tipo de Notificação
+    years:
+    - 2007
+    - 2026
+  TP_SISTEMA:
+    role: notification.system
+    kind: category
+    model: excluded
+    note: Which SINAN application inserted the record (Net or Online); bookkeeping.
+    name: Tipo de Sistema
+    years:
+    - 2007
+    - 2026
+  UF:
+    role: case.hospital_state
+    kind: place
+    model: mark
+    note: Only filled when HOSPITALIZ = 1.
+    name: UF de hospitalização
+    codelists:
+    - UF_BR
+    years:
+    - 2000
+    - 2026
+  VACINADO:
+    role: case.dengue_vaccinated
+    kind: category
+    model: mark
+    name: Vacinado contra dengue
+    years:
+    - 2000
+    - 2006
+  VOMITO:
+    role: case.sign_vomiting
+    kind: category
+    model: mark
+    name: Sinais clínicos – Vômito
+    years:
+    - 2014
+    - 2026
+  IDADE_ANOS:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    also:
+    - case.age_years
+    note: Derived from NU_IDADE_N / NU_IDADE by the query (ADR-0070).
+    derived: true

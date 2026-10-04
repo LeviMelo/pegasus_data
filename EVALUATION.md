@@ -164,3 +164,4 @@ in.
 | 2026-10-03 | [SINAN undecoded sweep: every form, 2023, fresh home](docs/evaluation/2026-10-03-sinan-undecoded-sweep.md) | live (57 forms, 5.2M rows, three runs) |
 | 2026-10-04 | [Open questions pass: curation, join grain, linkage evidence, rebuild speed](docs/evaluation/2026-10-04-open-questions-pass.md) | live (joins, SE 2022 link) and audits |
 | 2026-10-04 | [Storage, measured: spill, role caches, blob pruning, lake encodings](docs/evaluation/2026-10-04-storage.md) | measurement (linkage home) and live (build/prune on the live home) |
+| 2026-10-04 | [A role for every column, and event types against TabNet](docs/evaluation/2026-10-04-roles-and-event-types.md) | live (national 2022, linkage home) and TabNet |

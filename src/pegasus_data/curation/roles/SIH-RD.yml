@@ -1,0 +1,1183 @@
+dataset: SIH-RD
+record: admission
+columns:
+  ANO_CMPT:
+    role: admission.processing_year
+    kind: date
+    model: when
+    note: Year of the competencia (billing month), not of admission; axis competence = ANO_CMPT+MES_CMPT.
+    name: Ano de processamento da AIH
+    years:
+    - 1992
+    - 2026
+  AUD_JUST:
+    role: admission.auditor_justification
+    kind: text
+    model: excluded
+    name: Justificativa do auditor
+    years:
+    - 2011
+    - 2026
+  CAR_INT:
+    role: admission.admission_character
+    kind: category
+    model: mark
+    name: Caráter da internação
+    years:
+    - 1998
+    - 2026
+  CBOR:
+    role: patient.occupation
+    kind: code_tree
+    model: dimension
+    note: Three-character CBO vintage; see curation.
+    name: Ocupação do paciente (CBO)
+    codelists:
+    - CBO2002
+    years:
+    - 2002
+    - 2026
+  CEP:
+    role: patient.postcode
+    kind: place
+    model: link_only
+    name: CEP do paciente
+    years:
+    - 1994
+    - 2026
+  CGC_HOSP:
+    role: facility.cnpj
+    kind: institution
+    model: institution
+    name: CNPJ do Estabelecimento
+    codelists:
+    - CNPJ_BR
+    years:
+    - 1992
+    - 2026
+  CID_ASSO:
+    role: admission.associated_cause
+    kind: code_tree
+    model: mark
+    name: CID causa associada
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2006
+    - 2026
+  CID_MORTE:
+    role: admission.death_cause
+    kind: code_tree
+    model: mark
+    name: CID da morte
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2006
+    - 2026
+  CID_NOTIF:
+    role: admission.notifiable_condition
+    kind: code_tree
+    model: mark
+    name: CID de Notificação
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 1999
+    - 2026
+  CNAER:
+    role: admission.work_accident_code
+    kind: category
+    model: mark
+    name: Código de acidente de trabalho
+    years:
+    - 2002
+    - 2026
+  CNES:
+    role: admission.facility
+    kind: institution
+    model: institution
+    name: Código CNES do estabelecimento
+    codelists:
+    - CADGERBR
+    years:
+    - 2003
+    - 2026
+  CNPJ_MANT:
+    role: facility.maintainer_cnpj
+    kind: institution
+    model: institution
+    name: CNPJ da mantenedora
+    codelists:
+    - CNPJ_BR
+    years:
+    - 2008
+    - 2026
+  COBRANCA:
+    role: admission.discharge_reason
+    kind: category
+    model: mark
+    note: MORTE is derived from it.
+    name: Motivo de Saída/Permanência
+    years:
+    - 1992
+    - 2026
+  COD_ARQ:
+    role: admission.record_type
+    kind: category
+    model: excluded
+    review: draft
+    note: Meaning of 1 vs 2 is unexplained in curation; record-type marker, not confirmed.
+    name: Reduced-AIH record-type code
+    years:
+    - 1992
+    - 2006
+  COD_IDADE:
+    role: patient.age_unit
+    kind: category
+    model: mark
+    note: Unit of IDADE; use IDADE_ANOS.
+    name: Unidade de medida da idade
+    codelists:
+    - IDADEDET
+    years:
+    - 1992
+    - 2026
+  COD_SEG:
+    role: admission.segment_code
+    kind: category
+    model: excluded
+    review: draft
+    note: Curation only conjectures a batch/segment identifier (2005-2006 only); meaning unknown.
+    name: Segment/batch code (RD, 2005-2006 vintage only)
+    years:
+    - 2004
+    - 2006
+  COMPLEX:
+    role: admission.complexity
+    kind: category
+    model: mark
+    name: Complexidade
+    years:
+    - 2008
+    - 2026
+  CONT:
+    role: admission.legacy_control
+    kind: category
+    model: excluded
+    note: Constant "1" in every row, no documented meaning.
+    name: Legacy control field, constant value
+    years:
+    - 1992
+    - 2006
+  CONTRACEP1:
+    role: admission.contraceptive_1
+    kind: category
+    model: mark
+    name: Tipo de contraceptivo utilizado
+    years:
+    - 1999
+    - 2026
+  CONTRACEP2:
+    role: admission.contraceptive_2
+    kind: category
+    model: mark
+    name: Segundo tipo de contraceptivo
+    years:
+    - 1999
+    - 2026
+  CPF_AUT:
+    role: admission.authorizer_cpf
+    kind: identifier
+    model: link_only
+    name: CPF do autorizador
+    years:
+    - 2000
+    - 2026
+  DIAGSEC1:
+    role: admission.secondary_diagnosis_1
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário 1
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2014
+    - 2026
+  DIAGSEC2:
+    role: admission.secondary_diagnosis_2
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário 2
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2014
+    - 2026
+  DIAGSEC3:
+    role: admission.secondary_diagnosis_3
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário 3
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2014
+    - 2026
+  DIAGSEC4:
+    role: admission.secondary_diagnosis_4
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário 4
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2014
+    - 2026
+  DIAGSEC5:
+    role: admission.secondary_diagnosis_5
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário 5
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2014
+    - 2026
+  DIAGSEC6:
+    role: admission.secondary_diagnosis_6
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário 6
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2014
+    - 2026
+  DIAGSEC7:
+    role: admission.secondary_diagnosis_7
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário 7
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2014
+    - 2026
+  DIAGSEC8:
+    role: admission.secondary_diagnosis_8
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário 8
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2014
+    - 2026
+  DIAGSEC9:
+    role: admission.secondary_diagnosis_9
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário 9
+    codelists:
+    - ICD10
+    - S_CID
+    years:
+    - 2014
+    - 2026
+  DIAG_PRINC:
+    role: admission.diagnosis
+    kind: code_tree
+    model: event_type
+    also:
+    - admission.diagnoses
+    name: Código do diagnóstico principal
+    codelists:
+    - ICD10
+    - CID9_01
+    - CID9_02
+    - CID9_03
+    - CID9_04
+    - CID9_05
+    - CID9_06
+    - CID9_07
+    - CID9_08
+    - CID9_09
+    - CID9_10
+    - CID9_11
+    - CID9_12
+    - CID9_13
+    - CID9_14
+    - CID9_15
+    - CID9_16
+    - CID9_17
+    - CID9_SUP
+    - CID9XINV
+    - S_CID
+    years:
+    - 1992
+    - 2026
+  DIAG_SEC:
+    role: admission.secondary_diagnosis_icd9
+    kind: code_tree
+    model: mark
+    name: Diagnóstico secundário (CID-9)
+    codelists:
+    - CID9X01
+    - CID9X02
+    - CID9X03
+    - CID9X04
+    - CID9X05
+    - CID9X06
+    years:
+    - 1997
+    - 1997
+  DIAG_SECUN:
+    role: admission.secondary_diagnosis
+    kind: code_tree
+    model: mark
+    note: Dead (filled with 0000) from the 113-column generation.
+    name: Código do diagnóstico secundário
+    codelists:
+    - ICD10
+    - CID9_01
+    - CID9_02
+    - CID9_03
+    - CID9_04
+    - CID9_05
+    - CID9_06
+    - CID9_07
+    - CID9_08
+    - CID9_09
+    - CID9_10
+    - CID9_11
+    - CID9_12
+    - CID9_13
+    - CID9_14
+    - CID9_15
+    - CID9_16
+    - CID9_17
+    - CID9_SUP
+    - CID9XINV
+    - S_CID
+    years:
+    - 1998
+    - 2026
+  DIAR_ACOM:
+    role: admission.companion_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias de acompanhante
+    years:
+    - 2005
+    - 2026
+  DIAS_PERM:
+    role: admission.length_of_stay
+    kind: number
+    model: mark
+    name: Dias de Permanência
+    years:
+    - 1992
+    - 2026
+  DT_INTER:
+    role: admission.start
+    kind: date
+    model: when
+    name: Data de internação
+    years:
+    - 1992
+    - 2026
+  DT_SAIDA:
+    role: admission.end
+    kind: date
+    model: when
+    name: Data de saída
+    years:
+    - 1992
+    - 2026
+  ESPEC:
+    role: admission.bed_specialty
+    kind: category
+    model: mark
+    name: Especialidade do Leito
+    years:
+    - 1992
+    - 2026
+  ETNIA:
+    role: patient.ethnicity
+    kind: category
+    model: dimension
+    name: Etnia do paciente
+    years:
+    - 2008
+    - 2026
+  FAEC_TP:
+    role: admission.faec_subtype
+    kind: category
+    model: mark
+    name: Subtipo de financiamento FAEC
+    years:
+    - 2008
+    - 2026
+  FINANC:
+    role: admission.funding_type
+    kind: category
+    model: mark
+    name: Tipo de financiamento
+    years:
+    - 2008
+    - 2026
+  FONTE_ORC:
+    role: admission.budget_source
+    kind: category
+    model: mark
+    name: Fonte Orçamentária
+    codelists:
+    - FONTEREM
+    years:
+    - 2025
+    - 2026
+  GESTAO:
+    role: admission.management_type
+    kind: category
+    model: mark
+    name: Gestão
+    codelists:
+    - GESTAO
+    years:
+    - 1998
+    - 2026
+  GESTOR_COD:
+    role: admission.manager_override
+    kind: category
+    model: mark
+    name: Motivo de autorização da AIH pelo Gestor
+    codelists:
+    - LIBGESTOR
+    years:
+    - 2003
+    - 2026
+  GESTOR_CPF:
+    role: admission.manager_cpf
+    kind: identifier
+    model: link_only
+    name: Número do CPF do Gestor
+    years:
+    - 2003
+    - 2026
+  GESTOR_DT:
+    role: admission.manager_authorisation_date
+    kind: date
+    model: mark
+    name: Data da autorização dada pelo Gestor
+    years:
+    - 2003
+    - 2026
+  GESTOR_TP:
+    role: admission.manager_authorisation
+    kind: category
+    model: mark
+    name: Tipo de gestor
+    years:
+    - 2008
+    - 2026
+  GESTRISCO:
+    role: pregnancy.high_risk
+    kind: category
+    model: mark
+    name: Indicador se é gestante de risco
+    years:
+    - 1999
+    - 2026
+  HOMONIMO:
+    role: patient.homonym_flag
+    kind: category
+    model: link_only
+    note: Warning flag against naive name matching.
+    name: Indicador de homônimo
+    years:
+    - 2000
+    - 2026
+  IDADE:
+    role: patient.age
+    kind: number
+    model: mark
+    note: Value packs a unit given by COD_IDADE; IDADE_ANOS is the age stratum.
+    name: Idade
+    years:
+    - 1992
+    - 2026
+  IDENT:
+    role: admission.aih_type
+    kind: category
+    model: mark
+    name: Identificação do tipo da AIH
+    years:
+    - 1992
+    - 2026
+  IND_VDRL:
+    role: admission.vdrl_test
+    kind: category
+    model: mark
+    name: Indica exame VDRL
+    years:
+    - 2006
+    - 2026
+  INFEHOSP:
+    role: admission.hospital_infection
+    kind: category
+    model: mark
+    name: Status de infecção hospitalar
+    years:
+    - 2006
+    - 2026
+  INSC_PN:
+    role: pregnancy.prenatal_registration
+    kind: identifier
+    model: link_only
+    name: Número da gestante no pré-natal
+    years:
+    - 2001
+    - 2026
+  INSTRU:
+    role: patient.education
+    kind: category
+    model: dimension
+    name: Grau de instrução do paciente
+    years:
+    - 1999
+    - 2026
+  MARCA_UCI:
+    role: admission.intermediate_unit_type
+    kind: category
+    model: mark
+    name: Tipo de UCI utilizada pelo paciente
+    years:
+    - 2013
+    - 2026
+  MARCA_UTI:
+    role: admission.icu_type
+    kind: category
+    model: mark
+    name: Tipo de UTI utilizada
+    years:
+    - 1998
+    - 2026
+  MES_CMPT:
+    role: admission.processing_month
+    kind: date
+    model: when
+    note: Month of the competencia; pairs with ANO_CMPT.
+    name: Mês processamento
+    codelists:
+    - MESES
+    years:
+    - 1992
+    - 2026
+  MORTE:
+    role: admission.death
+    kind: category
+    model: mark
+    name: Indica Óbito
+    years:
+    - 1992
+    - 2026
+  MUNIC_MOV:
+    role: admission.facility_municipality
+    kind: place
+    model: where
+    name: Município do Estabelecimento
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 1992
+    - 2026
+  MUNIC_RES:
+    role: patient.residence
+    kind: place
+    model: stratum
+    name: Município de Residência do Paciente
+    codelists:
+    - BR_MUNICIPALFA
+    - MUNICBR
+    years:
+    - 1994
+    - 2026
+  NACIONAL:
+    role: patient.nationality
+    kind: category
+    model: dimension
+    name: Código da nacionalidade do paciente
+    years:
+    - 1998
+    - 2026
+  NASC:
+    role: patient.birth_date
+    kind: date
+    model: stratum
+    name: Data de nascimento do paciente
+    years:
+    - 1992
+    - 2026
+  NATUREZA:
+    role: facility.legal_nature_old
+    kind: category
+    model: mark
+    note: Only through May/2012; NAT_JUR replaces it.
+    name: Natureza jurídica do hospital
+    years:
+    - 1992
+    - 2026
+  NAT_JUR:
+    role: facility.legal_nature
+    kind: category
+    model: mark
+    name: Natureza jurídica do Estabelecimento
+    years:
+    - 2011
+    - 2026
+  NUM_FILHOS:
+    role: patient.children_count
+    kind: number
+    model: mark
+    note: Person attribute but a count, collected on obstetric admissions only.
+    name: Número de filhos do paciente
+    years:
+    - 1999
+    - 2026
+  NUM_PROC:
+    role: admission.process_number
+    kind: identifier
+    model: excluded
+    name: Número do processo
+    years:
+    - 1995
+    - 2026
+  N_AIH:
+    role: admission.aih
+    kind: identifier
+    model: link_only
+    name: Número da AIH
+    years:
+    - 1992
+    - 2026
+  PROC_REA:
+    role: admission.procedure
+    kind: code_tree
+    model: event_type
+    name: Procedimento realizado
+    codelists:
+    - SIGTAP
+    - TPROC
+    years:
+    - 1992
+    - 2026
+  PROC_SOLIC:
+    role: admission.requested_procedure
+    kind: code_tree
+    model: mark
+    name: Procedimento solicitado
+    codelists:
+    - SIGTAP
+    - TPROC
+    years:
+    - 2006
+    - 2026
+  QT_DIARIAS:
+    role: admission.billed_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias
+    years:
+    - 2008
+    - 2026
+  RACA_COR:
+    role: patient.race
+    kind: category
+    model: stratum
+    name: Raça/Cor do paciente
+    years:
+    - 2008
+    - 2026
+  REGCT:
+    role: admission.contract_rule
+    kind: category
+    model: mark
+    name: Regra contratual
+    years:
+    - 2008
+    - 2026
+  REMESSA:
+    role: admission.batch_number
+    kind: identifier
+    model: excluded
+    name: Número da remessa
+    years:
+    - 2008
+    - 2026
+  RUBRICA:
+    role: admission.budget_line
+    kind: category
+    model: mark
+    name: Rubrica
+    years:
+    - 2006
+    - 2026
+  SEMIPLEN:
+    role: admission.management_type_1995_97
+    kind: category
+    model: mark
+    name: Gestão (95-97)
+    codelists:
+    - GESTAO
+    years:
+    - 1995
+    - 1997
+  SEQUENCIA:
+    role: admission.batch_sequence
+    kind: identifier
+    model: excluded
+    name: Sequencial da AIH na remessa
+    years:
+    - 2008
+    - 2026
+  SEQ_AIH5:
+    role: admission.long_stay_sequence
+    kind: identifier
+    model: link_only
+    note: Chains long-stay continuations of one stay.
+    name: Sequencial de longa permanência
+    years:
+    - 2001
+    - 2026
+  SEXO:
+    role: patient.sex
+    kind: category
+    model: stratum
+    name: Sexo do paciente
+    codelists:
+    - SEXO
+    years:
+    - 1992
+    - 2026
+  SIS_JUST:
+    role: admission.facility_justification
+    kind: text
+    model: excluded
+    name: Justificativa do estabelecimento
+    years:
+    - 2011
+    - 2026
+  TOT_PT_SP:
+    role: admission.professional_points
+    kind: number
+    model: mark
+    name: Total de pontos SP
+    years:
+    - 1999
+    - 2026
+  TPDISEC1:
+    role: admission.secondary_diagnosis_type_1
+    kind: category
+    model: mark
+    name: Tipo de diagnóstico secundário 1
+    codelists:
+    - TP_DIAGSEC
+    years:
+    - 2014
+    - 2026
+  TPDISEC2:
+    role: admission.secondary_diagnosis_type_2
+    kind: category
+    model: mark
+    name: Tipo de diagnóstico secundário 2
+    codelists:
+    - TP_DIAGSEC
+    years:
+    - 2014
+    - 2026
+  TPDISEC3:
+    role: admission.secondary_diagnosis_type_3
+    kind: category
+    model: mark
+    name: Tipo de diagnóstico secundário 3
+    codelists:
+    - TP_DIAGSEC
+    years:
+    - 2014
+    - 2026
+  TPDISEC4:
+    role: admission.secondary_diagnosis_type_4
+    kind: category
+    model: mark
+    name: Tipo de diagnóstico secundário 4
+    codelists:
+    - TP_DIAGSEC
+    years:
+    - 2014
+    - 2026
+  TPDISEC5:
+    role: admission.secondary_diagnosis_type_5
+    kind: category
+    model: mark
+    name: Tipo de diagnóstico secundário 5
+    codelists:
+    - TP_DIAGSEC
+    years:
+    - 2014
+    - 2026
+  TPDISEC6:
+    role: admission.secondary_diagnosis_type_6
+    kind: category
+    model: mark
+    name: Tipo de diagnóstico secundário 6
+    codelists:
+    - TP_DIAGSEC
+    years:
+    - 2014
+    - 2026
+  TPDISEC7:
+    role: admission.secondary_diagnosis_type_7
+    kind: category
+    model: mark
+    name: Tipo de diagnóstico secundário 7
+    codelists:
+    - TP_DIAGSEC
+    years:
+    - 2014
+    - 2026
+  TPDISEC8:
+    role: admission.secondary_diagnosis_type_8
+    kind: category
+    model: mark
+    name: Tipo de diagnóstico secundário 8
+    codelists:
+    - TP_DIAGSEC
+    years:
+    - 2014
+    - 2026
+  TPDISEC9:
+    role: admission.secondary_diagnosis_type_9
+    kind: category
+    model: mark
+    name: Tipo de diagnóstico secundário 9
+    codelists:
+    - TP_DIAGSEC
+    years:
+    - 2014
+    - 2026
+  UF_ZI:
+    role: admission.manager_municipality
+    kind: place
+    model: mark
+    note: Managing municipality, not place of care or residence.
+    name: Município Gestor
+    codelists:
+    - BR_MUNICGESTOR
+    years:
+    - 1992
+    - 2026
+  US_ORTP:
+    role: admission.usd_orthotics
+    kind: number
+    model: mark
+    note: US dollars, not reais.
+    name: Orthotics/prosthetics value, in US dollars
+    years:
+    - 1992
+    - 1997
+  US_RN:
+    role: admission.usd_newborn
+    kind: number
+    model: mark
+    note: US dollars, not reais.
+    name: Newborn-nursery value, in US dollars
+    years:
+    - 1994
+    - 1997
+  US_SADT:
+    role: admission.usd_sadt
+    kind: number
+    model: mark
+    note: US dollars, not reais.
+    name: SADT-services value, in US dollars
+    years:
+    - 1992
+    - 1997
+  US_SANGUE:
+    role: admission.usd_blood
+    kind: number
+    model: mark
+    note: US dollars, not reais.
+    name: Blood/hemoderivatives value, in US dollars
+    years:
+    - 1992
+    - 1997
+  US_SH:
+    role: admission.usd_hospital_services
+    kind: number
+    model: mark
+    note: US dollars, not reais.
+    name: Hospital-services value, in US dollars
+    years:
+    - 1992
+    - 1997
+  US_SP:
+    role: admission.usd_professional_services
+    kind: number
+    model: mark
+    note: US dollars, not reais.
+    name: Professional-services value, in US dollars
+    years:
+    - 1992
+    - 1997
+  US_TOT:
+    role: admission.usd_total
+    kind: number
+    model: mark
+    note: US dollars, not reais.
+    name: Valor total, em dólar
+    years:
+    - 1992
+    - 2026
+  UTI_INT_AL:
+    role: admission.intermediate_days_discharge
+    kind: number
+    model: mark
+    name: UTI intermediária - alta
+    years:
+    - 2000
+    - 2026
+  UTI_INT_AN:
+    role: admission.intermediate_days_previous
+    kind: number
+    model: mark
+    name: UTI intermediária - anterior
+    years:
+    - 2000
+    - 2026
+  UTI_INT_IN:
+    role: admission.intermediate_days_start
+    kind: number
+    model: mark
+    name: UTI intermediária - início
+    years:
+    - 2000
+    - 2026
+  UTI_INT_TO:
+    role: admission.intermediate_days
+    kind: number
+    model: mark
+    name: Quantidade de diárias em unidade intermediária
+    years:
+    - 2000
+    - 2026
+  UTI_MES_AL:
+    role: admission.icu_days_discharge
+    kind: number
+    model: mark
+    name: UTI mês - alta
+    years:
+    - 1999
+    - 2026
+  UTI_MES_AN:
+    role: admission.icu_days_previous
+    kind: number
+    model: mark
+    name: UTI mês - anterior
+    years:
+    - 1999
+    - 2026
+  UTI_MES_IN:
+    role: admission.icu_days_start
+    kind: number
+    model: mark
+    name: UTI mês - início
+    years:
+    - 1999
+    - 2026
+  UTI_MES_TO:
+    role: admission.icu_days_month
+    kind: number
+    model: mark
+    name: Quantidade de dias de UTI no mês
+    years:
+    - 2000
+    - 2026
+  UTI_TOTAL:
+    role: admission.icu_days
+    kind: number
+    model: mark
+    name: Diárias de UTI
+    years:
+    - 1992
+    - 1999
+  VAL_ACOMP:
+    role: admission.value_companion
+    kind: number
+    model: mark
+    name: Valor acompanhante
+    years:
+    - 2005
+    - 2026
+  VAL_OBSANG:
+    role: admission.value_blood_observation
+    kind: number
+    model: mark
+    name: Valor observação sangue
+    years:
+    - 2000
+    - 2026
+  VAL_ORTP:
+    role: admission.value_orthotics
+    kind: number
+    model: mark
+    name: Valor órtese/prótese
+    years:
+    - 1992
+    - 2026
+  VAL_PED1AC:
+    role: admission.value_paediatric_companion
+    kind: number
+    model: mark
+    name: Valor pediátrico 1º acompanhante
+    years:
+    - 2000
+    - 2026
+  VAL_RN:
+    role: admission.value_newborn
+    kind: number
+    model: mark
+    name: Valor recém-nato
+    years:
+    - 1994
+    - 2026
+  VAL_SADT:
+    role: admission.value_sadt
+    kind: number
+    model: mark
+    name: Valor SADT
+    years:
+    - 1992
+    - 2026
+  VAL_SADTSR:
+    role: admission.value_sadt_unregistered
+    kind: number
+    model: mark
+    name: Valor SADT sem registro
+    years:
+    - 1998
+    - 2026
+  VAL_SANGUE:
+    role: admission.value_blood
+    kind: number
+    model: mark
+    name: Valor sangue
+    years:
+    - 1992
+    - 2026
+  VAL_SH:
+    role: admission.value_hospital_services
+    kind: number
+    model: mark
+    name: Valor de serviços hospitalares
+    years:
+    - 1992
+    - 2026
+  VAL_SH_FED:
+    role: admission.value_hospital_services_federal
+    kind: number
+    model: mark
+    name: Valor do complemento federal de serviços hospitalares
+    years:
+    - 2011
+    - 2026
+  VAL_SH_GES:
+    role: admission.value_hospital_services_manager
+    kind: number
+    model: mark
+    name: Valor do complemento do gestor de serviços hospitalares
+    years:
+    - 2011
+    - 2026
+  VAL_SP:
+    role: admission.value_professional_services
+    kind: number
+    model: mark
+    name: Valor de serviços profissionais
+    years:
+    - 1992
+    - 2026
+  VAL_SP_FED:
+    role: admission.value_professional_services_federal
+    kind: number
+    model: mark
+    name: Valor do complemento federal de serviços profissionais
+    years:
+    - 2011
+    - 2026
+  VAL_SP_GES:
+    role: admission.value_professional_services_manager
+    kind: number
+    model: mark
+    name: Valor do complemento do gestor de serviços profissionais
+    years:
+    - 2011
+    - 2026
+  VAL_TOT:
+    role: admission.value_total
+    kind: number
+    model: mark
+    name: Valor total da AIH
+    years:
+    - 1992
+    - 2026
+  VAL_TRANSP:
+    role: admission.value_transport
+    kind: number
+    model: mark
+    name: Valor transporte
+    years:
+    - 1998
+    - 2026
+  VAL_UCI:
+    role: admission.value_intermediate_unit
+    kind: number
+    model: mark
+    name: Valor de UCI
+    years:
+    - 2013
+    - 2026
+  VAL_UTI:
+    role: admission.value_icu
+    kind: number
+    model: mark
+    name: Valor de UTI
+    years:
+    - 1999
+    - 2026
+  VINCPREV:
+    role: patient.social_security_link
+    kind: category
+    model: dimension
+    name: Vínculo com a Previdência
+    years:
+    - 2002
+    - 2026
+  IDADE_ANOS:
+    role: patient.age_years
+    kind: number
+    model: stratum
+    derived: true

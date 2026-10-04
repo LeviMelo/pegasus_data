@@ -304,7 +304,7 @@ Also known, not duplicates:
 
 ## 5a. The public surface
 
-`__init__.py` exports 56 names (`_EXPORTS`, resolved lazily); the data engines (`retrieve.fetch`, `api.load`, `api.scan`) are internal (ADR-0073). Grouped by the
+`__init__.py` exports 72 names (`_EXPORTS`, resolved lazily; the "56" written here earlier was stale, recounted 2026-10-04); the data engines (`retrieve.fetch`, `api.load`, `api.scan`) are internal (ADR-0073). Grouped by the
 question they answer; the overlap is §5's first rows.
 
 | Question | Functions | Types and errors |
@@ -312,6 +312,7 @@ question they answer; the overlap is §5's first rows.
 | give me data | `query`, `plan`, `translate` | `QuerySpec`, `QueryPlan`, `QueryReport`, `Period`, `Geography`, `RenderReport`, `DatasetUnknown`, `NothingPublished` (and its `PublishedEmpty`: read, and published with no records), `DownloadBudgetExceeded` (over `max_download`, ADR-0076), `FilterHasNoAxis`, `MissingColumnError`, `LabelUnavailable`, `TranslationImpossible`; warnings `TimeResolutionWarning`, `StructuralSchemaWarning`, `SemanticFallbackWarning`, `CrosswalkAmbiguityWarning`, `PartialSourceWarning` (a short table accepted with `allow_partial`, ADR-0095) |
 | attach more to it | `enrichment`, `memberships` | `EnrichmentRequest`, `MembershipSet`, `Membership` |
 | what is this | `info`, `explore`, `describe`, `availability`, `field_available`, `field_coverage`, `search`, `compendium`, `gaps`, `questions`, `DataDictionary`, `Ontology` | `Info`, `Exploration`, `FieldDescription`, `Availability`, `FieldWindow`, `CompendiumReport`, `Gaps`, `OpenQuestions` |
+| what each column states, and what a row counts as | `roles` (entity.property, value kind, model role per column), `event_types`, `count_events` (status and consolidation applied) | |
 | aggregate it | `aggregate`, `build_aggregate` | `AggregateSpec`, `AggregateReport` |
 | reference data | `load_population`, `load_reference`, `load_field` | |
 | places | `municipality_point`, `distance_km` (population centre by default) | |
@@ -456,6 +457,8 @@ Every module is named here; `scripts/check_docs.py` fails when one is not.
   `semantics/defnames.py`, `semantics/pdf_harvest.py`: harvesting (§2.3).
 - `semantics/dictionary.py`: merges sources by authority.
 - `semantics/curation.py`: loads `curation/`.
+- `semantics/column_roles.py`: `curation/roles/<dataset>.yml`, a role for every column, validated against the linkage roles.
+- `semantics/event_types.py`: the `event_types:` of `curation/datasets/*.yml`; counts events by their status and consolidation.
 - `semantics/bindings.py`: field→codelist bindings (the candidates).
 - `semantics/label_bindings.py`: the ONE label decision (`decide`, ADR-0082) and the compiled bindings per (system, family, field): `weigh`, `resolve`, `compile_bindings` (ADR-0072).
 - `semantics/coverage.py`: whether every field of every family is described and decodes (`pegasus-data meaning`, ADR-0085).

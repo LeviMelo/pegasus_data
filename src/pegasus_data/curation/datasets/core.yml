@@ -2,6 +2,26 @@
 # every one of these is a mistake someone has already made with the data.
 datasets:
   SIHSUS_RD:
+    event_types:
+      - name: hospitalisation
+        kind: hospitalisation
+        grain: one hospitalisation episode; an AIH is a billing document
+        classifiers:
+          - {column: DIAG_PRINC, role: primary, structure: ICD10}
+          # The epidemiology of procedures and surgeries; childbirth is defined by procedure.
+          - {column: PROC_REA, role: alternative, structure: SIGTAP}
+        status:
+          column: IDENT
+          values: ["1"]
+          evidence: >-
+            IDENT 1 is the principal AIH; a long stay adds continuation AIHs (IDENT 3, 5)
+            under the same N_AIH (SISAIH01 layout seq 9; DATASUS_SOURCES). TabNet's
+            "Internações" excludes them: AC 2014 type-1 rows 52,733 = TabNet 52,733.
+        consolidation:
+          key: [N_AIH]
+        note: >-
+          Transfers between hospitals are separate AIHs; consolidating them needs
+          linkage and is not done here.
     system: SIHSUS
     series: RD
     asserted_by: pegasus_data
@@ -36,6 +56,19 @@ datasets:
       - An AIH may be re-presented after rejection; the same episode can appear across competências.
 
   SIM_DO:
+    event_types:
+      - name: death
+        kind: death
+        classifiers:
+          - {column: CAUSABAS, role: primary, structure: ICD10}
+          - {column: CAUSABAS_O, role: alternative, structure: ICD10}
+        status:
+          column: TIPOBITO
+          values: ["2"]
+          evidence: >-
+            TIPOBITO 2 is a non-foetal death; DO files carry only these (AC 2022: 4,159 of
+            4,159), foetal deaths are published as SIM.DOFET.
+        marks: [LINHAA, LINHAB, LINHAC, LINHAD, LINHAII]
     system: SIM
     series: DO
     asserted_by: pegasus_data
@@ -72,6 +105,11 @@ datasets:
       - Preliminary files (PRELIM) are revised for years afterwards; a year is not final when first published.
 
   SINASC_DN:
+    event_types:
+      - name: birth
+        kind: birth
+        grain: one live birth
+        marks: [IDANOMAL, CODANOMAL]
     system: SINASC
     series: DN
     asserted_by: pegasus_data

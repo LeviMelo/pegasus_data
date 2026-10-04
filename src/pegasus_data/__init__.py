@@ -48,6 +48,9 @@ _EXPORTS: dict[str, str] = {
     "info": "._info",
     "Info": "._info",
     "Ontology": ".ontology",
+    "roles": ".semantics.column_roles",
+    "event_types": ".semantics.event_types",
+    "count_events": ".semantics.event_types",
     "Exploration": "._explore",
     "translate": "._translate",
     "TranslationImpossible": "._translate",
@@ -156,6 +159,8 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         NothingPublished,
         PublishedEmpty,
     )
+    from .semantics.column_roles import roles
+    from .semantics.event_types import count_events, event_types
 
 
 def __getattr__(name: str) -> Any:
