@@ -87,3 +87,14 @@ Both were fixed at the source and cleaned once (3,342,637 rows deleted), then th
 | unlinked, a single remaining candidate, mother's birth date one digit off | 24 (23 agree on residence) |
 
 The typo ceiling is about 0.1% of births; the gap is births with no SUS admission.
+
+**Newborn admissions: what public fields can identify (OQ-62).** SE 2022, 4,318 admissions of babies under 28 days, against SE births 2021–2022:
+
+| births sharing birth date, sex and hospital | admissions |
+|---|---|
+| none (born elsewhere) | 169 |
+| one | 158 |
+| several, unique once residence is added | 1,758 |
+| several, still shared with residence | about 2,233 |
+
+Half are indistinguishable on every public field. The link takes 717.

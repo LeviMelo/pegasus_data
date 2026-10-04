@@ -94,3 +94,10 @@ Its 63 "contradictions" are banded coded counts (SINASC `CONSULTAS`) and PCE cou
 - Measured candidate evidence: delivery type (+0.94 bits, worsens the FDR bound), anomalies on newborns (no gain), `IDADEMAE` (derived from `DTNASCMAE`, not independent).
 
 None is adopted. |
+| 62 | ** (2026-10-04, SE 2022: congenital anomalies measured as evidence, SINASC CODANOMAL against the admission diagnoses by ICD-10 category. A shared category is worth +3.1 bits but occurs in 0.29% of true pairs, so pairs went 717 → 711 at the same 9.5-bit threshold; not adopted.)Can newborn admissions be identified in large maternity hospitals?** SIH admissions of babies in their first 28 days carry the baby's birth date, sex, the hospital and the residence, and nothing else about the baby or the mother. In a hospital with ~15 births of each sex a day that key is shared, and both linkage methods refused (RR 2022: 3,484 admissions, 0 pairs after the ambiguity margin, ADR-0113). ICD-10 P07 codes, on 10.8% of RR's newborn admissions, now weigh the birth's weight and weeks (ADR-0117): SE 2022 certifies (406 pairs, viable); RR (19) and AC (57) only with caution. The 89% without a size code still rest on the shared key. | the neonatal branch of the pregnancy timeline outside small hospitals | measure other separating evidence (SIH-SP professional acts, AIH chains across the mother's and baby's AIHs, procedure timing) | **resolved** (2026-10-04): measured, and largely no. SE 2022, 4,318 admissions of babies under 28 days, against SE births 2021–2022:
+- 158 (4%) share birth date, sex and hospital with exactly one birth;
+- 1,758 (41%) share it with several but become unique when residence is added;
+- about 2,233 (52%) stay indistinguishable among two or more births on every public field;
+- 169 match no SE birth.
+
+The probabilistic link takes 717 at a 1% FDR target. The rest of the unique-by-residence admissions would rest on uniqueness among SE births alone, and a baby born elsewhere breaks that. Anomaly codes, the other public evidence measured, add nothing. |
