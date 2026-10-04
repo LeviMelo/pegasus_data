@@ -198,6 +198,10 @@ def choose_representations(
                 f"logical publication {logical!r} has conflicting representations; "
                 "runtime execution refused to avoid duplicate observations"
             )
+        stale = _older_than_native(catalog, candidates)
+        if stale:
+            dropped.extend(str(row.get("path") or "") for row in stale)
+            candidates = [row for row in candidates if not any(row is old for old in stale)]
         winner = min(candidates, key=lambda row: _wire_cost(row, cached))
         selected.append(winner)
         dropped.extend(
@@ -240,6 +244,36 @@ def _cached_paths(catalog: Catalog, paths: Sequence[str]) -> set[str]:
         except Exception:  # noqa: BLE001 - a catalog without fetch history ranks by size
             return out
     return out
+
+
+def _older_than_native(catalog: Catalog, candidates: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Exports dated before the newest native (DBC/DBF) file: an older edition.
+
+    An export cannot carry a revision published after it. SINAN's PRELIM
+    ``ACBIBR23.dbc`` was republished on 2026-09-02 (80,094 rows), while its
+    Dados_Abertos CSV is from 2026-01-29 (78,242). Ranking by bytes alone
+    (ADR-0133) read the smaller, older CSV on a fresh install: 235 SINAN
+    publications on the 2026-09-28 tree. An export dated AFTER the native file
+    is taken as a re-export of it and still competes on bytes (SIH-RD 2008:
+    DBC 2018, CSV 2025).
+    """
+    paths = [str(row.get("path") or "") for row in candidates]
+    marks = ",".join("?" for _ in paths)
+    try:
+        day = {
+            str(r["path"]): str(r["modified"] or "")[:10]
+            for r in catalog.query(f"SELECT path, modified FROM files WHERE path IN ({marks})", tuple(paths))
+        }
+    except Exception:  # noqa: BLE001 - a catalog without dates keeps every candidate
+        return []
+    native = [day.get(str(row.get("path") or ""), "") for row in candidates
+              if _representation_kind(row) in ("dbc", "dbf")]
+    newest = max((d for d in native if d), default="")
+    if not newest:
+        return []
+    return [row for row in candidates
+            if _representation_kind(row) not in ("dbc", "dbf")
+            and day.get(str(row.get("path") or ""), "") and day[str(row.get("path") or "")] < newest]
 
 
 def _newest_edition(catalog: Catalog, candidates: Sequence[dict[str, Any]]) -> dict[str, Any] | None:

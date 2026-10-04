@@ -160,3 +160,4 @@ in.
 | 2026-10-03 | [SINAN descriptions against the official data dictionaries](docs/evaluation/2026-10-03-sinan-descriptions-against-dictionaries.md) | audit (dictionary texts; 46 variables corrected) |
 | 2026-10-03 | [Residence compared by distance between population centres](docs/evaluation/2026-10-03-residence-distance-bands.md) | live (national 2022 links, not stored) |
 | 2026-10-03 | [SINAN form dictionaries: page-break truncation, coded fields marked uncoded](docs/evaluation/2026-10-03-sinan-form-dictionaries.md) | live (SINAN.ACBI 2023 BR) and audit (stored decisions against each form's DEF) |
+| 2026-10-03 | [An export older than its native file is an older edition](docs/evaluation/2026-10-03-stale-export-editions.md) | live (SINAN.ACBI 2023, repo and fresh home); catalog count |
