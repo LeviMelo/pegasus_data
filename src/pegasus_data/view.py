@@ -615,6 +615,8 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, l
 
     ``family_id=''`` rows are system-wide; a family-specific binding sorts first.
     """
+    from .semantics.curation import INHERITS
+
     rows = store.query(
         """
         SELECT field_name, codelist, family_id, source, confidence, decodes_observed
@@ -627,6 +629,20 @@ def _bindings(store: Catalog, system: str, family_id: str | None) -> dict[str, l
         """,
         (system.upper(), family_id or ""),
     )
+    # A system that republishes its parent's fields (ADR-0095) takes the
+    # parent's system-wide bindings for the fields it binds nothing to itself:
+    # the Dados Abertos APAC exports carry SIA's AN_*, ATD_*, AQ_* columns,
+    # whose tables are bound under SIASUS (2026-10-04).
+    own = {str(r["field_name"]).upper() for r in rows}
+    for parent in INHERITS.get(system.upper(), ()):
+        rows = [*rows, *(
+            r for r in store.query(
+                "SELECT field_name, codelist, family_id, source, confidence, decodes_observed "
+                "FROM field_codelists WHERE system = ? AND family_id = '' AND source <> 'semantic_match'",
+                (parent,),
+            )
+            if str(r["field_name"]).upper() not in own
+        )]
 
     def _rank(row: object) -> tuple[int, float, int, str]:
         """Order candidates deterministically, best first.

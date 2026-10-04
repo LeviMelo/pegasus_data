@@ -98,3 +98,14 @@ The typo ceiling is about 0.1% of births; the gap is births with no SUS admissio
 | several, still shared with residence | about 2,233 |
 
 Half are indistinguishable on every public field. The link takes 717.
+
+**`base_aih1` decodes from its own dimension tables (OQ-3).** DuckDB attached the 12 GB `SIHSUS/base_aih1.duck` over HTTP from the mirror and read its `dim_*` tables in 4.7 s. Each key column bears the fact column's own name.
+- On a 200,000-row sample of `stg_aih`, `CO_TIPO_AIH`, `CO_ATIVIDADE_ENSINO`, `CO_GESTAO` and `CO_TIPO_ESTAB` decode 100%.
+- `CO_IDENTIFICACAO` decodes 199,993 of 200,000 (`0` undocumented).
+- `CO_NAT_JURIDICA` decodes 199,122 of 199,992 (`1015` undocumented).
+
+These six are now inline codes citing their dimension.
+
+**Inherited bindings.** The Dados Abertos APAC exports inherit SIASUS's curation (ADR-0095), and now also its system-wide table bindings for fields they bind nothing to themselves. `AN_HIV`, `AN_ACEVAS` and `AN_HBSAG` reach HIV, ACES_VASC and HBSAG.
+
+Recount over every column present in data: 84 coded columns still reach no table, 156 have no official name.
