@@ -161,3 +161,4 @@ in.
 | 2026-10-03 | [Residence compared by distance between population centres](docs/evaluation/2026-10-03-residence-distance-bands.md) | live (national 2022 links, not stored) |
 | 2026-10-03 | [SINAN form dictionaries: page-break truncation, coded fields marked uncoded](docs/evaluation/2026-10-03-sinan-form-dictionaries.md) | live (SINAN.ACBI 2023 BR) and audit (stored decisions against each form's DEF) |
 | 2026-10-03 | [An export older than its native file is an older edition](docs/evaluation/2026-10-03-stale-export-editions.md) | live (SINAN.ACBI 2023, repo and fresh home); catalog count |
+| 2026-10-03 | [SINAN undecoded sweep: every form, 2023, fresh home](docs/evaluation/2026-10-03-sinan-undecoded-sweep.md) | live (57 forms, 5.2M rows, three runs) |

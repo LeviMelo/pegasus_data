@@ -2258,7 +2258,8 @@ variables:
 
       '
     code_system: internal
-    source: inferred
+    source: layout_doc
+    source_ref: aids-crianca__DIC_DADOS_Aids_crianca_v5.pdf (children's AIDS data dictionary; the field's code table 1 Sim, 2 Não, 9 Ignorado)
     reasoning: '"HERPES" is the residual herpes-simplex field once CLI_HERPEG claims the gengivo-estomatite-specific
       item; the checklist''s remaining herpes-simplex entries (mucocutaneous >1 month, bronchial/pulmonary/GI)
       are the candidates left for it. Reviewed 2026-09-28: no documentation found (searched
@@ -2612,7 +2613,8 @@ variables:
 
       '
     code_system: internal
-    source: inferred
+    source: layout_doc
+    source_ref: aids-crianca__DIC_DADOS_Aids_crianca_v5.pdf (children's AIDS data dictionary; the field's code table 1 Sim, 2 Não, 9 Ignorado)
     reasoning: 'The checklist has exactly two tuberculosis checkboxes; CLI_TUPULM''s name clearly
       claims the pulmonary one, leaving the unqualified CLI_TUBERC for the disseminated/extrapulmonary
       item. Reviewed 2026-09-28: no documentation found (searched the SINAN NET v5 and Sinan
@@ -2660,10 +2662,15 @@ variables:
   CNAE:
     official_name: Código da Atividade Econômica (CNAE)
     translated_name: Employer's economic activity (CNAE)
-    description: Classificação Nacional de Atividades Econômicas code of the contracting employer.
+    description: Classificação Nacional de Atividades Econômicas code of the contracting employer,
+      a 5-digit class in CNAE 1.0 or CNAE 2.0; records carry both (85111 and 86101 are both
+      hospital care).
     code_system: external
+    # The kit's CNAENET (CNAE 1.0) and IBGE's CNAE 2.0 share no class code, so the
+    # two decode one column without ambiguity (2026-10-03).
     codelists:
     - CNAENET
+    - CNAE20
     source: layout_doc
     source_ref: '[DIC-DRT-ATG] "37. Código da atividade Econômica(CNAE) | co_cnae | varchar2(10)
       | Classificação Nacional da Atividade Econômica do Contratante | Campo Essencial | CNAE"

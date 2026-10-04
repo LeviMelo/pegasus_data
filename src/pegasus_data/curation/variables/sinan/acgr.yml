@@ -44,7 +44,7 @@ variables:
       that employs the worker; filled only when the employer is an outsourced company
       (TERCEIRIZA = 1).
     code_system: external
-    codelist: cnae
+    codelists: [CNAENET, CNAE20]
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Acidente de Trabalho Grave v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20Acidente%20Trabalho%20Grave/DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf,
       campo 47 (Se empresa terceirizada, qual o CNAE da empresa terceirizada)

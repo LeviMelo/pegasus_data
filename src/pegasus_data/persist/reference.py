@@ -442,7 +442,7 @@ def _health_regions() -> pa.Table:
 #: (ADR-0087): name -> file under pegasus_data/resources.
 CLASSIFICATIONS: dict[str, str] = {
     "ICD10": "icd10.parquet", "CBO2002": "cbo2002.parquet", "BANCO_BR": "banks.parquet",
-    "SIGTAP": "sigtap.parquet",
+    "SIGTAP": "sigtap.parquet", "CNAE20": "cnae20.parquet",
     "NATURALIDADE": "countries.parquet",
 }
 

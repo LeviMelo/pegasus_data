@@ -1,7 +1,7 @@
 {
   "resource_schema_version": 2,
   "resource_content_version": "2026-10-04",
-  "built_at": "2026-10-04T00:25:31Z",
+  "built_at": "2026-10-04T01:07:35Z",
   "source_build_id": "2026-09-28T23:41:36+00:00",
   "crawled_at": "2026-09-28T23:41:36+00:00",
   "counts": {
@@ -36,9 +36,9 @@
     "labels": {
       "file": "labels.parquet",
       "tier": "B",
-      "bytes": 29048482,
+      "bytes": 29346647,
       "rows": 3654320,
-      "sha256": "74959b74b30923faa41d7328fddcd65eeacb37edde1ce9204b8c0c7d42cc29ff"
+      "sha256": "45b32267eec2a16c499fbf54b0ceff6454f3cab6d3a133a9fce53233340da7cb"
     },
     "cnes_cnpj": {
       "file": "labels_crosswalk.parquet",
@@ -57,9 +57,9 @@
     "catalog_seed": {
       "file": "catalog_seed.sqlite.gz",
       "tier": "A",
-      "bytes": 19831120,
+      "bytes": 19822387,
       "rows": 929921,
-      "sha256": "48340056e34ca205631e09d759ba26bb278856302f4338e979a886456a6ef712"
+      "sha256": "2cd9dd8e48a4bb9bcb6d94c879901a91150b3d2cbcdb558ff05d7bd308a58671"
     }
   },
   "note": "Bundled resources are an offline runtime baseline. Local version-compatible updates take precedence."

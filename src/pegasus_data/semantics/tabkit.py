@@ -62,6 +62,14 @@ KNOWN_CODE_TABLES: dict[str, tuple[str, str, str]] = {
     "TABUF": ("CODIGO", "DESCRICAO", "uf"),
     "TABOCUP": ("CODIGO", "DESCRICAO", "occupation"),
     "TABPAIS": ("CODIGO", "DESCRICAO", "country"),
+    # SINAN's lookups, keyed by what the data holds (2026-10-03). Inference took
+    # CNAENET's row sequence CO_SEQ over CLASS_CNAE (CNAE 1.0 classes: data
+    # 85111, 75116), so 85111 decoded nothing and 10 read "CULTIVO DE CACAU".
+    # UNIDINVEST's key is the CNES ID_UNIDADE (ACGR 2023 UNI_ATENDE: 365,011 of
+    # 400,352 rows; none match its ID_ESTAB, whose apparent matches came from a
+    # CSV export that strips leading zeros), with the label the .DEFs name.
+    "CNAENET": ("CLASS_CNAE", "DS_CNAE", "cnae"),
+    "UNIDINVEST": ("ID_UNIDADE", "NM_UNIDADE", "sinan_unit"),
 }
 
 #: CNV files whose codes are ICD-10 and therefore need the CID universe to expand
