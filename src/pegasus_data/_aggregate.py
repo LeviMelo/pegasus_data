@@ -1395,7 +1395,7 @@ def aggregate(
     report.cells = result.num_rows
     # The data version: a consumer caches by it (handoff §4).
     result = result.replace_schema_metadata({
-        **(result.schema.metadata or {}), b"aggregate": name.encode(),
+        **(result.schema.metadata or {}), b"aggregate": spec.name.encode(),
         b"data_version": report.fingerprint.encode()})
     report.unmapped = {k: v for k, v in unmapped_mass.items() if v}
     if report.unmapped:

@@ -1109,15 +1109,16 @@ variables:
     source_ref: SIM_NAO.CNV
     reasoning: PROPRI reads própria pessoa, the self item of the relationship block.
   REL_SEXUAL:
-    official_name: Vínculo sexual com o agressor
-    translated_name: Sexual relationship with the aggressor
+    official_name: Relações sexuais
+    translated_name: Sexual relations (with men, women or both)
     description: 'Whether the victim''s sexual relationships are with men, women or
       both. Distinct from ORIENT_SEX, which records identity rather than practice.
 
       '
     code_system: internal
     source: def
-    source_ref: REL_SEX_VIOL.CNV
+    source_ref: 'TAB_SINANNET.zip!TAB_SINANNET/ViolenciaNet.def line 249 ("Relações sexuais", REL_SEX_VIOL.cnv).
+      The name "Vínculo sexual com o agressor" had no source and contradicted the table (2026-10-04).'
     reasoning: 'Bound to REL_SEX_VIOL, whose values are só com homens, só com mulheres
       and com homens e mulheres.
 

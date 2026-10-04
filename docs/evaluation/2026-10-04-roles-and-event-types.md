@@ -59,3 +59,8 @@ Probes: `$TEMP/accept/ours22.py`, `deng.py`; `$TEMP/rolecheck/agree.py`.
 Every SIH diagnosis maps to a chapter.
 
 Probe: `$TEMP/accept/flows.py`.
+
+**Curation corrected from the role reviews.** Checked against the SINAN NET dictionaries and the kits' `.DEF` files:
+- **`LAB_TGO`, `LAB_TGP`, `LAB_UREIA`.** They described a hantavirus patient on every form, leptospirosis included. Only the hantavirus dictionary documents them, so their leptospirosis meaning is now stated as unverified. `LAB_UREIA`'s official name was a web paraphrase; it is now the dictionary's "Resultado A - Aumento de Uréia e Creatinina".
+- **`CLI_PSEUDO`.** Its name was cut to "Pseudo". It is pseudomembrane on the diphtheria form and pseudoparalysis on the congenital-syphilis form.
+- **VIOL `REL_SEXUAL`.** It had an unsourced name, "Vínculo sexual com o agressor"; it is now "Relações sexuais" (`ViolenciaNet.def` line 249), which agrees with its table.

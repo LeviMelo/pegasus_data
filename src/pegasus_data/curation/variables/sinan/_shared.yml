@@ -2529,12 +2529,8 @@ variables:
 
       '
   CLI_PSEUDO:
-    official_name: 'Sinais e Sintomas — Pseudo
-
-      '
-    translated_name: 'Pseudomembrane / pseudoparalysis sign
-
-      '
+    official_name: Sinais e Sintomas - Pseudomembrana (difteria) / Pseudoparalisia (sífilis congênita)
+    translated_name: Pseudomembrane (diphtheria) or pseudoparalysis (congenital syphilis) sign
     code_system: internal
     codelists:
     - SIM_NAO
@@ -5375,22 +5371,22 @@ variables:
   LAB_TGO:
     official_name: Resultado A - TGO
     translated_name: Result A - AST/SGOT liver enzyme
-    description: 'Whether a blood test for TGO (AST), a liver enzyme, came back elevated in
-      a hospitalized Hantavirose patient; elevated transaminases signal the liver involvement
-      seen in severe hantavirus disease. 3=exam not performed.
+    description: 'Whether TGO (AST), a liver enzyme, came back raised on the blood panel
+      ("Resultado A - TGO"); 3 = exam not performed.
 
       '
+    notes: 'The hantavirus form documents it (DIC_DADOS_Hantavirose_v5, campo 38); leptospirosis files carry a column of the same name that no leptospirosis dictionary documents (the v5 dictionary lists no such field), so its meaning there is unverified (2026-10-04).'
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 38
   LAB_TGP:
     official_name: Resultado A - TGP
     translated_name: Result A - ALT/SGPT liver enzyme
-    description: 'Whether a blood test for TGP (ALT), a liver enzyme, came back elevated in
-      a hospitalized Hantavirose patient; elevated transaminases signal the liver involvement
-      seen in severe hantavirus disease. 3=exam not performed.
+    description: 'Whether TGP (ALT), a liver enzyme, came back raised on the blood panel
+      ("Resultado A - TGP"); 3 = exam not performed.
 
       '
+    notes: 'The hantavirus form documents it (DIC_DADOS_Hantavirose_v5, campo 38); leptospirosis files carry a column of the same name that no leptospirosis dictionary documents (the v5 dictionary lists no such field), so its meaning there is unverified (2026-10-04).'
     code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 38
@@ -5406,16 +5402,16 @@ variables:
     source: layout_doc
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
   LAB_UREIA:
-    official_name: Ureia
-    translated_name: Blood urea
+    official_name: Resultado A - Aumento de Uréia e Creatinina
+    translated_name: Raised urea and creatinine
     code_system: internal
-    source: web
-    source_ref: scielo.iec.gov.br/scieloOrg S1679-49742011000400013, hantavirus laboratory
-      monitoring
-    description: Whether urea and creatinine were raised on the blood panel in a hantavirus
-      case (1 yes, 2 no, 3 not performed, 9 unknown); filled only if a blood sample was drawn
-      (AM_SANGUE = 1). A coded yes/no finding, not a numeric urea value; it flags the renal
-      injury that hantavirus pulmonary syndrome and severe leptospirosis can cause.
+    source: layout_doc
+    source_ref: DIC_DADOS_Hantavirose_v5.pdf, campo 38 ("Resultado A Aumento de Uréia e Creatinina");
+      the official name was a web paraphrase ("Ureia") until 2026-10-04
+    description: Whether urea and creatinine were raised on the blood panel (1 yes, 2 no, 3 not
+      performed, 9 unknown); filled only if a blood sample was drawn (AM_SANGUE = 1). A coded
+      finding, not a numeric urea value.
+    notes: 'The hantavirus form documents it (DIC_DADOS_Hantavirose_v5, campo 38); leptospirosis files carry a column of the same name that no leptospirosis dictionary documents (the v5 dictionary lists no such field), so its meaning there is unverified (2026-10-04).' 
   LACO:
     official_name: Prova do laço positiva
     translated_name: Tourniquet test positive

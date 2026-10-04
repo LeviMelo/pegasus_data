@@ -281,6 +281,7 @@ OQ-64), 1990s SIH V-codes.
     found);
   - BASE_AIH1's 11 fields without an RD/SP twin;
   - its age pairing, unverified until a sample of the 12 GB file is read.
+- **SIH-RD 2014 was unreadable** in every state until 2026-10-04 (ADR-0135 amendment); AC 2014 now equals TabNet.
 - **Speed.** Of a 17-second state-year, rendering is 15 s: label tables
   (6), the pack and reference reads (2.5), decoding (2.7); imports cost ~1.5 s
   per process, pandas included (pyarrow loads it).
@@ -289,11 +290,25 @@ OQ-64), 1990s SIH V-codes.
   and `cli` into a package by help panel; the command tree is unchanged
   (61 commands, same parameters).
 
+## The PegaSUS handoff (2026-10-04, `2026-10-04-pegasus_data.md`)
+
+| § | state |
+|---|---|
+| 1 storage | **Done** (`docs/evaluation/2026-10-04-storage.md`): per-process DuckDB spill (6.7 GB freed), national-only role cache with derived states, `prune` (4.47 of 6.0 GB on the linkage home, dry run), national-only builds, `_row` delta. A 16-byte key, typed money and dates, and sorting were measured and not adopted (ADR-0124 amended). |
+| 2 roles | **Done for 16 datasets** (ADR-0137): 1,540 columns, 69 still draft with reasons. The person/event test on linked records: race agrees 0.72, event attributes 0.08–0.24. |
+| 3 event types | **Declared** (ADR-0137). SIM, SINASC and dengue probable cases equal TabNet 2022 in 27/27 states; SIH within 76 of 12.4 M (OQ-68). No confirmed-case rule for TUBE, HANS, SIF*, VIOL or ZIKA without a source. |
+| 4 aggregation | **Mechanisms done** (ADR-0138): event types in recipes, `CAUSABAS@category` tree roll-ups, `moments`, `field_overlap`, `data_version`. The national SIM 2010–2023 acceptance build is running (`data/probes/aggregate/sim_2010_2023.*`). |
+| 5 code structures | **Done** except OQ-69: ICD10/SIGTAP/CBO2002/CNAE20 trees; CID-BR-10, ICD-10 lists 2 and 4, avoidable causes, ICSAP. Not served: the SIH morbidity list (no ICD mapping found), GBD (licence: the author's call), ICD-9 → ICD-10. |
+| 6 graphs | **Done** (ADR-0138): contiguity by border km, population distance, REGIC 2018 links and cities, areas, care flows (sum exactly to events). Travel time: later. |
+| 7 modelled tier | **Declared** (ADR-0139, `modelled.py`). The sources (INEP, CadÚnico, ANS, TSE, RAIS) and the models are phase 2–3, not started. |
+
 ## Waiting on the user
 
 - **Publishing.** `master` (fast-forwarded to `redesign`) and `linkage` are
   not pushed (CLAUDE.md §4). Platform wheels for the compiled DBC engine
   (ADR-0074).
+- **GBD's licence** (OQ-69): IHME's non-commercial agreement against an
+  open-source package.
 
 ## Tests and checks
 
