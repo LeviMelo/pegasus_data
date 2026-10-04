@@ -171,6 +171,14 @@ def stored(store: Catalog, system: str, family_id: str, field_name: str) -> Labe
     if not rows:
         return None
     r = rows[0]
+    if str(r["basis"]) == "curated":
+        # Only a MEASURED decision is a cache worth reusing: a curated one is
+        # re-derived from the curation on every call, and a stored copy
+        # outlives its source. 65 shipped SINAN rows kept an old adjudication
+        # that merged the per-form CLASSI_FIN/CRITERIO/EVOLUCAO tables into
+        # one name ("CONFDESC,CONFDESCA,..."), leaving AIDA CRITERIO
+        # undecoded (2026-10-03).
+        return None
     return LabelBinding(
         tuple(json.loads(r["codelists"] or "[]")), str(r["basis"]),
         r["share"], r["grain"], int(r["observed"] or 0), int(r["candidates"] or 0),
@@ -521,8 +529,10 @@ def decide(
        (ADR-0080: rare undocumented codes must not discard it);
     3. a curated ``codelist:``, unless it lists per-form alternatives;
     4. a reviewed adjudication (store only);
-    5. the stored decision (store and ``use_stored`` only);
-    6. measured weighing of the candidate pool.
+    5. the form's own dictionary below 95%, when it decodes at least half the
+       rows (the codes it lacks stay visibly undecoded);
+    6. the stored measured decision (store and ``use_stored`` only);
+    7. measured weighing of the candidate pool.
     """
     from .curation import harvested_codelist, inline_codelist
 
@@ -535,11 +545,21 @@ def decide(
         chain = (str(doc.codelist), *(str(c) for c in getattr(doc, "codelists", None) or ()))  # type: ignore[attr-defined]
         return LabelBinding(chain, "curated", observed=len(observed), candidates=len(chain),
                             reason="inline code table in the curation")
+    form_fallback: LabelBinding | None = None
     if series:
         harvested = harvested_codelist(system, series, field_name)
         if harvested:
             table = inline_codelist(harvested) or {}
             covered = sum(n for v, n in counts.items() if v in table)
+            if total and covered >= TOO_WEAK * total:
+                # Below the 95% bar the form's own table still outranks
+                # measurement (below); the codes it lacks stay "(?)".
+                # AIDA CRITERIO: 100/300/600/900/901 documented, 101 and 601
+                # (46% of 2023's rows) in no source (2026-10-03).
+                form_fallback = LabelBinding(
+                    (harvested,), "curated", share=round(covered / total, 4), observed=len(observed),
+                    reason=f"the form's own data dictionary, partial: {covered / total:.0%} of rows",
+                )
             if not total or covered >= FORM_DICTIONARY_ROWS * total:
                 return LabelBinding(
                     (harvested,), "curated",
@@ -567,6 +587,11 @@ def decide(
                 return LabelBinding((artifacts[0],), "curated", reason="reviewed adjudication")
         except Exception:  # noqa: BLE001 - old/read-only catalogs keep safe behaviour
             pass
+    if form_fallback is not None:
+        # Before measurement, which cannot tell two forms' tables apart when
+        # they share codes: weighing gave AIDA (adult) CRITERIO the children's
+        # CRITAIDSC, "300 SINAIS MAIORES E MENORES" for Rio de Janeiro/Caracas.
+        return form_fallback
     pool = candidates_for(doc, candidates)
     if use_stored and store is not None and family_id:
         found = stored(store, system, family_id, field_name)

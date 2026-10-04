@@ -111,7 +111,10 @@ def relations_for(
             for row in catalog.query(
                 "SELECT system, field_name, codelist FROM variable_docs "
                 "WHERE codelist IS NOT NULL AND codelist<>'' "
-                "AND code_system IN ('internal','external')"
+                "AND code_system IN ('internal','external') "
+                # Per-form alternatives are never one binding (ADR-0080); joined
+                # into one artifact they left AIDA CRITERIO undecoded (2026-10-03).
+                "AND COALESCE(per_form, 0) = 0"
             ):
                 item = SemanticRelation(
                     system=str(row["system"] or "*").upper(),
