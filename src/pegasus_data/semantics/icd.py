@@ -25,6 +25,7 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from ..catalog.store import CatalogStore
 
@@ -166,7 +167,7 @@ def measure_column(
     anything else overstates how much of the column is unusable.
     """
     out = ColumnQuality(system=system, field_name=field_name)
-    token_rule = dict(rule) if rule else infer_token_rule(values)
+    token_rule: dict[str, Any] = dict(rule) if rule else infer_token_rule(values)
     out.inferred_rule = token_rule
     delimiter = token_rule.get("delimiter")
     width = int(token_rule.get("width") or 0)

@@ -393,7 +393,7 @@ def create_app(
         code means twice.
         """
         index = municipalities()
-        out: dict[str, dict[str, str]] = {}
+        out: dict[str, dict[str, Any]] = {}
         for code6, row in index.items():
             if uf and row["uf_sigla"].upper() != uf.upper():
                 continue

@@ -351,8 +351,13 @@ def s_linkage() -> dict[str, Any]:
 
 def s_timeline() -> dict[str, Any]:
     """The pregnancy timeline behind pegasus_view's Linha do tempo: a birth with a linked infant death."""
+    from pegasus_data.linkage.engine import link
     from pegasus_data.linkage.timeline import notable_births, timeline
 
+    # The newborn link inherits the stored delivery link of each year of its
+    # padded period (ADR-0121); a person is told to "link it first".
+    for year in ("2021", "2022"):
+        link("sinasc_births_to_delivery_admission", period=year, geography="RR", method="probabilistic")
     births = notable_births(period="2022", geography="RR", method="probabilistic", limit=5)
     if not births:
         raise AssertionError("no birth with linked events on RR 2022")

@@ -6,6 +6,7 @@ import os
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
+from typing import cast as typing_cast
 
 DEFAULT_HOST = "ftp.datasus.gov.br"
 DEFAULT_BASE_PATH = "/dissemin/publicos"
@@ -242,7 +243,7 @@ def load_settings(**overrides: object) -> Settings:
         if key in Settings.__dataclass_fields__:
             kwargs[key] = value
 
-    placement = resolve_placement({"root": overrides.get("root")})
+    placement = resolve_placement({"root": typing_cast("Path | str | None", overrides.get("root"))})
     origins: dict[str, str] = {}
     for key in PLACEMENT_KEYS:
         decided = placement[key]

@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from typing import Any
 
 from ..catalog.store import CatalogStore
 from .dictionary import all_codelist_names, codelists_for, match_codelist_by_name
@@ -204,14 +205,14 @@ def summarise_gaps(gaps: Sequence[Gap]) -> dict[str, object]:
     }
 
 
-def distinct_field_gaps(gaps: Sequence[Gap]) -> list[dict[str, object]]:
+def distinct_field_gaps(gaps: Sequence[Gap]) -> list[dict[str, Any]]:
     """Collapse per-family rows to one row per ``(system, field)``.
 
     The same field appears once per schema generation. For deciding what to go and
     find, the question is "which *variable* is undecoded", not "in how many
     generations".
     """
-    merged: dict[tuple[str, str], dict[str, object]] = {}
+    merged: dict[tuple[str, str], dict[str, Any]] = {}
     for g in gaps:
         key = (g.system, g.field_name)
         entry = merged.get(key)

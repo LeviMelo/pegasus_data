@@ -39,11 +39,12 @@ import os
 import re
 import threading
 import warnings
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from contextlib import AbstractContextManager
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 
@@ -57,7 +58,7 @@ from .pipeline import Pipeline
 from .presentation import LABEL_SUFFIX
 from .progress import ItemTimeout, record_timeout, run_with_timeout
 from .semantics.dictionary import DictionaryCache
-from .view import RenderReport
+from .view import RenderMode, RenderReport
 
 __all__ = [
     "fetch", "FetchReport", "DatasetUnknown", "NothingPublished", "FilterHasNoAxis",
@@ -552,7 +553,7 @@ def _clean_ufs(values: object) -> list[str]:
 
     if values is None:
         return []
-    raw = [values] if isinstance(values, str) else list(values)
+    raw = [values] if isinstance(values, str) else list(cast("Iterable[object]", values))
     out: list[str] = []
     for item in raw:
         text = str(item).strip().upper()
@@ -572,7 +573,7 @@ def _clean_months(values: object) -> list[int]:
     """Months as 1..12. Anything else is a mistake, not a narrow request."""
     if values is None:
         return []
-    raw = [values] if isinstance(values, int) else list(values)
+    raw = [values] if isinstance(values, int) else list(cast("Iterable[Any]", values))
     out: list[int] = []
     for item in raw:
         month = int(item)
@@ -626,7 +627,7 @@ def fetch(
     provenance: bool = False,
     dictionary: bool = False,
     profile: str = "analysis",
-    render: Mapping[str, str] | None = None,
+    render: Mapping[str, RenderMode] | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
@@ -1019,7 +1020,7 @@ def _families(catalog: CatalogStore, system: str, series: str | None) -> list[di
 
     onto = _ontology()
     target = onto.resolve(f"{system}.{series}") if onto else None
-    if target and target[0] == "dataset":
+    if onto and target and target[0] == "dataset":
         code = target[1].code
         bound = [
             r for r in rows
@@ -1579,7 +1580,7 @@ def _read_families(
     keep_columns = _keep_columns(catalog, report, columns)
     #: digest -> (DecodeOutcome, payload size). Lives for this call only, and is
     #: shared across decode workers, so it is guarded.
-    decoded_cache: dict[str, Future[tuple[object, int]]] = {}
+    decoded_cache: dict[str, Future[tuple[Any, int]]] = {}
     cache_lock = threading.Lock()
 
     def _decode_at(position: int, triple) -> dict[str, object]:
@@ -1637,7 +1638,7 @@ def _read_families(
     # decompressed DBF, so matching CPU count trades wall time for peak RSS on
     # exactly the wide requests where memory is already the binding constraint.
     workers = max(1, min(4, len(selected), (os.cpu_count() or 2)))
-    outcomes: list[dict[str, object]] = []
+    outcomes: list[dict[str, Any]] = []
     if workers == 1:
         for position, triple in enumerate(selected):
             if on_progress:
@@ -1666,26 +1667,26 @@ def _read_families(
             report.warnings.append(f"{path}: gave up after {settings.item_timeout:.0f}s")
             continue
         report.bytes_read += int(outcome["read_bytes"] or 0)
-        batches.extend(outcome["batches"])  # type: ignore[arg-type]
+        batches.extend(outcome["batches"])
         item = outcome["item"]
         if outcome.get("family") == ABSENT_MEMBER:
-            report.members_absent.append(f"{path}!{item.get('member')}")  # type: ignore[union-attr]
+            report.members_absent.append(f"{path}!{item.get('member')}")
             continue
         if outcome["matched"]:
             if outcome.get("family"):
                 from .decode.base import logical_source_id
 
-                source_id = logical_source_id(path, str(item.get("member") or ""))  # type: ignore[union-attr]
+                source_id = logical_source_id(path, str(item.get("member") or ""))
                 facts = report.source_facts.get(source_id)
                 if facts:
                     report.source_facts[source_id] = (str(outcome["family"]), facts[1], facts[2])
                 report.refamilied.append(source_id)
             report.files_read += 1
             read_sources.add(path)
-            if item["year"] is not None:  # type: ignore[index]
-                seen_years.add(int(item["year"]))  # type: ignore[index]
-            if item["geo_code"]:  # type: ignore[index]
-                seen_ufs.add(str(item["geo_code"]))  # type: ignore[index]
+            if item["year"] is not None:
+                seen_years.add(int(item["year"]))
+            if item["geo_code"]:
+                seen_ufs.add(str(item["geo_code"]))
         else:
             report.schema_mismatch.append(path)
 
@@ -1739,8 +1740,8 @@ def _decode_one(
     path: str,
     digest: str,
     member: str,
-    decoded_cache: dict[str, Future[tuple[object, int]]] | None = None,
-    cache_lock: object | None = None,
+    decoded_cache: dict[str, Future[tuple[Any, int]]] | None = None,
+    cache_lock: AbstractContextManager[Any] | None = None,
     keep_columns: frozenset[str] | None = None,
     decode_members: frozenset[str] | None = None,
     alternatives: Sequence[tuple[str, NormalizePlan]] = (),
@@ -1754,7 +1755,7 @@ def _decode_one(
     with seven DBF members was being fully decoded seven times.
     """
     owner = True
-    pending: Future[tuple[object, int]] | None = None
+    pending: Future[tuple[Any, int]] | None = None
     if decoded_cache is not None:
         if cache_lock is not None:
             with cache_lock:
@@ -1804,14 +1805,14 @@ def _decode_one(
     matched = False
     used_family: str | None = None
     present = not member or any(
-        str(d.member).upper() == member.upper() for d in outcome.tables  # type: ignore[union-attr]
+        str(d.member).upper() == member.upper() for d in outcome.tables  # type: ignore[attr-defined]
     )
     if not present:
         # The archive has no such member: the catalog listed it by the
         # archive's pattern, and this state published nothing for that
         # component this month (SIA 2001-2007 APAC, 2026-09-29). Not a gap.
         return [], False, (size if owner else 0), ABSENT_MEMBER
-    for decoded in outcome.tables:  # type: ignore[union-attr]
+    for decoded in outcome.tables:  # type: ignore[attr-defined]
         if member and str(decoded.member).upper() != member.upper():
             continue
         from .build import schema_fit
@@ -1868,7 +1869,7 @@ def _open_decoded_source(
     return outcome, size
 
 
-def _month_of(normalized_date: object) -> int | None:
+def _month_of(normalized_date: Any) -> int | None:
     """The month inside a ``YYYYMM`` integer; ``None`` for annual files.
 
     An annual file has month 00, and treating that as January would make

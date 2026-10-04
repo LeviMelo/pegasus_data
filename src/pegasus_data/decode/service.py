@@ -35,7 +35,7 @@ def decode_source(
             row_limit=row_limit,
             timeout=settings.item_timeout,
         )
-    options: dict[str, object] = {
+    options: dict[str, Any] = {
         "logical_path": logical_path,
         "columns": frozenset(columns) if columns else None,
     }

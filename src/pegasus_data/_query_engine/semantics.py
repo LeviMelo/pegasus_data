@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import warnings
+from collections.abc import Sequence
+from typing import cast
 
 import pyarrow as pa
 
@@ -253,7 +255,7 @@ def _enrichment_output_name(request: EnrichmentRequest) -> str:
     return f"{namespace}_{attribute.lower()}" if attribute else f"{namespace}_resolved"
 
 
-def _append_or_replace(table: pa.Table, name: str, values: list[object]) -> pa.Table:
+def _append_or_replace(table: pa.Table, name: str, values: Sequence[object]) -> pa.Table:
     array = pa.array(values)
     if name in table.column_names:
         return table.set_column(table.column_names.index(name), name, array)
@@ -427,7 +429,7 @@ def _enrich_cnes_attribute(
     from .executor import query as _query
 
     period = query_plan.spec.period
-    registry = _query(
+    registry = cast("pa.Table", _query(
         "CNES-ST",
         period=(_period_text(period.start), _period_text(period.end)) if period else None,
         geography=list(query_plan.spec.geography.ufs) if query_plan.spec.geography else None,
@@ -435,7 +437,7 @@ def _enrich_cnes_attribute(
         present="analysis" if query_plan.spec.labels else "codes",
         settings=settings,
         allow_partial=True,
-    )
+    ))
     registry = registry.filter(pc.is_in(pc.cast(registry["CNES"], pa.string()),
                                         value_set=pa.array(sorted(source_codes), pa.string())))
     registry = _with_registry_competence(

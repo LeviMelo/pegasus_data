@@ -85,7 +85,7 @@ def load(settings: Any, key: RunKey) -> tuple[pa.Table, dict[str, Any]] | None:
 
 def runs(settings: Any) -> list[dict[str, Any]]:
     """Every stored run's report, current spec or not (``current`` says which)."""
-    out = []
+    out: list[dict[str, Any]] = []
     root = links_dir(settings)
     if not root.exists():
         return out

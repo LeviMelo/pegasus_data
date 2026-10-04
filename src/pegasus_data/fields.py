@@ -94,7 +94,7 @@ def build_fields(settings: Any, names: list[str] | None = None, years: list[int]
                 raw = str(item["serie"].get(str(year), "")).strip()
                 value, state = _MARKERS.get(raw, (raw, "value"))
                 code7.append(item["localidade"]["id"])
-                values.append(float(value) if value not in (None, "") else None)
+                values.append(float(value) if value else None)
                 status.append(state)
                 statuses[state] = statuses.get(state, 0) + 1
             if not code7:

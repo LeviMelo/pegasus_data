@@ -160,8 +160,8 @@ def _resolve(target: str | None) -> tuple[str | None, str | None]:
 
 
 def _of_dataset(
-    rows: list[dict[str, object]], system: str | None, want_series: str
-) -> list[dict[str, object]]:
+    rows: list[dict[str, Any]], system: str | None, want_series: str
+) -> list[dict[str, Any]]:
     """Rows belonging to one dataset, matched through the ontology.
 
     ``series`` is derived from filenames, so one dataset is spread across many

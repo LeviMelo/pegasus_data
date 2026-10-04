@@ -521,7 +521,7 @@ def _single_lookup(
     year: int | None,
     code_width: int | None,
     competencia: int | None = None,
-) -> dict[str, str] | None:
+) -> Mapping[str, str] | None:
     """One codelist's ``code -> label``, or ``None`` if it is not materialised.
 
     Separate from :func:`_lookup_map` only so a missing table is a *candidate
@@ -649,7 +649,7 @@ def _cached_merged_lookup(
         tables = [str(c).upper() for c in codelists if not str(c).upper().startswith("CURATED.")]
         if len(tables) == 1 and tables[0] in PATH_CODELISTS:
             merged = PathLabels(merged, table=tables[0], segment=PATH_CODELISTS[tables[0]])
-    merged.widths = frozenset().union(*(_widths(m) for m in maps))  # type: ignore[attr-defined]
+    merged.widths = frozenset().union(*(_widths(m) for m in maps))  # type: ignore[union-attr]
     return merged, missing
 
 
@@ -707,7 +707,7 @@ def _bindings(store: CatalogStore, system: str, family_id: str | None) -> dict[s
             if str(r["field_name"]).upper() not in own
         )]
 
-    def _rank(row: object) -> tuple[int, float, int, str]:
+    def _rank(row: object) -> tuple[int, int, float, int, str]:
         """Order candidates deterministically, best first.
 
         Confidence alone is not enough and the gap it leaves is not academic:
@@ -980,13 +980,13 @@ def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
     return pc.take(mapped, encoded.indices)
 
 
-def _per_distinct(codes: object, fn: Callable[[object], str | None]) -> pa.Array:
+def _per_distinct(codes: object, fn: Callable[[Any], str | None]) -> pa.Array:
     """``fn`` of every value, computed once per distinct value and expanded by
     index; a null stays null. A file is a million cells and a few dozen
     distinct codes: the row loops this replaced were most of a role table's
     build (CIHA PR 2022, 1.4M rows: 35 of 40 s in rendering, 2026-10-03)."""
     if not isinstance(codes, (pa.Array, pa.ChunkedArray)):
-        return pa.array([None if v is None else fn(v) for v in codes], type=pa.string())  # type: ignore[union-attr]
+        return pa.array([None if v is None else fn(v) for v in codes], type=pa.string())  # type: ignore[attr-defined]
     column = codes.combine_chunks() if isinstance(codes, pa.ChunkedArray) else codes
     encoded = pc.dictionary_encode(column)
     mapped = pa.array([None if u is None else fn(u) for u in encoded.dictionary.to_pylist()], type=pa.string())
@@ -997,7 +997,7 @@ def _distinct(column: object) -> list:
     """The distinct non-null values of a column (Arrow does the pass)."""
     if isinstance(column, (pa.Array, pa.ChunkedArray)):
         return [v for v in pc.unique(column).to_pylist() if v is not None]
-    return list({v for v in column if v is not None})  # type: ignore[union-attr]
+    return list({v for v in column if v is not None})  # type: ignore[attr-defined]
 
 
 def _check_width(
@@ -1226,7 +1226,7 @@ def _select_codelists(
     candidates: list[str],
     report: RenderReport,
     strict: bool,
-    lookup_one: Callable[[str, int | None], dict[str, str] | None],
+    lookup_one: Callable[[str, int | None], Mapping[str, str] | None],
     store: CatalogStore | None = None,
     system: str = "",
     family_id: str = "",
@@ -1445,11 +1445,11 @@ def _render_table(
 
     columns: list[pa.Array] = []
     names: list[str] = []
-    lookups: dict[tuple, dict[str, str]] = {}
+    lookups: dict[tuple, Mapping[str, str]] = {}
 
     def _lookup(
         field_name: str, codelists: Sequence[str], only: frozenset[str] | None = None,
-    ) -> dict[str, str] | None:
+    ) -> Mapping[str, str] | None:
         """Merge every table bound to this field. Exact width keeps them apart."""
         # No width filter. Exact string matching already keeps classifications of
         # different widths apart (§6.2); filtering the TABLE to the curated token
@@ -1658,7 +1658,7 @@ def _render_table(
         # is the whole point: an unlabelled code is visibly unfinished, and a
         # confidently wrong label is not.
         try:
-            disagreements = {}
+            disagreements: dict[str, set[str]] = {}
             for bound in codelists:
                 # Every table the merged lookup draws from, not just the
                 # first: a self-contradictory SECOND table was never checked,

@@ -33,6 +33,7 @@ import re
 import zipfile
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
+from typing import Any
 
 from ..catalog.store import CatalogStore
 from ..semantics.dictionary import DictionaryEntry, persist_entries
@@ -242,7 +243,7 @@ def ingest(
     # the TabNet kit windows already work.
     by_competencia = {e.competencia: e for e in exports}
     ordered = sorted(by_competencia)
-    counts: dict[str, object] = {"exports": [], "entries": 0, "bytes": 0}
+    counts: dict[str, Any] = {"exports": [], "entries": 0, "bytes": 0}
     for export in chosen:
         index = ordered.index(export.competencia)
         valid_to = ordered[index + 1] if index + 1 < len(ordered) else None
@@ -254,7 +255,7 @@ def ingest(
             f"ingested {export.filename}",
             detail=f"{len(entries)} entries, {written} merged, valid {export.competencia}..{valid_to}",
         )
-        counts["exports"].append(  # type: ignore[union-attr]
+        counts["exports"].append(
             {
                 "filename": export.filename,
                 "competencia": export.competencia,

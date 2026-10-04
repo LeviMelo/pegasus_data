@@ -22,6 +22,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Any
 
+from ..retrieve import NothingPublished
 from .engine import LinkNotViable, link
 from .identity import record_ids
 from .roles import role_table
@@ -52,6 +53,11 @@ def _pairs(spec: str, method: str, period: object, geography: object) -> tuple[l
         result = link(spec, period=period, geography=geography, method=method, allow_partial=True)
     except LinkNotViable as exc:
         return [], str(exc.result.summary().get("verdict"))
+    except NothingPublished as exc:
+        # A partner DATASUS does not publish at this scope (CIHA has no
+        # Roraima file in any year): the event cannot attach, and the reason
+        # is the source's, not a failure of the timeline.
+        return [], f"not published: {exc}"
     t = result.pairs
     bits = t.column("bits").to_pylist() if "bits" in t.column_names else [None] * t.num_rows
     return list(zip(t.column("l").to_pylist(), t.column("r").to_pylist(), bits, strict=True)), str(result.verdict)

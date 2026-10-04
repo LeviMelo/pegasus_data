@@ -43,6 +43,7 @@ national year is a few group-bys per key, not a join of records.
 from __future__ import annotations
 
 import itertools
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -245,7 +246,7 @@ def discover_links(left: str, right: str, *, period: object, geography: object,
         rt = {**rt, day: "date"}
     measured: dict[tuple[tuple[str, str], ...], KeyResult] = {}
 
-    def measure(keys: list[tuple[tuple[str, str], ...]]) -> list[KeyResult]:
+    def measure(keys: Sequence[tuple[tuple[str, str], ...]]) -> list[KeyResult]:
         out = []
         for key in keys:
             if key in measured:

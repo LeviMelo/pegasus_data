@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from importlib.resources import files
 from pathlib import Path
@@ -61,7 +62,7 @@ def _pack_path() -> Path:
 
 def _crosswalk_slice(
     codes: set[str],
-    vintages: list[int | SourceVintage | None],
+    vintages: Sequence[int | SourceVintage | None],
     *,
     reverse: bool = False,
     resource_path: str | Path | None = None,
@@ -176,7 +177,7 @@ def _registry_slice(codes: set[str], *, reverse: bool) -> dict[str, list[tuple[s
     return out
 
 
-def _covering(available: object, vintage: object) -> set[str]:
+def _covering(available: Sequence[tuple[str, str, str, str]], vintage: SourceVintage | None) -> set[str]:
     """The claims whose window covers the vintage: the registry's when it has one.
 
     The registry is DATASUS's current record, with dates; the pack's claims are

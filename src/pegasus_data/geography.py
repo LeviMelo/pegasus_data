@@ -277,7 +277,7 @@ def _ibge_rows(municipalities) -> tuple[list[tuple[str, ...]], dict[str, int]]:
     return rows, {k: len(v) for k, v in counted.items()}
 
 
-def _tabnet_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[str, ...]], dict[str, dict[str, int]]]:
+def _tabnet_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[str, ...]], dict[str, dict[str, int | str]]]:
     """Memberships from TabNet's current territorial tables (``tabnet_classifications``).
 
     One table per classification and no per-system copies, so nothing to scope
@@ -289,7 +289,7 @@ def _tabnet_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[s
     from .sources.tabnet import fetch_territorial
 
     rows: list[tuple[str, ...]] = []
-    report: dict[str, dict[str, int]] = {}
+    report: dict[str, dict[str, int | str]] = {}
     for name, body in classifications(root, authority="tabnet").items():
         table_name = str(body["table"])
         cnv = parse_cnv(fetch_territorial(table_name, cache_dir))
@@ -311,12 +311,12 @@ def _tabnet_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[s
     return rows, report
 
 
-def _ipea_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[str, ...]], dict[str, dict[str, int]]]:
+def _ipea_rows(root: Path | None, cache_dir: str | Path) -> tuple[list[tuple[str, ...]], dict[str, dict[str, int | str]]]:
     """Comparable-area memberships (``ipea_classifications``), one per period."""
     from .sources.ipea_amc import comparable_areas, fetch
 
     rows: list[tuple[str, ...]] = []
-    report: dict[str, dict[str, int]] = {}
+    report: dict[str, dict[str, int | str]] = {}
     for name, body in classifications(root, authority="ipea").items():
         start = int(body["start_year"])
         members = comparable_areas(fetch(start, cache_dir))
@@ -380,7 +380,7 @@ def build_geography_pack(
         seen.setdefault(key, {})[system] = (parsed.group(1), parsed.group(2))
 
     rows: list[tuple[str, ...]] = []
-    report: dict[str, dict[str, int]] = {}
+    report: dict[str, dict[str, int | str]] = {}
     # Counted as DISTINCT municipalities, not as (municipality, window) keys. A
     # municipality published under five validity windows is one municipality,
     # and reporting it as five is the counting bug this project keeps making.
@@ -401,7 +401,7 @@ def build_geography_pack(
         for system, (member_code, member_label) in sorted(effective.items()):
             rows.append((municipality, name, system, member_code, member_label,
                          codelist, valid_from, valid_to, "datasus"))
-            stat["rows"] += 1
+            stat["rows"] = int(stat["rows"]) + 1
 
     for name, stat in report.items():
         stat["municipalities"] = len(distinct[name])

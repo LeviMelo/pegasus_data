@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from .base import DecodedTable, DecodeError
 from .dbf import read_dbf_bytes, read_dbf_file
@@ -48,7 +49,7 @@ def read_dbc(
     member: str = "",
     logical_path: str | None = None,
     columns: frozenset[str] | None = None,
-    **kwargs: object,
+    **kwargs: Any,
 ) -> DecodedTable:
     """Decompress a ``.dbc`` FILE and read the result without a RAM copy of either.
 
@@ -76,7 +77,7 @@ def read_dbc(
             member=member,
             reader="dbc",
             columns=columns,
-            **kwargs,  # type: ignore[arg-type]
+            **kwargs,
         )
     except BaseException:
         tmp.cleanup()
@@ -91,7 +92,7 @@ def read_dbc_bytes(
     path: str,
     member: str = "",
     columns: frozenset[str] | None = None,
-    **kwargs: object,
+    **kwargs: Any,
 ) -> DecodedTable:
     """Decode a ``.dbc`` held in memory by staging it on disk for the decoder."""
     with tempfile.TemporaryDirectory(prefix="pegasus_dbc_") as tmp:
@@ -104,4 +105,4 @@ def read_dbc_bytes(
         raise DecodeError(f"dbc decompressed to an empty payload: {path}")
     return read_dbf_bytes(
         inflated, path=path, member=member, reader="dbc", columns=columns, **kwargs
-    )  # type: ignore[arg-type]
+    )

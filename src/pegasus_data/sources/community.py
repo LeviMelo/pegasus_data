@@ -181,7 +181,7 @@ def ingest(
         """,
         [(system, "", group, group, ref) for system, group, ref in bindings if group],
     )
-    by_system: dict[str, int] = {}
+    by_system: dict[str | None, int] = {}
     for entry in entries:
         by_system[entry.system] = by_system.get(entry.system, 0) + 1
     catalog.log_event(

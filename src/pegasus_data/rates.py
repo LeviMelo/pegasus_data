@@ -50,7 +50,11 @@ def _standard(name: str, settings: Any) -> dict[int, float]:
                                 settings=settings)
         weights: dict[int, float] = dict.fromkeys(BANDS, 0.0)
         for age, people in zip(table.column("age").to_pylist(), table.column("population").to_pylist(), strict=True):
-            weights[_band(age)] += float(people or 0)
+            band = _band(age)
+            if band is None:
+                # Unknown age has no band; a standard is the age-known structure.
+                continue
+            weights[band] += float(people or 0)
         return weights
     raise ValueError("standard is who2000 or brazil2022")
 
@@ -102,7 +106,7 @@ def age_standardised_rates(
     states = ([uf] if isinstance(uf, str) else list(uf)) if uf else (sorted({g[:2] for g, _ in cases}) if by else None)
     population = load_population(series="POPSVS", years=year, uf=states,
                                  by=("municipality", "year", "sex", "age"), settings=settings)
-    people: dict[tuple[str, int], float] = {}
+    people: dict[tuple[str, int | None], float] = {}
     for municipality, s, a, n in zip(population.column("municipality").to_pylist(), population.column("sex").to_pylist(),
                                      population.column("age").to_pylist(), population.column("population").to_pylist(),
                                      strict=True):

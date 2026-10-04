@@ -21,6 +21,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
+from typing import Any
 
 from ..catalog.store import CatalogStore
 
@@ -81,7 +82,7 @@ class Stratum:
         return min(self.paths, key=lambda p: (rank(p), self.sizes.get(p, 1 << 62), p))
 
 
-def build_strata(rows: Iterable[dict[str, object]]) -> list[Stratum]:
+def build_strata(rows: Iterable[dict[str, Any]]) -> list[Stratum]:
     """Group parsed file facts into ``(system, series, year)`` strata.
 
     Files whose year could not be decided (an ambiguous directory convention)

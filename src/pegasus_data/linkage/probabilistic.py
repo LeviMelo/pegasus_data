@@ -84,7 +84,7 @@ class Inherit:
 @dataclass(frozen=True, slots=True)
 class ProbabilisticSpec:
     compare: tuple[Comparison, ...]
-    blocks: tuple[tuple[tuple[str, str], ...], ...]
+    blocks: tuple[tuple[tuple[str, ...], ...], ...]
     target_fdr: float = 0.01
     control_role: str = ""
     inherit: tuple[Inherit, ...] = ()
@@ -250,7 +250,7 @@ def typo_variants(dates: pa.Array) -> tuple[np.ndarray, pa.Array]:
 def _typo_view(con: duckdb.DuckDBPyConnection, left_view: str, role: str) -> str:
     """A temp table of (_id, variant) for one date role of one left view."""
     name = f"typo_{left_view}_{abs(hash(role)) % 10**8}"
-    exists = con.execute(f"SELECT count(*) FROM information_schema.tables WHERE table_name = '{name}'").fetchone()[0]
+    exists = con.execute(f"SELECT count(*) FROM information_schema.tables WHERE table_name = '{name}'").fetchone()[0]  # type: ignore[index]
     if not exists:
         base = con.execute(f"SELECT DISTINCT _id, {_q(role)} AS d FROM {left_view} WHERE {_q(role)} IS NOT NULL").to_arrow_table()
         idx, variants = typo_variants(base.column("d").combine_chunks())
@@ -299,8 +299,8 @@ def _select_values(left_view: str, pairs_sql: str, compare, setting: bool = Fals
         JOIN R r ON r._id = p.r"""
 
 
-def _batch_levels(batch: pa.RecordBatch, compare) -> list[np.ndarray]:
-    out = []
+def _batch_levels(batch: pa.RecordBatch, compare) -> list[Levels]:
+    out: list[Levels] = []
     for i, c in enumerate(compare):
         a = batch.column(f"v{i}_l")
         if c.kind == "interval":
@@ -311,7 +311,7 @@ def _batch_levels(batch: pa.RecordBatch, compare) -> list[np.ndarray]:
     return out
 
 
-def _factorize(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def _factorize(values: np.ndarray | Levels) -> tuple[np.ndarray, np.ndarray]:
     """Integer codes and the distinct values, in one hash pass (no sort, no
     copy to fixed-width strings: np.unique on object arrays was a fifth of a
     link's time, profile 2026-10-03)."""
@@ -321,13 +321,13 @@ def _factorize(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return codes, np.asarray(names, dtype=object)
 
 
-def _counts(lv: np.ndarray) -> dict[str, int]:
+def _counts(lv: np.ndarray | Levels) -> dict[str, int]:
     codes, names = _factorize(lv)
     n = np.bincount(codes, minlength=len(names))
     return {str(k): int(c) for k, c in zip(names, n, strict=True) if c and str(k) != MISSING}
 
 
-def _distribution(lv: np.ndarray) -> tuple[dict[str, float], int]:
+def _distribution(lv: np.ndarray | Levels) -> tuple[dict[str, float], int]:
     counts = _counts(lv)
     total = sum(counts.values())
     if not total:
@@ -342,7 +342,7 @@ def _distributions_stream(con, sql: str, compare) -> list[tuple[dict[str, float]
     past 40 GB on a 32 GB machine (2026-10-03). Counting is exact and bounded."""
     from collections import Counter
 
-    counts = [Counter() for _ in compare]
+    counts: list[Counter[str]] = [Counter() for _ in compare]
     for batch in con.execute(sql).fetch_record_batch(1_000_000):
         if not batch.num_rows:
             continue
@@ -356,7 +356,7 @@ def _distributions_stream(con, sql: str, compare) -> list[tuple[dict[str, float]
     return out
 
 
-def _bits_of(fm: FieldModel, lv: np.ndarray) -> np.ndarray:
+def _bits_of(fm: FieldModel, lv: np.ndarray | Levels) -> np.ndarray:
     codes, names = _factorize(lv)
     return np.array([fm.bits(str(n)) for n in names])[codes]
 
@@ -583,7 +583,7 @@ def _exact_equal(con: duckdb.DuckDBPyConnection, comp, u: dict[str, float]) -> d
             WITH a AS (SELECT {left} AS v, count(*) AS c FROM L WHERE {left} IS NOT NULL GROUP BY 1),
                  b AS (SELECT {right} AS v, count(*) AS c FROM R WHERE {right} IS NOT NULL GROUP BY 1)
             SELECT (SELECT sum(c) FROM a), (SELECT sum(c) FROM b),
-                   (SELECT sum(a.c * b.c) FROM a JOIN b ON a.v = b.v)""").fetchone()
+                   (SELECT sum(a.c * b.c) FROM a JOIN b ON a.v = b.v)""").fetchone() or (None, None, None)
     except duckdb.Error:
         return u
     if not n_l or not n_r:
@@ -681,10 +681,10 @@ def run_probabilistic(spec: LinkSpec, prob: ProbabilisticSpec, left: pa.Table, r
         others = [c for c in prob.compare if c is not comp and c.is_key]
         anchor_sql, _ = _anchor_sql(others, prob.control_role, shift=False)
         control_sql, has_control = _anchor_sql(others, prob.control_role, shift=True)
-        n_anchor = con.execute(f"SELECT count(*) FROM ({anchor_sql})").fetchone()[0]
-        n_anchor_control = con.execute(f"SELECT count(*) FROM ({control_sql})").fetchone()[0] if has_control else 0
+        n_anchor = con.execute(f"SELECT count(*) FROM ({anchor_sql})").fetchone()[0]  # type: ignore[index]
+        n_anchor_control = con.execute(f"SELECT count(*) FROM ({control_sql})").fetchone()[0] if has_control else 0  # type: ignore[index]
         anchors = con.execute(_select_values("L", anchor_sql, [comp], setting=with_setting)).to_arrow_table()
-        anchor_levels = (_batch_levels(anchors.combine_chunks().to_batches()[0], [comp])[0] if anchors.num_rows
+        anchor_levels: Any = (_batch_levels(anchors.combine_chunks().to_batches()[0], [comp])[0] if anchors.num_rows
                          else np.array([], dtype=object))
         m, n_m = _distribution(anchor_levels)
         fm = FieldModel(comp, m, u, anchors=n_m, controls=n_u)
@@ -764,8 +764,11 @@ def _inherited(table: pa.Table, dataset: str, items: list[Inherit], *, period: o
         # each the scope's own, else the national one, which covers every
         # slice's records (theory §3.2). A year with neither leaves its
         # records without the inherited value: missing, not evidence.
+        span = _period(period)
+        if span is None:
+            raise ValueError("an inherited link is read per year: pass a period")
         found, years = [], []
-        for year in _period(period).years:
+        for year in span.years:
             run = (store.load(settings, stored_key(item.via, "probabilistic", str(year), geography))
                    or store.load(settings, stored_key(item.via, "probabilistic", str(year), "BR")))
             if run is not None:

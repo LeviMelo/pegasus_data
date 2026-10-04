@@ -40,7 +40,7 @@ import pyarrow.compute as pc
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from .catalog.store import CatalogStore
-    from .view import RenderReport
+    from .view import RenderMode, RenderReport
 
 __all__ = ["Group", "merge_reports", "render_groups", "split_by_year_column", "split_by_source"]
 
@@ -195,7 +195,7 @@ def render_groups(
     lake_root: str | Path,
     system: str,
     profile: str | Any = "analysis",
-    render: Mapping[str, str] | None = None,
+    render: Mapping[str, RenderMode] | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict: bool = False,

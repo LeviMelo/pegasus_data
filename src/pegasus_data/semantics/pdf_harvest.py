@@ -147,7 +147,12 @@ def _accept_value_run(pairs: Sequence[tuple[str, str]]) -> list[tuple[str, str]]
     if len(pairs) < 2:
         return []
     seen: set[str] = set()
-    unique = [(c, lbl) for c, lbl in pairs if not (c in seen or seen.add(c))]
+    unique: list[tuple[str, str]] = []
+    for c, lbl in pairs:
+        if c in seen:
+            continue
+        seen.add(c)
+        unique.append((c, lbl))
     if len(unique) < 2:
         return []
     if all(c.isdigit() for c, _ in unique):
@@ -238,8 +243,8 @@ def extract_text(data: bytes) -> Iterator[str]:
         from pypdf import PdfReader
 
         reader = PdfReader(io.BytesIO(data))
-        for page in reader.pages:
-            yield page.extract_text() or ""
+        for pdf_page in reader.pages:
+            yield pdf_page.extract_text() or ""
     except ImportError as exc:
         raise RuntimeError("pypdf or pdfplumber is required to harvest PDFs") from exc
 

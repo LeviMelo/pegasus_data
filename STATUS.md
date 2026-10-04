@@ -284,9 +284,8 @@ OQ-64), 1990s SIH V-codes.
 - **Speed.** Of a 17-second state-year, rendering is 15 s: label tables
   (6), the pack and reference reads (2.5), decoding (2.7); imports cost ~1.5 s
   per process, pandas included (pyarrow loads it).
-- **Carried:**
-  - mypy;
-  - splitting `cli`, `retrieve` and `view`.
+- **Carried:** splitting `cli`, `retrieve` and `view`. (`mypy src/pegasus_data`
+  is clean since 2026-10-04.)
 
 ## Waiting on the user
 

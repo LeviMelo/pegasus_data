@@ -189,7 +189,7 @@ class Builder:
                 members_by_digest.setdefault(digest, set()).add(
                     str(item["member"] or "")
                 )
-        decoded_outcomes: dict[str, object] = {}
+        decoded_outcomes: dict[str, Any] = {}
 
         def _normalised() -> Iterator[pa.RecordBatch]:
             """Decode and normalise one member at a time, YIELDING as we go.

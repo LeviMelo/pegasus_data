@@ -88,22 +88,22 @@ def suggest(
     semantics = semantics_for(dataset)
     geo_fields = {
         str(f)
-        for body in (semantics.geography_bindings() or {}).values()
+        for body in ((semantics.geography_bindings() if semantics else None) or {}).values()
         for f in (body.get("fields") or ())
     }
     time_fields = {
         str(f)
-        for body in (semantics.time_bindings() or {}).values()
+        for body in ((semantics.time_bindings() if semantics else None) or {}).values()
         for f in (body.get("fields") or ())
     }
     # The DEFAULT bindings, not an alphabetical accident: the cost curve must
     # be priced against the same key the artifact will actually use.
-    geography = semantics.geography_bindings() or {}
-    times = semantics.time_bindings() or {}
+    geography = (semantics.geography_bindings() if semantics else None) or {}
+    times = (semantics.time_bindings() if semantics else None) or {}
     default_geo = str(getattr(semantics, "default_geography", "") or "")
     default_time = str(getattr(semantics, "default_time", "") or "")
-    geo_body = geography.get(default_geo) or next(iter(geography.values()), {})
-    time_body = times.get(default_time) or next(iter(times.values()), {})
+    geo_body: dict[str, Any] = geography.get(default_geo) or next(iter(geography.values()), {})
+    time_body: dict[str, Any] = times.get(default_time) or next(iter(times.values()), {})
     geo = str((geo_body.get("fields") or [None])[0] or "") or None
     time_parts = [str(f) for f in (time_body.get("fields") or ())]
 

@@ -127,7 +127,7 @@ def build_entities(*, period: object, geography: object, method: str = "probabil
             stats["already_one_person"] += 1
             continue
         merged = kinds[a] + kinds[b]
-        broken = [k for k in AT_MOST_ONE if merged[k] > 1]
+        broken: list[tuple[Any, ...]] = [k for k in AT_MOST_ONE if merged[k] > 1]
         if all(merged[k] for k in EXCLUSIVE):
             broken.append(EXCLUSIVE)
         if broken:

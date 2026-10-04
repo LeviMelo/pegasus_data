@@ -321,7 +321,7 @@ def capabilities(
     return built
 
 
-_CAPABILITY_CACHE: dict[tuple[str, str, int], Capability] = {}
+_CAPABILITY_CACHE: dict[tuple[str, str, int, int, int], Capability] = {}
 
 
 def _capabilities_uncached(
@@ -463,7 +463,7 @@ def _capabilities_uncached(
     # What this build could have SEEN. Distinct from what it found: a
     # municipality outside the fetched UFs was never in view, and reading its
     # absence as a zero turns one state into a country.
-    observed = sorted({str(code)[:2] for code in cells.column("municipality").to_pylist() if code})
+    observed_ufs = sorted({str(code)[:2] for code in cells.column("municipality").to_pylist() if code})
     declared_uf = [str(u).upper() for u in (manifest.get("uf") or ())]
     coverage = {
         "kind": "partial" if declared_uf else "unknown",
@@ -472,7 +472,7 @@ def _capabilities_uncached(
         # a national build of a rare condition also touches few states.
         "declared_ufs": declared_uf,
         # The UF prefixes actually present, which is a measurement either way.
-        "observed_ufs": observed,
+        "observed_ufs": observed_ufs,
         "municipalities": len({str(c) for c in cells.column("municipality").to_pylist() if c}),
         "note": (
             f"Construído apenas a partir de {', '.join(declared_uf)}. "
@@ -482,7 +482,7 @@ def _capabilities_uncached(
         ),
     }
     if not declared_uf:
-        coverage["kind"] = "national" if len(observed) >= 25 else "unknown"
+        coverage["kind"] = "national" if len(observed_ufs) >= 25 else "unknown"
 
     declared = classifications(Path(root) if root else None)
     # `uf` is BOTH a base grain and an IBGE classification, so the two lists

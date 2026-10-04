@@ -35,7 +35,7 @@ from typing import Any
 import pyarrow as pa
 
 from .config import Settings, load_settings
-from .view import RenderReport, render_table
+from .view import RenderMode, RenderReport, render_table
 
 __all__ = ["translate", "TranslationImpossible"]
 
@@ -124,7 +124,7 @@ def translate(
     series: str | None = None,
     year: int | None = None,
     profile: str = "analysis",
-    render: Mapping[str, str] | None = None,
+    render: Mapping[str, RenderMode] | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict: bool = False,

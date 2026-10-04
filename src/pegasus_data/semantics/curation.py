@@ -102,7 +102,7 @@ class VariableDoc:
     #: maintainer of the row's establishment, named by the registry's
     #: ``maintainer`` for the row's CNES: {column: CNES, table: CADGERBR,
     #: field: maintainer} (ADR-0094).
-    label_via: dict[str, str] | None = None
+    label_via: dict[str, str | list[str]] | None = None
 
     def as_row(self) -> tuple[object, ...]:
         return (
@@ -768,7 +768,7 @@ def _apply_prefix_overrides(catalog: CatalogStore, mapping: dict[str, str]) -> i
 # ------------------------------------------------------------------- coverage
 
 
-def coverage_by_rung(catalog: CatalogStore) -> list[dict[str, object]]:
+def coverage_by_rung(catalog: CatalogStore) -> list[dict[str, Any]]:
     """Variables documented per system, by which rung of evidence supplied them.
 
     The denominator is fields the catalog has actually observed, not fields some
@@ -803,7 +803,7 @@ def coverage_by_rung(catalog: CatalogStore) -> list[dict[str, object]]:
         harvested.setdefault((str(r["system"]), str(r["field_name"])), "def")
 
     systems = sorted({s for s, _ in observed})
-    out: list[dict[str, object]] = []
+    out: list[dict[str, Any]] = []
     for system in systems:
         fields = {f for s, f in observed if s == system}
         counts: dict[str, int] = {}

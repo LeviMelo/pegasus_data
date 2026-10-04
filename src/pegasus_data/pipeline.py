@@ -21,6 +21,7 @@ import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
+from typing import Any
 
 from .acquire.cache import BlobStore
 from .acquire.fetcher import Fetcher
@@ -158,7 +159,7 @@ SEED_QUESTIONS: tuple[dict[str, str], ...] = (
 class StageResult:
     stage: str
     ok: bool = True
-    counts: dict[str, object] = field(default_factory=dict)
+    counts: dict[str, Any] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, object]:
@@ -309,7 +310,7 @@ class Pipeline:
         loose = find_loose_dictionaries(self.catalog, systems=systems)
         if limit:
             kits = kits[:limit]
-        counts: dict[str, object] = {
+        counts: dict[str, Any] = {
             "kits_found": len(kits),
             "loose_dictionaries": len(loose),
             "kits_ingested": 0,
@@ -525,7 +526,7 @@ class Pipeline:
         }
 
     def _close_semantic_questions(
-        self, counts: dict[str, object], kit_reports: list[dict[str, object]]
+        self, counts: dict[str, Any], kit_reports: list[dict[str, object]]
     ) -> None:
         if int(counts.get("kits_ingested", 0)):
             self.catalog.resolve_question(
@@ -588,7 +589,7 @@ class Pipeline:
             plan = plan[:limit]
         refs = load_reference_sets(self.catalog)
         registry = ReaderRegistry(row_limit=row_limit or self.settings.profile_row_limit)
-        counts = {
+        counts: dict[str, Any] = {
             "strata": len(plan), "profiled": 0, "failed": 0, "tables": 0,
             "families_profiled": 0, "schema_only": 0,
         }
@@ -864,7 +865,9 @@ class Pipeline:
             fresh.connect()
             return fresh
 
-        counts = run_file_census(self.catalog, _connect, targets, workers=workers, on_item=on_item) if targets else {}
+        counts: dict[str, Any] = (
+            run_file_census(self.catalog, _connect, targets, workers=workers, on_item=on_item) if targets else {}
+        )
         if archives:
             # Every multi-table archive's own member list (ADR-0103); run
             # `inventory` and `families` after it so membership follows it.

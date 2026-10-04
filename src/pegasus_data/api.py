@@ -22,7 +22,7 @@ import json
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa
 import pyarrow.dataset as ds
@@ -49,6 +49,7 @@ from .view import (
     COMPANION_SUFFIXES,
     PROFILES,
     LabelUnavailable,
+    RenderMode,
     RenderReport,
 )
 
@@ -364,7 +365,7 @@ def _by_vintage(table: pa.Table, years: Sequence[int] | None):
     if len(usable) <= 1:
         only = usable[0] if usable else (min(years) if years else None)
         return [(table, only)]
-    out = []
+    out: list[tuple[pa.Table, int | None]] = []
     for year in usable:
         mask = pc.equal(table.column("year"), year)
         chunk = table.filter(mask)
@@ -449,7 +450,7 @@ def _resolve_family(store: _Store, system: str, series: str | None, field_name: 
         onto = _ontology()
         target = onto.resolve(f"{system}.{series}") if onto else None
         bound: list[dict[str, Any]] = []
-        if target and target[0] == "dataset":
+        if onto and target and target[0] == "dataset":
             code = target[1].code
             bound = [
                 f
@@ -855,7 +856,7 @@ def _physical_columns(cat: Catalog, system: str, family_id: str) -> set[str]:
 
 def _read_generations(
     cat: Catalog,
-    families: Sequence[Mapping[str, object]],
+    families: Sequence[Mapping[str, Any]],
     *,
     system: str,
     uf: Sequence[str] | None,
@@ -967,7 +968,7 @@ def load(
     root: str | Path | None = None,
     settings: Settings | None = None,
     profile: str = "analysis",
-    render: Mapping[str, str] | None = None,
+    render: Mapping[str, RenderMode] | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
@@ -1600,7 +1601,7 @@ def export(
     settings: Settings | None = None,
     profile: str = "audit",
     present: object = None,
-    render: Mapping[str, str] | None = None,
+    render: Mapping[str, RenderMode] | None = None,
     companions: bool | Sequence[str] | None = None,
     derived: bool | Sequence[str] | None = None,
     strict_labels: bool = False,
@@ -1702,7 +1703,7 @@ def export(
             )
         scan_result = scan(
             system,
-            series,
+            cast("str | None", series),
             uf=uf,
             years=years,
             columns=columns,
@@ -1723,7 +1724,7 @@ def export(
 
     table = load(
         system,
-        series,
+        cast("str | None", series),
         uf=uf,
         years=years,
         columns=columns,

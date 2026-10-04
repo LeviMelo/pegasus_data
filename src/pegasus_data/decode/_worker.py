@@ -30,7 +30,7 @@ from __future__ import annotations
 import json
 import struct
 import sys
-from typing import BinaryIO
+from typing import Any, BinaryIO
 
 _LEN = struct.Struct(">I")
 
@@ -75,7 +75,7 @@ def _field_meta(field: object) -> dict[str, object]:
     }
 
 
-def _run_job(job: dict[str, object], out: BinaryIO) -> None:
+def _run_job(job: dict[str, Any], out: BinaryIO) -> None:
     import pyarrow as pa
 
     from .registry import ReaderRegistry

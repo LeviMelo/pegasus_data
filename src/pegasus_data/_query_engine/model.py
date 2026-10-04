@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from ..crosswalk import EnrichmentReport, EnrichmentRequest
 from ..providers import ResourceRequirement
@@ -150,8 +150,8 @@ class QueryPlan:
             )
         for item in self.spec.dimensions:
             lines.append(f"Dimension: {item.field}.{item.name}")
-        for item in self.spec.enrichments:
-            lines.append(f"Enrichment: {item.from_field or 'inferred'} -> {item.target}")
+        for enrichment in self.spec.enrichments:
+            lines.append(f"Enrichment: {enrichment.from_field or 'inferred'} -> {enrichment.target}")
         for requirement in self.semantics.resource_requirements:
             state = "local" if requirement.local else "missing"
             estimate = (
@@ -224,7 +224,7 @@ def _period(value: object) -> Period | None:
     end, end_precision = parse(values[-1], end=True)
     if start > end:
         raise ValueError("period start is after its end")
-    precision = "month" if "month" in {start_precision, end_precision} else "year"
+    precision: Literal["year", "month"] = "month" if "month" in {start_precision, end_precision} else "year"
     return Period(start, end, precision)
 
 
@@ -232,7 +232,7 @@ def _geography(value: object) -> Geography | None:
     if value is None:
         return None
     def ufs(items: object) -> tuple[str, ...]:
-        parts = items.replace(";", ",").split(",") if isinstance(items, str) else list(items)  # type: ignore[attr-defined]
+        parts = items.replace(";", ",").split(",") if isinstance(items, str) else list(cast("Iterable[object]", items))
         return tuple(dict.fromkeys(str(p).strip().upper() for p in parts if str(p).strip()))
 
     if isinstance(value, str):

@@ -26,6 +26,7 @@ import os
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from ..catalog.store import CatalogStore, utcnow
 from ..decode.header import (
@@ -97,7 +98,7 @@ def census_targets(
     systems: Sequence[str] | None = None,
     only_missing: bool = True,
     stratum_ids: Sequence[str] | None = None,
-) -> list[dict[str, object]]:
+) -> list[dict[str, Any]]:
     """The stratum's own recorded sample, one file per stratum.
 
     The sample is chosen once, by :meth:`Stratum.sample_path` (a header the
@@ -207,7 +208,7 @@ def persist_header(
 def run_census(
     catalog: CatalogStore,
     fetch_prefix: Callable[[str, int], bytes],
-    targets: Sequence[dict[str, object]],
+    targets: Sequence[dict[str, Any]],
     *,
     on_item: Callable[[str], None] | None = None,
     fetch_range: Callable[[str, int, int], bytes] | None = None,
@@ -352,7 +353,7 @@ def run_census(
     return census
 
 
-def census_summary(catalog: CatalogStore) -> list[dict[str, object]]:
+def census_summary(catalog: CatalogStore) -> list[dict[str, Any]]:
     """Schema generations per (system, series), from the census plus the samples."""
     return [
         dict(r)
@@ -576,12 +577,12 @@ def file_census_targets(
 
 def run_file_census(
     catalog: CatalogStore,
-    connect: Callable[[], object],
+    connect: Callable[[], Any],
     paths: Sequence[str],
     *,
     workers: int = 8,
     on_item: Callable[[int, int], None] | None = None,
-) -> dict[str, int]:
+) -> dict[str, Any]:
     """Read every path's header on ``workers`` FTP connections; record each file's schema.
 
     CatalogStore writes stay on this thread (SQLite); workers only fetch and parse.
@@ -611,7 +612,7 @@ def run_file_census(
             local.client = None
             return path, None, f"{type(exc).__name__}: {exc}"[:300], 0
 
-    counts = {"examined": 0, "read": 0, "failed": 0, "bytes": 0}
+    counts: dict[str, Any] = {"examined": 0, "read": 0, "failed": 0, "bytes": 0}
     pending: list[tuple[object, ...]] = []
 
     def _flush() -> None:
@@ -706,12 +707,12 @@ def list_lha_members(
 
 def run_archive_member_census(
     catalog: CatalogStore,
-    connect: Callable[[], object],
+    connect: Callable[[], Any],
     paths: Sequence[str],
     *,
     workers: int = 4,
     on_item: Callable[[int, int], None] | None = None,
-) -> dict[str, int]:
+) -> dict[str, Any]:
     """List every archive's members by ranged header reads; record them."""
     import threading
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -749,7 +750,7 @@ def run_archive_member_census(
             local.client = None
             return path, None, f"{type(exc).__name__}: {exc}"[:300]
 
-    counts = {"examined": 0, "listed": 0, "failed": 0, "members": 0}
+    counts: dict[str, Any] = {"examined": 0, "listed": 0, "failed": 0, "members": 0}
     with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="members") as pool:
         futures = [pool.submit(_list, p) for p in paths]
         for done, future in enumerate(as_completed(futures), start=1):

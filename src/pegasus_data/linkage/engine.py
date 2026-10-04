@@ -252,12 +252,12 @@ def _prepare(con: duckdb.DuckDBPyConnection, name: str, table: pa.Table, side: S
                 f"INTERVAL 1 DAY)) AS DATE) AS {_q(new)} FROM ({base}) WHERE {_q(start)} IS NOT NULL "
                 f"AND {_q(end)} IS NOT NULL AND {_q(end)} >= {_q(start)} AND {_q(end)} - {_q(start)} <= 120")
     con.execute(f"CREATE OR REPLACE TEMP VIEW {name} AS {base}")
-    return con.execute(f"SELECT count(DISTINCT _id) FROM {name}").fetchone()[0]
+    return con.execute(f"SELECT count(DISTINCT _id) FROM {name}").fetchone()[0]  # type: ignore[index]
 
 
 def _join(con: duckdb.DuckDBPyConnection, keys: tuple[tuple[str, str], ...], shift: tuple[str, int] | None) -> str:
     """SQL for the 1:1 join of the still-unlinked records on `keys`."""
-    lk = []
+    lk: list[str] = []
     for left, _right in keys:
         expr = _q(left)
         if shift and left == shift[0]:
@@ -283,7 +283,7 @@ def run(spec: LinkSpec, left: pa.Table, right: pa.Table) -> LinkResult:
     reports: list[PassReport] = []
     for p in spec.passes:
         real = con.execute(f"SELECT * FROM ({_join(con, p.keys, None)})").to_arrow_table()
-        control = con.execute(
+        control = con.execute(  # type: ignore[index]
             f"SELECT count(*) FROM ({_join(con, p.keys, (spec.control_role, spec.control_shift_days))})"
         ).fetchone()[0]
         n = real.num_rows
@@ -323,8 +323,8 @@ def validate(con: duckdb.DuckDBPyConnection, spec: LinkSpec) -> dict[str, dict[s
             FROM linked k JOIN (SELECT DISTINCT ON (_id) * FROM L) l ON l._id = k.l
                           JOIN (SELECT DISTINCT ON (_id) * FROM R) r ON r._id = k.r
             WHERE {usable}""").fetchone()
-        validations[v.name] = {"pairs_compared": int(row[0]),
-                               "agreement_percent": round(100.0 * row[1], 2) if row[1] is not None else None}
+        validations[v.name] = {"pairs_compared": int(row[0]),  # type: ignore[index]
+                               "agreement_percent": round(100.0 * row[1], 2) if row[1] is not None else None}  # type: ignore[index]
     return validations
 
 

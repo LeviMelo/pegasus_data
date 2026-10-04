@@ -35,7 +35,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from ..catalog.store import CatalogStore, utcnow
 from ..inventory.naming import UF_CODES
@@ -280,6 +280,7 @@ def compile_bindings(
     strings). Curated fields are recorded as ``curated`` with their measured
     coverage; they are never re-decided.
     """
+    import pyarrow as pa
     import pyarrow.compute as pc
 
     from ..retrieve import fetch
@@ -325,12 +326,12 @@ def compile_bindings(
             if on_progress:
                 on_progress(f"{family_id}: {sample['path']}")
             try:
-                table = fetch(
+                table = cast("pa.Table", fetch(
                     system, series=series or None, uf=sample["geo_code"] or None,
                     years=[int(sample["year"])], months=[month] if month else None,
                     labels=False, provenance=True, settings=settings, max_bytes=None,
                     on_missing_column="null_fill", _only_paths=[str(sample["path"])],
-                )
+                ))
             except Exception as exc:  # noqa: BLE001 - one bad sample is not the compile
                 counts["failed"] += 1
                 if on_progress:
@@ -448,15 +449,15 @@ def _record_gaps(
     for codelist in decision.codelists:
         for code, label in (load(codelist) or {}).items():
             labels.setdefault(code, label)
-    rows = []
+    rows: list[tuple[Any, ...]] = []
     now = utcnow()
     joined = ",".join(decision.codelists)
     for code, n in values.items():
-        label = labels.get(code)
-        if label is None:
+        found = labels.get(code)
+        if found is None:
             rows.append((system, family_id, field_name, code, n, joined, now, "missing", None))
-        elif is_opaque(code, label):
-            rows.append((system, family_id, field_name, code, n, joined, now, "opaque", label))
+        elif is_opaque(code, found):
+            rows.append((system, family_id, field_name, code, n, joined, now, "opaque", found))
     if rows:
         store.executemany(
             "INSERT OR REPLACE INTO label_gaps (system, family_id, field_name, code, row_count, codelists, "

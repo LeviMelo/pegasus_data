@@ -23,6 +23,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 
 from .listing import ListingEntry, normalize_path, parse_list_lines, parse_nlst
@@ -301,7 +302,7 @@ class FtpClient:
             impl = impls[method]
             try:
                 entries = self._retrying(
-                    lambda i=impl: i(directory), what=f"{method} {directory}"
+                    partial(impl, directory), what=f"{method} {directory}"
                 )
                 assert isinstance(entries, list)
                 if method == "nlst" and any(e.is_dir is None for e in entries):

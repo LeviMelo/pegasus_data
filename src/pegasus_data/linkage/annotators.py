@@ -85,8 +85,8 @@ def fit(observations: pa.Table, *, max_iter: int = 200, tol: float = 1e-7, smoot
     keep = np.array([lb is not None for lb in label])
     person, setting, label = person[keep], setting[keep], label[keep]
     # Persons seen at least twice.
-    uniq, inv, counts = np.unique(person, return_inverse=True, return_counts=True)
-    multi = counts[inv] >= 2
+    uniq, inv, person_counts = np.unique(person, return_inverse=True, return_counts=True)
+    multi = person_counts[inv] >= 2
     person, setting, label = person[multi], setting[multi], label[multi]
     classes = sorted(set(label.tolist()))
     settings = sorted(set(setting.tolist()))
@@ -113,7 +113,7 @@ def fit(observations: pa.Table, *, max_iter: int = 200, tol: float = 1e-7, smoot
         # M step.
         prior = post.mean(axis=0)
         counts = np.zeros((n_s, n_k, n_k))
-        np.add.at(counts, (s_idx, slice(None), j_idx), post[p_inv])
+        np.add.at(counts, (s_idx, slice(None), j_idx), post[p_inv])  # type: ignore[arg-type]
         if group_of is not None:
             # Pool each group's counts, then shrink every member toward its group.
             pooled = np.zeros((n_g, n_k, n_k))

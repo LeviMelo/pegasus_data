@@ -1359,7 +1359,7 @@ def _reduce_over_time(working: Any, chosen: Sequence[Measure], group_by: Sequenc
                                                  for r in base.select(list(group_by)).to_pylist()], pa.float64())
             else:
                 agg = {"mean": "mean", "max": "max", "min": "min", "sum": "sum"}[how]
-                result[measure.name] = out.column(f"{measure.name}_{agg}")
+                result[measure.name] = base.column(f"{measure.name}_{agg}")
         return pa.table(result).sort_by([(emit_as[n], "ascending") for n in group_by])
     values: dict[str, Any] = {}
     for measure in chosen:
@@ -1469,10 +1469,10 @@ def _mask(filters: Mapping[str, Any], spec: AggregateSpec, table: Any,
             # forced clients to download geography x every dimension and
             # filter locally -- the cuboid, to answer a one-region question.
             distinct = tuple(sorted(set(pc.unique(geo_column).to_pylist())))
-            mapping, _contested = _classification_map(key, system, distinct)
-            keys = pa.array(list(mapping.keys()), pa.string())
+            class_map, _contested = _classification_map(key, system, distinct)
+            keys = pa.array(list(class_map.keys()), pa.string())
             values = pa.array(
-                [v if v is not None else "" for v in mapping.values()], pa.string())
+                [v if v is not None else "" for v in class_map.values()], pa.string())
             source = pc.take(values, pc.index_in(geo_column, value_set=keys))
         else:
             raise AggregationRefused(

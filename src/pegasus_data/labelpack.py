@@ -239,7 +239,7 @@ def build_label_pack(
 
     # (codelist, code) -> {system: label}, so a code every system labels the
     # same way can be stored once.
-    per_code: dict[tuple[str, str], dict[str, str]] = {}
+    per_code: dict[tuple[str, str, tuple[str, str]], dict[str, str]] = {}
     #: Which systems carry each codelist at all. Needed to tell "every system
     #: agrees" from "only one system has this code", which are not the same
     #: claim and only the first is safe to store as system-agnostic.
@@ -311,15 +311,15 @@ def build_label_pack(
             report.shared_across_systems += len(by_system) - 1
             flat.append((None, group, code, next(iter(distinct)), *window))
         else:
-            for system, label in by_system.items():
-                flat.append((system or None, group, code, label, *window))
+            for sys_name, sys_label in by_system.items():
+                flat.append((sys_name or None, group, code, sys_label, *window))
 
     # Merge consecutive numeric codes that share a label into one run.
     # Keyed by window too: two vintages of one codelist are two run sets, and
     # merging them would recreate the contradiction the warehouse avoids.
     buckets: dict[tuple[str | None, str, str, str], list[tuple[str, str]]] = {}
-    for system, group, code, label, valid_from, valid_to in flat:
-        buckets.setdefault((system, group, valid_from, valid_to), []).append((code, label))
+    for flat_system, group, code, label, valid_from, valid_to in flat:
+        buckets.setdefault((flat_system, group, valid_from, valid_to), []).append((code, label))
 
     sys_c, grp_c, lo_c, hi_c, lab_c, w_c = [], [], [], [], [], []
     vf_c: list[str] = []
@@ -353,17 +353,18 @@ def build_label_pack(
 
     for (system, group, valid_from, valid_to), pairs in buckets.items():
         pairs.sort()
-        lo = hi = label = None
+        lo = hi = ""
+        run_label: str | None = None
         for code, text in pairs:
-            if label is not None and text == label and _successor(hi) == code:
+            if run_label is not None and text == run_label and _successor(hi) == code:
                 hi = code
                 continue
-            if label is not None:
-                _emit(system, group, lo, hi, label, valid_from, valid_to)
+            if run_label is not None:
+                _emit(system, group, lo, hi, run_label, valid_from, valid_to)
             lo = hi = code
-            label = text
-        if label is not None:
-            _emit(system, group, lo, hi, label, valid_from, valid_to)
+            run_label = text
+        if run_label is not None:
+            _emit(system, group, lo, hi, run_label, valid_from, valid_to)
 
     table = pa.table(
         {

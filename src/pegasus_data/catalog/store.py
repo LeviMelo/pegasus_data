@@ -198,7 +198,7 @@ _CREATE_TABLE = re.compile(
 _CONSTRAINT_WORDS = {"primary", "foreign", "unique", "check", "constraint"}
 
 
-def _declared_constraints(schema: str) -> dict[str, dict[str, object]]:
+def _declared_constraints(schema: str) -> dict[str, dict[str, Any]]:
     """Table-level constraints the shipped schema declares, per table.
 
     ``_declared_columns`` deliberately skips any line beginning with a
@@ -258,7 +258,7 @@ def _column_list(fragment: str) -> list[str]:
     return [c.strip().strip('"') for c in inner.split(",") if c.strip()]
 
 
-def _actual_constraints(conn: sqlite3.Connection, table: str) -> dict[str, object]:
+def _actual_constraints(conn: sqlite3.Connection, table: str) -> dict[str, Any]:
     """The same shape, read from the installed database."""
     info = list(conn.execute(f"PRAGMA table_info({table})"))
     # PRAGMA reports pk as a 1-based position, so ordering is recoverable and a
@@ -342,11 +342,11 @@ def _structural_mismatches(conn: sqlite3.Connection, schema: str) -> list[str]:
         for name, decl in columns.items():
             if name not in actual:
                 continue
-            want = decl.split()[0].upper() if decl.split() else "TEXT"
+            want_type = decl.split()[0].upper() if decl.split() else "TEXT"
             have = actual[name]
-            if have and want and have != want:
+            if have and want_type and have != want_type:
                 problems.append(
-                    f"{table}.{name}: catalog has {have}, shipped schema declares {want}"
+                    f"{table}.{name}: catalog has {have}, shipped schema declares {want_type}"
                 )
         # TABLE-LEVEL constraints, which the column reader skips by design and
         # nothing else was reading. A composite key that changed order, a

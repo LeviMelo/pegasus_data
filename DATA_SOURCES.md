@@ -51,6 +51,9 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
     active mode is refused (`501`); `ftp2.datasus.gov.br` times out; ports
     80 and 443 are closed. The passive range is filtered on DATASUS's side,
     not by the client.
+  - **Still so on 2026-10-04** (143 probes since, none with data). From the
+    same machine, `ftp.ibge.gov.br` lists over passive mode, which rules
+    out the client side.
 - **The mirror carries 8 of the tree's top-level directories** (2026-10-03,
   its own index): CNES, SIASUS, SIHSUS, SINASC, SIM, SINAN, Dados_Abertos
   and ESUSNOTIFICA. It has no IBGE and no CIHA.

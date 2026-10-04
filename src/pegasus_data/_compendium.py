@@ -732,8 +732,8 @@ def _write_core(
     )
     report.rows["schema_generations"] = len(gen_rows)
     gens_per: dict[str, int] = {}
-    for row in gen_rows:
-        gens_per[row[0]] = gens_per.get(row[0], 0) + 1
+    for gen_row in gen_rows:
+        gens_per[gen_row[0]] = gens_per.get(gen_row[0], 0) + 1
 
     # --- datasets ---------------------------------------------------------
     docs = _dataset_docs(store, onto)
@@ -770,15 +770,15 @@ def _write_core(
 
     # --- systems ----------------------------------------------------------
     sys_rows = []
-    for code, node in sorted(onto.systems.items()):
+    for code, sys_node in sorted(onto.systems.items()):
         mine = [r for r in ds_rows if r[1] == code]
         if not mine and systems_scoped(wanted, onto, code):
             continue
         years = [r[13] for r in mine if r[13]] + [r[14] for r in mine if r[14]]
         sys_rows.append(
             (
-                code, node.official_name, node.translated_name, node.kind, node.status,
-                node.authority, node.what_it_is, len(mine),
+                code, sys_node.official_name, sys_node.translated_name, sys_node.kind, sys_node.status,
+                sys_node.authority, sys_node.what_it_is, len(mine),
                 sum(r[12] for r in mine), min(years) if years else None,
                 max(years) if years else None,
             )

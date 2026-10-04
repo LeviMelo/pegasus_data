@@ -194,7 +194,8 @@ def _establishments(raw: pa.Table) -> pa.Table:
     left in a name.
     """
     rows = raw.to_pylist()
-    kinds, cnpjs = [], []
+    kinds: list[str] = []
+    cnpjs: list[str | None] = []
     for r in rows:
         digits = re.sub(r"\D", "", str(r.get("CPF_CNPJ") or ""))
         if not digits or set(digits) == {"0"}:

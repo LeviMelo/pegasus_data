@@ -17,6 +17,7 @@ import json
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field
+from typing import Any
 
 from ..catalog.store import CatalogStore
 
@@ -220,7 +221,7 @@ def persist_renames(catalog: CatalogStore, candidates: list[RenameCandidate]) ->
     return len(rows)
 
 
-def field_availability(catalog: CatalogStore, system: str, series: str, field_name: str) -> dict[str, object]:
+def field_availability(catalog: CatalogStore, system: str, series: str, field_name: str) -> dict[str, Any]:
     """Where a field exists and where it does not — the loader's guard rail."""
     row = catalog.query(
         "SELECT signatures_json FROM schema_drift WHERE system=? AND series=?", (system, series)

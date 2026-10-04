@@ -32,6 +32,7 @@ import os
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import PurePosixPath
+from typing import Any
 
 from ..catalog.store import CatalogStore, utcnow
 from .cnv_parser import CnvFile
@@ -480,7 +481,7 @@ class DictionaryCache:
         self.catalog = catalog
         self._codelists: dict[tuple[str | None, str], list[str]] = {}
         self._values: dict[tuple[str | None, str], dict[str, str]] = {}
-        self._stats: dict[tuple[str | None, tuple[str, ...]], list[dict[str, object]]] = {}
+        self._stats: dict[tuple[str | None, tuple[str, ...]], list[dict[str, Any]]] = {}
         self._direct: dict[tuple[str | None, str], dict[str, str]] = {}
         self._hierarchical: dict[str, bool] = {}
 
@@ -511,7 +512,7 @@ class DictionaryCache:
             self._values[key] = codelist_values(self.catalog, codelist, system=system)
         return self._values[key]
 
-    def codelist_stats(self, codelists: Sequence[str], system: str | None) -> list[dict[str, object]]:
+    def codelist_stats(self, codelists: Sequence[str], system: str | None) -> list[dict[str, Any]]:
         key = (system, tuple(codelists))
         if key not in self._stats:
             self._stats[key] = codelist_stats(self.catalog, codelists, system=system)
@@ -663,7 +664,7 @@ def lookup(
 
 def codelist_stats(
     catalog: CatalogStore, codelists: Sequence[str], *, system: str | None = None
-) -> list[dict[str, object]]:
+) -> list[dict[str, Any]]:
     if not codelists:
         return []
     # Two sargable queries rather than one with an OR over the indexed leading
@@ -678,7 +679,7 @@ def codelist_stats(
     ]
     if system:
         queries.insert(0, (f"value_group IN ({slots}) AND system = ?", [*codelists, system]))
-    rows: list[dict[str, object]] = []
+    rows: list[dict[str, Any]] = []
     for where, params in queries:
         rows.extend(
             dict(r)
@@ -918,7 +919,7 @@ def rollups_for(
     field_name: str,
     observed: dict[str, int] | None = None,
     cache: DictionaryCache | None = None,
-) -> list[dict[str, object]]:
+) -> list[dict[str, Any]]:
     """Every codelist bound to a field, with how coarse each one is.
 
     This is the answer to "what else can this column be grouped by" — the
@@ -940,7 +941,7 @@ def rollups_for(
         if total and observed
         else {}
     )
-    out: list[dict[str, object]] = []
+    out: list[dict[str, Any]] = []
     for entry in stats:
         row = {
             "codelist": entry["codelist"],

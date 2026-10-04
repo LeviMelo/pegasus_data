@@ -22,7 +22,7 @@ class RepresentationConflictError(RuntimeError):
     """A logical publication has contradictory physical candidates."""
 
 
-def _majority_layout(catalog: CatalogStore, editions: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
+def _majority_layout(catalog: CatalogStore, editions: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     """Of editions in DIFFERENT layouts, those in the layout most of the dataset uses.
 
     SINASC publishes Roraima 1995 as DNRRR1995.dbc under 1994_1995/Dados and

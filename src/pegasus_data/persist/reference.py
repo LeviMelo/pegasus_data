@@ -41,6 +41,7 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -163,7 +164,7 @@ def _materialise_reference_tables(
     )
 
     current_key: tuple[str, str, str | None, str | None] | None = None
-    batch: list[tuple[object, ...]] = []
+    batch: list[tuple[Any, ...]] = []
 
     def _flush() -> None:
         # Any non-empty group is written. This used to require two rows, so a

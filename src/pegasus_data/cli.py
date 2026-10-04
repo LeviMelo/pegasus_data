@@ -607,7 +607,7 @@ def compendium_cmd(
     from ._compendium import compendium as _compendium
 
     report = _compendium(
-        out, systems=system, codes=codes, max_codes=max_codes,
+        out, systems=system, codes=codes, max_codes=max_codes,  # type: ignore[arg-type]
         values=values, files=files, root=root,
     )
     if as_json:

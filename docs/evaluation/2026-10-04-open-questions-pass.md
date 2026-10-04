@@ -131,3 +131,12 @@ The import of every module also found `linkage.store` and `linkage.entities` bro
 | `curation_root()` cached per cwd and environment | 15,522 `stat` calls walking up for config | year −0.8 s |
 
 Overall, one month went from 6.8 to 5.6 s and the state-year from 21.3 to 16.9 s (medians of 2–3 runs).
+
+**mypy, 238 errors to 0.** Most were annotations that were wrong or too narrow. `types-PyYAML` is now a dev dependency. Three latent bugs are fixed:
+- `suggest` called methods on a `None` semantics;
+- `rates`' Brazil-2022 standard raised `KeyError` on a population row with no age, which now has no band;
+- an inherited link with no period raised `AttributeError`; it now raises a `ValueError` that says what is missing.
+
+The four-dataset render is identical cell for cell. `cli_query`, `metadata` and `sih_2016` are ok (`data/probes/live/2026-10-04-mypy`).
+
+**`timeline` on RR 2022** (`data/probes/live/2026-10-04-mypy4`) had not passed since 09-30. It needs the stored delivery link for 2021 and 2022: the newborn link's padded period inherits it (ADR-0121). The scenario now links it first. Then it crashed on CIHA, which has never published a Roraima file (26 states in 2022). A partner unpublished at the scope is now named in `not_viable` with DATASUS's own message. Result: 5 notable births; the first carries a delivery admission, birth, neonatal admission and infant death.

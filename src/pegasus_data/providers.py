@@ -115,17 +115,17 @@ class LocalCnesRegistryProvider:
                     from .decode.base import logical_source_id
 
                     covered_identities: set[tuple[str, str, str]] = set()
-                    for row in publication_rows:
-                        family = str(row["family_id"])
-                        path = str(row["path"])
-                        member = str(row.get("member") or "")
+                    for pub in publication_rows:
+                        family = str(pub["family_id"])
+                        path = str(pub["path"])
+                        member = str(pub.get("member") or "")
                         if (family, logical_source_id(path, member)) in covered_paths or (
                             not member and (family, path) in covered_paths
                         ):
                             covered_identities.add(
                                 (
                                     family,
-                                    str(row.get("logical_id") or path),
+                                    str(pub.get("logical_id") or path),
                                     member,
                                 )
                             )
@@ -137,13 +137,13 @@ class LocalCnesRegistryProvider:
                 if period:
                     where += "AND file_facts.year BETWEEN ? AND ? "
                     parameters = [period[0] // 100, period[1] // 100]
-                row = store.query(
+                total_rows = store.query(
                     "SELECT COALESCE(SUM(files.size),0) total FROM files "
                     "JOIN file_facts ON file_facts.path=files.path "
                     f"{where}AND file_facts.role='data'",
                     parameters,
                 )
-                estimate = int(row[0]["total"] or 0) if row else None
+                estimate = int(total_rows[0]["total"] or 0) if total_rows else None
             finally:
                 store.close()
         return ResourceRequirement(
@@ -162,7 +162,7 @@ class LocalCnesNamesProvider:
         try:
             record = ResourceManager(settings).ensure(self.name, period=period)
             available = True
-            estimate = record.bytes
+            estimate: int | None = record.bytes
         except FileNotFoundError:
             available = False
             estimate = path.stat().st_size if path.is_file() else None

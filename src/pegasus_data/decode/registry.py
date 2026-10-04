@@ -175,11 +175,11 @@ class ReaderRegistry:
             if produced is None:
                 outcome.attempts.append(DecodeAttempt(name, False, "reader returned nothing"))
                 continue
-            tables, members = produced
+            tables, found_members = produced
             outcome.attempts.append(DecodeAttempt(name, True))
             outcome.tables.extend(tables)
-            outcome.members.extend(members)
-            if tables or members:
+            outcome.members.extend(found_members)
+            if tables or found_members:
                 self._drain_member_failures(outcome)
                 return outcome
         self._drain_member_failures(outcome)

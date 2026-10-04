@@ -21,6 +21,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from typing import Any
 
 from ..catalog.store import CatalogStore, utcnow
 
@@ -168,7 +169,7 @@ def detect_moves(
         return []
     moves: list[tuple[str, str, str]] = []
     rows: list[tuple[object, ...]] = []
-    unmatched: list[dict[str, object]] = []
+    unmatched: list[dict[str, Any]] = []
 
     for path in gone_paths:
         prior = catalog.query(
@@ -206,8 +207,8 @@ def detect_moves(
     # Second pass: renames. Only files that arrived in this crawl are eligible,
     # and only fingerprints that are complete and unique.
     claimed = {m[1] for m in moves}
-    for p in unmatched:
-        if p["size"] is None or p["modified"] is None:
+    for u in unmatched:
+        if u["size"] is None or u["modified"] is None:
             continue
         candidates = catalog.query(
             """
@@ -216,7 +217,7 @@ def detect_moves(
                AND filename != ?
                AND (? IS NULL OR first_seen >= ?)
             """,
-            (p["size"], p["modified"], p["path"], p["filename"], since, since),
+            (u["size"], u["modified"], u["path"], u["filename"], since, since),
         )
         candidates = [c for c in candidates if str(c["path"]) not in claimed]
         if len(candidates) != 1:
@@ -225,11 +226,11 @@ def detect_moves(
         new_name = str(candidates[0]["filename"])
         claimed.add(target)
         evidence = "size+mtime"
-        moves.append((p["path"], target, evidence))  # type: ignore[arg-type]
+        moves.append((u["path"], target, evidence))  # type: ignore[arg-type]
         rows.append(
             (
-                p["logical_id"], p["path"], target, p["size"], p["modified"], evidence,
-                "low", p["filename"], new_name, run_id, utcnow(),
+                u["logical_id"], u["path"], target, u["size"], u["modified"], evidence,
+                "low", u["filename"], new_name, run_id, utcnow(),
             )
         )
 

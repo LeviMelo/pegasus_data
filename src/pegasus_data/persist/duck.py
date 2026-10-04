@@ -17,6 +17,7 @@ from __future__ import annotations
 import re
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import pyarrow as pa
@@ -44,6 +45,7 @@ class DuckLake:
     ) -> None:
         self.lake_root = Path(lake_root)
         self.catalog = catalog
+        self._owned_catalog: Any = None
         self.conn = duckdb.connect(database, read_only=read_only)
         self.conn.execute("SET enable_progress_bar = false")
 

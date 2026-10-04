@@ -216,7 +216,7 @@ def query(
 
         months_by_year = dict(retrieval.year_months)
         for fetch_year in fetch_years:
-            fetch_months = months_by_year.get(fetch_year) or None
+            fetch_months = months_by_year.get(fetch_year) or None  # type: ignore[arg-type]
             fetched_table, fetched_report = fetch(
                 dataset,
                 uf=list(retrieval.physical_geography) or None,

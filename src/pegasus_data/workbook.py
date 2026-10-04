@@ -154,10 +154,10 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
 
     # Territory names, indexed by the 6-digit code the artifact stores.
     by6: dict[str, dict] = {}
-    uf_name: dict[str, str] = {}
-    for code6, row in municipalities().items():
-        by6[code6] = {"name": row["name"], "uf": row["uf_sigla"], "macroregion": row["macroregion"]}
-        uf_name[row["uf_sigla"]] = row["uf_name"]
+    uf_name: dict[Any, str] = {}
+    for code6, muni in municipalities().items():
+        by6[code6] = {"name": muni["name"], "uf": muni["uf_sigla"], "macroregion": muni["macroregion"]}
+        uf_name[muni["uf_sigla"]] = muni["uf_name"]
 
     # Dimension labels, from the artifact's own codelists.
     codelists = {d.id: {lv.code: lv.label for lv in d.levels} for d in capability.dimensions}
@@ -360,7 +360,7 @@ def build(artifact: str, out: Path, *, settings: Any = None) -> Path:
     for dim in caps["dimensions"]:
         did, dlabel = dim["id"], dim["label"]
         table = cut(artifact, [did], measures)
-        labels = codelists.get(did, {})
+        labels: dict[Any, Any] = codelists.get(did, {})
         table.sort(key=lambda r: -(r.get(mids[0]) or 0))
         rows = [
             [r.get(did), labels.get(r.get(did), r.get(did))] + [r.get(i) for i in mids]

@@ -150,10 +150,10 @@ def document_from_def(
     for (system, name_key), entry in seen.items():
         if (system, name_key) in already:
             continue
-        names: dict[str, int] = entry["names"]  # type: ignore[assignment]
+        name_counts: dict[str, int] = entry["names"]  # type: ignore[assignment]
         # The name used most often is the primary; the rest are the dispute.
-        primary = max(names, key=lambda n: (names[n], len(n)))
-        others = [n for n in names if n != primary]
+        primary = max(name_counts, key=lambda n: (name_counts[n], len(n)))
+        others = [n for n in name_counts if n != primary]
         usage = str(entry["usage"])
         payload.append(
             (

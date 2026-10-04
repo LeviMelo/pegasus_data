@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Sequence
+from typing import Any
 
 from ..catalog.store import CatalogStore
 from .naming import (
@@ -69,7 +70,7 @@ def build_inventory(
         clauses.append("(" + " OR ".join("path LIKE ?" for _ in systems)
                        + " OR path IN (SELECT path FROM file_facts WHERE system IN ("
                        + ",".join("?" * len(systems)) + ")))")
-        params = [f"{base_path}/{s}/%" for s in systems] + [s.upper() for s in systems]
+        params = [*(f"{base_path}/{s}/%" for s in systems), *(s.upper() for s in systems)]
     where = "WHERE " + " AND ".join(clauses)
     rows = catalog.query(f"SELECT path, directory, filename FROM files {where}", params)
 
@@ -118,7 +119,7 @@ def build_inventory(
     )
     learned = load_prefix_systems(catalog)
 
-    facts: list[tuple[object, ...]] = []
+    facts: list[tuple[Any, ...]] = []
     disagreements: list[tuple[str, str | None, str, str, str]] = []
     for path, parsed in parsed_by_path.items():
         directory = path.rsplit("/", 1)[0]

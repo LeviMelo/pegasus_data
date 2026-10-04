@@ -24,6 +24,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Any
 
 from ..catalog.store import CatalogStore, utcnow
 
@@ -211,7 +212,7 @@ def disagreement_summary(catalog: CatalogStore) -> list[dict[str, object]]:
     ]
 
 
-def low_trust_prefixes(catalog: CatalogStore) -> list[dict[str, object]]:
+def low_trust_prefixes(catalog: CatalogStore) -> list[dict[str, Any]]:
     """Prefixes the name-first rule will not use, ranked by how much they carry.
 
     A prefix is low-trust when it is genuinely ambiguous (agreement below
@@ -225,7 +226,7 @@ def low_trust_prefixes(catalog: CatalogStore) -> list[dict[str, object]]:
     rounding error; one prefix holding forty thousand is a hole in the identity
     guarantee, and the two look identical in a count of prefixes.
     """
-    rows = []
+    rows: list[dict[str, Any]] = []
     for r in catalog.query(
         """
         SELECT p.series_prefix, p.system, p.file_count, p.agreement,

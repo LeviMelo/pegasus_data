@@ -136,9 +136,9 @@ class Archive:
                 raise DecodeError(f"lha open failed for {self.path}: {exc}") from exc
         elif kind == "tar":
             self._tar = tarfile.open(fileobj=io.BytesIO(self.data))
-            members = [m for m in self._tar.getmembers() if m.isfile()]
-            self._refuse_unsafe_names([m.name for m in members])
-            self._check_quota([m.size for m in members])
+            tar_members = [m for m in self._tar.getmembers() if m.isfile()]
+            self._refuse_unsafe_names([m.name for m in tar_members])
+            self._check_quota([m.size for m in tar_members])
         elif kind in {"rar", "7z"}:
             self._extract_external()
         elif kind == "gzip":
