@@ -19,8 +19,6 @@ The fresh home ranked candidates by bytes on the wire (ADR-0133), and the CSV is
   - **SINAN, 235.** The CSV is often the smaller file, so it was chosen.
   - **SIH-RD 2014 XML, 458.** Larger than the DBC, so never chosen.
 
-**Change.** `representations._older_than_native` drops such exports before the byte ranking. An export dated after its native file is a re-export and still competes on bytes: SIH-RD AC 2008-01 keeps its 114 KB DBC (DBC 2018, CSV 2025).
+**Change (corrected the same day).** The first fix dropped exports dated before the native file. The SINAN sweep then showed that the exports also strip leading zeros, drop columns and, for SIFA, hold bytes reprs. ADR-0135 replaced the date rule: the native file is read whenever one can be fetched, and an export only when every native failed on both FTP and mirror.
 
-`plan()` on the fresh home now fetches ACBI 2023 as 4,136,899 bytes, the DBC.
-
-**Not settled.** An export refreshed after a native file that was never updated would carry newer data. Dates cannot show that, and row counts would only be known after fetching both.
+`plan()` on the fresh home now fetches ACBI 2023 as 4,136,899 bytes, the DBC. With a simulated fetch gap on that DBC it fetches the CSV (2,952,960).

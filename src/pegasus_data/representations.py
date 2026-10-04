@@ -95,6 +95,8 @@ def choose_representations(
 
     cached = _cached_paths(catalog, [str(row.get("path") or "") for rows_ in groups.values()
                                      if len(rows_) > 1 for row in rows_])
+    unreachable = _unreachable_paths(catalog, [str(row.get("path") or "") for rows_ in groups.values()
+                                               if len(rows_) > 1 for row in rows_])
     selected: list[dict[str, Any]] = []
     dropped: list[str] = []
     conflicts: list[str] = []
@@ -111,6 +113,13 @@ def choose_representations(
         if len(candidates) == 1:
             selected.extend(candidates)
             continue
+        exports = _exports_behind_native(candidates, unreachable)
+        if exports:
+            dropped.extend(str(row.get("path") or "") for row in exports)
+            candidates = [row for row in candidates if not any(row is e for e in exports)]
+            if len(candidates) == 1:
+                selected.extend(candidates)
+                continue
         formats = [_representation_kind(row) for row in candidates]
         contradictions: list[str] = []
         if len(formats) != len(set(formats)):
@@ -198,10 +207,6 @@ def choose_representations(
                 f"logical publication {logical!r} has conflicting representations; "
                 "runtime execution refused to avoid duplicate observations"
             )
-        stale = _older_than_native(catalog, candidates)
-        if stale:
-            dropped.extend(str(row.get("path") or "") for row in stale)
-            candidates = [row for row in candidates if not any(row is old for old in stale)]
         winner = min(candidates, key=lambda row: _wire_cost(row, cached))
         selected.append(winner)
         dropped.extend(
@@ -246,34 +251,38 @@ def _cached_paths(catalog: Catalog, paths: Sequence[str]) -> set[str]:
     return out
 
 
-def _older_than_native(catalog: Catalog, candidates: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Exports dated before the newest native (DBC/DBF) file: an older edition.
+#: The publisher's own record formats. The Dados Abertos exports of the same
+#: publication are not equivalent (ADR-0135).
+NATIVE_KINDS = frozenset({"dbc", "dbf"})
 
-    An export cannot carry a revision published after it. SINAN's PRELIM
-    ``ACBIBR23.dbc`` was republished on 2026-09-02 (80,094 rows), while its
-    Dados_Abertos CSV is from 2026-01-29 (78,242). Ranking by bytes alone
-    (ADR-0133) read the smaller, older CSV on a fresh install: 235 SINAN
-    publications on the 2026-09-28 tree. An export dated AFTER the native file
-    is taken as a re-export of it and still competes on bytes (SIH-RD 2008:
-    DBC 2018, CSV 2025).
+
+def _exports_behind_native(candidates: Sequence[dict[str, Any]], unreachable: set[str]) -> list[dict[str, Any]]:
+    """The exports to drop because a native file of the publication can be fetched.
+
+    An export is kept only when every native file has failed on both the FTP
+    and the mirror (an open ``fetch`` gap): the mirror holds no
+    ``SINAN/DADOS/FINAIS/CHAGBR23.dbc`` (2026-10-03).
     """
-    paths = [str(row.get("path") or "") for row in candidates]
-    marks = ",".join("?" for _ in paths)
-    try:
-        day = {
-            str(r["path"]): str(r["modified"] or "")[:10]
-            for r in catalog.query(f"SELECT path, modified FROM files WHERE path IN ({marks})", tuple(paths))
-        }
-    except Exception:  # noqa: BLE001 - a catalog without dates keeps every candidate
+    natives = [row for row in candidates if _representation_kind(row) in NATIVE_KINDS]
+    if not any(str(row.get("path") or "") not in unreachable for row in natives):
         return []
-    native = [day.get(str(row.get("path") or ""), "") for row in candidates
-              if _representation_kind(row) in ("dbc", "dbf")]
-    newest = max((d for d in native if d), default="")
-    if not newest:
-        return []
-    return [row for row in candidates
-            if _representation_kind(row) not in ("dbc", "dbf")
-            and day.get(str(row.get("path") or ""), "") and day[str(row.get("path") or "")] < newest]
+    return [row for row in candidates if _representation_kind(row) not in NATIVE_KINDS]
+
+
+def _unreachable_paths(catalog: Catalog, paths: Sequence[str]) -> set[str]:
+    """Which of ``paths`` failed to download from every source and have not since."""
+    out: set[str] = set()
+    unique = sorted(set(paths))
+    for start in range(0, len(unique), 500):
+        chunk = unique[start:start + 500]
+        marks = ",".join("?" for _ in chunk)
+        try:
+            out |= {str(r["path"]) for r in catalog.query(
+                f"SELECT path FROM coverage_gaps WHERE kind = 'fetch' AND resolved = 0 AND path IN ({marks})",
+                tuple(chunk))}
+        except Exception:  # noqa: BLE001 - a catalog without gaps treats every file as reachable
+            return out
+    return out
 
 
 def _newest_edition(catalog: Catalog, candidates: Sequence[dict[str, Any]]) -> dict[str, Any] | None:

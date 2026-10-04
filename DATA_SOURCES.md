@@ -138,6 +138,11 @@ evaluation entry, see the `group` column of `EVALUATION.md`); **ARCH** =
   `EXAC`). No `PK\x03\x04`, no `Rar!` (2026-08-18, F §1 V2).
 - **`.zip`**: the TAB kits (§2) and `Dados_Abertos` `.csv.zip`, `.json.zip`,
   `.xml.zip`; `.duck.zip`.
+- **`Dados_Abertos` SINAN exports are not the DBC in another format** (2026-10-03, ADR-0135):
+  - the CSV strips leading zeros from codes (`08` becomes `8`);
+  - IEXO 2023 has 66 columns against 80–82;
+  - SIFA 2023 holds Python bytes reprs as values (`b'2',b'A539'`);
+  - the exports are dated 2026-01-29, while PRELIM DBCs are republished later.
 - **`.duck`**: DuckDB databases; the storage version is at offset 8 after the
   `DUCK` magic (LE uint64), and DuckDB refuses a newer version (F §1 V6).
 - **`.rar`**: `TAB_SISCAN.rar` is RAR5 (ARCH §22.1b).
