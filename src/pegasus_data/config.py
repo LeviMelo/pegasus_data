@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 
 DEFAULT_HOST = "ftp.datasus.gov.br"
@@ -283,8 +284,19 @@ def curation_root() -> Path:
 
     Several modules built the packaged path themselves, so the override reached
     only those that went through ``Settings`` (ARCHITECTURE §5, 2026-10-04).
+    Resolved once per working directory and environment: every rendered column
+    asks, and walking up for config files each time was 0.8 s of a state-year
+    query (15,522 ``stat`` calls, profiled 2026-10-04).
     """
+    return _curation_root(
+        os.getcwd(), os.environ.get("PEGASUS_CURATION_DIR"), os.environ.get("PEGASUS_CONFIG"),
+        os.environ.get("APPDATA"), os.environ.get("XDG_CONFIG_HOME"),
+    )
+
+
+@lru_cache(maxsize=16)
+def _curation_root(cwd: str, *_environment: str | None) -> Path:
     from .locate import resolve_placement
 
-    decided = resolve_placement({})["curation"]
+    decided = resolve_placement({}, start=Path(cwd))["curation"]
     return Path(decided.value) if decided.value is not None else Path(__file__).resolve().parent / "curation"

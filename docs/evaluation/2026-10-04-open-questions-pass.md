@@ -120,3 +120,14 @@ Recount over every column present in data: 84 coded columns still reach no table
 **Queries no longer write the catalog (ARCHITECTURE §5).** `scripts/live.py` runs `sih_2016`, `sinan_tube`, `sinan_deng` and `sih_rd` against the mirror (`data/probes/live/2026-10-04-readpath`), and `sih_rd` and `sinan_tube` again after the renames (`…-readpath2`). All are ok with the same rows and labelled counts as before. Across the second run the live catalog's `label_bindings` stayed at 16,394 rows with the same latest `decided_at`, and `representation_conflicts` is dropped. The DuckDB `fetch_arrow_table` deprecation warning is gone.
 
 The import of every module also found `linkage.store` and `linkage.entities` broken by the curation-resolver commit (`LINKS_FILE` removed), now fixed.
+
+**Cold-process speed.** These are `cProfile` timings of `query("SIH-RD", period=…, geography="AL")` on the live home, files cached, with each version run fresh. Every output was compared cell for cell with the previous code: SIH-RD 2023-01 and 2023, CNES-ST, SIA-PA AC and SINAN-TUBE 2022, all identical.
+
+| change | where the time was | effect |
+|---|---|---|
+| registries (>100,000 rows) cut to the column's codes in Arrow, cleaned once per content | CADGERBR 692,004 rows: 0.9 s to label a few dozen hospitals | month −1.4 s |
+| the label pack keeps one vintage in Arrow before making Python tuples | MUNICBR's 113,179 runs, every vintage | nine SIH tables 1.24 → 0.70 s |
+| `relations_for` filters by field in SQL | all 4,662 `variable_docs` rows per column | year −3.4 s |
+| `curation_root()` cached per cwd and environment | 15,522 `stat` calls walking up for config | year −0.8 s |
+
+Overall, one month went from 6.8 to 5.6 s and the state-year from 21.3 to 16.9 s (medians of 2–3 runs).

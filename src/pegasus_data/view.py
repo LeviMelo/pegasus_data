@@ -196,9 +196,11 @@ def clear_lookup_caches() -> None:
     call this, or the process keeps labelling from the tables it saw first.
     """
     _cached_lookup_map.cache_clear()
+    _cached_registry.cache_clear()
     _cached_contradictions.cache_clear()
     _cached_merged_lookup.cache_clear()
     _MAPS_BY_CONTENT.clear()
+    _REGISTRIES_BY_CONTENT.clear()
 
 
 # Cached for the life of the process, like the packed reads underneath: a
@@ -269,6 +271,7 @@ def _lookup_map(
     year: int | None,
     competencia: int | None = None,
     code_width: int | None,
+    only: frozenset[str] | None = None,
 ) -> Mapping[str, str]:
     """``_lookup_map_uncached``, built once per process per table version.
 
@@ -279,10 +282,15 @@ def _lookup_map(
     """
     if _vintage_free(codelist):
         year = competencia = None
-    return _cached_lookup_map(
-        str(lake_root), codelist, system, year, competencia, code_width,
-        _reference_version(Path(lake_root), codelist),
-    )
+    version = _reference_version(Path(lake_root), codelist)
+    if only is not None:
+        # ``only``: the codes a column holds. A registry is cut to them, from
+        # Arrow arrays cleaned once per table version, before any label
+        # becomes a Python string.
+        cleaned = _cached_registry(str(lake_root), codelist, system, year, competencia, code_width, version)
+        if cleaned is not None:
+            return _code_map(*cleaned, only=only)
+    return _cached_lookup_map(str(lake_root), codelist, system, year, competencia, code_width, version)
 
 
 @lru_cache(maxsize=256)
@@ -293,6 +301,30 @@ def _cached_lookup_map(
     return _lookup_map_uncached(
         Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width
     )
+
+
+@lru_cache(maxsize=32)
+def _cached_registry(
+    lake_root: str, codelist: str, system: str | None, year: int | None,
+    competencia: int | None, code_width: int | None, version: tuple[int, ...],
+) -> tuple[pa.Array, pa.Array, frozenset[int]] | None:
+    """A registry's cleaned codes and labels, or None for a table small enough
+    to become one dict (``REGISTRY_ROWS``)."""
+    table = read_reference_table(
+        Path(lake_root), codelist, system=system, year=year, competencia=competencia, code_width=code_width,
+    )
+    if table.num_rows <= REGISTRY_ROWS:
+        return None
+    # Asked month by month, a registry is usually one table twelve times.
+    key = (codelist, _content_digest(table))
+    if key not in _REGISTRIES_BY_CONTENT:
+        if len(_REGISTRIES_BY_CONTENT) > 16:
+            _REGISTRIES_BY_CONTENT.clear()
+        _REGISTRIES_BY_CONTENT[key] = _cleaned(table)
+    return _REGISTRIES_BY_CONTENT[key]
+
+
+_REGISTRIES_BY_CONTENT: dict[tuple[str, bytes], tuple[pa.Array, pa.Array, frozenset[int]]] = {}
 
 
 def _contradictions(
@@ -363,6 +395,12 @@ def _lookup_map_uncached(
 #: ``(codelist, content digest) -> code -> label`` (see ``_lookup_map_uncached``).
 _MAPS_BY_CONTENT: dict[tuple[str, bytes], dict[str, str]] = {}
 
+#: Above this many rows a table is cut to a column's own codes before it becomes
+#: a dict. CADGERBR (692,004 establishments) cost 0.9 s of a 7-second query to
+#: label a few dozen hospitals, 0.7 s of it turning Arrow strings into Python
+#: ones (profiled 2026-10-04).
+REGISTRY_ROWS = 100_000
+
 
 def _content_digest(table: pa.Table) -> bytes:
     """A digest of a reference table's codes and labels, from Arrow's buffers."""
@@ -378,8 +416,13 @@ def _content_digest(table: pa.Table) -> bytes:
     return h.digest()
 
 
-def _map_from_table(table: pa.Table) -> dict[str, str]:
+def _map_from_table(table: pa.Table) -> CodeMap:
     """``code -> label``: last line wins, and blank labels are dropped."""
+    return _code_map(*_cleaned(table))
+
+
+def _cleaned(table: pa.Table) -> tuple[pa.Array, pa.Array, frozenset[int]]:
+    """A table's usable codes and labels, in order, and the code widths among them."""
     # Nulls and blanks are dropped in Arrow, before 700,000 registry rows
     # become Python strings; order is kept, so the dict below still lets the
     # last line win.
@@ -392,15 +435,28 @@ def _map_from_table(table: pa.Table) -> dict[str, str]:
         pc.and_(pc.is_valid(codes), pc.is_valid(labels)),
         pc.not_equal(pc.utf8_trim_whitespace(labels), ""),
     )
-    codes = pc.filter(codes, keep).to_pylist()
-    labels = pc.filter(labels, keep).to_pylist()
+    codes, labels = pc.filter(codes, keep), pc.filter(labels, keep)
+    widths = frozenset(int(w) for w in pc.unique(pc.utf8_length(codes)).to_pylist() if w is not None)
+    return codes, labels, widths
+
+
+def _code_map(
+    codes: pa.Array, labels: pa.Array, widths: frozenset[int], *, only: frozenset[str] | None = None,
+) -> CodeMap:
+    """The dict, cut to ``only`` when given. ``widths`` stay the whole table's,
+    so the width check (§6.2) sees the table as it is."""
+    if only is not None:
+        wanted = pc.is_in(codes, value_set=pa.array(sorted(only), type=pa.string()))
+        codes, labels = pc.filter(codes, wanted), pc.filter(labels, wanted)
     # Last write wins, matching .CNV semantics, where a later line deliberately
     # overrides an earlier one. A blank label is dropped rather than stored: an
     # empty string is not a translation, and offering one turns a labelled column
     # into a column of nothing while still reporting that it was labelled. This
     # is how CADMUN behaved — a DBF lookup that picked OBSERV as its label
     # column, which is blank for 5,517 of its 5,579 rows.
-    return dict(zip(codes, labels, strict=True))
+    built = CodeMap(zip(codes.to_pylist(), labels.to_pylist(), strict=True))
+    built.widths = widths
+    return built
 
 
 def codelist_levels(
@@ -537,6 +593,7 @@ class CodeMap(dict):  # type: ignore[type-arg]
 
 def _merged_lookup(
     lake: Path, codelists: tuple[str, ...], system: str | None, year: int | None, competencia: int | None,
+    only: frozenset[str] | None = None,
 ) -> tuple[Mapping[str, str], list[str]]:
     """Every table bound to a field, merged in authority order, once per process.
 
@@ -546,14 +603,19 @@ def _merged_lookup(
     """
     if all(_vintage_free(c) for c in codelists):
         year = competencia = None
+    if any(str(c).upper() in HIERARCHICAL_CODELISTS or str(c).upper() in PATH_CODELISTS for c in codelists):
+        # These answer codes the column does not literally hold (a category
+        # for an unlisted subcategory): never cut to the observed ones.
+        only = None
     versions = tuple(_reference_version(Path(lake), c) for c in codelists)
-    return _cached_merged_lookup(str(lake), codelists, system, year, competencia, versions)
+    return _cached_merged_lookup(str(lake), codelists, system, year, competencia, versions, only)
 
 
 @lru_cache(maxsize=512)
 def _cached_merged_lookup(
     lake: str, codelists: tuple[str, ...], system: str | None, year: int | None,
     competencia: int | None, versions: tuple[tuple[int, ...], ...],
+    only: frozenset[str] | None = None,
 ) -> tuple[Mapping[str, str], list[str]]:
     missing: list[str] = []
     maps: list[Mapping[str, str]] = []
@@ -561,6 +623,7 @@ def _cached_merged_lookup(
         try:
             maps.append(_lookup_map(
                 Path(lake), codelist, system=system, year=year, competencia=competencia, code_width=None,
+                only=only,
             ))
         except FileNotFoundError:
             missing.append(codelist)
@@ -586,7 +649,7 @@ def _cached_merged_lookup(
         tables = [str(c).upper() for c in codelists if not str(c).upper().startswith("CURATED.")]
         if len(tables) == 1 and tables[0] in PATH_CODELISTS:
             merged = PathLabels(merged, table=tables[0], segment=PATH_CODELISTS[tables[0]])
-    merged.widths = frozenset(len(code) for code in merged)  # type: ignore[attr-defined]
+    merged.widths = frozenset().union(*(_widths(m) for m in maps))  # type: ignore[attr-defined]
     return merged, missing
 
 
@@ -878,6 +941,8 @@ class PathLabels(dict):  # type: ignore[type-arg]
 
 #: Codelists whose labels spell out a fixed-width level path (``PathLabels``).
 PATH_CODELISTS: dict[str, int] = {"VINCULO": 2, "S_CLASSEN": 3}
+#: Tables that label codes they do not list (ADR-0089): never cut to a column's codes.
+HIERARCHICAL_CODELISTS = frozenset({"ICD10", "SIGTAP"})
 
 
 def _labels_for(column: pa.Array, lookup: Mapping[str, str]) -> pa.Array:
@@ -1382,7 +1447,9 @@ def _render_table(
     names: list[str] = []
     lookups: dict[tuple, dict[str, str]] = {}
 
-    def _lookup(field_name: str, codelists: Sequence[str]) -> dict[str, str] | None:
+    def _lookup(
+        field_name: str, codelists: Sequence[str], only: frozenset[str] | None = None,
+    ) -> dict[str, str] | None:
         """Merge every table bound to this field. Exact width keeps them apart."""
         # No width filter. Exact string matching already keeps classifications of
         # different widths apart (§6.2); filtering the TABLE to the curated token
@@ -1397,10 +1464,10 @@ def _render_table(
         # different widths shared a map built for whichever ran first. That
         # quietly undoes §6.2, the rule that keeps merged classifications of
         # different widths apart.
-        key = (tuple(codelists), system, year, width)
+        key = (tuple(codelists), system, year, width, only)
         if key in lookups:
             return lookups[key] or None
-        merged, missing = _merged_lookup(lake, tuple(codelists), system, year, competencia)
+        merged, missing = _merged_lookup(lake, tuple(codelists), system, year, competencia, only)
         if not merged:
             names = ", ".join(repr(c) for c in codelists)
             message = f"{field_name}: no reference table for {names} in the lake"
@@ -1554,7 +1621,9 @@ def _render_table(
                 names.append(f"{name}{LABEL_SUFFIX}")
             continue
 
-        lookup = _lookup(name.upper(), codelists)
+        observed = {str(v).strip() for v in _distinct(key_column)}
+        multi = bool(doc and doc.multi_valued and doc.token_rule)
+        lookup = _lookup(name.upper(), codelists, None if multi else frozenset(observed))
         if lookup is None:
             columns.append(column)
             names.append(name)
@@ -1588,7 +1657,6 @@ def _render_table(
         # A table that disagrees with itself cannot render this column. Refusing
         # is the whole point: an unlabelled code is visibly unfinished, and a
         # confidently wrong label is not.
-        observed = {str(v).strip() for v in _distinct(key_column)}
         try:
             disagreements = {}
             for bound in codelists:

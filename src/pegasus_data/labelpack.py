@@ -41,7 +41,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from functools import lru_cache
-from itertools import compress
 from pathlib import Path
 from typing import Any
 
@@ -780,7 +779,8 @@ def clear_caches() -> None:
     """
     # `_dataset` may have been monkeypatched to a bare callable; clear what
     # is clearable rather than requiring every stand-in to be an lru_cache.
-    for fn in (_read_packed, _expand_runs, _codelist_runs, _codelist_rows, _dataset):
+    for fn in (_read_packed, _expand_runs, _codelist_runs, _run_windows, _dated_runs, _current_runs,
+               _codelist_rows, _dataset):
         clear = getattr(fn, "cache_clear", None)
         if clear is not None:
             clear()
@@ -812,6 +812,11 @@ def _codelist_runs(codelist: str) -> tuple:
     hit = _codelist_rows(codelist)
     if hit is None or not hit.num_rows:
         return ()
+    return _as_runs(hit)
+
+
+def _as_runs(hit: Any) -> tuple:
+    """Pack rows as ``(system, lo, hi, label, width, valid_from, valid_to)`` tuples."""
     has_windows = "valid_from" in hit.schema.names
     return tuple(
         zip(
@@ -828,27 +833,62 @@ def _codelist_runs(codelist: str) -> tuple:
 
 
 @lru_cache(maxsize=256)
-def _run_windows(codelist: str) -> tuple[tuple[tuple[str, str], ...], tuple[int, ...]]:
-    """The distinct validity windows of a codelist, and each run's window index.
+def _run_windows(codelist: str) -> tuple[tuple[tuple[str, str], ...], Any]:
+    """The distinct validity windows of a codelist, and each row's window index.
 
     A monthly dataset asks for every codelist under twelve competencias; testing
     each run's window per request was a Python loop over the whole codelist
-    every time (2026-10-03: 2.5 of 16 s rendering one state-year of SIH).
+    every time (2026-10-03: 2.5 of 16 s rendering one state-year of SIH). The
+    index stays in Arrow: turning MUNICBR's 113,179 runs, every vintage of them,
+    into Python tuples to keep one vintage was 0.7 s of a cold query
+    (profiled 2026-10-04).
     """
-    windows: dict[tuple[str, str], int] = {}
-    index = []
-    for run in _codelist_runs(codelist):
-        key = (str(run[5] or ""), str(run[6] or ""))
-        index.append(windows.setdefault(key, len(windows)))
-    return tuple(windows), tuple(index)
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    hit = _codelist_rows(codelist)
+    if hit is None or not hit.num_rows or "valid_from" not in hit.schema.names:
+        n = 0 if hit is None else hit.num_rows
+        return (("", ""),), pa.array([0] * n, pa.int32())
+    keys = pc.binary_join_element_wise(
+        pc.fill_null(pc.cast(hit.column("valid_from"), pa.string()), ""),
+        pc.fill_null(pc.cast(hit.column("valid_to"), pa.string()), ""),
+        "|",
+    )
+    encoded = pc.dictionary_encode(keys)
+    if isinstance(encoded, pa.ChunkedArray):
+        encoded = encoded.combine_chunks()
+    windows = tuple(tuple(str(k).split("|", 1)) for k in encoded.dictionary.to_pylist())
+    return windows, encoded.indices  # type: ignore[return-value]
+
+
+def _runs_in_windows(codelist: str, keep: Any) -> tuple:
+    """The runs whose window satisfies ``keep(valid_from, valid_to)``, in order."""
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    hit = _codelist_rows(codelist)
+    if hit is None or not hit.num_rows:
+        return ()
+    windows, index = _run_windows(codelist)
+    covering = [i for i, (lo, hi) in enumerate(windows) if keep(lo, hi)]
+    if not covering:
+        return ()
+    if len(covering) == len(windows):
+        return _codelist_runs(codelist)
+    return _as_runs(hit.filter(pc.is_in(index, value_set=pa.array(covering, index.type))))
 
 
 @lru_cache(maxsize=4096)
 def _dated_runs(codelist: str, span_lo: int, span_hi: int) -> tuple:
     """The runs whose window covers the span, in the codelist's own order."""
-    windows, index = _run_windows(codelist)
-    covering = {i for i, (lo, hi) in enumerate(windows) if covers(lo, hi, span_lo, span_hi)}
-    return tuple(compress(_codelist_runs(codelist), (i in covering for i in index)))
+    return _runs_in_windows(codelist, lambda lo, hi: covers(lo, hi, span_lo, span_hi))
+
+
+@lru_cache(maxsize=256)
+def _current_runs(codelist: str) -> tuple:
+    """The open-ended (current) runs, in the codelist's own order."""
+    return _runs_in_windows(codelist, lambda lo, _hi: not lo)
 
 
 @lru_cache(maxsize=512)
@@ -924,7 +964,7 @@ def _read_packed(
             False,
         )
     has_windows = "valid_from" in hit.schema.names
-    runs = list(_codelist_runs(codelist))
+    runs: Any = None  # every run: materialised only when nothing narrower answers
 
     # VINTAGE, before system scoping: a window that covers the request wins;
     # otherwise the open-ended (current) rows stand in, and that substitution is
@@ -938,7 +978,7 @@ def _read_packed(
         )
         dated = _dated_runs(codelist, span_lo, span_hi)
         if dated:
-            runs = dated
+            runs = list(dated)
         elif not has_windows and _is_historical(asked) and policy == "refuse":
             # REFUSE, rather than answer 1995 with today's mapping. This pack
             # carries no validity windows, so it cannot choose the historically
@@ -949,14 +989,16 @@ def _read_packed(
             note = (codelist, str(asked), "unresolved", False)
             runs = []
         else:
-            current = [r for r in runs if not str(r[5] or "")]
+            current = list(_current_runs(codelist))
             note = (
                 codelist,
                 str(asked),
                 "current" if current else "unresolved",
                 has_windows,
             )
-            runs = current if current else runs
+            runs = current if current else list(_codelist_runs(codelist))
+    if runs is None:
+        runs = list(_codelist_runs(codelist))
 
     wanted = system
     specific = [r for r in runs if r[0] and str(r[0]).upper() == wanted]

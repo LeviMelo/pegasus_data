@@ -107,7 +107,9 @@ identical to the code it replaced:
 - the SP slice of SIH deaths takes 274.5 → 41.9 s;
 - a cold CIHA role build 26.2 → 14.2 s;
 - the lake build of CIHA 2022, 182 → 96 s;
-- linkage DuckDB is capped at 40% of RAM.
+- linkage DuckDB is capped at 40% of RAM;
+- SIH-RD AL 2023, files cached, 21.3 → 16.9 s; one month 6.8 → 5.6 s
+  (2026-10-04).
 
 **Data sources.**
 - **The DATASUS FTP data channel** has dropped every passive connection
@@ -279,8 +281,9 @@ OQ-64), 1990s SIH V-codes.
     found);
   - BASE_AIH1's 11 fields without an RD/SP twin;
   - its age pairing, unverified until a sample of the 12 GB file is read.
-- **Speed.** A cold process still spends most of its time in per-group
-  binding decisions and catalog reads.
+- **Speed.** Of a 17-second state-year, rendering is 15 s: label tables
+  (6), the pack and reference reads (2.5), decoding (2.7); imports cost ~1.5 s
+  per process, pandas included (pyarrow loads it).
 - **Carried:**
   - mypy;
   - splitting `cli`, `retrieve` and `view`.

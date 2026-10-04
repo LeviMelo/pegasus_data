@@ -103,8 +103,13 @@ def relations_for(
     ]
     if catalog is not None:
         try:
+            # Filtered to the field in SQL: every rendered column asks, and
+            # reading all 4,662 variable_docs rows into objects to keep one was
+            # 4.7 of a 24-second state-year query (profiled 2026-10-04).
             for row in catalog.query(
-                "SELECT * FROM semantic_relations WHERE status='adjudicated'"
+                "SELECT * FROM semantic_relations WHERE status='adjudicated' "
+                "AND field_name = ? COLLATE NOCASE",
+                (field,),
             ):
                 item = _relation_from_row(row)
                 candidates.append((2 if item.authority == "local" else 1, item))
@@ -114,7 +119,8 @@ def relations_for(
                 "AND code_system IN ('internal','external') "
                 # Per-form alternatives are never one binding (ADR-0080); joined
                 # into one artifact they left AIDA CRITERIO undecoded (2026-10-03).
-                "AND COALESCE(per_form, 0) = 0"
+                "AND COALESCE(per_form, 0) = 0 AND field_name = ? COLLATE NOCASE",
+                (field,),
             ):
                 item = SemanticRelation(
                     system=str(row["system"] or "*").upper(),
