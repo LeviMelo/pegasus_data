@@ -86,7 +86,9 @@ def load_column_roles() -> dict[str, tuple[ColumnRole, ...]]:
         dataset = str(body.get("dataset") or path.stem).upper()
         rows = []
         for column, spec in (body.get("columns") or {}).items():
-            rows.append(_column(dataset, str(column).upper(), spec or {}, path.name))
+            # the declared spelling is the column's name: a derived column is mixed-case
+            # (IDADE_anos), and upper-casing it named a column no table has (PegaSUS, 2026-10-04)
+            rows.append(_column(dataset, str(column), spec or {}, path.name))
         out[dataset] = tuple(rows)
     _agree_with_linkage(out)
     return out
@@ -124,7 +126,7 @@ def _agree_with_linkage(declared: dict[str, tuple[ColumnRole, ...]]) -> None:
     from ..linkage.roles import load_roles
 
     for dataset, spec in load_roles().items():
-        columns = {c.column: c for c in declared.get(dataset, ())}
+        columns = {c.column.upper(): c for c in declared.get(dataset, ())}
         if not columns:
             continue
         for name, role in spec.roles.items():

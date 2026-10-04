@@ -1365,7 +1365,7 @@ columns:
     kind: number
     model: mark
     note: Legacy 2000-2006 packed age, unit digit then value, same layout as NU_IDADE_N. The age stratum is the
-      derived IDADE_ANOS.
+      derived IDADE_anos.
     name: Idade
     years:
     - 2000
@@ -1812,7 +1812,7 @@ columns:
     years:
     - 2014
     - 2026
-  IDADE_ANOS:
+  IDADE_anos:
     role: patient.age_years
     kind: number
     model: stratum

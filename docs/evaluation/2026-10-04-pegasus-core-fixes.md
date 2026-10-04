@@ -40,3 +40,11 @@
 - the geometric mean is 3,134 g.
 
 No recipe uses the kind yet; a mark aggregate is the next step.
+
+## 4. Roles named a derived column that no table has
+
+- **The defect:** `roles()` upper-cased every declared column, so the derived age stratum `IDADE_anos` (from IDADE and COD_IDADE) was served as `IDADE_ANOS`. Three role files also spelled it that way. A role-driven `count_events` on SIH-RD 2022 failed with `No match for FieldRef.Name(IDADE_ANOS)`.
+- **The fix:**
+  - the declared spelling is kept (only the linkage cross-check compares upper-case);
+  - SIM-DO, SIH-RD, SINAN-DENG and CIHA declare `IDADE_anos`.
+- **Result:** the strata now read `IDADE_anos` for SIH, SIM and SINAN.

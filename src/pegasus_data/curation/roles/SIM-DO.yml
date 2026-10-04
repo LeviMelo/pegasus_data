@@ -487,7 +487,7 @@ columns:
     years:
     - 1996
     - 2026
-    note: The age itself with its unit packed in the leading digit; deceased.age_years (IDADE_ANOS) is
+    note: The age itself with its unit packed in the leading digit; deceased.age_years (IDADE_anos) is
       the decoded stratum.
   IDADEMAE:
     role: mother.age
@@ -883,7 +883,7 @@ columns:
     years:
     - 2014
     - 2026
-  IDADE_ANOS:
+  IDADE_anos:
     role: deceased.age_years
     kind: number
     model: stratum

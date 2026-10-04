@@ -139,7 +139,7 @@ columns:
     role: patient.age_unit
     kind: category
     model: mark
-    note: Unit of IDADE; use IDADE_ANOS.
+    note: Unit of IDADE; use IDADE_anos.
     name: Unidade de medida da idade
     codelists:
     - IDADEDET
@@ -513,7 +513,7 @@ columns:
     role: patient.age
     kind: number
     model: mark
-    note: Value packs a unit given by COD_IDADE; IDADE_ANOS is the age stratum.
+    note: Value packs a unit given by COD_IDADE; IDADE_anos is the age stratum.
     name: Idade
     years:
     - 1992
@@ -1176,7 +1176,7 @@ columns:
     years:
     - 2002
     - 2026
-  IDADE_ANOS:
+  IDADE_anos:
     role: patient.age_years
     kind: number
     model: stratum
