@@ -20,7 +20,6 @@ their own parser stack**, not a byproduct.
 from __future__ import annotations
 
 import fnmatch
-import json
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -462,10 +461,11 @@ def persist_kit(catalog: Catalog, kit: ParsedKit, *, sha256: str | None = None) 
 
     code_rows: list[tuple[object, ...]] = []
     for table_id, rows in kit.code_tables.items():
-        for code, label, extra in rows:
-            code_rows.append(
-                (table_id, f"{kit.kit_path}!{table_id}", code, label, json.dumps(extra, default=str))
-            )
+        # The lookup's other columns are not kept: nothing read them, and as
+        # JSON they were most of code_tables' 6.9 GB (OQ-24, 2026-10-04). The
+        # CNES registry reads the kits themselves (registry.py).
+        for code, label, _extra in rows:
+            code_rows.append((table_id, f"{kit.kit_path}!{table_id}", code, label, None))
     catalog.executemany(
         """
         INSERT INTO code_tables (table_id, source_ref, code, label, extra_json)

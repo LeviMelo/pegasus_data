@@ -68,3 +68,11 @@ Agreement is +0.94 bits and a conflict −5.9 bits. It cannot lift a typo pair, 
 | with CODANOMAL against the admission's diagnoses, by ICD-10 category | 711 | 9.47 bits | 2.03% |
 
 A shared category is worth +3.1 bits; an anomaly on the admission but none at birth −2.75. The shared category occurs in only 0.29% of true pairs, so the evidence is rarely available. Not adopted.
+
+**Catalog storage (OQ-24).** `data/probes/compact.log`, measured with `dbstat` before:
+- `code_tables` was 6.9 GiB, mostly an `extra_json` nothing reads;
+- `dictionary_conflicts` held 4.0M rows for 662k distinct claims, re-recorded on every rebuild.
+
+Both were fixed at the source and cleaned once (3,342,637 rows deleted), then the catalog was vacuumed: 18.9 → 12.0 GiB in 469 s.
+
+**Maternal age as delivery evidence (OQ-63).** SINASC `IDADEMAE` equals the age from `DTNASCMAE` on 28,520 of 28,521 SE 2022 births, so it carries no independent evidence.

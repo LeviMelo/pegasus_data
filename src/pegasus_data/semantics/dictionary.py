@@ -379,7 +379,13 @@ def persist_entries(catalog: Catalog, entries: Sequence[DictionaryEntry]) -> dic
         conn.executemany(
             """
             INSERT INTO dictionary_conflicts (system, field_name, value_raw, claim_a, source_a, claim_b, source_b, noted_at)
-            VALUES (?,?,?,?,?,?,?,?)
+            SELECT ?,?,?,?,?,?,?,?
+             -- A re-reading records a conflict once, not again on every rebuild:
+             -- 4.0M rows held 662k distinct claims (OQ-24, 2026-10-04).
+             WHERE NOT EXISTS (SELECT 1 FROM dictionary_conflicts c
+                                WHERE c.system IS ?1 AND c.field_name IS ?2 AND c.value_raw IS ?3
+                                  AND c.claim_a IS ?4 AND c.source_a IS ?5
+                                  AND c.claim_b IS ?6 AND c.source_b IS ?7)
             """,
             conflicts,
         )

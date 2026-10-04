@@ -438,6 +438,8 @@ CREATE TABLE IF NOT EXISTS dictionary_conflicts (
   source_b   TEXT,
   noted_at   TEXT
 );
+CREATE INDEX IF NOT EXISTS ix_dict_conflict_claim
+  ON dictionary_conflicts (system, field_name, value_raw, claim_a, source_a);
 
 CREATE TABLE IF NOT EXISTS code_tables (       -- kit lookup tables, kept whole
   table_id     TEXT NOT NULL,          -- e.g. 'CID10' | 'TPROC10' | 'TCNESBR'
