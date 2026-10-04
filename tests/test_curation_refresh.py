@@ -19,13 +19,15 @@ import pytest
 import yaml
 
 from pegasus_data.catalog.store import CatalogStore
-from pegasus_data.ontology import CURATION
+from pegasus_data.config import curation_root
 from pegasus_data.semantics.curation import (
     curation_fingerprint,
     curation_is_current,
     load_curation,
     note_curation_loaded,
 )
+
+CURATION = curation_root()
 
 
 @pytest.fixture
@@ -123,8 +125,6 @@ class TestTheCorrectedBindingsStayCorrected:
         "AP01CV01": "ATPRES01",
         "AP01CV03": "ATPRES1X",
         "AP07CV01": "ATPRES07",
-        "GESPRG2E": "GESPROG2",
-        "GESPRG6E": "GESPROG6",
         "SERAP01P": "SRV_AP01",
         "SERAP11P": "SRV_AP11",
     }

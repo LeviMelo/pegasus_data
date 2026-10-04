@@ -21,8 +21,8 @@ import pytest
 
 from pegasus_data.catalog.store import (
     SCHEMA_VERSION,
-    Catalog,
     CatalogSchemaError,
+    CatalogStore,
     _actual_constraints,
     _declared_columns,
     _declared_constraints,
@@ -157,7 +157,7 @@ class TestConstraintComparisonIsSymmetric:
 
 class TestTheVersionRow:
     def test_a_fresh_catalog_records_the_current_version(self, tmp_path):
-        catalog = Catalog(tmp_path / "c.sqlite")
+        catalog = CatalogStore(tmp_path / "c.sqlite")
         try:
             row = catalog.query("SELECT MAX(version) AS v FROM schema_version")
             assert int(row[0]["v"]) == SCHEMA_VERSION
@@ -169,7 +169,7 @@ class TestTheVersionRow:
         from version 1 reported version 1 forever and the number could not be
         trusted to decide anything."""
         path = tmp_path / "c.sqlite"
-        catalog = Catalog(path)
+        catalog = CatalogStore(path)
         catalog.close()
         raw = sqlite3.connect(path)
         raw.execute("DELETE FROM schema_version")
@@ -177,7 +177,7 @@ class TestTheVersionRow:
         raw.commit()
         raw.close()
 
-        catalog = Catalog(path)
+        catalog = CatalogStore(path)
         try:
             row = catalog.query("SELECT MAX(version) AS v FROM schema_version")
             assert int(row[0]["v"]) == SCHEMA_VERSION
@@ -188,7 +188,7 @@ class TestTheVersionRow:
         """Reading it with older code means reading columns whose meaning may
         have changed; nothing here can know what it does not know about."""
         path = tmp_path / "c.sqlite"
-        catalog = Catalog(path)
+        catalog = CatalogStore(path)
         catalog.close()
         raw = sqlite3.connect(path)
         raw.execute(
@@ -199,14 +199,14 @@ class TestTheVersionRow:
         raw.close()
 
         with pytest.raises(CatalogSchemaError, match="understands"):
-            Catalog(path)
+            CatalogStore(path)
 
 
 def test_legacy_relation_migration_recovers_authority_and_local_precedence(
     tmp_path, monkeypatch
 ) -> None:
     path = tmp_path / "relations.sqlite"
-    Catalog(path).close()
+    CatalogStore(path).close()
     raw = sqlite3.connect(path)
     raw.execute("DROP TABLE semantic_relations")
     raw.execute(
@@ -260,7 +260,7 @@ def test_legacy_relation_migration_recovers_authority_and_local_precedence(
     raw.commit()
     raw.close()
 
-    migrated = Catalog(path)
+    migrated = CatalogStore(path)
     try:
         rows = migrated.query(
             "SELECT relation_id, authority, artifact, valid_to FROM semantic_relations "
@@ -300,7 +300,7 @@ def test_legacy_relation_migration_recovers_authority_and_local_precedence(
 
 def test_v3_all_local_migration_is_repaired_on_upgrade(tmp_path) -> None:
     path = tmp_path / "v3-relations.sqlite"
-    catalog = Catalog(path)
+    catalog = CatalogStore(path)
     catalog.execute(
         "INSERT INTO semantic_relations "
         "(relation_id,authority,system,dataset,field_name,relation_type,target_type,"
@@ -317,7 +317,7 @@ def test_v3_all_local_migration_is_repaired_on_upgrade(tmp_path) -> None:
     raw.commit()
     raw.close()
 
-    repaired = Catalog(path)
+    repaired = CatalogStore(path)
     try:
         row = repaired.query(
             "SELECT relation_id, authority FROM semantic_relations "
