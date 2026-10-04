@@ -39,7 +39,7 @@ variables:
       2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
@@ -50,7 +50,7 @@ variables:
     description: 'Whether the patient had contact with dogs or cats (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
@@ -62,7 +62,7 @@ variables:
       (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
@@ -74,7 +74,7 @@ variables:
       yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
@@ -85,7 +85,7 @@ variables:
     description: 'Whether the patient had stupor or coma, a sign of severe spotted fever.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
@@ -112,7 +112,7 @@ variables:
       RESPIRATO.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
@@ -314,7 +314,7 @@ variables:
       a sign of severe vasculitis in spotted fever.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
@@ -327,7 +327,7 @@ variables:
       dysfunction.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais
@@ -339,7 +339,7 @@ variables:
       2 no, 9 unknown); the animal is named in ANIM_ESP.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 34 (Teve contato
@@ -351,7 +351,7 @@ variables:
       not only respiratory failure).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Febre Maculosa — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre%20Maculosa/DIC_DADOS_Febre_Maculosa_v5.pdf
       (sources/dic_text/febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.txt), campo 33 (Sinais

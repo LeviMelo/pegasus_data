@@ -109,6 +109,30 @@ _DBF = re.compile(r"^[A-Z][A-Z0-9_]{1,10}$")
 _ALIASES = re.compile(r"^\s*((?:[0-9A-Z]{1,3},)+[0-9A-Z]{1,3})\s*[–\-—=]\s*(.*?)\s*$")
 
 
+#: Short words a wrapped cell may put on a line of their own.
+_WORDS = {"a", "o", "e", "à", "ao", "as", "os", "da", "de", "do", "em", "na", "no", "ou", "se", "um"}
+#: A Portuguese word does not end like this; a line after it finishes the word.
+_CUT = r"(?:[bcdfgjkpqtvx]|[bcdfgjkpqtvx]i)$"
+_TYPES = {"caracter", "caractere", "numérico", "numerico", "char"}
+
+
+def _fits(codes: dict[str, str], width: int) -> bool:
+    """Every code fits the declared width, or continues the run of those that do.
+
+    TUBE ``SITUA_ENCE`` is declared varchar2(1) and lists 1 to 10; the kit's
+    ``encerra.cnv`` agrees on 10 (2026-10-03). A parse of prose fails anyway:
+    its "codes" do not count on from the ones that fit.
+    """
+    fitting = [c for c in codes if len(c) <= width]
+    over = [c for c in codes if len(c) > width]
+    if not over:
+        return True
+    if not fitting or not all(c.isdigit() for c in codes):
+        return False
+    top = max(int(c) for c in fitting)
+    return sorted(int(c) for c in over) == list(range(top + 1, top + 1 + len(over)))
+
+
 def _categories(cell: str) -> dict[str, str]:
     codes: dict[str, str] = {}
     aliases: dict[str, list[str]] = {}
@@ -119,6 +143,7 @@ def _categories(cell: str) -> dict[str, str]:
     cell = re.sub(r"(\b\d{1,2})\s*\n\s*([–—-])", r"\1 \2", cell)  # "4\n– via pública"
     cell = re.sub(r"(?<=[a-zà-ú)])\s*(\d{1,2})(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-zà-ú])", r"\n\1 ", cell)
     cell = re.sub(r"(?<=[a-zà-ú)])\s+(\d{1,2})\s*[–—]\s+", r"\n\1 – ", cell)
+    cell = re.sub(r"(?<=[a-zà-ú)])\s+(\d{1,2})-\s*(?=[a-zà-ú]{3})", r"\n\1 – ", cell)
     for raw in re.split(r"\n|;", cell):
         line = raw.strip()
         if not line:
@@ -136,7 +161,12 @@ def _categories(cell: str) -> dict[str, str]:
             last = code
             codes[last] = m.group(3)
         elif last is not None:
-            joiner = "" if codes[last].endswith("/") or not codes[last] else " "
+            # A lone lowercase letter is the tail of a word the cell wrapped
+            # ("Inconclusiv\no"); a trailing hyphen joins too ("clínico-\nepidemiológico").
+            glued = (codes[last].endswith("/") or re.search(r"[a-zà-ú]-$", codes[last])
+                     or (re.fullmatch(r"[a-zà-ú]{1,2}", line)
+                         and (line not in _WORDS or re.search(_CUT, codes[last]))))
+            joiner = "" if glued or not codes[last] else " "
             codes[last] = f"{codes[last]}{joiner}{line}"
         else:
             return {}  # prose before any code: not a code list
@@ -148,11 +178,30 @@ def _categories(cell: str) -> dict[str, str]:
 
 
 def _rows(pdf_path: Path):
+    """Table rows, with a row the page break split joined back together.
+
+    A field whose code list runs past the page ends goes on as the next page's
+    first row, its leading cells empty (ACBI ``TIPO_ACID`` stopped at code 04).
+    """
+    held: list[str] | None = None
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
+            first = True
             for table in page.extract_tables():
-                for row in table:
-                    yield [(c or "").strip() for c in row]
+                for raw in table:
+                    row = [(c or "").strip() for c in raw]
+                    filled = next((i for i, c in enumerate(row) if c), None)
+                    if (first and held is not None and filled and len(row) == len(held)
+                            and held[filled] and not any(_WIDTH.search(c) or _DBF.fullmatch(c)
+                                                         or c.lower() in _TYPES for c in row)):
+                        held[filled] = f"{held[filled]}\n{row[filled]}"
+                    else:
+                        if held is not None:
+                            yield held
+                        held = row
+                    first = False
+    if held is not None:
+        yield held
 
 
 def _parse_row(row: list[str]) -> tuple[str, dict[str, str]] | None:
@@ -167,14 +216,14 @@ def _parse_row(row: list[str]) -> tuple[str, dict[str, str]] | None:
     # SIM's dictionary: | 12- Situação Conjugal | ESTCIV | Caracter | 1 | categories | … |
     # (type and width in separate cells, the DBF name just before the type).
     for i, cell in enumerate(cells[:-2]):
-        if cell.lower() in ("caracter", "caractere", "numérico", "numerico", "char") and cells[i + 1].isdigit():
+        if cell.lower() in _TYPES and cells[i + 1].isdigit():
             width = int(cells[i + 1])
             name = cells[i - 1] if i > 0 else ""
             following = [row[k] for k in range(i + 2, len(row)) if row[k].strip()]
             if not following or not _DBF.fullmatch(name):
                 return None
             codes = _categories(following[0])
-            if len(codes) < 2 or any(len(c) > width for c in codes):
+            if len(codes) < 2 or not _fits(codes, width):
                 return None
             return name, codes
     for i, cell in enumerate(cells):
@@ -188,7 +237,7 @@ def _parse_row(row: list[str]) -> tuple[str, dict[str, str]] | None:
         codes = _categories(following[0])
         ends = [cells[0].split()[0] if cells[0] else "", cells[-1].split()[-1] if cells[-1] else ""]
         name = next((n for n in reversed(ends) if _DBF.fullmatch(n)), "")
-        if not name or len(codes) < 2 or any(len(c) > width for c in codes):
+        if not name or len(codes) < 2 or not _fits(codes, width):
             return None
         return name, codes
     return None

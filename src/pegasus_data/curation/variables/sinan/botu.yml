@@ -342,7 +342,7 @@ variables:
       secondary infection or wound botulism rather than neutralize circulating toxin.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 57 (Tratamento – Antibioticoterapia)
@@ -351,7 +351,7 @@ variables:
     translated_name: Antitoxin given after clinical sample collection
     description: For patients who received botulinum antitoxin, whether it was given after the
       clinical samples were collected (antitoxin can mask toxin detection).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 59 (Se recebeu soro antibotulínico, foi após a coleta do material clínico?)
@@ -363,7 +363,7 @@ variables:
       toxin''s effect on smooth muscle.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Boca seca)
@@ -371,7 +371,7 @@ variables:
     official_name: Presença de toxina botulínica na amostra bromatológica
     translated_name: Botulinum toxin in food (bromatological) sample
     description: Whether botulinum toxin was detected in the bromatological (food) sample.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 73 (Presença de toxina botulínica na amostra bromatológica)
@@ -383,7 +383,7 @@ variables:
       descending paralysis pattern.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Comprometimento da musculatura bulbar)
@@ -391,7 +391,7 @@ variables:
     official_name: Sinais e sintomas - Insuficiência cardíaca
     translated_name: Signs and symptoms - heart failure
     description: Whether the patient presented heart failure.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Insuficiência cardíaca)
@@ -403,7 +403,7 @@ variables:
       (STCOMERCIO) and restaurant (STRESTAURA) sources.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 47 (Produção do alimento suspeito – Caseira)
@@ -415,7 +415,7 @@ variables:
       signs.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Cefaléia)
@@ -424,7 +424,7 @@ variables:
     translated_name: Botulinum toxin in clinical sample
     description: Whether botulinum toxin was detected in a clinical sample from the patient (serum,
       stool or other).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 73 (Presença de toxina botulínica na amostra clínica)
@@ -436,7 +436,7 @@ variables:
       failure.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Coma)
@@ -448,7 +448,7 @@ variables:
       STCASEIRA and STRESTAURA.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 47 (Produção do alimento suspeito – Industrial/Comercial)
@@ -460,7 +460,7 @@ variables:
       mouth (STBOCA).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Constipação)
@@ -472,7 +472,7 @@ variables:
       unlike the ascending paralysis of Guillain-Barré syndrome.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Fraqueza descendente)
@@ -483,7 +483,7 @@ variables:
       symptom that can precede the disease''s characteristic neurological signs.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Diarréia)
@@ -494,7 +494,7 @@ variables:
       signs of botulism, typically appearing with ptosis (STPTOSE) and mydriasis (STMIDRIASE).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Diplopia)
@@ -506,7 +506,7 @@ variables:
       (STDISFONIA).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Disartria)
@@ -518,7 +518,7 @@ variables:
       nerves controlling the throat.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Disfagia)
@@ -530,7 +530,7 @@ variables:
       botulism''s symptom checklist.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Disfonia)
@@ -542,7 +542,7 @@ variables:
       respiratory failure recorded in STRESPIRA.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Dispnéia)
@@ -554,7 +554,7 @@ variables:
       - used to trace where a shared contaminated food was served.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 53 (Local da ingestão – Domicílio)
@@ -566,7 +566,7 @@ variables:
       effect on neuromuscular transmission.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 65 (Exames complementares – Eletroneuromiografia)
@@ -578,7 +578,7 @@ variables:
       botulism outbreak.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 53 (Local da ingestão – Creche/escola)
@@ -587,7 +587,7 @@ variables:
     translated_name: Exposure to the food
     description: Whether the patient ate the suspect food once (single exposure) or several times
       (multiple exposure); drives DS_INGEST versus DS_INI_GES/DS_FIM_GES.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 49 (Exposição ao alimento)
@@ -611,7 +611,7 @@ variables:
       afebrile.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Febre)
@@ -619,7 +619,7 @@ variables:
     official_name: Sinais e sintomas - Ferimento
     translated_name: Signs and symptoms - wound
     description: Whether the patient has an open or healing wound (relevant to wound botulism).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Ferimento)
@@ -631,7 +631,7 @@ variables:
       shared the same contaminated food.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 53 (Local da ingestão – Festa)
@@ -643,7 +643,7 @@ variables:
       found.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Coletou material? – Fezes)
@@ -652,7 +652,7 @@ variables:
     translated_name: Stool test result
     description: Result of the botulinum toxin analysis of the stool sample (toxin present, absent,
       inconclusive or not done).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Resultado – Fezes)
@@ -660,7 +660,7 @@ variables:
     official_name: Sinais e sintomas - Flacidez de pescoço
     translated_name: Signs and symptoms - neck flaccidity
     description: Whether the patient presented neck muscle flaccidity (head drop).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Flacidez de pescoço)
@@ -679,7 +679,7 @@ variables:
     official_name: Exame neurológico - Fraqueza em membros inferiores
     translated_name: Neurological exam - lower-limb weakness
     description: Whether the neurological exam found weakness in the lower limbs.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Fraqueza em membros inferiores)
@@ -687,7 +687,7 @@ variables:
     official_name: Exame neurológico - Fraqueza em membros superiores
     translated_name: Neurological exam - upper-limb weakness
     description: Whether the neurological exam found weakness in the upper limbs.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Fraqueza em membros superiores)
@@ -699,7 +699,7 @@ variables:
       and double vision (STDIPLOPIA).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Midríase)
@@ -711,7 +711,7 @@ variables:
       signs.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Náusea)
@@ -723,7 +723,7 @@ variables:
       diplopia) that typically appear first in botulism.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Oftalmoparesia/Oftalmoplegia)
@@ -735,7 +735,7 @@ variables:
       group.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 53 (Local da ingestão – Outro)
@@ -747,7 +747,7 @@ variables:
       etc.).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Outros)
@@ -759,7 +759,7 @@ variables:
       that treatment group.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 57 (Tratamento – outros)
@@ -771,7 +771,7 @@ variables:
       than an abnormal sensation.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Parestesia)
@@ -783,7 +783,7 @@ variables:
       diplopia and mydriasis.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Ptose palpebral)
@@ -792,7 +792,7 @@ variables:
     translated_name: Respiratory failure
     description: Whether the patient presented respiratory failure (ventilatory support is recorded
       separately in STVENTILA).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Insuficiência respiratória)
@@ -804,7 +804,7 @@ variables:
       party settings.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 53 (Local da ingestão – Restaurante/Bar/Lanchonete)
@@ -816,7 +816,7 @@ variables:
       rather than a loss of normal sensation.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Alterações de sensibilidade)
@@ -824,7 +824,7 @@ variables:
     official_name: Exame neurológico - Fraqueza simétrica
     translated_name: Neurological exam - symmetric weakness
     description: Whether the neurological exam found symmetric weakness, typical of botulism.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 43 (Exame neurológico – Fraqueza simétrica)
@@ -832,7 +832,7 @@ variables:
     official_name: Tratamento - Soro antibotulínico
     translated_name: Treatment - botulinum antitoxin
     description: Whether the patient was treated with botulinum antitoxin (soro antibotulínico).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 57 (Tratamento – Soro antibotulínico)
@@ -840,7 +840,7 @@ variables:
     official_name: Material coletado - Soro
     translated_name: Material collected - serum
     description: Whether a serum sample was collected from the patient for botulinum toxin testing.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Coletou material? – Soro)
@@ -849,7 +849,7 @@ variables:
     translated_name: Result - serum
     description: Result of the botulinum toxin analysis of the serum sample (toxin present, absent,
       inconclusive or not done).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Resultado – Soro)
@@ -861,7 +861,7 @@ variables:
       presentation.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Tontura)
@@ -869,7 +869,7 @@ variables:
     official_name: Local da ingestão - Trabalho
     translated_name: Place of ingestion - workplace
     description: Whether the suspect food was eaten at the workplace.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 53 (Local da ingestão – Trabalho)
@@ -881,7 +881,7 @@ variables:
       and the reason cases are hospitalized in intensive care.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 57 (Tratamento – Assistência ventilatória)
@@ -889,7 +889,7 @@ variables:
     official_name: Sinais e sintomas - Visão turva
     translated_name: Signs and symptoms - blurred vision
     description: Whether the patient presented blurred vision.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Visão turva)
@@ -901,7 +901,7 @@ variables:
       botulism''s early prodrome.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 42 (Sinais e sintomas – Vômito)
@@ -913,7 +913,7 @@ variables:
       multiple suspect foods in the outbreak/case investigation.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Coletou material? – Alimento 1)
@@ -925,7 +925,7 @@ variables:
       (collection date); ST_ALI1COL covers the first item.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Coletou material? – Alimento 2)
@@ -984,7 +984,7 @@ variables:
     official_name: Tipo de toxina - Fezes
     translated_name: Toxin type - stool
     description: Botulinum toxin type (A, B, AB, E, F, G or other) found in the stool sample.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Tipo de toxina – Fezes)
@@ -1001,7 +1001,7 @@ variables:
     official_name: Tipo de toxina - Soro
     translated_name: Toxin type - serum
     description: Botulinum toxin type (A, B, AB, E, F, G or other) found in the serum sample.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Tipo de toxina – Soro)
@@ -1009,7 +1009,7 @@ variables:
     official_name: Tipo de toxina - Alimento 1
     translated_name: Toxin type - food 1
     description: Botulinum toxin type (A, B, AB, E, F, G or other) found in suspect food 1.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Tipo de toxina – Alimento 1)
@@ -1017,7 +1017,7 @@ variables:
     official_name: Tipo de toxina - Alimento 2
     translated_name: Toxin type - food 2
     description: Botulinum toxin type (A, B, AB, E, F, G or other) found in suspect food 2.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Tipo de toxina – Alimento 2)
@@ -1026,7 +1026,7 @@ variables:
     translated_name: Material collected - other
     description: Whether another food or clinical material (e.g. gastric or intestinal lavage,
       viscera, wound tissue) was collected for botulinum toxin or spore testing.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Coletou material? – Outros)
@@ -1043,7 +1043,7 @@ variables:
     translated_name: Motor nerve conduction
     description: 'Electroneuromyography motor nerve conduction result: normal, reduced amplitude,
       or slowing.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 68 (Neurocondução motora)
@@ -1052,7 +1052,7 @@ variables:
     translated_name: Repetitive nerve stimulation
     description: 'Electroneuromyography repetitive-stimulation result: normal, decrement (low
       frequency) or increment (high frequency).'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 69 (Estimulação repetitiva)
@@ -1061,7 +1061,7 @@ variables:
     translated_name: Sensory nerve conduction
     description: 'Electroneuromyography sensory nerve conduction result: normal, reduced amplitude,
       or slowing.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 67 (Neurocondução sensitiva)
@@ -1070,7 +1070,7 @@ variables:
     translated_name: Toxin type - other material
     description: Botulinum toxin type (A, B, AB, E, F, G or other) found in the other material
       collected.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Botulismo v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Botulismo/DIC_DADOS_Botulismo_v5.pdf,
       campo 60 (Tipo de toxina – Outro)

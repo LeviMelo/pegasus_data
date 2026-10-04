@@ -14,7 +14,7 @@ variables:
       form.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 47 (Antibióticos utilizados no tratamento – Ampicilina)
@@ -35,7 +35,7 @@ variables:
     translated_name: Antibiotic used - other
     description: Whether the patient was treated with another antibiotic not listed on
       the form (named in ANT_OUT_D).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 47 (Antibióticos utilizados no tratamento – Outro)
@@ -54,7 +54,7 @@ variables:
       recorded on the form.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 37 (Sinais e sintomas – Assintomático)
@@ -81,7 +81,7 @@ variables:
       treatment checklist.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 47 (Antibióticos utilizados no tratamento – Cloranfenicol)
@@ -108,7 +108,7 @@ variables:
     official_name: Sinais e sintomas - Constipação
     translated_name: Constipation
     description: Whether the typhoid fever patient presented constipation.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 37 (Sinais e sintomas – Constipação)
@@ -450,7 +450,7 @@ variables:
       checkboxes on the form.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 37 (Sinais e sintomas – Dissociação pulso/temperatura)
@@ -462,7 +462,7 @@ variables:
       the free-text OUTR_D1-D3 fields for other antibiotics.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 47 (Antibióticos utilizados no tratamento – Quinolona)
@@ -482,7 +482,7 @@ variables:
     translated_name: Suggested epidemiological link
     description: 'Most likely source of infection: untreated water, sewage exposure, suspect
       food, travel, other, or unknown.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 36 (Sugestão de vínculo com)
@@ -490,7 +490,7 @@ variables:
     official_name: Antibióticos utilizados no tratamento - Sulfametoxazol+Trimetoprima
     translated_name: Antibiotic used - sulfamethoxazole-trimethoprim
     description: Whether the patient was treated with sulfamethoxazole-trimethoprim.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 47 (Antibióticos utilizados no tratamento – Sulfametoxazol+Trimetoprima)
@@ -499,7 +499,7 @@ variables:
     translated_name: Signs and symptoms - rose spots
     description: Whether the patient presented roséola tífica (rose spots), the typhoid
       skin rash.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 37 (Sinais e sintomas – Roséola tífica)
@@ -508,7 +508,7 @@ variables:
     translated_name: Urine sample collected
     description: Whether a urine sample was collected for laboratory testing (enables
       the urine-culture fields).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 44 (Material coletado – Urina)
@@ -582,7 +582,7 @@ variables:
       on the typhoid fever symptom checklist.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Febre Tifóide v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Febre-Tifoide/DIC_DADOS_Febre_Tifoide_v5.pdf,
       campo 37 (Sinais e sintomas – Vômitos)

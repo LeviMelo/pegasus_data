@@ -14,7 +14,7 @@ variables:
       headache and myalgia; the same field name is reused on the pre-2007 dengue form.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Febre_Maculosa_v5.pdf, campo 33 (Sinais e Sintomas)
   ACIDO_PEPT:
@@ -302,7 +302,7 @@ variables:
       within six months. 1=Sim, 2=Não, 9=Ignorado.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 34
   ANT_ANEMIA:
@@ -4501,7 +4501,7 @@ variables:
       2=Não, 9=Ignorado.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Sinais Flogísticos)
   FLXRECEBI:
@@ -4782,7 +4782,7 @@ variables:
       (LER/DORT) case.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 51 (tempo de pausas)
   HEMATOLOG:
@@ -5393,13 +5393,13 @@ variables:
       the confirmatory test recorded in a separate field.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
   LAB_UREIA:
     official_name: Ureia
     translated_name: Blood urea
-    code_system: none
+    code_system: internal
     source: web
     source_ref: scielo.iec.gov.br/scieloOrg S1679-49742011000400013, hantavirus laboratory
       monitoring
@@ -5448,7 +5448,7 @@ variables:
       one of the clinical signs recorded for a work-related musculoskeletal disorder case.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Limitação de movimentos)
   MAIS_6HS:
@@ -5458,7 +5458,7 @@ variables:
       investigating a work-related repetitive strain injury (LER/DORT) case.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 51 (jornada superior a 6 horas)
   MANI_HEMOR:
@@ -5575,7 +5575,7 @@ variables:
       alongside pain and muscle weakness for a LER/DORT case.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Diminuição do movimento)
   MENTAL:
@@ -5813,7 +5813,7 @@ variables:
       used to characterize a work-related musculoskeletal disorder.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Diminuição de força muscular)
   NAUSEA:
@@ -5835,7 +5835,7 @@ variables:
       spots on the trunk; the same field name is carried by the pre-2007 dengue form.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Febre_Tifoide_v5.pdf, ficha de investigação, campo 37 (Sinais e Sintomas)
   NDUPLIC:
@@ -6402,7 +6402,7 @@ variables:
       an ergonomic risk factor recorded when investigating a LER/DORT case.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 51 (Prêmios de produção)
   PRE_MUNIRE:
@@ -6457,7 +6457,7 @@ variables:
       was reused earlier by the Doença de Chagas Aguda form. 1=Sim, 2=Não, 9=Ignorado.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 54
   REGIME:
@@ -6488,7 +6488,7 @@ variables:
       ergonomic exposure investigated in a repetitive strain injury case.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 51 (Movimentos repetitivos)
   RESUL_NS1:
@@ -6721,7 +6721,7 @@ variables:
       limb, one of the signs and symptoms screened for a work-related musculoskeletal disorder.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, item 49 (Alteração de sensibilidade)
   SG_UF:
@@ -6845,7 +6845,7 @@ variables:
       strain injury) case. 1 yes, 2 no, 9 ignored.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, campo 51
   TAREFAS:
@@ -6855,7 +6855,7 @@ variables:
       because of the LER/DORT condition under investigation. 1 yes, 2 no, 9 ignored.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_LERDORT_v5.pdf, campo 50
   TEMPO_FUMA:
@@ -7052,7 +7052,7 @@ variables:
       the diagnosis. 1=Positivo, 2=Negativo, 3=Inconclusivo, 4=Não realizado, 9=Ignorado.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
   TPRAPIDO2:
@@ -7062,7 +7062,7 @@ variables:
       TPRAPIDO1 under Brazil''s two-test rapid algorithm; same value scale as TPRAPIDO1.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
   TPRAPIDO3:
@@ -7072,7 +7072,7 @@ variables:
       and TPRAPIDO2 disagree; same value scale as the first two.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Aids_adulto_v5.pdf, campo 40
   TPTEMPO:

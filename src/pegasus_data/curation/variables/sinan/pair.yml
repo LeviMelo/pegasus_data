@@ -36,7 +36,7 @@ variables:
       no, or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_PAIR_v5.pdf, campo 50
   MEDICA:
@@ -58,7 +58,7 @@ variables:
       or situation not listed on the form (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
       (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 50 (Exposição concomitante
@@ -82,7 +82,7 @@ variables:
       which are ototoxic and add to the hearing damage (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
       (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 50 (Exposição concomitante
@@ -94,7 +94,7 @@ variables:
       a vestibular symptom checkbox recorded alongside tinnitus (ZUMBIDO).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – DRT PAIR — http://portalsinan.saude.gov.br/images/documentos/Agravos/DRT%20PAIR/DIC_DADOS_DRT_PAIR_v5.pdf
       (sources/dic_text/drt-pair__DIC_DADOS_DRT_PAIR_v5.txt), campo 51 (Sintomas – Tontura)

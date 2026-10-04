@@ -770,7 +770,7 @@ variables:
       node enlargement near the inoculation site.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Doença de Chagas Aguda — http://portalsinan.saude.gov.br/images/documentos/Agravos/Chagas/DIC_DADOS_Chagas_v5.pdf
       (sources/dic_text/doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.txt), campo 41 (Sinais

@@ -524,7 +524,7 @@ variables:
       lesions, per Ministry of Health treatment protocol.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose Tegumentar
       Americana/LTA_v5_instr.pdf, campo 44

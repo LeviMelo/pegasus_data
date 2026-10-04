@@ -431,7 +431,7 @@ variables:
       CLI_COMA, CLI_CONVUL and CLI_RIGIDE.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
       (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 40 (Sinais e sintomas
@@ -443,7 +443,7 @@ variables:
       checklist as CLI_ABAULA, CLI_CONVUL and CLI_RIGIDE.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
       (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 40 (Sinais e sintomas
@@ -454,7 +454,7 @@ variables:
     description: 'Whether the patient had seizures (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
       (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 40 (Sinais e sintomas
@@ -466,7 +466,7 @@ variables:
       sign, part of the same checklist as CLI_ABAULA and CLI_COMA.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
       (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 40 (Sinais e sintomas
@@ -479,7 +479,7 @@ variables:
       other etiology, Haemophilus or pneumococcal meningitis.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Meningite — https://portalsinan.saude.gov.br/images/documentos/Agravos/Meningite/DIC_DADOS_Meningite_v5.pdf
       (sources/dic_text/meningite__DIC_DADOS_Meningite_v5.txt), campo 51 (Se confirmado, especifique)

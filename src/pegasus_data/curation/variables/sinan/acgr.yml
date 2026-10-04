@@ -78,7 +78,7 @@ variables:
       or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf, campo 34
   MAIS_TRAB:
@@ -89,7 +89,7 @@ variables:
       how many if yes.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf, campo 56
   MIN_ACID:

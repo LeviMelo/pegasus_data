@@ -1291,7 +1291,7 @@ variables:
     description: 'Whether the violence notified includes child labour (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0/patch 5.1 – Violência interpessoal/autoprovocada
       — portalsinan.saude.gov.br, DIC_DADOS_NET_Violencias_v5.pdf (sources/dic_text/violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.txt),

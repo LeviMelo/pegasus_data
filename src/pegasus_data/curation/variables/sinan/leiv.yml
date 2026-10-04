@@ -158,7 +158,7 @@ variables:
     translated_name: Prescribed dose (mg/kg/day Sb+5)
     description: Band of the prescribed pentavalent antimonial dose in mg Sb+5/kg/day
       (10-<15, 15-<20, >=20); filled when the initial drug is a pentavalent antimonial.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Leishmaniose Visceral v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leishmaniose%20Visceral/DIC_DADOS_LV_v5.pdf,
       campo 41 (Dose prescrita em mg/kg/dia Sb+5)

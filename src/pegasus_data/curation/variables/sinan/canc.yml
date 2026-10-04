@@ -12,7 +12,7 @@ variables:
     description: Whether the worker was exposed to tar, pitch, bitumen, mineral coal,
       paraffin and their products or residues at work at any time during their working
       life.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
       — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
@@ -24,7 +24,7 @@ variables:
     translated_name: Occupational exposure - Aromatic amines
     description: Whether the worker was exposed to aromatic amines at work at any time
       during their working life.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
       — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
@@ -35,7 +35,7 @@ variables:
     translated_name: Occupational exposure - Benzene or its toxic homologues
     description: Whether the worker was exposed to benzene or its toxic homologues at
       work at any time during their working life.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
       — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
@@ -46,7 +46,7 @@ variables:
     translated_name: Occupational exposure - Cadmium or its compounds
     description: Whether the worker was exposed to cadmium or its compounds at work at
       any time during their working life.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
       — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
@@ -57,7 +57,7 @@ variables:
     translated_name: Occupational exposure - Chromium or its toxic compounds
     description: Whether the worker was exposed to chromium or its toxic compounds at
       work at any time during their working life.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
       — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
@@ -117,7 +117,7 @@ variables:
     description: Whether the worker was exposed to antineoplastic (chemotherapy) drugs
       at work at any time during their working life. Not a confirmation of the cancer
       diagnosis.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
       — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,
@@ -139,7 +139,7 @@ variables:
     translated_name: Occupational exposure - Mineral oils
     description: Whether the worker was exposed to mineral oils at work at any time during
       their working life.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Câncer Relacionado ao Trabalho v5
       — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtc/DIC_DADOS_DRT_Cancer_v5.pdf,

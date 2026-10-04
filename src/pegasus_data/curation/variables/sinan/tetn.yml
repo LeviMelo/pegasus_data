@@ -35,7 +35,7 @@ variables:
       no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -62,7 +62,7 @@ variables:
       inpatient units and death records to gauge under-reporting (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -74,7 +74,7 @@ variables:
       were registered and trained (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -94,7 +94,7 @@ variables:
       both, none, or other.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -143,7 +143,7 @@ variables:
       or other.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -156,7 +156,7 @@ variables:
       for the umbilical stump (1 yes, 2 no, 9 unknown).
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -208,7 +208,7 @@ variables:
       ability to suckle (before trismus appears) is often the first sign parents notice.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -232,7 +232,7 @@ variables:
       card), not vaccinated, or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -244,7 +244,7 @@ variables:
       (casa de parto) or other.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -382,7 +382,7 @@ variables:
       to five, six or more, none.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),
@@ -394,7 +394,7 @@ variables:
       to five or more.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET v5.0 – Tétano Neonatal — portalsinan.saude.gov.br,
       DIC_DADOS_Tetano_NeoNatal_v5.pdf (sources/dic_text/tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.txt),

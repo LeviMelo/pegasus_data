@@ -13,7 +13,7 @@ variables:
       — a local-outbreak indicator, not the patient''s own medical history.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 34
   ANT_CB_CAI:
@@ -52,7 +52,7 @@ variables:
       exposure route via Leptospira-contaminated fresh water.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
   ANT_CB_CRI:
@@ -63,7 +63,7 @@ variables:
       source of Leptospira contamination.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
   ANT_CB_FOS:
@@ -74,7 +74,7 @@ variables:
       route through rodent-contaminated waste water.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
   ANT_CB_GRA:
@@ -96,7 +96,7 @@ variables:
       recorded in Brazilian urban outbreaks.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
   ANT_CB_LAV:
@@ -140,7 +140,7 @@ variables:
       urine spreads Leptospira bacteria.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
   ANT_CB_OUT:
@@ -151,7 +151,7 @@ variables:
       a free-text field naming the exposure.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
   ANT_CB_PLA:
@@ -173,7 +173,7 @@ variables:
       Leptospira in its urine.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 33
   ANT_CB_SIN:
@@ -204,7 +204,7 @@ variables:
       began.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Leptospirose_v5.pdf, campo 34
   ANT_OU_DES:
@@ -292,7 +292,7 @@ variables:
       around it.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Leptospirose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leptospirose/DIC_DADOS_Leptospirose_v5.pdf,
       campo 36 (Sinais e sintomas – Dor na panturrilha)
@@ -1047,7 +1047,7 @@ variables:
     translated_name: Immunohistochemistry result
     description: Result of immunohistochemistry for Leptospira (positive, negative, inconclusive,
       not done). Not a serology result.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Leptospirose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leptospirose/DIC_DADOS_Leptospirose_v5.pdf,
       campo 58 (Imunohistoquímica – Resultado)
@@ -1056,7 +1056,7 @@ variables:
     translated_name: Culture/isolation result
     description: Result of Leptospira isolation by culture (positive, negative, inconclusive,
       not done).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Leptospirose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leptospirose/DIC_DADOS_Leptospirose_v5.pdf,
       campo 56 (Isolamento – Resultado)
@@ -1065,7 +1065,7 @@ variables:
     translated_name: RT-PCR result
     description: Result of the RT-PCR test for Leptospira (positive, negative, inconclusive,
       not done).
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Leptospirose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Leptospirose/DIC_DADOS_Leptospirose_v5.pdf,
       campo 60 (RT-PCR – Resultado)

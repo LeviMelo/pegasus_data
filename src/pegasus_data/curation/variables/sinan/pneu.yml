@@ -30,7 +30,7 @@ variables:
     official_name: 'Agravos associados - Limitação crônica ao fluxo aéreo'
     translated_name: 'Associated condition: chronic airflow limitation'
     description: 'Whether chronic airflow limitation is present as a condition associated with the pneumoconiosis.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 46 (Agravos associados – Limitação crônica ao fluxo aéreo)'
   OUTRO_DOE:
@@ -54,35 +54,35 @@ variables:
     official_name: 'Confirmação diagnóstica - Outro'
     translated_name: 'Diagnosis confirmed by another exam'
     description: 'Whether the diagnosis was confirmed by an exam or test other than biopsy or high-resolution chest CT.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 54 (Confirmação diagnóstica – Outro)'
   POEIRAS:
     official_name: 'A exposição a poeiras e minerais ocorreu em um ou mais vínculos distintos da empresa'
     translated_name: 'Dust exposure in other employment bonds'
     description: 'Whether exposure to dusts and minerals also occurred in one or more employment bonds other than the current company; details go in VINC_ESP.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 49 (A exposição a poeiras e minerais ocorreu em um ou mais vínculos distintos da empresa)'
   POE_ABRASI:
     official_name: 'Agentes de exposição - Poeiras de abrasivos'
     translated_name: 'Exposure agent: abrasive dust'
     description: 'Whether the worker was exposed to abrasive dust, one of the exposure agents listed on the pneumoconiosis form.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 51 (Agentes de exposição – Poeiras de abrasivos)'
   POE_MISTA:
     official_name: 'Agentes de exposição - Poeira mista (silicato, talco)'
     translated_name: 'Exposure agent: mixed dust (silicate, talc)'
     description: 'Whether the worker was exposed to mixed dust such as silicates or talc, one of the exposure agents listed on the form.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 51 (Agentes de exposição – Poeira mista (silicato, talco))'
   POE_ORGANI:
     official_name: 'Agentes de exposição - Poeiras orgânicas'
     translated_name: 'Exposure agent: organic dust'
     description: 'Whether the worker was exposed to organic dust, one of the exposure agents listed on the form.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 51 (Agentes de exposição – Poeiras orgânicas)'
   STAVALIA:
@@ -107,14 +107,14 @@ variables:
       "other disease" captured by OUTRO_DOE/OUT_DOE_DE.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 46 (Agravos associados – Tireoidite)'
   TOMOGRAFIA:
     official_name: 'Confirmação diagnóstica - Tomografia de tórax de alta resolução'
     translated_name: 'Diagnosis confirmed by high-resolution chest CT'
     description: 'Whether the pneumoconiosis diagnosis was confirmed by high-resolution chest CT.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Pneumoconioses — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtpneumo/DIC_DADOS_DRT_Pneumoconioses_v5.pdf, campo 54 (Confirmação diagnóstica – Tomografia de tórax de alta resolução)'
   VINC_ESP:

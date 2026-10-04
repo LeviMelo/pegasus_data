@@ -44,7 +44,7 @@ variables:
       14 other, 99 ignored.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Intoxicacao_Exogena_v5.pdf, campo 49
   ATIVIDA_1:
@@ -158,7 +158,7 @@ variables:
       public area, another setting, or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_Intoxicacao_Exogena_v6_26.02.2026.pdf, campo 34
   LOC_EXP_DE:

@@ -14,7 +14,7 @@ variables:
       strain. 1 yes, 2 no.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_TranstornosMentais_v5.pdf, campo 52
   ALCOOL:

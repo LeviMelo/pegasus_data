@@ -5,6 +5,16 @@
 system: SINAN
 series:
   ACBI:
+    AGENTE:
+      codes:
+        '1': Agulha com lúmen (luz)
+        '2': Agulha sem lúmen/maciça
+        '3': Intracath
+        '4': Vidros
+        '5': Lâmina/lanceta (qualquer tipo)
+        '6': Outros
+        '9': Ignorado
+      source_ref: acbi_dic.pdf
     ANTI_HBS:
       codes:
         '1': Positivo
@@ -25,7 +35,7 @@ series:
       codes:
         '1': Positivo
         '2': Negativo
-        '3': Inconclusiv o
+        '3': Inconclusivo
         '4': Não realizado
         '9': Ignorado
       source_ref: acbi_dic.pdf
@@ -166,13 +176,36 @@ series:
         '2': Empregado não registrado
         '3': Autônomo/cont a própria
         '4': Servidor público estatuário
+        '5': Servidor público celetista
+        '6': Aposentado
+        '7': Desempregado
+        '8': Trabalho temporário
+        '9': Cooperativado
+        '10': Trabalhador avulso
+        '11': Empregador
+        '12': Outros
+        '99': Ignorado
       source_ref: acbi_dic.pdf
     TIPO_ACID:
       codes:
         '01': Administ. de medicação endovenosa
         '02': Administ. de medicação intramuscular
         '03': Administ. de medicação subcutânea
-        '04': Administ. de
+        '04': Administ. de medicação intradérmica
+        '05': Punção venosa/arterial para coleta de sangue
+        '06': Punção venosa/arterial não especificada
+        '07': Descarte inadequado de material perfuro/cortante em saco de lixo
+        08: Descarte inadequado de material perfuro/cortante em bancada, cama, chão, etc
+        09: Lavanderia
+        '10': Lavagem de material
+        '11': Manipulação de caixa com material perfuro/cortante
+        '12': Procedimento cirúrgico
+        '13': Procedimento odontológico
+        '14': Procedimento laboratorial
+        '15': Dextro
+        '16': Reencape
+        '98': Outros
+        '99': Ignorado
       source_ref: acbi_dic.pdf
     TPTEMPO:
       codes:
@@ -214,7 +247,9 @@ series:
         '3': Incapacidade parcial permanente
         '4': Incapacidade total permanente
         '5': Óbito por acidente de trabalho grave
-        '6': Óbito por outras
+        '6': Óbito por outras causas
+        '7': Outro
+        '9': Ignorado
       source_ref: drt-acidente-de-trabalho-grave__DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf
     LOCAL_ACID:
       codes:
@@ -250,6 +285,15 @@ series:
         '01': Olho
         '02': Cabeça
         '03': Pescoço
+        '04': Tórax
+        '05': Abdome
+        '06': Mão
+        '07': Membro superior
+        08: Membro inferior
+        09: Pé
+        '10': Todo o corpo
+        '11': Outro
+        '99': Ignorado
       source_ref: drt-acidente-de-trabalho-grave__DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf
     PART_CORP3:
       codes:
@@ -279,7 +323,15 @@ series:
         '02': Empregado não registrado
         '03': Autônomo/conta própria
         '04': Servidor público estatuário
-        '05': Servidor público
+        '05': Servidor público celetista
+        '06': Aposentado
+        '07': Desempregado
+        08: Trabalho temporário
+        09: Cooperativado
+        '10': Trabalhador avulso
+        '11': Empregador
+        '12': Outros
+        '99': Ignorado
       source_ref: drt-acidente-de-trabalho-grave__DIC_DADOS_DRT_Acidente_Trabalho_grave_v5.pdf
     TIPO_ACID:
       codes:
@@ -623,7 +675,7 @@ series:
         '31': Heterosexual/Droga
         '32': Heterosexual/Hemofílico
         '33': Hetero/Transfusão
-        '34': Heterosexual/Droga/Hemofíli co
+        '34': Heterosexual/Droga/Hemofílico
         '35': Hetero/Droga/Transfusão
         '36': Hetero c/parceria de risco indefinido
         '40': Drogas
@@ -1486,7 +1538,7 @@ series:
     CRITERIO:
       codes:
         '1': Laboratorial
-        '2': Clínico-
+        '2': Clínico-epidemiológico
       source_ref: botulismo__DIC_DADOS_Botulismo_v5.pdf
     DOENCA_TRA:
       codes:
@@ -1513,6 +1565,14 @@ series:
         '1': Presença de toxina
         '2': Ausência de toxina
         '3': Inconclusivo
+        '4': Não realizado
+      source_ref: botulismo__DIC_DADOS_Botulismo_v5.pdf
+    RESALIMOUT:
+      codes:
+        '1': Presença de toxina
+        '2': Ausência de toxina
+        '3': Inconclusivo
+        '4': Não realizado
       source_ref: botulismo__DIC_DADOS_Botulismo_v5.pdf
     STALIMENTO:
       codes:
@@ -1602,6 +1662,7 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       source_ref: botulismo__DIC_DADOS_Botulismo_v5.pdf
     STDIPLOPIA:
       codes:
@@ -1631,6 +1692,7 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       source_ref: botulismo__DIC_DADOS_Botulismo_v5.pdf
     STDOMICILI:
       codes:
@@ -1792,6 +1854,7 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       source_ref: botulismo__DIC_DADOS_Botulismo_v5.pdf
     STSORORES:
       codes:
@@ -2075,7 +2138,17 @@ series:
       codes:
         '01': Empregado registrado com carteira assinada
         '02': Empregado não registrado
-        '03': Autônomo/conta
+        '03': Autônomo/conta própria
+        '04': Servidor público estatuário
+        '05': Servidor público celetista
+        '06': Aposentado
+        '07': Desempregado
+        08: Trabalho temporário
+        09: Cooperativado
+        '10': Trabalhador avulso
+        '11': Empregador
+        '12': Outros
+        '99': Ignorado
       source_ref: drt-cancer-relacionado-ao-trabalho__DIC_DADOS_DRT_Cancer_v5.pdf
     TPTEMPO:
       codes:
@@ -2137,12 +2210,16 @@ series:
       codes:
         '1': sim
         '2': não
-        '3': não se aplica 9- ignorado
+        '3': não se aplica
+        '9': ignorado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     CON_LOCAL:
       codes:
         '1': unidade de hemoterapia
         '2': domicílio
+        '3': laboratório
+        '4': outro
+        '9': ignorado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     CON_PROVAV:
       codes:
@@ -2164,7 +2241,7 @@ series:
     CRITERIO:
       codes:
         '1': laboratório
-        '2': clínico- epidemiológic o
+        '2': clínico-epidemiológico
         '3': clínico
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     DOENCA_TRA:
@@ -2187,27 +2264,28 @@ series:
     ELI_IGG_S1:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     ELI_IGG_S2:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     ELI_IGM_S1:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
+        '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     ELI_IGM_S2:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
@@ -2258,28 +2336,28 @@ series:
     HEM_IGG_S1:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
-        '4': não
+        '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     HEM_IGG_S2:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     HEM_IGM_S1:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     HEM_IGM_S2:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
@@ -2298,28 +2376,28 @@ series:
     IMU_IGG_S1:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     IMU_IGG_S2:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     IMU_IGM_S1:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     IMU_IGM_S2:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
@@ -2384,7 +2462,8 @@ series:
       codes:
         '1': sim
         '2': não
-        '3': não
+        '3': não realizado
+        '9': ignorado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     RES_HIST:
       codes:
@@ -2408,28 +2487,28 @@ series:
     TIT_IGG_S1:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     TIT_IGG_S2:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     TIT_IGM_S1:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     TIT_IGM_S2:
       codes:
         '1': reagente
-        '2': não- reagente
+        '2': não-reagente
         '3': inconclusivo
         '4': não realizado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
@@ -2437,7 +2516,7 @@ series:
       codes:
         '1': sim
         '2': não
-        '3': indeterminad o
+        '3': indeterminado
       source_ref: doenca-de-chagas-aguda__DIC_DADOS_Chagas_v5.pdf
     XENODIAG:
       codes:
@@ -2551,7 +2630,7 @@ series:
     CRITERIO:
       codes:
         '1': Laboratorial
-        '2': Clínico- epidemiológico
+        '2': Clínico-epidemiológico
       source_ref: colera__DIC_DADOS_Colera_v5.pdf
     CS_ANTIB:
       codes:
@@ -2676,6 +2755,7 @@ series:
       codes:
         '1': sim
         '2': não
+        '9': ignorado
       source_ref: colera__DIC_DADOS_Colera_v5.pdf
     EVOLUCAO:
       codes:
@@ -2740,6 +2820,7 @@ series:
       codes:
         '1': Laboratorial
         '2': Vínculo Epidemiológico
+        '3': Clínico
       source_ref: coqueluche__DIC_DADOS_Coqueluche_v5.pdf
     CS_ANTIBIO:
       codes:
@@ -2888,7 +2969,7 @@ series:
     MED_BLOQUE:
       codes:
         '1': Bloqueio vacinal
-        '2': Quimioprofilaxi a
+        '2': Quimioprofilaxia
         '3': Ambos
         '4': Não
         '9': Ignorado
@@ -3027,6 +3108,13 @@ series:
         '04': Solventes Orgânicos
         '05': Graxas
         '06': Óleo de Corte
+        '07': Resinas
+        08: Níquel
+        09: Cosméticos
+        '10': Madeiras
+        '11': Cromo
+        '12': Outros
+        '99': Ignorado
       source_ref: drt-dermatoses-ocupacionais__DIC_DADOS_DRT_Dermatoses_v5.pdf
     ASMA:
       codes:
@@ -3070,6 +3158,10 @@ series:
         '3': Incapacidade temporária
         '4': Incapacidade permanente parcial
         '5': Incapacidade permanente total
+        '6': Óbito por doença relacionada ao trabalho
+        '7': Óbito por outra causa
+        '8': Outro
+        '9': Ignorado
       source_ref: drt-dermatoses-ocupacionais__DIC_DADOS_DRT_Dermatoses_v5.pdf
     EVOL_AFAST:
       codes:
@@ -3140,7 +3232,16 @@ series:
         '01': Empregado registrado com carteira assinada
         '02': Empregado não registrado
         '03': Autônomo/conta própria
-        '04': Servidor público
+        '04': Servidor público estatuário
+        '05': Servidor público celetista
+        '06': Aposentado
+        '07': Desempregado
+        08: Trabalho temporário
+        09: Cooperativado
+        '10': Trabalhador avulso
+        '11': Empregador
+        '12': Outros
+        '99': Ignorado
       source_ref: drt-dermatoses-ocupacionais__DIC_DADOS_DRT_Dermatoses_v5.pdf
     TPTEMPO:
       codes:
@@ -3279,6 +3380,7 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       source_ref: difteria__DIC_DADOS_Difteria_v5.pdf
     CLI_PARALB:
       codes:
@@ -3341,6 +3443,14 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
+      source_ref: difteria__DIC_DADOS_Difteria_v5.pdf
+    EVOLUCAO:
+      codes:
+        '1': Cura c/ sequela
+        '2': Cura s/ sequela
+        '3': Óbito por difteria
+        '4': Óbito por outras causas
         '9': Ignorado
       source_ref: difteria__DIC_DADOS_Difteria_v5.pdf
     LAB_CULTUR:
@@ -3459,7 +3569,7 @@ series:
       source_ref: esquistossomose__DIC_DADOS_Esquistossomose_v5.pdf
     TRATANAO:
       codes:
-        '1': Contra- indicação
+        '1': Contra-indicação
         '2': Recusa
         '3': Ausente
         '9': Ignorado
@@ -3535,7 +3645,7 @@ series:
     CRITERIO:
       codes:
         '1': Laboratório
-        '2': Clínico- Epidemiológico
+        '2': Clínico-Epidemiológico
         '3': Clínico
       source_ref: febre-maculosa__DIC_DADOS_Febre_Maculosa_v5.pdf
     DIAGNO_LAB:
@@ -3748,6 +3858,7 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       source_ref: febre-tifoide__DIC_DADOS_Febre_Tifoide_v5.pdf
     ANT_OUTR:
       codes:
@@ -3810,7 +3921,7 @@ series:
         '2': Vizinhança
         '3': Trabalho
         '4': Creche/escola
-        '5': Posto de saúde/hospita l
+        '5': Posto de saúde/hospital
         '6': Outro Estado/Municí pio
         '7': Outros
         '8': Sem história de contato
@@ -4026,6 +4137,7 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       source_ref: febre-tifoide__DIC_DADOS_Febre_Tifoide_v5.pdf
   HANS:
     AVALIA_N:
@@ -4277,7 +4389,7 @@ series:
     CRITERIO:
       codes:
         '1': Laboratorial
-        '2': Clínico- Epidemiológi co
+        '2': Clínico-Epidemiológico
       source_ref: hantavirose__DIC_DADOS_Hantavirose_v5.pdf
     DESMATA_N:
       codes:
@@ -4360,7 +4472,7 @@ series:
       codes:
         '1': Normais
         '2': Aumenta dos COM desvio a esquerda
-        '3': Diminuíd os (Leucope nia)
+        '3': Diminuídos (Leucope nia)
         '4': Aumenta dos SEM desvio à esquerda
         '5': Não realizado
         '9': Ignorado
@@ -4370,6 +4482,7 @@ series:
         '1': positivo
         '2': negativo
         '3': inconclusivo
+        '4': não realizado
       source_ref: hantavirose__DIC_DADOS_Hantavirose_v5.pdf
     LAB_TGO:
       codes:
@@ -4382,7 +4495,8 @@ series:
       codes:
         '1': Sim
         '2': Não
-        '3': Não
+        '3': Não realizado
+        '9': Ignorado
       source_ref: hantavirose__DIC_DADOS_Hantavirose_v5.pdf
     LAB_TROMBO:
       codes:
@@ -4426,7 +4540,7 @@ series:
       codes:
         '1': Sim
         '2': Não
-        '3': Indeterminad o
+        '3': Indeterminado
       source_ref: hantavirose__DIC_DADOS_Hantavirose_v5.pdf
     TRANSPO_N:
       codes:
@@ -4590,7 +4704,7 @@ series:
     CLASSI_FIN:
       codes:
         '1': Confirmação laboratorial
-        '2': Confirmação clínico- epidemiológica
+        '2': Confirmação clínico-epidemiológica
         '3': Descartado
         '4': Cicatriz sorológica
         '8': Inconclusivo
@@ -4826,7 +4940,7 @@ series:
     ANT_EVLABO:
       codes:
         '1': Antes do pré-natal
-        '2': Durante o pré- natal
+        '2': Durante o pré-natal
         '3': Durante o parto
         '4': Após o parto
       source_ref: gestante-hiv__DIC_DADOS_Gestante_HIV_v5.pdf
@@ -4915,6 +5029,7 @@ series:
         08: Produção / formulação
         09: Outros
         '10': Não se aplica
+        '99': Ignorado
       source_ref: iexo_dic.pdf
     ATIVIDA_3:
       codes:
@@ -4960,6 +5075,8 @@ series:
         '2': Exposição
         '3': Reação adversa
         '4': Diagnóstico diferencial
+        '5': Síndrome de abstinência
+        '9': Ignorado
       source_ref: iexo_dic.pdf
     CRITERIO:
       codes:
@@ -5013,6 +5130,7 @@ series:
         '2': Aguda – repetida
         '3': Crônica
         '4': Aguda sobre crônica
+        '9': Ignorado
       source_ref: iexo_dic.pdf
     TPTEMPO:
       codes:
@@ -5141,7 +5259,7 @@ series:
         '2': Abandono
         '3': Óbito por LV
         '4': Óbito por outras causas
-        '5': Transferênci a
+        '5': Transferência
       source_ref: dic_lv.pdf
     FALENCIA:
       codes:
@@ -5669,6 +5787,10 @@ series:
         '07': Desempregado
         08: Trabalho temporário
         09: Cooperativado
+        '10': Trabalhador avulso
+        '11': Empregador
+        '12': Outros
+        '99': Ignorado
       source_ref: drt-ler-dort__DIC_DADOS_DRT_LERDORT_v5.pdf
     STRESS:
       codes: &id030
@@ -5964,6 +6086,9 @@ series:
         '5': F+ V
         '6': V + FG
         '7': FG
+        '8': M
+        '9': F+ M
+        '10': O
       source_ref: malaria__DIC_DADOS_Malaria_v5.pdf
     TPAUTOCTO:
       codes:
@@ -5983,7 +6108,11 @@ series:
         '7': Infecções por Pf com Quinina em 7 dias
         '8': Infecções por Pf de crianças com cápsulas retais de artesunato em 4 dias e dose única de
           Mefloquina no 3º dia e Primaquina no 5º ida
-        '9': Infecções mistas por Pv + Pf com Quinina em 3 dias,
+        '9': Infecções mistas por Pv + Pf com Quinina em 3 dias, doxiciclina em 5 dias e Primaquina em
+          7 dias
+        '10': Prevenção de recaída da malária por Pv com Cloroquina em dose única semanal durante 3 meses
+        '11': Malária grave e complicada
+        '99': 'Outro esquema utilizado (por médico) - descrever:'
       source_ref: malaria__DIC_DADOS_Malaria_v5.pdf
   MENI:
     ANT_AC:
@@ -6156,7 +6285,7 @@ series:
     CON_DIAGES:
       codes:
         '1': Meningococcemia
-        '2': Meningite Meningocócic a
+        '2': Meningite Meningocócica
         '3': Meningite Meningocócica com Meningococcemia
         '4': Meningite Tuberculosa
         '5': Meningite por outras bactérias
@@ -6164,7 +6293,7 @@ series:
         '7': Meningite Asséptica
         '8': Meningite por outra etiologia
         '9': Meningite por Hemófilo
-        '10': Meningite por
+        '10': Meningite por Pneumococo
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     DOENCA_TRA:
       codes:
@@ -6176,7 +6305,8 @@ series:
       codes:
         '1': alta
         '2': óbito por meningite
-        '3': óbito por outra
+        '3': óbito por outra causa
+        '9': ignorado
       source_ref: meningite__DIC_DADOS_Meningite_v5.pdf
     LAB_ASPECT:
       codes:
@@ -6266,6 +6396,9 @@ series:
         '4': Incapacidade permanente parcial
         '5': Incapacidade permanente total
         '6': Óbito por doença relacionada ao trabalho
+        '7': Óbito por outra causa
+        '8': Outro
+        '9': Ignorado
       source_ref: drt-transtorno-mental__DIC_DADOS_DRT_TranstornosMentais_v5.pdf
     FUMA:
       codes:
@@ -6552,6 +6685,7 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       source_ref: drt-pneumoconiose__DIC_DADOS_DRT_Pneumoconioses_v5.pdf
     BERILIO:
       codes:
@@ -6698,6 +6832,10 @@ series:
         '07': Desempregado
         08: Trabalho temporário
         09: Cooperativado
+        '10': Trabalhador avulso
+        '11': Empregador
+        '12': Outros
+        '99': Ignorado
       source_ref: drt-pneumoconiose__DIC_DADOS_DRT_Pneumoconioses_v5.pdf
     STAVALIA:
       codes:
@@ -6811,7 +6949,7 @@ series:
       codes:
         '1': Laboratório
         '2': Óbito com clínica compatível + vínculo epidemiológico
-        '3': Evolução clínica
+        '3': Evolução clínica incompatível
       source_ref: raiva-humana__DIC_DADOS_Raiva_v5.pdf
     DILACERANT:
       codes:
@@ -6923,6 +7061,7 @@ series:
       codes:
         '1': Sim
         '2': Não
+        '9': Ignorado
       source_ref: raiva-humana__DIC_DADOS_Raiva_v5.pdf
     OUTRO:
       codes:
@@ -6984,6 +7123,12 @@ series:
         '9': Ignorado
       source_ref: raiva-humana__DIC_DADOS_Raiva_v5.pdf
     TRONCO:
+      codes:
+        '1': Sim
+        '2': Não
+        '9': Ignorado
+      source_ref: raiva-humana__DIC_DADOS_Raiva_v5.pdf
+    VACINAD:
       codes:
         '1': Sim
         '2': Não
@@ -7582,6 +7727,11 @@ series:
       codes:
         '1': médico
         '2': enfermeiro
+        '3': auxiliar de enfermagem
+        '4': parteira treinada
+        '5': parteira não treinada
+        '6': outros
+        '9': ignorado
       source_ref: tetano-neonatal__DIC_DADOS_Tetano_NeoNatal_v5.pdf
     CS_BUSCAAT:
       codes:
@@ -7921,6 +8071,8 @@ series:
         '6': Mudança de Diagnóstico
         '7': TB-DR
         '8': Mudança de Esquema
+        '9': Falência
+        '10': Abandono Primário
       source_ref: tuberculose__DICI_DADOS_NET_Tuberculose_23_07_2020.pdf
     TESTE_MOLEC:
       codes:
@@ -8227,6 +8379,7 @@ series:
         '1': Sim
         '2': Não
         '8': Não se aplica
+        '9': Ignorado
       source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
     REDE_EDUCA:
       codes:
@@ -8391,6 +8544,7 @@ series:
         '3': Viúvo
         '4': Separado
         '8': Não se aplica
+        '9': Ignorado
       source_ref: violencia-interpessoal-autoprovocada__DIC_DADOS_NET_Violencias_v5.pdf
     TOR:
       codes:

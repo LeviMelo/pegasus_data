@@ -10,7 +10,7 @@ variables:
     translated_name: Qualitative analysis (Hoffman)
     description: 'Result of the qualitative Hoffman sedimentation stool exam for schistosome
       eggs: positive, negative, or not done.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
       campo 35 (Análise qualitativa – Hoffman)
@@ -98,7 +98,7 @@ variables:
     translated_name: Cure-verification stool exam - sample 1
     description: 'Result of cure-verification stool sample 1 after treatment: zero eggs,
       one or more eggs, or not done.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
       campo 41 (Resultado da análise de verificação de cura – 1ª amostra)
@@ -116,7 +116,7 @@ variables:
     translated_name: Cure-verification stool exam - sample 3
     description: 'Result of cure-verification stool sample 3 after treatment: zero eggs,
       one or more eggs, or not done.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
       campo 41 (Resultado da análise de verificação de cura – 3ª amostra)
@@ -125,7 +125,7 @@ variables:
     translated_name: Treatment given
     description: 'Whether the patient was treated and with which drug: praziquantel, oxamniquine,
       not treated, or unknown.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
       campo 38 (Fez tratamento?)
@@ -134,7 +134,7 @@ variables:
     translated_name: Reason treatment was not given
     description: 'Reason the patient was not treated: contraindication, refusal, absence,
       or unknown.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Esquistossomose v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Esquistossomose/DIC_DADOS_Esquistossomose_v5.pdf,
       campo 40 (Caso não tenha feito tratamento, qual o motivo?)

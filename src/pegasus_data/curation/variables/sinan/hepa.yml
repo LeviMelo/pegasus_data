@@ -43,7 +43,7 @@ variables:
     translated_name: Exposure to contaminated water/food
     description: Whether the patient was exposed to contaminated water or food, and whether
       less or more than six months before the investigation.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
       campo 38 (O paciente foi submetido ou exposto à: Água e/ou alimento contaminado)'
@@ -100,7 +100,7 @@ variables:
       from HCV, the case''s final etiologic classification.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
       campo 46 (Resultados sorológicos/virológicos – Anti-HCV)
@@ -393,7 +393,7 @@ variables:
     translated_name: Suspected hepatitis type
     description: 'Type of viral hepatitis the patient is suspected to have at notification:
       hepatitis A, hepatitis B/C, or unspecified.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
       campo 33 (Suspeita de)
@@ -437,7 +437,7 @@ variables:
     translated_name: Exposure to accident with biological material
     description: Whether the patient had an accident with biological material, and whether
       less or more than six months before the investigation. Not a specimen type.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
       campo 38 (O paciente foi submetido ou exposto à: Acidente com material biológico)'
@@ -479,7 +479,7 @@ variables:
     translated_name: Blood bank/CTA serology - total anti-HBc
     description: Total anti-HBc result from the blood bank or testing centre (CTA) that
       referred the patient.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
       campo 44 (Resultado da sorologia do banco de sangue ou CTA – Anti-HBc total)
@@ -488,7 +488,7 @@ variables:
     translated_name: Blood bank/CTA serology - anti-HCV
     description: Anti-HCV result from the blood bank or testing centre (CTA) that referred
       the patient.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – Hepatites Virais v5 — http://portalsinan.saude.gov.br/images/documentos/Agravos/Hepatites%20Virais/DIC_DADOS_Hepatite_v5.pdf,
       campo 44 (Resultado da sorologia do banco de sangue ou CTA – Anti-HCV)

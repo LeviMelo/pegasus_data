@@ -102,6 +102,6 @@ variables:
     official_name: 'Fez/Faz pré-natal'
     translated_name: Received prenatal care
     description: 'Whether the HIV-positive pregnant woman had or is having antenatal care.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – Gestante HIV — sources/dic_text/gestante-hiv__DIC_DADOS_Gestante_HIV_v5.txt (DIC_DADOS_Gestante_HIV_v5.pdf, portalsinan.saude.gov.br), campo 33 (Fez/Faz pré-natal)'

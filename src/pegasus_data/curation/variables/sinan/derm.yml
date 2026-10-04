@@ -20,7 +20,7 @@ variables:
     official_name: Teste epicutâneo positivo
     translated_name: Positive patch test
     description: Whether the epicutaneous (patch) test was positive.
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: Dicionário de Dados SINAN NET – DRT Dermatoses Ocupacionais v5 (DIC_DADOS_DRT_Dermatoses_v5.pdf,
       portalsinan.saude.gov.br), campo 51 (Teste epicutâneo positivo)
@@ -32,7 +32,7 @@ variables:
       part, or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Dermatoses_v5.pdf, campo 50
   LESAO_DES:

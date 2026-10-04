@@ -13,7 +13,7 @@ variables:
       3 inconclusive, 4 not done, 9 ignored.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 52
   ANTI_HCV:
@@ -24,7 +24,7 @@ variables:
       3 inconclusive, 4 not done, 9 ignored.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 52
   ANTI_HIV:
@@ -35,7 +35,7 @@ variables:
       4 not done, 9 ignored.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 52
   AVENTAL:
@@ -120,7 +120,7 @@ variables:
       in progress, not performed, or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 54
   FO_ANT_HCV:
@@ -132,7 +132,7 @@ variables:
       or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 54
   FO_ANT_HIV:
@@ -144,7 +144,7 @@ variables:
       or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 54
   FO_HBSAG:
@@ -155,7 +155,7 @@ variables:
       in progress, not performed, or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 54
   HBSAG:
@@ -178,7 +178,7 @@ variables:
       accident: yes, no, or unknown.
 
       '
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 55
   LUVA:
@@ -315,6 +315,6 @@ variables:
     official_name: 'Conduta no momento do acidente - Vacina contra hepatite B'
     translated_name: 'Hepatitis B vaccine given after the accident'
     description: 'Whether hepatitis B vaccination was part of the management adopted at the time of the accident (post-exposure conduct), not the worker''s prior vaccination history.'
-    code_system: none
+    code_system: internal
     source: layout_doc
     source_ref: 'Dicionário de Dados SINAN NET v5.0 – DRT Acidente de Trabalho com Exposição a Material Biológico — http://portalsinan.saude.gov.br/images/documentos/Agravos/drtmb/DIC_DADOS_DRT_Acidente_Trabalho_Biologico_v5.pdf, campo 55 (Conduta no momento do acidente – Vacina contra hepatite B)'
