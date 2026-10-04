@@ -44,3 +44,8 @@ Agreement is +0.94 bits and a conflict −5.9 bits. It cannot lift a typo pair, 
 **Rebuild speed (OQ-24).** `semantics --system SINASC` under cProfile (`data/probes/sem_sinasc*.prof`): 282 s, of which `persist_entries` took 172 s and a LIKE count over the 12.7M-row `code_tables` took 27 s.
 - The count is now a key range: 0.05 s.
 - An unchanged kit (same blob, same parser fingerprint) is no longer re-read: a repeat run takes 2 s instead of 179 s, with the same 1,128,320 SINASC rows.
+
+**APAC identifiers (OQ-19).** The 2002 pattern holds on 16 `.exe` files sampled at random from 2001–2006 and 12 states, with no reversal attempted:
+- patient CPFs pass the check digit on 0 of 528,517 values;
+- professional and director CPFs on 332,995 of 333,358;
+- `EXA_NUM` ⊂ `PAC_NUM` in all 15 files carrying both tables.
