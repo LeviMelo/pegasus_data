@@ -51,6 +51,8 @@ _EXPORTS: dict[str, str] = {
     "roles": ".semantics.column_roles",
     "event_types": ".semantics.event_types",
     "count_events": ".semantics.event_types",
+    "code_structure": ".semantics.code_structures",
+    "code_structures": ".semantics.code_structures",
     "Exploration": "._explore",
     "translate": "._translate",
     "TranslationImpossible": "._translate",
@@ -159,6 +161,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type checkers and editors only
         NothingPublished,
         PublishedEmpty,
     )
+    from .semantics.code_structures import code_structure, code_structures
     from .semantics.column_roles import roles
     from .semantics.event_types import count_events, event_types
 

@@ -1,0 +1,57 @@
+"""Code structures as data: trees as parent tables, lists as membership tables.
+
+Built by ``scripts/build_code_structures.py`` into the shipped resources
+``code_trees.parquet`` (ICD10, SIGTAP, CBO2002, CNAE20: code, label, level,
+parent, validity) and ``code_lists.parquet`` (the Ministry's concept lists:
+CID-BR-10, the ICD-10 tabulation lists 2 and 4, avoidable causes 0-4 and
+5-74, ICSAP; list, item, code). A model takes the shape from here (DESIGN
+§3.4): a tree's effects nest along ``parent``, a list's are carried by every
+member code.
+"""
+
+from __future__ import annotations
+
+from functools import lru_cache
+from pathlib import Path
+
+import pyarrow as pa
+import pyarrow.compute as pc
+import pyarrow.parquet as pq
+
+_RESOURCES = Path(__file__).resolve().parent.parent / "resources"
+
+
+@lru_cache(maxsize=2)
+def _table(name: str) -> pa.Table:
+    return pq.read_table(_RESOURCES / f"{name}.parquet")
+
+
+def code_structures() -> list[dict[str, object]]:
+    """Every structure served: its name, shape and size."""
+    trees = _table("code_trees")
+    lists = _table("code_lists")
+    out: list[dict[str, object]] = []
+    for name in sorted(set(trees.column("structure").to_pylist())):
+        part = trees.filter(pc.equal(trees.column("structure"), name))
+        out.append({"name": name, "shape": "tree", "nodes": part.num_rows,
+                    "levels": list(dict.fromkeys(part.column("level").to_pylist()))})
+    for name in sorted(set(lists.column("list").to_pylist())):
+        part = lists.filter(pc.equal(lists.column("list"), name))
+        out.append({"name": name, "shape": "list", "codes": part.num_rows,
+                    "items": len(set(part.column("item").to_pylist()))})
+    return out
+
+
+def code_structure(name: str) -> pa.Table:
+    """A tree's nodes (code, label, level, parent, valid_from, valid_to) or a list's memberships (item, code)."""
+    key = name.upper()
+    trees = _table("code_trees")
+    part = trees.filter(pc.equal(trees.column("structure"), key))
+    if part.num_rows:
+        return part.drop_columns(["structure"])
+    lists = _table("code_lists")
+    part = lists.filter(pc.equal(lists.column("list"), key))
+    if part.num_rows:
+        return part.drop_columns(["list"])
+    known = [s["name"] for s in code_structures()]
+    raise KeyError(f"no code structure {name!r}; served: {known}")

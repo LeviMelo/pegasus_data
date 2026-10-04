@@ -240,6 +240,30 @@ def events_cmd(
             console.print(f"  evidence: {row['evidence']}")
 
 
+@app.command(name="structure", rich_help_panel="UNDERSTAND")
+def structure_cmd(
+    name: Annotated[str | None, typer.Argument(help="ICD10, SIGTAP, CBO2002, CNAE20, CID-BR-10, ICSAP-GROUPS ...; none lists them")] = None,
+    out: Annotated[Path | None, typer.Option("--out", help="Write the structure as .csv or .parquet")] = None,
+    as_json: JsonOpt = False,
+) -> None:
+    """A code structure as data: a tree's nodes and parents, or a list's member codes."""
+    from ..semantics.code_structures import code_structure, code_structures
+
+    if name is None:
+        _emit(code_structures(), as_json, "code structures")
+        return
+    table = code_structure(name)
+    if out is not None:
+        import pyarrow.csv as pacsv
+        import pyarrow.parquet as pq
+
+        (pq.write_table if out.suffix == ".parquet" else pacsv.write_csv)(table, out)
+        console.print(f"wrote {out} ({table.num_rows:,} rows)")
+        return
+    _emit({"rows": table.num_rows, "columns": table.column_names, "first": table.slice(0, 5).to_pylist()},
+          as_json, f"structure {name}")
+
+
 @app.command(name="info", rich_help_panel="UNDERSTAND")
 def info_cmd(
     target: Annotated[str | None, typer.Argument(help="System, dataset or variable: SIH, SIH-RD, SIH.RD")] = None,

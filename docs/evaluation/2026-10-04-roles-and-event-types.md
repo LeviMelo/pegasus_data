@@ -37,3 +37,5 @@
 **SINAN confirmed cases** are declared only where the form's own classification table names them: DENG, CHIK, LEPT, MENI and IEXO.
 
 Probes: `$TEMP/accept/ours22.py`, `deng.py`; `$TEMP/rolecheck/agree.py`.
+
+**Code structures (handoff §5).** `code_trees.parquet`: ICD10 14,560 nodes (22 chapters, groups, categories, subcategories), SIGTAP 6,217, CBO2002 3,574, CNAE20 2,005; every node below the top level has a parent. `code_lists.parquet`: CID-BR-10 12,075 codes, ICD-10 lists 2 and 4, avoidable causes 0–4 and 5–74 (14,263 each), ICSAP groups 649 and conditions 644; no code sits in two items of one list. Spot check: I219 → I21 → I20-I25 → IX; I219 is CID-BR-10 "068.1 Infarto agudo do miocárdio", J45 is ICSAP "7. Asma". Not served: the morbidity list, GBD, ICD-9 → ICD-10 (OQ-69).
